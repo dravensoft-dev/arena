@@ -668,3 +668,27 @@ test('the shipped vocabulary makes ArenaButton default to primary and no other c
     .filter(([, families]) => families.emphasis === 'arena-emphasis-primary').map(([name]) => name);
   assert.deepEqual(primary, ['ArenaButton']);
 });
+
+test('Angular interpolation and attr.class in a class attribute are a computed class, not a bare button', () => {
+  assert.deepEqual(defaultPrimaries('<arena-button class="arena-size-sm {{k}}">A</arena-button>\n<arena-button>B</arena-button>',
+    'src/app.html'), []);
+  assert.deepEqual(defaultPrimaries('<arena-button [attr.class]="k">A</arena-button>\n<arena-button>B</arena-button>',
+    'src/app.html'), []);
+});
+
+test('a bare button inside a conditional branch is not guessed at', () => {
+  assert.deepEqual(defaultPrimaries('const a = cond ? <ArenaButton>A</ArenaButton> : <ArenaButton>B</ArenaButton>;'), []);
+  assert.deepEqual(defaultPrimaries('{cond && <ArenaButton>A</ArenaButton>}\n{other && (\n<ArenaButton>B</ArenaButton>)}'), []);
+  assert.deepEqual(defaultPrimaries('@if (a) {\n<arena-button>A</arena-button>\n} @else {\n<arena-button>B</arena-button>\n}',
+    'src/app.html'), []);
+  assert.deepEqual(defaultPrimaries('<arena-button *ngIf="a">A</arena-button>\n<arena-button *ngIf="!a">B</arena-button>',
+    'src/app.html'), []);
+  assert.deepEqual(defaultPrimaries('<div *ngIf="a"><arena-button>A</arena-button></div>\n'
+    + '<div *ngIf="!a"><arena-button>B</arena-button></div>', 'src/app.html'), []);
+  assert.equal(defaultPrimaries('<ArenaButton>A</ArenaButton>\n<ArenaButton className="arena-emphasis-primary">B</ArenaButton>').length, 1,
+    'stated primaries still count');
+  assert.equal(defaultPrimaries('@if (a) {\n<arena-button>A</arena-button>\n}\n<arena-button>B</arena-button>\n<arena-button>C</arena-button>',
+    'src/app.html').length, 1, 'buttons outside the block are still counted');
+  assert.equal(defaultPrimaries('<div *ngIf="a">x</div>\n<arena-button>A</arena-button>\n<arena-button>B</arena-button>',
+    'src/app.html').length, 1, 'a closed element is not an ancestor');
+});
