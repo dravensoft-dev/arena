@@ -1,0 +1,32 @@
+<!-- @dsCard group="Tailwind" viewport="700x420" name="skeleton" subtitle="A box family: arena-skeleton-block is the default, line and circle change the shape, and three properties are the route for a size or a corner no shape names" -->
+<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../../../intro/styles.css">
+<link rel="stylesheet" href="../../consume/Preflight.generated.css">
+<link rel="stylesheet" href="../../consume/components/display/arena-skeleton/ArenaSkeleton.styles.generated.css">
+<link rel="stylesheet" href="../../consume/vocabulary/Skeleton.generated.css">
+<link rel="stylesheet" href="../../Specimen.css">
+</head><body><div id="root"></div>
+<script type="module">
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../Specimen.js';
+
+const manifest = await (await fetch('../../components/display/arena-skeleton/ArenaSkeleton.manifest.json')).json();
+
+function skeleton(option) {
+  const c = arenaClassesFor(manifest);
+  const d = arenaSlotDataFor(manifest);
+  return el('div', { class: `${c.root} ${option}`, ...d.root });
+}
+
+function set(style) {
+  const holder = el('div', { style: { display: 'contents', ...style } });
+  holder.append(skeleton(''));
+  return holder;
+}
+
+mountSpecimen({ sections: [
+  section('arena-skeleton-block, the default', [skeleton('arena-skeleton-block')], { stack: true }),
+  section('arena-skeleton-line', [skeleton('arena-skeleton-line')], { stack: true }),
+  section('arena-skeleton-circle', [skeleton('arena-skeleton-circle')]),
+  section('--arena-skeleton-width: 12rem, --arena-skeleton-height: 4rem and --arena-skeleton-radius: 0 on a container', [set({ '--arena-skeleton-width': '12rem', '--arena-skeleton-height': '4rem', '--arena-skeleton-radius': '0' })]),
+]});
+</script></body></html>

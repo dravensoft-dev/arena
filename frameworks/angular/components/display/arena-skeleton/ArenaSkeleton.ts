@@ -43,7 +43,7 @@ export class ArenaSkeleton {
     'block',
     { transform: (value) => value ?? 'block' },
   );
-  /** Number of rows when variant="text". The last runs short. */
+  /** How many lines of text the placeholder stands in for. Absent, it is one box in the shape its class names; given, it is a stack of that many lines, the last running short when there is more than one. */
   readonly lines = input<number, number | undefined>(3, { transform: (value) => value ?? 3 });
   /** CSS width, e.g. "100%" or "12rem". Defaults to full width. */
   readonly width = input<string>();

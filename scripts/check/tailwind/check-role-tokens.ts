@@ -248,7 +248,6 @@ export const SCALE_USES = new Map<string, string>([
   ['ArenaSideNav:section:gap-1', 'a section of a side nav, between its label and its items and between one item and the next: 4px of gap inside the component, which no role answers'],
   ['ArenaSideNav:sectionLabel:py-[calc(var(--sp-1)*1.5*var(--dz-row-scale-y))]', 'the label over a section of a side nav, above and below, a row at 6px before density scales it, where pad-row-y answers 10px: it keeps its own length and still re-densifies with the row factor'],
   ['ArenaSideNav:separator:my-1', 'the rule between sections of a side nav: 4px above and below of separation inside the component, which no role answers'],
-  ['ArenaSkeleton:root:rounded-surface', 'a block skeleton, standing in for a card or an image while it loads, whose corner is rounded-surface rather than the marker tier'],
   ['ArenaSkeleton:stack:gap-2.5', 'a skeleton of text lines, between one line and the next: 10px of gap inside the component, which no role answers'],
   ['ArenaSkipLink:root:py-2.5', 'the skip link, at 10px above and below, where pad-control-y answers 8px: the length is this slot\'s own and the role does not move it'],
   ['ArenaStatCard:delta:gap-1', 'the change a stat card reports under its value, between its arrow and its figure, at 4px, where gap-marker answers 6px: the length is this slot\'s own and the role does not move it'],

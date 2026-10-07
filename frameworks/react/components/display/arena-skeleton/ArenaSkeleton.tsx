@@ -19,7 +19,7 @@ export interface ArenaSkeletonProps {
   /** CSS height. Defaults per variant. For the `circle` variant a single diameter is what is wanted, so `height` wins over `width` when both are set. */
   height?: string;
 
-  /** Number of rows when variant="text". The last runs short. */
+  /** How many lines of text the placeholder stands in for. Absent, it is one box in the shape its class names; given, it is a stack of that many lines, the last running short when there is more than one. */
   lines?: number;
 
   /** CSS border radius. Defaults to a small token radius. */

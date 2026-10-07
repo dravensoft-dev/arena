@@ -253,8 +253,8 @@ export const CLAIMS = {
     { slot: 'title', has: ['font-face-heading', 'text-title-surface'], why: 'the eyebrow is the accent mono micro-label above the display-weight title' },
   ],
   ArenaSkeleton: [
-    { chosen: { variant: 'text' }, slot: 'root', has: ['arena-shimmer'], hasNot: ['hidden'], why: 'the text variant carries no root override; the host reads stack() for it, not root()' },
-    { slot: 'stack', has: ['flex-col'], why: 'the stack lays its lines in a column and is unaffected by variant' },
+    { slot: 'root', has: ['arena-shimmer', 'w-[var(--arena-skeleton-box-width,var(--arena-skeleton-width,100%))]'], hasNot: ['hidden'], why: 'the box reads its width, height and corner from the channels the shape option sets, each falling back to the block option\'s written value' },
+    { slot: 'stack', has: ['flex-col', 'w-[var(--arena-skeleton-width,100%)]'], why: 'a stack of lines is a column that reads the width property directly, and decides its own tree by lines rather than by a shape class' },
     { chosen: { last: false }, slot: 'line', has: ['w-full'], hasNot: ['w-[62%]'], why: 'a full line runs the whole width and only the closing one runs short' },
     { chosen: { last: true }, slot: 'line', has: ['w-[62%]'], why: 'the last line is narrower than the rest, the way a paragraph ends' },
   ],

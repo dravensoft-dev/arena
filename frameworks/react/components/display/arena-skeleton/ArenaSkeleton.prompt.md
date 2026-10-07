@@ -19,17 +19,13 @@ Loading placeholder for asynchronous data (H1). Use it in tables and dashboards 
 
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
-| `variant` | enum | `ArenaSkeletonVariant` | `"block"` | The shape the placeholder reserves. |
-| `width` | primitive | `string` |  | CSS width, e.g. "100%" or "12rem". Defaults to full width. |
-| `height` | primitive | `string` |  | CSS height. Defaults per variant. For the `circle` variant a single diameter is what is wanted, so `height` wins over `width` when both are set. |
-| `lines` | primitive | `number` | `3` | Number of rows when variant="text". The last runs short. |
-| `radius` | primitive | `string` |  | CSS border radius. Defaults to a small token radius. |
+| `lines` | primitive | `number` |  | How many lines of text the placeholder stands in for. Absent, it is one box in the shape its class names; given, it is a stack of that many lines, the last running short when there is more than one. |
 
 <!-- @api end -->
 
 <!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
 
-**Answers.** No family of the [vocabulary](../../../../VOCABULARY.md) decides anything in this component's own box.
+**Answers** [`skeleton`](../../../../VOCABULARY.md#skeleton): `arena-skeleton-block` (default), `arena-skeleton-circle`, `arena-skeleton-line`. Write one as `className="arena-skeleton-circle"` on the component, or on a container whose components should all take it. Property: `--arena-skeleton-width` (and `--arena-skeleton-height`, `--arena-skeleton-radius`), set on a container of yours for a value no option names.
 
 <!-- @answers end -->
 

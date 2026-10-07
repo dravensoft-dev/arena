@@ -29,6 +29,7 @@
 | [`scroller-item`](#scroller-item) | box | `arena-scroller-item-lg`, `arena-scroller-item-md` (default), `arena-scroller-item-sm` | `--arena-scroller-item` | ArenaScroller, ArenaScrollerItem |
 | [`shell`](#shell) | box | `arena-shell`, `arena-shell__main` |  | markup you write |
 | [`size`](#size) | context | `arena-size-2xl`, `arena-size-lg`, `arena-size-md` (default), `arena-size-sm`, `arena-size-xl`, `arena-size-xs` |  | ArenaAppLogo (`arena-size-lg`, `arena-size-md`, `arena-size-sm`, `arena-size-xl`), ArenaAvatar (`arena-size-lg`, `arena-size-md`, `arena-size-sm`, `arena-size-xs`), ArenaButton, ArenaIconButton, ArenaPeopleList, ArenaProgressBar and ArenaSpinner (`arena-size-lg`, `arena-size-md`, `arena-size-sm`), ArenaSegmentedControl (`arena-size-md`, `arena-size-sm`), ArenaSwitch (`arena-size-2xl`, `arena-size-lg`, `arena-size-md`, `arena-size-sm`, `arena-size-xl`) |
+| [`skeleton`](#skeleton) | box | `arena-skeleton-block` (default), `arena-skeleton-circle`, `arena-skeleton-line` | `--arena-skeleton-width`, `--arena-skeleton-height`, `--arena-skeleton-radius` | ArenaSkeleton |
 | [`sr-only`](#sr-only) | box | `arena-sr-only` |  | markup you write |
 | [`stack`](#stack) | box | `arena-stack`, `arena-stack--end`, `arena-stack--group`, `arena-stack--section`, `arena-stack--start` |  | markup you write |
 
@@ -238,6 +239,15 @@ How big a control, a meter, a face or a mark is drawn. The region a component si
   - ArenaButton, ArenaIconButton, ArenaPeopleList, ArenaProgressBar and ArenaSpinner (`arena-size-lg`, `arena-size-md`, `arena-size-sm`).
   - ArenaSegmentedControl (`arena-size-md`, `arena-size-sm`).
   - ArenaSwitch (`arena-size-2xl`, `arena-size-lg`, `arena-size-md`, `arena-size-sm`, `arena-size-xl`).
+
+## skeleton
+
+The shape of a loading placeholder that stands in for one box. The shapes are a block for a card or an image, a line for a run of text, and a circle for an avatar. The question is the adopter's, because only the page knows what is loading. arena-skeleton-block is the default. Set --arena-skeleton-width, --arena-skeleton-height and --arena-skeleton-radius on a container for a size or a corner no shape names. Write a length, or a token such as var(--sp-1) or calc(var(--sp-1) * 40). The radius is read by the block only. A line keeps the marker corner and a circle the pill, and a circle is one diameter, so its height wins over its width. A class on the placeholder wins over a property on its container. A placeholder given lines is a stack of text lines whatever its class, and reads only the width.
+
+- **Options:** `arena-skeleton-block` (default), `arena-skeleton-circle`, `arena-skeleton-line`.
+- **Reach:** box: it reaches the nearest component, and stops at the content that component projects.
+- **Property:** `--arena-skeleton-width`, `--arena-skeleton-height`, `--arena-skeleton-radius`, set on a container of yours for a value no option names, with a token or a derivation of tokens.
+- **Answered by:** ArenaSkeleton.
 
 ## sr-only
 

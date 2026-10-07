@@ -229,9 +229,6 @@ export const COMPUTED = new Map<string, { reads: string; why: string }>([
 ]);
 
 export const DESIGN_MEMBERS = new Map<string, Pending>([
-  ...[['ArenaSkeleton', 'width'],
-    ['ArenaSkeleton', 'height'], ['ArenaSkeleton', 'radius'], ['ArenaSkeleton', 'variant'],
-  ].map(([c, m]) => [at(c!, m!), { phase: 6, why: GEOMETRY }] as [string, Pending]),
   [field('arena-table-column', 'width'), { phase: 6, why: GEOMETRY }],
   [field('arena-table-column', 'align'), { phase: 6, why: GEOMETRY }],
 ]);
