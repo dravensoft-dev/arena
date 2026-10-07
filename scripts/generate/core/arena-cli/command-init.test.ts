@@ -182,15 +182,26 @@ test('a scripts field that is not an object exits 2 naming it and writes nothing
   }
 });
 
-test('a --config path that needs quoting is quoted in every script', () => {
+test('a --config path with a space is wrapped in plain double quotes, with no backslash escape, in every script', () => {
   const { cwd, io } = setup();
-  assert.equal(run(['--config', 'my config/a$b.json'], io), 0);
-  assert.equal(scriptsOf(cwd).prebuild, 'arena build --config "my config/a\\$b.json"');
-  assert.equal(scriptsOf(cwd)['arena:audit'], 'arena audit --strict --config "my config/a\\$b.json"');
+  assert.equal(run(['--config', 'my config/a b.json'], io), 0);
+  assert.equal(scriptsOf(cwd).prebuild, 'arena build --config "my config/a b.json"');
+  assert.equal(scriptsOf(cwd)['arena:audit'], 'arena audit --strict --config "my config/a b.json"');
   const plain = setup();
   run(['--config', 'conf/a-b_c.json'], plain.io);
   assert.equal(scriptsOf(plain.cwd).prebuild, 'arena build --config conf/a-b_c.json');
 });
+
+for (const bad of ['a"b.json', 'a$b.json', 'a`b.json', 'a%b%.json', 'a!b.json']) {
+  test(`a --config path holding a character no shell quotes the same way (${bad}) exits 2 naming it and writes nothing`, () => {
+    const { cwd, io, out, err } = setup();
+    assert.equal(run(['--config', bad], io), 2);
+    assert.deepEqual(out, []);
+    assert.deepEqual(err, [`arena init: --config ${bad} holds ", $, \`, % or !, which a package.json script cannot quote the same way under sh and cmd.exe; pick a path without them`]);
+    assert.equal(readFileSync(join(cwd, 'package.json'), 'utf8'), '{}\n');
+    assert.ok(!existsSync(join(cwd, bad)));
+  });
+}
 
 test('a CRLF package.json keeps CRLF line endings', () => {
   const { cwd, io } = setup(REACT, '{\r\n  "name": "app"\r\n}\r\n');

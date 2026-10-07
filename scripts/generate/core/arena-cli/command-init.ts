@@ -18,6 +18,12 @@ export function run(argv: string[], io: Io): number {
   const options = commandOptions('init', argv, io);
   if (typeof options === 'number') return options;
   const say = voice(io, 'init');
+  const typed = parseArgs('init', argv);
+  const typedConfig = typed.kind === 'options' ? typed.options.config : DEFAULT_CONFIG;
+  if (/["$`%!]/.test(typedConfig)) {
+    say.err(`--config ${typedConfig} holds ", $, \`, % or !, which a package.json script cannot quote the same way under sh and cmd.exe; pick a path without them`);
+    return 2;
+  }
   const env = resolveEnvironment(io.environment);
   if (env.arena === null) {
     say.err('arena init copies the example config an Arena package carries, and no Arena package is around this command');
@@ -65,9 +71,7 @@ export function run(argv: string[], io: Io): number {
     wroteConfig = true;
   }
 
-  const typed = parseArgs('init', argv);
-  const typedConfig = typed.kind === 'options' ? typed.options.config : DEFAULT_CONFIG;
-  const quoted = /^[\w./@:+,=-]+$/.test(typedConfig) ? typedConfig : `"${typedConfig.replace(/[\\"$`]/g, '\\$&')}"`;
+  const quoted = /^[\w./@:+,=-]+$/.test(typedConfig) ? typedConfig : `"${typedConfig}"`;
   const suffix = typedConfig === DEFAULT_CONFIG ? '' : ` --config ${quoted}`;
   const wanted: [string, string][] = [
     ...layer.map((script): [string, string] => [script, `arena build${suffix}`]),
