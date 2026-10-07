@@ -13,6 +13,7 @@ test('every option is indexed with its family and reach, and every answering com
     classes: { 'arena-fill': { family: 'fill', reach: 'box', target: 'component' }, 'arena-fit': { family: 'fill', reach: 'box', target: 'component' } },
     answers: { ArenaButton: ['fill'] },
     options: { ArenaButton: ['arena-fill', 'arena-fit'] },
+    defaults: { ArenaButton: { fill: 'arena-fit' } },
     axes: {},
   });
 });
@@ -36,6 +37,7 @@ test('an answers object narrows the options a component keeps', () => {
     [{ component: 'ArenaSheet', answers: [{ family: 'placement', options: ['arena-placement-end'], default: 'arena-placement-end' }] }], 'https://x/p');
   assert.deepEqual(index.answers, { ArenaSheet: ['placement'] });
   assert.deepEqual(index.options, { ArenaSheet: ['arena-placement-end'] });
+  assert.deepEqual(index.defaults, { ArenaSheet: { placement: 'arena-placement-end' } });
 });
 
 test('an axis an option reads is composed with the class and leaves the axes, so the audit does not call the pair a conflict', () => {

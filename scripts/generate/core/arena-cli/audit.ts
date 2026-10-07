@@ -308,6 +308,7 @@ export type VocabularyIndex = {
   answers: Record<string, string[]>;
   options: Record<string, string[]>;
   axes?: Record<string, string[]>;
+  defaults?: Record<string, Record<string, string>>;
 };
 
 export const VOCABULARY_INDEX = 'arena.vocabulary.json';
@@ -440,11 +441,25 @@ export function statedRung(attributes: string) {
 
 export const STATED_PRIMARY = /(?:^|\s)\[?(?:class|className)\]?\s*=\s*\{?\s*["'`]{1,2}[^"'`]*?(?<![\w-])arena-emphasis-primary(?![\w-])/;
 
+const EMPHASIS_OPTION = /(?<![\w-])arena-emphasis-[a-z]+(?![\w-])/;
+const DESTRUCTIVE = /(?:^|\s)\[?destructive\]?(?=[\s=/>]|$)/;
+const BARE_COMPUTED_CLASS = /(?:^|\s)(?:className\s*=\s*\{|\[(?:class|ngClass|class\.[a-z0-9-]+)\]\s*=)|\{\s*\.\.\./;
+
+export function pascalTag(name: string) {
+  return name.startsWith('arena-')
+    ? name.split('-').map((word) => word.slice(0, 1).toUpperCase() + word.slice(1)).join('')
+    : name;
+}
+
+export function bareOfEmphasis(raw: string) {
+  return !EMPHASIS_OPTION.test(raw) && !DESTRUCTIVE.test(raw) && !BARE_COMPUTED_CLASS.test(raw);
+}
+
 export function primaryMessage(first: number) {
   return `a second primary action on this screen, and the first is on line ${first}. Crimson is `
     + 'the voice, so at most one arena-emphasis-primary action stands in a view. Write '
     + 'arena-emphasis-secondary or arena-emphasis-ghost on the others, and keep the primary for the '
-    + 'one action the screen is for';
+    + 'one action the screen is for. A button with no emphasis class is primary too';
 }
 
 export const LINKABLE_TAGS = new Set([
@@ -527,6 +542,8 @@ export function structuralFindings(text: string, vocabulary: VocabularyIndex | n
   const rungs: number[] = [];
   let firstRung = 0;
   const primaries: number[] = [];
+  const bare: number[] = [];
+  let contextEmphasis = false;
   for (const m of text.matchAll(OPEN_TAG)) {
     const name = m[1] ?? '';
     const start = m.index ?? 0;
@@ -552,6 +569,13 @@ export function structuralFindings(text: string, vocabulary: VocabularyIndex | n
         found.push(at(lineAt(text, start), 'own-class', message));
 
     if (ARENA_TAG.test(name) && STATED_PRIMARY.test(attributes)) primaries.push(lineAt(text, start));
+    if (ARENA_TAG.test(name) || EMPHASIS_OPTION.test(attributes)) {
+      const component = pascalTag(name);
+      const answersEmphasis = (vocabulary?.answers[component] ?? []).includes('emphasis');
+      if (EMPHASIS_OPTION.test(attributes) && !answersEmphasis) contextEmphasis = true;
+      if (vocabulary?.defaults?.[component]?.emphasis === 'arena-emphasis-primary' && bareOfEmphasis(raw))
+        bare.push(lineAt(text, start));
+    }
 
     const links = LINK_TAG.test(name) || /(?:^|\s)\[?routerLink\]?\s*=/.test(attributes);
     if (!links || !ROUTER_ATTRIBUTE.test(attributes)) continue;
@@ -562,8 +586,9 @@ export function structuralFindings(text: string, vocabulary: VocabularyIndex | n
   }
   const gap = outlineGap(rungs);
   if (gap) found.push(at(firstRung, 'outline-gap', outlineMessage(gap[0], gap[1])));
-  for (const line of primaries.slice(1))
-    found.push(at(line, 'one-primary', primaryMessage(primaries[0] as number)));
+  const counted = (contextEmphasis ? primaries : [...primaries, ...bare]).sort((a, b) => a - b);
+  for (const line of counted.slice(1))
+    found.push(at(line, 'one-primary', primaryMessage(counted[0] as number)));
   return found;
 }
 

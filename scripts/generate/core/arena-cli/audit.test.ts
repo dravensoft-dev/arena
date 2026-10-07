@@ -599,3 +599,72 @@ test('a shape class and the property a family composes with are no conflict, and
   assert.equal(own('<arena-grid class="arena-grid-min-lg" [style.--arena-grid-min]="\'var(--sp-8)\'"></arena-grid>').length, 1);
   assert.equal(own('<arena-grid class="arena-grid-min-lg" style="--arena-grid-min: var(--sp-8)"></arena-grid>').length, 1);
 });
+
+const EMPHASIS_INDEX: VocabularyIndex = {
+  page: 'https://x/p',
+  classes: {
+    'arena-emphasis-primary': { family: 'emphasis', reach: 'context', target: 'component' },
+    'arena-emphasis-secondary': { family: 'emphasis', reach: 'context', target: 'component' },
+    'arena-emphasis-ghost': { family: 'emphasis', reach: 'context', target: 'component' },
+  },
+  answers: { ArenaButton: ['emphasis'], ArenaIconButton: ['emphasis'] },
+  options: {
+    ArenaButton: ['arena-emphasis-ghost', 'arena-emphasis-primary', 'arena-emphasis-secondary'],
+    ArenaIconButton: ['arena-emphasis-ghost'],
+  },
+  defaults: {
+    ArenaButton: { emphasis: 'arena-emphasis-primary' },
+    ArenaIconButton: { emphasis: 'arena-emphasis-ghost' },
+  },
+};
+
+function defaultPrimaries(source: string, path = 'src/App.tsx', vocabulary: VocabularyIndex | null = EMPHASIS_INDEX) {
+  return auditText(path, source, 'app', false, vocabulary).filter((line) => line.includes('one-primary'));
+}
+
+test('a button with no emphasis class is the primary, so a second one is reported', () => {
+  const two = defaultPrimaries('<ArenaButton>Save</ArenaButton>\n<ArenaButton>Publish</ArenaButton>');
+  assert.equal(two.length, 1);
+  assert.match(two[0] ?? '', /:2:/);
+  assert.match(two[0] ?? '', /a button with no emphasis class is primary too/i);
+  assert.equal(defaultPrimaries('<arena-button>Save</arena-button>\n<arena-button>Go</arena-button>',
+    'src/app.html').length, 1, 'the Angular tag is read the same way');
+  assert.equal(defaultPrimaries('<ArenaButton className="arena-emphasis-primary">A</ArenaButton>\n'
+    + '<ArenaButton>B</ArenaButton>').length, 1, 'a stated primary and a bare one are two primaries');
+});
+
+test('explicit-others: one bare primary among stated secondaries and ghosts is clean', () => {
+  assert.deepEqual(defaultPrimaries('<ArenaButton>Save</ArenaButton>\n'
+    + '<ArenaButton className="arena-emphasis-secondary">Cancel</ArenaButton>\n'
+    + '<ArenaButton className="arena-emphasis-ghost arena-size-sm">More</ArenaButton>\n'
+    + '<ArenaIconButton className="arena-emphasis-ghost" icon="ph-bold ph-x" label="Close" />'), []);
+});
+
+test('a destructive button and a class an expression decides are not counted as bare', () => {
+  assert.deepEqual(defaultPrimaries('<ArenaButton destructive>Retire</ArenaButton>\n<ArenaButton>Add</ArenaButton>'), []);
+  assert.deepEqual(defaultPrimaries('<arena-button [destructive]="true">Retire</arena-button>\n'
+    + '<arena-button>Add</arena-button>', 'src/app.html'), []);
+  assert.deepEqual(defaultPrimaries('<ArenaButton className={kind}>A</ArenaButton>\n<ArenaButton>B</ArenaButton>'), []);
+  assert.deepEqual(defaultPrimaries('<ArenaButton {...props}>A</ArenaButton>\n<ArenaButton>B</ArenaButton>'), []);
+});
+
+test('container: bare buttons under a container that may carry an emphasis class are not guessed at', () => {
+  assert.deepEqual(defaultPrimaries('<div className="arena-emphasis-secondary">\n'
+    + '<ArenaButton>A</ArenaButton>\n<ArenaButton>B</ArenaButton>\n</div>'), []);
+  assert.equal(defaultPrimaries('<div className="arena-emphasis-secondary">\n'
+    + '<ArenaButton className="arena-emphasis-primary">A</ArenaButton>\n'
+    + '<ArenaButton className="arena-emphasis-primary">B</ArenaButton>\n</div>').length, 1,
+    'stated primaries are still counted');
+});
+
+test('no-vocabulary: with no index nothing new is counted, so the check never fires on a guess', () => {
+  assert.deepEqual(defaultPrimaries('<ArenaButton>Save</ArenaButton>\n<ArenaButton>Publish</ArenaButton>',
+    'src/App.tsx', null), []);
+});
+
+test('the shipped vocabulary makes ArenaButton default to primary and no other component', () => {
+  const index = vocabularyIndex();
+  const primary = Object.entries(index.defaults ?? {})
+    .filter(([, families]) => families.emphasis === 'arena-emphasis-primary').map(([name]) => name);
+  assert.deepEqual(primary, ['ArenaButton']);
+});

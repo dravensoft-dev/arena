@@ -25,12 +25,19 @@ export function vocabularyIndexOf(families: Family[], manifests: Iterable<Pick<C
   }
   const answers: VocabularyIndex['answers'] = {};
   const options: VocabularyIndex['options'] = {};
+  const defaults: NonNullable<VocabularyIndex['defaults']> = {};
   for (const manifest of manifests) {
     if (!manifest.answers?.length) continue;
     answers[manifest.component] = answeredFamilies(manifest);
     options[manifest.component] = families.flatMap((family) => answerOf(manifest as ComponentManifest, family)?.options ?? []);
+    const own: Record<string, string> = {};
+    for (const family of families) {
+      const answer = answerOf(manifest as ComponentManifest, family);
+      if (answer?.default) own[family.family] = answer.default;
+    }
+    if (Object.keys(own).length > 0) defaults[manifest.component] = own;
   }
-  return { page, classes, answers, options, axes };
+  return { page, classes, answers, options, axes, defaults };
 }
 
 export function vocabularyIndex(root = repoRoot) {
