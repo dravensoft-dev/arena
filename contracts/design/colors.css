@@ -33,7 +33,7 @@
    (text-ink-muted/(--level-ink-muted)), so the percentage is a
    value a palette can move and not a literal frozen into 100
    compiled sheets. These are the floors: what Dravensoft wears,
-   and the least any skin may hold back by. arena-to-prod RAISES
+   and the least any skin may hold back by. arena build RAISES
    one per palette when the consumer's ink has too little room to
    clear its bar, and never lowers it. The disabled level is not
    here on purpose: it is exempt under WCAG 1.4.3/1.4.11 and
@@ -89,7 +89,7 @@
      confirmation). Never a border or text color — --danger is that.
      A skin MAY pin --color-error-fill for an exact value (the Dravensoft skin
      does: #ce3838). A skin that doesn't gets one derived from --color-error,
-     emitted into the palette by arena-to-prod rather than composed here: the
+     emitted into the palette by arena build rather than composed here: the
      compiled confirm button reads var(--color-error-fill) with no fallback of
      its own, so a fallback living only in this alias is one nothing reads. */
   --danger-fill:var(--color-error-fill);
