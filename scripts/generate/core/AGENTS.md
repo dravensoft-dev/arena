@@ -29,8 +29,9 @@ which is what lets a second command be added without silently overwriting a file
 
 That is also why `validate-palette.mjs` sits in it: a **verbatim** second copy of the one in
 `lib/core/`, which is what its own header instructs. `palette-keys.test.ts` holds the two
-byte-equal, and holds the 27 palette keys equal to `contracts/design/palette.dark.json`, so a
-colour added to the skin fails there before it can reach a consumer's configuration.
+byte-equal, and holds `PALETTE_KEYS` in `palette-keys.ts` equal to the keys of
+`contracts/design/palette.dark.json`, so a colour added to the skin fails there before it can
+reach a consumer's configuration.
 
 **One binary, with subcommands, and one renderer behind them.**
 `scripts/generate/core/arena-cli/plan.ts:plan(options, env)` is the only code that decides what a

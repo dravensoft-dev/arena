@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /* The one command an Arena consumer runs. This file is the dispatch: the first word picks the
  * subcommand, which owns its own flags (args.ts) and speaks through an Io (io.ts). It ships inside
- * both npm packages as bin/arena.ts and depends on nothing but node and its own siblings. */
+ * both npm packages as bin/arena.mjs and depends on nothing but node and its own siblings. */
 
 import { realpathSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';

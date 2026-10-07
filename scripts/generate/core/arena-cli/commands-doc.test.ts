@@ -64,12 +64,16 @@ test('a flag no command takes is named nowhere on the page', () => {
   }
 });
 
-test('every kind --strict holds is named on the line that names its command', () => {
+test('every kind --strict holds is named on the line that names its command, and no other kind', () => {
   const source = page();
   for (const [command, kinds] of Object.entries(KINDS_BY_COMMAND)) {
     const line = source.split('\n').find((one) => one.startsWith(`| \`arena ${command} --strict\``));
     assert.ok(line, `the strict table has no row for arena ${command}`);
     for (const kind of kinds) assert.ok(line.includes(`\`${kind}\``), `the arena ${command} --strict row does not name ${kind}`);
+    const cells = line.split('|').slice(2).join('|');
+    for (const [, named] of cells.matchAll(/`([^`]+)`/g)) {
+      assert.ok((kinds as readonly string[]).includes(named ?? ''), `the arena ${command} --strict row names ${named}, which arena ${command} does not hold`);
+    }
   }
 });
 

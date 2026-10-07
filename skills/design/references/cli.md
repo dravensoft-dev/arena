@@ -1,6 +1,6 @@
 # The arena command
 
-What does `arena` write, and what does it only read? Which flags does each command take? What does `--strict` hold, and what does an exit code mean? How do I wire it into a React or an Angular build? Read this once per project, when you wire the build.
+What does `arena` write? Which flags does each command take? What does `--strict` hold, and what does an exit code mean? How do I wire it into a React or an Angular build? Read this once per project, when you wire the build.
 
 The command ships inside both component packages, so installing Arena installs it. The command reads `arena.config.json`, your `src` tree and every style plugin directory the config declares, wherever those sit. [`config.md`](./config.md) covers the file. [`install.md`](./install.md) covers importing what `arena build` writes.
 
@@ -26,7 +26,7 @@ The command ships inside both component packages, so installing Arena installs i
 
 **`plugin.generated.css`** is written when a style plugin carries a `plugin.css`. The sheet holds that CSS in the reserved cascade layer and leads with the layer order itself, so where a bundler places it cannot change what wins.
 
-A sheet is written only when its bytes change, so a bundler watching an untouched sheet does not rebuild. A sheet this config no longer produces, such as `plugin.generated.css` once no plugin carries CSS, is removed. A build prints how many reports it saw and exits 0 on them; `arena check` names them. Ignore every generated file in version control, as you ignore the rest of your build.
+A sheet is written only when its bytes change, so a bundler watching an untouched sheet does not rebuild. A sheet this config no longer produces, such as `plugin.generated.css` once no plugin carries CSS, is removed. A build prints how many reports it saw and exits 0 on them; `arena check` names them. Keep every generated file out of version control.
 
 **`--watch`** builds once, then rebuilds after each burst of changes to the config, a source under `--src` or a style plugin directory. A path that is not there yet is awaited. Ctrl-C stops the watch. The watch never reacts to the sheets it writes, or to anything under `node_modules`, `dist`, `.git`, `.angular` or `coverage`. A `--src .` over a tree holding another build directory rebuilds on that directory's churn; name your source trees with `--src` instead.
 
@@ -47,8 +47,8 @@ A sheet is written only when its bytes change, so a bundler watching an untouche
 | code | meaning |
 | --- | --- |
 | `0` | The command did its job. Reports may have printed. |
-| `1` | A project problem: a malformed config, a `stylesheet` name the package does not ship, or a report `--strict` holds. For `arena doctor`, also a sheet that is missing, stale or no longer produced. |
-| `2` | The command cannot run: an unknown or refused flag, a `--src` that is not there, Phosphor not installed, a file it cannot write, or no `package.json` for `arena init`. |
+| `1` | A project problem: a config that parses and is invalid, a `stylesheet` name the package does not ship, or a report `--strict` holds. `arena doctor` exits 1 on anything that stops a build, and on a sheet that is missing, stale or no longer produced. |
+| `2` | The command cannot run: an unknown or refused flag, a config it cannot read as JSON, a missing `--src` or Phosphor not installed. So is a file it cannot write, or no `package.json` for `arena init`. |
 
 ## What does the audit read?
 
@@ -97,7 +97,7 @@ A `pre` script runs only where the package manager runs one. npm 11.19, pnpm 11.
 From the project, through the installed bin:
 
 ```bash
-npx --no-install arena doctor     # or: pnpm exec arena doctor, bunx --no-install arena doctor
+npx --no-install arena doctor     # or: pnpm exec arena doctor
 ```
 
 The registry holds a different package named `arena`, so a runner that may download one is told not to. [`stack.md`](./stack.md) says which runners reach the command, with the evidence for each.
