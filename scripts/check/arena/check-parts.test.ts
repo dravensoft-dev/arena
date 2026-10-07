@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  MANIFESTS, angularPartProblems, classSites, collect, partProblems, reactPartProblems,
-  symmetryProblems, zeroPartProblems,
+  MANIFESTS, angularPartProblems, classSites, collect, partProblems, partsOf, reachedParts, reactPartProblems,
+  symmetryProblems, unreachedProblems, zeroPartProblems, zeroReachedProblems,
 } from './check-parts.ts';
 
 const CARD = { root: 'card', body: 'card.body' };
@@ -56,8 +56,19 @@ test('a class site is read to the end of the element it sits on', () => {
   assert.doesNotMatch(sites[0]?.span ?? '', /x<\/a>/);
 });
 
-test('every slot a manifest names reaches the dom in both layers', () => {
+test('ArenaCard draws every element carrying a slot class with its part, and both layers reach every part it declares', () => {
   assert.deepEqual(partProblems('ArenaCard'), []);
+  const declared = Object.values(partsOf('ArenaCard')).sort();
+  assert.deepEqual(reachedParts('ArenaCard'), declared);
+});
+
+test('a declared part no layer renders is a plugin hook with nothing behind it', () => {
+  const parts = { root: 'card', body: 'card.body', ghost: 'card.ghost' };
+  const problems = unreachedProblems('ArenaCard', parts, new Set(['card']), new Set(['card.body']));
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /no layer draws card\.ghost/);
+  assert.match(problems[0] ?? '', /plugin hook with nothing behind it/);
+  assert.deepEqual(unreachedProblems('ArenaCard', parts, new Set(['card', 'card.ghost']), new Set(['card.body'])), []);
 });
 
 test('the whole tree holds', () => {
@@ -75,4 +86,14 @@ test('a part one layer reaches and the other does not is not one contract', () =
   assert.equal(problems.length, 1);
   assert.match(problems[0] ?? '', /react layer reaches card\.body/);
   assert.deepEqual(symmetryProblems('ArenaCard', new Set(['card']), new Set(['card'])), []);
+});
+
+test('a manifest no layer implements reports every declared part it names', () => {
+  const parts = { root: 'card', body: 'card.body' };
+  assert.equal(unreachedProblems('ArenaCard', parts, new Set(), new Set()).length, 2);
+});
+
+test('a sweep reaching no part is a failure and not a clean pass', () => {
+  assert.equal(zeroReachedProblems(0).length, 1);
+  assert.deepEqual(zeroReachedProblems(collect().reached), []);
 });

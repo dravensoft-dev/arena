@@ -86,3 +86,25 @@ test('doughnut-chart draws its legend row from the manifest', () => {
     fixture.destroy();
   }
 });
+
+const FRAME_CHARTS: Array<[string, string, Type<unknown>]> = [
+  ...CHARTS.map(([part, , host]) => [part, part, host] as [string, string, Type<unknown>]),
+  ['doughnut-chart', 'doughnut-chart', DoughnutHost],
+];
+
+for (const [name, part, host] of FRAME_CHARTS) {
+  test(`${name} draws inside its frame part, with the frame class and no inline position or width`, () => {
+    const fixture = TestBed.createComponent(host);
+    try {
+      fixture.detectChanges();
+      const frame = (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>(`[data-arena-part="${part}.frame"]`);
+      assert.ok(frame, `${name} draws no frame part`);
+      assert.ok(frame.className.split(' ').includes(`arena-${part}__frame`), 'the frame carries its generated class');
+      assert.equal(frame.style.position, '');
+      assert.equal(frame.style.width, '');
+      if (part === 'doughnut-chart') assert.equal(frame.getAttribute('style'), null, 'the doughnut frame carries no inline style');
+    } finally {
+      fixture.destroy();
+    }
+  });
+}

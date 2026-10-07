@@ -42,22 +42,20 @@ const SERIES_STROKE_STYLE = { strokeWidth: 'var(--bw-strong)' } as const satisfi
   standalone: true,
   imports: [ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: {
-    style: 'display:block;position:relative;width:100%',
-    '[style.height.px]': 'height()',
-  },
+  host: { style: 'display: contents' },
   template: `
+    <div [class]="styles.frame()" [attr.data-arena-part]="parts.frame" [style.height.px]="height()">
     <div #region [style]="regionStyle" tabindex="0" role="group" [attr.aria-label]="name()"
          (keydown)="onKey($event)">
     <svg width="100%" [attr.height]="plotH()" role="img" [attr.aria-label]="name()"
          style="display:block;overflow:visible">
       @for (ring of rings(); track ring.value) {
-        <polygon [attr.points]="ring.points" fill="none" stroke="var(--border)" [style]="lineStyle" />
+        <polygon [attr.points]="ring.points" fill="none" stroke="var(--edge-separator)" [style]="lineStyle" />
       }
 
       @for (spoke of spokes(); track spoke.index) {
         <line [attr.x1]="centreX()" [attr.y1]="centreY()" [attr.x2]="spoke.x" [attr.y2]="spoke.y"
-              [attr.stroke]="hover() === spoke.index ? 'var(--border-strong)' : 'var(--border)'"
+              [attr.stroke]="hover() === spoke.index ? 'var(--edge-axis)' : 'var(--edge-separator)'"
               [style]="lineStyle" />
       }
 
@@ -75,13 +73,13 @@ const SERIES_STROKE_STYLE = { strokeWidth: 'var(--bw-strong)' } as const satisfi
       @for (mark of marks(); track mark.key) {
         <circle [attr.cx]="mark.x" [attr.cy]="mark.y"
                 [attr.r]="hover() === mark.axis ? pointRHover : pointR"
-                [attr.fill]="mark.color" stroke="var(--surface-card)" [style]="seriesStrokeStyle" />
+                [attr.fill]="mark.color" stroke="var(--fill-surface)" [style]="seriesStrokeStyle" />
       }
 
       @for (spoke of spokes(); track spoke.index) {
         <text [attr.x]="spoke.labelX" [attr.y]="spoke.labelY" [attr.text-anchor]="spoke.anchor"
               dominant-baseline="middle"
-              fill="var(--text-muted)" font-family="var(--font-body)"
+              fill="color-mix(in oklab,var(--ink-muted) var(--level-ink-muted),transparent)" font-family="var(--font-body)"
               [style]="categoryLabelStyle">{{ spoke.label }}</text>
       }
 
@@ -120,6 +118,7 @@ const SERIES_STROKE_STYLE = { strokeWidth: 'var(--bw-strong)' } as const satisfi
         }
       </tbody>
     </table>
+    </div>
   `,
 })
 export class ArenaRadarChart {

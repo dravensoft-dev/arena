@@ -15,10 +15,6 @@ import { ArenaSlotAttributes } from '../../../SlotData';
 
 const ASSUMED_WIDTH = 600;
 
-const FRAME_STYLE = {
-  display: 'flex', position: 'relative', width: '100%', gap: 'var(--chart-legend-gap)',
-} as const satisfies Readonly<Record<string, string>>;
-
 const DIM_OPACITY = 0.55;
 
 const SVG_STYLE = { display: 'block', flexShrink: '0' } as const satisfies Readonly<Record<string, string>>;
@@ -36,12 +32,12 @@ const CENTRE_LABEL_STYLE = { fontSize: 'var(--dz-text-lg)' } as const satisfies 
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { style: 'display: contents' },
   template: `
-    <div #frame [style]="frameStyle" [style.height.px]="height">
+    <div #frame [class]="styles().frame()" [attr.data-arena-part]="parts.frame">
     <svg [attr.width]="arenaPlotWidth()" [attr.height]="height" role="img" [attr.aria-label]="name()"
          [style]="svgStyle" (pointerleave)="hover.set(null)">
       @for (segment of segments(); track segment.index) {
         @if (segment.path) {
-          <path [attr.d]="segment.path" [attr.fill]="segment.color" stroke="var(--surface-card)"
+          <path [attr.d]="segment.path" [attr.fill]="segment.color" stroke="var(--fill-surface)"
                 [attr.opacity]="hover() === null || hover() === segment.index ? 1 : dimOpacity"
                 (pointerenter)="hover.set(segment.index)" (click)="sliceActivate.emit(segment.index)"
                 [style]="segmentStyle" />
@@ -49,7 +45,7 @@ const CENTRE_LABEL_STYLE = { fontSize: 'var(--dz-text-lg)' } as const satisfies 
       }
       @if (centre(); as segment) {
         <text [attr.x]="centreX()" [attr.y]="centreY()" text-anchor="middle" dominant-baseline="middle"
-              fill="var(--bone)" font-family="var(--font-mono)"
+              fill="var(--ink-heading)" font-family="var(--font-mono)"
               [style]="centreLabelStyle">{{ segment.percent }}%</text>
       }
     </svg>
@@ -121,8 +117,6 @@ export class ArenaDoughnutChart {
   private readonly write = computed(() => arenaValueWriter({
     prefix: this.valuePrefix(), suffix: this.valueSuffix(), format: this.valueFormat(),
   }));
-
-  protected readonly frameStyle = FRAME_STYLE;
 
   private readonly frame = viewChild<ElementRef<HTMLElement>>('frame');
 

@@ -50,7 +50,7 @@ function rail(spacing: number | undefined): Element | null {
   try {
     fixture.componentInstance.spacing = spacing;
     fixture.detectChanges();
-    return (fixture.nativeElement as Element).querySelector('div');
+    return (fixture.nativeElement as Element).querySelector('div[role="group"]');
   } finally { fixture.destroy(); }
 }
 

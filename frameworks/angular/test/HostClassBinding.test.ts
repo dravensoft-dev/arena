@@ -864,27 +864,19 @@ test('a primitive that does not host-bind its root takes its host out of layout 
   }
 });
 
-const HOST_FILLS_INLINE_AXIS = /\bstyle:\s*'[^']*\bwidth\s*:\s*100%/;
-
 const HOST_BOXLESS = /\bstyle:\s*'[^']*\bdisplay\s*:\s*contents/;
 
-test('a chart host fills the inline axis, so a chart in a row is not shrink-to-fit', () => {
-  const charts = primitiveSources().filter(({ path, source }) => (
-    path.startsWith(join(ANGULAR_COMPONENTS, 'charts')) && !HOST_BOUND_ROOT.test(hostBlockOf(source))
-    && !HOST_BOXLESS.test(hostBlockOf(source))
-  ));
-  assert.ok(charts.length > 0, 'no bare-host chart sources found -- the guard would silently check nothing');
+test('a chart host keeps no box and its frame slot fills the inline axis, so a chart in a row is not shrink-to-fit', () => {
+  const charts = primitiveSources().filter(({ path }) => path.startsWith(join(ANGULAR_COMPONENTS, 'charts')) && /Chart\.ts$/.test(path));
+  assert.ok(charts.length > 0, 'no chart sources found -- the guard would silently check nothing');
 
   for (const { name, path, source } of charts) {
-    assert.match(
-      hostBlockOf(source),
-      HOST_FILLS_INLINE_AXIS,
-      `${path}: ${name} declares no width on its host. A chart measures its own box and draws an `
-      + 'SVG against it, and display:block alone fills the inline axis only in normal flow: as a '
-      + 'flex item the host blockifies to shrink-to-fit, so the same chart draws narrower inside '
-      + 'a row than inside a column. Six of these carried no width while the seventh did, which '
-      + 'is what a per-component decision looks like when nobody meant to make one.',
-    );
+    assert.match(hostBlockOf(source), HOST_BOXLESS, `${path}: ${name} gives its host a box, so the frame slot is not what the chart measures and lays out in`);
+    assert.match(source, /\[attr\.data-arena-part\]="parts\.frame"/, `${path}: ${name} draws no frame part`);
+    const manifestPath = findManifestFile(TAILWIND_COMPONENTS, `${name}.manifest.json`);
+    assert.ok(manifestPath, `${name}: no manifest found`);
+    const frame = (JSON.parse(readFileSync(manifestPath as string, 'utf8')) as { slots: Record<string, string> }).slots['frame'] ?? '';
+    assert.match(frame, /(?:^|\s)w-full(?=\s|$)/, `${name}: its frame slot declares no w-full, so the chart is shrink-to-fit as a flex item`);
   }
 });
 
@@ -997,15 +989,18 @@ test('the clearing binding removes a STATIC attribute and leaves the input holdi
   }
 });
 
-test('arena-bar-chart: the host is a block-level box, so the width it measures is a real content width', async () => {
+test('arena-bar-chart: the host keeps no box and the frame part carries the frame class, with no inline position or width', async () => {
   const fixture = createBarChartHost();
   await fixture.whenStable();
   const host = fixture.nativeElement.querySelector('arena-bar-chart') as HTMLElement;
 
-  assert.equal(host.style.display, 'block', `host declared display "${host.style.display}"`);
-  assert.equal(getComputedStyle(host).display, 'block');
+  assert.equal(host.style.display, 'contents', `host declared display "${host.style.display}"`);
 
-  assert.equal(host.style.position, 'relative');
+  const frame = host.querySelector(':scope > div') as HTMLElement;
+  assert.equal(frame.getAttribute('data-arena-part'), 'bar-chart.frame');
+  assert.ok(frame.classList.contains('arena-bar-chart__frame'), `frame carries "${frame.className}"`);
+  assert.equal(frame.style.position, '');
+  assert.equal(frame.style.width, '');
 });
 
 test('arena-bar-chart: the numbers table is bound as a style object, not stringified into the attribute', async () => {
@@ -1045,15 +1040,18 @@ test('arena-bar-chart: the picture carries an accessible name and the numbers ca
   assert.equal(caption.textContent?.trim(), 'Deployments per week — bar chart');
 });
 
-test('arena-line-chart: the host is a block-level box, so the width it measures is a real content width', async () => {
+test('arena-line-chart: the host keeps no box and the frame part carries the frame class, with no inline position or width', async () => {
   const fixture = createLineChartHost();
   await fixture.whenStable();
   const host = fixture.nativeElement.querySelector('arena-line-chart') as HTMLElement;
 
-  assert.equal(host.style.display, 'block', `host declared display "${host.style.display}"`);
-  assert.equal(getComputedStyle(host).display, 'block');
+  assert.equal(host.style.display, 'contents', `host declared display "${host.style.display}"`);
 
-  assert.equal(host.style.position, 'relative');
+  const frame = host.querySelector(':scope > div') as HTMLElement;
+  assert.equal(frame.getAttribute('data-arena-part'), 'line-chart.frame');
+  assert.ok(frame.classList.contains('arena-line-chart__frame'), `frame carries "${frame.className}"`);
+  assert.equal(frame.style.position, '');
+  assert.equal(frame.style.width, '');
 });
 
 test('arena-line-chart: the numbers table is bound as a style object, not stringified into the attribute', async () => {
@@ -1100,13 +1098,9 @@ test('arena-doughnut-chart: the host keeps no box and its frame is the flex row,
   assert.equal(host.style.display, 'contents', `host declared display "${host.style.display}"`);
 
   const frame = host.querySelector(':scope > div') as HTMLElement;
-  assert.equal(frame.style.display, 'flex', `frame declared display "${frame.style.display}"`);
-  assert.equal(getComputedStyle(frame).display, 'flex');
-
-  assert.equal(frame.style.position, 'relative');
-
-  assert.equal(frame.style.width, '100%');
-  assert.equal(frame.style.gap, 'var(--chart-legend-gap)');
+  assert.equal(frame.getAttribute('data-arena-part'), 'doughnut-chart.frame');
+  assert.ok(frame.classList.contains('arena-doughnut-chart__frame'), `frame carries "${frame.className}"`);
+  assert.equal(frame.getAttribute('style'), null, 'the doughnut frame carries no inline style');
 });
 
 test('arena-doughnut-chart: the numbers table is bound as a style object, not stringified into the attribute', async () => {

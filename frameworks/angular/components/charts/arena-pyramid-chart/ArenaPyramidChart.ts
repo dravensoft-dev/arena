@@ -46,11 +46,9 @@ const BAR_STYLE = { transition: 'opacity var(--dur-hover) var(--ease-hover)' } a
   standalone: true,
   imports: [ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: {
-    style: 'display:block;position:relative;width:100%',
-    '[style.height.px]': 'height()',
-  },
+  host: { style: 'display: contents' },
   template: `
+    <div [class]="styles.frame()" [attr.data-arena-part]="parts.frame" [style.height.px]="height()">
     <div #region [style]="regionStyle" tabindex="0" role="group" [attr.aria-label]="name()"
          (keydown)="onKey($event)">
     <svg width="100%" [attr.height]="plotH()" role="img" [attr.aria-label]="name()"
@@ -58,14 +56,14 @@ const BAR_STYLE = { transition: 'opacity var(--dur-hover) var(--ease-hover)' } a
       @for (tick of gridLines(); track tick.value) {
         <g>
           <line [attr.x1]="tick.x" [attr.x2]="tick.x" [attr.y1]="plotTop()" [attr.y2]="plotBottom()"
-                stroke="var(--border)" [style]="lineStyle" />
+                stroke="var(--edge-separator)" [style]="lineStyle" />
           <text [attr.x]="tick.x" [attr.y]="tickLabelY()" text-anchor="middle"
-                fill="var(--text-muted)" font-family="var(--font-mono)"
+                fill="color-mix(in oklab,var(--ink-muted) var(--level-ink-muted),transparent)" font-family="var(--font-mono)"
                 [style]="tickLabelStyle">{{ tick.label }}</text>
         </g>
       }
       <line [attr.x1]="zeroX()" [attr.x2]="zeroX()" [attr.y1]="plotTop()" [attr.y2]="plotBottom()"
-            stroke="var(--line-strong)" [style]="lineStyle" />
+            stroke="var(--edge-axis)" [style]="lineStyle" />
 
       @for (bar of bars(); track bar.index) {
         <g>
@@ -79,7 +77,7 @@ const BAR_STYLE = { transition: 'opacity var(--dur-hover) var(--ease-hover)' } a
 
       @for (bar of bars(); track bar.index) {
         <text [attr.x]="categoryLabelX" [attr.y]="bar.midY" text-anchor="end" dominant-baseline="middle"
-              fill="var(--text-muted)" font-family="var(--font-body)"
+              fill="color-mix(in oklab,var(--ink-muted) var(--level-ink-muted),transparent)" font-family="var(--font-body)"
               [style]="categoryLabelStyle">{{ bar.label }}</text>
       }
 
@@ -118,6 +116,7 @@ const BAR_STYLE = { transition: 'opacity var(--dur-hover) var(--ease-hover)' } a
         }
       </tbody>
     </table>
+    </div>
   `,
 })
 export class ArenaPyramidChart {

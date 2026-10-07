@@ -203,6 +203,12 @@ export function symmetryProblems(name: string, react: Set<string>, angular: Set<
   return problems;
 }
 
+export function unreachedProblems(name: string, parts: Record<string, string>, react: Set<string>, angular: Set<string>) {
+  return Object.values(parts).filter((part) => !react.has(part) && !angular.has(part)).sort().map((part) => (
+    `${name}: no layer draws ${part}. A declared part no layer draws is a plugin hook with nothing `
+    + 'behind it, so a style plugin answering it paints nothing. Draw it or remove the slot.'));
+}
+
 export function partProblems(name: string) {
   const parts = partsOf(name);
   const problems = [];
@@ -215,6 +221,7 @@ export function partProblems(name: string) {
   const drawn = { react: layerParts(name, 'react'), angular: layerParts(name, 'angular') };
   const implemented = (Object.keys(LAYERS) as Layer[]).filter((layer) => layerSources(name, layer).length > 0);
   if (implemented.length === 2) problems.push(...symmetryProblems(name, drawn.react, drawn.angular));
+  problems.push(...unreachedProblems(name, parts, drawn.react, drawn.angular));
   return problems;
 }
 
@@ -227,6 +234,12 @@ export function zeroPartProblems(count: number) {
   if (count > 0) return [];
   return ['walked 0 manifest(s) -- an empty result set is a failure, not a clean pass; check the '
     + 'discovery path'];
+}
+
+export function zeroReachedProblems(count: number) {
+  if (count > 0) return [];
+  return ['0 declared part(s) reach the DOM -- an empty reach is a failure, not a clean pass; check '
+    + 'that the layers draw their parts'];
 }
 
 export function collect() {
@@ -244,7 +257,7 @@ export function collect() {
 
 function main() {
   const { problems, manifests, declared, reached } = collect();
-  const zero = zeroPartProblems(manifests);
+  const zero = [...zeroPartProblems(manifests), ...zeroReachedProblems(reached)];
   const all = [...zero, ...problems];
   if (all.length > 0) {
     console.error(`check-parts: ${all.length} problem(s)\n`);

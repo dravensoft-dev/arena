@@ -335,9 +335,9 @@ test('the ARENA_SR_ONLY object shape produces exactly the raws those keys are cu
   assert.deepEqual(hits.map((h) => `${h.prop}:${h.raw}`), ["width:'1px'", "height:'1px'", "margin:'-1px'"]);
 });
 
-test('the one zIndex literal exempt is the Angular calendar event action panel, a paint order within its chip', () => {
+test('no zIndex literal is exempt, so a layer is always a slot answer and never a number in a template', () => {
   const stacking = [...EXEMPT.keys()].filter((key) => /zIndex/.test(key));
-  assert.deepEqual(stacking, ['frameworks/angular/components/display/arena-calendar-event/ArenaCalendarEvent.ts:zIndex:1']);
+  assert.deepEqual(stacking, []);
 });
 
 test('every current EXEMPT key is matched by this run -- none are stale', () => {

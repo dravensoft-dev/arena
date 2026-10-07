@@ -31,7 +31,7 @@ const LINE_STYLE = { strokeWidth: 'var(--bw)' } as const satisfies Readonly<Reco
 const TICK_LABEL_STYLE = { fontSize: 'var(--dz-text-2xs)' } as const satisfies Readonly<Record<string, string>>;
 
 const SIZE_KEY_VALUE_STYLE = {
-  fontFamily: 'var(--font-mono)', fontSize: 'var(--dz-text-sm)', color: 'var(--text-body)',
+  fontFamily: 'var(--font-mono)', fontSize: 'var(--dz-text-sm)', color: 'color-mix(in oklab,var(--ink-body) var(--level-ink-body),transparent)',
 } as const satisfies Readonly<Record<string, string>>;
 
 const MARK_STYLE = {
@@ -46,11 +46,9 @@ const MARK_STYLE = {
   standalone: true,
   imports: [ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: {
-    style: 'display:block;position:relative;width:100%',
-    '[style.height.px]': 'height()',
-  },
+  host: { style: 'display: contents' },
   template: `
+    <div [class]="styles.frame()" [attr.data-arena-part]="parts.frame" [style.height.px]="height()">
     <div #region [style]="regionStyle" tabindex="0" role="group" [attr.aria-label]="name()"
          (keydown)="onKey($event)">
     <svg width="100%" [attr.height]="plotH()" role="img" [attr.aria-label]="name()"
@@ -58,28 +56,28 @@ const MARK_STYLE = {
       @for (tick of yTicks(); track tick.value) {
         <g>
           <line [attr.x1]="plotLeft()" [attr.x2]="plotRight()" [attr.y1]="tick.y" [attr.y2]="tick.y"
-                stroke="var(--border)" [style]="lineStyle" />
+                stroke="var(--edge-separator)" [style]="lineStyle" />
           <text [attr.x]="tickLabelX()" [attr.y]="tick.y" text-anchor="end" dominant-baseline="middle"
-                fill="var(--text-muted)" font-family="var(--font-mono)"
+                fill="color-mix(in oklab,var(--ink-muted) var(--level-ink-muted),transparent)" font-family="var(--font-mono)"
                 [style]="tickLabelStyle">{{ tick.label }}</text>
         </g>
       }
 
       @for (tick of xTicks(); track tick.value) {
         <text [attr.x]="tick.x" [attr.y]="xLabelY()" text-anchor="middle"
-              fill="var(--text-muted)" font-family="var(--font-mono)"
+              fill="color-mix(in oklab,var(--ink-muted) var(--level-ink-muted),transparent)" font-family="var(--font-mono)"
               [style]="tickLabelStyle">{{ tick.label }}</text>
       }
 
       <line [attr.x1]="plotLeft()" [attr.x2]="plotRight()" [attr.y1]="zeroY()" [attr.y2]="zeroY()"
-            stroke="var(--line-strong)" [style]="lineStyle" />
+            stroke="var(--edge-axis)" [style]="lineStyle" />
       <line [attr.x1]="zeroX()" [attr.x2]="zeroX()" [attr.y1]="plotTop()" [attr.y2]="plotBottom()"
-            stroke="var(--line-strong)" [style]="lineStyle" />
+            stroke="var(--edge-axis)" [style]="lineStyle" />
 
       @for (mark of marks(); track mark.key) {
         <circle [attr.cx]="mark.cx" [attr.cy]="mark.cy"
                 [attr.r]="hover() === mark.key ? mark.r + (pointRHover - pointR) : mark.r"
-                [attr.fill]="mark.color" stroke="var(--surface-card)"
+                [attr.fill]="mark.color" stroke="var(--fill-surface)"
                 [attr.opacity]="hover() === null || hover() === mark.key ? 1 : 0.55"
                 [style]="markStyle" />
       }
@@ -107,7 +105,7 @@ const MARK_STYLE = {
           <span [class]="styles.legendItem()" [attr.data-arena-part]="parts.legendItem">
             <svg [attr.width]="sizeH()" [attr.height]="sizeH()" style="display:block;flex-shrink:0">
               <circle [attr.cx]="sizeH() / 2" [attr.cy]="sizeH() / 2" [attr.r]="key.r"
-                      fill="none" stroke="var(--border-strong)" [style]="lineStyle" />
+                      fill="none" stroke="var(--edge-axis)" [style]="lineStyle" />
             </svg>
             <span [style]="sizeKeyValueStyle">{{ key.label }}</span>
           </span>
@@ -135,6 +133,7 @@ const MARK_STYLE = {
         }
       </tbody>
     </table>
+    </div>
   `,
 })
 export class ArenaScatterChart {

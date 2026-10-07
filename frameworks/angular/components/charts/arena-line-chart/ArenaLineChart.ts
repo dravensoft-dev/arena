@@ -44,11 +44,9 @@ const POINT_LABEL_STYLE = { fontSize: 'var(--dz-text-xs)' } as const satisfies R
   standalone: true,
   imports: [ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: {
-    style: 'display:block;position:relative;width:100%',
-    '[style.height.px]': 'height()',
-  },
+  host: { style: 'display: contents' },
   template: `
+    <div [class]="styles.frame()" [attr.data-arena-part]="parts.frame" [style.height.px]="height()">
     <div #rail [style]="arenaRailStyle" tabindex="0" role="group" [attr.aria-label]="name()"
          (keydown)="onKey($event)">
     <svg [attr.width]="scrolls() ? width() : '100%'" [attr.height]="plotH()" role="img" [attr.aria-label]="name()"
@@ -56,14 +54,14 @@ const POINT_LABEL_STYLE = { fontSize: 'var(--dz-text-xs)' } as const satisfies R
       @for (tick of gridLines(); track tick.value) {
         <g>
           <line [attr.x1]="plotLeft()" [attr.x2]="plotRight()" [attr.y1]="tick.y" [attr.y2]="tick.y"
-                stroke="var(--border)" [style]="lineStyle" />
+                stroke="var(--edge-separator)" [style]="lineStyle" />
           <text [attr.x]="tickLabelX()" [attr.y]="tick.y" text-anchor="end" dominant-baseline="middle"
-                fill="var(--text-muted)" font-family="var(--font-mono)"
+                fill="color-mix(in oklab,var(--ink-muted) var(--level-ink-muted),transparent)" font-family="var(--font-mono)"
                 [style]="tickLabelStyle">{{ tick.label }}</text>
         </g>
       }
       <line [attr.x1]="plotLeft()" [attr.x2]="plotRight()" [attr.y1]="zeroY()" [attr.y2]="zeroY()"
-            stroke="var(--line-strong)" [style]="lineStyle" />
+            stroke="var(--edge-axis)" [style]="lineStyle" />
 
       @if (fills()) {
         @for (line of lines(); track line.key) {
@@ -75,7 +73,7 @@ const POINT_LABEL_STYLE = { fontSize: 'var(--dz-text-xs)' } as const satisfies R
 
       @if (active(); as point) {
         <line [attr.x1]="point.x" [attr.x2]="point.x" [attr.y1]="plotTop()" [attr.y2]="plotBottom()"
-              stroke="var(--border-strong)" stroke-dasharray="3 3" [style]="lineStyle" />
+              stroke="var(--edge-axis)" stroke-dasharray="3 3" [style]="lineStyle" />
       }
 
       @for (line of lines(); track line.key) {
@@ -93,12 +91,12 @@ const POINT_LABEL_STYLE = { fontSize: 'var(--dz-text-xs)' } as const satisfies R
       @for (mark of marks(); track mark.key) {
         <circle [attr.cx]="mark.x" [attr.cy]="mark.y"
                 [attr.r]="hover() === mark.index ? pointRHover : pointR"
-                [attr.fill]="mark.color" stroke="var(--surface-card)" [style]="seriesStrokeStyle" />
+                [attr.fill]="mark.color" stroke="var(--fill-surface)" [style]="seriesStrokeStyle" />
       }
 
       @for (point of axisPoints(); track point.index) {
         <text [attr.x]="point.x" [attr.y]="pointLabelY()" text-anchor="middle"
-              fill="var(--text-muted)" font-family="var(--font-body)"
+              fill="color-mix(in oklab,var(--ink-muted) var(--level-ink-muted),transparent)" font-family="var(--font-body)"
               [style]="pointLabelStyle">{{ point.label }}</text>
       }
 
@@ -137,6 +135,7 @@ const POINT_LABEL_STYLE = { fontSize: 'var(--dz-text-xs)' } as const satisfies R
         }
       </tbody>
     </table>
+    </div>
   `,
 })
 export class ArenaLineChart {

@@ -54,7 +54,7 @@ export function arenaAreaFill(colour: string): string {
 }
 
 const TONE_VARS: Record<ArenaTone, string> = {
-  neutral: 'var(--text-body)',
+  neutral: 'color-mix(in oklab,var(--ink-body) var(--level-ink-body),transparent)',
   success: 'var(--success)',
   warning: 'var(--warning)',
   danger: 'var(--danger)',

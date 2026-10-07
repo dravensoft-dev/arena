@@ -73,10 +73,6 @@ export const EXEMPT = new Map([
    'the other axis of the same 1px visually-hidden box as the width entry above'],
   ['frameworks/angular/DataVisuals.ts:margin:\'-1px\'',
    'the same idiom\'s negative pull, which must cancel exactly the 1px box above so the hidden table shifts no sibling — it is bound to that literal, not to Arena\'s spacing scale, and a token here would break the cancellation'],
-  ['frameworks/angular/components/display/arena-calendar-event/ArenaCalendarEvent.ts:zIndex:1',
-   'the action panel stacks one layer above its chip, a paint order within the chip rather than a design dimension'],
-  ['frameworks/angular/components/charts/arena-doughnut-chart/ArenaDoughnutChart.ts:height:height.px',
-   'the frame is as tall as the plot, bound to the ARENA_CHART_HEIGHT constant the chart does its arithmetic with, a number and not a dimension string'],
 ]);
 
 export const COMPUTED: ReadonlyMap<string, string> = new Map([
