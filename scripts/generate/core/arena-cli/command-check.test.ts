@@ -33,8 +33,7 @@ function tree(root: string): string[] {
 }
 
 function check(root: string, argv: string[] = [], extra: Record<string, unknown> = {}) {
-  const { root: held, web } = phosphor();
-  void held;
+  const { web } = phosphor();
   const captured = captureIo(root, { arena: null, map: null, sheets: null, vocabulary: null, phosphor: web, ...extra });
   const code = run(argv, captured.io);
   return { code, out: captured.out, err: captured.err };
@@ -52,7 +51,7 @@ test('check prints each report with its kind, markers included', () => {
   const result = check(root, [], { map: MAP });
   const said = result.err.join('\n');
   assert.match(said, /\[contrast\] /);
-  assert.match(said, /\[glyph\] .*ph-nope|\[glyph\] bold: nope/);
+  assert.ok(result.err.includes('arena check: [glyph] bold: ph-nope is not an icon Phosphor draws at that weight'), said);
   assert.match(said, /\[markers\] .*dialog\.ts projects into the `footer` slot/);
   assert.match(result.out.join('\n'), /\d+ report\(s\)/);
 });
