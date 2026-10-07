@@ -83,20 +83,20 @@ export function ArenaDoughnutChart({ className,
   const segments = arenaDoughnutSlices(values);
 
   return (
-    <div className={arenaClassName('ArenaDoughnutChart', undefined, className)} ref={ref} style={{ position: 'relative', width: '100%', height, display: 'flex', gap: 'var(--chart-legend-gap)' }}>
+    <div className={arenaClassName('ArenaDoughnutChart', styles.frame(), className)} ref={ref} data-arena-part={manifest.parts.frame} {...styles.$data.frame()}>
       <svg width={plotW} height={height} role="img" aria-label={name}
         onPointerLeave={() => setHover(null)} style={{ display: 'block', flexShrink: 0 }}>
         {segments.map(({ index, from, to }) => to > from && (
           <path key={index} d={arenaArcPath(cx, cy, rOuter, rInner, from, to)} fill={colors[index]}
 
-            stroke="var(--surface-card)"
+            stroke="var(--fill-surface)"
             opacity={hover === null || hover === index ? 1 : 0.55}
             onPointerEnter={() => setHover(index)} onClick={() => onSliceActivate?.(index)}
             style={{ transition: 'opacity var(--dur-hover) var(--ease-hover)', strokeWidth: 'var(--bw-strong)' }} />
         ))}
         {shape !== 'pie' && hover !== null && segments[hover] && (
           <text x={cx} y={cy} textAnchor="middle" dominantBaseline="middle"
-            fill="var(--bone)" fontFamily="var(--font-mono)" style={{ fontSize: 'var(--dz-text-lg)' }}>
+            fill="var(--ink-heading)" fontFamily="var(--font-mono)" style={{ fontSize: 'var(--dz-text-lg)' }}>
             {`${segments[hover].percent}%`}
           </text>
         )}

@@ -95,7 +95,7 @@ export function ArenaPyramidChart({ className,
   };
 
   return (
-    <div className={arenaClassName('ArenaPyramidChart', undefined, className)} ref={ref} style={{ position: 'relative', width: '100%', height }}>
+    <div className={arenaClassName('ArenaPyramidChart', styles.frame(), className)} ref={ref} data-arena-part={manifest.parts.frame} {...styles.$data.frame()} style={{ height }}>
       <div tabIndex={0} role="group" aria-label={name} onKeyDown={onKeyDown}
         style={{ display: 'block', outlineOffset: 'var(--focus-offset)' }}>
       <svg width="100%" height={strip.plotH} role="img" aria-label={name}
@@ -103,13 +103,13 @@ export function ArenaPyramidChart({ className,
         {axis.ticks.map((tick, i) => (
           <g key={i}>
             <line x1={tick.x} x2={tick.x} y1={box.y} y2={box.y + box.h}
-              stroke="var(--border)" style={{ strokeWidth: 'var(--bw)' }} />
+              stroke="var(--edge-separator)" style={{ strokeWidth: 'var(--bw)' }} />
             <text x={tick.x} y={arenaTickLabelY(strip.plotH)} textAnchor="middle"
-              fill="var(--text-muted)" fontFamily="var(--font-mono)" style={{ fontSize: 'var(--dz-text-2xs)' }}>{tick.label}</text>
+              fill="color-mix(in oklab,var(--ink-muted) var(--level-ink-muted),transparent)" fontFamily="var(--font-mono)" style={{ fontSize: 'var(--dz-text-2xs)' }}>{tick.label}</text>
           </g>
         ))}
         <line x1={axis.zeroX} x2={axis.zeroX} y1={box.y} y2={box.y + box.h}
-          stroke="var(--line-strong)" style={{ strokeWidth: 'var(--bw)' }} />
+          stroke="var(--edge-axis)" style={{ strokeWidth: 'var(--bw)' }} />
 
         {Array.from({ length: n }, (_, i) => (
           <g key={i}>
@@ -129,7 +129,7 @@ export function ArenaPyramidChart({ className,
 
         {Array.from({ length: n }, (_, i) => (
           <text key={i} x={arenaCategoryLabelX()} y={arenaBandCenter(bands, i)} textAnchor="end" dominantBaseline="middle"
-            fill="var(--text-muted)" fontFamily="var(--font-body)" style={{ fontSize: 'var(--dz-text-xs)' }}>{labels[i] ?? ''}</text>
+            fill="color-mix(in oklab,var(--ink-muted) var(--level-ink-muted),transparent)" fontFamily="var(--font-body)" style={{ fontSize: 'var(--dz-text-xs)' }}>{labels[i] ?? ''}</text>
         ))}
 
         <rect x={box.x} y={box.y} width={box.w} height={box.h} fill="transparent"

@@ -100,13 +100,13 @@ export function ArenaRadarChart({ className,
   };
 
   return (
-    <div className={arenaClassName('ArenaRadarChart', undefined, className)} ref={ref} style={{ position: 'relative', width: '100%', height }}>
+    <div className={arenaClassName('ArenaRadarChart', styles.frame(), className)} ref={ref} data-arena-part={manifest.parts.frame} {...styles.$data.frame()} style={{ height }}>
       <div tabIndex={0} role="group" aria-label={name} onKeyDown={onKeyDown}
         style={{ display: 'block', outlineOffset: 'var(--focus-offset)' }}>
       <svg width="100%" height={strip.plotH} role="img" aria-label={name}
         style={{ display: 'block', overflow: 'visible' }}>
         {rings.map((value, i) => (
-          <polygon key={i} fill="none" stroke="var(--border)" style={{ strokeWidth: 'var(--bw)' }}
+          <polygon key={i} fill="none" stroke="var(--edge-separator)" style={{ strokeWidth: 'var(--bw)' }}
             points={arenaLinePoints(Array.from({ length: n }, (_, a) => arenaPolarPoint(cx, cy, reach(value), a, n)))} />
         ))}
 
@@ -114,7 +114,7 @@ export function ArenaRadarChart({ className,
           const tip = arenaPolarPoint(cx, cy, outer, i, n);
           return (
             <line key={i} x1={cx} y1={cy} x2={tip.x} y2={tip.y}
-              stroke={hover === i ? 'var(--border-strong)' : 'var(--border)'} style={{ strokeWidth: 'var(--bw)' }} />
+              stroke={hover === i ? 'var(--edge-axis)' : 'var(--edge-separator)'} style={{ strokeWidth: 'var(--bw)' }} />
           );
         })}
 
@@ -137,7 +137,7 @@ export function ArenaRadarChart({ className,
           const at = arenaPolarPoint(cx, cy, reach(value), a, n);
           return (
             <circle key={`${s}-${a}`} cx={at.x} cy={at.y} r={hover === a ? chartPointRHover : chartPointR}
-              fill={colors[s]} stroke="var(--surface-card)" style={{ strokeWidth: 'var(--bw-strong)' }} />
+              fill={colors[s]} stroke="var(--fill-surface)" style={{ strokeWidth: 'var(--bw-strong)' }} />
           );
         }))}
 
@@ -145,7 +145,7 @@ export function ArenaRadarChart({ className,
           const at = arenaPolarPoint(cx, cy, labelR, i, n);
           return (
             <text key={i} x={at.x} y={at.y} textAnchor={arenaPolarAnchor(i, n)} dominantBaseline="middle"
-              fill="var(--text-muted)" fontFamily="var(--font-body)" style={{ fontSize: 'var(--dz-text-xs)' }}>{labels[i] ?? ''}</text>
+              fill="color-mix(in oklab,var(--ink-muted) var(--level-ink-muted),transparent)" fontFamily="var(--font-body)" style={{ fontSize: 'var(--dz-text-xs)' }}>{labels[i] ?? ''}</text>
           );
         })}
 

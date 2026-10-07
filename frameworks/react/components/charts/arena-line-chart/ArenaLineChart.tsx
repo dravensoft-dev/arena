@@ -123,17 +123,17 @@ export function ArenaLineChart({ className,
   };
 
   return (
-    <div className={arenaClassName('ArenaLineChart', undefined, className)} ref={ref} style={{ position: 'relative', width: '100%', height }}>
+    <div className={arenaClassName('ArenaLineChart', styles.frame(), className)} ref={ref} data-arena-part={manifest.parts.frame} {...styles.$data.frame()} style={{ height }}>
       <div ref={rail} style={arenaRailStyle} tabIndex={0} role="group" aria-label={name} onKeyDown={onKeyDown}>
       <svg width={scrolls ? width : '100%'} height={strip.plotH} role="img" aria-label={name} style={{ display: 'block', overflow: 'visible' }}>
         {axis.ticks.map((tick, i) => (
           <g key={i}>
-            <line x1={box.x} x2={box.x + box.w} y1={tick.y} y2={tick.y} stroke="var(--border)" style={{ strokeWidth: 'var(--bw)' }} />
+            <line x1={box.x} x2={box.x + box.w} y1={tick.y} y2={tick.y} stroke="var(--edge-separator)" style={{ strokeWidth: 'var(--bw)' }} />
             <text x={arenaTickLabelX(gutter)} y={tick.y} textAnchor="end" dominantBaseline="middle"
-              fill="var(--text-muted)" fontFamily="var(--font-mono)" style={{ fontSize: 'var(--dz-text-2xs)' }}>{tick.label}</text>
+              fill="color-mix(in oklab,var(--ink-muted) var(--level-ink-muted),transparent)" fontFamily="var(--font-mono)" style={{ fontSize: 'var(--dz-text-2xs)' }}>{tick.label}</text>
           </g>
         ))}
-        <line x1={box.x} x2={box.x + box.w} y1={axis.zeroY} y2={axis.zeroY} stroke="var(--line-strong)" style={{ strokeWidth: 'var(--bw)' }} />
+        <line x1={box.x} x2={box.x + box.w} y1={axis.zeroY} y2={axis.zeroY} stroke="var(--edge-axis)" style={{ strokeWidth: 'var(--bw)' }} />
 
         {}
         {fills && plotted.map((points, s) => points.length > 0 && (
@@ -143,7 +143,7 @@ export function ArenaLineChart({ className,
 
         {hover !== null && (
           <line x1={arenaPointAt(xScale, hover)} x2={arenaPointAt(xScale, hover)} y1={box.y} y2={box.y + box.h}
-            stroke="var(--border-strong)" style={{ strokeWidth: 'var(--bw)' }} strokeDasharray="3 3" />
+            stroke="var(--edge-axis)" style={{ strokeWidth: 'var(--bw)' }} strokeDasharray="3 3" />
         )}
 
         {plotted.map((points, s) => points.length > 1 && (curve ? (
@@ -156,7 +156,7 @@ export function ArenaLineChart({ className,
 
         {plotted.map((points, s) => points.map((point, i) => (
           <circle key={`${s}-${i}`} cx={point.x} cy={point.y} r={hover === i ? chartPointRHover : chartPointR}
-            fill={colors[s]} stroke="var(--surface-card)" style={{ strokeWidth: 'var(--bw-strong)' }} />
+            fill={colors[s]} stroke="var(--fill-surface)" style={{ strokeWidth: 'var(--bw-strong)' }} />
         )))}
 
         {
@@ -164,7 +164,7 @@ export function ArenaLineChart({ className,
 }
         {Array.from({ length: n }, (_, i) => (
           <text key={i} x={arenaPointAt(xScale, i)} y={arenaCategoryLabelY(strip.plotH)} textAnchor="middle"
-            fill="var(--text-muted)" fontFamily="var(--font-body)" style={{ fontSize: 'var(--dz-text-xs)' }}>{labels[i] ?? ''}</text>
+            fill="color-mix(in oklab,var(--ink-muted) var(--level-ink-muted),transparent)" fontFamily="var(--font-body)" style={{ fontSize: 'var(--dz-text-xs)' }}>{labels[i] ?? ''}</text>
         ))}
 
         {

@@ -109,7 +109,7 @@ export function ArenaBarChart({ className,
   };
 
   return (
-    <div className={arenaClassName('ArenaBarChart', undefined, className)} ref={ref} style={{ position: 'relative', width: '100%', height }}>
+    <div className={arenaClassName('ArenaBarChart', styles.frame(), className)} ref={ref} data-arena-part={manifest.parts.frame} {...styles.$data.frame()} style={{ height }}>
       <div ref={rail} style={arenaRailStyle} tabIndex={0} role="group" aria-label={name} onKeyDown={onKeyDown}>
       <svg width={scrolls ? width : '100%'} height={strip.plotH} role="img" aria-label={name}
         style={{ display: 'block', overflow: 'visible' }}>
@@ -117,13 +117,13 @@ export function ArenaBarChart({ className,
         {axis.ticks.map((tick, i) => (
           <g key={i}>
             <line x1={box.x} x2={box.x + box.w} y1={tick.y} y2={tick.y}
-              stroke="var(--border)" style={{ strokeWidth: 'var(--bw)' }} />
+              stroke="var(--edge-separator)" style={{ strokeWidth: 'var(--bw)' }} />
             <text x={arenaTickLabelX(gutter)} y={tick.y} textAnchor="end" dominantBaseline="middle"
-              fill="var(--text-muted)" fontFamily="var(--font-mono)" style={{ fontSize: 'var(--dz-text-2xs)' }}>{tick.label}</text>
+              fill="color-mix(in oklab,var(--ink-muted) var(--level-ink-muted),transparent)" fontFamily="var(--font-mono)" style={{ fontSize: 'var(--dz-text-2xs)' }}>{tick.label}</text>
           </g>
         ))}
         <line x1={box.x} x2={box.x + box.w} y1={axis.zeroY} y2={axis.zeroY}
-          stroke="var(--line-strong)" style={{ strokeWidth: 'var(--bw)' }} />
+          stroke="var(--edge-axis)" style={{ strokeWidth: 'var(--bw)' }} />
 
         {Array.from({ length: n }, (_, i) => (
           <g key={i}>
@@ -153,7 +153,7 @@ export function ArenaBarChart({ className,
 }
         {Array.from({ length: n }, (_, i) => (
           <text key={i} x={arenaBandCenter(bands, i)} y={arenaCategoryLabelY(strip.plotH)} textAnchor="middle"
-            fill="var(--text-muted)" fontFamily="var(--font-body)" style={{ fontSize: 'var(--dz-text-xs)' }}>{labels[i] ?? ''}</text>
+            fill="color-mix(in oklab,var(--ink-muted) var(--level-ink-muted),transparent)" fontFamily="var(--font-body)" style={{ fontSize: 'var(--dz-text-xs)' }}>{labels[i] ?? ''}</text>
         ))}
 
         {

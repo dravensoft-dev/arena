@@ -99,3 +99,20 @@ test('ArenaDoughnutChart draws its legend row from the manifest', () => {
   assert.ok(row, 'ArenaDoughnutChart draws no legend row part');
   assert.equal(row.style.gap, '', 'the legend row carries no inline gap');
 });
+
+const FRAME_CHARTS: [string, string, () => React.ReactElement][] = [
+  ...SERIES_CHARTS,
+  ['ArenaDoughnutChart', 'doughnut-chart', () => <ArenaDoughnutChart labels={LABELS} series={[{ label: 'North', values: [12, 30, 7] }]} label="Deliveries" />],
+];
+
+for (const [name, part, render] of FRAME_CHARTS) {
+  test(`${name} draws inside its frame part, with the frame class and no inline position or width`, () => {
+    const root = mount(render());
+    const frame = root.querySelector<HTMLElement>(`[data-arena-part="${part}.frame"]`);
+    assert.ok(frame, `${name} draws no frame part`);
+    assert.ok(frame.className.split(' ').includes(`arena-${part}__frame`), 'the frame carries its generated class');
+    assert.equal(frame.style.position, '');
+    assert.equal(frame.style.width, '');
+    if (part === 'doughnut-chart') assert.equal(frame.getAttribute('style'), null, 'the doughnut frame carries no inline style');
+  });
+}

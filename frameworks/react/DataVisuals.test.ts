@@ -5,9 +5,9 @@ import {
 } from './DataVisuals.ts';
 import type { ArenaSeriesTone, ArenaTone } from './Api.generated';
 
-test('every tone in the union resolves to a token reference', () => {
+test('every tone in the union resolves to a var() or a colour-mix of roles and levels, never a literal colour', () => {
   const tones: ArenaTone[] = ['neutral', 'success', 'warning', 'danger', 'info'];
-  for (const tone of tones) assert.match(arenaToneColor(tone), /^var\(--[a-z-]+\)$/);
+  for (const tone of tones) assert.match(arenaToneColor(tone), /^(var\(--[a-z-]+\)|color-mix\(in oklab,var\(--[a-z-]+\) var\(--[a-z-]+\),transparent\))$/);
   assert.equal(new Set(tones.map(arenaToneColor)).size, tones.length, 'tones must not share a colour');
 });
 

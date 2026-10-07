@@ -132,7 +132,7 @@ export function ArenaScatterChart({ className,
   const active = hover === null ? null : marks[hover] ?? null;
 
   return (
-    <div className={arenaClassName('ArenaScatterChart', undefined, className)} ref={ref} style={{ position: 'relative', width: '100%', height }}>
+    <div className={arenaClassName('ArenaScatterChart', styles.frame(), className)} ref={ref} data-arena-part={manifest.parts.frame} {...styles.$data.frame()} style={{ height }}>
       <div tabIndex={0} role="group" aria-label={name} onKeyDown={onKeyDown}
         style={{ display: 'block', outlineOffset: 'var(--focus-offset)' }}>
       <svg width="100%" height={strip.plotH} role="img" aria-label={name}
@@ -140,25 +140,25 @@ export function ArenaScatterChart({ className,
         {yAxis.ticks.map((tick, i) => (
           <g key={i}>
             <line x1={box.x} x2={box.x + box.w} y1={tick.y} y2={tick.y}
-              stroke="var(--border)" style={{ strokeWidth: 'var(--bw)' }} />
+              stroke="var(--edge-separator)" style={{ strokeWidth: 'var(--bw)' }} />
             <text x={arenaTickLabelX(gutter)} y={tick.y} textAnchor="end" dominantBaseline="middle"
-              fill="var(--text-muted)" fontFamily="var(--font-mono)" style={{ fontSize: 'var(--dz-text-2xs)' }}>{tick.label}</text>
+              fill="color-mix(in oklab,var(--ink-muted) var(--level-ink-muted),transparent)" fontFamily="var(--font-mono)" style={{ fontSize: 'var(--dz-text-2xs)' }}>{tick.label}</text>
           </g>
         ))}
 
         {xAxis.ticks.map((tick, i) => (
           <text key={i} x={tick.x} y={arenaCategoryLabelY(strip.plotH)} textAnchor="middle"
-            fill="var(--text-muted)" fontFamily="var(--font-mono)" style={{ fontSize: 'var(--dz-text-2xs)' }}>{tick.label}</text>
+            fill="color-mix(in oklab,var(--ink-muted) var(--level-ink-muted),transparent)" fontFamily="var(--font-mono)" style={{ fontSize: 'var(--dz-text-2xs)' }}>{tick.label}</text>
         ))}
 
         <line x1={box.x} x2={box.x + box.w} y1={yAxis.zeroY} y2={yAxis.zeroY}
-          stroke="var(--line-strong)" style={{ strokeWidth: 'var(--bw)' }} />
+          stroke="var(--edge-axis)" style={{ strokeWidth: 'var(--bw)' }} />
         <line x1={xAxis.zeroX} x2={xAxis.zeroX} y1={box.y} y2={box.y + box.h}
-          stroke="var(--line-strong)" style={{ strokeWidth: 'var(--bw)' }} />
+          stroke="var(--edge-axis)" style={{ strokeWidth: 'var(--bw)' }} />
 
         {marks.map((mark, i) => (
           <circle key={i} cx={mark.at.x} cy={mark.at.y} r={hover === i ? mark.r + (chartPointRHover - chartPointR) : mark.r}
-            fill={colors[mark.seriesIndex]} stroke="var(--surface-card)"
+            fill={colors[mark.seriesIndex]} stroke="var(--fill-surface)"
             opacity={hover === null || hover === i ? 1 : 0.55}
             style={{ strokeWidth: 'var(--bw-strong)', transition: 'opacity var(--dur-hover) var(--ease-hover)' }} />
         ))}
@@ -187,9 +187,9 @@ export function ArenaScatterChart({ className,
             <span key={i} className={styles.legendItem()} data-arena-part={manifest.parts.legendItem} {...styles.$data.legendItem()}>
               <svg width={strip.sizeH} height={strip.sizeH} style={{ display: 'block', flexShrink: 0 }}>
                 <circle cx={strip.sizeH / 2} cy={strip.sizeH / 2} r={arenaRadiusAt(rScale, size)}
-                  fill="none" stroke="var(--border-strong)" style={{ strokeWidth: 'var(--bw)' }} />
+                  fill="none" stroke="var(--edge-axis)" style={{ strokeWidth: 'var(--bw)' }} />
               </svg>
-              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--dz-text-sm)', color: 'var(--text-body)' }}>{fmt(size)}</span>
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--dz-text-sm)', color: 'color-mix(in oklab,var(--ink-body) var(--level-ink-body),transparent)' }}>{fmt(size)}</span>
             </span>
           ))}
         </div>
