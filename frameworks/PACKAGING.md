@@ -32,15 +32,13 @@ and the assembly copies each into its `dist/` as `README.md`. They live in the t
 than being written into `dist/` directly for one reason: `check:docs` reads them, so the
 page npm shows holds to the same size, punctuation and comment rules as everything else.
 
-**The half of that page which is the same page in both packages is written once**, in
-`scripts/generate/arena/generate-npm-pages.ts`, and emitted into the `@shared` regions per file:
-what the repository is, how a skin is declared, and the tail.
+**A page is an intro and a table of questions.** `scripts/lib/arena/npm-questions.ts` holds the
+rows, and `scripts/generate/arena/generate-npm-pages.ts` emits them into the `@shared` regions,
+each answer linking `skills/design/` at the tag of the release. The prose a consumer reads lives
+there, flat and once, with a `## React` and `## Angular` part where a topic differs by layer.
 A person places the markers, so where a section sits on the page stays the page's decision and
-only what it says belongs to the script; `check:skills` holds every region equal to a fresh emit.
-What a layer decides stays hand-written in each: the import idiom, what the package exports, and
-how a layout is composed. The rule is the one `check:duplication` states for any pair of documents
-sharing a file name, applied to the pair a reader is most likely to meet: they are one page
-rendered per package, and a sentence said twice by hand goes stale in one of them.
+only what it says belongs to the script; `check:skills` holds every region equal to a fresh emit
+and every row to a file, a heading and a link from the skill.
 
 ## The one decision everything else follows from
 

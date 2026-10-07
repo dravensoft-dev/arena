@@ -45,8 +45,10 @@ Each marks its boundary differently, and the third does not mark it at all.
   most of the file. A prompt is not emitted from its contract; a prompt has regions emitted from
   its contract, and reading the first sentence as the second is how a reader concludes the whole
   file is untouchable.
-- **A layer's `PACKAGE.md`** carries `@shared` regions, and here the **markers are placed by a
-  person** while the text between them is not. Where a shared section sits on the npm page is the
+- **An npm page and two consumer references** carry `@shared` regions: each layer's `PACKAGE.md`
+  and `contracts/NPM.md` and `mcp/NPM.md` carry a `questions` table, and `skills/design/references/config.md`
+  and `stylesheets.md` carry the `skin` and `sheets` text. Here the **markers are placed by a
+  person** while the text between them is not. Where a generated section sits on the page is the
   author's decision; only what it says belongs to the generator, and
   `scripts/generate/arena/generate-npm-pages.ts:applyRegion(source, key, region)` throws rather
   than guesses when a marker it expects is absent.

@@ -71,7 +71,7 @@ That sheet re-bases the CDK overlay onto Arena's `--z-*` scale. Without it a men
 
 Those import lines are a bundler idiom and not TypeScript's. A `.css` specifier resolves to no module. Under `strict` the compiler reports TS2307 on every one of them. The build then stops at the file that wires Arena in.
 
-Most toolchains already ship the declaration, and the fix is to reference it. Vite takes `"types": ["vite/client"]` in `tsconfig.json`. Next.js generates `next-env.d.ts`.
+Most toolchains already ship the declaration, and the fix is to reference it. Vite takes `"types": ["vite/client"]` in `tsconfig.json`. A Next project generates `next-env.d.ts`.
 
 A project whose toolchain ships none declares the modules once. Put them in a declaration file that your `include` already reaches.
 

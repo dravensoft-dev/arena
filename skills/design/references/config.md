@@ -8,9 +8,9 @@ The file sits in the project root. The `arena-to-prod` command reads it and writ
 
 ## Declare your skin
 
-**A palette is not an appearance.** Arena keeps 72 questions about shape, space, weight and depth, and the answers are a style plugin your project writes. The config below decides which colours a surface takes, and none of how round, how tight or how heavy the product is. That decision is paid
+**A palette is not an appearance.** Arena keeps its questions about shape, space, weight and depth, and the answers are a style plugin your project writes. The config below decides which colours a surface takes, and none of how round, how tight or how heavy the product is. That decision is paid
 once per project and belongs before the first screen, and
-`skills/design/references/style-kernel.md` in the repository is where it is made.
+[`style-kernel.md`](./style-kernel.md) is where it is made.
 
 Write `arena.config.json` in your project root. The block below is the whole file, with one palette and three fonts served by Google Fonts. The file is enough to start:
 
@@ -61,7 +61,7 @@ Write `arena.config.json` in your project root. The block below is the whole fil
 }
 ```
 
-`arena.config.example.json` in this package is the same file with both Dravensoft palettes in
+`arena.config.example.json`, which each package ships, is the same file with both Dravensoft palettes in
 it, ready to copy and edit.
 
 **`stylePlugins` is in that block because leaving it out is a decision and not a blank.** The value above is the appearance this package installs with, which is Dravensoft's. A project that means to look like itself replaces it with the path to a plugin directory of its own. Both
@@ -73,7 +73,7 @@ What each part means:
   reaches `:root`; every other one becomes a class, `.arena-<name>`, that you put on
   `<html>` to switch skin.
 - **`polarity`** is `dark` or `light`. The polarity decides the native date picker's colour, and it is what a first visit matches `prefers-color-scheme` against.
-- **`colors`** takes all 27 keys above. `error-fill` is the only optional one: leave it out and
+- **`colors`** takes every key above. `error-fill` is the only optional one: leave it out and
   Arena darkens `error` in oklab for the single filled danger surface it has.
 - **`cat-1`** through **`cat-8`** are the chart ramp. The order of the slots is their identity, so slot 3 is always slot 3. The slots are never used to mean anything, only to tell series apart.
 - **`fonts`** fills the three families Arena reads. `src` takes either a stylesheet URL, as
