@@ -9,6 +9,8 @@ import type { Io } from './io.ts';
 import { resolveEnvironment } from './host.ts';
 import { plan, sheetStates } from './plan.ts';
 import type { PlanEnvironment, SheetOutput } from './plan.ts';
+import { systemWatch, watchBuild } from './watch.ts';
+import type { WatchDeps } from './watch.ts';
 
 export function writeOutputs(outputs: SheetOutput[], orphans: string[], out = ''):
   { written: SheetOutput[]; removed: string[] } {
@@ -60,15 +62,10 @@ export function buildOnce(options: Options, env: PlanEnvironment, io: Io): numbe
   return 0;
 }
 
-export function watchBuild(_options: Options, _build: () => number, io: Io): number {
-  voice(io, 'build').err('--watch is not built yet');
-  return 2;
-}
-
-export function run(argv: string[], io: Io): number | Promise<number> {
+export function run(argv: string[], io: Io, deps: () => WatchDeps = systemWatch): number | Promise<number> {
   const options = commandOptions('build', argv, io);
   if (typeof options === 'number') return options;
   const env = resolveEnvironment(io.environment);
-  if (options.watch) return watchBuild(options, () => buildOnce(options, env, io), io);
+  if (options.watch) return watchBuild(options, () => buildOnce(options, env, io), io, deps());
   return buildOnce(options, env, io);
 }

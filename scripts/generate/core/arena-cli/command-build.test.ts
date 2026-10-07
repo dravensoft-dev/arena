@@ -129,8 +129,19 @@ test('--strict on build exits 2 pointing at arena check', async () => {
 test('--watch hands over to watchBuild (6c)', async () => {
   const { web } = phosphor();
   const root = project();
-  const { io, err } = captureIo(root, environment(web));
-  assert.equal(await run([...flags(root), '--watch'], io), 2);
-  assert.deepEqual(err, ['arena build: --watch is not built yet']);
-  assert.equal(existsSync(join(root, 'src', THEME_SHEET)), false);
+  const { io, out } = captureIo(root, environment(web));
+  const controller = new AbortController();
+  const opened: string[] = [];
+  const deps = () => ({
+    watch: (dir: string) => { opened.push(dir); return { close() {} }; },
+    schedule: () => null,
+    cancel: () => {},
+    signal: controller.signal,
+  });
+  const done = run([...flags(root), '--watch'], io, deps);
+  assert.equal(existsSync(join(root, 'src', THEME_SHEET)), true);
+  assert.ok(opened.includes(join(root, 'src')));
+  assert.ok(out.some((line) => /watching \d+ location\(s\)/.test(line)));
+  controller.abort();
+  assert.equal(await done, 0);
 });
