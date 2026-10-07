@@ -30,9 +30,9 @@ export const BIN = 'arena-mcp';
 export const LAYERS = ['react', 'angular'];
 export const REGISTRY_NAME = 'io.github.dravensoft-dev/arena';
 
-export const AUDIT_SOURCE = 'scripts/generate/core/arena-to-prod/audit.ts';
+export const AUDIT_SOURCE = 'scripts/generate/core/arena-cli/audit.ts';
 export const AUDIT_FILE = 'bin/audit.mjs';
-export const AUDIT_SPECIFIER = "'../arena-to-prod/audit.mjs'";
+export const AUDIT_SPECIFIER = "'../arena-cli/audit.mjs'";
 export const AUDIT_BESIDE = "'./audit.mjs'";
 
 export function beside(emitted: string) {

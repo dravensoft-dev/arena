@@ -22,7 +22,7 @@ import { SKIPPED_DIRECTORIES as GRAPH_SKIPS } from '../../graph/inputs.ts';
 export const OWNER = 'scripts/lib/arena/foreign-trees.ts';
 
 export const SPELLED_ELSEWHERE = new Map([
-  ['scripts/generate/core/arena-to-prod/arena-to-prod.ts',
+  ['scripts/generate/core/arena-cli/arena-to-prod.ts',
    'ships inside both npm packages as a Node program reading its own siblings and node: modules, '
    + 'and walks a consumer\'s project rather than this one'],
   ['scripts/lib/arena/package-exclusions.ts',
@@ -75,7 +75,7 @@ test('a planted spelling is found in both shapes, and an exemption that stopped 
     'scripts/check/a.ts': "const SKIP = new Set(['dist', '.claude']);",
     'scripts/check/b.ts': "walkFiles(root, { skip: (name) => name === 'node_modules' });",
     'scripts/check/c.ts': "join(root, 'node_modules', 'pkg');",
-    'scripts/generate/core/arena-to-prod/arena-to-prod.ts': 'export {};',
+    'scripts/generate/core/arena-cli/arena-to-prod.ts': 'export {};',
     'scripts/lib/arena/package-exclusions.ts': "new Set(['node_modules'])",
   };
   const problems = spellingProblems((rel) => files[rel] ?? '', Object.keys(files));

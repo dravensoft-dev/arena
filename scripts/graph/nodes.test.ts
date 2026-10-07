@@ -40,8 +40,8 @@ test('a reason for never subscribing is a reason and not a label', () => {
 });
 
 test('a directory spec covers what is under it, which is how the shipped CLI opts out once', () => {
-  assert.ok(neverSubscribesReason('scripts/generate/core/arena-to-prod/icon-css.ts'));
-  assert.ok(neverSubscribesReason('scripts/generate/core/arena-to-prod/arena-to-prod.ts'));
+  assert.ok(neverSubscribesReason('scripts/generate/core/arena-cli/icon-css.ts'));
+  assert.ok(neverSubscribesReason('scripts/generate/core/arena-cli/arena-to-prod.ts'));
   assert.equal(neverSubscribesReason('scripts/generate/arena/generate-tokens.ts'), null);
 });
 

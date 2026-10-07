@@ -25,11 +25,11 @@ import { PACKAGES, distDir } from './check-packages.ts';
 import { CLI_BINS } from '../../lib/arena/package-assembly.ts';
 import {
   THEME_SHEET, ICONS_SHEET, PLUGIN_SHEET, PLUGIN_CSS, PLUGIN_LAYER, PLUGIN_LAYER_ORDER,
-} from '../../generate/core/arena-to-prod/arena-to-prod.ts';
-import { DEFAULT_PLUGIN, PLUGIN_TOKENS, pluginName } from '../../generate/core/arena-to-prod/theme-css.ts';
+} from '../../generate/core/arena-cli/arena-to-prod.ts';
+import { DEFAULT_PLUGIN, PLUGIN_TOKENS, pluginName } from '../../generate/core/arena-cli/theme-css.ts';
 import { ROOT_PLUGIN } from '../core/check-style-plugin.ts';
-import { WEIGHT_CLASSES } from '../../generate/core/arena-to-prod/icon-css.ts';
-import { RULE_TAGS } from '../../generate/core/arena-to-prod/audit.ts';
+import { WEIGHT_CLASSES } from '../../generate/core/arena-cli/icon-css.ts';
+import { RULE_TAGS } from '../../generate/core/arena-cli/audit.ts';
 import { captured } from '../../utils/captures.ts';
 
 export const node = {

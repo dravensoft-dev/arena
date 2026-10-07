@@ -11,14 +11,14 @@ import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
-import { paintedParts } from '../../generate/core/arena-to-prod/audit.ts';
-import { restatedFindings } from '../../generate/core/arena-to-prod/restated.ts';
+import { paintedParts } from '../../generate/core/arena-cli/audit.ts';
+import { restatedFindings } from '../../generate/core/arena-cli/restated.ts';
 import { kebab } from '../../utils/case.ts';
 import { categoryOf } from '../../lib/tailwind/manifest-surfaces.ts';
 import { MANIFESTS, partsOf } from '../arena/check-parts.ts';
 import { ARENA_EXT, ROLES, ROOT_PLUGIN } from './check-style-plugin.ts';
 import { tokenCatalogue } from '../../lib/arena/package-assembly.ts';
-import { readPlugin, resolvedPlugin } from '../../generate/core/arena-to-prod/theme-css.ts';
+import { readPlugin, resolvedPlugin } from '../../generate/core/arena-cli/theme-css.ts';
 import { CSS_TARGETS } from '../../generate/arena/generate-tokens.ts';
 
 export const COMPLETE = 'plugin-style-store/complete/plugin.tokens.json';

@@ -12,14 +12,14 @@ import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { resolvedFor } from './check-style-plugin.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { HUE_SHEETS } from '../../lib/tailwind/hue-sheet.ts';
-import { PALETTE_KEYS } from '../../generate/core/arena-to-prod/palette-keys.ts';
+import { PALETTE_KEYS } from '../../generate/core/arena-cli/palette-keys.ts';
 import {
   derivedLevels, drawnBy, inlineHues, levelDefaults, levelReports, levelsIn, raisedReports,
   washesIn, washReports,
-} from '../../generate/core/arena-to-prod/levels.ts';
+} from '../../generate/core/arena-cli/levels.ts';
 import {
   composite, darkenOklab, errorFill, FILL_FALLBACK_KEEP,
-} from '../../generate/core/arena-to-prod/oklab.ts';
+} from '../../generate/core/arena-cli/oklab.ts';
 
 export const PALETTE = 'contracts/design-generated/palette.generated.css';
 export const COLORS = 'contracts/design/colors.css';

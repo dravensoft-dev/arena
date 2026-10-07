@@ -29,7 +29,7 @@ const EXTENSION_COUPLED_GUARD = /process\.argv\[1\]\s*(?:&&\s*process\.argv\[1\]
 
 export const VENDORED_VERBATIM = new Set([
   'scripts/lib/core/validate-palette.mjs',
-  'scripts/generate/core/arena-to-prod/validate-palette.mjs',
+  'scripts/generate/core/arena-cli/validate-palette.mjs',
 ]);
 
 export function guardProblems(paths: string[], root = repoRoot) {

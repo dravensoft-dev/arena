@@ -16,7 +16,7 @@ import {
   ARENA_EXT, FS_STEP, KEBAB, MAX_PROSE_MEASURE, MIN_HEADING_LEADING, MIN_PROSE_LEADING,
   MIN_PROSE_MEASURE, RHYTHM_STEP, floorProblems, keyProblems, nameProblems, totalityProblems,
   valueProblems,
-} from '../../generate/core/arena-to-prod/style-plugin-rules.ts';
+} from '../../generate/core/arena-cli/style-plugin-rules.ts';
 
 export {
   ARENA_EXT, FS_STEP, KEBAB, MAX_PROSE_MEASURE, MIN_HEADING_LEADING, MIN_PROSE_LEADING,

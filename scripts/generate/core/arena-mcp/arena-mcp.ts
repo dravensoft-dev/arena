@@ -16,7 +16,7 @@ import {
   resolvePayload, manifestIn, disagreement, LAYERS, type Manifest, type Installed,
 } from './payload.ts';
 import { catalogue, search, textOf, ROUTER_URI, SCHEME, type Entry } from './catalogue.ts';
-import { auditText, loadVocabulary, type VocabularyIndex } from '../arena-to-prod/audit.ts';
+import { auditText, loadVocabulary, type VocabularyIndex } from '../arena-cli/audit.ts';
 
 export const NAME = 'arena';
 

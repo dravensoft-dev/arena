@@ -5,8 +5,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { withoutComments, serialise, iconManifest, MANIFEST_FILE } from './icon-manifest.ts';
-import { scan } from '../../generate/core/arena-to-prod/icon-css.ts';
-import { shippedNames } from '../../generate/core/arena-to-prod/icon-css.ts';
+import { scan } from '../../generate/core/arena-cli/icon-css.ts';
+import { shippedNames } from '../../generate/core/arena-cli/icon-css.ts';
 
 const scanned = (source: string) => serialise(scan(withoutComments(source, 'A.ts')));
 

@@ -11,8 +11,8 @@ import { resolvedFor } from './check-style-plugin.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import {
   derivedLevels, levelDefaults, levelReports, levelsIn, raisedReports,
-} from '../../generate/core/arena-to-prod/levels.ts';
-import { FILL_PAIRS } from '../../generate/core/arena-to-prod/palette-keys.ts';
+} from '../../generate/core/arena-cli/levels.ts';
+import { FILL_PAIRS } from '../../generate/core/arena-cli/palette-keys.ts';
 
 test('this gate and the shipped command hold the same fills legible', () => {
   const key = (p: { fill: string, content: string }) => `${p.fill}/${p.content}`;

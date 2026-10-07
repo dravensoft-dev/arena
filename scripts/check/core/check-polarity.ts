@@ -10,7 +10,7 @@ import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { THEMES } from '../../lib/core/palette-read.ts';
-import { POLARITIES, pickerInvert } from '../../generate/core/arena-to-prod/palette-keys.ts';
+import { POLARITIES, pickerInvert } from '../../generate/core/arena-cli/palette-keys.ts';
 
 export const COLORS = 'contracts/design/colors.css';
 

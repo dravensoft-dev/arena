@@ -16,7 +16,7 @@ import { blankComments, expressionLeaves, readValue, skipString } from './check-
 import { HAND_DRAWN, categoryOf, inScope, manifestFor } from '../../lib/tailwind/manifest-surfaces.ts';
 import { kebab } from '../../utils/case.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
-import { COMPAT_ALIASES } from '../../generate/core/arena-to-prod/audit.ts';
+import { COMPAT_ALIASES } from '../../generate/core/arena-cli/audit.ts';
 import { withForeignTrees } from '../../lib/arena/foreign-trees.ts';
 
 export const node = {

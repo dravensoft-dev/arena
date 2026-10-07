@@ -6,7 +6,7 @@ import { join } from 'node:path';
 import { relPosix } from '../../utils/posix-path.ts';
 import {
   EXCLUDED_NAMES, EXCLUDED_PATTERNS, CSS_CHAIN, arenaCssHeader, excluded,
-  collectFiles, reset, write, copyTree, copyCli, CLI_BINS, baseManifest, pluginIdentity, version, repositoryBase, agentBases, componentSheets, writeCssChain,
+  collectFiles, reset, write, copyTree, copyCli, CLI_BINS, CLI_SOURCES, baseManifest, pluginIdentity, version, repositoryBase, agentBases, componentSheets, writeCssChain,
   writeComponentMap, keywords, SHARED_KEYWORDS, tokenCatalogue,
 } from './package-assembly.ts';
 import { readJson } from '../../utils/read-file.ts';
@@ -187,6 +187,22 @@ test('every command the manifest declares is copied, flat, and no two of them sh
   rmSync(to, { recursive: true });
 });
 
+test('a command name and the directory its source lives in are independent', () => {
+  const to = mkdtempSync(join(tmpdir(), 'arena-assembly-cli-'));
+  const written = copyCli(to, repoRoot);
+  assert.ok(CLI_SOURCES.length > 0);
+  for (const source of CLI_SOURCES) {
+    assert.equal(existsSync(join(repoRoot, 'scripts', 'generate', 'core', source)), true, `${source} is declared and is not a directory`);
+  }
+  for (const target of Object.values(CLI_BINS)) {
+    const emitted = target.replace(/^\.\/bin\//, '').replace(/\.mjs$/, '');
+    const sourced = CLI_SOURCES.some((source) => ['.ts', '.mjs'].some((ext) => existsSync(join(repoRoot, 'scripts', 'generate', 'core', source, `${emitted}${ext}`))));
+    assert.ok(sourced, `${target} is not emitted from a file inside ${CLI_SOURCES.join(', ')}`);
+    assert.ok(written.includes(target));
+  }
+  rmSync(to, { recursive: true });
+});
+
 test('what a command ships reaches nothing outside bin/, because scripts/ is not there', () => {
   const to = mkdtempSync(join(tmpdir(), 'arena-assembly-cli-'));
   copyCli(to, repoRoot);
@@ -241,7 +257,7 @@ test('a marker declaration nothing can be read out of is refused rather than yie
 
 test('a command whose directory moved is reported rather than shipped missing', () => {
   const to = mkdtempSync(join(tmpdir(), 'arena-assembly-cli-'));
-  assert.throws(() => copyCli(to, mkdtempSync(join(tmpdir(), 'arena-empty-'))), /copied 0 files for arena-to-prod/);
+  assert.throws(() => copyCli(to, mkdtempSync(join(tmpdir(), 'arena-empty-'))), /copied 0 files for arena-cli/);
   rmSync(to, { recursive: true });
 });
 

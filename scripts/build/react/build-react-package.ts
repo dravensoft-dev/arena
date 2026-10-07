@@ -45,7 +45,7 @@ export const node = {
     `${LAYER}/**`, '!frameworks/react/dist/**',
     'frameworks/tailwind/Utilities.generated.css', `${CONSUME}/**/*.css`,
     'frameworks/Components.json', '.claude-plugin/plugin.json', 'LICENSE',
-    'scripts/generate/core/arena-to-prod/**', '!scripts/generate/core/arena-to-prod/*.test.ts',
+    'scripts/generate/core/arena-cli/**', '!scripts/generate/core/arena-cli/*.test.ts',
   ],
   writes: [`${LAYER}/dist/**`],
   feeds: [

@@ -17,7 +17,7 @@ import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import {
   DIST, SOURCE, ENTRY, BIN, NAME, REGISTRY_NAME, RUNTIME_DEPENDENCIES, manifest, sources,
 } from '../../build/arena/build-mcp-package.ts';
-import { loadVocabulary } from '../../generate/core/arena-to-prod/audit.ts';
+import { loadVocabulary } from '../../generate/core/arena-cli/audit.ts';
 import { catalogue, textOf, MARKDOWN_LINK, ADDRESSED } from '../../generate/core/arena-mcp/catalogue.ts';
 import { manifestIn, bundledPayload } from '../../generate/core/arena-mcp/payload.ts';
 import { servedDocs } from '../../lib/arena/llms-index.ts';

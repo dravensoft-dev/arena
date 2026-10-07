@@ -8,7 +8,7 @@ import { layerManifests } from '../tailwind/tailwind-compile.ts';
 import { DOMAIN } from './site-pages.ts';
 import { repoRoot } from './repo-root.ts';
 import { write } from './package-assembly.ts';
-import type { VocabularyIndex } from '../../generate/core/arena-to-prod/audit.ts';
+import type { VocabularyIndex } from '../../generate/core/arena-cli/audit.ts';
 import type { ComponentManifest } from '../tailwind/manifest-shapes.ts';
 
 export const VOCABULARY_FILE = 'arena.vocabulary.json';

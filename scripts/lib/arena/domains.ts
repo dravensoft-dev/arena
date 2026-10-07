@@ -23,7 +23,7 @@ export const STAYS_JAVASCRIPT = new Map([
   ['scripts/lib/core/validate-palette.mjs',
    'vendored verbatim from the dataviz Agent Skill and re-vendored rather than patched, so it '
    + 'can carry no annotation: editing one threshold invalidates published measurements'],
-  ['scripts/generate/core/arena-to-prod/validate-palette.mjs',
+  ['scripts/generate/core/arena-cli/validate-palette.mjs',
    'the copy that ships inside both npm packages, which palette-keys.test.ts holds byte-equal '
    + 'to the one above, so it is the same file and takes the same answer'],
 ]);

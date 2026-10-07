@@ -16,7 +16,7 @@ import { repoRoot } from './repo-root.ts';
 import { kebab } from '../../utils/case.ts';
 import { componentMap, MAP_FILE } from './component-map.ts';
 import { iconManifest, MANIFEST_FILE } from './icon-manifest.ts';
-import { shippedNames } from '../../generate/core/arena-to-prod/icon-css.ts';
+import { shippedNames } from '../../generate/core/arena-cli/icon-css.ts';
 import { manifestFiles } from '../tailwind/tailwind-compile.ts';
 import { preflightSheet } from '../tailwind/component-sheets.ts';
 import { huePath } from '../tailwind/hue-sheet.ts';
@@ -279,6 +279,8 @@ export function tokenCatalogue(root = repoRoot) {
 
 export const CLI_BINS = { 'arena-to-prod': './bin/arena-to-prod.mjs' };
 
+export const CLI_SOURCES = ['arena-cli'];
+
 export const SHIPPED_SPECIFIER = /(from\s+')(\.[^']*)\.ts(')/g;
 
 export function emitCli(source: string) {
@@ -290,7 +292,7 @@ export function emitCli(source: string) {
 
 export function copyCli(dir: string, root = repoRoot) {
   const written: string[] = [];
-  for (const name of Object.keys(CLI_BINS)) {
+  for (const name of CLI_SOURCES) {
     const from = join(root, 'scripts', 'generate', 'core', name);
     const copied = collectFiles(from, (file) => !excluded(basename(file))).map((file) => {
       const to = `bin/${relPosix(from, file)}`;

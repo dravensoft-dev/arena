@@ -4,7 +4,7 @@ import {
   collect, heldProblems, shapeProblems, zeroScanProblems, emitProblems, ID,
 } from './check-rules.ts';
 import { RULES, type LanguageRule } from '../../lib/arena/language-rules.ts';
-import { RULE_TAGS } from '../../generate/core/arena-to-prod/audit.ts';
+import { RULE_TAGS } from '../../generate/core/arena-cli/audit.ts';
 import { TARGETS, MARKED, CONTEXT7 } from '../../generate/arena/generate-rules.ts';
 
 const rule = (over: Partial<LanguageRule> = {}): LanguageRule => ({

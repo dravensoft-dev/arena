@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { readJson } from '../../utils/read-file.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
-import { POLARITIES, FONT_ROLES, requiredKeys } from '../../generate/core/arena-to-prod/palette-keys.ts';
+import { POLARITIES, FONT_ROLES, requiredKeys } from '../../generate/core/arena-cli/palette-keys.ts';
 import { ROLES } from './check-style-plugin.ts';
 import {
   CARRIES, CATALOGUE, CARD, CONFIG, SHEET, TOKENS, cardProblems, catalogueProblems, configProblems,

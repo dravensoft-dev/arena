@@ -9,8 +9,8 @@
  * group, and refuses any move a plain declaration of the same property would start losing to. The
  * block reader is a sibling of the shipped CLI, which reads these sheets and cannot import here. */
 
-import type { CssBlock } from '../../generate/core/arena-to-prod/css-blocks.ts';
-import { COLOUR_VAR, MIXED_VAR, parseBlocks, selectorPath, inkOf } from '../../generate/core/arena-to-prod/css-blocks.ts';
+import type { CssBlock } from '../../generate/core/arena-cli/css-blocks.ts';
+import { COLOUR_VAR, MIXED_VAR, parseBlocks, selectorPath, inkOf } from '../../generate/core/arena-cli/css-blocks.ts';
 
 export type { CssBlock };
 export { COLOUR_VAR, MIXED_VAR, parseBlocks, selectorPath, inkOf };

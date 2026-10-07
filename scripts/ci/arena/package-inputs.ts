@@ -17,7 +17,7 @@ export const SHARED_INPUTS = {
   'contracts/design/': 'reset.css and colors.css lead the stylesheet every package carries',
   'contracts/design-generated/': 'the typography, spacing and effects the CSS chain copies',
   'contracts/behaviour/': 'the behaviour contracts, copied whole into contracts/behaviour/ of both packages',
-  'scripts/generate/core/arena-to-prod/': 'the CLI each package ships as its bin',
+  'scripts/generate/core/arena-cli/': 'the CLI each package ships as its bin',
   'scripts/lib/arena/package-assembly.ts': 'the exclusion list, the copy and the manifest template',
   'scripts/lib/arena/package-exclusions.ts': 'the rule that decides which of these paths is carried at all',
   'scripts/lib/arena/component-map.ts': 'the map of what a consumer writes to the sheet it costs, carried in both packages',

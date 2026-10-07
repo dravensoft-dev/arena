@@ -17,7 +17,7 @@ import { emittedTree } from '../../lib/arena/layers.ts';
 import { captured } from '../../utils/captures.ts';
 import { byCodeUnit, byKey } from '../../utils/compare.ts';
 import { relPosix } from '../../utils/posix-path.ts';
-import { UNMODELLED_UNITS } from '../../generate/core/arena-to-prod/audit.ts';
+import { UNMODELLED_UNITS } from '../../generate/core/arena-cli/audit.ts';
 
 export const node = {
   name: 'check:dimensions',

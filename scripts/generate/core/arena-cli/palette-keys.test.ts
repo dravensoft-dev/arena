@@ -40,7 +40,7 @@ test('each role carries the generic fallback its own token ends with', () => {
 });
 
 test('the vendored validator has not drifted from the one the gates read', () => {
-  const vendored = readFileSync(join(root, 'scripts/generate/core/arena-to-prod/validate-palette.mjs'), 'utf8');
+  const vendored = readFileSync(join(root, 'scripts/generate/core/arena-cli/validate-palette.mjs'), 'utf8');
   const original = readFileSync(join(root, 'scripts/lib/core/validate-palette.mjs'), 'utf8');
   assert.equal(vendored, original,
     'the copy ships inside both packages and its header says to re-vendor rather than patch, '

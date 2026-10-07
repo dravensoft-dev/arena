@@ -9,7 +9,7 @@
  * rather than declared, because the shipped style-plugin rules need it too and a package carries no
  * scripts/ to import from: one definition, in the command's own tree, read from here. */
 
-export { ARENA_EXT } from '../../generate/core/arena-to-prod/style-plugin-rules.ts';
+export { ARENA_EXT } from '../../generate/core/arena-cli/style-plugin-rules.ts';
 
 export type DtcgToken = {
   $value: any;

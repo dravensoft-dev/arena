@@ -12,7 +12,7 @@ import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { expectedCarried } from './check-contracts-package.ts';
 import { axesOf, readFamilies } from '../../lib/tailwind/vocabulary.ts';
 import { readJson } from '../../utils/read-file.ts';
-import { COMPAT_ALIASES } from '../../generate/core/arena-to-prod/audit.ts';
+import { COMPAT_ALIASES } from '../../generate/core/arena-cli/audit.ts';
 import type { ContractCandidate, TypeContract } from '../../lib/arena/contract-shapes.ts';
 
 export const node = {

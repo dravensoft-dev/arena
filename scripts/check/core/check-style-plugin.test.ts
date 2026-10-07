@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
-import * as rules from '../../generate/core/arena-to-prod/style-plugin-rules.ts';
+import * as rules from '../../generate/core/arena-cli/style-plugin-rules.ts';
 import {
   SCOPES, collect, floorProblems, keyProblems, movedTokens, nameProblems, resolvedFor, totalityProblems,
   valueProblems, zeroScopeProblems,

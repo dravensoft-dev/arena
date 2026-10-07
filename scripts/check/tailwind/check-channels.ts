@@ -17,8 +17,8 @@ import { relPosix } from '../../utils/posix-path.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { VOCABULARY_SHEETS, readFamilies, sheetName } from '../../lib/tailwind/vocabulary.ts';
 import { HUE_CHANNELS, HUE_SHEETS } from '../../lib/tailwind/hue-sheet.ts';
-import { parseBlocks, selectorPath } from '../../generate/core/arena-to-prod/css-blocks.ts';
-import type { CssBlock } from '../../generate/core/arena-to-prod/css-blocks.ts';
+import { parseBlocks, selectorPath } from '../../generate/core/arena-cli/css-blocks.ts';
+import type { CssBlock } from '../../generate/core/arena-cli/css-blocks.ts';
 
 export const COMPONENT_SHEETS = 'frameworks/tailwind/consume/components';
 export const PLUGIN_STORE = 'plugin-style-store';

@@ -92,7 +92,7 @@ error names the set.
 **Where the set is declared, and where it is enforced.** Once, on the role in
 [`roles.json`](./roles.json). A style plugin re-values a role it did not declare and repeats
 nothing, so `values` is optional on the answer and
-`scripts/generate/core/arena-to-prod/style-plugin-rules.ts:valueProblems(where, key, token, role)`
+`scripts/generate/core/arena-cli/style-plugin-rules.ts:valueProblems(where, key, token, role)`
 is what holds a moved keyword to its role's set. Two gates, one set: the alternative is a copy of
 the enum in every plugin, which is a copy that can drift. A set may hold one word: `hue-danger-fill-strong` is closed to `["transparent"]`, a floor with no choice in it.
 

@@ -16,15 +16,15 @@ import { readJson } from '../../utils/read-file.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import {
   POLARITIES, FONT_ROLES, requiredKeys,
-} from '../../generate/core/arena-to-prod/palette-keys.ts';
+} from '../../generate/core/arena-cli/palette-keys.ts';
 import { CSS_TARGETS } from '../../generate/arena/generate-tokens.ts';
 import { tokenCatalogue } from '../../lib/arena/package-assembly.ts';
-import { readPlugin, resolvedPlugin } from '../../generate/core/arena-to-prod/theme-css.ts';
-import type { TokenCatalogue } from '../../generate/core/arena-to-prod/theme-css.ts';
+import { readPlugin, resolvedPlugin } from '../../generate/core/arena-cli/theme-css.ts';
+import type { TokenCatalogue } from '../../generate/core/arena-cli/theme-css.ts';
 import { ROLES, movedTokens } from './check-style-plugin.ts';
 import {
   floorProblems, nameProblems, totalityProblems, valueProblems,
-} from '../../generate/core/arena-to-prod/style-plugin-rules.ts';
+} from '../../generate/core/arena-cli/style-plugin-rules.ts';
 
 export const CATALOGUE = 'plugin-style-store/catalogue';
 

@@ -220,7 +220,7 @@ test('a specifier that escapes the flat bin is reported, since bin/ has no direc
     writeFileSync(join(dir, 'bin', 'clean.mjs'), "import { x } from './audit.mjs';\n");
     assert.deepEqual(flatProblems(dir), []);
 
-    writeFileSync(join(dir, 'bin', 'escaping.mjs'), "import { x } from '../arena-to-prod/audit.mjs';\n");
+    writeFileSync(join(dir, 'bin', 'escaping.mjs'), "import { x } from '../arena-cli/audit.mjs';\n");
     const problems = flatProblems(dir);
     assert.equal(problems.length, 1);
     assert.match(problems[0] ?? '', /escaping\.mjs/);

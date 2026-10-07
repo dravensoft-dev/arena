@@ -10,11 +10,11 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
-import { COMPAT_ALIASES } from '../../generate/core/arena-to-prod/audit.ts';
+import { COMPAT_ALIASES } from '../../generate/core/arena-cli/audit.ts';
 
 export const COLORS = 'contracts/design/colors.css';
 
-export const RULE = 'scripts/generate/core/arena-to-prod/audit.ts';
+export const RULE = 'scripts/generate/core/arena-cli/audit.ts';
 
 export const node = {
   name: 'check:compat-aliases',
