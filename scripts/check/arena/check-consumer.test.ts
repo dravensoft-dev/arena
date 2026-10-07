@@ -5,12 +5,13 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import {
   importedSheets, unknownSymbolProblems, listProblems, iconProblems, assembled, documented, CONFIG_REFERENCE,
-  palettesProblems, SOURCES, UNKNOWN, FILL, GLYPH, THIRD_PALETTE,
+  palettesProblems, SOURCES, UNKNOWN, FILL, GLYPH, THIRD_PALETTE, CLI, snapshot, treeChanges, exitProblem,
 } from './check-consumer.ts';
 import type { CliRun } from './check-consumer.ts';
 
@@ -129,4 +130,35 @@ test('a command that refused a third palette is a failure rather than an empty t
   const problems = palettesProblems('angular', { ...ok, status: 1 });
   assert.equal(problems.length, 1);
   assert.match(problems[0] ?? '', /three palettes exited 1/);
+});
+
+test('the gate runs the one bin the package declares', () => {
+  assert.equal(CLI, 'bin/arena.mjs');
+});
+
+test('a snapshot sees every byte of the tree but not what node_modules links to, and names what moved', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'arena-snapshot-'));
+  const elsewhere = mkdtempSync(join(tmpdir(), 'arena-snapshot-link-'));
+  mkdirSync(join(dir, 'node_modules'));
+  symlinkSync(elsewhere, join(dir, 'node_modules', 'linked'));
+  mkdirSync(join(dir, 'src'));
+  writeFileSync(join(dir, 'src', 'a.css'), 'one');
+  writeFileSync(join(dir, 'package.json'), '{}');
+  const before = snapshot(dir);
+  assert.deepEqual([...before.keys()].sort(), ['package.json', 'src/a.css']);
+  assert.deepEqual(treeChanges(before, snapshot(dir)), []);
+  writeFileSync(join(dir, 'src', 'a.css'), 'two');
+  writeFileSync(join(dir, 'new.css'), '');
+  rmSync(join(dir, 'package.json'));
+  assert.deepEqual(treeChanges(before, snapshot(dir)), ['new.css', 'package.json', 'src/a.css']);
+  rmSync(dir, { recursive: true, force: true });
+  rmSync(elsewhere, { recursive: true, force: true });
+});
+
+test('an exit code that is not the one a command promises is one problem naming the command and what it said', () => {
+  assert.deepEqual(exitProblem('react', 'arena doctor', { ...ok, status: 1 }, 1), []);
+  const wrong = exitProblem('react', 'arena doctor', { ...ok, status: 0, stderr: 'fine' }, 1);
+  assert.equal(wrong.length, 1);
+  assert.match(wrong[0] ?? '', /react: arena doctor exited 0 where it promises 1/);
+  assert.match(wrong[0] ?? '', /fine/);
 });

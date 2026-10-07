@@ -1,5 +1,5 @@
 /* What a consumer writes, and the component sheets it costs. Each package carries one of these so
- * `arena-to-prod` can resolve `"components": "auto"` without guessing: the name in a template is
+ * `arena build` can resolve `"components": "auto"` without guessing: the name in a template is
  * not the name of a sheet, since 43 sheets dress 55 components and a row, an item and a tab wear
  * their parent's. Both layers declare the link the same way, through the manifest a component's
  * styles read, whether it names it directly or reaches it through the sibling that does, so a

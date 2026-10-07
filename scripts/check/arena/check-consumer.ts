@@ -1,13 +1,11 @@
-/* The one gate that runs what a consumer runs. Every other package claim reads dist/ as
- * files; this spawns the CLI each package ships, from a `node_modules/` path, and reads what
- * it writes. The location is load-bearing: Node refuses to strip types under node_modules on
- * purpose, so a command run from dist/ proves nothing about the same command where it is
- * installed. The dist is symlinked into the fixture's node_modules and run from there;
- * arena-to-prod walks up from bin/ to find its root, so that link IS the package, and the
- * config is the example the package itself ships. Assembly is a prerequisite rather than a
- * step: a dist/ already there is left alone, and only a missing one is built, because
- * build:packages costs minutes and this gate costs seconds. The named sheet list is read from
- * the config reference, whose one `"components"` list is the example a consumer copies. */
+/* The one gate that runs what a consumer runs. Every other package claim reads dist/ as files;
+ * this spawns the one `arena` bin each package ships, from a `node_modules/` path, and reads what
+ * its subcommands write. The location is load-bearing: Node refuses to strip types under
+ * node_modules, so a command run from dist/ proves nothing about the same command installed. The
+ * dist is symlinked into a fixture's node_modules, and the bin walks up from bin/ to that link,
+ * which IS the package. Beside the sheets it checks what each subcommand leaves behind: the
+ * read-only ones change no byte, init and clean touch only what they name, and the exit codes hold.
+ * A dist/ already there is left alone; only a missing one is built. */
 
 import { spawnSync } from 'node:child_process';
 import {
@@ -20,6 +18,7 @@ import { isMainModule } from '../../utils/main-module.ts';
 import { readJson, readIfExists } from '../../utils/read-file.ts';
 import { hostBinary } from '../../lib/arena/host-binary.ts';
 import { linkDir } from '../../lib/arena/platform.ts';
+import { isForeignTree } from '../../lib/arena/foreign-trees.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { PACKAGES, distDir } from './check-packages.ts';
 import { CLI_BINS } from '../../lib/arena/package-assembly.ts';
@@ -40,7 +39,7 @@ export const node = {
 };
 
 
-export const CLI = 'bin/arena-to-prod.mjs';
+export const CLI = 'bin/arena.mjs';
 export const GLYPH = 'ph-bell';
 export const FILL = `.${WEIGHT_CLASSES.fill}`;
 
@@ -244,11 +243,11 @@ export function layerProblems(layer: string, valid: CliRun) {
   return problems;
 }
 
-export function scopeProblems(layer: string, audited: CliRun) {
+export function scopeProblems(layer: string, audited: CliRun, used: CliRun) {
   const problems = [];
   const reported = audited.stderr.split('\n').filter((line) => line.includes('(own-class)'));
   if (reported.some((line) => line.includes(PLUGIN_CSS))) {
-    problems.push(`${layer}: --audit reported a part selector inside a directory the config declares in `
+    problems.push(`${layer}: arena audit reported a part selector inside a directory the config declares in `
       + 'stylePlugins. That directory is the one place a project\'s appearance is allowed to live, and '
       + `a gate a consumer cannot trust is worse than none:\n    ${reported[0]}`);
   }
@@ -257,13 +256,13 @@ export function scopeProblems(layer: string, audited: CliRun) {
       + 'where a project\'s appearance lives, which is half of what it reports');
   }
   if (audited.stderr.split('\n').some((line) => line.includes(PLUGIN_CSS) && line.includes('gradient'))) {
-    problems.push(`${layer}: --audit reported a gradient inside a style plugin. A plugin paints one from its `
+    problems.push(`${layer}: arena audit reported a gradient inside a style plugin. A plugin paints one from its `
       + 'own stylesheet whatever the token tier says, so the norm records it as a report rather than a '
       + 'floor and --strict may not refuse what the norm permits');
   }
-  if (!audited.stdout.includes(`paint 2 part(s): ${PAINTED}, ${RESTATED}`)) {
-    problems.push(`${layer}: the run does not name the parts the plugin paints, and that note is where the `
-      + `evidence for promoting a role comes from:\n    ${audited.stdout.trim()}`);
+  if (!used.stdout.includes(`paint 2 part(s): ${PAINTED}, ${RESTATED}`)) {
+    problems.push(`${layer}: arena usage does not name the parts the plugin paints, and that note is where the `
+      + `evidence for promoting a role comes from:\n    ${used.stdout.trim()}`);
   }
   const restated = audited.stderr.split('\n').filter((line) => line.includes('changes nothing'));
   if (!restated.some((line) => line.includes(RESTATED))) {
@@ -329,9 +328,21 @@ export function palettesProblems(layer: string, run: CliRun) {
   return problems;
 }
 
-export function runCli(layer: string, dir: string, base = root, extra: string[] = []) {
+export const COMMAND_FLAGS: Record<string, string[]> = {
+  build: ['--src', 'src', '--out', 'out'],
+  check: ['--src', 'src'],
+  audit: ['--src', 'src'],
+  usage: ['--src', 'src'],
+  doctor: ['--src', 'src', '--out', 'out'],
+  clean: ['--out', 'out'],
+};
+
+export function runCli(
+  layer: string, dir: string, base = root, command: string[] = ['build'], extra: string[] = [],
+) {
   const node = hostBinary('node', 'to run the CLI a consumer installs, the way a consumer runs it');
-  const run = spawnSync(node, [installed(layer, dir, base), '--src', 'src', '--out', 'out', ...extra],
+  const [name = ''] = command;
+  const run = spawnSync(node, [installed(layer, dir, base), ...command, ...(COMMAND_FLAGS[name] ?? []), ...extra],
     { cwd: dir, encoding: 'utf8' });
   const read = (name: string) => {
     const at = join(dir, 'out', name);
@@ -347,17 +358,125 @@ export function runCli(layer: string, dir: string, base = root, extra: string[] 
   };
 }
 
+const BARE: CliRun = { status: null, stdout: '', stderr: '', theme: null, icons: null, plugin: null };
+
+export function snapshot(dir: string) {
+  const seen = new Map<string, string>();
+  const walk = (at: string, prefix: string) => {
+    for (const entry of readdirSync(at, { withFileTypes: true })) {
+      const rel = prefix ? `${prefix}/${entry.name}` : entry.name;
+      if (isForeignTree(entry.name)) continue;
+      if (entry.isDirectory()) walk(join(at, entry.name), rel);
+      else seen.set(rel, readFileSync(join(at, entry.name)).toString('base64'));
+    }
+  };
+  walk(dir, '');
+  return seen;
+}
+
+export function treeChanges(before: Map<string, string>, after: Map<string, string>) {
+  const names = new Set([...before.keys(), ...after.keys()]);
+  return [...names].filter((name) => before.get(name) !== after.get(name)).sort();
+}
+
+export function exitProblem(layer: string, what: string, run: CliRun, want: number) {
+  if (run.status === want) return [];
+  return [`${layer}: ${what} exited ${run.status} where it promises ${want}:\n    ${(run.stderr || run.stdout).trim()}`];
+}
+
+export function subcommandProblems(layer: string, base = root, dirs: string[] = []) {
+  const problems: string[] = [];
+  const sources = SOURCES[layer] ?? {};
+  const fresh = (files: Record<string, string> = sources) => {
+    const dir = fixture(layer, files, AUTO, base);
+    dirs.push(dir);
+    return dir;
+  };
+  const run = (dir: string, command: string[], extra: string[] = []) => runCli(layer, dir, base, command, extra);
+
+  const built = fresh();
+  problems.push(...exitProblem(layer, 'arena build', run(built, ['build']), 0));
+  for (const command of ['check', 'audit', 'usage', 'doctor']) {
+    const before = snapshot(built);
+    const result = run(built, [command]);
+    const moved = treeChanges(before, snapshot(built));
+    if (moved.length > 0) {
+      problems.push(`${layer}: arena ${command} wrote to the tree, and it promises to leave every byte: ${moved.join(', ')}`);
+    }
+    if (command === 'doctor') problems.push(...exitProblem(layer, 'arena doctor after a build', result, 0));
+  }
+
+  const unbuilt = fresh();
+  problems.push(...exitProblem(layer, 'arena doctor before a build', run(unbuilt, ['doctor']), 1));
+  const orphaned = fresh();
+  run(orphaned, ['build']);
+  writeFileSync(join(orphaned, 'out', PLUGIN_SHEET), '/* a sheet no config asks for */\n');
+  problems.push(...exitProblem(layer, 'arena doctor over an orphan plugin sheet', run(orphaned, ['doctor']), 1));
+  run(orphaned, ['build']);
+  if (existsSync(join(orphaned, 'out', PLUGIN_SHEET))) {
+    problems.push(`${layer}: arena build left ${PLUGIN_SHEET} in place though no style plugin asks for it`);
+  }
+
+  const plugged = pluginFixture(layer, [PLUGINS.total, PLUGINS.partial], base);
+  dirs.push(plugged);
+  run(plugged, ['build']);
+  const sheets = [THEME_SHEET, ICONS_SHEET, PLUGIN_SHEET];
+  const absent = sheets.filter((name) => !existsSync(join(plugged, 'out', name)));
+  if (absent.length > 0) problems.push(`${layer}: the build the clean case starts from wrote no ${absent.join(', ')}`);
+  problems.push(...exitProblem(layer, 'arena clean', run(plugged, ['clean']), 0));
+  const left = sheets.filter((name) => existsSync(join(plugged, 'out', name)));
+  if (left.length > 0) problems.push(`${layer}: arena clean left ${left.join(', ')}`);
+
+  const empty = fresh();
+  rmSync(join(empty, 'arena.config.json'));
+  writeFileSync(join(empty, 'package.json'), '{}\n');
+  problems.push(...exitProblem(layer, 'arena init on an empty package.json', run(empty, ['init']), 0));
+  const scripts = readJson(join(empty, 'package.json')).scripts ?? {};
+  if (!existsSync(join(empty, 'arena.config.json')) || !Object.values(scripts).some((one) => /\barena build\b/.test(String(one)))) {
+    problems.push(`${layer}: arena init left no config or no script running arena build`);
+  }
+  problems.push(...exitProblem(layer, 'arena build after arena init', run(empty, ['build']), 0));
+  if (!existsSync(join(empty, 'out', THEME_SHEET))) problems.push(`${layer}: arena build after arena init wrote no ${THEME_SHEET}`);
+
+  const kept = fresh();
+  const mine = '{\n  "scripts": {\n    "prebuild": "echo mine",\n    "predev": "echo mine",\n    "prestart": "echo mine"\n  }\n}\n';
+  writeFileSync(join(kept, 'package.json'), mine);
+  const config = readFileSync(join(kept, 'arena.config.json'), 'utf8');
+  problems.push(...exitProblem(layer, 'arena init over a prebuild of the project\'s own', run(kept, ['init']), 0));
+  const after = readJson(join(kept, 'package.json')).scripts ?? {};
+  if (after.prebuild !== 'echo mine' || after.predev !== 'echo mine' || after.prestart !== 'echo mine') {
+    problems.push(`${layer}: arena init overwrote a script the project already had`);
+  }
+  if (readFileSync(join(kept, 'arena.config.json'), 'utf8') !== config) {
+    problems.push(`${layer}: arena init overwrote a config the project already had`);
+  }
+
+  const node = hostBinary('node', 'to run the CLI a consumer installs, the way a consumer runs it');
+  const bin = installed(layer, built, base);
+  const bare = spawnSync(node, [bin], { cwd: built, encoding: 'utf8' });
+  problems.push(...exitProblem(layer, 'arena with no command', { ...BARE, status: bare.status, stderr: bare.stderr ?? '' }, 2));
+  const unknown = spawnSync(node, [bin, 'frobnicate'], { cwd: built, encoding: 'utf8' });
+  problems.push(...exitProblem(layer, 'arena with an unknown command', { ...BARE, status: unknown.status, stderr: unknown.stderr ?? '' }, 2));
+  const version = spawnSync(node, [bin, '--version'], { cwd: built, encoding: 'utf8' });
+  const manifest = readJson(join(distDir(layer, base), 'package.json'));
+  if (version.status !== 0 || (version.stdout ?? '').trim() !== `${manifest.name} ${manifest.version}`) {
+    problems.push(`${layer}: arena --version said "${(version.stdout ?? '').trim()}" with exit ${version.status}, `
+      + `and the package is ${manifest.name} ${manifest.version}`);
+  }
+  return problems;
+}
+
 export function auditProblems(layer: string, reported: CliRun, strict: CliRun, rules: string[]) {
   const problems = [];
   for (const rule of rules)
     if (!reported.stderr.includes(`(${rule})`))
-      problems.push(`${layer}: --audit read a source breaking the ${rule} rule and reported nothing, `
+      problems.push(`${layer}: arena audit read a source breaking the ${rule} rule and reported nothing, `
         + 'so the one signal a consumer gets is silent about it');
   if (reported.status !== 0)
-    problems.push(`${layer}: --audit exited ${reported.status} without --strict, and a finding is a `
+    problems.push(`${layer}: arena audit exited ${reported.status} without --strict, and a finding is a `
       + 'report rather than a broken build until a project asks for one');
   if (strict.status !== 1)
-    problems.push(`${layer}: --audit --strict exited ${strict.status} over a source breaking `
+    problems.push(`${layer}: arena audit --strict exited ${strict.status} over a source breaking `
       + `${rules.length} rule(s), so a project that asked for a hard failure did not get one`);
   return problems;
 }
@@ -367,7 +486,7 @@ export function cleanAuditProblems(layer: string, clean: CliRun) {
   const found = clean.stderr.split('\n').filter((line) => tagged.test(line));
   return found.length === 0
     ? []
-    : [`${layer}: --audit reported ${found.length} finding(s) over sources that break no rule, and a `
+    : [`${layer}: arena audit reported ${found.length} finding(s) over sources that break no rule, and a `
       + `gate a consumer cannot trust is worse than none: ${found[0]}`];
 }
 
@@ -502,19 +621,23 @@ export function collect(base = root) {
       problems.push(...stemProblems(layer, result, ['arena-button', 'arena-table'], base));
       problems.push(...unknownSymbolProblems(layer, runCli(layer, unexported, base)));
       problems.push(...listProblems(layer, runCli(layer, named, base), runCli(layer, unknown, base), list));
-      problems.push(...unplacedProblems(layer, runCli(layer, unplaced, base), strange?.name ?? ''));
+      problems.push(...unplacedProblems(layer, runCli(layer, unplaced, base, ['check']), strange?.name ?? ''));
       problems.push(...auditProblems(
         layer,
-        runCli(layer, broken, base, ['--audit']),
-        runCli(layer, broken, base, ['--audit', '--strict']),
+        runCli(layer, broken, base, ['audit']),
+        runCli(layer, broken, base, ['audit'], ['--strict']),
         breaking?.rules ?? [],
       ));
-      problems.push(...cleanAuditProblems(layer, runCli(layer, auto, base, ['--audit'])));
-      const valid = runCli(layer, plugged, base, ['--strict']);
-      problems.push(...stylePluginProblems(layer, valid, runCli(layer, partialRoot, base, ['--strict'])));
+      problems.push(...cleanAuditProblems(layer, runCli(layer, auto, base, ['audit'])));
+      const valid = runCli(layer, plugged, base);
+      problems.push(...stylePluginProblems(layer, valid, runCli(layer, partialRoot, base)));
       problems.push(...layerProblems(layer, valid));
-      problems.push(...scopeProblems(layer, runCli(layer, plugged, base, ['--audit'])));
+      problems.push(...exitProblem(layer, 'arena check --strict over two valid style plugins',
+        runCli(layer, plugged, base, ['check'], ['--strict']), 0));
+      problems.push(...scopeProblems(layer, runCli(layer, plugged, base, ['audit']),
+        runCli(layer, plugged, base, ['usage'])));
       problems.push(...palettesProblems(layer, runCli(layer, palettes, base)));
+      problems.push(...subcommandProblems(layer, base, dirs));
     }
   } finally {
     for (const dir of dirs) rmSync(dir, { recursive: true, force: true });

@@ -18,7 +18,7 @@ import type { ArenaConfig, TokenCatalogue } from './theme-css.ts';
 import { pluginTokenMaps } from './sheets.ts';
 import { auditFiles, owningPlugin, pluginDirs, readSources, sourceFiles } from './sources.ts';
 
-type StepOptions = { paths: string[]; config: string; audit: boolean };
+type StepOptions = { paths: string[]; config: string };
 
 export function reportLines(reports: { palette: string; messages: Report[] }[]) {
   return reports.flatMap(({ palette, messages }) =>
@@ -62,7 +62,6 @@ export function auditStep(
   options: StepOptions, arena: string | null = null, catalogue: TokenCatalogue | null = null,
   vocabulary: VocabularyIndex | null = null,
 ) {
-  if (!options.audit) return { reports: [] as Report[], scanned: 0, painted: [] as string[] };
   const dirs = pluginDirs(options);
   const tokensAt = pluginTokenMaps(dirs, catalogue);
   const declaredMark = gradientMark(options);
@@ -110,13 +109,13 @@ export function markersStep(options: StepOptions, map: ComponentMap | null) {
 export function undrawnStep(options: StepOptions, packageName: string, map: ComponentMap | null) {
   if (!map) {
     return { notes: [] as string[],
-      fatal: ['--undrawn reads the component map this package carries, and it is not beside this '
-        + 'command, so what you draw cannot be compared against what ships'] };
+      fatal: ['the component map this package carries is not beside this command, so arena usage '
+        + 'cannot compare what you draw against what ships'] };
   }
   const found = resolveComponents(map, readSources(options.paths), packageName);
   if (!found) {
     return { notes: [] as string[],
-      fatal: [`--undrawn cannot read a map keyed by ${JSON.stringify(map.match)}`] };
+      fatal: [`arena usage cannot read a map keyed by ${JSON.stringify(map.match)}`] };
   }
 
   const shipped = Object.keys(map.draws).sort();

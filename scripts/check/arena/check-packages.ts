@@ -82,18 +82,18 @@ export function paletteEquivalenceProblems(generatedCss: string, cliCss: string)
   for (const [selector, decls] of expected) {
     const mine = actual.get(selector);
     if (!mine) {
-      problems.push(`${GENERATED_PALETTE} declares ${selector} and arena-to-prod emits no such block`);
+      problems.push(`${GENERATED_PALETTE} declares ${selector} and arena build emits no such block`);
       continue;
     }
     for (const [name, value] of decls) {
       if (!isColour(name)) continue;
       compared += 1;
       if (mine.get(name) !== value) {
-        problems.push(`${selector} --${name}: Style Dictionary says ${value}, arena-to-prod says ${mine.get(name) ?? '(nothing)'}`);
+        problems.push(`${selector} --${name}: Style Dictionary says ${value}, arena build says ${mine.get(name) ?? '(nothing)'}`);
       }
     }
     for (const name of mine.keys()) {
-      if (isColour(name) && !decls.has(name)) problems.push(`${selector} --${name}: arena-to-prod emits it and Style Dictionary does not`);
+      if (isColour(name) && !decls.has(name)) problems.push(`${selector} --${name}: arena build emits it and Style Dictionary does not`);
     }
   }
 
@@ -512,7 +512,7 @@ function main() {
       + `${sheets} stylesheet(s) carry no fallback painting an ink in its own colour and state `
       + 'each condition once per rule'
     : 'no package assembled; run bun run build:packages to check the manifests too';
-  console.log(`check-packages: arena-to-prod matches ${GENERATED_PALETTE} across ${compared} declaration(s); ${built}`);
+  console.log(`check-packages: arena build matches ${GENERATED_PALETTE} across ${compared} declaration(s); ${built}`);
 }
 
 if (isMainModule(import.meta.url)) main();

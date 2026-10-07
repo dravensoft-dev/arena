@@ -2,7 +2,8 @@ import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { PALETTE_KEYS } from './palette-keys.ts';
-import { parseArgs, resolved } from './arena-to-prod.ts';
+import { parseArgs } from './args.ts';
+import type { Options } from './args.ts';
 import type { ComponentMap } from './components.ts';
 import type { HostEnvironment } from './host.ts';
 import type { Io } from './io.ts';
@@ -54,22 +55,21 @@ export function phosphor(weights: Record<string, string> = { bold: 'Phosphor-Bol
 }
 
 export function project(config: any = readable, files: Record<string, string> = { 'app.html': '<i class="ph-bold ph-bell"></i>' }) {
-  const root = mkdtempSync(join(tmpdir(), 'arena-to-prod-'));
+  const root = mkdtempSync(join(tmpdir(), 'arena-'));
   mkdirSync(join(root, 'src'), { recursive: true });
   if (config) writeFileSync(join(root, 'arena.config.json'), JSON.stringify(config));
   for (const [name, content] of Object.entries(files)) writeFileSync(join(root, 'src', name), content);
   return root;
 }
 
-export const options = (
-  root: string,
-  extra: { strict?: boolean; importHeader?: boolean; undrawn?: boolean } = {},
-) => resolved(parseArgs([
-  '--config', join(root, 'arena.config.json'), '--src', join(root, 'src'), '-o', join(root, 'src'),
-  ...(extra.strict ? ['--strict'] : []),
-  ...(extra.undrawn ? ['--undrawn'] : []),
-  ...(extra.importHeader === false ? ['--no-import'] : []),
-]));
+export function options(root: string, extra: { importHeader?: boolean } = {}): Options {
+  const parsed = parseArgs('build', [
+    '--config', join(root, 'arena.config.json'), '--src', join(root, 'src'), '-o', join(root, 'src'),
+    ...(extra.importHeader === false ? ['--no-import'] : []),
+  ]);
+  if (parsed.kind !== 'options') throw new Error('the fixture arguments do not parse');
+  return parsed.options;
+}
 
 export function quietly(run: () => void) {
   const log = console.log, error = console.error;

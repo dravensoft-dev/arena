@@ -21,7 +21,7 @@ export function run(argv: string[], io: Io): number {
   }
 
   const env = resolveEnvironment(io.environment);
-  const found = auditStep({ ...options, audit: true }, env.arena,
+  const found = auditStep(options, env.arena,
     env.arena ? packageCatalogue(env.arena) : null, env.vocabulary);
 
   for (const one of found.reports) say.err(`[${one.kind}] ${one.message}`);

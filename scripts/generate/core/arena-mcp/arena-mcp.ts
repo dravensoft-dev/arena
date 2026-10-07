@@ -23,7 +23,7 @@ export const NAME = 'arena';
 export const CHECKED_AS = 'src/App.tsx';
 
 export const CHECK_SCOPE = 'Read as an application source, so a style plugin of your own is not '
-  + 'judged here: run arena-to-prod --audit for that half, which reads your config and knows '
+  + 'judged here: run `arena audit` for that half, which reads your config and knows '
   + 'which directories are plugins.';
 
 export function checked(

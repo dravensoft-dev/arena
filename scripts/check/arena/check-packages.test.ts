@@ -31,24 +31,24 @@ test('an equal pair reports nothing and says how much it looked at', () => {
 
 test('a value that differs names both emitters and both values', () => {
   const { problems } = paletteEquivalenceProblems(generated, ':root{--color-primary:#ff0000;--color-base-100:#141010;}');
-  assert.deepEqual(problems, ['\:root --color-primary: Style Dictionary says #b52a20, arena-to-prod says #ff0000']);
+  assert.deepEqual(problems, ['\:root --color-primary: Style Dictionary says #b52a20, arena build says #ff0000']);
 });
 
 test('a missing declaration is reported as emitting nothing rather than as absent', () => {
   const { problems } = paletteEquivalenceProblems(generated, ':root{--color-base-100:#141010;}');
   assert.equal(problems.length, 1);
-  assert.match(problems[0] ?? '', /--color-primary: .* arena-to-prod says \(nothing\)/);
+  assert.match(problems[0] ?? '', /--color-primary: .* arena build says \(nothing\)/);
 });
 
 test('a colour the CLI invents is a problem in the other direction', () => {
   const { problems } = paletteEquivalenceProblems(generated, `${generated.slice(0, -1)}--color-brand:#000000;}`);
-  assert.deepEqual(problems, ['\:root --color-brand: arena-to-prod emits it and Style Dictionary does not']);
+  assert.deepEqual(problems, ['\:root --color-brand: arena build emits it and Style Dictionary does not']);
 });
 
 test('a whole missing block is one problem, not one per declaration', () => {
   const { problems } = paletteEquivalenceProblems(`${generated}.arena-light{--color-primary:#b52a20;}`, generated);
   assert.equal(problems.length, 1);
-  assert.match(problems[0] ?? '', /declares \.arena-light and arena-to-prod emits no such block/);
+  assert.match(problems[0] ?? '', /declares \.arena-light and arena build emits no such block/);
 });
 
 test('a comparison that looked at nothing fails rather than passing vacuously', () => {
@@ -163,9 +163,9 @@ test('a wildcard matches one path segment, the way Node resolves an exports patt
 test('a package exposing nothing is a problem, and so is a bin that was never emitted', () => {
   const dir = assembled({ 'README.md': '#', 'Index.d.ts': '' });
   assert.match(exportProblems(REACT_PACKAGE, manifest(), dir)[0] ?? '', /no exports target resolves/);
-  const m = manifest({ exports: { '.': './README.md' }, bin: { 'arena-to-prod': './bin/arena-to-prod.ts' } });
+  const m = manifest({ exports: { '.': './README.md' }, bin: { arena: './bin/arena.ts' } });
   assert.deepEqual(exportProblems(REACT_PACKAGE, m, dir),
-    ['@dravensoft/arena-react: bin arena-to-prod points at ./bin/arena-to-prod.ts, which was never emitted']);
+    ['@dravensoft/arena-react: bin arena points at ./bin/arena.ts, which was never emitted']);
   rmSync(dir, { recursive: true });
 });
 

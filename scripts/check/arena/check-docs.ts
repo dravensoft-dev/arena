@@ -125,17 +125,17 @@ export function isConsumerDocument(repoRelativePath: string) {
 
 export const CONSUMER_OWN_OUTPUT = new Map([
   ['arena.generated.css',
-   'the stylesheet the CONSUMER generates, in their own project, by running the arena-to-prod '
+   'the stylesheet the CONSUMER generates, in their own project, by running the arena build '
    + 'command each package ships. It carries the .generated. infix and is nothing this repository '
    + 'builds, so the build-product rule below reads it backwards: a reader of the npm page has '
    + 'this file and is being told to make it.'],
   ['icons.generated.css',
    'the Phosphor subset the CONSUMER generates, in their own project, by the same run of '
-   + 'arena-to-prod. Same reading as arena.generated.css above: the infix is theirs '
+   + 'arena build. Same reading as arena.generated.css above: the infix is theirs '
    + 'and not this repository\'s, and the name is the one the npm page tells them to write.'],
   ['plugin.generated.css',
    'the style plugin\'s own CSS, wrapped in the reserved layer, written into the CONSUMER\'s '
-   + 'project by the same run of arena-to-prod. The third of the three and the only one that is '
+   + 'project by the same run of arena build. The third of the three and the only one that is '
    + 'conditional, since it exists when a declared plugin carries a plugin.css. Named on the npm '
    + 'page for the reason the other two are: a consumer cannot import a file nobody told them about.'],
 ]);

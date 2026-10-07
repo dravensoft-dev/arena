@@ -3,7 +3,6 @@ import assert from 'node:assert/strict';
 import { mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { undrawnStep, auditStep, reportLines, paintedBy } from './steps.ts';
-import { parseArgs, resolved } from './arena-to-prod.ts';
 import { report } from './reports.ts';
 import { auto, MAP, options, project, readable } from './cli-fixtures.ts';
 
@@ -14,9 +13,9 @@ test('a report line names the palette it came from, and keeps the kind it is', (
   );
 });
 
-test('--undrawn names the shipped components a project draws nowhere', () => {
+test('the undrawn step names the shipped components a project draws nowhere', () => {
   const root = project(auto, { 'app.html': '<arena-button />' });
-  const step = undrawnStep(options(root, { undrawn: true }), '@dravensoft/arena-react', MAP);
+  const step = undrawnStep(options(root), '@dravensoft/arena-react', MAP);
   assert.deepEqual(step.fatal, []);
   assert.match(step.notes[0] ?? '', /1 of 3 shipped component\(s\) drawn/);
   assert.match(step.notes[1] ?? '', /2 drawn nowhere: arena-bar-chart, arena-table/);
@@ -25,23 +24,24 @@ test('--undrawn names the shipped components a project draws nowhere', () => {
 
 test('a project drawing everything is told so, rather than being handed an empty list', () => {
   const root = project(auto, { 'app.html': '<arena-button /><arena-table /><arena-bar-chart />' });
-  const step = undrawnStep(options(root, { undrawn: true }), '@dravensoft/arena-react', MAP);
+  const step = undrawnStep(options(root), '@dravensoft/arena-react', MAP);
   assert.match(step.notes[1] ?? '', /every component this package ships is drawn somewhere/);
   rmSync(root, { recursive: true });
 });
 
 test('a component Arena draws on your behalf is still undrawn, because you never wrote it', () => {
   const root = project(auto, { 'app.html': '<arena-table />' });
-  const step = undrawnStep(options(root, { undrawn: true }), '@dravensoft/arena-react', MAP);
+  const step = undrawnStep(options(root), '@dravensoft/arena-react', MAP);
   assert.match(step.notes[1] ?? '', /arena-button/);
   rmSync(root, { recursive: true });
 });
 
-test('--undrawn without the map beside the command says why rather than reporting nothing', () => {
+test('the undrawn step without the map beside the command says why rather than reporting nothing', () => {
   const root = project(auto, { 'app.html': '<arena-button />' });
-  const step = undrawnStep(options(root, { undrawn: true }), '@dravensoft/arena-react', null);
+  const step = undrawnStep(options(root), '@dravensoft/arena-react', null);
   assert.equal(step.notes.length, 0);
-  assert.match(step.fatal[0] ?? '', /reads the component map this package carries/);
+  assert.match(step.fatal[0] ?? '', /the component map this package carries is not beside this command, so arena usage cannot/);
+  assert.doesNotMatch(step.fatal[0] ?? '', /--undrawn/);
   rmSync(root, { recursive: true });
 });
 
@@ -51,9 +51,7 @@ test('a style plugin the config declares is walked wherever it lives, so the bar
   writeFileSync(join(root, 'design', 'andina', 'plugin.css'),
     '[data-arena-part="table.th"] { font-size: var(--fs-sm); }\n'
     + '[data-arena-part="chart-card.title"] { font-size: var(--fs-sm); }\n');
-  const audit = auditStep(resolved(parseArgs([
-    '--config', join(root, 'arena.config.json'), '--src', join(root, 'src'), '-o', join(root, 'src'), '--audit',
-  ])));
+  const audit = auditStep(options(root));
   assert.deepEqual(audit.painted, ['chart-card.title', 'table.th'],
     'the plugin directory is resolved from the config, so nothing has to name it a second time as a source');
   rmSync(root, { recursive: true, force: true });
@@ -63,13 +61,11 @@ test('the audit reads a class against the vocabulary the package carries, and wi
   const root = project(readable);
   mkdirSync(join(root, 'src'), { recursive: true });
   writeFileSync(join(root, 'src', 'a.tsx'), '<ArenaButton className="arena-fill">Go</ArenaButton>\n');
-  const options = resolved(parseArgs([
-    '--config', join(root, 'arena.config.json'), '--src', join(root, 'src'), '-o', join(root, 'src'), '--audit',
-  ]));
+  const opts = options(root);
   const vocabulary = { page: 'p', classes: { 'arena-fill': { family: 'fill', reach: 'box' as const } }, answers: { ArenaButton: ['fill'] }, options: { ArenaButton: ['arena-fill'] } };
   const ownClass = (found: { reports: { message: string }[] }) => found.reports.filter((one) => one.message.includes('(own-class)'));
-  assert.deepEqual(ownClass(auditStep(options, null, null, vocabulary)), []);
-  assert.equal(ownClass(auditStep(options, null, null, null)).length, 1);
+  assert.deepEqual(ownClass(auditStep(opts, null, null, vocabulary)), []);
+  assert.equal(ownClass(auditStep(opts, null, null, null)).length, 1);
   rmSync(root, { recursive: true, force: true });
 });
 

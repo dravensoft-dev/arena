@@ -46,7 +46,7 @@ export const ARENA_THEME_NAMED = new Map([
 ]);
 
 export const EXTERNAL_PROPERTIES = new Map([
-  ['picker-invert', 'written by arena-to-prod into the consuming project\'s own stylesheet, never by the package'],
+  ['picker-invert', 'written by arena build into the consuming project\'s own stylesheet, never by the package'],
   ['arena-side-nav-depth', 'written by ArenaSideNav\'s rows onto their own root as a unitless count of the row\'s '
     + 'depth, in both layers, while the nav is expanded, because a row insets itself by the indent role times its '
     + 'depth and a class string cannot name the depth. It is a component\'s own channel to what it holds, and '

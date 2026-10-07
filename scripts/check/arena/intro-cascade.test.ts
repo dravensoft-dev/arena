@@ -1,6 +1,6 @@
 /* intro/styles.css is the one stylesheet in this tree that opens the plugin layer by hand.
  * Everything else carrying arena-plugin is generated: a component sheet imports the prelude,
- * and arena-to-prod writes the order ahead of a consumer's plugin sheet. A @layer met before
+ * and arena build writes the order ahead of a consumer's plugin sheet. A @layer met before
  * the order statement registers that name as the LOWEST layer of the document, so every plugin
  * rule contesting a compiled component rule loses at any specificity and nothing reports it:
  * the audit reads source text and counts the part as painted. This file is the only place the

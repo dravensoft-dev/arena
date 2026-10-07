@@ -54,7 +54,7 @@ export const CSS_CHAIN: CssChainEntry[] = [
 
 export const arenaCssHeader = (name: string) => [
   `/* ${name} -- the invariant half of Arena's stylesheet.`,
-  '   Import this FIRST, then the file arena-to-prod wrote from your arena.config.json,',
+  '   Import this FIRST, then the file arena build wrote from your arena.config.json,',
   '   whose palette and font values are meant to win. reset.css leads so anything can',
   '   override it, and colors.css derives its muted levels from --color-base-content,',
   '   so it follows the palette rather than defining one. environment.css composes the',
@@ -277,7 +277,7 @@ export function tokenCatalogue(root = repoRoot) {
   return { tokens, roles };
 }
 
-export const CLI_BINS = { 'arena-to-prod': './bin/arena-to-prod.mjs' };
+export const CLI_BINS = { arena: './bin/arena.mjs' };
 
 export const CLI_SOURCES = ['arena-cli'];
 

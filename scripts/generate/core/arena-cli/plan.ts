@@ -56,7 +56,7 @@ export function themeSheets(options: PlanOptions, { packageName, sheets, map }: 
       return stop(1, [`"components": "${AUTO}" reads the component map this package carries, and it is not `
         + 'beside this command, so nothing can be resolved; name the sheets instead']);
     }
-    const resolved = autoComponents(config, { paths: options.paths, config: options.config, audit: false }, map, packageName);
+    const resolved = autoComponents(config, { paths: options.paths, config: options.config }, map, packageName);
     if (resolved.fatal) return stop(1, resolved.fatal);
     config = { ...config, stylesheet: { ...config.stylesheet, components: resolved.components } };
     auto.reports.push(...resolved.reports.map((line) => report('components', line)));

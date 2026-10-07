@@ -48,6 +48,6 @@ test('Arena names a weight beside every glyph it draws, so loose is the consumer
   }
 });
 
-test('the file name is the one arena-to-prod looks for, spelled once', () => {
+test('the file name is the one arena build looks for, spelled once', () => {
   assert.equal(MANIFEST_FILE, 'icons.json');
 });

@@ -18,12 +18,12 @@ export function run(argv: string[], io: Io): number {
   }
   const env = resolveEnvironment(io.environment);
   const read = { paths: options.paths, config: options.config };
-  const undrawn = undrawnStep({ ...read, audit: false }, env.packageName, env.map);
+  const undrawn = undrawnStep(read, env.packageName, env.map);
   if (undrawn.fatal.length > 0) {
     for (const line of undrawn.fatal) say.err(line);
     return 2;
   }
   for (const line of undrawn.notes) say.out(line);
-  say.out(paintedBy(auditStep({ ...read, audit: true }).painted));
+  say.out(paintedBy(auditStep(read).painted));
   return 0;
 }

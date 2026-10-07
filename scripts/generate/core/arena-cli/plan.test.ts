@@ -1,6 +1,5 @@
 /* plan() answers what a build would leave on disk without leaving anything: every case reads the
- * Plan and the tree, and the ported ones are the theme and icons cases of arena-to-prod.test.ts
- * asserting on outputs instead of on files. */
+ * Plan and the tree, and the theme and icons cases assert on outputs instead of on files. */
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';

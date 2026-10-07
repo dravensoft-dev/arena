@@ -20,7 +20,7 @@ export function run(argv: string[], io: Io): number {
     return planned.code;
   }
 
-  const markers = markersStep({ ...options, audit: false }, env.map);
+  const markers = markersStep(options, env.map);
   const reports = [...planned.reports, ...markers.reports];
   for (const one of reports) say.err(`[${one.kind}] ${one.message}`);
   for (const note of planned.notes) say.out(note);
