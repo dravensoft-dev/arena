@@ -22,6 +22,7 @@ import {
 import { splitCompiledSheet } from '../../lib/tailwind/sheet-split.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { relPosix } from '../../utils/posix-path.ts';
+import { OWN_ELEMENTLESS } from '../../lib/arena/elementless.ts';
 import { DOMAIN } from '../../lib/arena/site-pages.ts';
 import type { ArenaAnswer, ComponentManifest } from '../../lib/tailwind/manifest-shapes.ts';
 import { HUE_SHEETS, hueRules, huePath, readHues } from '../../lib/tailwind/hue-sheet.ts';
@@ -223,7 +224,8 @@ export function vocabularyImports(root = repoRoot) {
 const unionOf = (classes: string[]) => (classes.length ? classes.map((one) => `'${one}'`).join(' | ') : 'never');
 const typeName = (family: string) => `Arena${family.split('-').map((w) => w.slice(0, 1).toUpperCase() + w.slice(1)).join('')}FamilyClass`;
 
-export function vocabularyTypes(families: Family[], answers: Map<string, readonly ArenaAnswer[]>, components: string[], page: string) {
+export function vocabularyTypes(families: Family[], answers: Map<string, readonly ArenaAnswer[]>, components: string[], page: string,
+  elementless: ReadonlyMap<string, string> = OWN_ELEMENTLESS) {
   const sorted = [...families].sort((a, b) => (a.family < b.family ? -1 : 1));
   const options = (family: Family) => Object.keys(family.variants).sort();
   const context = sorted.filter((one) => one.reach === 'context').flatMap(options);
@@ -237,6 +239,7 @@ export function vocabularyTypes(families: Family[], answers: Map<string, readonl
   ];
   const lists: string[] = [];
   for (const component of [...components].sort()) {
+    if (elementless.has(component)) continue;
     const answered = answers.get(component) ?? [];
     const taken = boxes.flatMap((one) => {
       const own = answerOf({ component, answers: answered }, one);

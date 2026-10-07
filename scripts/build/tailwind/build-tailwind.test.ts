@@ -180,3 +180,11 @@ test('the emitted ArenaButtonClass accepts a list of classes, and refuses a toke
     'only the runtime refuses two options of one family, since arenaClassName drops the second');
   assert.ok(diagnostics("export const a: ArenaButtonClass = 'arena-nope';").length > 0);
 });
+
+test('a component that renders no element of its own gets no class type and no vocabulary entry', () => {
+  const out = vocabularyTypes([], new Map(), ['ArenaButton', 'ArenaTabs'], 'https://x/p',
+    new Map([['ArenaTabs', 'renders a fragment']]));
+  assert.match(out, /export type ArenaButtonClass =/);
+  assert.doesNotMatch(out, /ArenaTabsClass/);
+  assert.doesNotMatch(out, /"ArenaTabs":/);
+});

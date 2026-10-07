@@ -31,6 +31,7 @@ import { layerManifests } from '../../lib/tailwind/tailwind-compile.ts';
 import { ALWAYS, alwaysProblems, hueProblems, readHues } from '../../lib/tailwind/hue-sheet.ts';
 import { coveredContracts } from '../../lib/tailwind/manifest-surfaces.ts';
 import type { ComponentManifest, Manifests } from '../../lib/tailwind/manifest-shapes.ts';
+import { OWN_ELEMENTLESS } from '../../lib/arena/elementless.ts';
 
 export const node = {
   name: 'check:api',
@@ -222,14 +223,11 @@ export function validateContract(contract: ContractCandidate, typeNames: Map<str
 
 export const VOCABULARY_MEMBER = 'className';
 
-export const OWN_ELEMENTLESS = new Map<string, string>([
-  ['ArenaTabs', 'it renders a fragment: the tab list and its panels are siblings, so no element is the '
-    + 'component\'s own root for a class to land on'],
-]);
+export { OWN_ELEMENTLESS };
 
 export function vocabularyMemberProblems(
   component: string, members: SurfaceMember[], layer: string, contracted: Set<string>,
-  elementless = OWN_ELEMENTLESS,
+  elementless: ReadonlyMap<string, string> = OWN_ELEMENTLESS,
 ) {
   const problems: string[] = [];
   const where = `${layer}/${component}`;
