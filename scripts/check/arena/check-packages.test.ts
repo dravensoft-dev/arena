@@ -13,9 +13,10 @@ import { dirname, join } from 'node:path';
 import { iconManifest } from '../../lib/arena/icon-manifest.ts';
 import {
   GENERATED_PALETTE, PACKAGES, collect, componentMapProblems, componentReachProblems, bundledCssProblems, declaredComponents, distDir, exportProblems, globMatches, manifestProblems, paletteEquivalenceProblems, stripAtStatements, styleProblems,
-  payloadProblems, CARRIED_BY_PACKAGE, iconManifestProblems, entryPointProblems, COMPILED_BY_CONSUMER, cssListProblems, directiveProblems, themeSheetProblems, themeCompileProblems, unlayeredTokenProblems
+  payloadProblems, CARRIED_BY_PACKAGE, iconManifestProblems, entryPointProblems, COMPILED_BY_CONSUMER, cssListProblems, CSS_HOMES, directiveProblems, themeSheetProblems, themeCompileProblems, unlayeredTokenProblems
 } from './check-packages.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
+import { referenceText } from '../../lib/arena/consumer-references.ts';
 
 const [REACT_PACKAGE, ANGULAR_PACKAGE] = PACKAGES;
 if (!REACT_PACKAGE || !ANGULAR_PACKAGE) throw new Error('PACKAGES no longer declares both layers');
@@ -501,8 +502,8 @@ test('a shipped css file the page never names fails, and a css path the page nam
   const page = '| `css/base.css` | x |\n| `css/components/<name>.css` | y |\n| `css/rhythm.css` | z |';
   const problems = cssListProblems({ layer: 'react', name: '@x/react' }, dir, page).join('\n');
   rmSync(dir, { recursive: true, force: true });
-  assert.match(problems, /css\/vocabulary\/stack\.css ships and .*PACKAGE\.md never names it/);
-  assert.match(problems, /names css\/rhythm\.css, which the package does not ship/);
+  assert.match(problems, /css\/vocabulary\/stack\.css ships and .*never name it/);
+  assert.match(problems, /name css\/rhythm\.css, which the package does not ship/);
 });
 
 test('the css/hues pattern row covers a shipped hue sheet, and without it the sheet fails', () => {
@@ -516,5 +517,22 @@ test('the css/hues pattern row covers a shipped hue sheet, and without it the sh
   const unnamed = cssListProblems(pkg, dir, '| `css/base.css` | x |').join('\n');
   rmSync(dir, { recursive: true, force: true });
   assert.deepEqual(named, []);
-  assert.match(unnamed, /css\/hues\/arena-button\.css ships and .*PACKAGE\.md never names it/);
+  assert.match(unnamed, /css\/hues\/arena-button\.css ships and .*never name it/);
+});
+
+test('a sheet only the other layer\'s section names does not count, and one naming an unshipped sheet fails', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'pkg-'));
+  mkdirSync(join(dir, 'css'), { recursive: true });
+  writeFileSync(join(dir, 'css/base.css'), '');
+  const base = mkdtempSync(join(tmpdir(), 'refs-'));
+  mkdirSync(join(base, 'skills/design/references'), { recursive: true });
+  writeFileSync(join(base, 'skills/design/references/stylesheets.md'),
+    '| `css/base.css` | x |\n\n## Which sheet re-bases the Angular CDK overlay?\n\n`css/arena-cdk.css` ships here.\n');
+  const text = (layer: 'react' | 'angular') => referenceText(base, CSS_HOMES, layer);
+  const pkg = { layer: 'react', name: '@x/react' };
+  assert.deepEqual(cssListProblems(pkg, dir, text('react')), []);
+  assert.match(cssListProblems(pkg, dir, text('angular')).join('\n'), /name css\/arena-cdk\.css, which the package does not ship/);
+  assert.doesNotMatch(cssListProblems(pkg, dir, text('react')).join('\n'), /arena-cdk/);
+  rmSync(dir, { recursive: true, force: true });
+  rmSync(base, { recursive: true, force: true });
 });

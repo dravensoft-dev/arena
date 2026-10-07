@@ -20,7 +20,7 @@ export const node = {
   writes: [TARGET],
   feeds: [
     'build:mcp-package', 'build:site',
-    'check:community', 'check:routes', 'check:support',
+    'check:community', 'check:routes', 'check:skills', 'check:support',
     'check:register'],
 };
 

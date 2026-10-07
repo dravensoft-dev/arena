@@ -75,7 +75,6 @@ export function prompts(layer: string, base = root) {
 export function layerDocs(layer: string, base = root) {
   return [
     `frameworks/${layer}/${INDEX}`,
-    `frameworks/${layer}/PACKAGE.md`,
     ...categoryIndexes(layer, base),
     ...prompts(layer, base),
   ].filter((rel) => existsSync(join(base, rel)));
@@ -218,7 +217,7 @@ export function index(base = root) {
     const title = layer.charAt(0).toUpperCase() + layer.slice(1);
     lines.push(`## ${title}`, '');
     lines.push(`- [Layer index](${docUrl(`frameworks/${layer}/${INDEX}`)}): every component under this framework's own names.`);
-    lines.push(`- [Install and configure](${docUrl(`frameworks/${layer}/PACKAGE.md`)}): the package, \`arena.config.json\`, and what the CLI writes.`);
+    lines.push(`- [Install and configure](${docUrl('skills/design/references/install.md')}): the package, \`arena.config.json\`, and what the CLI writes.`);
     lines.push(`- [Everything above and every component document, in one file](https://${DOMAIN}/${layerFile(layer)}): the whole ${title} corpus, and nothing from the other layer.`);
     for (const rel of categoryIndexes(layer, base)) {
       lines.push(`- [${categoryOf(rel)}](${docUrl(rel)}): the ${categoryOf(rel)} components under ${title}.`);

@@ -97,7 +97,7 @@ export const ROUTES: Route[] = [
       'frameworks/*/components/*/INDEX.md',
       'frameworks/*/components/**/*.prompt.md',
     ],
-    budget: 34_300,
+    budget: 34_600,
     reason:
       'the route every build takes, and the only one paid per screen rather than per project. The '
       + 'layer-neutral index is deliberately not a stop: it answers whether a component exists at '
@@ -110,29 +110,31 @@ export const ROUTES: Route[] = [
       + 'big its list is and where the page starts in it, and the header row taking the first index '
       + 'is arithmetic no member description can carry. The number is what the stops measure with '
       + 'room for one component to grow, and it is the ceiling a new rule on the consumer branch is '
-      + 'argued against. Each component prompt now answers which vocabulary families it names so a '
-      + 'builder knows what appearance choice the component owns, and the geometry families\' properties.',
+      + 'argued against. Each prompt names its vocabulary families and their properties, and the layer '
+      + 'directory links the install references.',
   },
   {
     name: 'consumer-install',
-    who: 'a consumer putting Arena into a project: the router, then the npm page of their package',
+    who: 'a consumer putting Arena into a project: the router, then the references that install '
+      + 'the package, declare the skin and run the command',
     entry: 'consumer',
-    stops: ['frameworks/*/PACKAGE.md'],
-    budget: 57_600,
+    stops: [
+      'skills/design/references/install.md',
+      'skills/design/references/config.md',
+      'skills/design/references/arena-to-prod.md',
+    ],
+    budget: 25_000,
     reason:
       'paid once per project rather than per screen, so it carries what the build route may not: '
-      + 'the config file, the command, the theme surface and what each of them costs. It is the only '
-      + 'route a reader arriving from the registry can take, and the package they installed carries '
-      + 'none of the language, so a thing the package ships and this page never names is a thing '
-      + 'nobody imports: an export, a stylesheet, a class, a constant id, a second entry point, a '
-      + 'config key. Cold walks of this route rewrote each of those from memory when the page left it '
-      + 'out. The config block is copied whole, so it states every key that decides the appearance; '
-      + 'the install section gives the evidence behind each package manager and runtime it names; and '
-      + 'a section shared by both npm pages is said once and charged to the larger. What moves this '
-      + 'number is being right, since that is what the page is for, and what keeps it honest is that '
-      + 'a gate fails the page rather than a reader discovering it. The vocabulary sheets surface '
-      + 'which appearance surfaces the package supports, so a consumer can match their installation '
-      + 'choices to the style decisions that reach their components.',
+      + 'the install, the config file and the command, each as its own reference so a reader opens '
+      + 'the one that answers. The npm page is an intro and a question table that links them, and '
+      + 'the package they installed carries none of the language, so a thing the package ships and '
+      + 'these references never name is a thing nobody imports: an export, a stylesheet, a class, '
+      + 'a second entry point, a config key. The config block is copied whole, so it states every '
+      + 'key that decides the appearance, and the install reference gives the evidence behind each '
+      + 'package manager and runtime it names. The three are charged together. '
+      + 'What moves this number is being right, since that is what the references are for, and what '
+      + 'keeps it honest is that a gate fails them rather than a reader discovering it.',
   },
   {
     name: 'consumer-skin',
@@ -179,7 +181,7 @@ export const ROUTES: Route[] = [
       + 'then the page that says what Arena writes into the head and which layer writes it',
     entry: 'consumer',
     stops: ['skills/design/references/seo.md'],
-    budget: 4_700,
+    budget: 7_300,
     reason:
       'paid once per project and taken before the first screen, because the answer reaches the '
       + 'layer and the install rather than a component, so a project that settles it afterwards '
@@ -190,8 +192,9 @@ export const ROUTES: Route[] = [
       + 'missing from a result nobody checked. It states which layer supplies a head and that a '
       + 'framework picked to be found supplies its own, and it points at the node carrying the '
       + 'server-rendering evidence at the decision, without choosing an architecture for the project. '
-      + 'The number is what the stops measure with room for one section, and it grows when Arena '
-      + 'gains something to write into the head.',
+      + 'The page also carries the Angular head entry point as a table of what it exports, so the '
+      + 'layer that supplies a head names its own surface. The number is what the stops measure with '
+      + 'room for one section, and it grows when Arena gains something to write into the head.',
   },
   {
     name: 'consumer-surface',
@@ -199,7 +202,7 @@ export const ROUTES: Route[] = [
       + 'every part Arena ships, the three steps a project can stop at, and where Arena stops',
     entry: 'consumer',
     stops: ['skills/design/references/surface.md'],
-    budget: 10_800,
+    budget: 11_400,
     reason:
       'paid once per project and taken before the skin, register and seo routes, because each of '
       + 'them asks how much of a thing nobody has shown the reader yet. What it buys is that a '
@@ -210,7 +213,8 @@ export const ROUTES: Route[] = [
       + 'in a component prompt is reached after the project has planned around it, and a page '
       + 'promising the whole line is falsified by any part of it kept elsewhere. The number is what '
       + 'the stops measure with room for one part, and it grows when Arena ships something new rather '
-      + 'than when the page explains something better.',
+      + 'than when the page explains something better. The row naming the layout container is what the '
+      + 'page spends beyond the parts it already listed.',
   },
   {
     name: 'consumer-stack',
@@ -239,7 +243,7 @@ export const ROUTES: Route[] = [
       + 'column it sits in and how much air goes between two components',
     entry: 'consumer',
     stops: ['skills/design/references/page.md', 'skills/design/references/style.md'],
-    budget: 18_900,
+    budget: 21_900,
     reason:
       'paid per element a builder draws themselves, which every screen has. What it buys is the '
       + 'half of a page that is never a component: which colour role each thing a builder draws takes '
@@ -249,7 +253,9 @@ export const ROUTES: Route[] = [
       + 'line; what to wrap when the element being laid out is a component; the block air the band '
       + 'leaves; the gutter as a ceiling; and which frame the viewport shows, through the theme '
       + 'sheet\'s variants, and where a value no step names is set. Cold walks missed each of those '
-      + 'when the pages left it out. The page '
+      + 'when the pages left it out. The style reference also holds the layout container, the '
+      + 'width a page column takes and the sizing section for each layer, so the two pages cost what '
+      + 'the container and the layer sections add. The page '
       + 'closes on the same least-to-most the surface page opens with. The number is what the '
       + 'stops measure, and it grows when Arena ships a piece for somebody else\'s markup rather '
       + 'than when these pages argue again for one they already name.',

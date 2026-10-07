@@ -1,13 +1,12 @@
 /* Five claims. First, that the CLI shipped inside both packages emits what Style Dictionary
  * emits: a second emitter exists, so something has to hold the two together. Second, when
  * dist/ has been assembled, that each package is registry-standard: the version comes from
- * plugin.json, every exports target resolves to a file that is there and every wildcard one
- * matches at least one, the entry declaration is advertised at the root, and no peer leaked into
- * dependencies. Third, that the stylesheets resolve, because a sheet that imports 43 files that
- * are not there passes the second claim and fails in the consumer's bundler. Fourth, that the
- * component map is there and reaches every sheet both ways. Fifth is the one the ASSEMBLED CSS is
- * the only honest subject for, since what a consumer installs is this and not an intermediate:
- * supports-blocks.ts states both halves of it. dist/ is git-ignored, so all but the first skip. */
+ * plugin.json, every exports target resolves, the entry declaration is advertised at the root,
+ * and no peer leaked into dependencies. Third, that the stylesheets resolve and each is named in
+ * its layer's stylesheet and install references. Fourth, that the component map reaches every
+ * sheet both ways. Fifth is the one the ASSEMBLED CSS is the only honest subject for, since what
+ * a consumer installs is this and not an intermediate: supports-blocks.ts states both halves of
+ * it. dist/ is git-ignored, so all but the first skip. */
 
 import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import { join, dirname, basename } from 'node:path';
@@ -28,6 +27,9 @@ import { blindFallbacks, repeatedSupports } from '../../lib/tailwind/supports-bl
 import { SECONDARY_ENTRY_POINTS } from '../../build/angular/build-angular-package.ts';
 import { THEME_SOURCES, tailwindThemeSheet, topLevelBlocks } from '../../lib/tailwind/theme-sheet.ts';
 import { compileEntry } from '../../lib/tailwind/tailwind-compile.ts';
+import { REFERENCES, referenceText } from '../../lib/arena/consumer-references.ts';
+
+export const CSS_HOMES = ['stylesheets.md', 'install.md'];
 
 export const node = {
   name: 'check:packages',
@@ -35,6 +37,7 @@ export const node = {
     'frameworks/react/dist/**', 'frameworks/angular/dist/**', 'frameworks/Components.json',
     '.claude-plugin/plugin.json', 'contracts/design/palette.*.json',
     'contracts/design-generated/palette.generated.css',
+    ...CSS_HOMES.map((name) => `${REFERENCES}/${name}`),
     ...THEME_SOURCES.theme, ...THEME_SOURCES.utilities,
   ],
   writes: [],
@@ -302,15 +305,16 @@ export function cssListProblems(pkg: { layer: string; name: string }, dir: strin
     const covered = (rel.startsWith('css/components/') && patternNamed)
       || (rel.startsWith('css/hues/') && hueNamed);
     if (!covered && !page.includes(rel)) {
-      problems.push(`${pkg.name}: ${rel} ships and frameworks/${pkg.layer}/PACKAGE.md never names it, so a `
-        + 'consumer choosing a sheet by that page cannot learn it is there');
+      problems.push(`${pkg.name}: ${rel} ships and the ${pkg.layer} sections of ${REFERENCES}/stylesheets.md `
+        + 'and install.md never name it, so a consumer choosing a sheet by those references cannot learn it is there');
     }
   }
   const named = new Set([...page.matchAll(/`(css\/[^`\s]+)`/g)].map((match) => match[1] ?? ''));
   for (const rel of [...named].sort()) {
     if (rel === pattern || rel === huePattern || rel.endsWith('/') || rel.includes('<')) continue;
     if (!existsSync(join(dir, rel))) {
-      problems.push(`${pkg.name}: frameworks/${pkg.layer}/PACKAGE.md names ${rel}, which the package does not ship`);
+      problems.push(`${pkg.name}: the ${pkg.layer} sections of ${REFERENCES}/stylesheets.md and install.md name ${rel}, `
+        + 'which the package does not ship');
     }
   }
   return problems;
@@ -482,7 +486,7 @@ export function collect(base = root) {
     problems.push(...componentReachProblems(pkg, dir, declared));
     problems.push(...payloadProblems(pkg, dir));
     problems.push(...styleProblems(pkg, dir).problems);
-    problems.push(...cssListProblems(pkg, dir, readFileSync(join(base, 'frameworks', pkg.layer, 'PACKAGE.md'), 'utf8')));
+    problems.push(...cssListProblems(pkg, dir, referenceText(base, CSS_HOMES, pkg.layer === 'angular' ? 'angular' : 'react')));
     problems.push(...bundledCssProblems(pkg, dir));
     problems.push(...directiveProblems(pkg, dir));
     problems.push(...themeSheetProblems(pkg, dir, tailwindThemeSheet(base)));

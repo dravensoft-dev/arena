@@ -8,7 +8,7 @@ import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
-  PAGE, BARRELS, INTERNAL, EXPORTED, rootModules, symbolsOf, reachedSymbols,
+  PAGE, HOMES, BARRELS, INTERNAL, EXPORTED, rootModules, symbolsOf, reachedSymbols,
   zeroReachProblems, homeProblems, staleInternalProblems, collect, parametersOf, signatureProblems,
 } from './check-exports.ts';
 
@@ -51,18 +51,31 @@ test('a symbol the page never names is one a consumer either rewrites or leans o
   const base = tree({
     'frameworks/react/Index.generated.ts': BARREL,
     'frameworks/react/Helpers.ts': HELPERS,
-    [`frameworks/react/${PAGE}`]: '# page\n\nCall `arenaThing()` for the thing.\n',
+    [PAGE]: '# page\n\n## What does the React package export?\n\nCall `arenaThing()` for the thing.\n',
   });
   const problems = homeProblems(base, reachedSymbols(base, new Map([['react', 'frameworks/react/Index.generated.ts']])), new Map());
   assert.equal(problems.length, 1);
-  assert.match(problems[0] ?? '', /arenaOther reaches the root of the react package/);
+  assert.match(problems[0] ?? '', /arenaOther reaches the root of the react package and no react section/);
+});
+
+test('a symbol written only under the other layer\'s heading is no home', () => {
+  const base = tree({
+    'frameworks/react/Index.generated.ts': BARREL,
+    'frameworks/react/Helpers.ts': HELPERS,
+    [PAGE]: '# page\n\n## In Angular\n\n`arenaThing` and `arenaOther`.\n\n## In React\n\n`arenaThing`.\n',
+  });
+  const reached = reachedSymbols(base, new Map([['react', 'frameworks/react/Index.generated.ts']]));
+  const problems = homeProblems(base, reached, new Map());
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /arenaOther/);
+  assert.ok(HOMES.includes('exports.md') && HOMES.includes('seo.md'));
 });
 
 test('a symbol INTERNAL declares is one the page may leave out', () => {
   const base = tree({
     'frameworks/react/Index.generated.ts': BARREL,
     'frameworks/react/Helpers.ts': HELPERS,
-    [`frameworks/react/${PAGE}`]: '# page\n\nCall `arenaThing()` for the thing.\n',
+    [PAGE]: '# page\n\n## What does the React package export?\n\nCall `arenaThing()` for the thing.\n',
   });
   const declared = new Map([['arenaOther', 'a constant the layer reads and a consumer never types, kept off the page on purpose']]);
   const reached = reachedSymbols(base, new Map([['react', 'frameworks/react/Index.generated.ts']]));
@@ -99,16 +112,16 @@ test('a call form the page writes with the wrong parameters is one a consumer ca
   const wrong = tree({
     'frameworks/react/Index.generated.ts': "export * from './Helpers.ts';\n",
     'frameworks/react/Helpers.ts': helpers,
-    [`frameworks/react/${PAGE}`]: '# page\n\nReach for `arenaThing(event, root)` instead.\n',
+    [PAGE]: '# page\n\n## In React\n\nReach for `arenaThing(event, root)` instead.\n',
   });
   const problems = signatureProblems(wrong, barrels);
   assert.equal(problems.length, 1);
-  assert.match(problems[0] ?? '', /writes arenaThing\(event, root\) and .* declares arenaThing\(container, event\)/);
+  assert.match(problems[0] ?? '', /write arenaThing\(event, root\) and .* declares arenaThing\(container, event\)/);
 
   const right = tree({
     'frameworks/react/Index.generated.ts': "export * from './Helpers.ts';\n",
     'frameworks/react/Helpers.ts': helpers,
-    [`frameworks/react/${PAGE}`]: '# page\n\nReach for `arenaThing(container, event)` instead.\n',
+    [PAGE]: '# page\n\n## In React\n\nReach for `arenaThing(container, event)` instead.\n',
   });
   assert.deepEqual(signatureProblems(right, barrels), []);
 });

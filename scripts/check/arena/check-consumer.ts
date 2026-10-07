@@ -7,7 +7,7 @@
  * config is the example the package itself ships. Assembly is a prerequisite rather than a
  * step: a dist/ already there is left alone, and only a missing one is built, because
  * build:packages costs minutes and this gate costs seconds. The named sheet list is read from
- * the README the package ships, which is that layer's PACKAGE.md. */
+ * the config reference, whose one `"components"` list is the example a consumer copies. */
 
 import { spawnSync } from 'node:child_process';
 import {
@@ -34,7 +34,7 @@ import { captured } from '../../utils/captures.ts';
 
 export const node = {
   name: 'check:consumer',
-  reads: ['frameworks/react/dist/**', 'frameworks/angular/dist/**'],
+  reads: ['frameworks/react/dist/**', 'frameworks/angular/dist/**', 'skills/design/references/config.md'],
   writes: [],
   feeds: [],
 };
@@ -446,7 +446,7 @@ export function unknownSymbolProblems(layer: string, result: CliRun) {
 export function listProblems(layer: string, named: CliRun, unknown: CliRun, list: string[] = []) {
   const problems = [];
   if (named.status !== 0) {
-    problems.push(`${layer}: the sheet list its own README documents, [${list.join(', ')}], was refused:\n    ${named.stderr.trim()}`);
+    problems.push(`${layer}: the sheet list the config reference documents, [${list.join(', ')}], was refused:\n    ${named.stderr.trim()}`);
   }
   if (unknown.status === 0) {
     problems.push(`${layer}: a stylesheet.components naming "button" was accepted, so a consumer's stale list `
@@ -459,6 +459,8 @@ export function listProblems(layer: string, named: CliRun, unknown: CliRun, list
 }
 
 const AUTO = { components: 'auto', preflight: false };
+
+export const CONFIG_REFERENCE = 'skills/design/references/config.md';
 
 export const DOCUMENTED_LIST = /"components":\s*\[([^\]]*)\]/g;
 
@@ -473,14 +475,14 @@ export function collect(base = root) {
   const problems = [];
   const { built } = assemble(base);
   const dirs = [];
+  const { lists, names: list } = documented(readFileSync(join(base, ...CONFIG_REFERENCE.split('/')), 'utf8'));
   try {
     for (const { layer } of PACKAGES) {
       const sources = SOURCES[layer] ?? {};
       const auto = fixture(layer, sources, AUTO, base);
       const unexported = fixture(layer, UNKNOWN[layer] ?? {}, AUTO, base);
-      const { lists, names: list } = documented(readFileSync(join(distDir(layer, base), 'README.md'), 'utf8'));
       if (!list) {
-        problems.push(`${layer}: the shipped README spells ${lists} stylesheet.components lists rather than one, `
+        problems.push(`${layer}: ${CONFIG_REFERENCE} spells ${lists} stylesheet.components lists rather than one, `
           + 'so the example a consumer copies is either absent or shadowed by another');
         continue;
       }

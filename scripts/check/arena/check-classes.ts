@@ -1,24 +1,25 @@
 /* The other half of the rule check-exports holds: anything a package ships needs a home on the
- * consumer branch, and for a class a consumer writes that home is the layer's PACKAGE.md. A
- * stylesheet lands in the tarball whole, so a class inside one reaches a consumer with nothing
- * announcing it, and a class nothing announces is one they replace with a rule of their own: the
- * two density classes shipped inside the spacing sheet and were named on neither npm page, and a
- * consumer reading that page had no way to learn either exists. The subject is derived from the
- * sheets the assembly copies rather than listed here. NOT_WRITTEN declares the classes that are
- * Arena's own name for something rather than something a consumer puts on their own markup. An
- * option of a component family may instead be named on frameworks/VOCABULARY.md, which lists every
- * option of every family. */
+ * consumer branch, and for a class a consumer writes that home is the stylesheet, page, style and
+ * install references. A stylesheet lands in the tarball whole, so a class inside one reaches a
+ * consumer with nothing announcing it, and a class nothing announces is one they replace with a
+ * rule of their own: the two density classes shipped inside the spacing sheet and no reference
+ * named either. The subject is derived from the sheets the assembly copies rather than listed
+ * here. NOT_WRITTEN declares the classes that are Arena's own name for something rather than
+ * something a consumer puts on their own markup. An option of a component family may instead be
+ * named on frameworks/VOCABULARY.md, which lists every option of every family. */
 
 import { readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { CSS_CHAIN } from '../../lib/arena/package-assembly.ts';
-import { LAYERS } from '../../lib/arena/site-pages.ts';
+import { REFERENCES, plainReferenceText } from '../../lib/arena/consumer-references.ts';
 import { readFamilies, targetOf, sheetFamilies, VOCABULARY_SHEETS, sheetName, packageSheetName } from '../../lib/tailwind/vocabulary.ts';
 import { THEME_SOURCES, tailwindThemeSheet } from '../../lib/tailwind/theme-sheet.ts';
 
-export const PAGE = 'PACKAGE.md';
+export const HOMES = ['stylesheets.md', 'page.md', 'style.md', 'install.md'];
+
+export const PAGE = `${REFERENCES}/stylesheets.md`;
 
 export const VOCABULARY_PAGE = 'frameworks/VOCABULARY.md';
 
@@ -37,7 +38,7 @@ export const UTILITIES = 'frameworks/tailwind/Utilities.generated.css';
 
 export const node = {
   name: 'check:classes',
-  reads: [...SHEETS, 'frameworks/*/PACKAGE.md', 'frameworks/VOCABULARY.md', 'frameworks/tailwind/vocabulary/**/*.family.json', UTILITIES, ...THEME_SOURCES.theme, ...THEME_SOURCES.utilities],
+  reads: [...SHEETS, ...HOMES.map((name) => `${REFERENCES}/${name}`), 'frameworks/VOCABULARY.md', 'frameworks/tailwind/vocabulary/**/*.family.json', UTILITIES, ...THEME_SOURCES.theme, ...THEME_SOURCES.utilities],
   writes: [],
   feeds: [],
 };
@@ -113,21 +114,18 @@ export function homeProblems(base = root, names = shipped(base), exempt = NOT_WR
   const problems = [];
   const vocabularyAt = join(base, ...VOCABULARY_PAGE.split('/'));
   const vocabulary = existsSync(vocabularyAt) ? readFileSync(vocabularyAt, 'utf8') : '';
-  for (const layer of LAYERS) {
-    const page = join(base, 'frameworks', layer, PAGE);
-    if (!existsSync(page)) continue;
-    const text = readFileSync(page, 'utf8');
-    for (const name of names) {
-      if (exempt.has(name) || text.includes(`.${name}`)) continue;
-      if (options.has(name) && vocabulary.includes(`\`${name}\``)) continue;
-      problems.push(
-        `.${name} ships inside a stylesheet this package carries and frameworks/${layer}/${PAGE} `
-        + 'never names it. A class a consumer writes reaches them through that page and through '
-        + 'nothing else, so one it does not name is a class they replace with a rule of their own '
-        + 'and never learn they had. Name it there, or, for an option of a component family, on the vocabulary page; or declare it in NOT_WRITTEN with the reason '
-        + 'it is not a consumer\'s to write.',
-      );
-    }
+  const text = plainReferenceText(base, HOMES);
+  for (const name of names) {
+    if (exempt.has(name) || text.includes(`.${name}`)) continue;
+    if (options.has(name) && vocabulary.includes(`\`${name}\``)) continue;
+    problems.push(
+      `.${name} ships inside a stylesheet this package carries and none of ${HOMES.join(', ')} `
+      + `under ${REFERENCES} names it. A class a consumer writes reaches them through those `
+      + 'references and through nothing else, so one they do not name is a class a consumer '
+      + 'replaces with a rule of their own and never learns they had. Name it there, or, for an '
+      + 'option of a component family, on the vocabulary page; or declare it in NOT_WRITTEN with '
+      + 'the reason it is not a consumer\'s to write.',
+    );
   }
   return problems;
 }
@@ -156,7 +154,7 @@ function main() {
   }
   const names = shipped();
   console.log(`check-classes: every one of ${names.length} class(es) the shipped sheets define has a `
-    + `home on both npm pages, with ${NOT_WRITTEN.size} declared not a consumer's to write`);
+    + `home in the consumer references, with ${NOT_WRITTEN.size} declared not a consumer's to write`);
 }
 
 if (isMainModule(import.meta.url)) main();

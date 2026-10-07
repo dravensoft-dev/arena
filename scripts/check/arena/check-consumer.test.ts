@@ -5,8 +5,11 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import {
-  importedSheets, unknownSymbolProblems, listProblems, iconProblems, assembled, documented,
+  importedSheets, unknownSymbolProblems, listProblems, iconProblems, assembled, documented, CONFIG_REFERENCE,
   palettesProblems, SOURCES, UNKNOWN, FILL, GLYPH, THIRD_PALETTE,
 } from './check-consumer.ts';
 import type { CliRun } from './check-consumer.ts';
@@ -40,7 +43,7 @@ test('the documented sheet list must pass and an unknown one must fail, naming w
 
   const refusedTheDocumented = listProblems('react', { ...ok, status: 1, stderr: 'nope' }, shipped);
   assert.equal(refusedTheDocumented.length, 1);
-  assert.match(refusedTheDocumented[0] ?? '', /its own README documents/);
+  assert.match(refusedTheDocumented[0] ?? '', /the config reference documents/);
 
   const acceptedTheStale = listProblems('react', ok, ok);
   assert.equal(acceptedTheStale.length, 1);
@@ -81,11 +84,17 @@ test('the React fixture names the package, because the symbol scan reads the imp
     'and the negative one names an element no package ships');
 });
 
-test('the documented list is read from the shipped README, and a second one shadows rather than adds', () => {
+test('the documented list is read from the config reference, and a second one shadows rather than adds', () => {
   assert.deepEqual(documented('"components": ["arena-button", "arena-table"]').names, ['arena-button', 'arena-table']);
   assert.equal(documented('no list here').names, null);
   assert.equal(documented('"components": ["button"] then "components": ["arena-button"]').names, null,
     'two lists mean the gate would run whichever came first, which is how a stale example hides behind a fresh one');
+});
+
+test('the config reference carries exactly one components list, and it names sheets', () => {
+  const { lists, names } = documented(readFileSync(join(root, ...CONFIG_REFERENCE.split('/')), 'utf8'));
+  assert.equal(lists, 1);
+  assert.ok((names ?? []).length > 0 && (names ?? []).every((one) => one.startsWith('arena-')));
 });
 
 const themed = (...blocks: string[]): CliRun => ({ ...ok, theme: blocks.join('\n\n') });
