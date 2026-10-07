@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { sourceFiles, OUTPUT_SHEETS, auditFiles, pluginDirs } from './sources.ts';
+import { sourceFiles, OUTPUT_SHEETS, auditFiles, pluginDirs, missingSource } from './sources.ts';
 import { THEME_SHEET, ICONS_SHEET, PLUGIN_SHEET, PLUGIN_CSS } from './sheets.ts';
 import { parseArgs, resolved } from './arena-to-prod.ts';
 import { project, readable } from './cli-fixtures.ts';
@@ -49,4 +49,14 @@ test('a plugin under src is walked once, so a part it paints is not counted twic
   assert.equal(new Set(files).size, files.length,
     'the walk is the union of the sources and the declared plugin directories, deduplicated by path');
   rmSync(root, { recursive: true, force: true });
+});
+
+test('missingSource names the first absent path, and null when all exist', () => {
+  const root = mkdtempSync(join(tmpdir(), 'arena-missing-'));
+  try {
+    writeFileSync(join(root, 'here.html'), '');
+    assert.equal(missingSource([join(root, 'here.html'), root]), null);
+    assert.equal(missingSource([root, join(root, 'gone-a'), join(root, 'gone-b')]), join(root, 'gone-a'));
+    assert.equal(missingSource([]), null);
+  } finally { rmSync(root, { recursive: true, force: true }); }
 });

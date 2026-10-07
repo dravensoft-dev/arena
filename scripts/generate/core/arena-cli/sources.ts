@@ -73,3 +73,7 @@ export function owningPlugin(file: string, dirs: string[]) {
     .sort((one, two) => two.length - one.length);
   return at[0] ?? null;
 }
+
+export function missingSource(paths: string[]) {
+  return paths.find((path) => !existsSync(path)) ?? null;
+}
