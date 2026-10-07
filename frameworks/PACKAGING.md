@@ -56,7 +56,7 @@ So the packages ship everything that is invariant, and the consumer declares the
   derives the muted text levels from `--color-base-content`.
 - **The consumer's, in `arena.config.json`**: the palettes and the fonts.
 
-One command travels in each package, `arena-to-prod`, and `CLI_BINS` in
+One command travels in each package, `arena`, and `CLI_BINS` in
 [`scripts/lib/arena/package-assembly.ts`](../scripts/lib/arena/package-assembly.ts) is the
 list both manifests take their `bin` from. Its source is its own directory under
 `scripts/generate/core/`, described in
@@ -317,7 +317,7 @@ name is not the API" above before treating a manifest edit as a break.
 ## What `check:packages` holds
 
 **That the two palette emitters agree.** There are now two things that turn a palette into
-CSS: Style Dictionary, which serves this repository, and `arena-to-prod`, which serves a
+CSS: Style Dictionary, which serves this repository, and `arena build`, which serves a
 consumer who has no repository. The gate builds a config out of Arena's own skin, runs the
 CLI over it, and asserts every `--color-*` declaration matches
 `contracts/design-generated/palette.generated.css` in both blocks. A comparison that looked

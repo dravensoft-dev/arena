@@ -68,7 +68,7 @@ Five things at once, from the same tree:
   `skills/design/SKILL.md` defines, **served from the git tag**;
 - two **npm packages**, `@dravensoft/arena-react` and `@dravensoft/arena-angular`, assembled by
   `bun run build:packages` into `frameworks/<layer>/dist/`, each carrying its components, its
-  stylesheets, the behaviour contracts a consumer's own markup answers, the `arena-to-prod`
+  stylesheets, the behaviour contracts a consumer's own markup answers, the `arena`
   command, and none of the language;
 - `@dravensoft/arena-contracts` and `@dravensoft/arena-mcp`, assembled by the same command into
   `dist/`. The second is the only package here with a runtime dependency, and it is where the
@@ -77,7 +77,7 @@ Five things at once, from the same tree:
 
 **A published Arena carries the language and never the skin**, which is the decision the whole
 npm channel follows from: the palettes and the fonts arrive as an `arena.config.json` the
-consuming project writes, and the `arena-to-prod` command each package ships turns it into the one
+consuming project writes, and the `arena` command each package ships turns it into the one
 stylesheet a package cannot carry. Two couplings are part of the adoption contract: Phosphor for
 iconography, and Tailwind, whose compiled sheet both packages carry inside `arena.css`.
 
