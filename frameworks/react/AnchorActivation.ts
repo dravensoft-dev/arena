@@ -12,8 +12,10 @@ export function isArenaPrimaryActivation(event: ArenaActivationModifiers): boole
 }
 
 export const ARENA_INTERACTIVE_DESCENDANT = 'a[href], button, input, select, textarea, label,'
-  + ' [role="button"], [role="link"], [role="checkbox"], [role="switch"], [role="menuitem"],'
-  + ' [role="tab"], [role="option"], [contenteditable="true"]';
+  + ' [role="button"], [role="link"], [role="checkbox"], [role="radio"], [role="switch"],'
+  + ' [role="menuitem"], [role="menuitemcheckbox"], [role="menuitemradio"], [role="tab"],'
+  + ' [role="option"], [role="treeitem"], [role="slider"], [role="spinbutton"], [role="combobox"],'
+  + ' [role="textbox"], [role="searchbox"], [contenteditable="true"]';
 
 export function isArenaOwnActivation(target: EventTarget | null, container: Element): boolean {
   if (!(target instanceof Element)) return true;

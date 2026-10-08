@@ -6,7 +6,7 @@
 import { readFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { hostBinary } from '../../lib/arena/host-binary.ts';
-import { join } from 'node:path';
+import { join, posix } from 'node:path';
 import { globToRegExp } from '../../utils/text.ts';
 import { relPosix } from '../../utils/posix-path.ts';
 import { isMainModule } from '../../utils/main-module.ts';
@@ -223,6 +223,21 @@ function gitRun(args: string[], cwd: string) {
   return (stdout ?? '').split('\n').filter(Boolean);
 }
 
+export function introImportProblems(root = ROOT, run = gitRun) {
+  const tracked = new Set(run(['ls-files'], root));
+  const problems = [];
+  for (const sheet of [...tracked].filter((rel) => rel.startsWith('intro/') && rel.endsWith('.css'))) {
+    const source = readFileSync(join(root, sheet), 'utf8');
+    for (const [, target] of source.matchAll(/@import\s+(?:url\()?["']([^"')]+)["']/g)) {
+      if (!target || /^([a-z]+:)?\/\//i.test(target)) continue;
+      const rel = posix.normalize(posix.join(posix.dirname(sheet), target));
+      if (!tracked.has(rel))
+        problems.push(`${sheet} @imports ${rel}, which the index does not hold — a tag or an unbuilt clone serves the page without it`);
+    }
+  }
+  return problems;
+}
+
 export function unmarkedCoverageProblems(root = ROOT, run = gitRun) {
   const tracked = run(['ls-files'], root);
   return Object.keys(UNMARKED)
@@ -231,7 +246,7 @@ export function unmarkedCoverageProblems(root = ROOT, run = gitRun) {
 }
 
 function main() {
-  const problems = [...unmarkedProblems(), ...trackingProblems(), ...unmarkedCoverageProblems()];
+  const problems = [...unmarkedProblems(), ...trackingProblems(), ...unmarkedCoverageProblems(), ...introImportProblems()];
   if (problems.length > 0) {
     for (const problem of problems) console.error(`check-generated: ${problem}`);
     console.error(`\ncheck-generated: ${problems.length} problem(s)`);

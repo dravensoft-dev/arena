@@ -77,10 +77,11 @@ System-wide bounds on how much is shown, the twin of `z`: same `$type` (`number`
 **Script-readable, not Tailwind-exposed**: unlike `z`, `limit`'s consumer is an array bound in JavaScript, not a CSS property, so it carries no utility class. It reaches React as the bare number `limitPaginationSiblings` (`frameworks/react/Tokens.generated.js`) and is named in `check:coverage`'s `EXCLUDED` map for that reason rather than reaching a utility.
 
 ## Control density type scale (`dz`)
-Chrome text, meaning a button label, an input's value, a hint, a validation error, a badge or a table cell, is governed by how dense the surrounding controls are, not by the prose scale (`fs`). `dz` declares control heights, row padding, stack gap and its own five-step text scale, generated into `contracts/design-generated/spacing.generated.css` from `contracts/design/spacing.json` (base) and `contracts/design/density.compact.json` (the `.arena-compact` override):
+Chrome text, meaning a button label, an input's value, a hint, a validation error, a badge or a table cell, is governed by how dense the surrounding controls are, not by the prose scale (`fs`). `dz` declares control heights, row padding, stack gap and its own text scale. The base is generated into `contracts/design-generated/spacing.generated.css` from `contracts/design/spacing.json`; the `.arena-compact` and `.arena-comfortable` overrides restate `contracts/design/density.compact.json` and `contracts/design/density.comfortable.json` in the density vocabulary sheet, which `frameworks/tailwind/vocabulary/arena-density/Density.family.json` compiles:
 
 | Token | Value | Compact (`.arena-compact`) | Comfortable (`.arena-comfortable`) | Role |
 |---|---|---|---|---|
+| `--dz-text-lg` | 16px | 16px | 16px | the largest control text: a data readout inside a chart, where the number is the content rather than a label |
 | `--dz-text` | 14px | 13px | 14px | control text: buttons, inputs, selects, menu items, table cells |
 | `--dz-text-md` | 13px | 12px | 13px | secondary control text: tag chips, pagination, secondary buttons |
 | `--dz-text-sm` | 12px | 11px | 12px | secondary control text: hints, validation errors, badges, legends |
@@ -90,7 +91,7 @@ Chrome text, meaning a button label, an input's value, a hint, a validation erro
 **Comfortable grows the box and leaves the words alone**, and the asymmetry with compact is the
 point. Compact shrinks the text because an expert reading a dense table is trading legibility for
 how much fits on a screen; comfortable has nothing to buy with the same trade, so `--dz-ctl-h`
-goes to 48px, `--dz-ctl-h-sm` to 40px, `--dz-ctl-h-lg` to 56px, `--dz-row-py` to 16px,
+goes to 48px, `--dz-ctl-h-sm` to 44px, `--dz-ctl-h-lg` to 56px, `--dz-row-py` to 16px,
 `--dz-row-px` to 20px and `--dz-stack` to 16px, while every step above stays where it is.
 
 48px is the number that matters: it clears the 44px WCAG 2.5.8 asks at its enhanced level, which
@@ -99,11 +100,11 @@ style plugin's, since how large a control is answers who is pointing at it rathe
 product speaks in. The two density classes are mutually exclusive with each other, because both
 set the same keys, and compose with a theme and with a style plugin, because those set others.
 
-`--dz-text-2xs` does not shrink further in the compact scope: −1px would land it at 9px, which the system treats as illegible drift and snaps away from everywhere else, so reintroducing it as a systemic compact value would undo that call one layer down. Every other step follows the `−1px` precedent `--dz-text` itself sets (14→13).
+`--dz-text-lg` and `--dz-text-2xs` do not shrink in the compact scope. A readout is the content of its chart, so it keeps its size at any density. For `--dz-text-2xs`, −1px would land it at 9px, which the system treats as illegible drift and snaps away from everywhere else, so reintroducing it as a systemic compact value would undo that call one layer down. Every other step follows the `−1px` precedent `--dz-text` itself sets (14→13).
 
 `--dz-text` is the one token for the "control text" role; every consumer reads it.
 
-Exposed in the Tailwind layer under a `ctl` infix (`--text-ctl`, `--text-ctl-md`, `--text-ctl-sm`, `--text-ctl-xs`, `--text-ctl-2xs`) because the natural `--text-*` keys already belong to `fs`, and two collide on value as well as name (`fs.sm` / `dz.text-md` are both 13px; `fs.xs` / `dz.text-xs` are both 11px). No `dz` token wears an `fs`-shaped name: the `ctl` infix is what keeps the two namespaces distinguishable.
+Exposed in the Tailwind layer under a `ctl` infix (`--text-ctl-lg`, `--text-ctl`, `--text-ctl-md`, `--text-ctl-sm`, `--text-ctl-xs`, `--text-ctl-2xs`) because the natural `--text-*` keys already belong to `fs`, and two collide on value as well as name (`fs.sm` / `dz.text-md` are both 13px; `fs.xs` / `dz.text-xs` are both 11px). No `dz` token wears an `fs`-shaped name: the `ctl` infix is what keeps the two namespaces distinguishable.
 
 ## Page rhythm (`rhythm`)
 The air BETWEEN two components, which Arena itself never draws: every component is an inner box carrying no outer margin, so the space between one and the next belongs to whoever places them. Every step is authored as an alias of `sp` rather than as fresh numbers so a step cannot drift off the 4px grid, generated into `contracts/design-generated/spacing.generated.css` from `contracts/design/spacing.json`:

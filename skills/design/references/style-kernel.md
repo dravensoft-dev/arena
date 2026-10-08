@@ -65,7 +65,7 @@ yours is running to hundreds, the answer is almost always a role you have not mo
 
 ## The two rules that decide everything else
 
-**The first entry in `stylePlugins` is the root plugin, and it answers every role.** Your package's `arena.tokens.json` writes a role's default beside its type, and only a role carrying one may be left silent. The command answers such a role with its default and names it in a note. The root plugin emits on `:root`, and a custom property with no value is invalid at
+**The first entry in `stylePlugins` is the root plugin, and it answers every role.** Your package's `arena.tokens.json` writes a role's default beside its type, and only a role carrying one may be left silent; [`config.md`](./config.md#declare-your-skin) names the roles that carry one in this package. The command answers such a role with its default and names it in a note. The root plugin emits on `:root`, and a custom property with no value is invalid at
 computed-value time. The declaration reading it is dropped and the property disappears. A partial root plugin is not a plainer
 appearance, it is a page with no borders. Every later entry emits under `.arena-<name>`, taken from
 its directory, and you put that class on `<html>`. A later entry is a difference sitting over the root plugin, so it answers only what it changes.

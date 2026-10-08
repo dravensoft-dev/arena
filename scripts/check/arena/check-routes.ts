@@ -146,7 +146,7 @@ export const ROUTES: Route[] = [
       + 'document that says what the questions are and which answers carry the difference',
     entry: 'consumer',
     stops: ['skills/design/references/style-kernel.md'],
-    budget: 18_000,
+    budget: 18_200,
     reason:
       'paid once per project and never per screen, which is what lets it carry the whole surface '
       + 'the kernel exposes rather than a pointer to it, so a project stops learning the kernel from '
@@ -158,7 +158,8 @@ export const ROUTES: Route[] = [
       + 'inherited to decided is a decision this page is obliged to name. The number is what the '
       + 'stops measure with room for the kernel to grow a section, and it moves when the kernel grows '
       + 'a question rather than when the document grows a paragraph. The root rule says where a '
-      + 'role\'s default is written, because the kernel\'s totality reads as unconditional without it.',
+      + 'role\'s default is written, because the kernel\'s totality reads as unconditional without it, '
+      + 'and where the roles carrying one are named, because a mechanism with no member reads as one with some.',
   },
   {
     name: 'consumer-register',

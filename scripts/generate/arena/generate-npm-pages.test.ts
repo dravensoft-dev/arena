@@ -12,6 +12,7 @@ import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { LAYER_TOKENS, FORBIDDEN } from '../../check/arena/check-layer-independence.ts';
 import {
   TARGETS, openLine, closeLine, renderRegion, applyRegion, renderTarget, regionsOf,
+  ROLE_CONTRACT, defaultedRoles, defaultedSentence,
 } from './generate-npm-pages.ts';
 import { NPM_PAGES } from '../../lib/arena/npm-questions.ts';
 import { packageSheetName, sheetFamilies } from '../../lib/tailwind/vocabulary.ts';
@@ -131,4 +132,18 @@ test('the sheets region splits a long list into sentences within the register wo
   assert.ok(sentences.length >= 3, 'more than two chunks');
   for (const sentence of sentences)
     assert.ok(words(sentence).length <= MAX_WORDS, `a sentence of ${words(sentence).length} words: ${sentence.slice(0, 60)}`);
+});
+
+test('the skin region names which roles carry a default, so an empty set reads as empty rather than as a promise', () => {
+  const base = mkdtempSync(join(tmpdir(), 'npm-roles-'));
+  mkdirSync(join(base, 'contracts/design'), { recursive: true });
+  const write = (roles: object) => writeFileSync(join(base, ROLE_CONTRACT), JSON.stringify(roles));
+  write({ 'r-surface': { $type: 'dimension' }, 'gap-row': { $type: 'dimension' } });
+  assert.deepEqual(defaultedRoles(base), []);
+  assert.match(defaultedSentence([]), /No role in this package carries one/);
+  write({ 'r-surface': { $type: 'dimension' }, 'gap-row': { $type: 'dimension', $extensions: { 'com.dravensoft.arena': { default: '{sp.3}' } } } });
+  assert.deepEqual(defaultedRoles(base), ['gap-row']);
+  assert.match(defaultedSentence(['gap-row']), /The roles carrying one are `gap-row`/);
+  assert.ok(renderRegion('skin').includes(defaultedSentence(defaultedRoles())),
+    'the region on the page says what roles.json carries');
 });

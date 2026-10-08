@@ -8,7 +8,7 @@ import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
 import {
   UNMARKED, UNTRACKED, matches, claimsGeneration,
-  unmarkedProblems, trackingProblems, unmarkedCoverageProblems,
+  unmarkedProblems, trackingProblems, unmarkedCoverageProblems, introImportProblems,
 } from './check-generated.ts';
 
 function tree(files: Record<string, string>) {
@@ -157,4 +157,16 @@ test('an UNMARKED entry matching no tracked file is stale and fails', () => {
   const stale = unmarkedCoverageProblems('.', runner({ tracked: ['intro/support.js'] }));
   assert.equal(stale.length, 1);
   assert.match(stale[0] ?? '', /assets\/fonts\/\*\.woff2/);
+});
+
+test('an intro sheet importing a file the index does not hold is reported, since the tag serves it unstyled', () => {
+  const root = tree({
+    'intro/styles.css': '@import "../contracts/a.css";\n@import url("../frameworks/b.generated.css");\n@import "https://example.org/c.css";\n',
+  });
+  const held = introImportProblems(root, runner({ tracked: ['intro/styles.css', 'contracts/a.css', 'frameworks/b.generated.css'] }));
+  assert.deepEqual(held, []);
+  const missing = introImportProblems(root, runner({ tracked: ['intro/styles.css', 'contracts/a.css'] }));
+  assert.equal(missing.length, 1);
+  assert.match(missing[0] ?? '', /frameworks\/b\.generated\.css/);
+  rmSync(root, { recursive: true });
 });

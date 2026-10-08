@@ -13,10 +13,22 @@ import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { packageSheetName, sheetFamilies } from '../../lib/tailwind/vocabulary.ts';
 import { CSS_CHAIN } from '../../lib/arena/package-assembly.ts';
 import { NPM_PAGES, renderQuestions } from '../../lib/arena/npm-questions.ts';
-import { RESERVED } from '../core/arena-cli/style-plugin-rules.ts';
+import { ARENA_EXT, RESERVED } from '../core/arena-cli/style-plugin-rules.ts';
 import { readJson } from '../../utils/read-file.ts';
 
 export const LOCALE_CONTRACT = 'contracts/api/types/arena-locale.json';
+export const ROLE_CONTRACT = 'contracts/design/roles.json';
+
+export function defaultedRoles(base = root) {
+  const roles = readJson(join(base, ROLE_CONTRACT)) as Record<string, { $extensions?: Record<string, { default?: unknown }> }>;
+  return Object.keys(roles).filter((name) => roles[name]?.$extensions?.[ARENA_EXT]?.default !== undefined).sort();
+}
+
+export function defaultedSentence(roles: string[]) {
+  if (roles.length === 0)
+    return 'No role in this package carries one, so the first entry answers every role and the command refuses it silent on any.';
+  return `The roles carrying one are ${roles.map((role) => `\`${role}\``).join(', ')}, and every other role is one your plugin answers.`;
+}
 
 export const REGION_TARGETS: Record<string, string[]> = {
   repository: ['frameworks/react/PACKAGE.md', 'frameworks/angular/PACKAGE.md'],
@@ -30,7 +42,7 @@ export const TARGETS = [...new Set(Object.values(REGION_TARGETS).flat())];
 
 export const node = {
   name: 'generate:npm-pages',
-  reads: [...TARGETS, '.claude-plugin/plugin.json', 'scripts/generate/core/arena-cli/style-plugin-rules.ts', LOCALE_CONTRACT],
+  reads: [...TARGETS, '.claude-plugin/plugin.json', 'scripts/generate/core/arena-cli/style-plugin-rules.ts', LOCALE_CONTRACT, ROLE_CONTRACT],
   writes: TARGETS,
   feeds: [
     'build:angular-package',
@@ -100,7 +112,7 @@ The package is the code. The server, the plugin and the repository are the langu
 **The rest of what ships under \`css/\` is not a choice.** The token layer is these sheets: ${listed}. \`arena.css\` imports them in the order they have to be in, and \`css/prelude.css\` is what a single component sheet pulls in for itself. The one that IS a decision is \`css/style-plugin-default.css\`, the appearance this package installs with. The sheet arrives through \`arena.css\` like the rest. A \`stylePlugins\` list of your own that does not name \`default\` does not receive it, which is the point of writing one.`;
   },
 
-  skin: () => {
+  skin: (base = root) => {
     const reserved = `\`${[...RESERVED.keys()].join(', ')}\``;
     return `## Declare your skin
 
@@ -185,7 +197,7 @@ What each part means:
   component rewritten to get there.
   The key is a list, because a build can carry more than one register. The first entry is what a page with no class on it looks like. Every later one emits under \`.arena-<name>\`, which you put on \`<html>\` beside any palette class, and is a difference. An entry is the word
   \`default\`, which is the appearance this package installs with, or a path to a directory of
-  your own holding \`plugin.tokens.json\` and optionally \`plugin.css\`. The first entry answers every role Arena declares, and the command refuses one silent on a role that carries no default of Arena's. A role carrying Arena's default takes that default when your plugin is silent on it, and the command notes which roles did, as \`N role(s) your root style plugin leaves unanswered take Arena's default: …\`. Your package's \`arena.tokens.json\` writes a role's default beside its type, and a role with none there is one your plugin answers. A custom property with no value is invalid at computed-value time, so an unanswered role is a missing border rather than a plainer look. Declare a list without \`default\` and you do not receive its stylesheet, the
+  your own holding \`plugin.tokens.json\` and optionally \`plugin.css\`. The first entry answers every role Arena declares, and the command refuses one silent on a role that carries no default of Arena's. A role carrying Arena's default takes that default when your plugin is silent on it, and the command notes which roles did, as \`N role(s) your root style plugin leaves unanswered take Arena's default: …\`. Your package's \`arena.tokens.json\` writes a role's default beside its type. ${defaultedSentence(defaultedRoles(base))} A custom property with no value is invalid at computed-value time, so an unanswered role is a missing border rather than a plainer look. Declare a list without \`default\` and you do not receive its stylesheet, the
   same way the preflight can already be dropped.
 - **\`gradientMark\`** is optional, a boolean, and says the mark your product is drawn with is a
   gradient. Arena ships no element that is one, so yours lives in your own CSS, where \`arena audit\` reports it. The scope reads which directory a line sits in, which is right for a part hook and wrong for a brand. Declare it once and that rule goes quiet in your sources; the colours inside

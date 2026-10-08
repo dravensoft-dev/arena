@@ -29,7 +29,7 @@ node_modules/
 # clone cannot reproduce it: assets/fonts/Fonts.generated.json, whose rebuild needs the
 # network, the same reason UNMARKED already gives the .woff2 binaries themselves.
 # Everything a script writes under frameworks/ is read by Arena's own tooling or assembled
-# into a package, and is ignored. Each reason lives beside its pattern in UNTRACKED, in
+# into a package, and is ignored, bar the one exception below the pattern. Each reason lives beside its pattern in UNTRACKED, in
 # scripts/check/arena/check-generated.ts.
 #
 # The pattern reaches a .generated. name and nothing else, which is why the consumer branch's
@@ -38,6 +38,10 @@ node_modules/
 # where nothing runs a build, and check:skills asserts it because no other gate can:
 # check:generated scans no .md.
 /frameworks/**/*.generated.*
+# The density sheet is the one exception under frameworks/: intro/styles.css @imports it, so the
+# tag has to serve it for the same reason it serves contracts/design-generated/. check:generated
+# fails an intro sheet whose @import the index does not hold.
+!/frameworks/tailwind/consume/vocabulary/Density.generated.css
 
 # The benches, checked out and built by the Pages workflow. actions/checkout writes only under
 # the workspace, so a second repository lands inside this one; nothing build:site or check:site
