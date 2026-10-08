@@ -11,7 +11,7 @@ import { join } from 'node:path';
 import { CLI_BINS } from '../../lib/arena/package-assembly.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import {
-  importedSheets, unknownSymbolProblems, listProblems, iconProblems, assembled, documented, CONFIG_REFERENCE,
+  importedSheets, unknownSymbolProblems, listProblems, closedListProblems, iconProblems, assembled, documented, CONFIG_REFERENCE,
   palettesProblems, SOURCES, UNKNOWN, FILL, GLYPH, THIRD_PALETTE, CLI, snapshot, treeChanges, exitProblem, binProblems,
 } from './check-consumer.ts';
 import type { CliRun } from './check-consumer.ts';
@@ -173,4 +173,22 @@ test('the packed manifest declares exactly one bin, and it is the one the gate r
   const two = binProblems('react', { arena: `./${CLI}`, second: './bin/second.mjs' });
   assert.equal(two.length, 1);
   assert.match(two[0] ?? '', /2 commands/);
+});
+
+test('a list naming arena-table alone imports the pagination and select the table draws, and says so', () => {
+  const said = 'arena build: 1 component sheet(s) named, and 2 Arena draws for you: arena-pagination, arena-select\n';
+  const closed = { ...sheetImports('arena-table', 'arena-pagination', 'arena-select'), stdout: said };
+  assert.deepEqual(closedListProblems('react', closed), []);
+
+  const open = closedListProblems('react', { ...sheetImports('arena-table'), stdout: said });
+  assert.equal(open.length, 1);
+  assert.match(open[0] ?? '', /and not arena-pagination, arena-select/);
+
+  const silent = closedListProblems('react', { ...closed, stdout: '' });
+  assert.equal(silent.length, 1);
+  assert.match(silent[0] ?? '', /said nothing/);
+
+  const refused = closedListProblems('angular', { ...ok, status: 1, stderr: 'nope' });
+  assert.equal(refused.length, 1);
+  assert.match(refused[0] ?? '', /^angular: .* exited 1/);
 });

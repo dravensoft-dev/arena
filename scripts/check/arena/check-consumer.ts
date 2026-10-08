@@ -604,6 +604,27 @@ export function listProblems(layer: string, named: CliRun, unknown: CliRun, list
   return problems;
 }
 
+export const CLOSED_LIST = ['arena-table'];
+
+export const CLOSED_PULLS = ['arena-pagination', 'arena-select'];
+
+export function closedListProblems(layer: string, result: CliRun) {
+  const named = CLOSED_LIST.join(', ');
+  if (result.status !== 0) {
+    return [`${layer}: a stylesheet.components naming ${named} alone exited ${result.status}:\n    ${result.stderr.trim()}`];
+  }
+  const drawn = importedSheets(result.theme);
+  const missing = CLOSED_PULLS.filter((one) => !drawn.includes(one));
+  if (missing.length) {
+    return [`${layer}: a stylesheet.components naming ${named} alone imported [${drawn.join(', ')}] and not `
+      + `${missing.join(', ')}, so the table renders its pagination and its select with no border, no padding and no colour`];
+  }
+  return result.stdout.includes(`Arena draws for you: ${CLOSED_PULLS.join(', ')}`)
+    ? []
+    : [`${layer}: the run naming ${named} alone added ${CLOSED_PULLS.join(', ')} and said nothing about it, `
+      + 'so a project cannot tell what its list costs'];
+}
+
 const AUTO = { components: 'auto', preflight: false };
 
 export const CONFIG_REFERENCE = 'skills/design/references/config.md';
@@ -633,6 +654,7 @@ export function collect(base = root) {
         continue;
       }
       const named = fixture(layer, sources, { components: list }, base);
+      const closed = fixture(layer, sources, { components: CLOSED_LIST }, base);
       const unknown = fixture(layer, sources, { components: ['button'] }, base);
       const strange = UNPLACED[layer];
       const unplaced = fixture(layer, strange?.files ?? {}, AUTO, base);
@@ -641,13 +663,14 @@ export function collect(base = root) {
       const plugged = pluginFixture(layer, [PLUGINS.total, PLUGINS.partial], base);
       const partialRoot = pluginFixture(layer, [PLUGINS.partial], base);
       const palettes = palettesFixture(layer, base);
-      dirs.push(auto, unexported, named, unknown, unplaced, broken, plugged, partialRoot, palettes);
+      dirs.push(auto, unexported, named, closed, unknown, unplaced, broken, plugged, partialRoot, palettes);
 
       const result = runCli(layer, auto, base);
       problems.push(...mergeProblems(layer, result, base));
       problems.push(...stemProblems(layer, result, ['arena-button', 'arena-table'], base));
       problems.push(...unknownSymbolProblems(layer, runCli(layer, unexported, base)));
       problems.push(...listProblems(layer, runCli(layer, named, base), runCli(layer, unknown, base), list));
+      problems.push(...closedListProblems(layer, runCli(layer, closed, base)));
       problems.push(...unplacedProblems(layer, runCli(layer, unplaced, base, ['check']), strange?.name ?? ''));
       problems.push(...auditProblems(
         layer,
@@ -680,7 +703,8 @@ function main() {
     process.exit(1);
   }
   console.log(`check-consumer: both packages run ${CLI} from a node_modules/ path, resolve "auto" to the sheets `
-    + `a consumer's sources name, scope a style plugin of the project's own, emit a block carrying `
+    + `a consumer's sources name, close a named list over what its components draw, `
+    + `scope a style plugin of the project's own, emit a block carrying `
     + `its own polarity for each of three palettes, and every subcommand leaves the tree and the exit code `
     + `it promises`
     + `${built ? ', after assembling what was missing' : ''}`);
