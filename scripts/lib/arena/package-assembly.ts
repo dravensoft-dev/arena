@@ -260,6 +260,15 @@ export function copyBehaviourContracts(dir: string, root = repoRoot) {
 
 export const CATALOGUE_FILE = 'arena.tokens.json';
 
+export function catalogueRole(role: Record<string, any>) {
+  const own = role.$extensions?.[ARENA_EXT] ?? {};
+  return {
+    type: role.$type,
+    ...(own.values ? { values: own.values } : {}),
+    ...(own.default !== undefined ? { default: own.default } : {}),
+  };
+}
+
 export function tokenCatalogue(root = repoRoot) {
   const decls = new Map<string, Map<string, string>>();
   for (const target of CSS_TARGETS) {
@@ -269,10 +278,7 @@ export function tokenCatalogue(root = repoRoot) {
   const tokens = Object.fromEntries(decls.get(':root') ?? []);
 
   const roleFile = readJson(join(root, 'contracts', 'design', 'roles.json')) as Record<string, any>;
-  const roles = Object.fromEntries(Object.entries(roleFile).map(([name, role]) => [name, {
-    type: role.$type,
-    ...(role.$extensions?.[ARENA_EXT]?.values ? { values: role.$extensions[ARENA_EXT].values } : {}),
-  }]));
+  const roles = Object.fromEntries(Object.entries(roleFile).map(([name, role]) => [name, catalogueRole(role)]));
 
   return { tokens, roles };
 }

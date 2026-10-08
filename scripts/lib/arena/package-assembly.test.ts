@@ -7,7 +7,7 @@ import { relPosix } from '../../utils/posix-path.ts';
 import {
   EXCLUDED_NAMES, EXCLUDED_PATTERNS, CSS_CHAIN, arenaCssHeader, excluded,
   collectFiles, reset, write, copyTree, copyCli, CLI_BINS, CLI_SOURCES, baseManifest, pluginIdentity, version, repositoryBase, agentBases, componentSheets, writeCssChain,
-  writeComponentMap, keywords, SHARED_KEYWORDS, tokenCatalogue,
+  writeComponentMap, keywords, SHARED_KEYWORDS, tokenCatalogue, catalogueRole,
 } from './package-assembly.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { MARKERS_FILE, markerAttributes } from './component-map.ts';
@@ -380,4 +380,16 @@ test('what a published copy leaves behind is read at the release tag and never a
   const tag = `https://github.com/dravensoft-dev/arena/blob/v${version()}`;
   assert.equal(repositoryBase(), tag);
   assert.equal(agentBases().repository, tag);
+});
+
+test('a catalogue role carries its type, its closed set and its kernel default, and nothing else', () => {
+  assert.deepEqual(catalogueRole({
+    $type: 'color', $description: 'x', $extensions: { 'com.dravensoft.arena': { default: '{ink-body}' } },
+  }), { type: 'color', default: '{ink-body}' });
+  assert.deepEqual(catalogueRole({ $type: 'keyword', $extensions: { 'com.dravensoft.arena': { values: ['none'] } } }),
+    { type: 'keyword', values: ['none'] });
+  assert.deepEqual(catalogueRole({ $type: 'dimension', $description: 'x' }), { type: 'dimension' });
+  assert.deepEqual(Object.keys(catalogueRole({
+    $type: 'keyword', $extensions: { 'com.dravensoft.arena': { default: '{tt-label}', values: ['none'] } },
+  })), ['type', 'values', 'default'], 'type and values keep the order the catalogue file is written in');
 });

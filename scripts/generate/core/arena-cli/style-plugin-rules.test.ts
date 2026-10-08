@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { basename, dirname, join } from 'node:path';
-import { DANGER_FLOOR, KEBAB, RESERVED, floorProblems, nameProblems, reservedProblems } from './style-plugin-rules.ts';
+import { DANGER_FLOOR, KEBAB, RESERVED, floorProblems, nameProblems, reservedProblems, withDefaults } from './style-plugin-rules.ts';
 import { scopesIn } from './sheets.ts';
 import { POLARITIES } from './palette-keys.ts';
 import { walkFiles } from '../../../utils/walk-files.ts';
@@ -82,4 +82,57 @@ test('a polarity, a near miss and an odd spelling are not reserved', () => {
   const odd = nameProblems('Popover', POLARITIES, 'at');
   assert.equal(odd.length, 1);
   assert.match(odd[0] ?? '', /not kebab-case/);
+});
+
+const kernel = {
+  'ink-body': {},
+  'ink-link': { default: '{ink-body}' },
+  'ink-visited': { default: '{ink-link}' },
+  'r-popover': { default: '{r.lg}' },
+};
+
+test('a silent root plugin takes a default through its own answer to the role the default names', () => {
+  const { plugin, defaulted } = withDefaults({ tokens: { 'ink-body': '{color.primary}' }, light: {} }, kernel);
+  assert.deepEqual(plugin.tokens, {
+    'ink-body': '{color.primary}', 'ink-link': '{color.primary}', 'ink-visited': '{color.primary}', 'r-popover': '{r.lg}',
+  });
+  assert.deepEqual(defaulted, ['ink-link', 'ink-visited', 'r-popover']);
+});
+
+test('an answer the plugin gives is never replaced by a default', () => {
+  const { plugin, defaulted } = withDefaults(
+    { tokens: { 'ink-body': '{color.primary}', 'ink-link': '{color.accent}' }, light: {} }, kernel);
+  assert.equal(plugin.tokens['ink-link'], '{color.accent}');
+  assert.equal(plugin.tokens['ink-visited'], '{color.accent}', 'a chain resolves through the plugin\'s answer at each step');
+  assert.deepEqual(defaulted, ['ink-visited', 'r-popover']);
+});
+
+test('a light answer to the target follows the default, and a light answer of the role\'s own stays', () => {
+  const followed = withDefaults(
+    { tokens: { 'ink-body': '{color.primary}' }, light: { 'ink-body': '{color.neutral}' } }, kernel).plugin;
+  assert.equal(followed.light['ink-link'], '{color.neutral}');
+  assert.equal(Object.hasOwn(followed.light, 'r-popover'), false, 'a token alias carries no light answer of its own');
+  const own = withDefaults(
+    { tokens: { 'ink-body': '{color.primary}' }, light: { 'ink-body': '{color.neutral}', 'ink-link': '{color.info}' } }, kernel).plugin;
+  assert.equal(own.light['ink-link'], '{color.info}');
+  assert.equal(own.tokens['ink-link'], '{color.primary}');
+});
+
+test('a default naming a role nobody answered, a cycle or a non-alias answers nothing and ends', () => {
+  const { plugin, defaulted } = withDefaults({ tokens: {}, light: {} }, {
+    'ink-body': {}, 'ink-link': { default: '{ink-body}' },
+    a: { default: '{b}' }, b: { default: '{a}' }, self: { default: '{self}' },
+    literal: { default: '#ff0000' }, number: { default: 4 },
+  });
+  assert.deepEqual(plugin.tokens, {});
+  assert.deepEqual(defaulted, []);
+});
+
+test('with no default declared the plugin comes back as it was, in the same key order', () => {
+  const tokens = { 'r-surface': '{r.lg}', 'ink-body': '{color.primary}' };
+  const { plugin, defaulted } = withDefaults({ name: 'console', tokens, light: {} },
+    { 'r-surface': {}, 'ink-body': {}, constructor: {}, ['__proto__']: {} });
+  assert.deepEqual(defaulted, []);
+  assert.deepEqual(Object.keys(plugin.tokens), Object.keys(tokens));
+  assert.equal(plugin.name, 'console');
 });

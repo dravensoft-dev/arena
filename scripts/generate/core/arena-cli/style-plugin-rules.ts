@@ -129,6 +129,34 @@ export function totalityProblems(declared: string[], answered: string[]) {
     + 'an unanswered role is not a plainer appearance, it is a missing border.');
 }
 
+const ALIAS_PATH = /^\{([a-z][\w-]*(?:\.[\w-]+)*)\}$/;
+
+export function withDefaults<P extends { tokens: Record<string, unknown>; light: Record<string, unknown> }>(
+  plugin: P, roles: Record<string, { default?: unknown }>,
+) {
+  const tokens = { ...plugin.tokens };
+  const light = { ...plugin.light };
+  const defaulted: string[] = [];
+  const answer = (role: string, open: readonly string[]): boolean => {
+    if (Object.hasOwn(tokens, role)) return true;
+    const alias = Object.hasOwn(roles, role) ? roles[role]?.default : undefined;
+    if (typeof alias !== 'string' || open.includes(role)) return false;
+    const target = ALIAS_PATH.exec(alias.trim())?.[1]?.replace(/\./g, '-');
+    if (target === undefined) return false;
+    if (Object.hasOwn(roles, target)) {
+      if (!answer(target, [...open, role])) return false;
+      tokens[role] = tokens[target];
+      if (Object.hasOwn(light, target) && !Object.hasOwn(light, role)) light[role] = light[target];
+    } else {
+      tokens[role] = alias.trim();
+    }
+    defaulted.push(role);
+    return true;
+  };
+  for (const role of Object.keys(roles)) answer(role, []);
+  return { plugin: { ...plugin, tokens, light }, defaulted: defaulted.sort() };
+}
+
 export function reservedProblems(name: string, where: string) {
   const reason = RESERVED.get(name);
   if (reason === undefined) return [];

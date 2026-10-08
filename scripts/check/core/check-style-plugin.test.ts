@@ -27,11 +27,12 @@ const ROLES = {
   'dur-hover': { $type: 'duration' },
 };
 
-test('the rules module carries floors and shape checks and no design theory', () => {
+test('the rules module carries floors, shape checks and the kernel defaults, and no design theory', () => {
   assert.deepEqual(Object.keys(rules).sort(), [
     'ARENA_EXT', 'DANGER_FLOOR', 'FS_STEP', 'KEBAB', 'MAX_PROSE_MEASURE', 'MIN_HEADING_LEADING',
     'MIN_PROSE_LEADING', 'MIN_PROSE_MEASURE', 'RESERVED', 'RHYTHM_STEP',
     'floorProblems', 'keyProblems', 'nameProblems', 'reservedProblems', 'scopeOn', 'totalityProblems', 'valueProblems',
+    'withDefaults',
   ], 'a rule that keeps a catalogue coherent is Arena design theory, and a floor is a claim about '
   + 'a reader: only the second one has any business binding somebody else\'s product');
 });
