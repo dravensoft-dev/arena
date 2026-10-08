@@ -85,6 +85,13 @@ difference. Those sit over the root plugin in the cascade, so totality would be 
 nothing behind it. A polarity group emits three compound selectors rather than one, because the
 plugin class and the theme class sit in either order or on the same element.
 
+The name is refused when the package already ships that class, and when
+`scripts/generate/core/arena-cli/style-plugin-rules.ts:RESERVED` holds it for a class Arena is going
+to ship. `reservedProblems(name, where)` words that refusal once, and a palette's name meets it too.
+The suite beside the module fails an entry the tree ships, so the change that lands a component
+deletes its entry, and a project meets the refusal on the day it picks the name, when renaming costs
+nothing.
+
 An empty list is not a configuration. Removable means replaceable.
 
 ## Why the plugin layer sits after `utilities`

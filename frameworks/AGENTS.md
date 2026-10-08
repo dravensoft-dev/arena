@@ -88,7 +88,8 @@ found by adding a component and reading what went red rather than by a list anyb
 of everything else, `scripts/check/arena/check-manifest-states.test.ts` holds that roster a second
 time, `scripts/check/arena/check-playgrounds.test.ts` counts emitted pages once in total and once
 per layer, and `frameworks/angular/test/HostClassBinding.test.ts` carries `NO_MANIFEST`, which is
-the one nothing points at from anywhere.
+the one nothing points at from anywhere. `arena-cli/style-plugin-rules.ts:RESERVED` fails a name
+the tree ships, so a component that ships one deletes its entry.
 
 **Two of those assert an ORDER and not a number, which fails in a shape that reads like a
 regression.** `unaskedHandDrawn` reports in `HAND_DRAWN` order, so a suite matching
