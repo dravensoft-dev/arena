@@ -51,7 +51,7 @@ export function strictNames(command: StrictCommand): StrictName[] {
     RULES_BY_KIND[kind]?.map((rule): StrictName => `${kind}:${rule}`) ?? [kind]);
 }
 
-export function heldAs(one: Report, strict: readonly string[]) {
+export function heldAs(one: Report, strict: readonly string[]): string | null {
   if (strict.includes(one.kind)) return one.kind;
   if (one.rule !== undefined && strict.includes(`${one.kind}:${one.rule}`)) return `${one.kind}:${one.rule}`;
   return null;

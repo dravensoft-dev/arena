@@ -806,8 +806,10 @@ export function findings(relPath: string, text: string, scope: Scope = 'app',
     .sort((a, b) => a.line - b.line);
 }
 
+export type AuditLine = { rule: string; text: string };
+
 export function auditFindings(relPath: string, text: string, scope: Scope = 'app',
-  gradientMark = false, vocabulary: VocabularyIndex | null = null) {
+  gradientMark = false, vocabulary: VocabularyIndex | null = null): AuditLine[] {
   const lines = text.split('\n');
   const byLine = new Map<number, Finding[]>();
   for (const one of findings(relPath, text, scope, gradientMark, vocabulary)) {
@@ -815,7 +817,7 @@ export function auditFindings(relPath: string, text: string, scope: Scope = 'app
     (byLine.get(one.line) ?? []).push(one);
   }
 
-  const problems: { rule: string; text: string }[] = [];
+  const problems: AuditLine[] = [];
   lines.forEach((line, index) => {
     const number = index + 1;
     const found = byLine.get(number) ?? [];
@@ -826,7 +828,9 @@ export function auditFindings(relPath: string, text: string, scope: Scope = 'app
       }
       return;
     }
-    for (const one of found) problems.push({ rule: one.rule, text: `${relPath}:${number}: ${one.message} (${one.rule})` });
+    for (const one of found) {
+      problems.push({ rule: one.rule, text: `${relPath}:${number}: ${one.message} (${one.rule})` });
+    }
   });
 
   return problems;
