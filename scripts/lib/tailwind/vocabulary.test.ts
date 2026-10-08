@@ -39,14 +39,14 @@ test('a box family compiles one scope per option, stopped inside every boundary,
 }
 @layer utilities {
   @scope (.arena-fill) to (${LIMIT}) {
-    &[data-arena-part="button"], [data-arena-part="button"],
-    &[data-arena-part="tooltip"], [data-arena-part="tooltip"] {
+    :scope[data-arena-part="button"], [data-arena-part="button"],
+    :scope[data-arena-part="tooltip"], [data-arena-part="tooltip"] {
       --arena-fill-width: 100%;
     }
   }
   @scope (.arena-fit) to (${LIMIT}) {
-    &[data-arena-part="button"], [data-arena-part="button"],
-    &[data-arena-part="tooltip"], [data-arena-part="tooltip"] {
+    :scope[data-arena-part="button"], [data-arena-part="button"],
+    :scope[data-arena-part="tooltip"], [data-arena-part="tooltip"] {
       --arena-fill-width: fit-content;
     }
   }
@@ -220,4 +220,9 @@ test('a read wrapped in the family axis falls back to the default through it', (
 
 test('a keyed family compiles to no sheet', () => {
   assert.throws(() => compileFamily(COLUMN, []), /keyed family compiles to no sheet/);
+});
+
+test('no compiled vocabulary block carries a nesting selector', () => {
+  assert.doesNotMatch(compileFamily(FILL, reading('button', 'tooltip')), /&/);
+  assert.doesNotMatch(compileFamily(STACK, []), /&/);
 });

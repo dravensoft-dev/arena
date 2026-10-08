@@ -73,7 +73,7 @@ export function opacitiesIn(css: string) {
   for (const line of css.split('\n')) {
     const named = SELECTOR.exec(line)?.[1];
     if (named?.startsWith('.')) { selector = named; state = named; }
-    else if (named) state = `${selector}${named.replace(/&/g, '')}`;
+    else if (named) state = `${selector}${named.replace(/:scope(?=\[)/g, '')}`;
     const held = OPACITY.exec(line)?.[1];
     if (held !== undefined) out.set(state, Number(held) / 100);
   }
@@ -93,7 +93,7 @@ export function levelsIn(
     if (scope) { selector = scope; state = scope; condition = ''; }
     const named = SELECTOR.exec(line)?.[1];
     if (named?.startsWith('.')) { selector = named; state = named; condition = states.get(named) ?? ''; }
-    else if (named) state = `${selector}${named.replace(/&/g, '')}`;
+    else if (named) state = `${selector}${named.replace(/:scope(?=\[)/g, '')}`;
     const mix = MIX.exec(line);
     if (!mix) continue;
     const level = mix[4] ?? null;

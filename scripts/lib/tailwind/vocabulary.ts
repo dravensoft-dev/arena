@@ -220,7 +220,7 @@ export function compileFamily(family: Family, manifests: Iterable<ComponentManif
   for (const [option, classes] of Object.entries(family.variants).sort(byOption)) {
     const own = answeringParts(family, all, option);
     if (own.length === 0) continue;
-    const selector = own.map((part) => `&[data-arena-part="${part}"], [data-arena-part="${part}"]`).join(',\n    ');
+    const selector = own.map((part) => `:scope[data-arena-part="${part}"], [data-arena-part="${part}"]`).join(',\n    ');
     const head = family.reach === 'box' ? `@scope (.${option}) to (${LIMIT})` : `@scope (.${option}) to (${FLOATING_LIMIT})`;
     const body = declarations(classes).map(([name, value]) => `      ${name}: ${value};`).join('\n');
     blocks.push(`  ${head} {\n    ${selector} {\n${body}\n    }\n  }`);

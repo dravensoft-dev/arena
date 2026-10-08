@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import { declared, channelProblems } from './check-channels.ts';
 
 const sheets = (extra: { kind: 'family' | 'component' | 'token' | 'hue' | 'plugin'; rel: string; css: string }[] = []) => [
-  { kind: 'family' as const, rel: 'v/Fill.generated.css', css: '@scope (.arena-fill) { &[data-arena-part="button"] { --arena-fill-width: 100%; } }' },
+  { kind: 'family' as const, rel: 'v/Fill.generated.css', css: '@scope (.arena-fill) { :scope[data-arena-part="button"] { --arena-fill-width: 100%; } }' },
   { kind: 'component' as const, rel: 'c/ArenaButton.styles.generated.css', css: '.arena-button__root { --tw-shadow: 0 0 #0000; width: var(--arena-fill-width,fit-content); }' },
   { kind: 'token' as const, rel: 't/spacing.generated.css', css: ':root { --sp-1: 4px; }' },
   { kind: 'hue' as const, rel: 'h/ArenaButton.hues.generated.css', css: '.arena-button__root:where([data-arena-destructive]) { --arena-hue-ink: var(--hue-danger-ink); }' },

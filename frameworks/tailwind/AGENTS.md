@@ -128,8 +128,9 @@ the manifests that answer it, so a class naming an option a component lacks sele
 
 **`build:tailwind` compiles a family to `consume/vocabulary/<Family>.generated.css`**, one `@scope`
 block per option over the parts of the manifests that answer that option, each selected as the
-scope root and as a descendant (`&[data-arena-part="p"], [data-arena-part="p"]`), since a bare
-selector inside `@scope` never matches the root. **The context limit** of a `context` family is
+scope root and as a descendant (`:scope[data-arena-part="p"], [data-arena-part="p"]`), because a bare
+selector inside `@scope` never matches the root, and a nesting selector (`&`) written directly
+inside `@scope` is one a bundler that lowers nesting drops. **The context limit** of a `context` family is
 `to ([data-arena-surface="floating"])`: the class reaches the root part of each answering
 component, which is where the channel is written, and stops at a surface that says it floats. A
 box family is limited by
