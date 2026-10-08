@@ -3,8 +3,12 @@ import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaChartCard.classes.generated.ts';
 
 import type { ArenaHeadingLevel } from '../../../Api.generated';
+import type { ArenaChartCardClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export interface ArenaChartCardProps {
+  className?: ArenaChartCardClass;
+
 
   /** The card heading. Absent renders no head unless `actions` is present. */
   title?: string;
@@ -21,15 +25,15 @@ export interface ArenaChartCardProps {
 
 const arenaChartCardStyles = arenaStyles(manifest);
 
-export function ArenaChartCard({ title, headingLevel = 'none', actions, children }: ArenaChartCardProps) {
+export function ArenaChartCard({ className, title, headingLevel = 'none', actions, children }: ArenaChartCardProps) {
   const styles = arenaChartCardStyles();
   const Heading = headingLevel === 'none' ? 'span' : headingLevel;
   return (
-    <div className={styles.root()} data-arena-part={manifest.parts.root}>
+    <div className={arenaClassName('ArenaChartCard', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()} data-arena-boundary="">
       {(title || actions) && (
-        <div className={styles.head()} data-arena-part={manifest.parts.head}>
-          {title && <Heading className={styles.title()} data-arena-part={manifest.parts.title}>{title}</Heading>}
-          {actions && <div className={styles.actions()} data-arena-part={manifest.parts.actions}>{actions}</div>}
+        <div className={styles.head()} data-arena-part={manifest.parts.head} {...styles.$data.head()}>
+          {title && <Heading className={styles.title()} data-arena-part={manifest.parts.title} {...styles.$data.title()}>{title}</Heading>}
+          {actions && <div className={styles.actions()} data-arena-part={manifest.parts.actions} {...styles.$data.actions()} data-arena-boundary="">{actions}</div>}
         </div>
       )}
       {children}

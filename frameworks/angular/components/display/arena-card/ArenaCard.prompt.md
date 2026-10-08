@@ -9,7 +9,7 @@ take, and the host goes `display: contents`.
   <p>Everything the client can see, in one place.</p>
 </arena-card>
 
-<arena-card floating>Just a surface, with no header block at all.</arena-card>
+<arena-card class="arena-elevation-floating">Just a surface, with no header block at all.</arena-card>
 
 <arena-card interactive [title]="'checkout-api'" (click)="open(service)">Healthy, 14 replicas</arena-card>
 ```
@@ -28,11 +28,23 @@ take, and the host goes `display: contents`.
 | `title` | primitive | `string` |  | Header title. Absent, along with eyebrow and action, renders no header block at all. |
 | `headingLevel` | enum | `ArenaHeadingLevel` | `"h3"` | Which rung of the document outline the title takes. Only the element changes: the title's class is the same at every value, so the render is identical and no appearance follows from it. It defaults to `h3` because a card is the bottom rung of the title ladder, under the heading a section draws and two under a page's own, which is where a card lands on a page that says nothing else. `none` draws the title with no heading at all, for a card whose title labels the surface rather than naming a region; with no title there is no heading either way. |
 | `eyebrow` | primitive | `string` |  | Mono uppercase label above the title, in the accent colour. |
-| `floating` | primitive | `boolean` | `false` | Adds the warm shadow. Depth comes from the shadow and the surface scale, never a gradient. |
-| `accent` | primitive | `boolean` | `false` | Draws the border in the accent colour instead of the surface hairline. |
 | `click` | event |  |  | An interactive card was activated, by pointer or by Enter or Space. With `href` it is also how the card reports the one activation a router owns, a primary click or Enter with no modifier, and Arena has already cancelled the anchor's own navigation by the time it fires; a modified or middle click is the browser's and does not fire it at all. No payload, because the consumer wrote this element and already holds what it is about. |
 
 <!-- @api end -->
+
+<!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
+
+**Answers** [`accent`](../../../../VOCABULARY.md#accent): `arena-accent-plain` (default), `arena-accent-primary`. Write one as `class="arena-accent-primary"` on the component, or on a container whose components should all take it.
+
+**Answers** [`elevation`](../../../../VOCABULARY.md#elevation): `arena-elevation-flat` (default), `arena-elevation-floating`. Write one as `class="arena-elevation-floating"` on the component, or on a container whose components should all take it.
+
+<!-- @answers end -->
+
+<!-- @keys GENERATED from the binding. -->
+**Keys**, from [`button`](../../../../../contracts/behaviour/button.json):
+- `Space`: activate.
+- `Enter`: activate.
+<!-- @keys end -->
 
 **`interactive` makes the whole card one activation target**, which is the ordinary shape of a list on a phone. The member is a declared boolean rather than "is `(click)` bound?". Arena never derives what it draws from what a consumer listens for. `arena-table-row`'s `interactive` gives the same answer. Arena writes `role="button"`, a tab stop and
 an Enter/Space handler, and draws the surface's own hover and focus states. Without it the card is
@@ -61,11 +73,11 @@ convention: write `action` on the element that goes beside the title. With no
 render, the card is a plain surface.
 
 **Do / Don't** - **Bind `title`, don't write it as a static attribute.** `<arena-card title="X">` leaves a real `title` attribute on the host. The browser then draws a tooltip over the whole card. `[title]="'X'"` does not. The behaviour is layer-wide rather than ArenaCard's own. Angular writes a static attribute during the creation pass whether or not it also matches an input. This host clears it (`'[attr.title]': 'null'`), and the layer holds that in both directions. The binding above is the clearer spelling rather than a workaround.
-- Depth comes from `floating`'s warm shadow and the `base-100`→`base-200`→`base-300`
+- Depth comes from the floating shadow of `arena-elevation-floating` and the `base-100`→`base-200`→`base-300`
   surface scale. Never a gradient.
-- Reach for `accent` to mark one card among several as the current or featured one;
+- Reach for `arena-accent-primary` to mark one card among several as the current or featured one;
   it draws the border in the accent colour and nothing else. The badge is not a status.
-- Don't write a `class` on `<arena-card>` expecting it to reach the card. The host is bare and out of layout, so an attribute written there lands on nothing anyone can see. The bare host is the price of the carve-out above, and there is no second route in. To
+- Don't write a `class` on `<arena-card>` expecting it to reach the card, unless it is one of the answers above, which the card reads through the properties it sets. The host is bare and out of layout, so any other attribute written there lands on nothing anyone can see. The bare host is the price of the carve-out above, and there is no second route in. To
   size, constrain or position a card, wrap it in your own element rather than
   reaching through it.
 - Don't nest a card inside a card. The surface scale has three steps and a card is
@@ -79,7 +91,7 @@ render, the card is a plain surface.
   pointer activates it.
 - On the card holding a field, typing Enter in the field does not open the card, and the badge
   and the field keep their own presses.
-- `floating` casts the warm shadow and the borderless variant does not, with no
+- `arena-elevation-floating` casts the floating shadow and the default flat card does not, with no
   gradient on either.
 - A long body wraps inside the padding rather than escaping the radius: the root
   clips with `overflow-hidden`, so a wide child is cropped rather than overflowing.
@@ -121,6 +133,6 @@ be a silent failure.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
+**The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

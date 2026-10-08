@@ -1,4 +1,4 @@
-/* Two failures a browser gate has to tell apart and one it used to state wrongly. A page that
+/* Two failures a browser gate has to tell apart. A page that
  * did not paint in time and a page whose expression threw are different findings, and the
  * message for the first has to carry what was actually waited: a deadline printed on its own
  * says only what the number in the source is, which is how a six second run reported a wait of

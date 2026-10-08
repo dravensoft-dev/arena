@@ -21,9 +21,9 @@ test('dismissible shows the x, and it is the standard ph-x glyph', () => {
   assert.match(html, /ph-bold ph-x/, 'the close button did not use the standard ph-x dismiss glyph');
 });
 
-test('onClose without dismissible shows no x -- the listener no longer gates the button', () => {
+test('onClose without dismissible shows no x -- the listener does not gate the button', () => {
   const html = renderToStaticMarkup(<ArenaToast title="Deployment archived" onClose={() => {}} />);
-  assert.doesNotMatch(html, /<button/, 'the x rendered from an onClose listener alone -- the pre-EJ gate is back');
+  assert.doesNotMatch(html, /<button/, 'the x rendered from an onClose listener alone');
 });
 
 test('persist renders the Pinned marker, and its absence renders none', () => {
@@ -39,17 +39,16 @@ test('the danger tone announces assertively as an alert', () => {
   const html = renderToStaticMarkup(<ArenaToast tone="danger" title="Pipeline failed" />);
   assert.match(html, /role="alert"/);
   assert.match(html, /aria-live="assertive"/);
-  assert.match(html, /\barena-toast__root--tone-danger\b/, 'the danger tone did not reach the side bar');
+  assert.match(html, /data-arena-part="toast"[^>]*\bdata-arena-tone="danger"/, 'the danger tone did not reach the side bar');
 });
 
 test('every other tone announces politely as a status', () => {
-  const expected = { neutral: 'arena-toast__root--tone-neutral', success: 'arena-toast__root--tone-success', gold: 'arena-toast__root--tone-gold' };
-  for (const [tone, token] of Object.entries(expected)) {
+  for (const tone of ['neutral', 'success']) {
     // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
     const html = renderToStaticMarkup(<ArenaToast tone={tone} title="Deployment archived" />);
     assert.match(html, /role="status"/, `tone="${tone}" announced as an alert`);
     assert.match(html, /aria-live="polite"/, `tone="${tone}" announced assertively`);
-    assert.ok(new RegExp(`\\b${token}\\b`).test(html), `tone="${tone}" did not reach the side bar as ${token}`);
+    assert.match(html, new RegExp(`data-arena-part="toast"[^>]*\\bdata-arena-tone="${tone}"`), `tone="${tone}" did not reach the side bar`);
   }
 
   assert.match(renderToStaticMarkup(<ArenaToast title="Deployment archived" />), /role="status"/);
@@ -70,4 +69,10 @@ test('ARENA_TOAST_DISMISS carries the two token intervals, and the actionable on
   assert.deepEqual({ ...ARENA_TOAST_DISMISS }, { default: dismissDefault, actionable: dismissActionable });
   assert.ok(ARENA_TOAST_DISMISS.actionable > ARENA_TOAST_DISMISS.default,
     'a notice carrying a button asks the reader to decide rather than only to read, so it lives longer');
+});
+
+test('a gold toast is a toast with the arena-accent-gold class, and carries no gold tone', () => {
+  const html = renderToStaticMarkup(<ArenaToast className="arena-accent-gold" title="Deployment archived" />);
+  assert.match(html, /\bclass="[^"]*\barena-accent-gold\b[^"]*"[^>]*data-arena-part="toast"/);
+  assert.doesNotMatch(html, /data-arena-tone="gold"/);
 });

@@ -1,6 +1,6 @@
 # Arena, the React layer
 
-> **For whoever works on this layer.** Building an app with it instead? Read [`PACKAGE.md`](./PACKAGE.md) to install it,
+> **For whoever works on this layer.** Building an app with it instead? Read [`install.md`](../../skills/design/references/install.md) to install it,
 > [`INDEX.md`](./INDEX.md) to find a component, and that component's `.prompt.md` to use it.
 
 The React primitives, the kitchen-sink page one style plugin gets, and the shared modules both of them read.
@@ -8,8 +8,8 @@ Every value here comes from `contracts/design/`; this layer introduces no design
 of its own. For what those values mean, read
 [`contracts/design/AGENTS.md`](../../contracts/design/AGENTS.md).
 
-**Published as `@dravensoft/arena-react`.** [`PACKAGE.md`](./PACKAGE.md) is what a consumer
-reads, and the assembly copies it into `dist/` as the package README;
+**Published as `@dravensoft/arena-react`.** [`PACKAGE.md`](./PACKAGE.md) is the page npm shows, an
+introduction and a table of questions, and the assembly copies it into `dist/` as the package README;
 [`../PACKAGING.md`](../PACKAGING.md) is how the package is built and what it leaves out.
 
 ## This layer stands on the contracts alone
@@ -65,10 +65,14 @@ table the same way, by importing the composer and the parent's generated module 
 sibling component's exported recipe, so no component depends on another's module:
 `components/display/arena-calendar-event/ArenaCalendarEvent.tsx` is that shape.
 
+**A slot spreads its `$data` beside its part hook**, `{...styles.$data.root()}`: the
+`data-arena-<group>` attributes the slot is touched by, which the styles select. A
+component writes no colour: identity is `data-arena-color-id`.
+
 **Nothing here merges classes, and nothing needs to.** A variant is additive and its rule is
-emitted after the base at equal specificity, so source order decides. That is the work
-`tailwind-variants` and `tailwind-merge` do at render time, which is why neither travels in the
-package: the arrangement does it at build time and for nothing.
+emitted after the base at equal specificity, so source order decides. `arenaStyles`
+composes the class names the build emits, with no merge at render time, so no merging library
+travels in the package.
 
 Both layers compose the same names, and neither is the other's authority: the manifest is.
 Where a manifest and a component disagree, the manifest wins, which is why `ArenaCard` draws a
@@ -79,14 +83,25 @@ measurement: a chip's position from an hour, a fill's width from a percentage, a
 top clamped against `window.innerHeight`, a consumer's own width string. The operative rule is
 the gate's, and it needs no list of properties: *if every branch of the value is a literal it
 belongs in the manifest; if any branch reads an identifier or an interpolation it is a
-computation and stays*. A hover or focus colour is never a computation, and no component here
+computation and stays*. The gate enforces it in both layers: a write of a layout property into
+`style` passes when its value is
+`var(--…)` with no literal operand, and otherwise is listed in `COMPUTED` in
+`scripts/check/arena/check-dimension-literals.ts` with the function that computes it. A hover or focus colour is never a computation, and no component here
 keeps a `useState` to paint one.
+
+**A binding may interpolate the name of the property it reads**: the table's cells write
+`--arena-column-width` as `var(--arena-column-<key>-width)`, or `initial` when the column has no
+valid key, a card layout included. The value is a `var(--…)` with no literal operand, so it is not a
+computation the gate lists.
+
+**`ArenaTooltip` and `ArenaMenu` leave `anchored` unset and position themselves in CSS**, since
+nothing in this layer positions a surface from script.
 
 **A variant key the manifest does not declare resolves to no classes at all**, rather than
 falling back through a lookup table's `|| TONES.neutral`, which paints a value nobody asked for. Where a member can carry a value the
 manifest has never heard of, the guard that answers it is **derived from the manifest** rather
-than written out beside it; `ArenaActivityFeed`, `ArenaBadge`, `ArenaAlert`, `ArenaToast`, `ArenaAvatar`, `ArenaToastHost`
-and `ArenaGrid` all carry one.
+than written out beside it; `ArenaActivityFeed`, `ArenaBadge`, `ArenaAlert`, `ArenaToast`, `ArenaAvatar` and `ArenaToastHost`
+all carry one.
 
 **What a component inherits is not the browser's.** The layer's pages and its package carry the
 compiled utility sheet, which is both the utilities the manifests resolve to and the `@layer
@@ -105,6 +120,27 @@ Every vendor pseudo-element and sibling selector is an arbitrary variant on a sl
 are in the manifest too. A component that reaches for an injected sheet is a component whose
 manifest is short: grow the manifest, which moves both layers, rather than adding a rule only
 one of them can see.
+
+## A component writes an inner component's appearance as a class, and hands it a face as a prop
+
+**A component that draws an Arena component inside it writes that component's option as a class.**
+`ArenaConfirmDialog` draws its cancel as `<ArenaButton className="arena-emphasis-ghost">`, the
+same class an adopter writes, and no inner component has a prop for it. The class is held to the
+inner component's vocabulary by `frameworks/react/VocabularyClass.ts:arenaClassName(component, base, own, allowed)`,
+so a class outside that vocabulary is dropped with a warning. A context option the inner component
+does not answer reaches the DOM and changes nothing on it.
+
+**An injected internal prop is how a component hands an inner component what no adopter chooses.**
+`ArenaAvatarInjected { face }` is declared beside the avatar, and the component's props are
+`ArenaAvatarProps & Partial<ArenaAvatarInjected>`: the person row renders `<ArenaAvatar face />`
+and the avatar binds its size channel to the row's face. The injected shape appears in no
+contract, `check:api` reads only the public props, and the contract-derived props stay the whole
+of what an adopter sees.
+
+**A floating surface carries `data-arena-surface="floating"`**, written by the component on the
+element its manifest declares `floating`, as the tooltip's bubble, the toast stack and the dialogs
+do. A context class written above the trigger stops there, which is what lets a toolbar's
+`arena-size-sm` reach its buttons and leave the dialog they open alone.
 
 ## Every animation answers `prefers-reduced-motion`
 
@@ -166,7 +202,9 @@ holds no `var()`, so the threshold cannot be named from CSS at all. The query is
 `not all and (min-width: N)`, the exact complement of the `md:` variant rather than a
 `max-width` an epsilon short of it. **Reach for it for a page's own layout and never for a
 component's**: a component that branches on the viewport is wrong the first time somebody puts
-it in a narrow column.
+it in a narrow column. It reads through `useSyncExternalStore` with a `false` server snapshot, so
+a client's first render is right and a hydrating one is corrected without a mismatch. It keeps one
+query per threshold, which `forgetArenaBreakpoints()` drops with the thresholds.
 
 **`AnchorActivation.ts` is the predicate behind the anchor convention**: an anchor Arena draws
 cancels a primary click with no modifier and reports through its own navigation event, and
@@ -179,8 +217,8 @@ holds each activation separately.
 into its own children with `depth + 1`. The shared helper is
 `components/navigation/arena-side-nav/SideNavInject.tsx`, which covers that family and no more, so the
 placement rule sends it to the family's parent directory. **Its `.tsx` style plugin is
-load-bearing**: `check:dimensions` never opens a `.js`, and its `arenaIndentFor()` produces a governed
-`padding-inline-start`. It is a `.tsx` under `components/` that is **not a component**, since a
+load-bearing**: `check:dimensions` never opens a `.js`, and its
+`components/navigation/arena-side-nav/SideNavInject.tsx:arenaIndentDepth(depth)` feeds the `--arena-side-nav-depth` channel. It is a `.tsx` under `components/` that is **not a component**, since a
 component is a **directory**, in `reactComponents()` and in every count of the set.
 
 **One hop is also the limit, and a consumer's own wrapper component between two levels breaks
@@ -234,7 +272,7 @@ beside the source and the manifest one layer over are the rest of it, and
 fixture, into this layer and into every other, which is what makes two layers' pages comparable
 at all.
 
-**There is no hand-written `.d.ts`, and that is the point.** The interface sits in the file
+**There is no hand-written declaration file, and that is the point.** The interface sits in the file
 it describes, so it cannot disagree with the implementation beside it, and the declaration a
 consumer installs is emitted from that source at assembly time rather than maintained by
 hand. The layer whose recipe is a separate file carries one more.
@@ -395,6 +433,7 @@ Responsive branches are JS rather than media queries, and they measure the **con
 `useArenaContainerWidth`: a media query can only ask about the viewport, and the box that decides
 whether a component narrows is the one containing it. The hook owns a
 ref and returns it, and takes one when the caller already holds the box to measure, so an
-inner panel does not have to become a component to be measured. It reports `null` until it
-has measured, which is the wide branch: a component renders wide first and narrows when it
-knows.
+inner panel does not have to become a component to be measured. It redefines the ref's `current`
+as an accessor whose setter reads the box, so it measures when React assigns it in the commit
+phase, before the paint, with no `useLayoutEffect`. A `current` it cannot redefine, a sealed
+`createRef`, is measured after the paint. A 0 is never reported, so a hidden box keeps its last width. Both reads take the outer width, the border box with no transform: the synchronous one from the computed width and the observer from its border-box size, so a transform or a padding the branch restyles never reaches the number. A watch whose effect has not run yet reads the box and starts no observer, so the render StrictMode discards leaves nothing watching a ref it was handed. So a component may restyle the padding and border of the element it measures per branch, and nothing else about its outer box: `check:measured-box` holds that.

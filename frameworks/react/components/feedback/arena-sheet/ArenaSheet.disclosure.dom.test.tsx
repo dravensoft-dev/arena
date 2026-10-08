@@ -27,7 +27,7 @@ interface OneProps {
 }
 
 const one = (props: OneProps = {}) => (
-  <ArenaSheet open placement="end" title="Cart" footer={<button type="button">Checkout</button>} {...props}>
+  <ArenaSheet open className="arena-placement-end" title="Cart" footer={<button type="button">Checkout</button>} {...props}>
     <p>Two line items.</p>
   </ArenaSheet>
 );

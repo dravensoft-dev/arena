@@ -13,6 +13,7 @@ import { ArenaControlBinding, arenaWarnDoubleBinding } from '../../../ControlBin
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [ArenaRadioGroupState, ArenaControlBinding],
   host: {
+    'data-arena-boundary': '',
     '[class]': 'styles().group()',
     '[attr.data-arena-part]': 'parts.group',
     role: 'radiogroup',

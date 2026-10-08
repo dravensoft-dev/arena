@@ -18,7 +18,7 @@ this file is not, and the two are almost disjoint by design.
 
 **Most rows below are indexed by what you are changing. The first two are not**, because a
 reader arriving with a symptom does not know yet what they are changing, and that is the state
-this table used to have no row for.
+no other row answers.
 
 | I am here because | Start at |
 |---|---|
@@ -30,6 +30,7 @@ this table used to have no row for.
 | which of those three a fact belongs to | [`contracts/AGENTS.md`](./contracts/AGENTS.md), the roof |
 | a component, in one layer or both | [`frameworks/AGENTS.md`](./frameworks/AGENTS.md), then that layer's own |
 | how a component LOOKS | [`frameworks/tailwind/AGENTS.md`](./frameworks/tailwind/AGENTS.md) |
+| a style decision an adopter makes on an instance or a region: a family, a channel, a boundary | [`contracts/AGENTS.md`](./contracts/AGENTS.md), its section on who decides how a component looks, then [`frameworks/tailwind/AGENTS.md`](./frameworks/tailwind/AGENTS.md) |
 | what a consumer may build Arena INTO: an import, a peer, a browser global, a server render | [`frameworks/AGENTS.md`](./frameworks/AGENTS.md), the envelope section, then the layer you are editing. `check:architecture` fails a withdrawal |
 | a playground's seed | [`frameworks/demos/AGENTS.md`](./frameworks/demos/AGENTS.md) |
 | a script, a gate, a generator | [`scripts/AGENTS.md`](./scripts/AGENTS.md) |
@@ -67,7 +68,7 @@ Five things at once, from the same tree:
   `skills/design/SKILL.md` defines, **served from the git tag**;
 - two **npm packages**, `@dravensoft/arena-react` and `@dravensoft/arena-angular`, assembled by
   `bun run build:packages` into `frameworks/<layer>/dist/`, each carrying its components, its
-  stylesheets, the behaviour contracts a consumer's own markup answers, the `arena-to-prod`
+  stylesheets, the behaviour contracts a consumer's own markup answers, the `arena`
   command, and none of the language;
 - `@dravensoft/arena-contracts` and `@dravensoft/arena-mcp`, assembled by the same command into
   `dist/`. The second is the only package here with a runtime dependency, and it is where the
@@ -76,7 +77,7 @@ Five things at once, from the same tree:
 
 **A published Arena carries the language and never the skin**, which is the decision the whole
 npm channel follows from: the palettes and the fonts arrive as an `arena.config.json` the
-consuming project writes, and the `arena-to-prod` command each package ships turns it into the one
+consuming project writes, and the `arena` command each package ships turns it into the one
 stylesheet a package cannot carry. Two couplings are part of the adoption contract: Phosphor for
 iconography, and Tailwind, whose compiled sheet both packages carry inside `arena.css`.
 
@@ -148,18 +149,17 @@ obey are the one place that reads like an exception and is not: those are DECIDE
 different readers. A third statement, restating either, is what goes stale. **Most of the
 specification is not handed over at all**, because most of it decides values rather than binding a
 builder: a scale a component reads and a consumer never names has one home, and `skills/design/SKILL.md` is not
-it. What a consumer has to know about a value reaches them through the layer's `PACKAGE.md`, which
-is where a shipped stylesheet like `css/rhythm.css` is documented.
+it. What a consumer has to know about a value reaches them through `skills/design/references/stylesheets.md`, which
+is where a shipped stylesheet like `css/vocabulary/<family>.css` is documented.
 
 **The question that decides the branch is who has to act on the fact**, never which directory the
 code sits in. A helper under `frameworks/react/` that a consumer imports is a consumer fact; a
 token under `contracts/design/` that only a generator reads is a contributor one.
 
 **Anything a package ships needs a home on the consumer branch**: an exported symbol, a file
-under `css/`, a class a consumer writes. That home is the layer's `PACKAGE.md`, which is the page
-npm shows; the layer's `INDEX.md` beside it is generated and indexes components alone. **A
-layer's `AGENTS.md` is neither**, because the router forbids reading it, so a shipped thing
-documented only there is a thing nobody can find. Derive what ships rather than trusting a list:
+under `css/`, a class a consumer writes. That home is a reference in `skills/design/references/`: `exports.md` for a symbol, `stylesheets.md` for a sheet, unless a topic owns it. A layer's `PACKAGE.md` is the npm page, and its `INDEX.md` is generated and indexes components alone. **A
+layer's `AGENTS.md` is neither**, because the router forbids reading it, so a thing
+documented only there cannot be found. Derive what ships rather than trusting a list:
 `ROOT_TS` in `scripts/build/react/build-react-package.ts`, and every `copy(` in
 `scripts/build/angular/build-angular-package.ts`.
 
@@ -167,8 +167,7 @@ documented only there is a thing nobody can find. Derive what ships rather than 
 component is that component's `.prompt.md`, in each layer's own idiom. **A consumer document
 cites no contributor one**: `check:docs` fails a prompt, or an `INDEX.md` under `frameworks/`,
 naming a path under `scripts/`, an `AGENTS.md` under `contracts/` or `frameworks/`, or
-`frameworks/PACKAGING.md`. The router is the one carve-out, since naming this branch is how it
-redirects. **Telling a consumer to import something names the package, never a path.**
+`frameworks/PACKAGING.md`. The router is the one carve-out, since it redirects by naming this branch. **Telling a consumer to import something names the package, never a path.**
 
 **A `description` in `contracts/api/` is layer-neutral prose that reaches every layer's generated
 types.** One naming a class, a package path or a single layer's idiom is emitted into the other
@@ -187,10 +186,13 @@ two copies and never reads either for meaning. Verify with
   budget is a new **rule**, not a new component.
   [`scripts/check/arena/AGENTS.md`](./scripts/check/arena/AGENTS.md) says how the gate measures,
   and a document measured any other way is measured against a different number.
+- **A document links into this repository by relative path**, never by its GitHub blob address:
+  `check:docs` fails the address outside the npm pages and the pull request template, and
+  the builders rewrite what a published copy leaves behind.
 - **No document on this branch carries a literal count of anything**, only the command that
   produces it, with **one** exception: the gate table in `scripts/check/AGENTS.md`, whose numbers
   `check-all.test.ts` derives from `GATES` and fails when they disagree. A number an assertion
-  holds is better than a command; a number nothing holds is the defect this rule exists to stop.
+  holds is better than a command; a number nothing holds is the defect this rule stops.
 - **Documentation punctuates with a colon, a comma, a semicolon or a full stop, never with an em
   dash.** A dash pair enclosing an aside becomes commas, or parentheses where commas would nest;
   a dash that amplifies or introduces a list becomes a colon; a dash marking a turn becomes a
@@ -202,25 +204,22 @@ two copies and never reads either for meaning. Verify with
   upgrade costs or which release moved it: a reader on this tree cannot act on any of it, and a
   reader arriving from an older one is served by the version number and by the commit log, which
   is dated and is where the history already is. A retired token, a fixed defect, a former
-  directory layout and a batch number belong in that log. **The npm page is not an exception**,
-  though it is the one place the argument for an exception can be made, since its reader has
-  neither this tree nor that log: what they get instead is a build that refuses a name this
-  version does not ship and says what it does, which is the whole of what a migration note would
-  have told them and is delivered where they are rather than where they are not. The reason a rule exists is not history
-  and stays: state it as a property of the thing, not as an incident.
+  directory layout and a batch number belong in that log. **The npm page is not an exception**:
+  its reader has neither this tree nor that log, and gets instead a build that refuses a name
+  this version does not ship and says what it does, which a migration note would only repeat.
+  The reason a rule exists is not history and stays: state it as a property of the thing.
 - **A debt is written in the present tense as well, and it goes to [`DOUBTS.md`](./DOUBTS.md).**
   Anything tracked, ambiguous, or implemented only in part is stated there as what the tree
   currently is, never as what went wrong or what is left over. That page says what counts as one
   and which records beat a paragraph, and every one of those records is a present-tense claim
   that fails the day it stops being true.
 - **Prose cites code as `path/to/file:member(parameters)` and never by line number**, in a document,
-  a published `description` and a suite header alike. A line
-  moves under the next edit and takes every citation with it in silence, while a member carries
-  its own address: `scripts/utils/case.ts:kebab(name)` still resolves after the file is reordered
+  a published `description` and a suite header alike. A line moves under the next edit and takes
+  every citation with it in silence, while a member carries its own address: `scripts/utils/case.ts:kebab(name)` still resolves after the file is reordered
   around it. `check:citations` holds both halves, the path to a file that is there and the member
   to that file declaring it. **The member half is the one that goes wrong quietly**: a citation
   naming the wrong file with the right member sends a reader somewhere confident and empty, and
-  nothing about the sentence carrying it looks wrong.
+  nothing in the sentence looks wrong.
 - **The best comment is the one not written.** A method carries its own context through its name.
   The only exception is `scripts/` and test files, which may carry **one** comment, inline or
   block, as a file header, **at most 10 lines**. Files a script generates are outside the rule
@@ -228,18 +227,17 @@ two copies and never reads either for meaning. Verify with
 - **A contracted member's own doc is the one carve-out, and it earns it by being held.** Under
   `frameworks/<layer>/components/`, a `/** … */` above a member is exempt, because `check:api`
   fails it unless its text is that member's `description`, and fails one on anything no contract
-  names. A comment a gate keeps equal to its source cannot go quietly false, which is the whole
-  reason the rule exists. **That shape and no other**: a `//` or a bare `/*` there still fails, as
-  does a `/** … */` outside a component directory. `generate:api` writes them, so nobody types
-  one.
+  names. A comment a gate keeps equal to its source cannot go quietly false. **That shape and no other**: a `//` or a bare `/*` there still
+  fails, as does a `/** … */` outside a component directory. `generate:api` writes them, so
+  nobody types one.
 - Knowledge a rename cannot express, such as a measurement, a vendor's behaviour, a pinned
-  version or a constraint of a test environment, goes in the one header `scripts/` and test files
-  are allowed, in a gate's own reason string, or in the component's `.prompt.md`. **Somewhere a
+  version or a constraint of a test environment, goes in the one header `scripts/` and test
+  files are allowed, in a gate's own reason string, or in the component's `.prompt.md`. **Somewhere a
   stale copy of it fails something.**
 
-`bun run check:docs` holds the size rule, for a document and for a table cell, the punctuation
-rule and the comment rule, and
-`bun run check:citations` holds every path that prose names to existing. **The present-tense rule
+`bun run check:docs` holds the size rule, for a document and for a table cell, the punctuation,
+comment and link rules, and `bun run check:citations` holds every path that prose names to
+existing. **The present-tense rule
 is the one no gate holds**, because nothing mechanical can judge it.
 
 ## Conventions
@@ -272,8 +270,9 @@ is the one no gate holds**, because nothing mechanical can judge it.
   and is silently spliced away: the message lands with the name it was quoting missing, and
   nothing errors. Use `git commit -q -F - <<'MSG' … MSG` and verify with `git log -1 --format=%B`.
   **`git merge` does not accept `-F -`**, so use `--no-commit`, then commit.
-- Responsive branches are JS, not media queries, and measure the **container**: a media query can
-  only ask about the viewport.
+- **A component decides by its container, since it may sit in any column, and a page's frame by
+  the viewport**, through the helpers each layer's page names or the `md:` and `max-md:` variants.
+  Nothing else in Arena asks a breakpoint.
 - **A wait is for a condition, and the span beside it is a deadline rather than a schedule.** A
   duration is a statement about the machine that measured it, so a wait spelled as one is right
   where it was written and silently wrong everywhere else: it expires early and reports the

@@ -1,19 +1,19 @@
-/* Assembles the published site out of the built tree. It copies rather than rewrites: a page names
- * its assets by a relative href counting directories, so the output holds the same shape under the
- * same names and the page served from the domain is the page a clone serves. node_modules is on
- * that path for a playground's Phosphor sheets, and only the sheet and font binaries travel.
- * copyAll, not package-assembly's copyTree, whose exclusions are exactly what a playground loads.
+/* Assembles the published site out of the built tree. It copies, and rewrites only the Markdown
+ * links the site does not carry to the repository at this release's tag: a page names its assets
+ * by a relative href counting directories, so the output holds the same shape under the same
+ * names. node_modules is on that path for a playground's Phosphor sheets, and only the sheet and
+ * font binaries travel. copyAll, not package-assembly's copyTree, whose exclusions differ.
  * A page's JavaScript is copied by following it: the React pages load unbundled ES modules, so
  * publishing the entry beside the page and stopping there put up pages answering 200 at every href
  * with an empty root. What it authors is what serve.ts answers at request time and a static host
  * cannot: an index per directory a visitor lands on, the landing page, the sitemap, robots.txt, a
  * 404 and the preview card. No count is typed on any; each is derived from the map the packages ship. */
 
-import { existsSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
-import { reset, write, copy } from '../../lib/arena/package-assembly.ts';
+import { reset, write, copy, repositoryBase } from '../../lib/arena/package-assembly.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { relPosix } from '../../utils/posix-path.ts';
 import {
@@ -28,12 +28,13 @@ import {
   HERO_SHEET, HERO_SOURCE, HERO_FILE, HERO_WIDTH, HERO_HEIGHT, heroPage, heroStyles,
 } from '../../lib/arena/hero-page.ts';
 import { LLMS_INDEX, layerFile, index, corpus, servedDocs } from '../../lib/arena/llms-index.ts';
+import { retarget } from '../../lib/arena/agent-payload.ts';
 import { withForeignTrees } from '../../lib/arena/foreign-trees.ts';
 
 export const node = {
   name: 'build:site',
   reads: [
-    'skills/design/SKILL.md', 'skills/design/references/*.md', 'frameworks/**/INDEX.md', 'frameworks/**/*.prompt.md', 'frameworks/*/PACKAGE.md',
+    'skills/design/SKILL.md', 'skills/design/references/*.md', 'frameworks/**/INDEX.md', 'frameworks/VOCABULARY.md', 'frameworks/**/*.prompt.md',
     '!frameworks/*/build/package/**', '!frameworks/*/dist/**',
     'intro/**', 'contracts/behaviour/**', 'contracts/design/**', 'contracts/design-generated/**', 'assets/**',
     'plugin-style-store/**/plugin.css', 'plugin-style-store/catalogue/*/plugin.tokens.json',
@@ -54,6 +55,20 @@ export const OG_HEIGHT = 630;
 export const NEVER_COPIED = withForeignTrees();
 
 export const BENCHES_REPOSITORY = 'https://github.com/dravensoft-dev/arena-web-benches';
+
+export function retargetPages(out: string, written: string[], base = repoRoot) {
+  const repository = repositoryBase(base);
+  for (const file of written.filter((one) => one.endsWith('.md'))) {
+    const rel = relPosix(out, file);
+    const text = readFileSync(file, 'utf8');
+    const kept = retarget(
+      text, rel, repository,
+      (path) => existsSync(join(out, ...path.split('/'))),
+      (path) => existsSync(join(base, ...path.split('/'))),
+    );
+    if (kept !== text) writeFileSync(file, kept);
+  }
+}
 
 export function copyAll(from: string, out: string, rel: string, drop = (_name: string) => false) {
   const written = [];
@@ -323,6 +338,8 @@ export async function buildSite(base = repoRoot, out = join(base, SITE_DIR)) {
   }
 
   for (const rel of servedDocs(base)) written.push(copy(join(base, rel), out, rel));
+
+  retargetPages(out, written, base);
 
   written.push(write(out, LLMS_INDEX, index(base)));
   for (const layer of LAYERS) written.push(write(out, layerFile(layer), corpus(layer, base)));

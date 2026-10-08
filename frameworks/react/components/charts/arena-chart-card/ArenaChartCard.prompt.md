@@ -8,7 +8,7 @@ The card a chart sits on: an uppercase muted microlabel, optional actions on the
 
 <ArenaChartCard title="p95 latency" actions={<ArenaSelect options={ranges} value={range} onChange={setRange} />}>
   <ArenaLineChart label="p95 latency" labels={days}
-    series={[{ label: 'p95', values: latency, slot: 5 }]} area valueSuffix=" ms" />
+    series={[{ label: 'p95', values: latency, colorId: 5 }]} area valueSuffix=" ms" />
 </ArenaChartCard>
 ```
 
@@ -25,6 +25,16 @@ The card a chart sits on: an uppercase muted microlabel, optional actions on the
 
 <!-- @api end -->
 
+<!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
+
+**Answers.** No family of the [vocabulary](../../../../VOCABULARY.md) decides anything in this component's own box.
+
+<!-- @answers end -->
+
+<!-- @keys GENERATED from the binding. -->
+**Keys:** none.
+<!-- @keys end -->
+
 **Do**
 - Let `title` and the chart's own `label` say the same thing when the card holds one chart. The two are not redundant. `title` is what a sighted reader sees on the tile. `label` is what a screen reader hears and what captions the numbers table, and neither is derivable from the other.
 - Keep `title` to a short uppercase microlabel, like every other label in Arena (H2/H6/H8).
@@ -39,6 +49,6 @@ The card's own inner padding is not something a chart inside it needs to know. A
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
+**The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

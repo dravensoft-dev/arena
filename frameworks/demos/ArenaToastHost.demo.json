@@ -13,8 +13,8 @@
       },
       {
         "component": "ArenaToast",
+        "class": "arena-accent-gold",
         "members": {
-          "tone": "gold",
           "title": "Quota at 80%",
           "message": "The region will start rejecting writes soon.",
           "actionLabel": "Increase"

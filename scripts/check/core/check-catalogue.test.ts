@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { readJson } from '../../utils/read-file.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
-import { POLARITIES, FONT_ROLES, requiredKeys } from '../../generate/core/arena-to-prod/palette-keys.ts';
+import { POLARITIES, FONT_ROLES, requiredKeys } from '../../generate/core/arena-cli/palette-keys.ts';
 import { ROLES } from './check-style-plugin.ts';
 import {
   CARRIES, CATALOGUE, CARD, CONFIG, SHEET, TOKENS, cardProblems, catalogueProblems, configProblems,
@@ -82,6 +82,22 @@ test('a whole entry built from the roles themselves is clean, which is what make
   const { base, clean } = bench((dir) => wholeEntry(dir));
   try {
     assert.deepEqual(catalogueProblems(base).problems, []);
+  } finally { clean(); }
+});
+
+test('a role carrying a kernel default may stay unanswered by an entry', () => {
+  const { base, clean } = bench((dir) => {
+    wholeEntry(dir);
+    const answers = readJson(join(dir, TOKENS)) as Record<string, unknown>;
+    delete answers['r-control'];
+    writeFileSync(join(dir, TOKENS), JSON.stringify(answers));
+  });
+  try {
+    const defaulted = {
+      ...roles,
+      'r-control': { ...roles['r-control']!, $extensions: { 'com.dravensoft.arena': { default: '{r-surface}' } } },
+    };
+    assert.deepEqual(tokenProblems('a-register', defaulted, base), []);
   } finally { clean(); }
 });
 
@@ -198,6 +214,29 @@ test('an entry answering a floor through a scale alias is measured at the value 
     (answers['lh-prose'] as { $value: unknown }).$value = '{lh.root}';
     writeFileSync(join(dir, TOKENS), JSON.stringify(answers));
   });
+  try {
+    assert.deepEqual(readingFloorProblems('a-register', tokenCatalogue(), base), []);
+  } finally { clean(); }
+});
+
+test('an entry answering the danger fill with a colour is refused in both polarities', () => {
+  const { base, clean } = bench((dir) => {
+    wholeEntry(dir);
+    const answers = readJson(join(dir, TOKENS)) as Record<string, { $type: string; $value: unknown }>;
+    answers['hue-danger-fill-strong'] = { $type: 'color', $value: '{color.error}' };
+    writeFileSync(join(dir, TOKENS), JSON.stringify(answers));
+  });
+  try {
+    const problems = readingFloorProblems('a-register', tokenCatalogue(), base);
+    for (const polarity of POLARITIES)
+      assert.ok(problems.some((one) => one.includes(`--hue-danger-fill-strong is var(--color-error) in ${polarity}`)),
+        polarity);
+    assert.ok(tokenProblems('a-register', roles, base).some((one) => /hue-danger-fill-strong/.test(one)));
+  } finally { clean(); }
+});
+
+test('an entry answering the danger fill with transparent clears the floor', () => {
+  const { base, clean } = bench((dir) => wholeEntry(dir));
   try {
     assert.deepEqual(readingFloorProblems('a-register', tokenCatalogue(), base), []);
   } finally { clean(); }

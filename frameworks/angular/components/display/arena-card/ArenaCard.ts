@@ -7,6 +7,7 @@ import { isArenaOwnActivation, isArenaPrimaryActivation } from '../../../AnchorA
 import { ArenaAction } from '../../../ProjectionMarkers';
 import { arenaCardStyles } from './ArenaCard.variants';
 import manifest from './ArenaCard.classes.generated';
+import { ArenaSlotAttributes } from '../../../SlotData';
 
 @Component({
   selector: 'arena-card',
@@ -16,11 +17,11 @@ import manifest from './ArenaCard.classes.generated';
     style: 'display: contents',
     '[attr.title]': 'null',
   },
-  imports: [NgTemplateOutlet],
+  imports: [ArenaSlotAttributes, NgTemplateOutlet],
   template: `
     <ng-template #body>
       @if (headed()) {
-        <div [class]="styles().head()" [attr.data-arena-part]="parts.head">
+        <div [class]="styles().head()" [attr.data-arena-part]="parts.head" data-arena-boundary>
           <div>
             @if (eyebrow(); as label) {
               <div [class]="styles().eyebrow()" [attr.data-arena-part]="parts.eyebrow">{{ label }}</div>
@@ -38,16 +39,16 @@ import manifest from './ArenaCard.classes.generated';
           <ng-content select="[action]" />
         </div>
       }
-      <div [class]="styles().body()" [attr.data-arena-part]="parts.body"><ng-content /></div>
+      <div [class]="styles().body()" [attr.data-arena-part]="parts.body" data-arena-boundary><ng-content /></div>
     </ng-template>
 
     @if (href(); as url) {
-      <a [class]="styles().root()" [attr.data-arena-part]="parts.root" [href]="url" [attr.aria-disabled]="inert()"
+      <a [class]="styles().root()" [arenaSlotData]="styles().$data.root()" [attr.data-arena-part]="parts.root" [href]="url" [attr.aria-disabled]="inert()"
          (click)="onAnchorClick($event)">
         <ng-container *ngTemplateOutlet="body" />
       </a>
     } @else {
-      <div [class]="styles().root()" [attr.data-arena-part]="parts.root" [attr.role]="role()" [attr.tabindex]="stop()"
+      <div [class]="styles().root()" [arenaSlotData]="styles().$data.root()" [attr.data-arena-part]="parts.root" [attr.role]="role()" [attr.tabindex]="stop()"
            [attr.aria-disabled]="inert()" (click)="onClick($event)" (keydown)="onKeydown($event)">
         <ng-container *ngTemplateOutlet="body" />
       </div>
@@ -65,10 +66,6 @@ export class ArenaCard {
   );
   /** Mono uppercase label above the title, in the accent colour. */
   readonly eyebrow = input<string>();
-  /** Adds the warm shadow. Depth comes from the shadow and the surface scale, never a gradient. */
-  readonly floating = input(false, { transform: booleanAttribute });
-  /** Draws the border in the accent colour instead of the surface hairline. */
-  readonly accent = input(false, { transform: booleanAttribute });
   /** Whether the whole card is one activation target, which is the ordinary shape of a list on a phone. A boolean rather than "is `click` bound?", because Arena never derives what it draws from what a consumer listens for, the same reason ArenaTableRow.interactive is one. An interactive card is a role="button" tab stop with an Enter/Space handler and the surface's own hover and focus states; a non-interactive one is inert and adds no tab stop, because a dead stop on every card of every list is worse than the gap it would close. It is a ROLE rather than a <button> element for the same reason ArenaTableRow's card shape is: a card body may hold controls of its own, and a control inside a control is reachable by nobody. */
   readonly interactive = input(false, { transform: booleanAttribute });
   /** Whether an interactive card is drawn but cannot be activated. It reflects through aria-disabled rather than any native attribute, and the card stays in the tab order rather than leaving it, because a disabled control nobody can reach is a control nobody knows exists. Without `interactive` there is nothing to disable and the card is inert already. */
@@ -91,7 +88,6 @@ export class ArenaCard {
   );
 
   protected readonly styles = computed(() => arenaCardStyles({
-    accent: this.accent(), floating: this.floating(),
     interactive: this.interactive() || this.href() !== undefined,
   }));
 

@@ -2,14 +2,13 @@ import React from 'react';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaAppLogo.classes.generated.ts';
 
-import type { ArenaLogoSize, ArenaOrientation } from '../../../Api.generated';
+import type { ArenaAppLogoClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export interface ArenaAppLogoProps {
+  className?: ArenaAppLogoClass;
 
-  /** Both halves at once: the mark's slot and the wordmark. */
-  size?: ArenaLogoSize;
-  /** Mark beside the name, or above it. */
-  orientation?: ArenaOrientation;
+
 
   /** The mark, as an asset the consumer supplies. Required: Arena ships MIT and a default would ship Dravensoft's trademark to whoever never read the API. The slot sizes the mark; a mark that brings its own dimensions fights the lock-up. */
   mark: React.ReactNode;
@@ -24,14 +23,14 @@ export interface ArenaAppLogoProps {
 
 const logoStyles = arenaStyles(manifest);
 
-export function ArenaAppLogo({ size = 'md', orientation = 'horizontal', mark, name, dim }: ArenaAppLogoProps) {
+export function ArenaAppLogo({ className, mark, name, dim }: ArenaAppLogoProps) {
   if (!mark || !name) throw new Error('ArenaAppLogo: `mark` and `name` are required');
-  const styles = logoStyles({ size, orientation });
+  const styles = logoStyles({});
   return (
-    <span className={styles.root()} data-arena-part={manifest.parts.root}>
-      <span className={styles.mark()} data-arena-part={manifest.parts.mark}>{mark}</span>
-      <span className={styles.name()} data-arena-part={manifest.parts.name}>
-        {name}{dim && <span className={styles.dim()} data-arena-part={manifest.parts.dim}>{dim}</span>}
+    <span className={arenaClassName('ArenaAppLogo', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+      <span className={styles.mark()} data-arena-part={manifest.parts.mark} {...styles.$data.mark()} data-arena-boundary="">{mark}</span>
+      <span className={styles.name()} data-arena-part={manifest.parts.name} {...styles.$data.name()}>
+        {name}{dim && <span className={styles.dim()} data-arena-part={manifest.parts.dim} {...styles.$data.dim()}>{dim}</span>}
       </span>
     </span>
   );

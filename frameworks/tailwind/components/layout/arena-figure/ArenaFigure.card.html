@@ -3,26 +3,28 @@
 <link rel="stylesheet" href="../../../../../intro/styles.css">
 <link rel="stylesheet" href="../../../consume/Preflight.generated.css">
 <link rel="stylesheet" href="../../../consume/components/layout/arena-figure/ArenaFigure.styles.generated.css">
+<link rel="stylesheet" href="../../../consume/vocabulary/Ratio.generated.css">
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor } from '../../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
 
 const manifest = await (await fetch('./ArenaFigure.manifest.json')).json();
 const c = arenaClassesFor(manifest, {});
+const d = arenaSlotDataFor(manifest, {});
 
 function figure({ ratio, fallback, overlay, caption }) {
-  const frame = el('div', { class: c.frame, style: { aspectRatio: ratio ?? 'var(--aspect-media)' } });
+  const frame = el('div', { class: `${c.frame} ${ratio ?? ''}`, ...d.frame });
   if (fallback) {
-    const box = el('div', { class: c.fallback });
+    const box = el('div', { class: c.fallback, ...d.fallback });
     box.append(el('i', { class: 'ph-bold ph-coffee-bean text-[length:var(--fs-display)]' }));
     frame.append(box);
   }
-  if (overlay) frame.append(el('div', { class: c.overlay, text: 'In stock' }));
+  if (overlay) frame.append(el('div', { class: c.overlay, ...d.overlay, text: 'In stock' }));
 
-  const root = el('figure', { class: c.root });
+  const root = el('figure', { class: c.root, ...d.root });
   root.append(frame);
-  if (caption) root.append(el('figcaption', { class: c.caption, text: caption }));
+  if (caption) root.append(el('figcaption', { class: c.caption, ...d.caption, text: caption }));
   return root;
 }
 
@@ -34,9 +36,9 @@ const rail = (...kids) => {
 
 mountSpecimen({ sections: [
   section('The frame the style plugin shapes', [rail(
-    figure({ fallback: true, caption: 'The role, square at rest' }),
-    figure({ ratio: '4 / 5', fallback: true, caption: 'ratio="4 / 5"' }),
-    figure({ ratio: '16 / 9', fallback: true, caption: 'ratio="16 / 9"' }),
+    figure({ fallback: true, caption: 'The default option reads the aspect-media role' }),
+    figure({ ratio: 'arena-ratio-portrait', fallback: true, caption: 'arena-ratio-portrait' }),
+    figure({ ratio: 'arena-ratio-video', fallback: true, caption: 'arena-ratio-video' }),
   )], { stack: true }),
   section('The wash under what is laid over it', [rail(
     figure({ fallback: true, overlay: true, caption: 'overlay, on bg-overlay-media' }),

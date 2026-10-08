@@ -5,8 +5,6 @@
   "api": {
     "open": { "form": "primitive", "type": "boolean", "required": true,
               "description": "Whether the panel is on the page at all. The host owns it, the same way it owns a dialog's. Closed renders nothing, which is what distinguishes it from collapsed." },
-    "placement": { "form": "enum", "type": "ArenaSheetPlacement", "default": "bottom",
-                   "description": "The edge the panel is anchored to. It spans that edge and stands off the device's own inset there, so a bottom sheet on a phone clears the home indicator." },
     "title": { "form": "primitive", "type": "string", "required": true,
                "description": "Names the panel for assistive technology and heads it visually. It is also the accessible name of the fold control, so a reader hears which panel is being folded rather than the word Toggle. Required and **guarded at runtime** rather than defaulted: what this panel is showing is editorial, and a constant fallback would satisfy the pattern mechanically while telling a screen-reader user nothing." },
     "collapsed": { "form": "primitive", "type": "boolean", "default": false,

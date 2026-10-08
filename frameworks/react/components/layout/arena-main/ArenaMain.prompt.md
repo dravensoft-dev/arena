@@ -18,12 +18,22 @@ The page's principal landmark and nothing else. The component returns the `<main
 
 <!-- @api end -->
 
+<!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
+
+**Answers.** No family of the [vocabulary](../../../../VOCABULARY.md) decides anything in this component's own box.
+
+<!-- @answers end -->
+
+<!-- @keys GENERATED from the binding. -->
+**Keys:** none (`main`).
+<!-- @keys end -->
+
 **The component draws no box, and that is the whole design.** The recipe carries one declaration, `display: block`, which is what a `<main>` already is. No width, no padding, no grid, no maximum: a page
 whose main landmark is swapped for a plain `<div>` looks identical. Where things go stays the
-container you own, which is what `PACKAGE.md` says and what this deliberately does not reopen.
+container you own, which is what [`style.md`](../../../../../skills/design/references/style.md) says under "Where does my spacing and sizing go?" and what this deliberately does not reopen.
 What it says is only what the region IS.
 
-**`.arena-shell__main` goes on a `<div>` around it, never on the component.** The component takes no `className`, by the rule every component here follows. The `<main>` it renders is Arena's element rather than yours, so there is no element here for the class to land on. Wrap it, put the
+**`.arena-shell__main` goes on a `<div>` around it, never on the component.** The component's `className` takes only the vocabulary's context classes, the ones that reach the components inside it, and `arena-shell__main` is not one of them. The `<main>` it renders is Arena's element rather than yours, so there is no element here for the class to land on. Wrap it, put the
 class on the wrapper, and the shell has a child that can take the slack. Omitting the class
 because the component refuses it is the shape that gets shipped, and it reads as a footer floating
 halfway up a short page.
@@ -54,6 +64,6 @@ anchor against the same id if you need a second route in.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
+**The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

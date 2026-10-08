@@ -1,11 +1,9 @@
-/* The repertoire against the tree it describes. Three claims: the emitted regions are what a
+/* The repertoire against the tree it describes. Four claims: the emitted regions are what a
  * fresh emit produces, so a range moves in one file and lands in every page that states it; no
- * consumer page names a peer at a version the manifests do not declare, which is the way a
- * hand-typed range goes stale without anything failing; and no consumer page hands a reader a
- * runner without an alternative beside it. The third is the anti-regression rule and it is the
- * reason this gate exists at all: bunx was written into five consumer pages while the shipped
- * command was a Node program reading three node modules, so the branch documented a dependency
- * Arena does not have, and nothing on the board could see it. */
+ * consumer page names a peer at a version the manifests do not declare, or a node engine the
+ * packages do not; no page hands a reader a runner without an alternative beside it, since bunx
+ * was once written into five pages while the shipped command was a Node program; and no page
+ * runs `arena` through a registry runner that would download the foreign package of that name. */
 
 import { readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
@@ -16,12 +14,12 @@ import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { isConsumerDocument } from './check-docs.ts';
 import { skips } from './check-routes.ts';
 import { AXES, EVIDENCE, PEERS, NODE_ENGINE } from '../../lib/arena/support-matrix.ts';
-import { TARGET, emit } from '../../generate/arena/generate-support.ts';
+import { TARGET, TARGETS, emit } from '../../generate/arena/generate-support.ts';
 
 export const node = {
   name: 'check:support',
   reads: [
-    TARGET, 'skills/**', 'frameworks/*/PACKAGE.md', 'frameworks/*/INDEX.md',
+    ...TARGETS.map(([target]) => target), 'skills/**', 'frameworks/*/PACKAGE.md', 'frameworks/*/INDEX.md',
     'frameworks/*/components/**/*.prompt.md', 'scripts/lib/arena/support-matrix.ts',
   ],
   writes: [],
@@ -50,16 +48,18 @@ export function documents(base = root) {
 }
 
 export function regionProblems(base = root) {
-  const path = join(base, ...TARGET.split('/'));
-  if (!existsSync(path)) {
-    return [`${TARGET} is not there, and it is the page every other claim here is about`];
-  }
-  const source = readFileSync(path, 'utf8');
-  return emit(source) === source
-    ? []
-    : [`${TARGET}: a @support region does not match a fresh emit. The repertoire is said once, in `
-       + 'support-matrix.ts, so a table edited in the page is a table the next generate overwrites: '
-       + 'run bun run generate:support'];
+  return TARGETS.flatMap(([target, regions]) => {
+    const path = join(base, ...target.split('/'));
+    if (!existsSync(path)) {
+      return [`${target} is not there, and it is a page the repertoire is emitted into`];
+    }
+    const source = readFileSync(path, 'utf8');
+    return emit(source, regions, target) === source
+      ? []
+      : [`${target}: a @support region does not match a fresh emit. The repertoire is said once, in `
+         + 'support-matrix.ts, so a table edited in the page is a table the next generate overwrites: '
+         + 'run bun run generate:support'];
+  });
 }
 
 export function declaredRanges() {
@@ -117,6 +117,34 @@ export function runnerProblems(rel: string, source: string) {
   return problems;
 }
 
+const REGISTRY_RUNNERS = new RegExp(
+  '\\b(npx|bunx|npm\\s+exec|npm\\s+x|bun\\s+x)((?:\\s+--?[\\w-]+(?:=\\S+)?)*(?:\\s+--)?)'
+  + '\\s+["\']?arena(?:@[^\\s"\'`]*)?(?![\\w/-]|\\.\\w)', 'g');
+const ALWAYS_FETCHING = /\b(?:pnpm|yarn) dlx\s+(?:--?[\w-]+(?:=\S+)?\s+)*["']?arena(?:@[^\s"'`]*)?(?![\w/-]|\.\w)/;
+const REFUSES_INSTALL = /(?:^|\s)--no-install(?=\s|$)/;
+const REFUSES_BY_NO = /(?:^|\s)--no(?=\s|$)/;
+
+function refusesInstall(runner: string, flags: string) {
+  return REFUSES_INSTALL.test(flags) || (!/^(?:bunx|bun\s+x)$/.test(runner) && REFUSES_BY_NO.test(flags));
+}
+
+export function registryRunnerProblems(rel: string, source: string) {
+  const problems = [];
+  for (const line of source.split('\n')) {
+    const fetching = ALWAYS_FETCHING.test(line)
+      || [...line.matchAll(REGISTRY_RUNNERS)].some((match) => !refusesInstall(match[1] ?? '', match[2] ?? ''));
+    if (!fetching) continue;
+    problems.push(
+      `${rel}: runs \`arena\` through a registry runner that would download a package, and the `
+      + 'registry holds a different `arena`, so a reader who runs the line executes a stranger\'s '
+      + 'code and not this command. Pass --no-install (npx and npm exec also take --no) so the runner takes '
+      + 'the installed bin or stops, or name pnpm exec, yarn or the bare command, since pnpm dlx '
+      + `and yarn dlx always download. Line: ${JSON.stringify(line.trim())}`,
+    );
+  }
+  return problems;
+}
+
 export function axisProblems(axes = AXES) {
   const problems = [];
   const seen = new Set<string>();
@@ -146,6 +174,7 @@ export function collect(base = root) {
       ...rangeProblems(rel, source, ranges),
       ...engineProblems(rel, source),
       ...runnerProblems(rel, source),
+      ...registryRunnerProblems(rel, source),
     );
   }
   return { problems, scanned: scanned.length };
@@ -160,7 +189,8 @@ function main() {
   }
   console.log(`check-support: ${AXES.length} axes over ${AXES.reduce((n, a) => n + a.rows.length, 0)} `
     + `answer(s), each carrying its evidence, and ${scanned} consumer document(s) state no peer range `
-    + 'the manifests do not, no other node engine, and no runner without an alternative');
+    + 'the manifests do not, no other node engine, no runner without an alternative, and no runner that '
+    + 'would fetch the foreign arena package');
 }
 
 if (isMainModule(import.meta.url)) main();

@@ -14,6 +14,7 @@ export interface RowEntry {
 @Injectable()
 export class ArenaTableState {
   columns: Signal<readonly ArenaTableColumn[]> = signal([]);
+  label: Signal<string> = signal('');
   narrow: Signal<boolean> = signal(false);
   rows: Signal<readonly object[]> = signal([]);
   extent: Signal<{ total: number; offset: number } | null> = signal(null);

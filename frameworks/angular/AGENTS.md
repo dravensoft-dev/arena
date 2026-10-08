@@ -1,10 +1,10 @@
 # Arena, the Angular layer
 
-> **For whoever works on this layer.** Building an app with it instead? Read [`PACKAGE.md`](./PACKAGE.md) to install it,
+> **For whoever works on this layer.** Building an app with it instead? Read [`install.md`](../../skills/design/references/install.md) to install it,
 > [`INDEX.md`](./INDEX.md) to find a component, and that component's `.prompt.md` to use it.
 
-**Published as `@dravensoft/arena-angular`.** [`PACKAGE.md`](./PACKAGE.md) is what a consumer
-reads, and the assembly copies it into `dist/` as the package README;
+**Published as `@dravensoft/arena-angular`.** [`PACKAGE.md`](./PACKAGE.md) is the page npm shows, an
+introduction and a table of questions, and the assembly copies it into `dist/` as the package README;
 [`../PACKAGING.md`](../PACKAGING.md) is how the package is built and what it leaves out.
 
 Arena for an Angular and Tailwind v4 app, in two kinds of artifact: the components this layer
@@ -33,8 +33,9 @@ that answered no to being found from outside must not install a router to use a 
 **`@angular/forms` is the second such entry**, held to `forms/` the same way.
 
 **Reach the document through the injected `DOCUMENT` token and never the global**, and put a
-measurement inside `afterNextRender`. A global read while the module evaluates throws during a
-server render at import time. This layer's suites run through a DOM rather than a server renderer,
+layout measurement inside `afterNextRender`; `arenaViewportBelow`'s `matchMedia` is not one, and
+runs at construction. A global read while the module evaluates throws during a server render at
+import time. This layer's suites run through a DOM rather than a server renderer,
 so here that claim is held by the code and by no run, which
 [`DOUBTS.md`](../../DOUBTS.md) files as a debt: **smoke-test a server render by hand** when a
 change touches how a component reaches the document.
@@ -89,8 +90,8 @@ comm -23 <(find components -mindepth 2 -maxdepth 2 -type d -printf '%f\n' | sort
          <(find components -name '*.variants.ts' -printf '%h\n' | xargs -n1 basename | sort)
 ```
 
-A chart that draws geometry has no recipe at all, for the reason below. **A compound family's
-children have none either, because they import the parent's**: each `ArenaSideNav*` child imports
+A chart's recipe holds its frame, legend and tooltip and never its plot, for the reason below. **A compound family's
+children have none of their own, because they import the parent's**: each `ArenaSideNav*` child imports
 `arenaSideNavStyles` from `side-nav/ArenaSideNav.variants`, which is the recipe mirror of the rule
 `frameworks/tailwind/AGENTS.md` states for manifests, that a manifest mirrors a *surface* and a
 family draws one. The category is the one
@@ -127,11 +128,13 @@ rather than from a list here**, because a list here rots and nothing checks it:
 `find frameworks/angular/components -mindepth 2 -maxdepth 2 -type d | sort`, and count it
 with the same command piped to `wc -l`.
 
-**A chart that draws geometry is the declared exception to having a MANIFEST**, and a missing
-chart manifest is a decision rather than an omission: a chart's visual identity is path data and
-attribute bindings, not class strings, so it has no recipe of its own and none to inherit either.
-`HAND_DRAWN` in `scripts/lib/tailwind/manifest-surfaces.ts` is the roster, held by
-`check:appearance`, and every entry there is a chart. They style themselves with token-valued
+**A chart that draws geometry has a manifest for what a class can say and draws its plot by
+hand.** The manifest holds the `frame` slot a plugin reaches, the legend and the tooltip, and the
+chart renders them from its recipe; the plot's visual identity is path data and attribute bindings,
+not class strings. `HAND_DRAWN` in `scripts/lib/tailwind/manifest-surfaces.ts` is the roster,
+held by `check:appearance`, and every entry there is a chart. **An Angular chart host is boxless**
+(`display: contents`), so a class that needs a box goes on a wrapper of the adopter's, and the
+frame inside draws the box a plugin styles. The plot's marks style themselves with token-valued
 style **objects**, meaning the camelCase
 `[style]` form, never a kebab-case string or attribute, because that is the only shape
 `check:dimensions` can actually read. `chart-card` is not one of them: it is a bordered
@@ -165,8 +168,8 @@ rendering](#a-projected-childs-inputs-are-not-readable-while-a-sibling-is-render
 wiring between a component and its own projected child rather than anything an adopter stands
 between; `test/Barrels.test.ts` carries the reason in `ROOT_PRIVATE`. `DataVisuals.ts` (the identity-or-meaning colour contract, the number writer and the
 axis domain) sits at the layer root beside them, and the rule puts it there in both layers now:
-its consumers are every chart **and** `arena-calendar-event`, which reads `arenaCatColor` for a
-chip's identity colour. The name matches the placement: a module a schedule grid consumes is
+its consumers are every chart **and** `arena-calendar-event`, which reads `arenaCatIndex` for a
+chip's `colorId`. The name matches the placement: a module a schedule grid consumes is
 not "chart internals". The geometry that only the charts read went the other way, down to
 `components/charts/`, and `frameworks/AGENTS.md` records why.
 
@@ -176,35 +179,33 @@ from there. Its whole purpose is that the pages a single arrangement gets differ
 them and in nothing else, so `check:pixel-parity` can capture them and fail on one differing
 pixel. Edit the arrangement, never the page.
 
-`playground/` sits beside them and never ships either: the package
-build stages nothing under it and `index.ts` names none of it. It holds the harness every
+`playground/` sits beside them and never ships either. It holds the harness every
 generated demo page mounts, `Playground.ts` for the panel and the event log and
-`PlaygroundState.ts` for the store behind them. Its classes are `intro/playground.css`'s, which
-sits outside every layer so each harness draws the same frame from the same bytes, and a
-difference seen between two layers is then a difference in the component rather than in the
-furniture around it.
+`PlaygroundState.ts` for the store behind them. Its classes are `intro/playground.css`'s,
+outside every layer, so each harness draws the same frame from the same bytes and a difference
+between two layers is the component's rather than the furniture's.
 
 **`PlaygroundCodec.generated.ts` beside them is a copy, not a source.** What a knob holds,
 whether it is bound and how both round-trip through a query string is authored once in
 `frameworks/demos/PlaygroundCodec.ts` and emitted into every layer, because two hand-written
-copies of `decode()` that drift render the **same URL** differently in each layer, which is the
-one failure the arrangement exists to prevent and the one nothing else would catch: each layer
-would compile, each suite would pass, and only a person holding two pages side by side would
-see it. `check:playgrounds` holds each copy to the source and to the other copy.
+copies of `decode()` that drift render the **same URL** differently in each layer, and each
+layer would compile and each suite pass. `check:playgrounds` holds each copy to the source and to the other copy.
 `Playground.test.ts` asserts the codec again here rather than trusting the other layer's suite,
 because this copy is what this layer compiles.
 
-**`arenaViewportBelow(name)` answers the other half of the breakpoint question, and it is a
-different question.** `arenaContainerWidth` measures a box, which is what a component needs, because
-a component may be rendered anywhere and the viewport says nothing about how much room it was
-given. `arenaViewportBelow` measures the viewport, which is what a page layout needs and what an app
-writing CSS in a `styles:` block cannot get any other way: a media query condition holds no
-`var()`, so the threshold cannot be named from a stylesheet at all. It returns a signal over
+**`arenaViewportBelow(name)` answers a different question from `arenaContainerWidth`.** A
+component measures its box, because it may be rendered anywhere and the viewport says nothing
+about its room. A page layout measures the viewport, which a `styles:` block cannot do by name,
+since a media query condition holds no `var()`. It returns a signal over
 `not all and (min-width: N)`, the exact complement of the `md:` variant rather than a
-`max-width` an epsilon short of it, and it warns through the same `arenaReadBreakpoint` when the
-token does not resolve. **Reach for it for a page's own layout and never for a component's**: a
-component that branches on the viewport is wrong the first time somebody puts it in a narrow
-column.
+`max-width` an epsilon short of it, and warns through `arenaReadBreakpoint` when the token does
+not resolve. **Reach for it for a page's own layout and never for a component's**: a component
+that branches on the viewport is wrong the first time somebody puts it in a narrow column.
+`arenaContainerWidth` reads its box inside its `afterNextRender`, and a signal a render hook
+writes makes the same tick check the view again, so the first paint is already narrow. Both
+reads take the border box with no transform, so a padding or transform a branch restyles
+never reaches the number. A chart measures an element of its own template,
+so a consumer class on its host cannot move its plot. So a branch may restyle the padding and border of the measured element and nothing else of its outer box, as `check:measured-box` holds.
 
 **One component exposes a method, and it is the only one.** `arena-input` has `focus()` and
 `select()`, because none of the nine contract forms is imperative and returning focus after each
@@ -229,6 +230,11 @@ import manifest from './ArenaTag.classes.generated';
 export const arenaTagStyles = arenaStyles(manifest);
 ```
 
+**A slot binds its `$data` beside its part hook**, the `data-arena-<group>` attributes it is
+touched by. A template element takes `[arenaSlotData]="styles().$data.<slot>()"`, the directive
+`ArenaSlotAttributes` in `frameworks/angular/SlotData.ts` (internal, not exported by `index.ts`); a
+host binds one `'[attr.data-arena-<group>]'` per group. Identity is `colorId` rendered as `data-arena-color-id`.
+
 The import is extensionless and names a stem nothing else claims. An extensionless import of
 `ArenaTag.classes` would resolve to the `.ts` **only because** TS and bun probe `.ts` before
 `.json`, so a bundler configured `.json`-first could resolve something else entirely. The
@@ -242,6 +248,25 @@ for DI, capital-initial filenames with no type suffix, `arena-` selector prefix,
 component `styles` (recipe owns styling), no comments beyond one JSDoc line,
 barrels with no `../` imports inside the layer. Dark-first (`.arena-light` for
 light). Danger is outline. Icons are Phosphor (Bold default). No gradients, no emoji.
+
+## A component writes an inner component's appearance as a class, and hands it a face by injection
+
+**A component that draws an Arena component inside it writes that component's option as a class on
+its host.** `ArenaConfirmDialog` draws its cancel as `<arena-button class="arena-emphasis-ghost">`,
+the same class an adopter writes, and no inner component has an input for it.
+
+**An injection token is how a component hands an inner component what no adopter chooses.** The
+person row provides `ARENA_AVATAR_FACE` (`frameworks/angular/components/display/arena-avatar/AvatarFace.ts`)
+through `viewProviders`, and the avatar injects it optionally, so it binds its size channel to the
+row's face when it sits in one and to its own size when it does not. An input would have carried it
+no better in either idiom: a protected input fails the row's binding, since a template binds only
+what a class exposes, and a public one is a member `check:api` refuses because no contract declares
+it.
+
+**A floating surface carries `data-arena-surface="floating"`**, bound on the host when the floating slot is the root, as
+`'[attr.data-arena-surface]': "'floating'"`, and on the slot's element otherwise, as the tooltip's
+bubble and the menu panel do in their templates. A context class written above the
+trigger stops there.
 
 ## What Arena implements
 
@@ -268,6 +293,14 @@ than assuming.** `grep -rl "@angular/cdk/overlay" frameworks/angular/components`
 a modal centres in flow and a toast is a card the host places, and neither goes near an overlay.
 A styled **native** control does not either: `arena-select` is a real `<select>`, so the popup,
 its keyboard and its type-ahead are the user agent's.
+
+**`ArenaTooltip` and `ArenaMenu` pass `anchored: true` to their recipe**, because the CDK overlay
+positions them and the recipe has to say so.
+
+**A style binding may interpolate the name of the property it reads.** The table's cells bind
+`[style.--arena-column-width]` to `var(--arena-column-<key>-width)`, or to `initial` when the
+column has no valid key: the value is a `var(--…)` with no literal operand, so it is not a
+computation `check:dimensions` lists.
 
 **Writing the control is what puts it inside the gates, and that is the standard every
 component here meets.** A component whose DOM and CSS belong to somebody else sits outside
@@ -315,8 +348,8 @@ primitive also has a static specimen at
 which renders the real markup
 with the real recipe and no Angular executed. A specimen therefore proves the *recipe*,
 never the *component*: it hand-builds the DOM from the manifest, so a component-logic
-bug can render correctly in the card while being broken in the primitive. A chart drawing
-geometry has no specimen at all, by the same exception that gives it no manifest.
+bug can render correctly in the card while being broken in the primitive. A chart's
+specimen proves its frame, legend and tooltip and not its plot, which is drawn by hand.
 
 **What proves the component is a demo page, and there is one per primitive rather than one per
 primitive that earned it.** `<Component>.demo.generated.html` beside the component runs the real
@@ -340,8 +373,8 @@ a page, so a page cannot go missing and a list cannot go stale.
 **`check:angular-demos` is structural only**, and the distinction is what the pages are for: it
 proves a page exists, loads its own bundle and mounts a zoneless app, never that what it renders
 is right. What the pages catch is what a suite cannot. A carve-out host that blockifies as a flex item
-leaves an inner button's `w-full` measuring the shrunk host rather than the row, so a `full`
-variant renders as nothing at all, and happy-dom has no layout to see it.
+leaves an inner button's `w-full` measuring the shrunk host rather than the row, so a fill
+class renders as nothing at all, and happy-dom has no layout to see it.
 **A checklist line a real browser can decide belongs in a gate rather than in a checklist**,
 which is what `check:focus-trap` took over for the one it covers. What is left for a
 person is what needs their **judgement**: whether a name is a good name, whether motion reads as
@@ -494,8 +527,8 @@ grep -Lr "'\[class\]':" --include='[A-Z]*.ts' frameworks/angular/components/*/*/
   | grep -vE '\.(test|variants|card\.entry)\.ts$|(State|Window)\.ts$'
 ```
 
-They fall into **four** groups, each with its own reason. The **SVG charts** have no manifest and
-no recipe, so there is no `root` slot to bind. The **form controls** each need their own
+They fall into **four** groups, each with its own reason. The **SVG charts** are boxless
+(`display: contents`) and draw their frame as an inner slot, so there is no `root` slot to bind. The **form controls** each need their own
 `<button>`, `<input>` or `<label>`. Some **keep a specific semantic or structural element**: a
 real `<ul>` for a feed, a `<div role="tablist">` whose panels are siblings outside it, a real
 `<nav>` for a navigation landmark, since the `navigation` pattern offers `role="navigation"` only
@@ -527,7 +560,7 @@ All four are layer-wide and silent.
 **A resolving transform spells the default twice, and only one of the two runs for any given
 caller.** `input(X, { transform: (value) => value ?? Y })` is the layer's shape for an optional
 member, and Angular runs the transform only for an input that was **bound**: a consumer who writes
-`<arena-grid>` bare reads `X`, and one who writes `[min]="maybe()"` with nothing in it reads `Y`.
+`<arena-section>` bare reads `X`, and one who writes `[headingLevel]="maybe()"` with nothing in it reads `Y`.
 So `X` and `Y` are one decision written in two places, and a disagreement between them is a
 component that answers the same markup two ways. **`check:optional-inputs` holds `X` and `Y` to the
 same text**, which is the only claim about the pair; the two gates that read one half each hold it
@@ -626,13 +659,14 @@ branches carry only interpolated inputs.
 
 ## Adopting it is the package's question and not this document's
 
-**A project adopting Arena installs `@dravensoft/arena-angular` and reads
-[`PACKAGE.md`](./PACKAGE.md)**, which is the page npm shows: the install, the config file, the
-one command, the theme surface and the script that keeps a palette from flashing on first paint.
+**A project adopting Arena installs `@dravensoft/arena-angular` and starts at
+[`install.md`](../../skills/design/references/install.md)**, which links the config file
+([`config.md`](../../skills/design/references/config.md)), the one command
+([`cli.md`](../../skills/design/references/cli.md)), and the theme surface and the script that keeps a palette from flashing on first paint ([`theme.md`](../../skills/design/references/theme.md)).
 Nothing under `theme/` reaches them, because the assembly copies `theme/arena-cdk.css` in as
 `css/arena-cdk.css` and copies neither of the other two: `arena-tailwind.css` imports this
-repository's own `intro/styles.css`, and the FOUC script is carried inline on the npm page where
-its reader is.
+repository's own `intro/styles.css`, and the FOUC script is carried inline in the
+consumer reference `theme.md`, where its reader is.
 
 What belongs here is the half a contributor needs, and it is one sentence: the theme surface is
 authored in `theme/`, beside the service that reads it, so a palette rule and the service that

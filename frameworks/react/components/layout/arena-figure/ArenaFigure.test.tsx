@@ -1,23 +1,15 @@
-/* The shape is computed from a member and stays inline, so it is read through the style
- * attribute; everything else the figure decides is which element it opens and which slot it
- * draws. What each utility MEANS is asserted once beside the manifest. */
+/* The figure decides which element it opens and which slot it draws; the shape is a family the
+ * frame's class reads, so nothing is written inline. What each utility MEANS is asserted once
+ * beside the manifest. */
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { renderToStaticMarkup } from 'react-dom/server';
 import React from 'react';
 import { ArenaFigure } from './ArenaFigure.tsx';
+import manifest from './ArenaFigure.classes.generated.ts';
+import source from './ArenaFigure.manifest.generated.ts';
 
 const render = (element: React.ReactElement) => renderToStaticMarkup(element);
-
-function declarations(html: string): Record<string, string> {
-  const style = /style="([^"]*)"/.exec(html)?.[1] ?? '';
-  const out: Record<string, string> = {};
-  for (const part of style.split(';')) {
-    const at = part.indexOf(':');
-    if (at > 0) out[part.slice(0, at).trim()] = part.slice(at + 1).trim();
-  }
-  return out;
-}
 
 test('the figure is a real figure element, and the caption a real figcaption inside it', () => {
   const html = render(<ArenaFigure caption="Kochere, 2050 m" />);
@@ -30,9 +22,19 @@ test('no caption renders no caption element at all, rather than an empty one', (
   assert.doesNotMatch(render(<ArenaFigure />), /figcaption/);
 });
 
-test('the shape defaults to the role, so a style plugin answers every figure at once', () => {
-  assert.equal(declarations(render(<ArenaFigure />))['aspect-ratio'], 'var(--aspect-media)');
-  assert.equal(declarations(render(<ArenaFigure ratio="16 / 9" />))['aspect-ratio'], '16 / 9');
+test('the frame carries the ratio channel on its class and no inline shape', () => {
+  const html = render(<ArenaFigure />);
+  assert.doesNotMatch(html, /style="/);
+  assert.match(html, new RegExp(`class="${manifest.slots.frame}[" ]`));
+  const [family] = source.answers;
+  const axis = `--arena-${family}`;
+  const token = source.slots.frame.split(' ').find((name) => name.includes(`var(${axis},`));
+  assert.ok(token, `the frame slot reads no ${axis}`);
+  assert.match(token, new RegExp(`^aspect-\\[var\\(--[\\w-]+,var\\(${axis},var\\(--aspect-media\\)\\)\\)\\]$`));
+});
+
+test('an option class lands on the figure root', () => {
+  assert.match(render(<ArenaFigure className="arena-ratio-wide" />), /<figure class="[^"]*\barena-ratio-wide\b/);
 });
 
 test('the fallback draws only when there is no media, because it is a state and not an error', () => {
@@ -47,7 +49,7 @@ test('the fallback draws only when there is no media, because it is a state and 
 
 test('with neither media nor fallback the frame is an empty box of the right shape', () => {
   const html = render(<ArenaFigure />);
-  assert.match(html, /^<figure class="[^"]*"[^>]*><div class="[^"]*"[^>]*style="aspect-ratio:var\(--aspect-media\)"><\/div><\/figure>$/);
+  assert.match(html, /^<figure class="[^"]*"[^>]*><div class="[^"]*"[^>]*><\/div><\/figure>$/);
 });
 
 test('the overlay is inside the frame and the caption is under it', () => {

@@ -1,0 +1,40 @@
+<!-- @dsCard group="Tailwind" viewport="820x520" name="rhythm" subtitle="A box family: arena-rhythm-component is the default, none, group and section change how far the head stands from the body, and the property is the route for a distance no step names" -->
+<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../../../intro/styles.css">
+<link rel="stylesheet" href="../../consume/Preflight.generated.css">
+<link rel="stylesheet" href="../../consume/components/layout/arena-section/ArenaSection.styles.generated.css">
+<link rel="stylesheet" href="../../consume/vocabulary/Rhythm.generated.css">
+<link rel="stylesheet" href="../../Specimen.css">
+</head><body><div id="root"></div>
+<script type="module">
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../Specimen.js';
+
+const manifest = await (await fetch('../../components/layout/arena-section/ArenaSection.manifest.json')).json();
+const AXIS = '--arena-rhythm';
+
+function body(text) {
+  return el('p', { class: 'font-body text-sm text-base-content/82', text });
+}
+
+function sectionOf(option) {
+  const c = arenaClassesFor(manifest);
+  const d = arenaSlotDataFor(manifest);
+  return el('section', { class: `${c.root} ${option}`, ...d.root },
+    el('div', { class: c.head, ...d.head }, el('h2', { class: c.title, ...d.title, text: 'Orders' })),
+    el('div', { class: c.body, ...d.body }, body('Everything placed this week.')));
+}
+
+function set(value) {
+  const holder = el('div', { style: { display: 'contents', [AXIS]: value } });
+  holder.append(sectionOf(''));
+  return holder;
+}
+
+mountSpecimen({ sections: [
+  section('arena-rhythm-none', [sectionOf('arena-rhythm-none')], { stack: true }),
+  section('arena-rhythm-group', [sectionOf('arena-rhythm-group')], { stack: true }),
+  section('arena-rhythm-component, the default', [sectionOf('arena-rhythm-component')], { stack: true }),
+  section('arena-rhythm-section', [sectionOf('arena-rhythm-section')], { stack: true }),
+  section('--arena-rhythm: calc(var(--rhythm-group) * 1.5) on a container', [set('calc(var(--rhythm-group) * 1.5)')], { stack: true }),
+]});
+</script></body></html>

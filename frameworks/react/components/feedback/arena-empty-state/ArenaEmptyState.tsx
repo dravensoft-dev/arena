@@ -3,8 +3,12 @@ import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaEmptyState.classes.generated.ts';
 
 import type { ArenaHeadingLevel } from '../../../Api.generated';
+import type { ArenaEmptyStateClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export interface ArenaEmptyStateProps {
+  className?: ArenaEmptyStateClass;
+
 
   /** A Phosphor class name for the glyph Arena draws, muted. */
   icon?: string;
@@ -23,7 +27,7 @@ export interface ArenaEmptyStateProps {
 
 const emptyStyles = arenaStyles(manifest);
 
-export function ArenaEmptyState({ icon, title, headingLevel = 'h3', message, action }: ArenaEmptyStateProps) {
+export function ArenaEmptyState({ className, icon, title, headingLevel = 'h3', message, action }: ArenaEmptyStateProps) {
   if (!title) throw new Error('ArenaEmptyState: `title` is required');
   if (headingLevel === 'none') {
     throw new Error('ArenaEmptyState: `headingLevel` cannot be none, because `title` is required and is the headline a reader lands on');
@@ -31,11 +35,11 @@ export function ArenaEmptyState({ icon, title, headingLevel = 'h3', message, act
   const styles = emptyStyles();
   const Heading = headingLevel;
   return (
-    <div className={styles.root()} data-arena-part={manifest.parts.root}>
-      {icon && <div className={styles.icon()} data-arena-part={manifest.parts.icon}><i className={icon} aria-hidden="true" /></div>}
-      {title && <Heading className={styles.title()} data-arena-part={manifest.parts.title}>{title}</Heading>}
-      {message && <div className={styles.message()} data-arena-part={manifest.parts.message}>{message}</div>}
-      {action && <div className={styles.action()} data-arena-part={manifest.parts.action}>{action}</div>}
+    <div className={arenaClassName('ArenaEmptyState', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+      {icon && <div className={styles.icon()} data-arena-part={manifest.parts.icon} {...styles.$data.icon()}><i className={icon} aria-hidden="true" /></div>}
+      {title && <Heading className={styles.title()} data-arena-part={manifest.parts.title} {...styles.$data.title()}>{title}</Heading>}
+      {message && <div className={styles.message()} data-arena-part={manifest.parts.message} {...styles.$data.message()}>{message}</div>}
+      {action && <div className={styles.action()} data-arena-part={manifest.parts.action} {...styles.$data.action()} data-arena-boundary="">{action}</div>}
     </div>
   );
 }

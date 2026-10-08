@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
+import type { CSSProperties } from 'react';
 import { arenaWarnOnce } from '../../../WarnOnce.ts';
 import { useArenaContainerWidth, arenaReadBreakpoint } from '../../../UseArenaContainerWidth.ts';
+import { arenaColumnKey } from './ColumnKey.ts';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaTable.classes.generated.ts';
 
@@ -13,10 +15,14 @@ import type {
   ArenaTableSort, ArenaTableSortControl,
 } from '../../../Api.generated';
 import { useArenaLocale } from '../../../ArenaLocale.ts';
+import type { ArenaTableClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export type { ArenaTableColumn };
 
 export interface ArenaTableProps {
+  className?: ArenaTableClass;
+
 
   /** Names the grid for assistive technology. Required, and guarded at runtime: nothing can derive it; ArenaCalendar names its grid from the range it is showing, and a data table's subject is editorial. Say what the rows are, never "ArenaTable". */
   label: string;
@@ -45,7 +51,7 @@ export interface ArenaTableProps {
   /** Which page of a longer list is on screen. Present, ArenaTable draws its own ArenaPagination below the grid and names it from `label`, which is what gives that required name its uniqueness on a page with two paged tables. Absent, no pager is drawn and the projected rows are the whole list. */
   page?: ArenaTablePage;
 
-  /** Whether ArenaTable draws the pager below the grid. 'auto' draws it whenever `page` is bound, which is what a table showing one list of its own wants; 'none' draws nothing and leaves the consumer to place an ArenaPagination themselves, over this table or over two of them at once. It is a separate member from `page` because the two are separate facts: `page` is what the table KNOWS about a longer list, and this is what it DRAWS about it. Bound together, a consumer who wanted the control elsewhere had to withhold `page` and leave the table knowing nothing about paging at all, which is a member deliberately unbound and a comment explaining why. The same split, and the same reasoning, as `sort` and `sortControl`. */
+  /** Whether ArenaTable draws the pager below the grid. 'auto' draws it whenever `page` is bound, which is what a table showing one list of its own wants; 'none' draws nothing and leaves the consumer to place an ArenaPagination themselves, over this table or over two of them at once. It is a separate member from `page` because the two are separate facts: `page` is what the table KNOWS about a longer list, and this is what it DRAWS about it. Bound together, a consumer who wants the control elsewhere would have to withhold `page` and leave the table knowing nothing about paging at all, which is a member deliberately unbound and a comment explaining why. The same split, and the same reasoning, as `sort` and `sortControl`. */
   pageControl?: ArenaTablePageControl;
 
   /** Where the projected rows sit inside a longer list, which is what `aria-rowcount` and `aria-rowindex` carry on the grid. Absent with `page` bound, both are derived from the page, so a paged table needs nothing here. Bind it when the projection is not a page: a window a scroller renders, an infinite list that grows, or a page inside which you render less again. It is a separate member from `page` because the two answer separate questions, the same split `page` and `pageControl` make: `page` is the model the pager draws, and this is where the rows in the DOM sit in the list they came from. Bound together, this one answers the two attributes whole rather than composing with the page, because a reader is told one position and two sources for it is how they disagree. */
@@ -75,7 +81,7 @@ const arenaSortOptions = (columns: readonly ArenaTableColumn[]): ArenaSelectOpti
 
 const arenaTableStyles = arenaStyles(manifest);
 
-export function ArenaTable({
+export function ArenaTable({ className, 
   columns, children, empty, responsive = true, label,
   sort, sortControl = 'auto', onSortChange, page, slice, pageControl = 'auto', onPageChange,
 }: ArenaTableProps) {
@@ -197,17 +203,14 @@ export function ArenaTable({
     && columns.some((column) => column.sortable);
   const sortValue = sort ? arenaSortOptionValue(sort.column, sort.direction) : undefined;
 
-  const sortableClass = arenaTableStyles({ narrow: false }).thSortable();
-  const headerClass = (c: ArenaTableColumn): string => {
-    const base = arenaTableStyles({ narrow: false, align: c.align || 'left' }).th();
-    return c.sortable && sort ? `${base} ${sortableClass}` : base;
-  };
+  const headerStyles = (c: ArenaTableColumn) =>
+    arenaTableStyles({ narrow: false, sortable: Boolean(c.sortable && sort) });
 
   return (
-    <div ref={ref} className={arenaTableStyles({ narrow }).root()} data-arena-part={manifest.parts.root}>
+    <div ref={ref} className={arenaClassName('ArenaTable', arenaTableStyles({ narrow }).root(), className)} data-arena-part={manifest.parts.root} {...arenaTableStyles({ narrow }).$data.root()}>
       {narrow && sortBar && (
-        <div className={arenaTableStyles({ narrow: true }).sortBar()} data-arena-part={manifest.parts.sortBar}>
-          <div className={arenaTableStyles({ narrow: true }).sortField()} data-arena-part={manifest.parts.sortField}>
+        <div className={arenaTableStyles({ narrow: true }).sortBar()} data-arena-part={manifest.parts.sortBar} {...arenaTableStyles({ narrow: true }).$data.sortBar()}>
+          <div className={arenaTableStyles({ narrow: true }).sortField()} data-arena-part={manifest.parts.sortField} {...arenaTableStyles({ narrow: true }).$data.sortField()}>
             <ArenaSelect label={locale.tableSortBy} options={arenaSortOptions(columns)} value={sortValue}
               onChange={(picked) => { const next = arenaParseSortOption(picked); if (next) onSortChange?.(next); }} />
           </div>
@@ -216,21 +219,25 @@ export function ArenaTable({
       <table role={flat ? 'presentation' : 'grid'} aria-label={flat ? undefined : label} ref={gridRef}
         aria-rowcount={flat ? undefined : rowCount}
         onKeyDown={onGridKeyDown}
-        className={arenaTableStyles({ narrow }).grid()} data-arena-part={manifest.parts.grid}>
+        className={arenaTableStyles({ narrow }).grid()} data-arena-part={manifest.parts.grid} {...arenaTableStyles({ narrow }).$data.grid()}>
         {!flat && (
           <thead>
             <tr aria-rowindex={extent ? 1 : undefined}
-              className={arenaTableStyles({ narrow: false }).headRow()} data-arena-part={manifest.parts.headRow}>
+              className={arenaTableStyles({ narrow: false }).headRow()} data-arena-part={manifest.parts.headRow} {...arenaTableStyles({ narrow: false }).$data.headRow()}>
               {columns.map((c, ci) => {
                 const state = sortStateOf(ci);
+                const key = arenaColumnKey(label, c.key);
                 return (
                   <th key={ci} scope="col" {...headerNav(ci)}
                     aria-sort={state}
                     onClick={c.sortable && sort ? () => onHeaderActivate(ci) : undefined}
-                    className={headerClass(c)} data-arena-part={manifest.parts.th}
-                    style={{ width: c.width }}>{c.header}{state && state !== 'none' && (
+                    className={headerStyles(c).th()} data-arena-part={manifest.parts.th} {...headerStyles(c).$data.th()}
+                    style={{
+                      '--arena-column-width': key === null ? 'initial' : `var(--arena-column-${key}-width)`,
+                      '--arena-column-align': key === null ? 'initial' : `var(--arena-column-${key}-align)`,
+                    } as CSSProperties}>{c.header}{state && state !== 'none' && (
                         <i aria-hidden="true"
-                          className={`${arenaTableStyles({ narrow: false }).sortCaret()} ${sort?.direction === 'asc' ? 'ph-bold ph-caret-up' : 'ph-bold ph-caret-down'}`} data-arena-part={manifest.parts.sortCaret} />
+                          className={`${arenaTableStyles({ narrow: false }).sortCaret()} ${sort?.direction === 'asc' ? 'ph-bold ph-caret-up' : 'ph-bold ph-caret-down'}`} data-arena-part={manifest.parts.sortCaret} {...arenaTableStyles({ narrow: false }).$data.sortCaret()} />
                       )}</th>
                 );
               })}
@@ -238,12 +245,13 @@ export function ArenaTable({
           </thead>
         )}
         <tbody role={flat ? 'presentation' : undefined}
-          className={arenaTableStyles({ narrow }).body()} data-arena-part={manifest.parts.body}>
+          className={arenaTableStyles({ narrow }).body()} data-arena-part={manifest.parts.body} {...arenaTableStyles({ narrow }).$data.body()} data-arena-boundary="">
           {rowEls.map((row, ri) => (React.isValidElement(row)
             ? React.cloneElement(row, {
               rowIndex: ri + 1,
               ariaRowIndex: flat || !extent ? null : extent.offset + ri + 2,
               columns,
+              label,
               layout: narrow ? 'card' : 'table',
               cursorCol: narrow || curRow !== ri + 1 ? null : curCol,
               onCellFocus: narrow ? undefined : onCellFocus,
@@ -252,10 +260,10 @@ export function ArenaTable({
         </tbody>
       </table>
       {bare && (
-        <div className={arenaTableStyles({ narrow }).empty()} data-arena-part={manifest.parts.empty}>{empty ?? locale.tableEmpty}</div>
+        <div className={arenaTableStyles({ narrow }).empty()} data-arena-part={manifest.parts.empty} {...arenaTableStyles({ narrow }).$data.empty()} data-arena-boundary="">{empty ?? locale.tableEmpty}</div>
       )}
       {!bare && page && pageControl !== 'none' && (
-        <div className={arenaTableStyles({ narrow: false }).pager()} data-arena-part={manifest.parts.pager}>
+        <div className={arenaTableStyles({ narrow: false }).pager()} data-arena-part={manifest.parts.pager} {...arenaTableStyles({ narrow: false }).$data.pager()}>
           <ArenaPagination page={page.index} pageCount={pageCount} ariaLabel={label}
             onChange={(next) => onPageChange?.(next)} />
         </div>

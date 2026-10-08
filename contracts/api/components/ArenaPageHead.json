@@ -10,8 +10,6 @@
     "subtitle": { "form": "primitive", "type": "string",
                   "description": "A muted line under the title." },
     "actions": { "form": "slot",
-                 "description": "Page-level controls, right-aligned in the head." },
-    "align": { "form": "enum", "type": "ArenaPageHeadAlign", "default": "start",
-               "description": "Cross-axis alignment of the actions block against the title, wide layout only." }
+                 "description": "Page-level controls, right-aligned in the head." }
   }
 }

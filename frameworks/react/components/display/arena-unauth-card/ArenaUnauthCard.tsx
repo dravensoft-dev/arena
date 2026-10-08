@@ -4,8 +4,12 @@ import manifest from './ArenaUnauthCard.classes.generated.ts';
 import { ArenaCard } from '../arena-card/ArenaCard.tsx';
 
 import type { ArenaHeadingLevel } from '../../../Api.generated';
+import type { ArenaUnauthCardClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export interface ArenaUnauthCardProps {
+  className?: ArenaUnauthCardClass;
+
 
   /** The brand lock-up above the panel's content. An ArenaAppLogo, in practice. */
   brand?: React.ReactNode;
@@ -29,18 +33,18 @@ export interface ArenaUnauthCardProps {
 
 const unauthStyles = arenaStyles(manifest);
 
-export function ArenaUnauthCard({ brand, eyebrow, title, headingLevel = 'h2', footer, children }: ArenaUnauthCardProps) {
+export function ArenaUnauthCard({ className, brand, eyebrow, title, headingLevel = 'h2', footer, children }: ArenaUnauthCardProps) {
   const styles = unauthStyles();
   const Heading = headingLevel === 'none' ? 'div' : headingLevel;
   return (
-    <div className={styles.root()} data-arena-part={manifest.parts.root}>
+    <div className={arenaClassName('ArenaUnauthCard', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
       <ArenaCard>
-        <div className={styles.body()} data-arena-part={manifest.parts.body}>
-          {brand && <div className={styles.brand()} data-arena-part={manifest.parts.brand}>{brand}</div>}
-          {eyebrow && <div className={styles.eyebrow()} data-arena-part={manifest.parts.eyebrow}>{eyebrow}</div>}
-          {title && <Heading className={styles.title()} data-arena-part={manifest.parts.title}>{title}</Heading>}
+        <div className={styles.body()} data-arena-part={manifest.parts.body} {...styles.$data.body()} data-arena-boundary="">
+          {brand && <div className={styles.brand()} data-arena-part={manifest.parts.brand} {...styles.$data.brand()} data-arena-boundary="">{brand}</div>}
+          {eyebrow && <div className={styles.eyebrow()} data-arena-part={manifest.parts.eyebrow} {...styles.$data.eyebrow()}>{eyebrow}</div>}
+          {title && <Heading className={styles.title()} data-arena-part={manifest.parts.title} {...styles.$data.title()}>{title}</Heading>}
           {children}
-          {footer && <div className={styles.footer()} data-arena-part={manifest.parts.footer}>{footer}</div>}
+          {footer && <div className={styles.footer()} data-arena-part={manifest.parts.footer} {...styles.$data.footer()} data-arena-boundary="">{footer}</div>}
         </div>
       </ArenaCard>
     </div>

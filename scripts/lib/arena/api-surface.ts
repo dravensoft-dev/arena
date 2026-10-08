@@ -2,9 +2,15 @@
  * cannot read THROWS rather than going silently missing from the member list.
  * Three blind spots are dormant against today's corpus and deliberately unfixed: splitTopLevel
  * and braceBody count brackets without string awareness, and classify's index-signature
- * carve-out tests only a literal's FIRST member. A quote-aware scanner is a larger change. */
+ * carve-out tests only a literal's FIRST member. A quote-aware scanner is a larger change.
+ * layerDescription writes an event a description names under the layer's name (`onNav` in
+ * React): a code span of the component's own, ArenaX's `e`, the `e` event of ArenaX, and the
+ * dotted ArenaX.e. Any other span is left alone. */
 
+import { readFileSync, existsSync } from 'node:fs';
+import { join } from 'node:path';
 import { captured } from '../../utils/captures.ts';
+import { repoRoot } from './repo-root.ts';
 
 export class UnrecognisedShape extends Error {
   constructor(message: string) { super(message); this.name = 'UnrecognisedShape'; }
@@ -17,6 +23,42 @@ export function bindingName(name: string, form: string, layer: string) {
   if (form === 'slot') return name === 'content' ? 'children' : name;
   if (form === 'event') return `on${name.slice(0, 1).toUpperCase()}${name.slice(1)}`;
   return name;
+}
+
+const eventsByComponent = new Map<string, readonly string[]>();
+
+function eventsOfComponent(component: string): readonly string[] {
+  const known = eventsByComponent.get(component);
+  if (known) return known;
+  const path = join(repoRoot, 'contracts', 'api', 'components', `${component}.json`);
+  let names: string[] = [];
+  if (existsSync(path)) {
+    const api = (JSON.parse(readFileSync(path, 'utf8')) as { api?: Record<string, { form?: string }> }).api ?? {};
+    names = Object.entries(api).filter(([, spec]) => spec.form === 'event').map(([name]) => name);
+  }
+  eventsByComponent.set(component, names);
+  return names;
+}
+
+export function layerDescription(
+  description: string,
+  contract: { component?: string; api?: unknown },
+  layer: string,
+) {
+  const own = Object.entries((contract.api ?? {}) as Record<string, { form?: string }>)
+    .filter(([, spec]) => spec.form === 'event').map(([name]) => name);
+  const named = (owner: string | undefined) => (owner ? eventsOfComponent(owner) : own);
+  return description.replace(
+    /(?:(Arena\w+)'s )?`([a-zA-Z]+)`( event of (Arena\w+))?|\b(Arena\w+)\.([a-z]\w*)\b/g,
+    (whole, possessor: string | undefined, span: string | undefined, tail: string | undefined, tailOwner: string | undefined, dotOwner: string | undefined, dotName: string | undefined) => {
+      if (dotOwner && dotName) {
+        return named(dotOwner).includes(dotName) ? `${dotOwner}.${bindingName(dotName, 'event', layer)}` : whole;
+      }
+      const owner = tailOwner ?? possessor;
+      if (!span || !named(owner).includes(span)) return whole;
+      return `${possessor ? `${possessor}'s ` : ''}\`${bindingName(span, 'event', layer)}\`${tail ?? ''}`;
+    },
+  );
 }
 
 const isConsumerData = (ts: string) => ts.trim().replace(/\s+/g, ' ') === 'Record<string, unknown>';

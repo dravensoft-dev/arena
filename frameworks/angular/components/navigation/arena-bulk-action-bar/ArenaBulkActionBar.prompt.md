@@ -1,4 +1,4 @@
-Arena bulk actions bar. The bar renders only when `count` is above zero. The bar states the size of the selection in mono, and offers actions that operate on the set. A destructive action stays outline in `--error`, transparent at rest, with the soft `--danger-soft` tint only on hover. Every risk trigger takes that treatment but one, since the filled danger surface stays `arena-confirm-dialog`'s alone. `count` and `actions` are required. Import `ArenaBulkAction`
+Arena bulk actions bar. The bar renders only when `count` is above zero. The bar states the size of the selection in mono, and offers actions that operate on the set. A destructive action stays outline in the danger hue's edge and ink, transparent at rest, with the hover surface only on hover. Every risk trigger takes that treatment but one, since the filled danger surface stays `arena-confirm-dialog`'s alone. `count` and `actions` are required. Import `ArenaBulkAction`
 from `@dravensoft/arena-angular` for the `actions` input's element type.
 
 ```html
@@ -27,6 +27,18 @@ from `@dravensoft/arena-angular` for the `actions` input's element type.
 
 <!-- @api end -->
 
+<!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
+
+**Answers.** No family of the [vocabulary](../../../../VOCABULARY.md) decides anything in this component's own box.
+
+<!-- @answers end -->
+
+<!-- @keys GENERATED from the binding. -->
+**Keys**, from [`toolbar`](../../../../../contracts/behaviour/toolbar.json):
+- `ArrowRight`: moves focus to the next control, optionally wrapping from the last to the first.
+- `ArrowLeft`: moves focus to the previous control, optionally wrapping from the first to the last.
+<!-- @keys end -->
+
 `clearable` (default `true`) gates whether Clear is drawn. Every layer gates on this member
 and never on whether anything listens for `clear`.
 
@@ -51,6 +63,6 @@ control order is identical in the two shapes.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
+**The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

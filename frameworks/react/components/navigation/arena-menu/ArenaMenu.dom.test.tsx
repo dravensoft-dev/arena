@@ -8,6 +8,7 @@ import test, { afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import React from 'react';
 import { join } from 'node:path';
+import { readFileSync } from 'node:fs';
 import { mount, cleanup, act } from '../../../test/Harness.tsx';
 import { assertPattern, REACT_COMPONENTS } from '../../../test/AssertPattern.tsx';
 import { isFocusable } from '../../../../../scripts/lib/core/behaviour-compliance.ts';
@@ -175,11 +176,25 @@ test('a row takes one of three branches of the item recipe, and hover is a modif
   );
   const rows = [...open(root).querySelectorAll('[role="menuitem"]')];
   assert.equal(rows.length, 3);
-  const [ordinary, destructive, inert] = rows.map((r) => r.getAttribute('class') ?? '') as [string, string, string];
+  const [ordinary, destructive, inert] = rows as [Element, Element, Element];
 
-  assert.match(ordinary, /arena-menu__item-default/, 'an ordinary row lifts to the accent tint');
-  assert.match(destructive, /\barena-menu__item-destructive\b/);
-  assert.match(destructive, /arena-menu__item-destructive/, 'a destructive row lifts to its own tint, never the accent');
-  assert.match(inert, /\barena-menu__item-disabled\b/);
-  assert.doesNotMatch(inert, /hover:/, 'a disabled row lifts to nothing at all');
+  assert.equal(ordinary.hasAttribute('data-arena-disabled') || ordinary.hasAttribute('data-arena-destructive'), false, 'an ordinary row lifts to the accent tint');
+  assert.equal(destructive.hasAttribute('data-arena-destructive'), true);
+  assert.equal(destructive.hasAttribute('data-arena-disabled'), false, 'a destructive row lifts to its own tint, never the accent');
+  assert.equal(inert.hasAttribute('data-arena-disabled'), true);
+  assert.equal(inert.hasAttribute('data-arena-destructive'), false, 'disabled wins over the other two');
+});
+
+const SHEET = new URL('../../../../tailwind/consume/components/navigation/arena-menu/ArenaMenu.styles.generated.css', import.meta.url);
+
+test('an end-aligned panel carries its alignment and the sheet gives it left: auto after the in-flow left: 0', () => {
+  const root = mount(<ArenaMenu align="end" trigger={<button type="button">Open</button>} items={[{ label: 'Rename' }]} />);
+  assert.equal(open(root).getAttribute('data-arena-align'), 'end');
+  const start = mount(<ArenaMenu trigger={<button type="button">Open</button>} items={[{ label: 'Rename' }]} />);
+  assert.equal(open(start).getAttribute('data-arena-align'), 'start');
+  const css = readFileSync(SHEET, 'utf8');
+  const inFlow = css.indexOf('.arena-menu__panel:where(:not([data-arena-anchored]))');
+  const end = css.indexOf('.arena-menu__panel:where([data-arena-align="end"])');
+  assert.ok(inFlow !== -1 && end > inFlow, 'the anchored-false left rule would take precedence over the alignment rule');
+  assert.match(css.slice(end, css.indexOf('}', end)), /left: auto/);
 });

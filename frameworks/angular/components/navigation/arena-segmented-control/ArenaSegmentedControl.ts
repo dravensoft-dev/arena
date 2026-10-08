@@ -1,14 +1,16 @@
 import {
   ChangeDetectionStrategy, Component, computed, inject, input, output, signal,
 } from '@angular/core';
-import type { ArenaSegmentOption, ArenaSegmentedControlSize } from '../../../Api.generated';
+import type { ArenaSegmentOption } from '../../../Api.generated';
 import { arenaSegmentedControlStyles } from './ArenaSegmentedControl.variants';
 import manifest from './ArenaSegmentedControl.classes.generated';
 import { ArenaIdGenerator } from '../../../ArenaIds';
+import { ArenaSlotAttributes } from '../../../SlotData';
 
 @Component({
   selector: 'arena-segmented-control',
   standalone: true,
+  imports: [ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'styles().track()',
@@ -19,7 +21,7 @@ import { ArenaIdGenerator } from '../../../ArenaIds';
   },
   template: `
     @for (option of options(); track option.value) {
-      <label [class]="segmentClass(option.value)" [attr.data-arena-part]="parts.segment">
+      <label [class]="segmentStyles(option.value).segment()" [arenaSlotData]="segmentStyles(option.value).$data.segment()" [attr.data-arena-part]="parts.segment">
         {{ option.label }}
         <input type="radio" [class]="styles().input()" [attr.data-arena-part]="parts.input" [attr.name]="groupName()"
                [attr.value]="option.value" [checked]="option.value === selected()"
@@ -37,11 +39,6 @@ export class ArenaSegmentedControl {
   readonly value = input<string>();
   /** The initially selected value when uncontrolled. Defaults to the first option. */
   readonly defaultValue = input<string>();
-  /** Compact or default. */
-  readonly size = input<ArenaSegmentedControlSize, ArenaSegmentedControlSize | undefined>(
-    'md',
-    { transform: (value) => value ?? 'md' },
-  );
   /** Names what is being filtered: "Time range", not "Filter". A radio group with no accessible name is announced unlabelled. */
   readonly ariaLabel = input.required<string>();
   /** Shared name for the underlying radios; generated when omitted. */
@@ -59,10 +56,10 @@ export class ArenaSegmentedControl {
     ?? this.defaultValue()
     ?? this.options()[0]?.value);
 
-  protected readonly styles = computed(() => arenaSegmentedControlStyles({ size: this.size() }));
+  protected readonly styles = computed(() => arenaSegmentedControlStyles({}));
 
-  protected segmentClass(value: string): string {
-    return arenaSegmentedControlStyles({ size: this.size(), selected: value === this.selected() }).segment();
+  protected segmentStyles(value: string) {
+    return arenaSegmentedControlStyles({ selected: value === this.selected() });
   }
 
   protected choose(value: string, event: Event): void {

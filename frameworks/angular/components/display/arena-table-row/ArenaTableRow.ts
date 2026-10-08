@@ -15,7 +15,10 @@ import manifest from '../arena-table/ArenaTable.classes.generated';
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [ArenaTableRowState],
   host: {
+    'data-arena-boundary': '',
     '[class]': 'rowClass()',
+    '[attr.data-arena-first]': "rowData()['data-arena-first'] ?? null",
+    '[attr.data-arena-interactive]': "rowData()['data-arena-interactive'] ?? null",
     '[attr.data-arena-part]': 'narrow() ? parts.card : parts.row',
     '[attr.role]': 'role()',
     '[attr.aria-disabled]': 'inert()',
@@ -28,7 +31,7 @@ import manifest from '../arena-table/ArenaTable.classes.generated';
 export class ArenaTableRow {
   protected readonly parts = manifest.parts;
 
-  /** Whether the row can be activated. A boolean rather than "is `click` bound?": Arena never derives what it draws from what a consumer listens for, because an outbound member's subscriber list is private in at least one platform and a consumer's binding leaves nothing in the DOM to detect, so deriving the interactive shape from it is a divergence waiting to happen, and it was one. Below --bp-md the row is a card, and an interactive card is a role="button" tab stop with an Enter/Space handler; a non-interactive one is inert, because a dead tab stop on every row of every table is worse than the gap it would close. */
+  /** Whether the row can be activated. A boolean rather than "is `click` bound?": Arena never derives what it draws from what a consumer listens for, because an outbound member's subscriber list is private in at least one platform and a consumer's binding leaves nothing in the DOM to detect, so deriving the interactive shape from it makes the layers diverge on screen. Below --bp-md the row is a card, and an interactive card is a role="button" tab stop with an Enter/Space handler; a non-interactive one is inert, because a dead tab stop on every row of every table is worse than the gap it would close. */
   readonly interactive = input(false, { transform: booleanAttribute });
   /** Whether the row is drawn but cannot be activated: a record the consumer's rules lock. It reflects through `aria-disabled` rather than the native attribute, and the card shape stays a role="button" in the tab order rather than leaving it, because a disabled control nobody can reach is a control nobody knows exists. With no `click` there is nothing to disable and the row is inert already. */
   readonly disabled = input(false, { transform: booleanAttribute });
@@ -55,13 +58,19 @@ export class ArenaTableRow {
 
   protected readonly narrow = computed(() => this.table.narrow());
 
-  protected readonly rowClass = computed(() => {
+  protected readonly rowStyles = computed(() => {
     const narrow = this.table.narrow();
-    const styles = arenaTableRowStyles({ narrow });
-    if (narrow) return styles.card();
-    const base = this.table.rowIndexOf(this) === 1 ? `${styles.row()} ${styles.rowFirst()}` : styles.row();
-    return this.interactive() && !this.disabled() ? `${base} ${styles.rowInteractive()}` : base;
+    if (narrow) return arenaTableRowStyles({ narrow });
+    return arenaTableRowStyles({
+      narrow,
+      first: this.table.rowIndexOf(this) === 1,
+      interactive: this.interactive() && !this.disabled(),
+    });
   });
+
+  protected readonly rowClass = computed(() => (this.table.narrow() ? this.rowStyles().card() : this.rowStyles().row()));
+
+  protected readonly rowData = computed(() => (this.table.narrow() ? this.rowStyles().$data.card() : this.rowStyles().$data.row()));
 
   constructor() {
     this.arenaRowState.index = computed(() => this.table.rowIndexOf(this));

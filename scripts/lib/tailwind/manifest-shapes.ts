@@ -3,21 +3,40 @@
  * back `unknown`, so one spelling `manifest.variants` was claiming something about the file it
  * never stated. The Tailwind layer had already declared this document as `ArenaClassManifest`,
  * for the sheet `classesManifest()` emits rather than the authored source, and the two differ
- * in exactly one key: an authored manifest may declare no `slots`. So it is derived from that
- * one rather than written twice, and the facts that live there hold here -- notably that a
+ * in what only an author writes: no `slots` at all, and the vocabulary's `answers`,
+ * `transparent` and `kind`, which never reach a class module. So it is derived rather than written twice, and the facts that live there hold here -- notably that a
  * variant value is a string in `variants` and a boolean in `defaultVariants` and in a compound
- * selector, which `tailwind-variants` does not type and `frameworks/tailwind/Tv.ts` casts around once.
+ * selector.
  * Readers wanting only class strings take the partial. */
 
 import type {
-  ArenaClassManifest, ArenaCompoundVariant, ArenaSlotClasses,
+  ArenaChoice, ArenaClassManifest, ArenaHueGroup, ArenaSlotClasses,
 } from '../../../frameworks/tailwind/ArenaStyles.ts';
 
 export type SlotClasses = ArenaSlotClasses;
 
-export type CompoundVariant = ArenaCompoundVariant;
+export type VariantGroups = Record<string, Record<string, Partial<SlotClasses>>>;
 
-export type ComponentManifest = Omit<ArenaClassManifest, 'slots'> & { readonly slots?: SlotClasses };
+export interface CompoundVariant {
+  readonly class: Partial<SlotClasses>;
+  readonly [condition: string]: ArenaChoice | Partial<SlotClasses>;
+}
+
+export type ArenaAnswer = string | { readonly family: string; readonly options: readonly string[]; readonly default: string };
+
+export type ComponentManifest = Omit<ArenaClassManifest, 'slots' | 'values' | 'attributes'> & {
+  readonly slots?: SlotClasses;
+  readonly variants?: VariantGroups;
+  readonly compoundVariants?: readonly CompoundVariant[];
+  readonly partOf?: Readonly<Record<string, string>>;
+  readonly answers?: readonly ArenaAnswer[];
+  readonly bound?: Readonly<Record<string, string>>;
+  readonly floating?: Readonly<Record<string, string>>;
+  readonly transparent?: Readonly<Record<string, string>>;
+  readonly kind?: Readonly<Record<string, string>>;
+  readonly internal?: Readonly<Record<string, string>>;
+  readonly hues?: Readonly<Record<string, ArenaHueGroup>>;
+};
 
 export type ManifestClassSource = Partial<ComponentManifest>;
 

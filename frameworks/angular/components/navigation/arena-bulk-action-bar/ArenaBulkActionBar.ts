@@ -5,13 +5,17 @@ import manifest from './ArenaBulkActionBar.classes.generated';
 import type { ArenaBulkAction, ArenaBulkActionBarLayout } from '../../../Api.generated';
 import { ARENA_LOCALE } from '../../../ArenaLocale';
 import { arenaPhraseParts } from '../../../Phrase';
+import { ArenaSlotAttributes } from '../../../SlotData';
 
 @Component({
   selector: 'arena-bulk-action-bar',
   standalone: true,
+  imports: [ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'styles().root()',
+    '[attr.data-arena-open]': "styles().$data.root()['data-arena-open'] ?? null",
+    '[attr.data-arena-narrow]': "styles().$data.root()['data-arena-narrow'] ?? null",
     '[attr.data-arena-part]': 'parts.root',
     '[attr.role]': "count() > 0 ? 'toolbar' : null",
     '[attr.aria-label]': 'count() > 0 ? locale.bulkActionBarLabel : null',
@@ -22,10 +26,10 @@ import { arenaPhraseParts } from '../../../Phrase';
       <span [class]="styles().count()" [attr.data-arena-part]="parts.count">
         @for (part of countParts(); track $index) {@if (part.bold) {<b [class]="styles().number()" [attr.data-arena-part]="parts.number">{{ part.text }}</b>} @else {{{ part.text }}}}
       </span>
-      <span [class]="styles().divider()" [attr.data-arena-part]="parts.divider" aria-hidden="true"></span>
+      <span [class]="styles().divider()" [arenaSlotData]="styles().$data.divider()" [attr.data-arena-part]="parts.divider" aria-hidden="true"></span>
       <div [class]="styles().actions()" [attr.data-arena-part]="parts.actions">
         @for (action of actions(); track action.label; let i = $index) {
-          <button type="button" [class]="classesFor(action).action()" [attr.data-arena-part]="parts.action" (click)="run.emit(action)"
+          <button type="button" [class]="classesFor(action).action()" [arenaSlotData]="classesFor(action).$data.action()" [attr.data-arena-part]="parts.action" (click)="run.emit(action)"
                   [attr.tabindex]="i === at() ? 0 : -1" (focus)="cursor.set(i)">
             @if (action.icon; as glyph) {
               <span [class]="styles().actionIcon()" [attr.data-arena-part]="parts.actionIcon"><i [class]="glyph" aria-hidden="true"></i></span>
@@ -35,7 +39,7 @@ import { arenaPhraseParts } from '../../../Phrase';
         }
       </div>
       @if (clearable()) {
-        <button type="button" [class]="styles().clear()" [attr.data-arena-part]="parts.clear" [attr.aria-label]="locale.bulkActionBarClearLabel"
+        <button type="button" [class]="styles().clear()" [arenaSlotData]="styles().$data.clear()" [attr.data-arena-part]="parts.clear" [attr.aria-label]="locale.bulkActionBarClearLabel"
                 [attr.tabindex]="actions().length === at() ? 0 : -1" (focus)="cursor.set(actions().length)"
                 (click)="clear.emit()">{{ locale.bulkActionBarClear }}</button>
       }

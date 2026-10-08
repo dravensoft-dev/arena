@@ -3,32 +3,34 @@
 <link rel="stylesheet" href="../../../../../intro/styles.css">
 <link rel="stylesheet" href="../../../consume/Preflight.generated.css">
 <link rel="stylesheet" href="../../../consume/components/feedback/arena-toast/ArenaToast.styles.generated.css">
+<link rel="stylesheet" href="../../../consume/vocabulary/Accent.generated.css">
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor } from '../../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
 
 const manifest = await (await fetch('./ArenaToast.manifest.json')).json();
 
-function toast({ tone = 'neutral', title, message, action, persist }) {
+function toast({ tone = 'neutral', accent = '', title, message, action, persist }) {
   const c = arenaClassesFor(manifest, { tone });
-  const heading = el('div', { class: c.title }, title);
-  if (persist) heading.append(el('span', { class: c.pinned, title: 'Does not auto-dismiss', text: 'Pinned' }));
-  const body = el('div', { class: c.body }, heading, el('div', { class: c.message, text: message }));
-  if (action) body.append(el('button', { class: c.action, type: 'button', text: action }));
+  const d = arenaSlotDataFor(manifest, { tone });
+  const heading = el('div', { class: c.title, ...d.title }, title);
+  if (persist) heading.append(el('span', { class: c.pinned, ...d.pinned, title: 'Does not auto-dismiss', text: 'Pinned' }));
+  const body = el('div', { class: c.body, ...d.body }, heading, el('div', { class: c.message, ...d.message, text: message }));
+  if (action) body.append(el('button', { class: c.action, ...d.action, type: 'button', text: action }));
   return el('div', {
-    class: c.root, role: tone === 'danger' ? 'alert' : 'status',
+    class: accent ? `${c.root} arena-accent-${accent}` : c.root, ...d.root, role: tone === 'danger' ? 'alert' : 'status',
     'aria-live': tone === 'danger' ? 'assertive' : 'polite',
     'data-persist': persist ? '' : undefined,
   }, body,
-    el('button', { class: c.close, type: 'button', 'aria-label': 'Close' }, el('i', { class: 'ph-bold ph-x', 'aria-hidden': 'true' })));
+    el('button', { class: c.close, ...d.close, type: 'button', 'aria-label': 'Close' }, el('i', { class: 'ph-bold ph-x', 'aria-hidden': 'true' })));
 }
 
 mountSpecimen({ sections: [
   section('Tones', [
     toast({ title: 'Settings saved', message: 'Applied to all environments.' }),
     toast({ tone: 'success', title: 'Deployed', message: 'Build 482 is live.', action: 'View logs' }),
-    toast({ tone: 'gold', title: 'Queued', message: 'Waiting for the deploy window.' }),
+    toast({ accent: 'gold', title: 'Queued', message: 'Waiting for the deploy window.' }),
   ]),
   section('An error, pinned — it does not auto-dismiss', [
     toast({ tone: 'danger', title: 'Deploy failed', message: 'The upstream check timed out.', action: 'Retry', persist: true }),

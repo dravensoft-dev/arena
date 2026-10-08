@@ -22,7 +22,7 @@ function widths<T>(width: number, body: () => T): T {
     callback: ResizeObserverCallback;
     constructor(callback: ResizeObserverCallback) { this.callback = callback; }
     observe(target: Element) {
-      this.callback([{ target, contentRect: { width } }] as unknown as ResizeObserverEntry[], this as unknown as ResizeObserver);
+      this.callback([{ target, borderBoxSize: [{ inlineSize: width, blockSize: 0 }], contentRect: { width } }] as unknown as ResizeObserverEntry[], this as unknown as ResizeObserver);
     }
     unobserve() {}
     disconnect() {}
@@ -79,27 +79,27 @@ test('a legend row reports the same index the arc does, including for the slice 
 test('a narrow legend stacks the concept over the figure, and a wide one keeps one line', () => {
   const narrow = widths(390, () => render());
   const wideRow = () => narrow.querySelector('[role="group"] > button > span:nth-child(2)') as HTMLElement;
-  assert.equal(wideRow().style.flexDirection, 'column',
+  assert.equal(wideRow().hasAttribute('data-arena-stacked'), true,
     'on one line the figure does not yield, so the concept is what gets truncated');
 
   cleanup();
   const wide = widths(1200, () => render());
   const row = wide.querySelector('[role="group"] > button > span:nth-child(2)') as HTMLElement;
-  assert.notEqual(row.style.flexDirection, 'column');
+  assert.equal(row.hasAttribute('data-arena-stacked'), false);
 });
 
 test('the layout can be pinned either way, whatever the container measures', () => {
   const forced = widths(1200, () => render({ legendLayout: 'stacked' }));
   assert.equal(
-    (forced.querySelector('[role="group"] > button > span:nth-child(2)') as HTMLElement).style.flexDirection,
-    'column',
+    (forced.querySelector('[role="group"] > button > span:nth-child(2)') as HTMLElement).hasAttribute('data-arena-stacked'),
+    true,
   );
 
   cleanup();
   const inline = widths(390, () => render({ legendLayout: 'inline' }));
-  assert.notEqual(
-    (inline.querySelector('[role="group"] > button > span:nth-child(2)') as HTMLElement).style.flexDirection,
-    'column',
+  assert.equal(
+    (inline.querySelector('[role="group"] > button > span:nth-child(2)') as HTMLElement).hasAttribute('data-arena-stacked'),
+    false,
   );
 });
 

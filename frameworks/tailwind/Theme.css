@@ -30,11 +30,6 @@
 @import './Animations.css';
 @import './Case.css';
 @import './Media.css';
-@import './Numerals.css';
-@import './Page.css';
-@import './Prose.css';
-@import './Rhythm.css';
-@import './SrOnly.css';
 @import './Breakpoints.generated.css';
 
 @theme {
@@ -52,6 +47,7 @@
      than at a palette step: the role is what an extension re-values. */
   --color-surface: var(--fill-surface);
   --color-surface-floating: var(--fill-surface-floating);
+  --color-surface-raised: var(--fill-surface-raised);
   --color-page: var(--fill-page);
   --color-surface-sunken: var(--fill-surface-sunken);
   --color-field: var(--fill-field);
@@ -82,6 +78,7 @@
   --color-edge-control-quiet: var(--edge-control-quiet);
   --color-edge-field: var(--edge-field);
   --color-edge-separator: var(--edge-separator);
+  --color-edge-axis: var(--edge-axis);
   --color-edge-marker: var(--edge-marker);
 
   /* brand voice */
@@ -103,6 +100,8 @@
 
   /* the system's only filled danger surface — ArenaConfirmDialog's final step */
   --color-error-fill: var(--color-error-fill);
+  --color-confirm-final: var(--fill-confirm-final);
+  --color-ink-confirm-final: var(--ink-confirm-final);
 
   --color-neutral: var(--color-neutral);
   --color-neutral-content: var(--color-neutral-content);
@@ -273,6 +272,7 @@
      the inside of a component where they answer the space between two. */
   --spacing-surface: var(--pad-surface);
   --spacing-surface-head: var(--pad-surface-head);
+  --spacing-surface-head-top: var(--pad-surface-head-top);
 
   /* Air ROLES inside a component, beside the surface's own padding. The two control paddings are
      split because a control's axes are not one decision: width is where air lives and height is
@@ -280,7 +280,27 @@
      three gaps are inside one control, between controls on a line, and between the members of a
      group, which is the cut a voice actually spends. */
   --spacing-control-x: var(--pad-control-x);
+  --spacing-floating-x: var(--pad-floating-x);
+  --spacing-floating-y: var(--pad-floating-y);
+  --spacing-floating-edge-x: var(--pad-floating-edge-x);
+  --spacing-status-x: var(--pad-status-x);
+  --spacing-status-y: var(--pad-status-y);
+  --spacing-marker-x: var(--pad-marker-x);
+  --spacing-marker-y: var(--pad-marker-y);
+  --spacing-marker: var(--gap-marker);
+  --spacing-row-x: calc(var(--pad-row-x) * var(--dz-row-scale-x));
+  --spacing-row-y: calc(var(--pad-row-y) * var(--dz-row-scale-y));
+  --spacing-nav-row-x: calc(var(--pad-nav-row-x) * var(--dz-row-scale-x));
+  --spacing-nav-row-y: calc(var(--pad-nav-row-y) * var(--dz-row-scale-y));
+  --spacing-band-y: var(--pad-band-y);
+  --spacing-row-floating-x: calc(var(--pad-row-floating-x) * var(--dz-row-scale-x));
+  --spacing-row-floating-y: calc(var(--pad-row-floating-y) * var(--dz-row-scale-y));
+  --spacing-row: var(--gap-row);
+  --spacing-row-floating: var(--gap-row-floating);
+  --spacing-actions: var(--gap-actions);
+  --spacing-row-min: var(--dz-row-min);
   --spacing-control-y: var(--pad-control-y);
+  --spacing-control-text-y: var(--pad-control-text-y);
   --spacing-control: var(--gap-control);
   --spacing-inline: var(--gap-inline);
   --spacing-items: var(--gap-items);
@@ -340,6 +360,9 @@
   --size-logo-mark-md: var(--logo-mark-md);
   --size-logo-mark-lg: var(--logo-mark-lg);
   --size-logo-mark-xl: var(--logo-mark-xl);
+
+  /* The aspect tokens are Arena's own and no utility reads them: the ratio family does. */
+  --aspect-*: initial;
 
   /* ---- effects → contracts/design-generated/effects.generated.css ----------------- */
   --radius-*: initial;

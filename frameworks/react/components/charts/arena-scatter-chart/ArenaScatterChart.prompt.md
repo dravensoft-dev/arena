@@ -28,6 +28,22 @@ Two quantities against each other, one mark per pair. The first chart here whose
 
 <!-- @api end -->
 
+<!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
+
+**Answers.** No family of the [vocabulary](../../../../VOCABULARY.md) decides anything in this component's own box.
+
+<!-- @answers end -->
+
+<!-- @keys GENERATED from the binding. -->
+**Keys**, from [`figure-with-data-table`](../../../../../contracts/behaviour/figure-with-data-table.json):
+- `ArrowLeft`: moves the data cursor to the previous point, clamping at the first.
+- `ArrowRight`: moves the data cursor to the next point, clamping at the last.
+- `Home`: moves the data cursor to the first point.
+- `End`: moves the data cursor to the last point.
+- `Escape`: clears the data cursor.
+- `data-cursor`: an addition of this component, see its binding.
+<!-- @keys end -->
+
 ### Why the series type is a different one
 
 `ArenaPointSeries` is not a variant of `ArenaSeries`, because the two disagree about what a mark is. An `ArenaSeries` value takes its place on the axis from its index, and a pair carries both coordinates. Folding them together would give every chart in the library a member most of them cannot use. Folding would also let a caller hand an indexed series to a chart with no index to read it against.
@@ -73,6 +89,6 @@ largest size in the data. Reach for it whenever `r` is doing real work. Area is 
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
+**The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

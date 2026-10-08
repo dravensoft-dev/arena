@@ -1,24 +1,27 @@
-<!-- @dsCard group="Tailwind" viewport="640x102" name="ArenaTag" subtitle="The five tones, rendered from ArenaTag.manifest.json" -->
+<!-- @dsCard group="Tailwind" viewport="640x102" name="ArenaTag" subtitle="The four tones and the accents, rendered from ArenaTag.manifest.json" -->
 <!doctype html><html><head><meta charset="utf-8">
 <link rel="stylesheet" href="../../../../../intro/styles.css">
 <link rel="stylesheet" href="../../../consume/Preflight.generated.css">
 <link rel="stylesheet" href="../../../consume/components/display/arena-tag/ArenaTag.styles.generated.css">
+<link rel="stylesheet" href="../../../consume/vocabulary/Accent.generated.css">
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor } from '../../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
 
 const manifest = await (await fetch('./ArenaTag.manifest.json')).json();
 
-function tag(tone, label) {
+function tag(tone, label, accent = '') {
   const c = arenaClassesFor(manifest, { tone });
-  return el('span', { class: c.root }, el('span', { class: c.dot }), label);
+  const d = arenaSlotDataFor(manifest, { tone });
+  return el('span', { class: accent ? `${c.root} arena-accent-${accent}` : c.root, ...d.root }, el('span', { class: c.dot, ...d.dot }), label);
 }
 
 mountSpecimen({ sections: [
   section('Tones', [
-    tag('neutral', 'Draft'), tag('primary', 'Active'), tag('success', 'Live'),
+    tag('neutral', 'Draft'), tag('success', 'Live'),
     tag('warning', 'Degraded'), tag('danger', 'Blocked'),
   ]),
+  section('Accents', [tag('neutral', 'Draft', 'plain'), tag('neutral', 'Active', 'primary')]),
 ]});
 </script></body></html>

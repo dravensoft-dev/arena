@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import type { ArenaSideNavInjected } from '../arena-side-nav/SideNavInject.tsx';
-import { arenaIndentFor, arenaInjectInto } from '../arena-side-nav/SideNavInject.tsx';
+import { arenaIndentDepth, arenaInjectInto } from '../arena-side-nav/SideNavInject.tsx';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from '../arena-side-nav/ArenaSideNav.classes.generated.ts';
 import { ArenaSideNavItem } from '../arena-side-nav-item/ArenaSideNavItem.tsx';
+import type { ArenaSideNavCollapsibleClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export interface ArenaSideNavCollapsibleProps {
+  className?: ArenaSideNavCollapsibleClass;
+
 
   /** Identifies the group. The disclosure pattern needs two DOM ids that resolve -- the trigger's aria-controls must name the region, and the region's aria-labelledby must name the trigger -- and Arena derives both from this member, as `${id}-trigger` and `${id}-region`. Neither wiring is conditional: every collapsible has a trigger and a region, so there is no shape in which the id goes unused, and that is why it is required rather than optional. A group is a thing a consumer names anyway. Falsy-guarded as well as required: a blank id yields the pair `-trigger`/`-region`, which every other blank-id collapsible on the page would share, and duplicate ids make aria-controls resolve to the wrong element rather than to none. A consumer can address either element from outside as a consequence -- an aria-describedby, a deep link, a test hook -- but that is a benefit of the derivation, not the reason for it. */
   id: string;
@@ -40,9 +44,9 @@ export function arenaSubtreeHasItem(children: React.ReactNode, id: string | unde
   return false;
 }
 
-export function ArenaSideNavCollapsible({
+export function ArenaSideNavCollapsible({ className, 
   id, label, icon, defaultExpanded = false, children, onToggle,
-  depth = 0, activeId, indentStep = 3, onActivate, collapsed = false,
+  depth = 0, activeId, onActivate, collapsed = false,
 }: ArenaSideNavCollapsibleProps & Partial<ArenaSideNavInjected>) {
 
   if (!id) throw new Error('ArenaSideNavCollapsible: `id` is required');
@@ -65,35 +69,35 @@ export function ArenaSideNavCollapsible({
   const styles = arenaSideNavStyles({ collapsed });
   if (collapsed) {
     return (
-      <div className={styles.section()} data-arena-part={manifest.parts.section}>
-        <div aria-hidden="true" className={styles.separator()} data-arena-part={manifest.parts.separator} />
-        <div role="group" aria-label={label} className={styles.region()} data-arena-part={manifest.parts.region}>
-          {arenaInjectInto(children, { depth, activeId, indentStep, onActivate, collapsed })}
+      <div className={arenaClassName('ArenaSideNavCollapsible', styles.section(), className)} data-arena-part={manifest.parts.section} {...styles.$data.section()}>
+        <div aria-hidden="true" className={styles.separator()} data-arena-part={manifest.parts.separator} {...styles.$data.separator()} />
+        <div role="group" aria-label={label} className={styles.region()} data-arena-part={manifest.parts.region} {...styles.$data.region()} data-arena-boundary="">
+          {arenaInjectInto(children, { depth, activeId, onActivate, collapsed })}
         </div>
       </div>
     );
   }
-  const glyph = icon ? <i className={`${icon} ${styles.icon()}`} data-arena-part={manifest.parts.icon} aria-hidden="true" /> : null;
+  const glyph = icon ? <i className={`${icon} ${styles.icon()}`} data-arena-part={manifest.parts.icon} {...styles.$data.icon()} aria-hidden="true" /> : null;
 
   return (
-    <div className={styles.section()} data-arena-part={manifest.parts.section}>
+    <div className={arenaClassName('ArenaSideNavCollapsible', styles.section(), className)} data-arena-part={manifest.parts.section} {...styles.$data.section()}>
       {
 
 }
       <button id={triggerId} type="button" aria-expanded={expanded} aria-controls={regionId}
         onClick={press}
-        className={styles.trigger()} data-arena-part={manifest.parts.trigger}
-        style={{ paddingInlineStart: arenaIndentFor(indentStep, depth) }}>
+        className={styles.trigger()} data-arena-part={manifest.parts.trigger} {...styles.$data.trigger()}
+        style={{ '--arena-side-nav-depth': arenaIndentDepth(depth) } as React.CSSProperties}>
         {glyph}
-        <span className={styles.triggerLabel()} data-arena-part={manifest.parts.triggerLabel}>{label}</span>
-        <i className={`${expanded ? 'ph-bold ph-caret-down' : 'ph-bold ph-caret-right'} ${styles.caret()}`} data-arena-part={manifest.parts.caret}
+        <span className={styles.triggerLabel()} data-arena-part={manifest.parts.triggerLabel} {...styles.$data.triggerLabel()}>{label}</span>
+        <i className={`${expanded ? 'ph-bold ph-caret-down' : 'ph-bold ph-caret-right'} ${styles.caret()}`} data-arena-part={manifest.parts.caret} {...styles.$data.caret()}
           aria-hidden="true" />
       </button>
       {
 }
       <div id={regionId} role="group" aria-labelledby={triggerId} hidden={!expanded}
-        className={styles.region()} data-arena-part={manifest.parts.region}>
-        {arenaInjectInto(children, { depth: depth + 1, activeId, indentStep, onActivate, collapsed })}
+        className={styles.region()} data-arena-part={manifest.parts.region} {...styles.$data.region()} data-arena-boundary="">
+        {arenaInjectInto(children, { depth: depth + 1, activeId, onActivate, collapsed })}
       </div>
     </div>
   );

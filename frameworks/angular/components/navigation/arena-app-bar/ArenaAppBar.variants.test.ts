@@ -8,13 +8,13 @@ import { arenaAppBarStyles } from './ArenaAppBar.variants';
 const SLOTS = ['band', 'brand', 'nav', 'actions'] as const;
 
 test('the two sticky branches are two distinct roots', () => {
-  assert.notEqual(arenaAppBarStyles({ sticky: true }).root(), arenaAppBarStyles({ sticky: false }).root());
+  assert.notEqual(JSON.stringify(arenaAppBarStyles({ sticky: true }).$data.root()), JSON.stringify(arenaAppBarStyles({ sticky: false }).$data.root()));
 });
 
 test('sticky moves the bar alone, so the band and its slots never follow it', () => {
   const on = arenaAppBarStyles({ sticky: true });
   const off = arenaAppBarStyles({ sticky: false });
-  for (const slot of SLOTS) assert.equal(on[slot](), off[slot](), `sticky moved the ${slot} slot`);
+  for (const slot of SLOTS) assert.equal(JSON.stringify(on.$data[slot]()), JSON.stringify(off.$data[slot]()), `sticky moved the ${slot} slot`);
 });
 
 test('the page width is the component\'s, so the recipe writes none of its own', () => {

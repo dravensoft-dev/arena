@@ -39,6 +39,11 @@ notices.
   // default. A member that does not appear starts unbound, holding its form's neutral.
   "seed": { "title": "checkout-api", "eyebrow": "Delivery" },
 
+  // Vocabulary classes on the component under test, written as the class attribute of its
+  // tag in both layers. Each is an option of a family the component answers, and a node holds
+  // one option per family. The page shows them fixed: there is no knob. Optional.
+  "class": "arena-fill",
+
   // A slot listed here starts filled; one omitted starts empty. Every required slot
   // appears. The value is a list of nodes.
   "slots": {
@@ -56,12 +61,21 @@ notices.
   // exactly once, marking where the component under test is placed.
   "host": null,
 
+  // Properties of the component's vocabulary the demo sets the way an adopter would: a map of
+  // --arena-* names to string values, written as the style of the element the page already
+  // wraps the component in (a tile of the kitchen sink, the stage of a playground), so no
+  // element is added and the properties are inherited by everything drawn inside it. The page shows
+  // them fixed, like `class`: it shows the class and the properties a fixture carries and offers no
+  // control to change them. Optional.
+  "vars": { "--arena-column-status-align": "right" },
+
   // One line under the page title. Optional.
   "note": "A surface. With interactive or href it becomes one activation target."
 }
 ```
 
-Those six keys are the whole schema, and a seventh fails the gate.
+Those keys are the whole schema, and another fails the gate; a `vars` key that does not start
+`--arena-` or holds anything but a string fails it too.
 
 ## A node
 
@@ -71,7 +85,7 @@ Three shapes, and the recursion is what lets one rule cover both slot content an
 | --- | --- |
 | `"$subject"` | where the component under test goes. Legal inside `host` and nowhere else, exactly once. |
 | `{ "text": "…", "element": "span", "attrs": {} }` | literal content. `element` and `attrs` are optional; with neither, the text is projected bare. |
-| `{ "component": "ArenaBadge", "members": {}, "slots": {} }` | a real Arena component, its members literal and its own slots recursive. |
+| `{ "component": "ArenaBadge", "members": {}, "class": "arena-fill", "slots": {} }` | a real Arena component, its members literal, an optional `class` of vocabulary options it answers, and its own slots recursive. |
 
 A slot holding exactly one text node becomes an **editable** knob, so the page can change the
 words. A slot holding anything else becomes a **presence** knob: the tree is fixed and only

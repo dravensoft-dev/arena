@@ -14,11 +14,12 @@ import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { relPosix } from '../../utils/posix-path.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
+import { writeVocabularyIndex } from '../../lib/arena/vocabulary-index.ts';
 import {
   collectFiles, reset, write, copy, report, emitCli, pluginIdentity, SHARED_KEYWORDS,
   copyAgentPayload,
 } from '../../lib/arena/package-assembly.ts';
-import { PACKAGES } from '../../generate/core/arena-mcp/payload.ts';
+import { AGENT_DIR, PACKAGES } from '../../generate/core/arena-mcp/payload.ts';
 
 export const NAME = '@dravensoft/arena-mcp';
 export const DIST = 'dist/mcp';
@@ -29,9 +30,9 @@ export const BIN = 'arena-mcp';
 export const LAYERS = ['react', 'angular'];
 export const REGISTRY_NAME = 'io.github.dravensoft-dev/arena';
 
-export const AUDIT_SOURCE = 'scripts/generate/core/arena-to-prod/audit.ts';
+export const AUDIT_SOURCE = 'scripts/generate/core/arena-cli/audit.ts';
 export const AUDIT_FILE = 'bin/audit.mjs';
-export const AUDIT_SPECIFIER = "'../arena-to-prod/audit.mjs'";
+export const AUDIT_SPECIFIER = "'../arena-cli/audit.mjs'";
 export const AUDIT_BESIDE = "'./audit.mjs'";
 
 export function beside(emitted: string) {
@@ -55,9 +56,13 @@ export const node = {
     `${SOURCE}/**`, `!${SOURCE}/*.test.ts`, AUDIT_SOURCE, NPM_PAGE,
     '.claude-plugin/plugin.json', 'LICENSE',
     'skills/design/SKILL.md', 'skills/design/references/*.md',
-    'frameworks/INDEX.md', 'contracts/design/roles.json', 'contracts/behaviour/*.json',
+    'frameworks/INDEX.md', 'frameworks/VOCABULARY.md', 'contracts/design/roles.json', 'contracts/behaviour/*.json',
     'frameworks/*/INDEX.md', 'frameworks/*/components/*/INDEX.md',
     'frameworks/*/components/**/*.prompt.md',
+    'frameworks/*/components/**/*.behaviour.json',
+    'plugin-style-store/default/*', 'plugin-style-store/complete/*', 'plugin-style-store/catalogue/INDEX.md',
+    'plugin-style-store/catalogue/*/*',
+    'frameworks/tailwind/vocabulary/**', 'frameworks/tailwind/components/**/*.json',
   ],
   writes: [`${DIST}/**`],
   feeds: ['check:community', 'check:mcp'],
@@ -118,7 +123,10 @@ export function buildMcpPackage(root = repoRoot) {
       + 'as the bin, so the package would install a command that is not there');
   }
 
-  for (const layer of LAYERS) written.push(...copyAgentPayload(dir, layer, NAME, root));
+  for (const layer of LAYERS) {
+    written.push(...copyAgentPayload(dir, layer, NAME, root));
+    written.push(writeVocabularyIndex(join(dir, AGENT_DIR, layer), root));
+  }
 
   written.push(copy(join(root, ...NPM_PAGE.split('/')), dir, 'README.md'));
   written.push(copy(join(root, 'LICENSE'), dir, 'LICENSE'));

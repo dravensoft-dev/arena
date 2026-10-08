@@ -6,13 +6,15 @@ import { join } from 'node:path';
 import { relPosix } from '../../utils/posix-path.ts';
 import {
   EXCLUDED_NAMES, EXCLUDED_PATTERNS, CSS_CHAIN, arenaCssHeader, excluded,
-  collectFiles, reset, write, copyTree, copyCli, CLI_BINS, baseManifest, pluginIdentity, version, componentSheets, writeCssChain,
-  writeComponentMap, keywords, SHARED_KEYWORDS, tokenCatalogue,
+  collectFiles, reset, write, copyTree, copyCli, CLI_BINS, CLI_SOURCES, baseManifest, pluginIdentity, version, repositoryBase, agentBases, componentSheets, writeCssChain,
+  writeComponentMap, keywords, SHARED_KEYWORDS, tokenCatalogue, catalogueRole,
 } from './package-assembly.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { MARKERS_FILE, markerAttributes } from './component-map.ts';
 import { MAP_FILE } from './component-map.ts';
 import { repoRoot } from './repo-root.ts';
+import { sheetFamilies, packageSheetName } from '../tailwind/vocabulary.ts';
+import { splitCompiledSheet } from '../tailwind/sheet-split.ts';
 
 function tree(files: Record<string, string>) {
   const root = mkdtempSync(join(tmpdir(), 'arena-assembly-'));
@@ -28,6 +30,11 @@ test('a test never ships, whichever extension it takes', () => {
   for (const name of ['ArenaTag.test.ts', 'ArenaTag.test.tsx', 'ArenaButton.test.jsx', 'ArenaButton.dom.test.jsx', 'theme-css.test.ts']) {
     assert.equal(excluded(name), true, name);
   }
+});
+
+test('a fixture a test builds its projects from never ships, though it is not itself a test', () => {
+  assert.equal(excluded('cli-fixtures.ts'), true);
+  assert.equal(excluded('fixtures.ts'), false, 'only a name ending in -fixtures is a test helper');
 });
 
 test('a demo, a specimen, a binding and a prompt never ship either', () => {
@@ -185,6 +192,22 @@ test('every command the manifest declares is copied, flat, and no two of them sh
   rmSync(to, { recursive: true });
 });
 
+test('a command name and the directory its source lives in are independent', () => {
+  const to = mkdtempSync(join(tmpdir(), 'arena-assembly-cli-'));
+  const written = copyCli(to, repoRoot);
+  assert.ok(CLI_SOURCES.length > 0);
+  for (const source of CLI_SOURCES) {
+    assert.equal(existsSync(join(repoRoot, 'scripts', 'generate', 'core', source)), true, `${source} is declared and is not a directory`);
+  }
+  for (const target of Object.values(CLI_BINS)) {
+    const emitted = target.replace(/^\.\/bin\//, '').replace(/\.mjs$/, '');
+    const sourced = CLI_SOURCES.some((source) => ['.ts', '.mjs'].some((ext) => existsSync(join(repoRoot, 'scripts', 'generate', 'core', source, `${emitted}${ext}`))));
+    assert.ok(sourced, `${target} is not emitted from a file inside ${CLI_SOURCES.join(', ')}`);
+    assert.ok(written.includes(target));
+  }
+  rmSync(to, { recursive: true });
+});
+
 test('what a command ships reaches nothing outside bin/, because scripts/ is not there', () => {
   const to = mkdtempSync(join(tmpdir(), 'arena-assembly-cli-'));
   copyCli(to, repoRoot);
@@ -239,7 +262,7 @@ test('a marker declaration nothing can be read out of is refused rather than yie
 
 test('a command whose directory moved is reported rather than shipped missing', () => {
   const to = mkdtempSync(join(tmpdir(), 'arena-assembly-cli-'));
-  assert.throws(() => copyCli(to, mkdtempSync(join(tmpdir(), 'arena-empty-'))), /copied 0 files for arena-to-prod/);
+  assert.throws(() => copyCli(to, mkdtempSync(join(tmpdir(), 'arena-empty-'))), /copied 0 files for arena-cli/);
   rmSync(to, { recursive: true });
 });
 
@@ -252,11 +275,6 @@ test('write creates the directories leading to a file nobody made yet', () => {
 
 function tailwindTree(names: string[]) {
   const files: Record<string, string> = {
-    'frameworks/tailwind/Numerals.css': '.arena-num{}',
-    'frameworks/tailwind/Page.css': '.arena-band{}',
-    'frameworks/tailwind/Prose.css': '.arena-prose{}',
-    'frameworks/tailwind/Rhythm.css': '.arena-stack{}',
-    'frameworks/tailwind/SrOnly.css': '.arena-sr-only{}',
     'frameworks/tailwind/consume/Prelude.generated.css': ':root{}',
   };
   for (const name of names) {
@@ -330,4 +348,48 @@ test('the page this repository looks at carries every hand-authored sheet a pack
       + 'repository renders and looks at are composed differently from every page a consumer gets. '
       + 'That is how a composition sheet lands with nothing here able to see whether it works');
   }
+});
+
+test('a family sheet ships linked, so arena.css imports it after the components', () => {
+  const entries = componentSheets(readFileSync(join(repoRoot, 'frameworks/tailwind/Utilities.generated.css'), 'utf8'),
+    splitCompiledSheet, repoRoot);
+  const names = entries.map((one) => one.to);
+  for (const { family } of sheetFamilies(repoRoot)) {
+    const at = names.indexOf(packageSheetName(family));
+    assert.ok(at > names.indexOf('css/components.css'), `${family} ships after the components`);
+    assert.notEqual((entries[at] as { linked?: boolean } | undefined)?.linked, false);
+  }
+});
+
+test('a keyed family ships no sheet beside the component ones', () => {
+  const root = tailwindTree(['tag']);
+  const family = (name: string, extra: object) => ({ family: name, reach: 'box', description: 'd', variants: {}, ...extra });
+  mkdirSync(join(root, 'frameworks/tailwind/vocabulary/arena-column'), { recursive: true });
+  writeFileSync(join(root, 'frameworks/tailwind/vocabulary/arena-column/Column.family.json'), JSON.stringify(family('column', { target: 'keyed' })));
+  mkdirSync(join(root, 'frameworks/tailwind/vocabulary/arena-fill'), { recursive: true });
+  writeFileSync(join(root, 'frameworks/tailwind/vocabulary/arena-fill/Fill.family.json'), JSON.stringify(family('fill', {})));
+  mkdirSync(join(root, 'frameworks/tailwind/consume/vocabulary'), { recursive: true });
+  writeFileSync(join(root, 'frameworks/tailwind/consume/vocabulary/Fill.generated.css'), '.arena-fill{}');
+  const names = componentSheets('', () => ({ base: '' }), root).map((one) => one.to);
+  assert.ok(names.includes('css/vocabulary/fill.css'));
+  assert.equal(names.includes('css/vocabulary/column.css'), false);
+  rmSync(root, { recursive: true });
+});
+
+test('what a published copy leaves behind is read at the release tag and never at main', () => {
+  const tag = `https://github.com/dravensoft-dev/arena/blob/v${version()}`;
+  assert.equal(repositoryBase(), tag);
+  assert.equal(agentBases().repository, tag);
+});
+
+test('a catalogue role carries its type, its closed set and its kernel default, and nothing else', () => {
+  assert.deepEqual(catalogueRole({
+    $type: 'color', $description: 'x', $extensions: { 'com.dravensoft.arena': { default: '{ink-body}' } },
+  }), { type: 'color', default: '{ink-body}' });
+  assert.deepEqual(catalogueRole({ $type: 'keyword', $extensions: { 'com.dravensoft.arena': { values: ['none'] } } }),
+    { type: 'keyword', values: ['none'] });
+  assert.deepEqual(catalogueRole({ $type: 'dimension', $description: 'x' }), { type: 'dimension' });
+  assert.deepEqual(Object.keys(catalogueRole({
+    $type: 'keyword', $extensions: { 'com.dravensoft.arena': { default: '{tt-label}', values: ['none'] } },
+  })), ['type', 'values', 'default'], 'type and values keep the order the catalogue file is written in');
 });

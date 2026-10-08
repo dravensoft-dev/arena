@@ -1,6 +1,0 @@
-{
-  "name": "ArenaControlSize",
-  "kind": "enum",
-  "description": "The three-step size scale shared by Arena's controls. What each step measures is the component's own decision and only some of them re-densify: ArenaButton and ArenaIconButton take their heights from the density tokens, so they shrink with the rows around them inside .arena-compact, while ArenaProgressBar's thickness and ArenaSpinner's diameter are spacing and icon tokens that .arena-compact does not redefine. The enum is shared because all four implement the same three steps, not because they resolve them the same way.",
-  "values": ["sm", "md", "lg"]
-}

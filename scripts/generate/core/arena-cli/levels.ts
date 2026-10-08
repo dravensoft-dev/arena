@@ -1,0 +1,412 @@
+/* A LEVEL is a percentage a compiled slot keeps of a colour it does not own: the 62 in
+ * text-ink-muted/62. The role says which colour and the modifier says how held back, and
+ * the modifier lives in the manifest, so no token can move it and nothing composed it
+ * against a consumer's palette. These are read out of the component sheets a package
+ * ships rather than listed here, because a list is one more thing to keep true, and every
+ * one of them mixes against `transparent`, so the value it paints does not exist until a
+ * browser composites it over whatever surface is behind. That is what levelReports does.
+ * A placeholder is not in EXEMPT: 1.4.3 exempts an INACTIVE component and a field waiting for
+ * input is the opposite of one, so the hint inside it is text and is held to 4.5:1 like any. */
+
+import { contrast } from './validate-palette.mjs';
+import { parseBlocks, selectorPath, COLOUR_VAR, MIXED_VAR } from './css-blocks.ts';
+import type { CssBlock } from './css-blocks.ts';
+import { composite } from './oklab.ts';
+import { report } from './reports.ts';
+import type { Report } from './reports.ts';
+
+export type Level = {
+  selector: string;
+  state: string;
+  property: string;
+  variable: string;
+  percent: number;
+  level: string | null;
+};
+
+export const SURFACE_ROLES = ['fill-surface', 'fill-surface-floating', 'fill-page'];
+
+export const PAGE_KEY = 'base-100';
+
+export const TEXT_MIN = 4.5;
+
+export const MARK_MIN = 3;
+
+export const EXEMPT = new Map([
+  ['disabled', 'WCAG 1.4.3 and 1.4.11 exempt an inactive component, and a disabled control '
+    + 'has to read as inactive rather than as one more thing to press'],
+]);
+
+export const DECORATIVE = new Map([
+  ['.arena-stat-card__icon', 'a glyph Arena draws inside an aria-hidden wrapper beside a label '
+    + 'that already says the same thing, so WCAG 1.4.11 exempts it as purely decorative. The '
+    + 'paired suite asserts both layers still render it aria-hidden, so the day one stops, this '
+    + 'entry fails rather than quietly excusing a mark somebody has to see'],
+]);
+
+const SELECTOR = /^\s*([.:&][^{}]*?)\s*\{\s*$/;
+const SCOPE = /^\s*@scope\s*\((\.[\w-]+)\)/;
+const MIX = /^\s*([\w-]+)\s*:\s*(?:var\(--[\w-]+\s*,\s*)?color-mix\(in oklab,\s*var\(--([\w-]+)\)\s*(?:([\d.]+)%|var\(--([\w-]+)\))\s*,\s*transparent\)/;
+const REFERENCE = /^var\(--color-([\w-]+)\)$/;
+const DEFAULT = /--(level-[\w-]+)\s*:\s*([\d.]+)%/g;
+
+const INK = /^\s*color\s*:\s*var\(--([\w-]+)\)\s*;/;
+const OPACITY = /^\s*opacity\s*:\s*([\d.]+)%\s*;/;
+
+const CHANNEL_PROPERTIES: [RegExp, string][] = [[/-ink$/, 'color'], [/-fill(?:-[\w]+)?$/, 'background-color']];
+
+export function propertyOf(name: string) {
+  if (!name.startsWith('--arena-')) return name;
+  return CHANNEL_PROPERTIES.find(([ending]) => ending.test(name))?.[1] ?? name;
+}
+
+export function levelDefaults(css: string) {
+  const out: Record<string, number> = {};
+  for (const [, name, percent] of css.matchAll(DEFAULT)) out[name as string] = Number(percent);
+  return out;
+}
+
+export function opacitiesIn(css: string) {
+  const out = new Map<string, number>();
+  let selector = '';
+  let state = '';
+  for (const line of css.split('\n')) {
+    const named = SELECTOR.exec(line)?.[1];
+    if (named?.startsWith('.')) { selector = named; state = named; }
+    else if (named) state = `${selector}${named.replace(/:scope(?=\[)/g, '')}`;
+    const held = OPACITY.exec(line)?.[1];
+    if (held !== undefined) out.set(state, Number(held) / 100);
+  }
+  return out;
+}
+
+export function levelsIn(
+  css: string, defaults: Record<string, number> = {}, states: Map<string, string> = new Map(),
+): Level[] {
+  const held = opacitiesIn(css);
+  const out: Level[] = [];
+  let selector = '';
+  let state = '';
+  let condition = '';
+  for (const line of css.split('\n')) {
+    const scope = SCOPE.exec(line)?.[1];
+    if (scope) { selector = scope; state = scope; condition = ''; }
+    const named = SELECTOR.exec(line)?.[1];
+    if (named?.startsWith('.')) { selector = named; state = named; condition = states.get(named) ?? ''; }
+    else if (named) state = `${selector}${named.replace(/:scope(?=\[)/g, '')}`;
+    const mix = MIX.exec(line);
+    if (!mix) continue;
+    const level = mix[4] ?? null;
+    const declared = level === null ? Number(mix[3]) : defaults[level];
+    if (declared === undefined) continue;
+    const opacity = (held.get(state) ?? 1) * (state === selector ? 1 : held.get(selector) ?? 1);
+    out.push({
+      selector,
+      state: `${state}${condition}`,
+      property: propertyOf(mix[1] as string),
+      variable: mix[2] as string,
+      percent: Number((declared * opacity).toFixed(2)),
+      level: opacity === 1 ? level : null,
+    });
+  }
+  return out;
+}
+
+const HUE_READ = /var\(--(arena-hue-(?:ink|edge|fill-strong|fill-soft))\)/g;
+const CONDITION = /:not\(\[[^\]]+\]\)|\[[^\]]+\]/g;
+
+function conditionsOf(selector: string) {
+  const at = selector.indexOf(':where(');
+  if (at === -1) return { base: selector.trim(), held: new Set<string>() };
+  return { base: selector.slice(0, at).trim(), held: new Set(selector.slice(at).match(CONDITION) ?? []) };
+}
+
+function hueWrites(hueCss: string) {
+  const writes: { base: string; held: Set<string>; channels: Map<string, string> }[] = [];
+  const walk = (block: CssBlock) => {
+    const channels = new Map(block.decls
+      .filter((decl) => decl.name.startsWith('--arena-hue-') && decl.value !== 'initial')
+      .map((decl) => [decl.name.slice(2), decl.value]));
+    if (channels.size > 0) writes.push({ ...conditionsOf(block.selector), channels });
+    for (const child of block.children) walk(child);
+  };
+  walk(parseBlocks(hueCss));
+  return writes;
+}
+
+function settled(value: string, roles: Map<string, string>, levels: Record<string, string>) {
+  let out = value;
+  for (let pass = 0; pass < 4; pass += 1) {
+    out = out.replace(/var\(--([\w-]+)\)/g, (read, name: string) => {
+      const level = levels[name];
+      if (level !== undefined) return /%$/.test(level) ? level : `${level}%`;
+      return roles.get(name) ?? read;
+    });
+  }
+  return out;
+}
+
+export function inlineHues(
+  componentCss: string, hueCss: string, roles: Map<string, string>, levels: Record<string, string>,
+): string {
+  const writes = hueWrites(hueCss);
+  const edits: { from: number; to: number; text: string }[] = [];
+  const walk = (block: CssBlock) => {
+    const own = washedClass(block);
+    const here = own ? conditionsOf(own) : null;
+    for (const decl of block.decls) {
+      if (!here || !decl.value.includes('var(--arena-hue-')) continue;
+      const text = componentCss.slice(decl.from, decl.to).replace(HUE_READ, (read, channel: string) => {
+        const rule = writes.find((one) => one.base === here.base && [...one.held].every((c) => here.held.has(c))
+          && one.channels.has(channel));
+        const value = rule?.channels.get(channel);
+        return value === undefined ? read : settled(value, roles, levels);
+      });
+      edits.push({ from: decl.from, to: decl.to, text });
+    }
+    for (const child of block.children) walk(child);
+  };
+  walk(parseBlocks(componentCss));
+  let out = componentCss;
+  for (const edit of edits.reverse()) out = out.slice(0, edit.from) + edit.text + out.slice(edit.to);
+  return out;
+}
+
+export type Wash = { selector: string; variable: string; percent: number };
+
+const WASH_PERCENT = /color-mix\(in oklab,\s*var\(--[\w-]+\)\s*(?:([\d.]+)%|var\(--([\w-]+)\))\s*,\s*transparent\)/;
+
+function washedClass(block: CssBlock) {
+  for (let at: CssBlock | null = block; at; at = at.parent)
+    if (at.selector.startsWith('.')) return at.selector;
+  return '';
+}
+
+function inkByPath(root: CssBlock) {
+  const inks = new Map<string, string>();
+  const walk = (block: CssBlock) => {
+    for (const decl of block.decls) {
+      if (decl.name !== 'color') continue;
+      const named = COLOUR_VAR.exec(decl.value)?.[1] ?? MIXED_VAR.exec(decl.value)?.[1];
+      if (named) inks.set(selectorPath(block), named);
+    }
+    for (const child of block.children) walk(child);
+  };
+  walk(root);
+  return inks;
+}
+
+function inkPainting(block: CssBlock, inks: Map<string, string>) {
+  for (let at: CssBlock | null = block; at; at = at.parent) {
+    const named = inks.get(selectorPath(at));
+    if (named) return named;
+  }
+  return null;
+}
+
+export function washesIn(css: string, defaults: Record<string, number> = {}): Wash[] {
+  const out: Wash[] = [];
+  const root = parseBlocks(css);
+  const inks = inkByPath(root);
+  const walk = (block: CssBlock) => {
+    for (const decl of block.decls) {
+      if (decl.name !== 'background-color') continue;
+      const mixed = MIXED_VAR.exec(decl.value)?.[1];
+      const wash = WASH_PERCENT.exec(decl.value);
+      const percent = wash?.[1] ?? (wash?.[2] === undefined ? undefined : defaults[wash[2]]);
+      if (!mixed || percent === undefined || inkPainting(block, inks) !== mixed) continue;
+      const selector = washedClass(block);
+      if (!selector) continue;
+      out.push({ selector, variable: mixed, percent: Number(percent) });
+    }
+    for (const child of block.children) walk(child);
+  };
+  walk(root);
+  return out;
+}
+
+export function washReports(
+  washes: Wash[], roles: Map<string, string>, colors: Record<string, string>,
+) {
+  const surfaces = surfaceKeys(roles).filter((key) => colors[key]);
+  const out: Report[] = [];
+  for (const wash of washes) {
+    const key = paletteKey(roles.get(wash.variable)) ?? paletteKey(`var(--${wash.variable})`);
+    const ink = key ? colors[key] : undefined;
+    if (!ink) continue;
+    for (const surface of surfaces) {
+      const painted = composite(ink, colors[surface] as string, wash.percent);
+      const ratio = contrast(ink, painted);
+      if (ratio >= TEXT_MIN) continue;
+      out.push(report('wash', `--${wash.variable} is drawn on a ${wash.percent}% wash of itself `
+        + `at ${wash.selector}, and reads ${ratio.toFixed(2)}:1 against that wash where it is `
+        + `composited over --color-${surface}, under ${TEXT_MIN}:1. The ink and the ground it `
+        + 'stands on are one colour, so the ratio cannot pass what the ink reads against the '
+        + 'surface itself: no wash percentage lifts it, and what does is a state that stops '
+        + 'painting the accent as its own ink'));
+    }
+  }
+  return out;
+}
+
+const NEGATED = /:not\((?:[^()]|\([^()]*\))*\)/g;
+
+export function exemptionFor(level: Level) {
+  const decorative = DECORATIVE.get(level.selector);
+  if (decorative) return decorative;
+  const waiting = level.state.replace(NEGATED, '');
+  for (const [what, why] of EXEMPT) if (waiting.includes(what)) return why;
+  return null;
+}
+
+export const isMark = (variable: string) => /^ink-|^color-base-content$/.test(variable);
+
+export function gateFor(level: Level) {
+  if (level.property === 'color') return TEXT_MIN;
+  return level.property === 'background-color' && isMark(level.variable) ? MARK_MIN : null;
+}
+
+export function paletteKey(value: string | undefined) {
+  const named = REFERENCE.exec((value ?? '').trim())?.[1];
+  return named ?? null;
+}
+
+export function surfaceKeys(roles: Map<string, string>) {
+  const keys = [PAGE_KEY];
+  for (const role of SURFACE_ROLES) {
+    const key = paletteKey(roles.get(role));
+    if (key && !keys.includes(key)) keys.push(key);
+  }
+  return keys;
+}
+
+export function drawnBy(levels: Level[]) {
+  const grouped = new Map<string, { level: Level; slots: string[] }>();
+  for (const level of levels) {
+    if (exemptionFor(level)) continue;
+    const key = `${level.property}|${level.variable}|${level.percent}`;
+    const found = grouped.get(key) ?? { level, slots: [] };
+    if (!found.slots.includes(level.selector)) found.slots.push(level.selector);
+    grouped.set(key, found);
+  }
+  return [...grouped.values()];
+}
+
+export function clears(ink: string, surfaces: string[], percent: number, gate: number) {
+  return surfaces.every((on) => contrast(composite(ink, on, percent), on) >= gate);
+}
+
+export function raisedLevel(ink: string, surfaces: string[], floor: number, gate: number) {
+  for (let percent = Math.ceil(floor); percent <= 100; percent += 1) {
+    if (clears(ink, surfaces, percent, gate)) return percent;
+  }
+  return null;
+}
+
+export function derivedLevels(
+  levels: Level[], roles: Map<string, string>, colors: Record<string, string>,
+) {
+  const surfaces = surfaceKeys(roles)
+    .map((key) => colors[key])
+    .filter((hex): hex is string => Boolean(hex));
+  const out = new Map<string, { floor: number; percent: number | null; gate: number }>();
+  for (const { level, ...rest } of levels) {
+    if (level === null || out.has(level) || exemptionFor({ ...rest, level })) continue;
+    const gate = gateFor({ ...rest, level });
+    if (gate === null) continue;
+    const key = paletteKey(roles.get(rest.variable)) ?? paletteKey(`var(--${rest.variable})`);
+    const ink = key ? colors[key] : undefined;
+    if (!ink) continue;
+    out.set(level, { floor: rest.percent, percent: raisedLevel(ink, surfaces, rest.percent, gate), gate });
+  }
+  return out;
+}
+
+export function levelReports(
+  levels: Level[], roles: Map<string, string>, colors: Record<string, string>,
+  derived = new Map<string, { floor: number; percent: number | null; gate: number }>(),
+) {
+  const surfaces = surfaceKeys(roles).filter((key) => colors[key]);
+  const out: Report[] = [];
+  for (const { level, slots } of drawnBy(levels)) {
+    const gate = gateFor(level);
+    if (gate === null) continue;
+    const key = paletteKey(roles.get(level.variable)) ?? paletteKey(`var(--${level.variable})`);
+    const ink = key ? colors[key] : undefined;
+    if (!ink) continue;
+    const raised = level.level === null ? undefined : derived.get(level.level);
+    if (raised && raised.percent === null) {
+      out.push(report('contrast', `--${level.variable} cannot clear ${gate}:1 at any level, because `
+        + `--color-${key} at full strength does not; ${slots.length} slot(s) draw it, such as `
+        + `${slots[0]}. The ink is what has no room, not the level`));
+      continue;
+    }
+    const percent = raised?.percent ?? level.percent;
+    for (const surface of surfaces) {
+      const on = colors[surface] as string;
+      const ratio = contrast(composite(ink, on, percent), on);
+      if (ratio >= gate) continue;
+      out.push(report('contrast', `--${level.variable} at ${percent}% is ${ratio.toFixed(2)}:1 `
+        + `on --color-${surface}, under the ${gate}:1 that ${level.property} carries; `
+        + `${slots.length} slot(s) draw it, such as ${slots[0]}`));
+    }
+  }
+  return out;
+}
+
+export const SEPARATION = 8;
+
+export function raisedReports(
+  derived: Map<string, { floor: number; percent: number | null; gate: number }>,
+) {
+  const out: Report[] = [];
+  const steps = [...derived]
+    .filter(([, one]) => one.percent !== null)
+    .sort((a, b) => (a[1].percent as number) - (b[1].percent as number));
+  for (const [level, one] of derived) {
+    if (one.percent === null || one.percent === one.floor) continue;
+    out.push(report('contrast', `--${level} is raised from ${one.floor}% to ${one.percent}% for this `
+      + `palette, because your ink does not clear ${one.gate}:1 at ${one.floor}%. Arena raises a `
+      + 'level and never lowers one, so the register is held back less than it is on other skins'));
+  }
+  for (const [i, [level, one]] of steps.entries()) {
+    const above = steps[i + 1];
+    if (!above || (above[1].percent as number) - (one.percent as number) >= SEPARATION) continue;
+    out.push(report('contrast', `--${level} at ${one.percent}% and --${above[0]} at ${above[1].percent}% `
+      + `are ${(above[1].percent as number) - (one.percent as number)} points apart, under the `
+      + `${SEPARATION} two registers need to read as different. Legibility is held; the hierarchy `
+      + 'between them is not, and only a base-content with more room restores it'));
+  }
+  return out;
+}
+
+export const STATUS_HUES = ['danger', 'success', 'warning', 'info'];
+
+export function axisReports(roles: Map<string, string>, colors: Record<string, string>, theme: string) {
+  const colour = (role: string) => colors[paletteKey(roles.get(role)) ?? ''];
+  const axis = colour('edge-axis');
+  const separator = colour('edge-separator');
+  const page = colors[PAGE_KEY];
+  if (!axis || !separator || !page) return [];
+  const heavy = contrast(axis, page);
+  const light = contrast(separator, page);
+  if (heavy > light) return [];
+  return [report('contrast', `--edge-axis is lighter than --edge-separator in the ${theme} theme `
+    + `(${heavy.toFixed(2)}:1 against ${light.toFixed(2)}:1 on base-100), so a chart's axis reads `
+    + 'fainter than its grid')];
+}
+
+export function onInkReports(roles: Map<string, string>, colors: Record<string, string>, theme: string) {
+  const out: Report[] = [];
+  for (const hue of STATUS_HUES) {
+    const ink = colors[paletteKey(roles.get(`hue-${hue}-ink`)) ?? ''];
+    const onInk = colors[paletteKey(roles.get(`hue-${hue}-on-ink`)) ?? ''];
+    if (!ink || !onInk) continue;
+    const ratio = contrast(onInk, ink);
+    if (ratio >= TEXT_MIN) continue;
+    out.push(report('contrast', `--hue-${hue}-on-ink measures ${ratio.toFixed(2)}:1 over `
+      + `--hue-${hue}-ink in the ${theme} theme, below ${TEXT_MIN}:1, so a solid badge's label is `
+      + 'hard to read'));
+  }
+  return out;
+}

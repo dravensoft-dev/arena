@@ -27,6 +27,17 @@ Protects irreversible actions (H3, H5). Does not close on click-outside. For the
 
 <!-- @api end -->
 
+<!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
+
+**Answers.** No family of the [vocabulary](../../../../VOCABULARY.md) decides anything in this component's own box.
+
+<!-- @answers end -->
+
+<!-- @keys GENERATED from the binding. -->
+**Keys**, from [`alertdialog`](../../../../../contracts/behaviour/alertdialog.json):
+- `Escape`: close.
+<!-- @keys end -->
+
 `destructive` fills the confirm button with `--danger-fill`, and this is the only place in Arena where danger is filled. Everywhere else danger is an outline.
 
 `title` is **required** and throws when missing. The title is what names the dialog for assistive technology, and the panel's `aria-labelledby` points at it. Nothing can derive a name for a confirmation, because its subject is editorial.
@@ -43,7 +54,7 @@ page behind the scrim.
 
 - **Do** let `destructive` paint the button. The fill is `--danger-fill` over `--color-error-content`, and it is the only surface entitled to it.
 - **Don't** rebuild the filled button yourself with `--danger`. That token is tuned to be read *as text* on the base surfaces, so it is too light to carry white. The measurement is 3.67:1 in the dark theme, under WCAG AA. `--danger-fill` exists precisely for this.
-- **Don't** reach for `destructive` on a merely important action. A filled red competes with the primary button; if it is not a point of no return, an ordinary `<ArenaButton variant="danger">` outline is the right shape.
+- **Don't** reach for `destructive` on a merely important action. A filled red competes with the primary button; if it is not a point of no return, an ordinary `<ArenaButton destructive>` outline is the right shape.
 - **Do** add `requireText` when the action destroys data that cannot be rebuilt.
 - **Do** give every confirmation a `title` that says what is about to happen, not what the component is ("Delete project", never "Confirm").
 - **Don't** render it with an empty `title` while it is closed. `title` is required whatever `open` is. A screen that mounts one confirmation and feeds it a subject per row fails on the first render, so mount it when a subject exists instead. Keep the subject after a cancel and toggle only `open`, or focus never returns to the control that opened it.
@@ -76,10 +87,10 @@ does not activate a button.
 
 **Words.** `eyebrow`, `confirmLabel` and `cancelLabel` answer first; when one is absent, the locale's `confirmDialogEyebrow`, `confirmDialogConfirm` or `confirmDialogCancel` does. `confirmDialogRequire` is the prompt above the field `requireText` asks for, with that text in `{text}`.
 
-**Asked from code.** A handler that needs a yes or a no before it goes on asks `useArenaConfirm()` rather than holding an `open` state of its own. `ask` returns the answer as a promise, and the one open request is rendered once, near the root, with this dialog. The dialog is still what draws the confirmation, its focus trap and its one filled danger surface included.
+**Asked from code.** A handler that needs a yes or a no before it goes on asks `useArenaConfirm()` rather than holding an `open` state of its own. `ask` returns the answer as a promise ([the wiring](../../../../../skills/design/references/exports.md#how-do-i-raise-a-confirmation-from-code-in-react)), and the one open request is rendered once, near the root, with this dialog. The dialog is still what draws the confirmation, its focus trap and its one filled danger surface included.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
+**The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

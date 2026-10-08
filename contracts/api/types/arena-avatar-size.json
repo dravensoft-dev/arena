@@ -1,6 +1,0 @@
-{
-  "name": "ArenaAvatarSize",
-  "kind": "enum",
-  "description": "The avatar's diameter, a fixed repertoire: xs a dense table row, sm a comment byline, md the default, lg a profile header.",
-  "values": ["xs", "sm", "md", "lg"]
-}

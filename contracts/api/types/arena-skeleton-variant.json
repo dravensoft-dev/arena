@@ -1,6 +1,0 @@
-{
-  "name": "ArenaSkeletonVariant",
-  "kind": "enum",
-  "description": "The shape the placeholder reserves: a single text line, a stack of lines, a block, or a circle.",
-  "values": ["text", "line", "block", "circle"]
-}

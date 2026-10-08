@@ -2,20 +2,22 @@ import {
   ChangeDetectionStrategy, Component, ElementRef, afterNextRender, booleanAttribute, computed,
   input, output, viewChild,
 } from '@angular/core';
-import type { ArenaButtonType, ArenaControlSize, ArenaIconButtonVariant } from '../../../Api.generated';
+import type { ArenaButtonType } from '../../../Api.generated';
 import { arenaIconButtonStyles } from './ArenaIconButton.variants';
 import manifest from './ArenaIconButton.classes.generated';
+import { ArenaSlotAttributes } from '../../../SlotData';
 
 @Component({
   selector: 'arena-icon-button',
   standalone: true,
+  imports: [ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     style: 'display: contents',
     '[attr.name]': 'null',
   },
   template: `
-    <button #control [class]="styles().root()" [attr.data-arena-part]="parts.root" [attr.type]="type()" [disabled]="disabled()"
+    <button #control [class]="styles().root()" [arenaSlotData]="styles().$data.root()" [attr.data-arena-part]="parts.root" [attr.type]="type()" [disabled]="disabled()"
             [attr.name]="name()" [attr.value]="value()" [attr.form]="form()"
             [attr.tabindex]="tabStop() ? null : -1"
             [attr.aria-label]="label()" [attr.title]="showLabel() ? null : label()"
@@ -35,16 +37,6 @@ export class ArenaIconButton {
   readonly icon = input.required<string>();
   /** The accessible name, present in every state. Also the visible text when showLabel is set, and the title attribute when it is not. */
   readonly label = input.required<string>();
-  /** Height, from the density tokens: the same scale ArenaButton uses, so the two re-densify together in a toolbar. */
-  readonly size = input<ArenaControlSize, ArenaControlSize | undefined>(
-    'md',
-    { transform: (value) => value ?? 'md' },
-  );
-  /** Visual treatment. */
-  readonly variant = input<ArenaIconButtonVariant, ArenaIconButtonVariant | undefined>(
-    'ghost',
-    { transform: (value) => value ?? 'ghost' },
-  );
   /** Whether this control is a toggle, and whether it is currently on. Present, Arena writes aria-pressed and draws the on state with the same accent tint a current ArenaSideNav item takes, so "this one is on" is one statement across the library; absent, the control is not a toggle at all. The tri-state is the point and a default of false would destroy it: aria-pressed="false" on a plain button announces a toggle that is off rather than a button, so every ArenaIconButton in the system would announce as an unpressed toggle. The label does NOT change with the state, which is what the button pattern means by a toggle: a control that renames itself is announced as a different control rather than as the same one in another state. */
   readonly pressed = input<boolean | undefined>();
   /** Shows the label as text beside the icon (H6). Don't rely on the title alone on touch or keyboard surfaces. */
@@ -70,7 +62,7 @@ export class ArenaIconButton {
   readonly click = output<void>();
 
   protected readonly styles = computed(() => arenaIconButtonStyles({
-    variant: this.variant(), size: this.size(), showLabel: this.showLabel(),
+    showLabel: this.showLabel(),
     pressed: this.pressed() === true,
   }));
 

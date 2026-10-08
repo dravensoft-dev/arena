@@ -1,0 +1,28 @@
+<!-- @dsCard group="Tailwind" viewport="700x420" name="align" subtitle="A box family: arena-align-start is the default, arena-align-center centres the words in their column" -->
+<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../../../intro/styles.css">
+<link rel="stylesheet" href="../../consume/Preflight.generated.css">
+<link rel="stylesheet" href="../../consume/components/layout/arena-hero/ArenaHero.styles.generated.css">
+<link rel="stylesheet" href="../../consume/vocabulary/Align.generated.css">
+<link rel="stylesheet" href="../../Specimen.css">
+</head><body><div id="root"></div>
+<script type="module">
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../Specimen.js';
+
+const manifest = await (await fetch('../../components/layout/arena-hero/ArenaHero.manifest.json')).json();
+
+function hero(option) {
+  const c = arenaClassesFor(manifest);
+  const d = arenaSlotDataFor(manifest);
+  const words = el('div', { class: c.words, ...d.words },
+    el('p', { class: c.eyebrow, ...d.eyebrow, text: 'Single origin' }),
+    el('h1', { class: c.title, ...d.title, text: 'Coffee that tells you where it grew' }),
+    el('p', { class: c.lede, ...d.lede, text: 'Every lot is traceable to the farm and the week it was picked.' }));
+  return el('section', { class: `${c.root} ${option}`, ...d.root }, words);
+}
+
+mountSpecimen({ sections: [
+  section('arena-align-start, the default: the words run from the start edge', [hero('arena-align-start')], { stack: true }),
+  section('arena-align-center: the words sit centred in their column', [hero('arena-align-center')], { stack: true }),
+]});
+</script></body></html>

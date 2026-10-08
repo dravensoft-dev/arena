@@ -9,9 +9,8 @@
     "actions": [
       {
         "component": "ArenaButton",
+        "class": "arena-size-lg",
         "members": {
-          "variant": "primary",
-          "size": "lg",
           "icon": "ph-bold ph-storefront"
         },
         "slots": {
@@ -24,9 +23,8 @@
       },
       {
         "component": "ArenaButton",
+        "class": "arena-size-lg arena-emphasis-ghost",
         "members": {
-          "variant": "ghost",
-          "size": "lg",
           "iconRight": "ph-bold ph-arrow-right"
         },
         "slots": {

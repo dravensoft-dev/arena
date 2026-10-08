@@ -7,7 +7,9 @@ import manifest from './ArenaBadge.classes.generated';
   selector: 'arena-badge',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { '[class]': 'styles().root()',
+  host: {
+    'data-arena-boundary': '', '[class]': 'styles().root()',
+    '[attr.data-arena-tone]': "styles().$data.root()['data-arena-tone'] ?? null",
     '[attr.data-arena-part]': 'parts.root', },
   template: `
     @if (dot()) {
@@ -19,7 +21,7 @@ import manifest from './ArenaBadge.classes.generated';
 export class ArenaBadge {
   protected readonly parts = manifest.parts;
 
-  /** System status (success/warning/danger/info) reflects an object's actual state; emphasis (accent, gold) is editorial; neutral carries no semantic weight. */
+  /** System status (success/warning/danger/info) reflects an object's actual state; neutral carries no semantic weight. */
   readonly tone = input<ArenaTone, ArenaTone | undefined>(
     'neutral',
     { transform: (value) => value ?? 'neutral' },

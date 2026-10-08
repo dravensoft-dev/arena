@@ -14,13 +14,21 @@ import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { captured } from '../../utils/captures.ts';
+import { scriptClosure } from '../../graph/script-closure.ts';
 
 export const PAGE_DIR = 'intro';
 export const GENERATED_SUFFIX = '.generated.js';
 
+export function bundledScripts(root = repoRoot) {
+  const sources = readdirSync(join(root, PAGE_DIR))
+    .filter((file) => file.endsWith('.js') && !file.endsWith(GENERATED_SUFFIX));
+  return [...new Set(sources.flatMap((file) => scriptClosure(join(root, PAGE_DIR, file), root)))]
+    .filter((path) => path.startsWith('scripts/')).sort();
+}
+
 export const node = {
   name: 'build:intro',
-  reads: [`${PAGE_DIR}/*.html`, `${PAGE_DIR}/*.js`, `!${PAGE_DIR}/*${GENERATED_SUFFIX}`],
+  reads: [`${PAGE_DIR}/*.html`, `${PAGE_DIR}/*.js`, `!${PAGE_DIR}/*${GENERATED_SUFFIX}`, ...bundledScripts()],
   writes: [`${PAGE_DIR}/*${GENERATED_SUFFIX}`],
   feeds: [
     'check:generated',

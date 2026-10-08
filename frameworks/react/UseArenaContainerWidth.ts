@@ -1,23 +1,89 @@
 import type * as React from 'react';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
+
+const px = (value: string) => Number.parseFloat(value) || 0;
+
+function outerWidth(element: Element): number {
+  const view = element.ownerDocument.defaultView;
+  if (!view) return 0;
+  const style = view.getComputedStyle(element);
+  const width = style.width.endsWith('px') ? px(style.width) : 0;
+  if (width === 0 || style.boxSizing === 'border-box') return width;
+  return width + px(style.paddingLeft) + px(style.paddingRight)
+    + px(style.borderLeftWidth) + px(style.borderRightWidth);
+}
+
+const entryWidth = (entry: ResizeObserverEntry) => entry.borderBoxSize?.[0]?.inlineSize ?? outerWidth(entry.target);
+
+function interceptCurrent<T>(ref: { current: T | null }, onSet: (next: T | null) => void): void {
+  const own = Object.getOwnPropertyDescriptor(ref, 'current');
+  if (!own?.configurable) return;
+  let value = own.value as T | null;
+  const read = own.get ?? (() => value);
+  const write = own.set ?? ((next: T | null) => { value = next; });
+  Object.defineProperty(ref, 'current', {
+    configurable: true,
+    enumerable: true,
+    get: read,
+    set(next: T | null) { write(next); onSet(next); },
+  });
+}
+
+interface WidthWatch<T extends Element> {
+  ref: React.RefObject<T>;
+  resume(): void;
+  stop(): void;
+}
+
+function watchWidth<T extends Element>(
+  target: React.RefObject<T | null> | undefined,
+  report: (width: number) => void,
+): WidthWatch<T> {
+  let observer: ResizeObserver | null = null;
+  let state: 'fresh' | 'live' | 'stopped' = 'fresh';
+  const disconnect = () => { observer?.disconnect(); observer = null; };
+  const observe = (next: T | null) => {
+    disconnect();
+    if (!next || state === 'stopped') return;
+    const now = outerWidth(next);
+    if (now > 0) report(now);
+    if (state === 'fresh' || typeof ResizeObserver === 'undefined') return;
+    observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const width = entryWidth(entry);
+        if (width > 0) report(width);
+      }
+    });
+    observer.observe(next, { box: 'border-box' });
+  };
+  const ref = (target ?? { current: null }) as React.RefObject<T>;
+  interceptCurrent(ref as { current: T | null }, observe);
+  return {
+    ref,
+    resume: () => {
+      state = 'live';
+      if (!observer) observe(ref.current);
+    },
+    stop: () => {
+      state = 'stopped';
+      disconnect();
+    },
+  };
+}
 
 export function useArenaContainerWidth<T extends Element = HTMLDivElement>(target?: React.RefObject<T | null>):
 [React.RefObject<T>, number | null] {
-  const own = useRef<T>(null);
-  const ref = (target ?? own) as React.RefObject<T>;
   const [width, setWidth] = useState<number | null>(null);
+  const watch = useRef<WidthWatch<T> | null>(null);
+  watch.current ??= watchWidth<T>(target, setWidth);
 
   useEffect(() => {
-    const el = ref.current;
-    if (!el || typeof ResizeObserver === 'undefined') return;
-    const ro = new ResizeObserver((entries) => {
-      for (const entry of entries) setWidth(entry.contentRect.width);
-    });
-    ro.observe(el);
-    return () => ro.disconnect();
+    const current = watch.current!;
+    current.resume();
+    return current.stop;
   }, []);
 
-  return [ref, width];
+  return [watch.current.ref, width];
 }
 
 export type ArenaBreakpointName = 'sm' | 'md' | 'lg';
@@ -34,25 +100,36 @@ function warnUnresolved(name: string): void {
     + " Arena's stylesheet is missing, or it loads after this ran.");
 }
 
+const queries = new Map<number, MediaQueryList>();
+
 export function forgetArenaBreakpoints(): void {
   cache.clear();
+  queries.clear();
   warned.clear();
 }
 
-export function useArenaViewportBelow(name: ArenaBreakpointName): boolean {
-  const [below, setBelow] = useState(false);
-  const width = arenaReadBreakpoint(name);
+function viewportQuery(threshold: number): MediaQueryList | null {
+  if (typeof window === 'undefined' || !window.matchMedia || !Number.isFinite(threshold)) return null;
+  let query = queries.get(threshold);
+  if (!query) {
+    query = window.matchMedia(`not all and (min-width: ${threshold}px)`);
+    queries.set(threshold, query);
+  }
+  return query;
+}
 
-  useEffect(() => {
-    if (typeof window === 'undefined' || !window.matchMedia || !Number.isFinite(width)) return;
-    const query = window.matchMedia(`not all and (min-width: ${width}px)`);
-    setBelow(query.matches);
-    const onChange = (event: MediaQueryListEvent) => setBelow(event.matches);
+const serverBelow = () => false;
+
+export function useArenaViewportBelow(name: ArenaBreakpointName): boolean {
+  const width = arenaReadBreakpoint(name);
+  const subscribe = useCallback((onChange: () => void) => {
+    const query = viewportQuery(width);
+    if (!query) return () => {};
     query.addEventListener('change', onChange);
     return () => query.removeEventListener('change', onChange);
   }, [width]);
-
-  return below;
+  const snapshot = useCallback(() => viewportQuery(width)?.matches ?? false, [width]);
+  return useSyncExternalStore(subscribe, snapshot, serverBelow);
 }
 
 export function arenaReadBreakpoint(name: ArenaBreakpointName): number {

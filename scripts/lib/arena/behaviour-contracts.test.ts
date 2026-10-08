@@ -147,7 +147,7 @@ test('an exception without a reason is a problem', () => {
   assert.match(validateBinding('ArenaDialog', 'react', b, patterns)[0] ?? '', /reason/);
 });
 
-test('a cases entry that does not name itself is rejected, and it used to clear the gate entirely', () => {
+test('a cases entry that does not name itself is rejected, and does not clear the gate', () => {
   const b = { cases: [{ pattern: 'none', reason: 'a label' }] };
   const problems = validateBinding('ArenaDialog', 'react', b, patterns);
   assert.match(problems[0] ?? '', /cases\[0\] declares no "name"/);

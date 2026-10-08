@@ -31,10 +31,9 @@ test('ArenaButton defaults its native type to button and honours an override', (
 });
 
 test('ArenaButton renders danger as outline, never filled', () => {
-  const html = renderToStaticMarkup(<ArenaButton variant="danger">Delete</ArenaButton>);
-  assert.match(html, /\b(?:arena-button__root--variant-ghost|arena-button__root--variant-danger)\b/, 'the danger surface is filled, and the convention is that it never is');
-  assert.match(html, /\barena-button__root--variant-danger\b/);
-  assert.match(html, /\barena-button__root--variant-danger\b/);
+  const html = renderToStaticMarkup(<ArenaButton destructive>Delete</ArenaButton>);
+  assert.match(html, /data-arena-part="button"[^>]*\bdata-arena-destructive=""/);
+  assert.doesNotMatch(html, /data-arena-variant/, 'emphasis is a class the adopter writes, never an attribute');
   assert.doesNotMatch(html, /(?<!:)\bbg-error\b/,
     'an unmodified bg-error fills the danger surface; only the hover: form may tint it');
 });

@@ -1,21 +1,32 @@
 {
   "component": "ArenaSpinner",
-  "slots": {
-    "root": "inline-flex",
-    "circle": "arena-spinner inline-block border-[length:var(--bw-strong)] border-current border-t-transparent rounded-pill"
-  },
-  "variants": {
-    "tone": {
-      "accent": { "root": "text-primary" },
-      "gold": { "root": "text-secondary" },
-      "neutral": { "root": "text-ink-muted/(--level-ink-muted)" },
-      "on-accent": { "root": "text-primary-content" }
+  "answers": [
+    {
+      "family": "size",
+      "options": [
+        "arena-size-sm",
+        "arena-size-md",
+        "arena-size-lg"
+      ],
+      "default": "arena-size-md"
     },
-    "size": {
-      "sm": { "circle": "size-icon-sm" },
-      "md": { "circle": "size-5" },
-      "lg": { "circle": "size-8" }
+    {
+      "family": "accent",
+      "options": [
+        "arena-accent-primary",
+        "arena-accent-gold",
+        "arena-accent-muted",
+        "arena-accent-ink"
+      ],
+      "default": "arena-accent-primary"
     }
+  ],
+  "slots": {
+    "root": "inline-flex w-fit text-[color:var(--arena-accent-ink,var(--accent-primary-ink))]",
+    "circle": "arena-spinner inline-block border-[length:var(--bw-strong)] border-current border-t-transparent rounded-pill size-[var(--arena-size-spinner,var(--size-md-spinner))]"
   },
-  "defaultVariants": { "tone": "accent", "size": "md" }
+  "kind": {
+    "root": "none",
+    "circle": "none"
+  }
 }

@@ -1,0 +1,41 @@
+<!-- @dsCard group="Tailwind" viewport="700x330" name="orientation" subtitle="A box family: arena-orientation-horizontal is the default, arena-orientation-vertical stands the component across the line" -->
+<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../../../intro/styles.css">
+<link rel="stylesheet" href="../../consume/Preflight.generated.css">
+<link rel="stylesheet" href="../../consume/components/forms/arena-switch/ArenaSwitch.styles.generated.css">
+<link rel="stylesheet" href="../../consume/components/brand/arena-app-logo/ArenaAppLogo.styles.generated.css">
+<link rel="stylesheet" href="../../consume/vocabulary/Size.generated.css">
+<link rel="stylesheet" href="../../consume/vocabulary/Orientation.generated.css">
+<link rel="stylesheet" href="../../Specimen.css">
+</head><body><div id="root"></div>
+<script type="module">
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../Specimen.js';
+
+const switchManifest = await (await fetch('../../components/forms/arena-switch/ArenaSwitch.manifest.json')).json();
+const logo = await (await fetch('../../components/brand/arena-app-logo/ArenaAppLogo.manifest.json')).json();
+
+function toggle(label, cls) {
+  const c = arenaClassesFor(switchManifest, { state: 'true' });
+  const d = arenaSlotDataFor(switchManifest, { state: 'true' });
+  const knob = el('span', { class: c.knob, ...d.knob }, el('i', { class: `${c.icon} ph-bold ph-check`, ...d.icon }));
+  const track = el('button', { type: 'button', role: 'switch', class: c.track, ...d.track, 'aria-checked': 'true', 'aria-label': label }, knob);
+  return el('span', { class: `${c.root} ${cls}`, ...d.root }, track, el('span', { class: c.label, ...d.label }, label));
+}
+
+function mark(cls) {
+  const c = arenaClassesFor(logo);
+  const d = arenaSlotDataFor(logo);
+  return el('span', { class: `${c.root} ${cls}`, ...d.root },
+    el('span', { class: c.mark, ...d.mark }, el('img', { src: '../../../../assets/rotor-crimson.svg', alt: '' })),
+    el('span', { class: c.name, ...d.name }, 'Draven', el('span', { class: c.dim, ...d.dim, text: 'soft' })));
+}
+
+mountSpecimen({ sections: [
+  section('arena-orientation-horizontal, the default: along the line', [
+    toggle('Horizontal', 'arena-orientation-horizontal'), mark('arena-orientation-horizontal'),
+  ], { gap: 'loose' }),
+  section('arena-orientation-vertical: across it, operated the same way', [
+    toggle('Vertical', 'arena-orientation-vertical'), mark('arena-orientation-vertical'),
+  ], { gap: 'loose' }),
+]});
+</script></body></html>

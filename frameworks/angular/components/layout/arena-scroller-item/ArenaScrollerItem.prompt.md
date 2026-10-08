@@ -2,7 +2,7 @@ Arena scroller item, one cell of an `arena-scroller`: the box that carries the w
 decided and the point the row settles on. Standalone, `OnPush`. The host **is** the cell.
 
 ```html
-<arena-scroller label="Recently landed lots" itemWidth="calc(var(--sp-1) * 62)">
+<arena-scroller label="Recently landed lots" class="arena-scroller-item-lg">
   @for (lot of arrivals(); track lot.id) {
     <arena-scroller-item><app-lot-card [lot]="lot" /></arena-scroller-item>
   }
@@ -19,6 +19,16 @@ decided and the point the row settles on. Standalone, `OnPush`. The host **is** 
 
 <!-- @api end -->
 
+<!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
+
+**Answers** [`scroller-item`](../../../../VOCABULARY.md#scroller-item): `arena-scroller-item-lg`, `arena-scroller-item-md` (default), `arena-scroller-item-sm`. Write one as `class="arena-scroller-item-lg"` on the component, or on a container whose components should all take it. Property: `--arena-scroller-item`, set on a container of yours for a value no option names.
+
+<!-- @answers end -->
+
+<!-- @keys GENERATED from the binding. -->
+**Keys:** none.
+<!-- @keys end -->
+
 **Why the cell is a component rather than a rule on the row's children.** A row cannot reach inside its children to size them. The width has to land on the child itself. Several Arena components take their host out of layout with `display: contents`, so a rule aimed at the row's direct children lands on an element with no box. Whether it lands at all then depends on which component the caller put in the row, with every gate green. The item is the box that is
 always there, and its own host carries a real one.
 
@@ -27,18 +37,18 @@ visible in the cell came from what you projected into it.
 
 **Do / Don't**
 - **Do** put one per item, and let the card, the tile or the figure sit inside it.
-- **Don't** set the width here. The row owns it, through `itemWidth`, so a rail of cells is one
-  decision rather than one per cell.
+- **Don't** set the width here. The row owns it, through the `arena-scroller-item` class on the `arena-scroller` or `--arena-scroller-item` on a container, so a rail of cells is one
+  decision rather than one per cell. A bare child of the row, with no item around it, keeps its own width.
 - **Don't** reach for it outside an `arena-scroller`. Outside a row it is a box that reads a
   property nothing set.
 
 **By hand, in real Chromium**: run `bun run demos` and open
 `/frameworks/angular/components/layout/arena-scroller-item/ArenaScrollerItem.demo.generated.html`:
-- The cell is exactly as wide as the row's `itemWidth`, whatever it contains.
+- The cell is exactly as wide as the row's `arena-scroller-item` width, whatever it contains.
 - Every cell is the same width and the same height, whatever component sits inside it.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
+**The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

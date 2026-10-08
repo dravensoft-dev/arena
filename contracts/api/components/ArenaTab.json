@@ -4,7 +4,7 @@
   "affordances": ["focus"],
   "api": {
     "value": { "form": "primitive", "type": "string", "required": true,
-               "description": "What this tab selects, and what the parent's `change` carries." },
+               "description": "What this tab selects, and what the `change` event of ArenaTabs carries." },
     "label": { "form": "primitive", "type": "string", "required": true,
                "description": "What the tab reads. Arena draws the button; the consumer names it." },
     "content": { "form": "slot",

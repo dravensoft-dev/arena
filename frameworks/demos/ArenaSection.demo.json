@@ -16,7 +16,8 @@
     "action": [
       {
         "component": "ArenaButton",
-        "members": { "variant": "ghost", "iconRight": "ph-bold ph-arrow-right" },
+        "class": "arena-emphasis-ghost",
+        "members": { "iconRight": "ph-bold ph-arrow-right" },
         "slots": { "content": [ { "text": "See all" } ] }
       }
     ]

@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { useArenaContainerWidth } from '../../../UseArenaContainerWidth.ts';
-import { arenaSrOnly, arenaValueWriter, ARENA_CHART_HEIGHT } from '../../../DataVisuals.ts';
+import { ARENA_CHART_HEIGHT, ARENA_INK_BODY, ARENA_INK_MUTED, arenaSrOnly, arenaValueWriter } from '../../../DataVisuals.ts';
 import {
   arenaLinearScale, arenaScaleValue, arenaNearestPoint, arenaRadiusScale, arenaRadiusAt,
 } from '../ChartScales.ts';
 import { arenaPlotBox, arenaAxisModel, arenaAxisModelX, arenaTickLabelX, arenaCategoryLabelY, arenaValueGutter } from '../ChartAxis.ts';
 import {
-  arenaPointCount, arenaPointSeriesDomain, arenaPointSeriesColor, arenaPointTable,
+  arenaPointCount, arenaPointSeriesDomain, arenaPointSeriesColor, arenaSwatchHue, arenaPointTable,
   arenaPointSized, arenaPointSizeRange,
 } from '../ChartSeries.ts';
 import { arenaLegendStrip } from '../ChartLegend.ts';
@@ -18,8 +18,14 @@ import type { ArenaLinePoint } from '../ChartScales.ts';
 import type { ArenaNumberFormat, ArenaPointSeries } from '../../../Api.generated';
 import { useArenaLocale } from '../../../ArenaLocale.ts';
 import { arenaPhrase } from '../../../Phrase.ts';
+import type { ArenaScatterChartClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
+import { arenaStyles } from '../../../ArenaStyles.generated.ts';
+import manifest from './ArenaScatterChart.classes.generated.ts';
 
 export interface ArenaScatterChartProps {
+  className?: ArenaScatterChartClass;
+
 
   /** The plotted series, drawn as one cloud of marks each. Each carries pairs rather than indexed values, because a scatter has no categories to index against: that is what ArenaPointSeries is for and why it is a separate type from ArenaSeries. The ramp clamps at its last slot rather than cycling. */
   series: readonly ArenaPointSeries[];
@@ -53,11 +59,14 @@ export interface ArenaScatterChartProps {
 }
 
 
-export function ArenaScatterChart({
+const arenaScatterChartStyles = arenaStyles(manifest);
+
+export function ArenaScatterChart({ className, 
   series, label, xLabel, yLabel, sizeLabel, sizeLegend = false, valueSuffix, valuePrefix, valueFormat,
   height = ARENA_CHART_HEIGHT,
 }: ArenaScatterChartProps) {
   const locale = useArenaLocale();
+  const styles = arenaScatterChartStyles();
   if (!label) throw new Error('ArenaScatterChart: `label` is required (it names the chart for the accessible name, and nothing can derive that)');
   if (!xLabel) throw new Error('ArenaScatterChart: `xLabel` is required (both axes carry a quantity, and a table of bare X and Y columns names neither)');
   if (!yLabel) throw new Error('ArenaScatterChart: `yLabel` is required (both axes carry a quantity, and a table of bare X and Y columns names neither)');
@@ -123,7 +132,7 @@ export function ArenaScatterChart({
   const active = hover === null ? null : marks[hover] ?? null;
 
   return (
-    <div ref={ref} style={{ position: 'relative', width: '100%', height }}>
+    <div className={arenaClassName('ArenaScatterChart', styles.frame(), className)} ref={ref} data-arena-part={manifest.parts.frame} {...styles.$data.frame()} style={{ height }}>
       <div tabIndex={0} role="group" aria-label={name} onKeyDown={onKeyDown}
         style={{ display: 'block', outlineOffset: 'var(--focus-offset)' }}>
       <svg width="100%" height={strip.plotH} role="img" aria-label={name}
@@ -131,25 +140,25 @@ export function ArenaScatterChart({
         {yAxis.ticks.map((tick, i) => (
           <g key={i}>
             <line x1={box.x} x2={box.x + box.w} y1={tick.y} y2={tick.y}
-              stroke="var(--border)" style={{ strokeWidth: 'var(--bw)' }} />
+              stroke="var(--edge-separator)" style={{ strokeWidth: 'var(--bw)' }} />
             <text x={arenaTickLabelX(gutter)} y={tick.y} textAnchor="end" dominantBaseline="middle"
-              fill="var(--text-muted)" fontFamily="var(--font-mono)" style={{ fontSize: 'var(--dz-text-2xs)' }}>{tick.label}</text>
+              fill={ARENA_INK_MUTED} fontFamily="var(--font-mono)" style={{ fontSize: 'var(--dz-text-2xs)' }}>{tick.label}</text>
           </g>
         ))}
 
         {xAxis.ticks.map((tick, i) => (
           <text key={i} x={tick.x} y={arenaCategoryLabelY(strip.plotH)} textAnchor="middle"
-            fill="var(--text-muted)" fontFamily="var(--font-mono)" style={{ fontSize: 'var(--dz-text-2xs)' }}>{tick.label}</text>
+            fill={ARENA_INK_MUTED} fontFamily="var(--font-mono)" style={{ fontSize: 'var(--dz-text-2xs)' }}>{tick.label}</text>
         ))}
 
         <line x1={box.x} x2={box.x + box.w} y1={yAxis.zeroY} y2={yAxis.zeroY}
-          stroke="var(--line-strong)" style={{ strokeWidth: 'var(--bw)' }} />
+          stroke="var(--edge-axis)" style={{ strokeWidth: 'var(--bw)' }} />
         <line x1={xAxis.zeroX} x2={xAxis.zeroX} y1={box.y} y2={box.y + box.h}
-          stroke="var(--line-strong)" style={{ strokeWidth: 'var(--bw)' }} />
+          stroke="var(--edge-axis)" style={{ strokeWidth: 'var(--bw)' }} />
 
         {marks.map((mark, i) => (
           <circle key={i} cx={mark.at.x} cy={mark.at.y} r={hover === i ? mark.r + (chartPointRHover - chartPointR) : mark.r}
-            fill={colors[mark.seriesIndex]} stroke="var(--surface-card)"
+            fill={colors[mark.seriesIndex]} stroke="var(--fill-surface)"
             opacity={hover === null || hover === i ? 1 : 0.55}
             style={{ strokeWidth: 'var(--bw-strong)', transition: 'opacity var(--dur-hover) var(--ease-hover)' }} />
         ))}
@@ -162,56 +171,45 @@ export function ArenaScatterChart({
       </div>
 
       {strip.stripH > 0 && (
-        <div aria-hidden="true" style={{
-          height: strip.stripH, display: 'flex', alignItems: 'center', gap: 'calc(var(--sp-1) * 4)',
-          overflow: 'hidden', whiteSpace: 'nowrap',
-        }}>
+        <div aria-hidden="true" className={styles.legend()} data-arena-part={manifest.parts.legend} {...styles.$data.legend()} style={{ height: strip.stripH }}>
           {series.map((one, s) => (
-            <span key={s} style={{ display: 'flex', alignItems: 'center', gap: 'calc(var(--sp-1) * 1.5)', minWidth: 0 }}>
-              <span style={{ width: 'calc(var(--sp-1) * 2.5)', height: 'calc(var(--sp-1) * 2.5)',
-                borderRadius: 'var(--r-xs)', background: colors[s], flexShrink: 0 }} />
-              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                fontFamily: 'var(--font-body)', fontSize: 'var(--dz-text-sm)', color: 'var(--text-body)' }}>{one.label}</span>
+            <span key={s} className={styles.legendItem()} data-arena-part={manifest.parts.legendItem} {...styles.$data.legendItem()}>
+              <span className={arenaScatterChartStyles(arenaSwatchHue(one, 0, s + 1)).legendSwatch()} data-arena-part={manifest.parts.legendSwatch} {...arenaScatterChartStyles(arenaSwatchHue(one, 0, s + 1)).$data.legendSwatch()} />
+              <span className={styles.legendLabel()} data-arena-part={manifest.parts.legendLabel} {...styles.$data.legendLabel()}>{one.label}</span>
             </span>
           ))}
         </div>
       )}
 
       {showsKey && (
-        <div aria-hidden="true" style={{
-          height: strip.sizeH, display: 'flex', alignItems: 'center', gap: 'calc(var(--sp-1) * 4)',
-          overflow: 'hidden', whiteSpace: 'nowrap',
-        }}>
+        <div aria-hidden="true" className={styles.legend()} data-arena-part={manifest.parts.legend} {...styles.$data.legend()} style={{ height: strip.sizeH }}>
           {[sizes.min, (sizes.min + sizes.max) / 2, sizes.max].map((size, i) => (
-            <span key={i} style={{ display: 'flex', alignItems: 'center', gap: 'calc(var(--sp-1) * 1.5)' }}>
+            <span key={i} className={styles.legendItem()} data-arena-part={manifest.parts.legendItem} {...styles.$data.legendItem()}>
               <svg width={strip.sizeH} height={strip.sizeH} style={{ display: 'block', flexShrink: 0 }}>
                 <circle cx={strip.sizeH / 2} cy={strip.sizeH / 2} r={arenaRadiusAt(rScale, size)}
-                  fill="none" stroke="var(--border-strong)" style={{ strokeWidth: 'var(--bw)' }} />
+                  fill="none" stroke="var(--edge-axis)" style={{ strokeWidth: 'var(--bw)' }} />
               </svg>
-              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--dz-text-sm)', color: 'var(--text-body)' }}>{fmt(size)}</span>
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--dz-text-sm)', color: ARENA_INK_BODY }}>{fmt(size)}</span>
             </span>
           ))}
         </div>
       )}
 
       {active && (
-        <div style={{
-          position: 'absolute', transform: 'translate(-50%,-100%)', pointerEvents: 'none', whiteSpace: 'nowrap',
-          background: 'var(--bg-raised)', border: 'var(--bw) solid var(--border-strong)',
-          borderRadius: 'var(--r-sm)', boxShadow: 'var(--shadow-2)', padding: 'calc(var(--sp-1) * 1.5) calc(var(--sp-1) * 2.5)',
+        <div className={styles.tooltip()} data-arena-part={manifest.parts.tooltip} {...styles.$data.tooltip()} style={{
           ...arenaTooltipAnchor(active.at.x, active.at.y),
         }}>
-          <div style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--dz-text-xs)', color: 'var(--mute)' }}>
+          <div className={styles.tooltipLabel()} data-arena-part={manifest.parts.tooltipLabel} {...styles.$data.tooltipLabel()}>
             {series[active.seriesIndex]?.label}
           </div>
-          <div style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--dz-text-md)', color: 'var(--bone)' }}>
+          <div className={styles.tooltipValue()} data-arena-part={manifest.parts.tooltipValue} {...styles.$data.tooltipValue()}>
             {`${xLabel}: ${fmt(active.x)}`}
           </div>
-          <div style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--dz-text-md)', color: 'var(--bone)' }}>
+          <div className={styles.tooltipValue()} data-arena-part={manifest.parts.tooltipValue} {...styles.$data.tooltipValue()}>
             {`${yLabel}: ${fmt(active.y)}`}
           </div>
           {active.size !== undefined && (
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--dz-text-md)', color: 'var(--bone)' }}>
+            <div className={styles.tooltipValue()} data-arena-part={manifest.parts.tooltipValue} {...styles.$data.tooltipValue()}>
               {`${sizeLabel}: ${fmt(active.size)}`}
             </div>
           )}

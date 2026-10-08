@@ -10,7 +10,22 @@
     "input": "flex-1 min-w-0 bg-transparent border-none outline-none text-ink-body placeholder:text-ink-muted/(--level-ink-muted) font-body text-ctl [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-60 [&::-webkit-calendar-picker-indicator]:[filter:invert(var(--picker-invert))] [&::-webkit-calendar-picker-indicator]:transition-opacity [&::-webkit-calendar-picker-indicator]:duration-[var(--dur-hover)] hover:[&::-webkit-calendar-picker-indicator]:opacity-100",
     "statusIcon": "text-[length:var(--icon-md)]",
     "hint": "font-body text-ctl-sm text-ink-muted/(--level-ink-muted)",
-    "error": "font-body text-ctl-sm text-error"
+    "error": "font-body text-ctl-sm text-[color:var(--arena-hue-ink)]"
+  },
+  "kind": {
+    "root": "none",
+    "label": "none",
+    "required": "none",
+    "field": "field",
+    "icon": "none",
+    "prefix": "none",
+    "input": "none",
+    "statusIcon": "none",
+    "hint": "none",
+    "error": "none"
+  },
+  "internal": {
+    "state": "error when an error shows, valid when valid holds, from error, validate, touched and valid"
   },
   "variants": {
     "state": {
@@ -18,12 +33,12 @@
         "field": "border-edge-field focus-within:border-secondary focus-within:ring-[length:var(--focus-width)] focus-within:ring-secondary/16"
       },
       "error": {
-        "field": "border-error ring-[length:var(--focus-width)] ring-error/14",
-        "statusIcon": "text-error"
+        "field": "border-[color:var(--arena-hue-edge)] ring-[length:var(--focus-width)] ring-[color:var(--arena-hue-fill-soft)]",
+        "statusIcon": "text-[color:var(--arena-hue-ink)]"
       },
       "valid": {
-        "field": "border-success ring-[length:var(--focus-width)] ring-success/16 focus-within:border-secondary focus-within:ring-[length:var(--focus-width)] focus-within:ring-secondary/16",
-        "statusIcon": "text-success"
+        "field": "border-[color:var(--arena-hue-edge)] ring-[length:var(--focus-width)] ring-[color:var(--arena-hue-fill-soft)] focus-within:border-secondary focus-within:ring-[length:var(--focus-width)] focus-within:ring-secondary/16",
+        "statusIcon": "text-[color:var(--arena-hue-ink)]"
       }
     },
     "disabled": {
@@ -32,7 +47,7 @@
       },
       "false": {}
     },
-    "readonly": {
+    "readOnly": {
       "true": {
         "field": "bg-base-200",
         "input": "cursor-default"
@@ -43,6 +58,16 @@
   "defaultVariants": {
     "state": "neutral",
     "disabled": false,
-    "readonly": false
+    "readOnly": false
+  },
+  "hues": {
+    "always": {
+      "error": "danger"
+    },
+    "state": {
+      "neutral": null,
+      "error": "danger",
+      "valid": "success"
+    }
   }
 }

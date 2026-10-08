@@ -1,13 +1,13 @@
 The frame of a board: columns side by side, sharing the room equally and never narrower than
-`minColumn`, scrolling sideways once they no longer fit. The frame is one tab stop with a group role and a name, which is what makes a scrolling region reachable by keyboard at all.
+the `arena-board-column` width, scrolling sideways once they no longer fit. The frame is one tab stop with a group role and a name, which is what makes a scrolling region reachable by keyboard at all.
 
 ```tsx
 <ArenaBoard label="Sprint 32 tasks by status">
   {STATUSES.map((status) => (
     <ArenaBoardColumn key={status} title={status} count={byStatus[status].length}
       colorId={SLOT[status]}
-      action={<ArenaIconButton icon="ph-bold ph-plus" label={`Add to ${status}`} size="sm" />}
-      footer={<ArenaButton variant="ghost" size="sm" icon="ph-bold ph-plus">New</ArenaButton>}>
+      action={<ArenaIconButton icon="ph-bold ph-plus" label={`Add to ${status}`} className="arena-size-sm" />}
+      footer={<ArenaButton icon="ph-bold ph-plus" className="arena-emphasis-ghost arena-size-sm">New</ArenaButton>}>
       {byStatus[status].map((task) => <TaskCard key={task.id} task={task} />)}
     </ArenaBoardColumn>
   ))}
@@ -27,20 +27,29 @@ frame, the column and its head, and stops. `ArenaCard` is a good card; so is you
 |---|---|---|---|---|
 | `label*` | primitive | `string` |  | Names the board to assistive technology: what the columns are columns OF. "Sprint 32 tasks by status", never "Board". Required and guarded at runtime after trimming, the shape ArenaScroller.label carries for the same reason, since a group announced as a group tells a reader that focus moved and nothing about where it landed. |
 | `children*` | slot |  |  | The columns, one ArenaBoardColumn each. Required and guarded at runtime: a board with no columns is a tab stop over nothing, which is the dead stop a component with a group role must not ship. |
-| `minColumn` | primitive | `string` | `"var(--grid-min)"` | The narrowest a column may be before the board scrolls rather than squeezing. Columns share the room equally above it, so a board of four fills the width it is given and a board of twelve scrolls. It is a length rather than a step on the spacing scale, for the reason ArenaGrid.min is one: this is page geometry and the spacing scale models rhythm. The default is the same role a grid's cell reads, so a card is one width across a wall, a rail and a board. |
 
 <!-- @api end -->
+
+<!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
+
+**Answers** [`board-column`](../../../../VOCABULARY.md#board-column): `arena-board-column-lg`, `arena-board-column-md` (default), `arena-board-column-sm`. Write one as `className="arena-board-column-lg"` on the component, or on a container whose components should all take it. Property: `--arena-board-column`, set on a container of yours for a value no option names.
+
+<!-- @answers end -->
+
+<!-- @keys GENERATED from the binding. -->
+**Keys:** none (`scrollable-region`).
+<!-- @keys end -->
 
 **Do / Don't**
 - Say what the columns are columns OF in `label`: "Sprint 32 tasks by status", "Candidates by
   stage". The label is the name a keyboard user lands on, and "Board" tells them nothing.
-- Raise `minColumn` when a card needs more room than a grid cell, and leave it alone otherwise. The default is the same width a card takes in a grid or a rail.
+- Write `className="arena-board-column-lg"` when a card needs more room than a grid cell, `arena-board-column-sm` for a board of many slim lanes, and leave it alone otherwise. The default, `arena-board-column-md`, is the same width a card takes in a grid or a rail. `--arena-board-column` on a container takes a width no step names, and a class on the board wins over it.
 - Don't wrap it in your own scroll container. The board is the scrolling region, and a second one
   around it takes the keyboard's scroll away from the one that announces itself.
 - Don't use it for a fixed set of panels that always fit. The component for that is `ArenaGrid`, which wraps rather than scrolling.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
+**The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

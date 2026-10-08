@@ -3,12 +3,16 @@ import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaBadge.classes.generated.ts';
 
 import type { ArenaTone } from '../../../Api.generated';
+import type { ArenaBadgeClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export interface ArenaBadgeProps {
+  className?: ArenaBadgeClass;
+
 
   /** The label text. Short: a badge is a chip, not a sentence. */
   children?: React.ReactNode;
-  /** System status (success/warning/danger/info) reflects an object's actual state; emphasis (accent, gold) is editorial; neutral carries no semantic weight. */
+  /** System status (success/warning/danger/info) reflects an object's actual state; neutral carries no semantic weight. */
   tone?: ArenaTone;
 
   /** Draws a filled dot in the tone colour before the label. */
@@ -16,15 +20,15 @@ export interface ArenaBadgeProps {
 }
 
 const arenaBadgeStyles = arenaStyles(manifest);
-const TONES = Object.keys(manifest.variants.tone);
+const TONES: readonly string[] = manifest.values.tone;
 const toneOf = (tone: string | undefined): ArenaTone | undefined =>
   (tone && TONES.includes(tone) ? tone as ArenaTone : 'neutral');
 
-export function ArenaBadge({ children, tone = 'neutral', dot = false }: ArenaBadgeProps) {
+export function ArenaBadge({ className, children, tone = 'neutral', dot = false }: ArenaBadgeProps) {
   const styles = arenaBadgeStyles({ tone: toneOf(tone) });
   return (
-    <span className={styles.root()} data-arena-part={manifest.parts.root}>
-      {dot && <span className={styles.dot()} data-arena-part={manifest.parts.dot} />}
+    <span className={arenaClassName('ArenaBadge', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()} data-arena-boundary="">
+      {dot && <span className={styles.dot()} data-arena-part={manifest.parts.dot} {...styles.$data.dot()} />}
       {children}
     </span>
   );

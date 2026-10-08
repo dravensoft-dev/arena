@@ -13,6 +13,9 @@
     "text-md": { "$value": { "value": 12, "unit": "px" }, "$extensions": { "com.dravensoft.arena": { "userScale": "scales" } } },
     "text-sm": { "$value": { "value": 11, "unit": "px" }, "$extensions": { "com.dravensoft.arena": { "userScale": "scales" } } },
     "text-xs": { "$value": { "value": 10, "unit": "px" }, "$extensions": { "com.dravensoft.arena": { "userScale": "scales" } } },
-    "text-2xs": { "$value": { "value": 10, "unit": "px" }, "$extensions": { "com.dravensoft.arena": { "userScale": "scales" } } }
+    "text-2xs": { "$value": { "value": 10, "unit": "px" }, "$extensions": { "com.dravensoft.arena": { "userScale": "scales" } } },
+    "row-scale-x": { "$type": "number", "$value": 0.75 },
+    "row-scale-y": { "$type": "number", "$value": 0.5833 },
+    "row-min": { "$value": { "value": 0, "unit": "px" } }
   }
 }

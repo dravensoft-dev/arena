@@ -3,6 +3,7 @@ import { arenaAlertStyles } from './ArenaAlert.variants';
 import manifest from './ArenaAlert.classes.generated';
 import type { ArenaAlertTone } from '../../../Api.generated';
 import { ARENA_LOCALE } from '../../../ArenaLocale';
+import { ArenaSlotAttributes } from '../../../SlotData';
 
 const TONE_ICONS: Record<ArenaAlertTone, string> = {
   info: 'ph-fill ph-info',
@@ -15,22 +16,24 @@ const TONE_ICONS: Record<ArenaAlertTone, string> = {
 @Component({
   selector: 'arena-alert',
   standalone: true,
+  imports: [ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'styles().root()',
+    '[attr.data-arena-tone]': "styles().$data.root()['data-arena-tone'] ?? null",
     '[attr.data-arena-part]': 'parts.root',
     '[attr.role]': "tone() === 'danger' ? 'alert' : 'status'",
     '[attr.title]': 'null',
   },
   template: `
-    <i [class]="styles().icon() + ' ' + (icon() ?? toneIcon())" [attr.data-arena-part]="parts.icon" aria-hidden="true"></i>
+    <i [class]="styles().icon() + ' ' + (icon() ?? toneIcon())" [arenaSlotData]="styles().$data.icon()" [attr.data-arena-part]="parts.icon" aria-hidden="true"></i>
     <div [class]="styles().body()" [attr.data-arena-part]="parts.body">
       @if (title(); as heading) {
         <div [class]="styles().title()" [attr.data-arena-part]="parts.title">{{ heading }}</div>
       }
-      <div [class]="styles().message()" [attr.data-arena-part]="parts.message"><ng-content /></div>
+      <div [class]="styles().message()" [arenaSlotData]="styles().$data.message()" [attr.data-arena-part]="parts.message" data-arena-boundary><ng-content /></div>
       @if (actionLabel(); as label) {
-        <button type="button" [class]="styles().action()" [attr.data-arena-part]="parts.action" (click)="action.emit()">{{ label }}</button>
+        <button type="button" [class]="styles().action()" [arenaSlotData]="styles().$data.action()" [attr.data-arena-part]="parts.action" (click)="action.emit()">{{ label }}</button>
       }
     </div>
     @if (dismissible()) {

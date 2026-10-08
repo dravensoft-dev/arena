@@ -1,7 +1,17 @@
 {
   "component": "ArenaToast",
+  "answers": [
+    {
+      "family": "accent",
+      "options": [
+        "arena-accent-plain",
+        "arena-accent-gold"
+      ],
+      "default": "arena-accent-plain"
+    }
+  ],
   "slots": {
-    "root": "flex gap-items items-start w-85 px-4 py-3.5 z-toast bg-surface-floating border-t-[length:var(--bw-surface)] border-r-[length:var(--bw-surface)] border-b-[length:var(--bw-surface)] border-t-base-300 border-r-base-300 border-b-base-300 border-l-[length:var(--bw-strong)] rounded-surface-floating shadow-surface-floating",
+    "root": "flex gap-items items-start w-85 px-status-x py-status-y z-toast bg-surface-floating border-t-[length:var(--bw-surface)] border-r-[length:var(--bw-surface)] border-b-[length:var(--bw-surface)] border-t-base-300 border-r-base-300 border-b-base-300 border-l-[length:var(--bw-strong)] rounded-surface-floating shadow-surface-floating border-l-[color:var(--arena-accent-side-edge,var(--accent-plain-side-edge))]",
     "body": "flex-1",
     "title": "flex items-center gap-control font-body font-semibold text-ctl text-ink-heading",
     "pinned": "font-face-label text-label tracking-label-role case-label text-ink-muted/(--level-ink-muted) border-[length:var(--bw-marker)] border-edge-surface rounded-marker px-1",
@@ -9,27 +19,38 @@
     "action": "mt-2.5 inline-flex items-center min-h-ctl-h-sm min-w-ctl-h-sm bg-transparent border-none p-0 cursor-pointer font-face-label text-ctl-sm font-bold tracking-uppercase-status case-label",
     "close": "inline-flex items-center justify-center size-ctl-h-sm shrink-0 bg-transparent border-none cursor-pointer text-ink-muted/(--level-ink-muted) text-[length:var(--icon-md)] leading-ctl"
   },
+  "kind": {
+    "root": "status",
+    "body": "none",
+    "title": "none",
+    "pinned": "marker",
+    "message": "none",
+    "action": "none",
+    "close": "none"
+  },
   "variants": {
     "tone": {
       "neutral": {
-        "root": "border-l-neutral",
         "action": "text-primary"
       },
       "success": {
-        "root": "border-l-success",
+        "root": "border-l-[color:var(--arena-hue-edge)]",
         "action": "text-primary"
       },
       "danger": {
-        "root": "border-l-error",
+        "root": "border-l-[color:var(--arena-hue-edge)]",
         "action": "text-secondary"
-      },
-      "gold": {
-        "root": "border-l-secondary",
-        "action": "text-primary"
       }
     }
   },
   "defaultVariants": {
     "tone": "neutral"
+  },
+  "hues": {
+    "tone": {
+      "neutral": null,
+      "success": "success",
+      "danger": "danger"
+    }
   }
 }

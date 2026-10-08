@@ -10,10 +10,24 @@
     "actionIcon": "inline-flex text-[length:var(--icon-md)]",
     "clear": "inline-flex items-center min-h-ctl-h-sm min-w-ctl-h-sm bg-transparent border-none cursor-pointer text-ink-muted/(--level-ink-muted) font-face-label text-ctl-xs tracking-label-role case-label"
   },
+  "kind": {
+    "root": "floating",
+    "count": "none",
+    "number": "none",
+    "divider": "none",
+    "actions": "none",
+    "action": "control",
+    "actionIcon": "none",
+    "clear": "none"
+  },
+  "internal": {
+    "open": "the selection count is above zero",
+    "narrow": "layout auto and the container narrower than sm"
+  },
   "variants": {
     "destructive": {
       "true": {
-        "action": "border-error text-error hover:bg-hover"
+        "action": "border-[color:var(--arena-hue-edge)] text-[color:var(--arena-hue-ink)] hover:bg-hover"
       },
       "false": {
         "action": "border-edge-control-quiet text-ink-body/(--level-ink-body) hover:bg-base-200"
@@ -38,5 +52,11 @@
     "destructive": false,
     "open": false,
     "narrow": false
+  },
+  "hues": {
+    "destructive": {
+      "true": "danger",
+      "false": null
+    }
   }
 }

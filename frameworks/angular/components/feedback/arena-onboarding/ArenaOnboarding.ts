@@ -21,20 +21,24 @@ const SSR_VIEWPORT_H = 900;
 import type { ArenaOnboardingAnchor, ArenaOnboardingStep } from '../../../Api.generated';
 import { ARENA_LOCALE } from '../../../ArenaLocale';
 import { arenaPhrase } from '../../../Phrase';
+import { ArenaSlotAttributes } from '../../../SlotData';
 
 @Component({
   selector: 'arena-onboarding',
   standalone: true,
+  imports: [ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'styles().root()',
+    '[attr.data-arena-surface]': "'floating'",
+    '[attr.data-arena-open]': "styles().$data.root()['data-arena-open'] ?? null",
     '[attr.data-arena-part]': 'parts.root',
     '(click)': 'onScrimClick()',
     '(keydown)': 'onKeydown($event)',
   },
   template: `
     @if (visible()) {
-      <div #panel [class]="styles().panel()" [attr.data-arena-part]="parts.panel" role="dialog" aria-modal="true" tabindex="-1"
+      <div #panel [class]="styles().panel()" [arenaSlotData]="styles().$data.panel()" [attr.data-arena-part]="parts.panel" role="dialog" aria-modal="true" tabindex="-1"
            [attr.aria-label]="label()"
            (click)="$event.stopPropagation()"
            [style.top.px]="position()?.top" [style.left.px]="position()?.left">
@@ -50,7 +54,8 @@ import { arenaPhrase } from '../../../Phrase';
         <div [class]="styles().foot()" [attr.data-arena-part]="parts.foot">
           <div [class]="styles().dots()" [attr.data-arena-part]="parts.dots" [attr.aria-label]="progressName()">
             @for (dot of steps(); track $index) {
-              <span [class]="styles().dot() + ' ' + ($index === index() ? styles().dotOn() : styles().dotOff())"
+              <span [class]="($index === index() ? currentStyles() : styles()).dot()"
+                    [arenaSlotData]="($index === index() ? currentStyles() : styles()).$data.dot()"
                     [attr.data-arena-part]="parts.dot"></span>
             }
           </div>
@@ -105,6 +110,12 @@ export class ArenaOnboarding {
   protected readonly styles = computed(() => arenaOnboardingStyles({
     placement: this.anchor() ? 'anchored' : 'floating',
     open: this.open(),
+  }));
+
+  protected readonly currentStyles = computed(() => arenaOnboardingStyles({
+    placement: this.anchor() ? 'anchored' : 'floating',
+    open: this.open(),
+    current: true,
   }));
 
   protected readonly position = computed(() => {

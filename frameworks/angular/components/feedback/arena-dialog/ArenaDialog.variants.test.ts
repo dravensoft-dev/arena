@@ -10,7 +10,7 @@ test('only the scrim varies with open -- the panel and its interior slots are co
   const closed = arenaDialogStyles({ open: false });
   const open = arenaDialogStyles({ open: true });
   for (const slot of ['panel', 'head', 'eyebrow', 'title', 'body', 'foot'] as const) {
-    assert.equal(closed[slot](), open[slot](), `${slot} must not vary with open`);
+    assert.equal(JSON.stringify(closed.$data[slot]()), JSON.stringify(open.$data[slot]()), `${slot} must not vary with open`);
   }
 });
 

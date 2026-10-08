@@ -23,6 +23,11 @@ import type { ComponentContract, MemberSpec, TypeContract } from '../../lib/aren
 import type { Fixture, FixtureChild } from '../../lib/arena/playground-model.ts';
 import { captured } from '../../utils/captures.ts';
 import { withForeignTrees } from '../../lib/arena/foreign-trees.ts';
+import { answerOf, readFamilies } from '../../lib/tailwind/vocabulary.ts';
+import type { Family } from '../../lib/tailwind/vocabulary.ts';
+import { manifestFor } from '../../lib/tailwind/manifest-surfaces.ts';
+import { manifestPath } from '../../lib/arena/kitchen-sink-model.ts';
+import type { ComponentManifest } from '../../lib/tailwind/manifest-shapes.ts';
 
 export const node = {
   name: 'check:playgrounds',
@@ -153,8 +158,56 @@ export function seedProblems(name: string, contract: ComponentContract,
   return problems;
 }
 
+export type ClassSource = {
+  families: Map<string, Family>;
+  manifest: (component: string) => ComponentManifest | null;
+};
+
+let defaultSource: ClassSource | null = null;
+
+export function classSource(): ClassSource {
+  defaultSource ??= {
+    families: readFamilies(root),
+    manifest: (component) => {
+      const owner = manifestFor(component, root);
+      const path = owner ? manifestPath(owner, root) : null;
+      return path && existsSync(path) ? readJson(path) as ComponentManifest : null;
+    },
+  };
+  return defaultSource;
+}
+
+export function classProblems(where: string, component: string, value: unknown,
+  source: ClassSource = classSource()): string[] {
+  if (value === undefined) return [];
+  if (typeof value !== 'string' || value.trim() === '')
+    return [`${where}: class is a string of space-separated options, and this is ${typeof value === 'string' ? 'empty' : typeof value}`];
+  const problems: string[] = [];
+  const written = new Map<string, Set<string>>();
+  for (const option of value.trim().split(/\s+/)) {
+    const family = [...source.families.values()].find((one) => option in one.variants);
+    if (!family) { problems.push(`${where}: ${option} is not an option of any family`); continue; }
+    written.set(family.family, (written.get(family.family) ?? new Set()).add(option));
+  }
+  const manifest = source.manifest(component);
+  for (const [name, options] of written) {
+    const family = source.families.get(name) as Family;
+    if (options.size > 1)
+      problems.push(`${where}: ${[...options].join(' and ')} are two options of the ${name} family, and a node holds one`);
+    const answer = manifest ? answerOf(manifest, family) : null;
+    if (family.reach === 'context' && answer === null) continue;
+    if (answer === null)
+      problems.push(`${where}: ${component} does not answer the ${name} family, so ${[...options].join(' ')} changes nothing there`);
+    else {
+      for (const option of options)
+        if (!answer.options.includes(option)) problems.push(`${where}: ${component} answers the ${name} family without ${option}`);
+    }
+  }
+  return problems;
+}
+
 export function nodeProblems(where: string, node: FixtureChild, contracts: Contracts, types: Types,
-  { allowSubject }: { allowSubject?: boolean }): string[] {
+  { allowSubject, source }: { allowSubject?: boolean; source?: ClassSource }): string[] {
   if (node === SUBJECT) {
     return allowSubject ? [] : [`${where}: "${SUBJECT}" marks where the component under test goes and belongs in a host, nowhere else`];
   }
@@ -175,7 +228,7 @@ export function nodeProblems(where: string, node: FixtureChild, contracts: Contr
   const contract = contracts.get(node.component);
   if (!contract) return [`${where}: no component named ${node.component} is contracted`];
   const api = contract.api ?? {};
-  const problems = [];
+  const problems = [...classProblems(`${where}.class`, node.component, node.class, source)];
   for (const [member, value] of Object.entries(node.members ?? {})) {
     const spec = api[member];
     if (!spec) { problems.push(`${where}.${member}: ${node.component} declares no such member`); continue; }
@@ -188,13 +241,13 @@ export function nodeProblems(where: string, node: FixtureChild, contracts: Contr
   }
   for (const [slot, list] of Object.entries(node.slots ?? {})) {
     if (api[slot]?.form !== 'slot') { problems.push(`${where}.slots.${slot}: ${node.component} declares no such slot`); continue; }
-    problems.push(...listProblems(`${where}.slots.${slot}`, list, contracts, types, { allowSubject }));
+    problems.push(...listProblems(`${where}.slots.${slot}`, list, contracts, types, { allowSubject, source }));
   }
   return problems;
 }
 
 export function listProblems(where: string, list: FixtureChild[], contracts: Contracts, types: Types,
-  options: { allowSubject?: boolean }): string[] {
+  options: { allowSubject?: boolean; source?: ClassSource }): string[] {
   if (!Array.isArray(list)) return [`${where}: a slot holds a list of nodes and this is ${typeof list}`];
   return list.flatMap((node, i) => nodeProblems(`${where}[${i}]`, node, contracts, types, options));
 }
@@ -277,9 +330,17 @@ export function shapeProblems(name: string, fixture: Fixture & Record<string, un
   const problems: string[] = [];
   if (fixture.component !== name)
     problems.push(`${name}${FIXTURE_SUFFIX}: declares component "${fixture.component}", and the file name says ${name}`);
-  const known = ['component', 'seed', 'slots', 'bind', 'host', 'note'];
+  const known = ['component', 'seed', 'class', 'slots', 'bind', 'host', 'note', 'vars'];
   for (const key of Object.keys(fixture))
     if (!known.includes(key)) problems.push(`${name}${FIXTURE_SUFFIX}: carries ${key}, and a fixture holds ${known.join(', ')}`);
+  const vars = fixture.vars;
+  if (vars !== undefined && (vars === null || typeof vars !== 'object' || Array.isArray(vars)))
+    problems.push(`${name}${FIXTURE_SUFFIX}: vars is a map of --arena-* names to string values`);
+  else for (const [property, value] of Object.entries(vars ?? {})) {
+    if (!/^--arena-[a-z0-9-]+$/.test(property)) problems.push(`${name}${FIXTURE_SUFFIX}: vars sets ${property}, and a fixture sets only --arena-* properties named in lower-case letters, digits and hyphens`);
+    if (typeof value !== 'string') problems.push(`${name}${FIXTURE_SUFFIX}: vars ${property} holds ${typeof value}, and a value is a string`);
+    else if (/[";{}<]/.test(value)) problems.push(`${name}${FIXTURE_SUFFIX}: vars ${property} holds ${JSON.stringify(value)}, and a value carries none of " ; { } <, which would break the style attribute it is written into`);
+  }
   return problems;
 }
 
@@ -288,6 +349,7 @@ export function fixtureProblems(name: string, contract: ComponentContract, fixtu
   const problems = [
     ...shapeProblems(name, fixture),
     ...seedProblems(name, contract, fixture, types),
+    ...classProblems(`${name}.class`, name, fixture.class),
     ...slotProblems(name, contract, fixture, contracts, types),
     ...bindProblems(name, contract, fixture, types),
     ...hostProblems(name, fixture, contracts, types),

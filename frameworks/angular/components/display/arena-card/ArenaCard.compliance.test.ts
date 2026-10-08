@@ -25,7 +25,7 @@ const BINDING = join(ANGULAR_COMPONENTS, 'display/arena-card/ArenaCard.behaviour
   standalone: true,
   imports: [ArenaCard, ArenaAction],
   template: `
-    <arena-card [title]="title" [eyebrow]="eyebrow" [accent]="accent" [floating]="floating"
+    <arena-card [title]="title" [eyebrow]="eyebrow"
                 [interactive]="interactive" [disabled]="disabled" [href]="href"
                 (click)="activated = activated + 1">
       @if (withAction) {
@@ -38,8 +38,6 @@ const BINDING = join(ANGULAR_COMPONENTS, 'display/arena-card/ArenaCard.behaviour
 class CardHost {
   title: string | undefined = 'Client Portal';
   eyebrow: string | undefined = 'Delivery';
-  accent = false;
-  floating = false;
   interactive = false;
   disabled = false;
   withAction = false;
@@ -205,24 +203,19 @@ test('the header renders for a title, for an eyebrow, or for an action alone, an
   }
 });
 
-test('accent and floating reach the styled root, and the host itself stays out of layout', () => {
+test('the host itself stays out of layout, and the root carries no accent or floating mark of its own', () => {
   const plain = render();
-  const marked = render({ accent: true, floating: true });
   try {
     const host = plain.nativeElement.querySelector('arena-card') as HTMLElement;
     assert.equal(host.getAttribute('class'), null, 'the host carries no recipe classes of its own');
     assert.match(host.getAttribute('style') ?? '', /display:\s*contents/,
       'a bare host must leave layout, or as a flex item it shrinks to fit around the card');
 
-    const plainClass = rootOf(plain).getAttribute('class') ?? '';
-    const markedClass = rootOf(marked).getAttribute('class') ?? '';
-    assert.notEqual(plainClass, markedClass, 'accent and floating changed nothing on the root');
-    assert.match(markedClass, /arena-card__root--accent-true/, 'accent did not reach the styled root');
-    assert.match(markedClass, /arena-card__root--floating-true/, 'floating did not reach the styled root');
-    assert.doesNotMatch(plainClass, /arena-card__root--floating-true/);
+    const plainRoot = rootOf(plain);
+    assert.equal(plainRoot.hasAttribute('data-arena-floating'), false);
+    assert.equal(plainRoot.hasAttribute('data-arena-accent'), false);
   } finally {
     plain.destroy();
-    marked.destroy();
   }
 });
 

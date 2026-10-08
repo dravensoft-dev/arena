@@ -85,7 +85,7 @@ export function narrowWidths<T>(width: number, body: () => T): T {
     callback: ResizeObserverCallback;
     constructor(callback: ResizeObserverCallback) { this.callback = callback; }
     observe(target: Element) {
-      this.callback([{ target, contentRect: { width } }] as unknown as ResizeObserverEntry[], this as unknown as ResizeObserver);
+      this.callback([{ target, borderBoxSize: [{ inlineSize: width, blockSize: 0 }], contentRect: { width } }] as unknown as ResizeObserverEntry[], this as unknown as ResizeObserver);
     }
     unobserve() {}
     disconnect() {}
@@ -131,7 +131,7 @@ const CASES: Record<string, Case> = {
   ArenaSheet: { renders: [() => <ArenaSheet open title="Filters" dismissible>Body</ArenaSheet>], consumer: ['Filters', 'Body'] },
   ArenaAlert: { renders: [() => <ArenaAlert tone="info" title="Heads up" dismissible>Body</ArenaAlert>], consumer: ['Heads up', 'Body'] },
   ArenaTag: { renders: [() => <ArenaTag removable>Beta</ArenaTag>], consumer: ['Beta'] },
-  ArenaSkeleton: { renders: [() => <ArenaSkeleton />, () => <ArenaSkeleton variant="text" lines={2} />], consumer: [] },
+  ArenaSkeleton: { renders: [() => <ArenaSkeleton />, () => <ArenaSkeleton lines={2} />], consumer: [] },
   ArenaSpinner: { renders: [() => <ArenaSpinner />], consumer: [] },
   ArenaSwitch: { renders: [() => <ArenaSwitch label="Auto deploy" confirm />], consumer: ['Auto deploy'] },
   ArenaBulkActionBar: { renders: [() => <ArenaBulkActionBar count={3} actions={[{ id: 'archive', label: 'Archive' }]} />], consumer: ['Archive'] },

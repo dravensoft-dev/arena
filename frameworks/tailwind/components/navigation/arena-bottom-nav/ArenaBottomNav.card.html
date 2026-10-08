@@ -6,17 +6,18 @@
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor } from '../../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
 
 const manifest = await (await fetch('./ArenaBottomNav.manifest.json')).json();
 
 function column({ icon, label, active = false, badge = null }) {
-  const c = arenaClassesFor(manifest, { active });
-  const glyph = el('span', { class: c.glyph },
+  const c = arenaClassesFor(manifest, { current: active });
+  const d = arenaSlotDataFor(manifest, { current: active });
+  const glyph = el('span', { class: c.glyph, ...d.glyph },
     el('i', { class: `${active ? 'ph-fill' : 'ph-bold'} ${icon}`, 'aria-hidden': 'true' }));
-  if (badge) glyph.append(el('span', { class: c.badge, text: badge }));
-  return el('button', { class: c.item, type: 'button', 'aria-current': active ? 'page' : undefined },
-    glyph, el('span', { class: c.label, text: label }));
+  if (badge) glyph.append(el('span', { class: c.badge, ...d.badge, text: badge }));
+  return el('button', { class: c.item, ...d.item, type: 'button', 'aria-current': active ? 'page' : undefined },
+    glyph, el('span', { class: c.label, ...d.label, text: label }));
 }
 
 const DESTINATIONS = [
@@ -36,7 +37,7 @@ mountSpecimen({ sections: [
   ]),
 ]});
 
-const bar = el('nav', { class: arenaClassesFor(manifest).root, 'aria-label': 'Primary' });
+const bar = el('nav', { class: arenaClassesFor(manifest).root, ...arenaSlotDataFor(manifest).root, 'aria-label': 'Primary' });
 for (const d of DESTINATIONS) bar.append(column(d));
 document.body.append(bar);
 </script></body></html>

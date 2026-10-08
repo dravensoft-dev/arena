@@ -5,11 +5,15 @@ import { arenaBreadcrumbList } from '../../../StructuredData.ts';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaBreadcrumbs.classes.generated.ts';
 import type { ArenaCrumb } from '../../../Api.generated';
+import type { ArenaBreadcrumbsClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export type { ArenaCrumb };
 export interface ArenaBreadcrumbsProps {
+  className?: ArenaBreadcrumbsClass;
 
-  /** Names this navigation landmark. Required, and guarded at runtime: nothing can derive it, and the constant "Breadcrumb" it used to hardcode made two trails on one page indistinguishable as landmarks while satisfying the requirement mechanically. Say which hierarchy this is a trail through: "Project navigation", never "Breadcrumb". */
+
+  /** Names this navigation landmark. Required, and guarded at runtime: nothing can derive it, and a constant such as "Breadcrumb" makes two trails on one page indistinguishable as landmarks while satisfying the requirement mechanically. Say which hierarchy this is a trail through: "Project navigation", never "Breadcrumb". */
   ariaLabel: string;
 
   /** The trail, root first. The last entry is the current location and is never a link. */
@@ -28,20 +32,20 @@ export interface ArenaBreadcrumbsProps {
 
 const breadcrumbStyles = arenaStyles(manifest);
 
-export function ArenaBreadcrumbs({ items, ariaLabel, separator = '/', origin, onNavigate }: ArenaBreadcrumbsProps) {
+export function ArenaBreadcrumbs({ className, items, ariaLabel, separator = '/', origin, onNavigate }: ArenaBreadcrumbsProps) {
   if (!ariaLabel?.trim()) throw new Error('ArenaBreadcrumbs: `ariaLabel` is required');
   if (!items) throw new Error('ArenaBreadcrumbs: `items` is required');
   const styles = breadcrumbStyles();
   const linked = breadcrumbStyles({ linked: true });
   const unlinked = breadcrumbStyles({ linked: false });
   return (
-    <nav aria-label={ariaLabel} className={styles.root()} data-arena-part={manifest.parts.root}>
+    <nav aria-label={ariaLabel} className={arenaClassName('ArenaBreadcrumbs', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
       {items.map((it, i) => {
         const last = i === items.length - 1;
         return (
           <React.Fragment key={i}>
             {last ? (
-              <span aria-current="page" className={styles.current()} data-arena-part={manifest.parts.current}>{it.label}</span>
+              <span aria-current="page" className={styles.current()} data-arena-part={manifest.parts.current} {...styles.$data.current()}>{it.label}</span>
             ) : it.href ? (
               <a href={it.href}
                 onClick={(e) => {
@@ -49,13 +53,13 @@ export function ArenaBreadcrumbs({ items, ariaLabel, separator = '/', origin, on
                   e.preventDefault();
                   onNavigate?.(it);
                 }}
-                className={linked.crumb()} data-arena-part={manifest.parts.crumb}>
+                className={linked.crumb()} data-arena-part={manifest.parts.crumb} {...linked.$data.crumb()}>
                 {it.label}
               </a>
             ) : (
-              <span className={unlinked.crumb()} data-arena-part={manifest.parts.crumb}>{it.label}</span>
+              <span className={unlinked.crumb()} data-arena-part={manifest.parts.crumb} {...unlinked.$data.crumb()}>{it.label}</span>
             )}
-            {!last && <span aria-hidden="true" className={styles.separator()} data-arena-part={manifest.parts.separator}>{separator}</span>}
+            {!last && <span aria-hidden="true" className={styles.separator()} data-arena-part={manifest.parts.separator} {...styles.$data.separator()}>{separator}</span>}
           </React.Fragment>
         );
       })}

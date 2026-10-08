@@ -18,19 +18,15 @@ test('off renders iconOff and aria-checked="false"', () => {
   assert.doesNotMatch(html, /ph-bold ph-sun/);
 });
 
-test('the track footprint and the knob travel are two composite variants, not a size table', () => {
+test('the state alone decides the track and the knob, and size and orientation are classes', () => {
   const off = renderToStaticMarkup(<ArenaSwitch label="Dark theme" />);
-  assert.match(off, /\barena-switch__track--footprint-horizontal-md\b/);
-  assert.match(off, /\barena-switch__track--footprint-horizontal-md\b/);
-  assert.match(off, /\barena-switch__knob--thumb-off-horizontal\b/);
-  assert.match(off, /\barena-switch__track--checked-false\b/);
+  assert.doesNotMatch(off, /data-arena-(footprint|thumb|size|orientation)/);
+  assert.match(off, /data-arena-part="switch.track"(?:(?!data-arena-state=)[^>])*>/);
 
   const on = renderToStaticMarkup(<ArenaSwitch state label="Dark theme" />);
-  assert.match(on, /\barena-switch__knob--thumb-on-horizontal\b/);
-  assert.match(on, /\barena-switch__track--checked-true\b/);
+  assert.match(on, /data-arena-part="switch.track"[^>]*\bdata-arena-state=""/);
+  assert.match(on, /data-arena-part="switch.knob"[^>]*\bdata-arena-state=""/);
 
-  const tall = renderToStaticMarkup(<ArenaSwitch label="Dark theme" orientation="vertical" size="lg" />);
-  assert.match(tall, /\barena-switch__track--footprint-vertical-lg\b/);
-  assert.match(tall, /\barena-switch__track--footprint-vertical-lg\b/);
-  assert.match(tall, /\barena-switch__knob--thumb-off-vertical\b/, 'a vertical knob travels on the other axis');
+  const tall = renderToStaticMarkup(<ArenaSwitch label="Dark theme" className="arena-orientation-vertical" />);
+  assert.match(tall, /\barena-orientation-vertical\b/);
 });

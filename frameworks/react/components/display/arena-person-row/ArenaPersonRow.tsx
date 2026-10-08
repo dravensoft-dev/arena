@@ -3,15 +3,14 @@ import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from '../arena-people-list/ArenaPeopleList.classes.generated.ts';
 import { ArenaAvatar } from '../arena-avatar/ArenaAvatar.tsx';
 
-import type { ArenaAvatarSize, ArenaControlSize } from '../../../Api.generated';
-
-export interface ArenaPersonRowInjected {
-  size: ArenaControlSize;
-}
+import type { ArenaPersonRowClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export interface ArenaPersonRowProps {
+  className?: ArenaPersonRowClass;
 
-  /** The person or entity. It is the row's own text, the face's initials when there is no image, and that image's alt text, which is why one member carries all three: a name spelt differently in any of them is the same person announced as two. Required and guarded at runtime rather than defaulted, because nothing can derive who a row is about and a blank one draws a face, a rank and a figure around nobody. */
+
+  /** The person or entity. It is the row's own text and the face's initials when there is no image, which is why one member carries both: a name spelt differently in either is the same person drawn as two. The face sets `nameShown`, so the row announces the name once, from its text. Required and guarded at runtime rather than defaulted, because nothing can derive who a row is about and a blank one draws a face, a rank and a figure around nobody. */
   name: string;
 
   /** The face's image. Absent, the row draws the initials `name` gives it, which is the same fallback ArenaAvatar states and the reason a row needs no second member for the picture. */
@@ -35,21 +34,20 @@ export interface ArenaPersonRowProps {
 
 
 const peopleStyles = arenaStyles(manifest);
-const FACE: Record<ArenaControlSize, ArenaAvatarSize> = { sm: 'xs', md: 'sm', lg: 'md' };
 
-export function ArenaPersonRow({ name, src, secondary, rank, figure, current = false, action, size = 'md' }: ArenaPersonRowProps & Partial<ArenaPersonRowInjected>) {
-  if (!name?.trim()) throw new Error('ArenaPersonRow: `name` is required (it is the row, the initials and the image\'s alt text at once)');
-  const styles = peopleStyles({ size, current });
+export function ArenaPersonRow({ className, name, src, secondary, rank, figure, current = false, action }: ArenaPersonRowProps) {
+  if (!name?.trim()) throw new Error('ArenaPersonRow: `name` is required (it is the row\'s text and the face\'s initials at once)');
+  const styles = peopleStyles({ current });
   return (
-    <li className={styles.row()} data-arena-part={manifest.parts.row} aria-current={current ? 'true' : undefined}>
-      {rank !== undefined && <span className={styles.rank()} data-arena-part={manifest.parts.rank}>{rank}</span>}
-      <ArenaAvatar name={name} src={src} size={FACE[size]} />
-      <span className={styles.text()} data-arena-part={manifest.parts.text}>
-        <span className={styles.name()} data-arena-part={manifest.parts.name}>{name}</span>
-        {secondary && <span className={styles.secondary()} data-arena-part={manifest.parts.secondary}>{secondary}</span>}
+    <li className={arenaClassName('ArenaPersonRow', styles.row(), className)} data-arena-part={manifest.parts.row} {...styles.$data.row()} aria-current={current ? 'true' : undefined}>
+      {rank !== undefined && <span className={styles.rank()} data-arena-part={manifest.parts.rank} {...styles.$data.rank()}>{rank}</span>}
+      <ArenaAvatar name={name} src={src} nameShown face />
+      <span className={styles.text()} data-arena-part={manifest.parts.text} {...styles.$data.text()}>
+        <span className={styles.name()} data-arena-part={manifest.parts.name} {...styles.$data.name()}>{name}</span>
+        {secondary && <span className={styles.secondary()} data-arena-part={manifest.parts.secondary} {...styles.$data.secondary()}>{secondary}</span>}
       </span>
-      {figure && <span className={styles.figure()} data-arena-part={manifest.parts.figure}>{figure}</span>}
-      <span className={styles.action()} data-arena-part={manifest.parts.action}>{action}</span>
+      {figure && <span className={styles.figure()} data-arena-part={manifest.parts.figure} {...styles.$data.figure()}>{figure}</span>}
+      <span className={styles.action()} data-arena-part={manifest.parts.action} {...styles.$data.action()} data-arena-boundary="">{action}</span>
     </li>
   );
 }

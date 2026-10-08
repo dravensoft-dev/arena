@@ -48,7 +48,7 @@ test('the active row is filled and every other row keeps the weight it was given
     const glyphs = [...(fixture.nativeElement as Element).querySelectorAll('i')];
     assert.equal(glyphs.length, 2);
     assert.match(glyphs[0]!.className, /\bph-fill\b/, 'the active row draws its glyph filled');
-    assert.doesNotMatch(glyphs[0]!.className, /\bph-bold\b/, 'and no longer bold');
+    assert.doesNotMatch(glyphs[0]!.className, /\bph-bold\b/, 'and carried the bold weight');
     assert.match(glyphs[1]!.className, /\bph-bold\b/, 'an inactive row is untouched');
     assert.doesNotMatch(glyphs[1]!.className, /\bph-fill\b/);
   } finally { fixture.destroy(); }

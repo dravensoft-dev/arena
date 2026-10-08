@@ -1,7 +1,10 @@
 {
   "component": "ArenaSection",
+  "answers": [
+    "rhythm"
+  ],
   "slots": {
-    "root": "flex flex-col",
+    "root": "flex flex-col gap-[var(--arena-rhythm-gap,var(--arena-rhythm,var(--rhythm-component)))]",
     "head": "flex flex-wrap items-baseline justify-between gap-items",
     "titles": "min-w-0",
     "eyebrow": "font-face-eyebrow text-eyebrow tracking-eyebrow case-eyebrow text-ink-eyebrow mb-1.5 font-eyebrow",
@@ -10,13 +13,14 @@
     "action": "flex items-center flex-wrap gap-inline shrink-0",
     "body": "min-w-0"
   },
-  "variants": {
-    "rhythm": {
-      "none": { "root": "gap-0" },
-      "sm": { "root": "gap-group" },
-      "md": { "root": "gap-component" },
-      "lg": { "root": "gap-section" }
-    }
-  },
-  "defaultVariants": { "rhythm": "md" }
+  "kind": {
+    "root": "none",
+    "head": "none",
+    "titles": "none",
+    "eyebrow": "none",
+    "title": "none",
+    "description": "none",
+    "action": "none",
+    "body": "none"
+  }
 }

@@ -38,8 +38,8 @@ test('every collection prop takes data the consumer holds as readonly, and nothi
     renderToStaticMarkup(<ArenaSegmentedControl ariaLabel="View" options={SEGMENTS} value="grid" onChange={() => {}} />),
     renderToStaticMarkup(<ArenaSelect options={OPTIONS} />),
     renderToStaticMarkup(<ArenaTable label="Deployments" columns={COLUMNS} />),
-    renderToStaticMarkup(<ArenaBarChart label="Deploys" labels={LABELS} series={[{ label: 'Deploys', values: VALUES, slots: SLOTS }]} />),
-    renderToStaticMarkup(<ArenaDoughnutChart label="Traffic" labels={LABELS} series={[{ label: 'Traffic', values: VALUES, slots: SLOTS }]} />),
+    renderToStaticMarkup(<ArenaBarChart label="Deploys" labels={LABELS} series={[{ label: 'Deploys', values: VALUES, colorIds: SLOTS }]} />),
+    renderToStaticMarkup(<ArenaDoughnutChart label="Traffic" labels={LABELS} series={[{ label: 'Traffic', values: VALUES, colorIds: SLOTS }]} />),
     renderToStaticMarkup(<ArenaLineChart label="Latency" labels={LABELS} series={[{ label: 'Latency', values: VALUES }]} />),
   ];
 

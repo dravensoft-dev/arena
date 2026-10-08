@@ -107,19 +107,17 @@ test('a focusable element inside the render is what this suite exists to catch',
     'the check must see a real button, or it sees nothing');
 });
 
-test('an avatar image reserves its own box before the stylesheet arrives', () => {
+test('an avatar image draws at the size its box is given and reserves nothing of its own', () => {
   const fixture = TestBed.createComponent(ArenaAvatar);
   try {
     fixture.componentRef.setInput('name', 'Ada Lovelace');
     fixture.componentRef.setInput('src', '/ada.png');
-    fixture.componentRef.setInput('size', 'lg');
     fixture.detectChanges();
 
     const image = (fixture.nativeElement as Element).querySelector('img');
     assert.ok(image);
-    assert.equal(image.getAttribute('width'), '56',
-      'the lg diameter, read from the token rather than restated here');
-    assert.equal(image.getAttribute('height'), '56');
+    assert.equal(image.getAttribute('width'), null);
+    assert.equal(image.getAttribute('height'), null);
     assert.equal(image.getAttribute('decoding'), 'async');
     assert.equal(image.getAttribute('loading'), null,
       'deliberately absent: an avatar above the fold should not be deferred and the component '
@@ -130,19 +128,16 @@ test('an avatar image reserves its own box before the stylesheet arrives', () =>
   }
 });
 
-test('the reserved box is the drawn box at every size', () => {
-  for (const [size, px] of [['xs', 24], ['sm', 32], ['md', 40], ['lg', 56]] as const) {
-    const fixture = TestBed.createComponent(ArenaAvatar);
-    try {
-      fixture.componentRef.setInput('name', 'Ada');
-      fixture.componentRef.setInput('src', '/ada.png');
-      fixture.componentRef.setInput('size', size);
-      fixture.detectChanges();
-      assert.equal((fixture.nativeElement as Element).querySelector('img')?.getAttribute('width'), String(px),
-        'the class sizes the box and the attribute reserves it, and the two disagreeing is a '
-        + 'shift that only appears on a slow stylesheet, which is where nobody looks');
-    } finally {
-      fixture.destroy();
-    }
+test('an avatar of kind team carries it on its box, and writes no size channel unless a row hands it the face', () => {
+  const fixture = TestBed.createComponent(ArenaAvatar);
+  try {
+    fixture.componentRef.setInput('name', 'Platform');
+    fixture.componentRef.setInput('kind', 'team');
+    fixture.detectChanges();
+    const root = fixture.nativeElement as HTMLElement;
+    assert.ok(root.querySelector('[data-arena-kind="team"]'), 'no element carries the kind');
+    assert.equal(root.style.getPropertyValue('--arena-size-avatar'), '');
+  } finally {
+    fixture.destroy();
   }
 });

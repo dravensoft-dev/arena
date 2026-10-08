@@ -23,6 +23,7 @@ import { arenaBreadcrumbsStyles } from '../components/navigation/arena-breadcrum
 import { ArenaBulkActionBar } from '../components/navigation/arena-bulk-action-bar/ArenaBulkActionBar';
 import type { ArenaBulkAction } from '../Api.generated';
 import { arenaBulkActionBarStyles } from '../components/navigation/arena-bulk-action-bar/ArenaBulkActionBar.variants';
+import { ArenaButton } from '../components/forms/arena-button/ArenaButton';
 import { ArenaChartCard } from '../components/charts/arena-chart-card/ArenaChartCard';
 import { arenaChartCardStyles } from '../components/charts/arena-chart-card/ArenaChartCard.variants';
 import { ArenaDoughnutChart } from '../components/charts/arena-doughnut-chart/ArenaDoughnutChart';
@@ -31,6 +32,7 @@ import { arenaEmptyStateStyles } from '../components/feedback/arena-empty-state/
 import { ArenaErrorState } from '../components/feedback/arena-error-state/ArenaErrorState';
 import { arenaErrorStateStyles } from '../components/feedback/arena-error-state/ArenaErrorState.variants';
 import { ArenaLineChart } from '../components/charts/arena-line-chart/ArenaLineChart';
+import { ArenaMenu } from '../components/navigation/arena-menu/ArenaMenu';
 import { ArenaPageHead } from '../components/navigation/arena-page-head/ArenaPageHead';
 import { arenaPageHeadStyles } from '../components/navigation/arena-page-head/ArenaPageHead.variants';
 import { ArenaSkeleton } from '../components/display/arena-skeleton/ArenaSkeleton';
@@ -58,6 +60,15 @@ class AppLogoStaticAttributeHost {}
   template: `<arena-avatar class="consumer-class" name="Juan Carlos" />`,
 })
 class AvatarHost {}
+
+@Component({
+  standalone: true,
+  imports: [ArenaMenu, ArenaButton],
+  template: `<arena-menu align="end" [items]="items"><arena-button trigger>Open</arena-button></arena-menu>`,
+})
+class MenuAlignHost {
+  readonly items = [{ id: 'rename', label: 'Rename' }];
+}
 
 @Component({
   standalone: true,
@@ -306,7 +317,7 @@ test('arena-app-logo: a static "name" attribute satisfies the required input and
   const host = fixture.nativeElement.querySelector('arena-app-logo') as HTMLElement;
   assert.equal(host.getAttribute('name'), null,
     'the static attribute survived on the host. Angular writes it during the creation pass whether or not it '
-    + "also matches an input, which is what '[attr.name]': 'null' in the host block exists to undo — a stray "
+    + "also matches an input, which is what '[attr.name]': 'null' in the host block exists to undo: a stray "
     + 'global attribute the consumer never meant to set, and for `title` a browser tooltip over the whole component.');
   assert.ok(host.classList.contains('consumer-class'), `sanity: the static class attribute survives the host [class] binding: "${host.className}"`);
   const nameClass = arenaAppLogoStyles().name().split(/\s+/)[0];
@@ -315,6 +326,16 @@ test('arena-app-logo: a static "name" attribute satisfies the required input and
     'Draven',
     'the attribute must reach the name input, not merely sit on the element',
   );
+  fixture.destroy();
+});
+
+test('arena-menu: a static "align" attribute satisfies the align input and is then cleared off the host', () => {
+  const fixture = TestBed.createComponent(MenuAlignHost);
+  fixture.detectChanges();
+  const host = fixture.nativeElement.querySelector('arena-menu') as HTMLElement;
+  assert.equal(host.getAttribute('align'), null,
+    "the static attribute survived on the host. '[attr.align]': 'null' in the host block exists to undo it, because "
+    + 'the browser maps the legacy align attribute to text-align on the host.');
   fixture.destroy();
 });
 
@@ -357,10 +378,9 @@ test('arena-activity-feed: the first <li> carries no divider and every later one
   fixture.detectChanges();
   const rows = Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('li'));
   assert.equal(rows.length, 3);
-  const dividerClass = 'arena-activity-feed__item--divided-true';
-  assert.ok(!rows[0].className.includes(dividerClass), `the first <li> must not carry the divider: "${rows[0].className}"`);
+  assert.equal(rows[0].hasAttribute('data-arena-divided'), false, 'the first <li> must not carry the divider');
   for (const row of rows.slice(1))
-    assert.ok(row.className.includes(dividerClass), `every <li> after the first must carry the divider: "${row.className}"`);
+    assert.equal(row.getAttribute('data-arena-divided'), '', 'every <li> after the first must carry the divider');
   fixture.destroy();
 });
 
@@ -426,7 +446,7 @@ test('arena-tag: a consumer-supplied class on the host survives the [class] bind
   assert.ok(host.classList.contains('consumer-class'), `host lost the consumer's static class: "${host.className}"`);
 });
 
-test('arena-skeleton: the default variant\'s root recipe classes land on the host element itself', async () => {
+test('arena-skeleton: the root recipe classes land on the host element itself', async () => {
   const fixture = TestBed.createComponent(SkeletonHost);
   fixture.detectChanges();
   await fixture.whenStable();
@@ -450,7 +470,7 @@ test('arena-skeleton: the host itself carries the loading status, not a wrapper 
   const host = fixture.nativeElement.querySelector('arena-skeleton') as HTMLElement;
   assert.equal(host.getAttribute('role'), 'status');
   assert.equal(host.getAttribute('aria-label'), 'Loading');
-  assert.equal(host.children.length, 0, 'the default (non-stacked) variant renders no children of its own');
+  assert.equal(host.children.length, 0, 'a skeleton with no lines renders no children of its own');
 });
 
 test('arena-breadcrumbs: the root recipe classes land on the <nav>, which is the carve-out', async () => {
@@ -579,8 +599,7 @@ test('arena-bulk-action-bar: the root recipe classes land on the host element it
   const host = fixture.nativeElement.querySelector('arena-bulk-action-bar') as HTMLElement;
   for (const cls of arenaBulkActionBarStyles().root().split(/\s+/))
     assert.ok(host.classList.contains(cls), `host is missing root class "${cls}"`);
-  assert.ok(host.classList.contains('arena-bulk-action-bar__root--open-false'),
-    'a bar with no selection (count 0) must render hidden');
+  assert.equal(host.hasAttribute('data-arena-open'), false, 'a bar with no selection (count 0) must render hidden');
 });
 
 test('arena-bulk-action-bar: a consumer-supplied class on the host survives the [class] binding', async () => {
@@ -715,12 +734,10 @@ test('arena-page-head: an unmeasured width renders the WIDE layout, so the narro
     fixture.detectChanges();
     await fixture.whenStable();
     const host = fixture.nativeElement.querySelector('arena-page-head') as HTMLElement;
-    assert.ok(host.classList.contains('arena-page-head__root--narrow-false'),
-      `an unmeasured page head must render as a row: "${host.className}"`);
-    assert.ok(host.classList.contains('arena-page-head__root--cv1'),
-      `an unmeasured page head must render top-aligned: "${host.className}"`);
-    assert.ok(!host.classList.contains('arena-page-head__root--narrow-true'),
-      'the narrow branch must not render before anything has been measured');
+    assert.equal(host.hasAttribute('data-arena-narrow'), false,
+      'an unmeasured page head must render as a row, and the narrow branch must not render before anything has been measured');
+    assert.equal(host.hasAttribute('data-arena-align'), false,
+      'the align is a class an adopter writes, so the head writes no attribute for it');
   } finally {
     document.documentElement.style.removeProperty('--bp-sm');
   }
@@ -755,8 +772,8 @@ test('arena-page-head: a platform with no ResizeObserver still renders, on the w
     fixture.detectChanges();
     await fixture.whenStable();
     const host = fixture.nativeElement.querySelector('arena-page-head') as HTMLElement;
-    assert.ok(host.classList.contains('arena-page-head__root--narrow-false'),
-      `with no ResizeObserver the width stays null, which is the wide layout: "${host.className}"`);
+    assert.equal(host.hasAttribute('data-arena-narrow'), false,
+      'with no ResizeObserver the width stays null, which is the wide layout');
   } finally {
     globals.ResizeObserver = saved;
     document.documentElement.style.removeProperty('--bp-sm');
@@ -777,7 +794,7 @@ function findManifestFile(componentsDir: string, filename: string): string | und
   return paths.find((p) => basename(p) === filename);
 }
 
-const NO_MANIFEST = new Set(['arena-bar-chart', 'arena-line-chart', 'arena-doughnut-chart', 'arena-horizontal-bar-chart', 'arena-pyramid-chart', 'arena-radar-chart', 'arena-scatter-chart']);
+const OWN_HOST = new Set(['arena-bar-chart', 'arena-line-chart', 'arena-doughnut-chart', 'arena-horizontal-bar-chart', 'arena-pyramid-chart', 'arena-radar-chart', 'arena-scatter-chart']);
 
 const HOST_SLOT: Record<string, { manifest?: string; slot: string }> = {
   'arena-bottom-nav-item': { manifest: 'ArenaBottomNav.manifest.json', slot: 'item' },
@@ -809,22 +826,19 @@ test('every Angular primitive host-binds a slot that carries a display utility, 
     );
   assert.ok(names.length > 0, 'no primitive directories found -- the guard would silently check nothing');
 
-  for (const excluded of NO_MANIFEST) {
-    assert.ok(names.includes(excluded), `NO_MANIFEST names "${excluded}", which is not a primitive directory -- stale entry`);
-    const excludedManifestName = `${kebabToPascal(excluded)}.manifest.json`;
-    const excludedManifestPath = findManifestFile(manifestsDir, excludedManifestName);
-    assert.ok(
-      excludedManifestPath === undefined,
-      `NO_MANIFEST names "${excluded}", but ${excludedManifestPath} now exists -- the exclusion is stale and should be removed so this primitive is checked like every other one`,
-    );
-  }
-
   for (const dir of Object.keys(HOST_SLOT)) {
     assert.ok(names.includes(dir), `HOST_SLOT names "${dir}", which is not a primitive directory -- stale entry`);
   }
 
+  for (const owner of OWN_HOST) {
+    assert.ok(names.includes(owner), `OWN_HOST names "${owner}", which is not a primitive directory -- stale entry`);
+    const ownerPath = findManifestFile(manifestsDir, `${kebabToPascal(owner)}.manifest.json`);
+    const ownerSlots = ownerPath === undefined ? {} : (JSON.parse(readFileSync(ownerPath, 'utf8')) as { slots?: Record<string, string> }).slots ?? {};
+    assert.ok(!('root' in ownerSlots), `OWN_HOST names "${owner}", but its manifest now carries a root slot -- the exclusion is stale and should be removed so this primitive is checked like every other one`);
+  }
+
   for (const name of names) {
-    if (NO_MANIFEST.has(name)) continue;
+    if (OWN_HOST.has(name)) continue;
     const override = HOST_SLOT[name];
     const slot = override?.slot ?? 'root';
     const manifestName = override?.manifest ?? `${kebabToPascal(name)}.manifest.json`;
@@ -871,33 +885,29 @@ test('a primitive that does not host-bind its root takes its host out of layout 
   }
 });
 
-const HOST_FILLS_INLINE_AXIS = /\bstyle:\s*'[^']*\bwidth\s*:\s*100%/;
+const HOST_BOXLESS = /\bstyle:\s*'[^']*\bdisplay\s*:\s*contents/;
 
-test('a chart host fills the inline axis, so a chart in a row is not shrink-to-fit', () => {
-  const charts = primitiveSources().filter(({ path, source }) => (
-    path.startsWith(join(ANGULAR_COMPONENTS, 'charts')) && !HOST_BOUND_ROOT.test(hostBlockOf(source))
-  ));
-  assert.ok(charts.length > 0, 'no bare-host chart sources found -- the guard would silently check nothing');
+test('a chart host keeps no box and its frame slot fills the inline axis, so a chart in a row is not shrink-to-fit', () => {
+  const charts = primitiveSources().filter(({ path }) => path.startsWith(join(ANGULAR_COMPONENTS, 'charts')) && /Chart\.ts$/.test(path));
+  assert.ok(charts.length > 0, 'no chart sources found -- the guard would silently check nothing');
 
   for (const { name, path, source } of charts) {
-    assert.match(
-      hostBlockOf(source),
-      HOST_FILLS_INLINE_AXIS,
-      `${path}: ${name} declares no width on its host. A chart measures its own box and draws an `
-      + 'SVG against it, and display:block alone fills the inline axis only in normal flow: as a '
-      + 'flex item the host blockifies to shrink-to-fit, so the same chart draws narrower inside '
-      + 'a row than inside a column. Six of these carried no width while the seventh did, which '
-      + 'is what a per-component decision looks like when nobody meant to make one.',
-    );
+    assert.match(hostBlockOf(source), HOST_BOXLESS, `${path}: ${name} gives its host a box, so the frame slot is not what the chart measures and lays out in`);
+    assert.match(source, /\[attr\.data-arena-part\]="parts\.frame"/, `${path}: ${name} draws no frame part`);
+    const manifestPath = findManifestFile(TAILWIND_COMPONENTS, `${name}.manifest.json`);
+    assert.ok(manifestPath, `${name}: no manifest found`);
+    const frame = (JSON.parse(readFileSync(manifestPath as string, 'utf8')) as { slots: Record<string, string> }).slots['frame'] ?? '';
+    assert.match(frame, /(?:^|\s)w-full(?=\s|$)/, `${name}: its frame slot declares no w-full, so the chart is shrink-to-fit as a flex item`);
   }
 });
 
-const GLOBAL_ATTRIBUTE_INPUTS = ['title', 'name', 'id'] as const;
+const GLOBAL_ATTRIBUTE_INPUTS = ['title', 'name', 'id', 'align'] as const;
 
 const HOST_COST: Record<(typeof GLOBAL_ATTRIBUTE_INPUTS)[number], string> = {
   title: ' and the browser draws a tooltip over it',
   name: '',
   id: ' AND on the real control inside -- two elements with one id, where a <label for> resolves to the host, which is not a labelable control',
+  align: ' and the browser maps the legacy attribute to text-align on the host',
 };
 
 function hostBlockOf(source: string): string {
@@ -937,6 +947,7 @@ test('a primitive whose input is named after a global HTML attribute clears that
 
   for (const { name, path, source } of sources) {
     const host = hostBlockOf(source);
+    const tag = name.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
     for (const attribute of GLOBAL_ATTRIBUTE_INPUTS) {
       const takesInput = new RegExp(`^  readonly ${attribute} = input`, 'm').test(source);
       const clears = host.includes(`'[attr.${attribute}]': 'null'`);
@@ -946,7 +957,7 @@ test('a primitive whose input is named after a global HTML attribute clears that
         problems.push(
           `${path}: ${name} takes a \`${attribute}\` input and does not clear the attribute. `
           + 'Angular writes a static attribute to the DOM during the creation pass whether or not it '
-          + `also matches an input, so <arena-${name.toLowerCase()} ${attribute}="…"> leaves a real `
+          + `also matches an input, so <${tag} ${attribute}="…"> leaves a real `
           + `${attribute} on the host` + HOST_COST[attribute]
           + `. Add '[attr.${attribute}]': 'null' to the host block.`,
         );
@@ -960,7 +971,7 @@ test('a primitive whose input is named after a global HTML attribute clears that
     }
   }
 
-  assert.ok(declared > 0, 'no primitive declares a title, name or id input -- the guard matched nothing, so it proves nothing');
+  assert.ok(declared > 0, `no primitive declares an input named one of ${GLOBAL_ATTRIBUTE_INPUTS.join(', ')} -- the guard matched nothing, so it proves nothing`);
   assert.deepEqual(problems, [], `\n  ${problems.join('\n  ')}`);
 });
 
@@ -1001,15 +1012,18 @@ test('the clearing binding removes a STATIC attribute and leaves the input holdi
   }
 });
 
-test('arena-bar-chart: the host is a block-level box, so the width it measures is a real content width', async () => {
+test('arena-bar-chart: the host keeps no box and the frame part carries the frame class, with no inline position or width', async () => {
   const fixture = createBarChartHost();
   await fixture.whenStable();
   const host = fixture.nativeElement.querySelector('arena-bar-chart') as HTMLElement;
 
-  assert.equal(host.style.display, 'block', `host declared display "${host.style.display}"`);
-  assert.equal(getComputedStyle(host).display, 'block');
+  assert.equal(host.style.display, 'contents', `host declared display "${host.style.display}"`);
 
-  assert.equal(host.style.position, 'relative');
+  const frame = host.querySelector(':scope > div') as HTMLElement;
+  assert.equal(frame.getAttribute('data-arena-part'), 'bar-chart.frame');
+  assert.ok(frame.classList.contains('arena-bar-chart__frame'), `frame carries "${frame.className}"`);
+  assert.equal(frame.style.position, '');
+  assert.equal(frame.style.width, '');
 });
 
 test('arena-bar-chart: the numbers table is bound as a style object, not stringified into the attribute', async () => {
@@ -1049,15 +1063,18 @@ test('arena-bar-chart: the picture carries an accessible name and the numbers ca
   assert.equal(caption.textContent?.trim(), 'Deployments per week — bar chart');
 });
 
-test('arena-line-chart: the host is a block-level box, so the width it measures is a real content width', async () => {
+test('arena-line-chart: the host keeps no box and the frame part carries the frame class, with no inline position or width', async () => {
   const fixture = createLineChartHost();
   await fixture.whenStable();
   const host = fixture.nativeElement.querySelector('arena-line-chart') as HTMLElement;
 
-  assert.equal(host.style.display, 'block', `host declared display "${host.style.display}"`);
-  assert.equal(getComputedStyle(host).display, 'block');
+  assert.equal(host.style.display, 'contents', `host declared display "${host.style.display}"`);
 
-  assert.equal(host.style.position, 'relative');
+  const frame = host.querySelector(':scope > div') as HTMLElement;
+  assert.equal(frame.getAttribute('data-arena-part'), 'line-chart.frame');
+  assert.ok(frame.classList.contains('arena-line-chart__frame'), `frame carries "${frame.className}"`);
+  assert.equal(frame.style.position, '');
+  assert.equal(frame.style.width, '');
 });
 
 test('arena-line-chart: the numbers table is bound as a style object, not stringified into the attribute', async () => {
@@ -1097,18 +1114,16 @@ test('arena-line-chart: the picture carries an accessible name and the numbers c
   assert.equal(caption.textContent?.trim(), 'p95 latency — line chart');
 });
 
-test('arena-doughnut-chart: the host is the flex row itself, so the box it measures is the box it lays out', async () => {
+test('arena-doughnut-chart: the host keeps no box and its frame is the flex row, so the box it measures is the box it lays out', async () => {
   const fixture = createDoughnutChartHost();
   await fixture.whenStable();
   const host = fixture.nativeElement.querySelector('arena-doughnut-chart') as HTMLElement;
+  assert.equal(host.style.display, 'contents', `host declared display "${host.style.display}"`);
 
-  assert.equal(host.style.display, 'flex', `host declared display "${host.style.display}"`);
-  assert.equal(getComputedStyle(host).display, 'flex');
-
-  assert.equal(host.style.position, 'relative');
-
-  assert.equal(host.style.width, '100%');
-  assert.equal(host.style.gap, 'var(--chart-legend-gap)');
+  const frame = host.querySelector(':scope > div') as HTMLElement;
+  assert.equal(frame.getAttribute('data-arena-part'), 'doughnut-chart.frame');
+  assert.ok(frame.classList.contains('arena-doughnut-chart__frame'), `frame carries "${frame.className}"`);
+  assert.equal(frame.getAttribute('style'), null, 'the doughnut frame carries no inline style');
 });
 
 test('arena-doughnut-chart: the numbers table is bound as a style object, not stringified into the attribute', async () => {
@@ -1135,10 +1150,10 @@ test('arena-doughnut-chart: the style objects that render without data reach the
   assert.equal(svg.style.display, 'block');
   assert.equal(svg.style.flexShrink, '0');
 
-  const legend = host.querySelector(':scope > div') as HTMLElement;
+  const legend = host.querySelector(':scope > div > div') as HTMLElement;
   assert.ok(legend, 'the legend column did not render');
-  assert.equal(legend.style.gap, 'calc(var(--sp-1) * 1.5)');
-  assert.equal(legend.style.flexDirection, 'column');
+  assert.ok(legend.classList.contains('arena-doughnut-chart__legend'), 'the legend column carries its manifest class, which the sheet gives its gap and direction');
+  assert.ok(legend.hasAttribute('data-arena-part'), 'the legend column is a drawn part of the manifest');
 });
 
 test('arena-doughnut-chart: the picture carries an accessible name and the numbers carry a caption', async () => {

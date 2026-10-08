@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  ARENA_CAT_SLOTS, ARENA_CHART_HEIGHT, ARENA_PAD, ARENA_SR_ONLY,
+  ARENA_CAT_SLOTS, ARENA_CHART_HEIGHT, ARENA_INK_BODY, ARENA_INK_MUTED, ARENA_PAD, ARENA_SR_ONLY,
   arenaCatColor, arenaCatSlotFor, arenaCatSurface, arenaAreaFill, arenaToneColor,
 } from './DataVisuals';
 import type { ArenaSeriesTone, ArenaTone } from './Api.generated';
@@ -28,9 +28,9 @@ test('arenaCatColor rounds a fractional slot rather than truncating it', () => {
   assert.equal(arenaCatColor(2.6), 'var(--color-cat-3)');
 });
 
-test('every tone in the union resolves to a token reference', () => {
-  const tones: ArenaTone[] = ['neutral', 'accent', 'gold', 'success', 'warning', 'danger', 'info'];
-  for (const tone of tones) assert.match(arenaToneColor(tone), /^var\(--[a-z-]+\)$/);
+test('every tone in the union resolves to a var() or a colour-mix of roles and levels, never a literal colour', () => {
+  const tones: ArenaTone[] = ['neutral', 'success', 'warning', 'danger', 'info'];
+  for (const tone of tones) assert.match(arenaToneColor(tone), /^(var\(--[a-z-]+\)|color-mix\(in oklab,var\(--[a-z-]+\) var\(--[a-z-]+\),transparent\))$/);
   assert.equal(new Set(tones.map(arenaToneColor)).size, tones.length, 'tones must not share a colour');
 });
 
@@ -81,7 +81,7 @@ test('the layout constants carry the values the chart family shares', () => {
 test('ARENA_SR_ONLY hides the element without removing it from the accessibility tree', () => {
 
   assert.equal(ARENA_SR_ONLY.position, 'absolute');
-  assert.equal(ARENA_SR_ONLY.clip, 'rect(0 0 0 0)');
+  assert.equal(ARENA_SR_ONLY.clipPath, 'inset(50%)');
   assert.equal(ARENA_SR_ONLY.overflow, 'hidden');
   assert.ok(!('display' in ARENA_SR_ONLY), 'display:none would drop it from the accessibility tree');
 });
@@ -98,4 +98,10 @@ test('every ARENA_SR_ONLY value carries its unit, because Angular appends none',
 test('ARENA_SR_ONLY cancels its own footprint so the hidden table shifts no sibling', () => {
   assert.equal(ARENA_SR_ONLY.margin, `-${ARENA_SR_ONLY.width}`);
   assert.equal(ARENA_SR_ONLY.width, ARENA_SR_ONLY.height);
+});
+
+test('the neutral tone is the body ink constant, and the muted ink is the body ink at its muted role and level', () => {
+  assert.equal(arenaToneColor('neutral'), ARENA_INK_BODY);
+  assert.equal(ARENA_INK_BODY, 'color-mix(in oklab,var(--ink-body) var(--level-ink-body),transparent)');
+  assert.equal(ARENA_INK_MUTED, 'color-mix(in oklab,var(--ink-muted) var(--level-ink-muted),transparent)');
 });

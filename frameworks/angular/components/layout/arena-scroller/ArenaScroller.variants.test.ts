@@ -10,7 +10,7 @@ import { arenaScrollerStyles } from './ArenaScroller.variants';
 const BEHAVIOURS: ArenaScrollerBehaviour[] = ['snap', 'flow'];
 
 test('the two behaviours are two distinct roots', () => {
-  const seen = new Set(BEHAVIOURS.map((behaviour) => arenaScrollerStyles({ behaviour }).root()));
+  const seen = new Set(BEHAVIOURS.map((behaviour) => JSON.stringify(arenaScrollerStyles({ behaviour }).$data.root())));
   assert.equal(seen.size, BEHAVIOURS.length, 'the two behaviours compiled to the same root');
 });
 

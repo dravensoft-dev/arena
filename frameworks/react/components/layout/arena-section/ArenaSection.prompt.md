@@ -3,7 +3,7 @@ A named region of a page: a heading, what sits around it, and the group it names
 ```tsx
 <ArenaSection eyebrow="This week" title="Landed recently"
   description="Everything that cleared customs since Monday."
-  action={<ArenaButton variant="ghost" iconRight="ph-bold ph-arrow-right">See all</ArenaButton>}>
+  action={<ArenaButton iconRight="ph-bold ph-arrow-right" className="arena-emphasis-ghost">See all</ArenaButton>}>
   <ArenaGrid>{lots.map((lot) => <LotCard key={lot.id} lot={lot} />)}</ArenaGrid>
 </ArenaSection>
 ```
@@ -14,17 +14,26 @@ A named region of a page: a heading, what sits around it, and the group it names
 
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
-| `title*` | primitive | `string` |  | Names the region, both on screen and to assistive technology. Required, and guarded at runtime after trimming: a section is a heading over a group, and one with no heading is a stack, which css/rhythm.css already ships as a class. The guard trims first because the value it exists to catch is a present and useless one, not an absent one, which the type already refuses. |
+| `title*` | primitive | `string` |  | Names the region, both on screen and to assistive technology. Required, and guarded at runtime after trimming: a section is a heading over a group, and one with no heading is a stack, which the vocabulary page lists as a class. The guard trims first because the value it exists to catch is a present and useless one, not an absent one, which the type already refuses. |
 | `headingLevel` | enum | `ArenaHeadingLevel` | `"h2"` | Which rung of the document outline the title takes. Only the element changes: the title's class is the same at every value, so the render is identical and no appearance follows from it. It defaults to `h2` because the section register is already a step under a page's title and a step over a card's, and this is that register said as structure rather than as a size. `none` is refused at runtime, the rule every component whose `title` is required follows: a title required because it names the thing it draws cannot also be told that the name is not one. |
 | `children*` | slot |  |  | What the region holds. Required, and guarded at runtime: a section renders a heading naming a group, so a childless one renders a label for nothing. The guard counts the way the render path counts, so a child that is a false conditional counts as absent rather than as one. |
 | `eyebrow` | primitive | `string` |  | A line above the title saying which part of the page this is. Same register as every other eyebrow in the system, so a style plugin that takes them out of the console's mono capitals takes this one with them. |
 | `description` | primitive | `string` |  | A line under the title, in the muted ink. It sits below the head row rather than beside the title, because a sentence and an action competing for the same row is what makes a head wrap on a narrow screen. |
 | `action` | slot |  |  | Trailing content in the head row, aligned to the end and to the title's own baseline. Arena draws the row; the consumer draws what sits in it. A link that leads to the whole of what the section shows a slice of is the ordinary case. |
-| `rhythm` | enum | `ArenaSectionRhythm` | `"md"` | How far the head stands from the body. The steps are the page rhythm scale itself, so sm reads as one unit, md as a head over its own content and lg as a head over a region of the page, and none closes the distance entirely for a section whose body carries its own top edge. Nothing here is a number this component chose. |
 
 <!-- @api end -->
 
-**`title` and `children` are both required, and both are guarded at runtime.** A section is a heading over a group. With no heading it is a stack, which `css/rhythm.css` already ships as `.arena-stack`. With no children the heading names nothing. The title guard trims first,
+<!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
+
+**Answers** [`rhythm`](../../../../VOCABULARY.md#rhythm): `arena-rhythm-component` (default), `arena-rhythm-group`, `arena-rhythm-none`, `arena-rhythm-section`. Write one as `className="arena-rhythm-group"` on the component, or on a container whose components should all take it. Property: `--arena-rhythm`, set on a container of yours for a value no option names.
+
+<!-- @answers end -->
+
+<!-- @keys GENERATED from the binding. -->
+**Keys:** none.
+<!-- @keys end -->
+
+**`title` and `children` are both required, and both are guarded at runtime.** A section is a heading over a group. With no heading it is a stack, which the vocabulary page lists as `.arena-stack`. With no children the heading names nothing. The title guard trims first,
 because the value it exists to catch is a present and useless one rather than an absent one.
 
 **The component renders a plain `<section>` and claims no landmark.** A `<section>` becomes a `region` in the accessibility tree only once it has an accessible name. A page where every section announced itself would bury the two or three landmarks that matter. The heading is the structure a reader
@@ -35,8 +44,7 @@ ladder and the right answer directly under a page head. A section inside another
 `headingLevel="h3"`, and the card register under it goes a rung further, or a reader walking
 headings meets peers where the page holds a hierarchy. Nothing on screen moves with the value. The title's class is the same at every rung, so the register a style plugin sets is untouched by the level the outline takes. `none` is refused here, since a section is a heading over a group.
 
-`rhythm` is the distance from the head to the body, in the same three named steps the page rhythm
-scale carries, plus `none`. The padding is not the air between one section and the next. Arena draws no outer margin on anything, so that air stays yours to place with `.arena-stack--section`.
+The `arena-rhythm` class is the distance from the head to the body. The class takes the named steps the page rhythm scale carries, `group`, `component` and `section`, plus `none`. Write `className="arena-rhythm-group"` on the section for a closer head. `--arena-rhythm` on a container takes a distance no step names. A class on the section wins over a property on its container. The padding is not the air between one section and the next. Arena draws no outer margin on anything, so that air stays yours to place with `.arena-stack--section`.
 
 **Do / Don't**
 - **Do** let the description carry the sentence. Putting it in the action slot puts prose in a row
@@ -49,6 +57,6 @@ scale carries, plus `none`. The padding is not the air between one section and t
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
+**The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

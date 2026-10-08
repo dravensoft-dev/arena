@@ -1,6 +1,0 @@
-{
-  "name": "ArenaCellAlign",
-  "kind": "enum",
-  "description": "How an ArenaTable column's cells align. Checked against every enum already declared here before it was added; ArenaPageHeadAlign is the near miss and is a different set: start/center on a flex axis, with no `right`, and a right-aligned column of figures is precisely what this exists for.",
-  "values": ["left", "center", "right"]
-}

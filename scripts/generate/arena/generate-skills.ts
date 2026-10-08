@@ -5,9 +5,10 @@
  * are tracked because the plugin is served from the git tag, where nothing runs a build. An index
  * is reached by link rather than registered, so it carries no frontmatter, and INDEX is why it
  * carries no skill's name either: a file under that name and no frontmatter is a skill that fails
- * to parse to anything globbing for it, which is how the npm convention finds one. */
+ * to parse to anything globbing for it, which is how the npm convention finds one. The catalogue's
+ * INDEX.md is one more: each row is an entry's own `Take this entry when` paragraph, copied. */
 
-import { writeFileSync, existsSync } from 'node:fs';
+import { writeFileSync, existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { readJson } from '../../utils/read-file.ts';
@@ -30,19 +31,29 @@ export const layerTarget = (layer: string) => `frameworks/${layer}/${INDEX}`;
 export const categoryTarget = (layer: string, category: string) =>
   `frameworks/${layer}/components/${category}/${INDEX}`;
 
+export const CATALOGUE_DIR = 'plugin-style-store/catalogue';
+
+export const CATALOGUE_TARGET = `${CATALOGUE_DIR}/${INDEX}`;
+
+export const ENTRY_FILES = ['plugin.tokens.json', 'plugin.css', 'arena.config.json'];
+
 export const node = {
   name: 'generate:skills',
   reads: [
     'frameworks/Components.json',
     'contracts/api/components',
     ...CONSUMER_LAYERS.map((layer) => `frameworks/${layer}/components/**/*.behaviour.json`),
+    `${CATALOGUE_DIR}/*/ENTRY.md`,
   ],
   writes: [
     INDEX_TARGET,
+    CATALOGUE_TARGET,
     ...CONSUMER_LAYERS.map(layerTarget),
     ...CONSUMER_LAYERS.map((layer) => `frameworks/${layer}/components/*/${INDEX}`),
   ],
   feeds: [
+    'check:families',
+    'check:catalogue',
     'build:angular-package',
     'build:react-package',
     'build:mcp-package',
@@ -140,11 +151,13 @@ a guess.
 
 **Read [\`../../skills/design/SKILL.md\`](../../skills/design/SKILL.md) before you write anything
 from here.** That page carries the one thing no page below it does, which is the rules of the
-language. The router marks which of them \`arena-to-prod --audit\` reads your own sources for.
+language. The router marks which of them \`arena audit\` reads your own sources for.
 A screen built from this tree alone breaks the rest where nothing will report it.
 
 - Installing the package, declaring your skin, and what it exports besides components:
-  [\`PACKAGE.md\`](./PACKAGE.md).
+  [\`install.md\`](../../skills/design/references/install.md),
+  [\`config.md\`](../../skills/design/references/config.md) and
+  [\`exports.md\`](../../skills/design/references/exports.md).
 - Whether a component exists at all, including any this layer does not ship:
   [\`../${INDEX}\`](../${INDEX}).`;
 }
@@ -167,7 +180,9 @@ ${LAYER_IDIOM[layer]}
 
 - Every other category this layer ships: [\`../../${INDEX}\`](../../${INDEX}).
 - Installing the package, declaring your skin, and what it exports besides components:
-  [\`../../PACKAGE.md\`](../../PACKAGE.md).
+  [\`install.md\`](../../../../skills/design/references/install.md),
+  [\`config.md\`](../../../../skills/design/references/config.md) and
+  [\`exports.md\`](../../../../skills/design/references/exports.md).
 - **Takes** is the members the component's API contract declares, in contract order, under this
   layer's own names. A member marked \`*\` is required; the prompt gives its type and its default.
 - **A member whose type is an object or an enum takes one this package exports.** The prompt
@@ -209,6 +224,7 @@ export function layerCategories(layer: string, base = root) {
 export function skillTargets(base = root) {
   return [
     INDEX_TARGET,
+    CATALOGUE_TARGET,
     ...CONSUMER_LAYERS.flatMap((layer) => [
       layerTarget(layer),
       ...layerCategories(layer, base).map((category) => categoryTarget(layer, category)),
@@ -366,8 +382,55 @@ export function renderCategoryIndex(layer: string, category: string, base = root
   return out.join('\n');
 }
 
+const CATALOGUE_GENERATED = '<!-- GENERATED from each ENTRY.md by bun run generate:skills.'
+  + ' Edit the entry, not this file. -->';
+
+const TAKE = /^Take this entry when /m;
+
+const TITLE = /^# (.+)$/m;
+
+export function catalogueEntries(base = root) {
+  const dir = join(base, CATALOGUE_DIR);
+  if (!existsSync(dir)) return [];
+  return readdirSync(dir, { withFileTypes: true })
+    .filter((one) => one.isDirectory() && existsSync(join(dir, one.name, 'ENTRY.md')))
+    .map((one) => {
+      const card = readFileSync(join(dir, one.name, 'ENTRY.md'), 'utf8');
+      const at = card.search(TAKE);
+      const take = at === -1 ? '' : card.slice(at).split(/\n\s*\n/)[0]?.replace(TAKE, '').split(/\s+/).join(' ').trim();
+      if (!take) throw new Error(`generate-skills: ${CATALOGUE_DIR}/${one.name}/ENTRY.md carries no "Take this entry when" line`);
+      return { name: one.name, title: card.match(TITLE)?.[1] ?? one.name, take };
+    })
+    .sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
+}
+
+export function renderCatalogueIndex(base = root) {
+  const entries = catalogueEntries(base);
+  if (entries.length === 0) indexOfNothing(`${CATALOGUE_DIR} holds no entry`);
+  const out = [
+    CATALOGUE_GENERATED,
+    '',
+    '# The catalogue of measured registers',
+    '',
+    'Each row is one style plugin measured on a real product. Match a short description of the app '
+      + 'against the second column, open only the entry it fits, and copy that entry\'s three files '
+      + 'into `design/<entry>/` of your project. Node 4 of '
+      + '[`cold-start.md`](../../skills/design/references/cold-start.md) is where this choice is made.',
+    '',
+    '| Entry | Take this entry when | Files to copy |',
+    '|---|---|---|',
+  ];
+  for (const entry of entries) {
+    const files = ENTRY_FILES.map((file) => `[\`${file}\`](./${entry.name}/${file})`).join(', ');
+    out.push(`| [${escapeCell(entry.title)}](./${entry.name}/ENTRY.md), \`${entry.name}\` | ${escapeCell(entry.take)} | ${files} |`);
+  }
+  out.push('');
+  return out.join('\n');
+}
+
 export function renderTarget(target: string, base = root) {
   if (target === INDEX_TARGET) return renderIndex(base);
+  if (target === CATALOGUE_TARGET) return renderCatalogueIndex(base);
   const roof = CONSUMER_LAYERS.find((one) => layerTarget(one) === target);
   if (roof) return renderLayerIndex(roof, base);
   for (const layer of CONSUMER_LAYERS)

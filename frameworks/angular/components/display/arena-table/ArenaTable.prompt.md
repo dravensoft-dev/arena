@@ -17,6 +17,17 @@ Cells are **positional**: the nth cell takes the nth column.
 </arena-table>
 ```
 
+**A column's width and alignment are properties, set under its `key`.** Name a column with `key` (letters, digits, hyphens and underscores) and the table reads `--arena-column-<key>-width` and `--arena-column-<key>-align` for it, set on the table or on a container of yours. The width is a length or a token expression such as `calc(var(--sp-1) * 24)`, and the alignment is `left`, `center` or `right`. A column with no `key`, or a key with no property set, keeps the table's own layout: an automatic width and a left alignment. A `key` that is not a custom property name warns once and the column takes the table's own layout. A table nested in a cell reads the same key's property from the outer set, so it takes another key.
+
+```html
+<div style="--arena-column-build-width: calc(var(--sp-1) * 24); --arena-column-p95-align: right">
+  <arena-table label="Recent deployments"
+    [columns]="[{ header: 'Build', key: 'build', numeric: true }, { header: 'Project' }, { header: 'p95', key: 'p95', numeric: true }]">
+    <!-- rows as above -->
+  </arena-table>
+</div>
+```
+
 <!-- @api GENERATED from contracts/api/components/ArenaTable.json. Edit the contract, not this table. -->
 
 **Members**, in contract order and under this layer's own names. `*` marks a required one.
@@ -32,11 +43,24 @@ Cells are **positional**: the nth cell takes the nth column.
 | `page` | object | `ArenaTablePage` |  | Which page of a longer list is on screen. Present, ArenaTable draws its own ArenaPagination below the grid and names it from `label`, which is what gives that required name its uniqueness on a page with two paged tables. Absent, no pager is drawn and the projected rows are the whole list. |
 | `slice` | object | `ArenaTableSlice` |  | Where the projected rows sit inside a longer list, which is what `aria-rowcount` and `aria-rowindex` carry on the grid. Absent with `page` bound, both are derived from the page, so a paged table needs nothing here. Bind it when the projection is not a page: a window a scroller renders, an infinite list that grows, or a page inside which you render less again. It is a separate member from `page` because the two answer separate questions, the same split `page` and `pageControl` make: `page` is the model the pager draws, and this is where the rows in the DOM sit in the list they came from. Bound together, this one answers the two attributes whole rather than composing with the page, because a reader is told one position and two sources for it is how they disagree. |
 | `pageChange` | event | `number` |  | A page was chosen, carrying the new 1-based page. It also fires with 1 when the current page has gone PAST THE END, which is the only reset ArenaTable performs; a filter that leaves the page in range is silent, so returning the reader to page one on a change of criterion stays the consumer's, beside the criterion they hold. |
-| `pageControl` | enum | `ArenaTablePageControl` | `"auto"` | Whether ArenaTable draws the pager below the grid. 'auto' draws it whenever `page` is bound, which is what a table showing one list of its own wants; 'none' draws nothing and leaves the consumer to place an ArenaPagination themselves, over this table or over two of them at once. It is a separate member from `page` because the two are separate facts: `page` is what the table KNOWS about a longer list, and this is what it DRAWS about it. Bound together, a consumer who wanted the control elsewhere had to withhold `page` and leave the table knowing nothing about paging at all, which is a member deliberately unbound and a comment explaining why. The same split, and the same reasoning, as `sort` and `sortControl`. |
+| `pageControl` | enum | `ArenaTablePageControl` | `"auto"` | Whether ArenaTable draws the pager below the grid. 'auto' draws it whenever `page` is bound, which is what a table showing one list of its own wants; 'none' draws nothing and leaves the consumer to place an ArenaPagination themselves, over this table or over two of them at once. It is a separate member from `page` because the two are separate facts: `page` is what the table KNOWS about a longer list, and this is what it DRAWS about it. Bound together, a consumer who wants the control elsewhere would have to withhold `page` and leave the table knowing nothing about paging at all, which is a member deliberately unbound and a comment explaining why. The same split, and the same reasoning, as `sort` and `sortControl`. |
 | `sortControl` | enum | `ArenaTableSortControl` | `"auto"` | How the sort affordance is reached in CARD MODE, where there is no header row to activate and a `sortable` column therefore has no control under it at all. 'auto' draws one compact select above the cards, listing every sortable column in each direction, which is the shape a phone has room for; 'none' leaves card mode unsorted by hand, for a table whose order is the document's rather than the reader's. Above --bp-md the header row is the control and this member draws nothing. The header row does NOT come back below the breakpoint, because card mode exists for the one reason a grid does not fit. It is a member rather than something a consumer draws for themselves because the state it edits, ArenaTableSort, is Arena's: left to each consumer, the label, the option order and the way a direction is worded are invented once per project over a model they did not define. |
 | `responsive` | primitive | `boolean` | `true` | ArenaCard mode below --bp-md. Set false only when the columns are meaningless apart. |
 
 <!-- @api end -->
+
+<!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
+
+**Answers** [`column`](../../../../VOCABULARY.md#column): keyed by each column's `key`, as `--arena-column-<key>-width` and `--arena-column-<key>-align`, set on the component or a container of yours.
+
+<!-- @answers end -->
+
+<!-- @keys GENERATED from the binding. -->
+**Keys**, from [`grid`](../../../../../contracts/behaviour/grid.json):
+- `ArrowKeys`: moves focus one cell in the arrow's direction; focus does not move past the grid's edge.
+- `Home`: moves focus to the first cell in the current row.
+- `End`: moves focus to the last cell in the current row.
+<!-- @keys end -->
 
 **Do / Don't** - **A grid showing part of a list owes its true size.** `page` pays that on its own. Bind `slice` when the rows in the DOM are a window rather than a page, and count `offset` from 0. A windowed grid that states neither tells a reader the list is as long as the rows it happens to have rendered.
 - **`page` is what the table knows and `pageControl` is what it draws.** Bind `[page]` whenever the list is longer than the screen, so the table sizes and resets it. Pass `pageControl="none"` when you want the `arena-pagination` somewhere else, or want one control over two tables. Withholding `[page]` to move the control is the shape this member
@@ -45,7 +69,7 @@ Cells are **positional**: the nth cell takes the nth column.
   in "Recent deployments" or "Team members", and never "Table". Nothing can derive it, which is why it **throws** rather than falling back. `input.required` alone is not the guard: it only proves something was bound, and `[label]="row.title"` with an empty title satisfies it.
 - Put your own components in a cell: an `arena-badge` for a status, an `arena-button` for
   an action. The compound shape is for exactly that, and a column carries no render function.
-- Numeric data and codes in `mono` columns with `align: 'right'`. `mono` is the mono face and the gold ink together, and the ink is the half that does not travel. Gold reads as an identifier, so a total in gold inside a card says the wrong thing. For a figure you draw outside a table, put `.arena-num` on it, which is the same face and the same digit alignment with no colour.
+- Numeric data and codes in `numeric` columns, aligned right through `--arena-column-<key>-align`. `numeric` is the mono face and the gold ink together, and the ink is the half that does not travel. Gold reads as an identifier, so a total in gold inside a card says the wrong thing. For a figure you draw outside a table, put `.arena-num` on it, which is the same face and the same digit alignment with no colour.
 - Mark the actions column `mobileLayout: 'block'`. The column's buttons name themselves, and pairing them with an "ACTIONS" label reads as a mistake.
 - Don't set `responsive="false"` to "keep it looking like a table" on a phone. A table
   narrower than its content is unreadable; card mode is the honest fallback.
@@ -58,7 +82,7 @@ measured the wide shape renders, so the card shape never flashes on first paint.
 
 ### Keyboard
 
-The wide shape is a `role="grid"` with **one** tab stop. Tab reaches the grid, and arrows move by cell. The header row is row 0 and is navigable, as APG prescribes. `Home` and `End` go to the first and last cell of the **current row**, and `Enter` activates the cursor's row by emitting that row's `click`. There is no step-in: a control you drew inside a cell keeps its
+The wide shape is a `role="grid"` with **one** tab stop. Tab reaches the grid. The header row is row 0 and is navigable, as APG prescribes. `Enter` activates the cursor's row by emitting that row's `click`. There is no step-in: a control you drew inside a cell keeps its
 own place in the page Tab sequence, so nothing you own is silenced.
 
 The grid is **not assumed rectangular**. A row may carry fewer or more cells than there are
@@ -74,7 +98,7 @@ never whether anything is listening, which is why `interactive` exists at all.
 The rows are **authored** by the consumer, as `<tr arena-table-row>`, and the width that decides the
 shape is measured at runtime. So the elements cannot change with the shape. A `<tr>` that is not a DOM child of a table is dropped outright by the HTML parser, which is what a server render and its re-parse put it through. A shape that appears and disappears under the rows is therefore not available here. The single shape that survives both widths is a real `<table>` always, restyled by CSS into cards below `--bp-md`.
 
-That also settles a second constraint that used to point the other way. Angular indexes projection slots in template order and hands the content to the **first** matching one. A `wide` branch and a `card` branch could not each carry their own `<ng-content>`. With one table there is one `<tbody>`
+That also settles a second constraint. Angular indexes projection slots in template order and hands the content to the **first** matching one. A `wide` branch and a `card` branch could not each carry their own `<ng-content>`. With one table there is one `<tbody>`
 and one `<ng-content>`, and nothing to choose between.
 
 `role="grid"` is still written, because APG's grid is not the `table` a `<table>` maps to and the
@@ -84,13 +108,13 @@ The empty state is still a block **beside** the table rather than a cell spannin
 left behind is presentational. One measured cost stands. The `<table>` sits inside the bordered frame, so the measured `contentRect` excludes that border and the narrow threshold trips a couple of pixels earlier than the declared breakpoint. The host itself is a plain block.
 
 **By hand, in a real browser** (`bun run build:angular-demo && bun run demos`, then
-`frameworks/angular/components/display/arena-table/ArenaTable.demo.generated.html`). Steps 1 to 5 were checked in real Chromium. One Tab in, then the gold inset ring on the focused cell. Then the arrow walk, `Home` and `End` inside the row, `Enter` on a data row, and one Tab out onto the actions button. And zero grid roles and zero tab stops in the squeezed card shape. Step 6 and every judgement about how
+`frameworks/angular/components/display/arena-table/ArenaTable.demo.generated.html`). Steps 1 to 5 are checked in real Chromium. One Tab in, then the gold inset ring on the focused cell. Then the arrow walk, `Home` and `End` inside the row, `Enter` on a data row, and one Tab out onto the actions button. And zero grid roles and zero tab stops in the squeezed card shape. Step 6 and every judgement about how
 it *looks* were not, and are why this list stays:
 1. Tab reaches the grid ONCE, and one more Tab leaves it. No cell is a stop of its own.
 2. From a cell, Tab reaches a control inside a cell in **one** press, not two. Two means the
    grid pulled focus back onto the cell, since `focusin` bubbles and only a real browser shows it.
-3. Arrows clamp at all four edges and focus never leaves the grid. `Home`/`End` stay inside
-   the current row. Walk a middle row, not only the first.
+3. Arrows clamp at all four edges and focus never leaves the grid. Walk a middle row for
+   `Home` and `End`, not only the first: they never leave the row.
 4. `Enter` activates a row with `(click)` and does nothing on the header row or on the
    disabled row; the page logs what was activated.
 5. The squeezed container is already in card mode on load. Confirm nothing there took a
@@ -177,6 +201,6 @@ setStatus(next: string): void {
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
+**The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

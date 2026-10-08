@@ -29,6 +29,15 @@ test('a slot is read composed, because that is how a variant reaches its base', 
   assert.deepEqual(split.found, [], 'an edge with nothing pinning it is not a pinned slot');
 });
 
+test('a slot reading a family channel pays when every option pinning the edge names the inset', () => {
+  const slot = { slots: { root: 'fixed top-[var(--arena-pin-top,auto)]' } };
+  const family = (top: string) => new Map([['pin', { family: 'pin', reach: 'box', description: 'd', variants: {
+    'arena-pin-none': '[--arena-pin-top:auto]', 'arena-pin-top': top } } as never]]);
+  assert.deepEqual(pinsIn('X', slot, family('[--arena-pin-top:max(1px,var(--pad-safe-top))]')).found.map((p) => p.names), [true]);
+  assert.deepEqual(pinsIn('X', slot, family('[--arena-pin-top:0]')).found.map((p) => p.names), [false]);
+  assert.deepEqual(pinsIn('X', slot).found.map((p) => p.names), [false]);
+});
+
 test('a surface covering every edge is covered rather than pinned', () => {
   const { found, covered } = pinsIn('X', { slots: { scrim: 'fixed inset-0 bg-scrim' } });
   assert.deepEqual(found, []);

@@ -11,14 +11,14 @@ import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
-import { paintedParts } from '../../generate/core/arena-to-prod/audit.ts';
-import { restatedFindings } from '../../generate/core/arena-to-prod/restated.ts';
+import { paintedParts } from '../../generate/core/arena-cli/audit.ts';
+import { restatedFindings } from '../../generate/core/arena-cli/restated.ts';
 import { kebab } from '../../utils/case.ts';
 import { categoryOf } from '../../lib/tailwind/manifest-surfaces.ts';
 import { MANIFESTS, partsOf } from '../arena/check-parts.ts';
-import { ROLES, ROOT_PLUGIN } from './check-style-plugin.ts';
+import { ARENA_EXT, ROLES, ROOT_PLUGIN } from './check-style-plugin.ts';
 import { tokenCatalogue } from '../../lib/arena/package-assembly.ts';
-import { readPlugin, resolvedPlugin } from '../../generate/core/arena-to-prod/theme-css.ts';
+import { readPlugin, resolvedPlugin } from '../../generate/core/arena-cli/theme-css.ts';
 import { CSS_TARGETS } from '../../generate/arena/generate-tokens.ts';
 
 export const COMPLETE = 'plugin-style-store/complete/plugin.tokens.json';
@@ -43,8 +43,17 @@ export function movedRoles(root: Record<string, string>, complete: Record<string
   return Object.keys(complete).filter((role) => complete[role] !== root[role]);
 }
 
-export function unreachedRoles(declared: string[], moved: string[]) {
-  const given = new Set(moved);
+type Shape = { $type?: string; $extensions?: Record<string, { values?: unknown }> };
+
+export function immovableRoles(roles: Record<string, Shape>) {
+  return Object.entries(roles).filter(([, shape]) => {
+    const values = shape.$type === 'keyword' ? shape.$extensions?.[ARENA_EXT]?.values : undefined;
+    return Array.isArray(values) && values.length === 1;
+  }).map(([role]) => role);
+}
+
+export function unreachedRoles(declared: string[], moved: string[], immovable: string[] = []) {
+  const given = new Set([...moved, ...immovable]);
   return declared.filter((role) => !given.has(role)).map((role) =>
     `${role} is declared and complete answers it the way default does, so nothing in this tree `
     + 'shows the role reaching a page. A role nothing can reach is a role that does not exist: '
@@ -96,7 +105,8 @@ export function zeroCoverageProblems(count: number) {
 }
 
 export function collect(base = repoRoot) {
-  const declared = Object.keys(readJson(join(base, ROLES)) as Record<string, unknown>);
+  const shapes = readJson(join(base, ROLES)) as Record<string, Shape>;
+  const declared = Object.keys(shapes);
   const root = answersIn(readJson(join(base, ROOT_PLUGIN)) as Record<string, Token>);
   const complete = answersIn(readJson(join(base, COMPLETE)) as Record<string, Token>);
   const parts = [...new Set(MANIFESTS().flatMap((name) => Object.values(partsOf(name))))].sort();
@@ -111,7 +121,7 @@ export function collect(base = repoRoot) {
 
   return {
     problems: [
-      ...unreachedRoles(declared, movedRoles(root, complete)),
+      ...unreachedRoles(declared, movedRoles(root, complete), immovableRoles(shapes)),
       ...unpaintedParts(parts, painted),
       ...phantomParts(parts, painted),
       ...restatedInWitness(witness, sheetOf, at),

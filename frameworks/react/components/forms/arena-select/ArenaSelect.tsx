@@ -3,9 +3,13 @@ import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaSelect.classes.generated.ts';
 
 import type { ArenaSelectOption } from '../../../Api.generated';
+import type { ArenaSelectClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export type { ArenaSelectOption };
 export interface ArenaSelectProps {
+  className?: ArenaSelectClass;
+
 
   /** Field label above the control. */
   label?: string;
@@ -47,7 +51,7 @@ export interface ArenaSelectProps {
 
 const arenaSelectStyles = arenaStyles(manifest);
 
-export function ArenaSelect({
+export function ArenaSelect({ className, 
   label, placeholder, options = [], value, onChange, disabled = false, required = false,
   hint, error, valid = false, icon, name,
 }: ArenaSelectProps) {
@@ -62,22 +66,22 @@ export function ArenaSelect({
   });
 
   return (
-    <div className={styles.root()} data-arena-part={manifest.parts.root}>
-      {label && <label htmlFor={selectId} className={styles.label()} data-arena-part={manifest.parts.label}>{label}</label>}
-      <div className={styles.wrap()} data-arena-part={manifest.parts.wrap}>
-        {icon && <i className={`${icon} ${styles.iconWrap()}`} data-arena-part={manifest.parts.iconWrap} aria-hidden="true" />}
+    <div className={arenaClassName('ArenaSelect', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+      {label && <label htmlFor={selectId} className={styles.label()} data-arena-part={manifest.parts.label} {...styles.$data.label()}>{label}</label>}
+      <div className={styles.wrap()} data-arena-part={manifest.parts.wrap} {...styles.$data.wrap()}>
+        {icon && <i className={`${icon} ${styles.iconWrap()}`} data-arena-part={manifest.parts.iconWrap} {...styles.$data.iconWrap()} aria-hidden="true" />}
         <select id={selectId} value={value} onChange={(e) => onChange && onChange(e.target.value)} disabled={disabled}
           required={required} name={name}
           aria-invalid={hasError || undefined} aria-describedby={error || hint ? noteId : undefined}
-          className={styles.field()} data-arena-part={manifest.parts.field}>
+          className={styles.field()} data-arena-part={manifest.parts.field} {...styles.$data.field()}>
           {placeholder && <option value="" disabled>{placeholder}</option>}
           {options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
         </select>
-        <span className={styles.caret()} data-arena-part={manifest.parts.caret} aria-hidden="true">▾</span>
+        <span className={styles.caret()} data-arena-part={manifest.parts.caret} {...styles.$data.caret()} aria-hidden="true">▾</span>
       </div>
       {error
-        ? <span id={noteId} className={styles.error()} data-arena-part={manifest.parts.error}>{error}</span>
-        : hint && <span id={noteId} className={styles.hint()} data-arena-part={manifest.parts.hint}>{hint}</span>}
+        ? <span id={noteId} className={styles.error()} data-arena-part={manifest.parts.error} {...styles.$data.error()}>{error}</span>
+        : hint && <span id={noteId} className={styles.hint()} data-arena-part={manifest.parts.hint} {...styles.$data.hint()}>{hint}</span>}
     </div>
   );
 }

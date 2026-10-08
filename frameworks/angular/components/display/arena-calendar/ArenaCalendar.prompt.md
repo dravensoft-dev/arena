@@ -4,7 +4,7 @@ Week or day schedule on a time grid: a toolbar, one column per day, events posit
 
 ```html
 <arena-calendar timeZone="Europe/Madrid" (rangeChange)="refetch($event)">
-  <arena-button actions size="sm" variant="secondary">New class</arena-button>
+  <arena-button actions class="arena-emphasis-secondary arena-size-sm">New class</arena-button>
   @for (c of classes(); track c.id) {
     <arena-calendar-event [id]="c.id" [title]="c.name" [start]="c.start" [end]="c.end"
                           [colorId]="c.room" (click)="open(c)" />
@@ -26,12 +26,25 @@ Week or day schedule on a time grid: a toolbar, one column per day, events posit
 | `dayEnd` | primitive | `string` | `"23:00"` | HH:MM the grid ends at. |
 | `weekStartsOn` | primitive | `number` | `1` | 0 = Sunday … 6 = Saturday. |
 | `hideEmptyWeekend` | primitive | `boolean` | `true` | Drop Sunday from the week unless an event falls on it. |
-| `dayInteractive` | primitive | `boolean` | `false` | Whether a day can be activated. A boolean rather than "is `dateClick` bound?", because Arena never derives what it draws from what a consumer listens for, and the same member `ArenaTableRow.interactive` and `ArenaCalendarEvent.interactive` are for the same reason; here the derived render was the day's own cursor, and the layers diverged on screen because of it. With it on, the day header is a <button> (the keyboard's route to the date, and the one element that already names it), and the column background takes a pointer cursor; with it off both are inert and the cursor says so. The default is false because a schedule someone only reads is the ordinary calendar, and a pointer cursor over days that answer nothing is the defect this member exists to end. |
+| `dayInteractive` | primitive | `boolean` | `false` | Whether a day can be activated. A boolean rather than "is `dateClick` bound?", because Arena never derives what it draws from what a consumer listens for, and the same member `ArenaTableRow.interactive` and `ArenaCalendarEvent.interactive` are for the same reason; here the derived render would be the day's own cursor, which a layer whose subscriber list is private would draw differently from the other. With it on, the day header is a <button> (the keyboard's route to the date, and the one element that already names it), and the column background takes a pointer cursor; with it off both are inert and the cursor says so. The default is false because a schedule someone only reads is the ordinary calendar, and a pointer cursor over days that answer nothing is the defect this member exists to end. |
 | `dateClick` | event | `string` |  | A day header or column background was activated; carries the ISO date. Never emitted unless `dayInteractive`. |
 | `rangeChange` | event | `string` |  | The anchor moved via prev/Today/next; carries the new ISO date. A date rather than a delta, because Today is not a delta. |
 | `actions` | slot |  |  | Right-aligned in the toolbar, beside the range title. |
 
 <!-- @api end -->
+
+<!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
+
+**Answers.** No family of the [vocabulary](../../../../VOCABULARY.md) decides anything in this component's own box.
+
+<!-- @answers end -->
+
+<!-- @keys GENERATED from the binding. -->
+**Keys**, from [`grid`](../../../../../contracts/behaviour/grid.json):
+- `ArrowKeys`: moves focus one cell in the arrow's direction; focus does not move past the grid's edge.
+- `Home`: moves focus to the first cell in the current row.
+- `End`: moves focus to the last cell in the current row.
+<!-- @keys end -->
 
 `timeZone` is optional and defaults to the reader's own resolved zone, which is right whenever the schedule belongs to whoever is looking at it. **Pass it when the calendar has a zone of its own.** A class at 09:00 in Madrid must stay at 09:00 for a student loading the page from Lima. Only an explicit `timeZone="Europe/Madrid"` says so. The default is also **not safe under server rendering**. On a server it resolves to the *server's* zone, and then to the client's on hydration.
 
@@ -107,6 +120,6 @@ nowhere else. `bun run build:angular-demo && bun run demos`, then open
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
+**The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

@@ -86,14 +86,14 @@ function stubResize(width: number): () => void {
   const globals = globalThis as { ResizeObserver?: unknown };
   const saved = globals.ResizeObserver;
   globals.ResizeObserver = class {
-    private readonly callback: (entries: Array<{ target: Element; contentRect: { width: number } }>) => void;
+    private readonly callback: (entries: Array<{ target: Element; borderBoxSize: Array<{ inlineSize: number; blockSize: number }>; contentRect: { width: number } }>) => void;
 
-    constructor(callback: (entries: Array<{ target: Element; contentRect: { width: number } }>) => void) {
+    constructor(callback: (entries: Array<{ target: Element; borderBoxSize: Array<{ inlineSize: number; blockSize: number }>; contentRect: { width: number } }>) => void) {
       this.callback = callback;
     }
 
     observe(target: Element): void {
-      this.callback([{ target, contentRect: { width } }]);
+      this.callback([{ target, borderBoxSize: [{ inlineSize: width, blockSize: 0 }], contentRect: { width } }]);
     }
 
     disconnect(): void {}
@@ -146,7 +146,7 @@ class AlertHost {}
 @Component({ standalone: true, imports: [ArenaTag], template: `<arena-tag [removable]="true">Beta</arena-tag>` })
 class TagHost {}
 
-@Component({ standalone: true, imports: [ArenaSkeleton], template: `<arena-skeleton /><arena-skeleton variant="text" [lines]="2" />` })
+@Component({ standalone: true, imports: [ArenaSkeleton], template: `<arena-skeleton /><arena-skeleton [lines]="2" />` })
 class SkeletonHost {}
 
 @Component({ standalone: true, imports: [ArenaSpinner], template: `<arena-spinner />` })

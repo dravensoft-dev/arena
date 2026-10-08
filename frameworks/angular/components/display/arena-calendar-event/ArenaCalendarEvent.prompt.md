@@ -29,6 +29,18 @@ One event on an `arena-calendar`'s schedule. The chip is content of a calendar a
 
 <!-- @api end -->
 
+<!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
+
+**Answers.** No family of the [vocabulary](../../../../VOCABULARY.md) decides anything in this component's own box.
+
+<!-- @answers end -->
+
+<!-- @keys GENERATED from the binding. -->
+**Keys**, from [`button`](../../../../../contracts/behaviour/button.json):
+- `Space`: activate.
+- `Enter`: activate.
+<!-- @keys end -->
+
 `id`, `title`, `start` and `end` are all required and **throw** when blank, `input.required` proves only that something was bound. `start` and `end` are ISO datetimes, read in the calendar's `timeZone` and never the reader's.
 
 **`click` carries no payload, deliberately.** You wrote this element, so your handler already closes over the record it came from.
@@ -48,8 +60,8 @@ What "into the chip" means depends on the shape. A chip with no action panel *is
 ```html
 <arena-calendar-event [id]="c.id" [title]="c.name" [start]="c.start" [end]="c.end"
                       (click)="open(c)" actionsEnabled>
-  <arena-button actions size="sm" variant="ghost" icon="ph-bold ph-pencil">Edit</arena-button>
-  <arena-button actions size="sm" variant="ghost" icon="ph-bold ph-trash">Delete</arena-button>
+  <arena-button actions icon="ph-bold ph-pencil" class="arena-emphasis-ghost arena-size-sm">Edit</arena-button>
+  <arena-button actions icon="ph-bold ph-trash" class="arena-emphasis-ghost arena-size-sm">Delete</arena-button>
 </arena-calendar-event>
 ```
 
@@ -77,6 +89,6 @@ What "into the chip" means depends on the shape. A chip with no action panel *is
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
+**The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

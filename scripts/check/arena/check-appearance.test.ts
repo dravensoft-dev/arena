@@ -7,8 +7,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  EXEMPT, adoptionProblems, angularRendersManifest, collect, literalStyleProblems,
-  reactRendersManifest, styleObjectBodies, valueIsLiteral,
+  EXEMPT, adoptionProblems, angularRendersManifest, chartAliasProblems, chartSources, collect, literalStyleProblems,
+  reactRendersManifest, styleObjectBodies, valueIsLiteral, zeroProblems,
 } from './check-appearance.ts';
 
 const at = (path: string, text: string) => literalStyleProblems(text, path).map((p) => `${p.key}=${p.value}`);
@@ -96,7 +96,7 @@ test('adoption reads the manifest a component has to render, its own or its pare
 });
 
 test('a source that renders no manifest is what the adoption half reads for', () => {
-  const drawn = "import { arenaTv } from '../../../Tv.generated.ts';\nimport m from './ArenaBadge.manifest.generated.ts';";
+  const drawn = "import { arenaStyles } from '../../../ArenaStyles.generated.ts';\nimport m from './ArenaBadge.classes.generated.ts';";
   assert.equal(reactRendersManifest(drawn, 'ArenaBadge'), true);
   assert.equal(reactRendersManifest(drawn, 'ArenaCard'), false, 'it has to be THIS component\'s manifest');
   assert.equal(reactRendersManifest("const S = { background: 'var(--crimson)' };", 'ArenaBadge'), false);
@@ -105,11 +105,10 @@ test('a source that renders no manifest is what the adoption half reads for', ()
   assert.equal(angularRendersManifest("import { Component } from '@angular/core';"), false);
 });
 
-test('a component that draws by hand has no manifest to render, and is named for that instead', () => {
+test('a hand-drawn component that owns a manifest is held to rendering it, layer by layer', () => {
   const problems = adoptionProblems('ArenaBarChart');
-  assert.equal(problems.length, 1);
-  assert.match(problems[0] ?? '', /ArenaBarChart/);
-  assert.match(problems[0] ?? '', /HAND_DRAWN/);
+  assert.ok(problems.every((p) => p.startsWith('ArenaBarChart')));
+  assert.ok(problems.every((p) => !p.includes('HAND_DRAWN')), 'it has a manifest, so it is not named as one with nothing to render');
 });
 
 test('every component in scope renders its manifest and writes no appearance by hand', () => {
@@ -123,4 +122,27 @@ test('every component in scope renders its manifest and writes no appearance by 
 test('the literal half never walks dist/, which holds a copy of each layer', () => {
   const { files } = collect();
   assert.equal(files.some((f) => f.split('/').includes('dist')), false);
+});
+
+test('a chart source reads roles, and a compatibility alias in it fails', () => {
+  const at = 'frameworks/react/components/charts/arena-bar-chart/ArenaBarChart.tsx';
+  assert.deepEqual(chartAliasProblems("const a = 'var(--edge-separator)';", at), []);
+  assert.equal(chartAliasProblems("const a = '1px solid var(--border)';", at).length, 1);
+  assert.equal(chartAliasProblems("const a = 'var(--border-strong, red)';", at).length, 1);
+  assert.deepEqual(chartAliasProblems("const a = 'var(--danger)';", at), [], 'a status tone is read on purpose');
+});
+
+test('the chart half reads every hand-drawn chart in both layers and the two DataVisuals files', () => {
+  const { chartFiles, chartAliases } = collect();
+  assert.deepEqual(chartAliases, []);
+  assert.ok(chartFiles.includes('frameworks/react/DataVisuals.ts'));
+  assert.ok(chartFiles.includes('frameworks/angular/DataVisuals.ts'));
+  assert.ok(chartFiles.some((f) => f.startsWith('frameworks/react/components/charts/')));
+  assert.ok(chartFiles.some((f) => f.startsWith('frameworks/angular/components/charts/')));
+  assert.ok(chartSources().length >= 16);
+});
+
+test('a chart half that scanned nothing is a failure', () => {
+  assert.equal(zeroProblems({ scope: 1, walked: 1, scanned: 1, chartFiles: [] }).length, 1);
+  assert.deepEqual(zeroProblems({ scope: 1, walked: 1, scanned: 1, chartFiles: ['x'] }), []);
 });

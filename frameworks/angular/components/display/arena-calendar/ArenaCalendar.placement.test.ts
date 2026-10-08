@@ -67,14 +67,14 @@ function stubResize(width: number): () => void {
   const globals = globalThis as { ResizeObserver?: unknown };
   const saved = globals.ResizeObserver;
   globals.ResizeObserver = class {
-    private readonly callback: (entries: Array<{ target: Element; contentRect: { width: number } }>) => void;
+    private readonly callback: (entries: Array<{ target: Element; borderBoxSize: Array<{ inlineSize: number; blockSize: number }>; contentRect: { width: number } }>) => void;
 
-    constructor(callback: (entries: Array<{ target: Element; contentRect: { width: number } }>) => void) {
+    constructor(callback: (entries: Array<{ target: Element; borderBoxSize: Array<{ inlineSize: number; blockSize: number }>; contentRect: { width: number } }>) => void) {
       this.callback = callback;
     }
 
     observe(target: Element): void {
-      this.callback([{ target, contentRect: { width } }]);
+      this.callback([{ target, borderBoxSize: [{ inlineSize: width, blockSize: 0 }], contentRect: { width } }]);
     }
 
     disconnect(): void {}
@@ -204,7 +204,7 @@ test('a narrow container drops the time label on width alone, and that is what l
     assert.ok(paneled, 'the chip carrying a kebab did not render');
     const wrap = paneled.querySelector('arena-icon-button')?.parentElement as HTMLElement;
     assert.ok(wrap, 'the kebab wrapper did not render');
-    assert.ok(wrap.className.includes('arena-calendar__kebab-wrap--actions-below-true'),
+    assert.equal(wrap.getAttribute('data-arena-actions-below'), '',
       `a chip at or above the stacking height with no time label puts its kebab below the title: "${wrap.className}"`);
     assert.ok(!paneled.className.includes('pr-['),
       'a chip stacking its kebab must stop reserving the lateral band as well');

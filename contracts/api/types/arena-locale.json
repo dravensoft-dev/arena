@@ -54,7 +54,7 @@
     "horizontalBarChartName": { "form": "primitive", "type": "string", "required": true, "default": "{label} — horizontal bar chart", "description": "A horizontal bar chart's accessible name. {label} is the chart's label." },
     "pyramidChartName": { "form": "primitive", "type": "string", "required": true, "default": "{label} — horizontal bar chart", "description": "A pyramid chart's accessible name, which reads as the horizontal bars it draws. {label} is the chart's label." },
     "doughnutChartName": { "form": "primitive", "type": "string", "required": true, "default": "{label} — doughnut chart", "description": "A doughnut chart's accessible name. {label} is the chart's label." },
-    "doughnutChartPieName": { "form": "primitive", "type": "string", "required": true, "default": "{label} — pie chart", "description": "The same chart's accessible name in its pie shape. {label} is the chart's label." },
+    "doughnutChartPieName": { "form": "primitive", "type": "string", "required": true, "default": "{label} — pie chart", "description": "A doughnut chart's accessible name in its pie shape. {label} is the chart's label." },
     "radarChartName": { "form": "primitive", "type": "string", "required": true, "default": "{label} — radar chart", "description": "A radar chart's accessible name. {label} is the chart's label." },
     "scatterChartName": { "form": "primitive", "type": "string", "required": true, "default": "{label} — scatter chart", "description": "A scatter chart's accessible name. {label} is the chart's label." },
     "chartTableCategory": { "form": "primitive", "type": "string", "required": true, "default": "Category", "description": "The first heading of the data table a categorical chart writes." },

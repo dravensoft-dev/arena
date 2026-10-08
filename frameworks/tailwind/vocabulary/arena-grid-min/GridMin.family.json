@@ -1,0 +1,12 @@
+{
+  "family": "grid-min",
+  "reach": "box",
+  "description": "How narrow a cell of a grid may get before the grid drops a column, which decides how many cards a viewport shows. The question is the adopter's, because a gallery wants a dense wall and a ledger wants a wide column from the same markup. arena-grid-min-md is the default and reads grid-min. arena-grid-min-sm and arena-grid-min-lg read grid-min-sm and grid-min-lg. Set --arena-grid-min on a container for a width no step names. Write a token, or a derivation of tokens, such as var(--grid-min) or calc(var(--grid-min) * 1.5). A class on the grid wins over a property on its container.",
+  "default": "arena-grid-min-md",
+  "variants": {
+    "arena-grid-min-sm": "[--arena-grid-min-width:var(--grid-min-sm)]",
+    "arena-grid-min-md": "[--arena-grid-min-width:var(--grid-min)]",
+    "arena-grid-min-lg": "[--arena-grid-min-width:var(--grid-min-lg)]"
+  },
+  "axis": "--arena-grid-min"
+}

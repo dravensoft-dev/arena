@@ -10,7 +10,7 @@ export const ARENA_MAIN_ID = 'arena-main';
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { style: 'display: contents' },
   template: `
-    <main [id]="id" tabindex="-1" [class]="styles().root()" [attr.data-arena-part]="parts.root">
+    <main [id]="id" tabindex="-1" [class]="styles().root()" [attr.data-arena-part]="parts.root" data-arena-boundary>
       <ng-content />
     </main>
   `,

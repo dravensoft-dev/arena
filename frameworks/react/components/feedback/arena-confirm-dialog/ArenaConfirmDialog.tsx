@@ -5,8 +5,12 @@ import { ArenaButton } from '../../forms/arena-button/ArenaButton.tsx';
 import { useArenaDialogModal } from '../../../UseDialogModal.ts';
 import { useArenaLocale } from '../../../ArenaLocale.ts';
 import { arenaPhrase } from '../../../Phrase.ts';
+import type { ArenaConfirmDialogClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export interface ArenaConfirmDialogProps {
+  className?: ArenaConfirmDialogClass;
+
   /** Whether the dialog is shown. The host owns it, as in the other three modals: defaulting it would let an ArenaConfirmDialog whose open was never wired render nothing forever and look like a working closed dialog. */
   open: boolean;
   /** The dialog was dismissed -- by the Cancel action or by the Escape key, in both layers. A scrim click is deliberately NOT one of them: this component never closes on click-outside. No payload. */
@@ -33,7 +37,7 @@ export interface ArenaConfirmDialogProps {
 
 const confirmStyles = arenaStyles(manifest);
 
-export function ArenaConfirmDialog({ open, onCancel, onConfirm, title, eyebrow, children,
+export function ArenaConfirmDialog({ className, open, onCancel, onConfirm, title, eyebrow, children,
   confirmLabel, cancelLabel, destructive = false, requireText }: ArenaConfirmDialogProps) {
   const locale = useArenaLocale();
   const kicker = eyebrow ?? locale.confirmDialogEyebrow;
@@ -52,27 +56,27 @@ export function ArenaConfirmDialog({ open, onCancel, onConfirm, title, eyebrow, 
   const locked = requireText ? typed.trim() !== requireText : false;
   const styles = confirmStyles({ destructive, invalid: locked && typed !== '', open: true });
   return (
-    <div className={styles.root()} data-arena-part={manifest.parts.root}>
+    <div className={arenaClassName('ArenaConfirmDialog', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()} data-arena-surface="floating">
       <div role="alertdialog" aria-modal="true"
         ref={panelRef} tabIndex={-1} onKeyDown={onKeyDown} aria-labelledby={titleId}
-        className={styles.panel()} data-arena-part={manifest.parts.panel}>
-        <div className={styles.head()} data-arena-part={manifest.parts.head}>
-          <div className={styles.eyebrow()} data-arena-part={manifest.parts.eyebrow}>{kicker}</div>
-          <div id={titleId} className={styles.title()} data-arena-part={manifest.parts.title}>{title}</div>
+        className={styles.panel()} data-arena-part={manifest.parts.panel} {...styles.$data.panel()}>
+        <div className={styles.head()} data-arena-part={manifest.parts.head} {...styles.$data.head()}>
+          <div className={styles.eyebrow()} data-arena-part={manifest.parts.eyebrow} {...styles.$data.eyebrow()}>{kicker}</div>
+          <div id={titleId} className={styles.title()} data-arena-part={manifest.parts.title} {...styles.$data.title()}>{title}</div>
         </div>
-        <div className={styles.body()} data-arena-part={manifest.parts.body}>
+        <div className={styles.body()} data-arena-part={manifest.parts.body} {...styles.$data.body()} data-arena-boundary="">
           {children}
           {requireText && (
-            <div className={styles.requireBlock()} data-arena-part={manifest.parts.requireBlock}>
-              <div className={styles.requireLabel()} data-arena-part={manifest.parts.requireLabel}>{arenaPhrase(locale.confirmDialogRequire, { text: requireText })}</div>
+            <div className={styles.requireBlock()} data-arena-part={manifest.parts.requireBlock} {...styles.$data.requireBlock()}>
+              <div className={styles.requireLabel()} data-arena-part={manifest.parts.requireLabel} {...styles.$data.requireLabel()}>{arenaPhrase(locale.confirmDialogRequire, { text: requireText })}</div>
               <input value={typed} onChange={(e) => setTyped(e.target.value)}
-                className={styles.input()} data-arena-part={manifest.parts.input} />
+                className={styles.input()} data-arena-part={manifest.parts.input} {...styles.$data.input()} />
             </div>
           )}
         </div>
-        <div className={styles.foot()} data-arena-part={manifest.parts.foot}>
-          <ArenaButton variant="ghost" onClick={onCancel}>{cancelText}</ArenaButton>
-          <button type="button" onClick={onConfirm} disabled={locked} className={styles.confirm()} data-arena-part={manifest.parts.confirm}>
+        <div className={styles.foot()} data-arena-part={manifest.parts.foot} {...styles.$data.foot()}>
+          <ArenaButton className="arena-emphasis-ghost" onClick={onCancel}>{cancelText}</ArenaButton>
+          <button type="button" onClick={onConfirm} disabled={locked} className={styles.confirm()} data-arena-part={manifest.parts.confirm} {...styles.$data.confirm()}>
             {confirmText}
           </button>
         </div>

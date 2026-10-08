@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { useArenaContainerWidth } from '../../../UseArenaContainerWidth.ts';
-import { arenaSrOnly, arenaAreaFill, arenaValueWriter, ARENA_CHART_HEIGHT } from '../../../DataVisuals.ts';
+import { ARENA_CHART_HEIGHT, ARENA_INK_MUTED, arenaSrOnly, arenaAreaFill, arenaValueWriter } from '../../../DataVisuals.ts';
 import { arenaLinearScale, arenaScaleValue } from '../ChartScales.ts';
 import { arenaLinePoints } from '../ChartMarks.ts';
 import {
   arenaPolarPoint, arenaPolarIndex, arenaPolarAnchor, arenaRadarRings, arenaRadarRadius, arenaRadarLabelRadius,
 } from '../ChartPolar.ts';
 import {
-  arenaChartTable, arenaSeriesColors, arenaSeriesPointCount, arenaRadarDomain,
+  arenaChartTable, arenaSeriesColors, arenaSwatchHue, arenaSeriesPointCount, arenaRadarDomain,
 } from '../ChartSeries.ts';
 import { arenaLegendStrip } from '../ChartLegend.ts';
 import { arenaTooltipAnchor } from '../ChartTooltip.ts';
@@ -17,8 +17,14 @@ import { chartPointR, chartPointRHover } from '../../../Tokens.generated.js';
 import type { ArenaNumberFormat, ArenaSeries } from '../../../Api.generated';
 import { useArenaLocale } from '../../../ArenaLocale.ts';
 import { arenaPhrase } from '../../../Phrase.ts';
+import type { ArenaRadarChartClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
+import { arenaStyles } from '../../../ArenaStyles.generated.ts';
+import manifest from './ArenaRadarChart.classes.generated.ts';
 
 export interface ArenaRadarChartProps {
+  className?: ArenaRadarChartClass;
+
 
   /** One label per axis, in the same order as every series' `values`, running clockwise from 12 o'clock. Keep the count small: past eight or so the labels collide and the shape stops being readable, which is a limit of the form rather than of the drawing. */
   labels: readonly string[];
@@ -46,11 +52,14 @@ export interface ArenaRadarChartProps {
 }
 
 
-export function ArenaRadarChart({
+const arenaRadarChartStyles = arenaStyles(manifest);
+
+export function ArenaRadarChart({ className, 
   labels, series, label, fill = false, valueSuffix, valuePrefix, valueFormat,
   height = ARENA_CHART_HEIGHT,
 }: ArenaRadarChartProps) {
   const locale = useArenaLocale();
+  const styles = arenaRadarChartStyles();
   if (!label) throw new Error('ArenaRadarChart: `label` is required (it names the chart for the accessible name, and nothing can derive that)');
   if (!labels) throw new Error('ArenaRadarChart: `labels` is required');
   if (!series) throw new Error('ArenaRadarChart: `series` is required');
@@ -91,13 +100,13 @@ export function ArenaRadarChart({
   };
 
   return (
-    <div ref={ref} style={{ position: 'relative', width: '100%', height }}>
+    <div className={arenaClassName('ArenaRadarChart', styles.frame(), className)} ref={ref} data-arena-part={manifest.parts.frame} {...styles.$data.frame()} style={{ height }}>
       <div tabIndex={0} role="group" aria-label={name} onKeyDown={onKeyDown}
         style={{ display: 'block', outlineOffset: 'var(--focus-offset)' }}>
       <svg width="100%" height={strip.plotH} role="img" aria-label={name}
         style={{ display: 'block', overflow: 'visible' }}>
         {rings.map((value, i) => (
-          <polygon key={i} fill="none" stroke="var(--border)" style={{ strokeWidth: 'var(--bw)' }}
+          <polygon key={i} fill="none" stroke="var(--edge-separator)" style={{ strokeWidth: 'var(--bw)' }}
             points={arenaLinePoints(Array.from({ length: n }, (_, a) => arenaPolarPoint(cx, cy, reach(value), a, n)))} />
         ))}
 
@@ -105,7 +114,7 @@ export function ArenaRadarChart({
           const tip = arenaPolarPoint(cx, cy, outer, i, n);
           return (
             <line key={i} x1={cx} y1={cy} x2={tip.x} y2={tip.y}
-              stroke={hover === i ? 'var(--border-strong)' : 'var(--border)'} style={{ strokeWidth: 'var(--bw)' }} />
+              stroke={hover === i ? 'var(--edge-axis)' : 'var(--edge-separator)'} style={{ strokeWidth: 'var(--bw)' }} />
           );
         })}
 
@@ -128,7 +137,7 @@ export function ArenaRadarChart({
           const at = arenaPolarPoint(cx, cy, reach(value), a, n);
           return (
             <circle key={`${s}-${a}`} cx={at.x} cy={at.y} r={hover === a ? chartPointRHover : chartPointR}
-              fill={colors[s]} stroke="var(--surface-card)" style={{ strokeWidth: 'var(--bw-strong)' }} />
+              fill={colors[s]} stroke="var(--fill-surface)" style={{ strokeWidth: 'var(--bw-strong)' }} />
           );
         }))}
 
@@ -136,7 +145,7 @@ export function ArenaRadarChart({
           const at = arenaPolarPoint(cx, cy, labelR, i, n);
           return (
             <text key={i} x={at.x} y={at.y} textAnchor={arenaPolarAnchor(i, n)} dominantBaseline="middle"
-              fill="var(--text-muted)" fontFamily="var(--font-body)" style={{ fontSize: 'var(--dz-text-xs)' }}>{labels[i] ?? ''}</text>
+              fill={ARENA_INK_MUTED} fontFamily="var(--font-body)" style={{ fontSize: 'var(--dz-text-xs)' }}>{labels[i] ?? ''}</text>
           );
         })}
 
@@ -148,32 +157,24 @@ export function ArenaRadarChart({
       </div>
 
       {strip.stripH > 0 && (
-        <div aria-hidden="true" style={{
-          height: strip.stripH, display: 'flex', alignItems: 'center', gap: 'calc(var(--sp-1) * 4)',
-          overflow: 'hidden', whiteSpace: 'nowrap',
-        }}>
+        <div aria-hidden="true" className={styles.legend()} data-arena-part={manifest.parts.legend} {...styles.$data.legend()} style={{ height: strip.stripH }}>
           {series.map((one, s) => (
-            <span key={s} style={{ display: 'flex', alignItems: 'center', gap: 'calc(var(--sp-1) * 1.5)', minWidth: 0 }}>
-              <span style={{ width: 'calc(var(--sp-1) * 2.5)', height: 'calc(var(--sp-1) * 2.5)',
-                borderRadius: 'var(--r-xs)', background: colors[s], flexShrink: 0 }} />
-              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                fontFamily: 'var(--font-body)', fontSize: 'var(--dz-text-sm)', color: 'var(--text-body)' }}>{one.label}</span>
+            <span key={s} className={styles.legendItem()} data-arena-part={manifest.parts.legendItem} {...styles.$data.legendItem()}>
+              <span className={arenaRadarChartStyles(arenaSwatchHue(one, 0, s + 1)).legendSwatch()} data-arena-part={manifest.parts.legendSwatch} {...arenaRadarChartStyles(arenaSwatchHue(one, 0, s + 1)).$data.legendSwatch()} />
+              <span className={styles.legendLabel()} data-arena-part={manifest.parts.legendLabel} {...styles.$data.legendLabel()}>{one.label}</span>
             </span>
           ))}
         </div>
       )}
 
       {hover !== null && hover < n && (
-        <div style={{
-          position: 'absolute', transform: 'translate(-50%,-100%)', pointerEvents: 'none', whiteSpace: 'nowrap',
-          background: 'var(--bg-raised)', border: 'var(--bw) solid var(--border-strong)',
-          borderRadius: 'var(--r-sm)', boxShadow: 'var(--shadow-2)', padding: 'calc(var(--sp-1) * 1.5) calc(var(--sp-1) * 2.5)',
+        <div className={styles.tooltip()} data-arena-part={manifest.parts.tooltip} {...styles.$data.tooltip()} style={{
           ...arenaTooltipAnchor(arenaPolarPoint(cx, cy, outer, hover, n).x,
             arenaPolarPoint(cx, cy, outer, hover, n).y),
         }}>
-          <div style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--dz-text-xs)', color: 'var(--mute)' }}>{labels[hover]}</div>
+          <div className={styles.tooltipLabel()} data-arena-part={manifest.parts.tooltipLabel} {...styles.$data.tooltipLabel()}>{labels[hover]}</div>
           {series.map((one, s) => one.values[hover] !== undefined && (
-            <div key={s} style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--dz-text-md)', color: 'var(--bone)' }}>
+            <div key={s} className={styles.tooltipValue()} data-arena-part={manifest.parts.tooltipValue} {...styles.$data.tooltipValue()}>
               {`${series.length > 1 ? `${one.label}: ` : ''}${fmt(one.values[hover] as number)}`}
             </div>
           ))}

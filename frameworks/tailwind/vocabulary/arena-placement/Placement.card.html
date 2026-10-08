@@ -1,0 +1,41 @@
+<!-- @dsCard group="Tailwind" viewport="860x488" name="placement" subtitle="A box family: arena-placement-bottom is the default, the others pin a surface to an edge or a corner" -->
+<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../../../intro/styles.css">
+<link rel="stylesheet" href="../../consume/Preflight.generated.css">
+<link rel="stylesheet" href="../../consume/components/feedback/arena-sheet/ArenaSheet.styles.generated.css">
+<link rel="stylesheet" href="../../consume/components/feedback/arena-toast-host/ArenaToastHost.styles.generated.css">
+<link rel="stylesheet" href="../../consume/vocabulary/Placement.generated.css">
+<link rel="stylesheet" href="../../Specimen.css">
+</head><body><div id="root"></div>
+<script type="module">
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../Specimen.js';
+
+const sheetManifest = await (await fetch('../../components/feedback/arena-sheet/ArenaSheet.manifest.json')).json();
+const hostManifest = await (await fetch('../../components/feedback/arena-toast-host/ArenaToastHost.manifest.json')).json();
+
+function sheet(option) {
+  const c = arenaClassesFor(sheetManifest, { open: true });
+  const d = arenaSlotDataFor(sheetManifest, { open: true });
+  return el('div', { class: `${c.root.replace(/\bfixed\b/, 'relative')} ${option}`, ...d.root },
+    el('div', { class: c.body, ...d.body, role: 'group', text: option }));
+}
+
+function host(option) {
+  const c = arenaClassesFor(hostManifest);
+  const d = arenaSlotDataFor(hostManifest);
+  return el('div', { class: `${c.root} ${option}`, ...d.root },
+    el('div', { class: 'font-body text-sm bg-base-300 rounded-control px-4 py-2.5', text: option }));
+}
+
+mountSpecimen({ sections: [
+  section('A sheet answers arena-placement-bottom, the default, -start and -end', [
+    sheet('arena-placement-bottom'), sheet('arena-placement-start'), sheet('arena-placement-end'),
+  ]),
+  section('A toast stack answers the four corners; each clears the device inset on the edges it touches', [
+    el('div', { class: 'font-body text-sm text-base-content/62' },
+      'The stack is fixed, so each corner is measured against the viewport and not against this page.'),
+  ]),
+]});
+
+for (const option of ['arena-placement-top-start', 'arena-placement-top-end', 'arena-placement-bottom-start', 'arena-placement-bottom-end']) document.body.append(host(option));
+</script></body></html>

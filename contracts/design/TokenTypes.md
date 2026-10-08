@@ -92,9 +92,9 @@ error names the set.
 **Where the set is declared, and where it is enforced.** Once, on the role in
 [`roles.json`](./roles.json). A style plugin re-values a role it did not declare and repeats
 nothing, so `values` is optional on the answer and
-`scripts/generate/core/arena-to-prod/style-plugin-rules.ts:valueProblems(where, key, token, role)`
+`scripts/generate/core/arena-cli/style-plugin-rules.ts:valueProblems(where, key, token, role)`
 is what holds a moved keyword to its role's set. Two gates, one set: the alternative is a copy of
-the enum in every plugin, which is a copy that can drift.
+the enum in every plugin, which is a copy that can drift. A set may hold one word: `hue-danger-fill-strong` is closed to `["transparent"]`, a floor with no choice in it.
 
 **What it does not buy.** A keyword is a word, so it cannot alias a scale and cannot carry a
 `cssUnit`. A value that is a measurement stays a `dimension` or a `number`, and a value that is a
@@ -106,9 +106,6 @@ A token carrying `$extensions["com.dravensoft.arena"].script: true` is emitted
 **twice**: as the CSS custom property it would have had anyway, and as a bare
 number exported from each framework layer's generated module
 (`frameworks/react/Tokens.generated.js`, `frameworks/angular/Tokens.generated.ts`).
-
-The flag lives in the source, not in a list inside the build script, because a
-second list is a second thing to keep in sync.
 
 Flag a token only when **JS arithmetic must consume it to produce a position**.
 A value the browser can apply directly stays CSS-only. Two consequences follow

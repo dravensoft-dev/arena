@@ -3,9 +3,9 @@ nothing defaults, so the first render is either your brand or a type error, neve
 Dravensoft's by accident.
 
 ```tsx
-<ArenaAppLogo size="sm"
+<ArenaAppLogo
   mark={<img src="../../../assets/rotor-crimson.svg" alt="" />}
-  name="Draven" dim="soft" />
+  name="Draven" dim="soft" className="arena-size-sm" />
 ```
 
 <!-- @api GENERATED from contracts/api/components/ArenaAppLogo.json. Edit the contract, not this table. -->
@@ -17,20 +17,30 @@ Dravensoft's by accident.
 | `mark*` | slot |  |  | The mark, as an asset the consumer supplies. Required: Arena ships MIT and a default would ship Dravensoft's trademark to whoever never read the API. The slot sizes the mark; a mark that brings its own dimensions fights the lock-up. |
 | `name*` | primitive | `string` |  | The product name, or its first half when `dim` carries the second. |
 | `dim` | primitive | `string` |  | The wordmark's second half, drawn muted and set straight against `name` with no space between them, so `name` of Draven and `dim` of soft reads as the one word Dravensoft. It is the second half of a name and never a tagline beside it: a product called Coldwalk splits as Cold and walk, and passing the tagline here draws it butted onto the name. Present for the manual's Primary variant, absent for Monochrome, which is why there is no `variant` member: the mark's ink and this are the same two decisions. |
-| `size` | enum | `ArenaLogoSize` | `"md"` | Both halves at once: the mark's slot and the wordmark. |
-| `orientation` | enum | `ArenaOrientation` | `"horizontal"` | Mark beside the name, or above it. |
 
 <!-- @api end -->
 
-`size` picks both halves at once, the mark's slot and the wordmark's size. The scale is a fixed repertoire rather than a ratio. `sm` (30/17) sits beside a product name in an application frame, and `md` (40/24) heads a signed-out panel. `lg` (54/34) is the brand manual's Primary horizontal, and `xl` (124/78) is the hero case, where the lock-up is the only thing on the screen. All eight numbers are `--logo-*` tokens.
+<!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
 
-The manual's three variants are expressible without a `variant` prop, because they
-are two decisions and not three:
+**Answers** [`size`](../../../../VOCABULARY.md#size): `arena-size-lg`, `arena-size-md` (default), `arena-size-sm`, `arena-size-xl`. Write one as `className="arena-size-lg"` on the component, or on a container whose components should all take it.
 
-| Manual variant | mark | wordmark |
+**Answers** [`orientation`](../../../../VOCABULARY.md#orientation): `arena-orientation-horizontal` (default), `arena-orientation-vertical`. Write one as `className="arena-orientation-vertical"` on the component, or on a container whose components should all take it.
+
+<!-- @answers end -->
+
+<!-- @keys GENERATED from the binding. -->
+**Keys:** none.
+<!-- @keys end -->
+
+An `arena-size-*` class sizes both halves at once, the mark's slot and the wordmark. The scale is a fixed repertoire rather than a ratio. `arena-size-sm` (30/17) sits beside a product name in an application frame, and `arena-size-md` (40/24) heads a signed-out panel. `arena-size-lg` (54/34) is the brand manual's Primary horizontal, and `arena-size-xl` (124/78) is the hero case, where the lock-up is the only thing on the screen. All eight numbers are `--logo-*` tokens.
+
+The manual's three lock-ups are two decisions and not three, and the `arena-orientation-vertical` class
+and the choice of mark and wordmark express them:
+
+| Manual lock-up | mark | wordmark |
 |---|---|---|
 | Primary · horizontal | `rotor-crimson.svg` | `name="Draven" dim="soft"` |
-| Vertical · stacked | `rotor-crimson.svg` | same, `orientation="vertical"` |
+| Vertical · stacked | `rotor-crimson.svg` | same, `className="arena-orientation-vertical"` |
 | Monochrome · single ink | `rotor-bone.svg` | `name="Dravensoft"`, no `dim` |
 
 ## Do / Don't
@@ -44,10 +54,10 @@ are two decisions and not three:
 - **Don't** look for a component that renders the mark on its own. Arena ships none:
   the mark is a brand asset (`assets/rotor-*.svg`), and the lock-up is this component,
   which takes that asset as `mark` alongside a product `name`.
-- **Don't** mix the variants. A crimson mark beside an undivided `Dravensoft` is half of Primary and half of Monochrome, which is no variant at all. The half-and-half lock-up is precisely the defect that existed in the console before this component held the rule.
+- **Don't** mix the lock-ups. A crimson mark beside an undivided `Dravensoft` is half of Primary and half of Monochrome, which is no variant at all. The half-and-half lock-up is precisely the defect that existed in the console before this component held the rule.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
+**The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

@@ -21,9 +21,9 @@ test('it renders a real definition list, so a term and its value are associated 
   assert.equal((html.match(/<dt/g) ?? []).length, ROWS.length);
 });
 
-test('a figure takes a different value class from a line of prose', () => {
+test('a figure takes a different value attribute from a line of prose', () => {
   const html = render(<ArenaKeyValue rows={ROWS} />);
-  const values = [...html.matchAll(/<dd class="([^"]*)"/g)].map((m) => m[1]);
+  const values = [...html.matchAll(/<dd[^>]*>/g)].map((m) => /\bdata-arena-numeric(="[^"]*")?/.exec(m[0])?.[0] ?? '');
   assert.equal(values.length, 2);
   assert.notEqual(values[0], values[1],
     'a money column that does not take tabular numerals is a column that jitters as it changes');

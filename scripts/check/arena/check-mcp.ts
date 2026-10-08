@@ -1,13 +1,11 @@
-/* The MCP package against what it promises. Six claims. It declares the dependencies it actually
- * imports and no others, since a server that resolves at build and throws at spawn is what an
- * editor reports as a broken configuration rather than a missing package. Its bin resolves to a
- * file that is there. It carries the corpus, one per layer, since a package shipping the transport
- * and none of the documents installs cleanly and answers every question with silence. Every path
- * inside it resolves to something the package carries or the site publishes, a rewritten link
- * landing nowhere being the one failure a reader cannot tell from an empty answer. The catalogue
- * reaches every component the tree declares. And server.json states this tree's own name and
- * version, since a manifest a registry hands a stranger and nothing here holds goes stale in
- * silence. dist/ is git-ignored, so the three that read it skip against an unassembled tree. */
+/* The MCP package against what it promises, in six claims. It declares the dependencies it
+ * imports and no others, since a server that resolves at build and throws at spawn reads as a
+ * broken configuration. Its bin resolves to a file that is there. It carries the corpus and one
+ * vocabulary index per layer, since a package with the transport and no documents answers every
+ * question with silence. Every path inside it resolves to something the package carries or the
+ * site publishes. The catalogue reaches every component the tree declares. And server.json states
+ * this tree's own name and version. dist/ is git-ignored, so the three that read it skip against
+ * an unassembled tree. */
 
 import { existsSync, readFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
@@ -19,10 +17,13 @@ import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import {
   DIST, SOURCE, ENTRY, BIN, NAME, REGISTRY_NAME, RUNTIME_DEPENDENCIES, manifest, sources,
 } from '../../build/arena/build-mcp-package.ts';
-import { catalogue, textOf, MARKDOWN_LINK, ADDRESSED } from '../../generate/core/arena-mcp/catalogue.ts';
+import { loadVocabulary } from '../../generate/core/arena-cli/audit.ts';
+import {
+  catalogue, textOf, MARKDOWN_LINK, ADDRESSED, STYLE_PREFIX, STYLE_DIR,
+} from '../../generate/core/arena-mcp/catalogue.ts';
 import { manifestIn, bundledPayload } from '../../generate/core/arena-mcp/payload.ts';
-import { servedDocs } from '../../lib/arena/llms-index.ts';
-import { LINK, INLINE, isRepoPath } from '../../lib/arena/agent-payload.ts';
+import { servedDocs, writtenPages } from '../../lib/arena/llms-index.ts';
+import { LINK, INLINE, isRepoPath, inPayload } from '../../lib/arena/agent-payload.ts';
 import { LAYERS as BUILT_LAYERS } from '../../build/arena/build-mcp-package.ts';
 
 export const REGISTRY_FILE = 'server.json';
@@ -127,7 +128,7 @@ export function unresolvedTarget(target: string, from: string, agent: string, se
   if (target.startsWith(SITE_BASE)) {
     const rel = target.slice(SITE_BASE.length).replace(/[#?].*$/, '');
     if (rel.includes('*') || rel.includes('<')) return null;
-    return served.has(rel) || existsSync(join(root, ...rel.split('/')))
+    return served.has(rel) || writtenPages().includes(rel) || existsSync(join(root, ...rel.split('/')))
       ? null
       : `${rel} is named as a page on the domain and this tree does not carry it, `
         + 'so the site publishes nothing there';
@@ -241,6 +242,18 @@ export function corpusProblems(dir: string) {
   return problems;
 }
 
+export function vocabularyProblems(dir: string) {
+  const problems = [];
+  for (const layer of BUILT_LAYERS) {
+    const payload = bundledPayload(layer, dir);
+    if (payload === null || loadVocabulary(payload) !== null) continue;
+    problems.push(`${NAME} carries no vocabulary index for the ${layer} layer. arena_check reads a class `
+      + 'against it, so without it every class of the language on a component is reported as a class '
+      + 'of the adopter\'s own');
+  }
+  return problems;
+}
+
 export function servedLinkProblems(dir: string) {
   const problems = [];
   for (const layer of BUILT_LAYERS) {
@@ -282,6 +295,36 @@ export function catalogueProblems(dir: string, base = root) {
   return problems;
 }
 
+export const DEFAULT_PLUGIN = `${STYLE_DIR}/default/plugin.tokens.json`;
+
+export function styleStoreProblems(dir: string, base = root) {
+  const wanted = walkFiles(join(base, STYLE_DIR)).map((file) => relPosix(base, file));
+  const problems = [];
+  for (const layer of BUILT_LAYERS) {
+    const payload = bundledPayload(layer, dir);
+    if (payload === null) continue;
+    const found = manifestIn(payload);
+    if (found === null) continue;
+    const served = new Set(catalogue(payload, found).entries.map((one) => one.uri));
+    const expected = wanted.filter((rel) => inPayload(rel, layer));
+    if (!expected.includes(DEFAULT_PLUGIN)) {
+      problems.push(`${NAME}: ${DEFAULT_PLUGIN} is not among the files the corpus is specified to carry`);
+    }
+    for (const rel of expected) {
+      const uri = `${STYLE_PREFIX}${relPosix(STYLE_DIR, rel)}`;
+      if (served.has(uri)) continue;
+      problems.push(`${NAME}: the ${layer} corpus does not serve ${uri} for ${rel}. The default style `
+        + 'plugin and each catalogue entry are what an agent with no clone copies into a project, '
+        + 'and a file missing here is one it has to guess');
+    }
+    if (!expected.some((rel) => rel.endsWith('/ENTRY.md'))) {
+      problems.push(`${NAME}: the ${layer} corpus carries no catalogue entry, so a project with no `
+        + 'appearance of its own is told to pick one from a catalogue that is empty here');
+    }
+  }
+  return problems;
+}
+
 export function collect(base = root) {
   const dir = assembled(base);
   const problems = [...dependencyProblems(base), ...registryProblems(base)];
@@ -289,7 +332,8 @@ export function collect(base = root) {
   return {
     problems: [
       ...problems, ...binProblems(dir), ...flatProblems(dir), ...corpusProblems(dir),
-      ...servedLinkProblems(dir), ...catalogueProblems(dir, base),
+      ...vocabularyProblems(dir), ...servedLinkProblems(dir), ...catalogueProblems(dir, base),
+      ...styleStoreProblems(dir, base),
     ],
     assembled: true,
   };

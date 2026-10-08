@@ -29,7 +29,7 @@ import manifest from './ArenaEmptyState.classes.generated';
       <div [class]="styles().message()" [attr.data-arena-part]="parts.message">{{ body }}</div>
     }
     @if (action()) {
-      <div [class]="styles().action()" [attr.data-arena-part]="parts.action"><ng-content select="[action]" /></div>
+      <div [class]="styles().action()" [attr.data-arena-part]="parts.action" data-arena-boundary><ng-content select="[action]" /></div>
     }
   `,
 })

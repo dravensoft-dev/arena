@@ -6,7 +6,8 @@ import { join } from 'node:path';
 import {
   collect, dependencyProblems, importedPackages, binProblems, corpusProblems, catalogueProblems,
   unresolvedTarget, targetsIn, registryProblems, SITE_BASE, REGISTRY_SCHEMA,
-  REGISTRY_DESCRIPTION_LIMIT, flatProblems, ESCAPING_SPECIFIER,
+  REGISTRY_DESCRIPTION_LIMIT, flatProblems, ESCAPING_SPECIFIER, vocabularyProblems,
+  styleStoreProblems,
 } from './check-mcp.ts';
 import {
   RUNTIME_DEPENDENCIES, ENTRY, NAME, LAYERS, DIST, REGISTRY_NAME, manifest,
@@ -66,6 +67,23 @@ test('a layer this package carries no corpus for is a half no agent can read', (
   rmSync(dir, { recursive: true });
 });
 
+test('a layer whose payload lacks the vocabulary index reports every class of the language as the adopter\'s own', () => {
+  const index = JSON.stringify({ page: 'p', classes: {}, answers: {}, options: {} });
+  const both = Object.fromEntries(LAYERS.flatMap((layer) => [
+    [`agent/${layer}/skill.json`, MANIFEST], [`agent/${layer}/arena.vocabulary.json`, index],
+  ]));
+  const whole = corpus(both);
+  assert.deepEqual(vocabularyProblems(whole), []);
+  rmSync(whole, { recursive: true });
+
+  delete both['agent/angular/arena.vocabulary.json'];
+  const dir = corpus(both);
+  const problems = vocabularyProblems(dir);
+  assert.equal(problems.length, 1, 'one layer lacks it');
+  assert.match(problems[0] ?? '', /no vocabulary index for the angular layer/);
+  rmSync(dir, { recursive: true });
+});
+
 test('a repository path surviving the rewrite is a dead route, and it is reported as one', () => {
   const dir = corpus({
     'agent/react/skill.json': MANIFEST,
@@ -96,6 +114,16 @@ test('a page named on the domain is judged against what the site actually publis
   const payload = join(root, 'nowhere');
   assert.equal(unresolvedTarget(`${SITE_BASE}skills/design/references/page.md`, 'skills/design/ROUTER.md', payload, served), null);
   assert.match(unresolvedTarget(`${SITE_BASE}nowhere/at/all.md`, 'skills/design/ROUTER.md', payload, served) ?? '',
+    /the site publishes nothing there/);
+});
+
+test('a page the site build writes is published although no file in the tree carries it', () => {
+  const payload = join(root, 'nowhere');
+  const from = 'skills/design/ROUTER.md';
+  for (const page of ['llms.txt', 'llms-react.txt', 'llms-angular.txt']) {
+    assert.equal(unresolvedTarget(`${SITE_BASE}${page}`, from, payload, new Set()), null);
+  }
+  assert.match(unresolvedTarget(`${SITE_BASE}llms-nowhere.txt`, from, payload, new Set()) ?? '',
     /the site publishes nothing there/);
 });
 
@@ -203,7 +231,7 @@ test('a specifier that escapes the flat bin is reported, since bin/ has no direc
     writeFileSync(join(dir, 'bin', 'clean.mjs'), "import { x } from './audit.mjs';\n");
     assert.deepEqual(flatProblems(dir), []);
 
-    writeFileSync(join(dir, 'bin', 'escaping.mjs'), "import { x } from '../arena-to-prod/audit.mjs';\n");
+    writeFileSync(join(dir, 'bin', 'escaping.mjs'), "import { x } from '../arena-cli/audit.mjs';\n");
     const problems = flatProblems(dir);
     assert.equal(problems.length, 1);
     assert.match(problems[0] ?? '', /escaping\.mjs/);
@@ -218,4 +246,33 @@ test('the pattern reads a specifier and not a path that happens to sit in a stri
   assert.deepEqual(of("import { a } from '../b/c.mjs';"), ['../b/c.mjs']);
   assert.deepEqual(of("import { a } from './c.mjs';"), []);
   assert.deepEqual(of("const note = '../b/c.mjs';"), []);
+});
+
+test('a default plugin or a catalogue entry missing from the assembled corpus is reported', () => {
+  const store = {
+    'plugin-style-store/default/plugin.tokens.json': '{}',
+    'plugin-style-store/catalogue/INDEX.md': '# i\n',
+    'plugin-style-store/catalogue/booking/ENTRY.md': '# b\n',
+    'plugin-style-store/catalogue/booking/plugin.css': '.x{}',
+  };
+  const base = corpus(store);
+  const bundle = (files: Record<string, string>) => corpus(Object.fromEntries(LAYERS.flatMap((layer) => [
+    [`agent/${layer}/skill.json`, MANIFEST.replace('react', layer)],
+    [`agent/${layer}/skills/design/ROUTER.md`, '# r\n'],
+    [`agent/${layer}/support.json`, '{}'],
+    [`agent/${layer}/frameworks/${layer}/components/a/ArenaA.prompt.md`, 'a\n'],
+    ...Object.entries(files).map(([rel, body]) => [`agent/${layer}/${rel}`, body]),
+  ])));
+  const whole = bundle(store);
+  const without = bundle(store);
+  const noEntry = bundle(Object.fromEntries(Object.entries(store)
+    .filter(([rel]) => !rel.includes('booking/plugin.css'))));
+  try {
+    assert.deepEqual(styleStoreProblems(whole, base), []);
+    assert.match(styleStoreProblems(noEntry, base).join('\n'), /style\/catalogue\/booking\/plugin\.css/);
+    rmSync(join(without, 'agent', 'react', 'plugin-style-store', 'default'), { recursive: true });
+    assert.match(styleStoreProblems(without, base).join('\n'), /style\/default\/plugin\.tokens\.json/);
+  } finally {
+    for (const dir of [base, whole, without, noEntry]) rmSync(dir, { recursive: true, force: true });
+  }
 });

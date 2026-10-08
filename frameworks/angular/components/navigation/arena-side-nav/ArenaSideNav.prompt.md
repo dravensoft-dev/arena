@@ -23,11 +23,20 @@ the accessible name and the column layout all sit on it.
 | `active` | primitive | `string` |  | The id of the current destination. The ArenaSideNavItem whose id matches is marked aria-current="page", and no item is marked when it names none of them. |
 | `ariaLabel*` | primitive | `string` |  | Names this navigation landmark. Required, and guarded at runtime: the guard trims before it decides, so a blank name is refused as well as an absent one, because ariaLabel="" renders a landmark with no accessible name, which is the defect arriving through a value that is present. Guarded rather than defaulted: the navigation pattern asks each landmark on a page for a UNIQUE name, and a constant default satisfies the existence half while two sidebars on one page stay indistinguishable. Nothing can derive it either; what a nav is FOR is editorial. Say what it navigates -- "Primary", "Project settings" -- the ArenaTable.label and ArenaSegmentedControl.ariaLabel shape. |
 | `content` | slot |  |  | The navigation tree. One ArenaSideNavItem per destination, optionally grouped by ArenaSideNavSection and ArenaSideNavCollapsible; where each child sits, which id is active and how it reports `nav` are the parent's to settle, and none of it is a member here. |
-| `indentStep` | primitive | `number` | `3` | How far each nesting level indents, as a MULTIPLIER of --sp-1 rather than a length: the row at depth N is padded calc(var(--sp-1) * 3 + var(--sp-1) * indentStep * N). A CSS string was rejected -- a caller-supplied "1.5rem" is neither a token nor a derivation of one, so it would stop re-densifying inside .arena-compact, and no gate would catch it because the gate that forbids a bare length scans source and not the values a caller passes in. |
 | `collapsed` | primitive | `boolean` | `false` | Whether the list is an icon rail. Each item draws its icon alone and shows its label as a tooltip, which stays its accessible name; a badge becomes a dot whose count joins the name; a section's label is hidden and stays the group's name; a collapsible's items render at the rail level and its trigger is not drawn. An item with no icon is refused while collapsed. The frame around the list stays the consumer's. |
 | `nav` | event | `string` |  | An item was activated, carrying its id. It carries the id alone, on the ArenaBreadcrumbs precedent that the platform event leaves the payload and the item travels by itself, and under the compound shape there is no item datum left to carry either, because the consumer wrote the element and already holds everything on it. Where the item has an href, Arena has already cancelled the anchor by the time this fires, so a listener routes and does not double-navigate; ctrl-click, middle-click and open-in-new-tab are the browser's and fire nothing, so a consumer who wires no listener still has a working column of real links. |
 
 <!-- @api end -->
+
+<!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
+
+**Answers.** No family of the [vocabulary](../../../../VOCABULARY.md) decides anything in this component's own box.
+
+<!-- @answers end -->
+
+<!-- @keys GENERATED from the binding. -->
+**Keys:** none (`navigation`).
+<!-- @keys end -->
 
 `ariaLabel` is **required and guarded at runtime**, because `input.required` is a compile-time
 claim and a blank string satisfies it. Two navigation landmarks on one page must not share a name.
@@ -39,10 +48,7 @@ broken by what sits between them.
 an active row it never sees, whether a `@for` built that row, a wrapper component holds it, or it
 sits three levels down.
 
-`indentStep` is a **number**, never a CSS string, a multiplier on `--sp-1`, not a length. A row at
-depth N is padded `calc(var(--sp-1) * 3 + var(--sp-1) * indentStep * N)`, so the indent
-re-densifies and re-themes with the token. Pass a step, never a length: a CSS string here
-would survive the type and then stop tracking the density and the theme.
+The indent of a level is not a member. Each row binds `--arena-side-nav-depth` to its depth, and the inset is the style plugin's `pad-row-indent` role, the indent of one level, times that depth. A theme that wants a wider or a narrower rail answers `pad-row-indent` in its style plugin.
 
 `active` is the id of the current destination and `nav` reports the id of the row pressed. An item with `href` splits its activations. The plain one is reported through `nav`, so `router.navigateByUrl` in that handler is the whole bridge and nothing navigates twice. The rest keep working for a consumer who wires no handler.
 
@@ -51,8 +57,8 @@ would survive the type and then stop tracking the density and the theme.
 **Do / Don't**
 - **Do** give each row a stable `id`. `active`, `nav` and the collapsible's own auto-expansion are
   all keyed by it.
-- **Do** leave `indentStep` alone unless the rail is unusually narrow. Three is the step every
-  Arena sidebar uses.
+- **Do** answer `pad-row-indent` in the style plugin when the rail is unusually narrow, rather than
+  overriding a row's padding.
 - **Don't** put a heading, a divider or a search box in as a child. The family is this component and its
   three kinds of child, and the landmark holds nothing else.
 - **Don't** expect a treeview. Each collapsible is an independent disclosure, no `aria-level`, no
@@ -85,7 +91,7 @@ readonly active = computed(() => DESTINATIONS.find((d) => this.url().startsWith(
 **Read `router.url` through the bridge and never in the template.** Reading the property directly appears to work. Swapping the routed component marks the shell dirty as a side effect of how `RouterOutlet` works. A zoneless `OnPush` shell then re-renders anyway.
 The appearance stops the moment a navigation reuses the component it is already showing, which is what a tab change or a parameter change does. Nothing reports it, and the rail simply keeps the previous destination lit.
 
-**By hand, in real Chromium.** Run `bun run demos` and open `/frameworks/angular/components/navigation/arena-side-nav/ArenaSideNav.demo.generated.html`: - Each level steps in by exactly one `--sp-1 * indentStep`. A row's icon stays aligned with its siblings' rather than with its parent's.
+**By hand, in real Chromium.** Run `bun run demos` and open `/frameworks/angular/components/navigation/arena-side-nav/ArenaSideNav.demo.generated.html`: - Each level steps in by exactly one `pad-row-indent`. A row's icon stays aligned with its siblings' rather than with its parent's.
 - Switching the active destination moves the ink and the weight, and opens the group holding it.
 - The rail still reads at `.arena-compact`, where every indent shrinks with the token.
 
@@ -101,10 +107,10 @@ and a class that matches no glyph is not an error. Nothing on your side catches 
 so check a name against the `@phosphor-icons/web` you installed if a wrong one would be
 expensive.
 
-**As a rail.** `collapsed` narrows the list to an icon rail and leaves the frame around it to you: the drawer, the button that collapses it and the page column are yours. Every item needs an `icon` while collapsed, and one without is refused. Each label stays the item's accessible name and shows as a tooltip on hover and on focus. A badge becomes a dot, and its count joins the name. Section labels are hidden but still name their groups, and a collapsible lays its items out in the rail with no trigger of its own.
+**As a rail.** `collapsed` narrows the list to an icon rail and leaves the frame around it to you: the drawer, the button that collapses it and the page column are yours. Every item needs an `icon` while collapsed, and one without is refused. Each label stays the item's accessible name and shows as a tooltip on hover and on focus. A badge becomes a dot, and its count joins the name. Section labels are hidden but still name their groups, and a collapsible lays its items out in the rail with no trigger of its own. Which of the two is on screen is the viewport's question: mark the rail `max-md:hidden` and the drawer `md:hidden` with the theme sheet's variants, or branch on `arenaViewportBelow('md')`.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
+**The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

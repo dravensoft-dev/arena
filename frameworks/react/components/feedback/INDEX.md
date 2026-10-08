@@ -20,7 +20,9 @@ event is an `on`-prefixed handler. An icon is a Phosphor class-name string, neve
 
 - Every other category this layer ships: [`../../INDEX.md`](../../INDEX.md).
 - Installing the package, declaring your skin, and what it exports besides components:
-  [`../../PACKAGE.md`](../../PACKAGE.md).
+  [`install.md`](../../../../skills/design/references/install.md),
+  [`config.md`](../../../../skills/design/references/config.md) and
+  [`exports.md`](../../../../skills/design/references/exports.md).
 - **Takes** is the members the component's API contract declares, in contract order, under this
   layer's own names. A member marked `*` is required; the prompt gives its type and its default.
 - **A member whose type is an object or an enum takes one this package exports.** The prompt
@@ -32,15 +34,15 @@ event is an `on`-prefixed handler. An icon is a Phosphor class-name string, neve
 |---|---|---|---|
 | `ArenaAlert` | A tone-coloured message with an optional icon, a single action, and optional dismissal. | `tone` `title` `children` `icon` `actionLabel` `onAction` `dismissible` `onClose` | [`ArenaAlert.prompt.md`](./arena-alert/ArenaAlert.prompt.md) |
 | `ArenaConfirmDialog` | Confirmation of a high-consequence action. Never closes on click-outside. `requireText` locks the confirm button until a word is typed. | `open*` `title*` `eyebrow` `children` `confirmLabel` `cancelLabel` `destructive` `requireText` `onCancel` `onConfirm` | [`ArenaConfirmDialog.prompt.md`](./arena-confirm-dialog/ArenaConfirmDialog.prompt.md) |
-| `ArenaDialog` | Modal dialog over a blurred scrim. Takes the whole interaction until dismissed. | `open*` `title*` `eyebrow` `width` `children` `footer` `fillBelow` `onClose` | [`ArenaDialog.prompt.md`](./arena-dialog/ArenaDialog.prompt.md) |
+| `ArenaDialog` | Modal dialog over a blurred scrim. Takes the whole interaction until dismissed. | `open*` `title*` `eyebrow` `children` `footer` `fillBelow` `onClose` | [`ArenaDialog.prompt.md`](./arena-dialog/ArenaDialog.prompt.md) |
 | `ArenaEmptyState` | A placeholder for an empty collection: an icon, a title, a message, and an optional action. | `icon` `title*` `headingLevel` `message` `action` | [`ArenaEmptyState.prompt.md`](./arena-empty-state/ArenaEmptyState.prompt.md) |
 | `ArenaErrorState` | Section/screen-level failure, with recovery and an optional diagnostic code. | `icon` `title` `headingLevel` `message` `code` `retryLabel` `onRetry` `secondaryAction` | [`ArenaErrorState.prompt.md`](./arena-error-state/ArenaErrorState.prompt.md) |
 | `ArenaOnboarding` | Guided coachmark tour (H10): presents features within the product with progress dots, Skip and Next. Controlled: the host owns index and answers the four events. | `open*` `steps*` `index` `anchor` `onNext` `onBack` `onSkip` `onDone` | [`ArenaOnboarding.prompt.md`](./arena-onboarding/ArenaOnboarding.prompt.md) |
-| `ArenaProgressBar` | Determinate progress by default; indeterminate for a wait with no percentage. A bar along a row, or a ring with the figure inside it. | `children` `progressPercentage` `indeterminate` `tone` `label*` `showLabel` `showPercentage` `size` `shape` | [`ArenaProgressBar.prompt.md`](./arena-progress-bar/ArenaProgressBar.prompt.md) |
-| `ArenaSheet` | A non-modal panel anchored to one edge of the page: a cart, a filter drawer, a detail pane. The sheet carries no scrim, traps no focus and takes nothing away from the page behind it, which is the whole difference from a dialog. The sheet's header stays on screen while its body folds away, so a reader keeps the panel without keeping its bulk. | `open*` `placement` `title*` `collapsed` `onCollapsedChange` `dismissible` `onClose` `children` `footer` | [`ArenaSheet.prompt.md`](./arena-sheet/ArenaSheet.prompt.md) |
-| `ArenaSpinner` | Indeterminate wait indicator. For a measurable process use ArenaProgressBar instead. | `size` `tone` `label` | [`ArenaSpinner.prompt.md`](./arena-spinner/ArenaSpinner.prompt.md) |
+| `ArenaProgressBar` | Determinate progress by default; indeterminate for a wait with no percentage. A bar along a row, or a ring with the figure inside it. | `children` `progressPercentage` `indeterminate` `tone` `label*` `showLabel` `showPercentage` `shape` | [`ArenaProgressBar.prompt.md`](./arena-progress-bar/ArenaProgressBar.prompt.md) |
+| `ArenaSheet` | A non-modal panel anchored to one edge of the page: a cart, a filter drawer, a detail pane. The sheet carries no scrim, traps no focus and takes nothing away from the page behind it, which is the whole difference from a dialog. The sheet's header stays on screen while its body folds away, so a reader keeps the panel without keeping its bulk. | `open*` `title*` `collapsed` `onCollapsedChange` `dismissible` `onClose` `children` `footer` | [`ArenaSheet.prompt.md`](./arena-sheet/ArenaSheet.prompt.md) |
+| `ArenaSpinner` | Indeterminate wait indicator. For a measurable process use ArenaProgressBar instead. | `label` | [`ArenaSpinner.prompt.md`](./arena-spinner/ArenaSpinner.prompt.md) |
 | `ArenaToast` | Ephemeral notification with a tone-coloured side bar and one optional action. | `title` `message` `tone` `actionLabel` `onAction` `persist` `dismissible` `onClose` | [`ArenaToast.prompt.md`](./arena-toast/ArenaToast.prompt.md) |
-| `ArenaToastHost` | The fixed box a stack of notices renders into. The host decides where the stack sits, how far it stands off the viewport edges and how much air separates two notices. The host decides nothing else: it reads no notice, counts none, and owns no clock. | `placement` `children` | [`ArenaToastHost.prompt.md`](./arena-toast-host/ArenaToastHost.prompt.md) |
+| `ArenaToastHost` | The fixed box a stack of notices renders into. The host decides where the stack sits, how far it stands off the viewport edges and how much air separates two notices. The host decides nothing else: it reads no notice, counts none, and owns no clock. | `children` | [`ArenaToastHost.prompt.md`](./arena-toast-host/ArenaToastHost.prompt.md) |
 | `ArenaTooltip` | A short label revealed on pointer intent. Bone over dark for contrast. The tooltip waits before appearing and before withdrawing, so a pointer crossing a toolbar reveals nothing. | `label*` `children*` | [`ArenaTooltip.prompt.md`](./arena-tooltip/ArenaTooltip.prompt.md) |
 
 12 feedback components in this layer.

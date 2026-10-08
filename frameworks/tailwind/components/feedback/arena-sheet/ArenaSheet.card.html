@@ -3,25 +3,27 @@
 <link rel="stylesheet" href="../../../../../intro/styles.css">
 <link rel="stylesheet" href="../../../consume/Preflight.generated.css">
 <link rel="stylesheet" href="../../../consume/components/feedback/arena-sheet/ArenaSheet.styles.generated.css">
+<link rel="stylesheet" href="../../../consume/vocabulary/Placement.generated.css">
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor } from '../../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
 
 const manifest = await (await fetch('./ArenaSheet.manifest.json')).json();
 
 function sheet({ placement = 'bottom', title, body, collapsed = false }) {
-  const c = arenaClassesFor(manifest, { placement, open: true });
-  const head = el('div', { class: c.head },
-    el('button', { class: c.trigger, type: 'button', 'aria-expanded': String(!collapsed) },
+  const c = arenaClassesFor(manifest, { open: true });
+  const d = arenaSlotDataFor(manifest, { open: true });
+  const head = el('div', { class: c.head, ...d.head },
+    el('button', { class: c.trigger, ...d.trigger, type: 'button', 'aria-expanded': String(!collapsed) },
       el('span', { text: title }),
-      el('i', { class: `${c.caret} ph-bold ${collapsed ? 'ph-caret-up' : 'ph-caret-down'}`, 'aria-hidden': 'true' })),
-    el('button', { class: c.close, type: 'button', 'aria-label': 'Close' },
+      el('i', { class: `${c.caret} ph-bold ${collapsed ? 'ph-caret-up' : 'ph-caret-down'}`, ...d.caret, 'aria-hidden': 'true' })),
+    el('button', { class: c.close, ...d.close, type: 'button', 'aria-label': 'Close' },
       el('i', { class: 'ph-bold ph-x', 'aria-hidden': 'true' })));
   const parts = [head];
-  if (!collapsed) parts.push(el('div', { class: c.body, role: 'group', text: body }));
-  parts.push(el('div', { class: c.foot }, el('span', { class: 'font-mono text-ctl-sm text-base-content/62', text: 'Bs. 1 480,00' })));
-  return el('div', { class: c.root.replace(/\bfixed\b/, 'relative') }, ...parts);
+  if (!collapsed) parts.push(el('div', { class: c.body, ...d.body, role: 'group', text: body }));
+  parts.push(el('div', { class: c.foot, ...d.foot }, el('span', { class: 'font-mono text-ctl-sm text-base-content/62', text: 'Bs. 1 480,00' })));
+  return el('div', { class: `${c.root.replace(/\bfixed\b/, 'relative')} arena-placement-${placement}`, ...d.root }, ...parts);
 }
 
 mountSpecimen({ sections: [

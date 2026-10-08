@@ -18,6 +18,14 @@ import { ANGULAR_COMPONENTS } from './Compliance';
 const LAYER = join(ANGULAR_COMPONENTS, '..');
 
 const PRIVATE = new Map([
+  ['display/arena-table/ColumnKey.ts',
+   'the check the table and its cells run on a column key before they bind its width and alignment '
+   + 'under it, and the one warning for a key that cannot name a property; an adopter sets '
+   + '`--arena-column-<key>-width`, never calls it, and it is typechecked through the table that imports it.'],
+  ['display/arena-avatar/AvatarFace.ts',
+   'the token a person row provides to the avatar it draws, so the avatar binds its size channel to '
+   + 'the list\'s face; an adopter never provides it, and it is typechecked through the avatar that '
+   + 'injects it.'],
   ['feedback/arena-tooltip/TooltipName.ts',
    'the redundancy test the tooltip runs on its own trigger when it opens; nothing outside the '
    + 'component calls it, and it is typechecked through the tooltip that imports it.'],
@@ -40,6 +48,10 @@ const ROOT_PRIVATE = new Map([
    'the substitution behind every sentence Arena draws with a value in it. A consumer provides '
    + 'the template through the locale and never calls it; exporting it would promise a helper '
    + 'nobody outside this layer has a reason to hold.'],
+  ['SlotData.ts',
+   'the directive a component\'s own template puts on a slot element to render the slot\'s '
+   + 'data-arena attributes, which Angular cannot spread. An adopter renders a component and '
+   + 'never a slot, and it is typechecked through the components that import it.'],
   ['Tokens.generated.ts',
    'generated bare numbers a component reads to compute a position. `Api.generated.ts` is '
    + 'exported because a consumer needs those types to type their own data; nobody types data '
@@ -53,14 +65,8 @@ const ROOT_PRIVATE = new Map([
    + 'through the projected child that imports it.'],
   ['ArenaStyles.generated.ts',
    'the factory that composes a component\'s own class names, emitted per layer so nothing '
-   + 'imports across one. It replaced the two runtime dependencies, and a consumer has no more '
-   + 'reason to call it than they had to call `arenaTv`: they render a component, not a recipe.'],
-  ['StructuredData.ts',
-   'the schema.org serialisation behind contracts/behaviour/structured-data.json. A component '
-   + 'emits its own, from the items it was already given, and that is the whole reason the '
-   + 'pattern is worth having: a consumer who could call this would be maintaining the same '
-   + 'hierarchy twice, which is the duplication it removes. Written twice at one path so '
-   + 'check:shared-arithmetic holds the two layers to the same output.'],
+   + 'imports across one. A consumer has no '
+   + 'reason to call it: they render a component, not a recipe.'],
   ['ArenaIds.ts',
    'the generator behind the ids a component uses to point one of its own elements at another, '
    + 'through aria-controls or aria-labelledby. None of those ids is a member, by the convention '

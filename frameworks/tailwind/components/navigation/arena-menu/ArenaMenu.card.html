@@ -6,10 +6,11 @@
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor } from '../../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
 
 const manifest = await (await fetch('./ArenaMenu.manifest.json')).json();
 const c = arenaClassesFor(manifest);
+const d = arenaSlotDataFor(manifest);
 
 const ITEMS = [
   { header: 'This deployment' },
@@ -23,26 +24,26 @@ const ITEMS = [
 /* Rendered open and un-pinned: the panel is `absolute`, and a specimen that had
    to hover a trigger would show nothing in a screenshot. */
 function menu() {
-  const panel = el('div', { class: c.panel, role: 'menu' });
+  const panel = el('div', { class: c.panel, ...d.panel, role: 'menu' });
   panel.style.position = 'static';
   for (const item of ITEMS) {
-    if (item.divider) { panel.append(el('div', { class: c.divider })); continue; }
-    if (item.header) { panel.append(el('div', { class: c.header, text: item.header })); continue; }
-    /* Exactly one modifier is combined with the base `item`, and the order is
-       disabled first, then destructive, then default -- the disabled branch wins
-       unconditionally. Stacking
-       itemDestructive's hover alongside itemDefault's would put two same-property
-       hover rules on one row, and Tailwind's generated order — alphabetical by value,
-       not by manifest order — lets the wrong one win the cascade. */
-    const modifier = item.disabled ? c.itemDisabled : item.destructive ? c.itemDestructive : c.itemDefault;
-    const classes = [c.item, modifier].filter(Boolean).join(' ');
-    const row = el('button', { class: classes, type: 'button', role: 'menuitem', disabled: item.disabled },
-      el('span', { class: c.icon }, el('i', { class: item.icon, 'aria-hidden': 'true' })),
-      el('span', { class: c.label, text: item.label }));
-    if (item.shortcut) row.append(el('span', { class: c.shortcut, text: item.shortcut }));
+    if (item.divider) { panel.append(el('div', { class: c.divider, ...d.divider })); continue; }
+    if (item.header) { panel.append(el('div', { class: c.header, ...d.header, text: item.header })); continue; }
+    /* The item is three compounds of disabled and destructive, in this order: disabled, then
+       destructive, then the default row. Disabled wins unconditionally, and the default row's
+       hover must not reach a disabled or destructive row, because Tailwind orders the generated
+       rules alphabetically by value rather than by manifest order and the wrong hover would win
+       the cascade. */
+    const chosen = { disabled: Boolean(item.disabled), destructive: Boolean(item.destructive) };
+    const classes = arenaClassesFor(manifest, chosen).item;
+    const data = arenaSlotDataFor(manifest, chosen).item;
+    const row = el('button', { class: classes, ...data, type: 'button', role: 'menuitem', disabled: item.disabled },
+      el('span', { class: c.icon, ...d.icon }, el('i', { class: item.icon, 'aria-hidden': 'true' })),
+      el('span', { class: c.label, ...d.label, text: item.label }));
+    if (item.shortcut) row.append(el('span', { class: c.shortcut, ...d.shortcut, text: item.shortcut }));
     panel.append(row);
   }
-  const box = el('div', { class: c.root });
+  const box = el('div', { class: c.root, ...d.root });
   box.style.display = 'block';
   box.style.width = '240px';
   box.append(panel);

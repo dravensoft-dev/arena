@@ -8,9 +8,7 @@
     "actions": [
       {
         "component": "ArenaButton",
-        "members": {
-          "variant": "ghost"
-        },
+        "class": "arena-emphasis-ghost",
         "slots": {
           "content": [
             {

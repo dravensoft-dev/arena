@@ -1,13 +1,15 @@
-/* The item width is computed from a member and reaches the children as a custom property, so it
- * is read out of the style attribute rather than searched for in the markup; the behaviour is a
- * variant and is read off the class list. Neither is spelt out as a "name: value" string, which
- * would itself be a bare dimension literal under frameworks/. */
+/* The item width is a family an adopter writes as a class on the row, which reaches the items it
+ * holds; the row draws no style attribute and the slot strings are read from the generated
+ * manifests, never spelt here. */
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { renderToStaticMarkup } from 'react-dom/server';
 import React from 'react';
 import { ArenaScroller } from './ArenaScroller.tsx';
 import { ArenaScrollerItem } from '../arena-scroller-item/ArenaScrollerItem.tsx';
+import classes from './ArenaScroller.classes.generated.ts';
+import tailwind from './ArenaScroller.manifest.generated.ts';
+import itemTailwind from '../arena-scroller-item/ArenaScrollerItem.manifest.generated.ts';
 import type { ArenaScrollerBehaviour } from '../../../Api.generated';
 
 const BEHAVIOURS = ['snap', 'flow'] as const;
@@ -15,19 +17,7 @@ const BEHAVIOURS = ['snap', 'flow'] as const;
 const render = (element: React.ReactElement) => renderToStaticMarkup(element);
 const items = <><ArenaScrollerItem>One</ArenaScrollerItem><ArenaScrollerItem>Two</ArenaScrollerItem></>;
 
-function declarations(html: string): Record<string, string> {
-  const style = /style="([^"]*)"/.exec(html)?.[1] ?? '';
-  const out: Record<string, string> = {};
-  for (const part of style.split(';')) {
-    const at = part.indexOf(':');
-    if (at > 0) out[part.slice(0, at).trim()] = part.slice(at + 1).trim();
-  }
-  return out;
-}
-
-function rootClasses(html: string): string[] {
-  return (/class="([^"]*)"/.exec(html)?.[1] ?? '').split(/\s+/).filter(Boolean);
-}
+const rootClass = (html: string) => /<div[^>]*\bclass="([^"]*)"/.exec(html)?.[1] ?? '';
 
 test('the row is one tab stop carrying a group role and the name it was given', () => {
   const html = render(<ArenaScroller label="Recently landed lots">{items}</ArenaScroller>);
@@ -59,27 +49,28 @@ test('a row with no children is refused, because it would be a tab stop over not
   );
 });
 
-test('the item width reaches the children as a custom property, and defaults to the grid role', () => {
-  const value = declarations(render(
-    <ArenaScroller label="L">{items}</ArenaScroller>,
-  ))['--arena-scroller-item'];
-  assert.equal(value, 'var(--grid-min)',
-    'a rail and a wall of the same cards must not disagree about how wide a card is');
-  const given = declarations(render(
-    <ArenaScroller label="L" itemWidth="calc(var(--sp-1) * 62)">{items}</ArenaScroller>,
-  ))['--arena-scroller-item'];
-  assert.equal(given, 'calc(var(--sp-1) * 62)');
-  assert.ok(!/^\d/.test(given), 'the width must arrive as a token derivation, never as a literal');
+test('the row carries the option class it is given beside its own, and no style attribute', () => {
+  const html = render(<ArenaScroller label="L" className="arena-scroller-item-lg">{items}</ArenaScroller>);
+  const given = rootClass(html).split(/\s+/);
+  for (const name of ['arena-scroller-item-lg', ...classes.slots.root.split(/\s+/)]) {
+    assert.ok(given.includes(name), `the root lacks ${name}`);
+  }
+  assert.doesNotMatch(html, /\bstyle=/);
+  assert.doesNotMatch(/^<div[^>]*>/.exec(html)?.[0] ?? '', /data-arena-boundary/, 'the row is transparent, so it is no boundary');
 });
 
-test('the two behaviours are two distinct classes, and snap is the default', () => {
+test('the item reads the width through the channel the row names as bound', () => {
+  const [channel] = Object.keys(tailwind.bound);
+  const [family] = tailwind.answers;
+  assert.ok(itemTailwind.slots.root.includes(`var(${channel},var(--arena-${family},`));
+});
+
+test('the two behaviours are two distinct attributes, and snap is the default', () => {
   const seen = new Set(BEHAVIOURS.map((behaviour) => {
-    const classes = rootClasses(render(
-      <ArenaScroller label="L" behaviour={behaviour}>{items}</ArenaScroller>,
-    ));
-    return classes.filter((cls) => cls.includes('behaviour')).join(' ');
+    const html = render(<ArenaScroller label="L" behaviour={behaviour}>{items}</ArenaScroller>);
+    return /\bdata-arena-behaviour="([^"]*)"/.exec(html)?.[1];
   }));
-  assert.equal(seen.size, BEHAVIOURS.length, 'the two behaviours compiled to the same class');
+  assert.equal(seen.size, BEHAVIOURS.length, 'the two behaviours compiled to the same attribute');
   assert.equal(
     render(<ArenaScroller label="L">{items}</ArenaScroller>),
     render(<ArenaScroller label="L" behaviour="snap">{items}</ArenaScroller>),

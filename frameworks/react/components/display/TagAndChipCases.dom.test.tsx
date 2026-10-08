@@ -57,7 +57,7 @@ test('ArenaTag meets both of its declared cases', () => {
 });
 
 const CHIP = {
-  box: {}, color: 'var(--color-cat-1)', timeLabel: '09:00 - 09:30',
+  box: {}, timeLabel: '09:00 - 09:30',
   dateLabel: 'Monday 20 July', tabIndex: -1,
 };
 

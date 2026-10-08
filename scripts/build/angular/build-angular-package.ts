@@ -1,7 +1,7 @@
 /* Assembles @dravensoft/arena-angular into frameworks/angular/dist/. The layer is staged
  * rather than built in place because ng-packagr needs its own `ng-package.json`,
  * `tsconfig.lib.json` and `package.json` at the root it compiles from, and writing those into
- * the tracked layer would leave build files beside the source. It no longer stages anything of
+ * the tracked layer would leave build files beside the source. It stages nothing of
  * another layer: a component composes its own class names, so nothing reaches out. Staging
  * is also where each style factory is marked pure, because the annotation belongs to what
  * ships and a component directory is the one place a bare block comment is refused. */
@@ -25,6 +25,7 @@ import { PEERS, OPTIONAL_PEERS } from '../../lib/arena/support-matrix.ts';
 import { splitCompiledSheet } from '../../lib/tailwind/sheet-split.ts';
 import { CONSUME } from '../tailwind/build-tailwind.ts';
 import { THEME_SOURCES, tailwindThemeSheet } from '../../lib/tailwind/theme-sheet.ts';
+import { writeVocabularyIndex } from '../../lib/arena/vocabulary-index.ts';
 
 export const NAME = '@dravensoft/arena-angular';
 export const LAYER = 'frameworks/angular';
@@ -38,7 +39,9 @@ export const node = {
     `${LAYER}/**`, '!frameworks/angular/dist/**', '!frameworks/angular/build/**',
     'frameworks/tailwind/Utilities.generated.css', `${CONSUME}/**/*.css`,
     'frameworks/Components.json', '.claude-plugin/plugin.json', 'LICENSE',
-    'scripts/generate/core/arena-to-prod/**', '!scripts/generate/core/arena-to-prod/*.test.ts',
+    'frameworks/*/components/**/*.behaviour.json',
+    'scripts/generate/core/arena-cli/**', '!scripts/generate/core/arena-cli/*.test.ts',
+    '!scripts/generate/core/arena-cli/*-fixtures.ts',
   ],
   writes: [`${LAYER}/dist/**`, `${STAGING}/**`],
   feeds: [
@@ -191,6 +194,7 @@ export function buildAngularPackage(root = repoRoot) {
   for (const rel of copyCli(dist, root)) written.push(join(dist, rel));
 
   written.push(writeComponentMap(dist, 'angular', root));
+  written.push(writeVocabularyIndex(dist, root));
   written.push(writeIconManifest(dist, 'angular', root));
   written.push(write(dist, 'arena.config.example.json', `${JSON.stringify(arenaConfig(root), null, 2)}\n`));
   written.push(write(dist, CATALOGUE_FILE, `${JSON.stringify(tokenCatalogue(root), null, 2)}\n`));
@@ -218,8 +222,10 @@ export function withAssets(emitted: NgPackage): NgPackage & { exports: Record<st
       './arena.css': { default: './arena.css' },
       './css/*': { default: './css/*' },
       './css/components/*': { default: './css/components/*' },
+      './css/vocabulary/*': { default: './css/vocabulary/*' },
       './arena.config.example.json': { default: './arena.config.example.json' },
       './arena.tokens.json': { default: './arena.tokens.json' },
+      './arena.vocabulary.json': { default: './arena.vocabulary.json' },
       './contracts/behaviour/*': { default: './contracts/behaviour/*' },
     },
     bin: { ...CLI_BINS },

@@ -1,7 +1,7 @@
 /* Finds and launches a headless browser for the gates that need one, and decides for all of them
  * what its absence costs. CHROME_PATH stays terminal -- set and pointing at nothing, it says so
- * instead of falling back -- but it is no longer declared: laying a default under the environment
- * left the candidate list unreachable and its macOS entries dead from the day they were written.
+ * instead of falling back -- but it is never declared: laying a default under the environment
+ * leaves the candidate list unreachable and its macOS entries dead.
  * `browserOrExit` is the single spelling of strict-or-skip. Colour is pinned to sRGB and text
  * drawn against a grey ramp, because subpixel antialiasing answers about the panel rather than
  * about Arena. Teardown reaps the GROUP whatever the parent did, then waits for it to empty

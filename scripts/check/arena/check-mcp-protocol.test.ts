@@ -91,9 +91,17 @@ test('an editor can initialize, list and read, which is the whole of what it doe
 
     const clean = await mcp.call('tools/call', {
       name: 'arena_check',
-      arguments: { source: '<ArenaButton variant="primary">Go</ArenaButton>' },
+      arguments: { source: '<ArenaButton>Go</ArenaButton>' },
     });
     assert.match(clean.result?.content?.[0]?.text ?? '', /No finding/);
+
+    const language = await mcp.call('tools/call', {
+      name: 'arena_check',
+      arguments: { source: '<ArenaButton className="arena-size-sm">Go</ArenaButton>' },
+    });
+    assert.match(language.result?.content?.[0]?.text ?? '', /No finding/,
+      'a class of the vocabulary is the one thing a prompt teaches to put on a component, and the '
+      + 'payload carries the index that lets the server read it as that');
 
     const rules = await mcp.call('resources/read', { uri: `${SCHEME}://rules` });
     assert.match(rules.result?.contents?.[0]?.text ?? '', /"held": "own-class"/,

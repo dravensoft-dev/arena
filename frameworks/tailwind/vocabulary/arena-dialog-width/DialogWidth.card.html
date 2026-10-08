@@ -1,0 +1,37 @@
+<!-- @dsCard group="Tailwind" viewport="820x720" name="dialog-width" subtitle="A box family: arena-dialog-width-md is the default, sm and lg change the width of the panel, and the property is the route for a width no step names" -->
+<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../../../intro/styles.css">
+<link rel="stylesheet" href="../../consume/Preflight.generated.css">
+<link rel="stylesheet" href="../../consume/components/feedback/arena-dialog/ArenaDialog.styles.generated.css">
+<link rel="stylesheet" href="../../consume/vocabulary/DialogWidth.generated.css">
+<link rel="stylesheet" href="../../Specimen.css">
+</head><body><div id="root"></div>
+<script type="module">
+import { mountSpecimen, section, el, arenaClassesFor } from '../../Specimen.js';
+
+const manifest = await (await fetch('../../components/feedback/arena-dialog/ArenaDialog.manifest.json')).json();
+const AXIS = '--arena-dialog-width';
+const c = arenaClassesFor(manifest);
+
+function panel(option) {
+  const foot = el('div', { class: c.foot });
+  for (const action of ['Cancel', 'Continue']) foot.append(el('span', { class: 'font-body text-ctl text-base-content/82', text: `[ ${action} ]` }));
+  return el('div', { class: `${c.panel} ${option}` },
+    el('div', { class: c.head }, el('div', { class: c.title, text: 'Promote build 482?' })),
+    el('div', { class: c.body, text: 'The current production build stays available for rollback.' }),
+    foot);
+}
+
+function set(value) {
+  const holder = el('div', { style: { display: 'contents', [AXIS]: value } });
+  holder.append(panel(''));
+  return holder;
+}
+
+mountSpecimen({ sections: [
+  section('arena-dialog-width-sm', [panel('arena-dialog-width-sm')], { stack: true }),
+  section('arena-dialog-width-md, the default', [panel('arena-dialog-width-md')], { stack: true }),
+  section('arena-dialog-width-lg', [panel('arena-dialog-width-lg')], { stack: true }),
+  section('--arena-dialog-width: calc(var(--dialog-width-md) * 1.25) on a container', [set('calc(var(--dialog-width-md) * 1.25)')], { stack: true }),
+]});
+</script></body></html>

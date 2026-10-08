@@ -123,3 +123,21 @@ test('the model carries the staging flag and the components every section reache
   assert.deepEqual(model.sections[0]?.items.map((one) => [one.component, one.staged]),
     [['ArenaDialog', true], ['ArenaBadge', false]]);
 });
+
+test('a fixture class is carried onto the subject node and survives a rebase', () => {
+  const node = instanceNode({ component: 'ArenaButton', class: 'arena-fill arena-compact' });
+  assert.equal(node.class, 'arena-fill arena-compact');
+  assert.equal((rebaseNode(node, '../../../../../', '../../../../') as any).class, 'arena-fill arena-compact');
+  assert.equal(instanceNode({ component: 'ArenaButton' }).class, undefined);
+});
+
+test('a fixture\'s vars reach its item, and an item of a fixture without any carries none', () => {
+  const vars = { '--arena-column-status-align': 'right' };
+  const demos = new Map([
+    ['ArenaTable', { component: 'ArenaTable', vars }],
+    ['ArenaBadge', { component: 'ArenaBadge' }],
+  ]);
+  const model = sinkModel({ sink: 's', sections: [{ title: 'T', items: ['ArenaTable', 'ArenaBadge'] }] }, demos, new Set(), DEPTH);
+  assert.deepEqual(model.sections[0]?.items[0]?.vars, vars);
+  assert.equal('vars' in (model.sections[0]?.items[1] ?? {}), false);
+});

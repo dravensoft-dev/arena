@@ -4,11 +4,11 @@ is a cell of the board's grid rather than an element between the two.
 
 ```html
 <arena-board-column title="In progress" [count]="3" summary="13 pts" [colorId]="1">
-  <arena-icon-button action icon="ph-bold ph-dots-three" label="In progress options" size="sm" />
+  <arena-icon-button action icon="ph-bold ph-dots-three" label="In progress options" class="arena-size-sm" />
   @for (task of tasks(); track task.id) {
     <app-task-card [task]="task" />
   }
-  <arena-button footer variant="ghost" size="sm" icon="ph-bold ph-plus">Add task</arena-button>
+  <arena-button footer icon="ph-bold ph-plus" class="arena-emphasis-ghost arena-size-sm">Add task</arena-button>
 </arena-board-column>
 ```
 
@@ -25,12 +25,22 @@ everything else you project is the stack. `count` is passed rather than counted,
 | `headingLevel` | enum | `ArenaHeadingLevel` | `"h3"` | Which rung of the document outline the head's text takes. Only the element changes: its class is the same at every value, so the render is identical and no appearance follows from it. It defaults to `h3`, the card rung of the title ladder, because a board sits inside the region a section names and a column sits inside the board. The column's accessible name is separate and is unaffected, since it is the group's own and is carried whatever the head is drawn as. `none` is refused at runtime, the rule every component whose `title` is required follows: a title required because it names the thing it draws cannot also be told that the name is not one. |
 | `count` | primitive | `number` |  | How many things are in the column, drawn beside the title in the numeric register. It is passed rather than counted, because Arena never derives what it draws from what a consumer projected: the column holds the consumer's own elements, one of which may be a placeholder and none of which Arena can read. |
 | `summary` | primitive | `string` |  | One line under the head: the total the column adds up to, an estimate, a limit. A string rather than a number because the unit travels with it, and a column reading "19 pts" is one value and not two. |
-| `colorId` | enum | `ArenaCatSlot` |  | An identity colour for the column, from the same categorical ramp ArenaTag and the charts read, so a status keeps its colour between a board, a table and a chart. It inks the head's mark and reaches the column as a custom property, `--arena-board-column-cat`, so an appearance that fills the whole head with it is a style plugin's to write and needs no member here. |
+| `colorId` | enum | `ArenaCatSlot` |  | An identity colour for the column, from the same categorical ramp ArenaTag and the charts read, so a status keeps its colour between a board, a table and a chart. It inks the head's mark and reaches the column as `data-arena-color-id` and the hue channels (`--arena-hue-ink`, `--arena-hue-edge`, `--arena-hue-fill-strong`, `--arena-hue-fill-soft`), so an appearance that fills the whole head with it is a style plugin's to write and needs no member here. |
 | `action` | slot |  |  | One control in the head: a menu, a filter, an add. It sits after the count, and the column draws nothing for it beyond the space it takes. |
 | `content` | slot |  |  | The cards, stacked in order. Arena draws none of them: a board's card carries the product's own fields, so what is left once they are removed is the stack, which is what this draws. |
 | `footer` | slot |  |  | The action that adds to this column, under the stack, where a board puts it because a new card lands at the bottom. Optional, and a column with none simply ends at its last card. |
 
 <!-- @api end -->
+
+<!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
+
+**Answers.** No family of the [vocabulary](../../../../VOCABULARY.md) decides anything in this component's own box.
+
+<!-- @answers end -->
+
+<!-- @keys GENERATED from the binding. -->
+**Keys:** none.
+<!-- @keys end -->
 
 **Do / Don't**
 - **Do** bind the numbers, `[count]="3"` and `[colorId]="1"`, rather than writing them as bare
@@ -43,6 +53,6 @@ everything else you project is the stack. `count` is passed rather than counted,
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
+**The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

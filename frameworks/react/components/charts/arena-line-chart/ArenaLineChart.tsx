@@ -1,15 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useArenaContainerWidth } from '../../../UseArenaContainerWidth.ts';
-import {
-  arenaSrOnly, arenaAreaFill, arenaPlotWidth, arenaRailStyle, arenaValueWriter, ARENA_CHART_HEIGHT,
-} from '../../../DataVisuals.ts';
+import { ARENA_CHART_HEIGHT, ARENA_INK_MUTED, arenaSrOnly, arenaAreaFill, arenaPlotWidth, arenaRailStyle, arenaValueWriter } from '../../../DataVisuals.ts';
 import { arenaWarnOnce } from '../../../WarnOnce.ts';
 import {
   arenaLinearScale, arenaPointScale, arenaPointAt, arenaScaleValue, arenaNearestPointIndex,
 } from '../ChartScales.ts';
 import { arenaLinePoints, arenaLineAreaPath, arenaCurvePath, arenaCurveAreaPath } from '../ChartMarks.ts';
 import { arenaPlotBox, arenaAxisModel, arenaTickLabelX, arenaCategoryLabelY, arenaValueGutter } from '../ChartAxis.ts';
-import { arenaChartTable, arenaSeriesColors, arenaSeriesDomain, arenaSeriesPointCount } from '../ChartSeries.ts';
+import { arenaChartTable, arenaSeriesColors, arenaSwatchHue, arenaSeriesDomain, arenaSeriesPointCount } from '../ChartSeries.ts';
 import { arenaLegendStrip } from '../ChartLegend.ts';
 import { arenaTooltipAnchor } from '../ChartTooltip.ts';
 import { arenaCursorHandles, arenaCursorStep, arenaPointerClears, arenaPointerUpdates } from '../ChartPointer.ts';
@@ -18,8 +16,14 @@ import { chartPointR, chartPointRHover } from '../../../Tokens.generated.js';
 import type { ArenaNumberFormat, ArenaSeries } from '../../../Api.generated';
 import { useArenaLocale } from '../../../ArenaLocale.ts';
 import { arenaPhrase } from '../../../Phrase.ts';
+import type { ArenaLineChartClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
+import { arenaStyles } from '../../../ArenaStyles.generated.ts';
+import manifest from './ArenaLineChart.classes.generated.ts';
 
 export interface ArenaLineChartProps {
+  className?: ArenaLineChartClass;
+
 
   /** One label per point, in the same order as every series' `values`. A label with no value in a series ends that series' line there rather than dropping to zero. */
   labels: readonly string[];
@@ -39,7 +43,7 @@ export interface ArenaLineChartProps {
   /** Appended verbatim to every number the chart draws: the axis ticks, the tooltip and the accessible table. Carries its own leading space if one is wanted. */
   valueSuffix?: string;
 
-  /** Drawn verbatim before every number the chart writes, as valueSuffix is drawn after it. A currency that precedes its amount is the majority case worldwide and had no expression: with suffix alone, "1234.5 Bs." is what a chart drew where the table beside it read "Bs. 1.234,50", and the accessible table inherited the disagreement. */
+  /** Drawn verbatim before every number the chart writes, as valueSuffix is drawn after it. A currency that precedes its amount is the majority case worldwide, and a suffix alone cannot say it: "1234.5 Bs." would disagree with the table beside it reading "Bs. 1.234,50", and the accessible table would inherit the disagreement. */
   valuePrefix?: string;
 
   /** How each number is written before the prefix and suffix are added: which locale, how many fraction digits, whether thousands are grouped, whether large numbers are compacted. Absent, the raw JavaScript number, which is what this chart drew before the member existed. */
@@ -53,11 +57,14 @@ export interface ArenaLineChartProps {
 }
 
 
-export function ArenaLineChart({
+const arenaLineChartStyles = arenaStyles(manifest);
+
+export function ArenaLineChart({ className, 
   labels, series, label, area = false, curve = false, valueSuffix, valuePrefix, valueFormat,
   height = ARENA_CHART_HEIGHT, minPointSpacing,
 }: ArenaLineChartProps) {
   const locale = useArenaLocale();
+  const styles = arenaLineChartStyles();
   if (!label) throw new Error('ArenaLineChart: `label` is required (it names the chart for the accessible name, and nothing can derive that)');
   if (!labels) throw new Error('ArenaLineChart: `labels` is required');
   if (!series) throw new Error('ArenaLineChart: `series` is required');
@@ -114,17 +121,17 @@ export function ArenaLineChart({
   };
 
   return (
-    <div ref={ref} style={{ position: 'relative', width: '100%', height }}>
+    <div className={arenaClassName('ArenaLineChart', styles.frame(), className)} ref={ref} data-arena-part={manifest.parts.frame} {...styles.$data.frame()} style={{ height }}>
       <div ref={rail} style={arenaRailStyle} tabIndex={0} role="group" aria-label={name} onKeyDown={onKeyDown}>
       <svg width={scrolls ? width : '100%'} height={strip.plotH} role="img" aria-label={name} style={{ display: 'block', overflow: 'visible' }}>
         {axis.ticks.map((tick, i) => (
           <g key={i}>
-            <line x1={box.x} x2={box.x + box.w} y1={tick.y} y2={tick.y} stroke="var(--border)" style={{ strokeWidth: 'var(--bw)' }} />
+            <line x1={box.x} x2={box.x + box.w} y1={tick.y} y2={tick.y} stroke="var(--edge-separator)" style={{ strokeWidth: 'var(--bw)' }} />
             <text x={arenaTickLabelX(gutter)} y={tick.y} textAnchor="end" dominantBaseline="middle"
-              fill="var(--text-muted)" fontFamily="var(--font-mono)" style={{ fontSize: 'var(--dz-text-2xs)' }}>{tick.label}</text>
+              fill={ARENA_INK_MUTED} fontFamily="var(--font-mono)" style={{ fontSize: 'var(--dz-text-2xs)' }}>{tick.label}</text>
           </g>
         ))}
-        <line x1={box.x} x2={box.x + box.w} y1={axis.zeroY} y2={axis.zeroY} stroke="var(--line-strong)" style={{ strokeWidth: 'var(--bw)' }} />
+        <line x1={box.x} x2={box.x + box.w} y1={axis.zeroY} y2={axis.zeroY} stroke="var(--edge-axis)" style={{ strokeWidth: 'var(--bw)' }} />
 
         {}
         {fills && plotted.map((points, s) => points.length > 0 && (
@@ -134,7 +141,7 @@ export function ArenaLineChart({
 
         {hover !== null && (
           <line x1={arenaPointAt(xScale, hover)} x2={arenaPointAt(xScale, hover)} y1={box.y} y2={box.y + box.h}
-            stroke="var(--border-strong)" style={{ strokeWidth: 'var(--bw)' }} strokeDasharray="3 3" />
+            stroke="var(--edge-axis)" style={{ strokeWidth: 'var(--bw)' }} strokeDasharray="3 3" />
         )}
 
         {plotted.map((points, s) => points.length > 1 && (curve ? (
@@ -147,7 +154,7 @@ export function ArenaLineChart({
 
         {plotted.map((points, s) => points.map((point, i) => (
           <circle key={`${s}-${i}`} cx={point.x} cy={point.y} r={hover === i ? chartPointRHover : chartPointR}
-            fill={colors[s]} stroke="var(--surface-card)" style={{ strokeWidth: 'var(--bw-strong)' }} />
+            fill={colors[s]} stroke="var(--fill-surface)" style={{ strokeWidth: 'var(--bw-strong)' }} />
         )))}
 
         {
@@ -155,7 +162,7 @@ export function ArenaLineChart({
 }
         {Array.from({ length: n }, (_, i) => (
           <text key={i} x={arenaPointAt(xScale, i)} y={arenaCategoryLabelY(strip.plotH)} textAnchor="middle"
-            fill="var(--text-muted)" fontFamily="var(--font-body)" style={{ fontSize: 'var(--dz-text-xs)' }}>{labels[i] ?? ''}</text>
+            fill={ARENA_INK_MUTED} fontFamily="var(--font-body)" style={{ fontSize: 'var(--dz-text-xs)' }}>{labels[i] ?? ''}</text>
         ))}
 
         {
@@ -168,32 +175,24 @@ export function ArenaLineChart({
       </div>
 
       {strip.stripH > 0 && (
-        <div aria-hidden="true" style={{
-          height: strip.stripH, display: 'flex', alignItems: 'center', gap: 'calc(var(--sp-1) * 4)',
-          overflow: 'hidden', whiteSpace: 'nowrap',
-        }}>
+        <div aria-hidden="true" className={styles.legend()} data-arena-part={manifest.parts.legend} {...styles.$data.legend()} style={{ height: strip.stripH }}>
           {series.map((one, s) => (
-            <span key={s} style={{ display: 'flex', alignItems: 'center', gap: 'calc(var(--sp-1) * 1.5)', minWidth: 0 }}>
-              <span style={{ width: 'calc(var(--sp-1) * 2.5)', height: 'calc(var(--sp-1) * 2.5)',
-                borderRadius: 'var(--r-xs)', background: colors[s], flexShrink: 0 }} />
-              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                fontFamily: 'var(--font-body)', fontSize: 'var(--dz-text-sm)', color: 'var(--text-body)' }}>{one.label}</span>
+            <span key={s} className={styles.legendItem()} data-arena-part={manifest.parts.legendItem} {...styles.$data.legendItem()}>
+              <span className={arenaLineChartStyles(arenaSwatchHue(one, 0, s + 1)).legendSwatch()} data-arena-part={manifest.parts.legendSwatch} {...arenaLineChartStyles(arenaSwatchHue(one, 0, s + 1)).$data.legendSwatch()} />
+              <span className={styles.legendLabel()} data-arena-part={manifest.parts.legendLabel} {...styles.$data.legendLabel()}>{one.label}</span>
             </span>
           ))}
         </div>
       )}
 
       {hover !== null && hover < n && (
-        <div style={{
-          position: 'absolute', transform: 'translate(-50%,-100%)', pointerEvents: 'none', whiteSpace: 'nowrap',
-          background: 'var(--bg-raised)', border: 'var(--bw) solid var(--border-strong)',
-          borderRadius: 'var(--r-sm)', boxShadow: 'var(--shadow-2)', padding: 'calc(var(--sp-1) * 1.5) calc(var(--sp-1) * 2.5)',
+        <div className={styles.tooltip()} data-arena-part={manifest.parts.tooltip} {...styles.$data.tooltip()} style={{
           ...arenaTooltipAnchor(arenaPointAt(xScale, hover),
             Math.min(...series.map((one) => arenaScaleValue(yScale, one.values[hover] ?? 0)))),
         }}>
-          <div style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--dz-text-xs)', color: 'var(--mute)' }}>{labels[hover]}</div>
+          <div className={styles.tooltipLabel()} data-arena-part={manifest.parts.tooltipLabel} {...styles.$data.tooltipLabel()}>{labels[hover]}</div>
           {series.map((one, s) => one.values[hover] !== undefined && (
-            <div key={s} style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--dz-text-md)', color: 'var(--bone)' }}>
+            <div key={s} className={styles.tooltipValue()} data-arena-part={manifest.parts.tooltipValue} {...styles.$data.tooltipValue()}>
               {`${series.length > 1 ? `${one.label}: ` : ''}${fmt(one.values[hover] as number)}`}
             </div>
           ))}

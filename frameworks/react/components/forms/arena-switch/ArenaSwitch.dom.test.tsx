@@ -1,7 +1,6 @@
-/* Click routing needs a real render, and it used to be tested by calling ArenaSwitch() as a plain
- * function and reaching into the returned element's props. That works only while the component
- * has no hooks, and it broke the moment one arrived -- so the technique was proving the routing
- * and hiding a dependency on the component staying hook-free. These render and dispatch. */
+/* Click routing needs a real render: calling ArenaSwitch() as a plain function and reaching into
+ * the returned element's props works only while the component has no hooks, and hides a
+ * dependency on the component staying hook-free. These render and dispatch. */
 import test, { afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import React from 'react';

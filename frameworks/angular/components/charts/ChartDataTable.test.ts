@@ -88,7 +88,7 @@ test('arena-bar-chart matches its figure-with-data-table binding, which excepts 
   }
 });
 
-test('arena-bar-chart REFUSES to render without a label, where it used to name itself by type', () => {
+test('arena-bar-chart REFUSES to render without a label, and names itself by nothing but the label', () => {
   const fixture = TestBed.createComponent(ArenaBarChart);
   fixture.componentRef.setInput('labels', LABELS);
   fixture.componentRef.setInput('series', [{ label: SERIES, values: VALUES }]);
@@ -97,7 +97,7 @@ test('arena-bar-chart REFUSES to render without a label, where it used to name i
       () => fixture.detectChanges(),
       /NG0950/,
       'a name that is only the chart TYPE satisfies roles.label mechanically and tells a reader nothing; '
-      + 'label is input.required now, so Angular refuses the render rather than inventing one',
+      + 'label is input.required, so Angular refuses the render rather than inventing one',
     );
   } finally {
     fixture.destroy();
@@ -167,8 +167,7 @@ function press(fixture: { detectChanges: () => void }, region: Element, key: str
 
 function reading(host: Element): string | null {
 
-  const tooltip = [...host.querySelectorAll('div')]
-    .find((el) => (el as HTMLElement).style.position === 'absolute' && (el as HTMLElement).style.pointerEvents === 'none');
+  const tooltip = host.querySelector('[data-arena-part$=".tooltip"]');
   return tooltip ? (tooltip.textContent ?? '').trim() : null;
 }
 

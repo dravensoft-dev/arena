@@ -5,8 +5,12 @@ import { ArenaButton } from '../../forms/arena-button/ArenaButton.tsx';
 
 import type { ArenaHeadingLevel } from '../../../Api.generated';
 import { useArenaLocale } from '../../../ArenaLocale.ts';
+import type { ArenaErrorStateClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export interface ArenaErrorStateProps {
+  className?: ArenaErrorStateClass;
+
   /** A Phosphor class name for the danger glyph Arena draws. */
   icon?: string;
   /** The headline: what failed. Absent, the provided locale's errorStateTitle answers it. */
@@ -28,19 +32,19 @@ export interface ArenaErrorStateProps {
 
 const errorStyles = arenaStyles(manifest);
 
-export function ArenaErrorState({ icon, title, headingLevel = 'h3', message, code, retryLabel, onRetry, secondaryAction }: ArenaErrorStateProps) {
+export function ArenaErrorState({ className, icon, title, headingLevel = 'h3', message, code, retryLabel, onRetry, secondaryAction }: ArenaErrorStateProps) {
   const locale = useArenaLocale();
   const heading = title ?? locale.errorStateTitle;
   const styles = errorStyles();
   const Heading = headingLevel === 'none' ? 'div' : headingLevel;
   return (
-    <div role="alert" className={styles.root()} data-arena-part={manifest.parts.root}>
-      {icon && <div className={styles.icon()} data-arena-part={manifest.parts.icon}><i className={icon} aria-hidden="true" /></div>}
-      <Heading className={styles.title()} data-arena-part={manifest.parts.title}>{heading}</Heading>
-      {message && <div className={styles.message()} data-arena-part={manifest.parts.message}>{message}</div>}
-      {code && <code className={styles.code()} data-arena-part={manifest.parts.code}>{code}</code>}
-      <div className={styles.actions()} data-arena-part={manifest.parts.actions}>
-        {retryLabel && <ArenaButton variant="primary" onClick={onRetry}>{retryLabel}</ArenaButton>}
+    <div role="alert" className={arenaClassName('ArenaErrorState', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+      {icon && <div className={styles.icon()} data-arena-part={manifest.parts.icon} {...styles.$data.icon()}><i className={icon} aria-hidden="true" /></div>}
+      <Heading className={styles.title()} data-arena-part={manifest.parts.title} {...styles.$data.title()}>{heading}</Heading>
+      {message && <div className={styles.message()} data-arena-part={manifest.parts.message} {...styles.$data.message()}>{message}</div>}
+      {code && <code className={styles.code()} data-arena-part={manifest.parts.code} {...styles.$data.code()}>{code}</code>}
+      <div className={styles.actions()} data-arena-part={manifest.parts.actions} {...styles.$data.actions()} data-arena-boundary="">
+        {retryLabel && <ArenaButton onClick={onRetry}>{retryLabel}</ArenaButton>}
         {secondaryAction}
       </div>
     </div>

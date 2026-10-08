@@ -3,10 +3,14 @@ import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaStatCard.classes.generated.ts';
 
 import type { ArenaStatDelta, ArenaTone } from '../../../Api.generated';
+import type { ArenaStatCardClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export type { ArenaStatDelta };
 
 export interface ArenaStatCardProps {
+  className?: ArenaStatCardClass;
+
 
   /** Short uppercase microlabel, two words at most. */
   label: string;
@@ -14,7 +18,7 @@ export interface ArenaStatCardProps {
   /** Preformatted, e.g. "1,284" or "99.9%". ArenaStatCard never formats. */
   value: string;
 
-  /** What state the number IS in right now, as against how it moved. ArenaBadge's vocabulary. */
+  /** What state the number IS in right now, as against how it moved. ArenaBadge's vocabulary: neutral says nothing about state. */
   tone?: ArenaTone;
   /** How the number moved. Absent renders no marker. */
   delta?: ArenaStatDelta;
@@ -29,23 +33,23 @@ export interface ArenaStatCardProps {
 
 const arenaStatCardStyles = arenaStyles(manifest);
 
-export function ArenaStatCard({ label, value, tone = 'neutral', delta, sub, icon }: ArenaStatCardProps) {
+export function ArenaStatCard({ className, label, value, tone = 'neutral', delta, sub, icon }: ArenaStatCardProps) {
   if (!label || !value) throw new Error('ArenaStatCard: `label` and `value` are required');
   const styles = arenaStatCardStyles({ tone, deltaTone: delta?.tone ?? 'neutral' });
   return (
-    <div className={styles.root()} data-arena-part={manifest.parts.root}>
-      <div className={styles.head()} data-arena-part={manifest.parts.head}>
-        <span className={styles.label()} data-arena-part={manifest.parts.label}>{label}</span>
-        {icon && <span aria-hidden="true" className={styles.icon()} data-arena-part={manifest.parts.icon}><i className={icon} /></span>}
+    <div className={arenaClassName('ArenaStatCard', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+      <div className={styles.head()} data-arena-part={manifest.parts.head} {...styles.$data.head()}>
+        <span className={styles.label()} data-arena-part={manifest.parts.label} {...styles.$data.label()}>{label}</span>
+        {icon && <span aria-hidden="true" className={styles.icon()} data-arena-part={manifest.parts.icon} {...styles.$data.icon()}><i className={icon} /></span>}
       </div>
-      <div className={styles.value()} data-arena-part={manifest.parts.value}>{value}</div>
+      <div className={styles.value()} data-arena-part={manifest.parts.value} {...styles.$data.value()}>{value}</div>
       {delta?.value && (
-        <span className={styles.delta()} data-arena-part={manifest.parts.delta}>
+        <span className={styles.delta()} data-arena-part={manifest.parts.delta} {...styles.$data.delta()}>
           <i className={delta.direction === 'down' ? 'ph-bold ph-arrow-down' : 'ph-bold ph-arrow-up'} aria-hidden="true" />
           {delta.value}
         </span>
       )}
-      {sub && <span className={styles.sub()} data-arena-part={manifest.parts.sub}>{sub}</span>}
+      {sub && <span className={styles.sub()} data-arena-part={manifest.parts.sub} {...styles.$data.sub()}>{sub}</span>}
     </div>
   );
 }

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { isValueCoercion, scanValue, scanText, scanInjectedCss, scanAttributes, scanDefaultsAndCallSites, staleExemptions, stalePassthrough, expressionLeaves, sourceFiles, componentParamCount, zeroComponentParamProblems, EXEMPT } from './check-dimension-literals.ts';
+import { isValueCoercion, scanValue, scanText, scanInjectedCss, scanAttributes, scanDefaultsAndCallSites, staleExemptions, stalePassthrough, expressionLeaves, sourceFiles, componentParamCount, zeroComponentParamProblems, scanStyleWrites, staleComputed, COMPUTED, EXEMPT, PASSTHROUGH, type Passthrough } from './check-dimension-literals.ts';
 
 test('a bare number is a violation for a dimension-valued property', () => {
   assert.ok(scanValue('fontSize', '13'));
@@ -93,7 +93,7 @@ test('a percent in unquoted CSS text is captured whole, not truncated to a bare 
   assert.deepEqual(scanText('width:40%'), []);
 });
 
-test('regression: ArenaProgressBar.jsx keyframe text no longer reads as three violations', () => {
+test('regression: ArenaProgressBar.jsx keyframe text reads as no violation', () => {
 
   const keyframes =
     '@keyframes arena-prog{0%{left:-40%}100%{left:100%}}' +
@@ -179,10 +179,16 @@ test('a default parameter whose name is itself a governed CSS property is a viol
   ]);
 });
 
+const PROBE: Passthrough = new Map([['ArenaAppLogo', { prop: 'size', governs: 'width' }]]);
+
+test('no component is registered as a passthrough while none forwards a dimension to a governed prop', () => {
+  assert.equal(PASSTHROUGH.size, 0);
+});
+
 test('a default parameter on a named passthrough component resolves through the alias', () => {
 
   const src = "function ArenaAppLogo({ mark, size = 18, dim = 'soft' }) {\n  return null;\n}";
-  const found = scanDefaultsAndCallSites(src);
+  const found = scanDefaultsAndCallSites(src, PROBE);
   assert.deepEqual(found.map((f) => ({ prop: f.prop, raw: f.raw })), [
     { prop: 'width', raw: '18' },
   ]);
@@ -222,7 +228,7 @@ test('a plain variable assignment outside a parameter list is never in scope', (
 });
 
 test('a JSX call site overriding a registered passthrough prop with a bare number is a violation', () => {
-  const found = scanDefaultsAndCallSites('<ArenaAppLogo name="Draven" size={16} />');
+  const found = scanDefaultsAndCallSites('<ArenaAppLogo name="Draven" size={16} />', PROBE);
   assert.deepEqual(found.map((f) => ({ prop: f.prop, raw: f.raw })), [
     { prop: 'width', raw: '16' },
   ]);
@@ -312,7 +318,7 @@ test('EXEMPT records the three ARENA_SR_ONLY visually-hidden literals, by name',
   assert.ok(!EXEMPT.has("frameworks/angular/DataVisuals.ts:border:'0'"));
 });
 
-test('no exemption names a demo entry, since a hand-written one no longer exists to carry a literal', () => {
+test('no exemption names a demo entry, since no hand-written one exists to carry a literal', () => {
   for (const key of EXEMPT.keys()) {
     assert.doesNotMatch(key, /\.card\.entry\.tsx:/,
       `${key} names a page entry this layer stopped hand-writing; a generated one binds every value through a knob`);
@@ -323,17 +329,15 @@ test('the ARENA_SR_ONLY object shape produces exactly the raws those keys are cu
 
   const hits = scanText(
     "export const ARENA_SR_ONLY = { position: 'absolute', width: '1px', height: '1px',"
-    + " padding: '0', margin: '-1px', overflow: 'hidden', clip: 'rect(0 0 0 0)',"
+    + " padding: '0', margin: '-1px', overflow: 'hidden', clipPath: 'inset(50%)',"
     + " whiteSpace: 'nowrap', border: '0' };",
   );
   assert.deepEqual(hits.map((h) => `${h.prop}:${h.raw}`), ["width:'1px'", "height:'1px'", "margin:'-1px'"]);
 });
 
-test('no local-stacking zIndex literal is exempt any more, because none is written', () => {
-  for (const key of EXEMPT.keys()) {
-    assert.doesNotMatch(key, /zIndex/,
-      'a zIndex literal is exempt again; the calendar pair took theirs from the manifest instead');
-  }
+test('no zIndex literal is exempt, so a layer is always a slot answer and never a number in a template', () => {
+  const stacking = [...EXEMPT.keys()].filter((key) => /zIndex/.test(key));
+  assert.deepEqual(stacking, []);
 });
 
 test('every current EXEMPT key is matched by this run -- none are stale', () => {
@@ -463,15 +467,15 @@ test('the real boundary: a nested call behind a variable is not caught, the exac
 });
 
 test('a PASSTHROUGH entry with a match is not stale', () => {
-  assert.deepEqual(stalePassthrough(new Set(['ArenaAppLogo'])), []);
+  assert.deepEqual(stalePassthrough(new Set(['ArenaAppLogo']), PROBE), []);
 });
 
 test('a PASSTHROUGH entry matching nothing in the tree fails as stale', () => {
-  assert.deepEqual(stalePassthrough(new Set()), ['ArenaAppLogo']);
+  assert.deepEqual(stalePassthrough(new Set(), PROBE), ['ArenaAppLogo']);
 });
 
 test('a component the map does not name is not reported', () => {
-  assert.deepEqual(stalePassthrough(new Set(['ArenaAppLogo', 'ArenaButton', 'ArenaTag'])), []);
+  assert.deepEqual(stalePassthrough(new Set(['ArenaAppLogo', 'ArenaButton', 'ArenaTag']), PROBE), []);
 });
 
 test('a line comment shaped like a colon-value is never read as one', () => {
@@ -613,8 +617,8 @@ test('a governed property name at the tail of a longer one is not that property'
 test('the lookbehind matters because a mismatched property swallows past the string it was found in', () => {
   const src = "const a = 'stroke-width: var(--bw);';\nconst b = 'p95 line chart';\n";
   assert.deepEqual(scanText(src), [],
-    'reading `width` out of `stroke-width` used to run the value past the closing quote and report a '
-    + 'bare literal at a site that had none -- naming a file and a property that were not the defect');
+    'reading `width` out of `stroke-width` stops the value at the closing quote and reports no '
+    + 'bare literal at a site that has none -- naming a file and a property that were not the defect');
 });
 
 test('a dist tree is assembled output, so the scan never opens it', () => {
@@ -634,4 +638,55 @@ test('an Angular input transform is not the CSS transform, so the value it resol
   assert.deepEqual(scanText('readonly lines = input<number, number | undefined>(3, { transform: (value) => value ?? 3 });'), []);
   assert.equal(scanText('const s = { transform: `translateY(4px)` };').length, 1,
     'a real CSS transform still has to be a token');
+});
+
+test('an Angular style binding of a literal calc is a style write that fails', () => {
+  const hits = scanStyleWrites(`<div [style.paddingInlineStart]="'calc(var(--sp-1) * 3)'"></div>`);
+  assert.deepEqual(hits.map((h) => h.prop), ['paddingInlineStart']);
+});
+
+test('an Angular binding of a channel passes, as does a var() value', () => {
+  assert.deepEqual(scanStyleWrites('<div [style.--arena-x]="n()"></div>'), []);
+  assert.deepEqual(scanStyleWrites(`<div [style.maxWidth]="'var(--arena-board-column)'"></div>`), []);
+  assert.deepEqual(scanStyleWrites(`<div [style.maxWidth]="'var(--a, var(--b))'"></div>`), []);
+});
+
+test('an Angular unit binding writes a computed number, so it fails', () => {
+  assert.deepEqual(scanStyleWrites('<div [style.top.px]="y()"></div>').map((h) => h.prop), ['top']);
+  assert.deepEqual(scanStyleWrites('<div [style.width.%]="p()"></div>').map((h) => h.prop), ['width']);
+});
+
+test('an Angular host style binding and a [style] object are read', () => {
+  assert.deepEqual(scanStyleWrites("host: { '[style.width]': 'width()' }").map((h) => h.prop), ['width']);
+  assert.deepEqual(scanStyleWrites('<div [style]="{ gap: 4 }"></div>').map((h) => h.prop), ['gap']);
+});
+
+test('a React style object with a literal calc fails, and a var() passes', () => {
+  assert.deepEqual(scanStyleWrites("<div style={{ gap: 'calc(var(--sp-1) * 4)' }} />").map((h) => h.prop), ['gap']);
+  assert.deepEqual(scanStyleWrites("<div style={{ gap: 'var(--chart-legend-gap)' }} />"), []);
+});
+
+test('a React interpolated width fails until COMPUTED lists it', () => {
+  const hits = scanStyleWrites('<div style={{ width: `${pct}%` }} />');
+  assert.deepEqual(hits.map((h) => h.prop), ['width']);
+});
+
+test('a style value bound to a constant that holds a channel passes', () => {
+  assert.deepEqual(scanStyleWrites("const PAGE = 'var(--container-max)';\n<div style={{ maxWidth: PAGE }} />"), []);
+});
+
+test('a property outside PROPS is not a style write the gate judges', () => {
+  assert.deepEqual(scanStyleWrites('<div style={{ opacity: hover }} />'), []);
+});
+
+test('an unused COMPUTED key is stale and a matched one is not', () => {
+  const [first] = [...COMPUTED.keys()];
+  assert.ok(first);
+  assert.deepEqual(staleComputed(new Set(COMPUTED.keys())), []);
+  assert.deepEqual(staleComputed(new Set()), [...COMPUTED.keys()]);
+});
+
+test('every COMPUTED reason cites a function as path:member(parameters)', () => {
+  for (const [key, reason] of COMPUTED)
+    assert.match(reason, /`frameworks\/[^`:]+:[\w.]+\([^`]*\)`|`frameworks\/[^`:]+:\w+`/, key);
 });

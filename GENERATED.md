@@ -45,11 +45,16 @@ Each marks its boundary differently, and the third does not mark it at all.
   most of the file. A prompt is not emitted from its contract; a prompt has regions emitted from
   its contract, and reading the first sentence as the second is how a reader concludes the whole
   file is untouchable.
-- **A layer's `PACKAGE.md`** carries `@shared` regions, and here the **markers are placed by a
-  person** while the text between them is not. Where a shared section sits on the npm page is the
-  author's decision; only what it says belongs to the generator, and
-  `scripts/generate/arena/generate-npm-pages.ts:applyRegion(source, key, region)` throws rather
-  than guesses when a marker it expects is absent.
+- **A consumer page** carries one of two region kinds, each opened by a marker a person placed. A
+  `<!-- @shared <key> -->` region is written by `generate:npm-pages`, and a
+  `<!-- @support <key> -->` region is written by `generate:support`. Where a generated section sits
+  on the page is the author's decision; only what it says belongs to the generator. The list of
+  pages and keys is the code's: `REGION_TARGETS` in
+  `scripts/generate/arena/generate-npm-pages.ts` for the first, and `TARGETS` in
+  `scripts/generate/arena/generate-support.ts` for the second. Each generator throws rather than
+  guesses when a marker it expects is absent, and
+  `scripts/generate/arena/generate-npm-pages.ts:applyRegion(source, key, region)` is where the
+  first does.
 - **A component's source**, in either layer. Above every contracted member sits a `/** … */`
   whose text is that member's `description` from `contracts/api/`, and **nothing in the file says
   so**. There is no marker, no banner and no infix. `generate:member-docs` writes it, `check:api`

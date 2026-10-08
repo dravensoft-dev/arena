@@ -2,8 +2,9 @@ Visual identity of a person or entity. With `src` it shows the image; without it
 
 ```tsx
 <ArenaAvatar name="Lucy Fernandez" status="online" />
-<ArenaAvatar src="/u/marco.jpg" name="Marco Ruiz" size="lg" />
-<ArenaAvatar name="Aurora Bank" shape="rounded" />  {/* entity/team */}
+<ArenaAvatar src="/u/marco.jpg" name="Marco Ruiz" className="arena-size-lg" />
+<ArenaAvatar name="Aurora Bank" kind="team" />  {/* entity/team */}
+<ArenaAvatar name="Ana Ruiz" status="online" nameShown />  {/* beside a name that already says it */}
 ```
 
 <!-- @api GENERATED from contracts/api/components/ArenaAvatar.json. Edit the contract, not this table. -->
@@ -13,16 +14,30 @@ Visual identity of a person or entity. With `src` it shows the image; without it
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
 | `src` | primitive | `string` |  | Image URL. Absent renders initials from `name`. |
-| `name` | primitive | `string` | `""` | The person or entity name. Its first two words' initials render when there is no `src`, and it is the image's alt text. |
-| `size` | enum | `ArenaAvatarSize` | `"md"` | The avatar's diameter. |
-| `shape` | enum | `ArenaAvatarShape` | `"circle"` | Circle for a person, rounded for a team. |
+| `name` | primitive | `string` | `""` | The person or entity name. Its first two words' initials render when there is no `src`, and it is the image's alt text. With `nameShown` set, both stay drawn and neither is announced, because what composes the avatar already says the name. |
+| `kind` | enum | `ArenaAvatarKind` | `"person"` | Whether the avatar stands for a person or for a team. A person is drawn as a circle and a team as a rounded square, so the two read apart in a list that holds both. |
 | `status` | enum | `ArenaAvatarStatus` |  | A presence dot in the state's colour. `offline` is a visible muted dot; omit `status` entirely for no dot. Optional: there is no invisible enum value. |
+| `nameShown` | primitive | `boolean` | `false` | Whether what composes this avatar already says its name: a name drawn beside it, or a control named on its own. Set, the image and the initials leave the accessibility tree so the name is announced once, and the presence dot keeps its own name. Leave it unset where the avatar is the only statement of who this is, including when it is a control's whole content, since that is how the control gets its name. |
 
 <!-- @api end -->
+
+<!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
+
+**Answers** [`size`](../../../../VOCABULARY.md#size): `arena-size-lg`, `arena-size-md` (default), `arena-size-sm`, `arena-size-xs`. Write one as `className="arena-size-lg"` on the component, or on a container whose components should all take it.
+
+<!-- @answers end -->
+
+<!-- @keys GENERATED from the binding. -->
+**Keys:** none.
+<!-- @keys end -->
 
 **Do / Don't**
 - `circle` for people, `rounded` for teams/organizations.
 - Always pass `name` (accessible name + fallback initials), even when there's a `src`.
+- Pass `nameShown` when something already says the name: a name drawn beside the avatar, or a
+  control labelled on its own, such as an account menu's trigger. The face stays drawn, the name
+  is announced once, and the presence dot keeps its own name. Leave it off when the avatar is a
+  control's whole content, since then it is how the control is named.
 - It's the only element, along with the switches, that can be fully round.
 
 **Three things products asked this component for, and what each one measured.** Each is recorded here because reading the code does not answer it. Every one of them was refused with a reason rather than deferred.
@@ -39,6 +54,6 @@ Visual identity of a person or entity. With `src` it shows the image; without it
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
+**The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

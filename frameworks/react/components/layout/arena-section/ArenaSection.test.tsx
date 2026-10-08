@@ -1,21 +1,15 @@
-/* The rhythm is a variant and is read off the class list rather than out of a style attribute,
- * because the four steps are the manifest's and not this component's. What IS this component's
- * is the two guards and the element it opens, and those are read out of the markup. */
+/* The rhythm is a family an adopter writes as a class, so the root carries the class it is given.
+ * What IS this component's is the two guards and the element it opens, and those are read out of the markup. */
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { renderToStaticMarkup } from 'react-dom/server';
 import React from 'react';
 import { ArenaSection } from './ArenaSection.tsx';
-import type { ArenaSectionRhythm } from '../../../Api.generated';
-
-const RHYTHMS = ['none', 'sm', 'md', 'lg'] as const;
+import classes from './ArenaSection.classes.generated.ts';
+import tailwind from './ArenaSection.manifest.generated.ts';
 
 const render = (element: React.ReactElement) => renderToStaticMarkup(element);
 const body = <p>One</p>;
-
-function rootClasses(html: string): string[] {
-  return (/class="([^"]*)"/.exec(html)?.[1] ?? '').split(/\s+/).filter(Boolean);
-}
 
 test('a section with no title is refused, and a title of nothing but spaces is refused with it', () => {
   assert.throws(
@@ -66,28 +60,14 @@ test('the eyebrow, the description and the action are drawn only when given', ()
   for (const text of ['This week', 'Since Monday', 'See all']) assert.match(full, new RegExp(text));
 });
 
-test('the four named steps are four distinct classes on the root, and md is the default', () => {
-  const seen = new Set<string>();
-  for (const rhythm of RHYTHMS) {
-    const classes = rootClasses(render(
-      <ArenaSection title="Landed recently" rhythm={rhythm}>{body}</ArenaSection>,
-    ));
-    const step = classes.find((cls) => cls.includes('rhythm'));
-    assert.ok(step, `${rhythm} names no rhythm class at all`);
-    seen.add(step);
+test('a section given a rhythm option carries it on its root, and the slot reads its channel', () => {
+  const html = render(<ArenaSection title="Landed recently" className="arena-rhythm-group">{body}</ArenaSection>);
+  const given = (/<section[^>]*\bclass="([^"]*)"/.exec(html)?.[1] ?? '').split(/\s+/);
+  for (const name of ['arena-rhythm-group', ...classes.slots.root.split(/\s+/)]) {
+    assert.ok(given.includes(name), `the root lacks ${name}`);
   }
-  assert.equal(seen.size, RHYTHMS.length, 'two steps compiled to the same class');
-  assert.equal(
-    render(<ArenaSection title="Landed recently">{body}</ArenaSection>),
-    render(<ArenaSection title="Landed recently" rhythm="md">{body}</ArenaSection>),
-  );
-});
-
-test('an unknown rhythm falls back to the default rather than rendering with none at all', () => {
-  assert.equal(
-    render(<ArenaSection title="T" rhythm={'wide' as ArenaSectionRhythm}>{body}</ArenaSection>),
-    render(<ArenaSection title="T" rhythm="md">{body}</ArenaSection>),
-  );
+  assert.ok(tailwind.slots.root.includes('var(--arena-rhythm-gap,var(--arena-rhythm,var(--rhythm-component)))'));
+  assert.doesNotMatch(html, /\bstyle=/);
 });
 
 test('ArenaSection drops a consumer style object and a consumer attribute', () => {

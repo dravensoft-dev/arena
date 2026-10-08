@@ -1,11 +1,18 @@
 {
   "component": "ArenaCheckbox",
   "slots": {
-    "root": "inline-flex items-center min-h-ctl-h-sm gap-2.5",
+    "root": "inline-flex items-center min-h-ctl-h-sm gap-2.5 w-fit",
     "box": "inline-flex items-center justify-center size-5 rounded-control-sm border-[length:var(--bw-control)] transition-[background] duration-[var(--dur-hover)] ease-hover [&:has(~input:focus-visible)]:shadow-[0_0_0_var(--focus-width)_var(--focus-ring)]",
     "check": "size-3 text-primary-content [stroke-width:var(--bw-strong)]",
     "label": "font-body text-ctl text-ink-body/(--level-ink-body)",
     "input": "absolute opacity-0 size-0"
+  },
+  "kind": {
+    "root": "none",
+    "box": "control",
+    "check": "none",
+    "label": "none",
+    "input": "none"
   },
   "variants": {
     "checked": {

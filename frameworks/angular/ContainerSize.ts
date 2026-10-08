@@ -6,21 +6,40 @@ const breakpoints = new Map<string, number>();
 
 export type WidthTarget = ElementRef<HTMLElement> | (() => HTMLElement | null | undefined);
 
+const px = (value: string) => Number.parseFloat(value) || 0;
+
+function outerWidth(element: Element): number {
+  const view = element.ownerDocument.defaultView;
+  if (!view) return 0;
+  const style = view.getComputedStyle(element);
+  const width = style.width.endsWith('px') ? px(style.width) : 0;
+  if (width === 0 || style.boxSizing === 'border-box') return width;
+  return width + px(style.paddingLeft) + px(style.paddingRight)
+    + px(style.borderLeftWidth) + px(style.borderRightWidth);
+}
+
+const entryWidth = (entry: ResizeObserverEntry) => entry.borderBoxSize?.[0]?.inlineSize ?? outerWidth(entry.target);
+
 export function arenaContainerWidth(target?: WidthTarget): Signal<number | null> {
   const fallback = target === undefined ? inject<ElementRef<HTMLElement>>(ElementRef) : null;
   const destroyRef = inject(DestroyRef);
   const width = signal<number | null>(null);
 
   afterNextRender(() => {
-    if (typeof ResizeObserver === 'undefined') return;
     const element = typeof target === 'function'
       ? target()
       : (target ?? fallback)?.nativeElement;
     if (!element) return;
+    const now = outerWidth(element);
+    if (now > 0) width.set(now);
+    if (typeof ResizeObserver === 'undefined') return;
     const observer = new ResizeObserver((entries) => {
-      for (const entry of entries) width.set(entry.contentRect.width);
+      for (const entry of entries) {
+        const next = entryWidth(entry);
+        if (next > 0) width.set(next);
+      }
     });
-    observer.observe(element);
+    observer.observe(element, { box: 'border-box' });
     destroyRef.onDestroy(() => observer.disconnect());
   });
 
@@ -50,18 +69,13 @@ export function arenaViewportBelow(name: ArenaBreakpointName): Signal<boolean> {
   const doc = inject(DOCUMENT);
   const destroyRef = inject(DestroyRef);
   const width = arenaReadBreakpoint(name);
-  const below = signal(false);
-
-  afterNextRender(() => {
-    const view = doc.defaultView;
-    if (!view?.matchMedia || !Number.isFinite(width)) return;
-    const query = view.matchMedia(`not all and (min-width: ${width}px)`);
-    below.set(query.matches);
-    const onChange = (event: MediaQueryListEvent) => below.set(event.matches);
-    query.addEventListener('change', onChange);
-    destroyRef.onDestroy(() => query.removeEventListener('change', onChange));
-  });
-
+  const view = doc.defaultView;
+  if (!view?.matchMedia || !Number.isFinite(width)) return signal(false).asReadonly();
+  const query = view.matchMedia(`not all and (min-width: ${width}px)`);
+  const below = signal(query.matches);
+  const onChange = (event: MediaQueryListEvent) => below.set(event.matches);
+  query.addEventListener('change', onChange);
+  destroyRef.onDestroy(() => query.removeEventListener('change', onChange));
   return below.asReadonly();
 }
 

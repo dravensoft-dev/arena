@@ -14,10 +14,10 @@ import { walkFiles } from '../../utils/walk-files.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { emittedTree } from '../../lib/arena/layers.ts';
 import { relPosix } from '../../utils/posix-path.ts';
-import { scanFile } from '../../generate/core/arena-to-prod/audit.ts';
+import { scanFile } from '../../generate/core/arena-cli/audit.ts';
 import { withForeignTrees } from '../../lib/arena/foreign-trees.ts';
 
-export { isLegalBracket, scanText, findMarkers, markerAllowlist, scanFile } from '../../generate/core/arena-to-prod/audit.ts';
+export { isLegalBracket, scanText, findMarkers, markerAllowlist, scanFile } from '../../generate/core/arena-cli/audit.ts';
 
 export const SKIPPED_NAMES = withForeignTrees('dist', 'vendor');
 

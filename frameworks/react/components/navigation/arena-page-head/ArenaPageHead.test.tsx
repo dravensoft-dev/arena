@@ -20,18 +20,13 @@ test('ArenaPageHead throws when title is absent -- the fail-hard guard', () => {
   );
 });
 
-test('ArenaPageHead defaults to align="start" -- the wide layout is top-aligned', () => {
-  const html = renderToStaticMarkup(<ArenaPageHead title="Deployments" />);
-  assert.match(html, /\barena-page-head__root--cv1\b/);
+test('ArenaPageHead takes its alignment as a class on the root', () => {
+  const html = renderToStaticMarkup(<ArenaPageHead title="Deployments" className="arena-align-center" />);
+  assert.match(html, /\bclass="[^"]*\barena-align-center\b[^"]*"[^>]*data-arena-part="page-head"/);
+  assert.doesNotMatch(renderToStaticMarkup(<ArenaPageHead title="Deployments" />), /arena-align|data-arena-align/);
 });
 
-test('ArenaPageHead align="center" centers the actions block against the title, wide layout', () => {
-  const html = renderToStaticMarkup(<ArenaPageHead title="Deployments" align="center" />);
-  assert.match(html, /\b(?:arena-page-head__actions|arena-page-head__root--cv2)\b/);
-  assert.doesNotMatch(html, /\barena-page-head__root--cv1\b/);
-});
-
-test('ArenaPageHead no longer applies a baked bottom margin -- the parent composes spacing now', () => {
+test('ArenaPageHead applies no bottom margin -- the parent composes spacing', () => {
   const html = renderToStaticMarkup(<ArenaPageHead title="Deployments" />);
   assert.doesNotMatch(html, /\bmb-/);
 });

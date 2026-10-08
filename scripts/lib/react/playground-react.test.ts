@@ -172,3 +172,9 @@ test('a component reached twice is imported once', () => {
   const out = reactEntry(twice, places, '');
   assert.equal(out.match(/import \{ ArenaCard \}/g)?.length, 1);
 });
+
+test('a class on the subject and on a node is written as className', () => {
+  assert.match(renderSubject({ ...model, class: 'arena-fill arena-compact' }, places, 0), /className="arena-fill arena-compact"/);
+  assert.match(renderNode({ component: 'ArenaBadge', class: 'arena-fill' }, places, 0), /className="arena-fill"/);
+  assert.doesNotMatch(renderSubject(model, places, 0), /className/);
+});

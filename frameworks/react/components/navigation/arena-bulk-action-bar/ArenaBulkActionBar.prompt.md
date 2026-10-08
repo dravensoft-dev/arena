@@ -20,10 +20,22 @@ Bulk actions (H7). Appears when there's a selection and operates on the set. Com
 | `actions*` | array | `readonly ArenaBulkAction[]` |  | The actions offered for the current selection. |
 | `onRun` | event | `ArenaBulkAction` |  | An action was activated, carrying which one. |
 | `layout` | enum | `ArenaBulkActionBarLayout` | `"auto"` | Whether the bar may stack. 'auto' measures its OWN container, not the viewport, and drops the count, the actions and Clear onto separate rows when one row does not fit; 'inline' keeps the single row at every width, for a bar in a place the consumer knows is wide. It is a member rather than something a consumer reaches in with CSS because the alternative is what happens without it: reordering the bar's own children by position, which puts focus order out of step with visual order and breaks the next time anything inside moves. Stacking here reorders nothing, so the tab order and the reading order stay the same order they are wide. |
-| `clearable` | primitive | `boolean` | `true` | Whether the Clear control is drawn. Every layer gates on this member and never on whether anything listens for `clear`, because Arena never derives what it draws from what a consumer listens for. |
+| `clearable` | primitive | `boolean` | `true` | Whether the Clear control is drawn. Every layer gates on this member and never on whether anything listens for `onClear`, because Arena never derives what it draws from what a consumer listens for. |
 | `onClear` | event |  |  | The Clear control was activated. |
 
 <!-- @api end -->
+
+<!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
+
+**Answers.** No family of the [vocabulary](../../../../VOCABULARY.md) decides anything in this component's own box.
+
+<!-- @answers end -->
+
+<!-- @keys GENERATED from the binding. -->
+**Keys**, from [`toolbar`](../../../../../contracts/behaviour/toolbar.json):
+- `ArrowRight`: moves focus to the next control, optionally wrapping from the last to the first.
+- `ArrowLeft`: moves focus to the previous control, optionally wrapping from the first to the last.
+<!-- @keys end -->
 
 `clearable` (default `true`) gates the Clear control; pass `clearable={false}` to hide it entirely.
 
@@ -46,6 +58,6 @@ control order is identical in the two shapes.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
+**The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

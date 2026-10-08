@@ -160,7 +160,7 @@ test('ArenaConfirmDialog moves focus to the first focusable inside the panel on 
   invoker.remove();
 });
 
-test('ArenaConfirmDialog DOES focus the confirmation input when requireText is set -- the branch its exception used to carve out', () => {
+test('ArenaConfirmDialog DOES focus the confirmation input when requireText is set -- the one branch its exception does not cover', () => {
 
   const invoker = document.createElement('button');
   document.body.appendChild(invoker);

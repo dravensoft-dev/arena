@@ -2,7 +2,7 @@ import {
   ChangeDetectionStrategy, Component, booleanAttribute, computed, DestroyRef, effect,
   inject, input, output, signal, untracked,
 } from '@angular/core';
-import { ArenaSideNavState, arenaIndentFor } from '../arena-side-nav/ArenaSideNavState';
+import { ArenaSideNavState, arenaIndentDepth } from '../arena-side-nav/ArenaSideNavState';
 import { arenaSideNavStyles } from '../arena-side-nav/ArenaSideNav.variants';
 import manifest from '../arena-side-nav/ArenaSideNav.classes.generated';
 
@@ -21,7 +21,7 @@ import manifest from '../arena-side-nav/ArenaSideNav.classes.generated';
       <div aria-hidden="true" [class]="styles().separator()" [attr.data-arena-part]="parts.separator"></div>
     } @else {
       <button type="button" [id]="triggerId()" [class]="styles().trigger()" [attr.data-arena-part]="parts.trigger"
-              [style.paddingInlineStart]="indent()"
+              [style.--arena-side-nav-depth]="depthChannel()"
               [attr.aria-expanded]="expanded()" [attr.aria-controls]="regionId()"
               (click)="press()" (keydown)="onKeydown($event)">
         @if (icon(); as glyph) {
@@ -31,7 +31,7 @@ import manifest from '../arena-side-nav/ArenaSideNav.classes.generated';
         <i [class]="styles().caret() + ' ' + caretGlyph()" [attr.data-arena-part]="parts.caret" aria-hidden="true"></i>
       </button>
     }
-    <div [id]="regionId()" [class]="styles().region()" [attr.data-arena-part]="parts.region" role="group"
+    <div [id]="regionId()" [class]="styles().region()" [attr.data-arena-part]="parts.region" data-arena-boundary role="group"
          [attr.aria-labelledby]="rail() ? null : triggerId()" [attr.aria-label]="rail() ? heading() : null"
          [hidden]="!rail() && !expanded()">
       <ng-content />
@@ -71,14 +71,13 @@ export class ArenaSideNavCollapsible {
     return text;
   });
 
-  protected readonly indent = computed(() => (this.parent.collapsed() ? null : arenaIndentFor(this.parent.indentStep(), this.parent.depth())));
+  protected readonly depthChannel = computed(() => (this.parent.collapsed() ? null : arenaIndentDepth(this.parent.depth())));
   protected readonly rail = computed(() => this.parent.collapsed());
   protected readonly styles = computed(() => arenaSideNavStyles({ collapsed: this.parent.collapsed() }));
 
   constructor() {
     this.own.depth = computed(() => this.parent.depth() + 1);
     this.own.activeId = this.parent.activeId;
-    this.own.indentStep = this.parent.indentStep;
     this.own.collapsed = this.parent.collapsed;
     this.own.activate = (id: string) => this.parent.activate(id);
     this.parent.adopt(this.own);

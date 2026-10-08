@@ -1,8 +1,12 @@
 import React from 'react';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaSiteFooter.classes.generated.ts';
+import type { ArenaSiteFooterClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export interface ArenaSiteFooterProps {
+  className?: ArenaSiteFooterClass;
+
 
   /** The columns, one per child, laid out by a grid that decides its own count from the room it is given rather than from a breakpoint anyone picked. A column of links, a signup, an address and a mark all land the same way. */
   children?: React.ReactNode;
@@ -15,16 +19,16 @@ const arenaSiteFooterStyles = arenaStyles(manifest);
 const TRACKS = 'repeat(auto-fit, minmax(min(var(--grid-min), 100%), 1fr))';
 const PAGE = 'var(--container-max)';
 
-export function ArenaSiteFooter({ children, note }: ArenaSiteFooterProps) {
+export function ArenaSiteFooter({ className, children, note }: ArenaSiteFooterProps) {
   const styles = arenaSiteFooterStyles();
 
   return (
-    <footer className={styles.root()} data-arena-part={manifest.parts.root}>
-      <div className={styles.band()} data-arena-part={manifest.parts.band} style={{ maxWidth: PAGE }}>
+    <footer className={arenaClassName('ArenaSiteFooter', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+      <div className={styles.band()} data-arena-part={manifest.parts.band} {...styles.$data.band()} style={{ maxWidth: PAGE }}>
         {children && (
-          <div className={styles.columns()} data-arena-part={manifest.parts.columns} style={{ gridTemplateColumns: TRACKS }}>{children}</div>
+          <div className={styles.columns()} data-arena-part={manifest.parts.columns} {...styles.$data.columns()} data-arena-boundary="" style={{ gridTemplateColumns: TRACKS }}>{children}</div>
         )}
-        {note && <p className={styles.note()} data-arena-part={manifest.parts.note}>{note}</p>}
+        {note && <p className={styles.note()} data-arena-part={manifest.parts.note} {...styles.$data.note()}>{note}</p>}
       </div>
     </footer>
   );

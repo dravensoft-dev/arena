@@ -21,19 +21,10 @@ test('throws when given neither', () => {
   assert.throws(() => renderToStaticMarkup(<ArenaAppLogo />), /required/);
 });
 
-test('a size picks both halves of the lock-up from the logo scale', () => {
-  const html = renderToStaticMarkup(<ArenaAppLogo size="sm" mark={MARK} name="Draven" />);
-  assert.match(html, /\barena-app-logo__mark--size-sm\b/);
-  assert.match(html, /\barena-app-logo__name--size-sm\b/);
-});
-
-test('every step in the repertoire resolves, and none writes a number', () => {
+test('a size class reaches the root, and the lock-up writes no inline style', () => {
   for (const size of ['sm', 'md', 'lg', 'xl']) {
-    // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-    const html = renderToStaticMarkup(<ArenaAppLogo size={size} mark={MARK} name="Draven" />);
-    assert.match(html, new RegExp(`\\barena-app-logo__mark--size-${size}\\b`));
-    assert.match(html, new RegExp(`\\barena-app-logo__name--size-${size}\\b`));
-
+    const html = renderToStaticMarkup(<ArenaAppLogo className={`arena-size-${size}` as 'arena-size-sm'} mark={MARK} name="Draven" />);
+    assert.match(html, new RegExp(`data-arena-part="app-logo"[^>]*\\barena-size-${size}\\b|\\barena-size-${size}\\b[^>]*data-arena-part="app-logo"`));
     assert.doesNotMatch(html, /style="/, 'the lock-up writes no inline style at all');
   }
 });
@@ -49,14 +40,10 @@ test('without dim the wordmark is one ink', () => {
   assert.doesNotMatch(html, /\barena-app-logo__dim\b/);
 });
 
-test('vertical orientation stacks the mark above the name and widens the gap', () => {
-  const vertical = renderToStaticMarkup(<ArenaAppLogo orientation="vertical" mark={MARK} name="Draven" />);
-  assert.match(vertical, /\barena-app-logo__root--orientation-vertical\b/);
-  assert.match(vertical, /\barena-app-logo__root--orientation-vertical\b/);
-
-  const horizontal = renderToStaticMarkup(<ArenaAppLogo mark={MARK} name="Draven" />);
-  assert.match(horizontal, /\barena-app-logo__root--orientation-horizontal\b/);
-  assert.match(horizontal, /\barena-app-logo__root--orientation-horizontal\b/);
+test('an orientation class reaches the root', () => {
+  const vertical = renderToStaticMarkup(<ArenaAppLogo className="arena-orientation-vertical" mark={MARK} name="Draven" />);
+  assert.match(vertical, /\barena-orientation-vertical\b/);
+  assert.doesNotMatch(vertical, /data-arena-orientation/);
 });
 
 test('the mark fills its sized slot through the slot, so nothing is cloned to make it', () => {

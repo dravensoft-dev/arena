@@ -1,13 +1,12 @@
 /* Five claims. First, that the CLI shipped inside both packages emits what Style Dictionary
  * emits: a second emitter exists, so something has to hold the two together. Second, when
  * dist/ has been assembled, that each package is registry-standard: the version comes from
- * plugin.json, every exports target resolves to a file that is there and every wildcard one
- * matches at least one, the entry declaration is advertised at the root, and no peer leaked into
- * dependencies. Third, that the stylesheets resolve, because a sheet that imports 43 files that
- * are not there passes the second claim and fails in the consumer's bundler. Fourth, that the
- * component map is there and reaches every sheet both ways. Fifth is the one the ASSEMBLED CSS is
- * the only honest subject for, since what a consumer installs is this and not an intermediate:
- * supports-blocks.ts states both halves of it. dist/ is git-ignored, so all but the first skip. */
+ * plugin.json, every exports target resolves, the entry declaration is advertised at the root,
+ * and no peer leaked into dependencies. Third, that the stylesheets resolve and each is named in
+ * its layer's stylesheet and install references. Fourth, that the component map reaches every
+ * sheet both ways. Fifth is the one the ASSEMBLED CSS is the only honest subject for, since what
+ * a consumer installs is this and not an intermediate: supports-blocks.ts states both halves of
+ * it. dist/ is git-ignored, so all but the first skip. */
 
 import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import { join, dirname, basename } from 'node:path';
@@ -19,15 +18,18 @@ import { readJson } from '../../utils/read-file.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { parseDecls } from '../../lib/arena/css-decls.ts';
 import { arenaConfig } from '../../lib/core/arena-config.ts';
-import { themeCss } from '../../generate/core/arena-to-prod/theme-css.ts';
+import { themeCss } from '../../generate/core/arena-cli/theme-css.ts';
 import { MAP_FILE } from '../../lib/arena/component-map.ts';
 import { iconManifest, MANIFEST_FILE } from '../../lib/arena/icon-manifest.ts';
-import { shippedNames } from '../../generate/core/arena-to-prod/icon-css.ts';
+import { shippedNames } from '../../generate/core/arena-cli/icon-css.ts';
 import { AGENT_DIR, BEHAVIOUR, matchesSpec } from '../../lib/arena/agent-payload.ts';
 import { blindFallbacks, repeatedSupports } from '../../lib/tailwind/supports-blocks.ts';
 import { SECONDARY_ENTRY_POINTS } from '../../build/angular/build-angular-package.ts';
 import { THEME_SOURCES, tailwindThemeSheet, topLevelBlocks } from '../../lib/tailwind/theme-sheet.ts';
 import { compileEntry } from '../../lib/tailwind/tailwind-compile.ts';
+import { REFERENCES, referenceText } from '../../lib/arena/consumer-references.ts';
+
+export const CSS_HOMES = ['stylesheets.md', 'install.md'];
 
 export const node = {
   name: 'check:packages',
@@ -35,6 +37,7 @@ export const node = {
     'frameworks/react/dist/**', 'frameworks/angular/dist/**', 'frameworks/Components.json',
     '.claude-plugin/plugin.json', 'contracts/design/palette.*.json',
     'contracts/design-generated/palette.generated.css',
+    ...CSS_HOMES.map((name) => `${REFERENCES}/${name}`),
     ...THEME_SOURCES.theme, ...THEME_SOURCES.utilities,
   ],
   writes: [],
@@ -79,18 +82,18 @@ export function paletteEquivalenceProblems(generatedCss: string, cliCss: string)
   for (const [selector, decls] of expected) {
     const mine = actual.get(selector);
     if (!mine) {
-      problems.push(`${GENERATED_PALETTE} declares ${selector} and arena-to-prod emits no such block`);
+      problems.push(`${GENERATED_PALETTE} declares ${selector} and arena build emits no such block`);
       continue;
     }
     for (const [name, value] of decls) {
       if (!isColour(name)) continue;
       compared += 1;
       if (mine.get(name) !== value) {
-        problems.push(`${selector} --${name}: Style Dictionary says ${value}, arena-to-prod says ${mine.get(name) ?? '(nothing)'}`);
+        problems.push(`${selector} --${name}: Style Dictionary says ${value}, arena build says ${mine.get(name) ?? '(nothing)'}`);
       }
     }
     for (const name of mine.keys()) {
-      if (isColour(name) && !decls.has(name)) problems.push(`${selector} --${name}: arena-to-prod emits it and Style Dictionary does not`);
+      if (isColour(name) && !decls.has(name)) problems.push(`${selector} --${name}: arena build emits it and Style Dictionary does not`);
     }
   }
 
@@ -289,6 +292,34 @@ export function styleProblems(pkg: { layer: string; name: string }, dir: string)
   return { problems, walked: seen.size };
 }
 
+export function cssListProblems(pkg: { layer: string; name: string }, dir: string, page: string) {
+  const problems = [];
+  const shipped = existsSync(join(dir, 'css'))
+    ? walkFiles(join(dir, 'css')).map((path) => relPosix(dir, path)).filter((rel) => rel.endsWith('.css'))
+    : [];
+  const pattern = 'css/components/<name>.css';
+  const patternNamed = page.includes(`\`${pattern}\``);
+  const huePattern = 'css/hues/<name>.css';
+  const hueNamed = page.includes(`\`${huePattern}\``);
+  for (const rel of shipped.sort()) {
+    const covered = (rel.startsWith('css/components/') && patternNamed)
+      || (rel.startsWith('css/hues/') && hueNamed);
+    if (!covered && !page.includes(rel)) {
+      problems.push(`${pkg.name}: ${rel} ships and the ${pkg.layer} sections of ${REFERENCES}/stylesheets.md `
+        + 'and install.md never name it, so a consumer choosing a sheet by those references cannot learn it is there');
+    }
+  }
+  const named = new Set([...page.matchAll(/`(css\/[^`\s]+)`/g)].map((match) => match[1] ?? ''));
+  for (const rel of [...named].sort()) {
+    if (rel === pattern || rel === huePattern || rel.endsWith('/') || rel.includes('<')) continue;
+    if (!existsSync(join(dir, rel))) {
+      problems.push(`${pkg.name}: the ${pkg.layer} sections of ${REFERENCES}/stylesheets.md and install.md name ${rel}, `
+        + 'which the package does not ship');
+    }
+  }
+  return problems;
+}
+
 export const COMPILED_BY_CONSUMER = new Map([
   ['css/tailwind-theme.css', 'the one sheet a consumer\'s own Tailwind compiles: a theme and a set of '
     + 'utilities, which emits nothing until markup names a utility'],
@@ -372,7 +403,7 @@ export function unlayeredTokenProblems(pkg: { layer: string; name: string }, dir
     const css = readFileSync(full, 'utf8');
     for (const specifier of importsIn(css)) queue.push(toPosix(join(dirname(from), specifier ?? '')));
     for (const block of topLevelBlocks(css, '@layer')) {
-      if (/--(?!tw-)[\w-]+\s*:/.test(block.slice(block.indexOf('{')))) {
+      if (/--(?!tw-|arena-)[\w-]+\s*:/.test(block.slice(block.indexOf('{')))) {
         problems.push(`${pkg.name}: ${from} declares an Arena custom property inside a cascade layer, and the theme's `
           + `self-reference in ${THEME_SHEET} resolves to Arena's value only while the token sheets load unlayered`);
         break;
@@ -455,6 +486,7 @@ export function collect(base = root) {
     problems.push(...componentReachProblems(pkg, dir, declared));
     problems.push(...payloadProblems(pkg, dir));
     problems.push(...styleProblems(pkg, dir).problems);
+    problems.push(...cssListProblems(pkg, dir, referenceText(base, CSS_HOMES, pkg.layer === 'angular' ? 'angular' : 'react')));
     problems.push(...bundledCssProblems(pkg, dir));
     problems.push(...directiveProblems(pkg, dir));
     problems.push(...themeSheetProblems(pkg, dir, tailwindThemeSheet(base)));
@@ -480,7 +512,7 @@ function main() {
       + `${sheets} stylesheet(s) carry no fallback painting an ink in its own colour and state `
       + 'each condition once per rule'
     : 'no package assembled; run bun run build:packages to check the manifests too';
-  console.log(`check-packages: arena-to-prod matches ${GENERATED_PALETTE} across ${compared} declaration(s); ${built}`);
+  console.log(`check-packages: arena build matches ${GENERATED_PALETTE} across ${compared} declaration(s); ${built}`);
 }
 
 if (isMainModule(import.meta.url)) main();

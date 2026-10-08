@@ -1,34 +1,37 @@
-<!-- @dsCard group="Tailwind" viewport="800x360" name="ArenaCard" subtitle="Surfaces and emphasis, rendered from ArenaCard.manifest.json" -->
+<!-- @dsCard group="Tailwind" viewport="800x360" name="ArenaCard" subtitle="Surfaces, accents and elevation, rendered from ArenaCard.manifest.json" -->
 <!doctype html><html><head><meta charset="utf-8">
 <link rel="stylesheet" href="../../../../../intro/styles.css">
 <link rel="stylesheet" href="../../../consume/Preflight.generated.css">
 <link rel="stylesheet" href="../../../consume/components/display/arena-card/ArenaCard.styles.generated.css">
+<link rel="stylesheet" href="../../../consume/vocabulary/Accent.generated.css">
+<link rel="stylesheet" href="../../../consume/vocabulary/Elevation.generated.css">
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor } from '../../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
 
 const manifest = await (await fetch('./ArenaCard.manifest.json')).json();
 
-function card({ eyebrow, title, body, accent = false, floating = false }) {
-  const c = arenaClassesFor(manifest, { accent: String(accent), floating: String(floating) });
-  const root = el('div', { class: c.root });
+function card({ eyebrow, title, body, options = '' }) {
+  const c = arenaClassesFor(manifest);
+  const d = arenaSlotDataFor(manifest);
+  const root = el('div', { class: `${c.root} ${options}`.trim(), ...d.root });
   root.style.width = '240px';
   if (eyebrow || title) {
-    const head = el('div', { class: c.head }, el('div', {},
-      eyebrow ? el('div', { class: c.eyebrow, text: eyebrow }) : '',
-      title ? el('div', { class: c.title, text: title }) : ''));
+    const head = el('div', { class: c.head, ...d.head }, el('div', {},
+      eyebrow ? el('div', { class: c.eyebrow, ...d.eyebrow, text: eyebrow }) : '',
+      title ? el('div', { class: c.title, ...d.title, text: title }) : ''));
     root.append(head);
   }
-  root.append(el('div', { class: c.body }, el('span', { class: 'font-body text-md text-base-content/82', text: body })));
+  root.append(el('div', { class: c.body, ...d.body }, el('span', { class: 'font-body text-md text-base-content/82', text: body })));
   return root;
 }
 
 mountSpecimen({ sections: [
   section('Plain, floating, accented', [
     card({ eyebrow: 'Delivery', title: 'Client portal', body: 'Six deployments this week.' }),
-    card({ eyebrow: 'Delivery', title: 'Billing service', body: 'Two deployments this week.', floating: true }),
-    card({ eyebrow: 'Attention', title: 'Auth service', body: 'Rollback pending review.', accent: true }),
+    card({ eyebrow: 'Delivery', title: 'Billing service', body: 'Two deployments this week.', options: 'arena-elevation-floating' }),
+    card({ eyebrow: 'Attention', title: 'Auth service', body: 'Rollback pending review.', options: 'arena-accent-primary' }),
   ]),
   section('Body only', [card({ body: 'A card with no header is just a surface — use it for content that names itself.' })]),
 ]});

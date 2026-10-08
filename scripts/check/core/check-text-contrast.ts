@@ -2,22 +2,26 @@
  * collects a node's declaration by importing the script that carries it. A gate doing its work
  * where an import reaches it cannot be collected, and this one exits the process outright. */
 
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { relPosix } from '../../utils/posix-path.ts';
 import { contrast } from '../../lib/core/validate-palette.mjs';
 import { paletteBlock, readHex, THEMES } from '../../lib/core/palette-read.ts';
 import { isMainModule } from '../../utils/main-module.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { resolvedFor } from './check-style-plugin.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
-import { PALETTE_KEYS } from '../../generate/core/arena-to-prod/palette-keys.ts';
+import { HUE_SHEETS } from '../../lib/tailwind/hue-sheet.ts';
+import { PALETTE_KEYS } from '../../generate/core/arena-cli/palette-keys.ts';
 import {
-  derivedLevels, drawnBy, levelDefaults, levelReports, levelsIn, raisedReports,
-  washesIn, washReports,
-} from '../../generate/core/arena-to-prod/levels.ts';
+  derivedLevels, drawnBy, inlineHues, levelDefaults, levelReports, levelsIn, paletteKey, raisedReports,
+  STATUS_HUES, washesIn, washReports,
+} from '../../generate/core/arena-cli/levels.ts';
+import { ARENA_EXT } from '../../generate/core/arena-cli/style-plugin-rules.ts';
+import { CATALOGUE, entries } from './check-catalogue.ts';
 import {
   composite, darkenOklab, errorFill, FILL_FALLBACK_KEEP,
-} from '../../generate/core/arena-to-prod/oklab.ts';
+} from '../../generate/core/arena-cli/oklab.ts';
 
 export const PALETTE = 'contracts/design-generated/palette.generated.css';
 export const COLORS = 'contracts/design/colors.css';
@@ -29,20 +33,33 @@ export const ROLE_SHEETS = [
 
 export const SCOPED_PLUGINS = ['complete'];
 
-export const COMPONENT_SHEETS = 'frameworks/tailwind/consume/components/**/*.styles.generated.css';
+export const VOCABULARY_SHEETS = 'frameworks/tailwind/consume/vocabulary/*.generated.css';
+
+export const COMPONENT_SHEETS = ['frameworks/tailwind/consume/components/**/*.styles.generated.css', VOCABULARY_SHEETS];
+
+export const ROLES = 'contracts/design/roles.json';
 
 export const node = {
   name: 'check:text-contrast',
-  reads: [PALETTE, COLORS, ...ROLE_SHEETS, COMPONENT_SHEETS],
+  reads: [PALETTE, COLORS, ...ROLE_SHEETS, ...COMPONENT_SHEETS, `${HUE_SHEETS}/**/*.hues.generated.css`, ROLES,
+    `${CATALOGUE}/*/plugin.tokens.json`, `${CATALOGUE}/*/arena.config.json`],
   writes: [],
   feeds: [],
 };
 
-export function componentSheets() {
+export function componentSheets(roles: Map<string, string> = new Map(), levels: Record<string, string> = {}) {
   const at = join(root, 'frameworks/tailwind/consume/components');
-  return walkFiles(at)
-    .filter((file) => file.endsWith('.styles.generated.css'))
+  const family = walkFiles(join(root, 'frameworks/tailwind/consume/vocabulary'))
+    .filter((file) => file.endsWith('.generated.css'))
     .map((file) => readFileSync(file, 'utf8'));
+  const components = walkFiles(at)
+    .filter((file) => file.endsWith('.styles.generated.css'))
+    .map((file) => {
+      const css = readFileSync(file, 'utf8');
+      const hue = join(root, HUE_SHEETS, relPosix(at, file).replace('.styles.generated.css', '.hues.generated.css'));
+      return existsSync(hue) ? inlineHues(css, readFileSync(hue, 'utf8'), roles, levels) : css;
+    });
+  return [...components, ...family];
 }
 
 export function paletteColours(body: string) {
@@ -103,6 +120,62 @@ const ON_SURFACE = [
   { token: 'secondary', gate: null, note: 'REPORTED, NOT GATED — gold as text/focus ring; brand value, see header' },
 ];
 
+export const ON_INK_GATE = 4.5;
+
+export function onInkPairs(roles: Map<string, string>, body: string) {
+  const hex = (role: string) => {
+    const key = paletteKey(roles.get(role));
+    return key ? tryHex(body, `color-${key}`) : null;
+  };
+  return STATUS_HUES.map((hue) => {
+    const ink = hex(`hue-${hue}-ink`);
+    const onInk = hex(`hue-${hue}-on-ink`);
+    return { hue, ink, onInk, ratio: ink && onInk ? contrast(onInk, ink) : null };
+  });
+}
+
+type Answers = Record<string, { $value?: unknown } | undefined>;
+type EntryPalette = { name?: string; polarity?: string; colors?: Record<string, string> };
+
+const ALIAS = /^\{([\w.-]+)\}$/;
+
+export function answeredColour(role: string, answers: Answers, light: Answers, defaults: Record<string, string>,
+  colors: Record<string, string>, polarity: string, seen: string[] = []): string | null {
+  if (seen.includes(role)) return null;
+  const own = (polarity === 'light' ? light[role]?.$value : undefined) ?? answers[role]?.$value ?? defaults[role];
+  const target = ALIAS.exec(typeof own === 'string' ? own.trim() : '')?.[1];
+  if (!target) return null;
+  if (target.startsWith('color.')) return colors[target.slice('color.'.length)] ?? null;
+  return answeredColour(target, answers, light, defaults, colors, polarity, [...seen, role]);
+}
+
+export function roleDefaults(at = root) {
+  const roles = JSON.parse(readFileSync(join(at, ROLES), 'utf8')) as Record<string, { $extensions?: Record<string, { default?: string }> }>;
+  return Object.fromEntries(Object.entries(roles)
+    .map(([name, role]) => [name, role.$extensions?.[ARENA_EXT]?.default])
+    .filter((pair): pair is [string, string] => typeof pair[1] === 'string'));
+}
+
+export function catalogueEntries(at = root) {
+  return entries(at).filter((name) => existsSync(join(at, CATALOGUE, name, 'plugin.tokens.json')));
+}
+
+export function catalogueOnInk(at = root) {
+  const defaults = roleDefaults(at);
+  const dir = join(at, CATALOGUE);
+  return catalogueEntries(at).flatMap((entry) => {
+    const answers = JSON.parse(readFileSync(join(dir, entry, 'plugin.tokens.json'), 'utf8')) as Answers & { light?: Answers };
+    const config = JSON.parse(readFileSync(join(dir, entry, 'arena.config.json'), 'utf8')) as { palettes?: EntryPalette[] };
+    return (config.palettes ?? []).flatMap((palette) => STATUS_HUES.map((hue) => {
+      const colour = (role: string) => answeredColour(role, answers, (answers.light ?? {}) as Answers, defaults,
+        palette.colors ?? {}, palette.polarity ?? 'dark');
+      const ink = colour(`hue-${hue}-ink`);
+      const onInk = colour(`hue-${hue}-on-ink`);
+      return { entry, palette: palette.name ?? palette.polarity ?? '', hue, ink, onInk, ratio: ink && onInk ? contrast(onInk, ink) : null };
+    }));
+  });
+}
+
 export const REMOVED = [
   { token: 'mute-2', use: '--mute (--text-muted)' },
   { token: 'text-faint', use: '--text-muted' },
@@ -148,10 +221,13 @@ function main() {
     ok = false;
     console.log(`\n[FAIL] --${token} is declared in contracts/design/colors.css. It is not a token Arena has; use ${use}.`);
   }
-  const sheets = componentSheets();
   const defaults = levelDefaults(readFileSync(join(root, COLORS), 'utf8'));
+  const sheets = componentSheets(
+    resolvedFor(effects, '', THEMES[0]?.name ?? 'light'),
+    Object.fromEntries(Object.entries(defaults).map(([name, percent]) => [name, `${percent}%`])),
+  );
   const levels = sheets.flatMap((css) => levelsIn(css, defaults));
-  const washes = sheets.flatMap(washesIn);
+  const washes = sheets.flatMap((css) => washesIn(css, defaults));
   for (const t of THEMES) {
     const body = block(palette, t.selector, 'palette.generated.css');
     const content = readHex(body, 'color-base-content');
@@ -241,6 +317,16 @@ function main() {
       console.log(`         ${note}`);
     }
 
+    for (const name of ['', ...scoped]) {
+      console.log(`\n${t.name}, ${name ? `.arena-${name}` : 'the root plugin'}: each status hue's on-ink over its ink, a mark arena-mark-solid fills`);
+      for (const { hue, ink, onInk, ratio } of onInkPairs(resolvedFor(effects, name, t.name), body)) {
+        const failed = ratio === null || ratio < ON_INK_GATE;
+        if (failed) ok = false;
+        const detail = ratio === null ? 'a role that names no palette colour' : `${onInk} on ${ink}  ${ratio.toFixed(2)}:1`;
+        console.log(`  [${failed ? 'FAIL' : 'PASS'}] --hue-${hue}-on-ink over --hue-${hue}-ink  ${detail}  gate ${ON_INK_GATE}:1`);
+      }
+    }
+
     const errHex = tryHex(body, 'color-error');
     const errContent = tryHex(body, 'color-error-content');
     if (errHex && errContent) {
@@ -254,6 +340,22 @@ function main() {
       console.log(`         derived from --color-error ${errHex} by ${way} it in oklab, away from --color-error-content`);
     }
   }
+
+  const entries = catalogueOnInk();
+  console.log('\nthe catalogue: each status hue\'s on-ink over its ink in every palette of every entry');
+  if (entries.length === 0) {
+    ok = false;
+    console.log(`  [FAIL] measured 0 entries under ${CATALOGUE}; an empty sweep is a failure rather than a clean pass`);
+  }
+  for (const { entry, palette, hue, ink, onInk, ratio } of entries) {
+    const failed = ratio === null || ratio < ON_INK_GATE;
+    if (failed) ok = false;
+    if (!failed) continue;
+    const detail = ratio === null ? 'a role that names no palette colour' : `${onInk} on ${ink}  ${ratio.toFixed(2)}:1`;
+    console.log(`  [FAIL] ${entry}, ${palette}: --hue-${hue}-on-ink over --hue-${hue}-ink  ${detail}  gate ${ON_INK_GATE}:1`);
+  }
+  if (entries.length && entries.every(({ ratio }) => ratio !== null && ratio >= ON_INK_GATE))
+    console.log(`  [PASS] ${entries.length} pairs across ${new Set(entries.map((one) => one.entry)).size} entries clear ${ON_INK_GATE}:1`);
 
   console.log(ok ? '\nText contrast OK — every gated level clears its bar in both themes.\n' : '\nText contrast FAILED — fix the marked levels.\n');
   process.exit(ok ? 0 : 1);

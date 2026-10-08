@@ -1,16 +1,16 @@
-<!-- @dsCard group="Tailwind" viewport="820x350" name="ArenaGrid" subtitle="The four gap steps, rendered from ArenaGrid.manifest.json" -->
+<!-- @dsCard group="Tailwind" viewport="820x350" name="ArenaGrid" subtitle="The four arena-grid-gap classes and the minimum cell width, rendered from ArenaGrid.manifest.json" -->
 <!doctype html><html><head><meta charset="utf-8">
 <link rel="stylesheet" href="../../../../../intro/styles.css">
 <link rel="stylesheet" href="../../../consume/Preflight.generated.css">
 <link rel="stylesheet" href="../../../consume/components/layout/arena-grid/ArenaGrid.styles.generated.css">
+<link rel="stylesheet" href="../../../consume/vocabulary/GridMin.generated.css">
+<link rel="stylesheet" href="../../../consume/vocabulary/GridGap.generated.css">
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor } from '../../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
 
 const manifest = await (await fetch('./ArenaGrid.manifest.json')).json();
-
-const TRACKS = 'repeat(auto-fit, minmax(min(calc(var(--sp-1) * 34), 100%), 1fr))';
 
 function cell(text) {
   return el('div', {
@@ -21,20 +21,20 @@ function cell(text) {
 }
 
 function grid(gap, count) {
-  const box = el('div', { class: arenaClassesFor(manifest, { gap }).root, style: { gridTemplateColumns: TRACKS } });
+  const box = el('div', { class: `${arenaClassesFor(manifest).root} arena-grid-min-sm arena-grid-gap-${gap}`, ...arenaSlotDataFor(manifest).root });
   for (let i = 1; i <= count; i += 1) box.append(cell(`Cell ${i}`));
   return box;
 }
 
 mountSpecimen({ sections: [
-  section('gap="none"', [grid('none', 4)], { stack: true }),
-  section('gap="sm"', [grid('sm', 4)], { stack: true }),
-  section('gap="md" — the default', [grid('md', 4)], { stack: true }),
-  section('gap="lg"', [grid('lg', 4)], { stack: true }),
+  section('arena-grid-gap-none', [grid('none', 4)], { stack: true }),
+  section('arena-grid-gap-group', [grid('group', 4)], { stack: true }),
+  section('arena-grid-gap-component, the default', [grid('component', 4)], { stack: true }),
+  section('arena-grid-gap-section', [grid('section', 4)], { stack: true }),
   section('The count comes from the room, not from a breakpoint', [
     el('div', { class: 'font-body text-sm text-base-content/62' },
-      'The manifest holds the display and the gap; the track list is the component\'s, and it is '
-      + 'the same repeat(auto-fit, minmax(min(min, 100%), 1fr)) in both layers.'),
+      'The manifest holds the display, the track list and the gap, each read from a channel a family writes, so '
+      + 'an unfilled row keeps its empty tracks and the count still comes from the room.'),
   ]),
 ]});
 </script></body></html>

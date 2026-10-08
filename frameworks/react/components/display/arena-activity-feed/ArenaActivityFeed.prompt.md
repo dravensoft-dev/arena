@@ -20,8 +20,21 @@ each row.
 
 <!-- @api end -->
 
-`tone` is ArenaBadge's vocabulary: `neutral · accent · gold · success · warning · danger ·
-info`, and defaults to `accent`.
+<!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
+
+**Answers** [`accent`](../../../../VOCABULARY.md#accent): `arena-accent-gold`, `arena-accent-primary` (default). Write one as `className="arena-accent-gold"` on the component, or on a container whose components should all take it.
+
+<!-- @answers end -->
+
+<!-- @keys GENERATED from the binding. -->
+**Keys**, from [`feed`](../../../../../contracts/behaviour/feed.json):
+- `PageDown`: moves focus to the next article.
+- `PageUp`: moves focus to the previous article.
+- `ControlEnd`: Control+End moves focus to the first focusable element after the feed.
+- `ControlHome`: Control+Home moves focus to the first focusable element before the feed.
+<!-- @keys end -->
+
+An item's `tone` is `neutral`, `success`, `warning`, `danger` or `info`. Without one, the row's dot takes the accent, which `arena-accent-gold` turns gold.
 
 **There is no row escape hatch.** There is no `renderItem`, because per-item projection has no expression every framework Arena ships for can offer. Arena declares only what all of them can implement. A consumer places no markup of their own inside one row. The event must fit `actor`, `action`, `target`, `time` and `tone`, or it does not belong in this component.
 
@@ -35,6 +48,6 @@ info`, and defaults to `accent`.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
+**The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

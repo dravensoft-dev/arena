@@ -6,13 +6,14 @@
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor } from '../../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
 
 const manifest = await (await fetch('./ArenaMain.manifest.json')).json();
 const c = arenaClassesFor(manifest, {});
+const d = arenaSlotDataFor(manifest, {});
 
 function landmark(text) {
-  const main = el('main', { class: c.root, id: 'arena-main', tabindex: '-1' });
+  const main = el('main', { class: c.root, ...d.root, id: 'arena-main', tabindex: '-1' });
   main.append(el('div', {
     class: 'font-body text-sm text-base-content/82',
     text,

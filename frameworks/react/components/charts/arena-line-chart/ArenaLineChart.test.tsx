@@ -38,8 +38,8 @@ test('ArenaLineChart throws when series is absent, which required-ness demands o
 test('ArenaLineChart draws the area fill only when area is set', () => {
   const withArea = renderToStaticMarkup(<ArenaLineChart label="p95 latency" labels={LABELS} series={[{ label: 'p95 latency', values: VALUES }]} area />);
   const without = renderToStaticMarkup(<ArenaLineChart label="p95 latency" labels={LABELS} series={[{ label: 'p95 latency', values: VALUES }]} />);
-  assert.match(withArea, /color-mix\(in oklab/, 'the 18% tint did not render');
-  assert.doesNotMatch(without, /color-mix\(in oklab/, 'the tint rendered without area being set');
+  assert.match(withArea, /color-mix\(in oklab, /, 'the 18% tint did not render');
+  assert.doesNotMatch(without, /color-mix\(in oklab, /, 'the tint rendered without area being set');
 });
 
 test('ArenaLineChart drops a consumer style object and a consumer attribute, each independently', () => {

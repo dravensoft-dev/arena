@@ -31,7 +31,7 @@ function press(el: Element, key: string) {
 test('ArenaBulkActionBar is a toolbar with one tab stop, roved by the arrow keys', () => {
   const root = mount(<ArenaBulkActionBar count={3} actions={ACTIONS} onRun={() => {}} onClear={() => {}} />);
   const bar = root.querySelector<HTMLElement>('[role="toolbar"]');
-  assert.ok(bar, 'the bar must be a toolbar, not the region it used to claim');
+  assert.ok(bar, 'the bar was not a toolbar');
   assert.equal(bar.getAttribute('aria-label'), 'Actions on the selection');
 
   const controls = [...bar.querySelectorAll<HTMLElement>('button')];

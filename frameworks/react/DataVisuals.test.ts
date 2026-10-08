@@ -1,13 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  ARENA_CAT_SLOTS, arenaCatColor, arenaCatSlotFor, arenaCatSurface, arenaAreaFill, arenaToneColor,
+  ARENA_CAT_SLOTS, ARENA_INK_BODY, ARENA_INK_MUTED, arenaCatColor, arenaCatSlotFor, arenaCatSurface, arenaAreaFill, arenaToneColor,
 } from './DataVisuals.ts';
 import type { ArenaSeriesTone, ArenaTone } from './Api.generated';
 
-test('every tone in the union resolves to a token reference', () => {
-  const tones: ArenaTone[] = ['neutral', 'accent', 'gold', 'success', 'warning', 'danger', 'info'];
-  for (const tone of tones) assert.match(arenaToneColor(tone), /^var\(--[a-z-]+\)$/);
+test('every tone in the union resolves to a var() or a colour-mix of roles and levels, never a literal colour', () => {
+  const tones: ArenaTone[] = ['neutral', 'success', 'warning', 'danger', 'info'];
+  for (const tone of tones) assert.match(arenaToneColor(tone), /^(var\(--[a-z-]+\)|color-mix\(in oklab,var\(--[a-z-]+\) var\(--[a-z-]+\),transparent\))$/);
   assert.equal(new Set(tones.map(arenaToneColor)).size, tones.length, 'tones must not share a colour');
 });
 
@@ -46,4 +46,10 @@ test('arenaCatSurface tints from the slot colour, and the edge is the stronger o
 
 test('arenaAreaFill is the tint ArenaLineChart draws under its series', () => {
   assert.equal(arenaAreaFill('var(--success)'), 'color-mix(in oklab, var(--success) 18%, transparent)');
+});
+
+test('the neutral tone is the body ink constant, and the muted ink is the body ink at its muted role and level', () => {
+  assert.equal(arenaToneColor('neutral'), ARENA_INK_BODY);
+  assert.equal(ARENA_INK_BODY, 'color-mix(in oklab,var(--ink-body) var(--level-ink-body),transparent)');
+  assert.equal(ARENA_INK_MUTED, 'color-mix(in oklab,var(--ink-muted) var(--level-ink-muted),transparent)');
 });

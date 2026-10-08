@@ -6,27 +6,28 @@
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor } from '../../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
 
 const manifest = await (await fetch('./ArenaTextarea.manifest.json')).json();
 
 function textarea({ label, value = '', hint, error, state = 'neutral', maxLength, required }) {
   const c = arenaClassesFor(manifest, { state });
-  const root = el('div', { class: c.root });
+  const d = arenaSlotDataFor(manifest, { state });
+  const root = el('div', { class: c.root, ...d.root });
   root.style.width = '300px';
   const taId = label ? 'tw-ta-' + label.replace(/\s+/g, '-').toLowerCase() : undefined;
   if (label) {
-    const tag = el('label', { class: c.label, for: taId }, label);
-    if (required) tag.append(el('span', { class: c.required, text: '*' }));
+    const tag = el('label', { class: c.label, ...d.label, for: taId }, label);
+    if (required) tag.append(el('span', { class: c.required, ...d.required, text: '*' }));
     root.append(tag);
   }
-  root.append(el('textarea', { class: c.field, id: taId, rows: 4 }, value));
-  const foot = el('div', { class: c.foot });
-  foot.append(error ? el('span', { class: c.error, text: error })
-    : hint ? el('span', { class: c.hint, text: hint }) : el('span'));
+  root.append(el('textarea', { class: c.field, ...d.field, id: taId, rows: 4 }, value));
+  const foot = el('div', { class: c.foot, ...d.foot });
+  foot.append(error ? el('span', { class: c.error, ...d.error, text: error })
+    : hint ? el('span', { class: c.hint, ...d.hint, text: hint }) : el('span'));
   if (maxLength) {
     const near = value.length > maxLength * 0.9;
-    foot.append(el('span', { class: near ? c.counterNear : c.counter, text: `${value.length}/${maxLength}` }));
+    foot.append(el('span', { class: arenaClassesFor(manifest, { near: String(near) }).counter, ...arenaSlotDataFor(manifest, { near: String(near) }).counter, text: `${value.length}/${maxLength}` }));
   }
   root.append(foot);
   return root;

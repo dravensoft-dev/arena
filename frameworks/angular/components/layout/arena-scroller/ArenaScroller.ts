@@ -11,11 +11,11 @@ import manifest from './ArenaScroller.classes.generated';
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'styles().root()',
+    '[attr.data-arena-behaviour]': "styles().$data.root()['data-arena-behaviour'] ?? null",
     '[attr.data-arena-part]': 'parts.root',
     role: 'group',
     tabindex: '0',
     '[attr.aria-label]': 'name()',
-    '[style.--arena-scroller-item]': 'itemWidth()',
   },
   template: `<ng-content />`,
 })
@@ -24,10 +24,6 @@ export class ArenaScroller {
 
   /** Names the row to assistive technology, and nothing else supplies it: a group announced as a group tells a reader that focus moved and nothing about where it landed. Required, and guarded at runtime after trimming, the shape ArenaTable.label carries for the same reason, since the value the guard exists to catch is a present and useless one. */
   readonly label = input.required<string>();
-  /** How wide each item is laid out, which a rail has to answer and a grid answers with the same role: the width of a card is one decision, and a wall of them and a row of them should not disagree about it. It is a length rather than a step on the spacing scale, for the reason ArenaGrid.min is one, and it reaches the children as a custom property because a row sets its items' width and cannot reach inside them. */
-  readonly itemWidth = input<string, string | undefined>(
-    'var(--grid-min)', { transform: (value) => value ?? 'var(--grid-min)' },
-  );
   /** Whether the row settles on an item or wherever it was left. Snap by default, because a rail of equal-width cards left halfway across one is a card the reader has to finish scrolling by hand. Nothing moves on its own under either value, so neither answers prefers-reduced-motion and no pause control is owed. */
   readonly behaviour = input<ArenaScrollerBehaviour, ArenaScrollerBehaviour | undefined>(
     'snap', { transform: (value) => value ?? 'snap' },

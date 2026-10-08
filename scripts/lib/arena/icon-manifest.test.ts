@@ -5,8 +5,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { withoutComments, serialise, iconManifest, MANIFEST_FILE } from './icon-manifest.ts';
-import { scan } from '../../generate/core/arena-to-prod/icon-css.ts';
-import { shippedNames } from '../../generate/core/arena-to-prod/icon-css.ts';
+import { scan } from '../../generate/core/arena-cli/icon-css.ts';
+import { shippedNames } from '../../generate/core/arena-cli/icon-css.ts';
 
 const scanned = (source: string) => serialise(scan(withoutComments(source, 'A.ts')));
 
@@ -48,6 +48,6 @@ test('Arena names a weight beside every glyph it draws, so loose is the consumer
   }
 });
 
-test('the file name is the one arena-to-prod looks for, spelled once', () => {
+test('the file name is the one arena build looks for, spelled once', () => {
   assert.equal(MANIFEST_FILE, 'icons.json');
 });

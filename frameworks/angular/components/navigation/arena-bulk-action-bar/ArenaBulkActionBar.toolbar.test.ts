@@ -1,6 +1,6 @@
 /* The toolbar-pattern suite this component's binding requires. The host is the toolbar here, and
- * it drops its role and label entirely when the selection is empty -- before this
- * it announced a labelled region over an empty template, which is a landmark
+ * it drops its role and label entirely when the selection is empty, because
+ * a labelled region over an empty template is a landmark
  * pointing at nothing. */
 import { useTestEnvironment } from '../../../test/TestbedEnv';
 useTestEnvironment();
@@ -101,15 +101,16 @@ test('the Clear output is `clear` and answers to nothing else, per the API contr
   } finally { fixture.destroy(); }
 });
 
-test('classesFor still resolves a destructive action\'s classes to the same recipe output after the ArenaBulkAction retype', () => {
+test('classesFor still resolves a destructive action\'s attributes to the same recipe output after the ArenaBulkAction retype', () => {
   const fixture = render(3);
   try {
     const instance = fixture.componentInstance as unknown as {
-      classesFor(action: ArenaBulkAction): { action(): string };
+      classesFor(action: ArenaBulkAction): { $data: { action(): Readonly<Record<string, string>> } };
     };
-    const viaMethod = instance.classesFor({ id: 'delete', label: 'Delete', destructive: true }).action();
-    const viaRecipe = arenaBulkActionBarStyles({ destructive: true }).action();
-    assert.equal(viaMethod, viaRecipe,
+    const viaMethod = instance.classesFor({ id: 'delete', label: 'Delete', destructive: true }).$data.action();
+    const viaRecipe = arenaBulkActionBarStyles({ destructive: true }).$data.action();
+    assert.equal(viaMethod['data-arena-destructive'], '');
+    assert.deepEqual(viaMethod, viaRecipe,
       'the wide shape is what the recipe default resolves, so the two must agree there');
   } finally { fixture.destroy(); }
 });

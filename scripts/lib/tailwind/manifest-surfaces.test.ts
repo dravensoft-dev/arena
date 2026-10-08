@@ -53,11 +53,12 @@ test('the scope is every component but the ones that draw by hand', () => {
   assert.equal(inScope().some((n) => HAND_DRAWN.has(n)), false);
 });
 
-test('a hand-drawn component resolves to no manifest at all', () => {
+test('a hand-drawn component may also own a manifest, for the slots it does not draw by hand', () => {
   for (const name of HAND_DRAWN.keys()) {
-    assert.equal(hasOwnManifest(name), false, name);
-    assert.equal(manifestFor(name), null, name);
+    assert.equal(hasOwnManifest(name), true, name);
+    assert.equal(manifestFor(name), name, name);
   }
+  assert.deepEqual(surfaceProblems().filter((p) => p.startsWith('HAND_DRAWN')), []);
 });
 
 test('coveredContracts answers with the component itself where no manifest names it', () => {

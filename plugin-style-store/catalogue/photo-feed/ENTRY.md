@@ -15,7 +15,7 @@ reader looks past.
 | Whether small text shouts | `tt-label`, `tt-eyebrow`, `track-label`, `track-eyebrow` | no transform, normal tracking | a handle is a word rather than a label, and capitalising it would make it chrome |
 | How tight it is to the hand | `pad-control-*`, `gap-*` | a generous horizontal padding on a control and a wide inline gap | a phone first product, read at arm's length |
 | How wide it breathes | `container-max`, `measure-prose`, `grid-min`, `gutter` | a narrow container and the largest grid cell of the four | the feed is one column of large pictures rather than a wide grid of small ones |
-| Whether depth is real | `shadow-surface-floating`, `shadow-control-raised` | the deepest and darkest floating shadow of the four, and nothing raised | a sheet over a picture has to separate from an image nobody chose, which a faint shadow cannot do |
+| Whether depth is real | `elevation-floating-shadow`, `emphasis-primary-shadow-hover` | the deepest and darkest floating shadow of the four, and nothing raised | a sheet over a picture has to separate from an image nobody chose, which a faint shadow cannot do |
 | How it answers a hand | `press-scale`, `lift-control`, `dur-state`, `ease-state` | the strongest press shrink of the four, on an emphatic curve | the only feedback available on a surface with no chrome is the surface itself moving |
 | What shape a picture is | `aspect-media`, `fit-media` | square, filled | the crop is the grid's decision rather than the photograph's, which is what makes a wall read as a wall |
 

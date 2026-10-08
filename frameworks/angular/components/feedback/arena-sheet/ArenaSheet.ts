@@ -1,7 +1,6 @@
 import {
   ChangeDetectionStrategy, Component, booleanAttribute, computed, contentChild, inject, input, output,
 } from '@angular/core';
-import type { ArenaSheetPlacement } from '../../../Api.generated';
 import { ArenaFooter } from '../../../ProjectionMarkers';
 import { arenaSheetStyles } from './ArenaSheet.variants';
 import manifest from './ArenaSheet.classes.generated';
@@ -14,6 +13,8 @@ import { ARENA_LOCALE } from '../../../ArenaLocale';
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'styles().root()',
+    '[attr.data-arena-surface]': "'floating'",
+    '[attr.data-arena-open]': "styles().$data.root()['data-arena-open'] ?? null",
     '[attr.data-arena-part]': 'open() ? parts.root : null',
     '(keydown)': 'onKeydown($event)',
     '[attr.title]': 'null',
@@ -33,12 +34,12 @@ import { ARENA_LOCALE } from '../../../ArenaLocale';
           </button>
         }
       </div>
-      <div [id]="bodyId" [class]="styles().body()" [attr.data-arena-part]="parts.body" role="group"
+      <div [id]="bodyId" [class]="styles().body()" [attr.data-arena-part]="parts.body" data-arena-boundary role="group"
            [attr.aria-labelledby]="triggerId" [hidden]="collapsed()">
         <ng-content />
       </div>
       @if (footer()) {
-        <div [class]="styles().foot()" [attr.data-arena-part]="parts.foot"><ng-content select="[footer]" /></div>
+        <div [class]="styles().foot()" [attr.data-arena-part]="parts.foot" data-arena-boundary><ng-content select="[footer]" /></div>
       }
     }
   `,
@@ -49,11 +50,6 @@ export class ArenaSheet {
 
   /** Whether the panel is on the page at all. The host owns it, the same way it owns a dialog's. Closed renders nothing, which is what distinguishes it from collapsed. */
   readonly open = input.required<boolean, unknown>({ transform: booleanAttribute });
-  /** The edge the panel is anchored to. It spans that edge and stands off the device's own inset there, so a bottom sheet on a phone clears the home indicator. */
-  readonly placement = input<ArenaSheetPlacement, ArenaSheetPlacement | undefined>(
-    'bottom',
-    { transform: (value) => value ?? 'bottom' },
-  );
   /** Names the panel for assistive technology and heads it visually. It is also the accessible name of the fold control, so a reader hears which panel is being folded rather than the word Toggle. Required and **guarded at runtime** rather than defaulted: what this panel is showing is editorial, and a constant fallback would satisfy the pattern mechanically while telling a screen-reader user nothing. */
   readonly title = input.required<string>();
   /** Whether the body is folded away. The header stays visible either way: a collapsed panel is still on the page and still says what it is, which is why folding is not the same act as closing. The body is hidden rather than removed, so the fold control's reference to it never points at nothing. */
@@ -71,7 +67,7 @@ export class ArenaSheet {
   protected readonly bodyId = `${this.uid}-body`;
 
   protected readonly caretGlyph = computed(() => (this.collapsed() ? 'ph-bold ph-caret-up' : 'ph-bold ph-caret-down'));
-  protected readonly styles = computed(() => arenaSheetStyles({ placement: this.placement(), open: this.open() }));
+  protected readonly styles = computed(() => arenaSheetStyles({ open: this.open() }));
 
   protected readonly heading = computed(() => {
     const text = this.title();

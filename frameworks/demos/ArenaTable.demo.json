@@ -9,11 +9,11 @@
       },
       {
         "header": "Commit",
-        "mono": true
+        "numeric": true
       },
       {
         "header": "Status",
-        "align": "right",
+        "key": "status",
         "sortable": true
       }
     ],
@@ -113,6 +113,9 @@
   "bind": {
     "sortChange": "sort",
     "pageChange": "page.index"
+  },
+  "vars": {
+    "--arena-column-status-align": "right"
   },
   "note": "The label names the grid for a screen reader, and nothing can derive it."
 }

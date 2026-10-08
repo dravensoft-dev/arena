@@ -1,26 +1,32 @@
-<!-- @dsCard group="Tailwind" viewport="760x160" name="ArenaBadge" subtitle="Seven tones, rendered from ArenaBadge.manifest.json" -->
+<!-- @dsCard group="Tailwind" viewport="760x160" name="ArenaBadge" subtitle="Five tones and the accents, rendered from ArenaBadge.manifest.json" -->
 <!doctype html><html><head><meta charset="utf-8">
 <link rel="stylesheet" href="../../../../../intro/styles.css">
 <link rel="stylesheet" href="../../../consume/Preflight.generated.css">
 <link rel="stylesheet" href="../../../consume/components/display/arena-badge/ArenaBadge.styles.generated.css">
+<link rel="stylesheet" href="../../../consume/vocabulary/Accent.generated.css">
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor } from '../../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
 
 const manifest = await (await fetch('./ArenaBadge.manifest.json')).json();
-const TONES = ['neutral', 'accent', 'gold', 'success', 'warning', 'danger', 'info'];
+const TONES = ['neutral', 'success', 'warning', 'danger', 'info'];
 
-function badge(tone, label, dot = false) {
+function badge(tone, label, dot = false, accent = '') {
   const c = arenaClassesFor(manifest, { tone });
-  const node = el('span', { class: c.root });
-  if (dot) node.append(el('span', { class: c.dot }));
+  const d = arenaSlotDataFor(manifest, { tone });
+  const node = el('span', { class: accent ? `${c.root} arena-accent-${accent}` : c.root, ...d.root });
+  if (dot) node.append(el('span', { class: c.dot, ...d.dot }));
   node.append(label);
   return node;
 }
 
 mountSpecimen({ sections: [
   section('Tones', TONES.map((tone) => badge(tone, tone))),
+  section('Accents: a badge that says nothing about status wears one; a status wins over it', [
+    badge('neutral', 'plain', false, 'plain'), badge('neutral', 'primary', false, 'primary'), badge('neutral', 'gold', false, 'gold'),
+    badge('success', 'success, gold', false, 'gold'),
+  ]),
   section('With a status dot', [
     badge('success', 'Live', true),
     badge('warning', 'Degraded', true),

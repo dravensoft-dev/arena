@@ -41,23 +41,22 @@ gives the second a skin it was never designed to wear.
 a pixel is the composite of a surface, an opacity level and whatever was laid over it. That composite enters the palette as a literal that no theme can move, and the second polarity
 inherits it and is wrong.
 
-Neither is a reason to stop. Both are reasons to run node 3 first and to show the user what you
-concluded before you build on it.
+Neither is a reason to stop; run node 3 first and show the user your conclusion before you
+build on it.
 
 ## 3. The minimum interview
 
 Five questions, and they cover the decisions
 [`style-kernel.md`](./style-kernel.md) measured as the ones that separate one product from another.
 Ask them one at a time. Which colour the TEXT takes is not among them, because eight unrelated
-products answered that identically. Which surface the page takes is settled by the first question
-rather than by a sixth of its own, since it follows from what the screen is. That page's own table
+products answered that identically. The first question settles the page's surface, since it follows from what the screen is. That page's own table
 is where both are.
 
 | Ask | What the answer fixes |
 |---|---|
 | What is being built, and who works in it | the register, whether Arena's component list is the right one, and `aspect-media` and `fit-media` |
 | Whose brand is this, which polarity leads, and which colour is the voice | the palettes in `arena.config.json`, both of them |
-| Which three faces: display, body, mono | `ff-heading`, `ff-body`, `ff-mono` |
+| Which three faces: display, body, mono | `fonts.display`, `fonts.body` and `fonts.mono` in `arena.config.json`, and the `ff-heading`, `ff-eyebrow` and `ff-label` roles that pick among them |
 | What character does it have to the eye: soft, drawn, or flat | `r-*`, `bw-*`, `fw-*`, `tt-*` and `track-*`, `shadow-*`, `press-scale` and `lift-control` |
 | How dense is it, and how wide does it breathe | `pad-control-*` and `gap-*`, `container-max`, `measure-prose`, `grid-min`, `gutter` |
 
@@ -74,12 +73,14 @@ reads as two products sharing a screen.
 
 **Two arrivals reach this node**, one that would rather pick than answer and one that will not
 answer at all, and it is a real answer to both. Ask for one thing only: a short description of
-the app. Then match that description against the catalogue in `plugin-style-store/catalogue/`,
-where each directory is a register measured on a real product and carrying its own `ENTRY.md`.
+the app. Then match that description against the catalogue's index,
+[`plugin-style-store/catalogue/INDEX.md`](../../../plugin-style-store/catalogue/INDEX.md), one row
+per register measured on a real product, each with its own `ENTRY.md` and the files you copy.
+Without a clone, fetch the index at `https://arena.dravensoft.org/plugin-style-store/catalogue/INDEX.md` and the entry files it links, or call `arena_read` on `arena://style/catalogue/INDEX.md` and on each entry's URI that the index links. The package does not carry them.
 
-**Match on one line rather than on the entries themselves.** Every `ENTRY.md` carries a line
+**Match on one line rather than on the entries themselves.** The index carries each entry's line
 beginning `Take this entry when`, which says what that register is for in the terms a description
-arrives in. Read those lines, pick the one the description fits, and only then open that entry. Read
+arrives in. Read that column, pick the row the description fits, and only then open that entry. Read
 it, do not remember it.
 
 **Name the entry you picked and what it decides, and wait.** Say which register it is, what it
@@ -89,8 +90,8 @@ failure as a screenshot read silently, with a better result and the same missing
 **An entry is copied rather than cited.** The entry's `plugin.tokens.json` and `plugin.css` become
 your project's own under `design/<name>/`, and node 11 is where they land.
 
-**The catalogue is in the Arena repository rather than in the package.** From an installed project,
-read it there.
+**The catalogue is on the site and in the repository, not the package.** Each entry's files sit
+beside its `ENTRY.md`.
 
 | The answer | Go to | What it costs you |
 |---|---|---|
@@ -100,8 +101,8 @@ read it there.
 ## 5. Write the identity document, and stop
 
 Whatever route reached this node, the output is the same. The output is a page stating the palette in both polarities, the three faces, the character, the
-air, the media shape and the page shape, with the reason beside each. `arena-from-scratch/identity.html` in the Arena repository is the template, and
-`arena-from-scratch/identity.example.html` beside it is one worked answer to read first.
+air, the media shape and the page shape, with the reason beside each. [`arena-from-scratch/identity.html`](../../../arena-from-scratch/identity.html) in the Arena repository is the template, and
+[`identity.example.html`](../../../arena-from-scratch/identity.example.html) beside it is one worked answer to read first; no package carries either.
 
 The output is a page rather than a list, because a palette described in prose is a palette nobody
 can approve. Serve it over HTTP, show it to the user, and change what they change.
@@ -122,7 +123,7 @@ Each is settled before the first screen and never per screen. The four are in th
 |---|---|---|
 | What does Arena ship, and how much of it am I taking | [`surface.md`](./surface.md) | never, because the three below ask how much of a thing you have not been shown |
 | Is Arena's component list right for this product | [`media-register.md`](./media-register.md) | the register is an application somebody works in and nothing on screen is a wall, a feed, a viewer or a document |
-| How does it answer the kernel's roles | [`style-kernel.md`](./style-kernel.md) | node 7 found a plugin that already answers every role |
+| How does it answer the kernel's roles | [`style-kernel.md`](./style-kernel.md) | node 7 found a plugin that already answers every role that carries no default |
 | Does anybody outside it have to find it | [`seo.md`](./seo.md) | never, because a no that was never chosen is announced by nothing and reaches the install rather than a screen |
 
 Then go to 8, because the last of those four is a yes or a no and the next node is how much.
@@ -133,15 +134,15 @@ An identity somebody already established is context to acquire, not a step to sk
 anything:
 
 - Read `arena.config.json`. The file names the palettes, the leading polarity, the fonts and the
-  plugin that comes first. That first plugin is the root and answers every role.
+  plugin that comes first. That first plugin is the root and answers every role that carries no default.
 - Read the project's own `plugin.tokens.json`: which roles it answers and with what. A role it does
   not answer is a property that disappears rather than a plainer look.
 - Read its `plugin.css`, if it has one, to see which decisions the project paints by hand. Those decisions are the ones no role reaches, and they are the ones your new screen has to
   keep.
-- Run `arena-to-prod --audit` and report what it names before you write anything. The audit reads the project's own sources and its declared plugin directories for the rules a
+- Run `arena audit` and report what it names before you write anything. The audit reads the project's own sources and its declared plugin directories for the rules a
   source text can show.
 
-Say what you found. A project whose plugin answers every role needs no style plugin work, and
+Say what you found. A project whose plugin answers every role that carries no default needs no style plugin work, and
 saying so is what stops an agent rewriting an appearance somebody already chose.
 
 Then go to 6, and skip the rows it says you may skip. **Stop there rather than going on to 8**,
@@ -221,7 +222,7 @@ writes: its own markup, and on Angular its forms. **Take every row that is true*
 | If your code | Take | What it gets you |
 |---|---|---|
 | draws markup of its own with Tailwind v4 | `@import 'tailwindcss';` and then `@import '@dravensoft/arena-<layer>/css/tailwind-theme.css';`. Declare a key of your own below that import, never above it | every utility resolves to Arena's scale and none to Tailwind's defaults. Arena's own utilities work by name: `case-eyebrow`, `case-label`, `fit-media` and the ones its components animate with. The air between components is `gap-group`, `gap-component` and `gap-section` |
-| draws markup of its own, styled with CSS of its own | the tokens through `var()`, and `css/rhythm.css` for the air between components: `.arena-stack` and `.arena-row`, with `--group` and `--section` for the steps either side | the lengths and the air the components are spaced with, as named steps rather than a number you pick |
+| draws markup of its own, styled with CSS of its own | the tokens through `var()`, and the vocabulary page for the air between components: `.arena-stack` and `.arena-row`, with `--group` and `--section` for the steps either side | the lengths and the air the components are spaced with, as named steps rather than a number you pick |
 | is an Angular project binding Arena's controls with `@angular/forms` | `@dravensoft/arena-angular/forms`, and `ARENA_FORM_CONTROLS` in the component's `imports` | `formControlName` and `ngModel` on every data-entry control. Reaching that entry point makes `@angular/forms` required |
 
 ## 11. Now write it
@@ -255,12 +256,12 @@ Then, in this order, because each file is read by the next.
   wears the answers Arena installs with, which are Dravensoft's. `["default"]`, or leaving the key out, is that same appearance chosen on purpose rather than
   by omission. That answer is a finished one for a first screen, or for a tool nobody
   outside the team looks at.
-- `design/<name>/plugin.tokens.json`, answering every role. Shapes first, then space, then weight,
+- `design/<name>/plugin.tokens.json`, answering every role that carries no default. Shapes first, then space, then weight,
   then depth, and leave the colour roles at the answers
   [`style-kernel.md`](./style-kernel.md) reports eight products converged on.
 - `design/<name>/plugin.css`, only for a decision no role reaches.
-- Run `arena-to-prod`, which writes the stylesheet no package can carry and subsets the icon font
-  to the glyphs your screens draw. Import what it wrote.
+- Run `arena build`, which writes the stylesheet no package can carry and the icon sheet for
+  the glyphs your screens draw. Import what it wrote.
 - Then the first screen, through the per-screen route in [`../SKILL.md`](../SKILL.md).
 
 The identity document from node 5 is what each of these is checked against, and it stays in the

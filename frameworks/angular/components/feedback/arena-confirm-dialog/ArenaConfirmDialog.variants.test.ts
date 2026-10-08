@@ -10,7 +10,7 @@ test('the panel and head/foot/body slots carry no destructive-driven classes -- 
   const routine = arenaConfirmDialogStyles({ destructive: false });
   const destructive = arenaConfirmDialogStyles({ destructive: true });
   for (const slot of ['panel', 'head', 'body', 'foot'] as const) {
-    assert.equal(routine[slot](), destructive[slot](), `${slot} must not vary with destructive`);
+    assert.equal(JSON.stringify(routine.$data[slot]()), JSON.stringify(destructive.$data[slot]()), `${slot} must not vary with destructive`);
   }
 });
 

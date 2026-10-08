@@ -1,4 +1,4 @@
-<!-- @dsCard group="Tailwind" viewport="700x263" name="ArenaSkeleton" subtitle="Loading placeholders, rendered from ArenaSkeleton.manifest.json" -->
+<!-- @dsCard group="Tailwind" viewport="700x420" name="ArenaSkeleton" subtitle="Loading placeholders, rendered from ArenaSkeleton.manifest.json" -->
 <!doctype html><html><head><meta charset="utf-8">
 <link rel="stylesheet" href="../../../../../intro/styles.css">
 <link rel="stylesheet" href="../../../consume/Preflight.generated.css">
@@ -6,27 +6,40 @@
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor } from '../../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
 
 const manifest = await (await fetch('./ArenaSkeleton.manifest.json')).json();
 
-function single(variant) {
-  const c = arenaClassesFor(manifest, { variant });
-  const box = el('div', { class: c.root });
-  box.style.width = variant === 'circle' ? '' : '160px';
+function single(option, style) {
+  const c = arenaClassesFor(manifest);
+  const d = arenaSlotDataFor(manifest);
+  const box = el('div', { class: `${c.root} ${option}`, ...d.root });
+  if (style) Object.assign(box.style, style);
   return box;
 }
 
 function stacked(lines) {
-  const c = arenaClassesFor(manifest, { variant: 'text' });
-  const stack = el('div', { class: c.stack });
+  const c = arenaClassesFor(manifest);
+  const d = arenaSlotDataFor(manifest);
+  const closing = arenaClassesFor(manifest, { last: true });
+  const dClosing = arenaSlotDataFor(manifest, { last: true });
+  const stack = el('div', { class: c.stack, ...d.stack });
   stack.style.width = '220px';
-  for (let i = 1; i <= lines; i++) stack.append(el('div', { class: i === lines ? c.lastLine : c.line }));
+  for (let i = 1; i <= lines; i++) stack.append(el('div', { class: (i === lines ? closing : c).line, ...(i === lines ? dClosing : d).line }));
   return stack;
 }
 
+function set(width, height) {
+  const holder = el('div', { style: { display: 'contents', '--arena-skeleton-width': width, '--arena-skeleton-height': height } });
+  holder.append(single(''));
+  return holder;
+}
+
 mountSpecimen({ sections: [
-  section('Single shapes', ['line', 'block', 'circle'].map(single)),
-  section('Text, three lines', [stacked(3)]),
+  section('arena-skeleton-line', [single('arena-skeleton-line')]),
+  section('arena-skeleton-block, the default', [single('arena-skeleton-block')]),
+  section('arena-skeleton-circle', [single('arena-skeleton-circle')]),
+  section('A stack, three lines', [stacked(3)]),
+  section('--arena-skeleton-width: 12rem and --arena-skeleton-height: 4rem on a container', [set('12rem', '4rem')]),
 ]});
 </script></body></html>

@@ -63,7 +63,7 @@ export function ArenaTabs({ children, value, defaultValue, onChange }: ArenaTabs
 
   return (
     <>
-      <div role="tablist" ref={listRef} onKeyDown={onKeyDown} className={arenaTabsStyles().root()} data-arena-part={manifest.parts.root}>
+      <div role="tablist" ref={listRef} onKeyDown={onKeyDown} className={arenaTabsStyles().root()} data-arena-part={manifest.parts.root} {...arenaTabsStyles().$data.root()} data-arena-boundary="">
         {items.map((child, i) => React.cloneElement(child, {
           selected: i === at,
 
@@ -80,7 +80,7 @@ export function ArenaTabs({ children, value, defaultValue, onChange }: ArenaTabs
 
         <div key={child.key} role="tabpanel" tabIndex={i === at ? 0 : -1}
           id={panelId(i)} aria-labelledby={tabId(i)} hidden={i !== at}
-          className={arenaTabsStyles({ selected: i === at }).panel()} data-arena-part={manifest.parts.panel}>
+          className={arenaTabsStyles({ selected: i === at }).panel()} data-arena-part={manifest.parts.panel} {...arenaTabsStyles({ selected: i === at }).$data.panel()} data-arena-boundary="">
           {child.props.children}
         </div>
       ))}

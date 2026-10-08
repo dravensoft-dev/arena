@@ -1,30 +1,33 @@
-<!-- @dsCard group="Tailwind" viewport="700x280" name="ArenaIconButton" subtitle="Icon-only and labelled, rendered from ArenaIconButton.manifest.json" -->
+<!-- @dsCard group="Tailwind" viewport="700x280" name="ArenaIconButton" subtitle="Icon-only and labelled, ghost or solid (the arena-emphasis options), rendered from ArenaIconButton.manifest.json" -->
 <!doctype html><html><head><meta charset="utf-8">
 <link rel="stylesheet" href="../../../../../intro/styles.css">
 <link rel="stylesheet" href="../../../consume/Preflight.generated.css">
 <link rel="stylesheet" href="../../../consume/components/forms/arena-icon-button/ArenaIconButton.styles.generated.css">
+<link rel="stylesheet" href="../../../consume/vocabulary/Size.generated.css">
+<link rel="stylesheet" href="../../../consume/vocabulary/Emphasis.generated.css">
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor } from '../../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
 
 const manifest = await (await fetch('./ArenaIconButton.manifest.json')).json();
 
-function iconButton({ glyph, label, ...opts }) {
+function iconButton({ glyph, label, cls = '', ...opts }) {
   const c = arenaClassesFor(manifest, opts);
-  const node = el('button', { class: c.root, type: 'button', 'aria-label': label, title: opts.showLabel === 'true' ? undefined : label },
+  const d = arenaSlotDataFor(manifest, opts);
+  const node = el('button', { class: `${c.root} ${cls}`.trim(), ...d.root, type: 'button', 'aria-label': label, title: opts.showLabel === 'true' ? undefined : label },
     el('i', { class: glyph, 'aria-hidden': 'true' }));
-  if (opts.showLabel === 'true') node.append(el('span', { class: c.label, text: label }));
+  if (opts.showLabel === 'true') node.append(el('span', { class: c.label, ...d.label, text: label }));
   return node;
 }
 
 mountSpecimen({ sections: [
   section('Sizes, ghost', ['sm', 'md', 'lg'].map((size) =>
-    iconButton({ glyph: 'ph-bold ph-dots-three', label: 'More', size }))),
-  section('Solid', [iconButton({ glyph: 'ph-bold ph-plus', label: 'Add', variant: 'solid' })]),
+    iconButton({ glyph: 'ph-bold ph-dots-three', label: 'More', cls: `arena-size-${size}` }))),
+  section('Solid', [iconButton({ glyph: 'ph-bold ph-plus', label: 'Add', cls: 'arena-emphasis-solid' })]),
   section('With its label shown', [
     iconButton({ glyph: 'ph-bold ph-download-simple', label: 'Export', showLabel: 'true' }),
-    iconButton({ glyph: 'ph-bold ph-plus', label: 'New project', variant: 'solid', showLabel: 'true' }),
+    iconButton({ glyph: 'ph-bold ph-plus', label: 'New project', cls: 'arena-emphasis-solid', showLabel: 'true' }),
   ]),
 ]});
 </script></body></html>

@@ -56,6 +56,34 @@ demanding identical call-site syntax would demand something neither platform can
 This is the line that makes "zero API divergences" achievable rather than rhetorical:
 identical members, idiomatic binding.
 
+**A member does not decide appearance unless the render computes with it.** Size, emphasis,
+editorial colour, width, padding, elevation and alignment arrive through a vocabulary class,
+which [`../AGENTS.md`](../AGENTS.md) places in the model. A member that mixes a meaning with a look
+keeps the meaning and leaves the look to the Tailwind layer. **A member carrying a meaning is named
+for the meaning and not for the look**: `destructive` says a destructive action,
+`colorId` says which entity, `numeric` says a figure and `kind` says whether an avatar stands for a
+person or a team, so a layer renders each as a `data-arena-<member>` attribute and a plugin decides
+what it looks like.
+
+**A design member is detected by its shape, and no list names one.** An enum whose value is the
+suffix of a family option is appearance: a value `sm` where `arena-size-sm` is an option fails
+`check:contracts-neutrality`, in a component's members and in the fields of a type alike, and the
+fix is the class the option already is. The gate reads the options from the families themselves,
+so a family added tomorrow catches a member declared yesterday. **`COMPUTED` is the one way out.**
+A design decision the render computes with (a chart's height, a calendar's view, a menu's
+alignment, which the panel is positioned from) stays a member, recorded in `COMPUTED` in
+`scripts/check/arena/check-contracts-neutrality.ts` with the function that reads it, and the gate
+opens that file and fails an entry whose function body does not read the member. A string member
+that takes a CSS length, or is named for a geometry axis a family ships, fails the same way unless
+`COMPUTED` records it or `NOT_GEOMETRY` records why its name is not appearance. **`ArenaTextarea.rows` is a member
+by that ruling**: it is a number of lines, which the native control lays its initial height out
+from, and not a length an adopter could write as a class. **A member that names a thing the adopter
+styles is a key and not a value**: `ArenaTableColumn.key` names a column, and its width and
+alignment are the properties `--arena-column-<key>-width` and `--arena-column-<key>-align`, so the
+contract carries no width or alignment member for a column. **React's `className` is the one member
+no contract names**, typed with the component's generated vocabulary class, and `check:api` holds
+it to that type.
+
 ### A member a platform cannot express at all
 
 "Idiomatic binding" answers a platform that spells a member differently. It does not answer one
@@ -87,22 +115,6 @@ affordances centralised in `AnchorActivation` are about an address bar and brows
 picker where the web borrows one. The genuinely unexpressible set is the form-association members
 on the two buttons, `type`, `form`, `name`, `value` and `autoFocus`, which exist because an HTML
 form submits itself and nothing native does.
-
-### Five members take a CSS length, and R4 says they may not
-
-`MemberForms.md` rule **R4** forbids a platform type in a contract. Five members break it in a way
-the rule did not anticipate, because the type they declare is `string`: `ArenaBoard.minColumn`,
-`ArenaDialog.width`, `ArenaFigure.ratio`, `ArenaGrid.min` and `ArenaScroller.itemWidth` each take a
-CSS length or a CSS ratio, and each defaults to one, `var(--grid-min)` and
-`calc(var(--sp-1) * 120)` among them. A `string` that must be CSS is a platform type wearing a
-neutral name, and it reaches a target with no CSS as a default it cannot express.
-
-They are not reshaped here, because reshaping them is a member change in both layers and every
-call site, and it is a decision about geometry rather than about contracts. What holds them
-meanwhile is `CSS_VALUED` in `scripts/check/arena/check-contracts-neutrality.ts`: the five are
-named there with what each measures, a sixth fails that gate, and an entry whose value has stopped
-being CSS fails it too. **This paragraph and that map die together**, which is the point of writing
-the debt where something asserts it rather than only here.
 
 ### An imperative handle is not a member, and the gate is what keeps it rare
 
@@ -205,10 +217,8 @@ import from that component**, no more and no less. A type a component's own file
 names and exports (`ArenaStatCard`'s `ArenaStatDelta`, `ArenaBreadcrumbs`'s `ArenaCrumb`) keeps a
 consumer's `import type { ArenaStatDelta } from '.../ArenaStatCard'` resolving only while the
 file re-exports it, so it does (`export type { ArenaStatDelta };`). A type spelled inline
-as a literal union at its use site (`ArenaAppLogo`'s `size?: 'sm' | 'md' | 'lg' | 'xl'`,
-`ArenaStatCard`'s `tone?: 'neutral' | 'accent' | …'`) offers a consumer no name to import,
-so nothing is re-exported for it, and `ArenaLogoSize` and `ArenaTone` stay un-re-exported for
-exactly that reason. This is a compatibility rule rather than a design principle: it
+as a literal union at its use site (`ArenaTableCell`'s injected `layout: 'table' | 'card'`)
+offers a consumer no name to import, so nothing is re-exported for it. This is a compatibility rule rather than a design principle: it
 exists only so a consumer's import keeps resolving, and it is mechanical, since what a
 file re-exports is decided by what it names. Angular has no equivalent question,
 because a component's own file imports straight from `../../api.generated` and
@@ -253,7 +263,7 @@ is (1) a primitive type name, `"string"`, `"number"` or `"boolean"`; (2) the for
 **enum** `contracts/api/types/` declares. Anything else is reported: a name `contracts/api/types/` does not
 declare at all, and an object name used where the fourth arm does not apply. The four exist
 because `classify()` produces all four from a real signature. It reduces
-`(v: string) => void`, `(v: ArenaCrumb) => void` and `(v: ArenaLogoSize) => void` alike, so a contract
+`(v: string) => void`, `(v: ArenaCrumb) => void` and `(v: ArenaCalendarView) => void` alike, so a contract
 stating only some of them would be a gap between what the reader reads and what the
 contract can say, rather than a rule the contract enforces.
 

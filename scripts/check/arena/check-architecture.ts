@@ -24,7 +24,7 @@ export const ENVELOPES: Envelope[] = [
   {
     layer: 'react',
     source: ['ts', 'tsx'],
-    allowed: ['react', 'react-dom', 'tailwind-merge', 'tailwind-variants'],
+    allowed: ['react', 'react-dom', 'tailwind-merge'],
     why:
       'the whole of what this layer may reach outside itself, and the reason a consumer may put it '
       + 'in a single-page application, a server-rendered one, a static build or a fragment inside '

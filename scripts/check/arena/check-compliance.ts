@@ -1,7 +1,6 @@
 /* The coverage record for the behaviour render suites. COVERED is keyed
  * <component>:<layer>, and the layer is decided structurally from the SUITE_DIRS
- * tree a suite was found under, never from its text. No pattern is excluded: `grid`
- * components were, on a memory measurement that no longer holds. */
+ * tree a suite was found under, never from its text. No pattern is excluded. */
 
 import { readFileSync, existsSync } from 'node:fs';
 import { join, basename } from 'node:path';

@@ -2,16 +2,16 @@ import React, { useId } from 'react';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaSheet.classes.generated.ts';
 
-import type { ArenaSheetPlacement } from '../../../Api.generated';
 import { useArenaLocale } from '../../../ArenaLocale.ts';
+import type { ArenaSheetClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export interface ArenaSheetProps {
+  className?: ArenaSheetClass;
+
 
   /** Whether the panel is on the page at all. The host owns it, the same way it owns a dialog's. Closed renders nothing, which is what distinguishes it from collapsed. */
   open: boolean;
-
-  /** The edge the panel is anchored to. It spans that edge and stands off the device's own inset there, so a bottom sheet on a phone clears the home indicator. */
-  placement?: ArenaSheetPlacement;
 
   /** Names the panel for assistive technology and heads it visually. It is also the accessible name of the fold control, so a reader hears which panel is being folded rather than the word Toggle. Required and **guarded at runtime** rather than defaulted: what this panel is showing is editorial, and a constant fallback would satisfy the pattern mechanically while telling a screen-reader user nothing. */
   title: string;
@@ -22,7 +22,7 @@ export interface ArenaSheetProps {
   /** The fold control was pressed, carrying the state it moved to. Arena never folds the panel by itself, so a host that ignores this gets a control that reports and a body that does not move. */
   onCollapsedChange?: (collapsed: boolean) => void;
 
-  /** Whether the close control is shown. Every layer gates it on this member and never on whether anything listens for `close`, because Arena never derives what it draws from what a consumer listens for. */
+  /** Whether the close control is shown. Every layer gates it on this member and never on whether anything listens for `onClose`, because Arena never derives what it draws from what a consumer listens for. */
   dismissible?: boolean;
 
   /** The panel was dismissed, by the close control or by Escape. No payload. Escape reports here rather than adding a member of its own, and it is the only key the panel takes: a non-modal panel leaves every other key to the page behind it. */
@@ -37,8 +37,8 @@ export interface ArenaSheetProps {
 
 const arenaSheetStyles = arenaStyles(manifest);
 
-export function ArenaSheet({
-  open, placement = 'bottom', title, collapsed = false, onCollapsedChange,
+export function ArenaSheet({ className, 
+  open, title, collapsed = false, onCollapsedChange,
   dismissible = false, onClose, children, footer,
 }: ArenaSheetProps) {
   const locale = useArenaLocale();
@@ -58,26 +58,26 @@ export function ArenaSheet({
   };
 
   if (!open) return null;
-  const styles = arenaSheetStyles({ placement, open: true });
+  const styles = arenaSheetStyles({ open: true });
   return (
-    <div onKeyDown={onKeyDown} className={styles.root()} data-arena-part={manifest.parts.root}>
-      <div className={styles.head()} data-arena-part={manifest.parts.head}>
+    <div onKeyDown={onKeyDown} className={arenaClassName('ArenaSheet', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()} data-arena-surface="floating">
+      <div className={styles.head()} data-arena-part={manifest.parts.head} {...styles.$data.head()}>
         <button type="button" id={triggerId} aria-expanded={!collapsed} aria-controls={bodyId}
-          onClick={() => onCollapsedChange?.(!collapsed)} className={styles.trigger()} data-arena-part={manifest.parts.trigger}>
+          onClick={() => onCollapsedChange?.(!collapsed)} className={styles.trigger()} data-arena-part={manifest.parts.trigger} {...styles.$data.trigger()}>
           <span>{title}</span>
-          <i className={`${collapsed ? 'ph-bold ph-caret-up' : 'ph-bold ph-caret-down'} ${styles.caret()}`} data-arena-part={manifest.parts.caret}
+          <i className={`${collapsed ? 'ph-bold ph-caret-up' : 'ph-bold ph-caret-down'} ${styles.caret()}`} data-arena-part={manifest.parts.caret} {...styles.$data.caret()}
             aria-hidden="true" />
         </button>
         {dismissible && (
-          <button type="button" onClick={onClose} aria-label={locale.sheetClose} className={styles.close()} data-arena-part={manifest.parts.close}>
+          <button type="button" onClick={onClose} aria-label={locale.sheetClose} className={styles.close()} data-arena-part={manifest.parts.close} {...styles.$data.close()}>
             <i className="ph-bold ph-x" aria-hidden="true" />
           </button>
         )}
       </div>
-      <div id={bodyId} role="group" aria-labelledby={triggerId} hidden={collapsed} className={styles.body()} data-arena-part={manifest.parts.body}>
+      <div id={bodyId} role="group" aria-labelledby={triggerId} hidden={collapsed} className={styles.body()} data-arena-part={manifest.parts.body} {...styles.$data.body()} data-arena-boundary="">
         {children}
       </div>
-      {footer && <div className={styles.foot()} data-arena-part={manifest.parts.foot}>{footer}</div>}
+      {footer && <div className={styles.foot()} data-arena-part={manifest.parts.foot} {...styles.$data.foot()} data-arena-boundary="">{footer}</div>}
     </div>
   );
 }

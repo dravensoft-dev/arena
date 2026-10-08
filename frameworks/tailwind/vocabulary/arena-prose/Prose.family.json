@@ -1,0 +1,9 @@
+{
+  "family": "prose",
+  "reach": "box",
+  "target": "markup",
+  "description": "The reading column for a document you write, an article, a changelog, a release note. The class holds the line to a measure in ch rather than a pixel width, so the column tracks the font size the way a measure has to. The measure is a maximum and not a width, so a narrow viewport keeps the whole column. The measure is a role, so a style plugin written for reading re-answers it.",
+  "variants": {
+    "arena-prose": "[max-width:var(--measure-prose)]"
+  }
+}

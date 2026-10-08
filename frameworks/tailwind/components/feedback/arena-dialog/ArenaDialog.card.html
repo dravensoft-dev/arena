@@ -3,6 +3,7 @@
 <link rel="stylesheet" href="../../../../../intro/styles.css">
 <link rel="stylesheet" href="../../../consume/Preflight.generated.css">
 <link rel="stylesheet" href="../../../consume/components/feedback/arena-dialog/ArenaDialog.styles.generated.css">
+<link rel="stylesheet" href="../../../consume/vocabulary/DialogWidth.generated.css">
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
@@ -14,10 +15,10 @@ const c = arenaClassesFor(manifest);
 /* The panel is shown outside its `fixed` scrim, which a specimen cannot render
    twice on one page. The scrim's own look is checked on the ArenaConfirmDialog and
    ArenaCommandPalette specimens, which show it in place. */
-function dialog({ eyebrow, title, body, actions }) {
+function dialog({ eyebrow, title, body, actions, width = '' }) {
   const foot = el('div', { class: c.foot });
   for (const action of actions) foot.append(el('span', { class: 'font-body text-ctl text-base-content/82', text: `[ ${action} ]` }));
-  return el('div', { class: c.panel },
+  return el('div', { class: `${c.panel} ${width}` },
     el('div', { class: c.head }, el('div', { class: c.eyebrow, text: eyebrow }), el('div', { class: c.title, text: title })),
     el('div', { class: c.body, text: body }),
     foot);
@@ -28,6 +29,11 @@ mountSpecimen({ sections: [
     eyebrow: 'Deployment', title: 'Promote build 482 to production?',
     body: 'The current production build stays available for rollback for seven days.',
     actions: ['Cancel', 'Promote'],
+  })], { stack: true }),
+  section('arena-dialog-width-sm', [dialog({
+    eyebrow: 'Session', title: 'Sign out of this device?',
+    body: 'You stay signed in on your other devices.',
+    actions: ['Cancel', 'Sign out'], width: 'arena-dialog-width-sm',
   })], { stack: true }),
   section('Content only', [dialog({
     eyebrow: 'Changelog', title: "What's new in 4.1",

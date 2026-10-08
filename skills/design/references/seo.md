@@ -14,7 +14,7 @@ until it is told to, because no is so often the true answer. A catalogue, a land
 page, a public listing and a documentation site are a yes, and a yes has consequences before the
 first component.
 
-## Arena writes the head in one layer, and the router is why
+## Which layer writes the head, and why is it a separate entry point?
 
 `@dravensoft/arena-angular/metadata` is a second entry point of the Angular package, apart from the
 one every component comes from. The entry point is apart because reaching it means reaching `@angular/router`. The router is
@@ -49,9 +49,63 @@ canonical and the `og:url` beside it both appear.
 means and gains the suffix and the description beside it, so nothing already written gets rewritten
 to suit Arena.
 
-The exports carrying all three, with what each one takes, are on your package's own page:
-[`../../../frameworks/angular/PACKAGE.md`](../../../frameworks/angular/PACKAGE.md), under the
-heading about the `<head>`. Open it when the answer is yes.
+The exports that carry all three are in the next section. Open it when the answer is yes.
+
+## What does the Angular head entry point export?
+
+The head is the one surface the Angular package does not ship from its root: `provideArenaMetadata()` and what goes with it come from `@dravensoft/arena-angular/metadata`.
+
+```ts
+import { provideArenaMetadata, arenaRouteMeta } from '@dravensoft/arena-angular/metadata';
+
+bootstrapApplication(App, {
+  providers: [
+    provideRouter(routes),
+    provideArenaMetadata({ suffix: 'Andina', origin: 'https://andina.example', siteName: 'Andina' }),
+  ],
+});
+
+export const routes: Routes = [
+  { path: 'orders', title: 'Orders', component: Orders,
+    data: arenaRouteMeta({ description: 'Every order in the system.', robots: 'index,follow' }) },
+  { path: 'cash', title: 'Cash', component: Cash },
+];
+```
+
+The writer composes on Angular's own `title:` through the `TitleStrategy` that Angular defines for this. `title: 'Orders'` keeps its meaning and gains a suffix, a description and a canonical. These Open Graph tags join them: `og:type` (`website` unless the page sets a type), `og:title`, `og:description`, `og:url`, `og:image` and `og:site_name`. A tag whose value is missing or empty is removed from the head.
+
+`robots` defaults to `noindex`. The `cash` route above is private without anybody remembering to make it so. The `orders` route is public because it said so. That key on `provideArenaMetadata` moves the default for the whole application, and a route still outranks it.
+
+Without `origin` there is no canonical and no `og:url`, on purpose. An origin read off `window.location` differs between a server render and the client that hydrates it. A project that wants a canonical says where it lives. The fragment is dropped from it. A route whose canonical is not the url it was reached by says so with `canonical`.
+
+The missing origin is reported once, with a `console.warn`, and only on an indexable route. A `noindex` route stays quiet without an origin. A `noindex` route with an `origin` still publishes the canonical and `og:url`.
+
+| export | what it is |
+| --- | --- |
+| `provideArenaMetadata(config?)` | the provider, returning `EnvironmentProviders` because a `TitleStrategy` is the application's and not one component's. Takes `suffix`, `separator`, `origin`, `robots`, `description`, `image` and `siteName`, each a default a route can outrank |
+| `arenaRouteMeta(meta)` | a route's own `description`, `robots`, `image`, `type` and `canonical`, under one key of the `data` that is yours. Typed, because `Route.data` is not: written flat, a misspelled `descripton` is a metadatum that never appears and nothing that fails. A deeper route wins a key and keeps what it did not name, so a layout route sets what its section shares |
+| `ArenaMetadataService` | the writer itself, one method, `apply(page)`. Call it for a page whose metadata is not a fact about the route: a detail screen described by the record it just loaded |
+| `ArenaTitleStrategy` | the strategy the provider installs, exported so one of your own extends it rather than replaces it |
+
+## How does a React project write the head?
+
+Arena ships no head writer for React, so the project uses its framework's own mechanism. The package accepts React 18 and 19, which differ here. React 19 hoists a `<title>`, a `<meta>` and a `<link>` rendered anywhere in the tree into the document head.
+
+```tsx
+export function Orders() {
+  return (
+    <>
+      <title>Orders · Andina</title>
+      <meta name="description" content="Every order in the system." />
+      <meta name="robots" content="index,follow" />
+      <link rel="canonical" href="https://andina.example/orders" />
+      <h1>Orders</h1>
+    </>
+  );
+}
+```
+
+A project on React 18 uses the head API of its framework instead. The values to decide are the same: a private default, a canonical built from an origin you supply, and a title that composes.
 
 ## What both layers publish
 
@@ -64,8 +118,19 @@ The component's own prompt is where that member is documented.
 binds it when the markup describes a structure worth handing to a reader rather than only to a
 person. The file asks for a script of type `application/ld+json` next to the markup, and the same
 structure in `schema.org` terms. The file also asks for `<` escaped in the serialisation, so no value
-you supply can close the tag. That file is the one pattern in `contracts/behaviour/` that is not an accessibility
+you supply can close the tag. `arenaEscapeJsonLd(json)`, exported from the root of both packages, is that escape:
+serialise with `JSON.stringify` and write what it returns into the script. React writes it through `dangerouslySetInnerHTML`; an Angular template drops a `<script>`, so a component creates the element through `DOCUMENT` and sets its `textContent`. That file is the one pattern in `contracts/behaviour/` that is not an accessibility
 requirement.
+
+```tsx
+import { arenaEscapeJsonLd } from '@dravensoft/arena-react';
+
+const data = { '@context': 'https://schema.org', '@type': 'Organization', name: 'Andina', url: 'https://andina.example' };
+
+<script type="application/ld+json" dangerouslySetInnerHTML={{ __html: arenaEscapeJsonLd(JSON.stringify(data)) }} />
+```
+
+A trail of your own that does not use `ArenaBreadcrumbs` takes `arenaBreadcrumbList(items, origin?)`, exported from the root of both packages. The call returns the `BreadcrumbList` already escaped, so the string goes into the same script as written.
 
 ## What Arena does not decide
 

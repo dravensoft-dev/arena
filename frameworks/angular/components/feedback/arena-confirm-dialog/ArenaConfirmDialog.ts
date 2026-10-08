@@ -20,6 +20,7 @@ import { type FocusTrapState, arenaHandleOpenTransition, arenaTrapTabKey } from 
 import { ArenaIdGenerator } from '../../../ArenaIds';
 import { ARENA_LOCALE } from '../../../ArenaLocale';
 import { arenaPhrase } from '../../../Phrase';
+import { ArenaSlotAttributes } from '../../../SlotData';
 
 export function isArenaConfirmLocked(required: string | undefined, typed: string): boolean {
   return required !== undefined && required !== '' && typed.trim() !== required;
@@ -31,31 +32,33 @@ export function isArenaConfirmLocked(required: string | undefined, typed: string
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'styles().root()',
+    '[attr.data-arena-surface]': "'floating'",
+    '[attr.data-arena-open]': "styles().$data.root()['data-arena-open'] ?? null",
     '[attr.data-arena-part]': 'open() ? parts.root : null',
     '(keydown)': 'onKeydown($event)',
     '[attr.title]': 'null',
   },
-  imports: [ArenaButton],
+  imports: [ArenaSlotAttributes, ArenaButton],
   template: `
     @if (open()) {
       <div #panel [class]="styles().panel()" [attr.data-arena-part]="parts.panel" role="alertdialog" aria-modal="true" tabindex="-1"
            [attr.aria-labelledby]="titleId" [attr.aria-describedby]="descId">
         <div [class]="styles().head()" [attr.data-arena-part]="parts.head">
-          <div [class]="styles().eyebrow()" [attr.data-arena-part]="parts.eyebrow">{{ kicker() }}</div>
+          <div [class]="styles().eyebrow()" [arenaSlotData]="styles().$data.eyebrow()" [attr.data-arena-part]="parts.eyebrow">{{ kicker() }}</div>
           <div [id]="titleId" [class]="styles().title()" [attr.data-arena-part]="parts.title">{{ title() }}</div>
         </div>
-        <div [id]="descId" [class]="styles().body()" [attr.data-arena-part]="parts.body">
+        <div [id]="descId" [class]="styles().body()" [attr.data-arena-part]="parts.body" data-arena-boundary>
           <ng-content />
           @if (requireText(); as required) {
             <div [class]="styles().requireBlock()" [attr.data-arena-part]="parts.requireBlock">
               <div [class]="styles().requireLabel()" [attr.data-arena-part]="parts.requireLabel">{{ requirePrompt(required) }}</div>
-              <input [class]="styles().input()" [attr.data-arena-part]="parts.input" [value]="typed()" (input)="onType($event)" />
+              <input [class]="styles().input()" [arenaSlotData]="styles().$data.input()" [attr.data-arena-part]="parts.input" [value]="typed()" (input)="onType($event)" />
             </div>
           }
         </div>
         <div [class]="styles().foot()" [attr.data-arena-part]="parts.foot">
-          <arena-button variant="ghost" (click)="cancel.emit()">{{ cancelText() }}</arena-button>
-          <button type="button" [class]="styles().confirm()" [attr.data-arena-part]="parts.confirm" [disabled]="locked()" (click)="confirm.emit()">{{ confirmText() }}</button>
+          <arena-button class="arena-emphasis-ghost" (click)="cancel.emit()">{{ cancelText() }}</arena-button>
+          <button type="button" [class]="styles().confirm()" [arenaSlotData]="styles().$data.confirm()" [attr.data-arena-part]="parts.confirm" [disabled]="locked()" (click)="confirm.emit()">{{ confirmText() }}</button>
         </div>
       </div>
     }

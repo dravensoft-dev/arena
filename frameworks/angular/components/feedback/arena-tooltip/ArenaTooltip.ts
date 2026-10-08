@@ -12,6 +12,7 @@ import { arenaTooltipStyles } from './ArenaTooltip.variants';
 import manifest from './ArenaTooltip.classes.generated';
 import { ArenaIdGenerator } from '../../../ArenaIds';
 import { arenaAccessibleText, arenaTooltipRedundant } from './TooltipName';
+import { ArenaSlotAttributes } from '../../../SlotData';
 
 export const ARENA_TOOLTIP_POSITIONS: ConnectedPosition[] = [
   { originX: 'center', originY: 'top', overlayX: 'center', overlayY: 'bottom', offsetY: -sp2 },
@@ -31,9 +32,11 @@ export function arenaStripDescribedBy(current: string | null, bubbleId: string):
 @Component({
   selector: 'arena-tooltip',
   standalone: true,
+  imports: [ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'styles().root()',
+    '[attr.data-arena-anchored]': "styles().$data.root()['data-arena-anchored'] ?? null",
     '[attr.data-arena-part]': 'parts.root',
     '(pointerenter)': 'scheduleOpen()',
     '(pointerleave)': 'scheduleClose()',
@@ -43,7 +46,7 @@ export function arenaStripDescribedBy(current: string | null, bubbleId: string):
   template: `
     <ng-content />
     <ng-template #bubble>
-      <span [class]="styles().bubble()" [attr.data-arena-part]="parts.bubble" role="tooltip" [id]="bubbleId">@if (quiet()) {<span aria-hidden="true">{{ label() }}</span>} @else {{{ label() }}}</span>
+      <span [class]="styles().bubble()" [attr.data-arena-surface]="'floating'" [arenaSlotData]="styles().$data.bubble()" [attr.data-arena-part]="parts.bubble" role="tooltip" [id]="bubbleId">@if (quiet()) {<span aria-hidden="true">{{ label() }}</span>} @else {{{ label() }}}</span>
     </ng-template>
   `,
 })

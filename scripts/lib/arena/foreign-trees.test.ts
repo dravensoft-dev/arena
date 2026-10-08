@@ -22,7 +22,7 @@ import { SKIPPED_DIRECTORIES as GRAPH_SKIPS } from '../../graph/inputs.ts';
 export const OWNER = 'scripts/lib/arena/foreign-trees.ts';
 
 export const SPELLED_ELSEWHERE = new Map([
-  ['scripts/generate/core/arena-to-prod/arena-to-prod.ts',
+  ['scripts/generate/core/arena-cli/sources.ts',
    'ships inside both npm packages as a Node program reading its own siblings and node: modules, '
    + 'and walks a consumer\'s project rather than this one'],
   ['scripts/lib/arena/package-exclusions.ts',
@@ -59,9 +59,9 @@ export function spellingProblems(read: (rel: string) => string, paths: string[])
 }
 
 test('every foreign tree carries the reason a walk skips it', () => {
-  assert.deepEqual([...FOREIGN_TREES.keys()], ['node_modules', '.git', '.claude']);
+  assert.deepEqual([...FOREIGN_TREES.keys()], ['node_modules', '.git', '.claude', '.superpowers']);
   for (const [name, reason] of FOREIGN_TREES) assert.ok(reason.length > 40, `${name} says why`);
-  assert.deepEqual([...withForeignTrees('dist')], ['node_modules', '.git', '.claude', 'dist']);
+  assert.deepEqual([...withForeignTrees('dist')], ['node_modules', '.git', '.claude', '.superpowers', 'dist']);
 });
 
 test('no script under scripts/ spells a foreign tree as a skip of its own', () => {
@@ -75,14 +75,14 @@ test('a planted spelling is found in both shapes, and an exemption that stopped 
     'scripts/check/a.ts': "const SKIP = new Set(['dist', '.claude']);",
     'scripts/check/b.ts': "walkFiles(root, { skip: (name) => name === 'node_modules' });",
     'scripts/check/c.ts': "join(root, 'node_modules', 'pkg');",
-    'scripts/generate/core/arena-to-prod/arena-to-prod.ts': 'export {};',
+    'scripts/generate/core/arena-cli/sources.ts': 'export {};',
     'scripts/lib/arena/package-exclusions.ts': "new Set(['node_modules'])",
   };
   const problems = spellingProblems((rel) => files[rel] ?? '', Object.keys(files));
   assert.deepEqual(problems.map((p) => p.split(' ')[0]), [
     'scripts/check/a.ts', 'scripts/check/b.ts', 'SPELLED_ELSEWHERE',
   ]);
-  assert.match(problems[2] ?? '', /arena-to-prod\.ts, which spells no foreign tree any more/);
+  assert.match(problems[2] ?? '', /sources\.ts, which spells no foreign tree any more/);
 });
 
 test('every walk rooted at the repository skips every foreign tree', () => {

@@ -15,18 +15,30 @@ One row of an `ArenaTable`. Write one per row, with one `ArenaTableCell` inside 
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
 | `children` | slot |  |  | The row's cells. One ArenaTableCell per cell; a row may carry fewer or more than there are columns, and the grid's cursor is clamped against what is really there. |
-| `interactive` | primitive | `boolean` | `false` | Whether the row can be activated. A boolean rather than "is `click` bound?": Arena never derives what it draws from what a consumer listens for, because an outbound member's subscriber list is private in at least one platform and a consumer's binding leaves nothing in the DOM to detect, so deriving the interactive shape from it is a divergence waiting to happen, and it was one. Below --bp-md the row is a card, and an interactive card is a role="button" tab stop with an Enter/Space handler; a non-interactive one is inert, because a dead tab stop on every row of every table is worse than the gap it would close. |
-| `disabled` | primitive | `boolean` | `false` | Whether the row is drawn but cannot be activated: a record the consumer's rules lock. It reflects through `aria-disabled` rather than the native attribute, and the card shape stays a role="button" in the tab order rather than leaving it, because a disabled control nobody can reach is a control nobody knows exists. With no `click` there is nothing to disable and the row is inert already. |
+| `interactive` | primitive | `boolean` | `false` | Whether the row can be activated. A boolean rather than "is `onClick` bound?": Arena never derives what it draws from what a consumer listens for, because an outbound member's subscriber list is private in at least one platform and a consumer's binding leaves nothing in the DOM to detect, so deriving the interactive shape from it makes the layers diverge on screen. Below --bp-md the row is a card, and an interactive card is a role="button" tab stop with an Enter/Space handler; a non-interactive one is inert, because a dead tab stop on every row of every table is worse than the gap it would close. |
+| `disabled` | primitive | `boolean` | `false` | Whether the row is drawn but cannot be activated: a record the consumer's rules lock. It reflects through `aria-disabled` rather than the native attribute, and the card shape stays a role="button" in the tab order rather than leaving it, because a disabled control nobody can reach is a control nobody knows exists. With no `onClick` there is nothing to disable and the row is inert already. |
 | `onClick` | event |  |  | The row was activated, by pointer or by Enter on one of its cells. No payload, because the consumer wrote this element and already holds the row this is about. |
 
 <!-- @api end -->
+
+<!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
+
+**Answers.** No family of the [vocabulary](../../../../VOCABULARY.md) decides anything in this component's own box.
+
+<!-- @answers end -->
+
+<!-- @keys GENERATED from the binding. -->
+**Keys**, from [`button`](../../../../../contracts/behaviour/button.json):
+- `Space`: activate.
+- `Enter`: activate.
+<!-- @keys end -->
 
 **Do / Don't**
 - Put `key` on the row. The key is React's own reconciliation rather than an Arena member. `ArenaTable` has no `getRowKey`.
 - `onClick` takes no argument. You wrote this element inside your own `.map()`, so you already hold the row it is about; a payload would hand you back what you just had.
 - Cells are **positional**: the nth `ArenaTableCell` reads the nth entry of `ArenaTable`'s `columns`. Keep them in the same order.
 - Don't write a bare `<td>` or a `<div>` as a child. `ArenaTableRow` injects a cell's column, layout and keyboard props into each child, and only `ArenaTableCell` knows what to do with them.
-- Don't reach for the row to style a cell: alignment, width and the mono/gold treatment are the **column's**, so they stay the same all the way down.
+- Don't reach for the row to style a cell: alignment, width and the mono/gold treatment are the **column's**. A column's `key` names `--arena-column-<key>-width` and `--arena-column-<key>-align`, so they stay the same all the way down.
 - **Pass `interactive` alongside `onClick`, or the row is inert.** The flag is what makes the card shape a `role="button"` tab stop with an Enter and Space handler. Without it the row draws and activates nothing. The flag is a member rather than "is `onClick` bound?", because no render follows from whether a listener is bound. Derived that way, a clickable card row renders pointer-only in a layer that cannot ask the question, and nothing says so.
 - Wire it only when the whole row means something to activate. A row with one actionable thing in it wants an `ArenaButton` in a cell instead. A table whose rows are all `interactive` puts a tab stop on every one of them.
 - **A control inside a cell keeps its own activation.** A selection checkbox in the first column and a row action in the last are the canonical table. An activation that starts on a link, a button, a field or anything carrying an interactive role does not reach the row. The checkbox ticks and the reader stays where they are, and the action fires once rather than twice. Only a press that lands on the row itself activates it.
@@ -37,6 +49,6 @@ One row of an `ArenaTable`. Write one per row, with one `ArenaTableCell` inside 
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
+**The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

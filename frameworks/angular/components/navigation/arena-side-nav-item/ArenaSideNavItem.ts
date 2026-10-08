@@ -2,17 +2,18 @@ import {
   ChangeDetectionStrategy, Component, booleanAttribute, computed, effect, inject, input,
 } from '@angular/core';
 import { isArenaPrimaryActivation } from '../../../AnchorActivation';
-import { ArenaSideNavState, arenaIndentFor } from '../arena-side-nav/ArenaSideNavState';
+import { ArenaSideNavState, arenaIndentDepth } from '../arena-side-nav/ArenaSideNavState';
 import { arenaActiveWeight, arenaBadgeCount } from '../../../NavRow';
 import { arenaSideNavStyles } from '../arena-side-nav/ArenaSideNav.variants';
 import manifest from '../arena-side-nav/ArenaSideNav.classes.generated';
 import { NgTemplateOutlet } from '@angular/common';
 import { ArenaTooltip } from '../../feedback/arena-tooltip/ArenaTooltip';
+import { ArenaSlotAttributes } from '../../../SlotData';
 
 @Component({
   selector: 'arena-side-nav-item',
   standalone: true,
-  imports: [NgTemplateOutlet, ArenaTooltip],
+  imports: [ArenaSlotAttributes, NgTemplateOutlet, ArenaTooltip],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     style: 'display: contents',
@@ -21,38 +22,38 @@ import { ArenaTooltip } from '../../feedback/arena-tooltip/ArenaTooltip';
   template: `
     <ng-template #row>
       @if (href(); as url) {
-        <a [class]="styles().item()" [attr.data-arena-part]="parts.item" [href]="url" [style.paddingInlineStart]="indent()"
+        <a [class]="styles().item()" [arenaSlotData]="styles().$data.item()" [attr.data-arena-part]="parts.item" [href]="url" [style.--arena-side-nav-depth]="depthChannel()"
            [attr.aria-current]="current()" [attr.aria-disabled]="off()"
            (click)="activateAnchor($event)">
           @if (glyphClass(); as glyph) {
             <i [class]="glyph" [attr.data-arena-part]="parts.icon" aria-hidden="true"></i>
           }
           @if (rail()) {
-            <span [class]="styles().itemLabel()" [attr.data-arena-part]="parts.itemLabel">{{ shownName() }}</span>
+            <span [class]="styles().itemLabel()" [arenaSlotData]="styles().$data.itemLabel()" [attr.data-arena-part]="parts.itemLabel">{{ shownName() }}</span>
           } @else {
             {{ name() }}
           }
           @if (tally(); as count) {
-            <span [class]="styles().badge()" [attr.data-arena-part]="parts.badge">{{ count }}</span>
+            <span [class]="styles().badge()" [arenaSlotData]="styles().$data.badge()" [attr.data-arena-part]="parts.badge">{{ count }}</span>
           }
           @if (dotted()) {
             <span aria-hidden="true" [class]="styles().dot()" [attr.data-arena-part]="parts.dot"></span>
           }
         </a>
       } @else {
-        <button type="button" [class]="styles().item()" [attr.data-arena-part]="parts.item" [style.paddingInlineStart]="indent()"
+        <button type="button" [class]="styles().item()" [arenaSlotData]="styles().$data.item()" [attr.data-arena-part]="parts.item" [style.--arena-side-nav-depth]="depthChannel()"
                 [attr.aria-current]="current()" [attr.aria-disabled]="off()"
                 (click)="activate($event)">
           @if (glyphClass(); as glyph) {
             <i [class]="glyph" [attr.data-arena-part]="parts.icon" aria-hidden="true"></i>
           }
           @if (rail()) {
-            <span [class]="styles().itemLabel()" [attr.data-arena-part]="parts.itemLabel">{{ shownName() }}</span>
+            <span [class]="styles().itemLabel()" [arenaSlotData]="styles().$data.itemLabel()" [attr.data-arena-part]="parts.itemLabel">{{ shownName() }}</span>
           } @else {
             {{ name() }}
           }
           @if (tally(); as count) {
-            <span [class]="styles().badge()" [attr.data-arena-part]="parts.badge">{{ count }}</span>
+            <span [class]="styles().badge()" [arenaSlotData]="styles().$data.badge()" [attr.data-arena-part]="parts.badge">{{ count }}</span>
           }
           @if (dotted()) {
             <span aria-hidden="true" [class]="styles().dot()" [attr.data-arena-part]="parts.dot"></span>
@@ -115,8 +116,8 @@ export class ArenaSideNavItem {
   });
 
   protected readonly current = computed(() => (this.on() ? 'page' : null));
-  protected readonly indent = computed(() => (this.rail() ? null : arenaIndentFor(this.nav.indentStep(), this.nav.depth())));
-  protected readonly styles = computed(() => arenaSideNavStyles({ active: this.on(), collapsed: this.rail() }));
+  protected readonly depthChannel = computed(() => (this.rail() ? null : arenaIndentDepth(this.nav.depth())));
+  protected readonly styles = computed(() => arenaSideNavStyles({ current: this.on(), collapsed: this.rail() }));
 
   protected readonly off = computed(() => (this.disabled() ? 'true' : null));
 

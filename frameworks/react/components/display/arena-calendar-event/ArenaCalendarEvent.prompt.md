@@ -21,13 +21,25 @@ One event on an `ArenaCalendar`'s schedule. The chip is a child of `ArenaCalenda
 | `end*` | primitive | `string` |  | ISO datetime the event ends. |
 | `colorId` | enum | `ArenaCatSlot` |  | Identity colour. Give the same entity the same slot everywhere and it keeps its colour across views. |
 | `details` | array | `readonly string[]` | `[]` | Lines drawn under the time label, one per entry, each truncated to a single line: the people involved, a room, a capacity. Arena decides how many fit, shedding the last first and then the time label, and every entry reaches what the chip announces whether it is drawn or shed. |
-| `interactive` | primitive | `boolean` | `false` | Whether the chip can be activated. A boolean rather than "is `click` bound?", because Arena never derives what it draws from what a consumer listens for, and the same member `ArenaTableRow.interactive` is for the same reason. An interactive chip is a <button> a keyboard user reaches with Enter from the hour cell it overlaps; a non-interactive one draws the same chip with no role and no activation, so a read-only schedule announces events rather than a screenful of buttons that do nothing. |
+| `interactive` | primitive | `boolean` | `false` | Whether the chip can be activated. A boolean rather than "is `onClick` bound?", because Arena never derives what it draws from what a consumer listens for, and the same member `ArenaTableRow.interactive` is for the same reason. An interactive chip is a <button> a keyboard user reaches with Enter from the hour cell it overlaps; a non-interactive one draws the same chip with no role and no activation, so a read-only schedule announces events rather than a screenful of buttons that do nothing. |
 | `actionsEnabled` | primitive | `boolean` | `false` | Whether the chip shows its action button. A boolean rather than "is the actions slot filled?": Arena never derives what it draws from what a consumer listens for, because projected content is not inspectable in at least one platform, so gating the drawing on it is a divergence waiting to happen. |
 | `actions` | slot |  |  | The action panel's content, revealed by the chip's action button. Rendered only while the panel is open, so a consumer's own controls never sit permanently in the grid's Tab sequence. |
 | `disabled` | primitive | `boolean` | `false` | Whether the chip is drawn but cannot be activated: an event a consumer's rules lock, such as one already past or owned by someone else. It reflects through `aria-disabled` rather than the native `disabled` attribute, so the chip keeps its place in the grid's roving Tab sequence and is announced as unavailable instead of disappearing from it. With `interactive` false there is nothing to activate and the chip is inert already. |
 | `onClick` | event |  |  | The chip was activated. No payload: the consumer wrote this element, so they already hold the event this is about. Never emitted while `disabled`. |
 
 <!-- @api end -->
+
+<!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
+
+**Answers.** No family of the [vocabulary](../../../../VOCABULARY.md) decides anything in this component's own box.
+
+<!-- @answers end -->
+
+<!-- @keys GENERATED from the binding. -->
+**Keys**, from [`button`](../../../../../contracts/behaviour/button.json):
+- `Space`: activate.
+- `Enter`: activate.
+<!-- @keys end -->
 
 `id`, `title`, `start` and `end` are all required and **throw** when absent. `start` and `end` are ISO datetimes, read in the calendar's `timeZone` and never the reader's.
 
@@ -47,8 +59,8 @@ What "into the chip" means depends on the shape. A chip with no action panel *is
 <ArenaCalendarEvent id={c.id} title={c.name} start={c.start} end={c.end} onClick={() => open(c)}
   actionsEnabled
   actions={<>
-    <ArenaButton size="sm" variant="ghost" icon="ph-bold ph-pencil">Edit</ArenaButton>
-    <ArenaButton size="sm" variant="ghost" icon="ph-bold ph-trash">Delete</ArenaButton>
+    <ArenaButton icon="ph-bold ph-pencil" className="arena-emphasis-ghost arena-size-sm">Edit</ArenaButton>
+    <ArenaButton icon="ph-bold ph-trash" className="arena-emphasis-ghost arena-size-sm">Delete</ArenaButton>
   </>} />
 ```
 
@@ -116,6 +128,6 @@ title.**
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
+**The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

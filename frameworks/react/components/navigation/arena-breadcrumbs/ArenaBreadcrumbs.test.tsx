@@ -87,9 +87,9 @@ test('only a crumb that leads somewhere takes the pointer and the hover', () => 
       { label: 'Root', href: '/a' }, { label: 'Grouping' }, { label: 'Here' },
     ]} />,
   );
-  assert.match(html, /<a href="\/a" class="[^"]*arena-breadcrumbs__crumb--linked-true/,
+  assert.match(html, /<a href="\/a"[^>]*data-arena-part="breadcrumbs.crumb"[^>]*\bdata-arena-linked=""/,
     'the affordances live on a variant rather than in the base slot');
-  assert.doesNotMatch(html, /<span[^>]*crumb--linked-true[^>]*>Grouping/,
+  assert.doesNotMatch(html, /<span[^>]*\bdata-arena-linked=""[^>]*>Grouping/,
     'a cursor that changes over something nothing happens on is the same lie the href="#" was');
 });
 

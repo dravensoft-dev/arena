@@ -24,13 +24,18 @@ import { type FocusTrapState, arenaHandleOpenTransition, arenaTrapTabKey } from 
 import { ArenaIdGenerator } from '../../../ArenaIds';
 import { arenaContainerWidth, arenaReadBreakpoint } from '../../../ContainerSize';
 import type { ArenaBreakpoint } from '../../../Api.generated';
+import { ArenaSlotAttributes } from '../../../SlotData';
 
 @Component({
   selector: 'arena-dialog',
   standalone: true,
+  imports: [ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'styles().scrim()',
+    '[attr.data-arena-surface]': "'floating'",
+    '[attr.data-arena-open]': "styles().$data.scrim()['data-arena-open'] ?? null",
+    '[attr.data-arena-fill]': "styles().$data.scrim()['data-arena-fill'] ?? null",
     '[attr.data-arena-part]': 'open() ? parts.scrim : null',
     '(click)': 'onScrimClick()',
     '(keydown)': 'onKeydown($event)',
@@ -38,18 +43,18 @@ import type { ArenaBreakpoint } from '../../../Api.generated';
   },
   template: `
     @if (open()) {
-      <div #panel [class]="styles().panel()" [attr.data-arena-part]="parts.panel" role="dialog" aria-modal="true" tabindex="-1"
-           [attr.aria-labelledby]="titleId" [style.width]="fill() ? null : width()"
+      <div #panel [class]="styles().panel()" [arenaSlotData]="styles().$data.panel()" [attr.data-arena-part]="parts.panel" role="dialog" aria-modal="true" tabindex="-1"
+           [attr.aria-labelledby]="titleId"
            (click)="$event.stopPropagation()">
-        <div [class]="styles().head()" [attr.data-arena-part]="parts.head">
+        <div [class]="styles().head()" [arenaSlotData]="styles().$data.head()" [attr.data-arena-part]="parts.head">
           @if (eyebrow(); as label) {
             <div [class]="styles().eyebrow()" [attr.data-arena-part]="parts.eyebrow">{{ label }}</div>
           }
           <div [id]="titleId" [class]="styles().title()" [attr.data-arena-part]="parts.title">{{ title() }}</div>
         </div>
-        <div [class]="styles().body()" [attr.data-arena-part]="parts.body"><ng-content /></div>
+        <div [class]="styles().body()" [arenaSlotData]="styles().$data.body()" [attr.data-arena-part]="parts.body" data-arena-boundary><ng-content /></div>
         @if (footer()) {
-          <div [class]="styles().foot()" [attr.data-arena-part]="parts.foot"><ng-content select="[footer]" /></div>
+          <div [class]="styles().foot()" [arenaSlotData]="styles().$data.foot()" [attr.data-arena-part]="parts.foot" data-arena-boundary><ng-content select="[footer]" /></div>
         }
       </div>
     }
@@ -65,9 +70,7 @@ export class ArenaDialog {
   readonly title = input.required<string>();
   /** A short kicker above the title. */
   readonly eyebrow = input<string>();
-  /** A CSS width for the panel. It defaults to 480px, which each layer reaches in its own idiom, and the input overrides whichever. */
-  readonly width = input<string>();
-  /** Below this breakpoint the panel fills the screen: full width and height, no radius and no shadow, the title bar pinned to the top and the footer to the bottom, the body scrolling between them, and every edge inset by the device's safe area. The measurement is the dialog's own box, which covers the viewport while open. Absent, the dialog never fills. The width member is ignored while filling. */
+  /** Below this breakpoint the panel fills the screen: full width and height, no radius and no shadow, the title bar pinned to the top and the footer to the bottom, the body scrolling between them, and every edge inset by the device's safe area. The measurement is the dialog's own box, which covers the viewport while open. Absent, the dialog never fills. The width is ignored while filling. */
   readonly fillBelow = input<ArenaBreakpoint>();
   /** The dialog was dismissed -- by Escape or by a scrim click. No payload. */
   readonly close = output<void>();
@@ -91,12 +94,17 @@ export class ArenaDialog {
 
   constructor() {
     effect(() => {
-      const value = this.width();
-      if (value === undefined || arenaIsCssWidth(value)) return;
+      const panel = this.panel()?.nativeElement;
+      if (!this.open() || this.fill() || !panel) return;
+      if (this.fillBelow() !== undefined && this.measured() === null) return;
+      const view = this.doc.defaultView;
+      if (!view) return;
+      const value = view.getComputedStyle(panel).getPropertyValue('--arena-dialog-width').trim();
+      if (value === '' || arenaIsCssWidth(value)) return;
       arenaWarnOnce(
-        `arena-dialog: width takes a CSS width and "${value}" is not one, so the browser drops the `
-        + 'declaration and the panel keeps its default. Pass a length, or the spacing scale '
-        + 'arithmetic the default itself uses: calc(var(--sp-1) * 160).',
+        `arena-dialog: --arena-dialog-width is "${value}", which is not a CSS width, so the browser `
+        + 'drops it and the panel keeps the width its class or its default gives it. Set a length, or a derivation '
+        + 'of tokens such as calc(var(--sp-1) * 160).',
       );
     });
     afterRenderEffect(() => {

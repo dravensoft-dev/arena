@@ -39,14 +39,14 @@ function stubResize(width: number): () => void {
   const globals = globalThis as { ResizeObserver?: unknown };
   const saved = globals.ResizeObserver;
   globals.ResizeObserver = class {
-    private readonly callback: (entries: Array<{ target: Element; contentRect: { width: number } }>) => void;
+    private readonly callback: (entries: Array<{ target: Element; borderBoxSize: Array<{ inlineSize: number; blockSize: number }>; contentRect: { width: number } }>) => void;
 
-    constructor(callback: (entries: Array<{ target: Element; contentRect: { width: number } }>) => void) {
+    constructor(callback: (entries: Array<{ target: Element; borderBoxSize: Array<{ inlineSize: number; blockSize: number }>; contentRect: { width: number } }>) => void) {
       this.callback = callback;
     }
 
     observe(target: Element): void {
-      this.callback([{ target, contentRect: { width } }]);
+      this.callback([{ target, borderBoxSize: [{ inlineSize: width, blockSize: 0 }], contentRect: { width } }]);
     }
 
     disconnect(): void {}
@@ -79,8 +79,7 @@ test('the narrow shape stacks and reorders NOTHING, so focus order still matches
   try {
     narrow = await render();
     const root = bar(narrow);
-    assert.match(root.className, /arena-bulk-action-bar__root--narrow-true/, 'the narrow shape must stack');
-    assert.match(root.className, /arena-bulk-action-bar__root--narrow-true/);
+    assert.equal(root.getAttribute('data-arena-narrow'), '', 'the narrow shape must stack');
 
     const stacked = labels(narrow);
     restore();
@@ -102,7 +101,7 @@ test('layout="inline" keeps the one row at every width', async () => {
   let fixture: ComponentFixture<BarHost> | null = null;
   try {
     fixture = await render({ layout: 'inline' });
-    assert.doesNotMatch(bar(fixture).className, /arena-bulk-action-bar__root--narrow-true/,
+    assert.equal(bar(fixture).hasAttribute('data-arena-narrow'), false,
       'inline is the opt-out for a bar in a place the consumer knows is wide');
   } finally {
     fixture?.destroy();
@@ -115,7 +114,7 @@ test('the wide shape is the single row it always was', async () => {
   let fixture: ComponentFixture<BarHost> | null = null;
   try {
     fixture = await render();
-    assert.doesNotMatch(bar(fixture).className, /arena-bulk-action-bar__root--narrow-true/);
+    assert.equal(bar(fixture).hasAttribute('data-arena-narrow'), false);
     assert.deepEqual(labels(fixture), ['Export', 'Archive', 'Delete', 'Clear']);
   } finally { fixture?.destroy(); }
 });

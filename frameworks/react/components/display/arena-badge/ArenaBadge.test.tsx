@@ -10,14 +10,14 @@ test('ArenaBadge renders its content slot', () => {
 
 test('ArenaBadge renders the tone it was given, not the neutral default', () => {
   const danger = renderToStaticMarkup(<ArenaBadge tone="danger">X</ArenaBadge>);
-  assert.match(danger, /\barena-badge__root--tone-danger\b/);
-  assert.doesNotMatch(danger, /\barena-badge__root--tone-neutral\b/);
-  assert.match(renderToStaticMarkup(<ArenaBadge tone="gold">X</ArenaBadge>), /\barena-badge__root--tone-gold\b/);
+  assert.match(danger, /data-arena-part="badge"[^>]*\bdata-arena-tone="danger"/);
+  assert.doesNotMatch(danger, /data-arena-part="badge"[^>]*\bdata-arena-tone="neutral"/);
+  assert.match(renderToStaticMarkup(<ArenaBadge className="arena-accent-gold">X</ArenaBadge>), /\bclass="[^"]*\barena-accent-gold\b[^"]*"[^>]*data-arena-part="badge"/);
 });
 
 test('an unknown tone falls back to neutral rather than drawing no tone at all', () => {
   // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-  assert.match(renderToStaticMarkup(<ArenaBadge tone="chartreuse">X</ArenaBadge>), /\barena-badge__root--tone-neutral\b/);
+  assert.match(renderToStaticMarkup(<ArenaBadge tone="chartreuse">X</ArenaBadge>), /data-arena-part="badge"[^>]*\bdata-arena-tone="neutral"/);
 });
 
 test('ArenaBadge draws the dot only when asked', () => {

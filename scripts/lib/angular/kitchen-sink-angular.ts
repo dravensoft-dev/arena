@@ -9,7 +9,7 @@
  * ships partially compiled, nothing here runs the linker, and a bundler that drops the bare
  * import as dead leaves the page throwing at bootstrap and rendering an empty document. */
 
-import { kitchenSinkPage, KS, bodyClass, READY_SIGNAL, entryFile } from '../arena/kitchen-sink-page.ts';
+import { kitchenSinkPage, KS, bodyClass, varsStyle, READY_SIGNAL, entryFile } from '../arena/kitchen-sink-page.ts';
 import { UP } from '../react/kitchen-sink-react.ts';
 import { renderNode, collectFields, markerNames, componentTags, PRIMITIVES, MARKERS_SOURCE } from './playground-angular.ts';
 import { placeOf } from '../arena/playground-model.ts';
@@ -50,7 +50,7 @@ export function angularSinkEntry(model: SinkModel, places: Places,
   const sections = model.sections.map((one) => {
     const tiles = one.items.map((item) => `        <div class="${KS.tile}">
           <span class="${KS.label}">${item.component}</span>
-          <div class="${bodyClass(item.staged)}">
+          <div class="${bodyClass(item.staged)}"${varsStyle(item.vars) ? ` style="${varsStyle(item.vars)}"` : ''}>
 ${renderNode(item.node, places, fields, markers, tags, 6, imports)}
           </div>
         </div>`).join('\n');

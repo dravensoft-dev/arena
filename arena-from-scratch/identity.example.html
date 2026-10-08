@@ -7,7 +7,7 @@
 
 <!-- The one sheet this page reads, and the only line in it you change by hand.
      Working inside the Arena repository, point it at ../intro/styles.css.
-     Working inside a project that already ran arena-to-prod, point it at that project's
+     Working inside a project that already ran arena build, point it at that project's
      arena.generated.css instead, and the page draws that project's own answers.
      Serve this over HTTP. Opened from file:// the sheet does not load and every swatch is blank. -->
 <link rel="stylesheet" href="../intro/styles.css">
@@ -171,7 +171,7 @@
   <tr><td>whether an edge is drawn</td><td>every <code>bw-*</code></td><td>Twice the hairline, everywhere. The border is part of the object rather than a separator, and a hairline disappears under the fill.</td></tr>
   <tr><td>how loud type is</td><td><code>fw-heading</code>, <code>fw-eyebrow</code>, <code>fw-control</code></td><td>Black for a heading and an eyebrow, bold for a control, and the display face on the control as well.</td></tr>
   <tr><td>whether small text shouts</td><td><code>tt-label</code>, <code>tt-eyebrow</code>, <code>track-label</code>, <code>track-eyebrow</code></td><td>Capitals, with the badge tracking on a label. A control's own text is a shout, which is coherent with everything else here.</td></tr>
-  <tr><td>whether depth is real</td><td><code>shadow-surface-floating</code>, <code>shadow-surface-deep</code>, <code>shadow-control-raised</code></td><td>A hard offset with no blur at all. Depth here is a solid edge under the object rather than a soft cloud behind it.</td></tr>
+  <tr><td>whether depth is real</td><td><code>shadow-surface-floating</code>, <code>shadow-surface-deep</code>, <code>shadow-control-raised</code>, <code>elevation-&lt;option&gt;-shadow</code>, <code>emphasis-primary-shadow-hover</code></td><td>A hard offset with no blur at all. Depth here is a solid edge under the object rather than a soft cloud behind it.</td></tr>
   <tr><td>how it answers a hand</td><td><code>press-scale</code>, <code>lift-control</code>, <code>dur-state</code>, <code>ease-state</code></td><td>No shrink and no rise, on an emphatic curve. The press is a travel instead, and no role reaches a press travel, so <code>plugin.css</code> paints it through the button hooks. It is the clearest case of the kernel not reaching something, and it costs a few rules rather than a fork.</td></tr>
 </table>
 
@@ -180,7 +180,7 @@
 <p>Comfortable, which grows the controls to a touch target, because a thumb drives this and not a pointer. A moderate container and the narrowest prose measure of the four registers, because a lesson is read one short line at a time.</p>
 <table>
   <tr><th>What it decides</th><th>The roles</th><th>This product's answer</th></tr>
-  <tr><td>how tight to the hand</td><td><code>pad-control-x</code>, <code>pad-control-y</code>, <code>gap-inline</code>, <code>gap-items</code>, <code>gap-control</code></td><td>The loosest padding of the four registers. A target sized for a thumb rather than for a pointer.</td></tr>
+  <tr><td>how tight to the hand</td><td><code>pad-control-x</code>, <code>pad-control-y</code>, <code>size-&lt;option&gt;-control-pad-x</code>, <code>gap-inline</code>, <code>gap-items</code>, <code>gap-control</code></td><td>The loosest padding of the four registers. A target sized for a thumb rather than for a pointer.</td></tr>
   <tr><td>how wide it breathes</td><td><code>container-max</code>, <code>measure-prose</code>, <code>grid-min</code>, <code>gutter</code></td><td>A moderate container, the narrowest prose measure of the four, a mid grid cell and a middling gutter.</td></tr>
   <tr><td>which density class</td><td><code>arena-compact</code>, <code>arena-comfortable</code>, or neither</td><td><code>arena-comfortable</code>, and it is the only one of the four registers that asks for it.</td></tr>
 </table>

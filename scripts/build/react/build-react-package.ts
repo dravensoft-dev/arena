@@ -28,13 +28,14 @@ import { splitCompiledSheet } from '../../lib/tailwind/sheet-split.ts';
 import { captured } from '../../utils/captures.ts';
 import { CONSUME } from '../tailwind/build-tailwind.ts';
 import { THEME_SOURCES, tailwindThemeSheet } from '../../lib/tailwind/theme-sheet.ts';
+import { writeVocabularyIndex } from '../../lib/arena/vocabulary-index.ts';
 
 export const NAME = '@dravensoft/arena-react';
 export const LAYER = 'frameworks/react';
 export const LAYER_NAME = 'react';
 
 export const ROOT_JS = ['Tokens.generated.js'];
-export const ROOT_TS = ['AnchorActivation.ts', 'DataVisuals.ts', 'UseArenaContainerWidth.ts', 'UseDialogModal.ts', 'UseArenaToasts.ts', 'UseArenaConfirm.ts', 'ToastClock.ts', 'StructuredData.ts', 'Theme.ts', 'WarnOnce.ts', 'Phrase.ts', 'ArenaLocale.ts', 'LocaleDefaults.generated.ts', 'Api.generated.ts', 'ArenaStyles.generated.ts', 'Index.generated.ts'];
+export const ROOT_TS = ['AnchorActivation.ts', 'DataVisuals.ts', 'UseArenaContainerWidth.ts', 'UseDialogModal.ts', 'UseArenaToasts.ts', 'UseArenaConfirm.ts', 'ToastClock.ts', 'StructuredData.ts', 'Theme.ts', 'WarnOnce.ts', 'VocabularyClass.ts', 'Vocabulary.generated.ts', 'Phrase.ts', 'ArenaLocale.ts', 'LocaleDefaults.generated.ts', 'Api.generated.ts', 'ArenaStyles.generated.ts', 'Index.generated.ts'];
 export const DIST_PROJECT = 'frameworks/react/tsconfig.dist.json';
 
 export const node = {
@@ -44,7 +45,9 @@ export const node = {
     `${LAYER}/**`, '!frameworks/react/dist/**',
     'frameworks/tailwind/Utilities.generated.css', `${CONSUME}/**/*.css`,
     'frameworks/Components.json', '.claude-plugin/plugin.json', 'LICENSE',
-    'scripts/generate/core/arena-to-prod/**', '!scripts/generate/core/arena-to-prod/*.test.ts',
+    'frameworks/*/components/**/*.behaviour.json',
+    'scripts/generate/core/arena-cli/**', '!scripts/generate/core/arena-cli/*.test.ts',
+    '!scripts/generate/core/arena-cli/*-fixtures.ts',
   ],
   writes: [`${LAYER}/dist/**`],
   feeds: [
@@ -164,8 +167,10 @@ export function manifest(root = repoRoot) {
       './arena.css': './arena.css',
       './css/*': './css/*',
       './css/components/*': './css/components/*',
+      './css/vocabulary/*': './css/vocabulary/*',
       './arena.config.example.json': './arena.config.example.json',
       './arena.tokens.json': './arena.tokens.json',
+      './arena.vocabulary.json': './arena.vocabulary.json',
       './contracts/behaviour/*': './contracts/behaviour/*',
       './package.json': './package.json',
     },
@@ -194,6 +199,7 @@ export async function buildReactPackage(root = repoRoot) {
   for (const rel of copyCli(dir, root)) written.push(join(dir, rel));
 
   written.push(writeComponentMap(dir, 'react', root));
+  written.push(writeVocabularyIndex(dir, root));
   written.push(writeIconManifest(dir, 'react', root));
   written.push(write(dir, 'arena.config.example.json', `${JSON.stringify(arenaConfig(root), null, 2)}\n`));
   written.push(write(dir, CATALOGUE_FILE, `${JSON.stringify(tokenCatalogue(root), null, 2)}\n`));

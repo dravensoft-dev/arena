@@ -1,14 +1,17 @@
 /* The picture Arena is recognised by, and its argument in one frame: one component, the contracts
- * that decide what it is, and the eight appearances a consuming project can give it. Every part is
- * the real thing rather than a drawing of one. The button carries the classes ArenaButton renders
- * and is painted by the stylesheet the packages ship; each copy is scoped to a style plugin out of
- * the catalogue, compiled here by the builder that writes the two plugins the site already loads,
- * so a skin whose radius or weight moves moves the picture. The eight palettes are the ones the
- * eight published benches wear, copied from their own arena.config.json, because a palette is the
- * half Arena never ships and a made-up one would be Arena inventing the thing it says it does not
- * carry. Nothing holds them to those files; the benches are another repository. */
+ * that decide what it is, five appearances a consuming project can give it and an empty slot for the
+ * reader's own. Every part is the real thing rather than a drawing of one. The button carries the
+ * classes ArenaButton renders and is painted by the stylesheet the packages ship; each copy is
+ * scoped to a style plugin out of the catalogue, compiled here by the builder that writes the two
+ * plugins the site already loads, so a skin whose radius or weight moves moves the picture. The five
+ * are the benches that differ most from each other in hue, radius, weight and face, and their
+ * palettes are the ones those benches wear, copied from their own arena.config.json, because a
+ * palette is the half Arena never ships and a made-up one would be Arena inventing the thing it says
+ * it does not carry. Nothing holds them to those files; the benches are another repository. */
 
 import { block, PLUGIN_DIR } from '../../generate/arena/generate-tokens.ts';
+import { arenaClassesFor, arenaSlotDataFor } from '../tailwind/component-css.ts';
+import { layerManifests } from '../tailwind/tailwind-compile.ts';
 
 export const HERO_SHEET = 'hero.css';
 export const HERO_SOURCE = 'hero.html';
@@ -17,14 +20,11 @@ export const HERO_WIDTH = 1400;
 export const HERO_HEIGHT = 860;
 
 export const HERO_SKINS = [
-  { name: 'booking', primary: '#424dac', content: '#ffffff' },
   { name: 'project-tracker', primary: '#6c4ee3', content: '#ffffff' },
   { name: 'language-course', primary: '#58cc02', content: '#ffffff' },
   { name: 'storefront', primary: '#9c431b', content: '#ffffff' },
   { name: 'photo-feed', primary: '#4a9eff', content: '#0b1a2b' },
   { name: 'observability-console', primary: '#ff9243', content: '#1a1206' },
-  { name: 'document-workspace', primary: '#0b6bcb', content: '#ffffff' },
-  { name: 'inbox', primary: '#a396ff', content: '#151033' },
 ];
 
 export const skinClass = (name: string) => `arena-${name}`;
@@ -41,12 +41,20 @@ export async function heroStyles() {
   return `${blocks.join('\n')}\n`;
 }
 
-const BUTTON = 'arena-button__root arena-button__root--variant-primary arena-button__root--size-lg';
+function buttonOpening() {
+  const manifest = [...layerManifests().values()].find((one) => one.component === 'ArenaButton');
+  if (!manifest) throw new Error('hero-page: no ArenaButton manifest to draw the button from');
+  const root = `${arenaClassesFor(manifest).root} arena-size-lg`;
+  const data = Object.entries(arenaSlotDataFor(manifest).root ?? {})
+    .map(([name, value]) => ` ${name}="${value}"`).join('');
+  return `<button class="${root}"${data} data-arena-part="button" type="button">`;
+}
 
-const button = (label: string) =>
-  `<button class="${BUTTON}" data-arena-part="button" type="button">${label}</button>`;
+const button = (label: string) => `${buttonOpening()}${label}</button>`;
 
 const LABEL = 'Publish';
+
+const YOURS = 'your-style';
 
 const painted = (primary: string, content: string) => (primary === ''
   ? ''
@@ -57,6 +65,7 @@ function slices() {
     .map(({ name, primary, content }) =>
       `<div class="slice ${skinClass(name)}"${painted(primary, content)}>`
       + `${button(LABEL)}<span>${name}</span></div>`)
+    .concat(`<div class="slice"><div class="yours" aria-hidden="true">?</div><span>${YOURS}</span></div>`)
     .join('\n');
 }
 
@@ -89,9 +98,12 @@ border:2px solid var(--mute);border-radius:50%}
 .component{position:absolute;left:474px;top:232px;width:792px;text-align:center;
 font-family:var(--font-mono);font-size:29px;color:var(--text-strong);letter-spacing:0.01em}
 .split{position:absolute;left:474px;top:288px;width:792px;display:grid;
-grid-template-columns:repeat(4,1fr);gap:26px 18px}
+grid-template-columns:repeat(3,1fr);gap:26px 18px}
 .slice{display:flex;flex-direction:column;align-items:center;gap:14px}
 .slice .arena-button__root{height:70px;font-size:25px;white-space:nowrap}
+.slice .yours{box-sizing:border-box;width:136px;height:70px;display:flex;align-items:center;
+justify-content:center;border:3px dashed var(--mute);border-radius:14px;background:transparent;
+font-family:var(--font-display);font-size:34px;font-weight:700;color:var(--mute)}
 .slice span{font-family:var(--font-mono);font-size:13px;color:var(--mute);white-space:nowrap}
 .robot{position:absolute;left:498px;top:644px;font-size:132px;color:var(--mute);line-height:1}
 .reads{position:absolute;left:664px;top:662px;font-size:30px;color:var(--mute);max-width:648px;

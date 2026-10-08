@@ -6,10 +6,11 @@
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor } from '../../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
 
 const manifest = await (await fetch('./ArenaKeyValue.manifest.json')).json();
 const c = arenaClassesFor(manifest, {});
+const d = arenaSlotDataFor(manifest, {});
 
 const ROWS = [
   ['Delivering to', 'A. Okonkwo, Gran Via 4, 48001 Bilbao', false],
@@ -18,17 +19,20 @@ const ROWS = [
   ['Delivery', '4.50', true],
 ];
 
+const figure = arenaClassesFor(manifest, { numeric: true });
+const dFigure = arenaSlotDataFor(manifest, { numeric: true });
+
 function list() {
-  const root = el('dl', { class: c.root });
+  const root = el('dl', { class: c.root, ...d.root });
   for (const [term, value, numeric] of ROWS) {
-    const row = el('div', { class: c.row });
-    row.append(el('dt', { class: c.term, text: term }));
-    row.append(el('dd', { class: numeric ? c.valueNumeric : c.value, text: value }));
+    const row = el('div', { class: c.row, ...d.row });
+    row.append(el('dt', { class: c.term, ...d.term, text: term }));
+    row.append(el('dd', { class: (numeric ? figure : c).value, ...(numeric ? dFigure : d).value, text: value }));
     root.append(row);
   }
-  const total = el('div', { class: c.total });
-  total.append(el('dt', { class: c.totalTerm, text: 'Total' }));
-  total.append(el('dd', { class: c.totalValueNumeric, text: '46.50' }));
+  const total = el('div', { class: c.total, ...d.total });
+  total.append(el('dt', { class: c.totalTerm, ...d.totalTerm, text: 'Total' }));
+  total.append(el('dd', { class: figure.totalValue, ...dFigure.totalValue, text: '46.50' }));
   root.append(total);
   return root;
 }

@@ -125,7 +125,7 @@ export const RULES: Rule[] = [
     pattern: /(?<![\w$])relative\(/g,
     owners: [
       'scripts/utils/posix-path.ts',
-      'scripts/generate/core/arena-to-prod/posix.ts',
+      'scripts/generate/core/arena-cli/posix.ts',
       'scripts/generate/core/arena-mcp/posix.ts',
     ],
     why: 'relative answers in the host separator and relPosix is the one spelling of the answer, '
@@ -154,7 +154,7 @@ export const RULES: Rule[] = [
     owners: [
       'scripts/utils/posix-path.ts',
       'scripts/utils/posix-path.test.ts',
-      'scripts/generate/core/arena-to-prod/posix.ts',
+      'scripts/generate/core/arena-cli/posix.ts',
       'scripts/generate/core/arena-mcp/posix.ts',
     ],
     why: 'the host separator is a backslash on one machine and a slash on the other, so writing it '

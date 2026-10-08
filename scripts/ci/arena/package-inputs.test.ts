@@ -9,7 +9,7 @@ import { join } from 'node:path';
 import {
   PACKAGE_INPUTS, PROSE_NAMES, SHARED_INPUTS, carried, carries, pathspecs,
 } from './package-inputs.ts';
-import { BEHAVIOUR_DIR, CSS_CHAIN, CLI_BINS, excluded } from '../../lib/arena/package-assembly.ts';
+import { BEHAVIOUR_DIR, CSS_CHAIN, CLI_SOURCES, excluded } from '../../lib/arena/package-assembly.ts';
 import { EXCLUDED_NAMES, EXCLUDED_PATTERNS } from '../../lib/arena/package-exclusions.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 
@@ -31,7 +31,7 @@ test('every file the CSS chain copies is covered, so a chain that grows fails he
 });
 
 test('the CLI each package ships as its bin is covered', () => {
-  for (const name of Object.keys(CLI_BINS)) {
+  for (const name of CLI_SOURCES) {
     assert.ok(`scripts/generate/core/${name}/` in SHARED_INPUTS,
       `${name} ships in both packages and a change to it would not trip the republish guard`);
     assert.ok(existsSync(join(repoRoot, 'scripts', 'generate', 'core', name)),
@@ -136,7 +136,7 @@ test('a path no spec reaches is not carried, so a wider diff cannot leak in', ()
 
 test('the contracts package inherits nothing shared, because most of it is false for a bag of JSON', () => {
   const specs = pathspecs('contracts');
-  for (const shared of ['scripts/generate/core/arena-to-prod/', 'scripts/lib/arena/component-map.ts',
+  for (const shared of ['scripts/generate/core/arena-cli/', 'scripts/lib/arena/component-map.ts',
     'scripts/lib/arena/package-exclusions.ts', 'contracts/design-generated/']) {
     assert.ok(!specs.includes(shared),
       `${shared} is in SHARED_INPUTS and the contracts package carries no stylesheet, no CLI and no `

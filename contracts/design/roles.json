@@ -64,11 +64,11 @@
   },
   "lh-heading": {
     "$type": "number",
-    "$description": "The leading of a heading in the display face, standing opposite lh-prose: one\nplugin wants a title packed and its paragraphs open, another wants both even, and the contrast\nbetween the two IS the hierarchy on a screen where nothing is drawn.\n\nAuthored as lh.root and not as lh.snug, and the difference is the whole reason this role is safe\nto add. Eight title slots reach for font-heading and exactly ONE of them declares a leading, so\nseven inherit lh-root's 1.5. A role born at snug would have tightened those seven by a third of a\nline the day it landed, which is a redesign wearing a refactor's clothes. It is born at what they\nalready compute to, and a style plugin is what moves it.\n\nNo floor, unlike lh-prose. A heading is not the text WCAG 1.4.8 is about: it is a line or two\nread as a shape, and a display face set at 1.5 reads as two unrelated lines rather than as one\ntitle."
+    "$description": "The leading of a heading in the display face, standing opposite lh-prose: one\nplugin wants a title packed and its paragraphs open, another wants both even, and the contrast\nbetween the two IS the hierarchy on a screen where nothing is drawn.\n\nAuthored as lh.root and not as lh.snug, and the difference is the whole reason this role is safe\nto add. Eight title slots reach for font-heading and exactly ONE of them declares a leading, so\nseven inherit lh-root's 1.5. A role at snug would tighten those seven by a third of a\nline, which is a redesign wearing a refactor's clothes. It sits at what they\nalready compute to, and a style plugin is what moves it.\n\nNo floor, unlike lh-prose. A heading is not the text WCAG 1.4.8 is about: it is a line or two\nread as a shape, and a display face set at 1.5 reads as two unrelated lines rather than as one\ntitle."
   },
   "measure-prose": {
     "$type": "number",
-    "$description": "How wide a column of prose is allowed to get, in ch, which is the only unit that\nmeans anything here: a measure that does not track the font size is not a measure at all.\n\nCarries cssUnit ch by the same mechanism ls uses for em. DTCG 2025.10 admits px and rem for a\ndimension and nothing else, which is why a prose measure was once refused; the exit was that a\nmeasure was never obliged to be a dimension. It is a number with a render hint, it widens no\nconformance claim, and the reason it no longer binds is that a measure was never obliged to be\na dimension.\n\nIt reaches a page through a class a consumer applies rather than through a component slot, in\nProse.css beside Numerals.css and Rhythm.css, because the thing that wants a measure is a\ndocument's own markup and Arena ships no prose component to hang it on. The two components that\nset a measure today set 42ch and 46ch on an empty state and an error state, and those are the\nwidth of a short blurb rather than of a reading column, so they keep their literals.\n\n72 is where the base body size lands a line at roughly the 45 to 75 characters typography has\nagreed on for a century, and check:style-plugin holds an answer inside that range."
+    "$description": "How wide a column of prose is allowed to get, in ch, which is the only unit that\nmeans anything here: a measure that does not track the font size is not a measure at all.\n\nCarries cssUnit ch by the same mechanism ls uses for em. DTCG 2025.10 admits px and rem for a\ndimension and nothing else, which a prose measure does not fit, because a measure is not obliged to\nbe a dimension. It is a number with a render hint, and it widens no\nconformance claim.\n\nIt reaches a page through a class a consumer applies rather than through a component slot, in\nframeworks/tailwind/vocabulary/arena-prose/Prose.family.json, because the thing that wants a measure is a\ndocument's own markup and Arena ships no prose component to hang it on. The two components that\nset a measure today set 42ch and 46ch on an empty state and an error state, and those are the\nwidth of a short blurb rather than of a reading column, so they keep their literals.\n\n72 is where the base body size lands a line at roughly the 45 to 75 characters typography has\nagreed on for a century, and check:style-plugin holds an answer inside that range."
   },
   "ff-heading": {
     "$type": "fontFamily",
@@ -92,7 +92,7 @@
   },
   "tt-eyebrow": {
     "$type": "keyword",
-    "$description": "Whether an eyebrow is set in capitals. All five eyebrow slots are, and none of\nthem could say otherwise before this role, which is why every plugin's eyebrow read like a console\nlabel however different everything around it looked.\n\nThe first keyword role in the system, and the reason the type exists: text-transform takes a word\nrather than a measurement, DTCG 2025.10 types no word, and leaving it out of the token tier meant\nfreezing it into every manifest that paints it. The closed set is what earns the type. See\nTokenTypes.md.\n\nCapitals and tracking travel together, so a style plugin moving this almost always moves track-eyebrow with\nit: the open tracking that makes capitals legible makes lowercase look sprayed.",
+    "$description": "Whether an eyebrow is set in capitals. All five eyebrow slots are, and without this role none of\nthem can say otherwise, so every plugin's eyebrow reads like a console\nlabel however different everything around it looks.\n\nThe first keyword role in the system, and the reason the type exists: text-transform takes a word\nrather than a measurement, DTCG 2025.10 types no word, and leaving it out of the token tier meant\nfreezing it into every manifest that paints it. The closed set is what earns the type. See\nTokenTypes.md.\n\nCapitals and tracking travel together, so a style plugin moving this almost always moves track-eyebrow with\nit: the open tracking that makes capitals legible makes lowercase look sprayed.",
     "$extensions": {
       "com.dravensoft.arena": {
         "values": [
@@ -165,11 +165,15 @@
   },
   "pad-control-x": {
     "$type": "dimension",
-    "$description": "The room a CONTROL gives its content across: a button, a chip, a menu item, a tab.\nBorn at sp.3, the step the majority of control slots name.\n\nThe cut against dz-row-px is who is being asked about, the same cut pad-surface makes. Density\nsays how tight a DATA ROW is, which is target size and the same answer on a phone in any style plugin.\nThis says how generous a control is, which is register. A style plugin may spend it and .arena-compact\nstill decides the row."
+    "$description": "The room a CONTROL gives its content across: a button.\nBorn at sp.3, the step the majority of control slots name. A menu item and a tab are rows and a chip is a marker, each answered by that kind's role: pad-row-x and pad-marker-x.\n\nThe cut against dz-row-px is who is being asked about, the same cut pad-surface makes. Density\nsays how tight a DATA ROW is, which is target size and the same answer on a phone in any style plugin.\nThis says how generous a control is, which is register. A style plugin may spend it and .arena-compact\nstill decides the row."
   },
   "pad-control-y": {
     "$type": "dimension",
     "$description": "The room a control gives its content down. Split from pad-control-x rather than\nfolded into one padding role because a control's two axes are not one decision: a style plugin widens a\nbutton without making it taller, since height is where density and target size live and width is\nwhere air does."
+  },
+  "pad-control-text-y": {
+    "$type": "dimension",
+    "$description": "The room above and below a control or field whose height is its text rather than the control height, read by ArenaSkipLink and the field of ArenaTextarea."
   },
   "gap-control": {
     "$type": "dimension",
@@ -185,7 +189,63 @@
   },
   "grid-min": {
     "$type": "dimension",
-    "$description": "The narrowest a column of an auto-fitting grid may get before the grid drops one.\nAuthored as a literal because it is one: ArenaGrid defaults it today to a calc of sp.1 times 50,\nwhich is a length spelled as arithmetic rather than a step on any ladder, and 200px is what that\narithmetic produces. The card demo beside the manifest passes 136px of its own, which is a demo\nchoosing a narrower column and not the component default it was mistaken for once.\n\nIt is a role rather than a scale because it is the single number that decides how many cards a\nviewport shows, and a gallery and a ledger want opposite answers to that from the same markup."
+    "$description": "The narrowest a column of an auto-filling grid may get before the grid drops one.\nAuthored as a literal because it is one: ArenaGrid defaults it today to a calc of sp.1 times 50,\nwhich is a length spelled as arithmetic rather than a step on any ladder, and 200px is what that\narithmetic produces. The card demo beside the manifest passes 136px of its own, which is a demo\nchoosing a narrower column and not the component default it was mistaken for once.\n\nIt is a role rather than a scale because it is the single number that decides how many cards a\nviewport shows, and a gallery and a ledger want opposite answers to that from the same markup."
+  },
+  "grid-min-sm": {
+    "$type": "dimension",
+    "$description": "The narrowest a cell of ArenaGrid may get at arena-grid-min-sm, read by ArenaGrid. An option of a family is a question by construction, so the plugin answers it. arena-grid-min-md reads grid-min."
+  },
+  "grid-min-lg": {
+    "$type": "dimension",
+    "$description": "The narrowest a cell of ArenaGrid may get at arena-grid-min-lg, read by ArenaGrid. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "grid-max-sm": {
+    "$type": "dimension",
+    "$description": "The widest ArenaGrid runs at arena-grid-max-sm before it centres, read by ArenaGrid. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "grid-max-md": {
+    "$type": "dimension",
+    "$description": "The widest ArenaGrid runs at arena-grid-max-md before it centres, read by ArenaGrid. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "grid-max-lg": {
+    "$type": "dimension",
+    "$description": "The widest ArenaGrid runs at arena-grid-max-lg before it centres, read by ArenaGrid. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "board-column-sm": {
+    "$type": "dimension",
+    "$description": "The narrowest a column of ArenaBoard may get at arena-board-column-sm, read by ArenaBoard. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "board-column-md": {
+    "$type": "dimension",
+    "$description": "The narrowest a column of ArenaBoard may get at arena-board-column-md, the default, read by ArenaBoard. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "board-column-lg": {
+    "$type": "dimension",
+    "$description": "The narrowest a column of ArenaBoard may get at arena-board-column-lg, read by ArenaBoard. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "scroller-item-sm": {
+    "$type": "dimension",
+    "$description": "How wide each item of ArenaScroller is laid out at arena-scroller-item-sm, read by ArenaScrollerItem. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "scroller-item-md": {
+    "$type": "dimension",
+    "$description": "How wide each item of ArenaScroller is laid out at arena-scroller-item-md, the default, read by ArenaScrollerItem. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "scroller-item-lg": {
+    "$type": "dimension",
+    "$description": "How wide each item of ArenaScroller is laid out at arena-scroller-item-lg, read by ArenaScrollerItem. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "dialog-width-sm": {
+    "$type": "dimension",
+    "$description": "The width of the panel of ArenaDialog at arena-dialog-width-sm, read by ArenaDialog. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "dialog-width-md": {
+    "$type": "dimension",
+    "$description": "The width of the panel of ArenaDialog at arena-dialog-width-md, the default, read by ArenaDialog. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "dialog-width-lg": {
+    "$type": "dimension",
+    "$description": "The width of the panel of ArenaDialog at arena-dialog-width-lg, read by ArenaDialog. An option of a family is a question by construction, so the plugin answers it."
   },
   "container-max": {
     "$type": "dimension",
@@ -197,11 +257,115 @@
   },
   "pad-surface": {
     "$type": "dimension",
-    "$description": "The room a surface gives its own content: a card's head and body, a stat card, a\nchart tile, a sign-in panel. An alias of sp on the same footing as rhythm's aliases, so the base\nvalue cannot drift off the spacing grid.\n\nThe cut against rhythm is inside versus between: rhythm is the air BETWEEN two components, which\nArena never draws and a page applies, and this is the air a component gives its own contents.\nA style plugin needs both, because a card with room inside it and none around it reads as a stripe.\n\nThe cut against density is who is being asked about. Density says how dense the CONTROLS and the\nDATA ROWS are, which is target size and Fitts's law, and it is the same question on a phone in\nany style plugin. This says how generous a surface is, which is a statement about the page's register.\nThe two compose: .arena-compact and a roomy style plugin is a coherent thing to want.\n\nThe floating tier deliberately has no role beside this one. A sheet is pinned to the viewport and\na coachmark is pinned to what it points at, so their padding is a fit constraint rather than a\nstatement about air, and giving a style plugin a lever there would let it push their content off the\nedge. They are recorded in SCALE_USES instead."
+    "$description": "The room a surface gives its own content: a card's head and body, a stat card, a\nchart tile, a sign-in panel. An alias of sp on the same footing as rhythm's aliases, so the base\nvalue cannot drift off the spacing grid.\n\nThe cut against rhythm is inside versus between: rhythm is the air BETWEEN two components, which\nArena never draws and a page applies, and this is the air a component gives its own contents.\nA style plugin needs both, because a card with room inside it and none around it reads as a stripe.\n\nThe cut against density is who is being asked about. Density says how dense the CONTROLS and the\nDATA ROWS are, which is target size and Fitts's law, and it is the same question on a phone in\nany style plugin. This says how generous a surface is, which is a statement about the page's register.\nThe two compose: .arena-compact and a roomy style plugin is a coherent thing to want."
   },
   "pad-surface-head": {
     "$type": "dimension",
     "$description": "The air a surface leaves under its head, above the rule bw-surface-head draws. Nothing by\ndefault, for the reason that role gives: the property is painted so that a value can move it.\n\nSplit from pad-surface, which is the room a surface gives its own content, because the two are\nnot one decision. A head sitting hard on its rule reads as a caption and a head with room under\nit reads as a section, and a style plugin that opens a card up has said nothing about which of\nthose its tiles are. The two plugins drawing the rule spend this at the same moment, which is\nwhat says it belongs beside that question rather than inside it."
+  },
+  "pad-surface-head-top": {
+    "$type": "dimension",
+    "$description": "The room above the head of a surface, between its top edge and its title, read by ArenaCard. It sits beside pad-surface-head, which is the room under the head."
+  },
+  "pad-floating-x": {
+    "$type": "dimension",
+    "$description": "The room a surface sitting over the page gives its content across: a dialog, a sheet, a menu, a popover. It is cut from pad-surface, which is the room a surface that belongs to the page gives, because a floating surface is separated from what it covers rather than grouped against it. It is split by axis because the dialog's sides and its top differ."
+  },
+  "pad-floating-y": {
+    "$type": "dimension",
+    "$description": "The room a surface sitting over the page gives its content down. Split from pad-floating-x because the dialog's sides and its top are not one decision."
+  },
+  "pad-floating-edge-x": {
+    "$type": "dimension",
+    "$description": "The room on the sides of a floating surface pinned to a viewport edge, read by the head, body and foot of ArenaSheet. A panel pinned to an edge is narrower than one centred, so it is its own question beside pad-floating-x."
+  },
+  "pad-status-x": {
+    "$type": "dimension",
+    "$description": "The room a status block gives its message across: an alert, a toast, an empty state. It is cut from pad-surface because a status block reports something to the reader rather than holding their content, and a style plugin that opens cards up has said nothing about how loud a notice is."
+  },
+  "pad-status-y": {
+    "$type": "dimension",
+    "$description": "The room a status block gives its message down. Split from pad-status-x because the two axes of a notice are not one decision."
+  },
+  "pad-marker-x": {
+    "$type": "dimension",
+    "$description": "The room a marker gives the label it encloses across: a badge, a chip, a tag, a pill. It is cut from pad-control-x because a marker is read and not pressed, so its air follows the label it hugs rather than the register of the controls beside it."
+  },
+  "pad-marker-y": {
+    "$type": "dimension",
+    "$description": "The room a marker gives the label it encloses down. Split from pad-marker-x because a style plugin widens a marker without making it taller."
+  },
+  "pad-row-x": {
+    "$type": "dimension",
+    "$description": "The room a row in a list, menu, feed, side nav, tab list or palette gives its content across. The theme multiplies it by the row factor density sets, which is why a row re-densifies and a control's air does not. It is cut from pad-control-x because a row is one of many in a column and a control stands alone."
+  },
+  "pad-row-y": {
+    "$type": "dimension",
+    "$description": "The room a row in a list, menu, feed, side nav, tab list or palette gives its content down. The theme multiplies it by the row factor density sets, which is why a row re-densifies and a control's air does not."
+  },
+  "pad-row-indent": {
+    "$type": "dimension",
+    "$description": "The length of one level of indent, which the row's depth multiplies. It is cut from pad-row-x because the indent says how deep a row sits and the padding says how much room its content has."
+  },
+  "pad-row-floating-x": {
+    "$type": "dimension",
+    "$description": "The room on the sides of a row in a floating list, read by the items and headers of ArenaMenu. Density scales it by the row factor, the way it scales pad-row-x."
+  },
+  "pad-row-floating-y": {
+    "$type": "dimension",
+    "$description": "The room above and below a row in a floating list, read by the items of ArenaMenu. Density scales it by the row factor."
+  },
+  "pad-nav-row-x": {
+    "$type": "dimension",
+    "$description": "The room a side nav row gives its content across, apart from every other row, because a navigation column is the row a product most often sets tighter or looser than its lists. Density scales it by the row factor.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "default": "{pad-row-x}"
+      }
+    }
+  },
+  "pad-nav-row-y": {
+    "$type": "dimension",
+    "$description": "The room a side nav row gives its content down, apart from tabs, palette and list rows. Density scales it by the row factor.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "default": "{pad-row-y}"
+      }
+    }
+  },
+  "pad-band-x": {
+    "$type": "dimension",
+    "$description": "The room an app bar's band leaves at each end, capped at 7% of its width.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "default": "{gutter}"
+      }
+    }
+  },
+  "pad-band-y": {
+    "$type": "dimension",
+    "$description": "The room an app bar's band gives its content down.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "default": "{sp.3}"
+      }
+    }
+  },
+  "gap-marker": {
+    "$type": "dimension",
+    "$description": "The gap between the parts of a marker: a dot and its label, a label and its dismiss. It is cut from gap-control because a marker is read and not pressed, so a style plugin that opens controls up leaves its markers compact."
+  },
+  "gap-row": {
+    "$type": "dimension",
+    "$description": "The gap between the parts of a row: an icon and its text, a label and its trailing meta. It is cut from gap-control because a row is one of many in a column and its parts follow the row's register rather than a control's."
+  },
+  "gap-row-floating": {
+    "$type": "dimension",
+    "$description": "The gap between the icon, the label and the shortcut of a row in a floating list, read by ArenaMenu."
+  },
+  "gap-actions": {
+    "$type": "dimension",
+    "$description": "The gap between the buttons of the action row at the foot of a floating surface, read by ArenaDialog, ArenaConfirmDialog and ArenaSheet."
   },
   "fill-surface": {
     "$type": "color",
@@ -210,6 +374,10 @@
   "fill-surface-floating": {
     "$type": "color",
     "$description": "The fill of a surface that floats over the page: a menu, a dialog, a toast, a\nsheet, a command palette, a bulk action bar. The same step as fill-surface today and a different\nquestion, which is the cut r-surface and r-surface-floating already make one tier up.\n\nThis is the role that makes flattening the other one safe. A style plugin that takes a card down to the\npage's own fill has said its regions are carried by air; a menu that did the same would be an\nunreadable overlay, because a floating surface is separated from what it covers rather than\ngrouped against it. Split so a style plugin can answer the two one at a time."
+  },
+  "fill-surface-raised": {
+    "$type": "color",
+    "$description": "The fill of a small readout raised over the content it annotates: a chart's tooltip over the plot.\nIt asks which fill a readout takes while the plot stays legible beneath it, and it is cut from\nfill-surface-floating because a readout belongs to the thing it points at where a menu or a dialog\ncovers the page. A style plugin that lifts its menus onto a heavier fill can leave the readouts on\nthe plot's own step, and one that flattens its readouts cannot take its menus with them. Split so a\nstyle plugin can answer the two one at a time."
   },
   "fill-page": {
     "$type": "color",
@@ -221,7 +389,7 @@
   },
   "fill-field": {
     "$type": "color",
-    "$description": "The fill of a box the user types into: an input, a textarea, a select, the\nconfirmation field a destructive dialog asks for. Four slots named base-300 outright, which is\nthe same measurement that produced the three fills above it.\n\nSeparate from fill-surface-sunken although both are recessed today, and the split is what a\nstyle plugin spends. A sunken region is a well inside a surface that the reader looks at; a\nfield is a well the reader puts a cursor in, and a plugin that makes its fields louder than its\nwells is saying where the work happens. It is also the role a plugin reaches for first: a filled\nfield and an outlined one are the two ways any product draws a form, and before this role the\nchoice was unreachable.\n\nAn assignment and never a value, like every colour role. What it does NOT carry is the boundary:\nbw-field and edge-field are the pair WCAG 1.4.11 measures, and this is the ground behind them."
+    "$description": "The fill of a box the user types into: an input, a textarea, a select, the\nconfirmation field a destructive dialog asks for. Four slots named base-300 outright, which is\nthe same measurement that produced the three fills above it.\n\nSeparate from fill-surface-sunken although both are recessed today, and the split is what a\nstyle plugin spends. A sunken region is a well inside a surface that the reader looks at; a\nfield is a well the reader puts a cursor in, and a plugin that makes its fields louder than its\nwells is saying where the work happens. It is also the role a plugin reaches for first: a filled\nfield and an outlined one are the two ways any product draws a form, and without this role the\nchoice is unreachable.\n\nAn assignment and never a value, like every colour role. What it does NOT carry is the boundary:\nbw-field and edge-field are the pair WCAG 1.4.11 measures, and this is the ground behind them."
   },
   "fill-hover": {
     "$type": "color",
@@ -274,6 +442,10 @@
   "edge-separator": {
     "$type": "color",
     "$description": "The colour of the rule that divides one thing from the next inside a surface.\nBorn at base-300 beside edge-surface, and separate for the reason bw-separator is separate from\nbw-surface: a style plugin that removes the enclosure keeps the rules, because a table whose rows lost\ntheir lines at the same moment stops being readable.\n\nIt is the ornament a style plugin grouping by CONTINUITY would spend, if such a style plugin is ever written:\nthe line that runs across is the only thing saying the rows are a series."
+  },
+  "edge-axis": {
+    "$type": "color",
+    "$description": "Which colour the axis lines, the zero line and the crosshair of a chart are drawn in, read by the line, bar, horizontal bar, scatter, radar and pyramid charts, and not by the doughnut, which has no axis. It is heavier than edge-separator, which draws the grid rules behind the marks."
   },
   "bw-surface": {
     "$type": "dimension",
@@ -337,10 +509,592 @@
   },
   "ease-state": {
     "$type": "cubicBezier",
-    "$description": "The curve of a state change the user follows, paired with dur-state the way ease-hover\nis paired with dur-hover. Kept apart from that one for the reason the two durations are kept apart:\nthe eye has to TRACK a switch travelling to its other end, and merely registers that a hover\nhappened.\n\nNo style plugin in the shipped catalogue moves it, which is the footing dur-state has stood on since the\nrole tier was built. It is not there in anticipation of a style plugin: it is there so a manifest that\nnames a state transition names a role at BOTH ends rather than a role for the duration and a scale\nstep for the curve, which is the split check:roles exists to refuse."
+    "$description": "The curve of a state change the user follows, paired with dur-state the way ease-hover\nis paired with dur-hover. Kept apart from that one for the reason the two durations are kept apart:\nthe eye has to TRACK a switch travelling to its other end, and merely registers that a hover\nhappened.\n\nNo style plugin in the shipped catalogue moves it, which is the footing dur-state stands on. It is not there in anticipation of a style plugin: it is there so a manifest that\nnames a state transition names a role at BOTH ends rather than a role for the duration and a scale\nstep for the curve, which is the split check:roles exists to refuse."
   },
   "press-scale": {
     "$type": "number",
-    "$description": "How far a control sinks under the pointer while it is held, and the other half of\nlift-control: that one says how far a control rises, this says how far it goes down. A style plugin that\ngives a control mass has a reason to answer both, and until this moved out of effects.json it could\nanswer neither, because a scale is shared by every use that wants that value.\n\nAuthored as a literal rather than as an alias, for the reason lift-control is: neither has a scale\nto alias, because nothing else in Arena travels under a pointer and nothing else compresses. Those\ntwo are the only numbers in this tier whose value is its own.\n\nUnitless on purpose: it is a transform scale, not a length, so it carries no dimension type and\ndoes not re-densify. Both layers press by the same amount and each used to spell it as its own\nliteral -- 0.98 inline in React, scale-98 in the Tailwind manifest -- which is one design decision\nwritten twice with nothing holding the copies in step. NOT script-readable: nothing does arithmetic\non it, both layers reference the custom property directly, and the flag is only for a value JS must\nconsume to produce a position."
+    "$description": "How far a control sinks under the pointer while it is held, and the other half of\nlift-control: that one says how far a control rises, this says how far it goes down. A style plugin that\ngives a control mass has a reason to answer both, which a scale shared by every use that wants that value could not carry.\n\nAuthored as a literal rather than as an alias, for the reason lift-control is: neither has a scale\nto alias, because nothing else in Arena travels under a pointer and nothing else compresses. Those\ntwo are the only numbers in this tier whose value is its own.\n\nUnitless on purpose: it is a transform scale, not a length, so it carries no dimension type and\ndoes not re-densify. Both layers press by the same amount, and one custom property holds that one design decision\nrather than a literal in each layer. NOT script-readable: nothing does arithmetic\non it, both layers reference the custom property directly, and the flag is only for a value JS must\nconsume to produce a position."
+  },
+  "hue-danger-ink": {
+    "$type": "color",
+    "$description": "Which colour the danger hue takes as text and as an icon. Read by every slot that paints the hue as a foreground: an alert's title and icon, a badge's label, a tag's text, a toast's icon, a stat card's delta, a field's message. Answered with a {color.*} alias, never a literal. The hue sheet carries it to every slot of the danger variant (--arena-hue-ink), so a plugin that moves it moves every danger surface at once."
+  },
+  "hue-danger-on-ink": {
+    "$type": "color",
+    "$description": "The content colour on a mark filled with this hue's ink, such as a solid badge.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "default": "{color.base-100}"
+      }
+    }
+  },
+  "hue-danger-edge": {
+    "$type": "color",
+    "$description": "Which colour the danger hue takes as a line. Read by every slot that draws the hue as a border or a rule: an alert's border, a toast's leading edge, a field's ring when it is invalid or confirmed. Answered with a {color.*} alias, never a literal. The hue sheet carries it to every slot of the danger variant (--arena-hue-edge), so a plugin that moves it moves every danger surface at once."
+  },
+  "hue-danger-fill-strong": {
+    "$type": "keyword",
+    "$description": "Which colour the danger hue fills a surface or a marker with at full strength, and the answer is closed: transparent. Danger is outline. Its ink, its edge and its wash carry the meaning, and nothing in Arena fills a surface with danger except the final confirmation of ArenaConfirmDialog, which reads fill-confirm-final and ink-confirm-final.\n\nA keyword role with a closed set of one, so that no plugin can answer it otherwise: it is the floor check:style-plugin and check:catalogue hold in the root plugin, in every scoped plugin and in every catalogue entry, and the one role complete cannot answer with a value of its own. A slot that wants a presence dot in the danger hue reads hue-danger-ink.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "values": [
+          "transparent"
+        ]
+      }
+    }
+  },
+  "hue-danger-fill-soft": {
+    "$type": "color",
+    "$description": "Which colour the danger hue takes as a wash. Read by every slot that tints a surface with the hue, held back to the hue's own level (--level-hue-soft-<hue>): an alert's background, a badge's background, a field's ring wash. Answered with a {color.*} alias, never a literal. The hue sheet carries it to every slot of the danger variant (--arena-hue-fill-soft), so a plugin that moves it moves every danger surface at once."
+  },
+  "hue-success-ink": {
+    "$type": "color",
+    "$description": "Which colour the success hue takes as text and as an icon. Read by every slot that paints the hue as a foreground: an alert's title and icon, a badge's label, a tag's text, a toast's icon, a stat card's delta, a field's message. Answered with a {color.*} alias, never a literal. The hue sheet carries it to every slot of the success variant (--arena-hue-ink), so a plugin that moves it moves every success surface at once."
+  },
+  "hue-success-on-ink": {
+    "$type": "color",
+    "$description": "The content colour on a mark filled with this hue's ink, such as a solid badge.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "default": "{color.success-content}"
+      }
+    }
+  },
+  "hue-success-edge": {
+    "$type": "color",
+    "$description": "Which colour the success hue takes as a line. Read by every slot that draws the hue as a border or a rule: an alert's border, a toast's leading edge, a field's ring when it is invalid or confirmed. Answered with a {color.*} alias, never a literal. The hue sheet carries it to every slot of the success variant (--arena-hue-edge), so a plugin that moves it moves every success surface at once."
+  },
+  "hue-success-fill-strong": {
+    "$type": "color",
+    "$description": "Which colour the success hue takes as a solid fill. Read by every slot that fills a surface or a marker with the hue at full strength: a presence dot, a solid badge, a progress bar's fill. Answered with a {color.*} alias, never a literal. The hue sheet carries it to every slot of the success variant (--arena-hue-fill-strong), so a plugin that moves it moves every success surface at once."
+  },
+  "hue-success-fill-soft": {
+    "$type": "color",
+    "$description": "Which colour the success hue takes as a wash. Read by every slot that tints a surface with the hue, held back to the hue's own level (--level-hue-soft-<hue>): an alert's background, a badge's background, a field's ring wash. Answered with a {color.*} alias, never a literal. The hue sheet carries it to every slot of the success variant (--arena-hue-fill-soft), so a plugin that moves it moves every success surface at once."
+  },
+  "hue-warning-ink": {
+    "$type": "color",
+    "$description": "Which colour the warning hue takes as text and as an icon. Read by every slot that paints the hue as a foreground: an alert's title and icon, a badge's label, a tag's text, a toast's icon, a stat card's delta, a field's message. Answered with a {color.*} alias, never a literal. The hue sheet carries it to every slot of the warning variant (--arena-hue-ink), so a plugin that moves it moves every warning surface at once."
+  },
+  "hue-warning-on-ink": {
+    "$type": "color",
+    "$description": "The content colour on a mark filled with this hue's ink, such as a solid badge.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "default": "{color.warning-content}"
+      }
+    }
+  },
+  "hue-warning-edge": {
+    "$type": "color",
+    "$description": "Which colour the warning hue takes as a line. Read by every slot that draws the hue as a border or a rule: an alert's border, a toast's leading edge, a field's ring when it is invalid or confirmed. Answered with a {color.*} alias, never a literal. The hue sheet carries it to every slot of the warning variant (--arena-hue-edge), so a plugin that moves it moves every warning surface at once."
+  },
+  "hue-warning-fill-strong": {
+    "$type": "color",
+    "$description": "Which colour the warning hue takes as a solid fill. Read by every slot that fills a surface or a marker with the hue at full strength: a presence dot, a solid badge, a progress bar's fill. Answered with a {color.*} alias, never a literal. The hue sheet carries it to every slot of the warning variant (--arena-hue-fill-strong), so a plugin that moves it moves every warning surface at once."
+  },
+  "hue-warning-fill-soft": {
+    "$type": "color",
+    "$description": "Which colour the warning hue takes as a wash. Read by every slot that tints a surface with the hue, held back to the hue's own level (--level-hue-soft-<hue>): an alert's background, a badge's background, a field's ring wash. Answered with a {color.*} alias, never a literal. The hue sheet carries it to every slot of the warning variant (--arena-hue-fill-soft), so a plugin that moves it moves every warning surface at once."
+  },
+  "hue-info-ink": {
+    "$type": "color",
+    "$description": "Which colour the info hue takes as text and as an icon. Read by every slot that paints the hue as a foreground: an alert's title and icon, a badge's label, a tag's text, a toast's icon, a stat card's delta, a field's message. Answered with a {color.*} alias, never a literal. The hue sheet carries it to every slot of the info variant (--arena-hue-ink), so a plugin that moves it moves every info surface at once."
+  },
+  "hue-info-on-ink": {
+    "$type": "color",
+    "$description": "The content colour on a mark filled with this hue's ink, such as a solid badge.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "default": "{color.info-content}"
+      }
+    }
+  },
+  "hue-info-edge": {
+    "$type": "color",
+    "$description": "Which colour the info hue takes as a line. Read by every slot that draws the hue as a border or a rule: an alert's border, a toast's leading edge, a field's ring when it is invalid or confirmed. Answered with a {color.*} alias, never a literal. The hue sheet carries it to every slot of the info variant (--arena-hue-edge), so a plugin that moves it moves every info surface at once."
+  },
+  "hue-info-fill-strong": {
+    "$type": "color",
+    "$description": "Which colour the info hue takes as a solid fill. Read by every slot that fills a surface or a marker with the hue at full strength: a presence dot, a solid badge, a progress bar's fill. Answered with a {color.*} alias, never a literal. The hue sheet carries it to every slot of the info variant (--arena-hue-fill-strong), so a plugin that moves it moves every info surface at once."
+  },
+  "hue-info-fill-soft": {
+    "$type": "color",
+    "$description": "Which colour the info hue takes as a wash. Read by every slot that tints a surface with the hue, held back to the hue's own level (--level-hue-soft-<hue>): an alert's background, a badge's background, a field's ring wash. Answered with a {color.*} alias, never a literal. The hue sheet carries it to every slot of the info variant (--arena-hue-fill-soft), so a plugin that moves it moves every info surface at once."
+  },
+  "fill-confirm-final": {
+    "$type": "color",
+    "$description": "Which colour the final irreversible confirmation of ArenaConfirmDialog is filled with. The one filled danger surface in Arena, which is why it is a role of its own and not hue-danger-fill-strong: that role is transparent in every answer, because danger is outline everywhere else. Paired with ink-confirm-final, which has to clear the contrast bar against it."
+  },
+  "ink-confirm-final": {
+    "$type": "color",
+    "$description": "Which colour the label of the final irreversible confirmation of ArenaConfirmDialog is set in, on fill-confirm-final. The one filled danger surface in Arena, and the pair a plugin answers together: a fill moved without its ink is a label that may no longer be read."
+  },
+  "size-sm-control-h": {
+    "$type": "dimension",
+    "$description": "The height of a button and an icon button at arena-size-sm, read by ArenaButton, ArenaIconButton. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-md-control-h": {
+    "$type": "dimension",
+    "$description": "The height of a button and an icon button at arena-size-md, read by ArenaButton, ArenaIconButton. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-lg-control-h": {
+    "$type": "dimension",
+    "$description": "The height of a button and an icon button at arena-size-lg, read by ArenaButton, ArenaIconButton. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-sm-control-pad-x": {
+    "$type": "dimension",
+    "$description": "The inline padding of a button at arena-size-sm, read by ArenaButton. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-md-control-pad-x": {
+    "$type": "dimension",
+    "$description": "The inline padding of a button at arena-size-md, read by ArenaButton. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-lg-control-pad-x": {
+    "$type": "dimension",
+    "$description": "The inline padding of a button at arena-size-lg, read by ArenaButton. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-sm-control-step": {
+    "$type": "dimension",
+    "$description": "The label step of a button at arena-size-sm, read by ArenaButton. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-md-control-step": {
+    "$type": "dimension",
+    "$description": "The label step of a button at arena-size-md, read by ArenaButton. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-lg-control-step": {
+    "$type": "dimension",
+    "$description": "The label step of a button at arena-size-lg, read by ArenaButton. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-sm-segment-h": {
+    "$type": "dimension",
+    "$description": "The height of a segment at arena-size-sm, read by ArenaSegmentedControl. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-md-segment-h": {
+    "$type": "dimension",
+    "$description": "The height of a segment at arena-size-md, read by ArenaSegmentedControl. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-sm-segment-pad-x": {
+    "$type": "dimension",
+    "$description": "The inline padding of a segment at arena-size-sm, read by ArenaSegmentedControl. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-md-segment-pad-x": {
+    "$type": "dimension",
+    "$description": "The inline padding of a segment at arena-size-md, read by ArenaSegmentedControl. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-sm-segment-step": {
+    "$type": "dimension",
+    "$description": "The label step of a segment at arena-size-sm, read by ArenaSegmentedControl. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-md-segment-step": {
+    "$type": "dimension",
+    "$description": "The label step of a segment at arena-size-md, read by ArenaSegmentedControl. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-sm-switch-knob": {
+    "$type": "dimension",
+    "$description": "The diameter of a switch knob at arena-size-sm, read by ArenaSwitch. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-md-switch-knob": {
+    "$type": "dimension",
+    "$description": "The diameter of a switch knob at arena-size-md, read by ArenaSwitch. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-lg-switch-knob": {
+    "$type": "dimension",
+    "$description": "The diameter of a switch knob at arena-size-lg, read by ArenaSwitch. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-xl-switch-knob": {
+    "$type": "dimension",
+    "$description": "The diameter of a switch knob at arena-size-xl, read by ArenaSwitch. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-2xl-switch-knob": {
+    "$type": "dimension",
+    "$description": "The diameter of a switch knob at arena-size-2xl, read by ArenaSwitch. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-sm-switch-icon": {
+    "$type": "dimension",
+    "$description": "The glyph size inside a switch knob at arena-size-sm, read by ArenaSwitch. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-md-switch-icon": {
+    "$type": "dimension",
+    "$description": "The glyph size inside a switch knob at arena-size-md, read by ArenaSwitch. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-lg-switch-icon": {
+    "$type": "dimension",
+    "$description": "The glyph size inside a switch knob at arena-size-lg, read by ArenaSwitch. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-xl-switch-icon": {
+    "$type": "dimension",
+    "$description": "The glyph size inside a switch knob at arena-size-xl, read by ArenaSwitch. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-2xl-switch-icon": {
+    "$type": "dimension",
+    "$description": "The glyph size inside a switch knob at arena-size-2xl, read by ArenaSwitch. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-sm-switch-long": {
+    "$type": "dimension",
+    "$description": "The long side of a switch track at arena-size-sm. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-md-switch-long": {
+    "$type": "dimension",
+    "$description": "The long side of a switch track at arena-size-md. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-lg-switch-long": {
+    "$type": "dimension",
+    "$description": "The long side of a switch track at arena-size-lg. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-xl-switch-long": {
+    "$type": "dimension",
+    "$description": "The long side of a switch track at arena-size-xl. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-2xl-switch-long": {
+    "$type": "dimension",
+    "$description": "The long side of a switch track at arena-size-2xl. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-sm-switch-short": {
+    "$type": "dimension",
+    "$description": "The short side of a switch track at arena-size-sm. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-md-switch-short": {
+    "$type": "dimension",
+    "$description": "The short side of a switch track at arena-size-md. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-lg-switch-short": {
+    "$type": "dimension",
+    "$description": "The short side of a switch track at arena-size-lg. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-xl-switch-short": {
+    "$type": "dimension",
+    "$description": "The short side of a switch track at arena-size-xl. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-2xl-switch-short": {
+    "$type": "dimension",
+    "$description": "The short side of a switch track at arena-size-2xl. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-sm-spinner": {
+    "$type": "dimension",
+    "$description": "The diameter of a spinner at arena-size-sm, read by ArenaSpinner. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-md-spinner": {
+    "$type": "dimension",
+    "$description": "The diameter of a spinner at arena-size-md, read by ArenaSpinner. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-lg-spinner": {
+    "$type": "dimension",
+    "$description": "The diameter of a spinner at arena-size-lg, read by ArenaSpinner. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-sm-meter": {
+    "$type": "dimension",
+    "$description": "The weight of a meter: a bar's thickness and a ring's band at arena-size-sm, read by ArenaProgressBar. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-md-meter": {
+    "$type": "dimension",
+    "$description": "The weight of a meter: a bar's thickness and a ring's band at arena-size-md, read by ArenaProgressBar. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-lg-meter": {
+    "$type": "dimension",
+    "$description": "The weight of a meter: a bar's thickness and a ring's band at arena-size-lg, read by ArenaProgressBar. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-sm-ring": {
+    "$type": "dimension",
+    "$description": "The diameter of a radial meter at arena-size-sm, read by ArenaProgressBar. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-md-ring": {
+    "$type": "dimension",
+    "$description": "The diameter of a radial meter at arena-size-md, read by ArenaProgressBar. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-lg-ring": {
+    "$type": "dimension",
+    "$description": "The diameter of a radial meter at arena-size-lg, read by ArenaProgressBar. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-xs-avatar": {
+    "$type": "dimension",
+    "$description": "The diameter of an avatar, from which its initials and status dot are derived at arena-size-xs, read by ArenaAvatar. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-sm-avatar": {
+    "$type": "dimension",
+    "$description": "The diameter of an avatar, from which its initials and status dot are derived at arena-size-sm, read by ArenaAvatar. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-md-avatar": {
+    "$type": "dimension",
+    "$description": "The diameter of an avatar, from which its initials and status dot are derived at arena-size-md, read by ArenaAvatar. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-lg-avatar": {
+    "$type": "dimension",
+    "$description": "The diameter of an avatar, from which its initials and status dot are derived at arena-size-lg, read by ArenaAvatar. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-sm-logo-mark": {
+    "$type": "dimension",
+    "$description": "The slot of the logo mark at arena-size-sm, read by ArenaAppLogo. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-md-logo-mark": {
+    "$type": "dimension",
+    "$description": "The slot of the logo mark at arena-size-md, read by ArenaAppLogo. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-lg-logo-mark": {
+    "$type": "dimension",
+    "$description": "The slot of the logo mark at arena-size-lg, read by ArenaAppLogo. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-xl-logo-mark": {
+    "$type": "dimension",
+    "$description": "The slot of the logo mark at arena-size-xl, read by ArenaAppLogo. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-sm-logo-step": {
+    "$type": "dimension",
+    "$description": "The wordmark step of the logo at arena-size-sm, read by ArenaAppLogo. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-md-logo-step": {
+    "$type": "dimension",
+    "$description": "The wordmark step of the logo at arena-size-md, read by ArenaAppLogo. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-lg-logo-step": {
+    "$type": "dimension",
+    "$description": "The wordmark step of the logo at arena-size-lg, read by ArenaAppLogo. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-xl-logo-step": {
+    "$type": "dimension",
+    "$description": "The wordmark step of the logo at arena-size-xl, read by ArenaAppLogo. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-sm-list-gap": {
+    "$type": "dimension",
+    "$description": "The gap between the rows of a people list at arena-size-sm, read by ArenaPeopleList. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-md-list-gap": {
+    "$type": "dimension",
+    "$description": "The gap between the rows of a people list at arena-size-md, read by ArenaPeopleList. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-lg-list-gap": {
+    "$type": "dimension",
+    "$description": "The gap between the rows of a people list at arena-size-lg, read by ArenaPeopleList. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-sm-row-gap": {
+    "$type": "dimension",
+    "$description": "The gap inside a people-list row at arena-size-sm, read by ArenaPeopleList. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-md-row-gap": {
+    "$type": "dimension",
+    "$description": "The gap inside a people-list row at arena-size-md, read by ArenaPeopleList. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-lg-row-gap": {
+    "$type": "dimension",
+    "$description": "The gap inside a people-list row at arena-size-lg, read by ArenaPeopleList. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-sm-row-pad-x": {
+    "$type": "dimension",
+    "$description": "The inline padding of a people-list row, before the density factor at arena-size-sm, read by ArenaPeopleList. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-md-row-pad-x": {
+    "$type": "dimension",
+    "$description": "The inline padding of a people-list row, before the density factor at arena-size-md, read by ArenaPeopleList. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-lg-row-pad-x": {
+    "$type": "dimension",
+    "$description": "The inline padding of a people-list row, before the density factor at arena-size-lg, read by ArenaPeopleList. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-sm-row-pad-y": {
+    "$type": "dimension",
+    "$description": "The block padding of a people-list row, before the density factor at arena-size-sm, read by ArenaPeopleList. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-md-row-pad-y": {
+    "$type": "dimension",
+    "$description": "The block padding of a people-list row, before the density factor at arena-size-md, read by ArenaPeopleList. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-lg-row-pad-y": {
+    "$type": "dimension",
+    "$description": "The block padding of a people-list row, before the density factor at arena-size-lg, read by ArenaPeopleList. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-sm-rank": {
+    "$type": "dimension",
+    "$description": "The width of a people-list rank at arena-size-sm, read by ArenaPeopleList. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-md-rank": {
+    "$type": "dimension",
+    "$description": "The width of a people-list rank at arena-size-md, read by ArenaPeopleList. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-lg-rank": {
+    "$type": "dimension",
+    "$description": "The width of a people-list rank at arena-size-lg, read by ArenaPeopleList. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-sm-caption-step": {
+    "$type": "dimension",
+    "$description": "The step of a people-list rank and secondary line at arena-size-sm, read by ArenaPeopleList. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-md-caption-step": {
+    "$type": "dimension",
+    "$description": "The step of a people-list rank and secondary line at arena-size-md, read by ArenaPeopleList. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-lg-caption-step": {
+    "$type": "dimension",
+    "$description": "The step of a people-list rank and secondary line at arena-size-lg, read by ArenaPeopleList. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-sm-name-step": {
+    "$type": "dimension",
+    "$description": "The step of a people-list name at arena-size-sm, read by ArenaPeopleList. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-md-name-step": {
+    "$type": "dimension",
+    "$description": "The step of a people-list name at arena-size-md, read by ArenaPeopleList. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-lg-name-step": {
+    "$type": "dimension",
+    "$description": "The step of a people-list name at arena-size-lg, read by ArenaPeopleList. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-sm-figure-step": {
+    "$type": "dimension",
+    "$description": "The step of a people-list figure at arena-size-sm, read by ArenaPeopleList. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-md-figure-step": {
+    "$type": "dimension",
+    "$description": "The step of a people-list figure at arena-size-md, read by ArenaPeopleList. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-lg-figure-step": {
+    "$type": "dimension",
+    "$description": "The step of a people-list figure at arena-size-lg, read by ArenaPeopleList. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-sm-face": {
+    "$type": "dimension",
+    "$description": "The diameter of the face in a people-list row, which the row binds its avatar to at arena-size-sm. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-md-face": {
+    "$type": "dimension",
+    "$description": "The diameter of the face in a people-list row, which the row binds its avatar to at arena-size-md. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-lg-face": {
+    "$type": "dimension",
+    "$description": "The diameter of the face in a people-list row, which the row binds its avatar to at arena-size-lg. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "size-sm-badge-pad-x": {
+    "$type": "dimension",
+    "$description": "The inline padding of a badge at arena-size-sm, read by ArenaBadge. A compact marker keeps less air at its ends than a badge at arena-size-md. An option of a family is a question by construction, so the plugin answers it.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "default": "{sp.1}"
+      }
+    }
+  },
+  "size-sm-badge-pad-y": {
+    "$type": "dimension",
+    "$description": "The block padding of a badge at arena-size-sm, read by ArenaBadge. A compact marker keeps less air above and below its label than a badge at arena-size-md. An option of a family is a question by construction, so the plugin answers it.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "default": "{sp.0}"
+      }
+    }
+  },
+  "size-sm-badge-step": {
+    "$type": "dimension",
+    "$description": "The label step of a badge at arena-size-sm, read by ArenaBadge. A compact marker sets a smaller label than a badge at arena-size-md. An option of a family is a question by construction, so the plugin answers it.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "default": "{dz.text-2xs}"
+      }
+    }
+  },
+  "emphasis-primary-fill": {
+    "$type": "color",
+    "$description": "The fill of an action at arena-emphasis-primary, read by ArenaButton. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "emphasis-secondary-fill": {
+    "$type": "color",
+    "$description": "The fill of an action at arena-emphasis-secondary, read by ArenaButton. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "emphasis-solid-fill": {
+    "$type": "color",
+    "$description": "The fill of an action at arena-emphasis-solid, read by ArenaIconButton. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "emphasis-primary-ink": {
+    "$type": "color",
+    "$description": "The ink of an action at arena-emphasis-primary, read by ArenaButton. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "emphasis-secondary-ink": {
+    "$type": "color",
+    "$description": "The ink of an action at arena-emphasis-secondary, read by ArenaButton. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "emphasis-ghost-ink": {
+    "$type": "color",
+    "$description": "The ink of an action at arena-emphasis-ghost, read by ArenaButton, ArenaIconButton. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "emphasis-solid-ink": {
+    "$type": "color",
+    "$description": "The ink of an action at arena-emphasis-solid, read by ArenaIconButton. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "emphasis-primary-edge": {
+    "$type": "color",
+    "$description": "The edge of a button at arena-emphasis-primary, read by ArenaButton. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "emphasis-secondary-edge": {
+    "$type": "color",
+    "$description": "The edge of a button at arena-emphasis-secondary, read by ArenaButton. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "emphasis-ghost-icon-edge": {
+    "$type": "color",
+    "$description": "The edge of an icon button at arena-emphasis-ghost, read by ArenaIconButton. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "emphasis-secondary-fill-hover": {
+    "$type": "color",
+    "$description": "The fill of an action under the pointer at arena-emphasis-secondary, read by ArenaButton. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "emphasis-ghost-fill-hover": {
+    "$type": "color",
+    "$description": "The fill of an action under the pointer at arena-emphasis-ghost, read by ArenaButton, ArenaIconButton. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "emphasis-primary-shadow-hover": {
+    "$type": "shadow",
+    "$description": "The lift of a button under the pointer at arena-emphasis-primary, read by ArenaButton. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "accent-plain-fill-soft": {
+    "$type": "color",
+    "$description": "The soft wash of a badge at arena-accent-plain, read by ArenaBadge. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "accent-primary-fill-soft": {
+    "$type": "color",
+    "$description": "The soft wash of a badge at arena-accent-primary, read by ArenaBadge. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "accent-gold-fill-soft": {
+    "$type": "color",
+    "$description": "The soft wash of a badge at arena-accent-gold, read by ArenaBadge. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "accent-plain-ink": {
+    "$type": "color",
+    "$description": "The ink of a figure, a meter, an activity dot or a spinner at arena-accent-plain, read by ArenaStatCard. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "accent-primary-ink": {
+    "$type": "color",
+    "$description": "The ink of a figure, a meter, an activity dot or a spinner at arena-accent-primary, read by ArenaStatCard, ArenaProgressBar, ArenaActivityFeed, ArenaSpinner. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "accent-gold-ink": {
+    "$type": "color",
+    "$description": "The ink of a figure, a meter, an activity dot or a spinner at arena-accent-gold, read by ArenaStatCard, ArenaProgressBar, ArenaActivityFeed, ArenaSpinner. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "accent-muted-ink": {
+    "$type": "color",
+    "$description": "The ink of a figure, a meter, an activity dot or a spinner at arena-accent-muted, read by ArenaSpinner. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "accent-plain-quiet-ink": {
+    "$type": "color",
+    "$description": "The quiet ink of a tag at arena-accent-plain, read by ArenaTag. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "accent-plain-edge": {
+    "$type": "color",
+    "$description": "The edge of a card and a tag at arena-accent-plain, read by ArenaCard, ArenaTag. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "accent-primary-edge": {
+    "$type": "color",
+    "$description": "The edge of a card and a tag at arena-accent-primary, read by ArenaCard, ArenaTag. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "accent-plain-side-edge": {
+    "$type": "color",
+    "$description": "The side bar of a toast at arena-accent-plain, read by ArenaToast. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "accent-gold-side-edge": {
+    "$type": "color",
+    "$description": "The side bar of a toast at arena-accent-gold, read by ArenaToast. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "elevation-flat-shadow": {
+    "$type": "shadow",
+    "$description": "The shadow of a card at arena-elevation-flat, read by ArenaCard. An option of a family is a question by construction, so the plugin answers it."
+  },
+  "elevation-floating-shadow": {
+    "$type": "shadow",
+    "$description": "The shadow of a card at arena-elevation-floating, read by ArenaCard. An option of a family is a question by construction, so the plugin answers it."
   }
 }

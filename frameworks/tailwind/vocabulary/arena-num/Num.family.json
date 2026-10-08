@@ -1,0 +1,9 @@
+{
+  "family": "num",
+  "reach": "box",
+  "target": "markup",
+  "description": "The mono face and tabular figures for a figure you draw yourself, in a definition list, a KPI or a cart line, and no colour. A column of them aligns by digit and does not jitter as it counts. The class is the half of a table's mono column that travels: the gold ink says identifier, and a sale total in gold says the wrong thing.",
+  "variants": {
+    "arena-num": "[font-family:var(--font-mono)] [font-variant-numeric:tabular-nums] [font-feature-settings:'tnum']"
+  }
+}

@@ -3,9 +3,9 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
-import * as rules from '../../generate/core/arena-to-prod/style-plugin-rules.ts';
+import * as rules from '../../generate/core/arena-cli/style-plugin-rules.ts';
 import {
-  collect, floorProblems, keyProblems, movedTokens, nameProblems, resolvedFor, totalityProblems,
+  SCOPES, collect, defaultAnswerProblems, floorProblems, keyProblems, movedTokens, nameProblems, resolvedFor, totalityProblems,
   valueProblems, zeroScopeProblems,
 } from './check-style-plugin.ts';
 
@@ -27,11 +27,12 @@ const ROLES = {
   'dur-hover': { $type: 'duration' },
 };
 
-test('the rules module carries floors and shape checks and no design theory', () => {
+test('the rules module carries floors, shape checks and the kernel defaults, and no design theory', () => {
   assert.deepEqual(Object.keys(rules).sort(), [
-    'ARENA_EXT', 'FS_STEP', 'KEBAB', 'MAX_PROSE_MEASURE', 'MIN_HEADING_LEADING',
-    'MIN_PROSE_LEADING', 'MIN_PROSE_MEASURE', 'RHYTHM_STEP',
-    'floorProblems', 'keyProblems', 'nameProblems', 'scopeOn', 'totalityProblems', 'valueProblems',
+    'ARENA_EXT', 'DANGER_FLOOR', 'FS_STEP', 'KEBAB', 'MAX_PROSE_MEASURE', 'MIN_HEADING_LEADING',
+    'MIN_PROSE_LEADING', 'MIN_PROSE_MEASURE', 'RESERVED', 'RHYTHM_STEP',
+    'floorProblems', 'keyProblems', 'nameProblems', 'reservedProblems', 'scopeOn', 'totalityProblems', 'valueProblems',
+    'withDefaults',
   ], 'a rule that keeps a catalogue coherent is Arena design theory, and a floor is a claim about '
   + 'a reader: only the second one has any business binding somebody else\'s product');
 });
@@ -74,7 +75,7 @@ test('a name that is a theme polarity fails, since that class is already the pal
 
 test('a name that is merely unused by the config is ordinary', () => {
   assert.deepEqual(nameProblems('none', ['light'], 'at'), [],
-    'a build declares the plugins it wants and never the absence of one, so no word is reserved');
+    'a build declares the plugins it wants and never the absence of one, so "none" is an ordinary name');
   assert.deepEqual(nameProblems('default', ['light'], 'at'), []);
 });
 
@@ -197,6 +198,53 @@ test('a zero walk is a failure and not a clean pass', () => {
   assert.deepEqual(zeroScopeProblems(2), []);
 });
 
+const HUE_ROLE = {
+  $type: 'keyword', $extensions: { 'com.dravensoft.arena': { values: ['transparent'] } },
+};
+
+const FLOORED = ':root{--lh-prose:1.6;--lh-heading:1.15;--measure-prose:72ch;'
+  + '--hue-danger-fill-strong:transparent}';
+
+test('the danger floor is a closed set a colour alias cannot answer', () => {
+  const problems = keyProblems('at', 'hue-danger-fill-strong',
+    { $type: 'color', $value: '{color.error}', $description: 'why' }, HUE_ROLE);
+  assert.ok(problems.some((one) => /is a color here and a keyword in roles\.json/.test(one)));
+  assert.match(valueProblems('at', 'hue-danger-fill-strong',
+    { $type: 'keyword', $value: '{color.error}', $description: 'why' }, HUE_ROLE)[0] ?? '',
+  /not one of transparent/);
+  assert.deepEqual(valueProblems('at', 'hue-danger-fill-strong',
+    { $type: 'keyword', $value: 'transparent', $description: 'why' }, HUE_ROLE), []);
+});
+
+test('the danger floor fails a coloured answer in the root plugin, in every scope', () => {
+  assert.deepEqual(collect(FLOORED), []);
+  const problems = collect(FLOORED.replace('--hue-danger-fill-strong:transparent',
+    '--hue-danger-fill-strong:var(--color-error)'));
+  for (const scope of SCOPES)
+    assert.ok(problems.some((one) => one.includes(`--hue-danger-fill-strong is var(--color-error) in ${scope}`)),
+      scope);
+  assert.match(problems[0] ?? '', /danger is outline/);
+});
+
+test('the danger floor fails a coloured answer in a scoped plugin, in its scope', () => {
+  const problems = collect(`${FLOORED}\n.arena-showcase{--hue-danger-fill-strong:var(--color-error)}`);
+  assert.ok(problems.length > 0);
+  assert.ok(problems.some((one) => one.includes('--hue-danger-fill-strong is var(--color-error) in dark')));
+  assert.deepEqual(collect(`${FLOORED}\n.arena-showcase{--hue-danger-fill-strong:transparent}`), []);
+});
+
+test('a scoped plugin is measured through its own scope, so the floor fails there and nowhere else', () => {
+  const css = `${FLOORED}\n.arena-showcase{--hue-danger-fill-strong:#c00}`;
+  assert.deepEqual(floorProblems(resolvedFor(css, ''), 'dark', 'at'), []);
+  assert.equal(floorProblems(resolvedFor(css, 'showcase'), 'dark', 'at').length, 1);
+});
+
+test('the floor that is not stated is not measured here, because totality already asks for it', () => {
+  assert.deepEqual(floorProblems(roles(), 'dark', 'v'), []);
+  assert.match(floorProblems(roles({ 'hue-danger-fill-strong': '#c00' }), 'dark', 'v')[0] ?? '',
+    /--hue-danger-fill-strong is #c00 in dark, and danger is outline/);
+});
+
 test('the real tree holds: every scope this build emits clears the reading floors', () => {
   assert.deepEqual(collect(), []);
 });
@@ -228,4 +276,32 @@ test('the contrast composition defines nothing and only re-points a role at a st
       + 'step of a ladder that is already in the token tier, the way colors.css holds no colour');
     assert.notEqual(value, `var(${name})`, `${name} resolves to itself`);
   }
+});
+
+const KERNEL = {
+  'ink-eyebrow': {},
+  'ink-link': { $extensions: { 'com.dravensoft.arena': { default: '{ink-eyebrow}' } } },
+  'r-popover': { $extensions: { 'com.dravensoft.arena': { default: '{r.lg}' } } },
+};
+
+const answering = (over: Record<string, unknown> = {}) => ({
+  'ink-eyebrow': { $type: 'color', $value: '{color.secondary}' },
+  'ink-link': { $type: 'color', $value: '{color.secondary}' },
+  'r-popover': { $type: 'dimension', $value: '{r.lg}' },
+  ...over,
+});
+
+test('the default plugin answers a role with a kernel default the way the default does', () => {
+  assert.deepEqual(defaultAnswerProblems(KERNEL, answering()), []);
+  const problems = defaultAnswerProblems(KERNEL, answering({ 'ink-link': { $type: 'color', $value: '{color.base-200}' } }));
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '',
+    /--ink-link is "\{color\.base-200\}" and its kernel default \{ink-eyebrow\} comes to "\{color\.secondary\}"/);
+});
+
+test('a light answer is held too, and a role the default plugin is silent on is totality\'s to report', () => {
+  const lit = answering({ light: { 'ink-eyebrow': { $type: 'color', $value: '{color.base-200}' } } });
+  assert.equal(defaultAnswerProblems(KERNEL, lit).length, 1);
+  const silent = Object.fromEntries(Object.entries(answering()).filter(([key]) => key !== 'r-popover'));
+  assert.deepEqual(defaultAnswerProblems(KERNEL, silent), []);
 });

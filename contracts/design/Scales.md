@@ -51,8 +51,9 @@ What covers what is a system-wide invariant, not a per-component choice, so it i
 | Token | Value | Carried by |
 |---|---|---|
 | `--z-nav` | 800 | `ArenaBottomNav`, and the host's own fixed page chrome beside it: a sticky top bar, a second bar of its own. Below dropdown, so an `ArenaMenu` opened from the bar covers it |
+| `--z-skip` | 820 | `ArenaSkipLink`, while it holds focus. Above nav, so a link that exists to bypass a sticky header is never under it; below sheet, because every step from sheet upward is a surface that has taken the interaction, and a skip link over one is a way out of a trap meant to hold |
 | `--z-sheet` | 850 | `ArenaSheet`, and the host's own edge panels beside it: a cart, a filter drawer, a detail pane that leaves the page usable behind it. Above nav, because a sheet that slides over a fixed bar and lands under it is the failure; below dropdown, because an `ArenaMenu` opened from inside the sheet belongs over it |
-| `--z-dropdown` | 900 | `ArenaMenu`, `ArenaSelect`'s popover layer |
+| `--z-dropdown` | 900 | `ArenaMenu`, a calendar event's panel |
 | `--z-tooltip` | 950 | `ArenaTooltip`, above dropdown, so a tooltip on a menu item wins over the menu itself |
 | `--z-modal` | 1000 | `ArenaDialog` |
 | `--z-modal-nested` | 1050 | `ArenaConfirmDialog`, which opens *from* an `ArenaDialog` and so must sit above one |
@@ -64,7 +65,7 @@ What covers what is a system-wide invariant, not a per-component choice, so it i
 
 **The family declares the order; the values only preserve it.** Every overlay reads its step from this table rather than declaring a number of its own, which is what makes the relationships above enforceable: a tooltip resolves above a menu item by design rather than by DOM order, and `ArenaConfirmDialog` sits above the `ArenaDialog` it opens from rather than by accident of mount order. A component that hardcodes a `z-index` outside this scale is a defect.
 
-Exposed in the Tailwind layer as `.z-nav` / `.z-sheet` / `.z-dropdown` / `.z-tooltip` / `.z-modal` / `.z-modal-nested` / `.z-palette` / `.z-onboarding` / `.z-toast` (`frameworks/tailwind/Theme.css`, `--z-index-*`). **A consumer embedding Arena inside an app that has its own stacking context should read this table rather than guess at a number**: Arena's overlay components render in place (not one of them uses a React portal), so the global order above governs any of them mounted as siblings. **A slot is not declared for the component that stands on it.** `--z-nav` and `--z-sheet` were both minted while Arena drew nothing at either step, and they were right then for the reason they are right now: the host's own chrome, a sticky header or a second bar, and the host's own edge panels have to interleave with Arena's overlays, and a slot they can name is the difference between an order by design and an order by DOM. `ArenaBottomNav` and `ArenaSheet` stand on them today; a host's own bar stands beside `ArenaBottomNav` on the same step, and that is the arrangement the slot exists to make orderly. `--z-sheet` is now the one step no Arena component would leave empty if it were removed, and it stays for the same reason `--z-nav` did before the bar arrived. **A sheet is not an `ArenaDialog` wearing a different placement**: it is not modal, it carries no scrim and it leaves the page usable behind it, which is why it sits two slots below the one that takes the whole interaction. Any other host `z-index` is chosen against this scale too, not against whatever the host already had lying around. `display/arena-calendar/ArenaCalendar.tsx`'s `zIndex: 1` is not part of this family: it is local stacking inside a positioned container, scoped entirely inside one component, and stays a hand-written literal.
+Exposed in the Tailwind layer as `.z-nav` / `.z-skip` / `.z-sheet` / `.z-dropdown` / `.z-tooltip` / `.z-modal` / `.z-modal-nested` / `.z-palette` / `.z-onboarding` / `.z-toast` (`frameworks/tailwind/Theme.css`, `--z-index-*`). **A consumer embedding Arena inside an app that has its own stacking context should read this table rather than guess at a number**: Arena's overlay components render in place (not one of them uses a React portal), so the global order above governs any of them mounted as siblings. **A slot is not declared for the component that stands on it.** `--z-nav` and `--z-sheet` were both minted while Arena drew nothing at either step, and they were right then for the reason they are right now: the host's own chrome, a sticky header or a second bar, and the host's own edge panels have to interleave with Arena's overlays, and a slot they can name is the difference between an order by design and an order by DOM. `ArenaBottomNav` and `ArenaSheet` stand on them today; a host's own bar stands beside `ArenaBottomNav` on the same step, and that is the arrangement the slot exists to make orderly. `--z-sheet` is now the one step no Arena component would leave empty if it were removed, and it stays for the same reason `--z-nav` did before the bar arrived. **A sheet is not an `ArenaDialog` wearing a different placement**: it is not modal, it carries no scrim and it leaves the page usable behind it, which is why it sits two slots below the one that takes the whole interaction. Any other host `z-index` is chosen against this scale too, not against whatever the host already had lying around. `display/arena-calendar/ArenaCalendar.tsx`'s `zIndex: 1` is not part of this family: it is local stacking inside a positioned container, scoped entirely inside one component, and stays a hand-written literal.
 
 ## Quantity invariants (`limit`)
 System-wide bounds on how much is shown, the twin of `z`: same `$type` (`number`), same character. `z` declares the stacking order; `limit` declares the invariant, and a component derives its own consequences from it. The source is `contracts/design/behaviour.json`, generated into `contracts/design-generated/effects.generated.css`.
@@ -76,10 +77,11 @@ System-wide bounds on how much is shown, the twin of `z`: same `$type` (`number`
 **Script-readable, not Tailwind-exposed**: unlike `z`, `limit`'s consumer is an array bound in JavaScript, not a CSS property, so it carries no utility class. It reaches React as the bare number `limitPaginationSiblings` (`frameworks/react/Tokens.generated.js`) and is named in `check:coverage`'s `EXCLUDED` map for that reason rather than reaching a utility.
 
 ## Control density type scale (`dz`)
-Chrome text, meaning a button label, an input's value, a hint, a validation error, a badge or a table cell, is governed by how dense the surrounding controls are, not by the prose scale (`fs`). `dz` declares control heights, row padding, stack gap and its own five-step text scale, generated into `contracts/design-generated/spacing.generated.css` from `contracts/design/spacing.json` (base) and `contracts/design/density.compact.json` (the `.arena-compact` override):
+Chrome text, meaning a button label, an input's value, a hint, a validation error, a badge or a table cell, is governed by how dense the surrounding controls are, not by the prose scale (`fs`). `dz` declares control heights, row padding, stack gap and its own text scale. The base is generated into `contracts/design-generated/spacing.generated.css` from `contracts/design/spacing.json`; the `.arena-compact` and `.arena-comfortable` overrides restate `contracts/design/density.compact.json` and `contracts/design/density.comfortable.json` in the density vocabulary sheet, which `frameworks/tailwind/vocabulary/arena-density/Density.family.json` compiles:
 
 | Token | Value | Compact (`.arena-compact`) | Comfortable (`.arena-comfortable`) | Role |
 |---|---|---|---|---|
+| `--dz-text-lg` | 16px | 16px | 16px | the largest control text: a data readout inside a chart, where the number is the content rather than a label |
 | `--dz-text` | 14px | 13px | 14px | control text: buttons, inputs, selects, menu items, table cells |
 | `--dz-text-md` | 13px | 12px | 13px | secondary control text: tag chips, pagination, secondary buttons |
 | `--dz-text-sm` | 12px | 11px | 12px | secondary control text: hints, validation errors, badges, legends |
@@ -89,7 +91,7 @@ Chrome text, meaning a button label, an input's value, a hint, a validation erro
 **Comfortable grows the box and leaves the words alone**, and the asymmetry with compact is the
 point. Compact shrinks the text because an expert reading a dense table is trading legibility for
 how much fits on a screen; comfortable has nothing to buy with the same trade, so `--dz-ctl-h`
-goes to 48px, `--dz-ctl-h-sm` to 40px, `--dz-ctl-h-lg` to 56px, `--dz-row-py` to 16px,
+goes to 48px, `--dz-ctl-h-sm` to 44px, `--dz-ctl-h-lg` to 56px, `--dz-row-py` to 16px,
 `--dz-row-px` to 20px and `--dz-stack` to 16px, while every step above stays where it is.
 
 48px is the number that matters: it clears the 44px WCAG 2.5.8 asks at its enhanced level, which
@@ -98,11 +100,11 @@ style plugin's, since how large a control is answers who is pointing at it rathe
 product speaks in. The two density classes are mutually exclusive with each other, because both
 set the same keys, and compose with a theme and with a style plugin, because those set others.
 
-`--dz-text-2xs` does not shrink further in the compact scope: −1px would land it at 9px, which the system treats as illegible drift and snaps away from everywhere else, so reintroducing it as a systemic compact value would undo that call one layer down. Every other step follows the `−1px` precedent `--dz-text` itself sets (14→13).
+`--dz-text-lg` and `--dz-text-2xs` do not shrink in the compact scope. A readout is the content of its chart, so it keeps its size at any density. For `--dz-text-2xs`, −1px would land it at 9px, which the system treats as illegible drift and snaps away from everywhere else, so reintroducing it as a systemic compact value would undo that call one layer down. Every other step follows the `−1px` precedent `--dz-text` itself sets (14→13).
 
 `--dz-text` is the one token for the "control text" role; every consumer reads it.
 
-Exposed in the Tailwind layer under a `ctl` infix (`--text-ctl`, `--text-ctl-md`, `--text-ctl-sm`, `--text-ctl-xs`, `--text-ctl-2xs`) because the natural `--text-*` keys already belong to `fs`, and two collide on value as well as name (`fs.sm` / `dz.text-md` are both 13px; `fs.xs` / `dz.text-xs` are both 11px). No `dz` token wears an `fs`-shaped name: the `ctl` infix is what keeps the two namespaces distinguishable.
+Exposed in the Tailwind layer under a `ctl` infix (`--text-ctl-lg`, `--text-ctl`, `--text-ctl-md`, `--text-ctl-sm`, `--text-ctl-xs`, `--text-ctl-2xs`) because the natural `--text-*` keys already belong to `fs`, and two collide on value as well as name (`fs.sm` / `dz.text-md` are both 13px; `fs.xs` / `dz.text-xs` are both 11px). No `dz` token wears an `fs`-shaped name: the `ctl` infix is what keeps the two namespaces distinguishable.
 
 ## Page rhythm (`rhythm`)
 The air BETWEEN two components, which Arena itself never draws: every component is an inner box carrying no outer margin, so the space between one and the next belongs to whoever places them. Every step is authored as an alias of `sp` rather than as fresh numbers so a step cannot drift off the 4px grid, generated into `contracts/design-generated/spacing.generated.css` from `contracts/design/spacing.json`:
@@ -113,7 +115,7 @@ The air BETWEEN two components, which Arena itself never draws: every component 
 | `--rhythm-component` | 16px (`sp-4`) | between two peer components: a card and the next card, a chart and the table under it. Both sides are separate things standing on the same footing |
 | `--rhythm-section` | 24px (`sp-6`) | between two sections of a page. The two sides answer different questions, and this gap is what says so |
 
-**These three were already chosen, and what they lacked was names.** `ArenaGrid`'s `gap` variant has always spent `sm`/`md`/`lg` on exactly 12/16/24px with the middle as its default, and it reads the tokens now rather than the raw steps, so a grid is the rhythm plus a grid.
+**The scale reuses steps the system already holds, and what they lacked was names.** A grid's gap and a section's rhythm spend `group`, `component` and `section` on exactly 12/16/24px with the middle as the default, and `arena-grid-gap-<value>` and `arena-rhythm-<value>` read the tokens rather than the raw steps, so a grid is the rhythm plus a grid.
 
 **The scale is closed at both ends.** A gap tighter than `--rhythm-group` is inside a component rather than between two, which is that component's own recipe and not a page decision. A gap wider than `--rhythm-section` is the frame a page draws around its content rather than rhythm within it, and a frame is the consumer's.
 
@@ -122,6 +124,18 @@ The air BETWEEN two components, which Arena itself never draws: every component 
 **`--rhythm-group` and `--dz-stack` are both 12px, and that is not a duplicate.** The precedent is one section up: `fs.sm` / `dz.text-md` are both 13px and `fs.xs` / `dz.text-xs` are both 11px, told apart by namespace because the role differs. Here `--dz-stack` separates stacked items on a control-dense surface and compresses to 8px under `.arena-compact`; `--rhythm-group` separates a page's own content and holds at 12px. Same length today, different question, and only one of them moves.
 
 Exposed in the Tailwind layer as `--spacing-group` / `--spacing-component` / `--spacing-section` (`frameworks/tailwind/Theme.css`), so the utilities read `gap-section`, `p-group` and so on. The middle step is named `component` rather than `block` because `p-block` and `m-block` would read as the block axis of a logical property instead of as a step on this scale.
+
+## Frame shapes (`aspect`)
+The shape of a frame, as the ratio of its width to its height. A number rather than a keyword, because a ratio is two numbers: `0.8` is the same shape as four by five, and `aspect-ratio` takes it. The source is `contracts/design/spacing.json`, generated into `contracts/design-generated/spacing.generated.css`. The `ratio` family reads each step: `arena-ratio-<step>` writes the frame of an `ArenaFigure`, and `arena-ratio-media` reads the `aspect-media` role, which a style plugin answers for every figure at once.
+
+| Token | Value | Role |
+|---|---|---|
+| `--aspect-square` | 1 | a square frame, the shape a gallery tiles |
+| `--aspect-video` | 1.7777777778 | a video frame, sixteen by nine |
+| `--aspect-portrait` | 0.8 | a portrait frame, four by five: a product that fills more of a column |
+| `--aspect-wide` | 2.3333333333 | a cinema frame, twenty-one by nine |
+
+**No utility reads these tokens**: `frameworks/tailwind/Theme.css` clears `--aspect-*` so no utility resolves one, and the family is the one reader. A shape no step names is the family's property, `--arena-ratio` on a container, which takes a number, a fraction such as `3 / 2` or one of these tokens.
 
 ## Tracking scale (`ls`)
 Letter-spacing across the system is one role hierarchy: **tracking decreases as the text gets longer**, from the shortest mono micro-labels down through prose-adjacent chrome to the tightest display headings. The family below is that hierarchy, generated into `contracts/design-generated/typography.generated.css` from `contracts/design/typography.json`:

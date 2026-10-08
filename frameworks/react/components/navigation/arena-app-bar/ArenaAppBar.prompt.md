@@ -3,11 +3,11 @@ that follow the reader everywhere. The bar is the banner landmark, so a page car
 
 ```tsx
 <ArenaAppBar
-  brand={<Link to="/" aria-label="Meridian Roasters, home"><ArenaAppLogo size="sm" name="Meridian" /></Link>}
+  brand={<Link to="/" aria-label="Meridian Roasters, home"><ArenaAppLogo name="Meridian" className="arena-size-sm" /></Link>}
   nav={<nav aria-label="Shop sections">{destinations.map((d) => <Link key={d.id} to={d.href}>{d.label}</Link>)}</nav>}
   actions={<>
     <ArenaIconButton icon="ph-bold ph-magnifying-glass" label="Search the catalogue" onClick={openSearch} />
-    <ArenaIconButton icon="ph-bold ph-basket" variant="solid" label="Basket" onClick={openCart} />
+    <ArenaIconButton icon="ph-bold ph-basket" label="Basket" onClick={openCart} className="arena-emphasis-solid" />
   </>} />
 ```
 
@@ -24,6 +24,16 @@ that follow the reader everywhere. The bar is the banner landmark, so a page car
 
 <!-- @api end -->
 
+<!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
+
+**Answers.** No family of the [vocabulary](../../../../VOCABULARY.md) decides anything in this component's own box.
+
+<!-- @answers end -->
+
+<!-- @keys GENERATED from the binding. -->
+**Keys:** none (`banner`).
+<!-- @keys end -->
+
 **The bar spans the viewport and the band inside it does not.** The fill and the hairline run edge to edge. The contents stop at the page width with a gutter either side, so they line up with everything under them. Both lengths are the roles a style plugin re-answers, the same pair `.arena-band`
 carries for markup you wrote yourself.
 
@@ -36,6 +46,7 @@ wraps one. A page with a side nav as well has two navigation landmarks. Naming t
 - **Do** wrap the brand in your own link if it should lead home. The bar draws no anchor.
 - **Do** keep the actions to controls the reader needs on every screen. The row wraps rather than
   squeezing, so a crowded bar becomes two lines rather than an unreadable one.
+- **Do** fold the `nav` slot behind a toggle of your own on a phone, choosing with the `md:hidden` and `max-md:hidden` pair or `useArenaViewportBelow('md')`. The bar stays the banner either way.
 - **Don't** put a second `<header>` at the top level of the page. Banner is one per page, and two
   make the landmark useless to anyone navigating by it.
 - **Don't** reach for it inside a card or a dialog. A `<header>` nested in a section is not a
@@ -43,6 +54,6 @@ wraps one. A page with a side nav as well has two navigation landmarks. Naming t
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
+**The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

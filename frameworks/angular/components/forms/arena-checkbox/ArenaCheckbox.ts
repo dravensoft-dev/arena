@@ -4,6 +4,7 @@ import {
 import { arenaCheckboxStyles } from './ArenaCheckbox.variants';
 import manifest from './ArenaCheckbox.classes.generated';
 import { ArenaControlBinding, arenaWarnDoubleBinding } from '../../../ControlBinding';
+import { ArenaSlotAttributes } from '../../../SlotData';
 
 export const ARENA_CHECK_GLYPH_STYLE = { width: 'var(--sp-3)', height: 'var(--sp-3)' };
 export const ARENA_CHECK_STROKE_STYLE = { strokeWidth: 'var(--bw-strong)' };
@@ -11,6 +12,7 @@ export const ARENA_CHECK_STROKE_STYLE = { strokeWidth: 'var(--bw-strong)' };
 @Component({
   selector: 'arena-checkbox',
   standalone: true,
+  imports: [ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [ArenaControlBinding],
   host: {
@@ -18,8 +20,8 @@ export const ARENA_CHECK_STROKE_STYLE = { strokeWidth: 'var(--bw-strong)' };
     '[attr.name]': 'null',
   },
   template: `
-    <label [class]="styles().root()" [attr.data-arena-part]="parts.root">
-      <span [class]="styles().box()" [attr.data-arena-part]="parts.box">
+    <label [class]="styles().root()" [arenaSlotData]="styles().$data.root()" [attr.data-arena-part]="parts.root">
+      <span [class]="styles().box()" [arenaSlotData]="styles().$data.box()" [attr.data-arena-part]="parts.box">
         @if (drawn()) {
           <svg [class]="styles().check()" [attr.data-arena-part]="parts.check" viewBox="0 0 12 12" fill="none" [style]="glyph">
             <path d="M2 6l3 3 5-6" stroke="currentColor" stroke-linecap="round"

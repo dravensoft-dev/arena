@@ -1,13 +1,31 @@
 {
   "component": "ArenaDialog",
+  "answers": [
+    "dialog-width"
+  ],
   "slots": {
     "scrim": "fixed inset-0 z-modal flex items-center justify-center bg-scrim backdrop-blur-scrim",
-    "panel": "arena-pop w-120 max-w-[92vw] bg-surface-floating border-[length:var(--bw-surface)] border-edge-surface-floating rounded-surface shadow-surface-deep overflow-hidden",
-    "head": "px-6 pt-5.5",
+    "panel": "arena-pop w-[var(--arena-dialog-width-size,var(--arena-dialog-width,var(--dialog-width-md)))] max-w-[92vw] bg-surface-floating border-[length:var(--bw-surface)] border-edge-surface-floating rounded-surface shadow-surface-deep overflow-hidden",
+    "head": "px-floating-x pt-5.5",
     "eyebrow": "font-face-eyebrow text-eyebrow tracking-eyebrow case-eyebrow text-ink-eyebrow mb-2 font-eyebrow",
     "title": "font-face-heading font-heading text-title-section text-ink-heading tracking-heading leading-heading",
-    "body": "px-6 py-4 font-body text-md leading-prose text-ink-body/(--level-ink-body)",
-    "foot": "flex flex-wrap justify-end gap-2.5 px-6 pb-5.5"
+    "body": "px-floating-x py-floating-y font-body text-md leading-prose text-ink-body/(--level-ink-body)",
+    "foot": "flex flex-wrap justify-end gap-actions px-floating-x pb-5.5"
+  },
+  "kind": {
+    "scrim": "none",
+    "panel": "floating",
+    "head": "floating",
+    "eyebrow": "none",
+    "title": "none",
+    "body": "floating",
+    "foot": "floating"
+  },
+  "floating": {
+    "scrim": "a modal surface lays itself over the page, so the region it was opened from does not decide its controls"
+  },
+  "internal": {
+    "fill": "the container is narrower than fillBelow"
   },
   "variants": {
     "open": {

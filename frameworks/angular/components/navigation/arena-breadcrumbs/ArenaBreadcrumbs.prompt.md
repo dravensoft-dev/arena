@@ -32,13 +32,23 @@ handler instead:
 
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
-| `ariaLabel*` | primitive | `string` |  | Names this navigation landmark. Required, and guarded at runtime: nothing can derive it, and the constant "Breadcrumb" it used to hardcode made two trails on one page indistinguishable as landmarks while satisfying the requirement mechanically. Say which hierarchy this is a trail through: "Project navigation", never "Breadcrumb". |
+| `ariaLabel*` | primitive | `string` |  | Names this navigation landmark. Required, and guarded at runtime: nothing can derive it, and a constant such as "Breadcrumb" makes two trails on one page indistinguishable as landmarks while satisfying the requirement mechanically. Say which hierarchy this is a trail through: "Project navigation", never "Breadcrumb". |
 | `items*` | array | `readonly ArenaCrumb[]` |  | The trail, root first. The last entry is the current location and is never a link. |
 | `separator` | primitive | `string` | `"/"` | Drawn between crumbs, never before the first. Arena draws it, in its own aria-hidden span. |
 | `origin` | primitive | `string` |  | The scheme and host each crumb's href is resolved against in the structured data the component emits, as in "https://example.com". Absent, the relative href is published as it stands, which is valid and less well supported. It is a member rather than something read off the document because location.origin does not exist on a server, and a value that differs between the server render and the client one is the hydration hazard ArenaCalendar.timeZone already documents; a value the consumer passes cannot differ. One line per application, not per screen. It changes nothing a person sees. |
 | `navigate` | event | `ArenaCrumb` |  | A non-current crumb was activated, carrying that crumb alone. The native MouseEvent is not forwarded, because a platform's own event type never travels in a payload; what the listener needs from it, the chance to route instead of navigating, arrives as behaviour rather than as data. Arena has already cancelled the anchor by the time this fires, so a listener routes and does not double-navigate. It fires for a primary click with no modifier and for Enter; ctrl-click, middle-click and open-in-new-tab are the browser's and fire nothing, so a consumer who wires no listener still has a working trail of real links. |
 
 <!-- @api end -->
+
+<!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
+
+**Answers.** No family of the [vocabulary](../../../../VOCABULARY.md) decides anything in this component's own box.
+
+<!-- @answers end -->
+
+<!-- @keys GENERATED from the binding. -->
+**Keys:** none (`navigation`).
+<!-- @keys end -->
 
 ```ts
 go(crumb: ArenaCrumb): void {
@@ -62,6 +72,6 @@ structure would otherwise give. `nav[aria-label="Breadcrumb"]` and `aria-current
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
+**The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

@@ -16,7 +16,7 @@
       "form": "array",
       "of": "ArenaSeries",
       "required": true,
-      "description": "The parts, as one series whose values are read as shares of their own total. Exactly one series: a ring of two series is a sunburst, which is a different chart and not this one, so a second warns in development and is ignored. Per-slice identity goes in that series' `slots`."
+      "description": "The parts, as one series whose values are read as shares of their own total. Exactly one series: a ring of two series is a sunburst, which is a different chart and not this one, so a second warns in development and is ignored. Per-slice identity goes in that series' `colorIds`."
     },
     "label": {
       "form": "primitive",
@@ -32,13 +32,13 @@
     "valuePrefix": {
       "form": "primitive",
       "type": "string",
-      "description": "Drawn verbatim before every number the chart writes, as valueSuffix is drawn after it. A currency that precedes its amount is the majority case worldwide and had no expression: with suffix alone, \"1234.5 Bs.\" is what a chart drew where the table beside it read \"Bs. 1.234,50\", and the accessible table inherited the disagreement."
+      "description": "Drawn verbatim before every number the chart writes, as valueSuffix is drawn after it. A currency that precedes its amount is the majority case worldwide, and a suffix alone cannot say it: \"1234.5 Bs.\" would disagree with the table beside it reading \"Bs. 1.234,50\", and the accessible table would inherit the disagreement."
     },
     "shape": {
       "form": "enum",
       "type": "ArenaChartShape",
       "default": "doughnut",
-      "description": "Whether the ring keeps its hole or fills to the centre. 'pie' is the same chart with the same slices, the same legend and the same table, drawn solid. It costs the centre percentage, which has nowhere to go once the hole is gone: over a wedge it would put --bone on a --color-cat slot, a pair nothing checks for contrast because nothing had drawn it. The figure is not lost, it is in the legend row and in the accessible table, which is where every other number the chart writes already is."
+      "description": "Whether the ring keeps its hole or fills to the centre. 'pie' is the same chart with the same slices, the same legend and the same table, drawn solid. It costs the centre percentage, which has nowhere to go once the hole is gone: over a wedge it would put the heading ink on a --color-cat slot, a pair nothing checks for contrast because nothing else draws it. The figure is not lost, it is in the legend row and in the accessible table, which is where every other number the chart writes already is."
     },
     "legendLayout": {
       "form": "enum",

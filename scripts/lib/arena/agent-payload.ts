@@ -4,10 +4,10 @@
  * that installed nothing. The payload is a partial clone of this tree, so a path to something it
  * carries needs no rewrite and only what it leaves behind is touched. It is carried once per
  * layer, because the router and several references say different things to a React reader and to
- * an Angular one. The behaviour contracts are carried rather than pointed at, so the one relative
- * link that used to climb into a package root resolves inside the corpus instead. The site list
+ * an Angular one. The behaviour contracts are carried rather than pointed at, so a relative
+ * link that climbs into a package root resolves inside the corpus instead. The site list
  * and the repository list are separate because a wrong guess between them answers 404 to an agent
- * that cannot tell that from an empty answer. */
+ * that cannot tell that from an empty answer. retarget does the same for the site's pages. */
 
 import { posix } from 'node:path';
 
@@ -21,13 +21,22 @@ export const REFERENCE_DIR = 'skills/design/references';
 
 export const LAYER_NEUTRAL_INDEX = 'frameworks/INDEX.md';
 export const ROLES = 'contracts/design/roles.json';
+export const TOKENS = 'contracts/design/*.json';
 export const BEHAVIOUR = 'contracts/behaviour/*.json';
+
+export const STYLE_STORE = 'plugin-style-store';
 
 export const CARRIED_SHARED = [
   `${REFERENCE_DIR}/*.md`,
   LAYER_NEUTRAL_INDEX,
+  'frameworks/VOCABULARY.md',
   ROLES,
+  TOKENS,
   BEHAVIOUR,
+  `${STYLE_STORE}/default/*`,
+  `${STYLE_STORE}/complete/*`,
+  `${STYLE_STORE}/catalogue/INDEX.md`,
+  `${STYLE_STORE}/catalogue/*/*`,
 ];
 
 export function carriedSpecs(layer: string) {
@@ -150,5 +159,19 @@ export function rewrite(text: string, from: string, layer: string, bases: Bases)
     }
     if (!isRepoPath(target)) return whole;
     return `\`${rewriteTarget(target, from, layer, bases)}\``;
+  });
+}
+
+export function retarget(
+  text: string, from: string, repository: string, carried = (_path: string) => true,
+  exists = (_path: string) => true,
+) {
+  return text.replace(LINK, (whole, target: string) => {
+    if (/^[a-z]+:/i.test(target) || target.startsWith('#') || target.startsWith('/')) return whole;
+    const [path = '', ...rest] = target.split('#');
+    const real = resolvePosix(from, path);
+    if (real === '' || (servedBy(real) !== 'repository' && carried(real)) || !exists(real)) return whole;
+    const fragment = rest.length > 0 ? `#${rest.join('#')}` : '';
+    return `](${repository}/${real}${fragment})`;
   });
 }

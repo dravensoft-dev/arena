@@ -2,12 +2,16 @@ import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from '../arena-calendar/ArenaCalendar.classes.generated.ts';
 import React from 'react';
 import { ArenaIconButton } from '../../forms/arena-icon-button/ArenaIconButton.tsx';
-import { arenaCatColor, arenaCatTint } from '../../../DataVisuals.ts';
+import { arenaCatIndex } from '../../../DataVisuals.ts';
 import { useArenaLocale } from '../../../ArenaLocale.ts';
 
 import type { ArenaCatSlot } from '../../../Api.generated';
+import type { ArenaCalendarEventClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export interface ArenaCalendarEventProps {
+  className?: ArenaCalendarEventClass;
+
 
   /** Stable identity, so a host can switch on it rather than on the title. */
   id: string;
@@ -24,7 +28,7 @@ export interface ArenaCalendarEventProps {
   /** Identity colour. Give the same entity the same slot everywhere and it keeps its colour across views. */
   colorId?: ArenaCatSlot;
 
-  /** Whether the chip can be activated. A boolean rather than "is `click` bound?", because Arena never derives what it draws from what a consumer listens for, and the same member `ArenaTableRow.interactive` is for the same reason. An interactive chip is a <button> a keyboard user reaches with Enter from the hour cell it overlaps; a non-interactive one draws the same chip with no role and no activation, so a read-only schedule announces events rather than a screenful of buttons that do nothing. */
+  /** Whether the chip can be activated. A boolean rather than "is `onClick` bound?", because Arena never derives what it draws from what a consumer listens for, and the same member `ArenaTableRow.interactive` is for the same reason. An interactive chip is a <button> a keyboard user reaches with Enter from the hour cell it overlaps; a non-interactive one draws the same chip with no role and no activation, so a read-only schedule announces events rather than a screenful of buttons that do nothing. */
   interactive?: boolean;
 
   /** Whether the chip is drawn but cannot be activated: an event a consumer's rules lock, such as one already past or owned by someone else. It reflects through `aria-disabled` rather than the native `disabled` attribute, so the chip keeps its place in the grid's roving Tab sequence and is announced as unavailable instead of disappearing from it. With `interactive` false there is nothing to activate and the chip is inert already. */
@@ -47,7 +51,6 @@ export interface ArenaCalendarEventProps {
 export interface ArenaCalendarEventInjected {
   box: React.CSSProperties;
   domId: string;
-  color: string;
   timeLabel: string;
   dateLabel: string;
   showTime: boolean;
@@ -62,13 +65,12 @@ const chipStyles = arenaStyles(manifest);
 export const ArenaCalendarEvent = React.forwardRef<
 HTMLElement, ArenaCalendarEventProps & Partial<ArenaCalendarEventInjected>
 >(function ArenaCalendarEvent({
-  id, title, start, end, colorId, onClick, interactive = false, disabled = false,
+  className, id, title, start, end, colorId, onClick, interactive = false, disabled = false,
   actionsEnabled = false, actions, details = [],
-  box, domId, color, timeLabel, dateLabel, showTime, shownDetails = 0, actionsBelow, tabIndex, defaultPanelOpen,
+  box, domId, timeLabel, dateLabel, showTime, shownDetails = 0, actionsBelow, tabIndex, defaultPanelOpen,
 }, ref) {
 
   const locale = useArenaLocale();
-  const ink = color ?? arenaCatColor(colorId ?? 1);
 
   if (!id) throw new Error('ArenaCalendarEvent: `id` is required');
   if (!title) throw new Error('ArenaCalendarEvent: `title` is required');
@@ -80,9 +82,10 @@ HTMLElement, ArenaCalendarEventProps & Partial<ArenaCalendarEventInjected>
 
   const [panelOpen, setPanelOpen] = React.useState(Boolean(defaultPanelOpen));
   const styles = chipStyles({
+    colorId: String(arenaCatIndex(colorId ?? 1)),
     reserve: hasPanel && !actionsBelow,
     panelOpen,
-    clickable: interactive,
+    clickable: interactive && !disabled,
     disabled: interactive && disabled,
     actionsBelow,
   });
@@ -120,15 +123,15 @@ HTMLElement, ArenaCalendarEventProps & Partial<ArenaCalendarEventInjected>
 
   const body = (
     <>
-      <span className={styles.title()} data-arena-part={manifest.parts.title}>{title}</span>
+      <span className={styles.title()} data-arena-part={manifest.parts.title} {...styles.$data.title()}>{title}</span>
       {showTime && (
-        <span className={styles.time()} data-arena-part={manifest.parts.time}>{timeLabel}</span>
+        <span className={styles.time()} data-arena-part={manifest.parts.time} {...styles.$data.time()}>{timeLabel}</span>
       )}
       {details.slice(0, shownDetails).map((line, i) => (
-        <span key={`d${i}`} className={styles.detail()} data-arena-part={manifest.parts.detail}>{line}</span>
+        <span key={`d${i}`} className={styles.detail()} data-arena-part={manifest.parts.detail} {...styles.$data.detail()}>{line}</span>
       ))}
       {!interactive && details.slice(shownDetails).map((line, i) => (
-        <span key={`s${i}`} className={styles.detailShed()} data-arena-part={manifest.parts.detailShed}>{line}</span>
+        <span key={`s${i}`} className={styles.detailShed()} data-arena-part={manifest.parts.detailShed} {...styles.$data.detailShed()}>{line}</span>
       ))}
     </>
   );
@@ -160,10 +163,8 @@ HTMLElement, ArenaCalendarEventProps & Partial<ArenaCalendarEventInjected>
         }
       } : undefined}
       id={domId}
-      className={styles.chip()} data-arena-part={manifest.parts.chip}
-      style={{ ...box,
-        background: arenaCatTint(ink),
-        borderLeftColor: ink }}>
+      className={arenaClassName('ArenaCalendarEvent', styles.chip(), className)} data-arena-part={manifest.parts.chip} {...styles.$data.chip()}
+      style={box}>
       {hasPanel ? (
         <>
           {interactive ? (
@@ -172,21 +173,21 @@ HTMLElement, ArenaCalendarEventProps & Partial<ArenaCalendarEventInjected>
               aria-label={name}
               aria-disabled={disabled ? 'true' : undefined}
 
-              className={styles.chipBody()} data-arena-part={manifest.parts.chipBody}>
+              className={styles.chipBody()} data-arena-part={manifest.parts.chipBody} {...styles.$data.chipBody()}>
               {body}
             </button>
           ) : (
             <span ref={setFocusable} tabIndex={tabIndex} onClick={activate}
-              className={styles.chipBody()} data-arena-part={manifest.parts.chipBody}>
+              className={styles.chipBody()} data-arena-part={manifest.parts.chipBody} {...styles.$data.chipBody()}>
               {body}
             </span>
           )}
-          <span ref={kebabWrapRef} className={styles.kebabWrap()} data-arena-part={manifest.parts.kebabWrap}>
-            <ArenaIconButton icon="ph-bold ph-dots-three-vertical" label={locale.calendarEventActions} size="sm"
+          <span ref={kebabWrapRef} className={styles.kebabWrap()} data-arena-part={manifest.parts.kebabWrap} {...styles.$data.kebabWrap()}>
+            <ArenaIconButton icon="ph-bold ph-dots-three-vertical" label={locale.calendarEventActions} className="arena-size-sm"
               tabStop={false}
               onClick={() => { openedByUser.current = !panelOpen; setPanelOpen((o) => !o); }} />
             {panelOpen && (
-              <span ref={panelRef} className={styles.panel()} data-arena-part={manifest.parts.panel}>
+              <span ref={panelRef} className={styles.panel()} data-arena-part={manifest.parts.panel} {...styles.$data.panel()} data-arena-boundary="">
                 {actions}
               </span>
             )}

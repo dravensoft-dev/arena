@@ -4,10 +4,14 @@ import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaMenu.classes.generated.ts';
 
 import type { ArenaMenuItem, ArenaMenuAlign } from '../../../Api.generated';
+import type { ArenaMenuClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export type { ArenaMenuItem };
 
 export interface ArenaMenuProps {
+  className?: ArenaMenuClass;
+
 
   /** The element that opens the menu. The consumer draws it -- an ArenaIconButton with ph-dots-three-vertical, a secondary ArenaButton -- so it is a slot, and it carries its own accessible name. */
   trigger: React.ReactNode;
@@ -28,7 +32,7 @@ const TRIGGER_SELECTOR =
 
 const arenaMenuStyles = arenaStyles(manifest);
 
-export function ArenaMenu({ trigger, items, align = 'start', onSelect }: ArenaMenuProps) {
+export function ArenaMenu({ className, trigger, items, align = 'start', onSelect }: ArenaMenuProps) {
 
   if (items == null) throw new Error('ArenaMenu: `items` is required');
   if (!React.isValidElement(trigger) || trigger.type === React.Fragment) {
@@ -94,18 +98,18 @@ export function ArenaMenu({ trigger, items, align = 'start', onSelect }: ArenaMe
     },
   });
 
-  const styles = arenaMenuStyles();
+  const styles = arenaMenuStyles({ align });
 
   return (
-    <div ref={ref} className={styles.root()} data-arena-part={manifest.parts.root}>
+    <div ref={ref} className={arenaClassName('ArenaMenu', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
       {decoratedTrigger}
       {open && (
         <div role="menu" ref={panelRef}
-          className={align === 'end' ? `${styles.panel()} ${styles.panelEnd()}` : styles.panel()}
-          data-arena-part={manifest.parts.panel}>
+          className={styles.panel()}
+          data-arena-part={manifest.parts.panel} {...styles.$data.panel()} data-arena-surface="floating">
           {items.map((it, i) => {
-            if (it.divider) return <div key={i} className={styles.divider()} data-arena-part={manifest.parts.divider} />;
-            if (it.header) return <div key={i} className={styles.header()} data-arena-part={manifest.parts.header}>{it.header}</div>;
+            if (it.divider) return <div key={i} className={styles.divider()} data-arena-part={manifest.parts.divider} {...styles.$data.divider()} />;
+            if (it.header) return <div key={i} className={styles.header()} data-arena-part={manifest.parts.header} {...styles.$data.header()}>{it.header}</div>;
             return (
               <MenuRow key={i} item={it} onRun={() => run(it)} />
             );
@@ -117,16 +121,13 @@ export function ArenaMenu({ trigger, items, align = 'start', onSelect }: ArenaMe
 }
 
 function MenuRow({ item, onRun }: { item: ArenaMenuItem; onRun: () => void }) {
-  const styles = arenaMenuStyles();
-  const state = item.disabled
-    ? styles.itemDisabled()
-    : item.destructive ? styles.itemDestructive() : styles.itemDefault();
+  const styles = arenaMenuStyles({ disabled: !!item.disabled, destructive: !!item.destructive });
   return (
     <button role="menuitem" onClick={onRun} disabled={item.disabled}
-      className={`${styles.item()} ${state}`} data-arena-part={manifest.parts.item}>
-      {item.icon && <i className={`${item.icon} ${styles.icon()}`} data-arena-part={manifest.parts.icon} aria-hidden="true" />}
-      <span className={styles.label()} data-arena-part={manifest.parts.label}>{item.label}</span>
-      {item.shortcut && <span className={styles.shortcut()} data-arena-part={manifest.parts.shortcut}>{item.shortcut}</span>}
+      className={styles.item()} data-arena-part={manifest.parts.item} {...styles.$data.item()}>
+      {item.icon && <i className={`${item.icon} ${styles.icon()}`} data-arena-part={manifest.parts.icon} {...styles.$data.icon()} aria-hidden="true" />}
+      <span className={styles.label()} data-arena-part={manifest.parts.label} {...styles.$data.label()}>{item.label}</span>
+      {item.shortcut && <span className={styles.shortcut()} data-arena-part={manifest.parts.shortcut} {...styles.$data.shortcut()}>{item.shortcut}</span>}
     </button>
   );
 }

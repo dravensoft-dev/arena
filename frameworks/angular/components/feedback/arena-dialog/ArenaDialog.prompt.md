@@ -3,11 +3,11 @@ The host **is** the scrim, so `<arena-dialog>` covers the viewport when open and
 `hidden` branch of its own `open` variant when closed, put it anywhere in the template.
 
 ```html
-<arena-dialog [open]="dialogOpen()" title="Promote build 482 to production?" eyebrow="Deployment"
+<arena-dialog [open]="dialogOpen()" class="arena-dialog-width-lg" title="Promote build 482 to production?" eyebrow="Deployment"
               (close)="dialogOpen.set(false)">
   The current production build stays available for rollback for seven days.
   <div footer>
-    <arena-button variant="ghost" (click)="dialogOpen.set(false)">Cancel</arena-button>
+    <arena-button (click)="dialogOpen.set(false)" class="arena-emphasis-ghost">Cancel</arena-button>
     <arena-button (click)="promote()">Promote</arena-button>
   </div>
 </arena-dialog>
@@ -22,21 +22,30 @@ The host **is** the scrim, so `<arena-dialog>` covers the viewport when open and
 | `open*` | primitive | `boolean` |  | Whether the dialog is shown. The host owns it. |
 | `title*` | primitive | `string` |  | Names the dialog for assistive technology and heads it visually. Required: aria-labelledby points at it, and a modal with no name is worse than none at all. |
 | `eyebrow` | primitive | `string` |  | A short kicker above the title. |
-| `width` | primitive | `string` | `"calc(var(--sp-1) * 120)"` | A CSS width for the panel. It defaults to 480px, which each layer reaches in its own idiom, and the input overrides whichever. |
 | `content` | slot |  |  | The dialog's body. |
 | `footer` | slot |  |  | The action row, right-aligned. |
-| `fillBelow` | enum | `ArenaBreakpoint` |  | Below this breakpoint the panel fills the screen: full width and height, no radius and no shadow, the title bar pinned to the top and the footer to the bottom, the body scrolling between them, and every edge inset by the device's safe area. The measurement is the dialog's own box, which covers the viewport while open. Absent, the dialog never fills. The width member is ignored while filling. |
+| `fillBelow` | enum | `ArenaBreakpoint` |  | Below this breakpoint the panel fills the screen: full width and height, no radius and no shadow, the title bar pinned to the top and the footer to the bottom, the body scrolling between them, and every edge inset by the device's safe area. The measurement is the dialog's own box, which covers the viewport while open. Absent, the dialog never fills. The width is ignored while filling. |
 | `close` | event |  |  | The dialog was dismissed -- by Escape or by a scrim click. No payload. |
 
 <!-- @api end -->
+
+<!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
+
+**Answers** [`dialog-width`](../../../../VOCABULARY.md#dialog-width): `arena-dialog-width-lg`, `arena-dialog-width-md` (default), `arena-dialog-width-sm`. Write one as `class="arena-dialog-width-lg"` on the component, or on a container whose components should all take it. Property: `--arena-dialog-width`, set on a container of yours for a value no option names.
+
+<!-- @answers end -->
+
+<!-- @keys GENERATED from the binding. -->
+**Keys**, from [`dialog-modal`](../../../../../contracts/behaviour/dialog-modal.json):
+- `Escape`: close.
+<!-- @keys end -->
 
 `title` and `open` are both **required inputs**. `title` names the dialog for assistive
 technology, the panel's `aria-labelledby` points at it, and nothing can derive it, because a
 dialog's subject is editorial. `open` is required because `false` is the closed state and not an
 absence; the host owns it.
 
-`width` is a **CSS string** and an override rather than a requirement. The panel already carries its own default and a `92vw` cap, so a wide dialog still fits a narrow viewport. Pass a token expression
-(`width="calc(var(--sp-1) * 200)"`), never a bare number. A named size is not one of the things it takes. `width="md"` compiles, sets a declaration the browser drops, and leaves the panel at its default. Arena reports that once at runtime rather than letting it pass in silence.
+The dialog's width is the `arena-dialog-width` class, `sm`, `md` or `lg`, and `--arena-dialog-width` on a container takes a **CSS length** for a width no step names. Write a token expression such as `calc(var(--sp-1) * 200)`, never a bare `520`. A class on the dialog wins over a property on its container, and a dialog that fills the screen ignores both. Write `class="arena-dialog-width-lg"` on a form's dialog for the wide panel. A value that is not a width, such as `md` written as the property, sets a declaration the browser drops and leaves the panel at its default. Arena reports that once at runtime rather than letting it pass in silence. The panel already carries its own default, `arena-dialog-width-md`, and a `92vw` cap, so a wide dialog still fits a narrow viewport.
 
 The footer is projected through the `[footer]` marker and is **optional**, with nothing marked,
 the action row is not rendered at all rather than rendered empty. **Import `ArenaFooter` from `@dravensoft/arena-angular` in the component that writes the marker.** The gate is a `contentChild(ArenaFooter)`, which resolves the directive rather than the attribute. An un-imported marker leaves the query null and the whole footer silently unrendered, with no error and no template diagnostic. A bare `footer` attribute on a `<div>` is valid HTML whether or not a directive matches it. The component cannot detect it, because it cannot tell "the marker was not
@@ -82,10 +91,10 @@ Driving it through CDP costs an afternoon on one gotcha: a `rawKeyDown` does not
 button. Enter must be dispatched as `keyDown` carrying `text: '\r'`. Tab and Escape are fine as
 `rawKeyDown`.
 
-**On a phone.** A dialog holding a form reads better as the whole screen, so pass `fillBelow` with the breakpoint under which it should fill. The measurement is the dialog's own box, and that box covers the viewport while open. One dialog therefore fills on a phone and floats on a laptop. While it fills, `width` is ignored, the title bar and the footer stay put and the body scrolls between them. `ArenaConfirmDialog` has no such member, because a confirmation is short on every screen.
+**On a phone.** A dialog holding a form reads better as the whole screen, so pass `fillBelow` with the breakpoint under which it should fill. The measurement is the dialog's own box, and that box covers the viewport while open. One dialog therefore fills on a phone and floats on a laptop. While it fills, the width is ignored, the title bar and the footer stay put and the body scrolls between them. `ArenaConfirmDialog` has no such member, because a confirmation is short on every screen.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
+**The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { useArenaContainerWidth } from '../../../UseArenaContainerWidth.ts';
-import { arenaSrOnly, arenaValueWriter, ARENA_CHART_HEIGHT } from '../../../DataVisuals.ts';
+import { ARENA_CHART_HEIGHT, ARENA_INK_MUTED, arenaSrOnly, arenaValueWriter } from '../../../DataVisuals.ts';
 import {
   arenaLinearScale, arenaBandScale, arenaBandCenter, arenaBandIndex, arenaBandMark, arenaBandSubBand, arenaScaleValue,
 } from '../ChartScales.ts';
 import { arenaBarPathH } from '../ChartMarks.ts';
 import { arenaPlotBoxH, arenaAxisModelX, arenaCategoryLabelX, arenaTickLabelY } from '../ChartAxis.ts';
 import {
-  arenaChartTable, arenaSeriesColors, arenaSeriesDomain, arenaSeriesPointCount, arenaStackSegments, arenaStackDomain,
+  arenaChartTable, arenaSeriesColors, arenaSwatchHue, arenaSeriesDomain, arenaSeriesPointCount, arenaStackSegments, arenaStackDomain,
 } from '../ChartSeries.ts';
 import { arenaLegendStrip } from '../ChartLegend.ts';
 import { arenaTooltipAnchor } from '../ChartTooltip.ts';
@@ -17,8 +17,14 @@ import { chartBarGap, chartSeriesGap, chartBarRadius } from '../../../Tokens.gen
 import type { ArenaNumberFormat, ArenaSeries } from '../../../Api.generated';
 import { useArenaLocale } from '../../../ArenaLocale.ts';
 import { arenaPhrase } from '../../../Phrase.ts';
+import type { ArenaHorizontalBarChartClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
+import { arenaStyles } from '../../../ArenaStyles.generated.ts';
+import manifest from './ArenaHorizontalBarChart.classes.generated.ts';
 
 export interface ArenaHorizontalBarChartProps {
+  className?: ArenaHorizontalBarChartClass;
+
 
   /** One label per category, in the same order as every series' `values`. They run down the left edge, in the gutter chart.pad-category holds, and a name longer than that gutter is truncated rather than pushed into the plot. */
   labels: readonly string[];
@@ -35,7 +41,7 @@ export interface ArenaHorizontalBarChartProps {
   /** Appended verbatim to every number the chart draws: the axis ticks, the tooltip and the accessible table. Carries its own leading space if one is wanted. */
   valueSuffix?: string;
 
-  /** Drawn verbatim before every number the chart writes, as valueSuffix is drawn after it. A currency that precedes its amount is the majority case worldwide and had no expression: with suffix alone, "1234.5 Bs." is what a chart drew where the table beside it read "Bs. 1.234,50", and the accessible table inherited the disagreement. */
+  /** Drawn verbatim before every number the chart writes, as valueSuffix is drawn after it. A currency that precedes its amount is the majority case worldwide, and a suffix alone cannot say it: "1234.5 Bs." would disagree with the table beside it reading "Bs. 1.234,50", and the accessible table would inherit the disagreement. */
   valuePrefix?: string;
 
   /** How each number is written before the prefix and suffix are added: which locale, how many fraction digits, whether thousands are grouped, whether large numbers are compacted. Absent, the raw JavaScript number, which is what this chart drew before the member existed. */
@@ -46,11 +52,14 @@ export interface ArenaHorizontalBarChartProps {
 }
 
 
-export function ArenaHorizontalBarChart({
+const arenaHorizontalBarChartStyles = arenaStyles(manifest);
+
+export function ArenaHorizontalBarChart({ className, 
   labels, series, label, stack = false, valueSuffix, valuePrefix, valueFormat,
   height = ARENA_CHART_HEIGHT,
 }: ArenaHorizontalBarChartProps) {
   const locale = useArenaLocale();
+  const styles = arenaHorizontalBarChartStyles();
   if (!label) throw new Error('ArenaHorizontalBarChart: `label` is required (it names the chart for the accessible name, and nothing can derive that)');
   if (!labels) throw new Error('ArenaHorizontalBarChart: `labels` is required');
   if (!series) throw new Error('ArenaHorizontalBarChart: `series` is required');
@@ -87,7 +96,7 @@ export function ArenaHorizontalBarChart({
   };
 
   return (
-    <div ref={ref} style={{ position: 'relative', width: '100%', height }}>
+    <div className={arenaClassName('ArenaHorizontalBarChart', styles.frame(), className)} ref={ref} data-arena-part={manifest.parts.frame} {...styles.$data.frame()} style={{ height }}>
       <div tabIndex={0} role="group" aria-label={name} onKeyDown={onKeyDown}
         style={{ display: 'block', outlineOffset: 'var(--focus-offset)' }}>
       <svg width="100%" height={strip.plotH} role="img" aria-label={name}
@@ -95,13 +104,13 @@ export function ArenaHorizontalBarChart({
         {axis.ticks.map((tick, i) => (
           <g key={i}>
             <line x1={tick.x} x2={tick.x} y1={box.y} y2={box.y + box.h}
-              stroke="var(--border)" style={{ strokeWidth: 'var(--bw)' }} />
+              stroke="var(--edge-separator)" style={{ strokeWidth: 'var(--bw)' }} />
             <text x={tick.x} y={arenaTickLabelY(strip.plotH)} textAnchor="middle"
-              fill="var(--text-muted)" fontFamily="var(--font-mono)" style={{ fontSize: 'var(--dz-text-2xs)' }}>{tick.label}</text>
+              fill={ARENA_INK_MUTED} fontFamily="var(--font-mono)" style={{ fontSize: 'var(--dz-text-2xs)' }}>{tick.label}</text>
           </g>
         ))}
         <line x1={axis.zeroX} x2={axis.zeroX} y1={box.y} y2={box.y + box.h}
-          stroke="var(--line-strong)" style={{ strokeWidth: 'var(--bw)' }} />
+          stroke="var(--edge-axis)" style={{ strokeWidth: 'var(--bw)' }} />
 
         {Array.from({ length: n }, (_, i) => (
           <g key={i}>
@@ -128,7 +137,7 @@ export function ArenaHorizontalBarChart({
 
         {Array.from({ length: n }, (_, i) => (
           <text key={i} x={arenaCategoryLabelX()} y={arenaBandCenter(bands, i)} textAnchor="end" dominantBaseline="middle"
-            fill="var(--text-muted)" fontFamily="var(--font-body)" style={{ fontSize: 'var(--dz-text-xs)' }}>{labels[i] ?? ''}</text>
+            fill={ARENA_INK_MUTED} fontFamily="var(--font-body)" style={{ fontSize: 'var(--dz-text-xs)' }}>{labels[i] ?? ''}</text>
         ))}
 
         <rect x={box.x} y={box.y} width={box.w} height={box.h} fill="transparent"
@@ -139,34 +148,26 @@ export function ArenaHorizontalBarChart({
       </div>
 
       {strip.stripH > 0 && (
-        <div aria-hidden="true" style={{
-          height: strip.stripH, display: 'flex', alignItems: 'center', gap: 'calc(var(--sp-1) * 4)',
-          overflow: 'hidden', whiteSpace: 'nowrap',
-        }}>
+        <div aria-hidden="true" className={styles.legend()} data-arena-part={manifest.parts.legend} {...styles.$data.legend()} style={{ height: strip.stripH }}>
           {series.map((one, s) => (
-            <span key={s} style={{ display: 'flex', alignItems: 'center', gap: 'calc(var(--sp-1) * 1.5)', minWidth: 0 }}>
-              <span style={{ width: 'calc(var(--sp-1) * 2.5)', height: 'calc(var(--sp-1) * 2.5)',
-                borderRadius: 'var(--r-xs)', background: colors[s]?.[0], flexShrink: 0 }} />
-              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                fontFamily: 'var(--font-body)', fontSize: 'var(--dz-text-sm)', color: 'var(--text-body)' }}>{one.label}</span>
+            <span key={s} className={styles.legendItem()} data-arena-part={manifest.parts.legendItem} {...styles.$data.legendItem()}>
+              <span className={arenaHorizontalBarChartStyles(arenaSwatchHue(one, 0, s + 1)).legendSwatch()} data-arena-part={manifest.parts.legendSwatch} {...arenaHorizontalBarChartStyles(arenaSwatchHue(one, 0, s + 1)).$data.legendSwatch()} />
+              <span className={styles.legendLabel()} data-arena-part={manifest.parts.legendLabel} {...styles.$data.legendLabel()}>{one.label}</span>
             </span>
           ))}
         </div>
       )}
 
       {hover !== null && hover < n && (
-        <div style={{
-          position: 'absolute', transform: 'translate(-50%,-100%)', pointerEvents: 'none', whiteSpace: 'nowrap',
-          background: 'var(--bg-raised)', border: 'var(--bw) solid var(--border-strong)',
-          borderRadius: 'var(--r-sm)', boxShadow: 'var(--shadow-2)', padding: 'calc(var(--sp-1) * 1.5) calc(var(--sp-1) * 2.5)',
+        <div className={styles.tooltip()} data-arena-part={manifest.parts.tooltip} {...styles.$data.tooltip()} style={{
           ...arenaTooltipAnchor(Math.max(...(stack
             ? arenaStackSegments(series, hover).map((segment) => arenaScaleValue(xScale, segment.to))
             : series.map((one) => arenaScaleValue(xScale, one.values[hover] ?? 0)))),
           arenaBandCenter(bands, hover)),
         }}>
-          <div style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--dz-text-xs)', color: 'var(--mute)' }}>{labels[hover]}</div>
+          <div className={styles.tooltipLabel()} data-arena-part={manifest.parts.tooltipLabel} {...styles.$data.tooltipLabel()}>{labels[hover]}</div>
           {series.map((one, s) => one.values[hover] !== undefined && (
-            <div key={s} style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--dz-text-md)', color: 'var(--bone)' }}>
+            <div key={s} className={styles.tooltipValue()} data-arena-part={manifest.parts.tooltipValue} {...styles.$data.tooltipValue()}>
               {`${series.length > 1 ? `${one.label}: ` : ''}${fmt(one.values[hover] as number)}`}
             </div>
           ))}

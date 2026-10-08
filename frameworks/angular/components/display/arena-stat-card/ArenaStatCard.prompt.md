@@ -39,12 +39,22 @@ protected readonly incidents: ArenaStatDelta = { value: '2', direction: 'up', to
 |---|---|---|---|---|
 | `label*` | primitive | `string` |  | Short uppercase microlabel, two words at most. |
 | `value*` | primitive | `string` |  | Preformatted, e.g. "1,284" or "99.9%". ArenaStatCard never formats. |
-| `tone` | enum | `ArenaTone` | `"neutral"` | What state the number IS in right now, as against how it moved. ArenaBadge's vocabulary. |
+| `tone` | enum | `ArenaTone` | `"neutral"` | What state the number IS in right now, as against how it moved. ArenaBadge's vocabulary: neutral says nothing about state. |
 | `delta` | object | `ArenaStatDelta` |  | How the number moved. Absent renders no marker. |
 | `sub` | primitive | `string` |  | Small muted line under the value: context, e.g. "vs last week". |
 | `icon` | primitive | `string` |  | A Phosphor class name for a small glyph beside the label, drawn muted. Arena renders the aria-hidden wrapper and the `<i>`. |
 
 <!-- @api end -->
+
+<!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
+
+**Answers** [`accent`](../../../../VOCABULARY.md#accent): `arena-accent-gold`, `arena-accent-plain` (default), `arena-accent-primary`. Write one as `class="arena-accent-gold"` on the component, or on a container whose components should all take it.
+
+<!-- @answers end -->
+
+<!-- @keys GENERATED from the binding. -->
+**Keys:** none.
+<!-- @keys end -->
 
 `icon` is a Phosphor class name, not a slot, Arena draws the `<i>` and its
 aria-hidden wrapper, and an unfilled `icon` renders no wrapper at all:
@@ -69,6 +79,6 @@ aria-hidden wrapper, and an unfilled `icon` renders no wrapper at all:
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
+**The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

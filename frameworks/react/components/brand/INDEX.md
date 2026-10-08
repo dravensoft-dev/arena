@@ -20,7 +20,9 @@ event is an `on`-prefixed handler. An icon is a Phosphor class-name string, neve
 
 - Every other category this layer ships: [`../../INDEX.md`](../../INDEX.md).
 - Installing the package, declaring your skin, and what it exports besides components:
-  [`../../PACKAGE.md`](../../PACKAGE.md).
+  [`install.md`](../../../../skills/design/references/install.md),
+  [`config.md`](../../../../skills/design/references/config.md) and
+  [`exports.md`](../../../../skills/design/references/exports.md).
 - **Takes** is the members the component's API contract declares, in contract order, under this
   layer's own names. A member marked `*` is required; the prompt gives its type and its default.
 - **A member whose type is an object or an enum takes one this package exports.** The prompt
@@ -30,6 +32,6 @@ event is an `on`-prefixed handler. An icon is a Phosphor class-name string, neve
 
 | Component | What it is | Takes | Usage |
 |---|---|---|---|
-| `ArenaAppLogo` | Brand lock-up: a mark beside or above a product name. | `mark*` `name*` `dim` `size` `orientation` | [`ArenaAppLogo.prompt.md`](./arena-app-logo/ArenaAppLogo.prompt.md) |
+| `ArenaAppLogo` | Brand lock-up: a mark beside or above a product name. | `mark*` `name*` `dim` | [`ArenaAppLogo.prompt.md`](./arena-app-logo/ArenaAppLogo.prompt.md) |
 
 1 brand components in this layer.

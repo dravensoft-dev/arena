@@ -3,7 +3,9 @@
  * checked in one polarity only has not been checked: a value restated under a theme can close a
  * paragraph up in the one scope nobody measured. The rules themselves live beside the shipped
  * command, so this gate and a consumer's build hold the same claim and neither can be the weaker
- * of the two. */
+ * of the two. The root plugin is held total with kernel defaults ignored, and its answer to a role
+ * carrying one is that default completed the way a consumer's build completes a silent plugin, so
+ * a project whose own copy is silent on the role renders it as this one does. */
 
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -15,8 +17,9 @@ import { THEME_SCOPES } from '../../generate/arena/generate-tokens.ts';
 import {
   ARENA_EXT, FS_STEP, KEBAB, MAX_PROSE_MEASURE, MIN_HEADING_LEADING, MIN_PROSE_LEADING,
   MIN_PROSE_MEASURE, RHYTHM_STEP, floorProblems, keyProblems, nameProblems, totalityProblems,
-  valueProblems,
-} from '../../generate/core/arena-to-prod/style-plugin-rules.ts';
+  valueProblems, withDefaults,
+} from '../../generate/core/arena-cli/style-plugin-rules.ts';
+import { readPlugin } from '../../generate/core/arena-cli/theme-css.ts';
 
 export {
   ARENA_EXT, FS_STEP, KEBAB, MAX_PROSE_MEASURE, MIN_HEADING_LEADING, MIN_PROSE_LEADING,
@@ -33,6 +36,7 @@ export const RESOLVED = [
   'contracts/design-generated/typography.generated.css',
   'contracts/design-generated/spacing.generated.css',
   'contracts/design-generated/style-plugin.default.generated.css',
+  'contracts/design-generated/style-plugin.complete.generated.css',
 ];
 
 export const node = {
@@ -73,14 +77,55 @@ export function zeroScopeProblems(count: number) {
     + 'discovery path'];
 }
 
+const SCOPED = /^\.arena-([a-z][a-z0-9-]*)$/;
+
+export function scopedPlugins(css: string) {
+  return [...parseDecls(css).keys()]
+    .map((selector) => SCOPED.exec(selector)?.[1])
+    .filter((name): name is string => name !== undefined && !THEME_SCOPES.has(name));
+}
+
+type KernelRole = { $extensions?: Record<string, { default?: unknown }> };
+
+const without = (record: Record<string, unknown>, key: string) =>
+  Object.fromEntries(Object.entries(record).filter(([one]) => one !== key));
+
+export function defaultAnswerProblems(roles: Record<string, KernelRole>, answers: Record<string, unknown>) {
+  const kernel = Object.fromEntries(Object.entries(roles)
+    .map(([name, role]) => [name, { default: role.$extensions?.[ARENA_EXT]?.default }]));
+  const plugin = readPlugin('default', answers);
+  const said = ([dark, light]: unknown[]) =>
+    (light === undefined ? JSON.stringify(dark) : `${JSON.stringify(dark)}, ${JSON.stringify(light)} in light`);
+  const problems = [];
+  for (const [name, { default: alias }] of Object.entries(kernel)) {
+    if (typeof alias !== 'string' || !Object.hasOwn(plugin.tokens, name)) continue;
+    const completed = withDefaults({ tokens: without(plugin.tokens, name), light: without(plugin.light, name) }, kernel).plugin;
+    const want = [completed.tokens[name], completed.light[name]];
+    const got = [plugin.tokens[name], plugin.light[name]];
+    if (want[0] !== got[0] || want[1] !== got[1])
+      problems.push(`${ROOT_PLUGIN}: --${name} is ${said(got)} and its kernel default ${alias} comes to ${said(want)}. `
+        + 'A project whose own plugin is silent on the role renders it through that default, so the plugin Arena '
+        + 'installs with gives the same answer or the two appearances differ on the one role they were meant to share.');
+  }
+  return problems;
+}
+
 export function collect(sheets?: string) {
   const css = sheets ?? RESOLVED.map((f) => readFileSync(join(repoRoot, f), 'utf8')).join('\n');
   const problems = [];
   for (const scope of SCOPES)
     problems.push(...floorProblems(resolvedFor(css, '', scope), scope, ROOT_PLUGIN));
+  for (const name of scopedPlugins(css))
+    for (const scope of SCOPES)
+      problems.push(...floorProblems(resolvedFor(css, name, scope), `${scope} under .arena-${name}`,
+        `.arena-${name}`));
   problems.push(...totalityProblems(
     Object.keys(readJson(join(repoRoot, ROLES))),
     Object.keys(readJson(join(repoRoot, ROOT_PLUGIN))),
+  ));
+  problems.push(...defaultAnswerProblems(
+    readJson(join(repoRoot, ROLES)) as Record<string, KernelRole>,
+    readJson(join(repoRoot, ROOT_PLUGIN)) as Record<string, unknown>,
   ));
   return problems;
 }

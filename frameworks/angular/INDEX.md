@@ -10,11 +10,13 @@ a guess.
 
 **Read [`../../skills/design/SKILL.md`](../../skills/design/SKILL.md) before you write anything
 from here.** That page carries the one thing no page below it does, which is the rules of the
-language. The router marks which of them `arena-to-prod --audit` reads your own sources for.
+language. The router marks which of them `arena audit` reads your own sources for.
 A screen built from this tree alone breaks the rest where nothing will report it.
 
 - Installing the package, declaring your skin, and what it exports besides components:
-  [`PACKAGE.md`](./PACKAGE.md).
+  [`install.md`](../../skills/design/references/install.md),
+  [`config.md`](../../skills/design/references/config.md) and
+  [`exports.md`](../../skills/design/references/exports.md).
 - Whether a component exists at all, including any this layer does not ship:
   [`../INDEX.md`](../INDEX.md).
 

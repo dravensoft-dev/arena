@@ -6,7 +6,7 @@
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor } from '../../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
 
 const manifest = await (await fetch('./ArenaPageHead.manifest.json')).json();
 
@@ -14,16 +14,17 @@ const manifest = await (await fetch('./ArenaPageHead.manifest.json')).json();
    showing one layout at a time cannot show that the branch exists. */
 function head({ title, subtitle, actions, narrow, width }) {
   const c = arenaClassesFor(manifest, { narrow });
-  const box = el('div', { class: c.root });
+  const d = arenaSlotDataFor(manifest, { narrow });
+  const box = el('div', { class: c.root, ...d.root });
   box.style.width = width;
-  const titles = el('div', { class: c.titles }, el('h1', { class: c.title, text: title }));
-  if (subtitle) titles.append(el('p', { class: c.subtitle, text: subtitle }));
+  const titles = el('div', { class: c.titles, ...d.titles }, el('h1', { class: c.title, ...d.title, text: title }));
+  if (subtitle) titles.append(el('p', { class: c.subtitle, ...d.subtitle, text: subtitle }));
   box.append(titles);
   /* Stands in for the projected mat-buttons; the manifest styles the slot, not the
      buttons. Rendered only where actions were actually given, the same gate the
      component applies with contentChild(ArenaActions). */
   if (actions) {
-    box.append(el('div', { class: c.actions },
+    box.append(el('div', { class: c.actions, ...d.actions },
       el('span', { class: 'font-body text-ctl text-base-content/82', text: '[ Export ]' }),
       el('span', { class: 'font-body text-ctl text-primary', text: '[ New deployment ]' })));
   }

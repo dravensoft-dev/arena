@@ -3,25 +3,22 @@ import {
 } from '@angular/core';
 import { arenaContainerWidth } from '../../../ContainerSize';
 import { arenaWarnOnce } from '../../../WarnOnce';
-import {
-  ARENA_CHART_HEIGHT, ARENA_RAIL_STYLE, ARENA_SR_ONLY, arenaAreaFill, arenaPlotWidth, arenaValueWriter,
-} from '../../../DataVisuals';
+import { ARENA_CHART_HEIGHT, ARENA_INK_MUTED, ARENA_RAIL_STYLE, ARENA_SR_ONLY, arenaAreaFill, arenaPlotWidth, arenaValueWriter } from '../../../DataVisuals';
 import {
   arenaLinearScale, arenaPointScale, arenaPointAt, arenaScaleValue, arenaNearestPointIndex,
 } from '../ChartScales';
 import { arenaLinePoints, arenaLineAreaPath, arenaCurvePath, arenaCurveAreaPath } from '../ChartMarks';
 import { arenaPlotBox, arenaAxisModel, arenaTickLabelX, arenaCategoryLabelY, arenaValueGutter } from '../ChartAxis';
-import { arenaChartTable, arenaSeriesColors, arenaSeriesDomain, arenaSeriesPointCount } from '../ChartSeries';
+import { arenaChartTable, arenaSeriesColors, arenaSwatchChoice, arenaSeriesDomain, arenaSeriesPointCount } from '../ChartSeries';
 import { arenaTooltipAnchor } from '../ChartTooltip';
 import { arenaCursorHandles, arenaCursorStep, arenaPointerClears, arenaPointerUpdates } from '../ChartPointer';
 import { arenaLegendStrip } from '../ChartLegend';
-import { ARENA_TOOLTIP_STYLE, ARENA_TOOLTIP_LABEL_STYLE, ARENA_TOOLTIP_VALUE_STYLE } from '../ChartTooltipStyles';
-import {
-  ARENA_LEGEND_STRIP_STYLE, ARENA_LEGEND_ITEM_STYLE, ARENA_LEGEND_SWATCH_STYLE, ARENA_LEGEND_LABEL_STYLE,
-} from '../ChartLegendStyles';
+import { arenaLineChartStyles } from './ArenaLineChart.variants';
+import manifest from './ArenaLineChart.classes.generated';
 import type { ArenaNumberFormat, ArenaSeries } from '../../../Api.generated';
 import { chartPointR, chartPointRHover } from '../../../Tokens.generated';
 import { ARENA_LOCALE } from '../../../ArenaLocale';
+import { ArenaSlotAttributes } from '../../../SlotData';
 import { arenaPhrase } from '../../../Phrase';
 
 const ASSUMED_WIDTH = 600;
@@ -43,12 +40,11 @@ const POINT_LABEL_STYLE = { fontSize: 'var(--dz-text-xs)' } as const satisfies R
 @Component({
   selector: 'arena-line-chart',
   standalone: true,
+  imports: [ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: {
-    style: 'display:block;position:relative;width:100%',
-    '[style.height.px]': 'height()',
-  },
+  host: { style: 'display: contents' },
   template: `
+    <div [class]="styles.frame()" [attr.data-arena-part]="parts.frame" [style.height.px]="height()">
     <div #rail [style]="arenaRailStyle" tabindex="0" role="group" [attr.aria-label]="name()"
          (keydown)="onKey($event)">
     <svg [attr.width]="scrolls() ? width() : '100%'" [attr.height]="plotH()" role="img" [attr.aria-label]="name()"
@@ -56,14 +52,14 @@ const POINT_LABEL_STYLE = { fontSize: 'var(--dz-text-xs)' } as const satisfies R
       @for (tick of gridLines(); track tick.value) {
         <g>
           <line [attr.x1]="plotLeft()" [attr.x2]="plotRight()" [attr.y1]="tick.y" [attr.y2]="tick.y"
-                stroke="var(--border)" [style]="lineStyle" />
+                stroke="var(--edge-separator)" [style]="lineStyle" />
           <text [attr.x]="tickLabelX()" [attr.y]="tick.y" text-anchor="end" dominant-baseline="middle"
-                fill="var(--text-muted)" font-family="var(--font-mono)"
+                [attr.fill]="inkMuted" font-family="var(--font-mono)"
                 [style]="tickLabelStyle">{{ tick.label }}</text>
         </g>
       }
       <line [attr.x1]="plotLeft()" [attr.x2]="plotRight()" [attr.y1]="zeroY()" [attr.y2]="zeroY()"
-            stroke="var(--line-strong)" [style]="lineStyle" />
+            stroke="var(--edge-axis)" [style]="lineStyle" />
 
       @if (fills()) {
         @for (line of lines(); track line.key) {
@@ -75,7 +71,7 @@ const POINT_LABEL_STYLE = { fontSize: 'var(--dz-text-xs)' } as const satisfies R
 
       @if (active(); as point) {
         <line [attr.x1]="point.x" [attr.x2]="point.x" [attr.y1]="plotTop()" [attr.y2]="plotBottom()"
-              stroke="var(--border-strong)" stroke-dasharray="3 3" [style]="lineStyle" />
+              stroke="var(--edge-axis)" stroke-dasharray="3 3" [style]="lineStyle" />
       }
 
       @for (line of lines(); track line.key) {
@@ -93,12 +89,12 @@ const POINT_LABEL_STYLE = { fontSize: 'var(--dz-text-xs)' } as const satisfies R
       @for (mark of marks(); track mark.key) {
         <circle [attr.cx]="mark.x" [attr.cy]="mark.y"
                 [attr.r]="hover() === mark.index ? pointRHover : pointR"
-                [attr.fill]="mark.color" stroke="var(--surface-card)" [style]="seriesStrokeStyle" />
+                [attr.fill]="mark.color" stroke="var(--fill-surface)" [style]="seriesStrokeStyle" />
       }
 
       @for (point of axisPoints(); track point.index) {
         <text [attr.x]="point.x" [attr.y]="pointLabelY()" text-anchor="middle"
-              fill="var(--text-muted)" font-family="var(--font-body)"
+              [attr.fill]="inkMuted" font-family="var(--font-body)"
               [style]="pointLabelStyle">{{ point.label }}</text>
       }
 
@@ -109,21 +105,21 @@ const POINT_LABEL_STYLE = { fontSize: 'var(--dz-text-xs)' } as const satisfies R
     </div>
 
     @if (legend(); as keys) {
-      <div aria-hidden="true" [style]="legendStripStyle" [style.height.px]="stripH()">
+      <div aria-hidden="true" [class]="styles.legend()" [attr.data-arena-part]="parts.legend" [style.height.px]="stripH()">
         @for (key of keys; track key.index) {
-          <span [style]="legendItemStyle">
-            <span [style]="legendSwatchStyle" [style.background]="key.color"></span>
-            <span [style]="legendLabelStyle">{{ key.label }}</span>
+          <span [class]="styles.legendItem()" [attr.data-arena-part]="parts.legendItem">
+            <span [class]="styles.legendSwatch()" [arenaSlotData]="key.swatch" [attr.data-arena-part]="parts.legendSwatch"></span>
+            <span [class]="styles.legendLabel()" [attr.data-arena-part]="parts.legendLabel">{{ key.label }}</span>
           </span>
         }
       </div>
     }
 
     @if (active(); as point) {
-      <div [style]="tooltipStyle" [style.left.px]="point.anchor.left" [style.top]="point.anchor.top">
-        <div [style]="tooltipLabelStyle">{{ point.label }}</div>
+      <div [class]="styles.tooltip()" [attr.data-arena-part]="parts.tooltip" [style.left.px]="point.anchor.left" [style.top]="point.anchor.top">
+        <div [class]="styles.tooltipLabel()" [attr.data-arena-part]="parts.tooltipLabel">{{ point.label }}</div>
         @for (reading of point.readings; track reading.key) {
-          <div [style]="tooltipValueStyle">{{ reading.name }}{{ reading.value }}</div>
+          <div [class]="styles.tooltipValue()" [attr.data-arena-part]="parts.tooltipValue">{{ reading.name }}{{ reading.value }}</div>
         }
       </div>
     }
@@ -137,6 +133,7 @@ const POINT_LABEL_STYLE = { fontSize: 'var(--dz-text-xs)' } as const satisfies R
         }
       </tbody>
     </table>
+    </div>
   `,
 })
 export class ArenaLineChart {
@@ -153,7 +150,7 @@ export class ArenaLineChart {
   readonly curve = input(false, { transform: booleanAttribute });
   /** Appended verbatim to every number the chart draws: the axis ticks, the tooltip and the accessible table. Carries its own leading space if one is wanted. */
   readonly valueSuffix = input<string>();
-  /** Drawn verbatim before every number the chart writes, as valueSuffix is drawn after it. A currency that precedes its amount is the majority case worldwide and had no expression: with suffix alone, "1234.5 Bs." is what a chart drew where the table beside it read "Bs. 1.234,50", and the accessible table inherited the disagreement. */
+  /** Drawn verbatim before every number the chart writes, as valueSuffix is drawn after it. A currency that precedes its amount is the majority case worldwide, and a suffix alone cannot say it: "1234.5 Bs." would disagree with the table beside it reading "Bs. 1.234,50", and the accessible table would inherit the disagreement. */
   readonly valuePrefix = input<string>();
   /** How each number is written before the prefix and suffix are added: which locale, how many fraction digits, whether thousands are grouped, whether large numbers are compacted. Absent, the raw JavaScript number, which is what this chart drew before the member existed. */
   readonly valueFormat = input<ArenaNumberFormat>();
@@ -165,19 +162,15 @@ export class ArenaLineChart {
   /** The narrowest gap, in px, the chart draws between two adjacent points. Below it the chart stops compressing and overflows its container horizontally instead, scrolled and anchored to the most recent point: marker spacing is a legibility constant, not something that yields to the viewport, and thirty days in 390px is unreadable at any font size. Absent, the chart fits whatever width it is given. The rail it scrolls in is the same region the data cursor lives in, and it is keyboard-reachable whether it overflows or not. */
   readonly minPointSpacing = input<number>();
 
+  protected readonly parts = manifest.parts;
+  protected readonly styles = arenaLineChartStyles();
   protected readonly arenaSrOnly = ARENA_SR_ONLY;
   protected readonly arenaRailStyle = ARENA_RAIL_STYLE;
   protected readonly lineStyle = LINE_STYLE;
+  protected readonly inkMuted = ARENA_INK_MUTED;
   protected readonly seriesStrokeStyle = SERIES_STROKE_STYLE;
   protected readonly tickLabelStyle = TICK_LABEL_STYLE;
   protected readonly pointLabelStyle = POINT_LABEL_STYLE;
-  protected readonly tooltipStyle = ARENA_TOOLTIP_STYLE;
-  protected readonly tooltipLabelStyle = ARENA_TOOLTIP_LABEL_STYLE;
-  protected readonly tooltipValueStyle = ARENA_TOOLTIP_VALUE_STYLE;
-  protected readonly legendStripStyle = ARENA_LEGEND_STRIP_STYLE;
-  protected readonly legendItemStyle = ARENA_LEGEND_ITEM_STYLE;
-  protected readonly legendSwatchStyle = ARENA_LEGEND_SWATCH_STYLE;
-  protected readonly legendLabelStyle = ARENA_LEGEND_LABEL_STYLE;
   protected readonly pointR = POINT_R;
   protected readonly pointRHover = POINT_R_HOVER;
   protected readonly tickLabelX = computed(() => arenaTickLabelX(this.gutter()));
@@ -188,7 +181,7 @@ export class ArenaLineChart {
     prefix: this.valuePrefix(), suffix: this.valueSuffix(), format: this.valueFormat(),
   }));
 
-  private readonly measured = arenaContainerWidth();
+  private readonly measured = arenaContainerWidth(() => this.rail()?.nativeElement);
 
   private readonly available = computed(() => this.measured() ?? ASSUMED_WIDTH);
 
@@ -280,8 +273,9 @@ export class ArenaLineChart {
 
   protected readonly legend = computed(() => {
     if (this.strip().stripH === 0) return null;
-    const colors = this.colors();
-    return this.series().map((one, index) => ({ index, label: one.label, color: colors[index] }));
+    return this.series().map((one, index) => ({
+      index, label: one.label, swatch: arenaLineChartStyles(arenaSwatchChoice(one, index + 1)).$data.legendSwatch(),
+    }));
   });
 
   protected readonly table = computed(() => arenaChartTable(

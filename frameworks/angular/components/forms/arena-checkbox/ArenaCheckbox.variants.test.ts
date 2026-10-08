@@ -9,8 +9,8 @@ import { arenaCheckboxStyles } from './ArenaCheckbox.variants';
 
 test('the default is an unchecked, enabled box', () => {
   assert.equal(
-    arenaCheckboxStyles().root(),
-    arenaCheckboxStyles({ checked: false, disabled: false }).root(),
+    JSON.stringify(arenaCheckboxStyles().$data.root()),
+    JSON.stringify(arenaCheckboxStyles({ checked: false, disabled: false }).$data.root()),
   );
 });
 

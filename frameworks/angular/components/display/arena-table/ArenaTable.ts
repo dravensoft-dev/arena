@@ -12,9 +12,11 @@ import { ArenaPagination } from '../../navigation/arena-pagination/ArenaPaginati
 import { ArenaSelect } from '../../forms/arena-select/ArenaSelect';
 import { ArenaTableRow } from '../arena-table-row/ArenaTableRow';
 import { ArenaTableState } from './ArenaTableState';
+import { arenaColumnKey } from './ColumnKey';
 import { arenaTableStyles } from './ArenaTable.variants';
 import manifest from './ArenaTable.classes.generated';
 import { ARENA_LOCALE } from '../../../ArenaLocale';
+import { ArenaSlotAttributes } from '../../../SlotData';
 
 export function arenaSortOptionValue(column: number, direction: ArenaTableSort['direction']): string {
   return `${column}:${direction}`;
@@ -32,8 +34,9 @@ export function arenaParseSortOption(value: string): ArenaTableSort | null {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [ArenaTableState],
-  imports: [ArenaPagination, ArenaSelect],
+  imports: [ArenaSlotAttributes, ArenaPagination, ArenaSelect],
   host: { '[class]': 'styles().root()',
+    '[attr.data-arena-narrow]': "styles().$data.root()['data-arena-narrow'] ?? null",
     '[attr.data-arena-part]': 'parts.root', },
   template: `
     @if (sortBar()) {
@@ -44,7 +47,7 @@ export function arenaParseSortOption(value: string): ArenaTableSort | null {
         </div>
       </div>
     }
-    <table [class]="styles().grid()" [attr.data-arena-part]="parts.grid" [attr.role]="gridRole()"
+    <table [class]="styles().grid()" [arenaSlotData]="styles().$data.grid()" [attr.data-arena-part]="parts.grid" [attr.role]="gridRole()"
            [attr.aria-label]="gridName()" [attr.aria-rowcount]="rowCount()"
            (keydown)="onKeydown($event)">
       @if (!narrow() && !empty()) {
@@ -52,7 +55,8 @@ export function arenaParseSortOption(value: string): ArenaTableSort | null {
           <tr [class]="styles().headRow()" [attr.data-arena-part]="parts.headRow"
               [attr.aria-rowindex]="extent() ? 1 : null">
             @for (column of columns(); track $index; let i = $index) {
-              <th scope="col" [class]="headerClass(column)" [attr.data-arena-part]="parts.th" [style.width]="column.width"
+              <th scope="col" [class]="headerStyles(column).th()" [arenaSlotData]="headerStyles(column).$data.th()" [attr.data-arena-part]="parts.th"
+                  [style.--arena-column-width]="widthOf(i)" [style.--arena-column-align]="alignOf(i)"
                   [attr.tabindex]="state.isStop(0, i) ? 0 : -1"
                   [attr.aria-sort]="sortStateOf(i)"
                   (focus)="moveTo(0, i)" (click)="onHeader(i)">{{ column.header }}@if (sortStateOf(i) !== null && sortStateOf(i) !== 'none') {
@@ -62,10 +66,10 @@ export function arenaParseSortOption(value: string): ArenaTableSort | null {
           </tr>
         </thead>
       }
-      <tbody [class]="styles().body()" [attr.data-arena-part]="parts.body" [attr.role]="groupRole()"><ng-content /></tbody>
+      <tbody [class]="styles().body()" [arenaSlotData]="styles().$data.body()" [attr.data-arena-part]="parts.body" data-arena-boundary [attr.role]="groupRole()"><ng-content /></tbody>
     </table>
     @if (empty()) {
-      <div [class]="styles().empty()" [attr.data-arena-part]="parts.empty"><ng-content select="[empty]">{{ locale.tableEmpty }}</ng-content></div>
+      <div [class]="styles().empty()" [attr.data-arena-part]="parts.empty" data-arena-boundary><ng-content select="[empty]">{{ locale.tableEmpty }}</ng-content></div>
     } @else if (pager(); as paging) {
       <div [class]="styles().pager()" [attr.data-arena-part]="parts.pager">
         <arena-pagination [page]="paging.index" [pageCount]="pageCount()"
@@ -95,7 +99,7 @@ export class ArenaTable {
   readonly page = input<ArenaTablePage>();
   /** Where the projected rows sit inside a longer list, which is what `aria-rowcount` and `aria-rowindex` carry on the grid. Absent with `page` bound, both are derived from the page, so a paged table needs nothing here. Bind it when the projection is not a page: a window a scroller renders, an infinite list that grows, or a page inside which you render less again. It is a separate member from `page` because the two answer separate questions, the same split `page` and `pageControl` make: `page` is the model the pager draws, and this is where the rows in the DOM sit in the list they came from. Bound together, this one answers the two attributes whole rather than composing with the page, because a reader is told one position and two sources for it is how they disagree. */
   readonly slice = input<ArenaTableSlice>();
-  /** Whether ArenaTable draws the pager below the grid. 'auto' draws it whenever `page` is bound, which is what a table showing one list of its own wants; 'none' draws nothing and leaves the consumer to place an ArenaPagination themselves, over this table or over two of them at once. It is a separate member from `page` because the two are separate facts: `page` is what the table KNOWS about a longer list, and this is what it DRAWS about it. Bound together, a consumer who wanted the control elsewhere had to withhold `page` and leave the table knowing nothing about paging at all, which is a member deliberately unbound and a comment explaining why. The same split, and the same reasoning, as `sort` and `sortControl`. */
+  /** Whether ArenaTable draws the pager below the grid. 'auto' draws it whenever `page` is bound, which is what a table showing one list of its own wants; 'none' draws nothing and leaves the consumer to place an ArenaPagination themselves, over this table or over two of them at once. It is a separate member from `page` because the two are separate facts: `page` is what the table KNOWS about a longer list, and this is what it DRAWS about it. Bound together, a consumer who wants the control elsewhere would have to withhold `page` and leave the table knowing nothing about paging at all, which is a member deliberately unbound and a comment explaining why. The same split, and the same reasoning, as `sort` and `sortControl`. */
   readonly pageControl = input<ArenaTablePageControl, ArenaTablePageControl | undefined>(
     'auto',
     { transform: (value) => value ?? 'auto' },
@@ -201,9 +205,20 @@ export class ArenaTable {
     return this.sort()?.direction === 'asc' ? 'ph-bold ph-caret-up' : 'ph-bold ph-caret-down';
   }
 
-  protected headerClass(column: ArenaTableColumn): string {
-    const base = arenaTableStyles({ narrow: false, align: column.align ?? 'left' }).th();
-    return column.sortable && this.sort() ? `${base} ${this.styles().thSortable()}` : base;
+  protected headerStyles(column: ArenaTableColumn) {
+    return arenaTableStyles({ narrow: false, sortable: Boolean(column.sortable && this.sort()) });
+  }
+
+  protected readonly keys = computed(() => this.columns().map((column) => arenaColumnKey(this.label(), column.key)));
+
+  protected widthOf(column: number): string {
+    const key = this.keys()[column] ?? null;
+    return key === null ? 'initial' : `var(--arena-column-${key}-width)`;
+  }
+
+  protected alignOf(column: number): string {
+    const key = this.keys()[column] ?? null;
+    return key === null ? 'initial' : `var(--arena-column-${key}-align)`;
   }
 
   protected onHeader(column: number): void {
@@ -217,6 +232,7 @@ export class ArenaTable {
 
   constructor() {
     this.state.columns = this.columns;
+    this.state.label = this.label;
     this.state.narrow = this.narrow;
     this.state.rows = this.rows;
     this.state.extent = this.extent;

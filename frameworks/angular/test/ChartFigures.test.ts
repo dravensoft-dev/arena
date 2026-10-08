@@ -87,8 +87,8 @@ test("a doughnut's legend sets its counts in mono", () => {
   const found = figures(fixture.nativeElement as HTMLElement);
   assert.ok(found.length > 0, 'no figure rendered in the legend -- the guard would check nothing');
   for (const el of found) {
-    assert.equal((el as HTMLElement).style.fontFamily, MONO,
-      `the legend renders the count "${el.textContent?.trim()}" in ${(el as HTMLElement).style.fontFamily || 'no declared family'}`);
+    assert.equal(el.getAttribute('data-arena-part'), 'doughnut-chart.legend-value',
+      `the legend renders the count "${el.textContent?.trim()}" outside the legend value part, the one the manifest sets in mono`);
   }
   fixture.destroy();
 });

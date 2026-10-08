@@ -80,9 +80,9 @@ test('an explicit timeZone still decides the wall clock', () => {
   assert.doesNotMatch(tokyo, /09:00/, 'the Tokyo render still shows the UTC hour -- timeZone was ignored');
 });
 
-test('ArenaCalendar drops a consumer style object -- the ...style escape is gone', () => {
+test('ArenaCalendar drops a consumer style object', () => {
   const html = render({ style: { color: '#ff00ff' } });
-  assert.doesNotMatch(html, /#ff00ff/, 'a consumer style reached the rendered root -- the R4 escape is back');
+  assert.doesNotMatch(html, /#ff00ff/, 'a consumer style reached the rendered root');
 });
 
 test('ArenaCalendar drops a consumer attribute -- no {...rest} spread reaches the root', () => {
@@ -102,22 +102,22 @@ test('ArenaCalendarEvent drops a consumer attribute -- no {...rest} spread on th
   assert.doesNotMatch(html, /data-stray/, 'a consumer attribute reached the chip -- a {...rest} escape opened');
 });
 
-test('an event colours its chip from colorId, not from the old slot field', () => {
+test('an event colours its chip from colorId, not from a slot field', () => {
   const html = render({});
-  const two = 'var(--color-cat-2)';
+  const two = 'data-arena-color-id="2"';
   assert.ok(html.includes(two), 'the second event did not take its ramp colour from colorId');
   // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
   const staleChip = <ArenaCalendarEvent id="c" title="Stale" start="2026-07-20T09:00:00Z" end="2026-07-20T10:00:00Z" slot={2} />;
   const stale = renderToStaticMarkup(
     <ArenaCalendar timeZone="UTC" anchorDate="2026-07-20" view="week">{staleChip}</ArenaCalendar>,
   );
-  assert.ok(!stale.includes(two), 'the old `slot` field still picks a ramp colour -- the rename did not land');
+  assert.ok(!stale.includes(two), 'the `slot` field picked a ramp colour');
 });
 
 test('the day affordance follows dayInteractive and never the listener -- R6', () => {
   const dayLabel = arenaFormatDate('2026-07-20', 'en-GB', ARENA_DATE_OPTIONS.dayName);
   const head = new RegExp(`<button[^>]*aria-label="${dayLabel}"`);
-  const column = /role="row"[^>]*arena-calendar__column--day-interactive-true/;
+  const column = /data-arena-part="calendar.column"[^>]*\bdata-arena-day-interactive=""/;
 
   const bound = render({ onDateClick: () => {} });
   assert.doesNotMatch(bound, column, 'binding the listener alone painted a pointer cursor over the day columns');
@@ -205,11 +205,22 @@ test('a paneled chip carries a focusable body for Enter to land on', () => {
   );
 });
 
+test('a chip renders its colour id as an attribute, clamped and rounded, 1 without one, and paints nothing inline', () => {
+  const chip = (extra: Record<string, unknown> = {}) => renderToStaticMarkup(
+    <ArenaCalendarEvent id="a" title="Standup" start="2026-07-20T09:00:00Z" end="2026-07-20T09:30:00Z"
+      box={{}} timeLabel="09:00 – 09:30" dateLabel="Monday 20 July" {...extra} />,
+  );
+  assert.match(chip(), /data-arena-part="calendar.chip"[^>]*\bdata-arena-color-id="1"/);
+  assert.match(chip({ colorId: 9 }), /data-arena-part="calendar.chip"[^>]*\bdata-arena-color-id="8"/);
+  assert.match(chip({ colorId: 2.6 }), /data-arena-part="calendar.chip"[^>]*\bdata-arena-color-id="3"/);
+  assert.doesNotMatch(chip({ colorId: 4 }), /background|border-left-color/);
+});
+
 test('ArenaCalendarEvent renders its panel content when the panel is open', () => {
   const html = renderToStaticMarkup(
     <ArenaCalendarEvent id="a" title="Standup" start="2026-07-20T09:00:00Z" end="2026-07-20T09:30:00Z"
       actionsEnabled actions={<button type="button">Delete</button>}
-      box={{}} color="var(--color-cat-1)" timeLabel="09:00 – 09:30" dateLabel="Monday 20 July"
+      box={{}} timeLabel="09:00 – 09:30" dateLabel="Monday 20 July"
       defaultPanelOpen />,
   );
   assert.match(html, /Delete/, 'an open panel did not render its content');
@@ -219,13 +230,13 @@ test('the chip lifts its clip while the panel is open, and only then', () => {
   const chip = (extra: Record<string, unknown> = {}) => renderToStaticMarkup(
     <ArenaCalendarEvent id="a" title="Standup" start="2026-07-20T09:00:00Z" end="2026-07-20T09:30:00Z"
       actionsEnabled actions={<button type="button">Delete</button>}
-      box={{}} color="var(--color-cat-1)" timeLabel="09:00 – 09:30" dateLabel="Monday 20 July"
+      box={{}} timeLabel="09:00 – 09:30" dateLabel="Monday 20 July"
       {...extra} />,
   );
-  assert.match(chip({ defaultPanelOpen: true }), /\barena-calendar__chip--panel-open-true\b/,
+  assert.match(chip({ defaultPanelOpen: true }), /data-arena-part="calendar.chip"[^>]*\bdata-arena-panel-open=""/,
     'the open panel is still clipped by the chip');
   assert.match(chip({}), /\b(?:arena-calendar__chip|arena-calendar__title)\b/,
-    'a closed chip stopped clipping -- a long title no longer ellipsises');
+    'a closed chip did not clip, so a long title did not ellipsise');
   assert.match(chip({}), /\barena-calendar__title\b/,
     'the title span lost the ellipsis the chip clip was standing in for');
 });
@@ -244,12 +255,12 @@ test('the chip height floor clears the title line once the height is an outer he
   assert.match(html, /height:max\(calc\(var\(--sp-1\) \* 6\.5\), \d+px\)/,
     'the height floor is still stated as a content height -- under border-box it leaves too little content box for the title line');
   assert.doesNotMatch(html, /calc\(var\(--sp-1\) \* 4\.5\)/,
-    'the old content-box floor survived somewhere in the render');
+    'a content-box floor appeared in the render');
 });
 
 test('a chip carrying a kebab reserves the width the kebab occupies', () => {
   const html = render({}, { actionsEnabled: true, actions: <b>act</b> });
-  assert.match(html, /arena-calendar__chip--reserve-true/,
+  assert.match(html, /data-arena-part="calendar.chip"[^>]*\bdata-arena-reserve=""/,
     'a panelled chip reserves nothing for its kebab, so the title is drawn underneath it');
 });
 
@@ -311,9 +322,9 @@ test('a stacked chip anchors its kebab to the bottom and reserves no lateral ban
   const stacked = renderToStaticMarkup(
     <ArenaCalendarEvent id="a" title="Client review — Northwind" start="2026-07-20T10:00:00Z" end="2026-07-20T11:30:00Z"
       actionsEnabled actions={<button type="button">Delete</button>} actionsBelow
-      box={{}} color="var(--color-cat-1)" timeLabel="10:00 – 11:30" dateLabel="Monday 20 July" />,
+      box={{}} timeLabel="10:00 – 11:30" dateLabel="Monday 20 July" />,
   );
-  assert.match(stacked, /\barena-calendar__kebab-wrap--actions-below-true\b/,
+  assert.match(stacked, /data-arena-part="calendar.kebab-wrap"[^>]*\bdata-arena-actions-below=""/,
     'the kebab is not anchored to the chip bottom');
   assert.doesNotMatch(stacked, /pr-\[calc\(var\(--dz-ctl-h-sm\)/,
     'a stacked chip still reserves the lateral band, so the title gains nothing');
@@ -323,10 +334,10 @@ test('an unstacked chip keeps the top-right kebab and its reserve', () => {
   const plain = renderToStaticMarkup(
     <ArenaCalendarEvent id="a" title="Release window" start="2026-07-20T15:00:00Z" end="2026-07-20T16:30:00Z"
       actionsEnabled actions={<button type="button">Delete</button>}
-      box={{}} color="var(--color-cat-1)" timeLabel="15:00 – 16:30" dateLabel="Monday 20 July" />,
+      box={{}} timeLabel="15:00 – 16:30" dateLabel="Monday 20 July" />,
   );
-  assert.doesNotMatch(plain, /\barena-calendar__kebab-wrap--actions-below-true\b/, 'the kebab left its conventional corner');
-  assert.match(plain, /arena-calendar__chip--reserve-true/,
+  assert.doesNotMatch(plain, /data-arena-part="calendar.kebab-wrap"[^>]*\bdata-arena-actions-below=""/, 'the kebab left its conventional corner');
+  assert.match(plain, /data-arena-part="calendar.chip"[^>]*\bdata-arena-reserve=""/,
     'the unstacked chip lost the reserve that keeps its title clear of the kebab');
 });
 

@@ -3,8 +3,9 @@ import type { ArenaActivityItem } from '../../../Api.generated';
 import { arenaFocusableElements } from '../../../FocusTrap';
 import { arenaActivityFeedStyles } from './ArenaActivityFeed.variants';
 import manifest from './ArenaActivityFeed.classes.generated';
+import { ArenaSlotAttributes } from '../../../SlotData';
 
-const TONES = Object.keys(manifest.variants.tone);
+const TONES: readonly string[] = manifest.values.tone;
 type ArenaTone = NonNullable<ArenaActivityItem['tone']>;
 const toneOf = (tone: string | undefined): ArenaTone | undefined =>
   (tone && TONES.includes(tone) ? tone as ArenaTone : undefined);
@@ -13,27 +14,30 @@ export interface ActivityFeedRow {
   item: ArenaActivityItem;
   itemClass: string;
   dotClass: string;
+  itemData: Readonly<Record<string, string>>;
+  dotData: Readonly<Record<string, string>>;
 }
 
 export function arenaResolveActivityFeedRows(items: readonly ArenaActivityItem[]): ActivityFeedRow[] {
   return items.map((item, index) => {
     const resolved = arenaActivityFeedStyles({ tone: toneOf(item.tone), divided: index > 0 });
-    return { item, itemClass: resolved.item(), dotClass: resolved.dot() };
+    return { item, itemClass: resolved.item(), dotClass: resolved.dot(), itemData: resolved.$data.item(), dotData: resolved.$data.dot() };
   });
 }
 
 @Component({
   selector: 'arena-activity-feed',
   standalone: true,
+  imports: [ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { style: 'display: contents', '(keydown)': 'onKeydown($event)' },
   template: `
     <ul [class]="base().root()" [attr.data-arena-part]="parts.root" role="feed" [attr.aria-label]="labelText()"
         [attr.aria-busy]="busy() ? 'true' : 'false'">
       @for (row of rows(); track row.item.id ?? $index; let i = $index) {
-        <li [class]="row.itemClass" [attr.data-arena-part]="parts.item" role="article" tabindex="0"
+        <li [class]="row.itemClass" [arenaSlotData]="row.itemData" [attr.data-arena-part]="parts.item" role="article" tabindex="0"
             [attr.aria-posinset]="i + 1" [attr.aria-setsize]="rows().length">
-          <span [class]="row.dotClass" [attr.data-arena-part]="parts.dot" aria-hidden="true"></span>
+          <span [class]="row.dotClass" [arenaSlotData]="row.dotData" [attr.data-arena-part]="parts.dot" aria-hidden="true"></span>
           <span [class]="base().text()" [attr.data-arena-part]="parts.text">
             <b [class]="base().actor()" [attr.data-arena-part]="parts.actor">{{ row.item.actor }}</b> {{ row.item.action }}
             @if (row.item.target) {

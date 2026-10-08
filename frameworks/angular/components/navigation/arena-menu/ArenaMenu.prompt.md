@@ -25,6 +25,19 @@ unpositioned.
 
 <!-- @api end -->
 
+<!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
+
+**Answers** [`fill`](../../../../VOCABULARY.md#fill): `arena-fill`, `arena-fit` (default). Write one as `class="arena-fill"` on the component, or on a container whose components should all take it.
+
+<!-- @answers end -->
+
+<!-- @keys GENERATED from the binding. -->
+**Keys**, from [`menu-button`](../../../../../contracts/behaviour/menu-button.json):
+- `Enter`: opens the menu and moves focus to its first item.
+- `Space`: opens the menu and moves focus to its first item.
+- `Escape`: closes the menu and returns focus to the button.
+<!-- @keys end -->
+
 ```ts
 protected readonly rowActions: ArenaMenuItem[] = [
   { header: 'Build 482' },
@@ -80,8 +93,10 @@ platform activation. Run `bun run demos` and open
 - A menu opened from inside an `arena-dialog` paints above the panel, and a tooltip on a row
   paints above the menu.
 
+To fill a row, put `class="arena-fill"` on the menu or on a container above it. The trigger is not a boundary, so the class reaches the control inside and both take the row. On the control alone it fills the menu's own box, which fits the control.
+
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
+**The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

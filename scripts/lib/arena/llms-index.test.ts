@@ -43,8 +43,12 @@ test('a corpus carries its own layer and nothing from the other, which is why it
     const text = corpus(layer);
     const other = LAYERS.find((name) => name !== layer) ?? '';
     assert.ok(text.includes(`frameworks/${layer}/components/`), `${layer} carries its own components`);
-    assert.ok(!text.includes(`frameworks/${other}/components/`),
+    assert.ok(!text.includes(`<!-- frameworks/${other}/`),
       `${layer} carries a document from ${other}, which is the drift the split exists to end`);
+    const stray = text.split(`frameworks/${other}/components/`).slice(0, -1)
+      .filter((before) => !before.endsWith(`${DOMAIN}/`));
+    assert.deepEqual(stray, [], `${layer} names a prompt of ${other} other than at its address on the site, `
+      + 'which is the only place a reader of this corpus can open it');
   }
 });
 

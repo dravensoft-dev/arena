@@ -1,6 +1,0 @@
-{
-  "name": "ArenaButtonVariant",
-  "kind": "enum",
-  "description": "Primary for the one main action in a view; secondary for neutral actions; ghost for tertiary ones; danger for destructive ones. Danger is outline and never filled: Arena's only filled danger surface is the final confirmation inside ArenaConfirmDialog.",
-  "values": ["primary", "secondary", "ghost", "danger"]
-}

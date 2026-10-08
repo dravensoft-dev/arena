@@ -1,36 +1,51 @@
 {
   "component": "ArenaStatCard",
+  "answers": [
+    {
+      "family": "accent",
+      "options": [
+        "arena-accent-plain",
+        "arena-accent-primary",
+        "arena-accent-gold"
+      ],
+      "default": "arena-accent-plain"
+    }
+  ],
   "slots": {
     "root": "flex flex-col gap-2 bg-surface border-[length:var(--bw-surface)] border-edge-surface rounded-surface p-surface min-h-30 shadow-surface-rest",
     "head": "flex items-center justify-between gap-items",
     "label": "font-face-label text-label tracking-label-role case-label text-ink-muted/(--level-ink-muted)",
     "icon": "inline-flex text-[length:var(--icon-sm)] text-ink-muted/(--level-ink-muted) opacity-60",
-    "value": "font-face-heading font-heading text-h2 leading-snug tabular-nums tracking-heading",
+    "value": "font-face-heading font-heading text-h2 leading-snug tabular-nums tracking-heading text-[color:var(--arena-accent-ink,var(--accent-plain-ink))]",
     "delta": "self-start inline-flex items-center gap-1 rounded-marker px-2 py-0.5 bg-transparent border-[length:var(--bw-marker)] font-body text-ctl-sm font-semibold",
     "sub": "font-body text-ctl-sm text-ink-muted/(--level-ink-muted)"
   },
+  "kind": {
+    "root": "surface",
+    "head": "none",
+    "label": "none",
+    "icon": "none",
+    "value": "none",
+    "delta": "marker",
+    "sub": "none"
+  },
+  "internal": {
+    "deltaTone": "the delta object's tone (ArenaStatDelta.tone), on the delta slot, which cannot share a name with the card's own tone"
+  },
   "variants": {
     "tone": {
-      "neutral": {
-        "value": "text-ink-body"
-      },
-      "accent": {
-        "value": "text-primary"
-      },
-      "gold": {
-        "value": "text-secondary"
-      },
+      "neutral": {},
       "success": {
-        "value": "text-success"
+        "value": "text-[color:var(--arena-hue-ink)]"
       },
       "warning": {
-        "value": "text-warning"
+        "value": "text-[color:var(--arena-hue-ink)]"
       },
       "danger": {
-        "value": "text-error"
+        "value": "text-[color:var(--arena-hue-ink)]"
       },
       "info": {
-        "value": "text-info"
+        "value": "text-[color:var(--arena-hue-ink)]"
       }
     },
     "deltaTone": {
@@ -38,15 +53,29 @@
         "delta": "border-edge-marker text-ink-muted/(--level-ink-muted)"
       },
       "positive": {
-        "delta": "border-success text-success"
+        "delta": "border-[color:var(--arena-hue-edge)] text-[color:var(--arena-hue-ink)]"
       },
       "negative": {
-        "delta": "border-error text-error"
+        "delta": "border-[color:var(--arena-hue-edge)] text-[color:var(--arena-hue-ink)]"
       }
     }
   },
   "defaultVariants": {
     "tone": "neutral",
     "deltaTone": "neutral"
+  },
+  "hues": {
+    "tone": {
+      "neutral": null,
+      "success": "success",
+      "warning": "warning",
+      "danger": "danger",
+      "info": "info"
+    },
+    "deltaTone": {
+      "neutral": null,
+      "positive": "success",
+      "negative": "danger"
+    }
   }
 }

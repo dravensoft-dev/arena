@@ -56,6 +56,56 @@ any one of them while failing the other two.
 element a layer renders, what an idiom forces: all of that belongs beside the source, in the
 layer's own document or the component's `.prompt.md`.
 
+## Who decides how a component looks
+
+**The API declares behaviour and the vocabulary decides appearance, and the two own disjoint
+channels.** They never treat the same aspect of a component, so their decisions coexist by
+construction rather than by a precedence rule. Five questions, five owners:
+
+| Question | Owner | How it arrives | Where it is set |
+|---|---|---|---|
+| Value: which lengths, colours and durations exist | `design/` | custom properties on `:root` | nowhere outside Arena |
+| Register: what each option looks like | the style plugin and the palette | `:root`, `.arena-<plugin>` and `plugin.css` | the plugin directory and `arena.config.json` |
+| Context: which option governs a region | a context family | a class on an ancestor or the component, crossing components | the adopter's markup |
+| Instance: which option this component takes in its box, or a value no option names | a box family | a class on the component or an ancestor, or the family's axis property on a container, reaching the nearest component only; a keyed family's property under the key a member names | the adopter's markup |
+| Behaviour: state, data, events, semantics, accessibility | `api/` | members; semantics reaches the DOM as `data-arena-*` | the component call |
+
+**Inside a channel the nearest class wins**, by scope proximity rather than by source order, so a
+class on the component beats one on an ancestor whatever order the sheets load in. **Between
+channels nothing is decided**, because no property has two writers.
+
+**A component answers a subset of a family's options, and says which with a default of its own.** A
+button answers `arena-size-sm`, `-md` and `-lg` and the logo also answers `-xl`. A class naming an
+option a component lacks writes nothing on it, so the component stays at the nearest option it
+answers: an `arena-size-xl` region leaves a button at the `arena-size-lg` that reaches it, or at its
+own default when none does. The component's default is the fallback of its channel read, never a
+declaration of its own.
+
+**A context class reaches a component through its root, and stops at a floating surface.** The
+rule writes the channel on the root element of each component that answers the family, and a
+surface that renders its own content (a dialog, a menu panel, a toast stack, a tooltip) says so
+with `data-arena-surface="floating"`, which is where the scope ends. A box family stops inside
+every element that projects adopter content, which carries `data-arena-boundary`, unless its
+manifest declares the slot `transparent` with a reason. A surface rendered in a portal also leaves
+the subtree its trigger sits in, so no class above the trigger reaches it either way.
+
+**Meaning reaches the DOM as `data-arena-<group>`, and meaning alone writes the hue
+channels.** A component renders each manifest group as an attribute on every slot it touches; a
+Tailwind rule keyed on it writes `--arena-hue-ink`, `-edge`, `-fill-strong`, `-fill-soft` and `-on-ink` from
+the roles a plugin answers, and a slot reads them. No component chooses a class or a colour by a
+member's value. **A floor lives in the answer**: a closed set on the role, `hue-danger-fill-strong`
+answering `transparent`, held in every plugin ([`design/StylePlugins.md`](./design/StylePlugins.md)).
+
+**A value no option names is the family's property, set on a container with a token**:
+`--arena-grid-min: calc(var(--grid-min) * 1.5)`, and a class on the component wins over it. A
+component takes no member for it, and its default is the fallback of the channel read. **A keyed
+family is the exception to a class**: a table's column is named by an optional `key` member, and
+its width and alignment are `--arena-column-<key>-width` and `-align`, because the table cannot
+know what a column holds and an adopter has no element of the column to put a class on.
+
+The families, their reach and their compilation are [`../frameworks/tailwind/AGENTS.md`](../frameworks/tailwind/AGENTS.md);
+the rule that keeps appearance out of a member is [`api/AGENTS.md`](./api/AGENTS.md).
+
 ## The three levels are firm in one direction
 
 `design/` and `behaviour/` are settled and **not reopened by `api/`**, which is orthogonal and
@@ -75,13 +125,10 @@ is the one level with a generated sibling directory. `api/` and `design/` both a
 **per framework layer**, `Api.generated.*` and `Tokens.generated.*`, so that a component's
 import never crosses the `contracts/` ↔ `frameworks/` boundary. `behaviour/` emits nothing.
 
-**A value reaches both layers as a custom property and by no per-layer step at all**, which is
-the reading the paragraph above is most often given the other way round. The generated CSS is
-tracked, every page links it, and a layer that wants a value writes `var(--name)`: there is no
-file under `frameworks/` to edit and nothing to add. `Tokens.generated.*` is the exception below
-and never the route, so a contributor asked to make both layers reach a new value and reading
-only the paragraph above reaches for the flag, which is the one move that cannot be undone
-cheaply.
+**A value reaches both layers as a custom property and by no per-layer step at all.** The
+generated CSS is tracked, every page links it, and a layer that wants a value writes `var(--name)`:
+there is nothing under `frameworks/` to edit. `Tokens.generated.*` is the exception below and never
+the route, since flagging a token for it is the one move that cannot be undone cheaply.
 
 **A token whose consumer is JavaScript emits twice.** One flagged
 `$extensions["com.dravensoft.arena"].script: true` gets the custom property it always would have
@@ -142,15 +189,10 @@ also rebuild that one file alone, from the binaries already committed under `ass
 and with no network involved, via `--css-only`. Never edit any of the five directly; edit
 the source and rebuild.
 
-The other two levels have no such directory because they emit nothing outside
-`frameworks/`. `api/` generates `Api.generated.*` and `design/` also generates
-`Tokens.generated.*`, but those are emitted **per layer**, into the layer that consumes
-them, so a component's import never crosses a contract boundary. What makes `design`
-different is that its CSS ships to consumers directly: `intro/styles.css` imports all
-five, plus the hand-authored `design/colors.css` and `design/environment.css`.
-
-So `design-generated/` is a fact about what this one level emits, not a convention
-waiting to be applied to the other two. `contracts/api-generated/` would be empty.
+The other two levels have no such directory because they emit nothing outside `frameworks/`:
+`api/` and `design/` generate their `*.generated.*` per layer, into the layer that consumes them.
+`design` differs because its CSS ships to consumers directly: `intro/styles.css` imports all five,
+plus the hand-authored `design/colors.css` and `design/environment.css`.
 
 ## Two shapes, on purpose
 
@@ -162,8 +204,6 @@ vocabulary, not two. `design/` is flat because the job an inner directory would 
 the DTCG sources apart from Style Dictionary's output, is done at the top level by the
 `design/` / `design-generated/` split instead.
 
-So an inner directory is earned, never assumed. Add one only when it separates two
-vocabularies a gate reads as two sets.
 
 ## The zero-result guards, by name
 

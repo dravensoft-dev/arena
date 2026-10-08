@@ -1,7 +1,7 @@
 /* Draws a raster of a page of the site, in the browser the pixel gates already drive. A
  * hand-exported PNG would be the one artifact in the tree nobody could regenerate, and it would
  * drift from the palette the day a token moved; one rendered here is the same tokens the site is
- * drawn from, so it cannot show a colour Arena no longer ships. It is the only step of the site
+ * drawn from, so it cannot show a colour Arena does not ship. It is the only step of the site
  * build that needs a browser, and it fails loudly rather than emitting a blank image, because a
  * picture nobody looked at is exactly the artifact that ships broken. The size is the caller's:
  * a link preview and a page's own hero are read at different distances. */

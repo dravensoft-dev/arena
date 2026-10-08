@@ -1,6 +1,0 @@
-{
-  "name": "ArenaSheetPlacement",
-  "kind": "enum",
-  "description": "Which edge the panel is anchored to. Checked against every enum already declared here before it was added; nothing carries this set. ArenaToastPlacement is the near miss and is a different question: a stack of notices names a CORNER and needs both axes, where a sheet spans the edge it is attached to and names one. There is no top: a panel spanning the top edge of a page is a banner, which is what ArenaAlert already is, and a sheet is a working surface a reader keeps open beside the page. The inline pair is start/end rather than left/right so a right-to-left reading flips it with the document.",
-  "values": ["bottom", "start", "end"]
-}

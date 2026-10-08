@@ -37,6 +37,7 @@ export const node = {
     `frameworks/${layer}/components/**/*.demo.entry.generated.${layer === 'react' ? 'tsx' : 'ts'}`,
   ]),
   feeds: [
+    'check:families',
     'build:angular-demo',
     'build:angular-package',
     'build:angular-tests',

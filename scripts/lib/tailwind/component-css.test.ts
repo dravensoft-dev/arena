@@ -2,9 +2,11 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { win32 } from 'node:path';
 import {
-  applyRules, classesManifest, classNames, compoundClass, entryStylesheet, isThemeKey,
-  slotClass, stripIndirection, stripProblems, themeKeyMap, variantClass,
+  applyRules, classesManifest, classNames, entryStylesheet, isThemeKey,
+  slotClass, stripIndirection, stripProblems, themeKeyMap, themeMapFor,
 } from './component-css.ts';
+import { compileEntry, layerInputs } from './tailwind-compile.ts';
+import { repoRoot } from '../arena/repo-root.ts';
 
 const manifest = {
   component: 'ArenaSideNavItem',
@@ -18,28 +20,64 @@ const manifest = {
 
 test('a class name is kebab-cased on both halves, so a camelCase slot cannot leak into CSS', () => {
   assert.equal(slotClass('ArenaSideNavItem', 'innerLabel'), 'arena-side-nav-item__inner-label');
-  assert.equal(variantClass('ArenaSideNavItem', 'root', 'tone', 'neutral'), 'arena-side-nav-item__root--tone-neutral');
-  assert.equal(compoundClass('ArenaPageHead', 'root', 0), 'arena-page-head__root--cv1');
 });
 
-test('an empty variant branch emits no rule, because a class with no declaration is dead weight', () => {
+test('an enum value compiles to the slot class qualified by its attribute inside :where()', () => {
   const selectors = classNames(manifest);
-  assert.ok(selectors.includes('arena-side-nav-item__root--disabled-true'));
-  assert.ok(!selectors.includes('arena-side-nav-item__root--disabled-false'));
+  assert.ok(selectors.includes('arena-side-nav-item__root:where([data-arena-tone="danger"])'));
+});
+
+test('a boolean true is an attribute test and a boolean false is its absence, a default of true included', () => {
+  const bar = {
+    component: 'ArenaAppBar',
+    slots: { root: 'flex' },
+    variants: { sticky: { true: { root: 'sticky' }, false: { root: 'relative' } } },
+    defaultVariants: { sticky: true },
+  };
+  const selectors = classNames(bar);
+  assert.ok(selectors.includes('arena-app-bar__root:where([data-arena-sticky])'));
+  assert.ok(selectors.includes('arena-app-bar__root:where(:not([data-arena-sticky]))'));
+});
+
+test('a compound compiles to one :where() holding every condition', () => {
+  const hero = {
+    component: 'ArenaHero',
+    slots: { words: 'flex' },
+    variants: { layout: { bleed: {}, inset: {} }, align: { start: {}, center: {} } },
+    defaultVariants: { layout: 'inset', align: 'start' },
+    compoundVariants: [{ layout: 'bleed', align: 'start', class: { words: 'px-0' } }],
+  };
+  assert.deepEqual(classNames(hero), [
+    'arena-hero__words',
+    'arena-hero__words:where([data-arena-layout="bleed"][data-arena-align="start"])',
+  ]);
+  const off = {
+    ...hero,
+    variants: { disabled: { true: {}, false: {} }, align: { start: {} } },
+    compoundVariants: [{ disabled: false, align: 'start', class: { words: 'px-0' } }],
+  };
+  assert.ok(classNames(off).includes('arena-hero__words:where(:not([data-arena-disabled])[data-arena-align="start"])'));
+});
+
+test('an empty variant branch emits no rule, because a rule with no declaration is dead weight', () => {
+  const selectors = classNames(manifest);
+  assert.ok(selectors.includes('arena-side-nav-item__root:where([data-arena-disabled])'));
+  assert.ok(!selectors.some((one) => one.includes(':where(:not([data-arena-disabled]))')));
 });
 
 test('bases come before variants, which is what makes source order decide between them', () => {
   const rules = applyRules(manifest).map((r) => r.selector);
-  const lastBase = rules.findLastIndex((s) => !s.includes('--'));
-  const firstVariant = rules.findIndex((s) => s.includes('--'));
+  const lastBase = rules.findLastIndex((s) => !s.includes(':where'));
+  const firstVariant = rules.findIndex((s) => s.includes(':where'));
   assert.ok(lastBase < firstVariant, `bases and variants interleave: ${rules.join(' ')}`);
 });
 
-test('the classes manifest keeps every slot, so a slot whose base is empty still answers', () => {
+test('the classes manifest keeps every slot and names no variant class', () => {
   const named = classesManifest({ ...manifest, slots: { ...manifest.slots, bare: '' } });
   assert.equal(named.slots.bare, 'arena-side-nav-item__bare');
-  assert.deepEqual(named.variants?.disabled?.false, {}, 'an empty branch stays a branch and names no class');
-  assert.equal(named.variants?.tone?.danger?.root, 'arena-side-nav-item__root--tone-danger');
+  assert.equal('variants' in named, false);
+  assert.equal('compoundVariants' in named, false);
+  assert.deepEqual(named.values?.tone, ['neutral', 'danger']);
 });
 
 test('the entry wraps every rule in @layer utilities, which is where every Arena rule already lives', () => {
@@ -90,4 +128,29 @@ test('an indirection the preset does not explain is a problem rather than a sile
   const problems = stripProblems('gap: var(--spacing, var(--sp-9))', map);
   assert.equal(problems.length, 1);
   assert.match(problems[0] ?? '', /is not a pair Theme\.css declares/);
+});
+
+test('the strip resolves a theme key whose value is a calc over Arena tokens and refuses a calc the preset does not declare', () => {
+  const map = themeKeyMap('@theme { --spacing-row-x: calc(var(--pad-row-x) * var(--dz-row-scale-x)); --spacing: var(--sp-1); }');
+  const calc = 'calc(var(--pad-row-x) * var(--dz-row-scale-x))';
+  assert.equal(map.get('spacing-row-x'), calc);
+  assert.equal(
+    stripIndirection(`padding-inline: var(--spacing-row-x, ${calc}); gap: var(--spacing, var(--sp-1));`, map),
+    `padding-inline: ${calc}; gap: var(--sp-1);`,
+  );
+  assert.deepEqual(stripProblems(`padding-inline: var(--spacing-row-x, ${calc})`, map), []);
+  assert.equal(stripProblems('padding-inline: var(--spacing-row-x, calc(var(--pad-row-y) * 2))', map).length, 1);
+});
+
+test('a channel read with a role fallback compiles whole, and the strip and its check leave it alone', () => {
+  const probe = new Map([['p.json', { component: 'ArenaProbe', slots: { root: 'h-[var(--arena-probe-h,var(--probe-role))]' } }]]);
+  const preset = `${repoRoot}/frameworks/tailwind/Theme.css`;
+  const raw = compileEntry(entryStylesheet(preset, probe), repoRoot, layerInputs(repoRoot));
+  const theme = themeMapFor(repoRoot);
+  assert.deepEqual(stripProblems(raw, theme), []);
+  assert.match(stripIndirection(raw, theme), /height: var\(--arena-probe-h,var\(--probe-role\)\);/);
+  assert.ok(!isThemeKey('arena-size-h'));
+  assert.ok(!isThemeKey('probe-x', new Map([['spacing', 'sp-1']])), 'a key Theme.css does not declare is left alone');
+  assert.equal(stripIndirection('gap: var(--spacing, var(--sp-1)); h: var(--arena-a-h, var(--r-1))', new Map([['spacing', 'sp-1']])),
+    'gap: var(--sp-1); h: var(--arena-a-h, var(--r-1))');
 });

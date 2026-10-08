@@ -6,7 +6,6 @@
     "options": { "form": "array", "of": "ArenaSegmentOption", "required": true, "description": "The options, in order. Two to four with one-word labels." },
     "value": { "form": "primitive", "type": "string", "description": "The selected option's value. Omit and pass `defaultValue` to let it govern itself." },
     "defaultValue": { "form": "primitive", "type": "string", "description": "The initially selected value when uncontrolled. Defaults to the first option." },
-    "size": { "form": "enum", "type": "ArenaSegmentedControlSize", "default": "md", "description": "Compact or default." },
     "ariaLabel": { "form": "primitive", "type": "string", "required": true, "description": "Names what is being filtered: \"Time range\", not \"Filter\". A radio group with no accessible name is announced unlabelled." },
     "name": { "form": "primitive", "type": "string", "description": "Shared name for the underlying radios; generated when omitted." },
     "change": { "form": "event", "payload": "string", "description": "A different option was chosen; carries its value." }

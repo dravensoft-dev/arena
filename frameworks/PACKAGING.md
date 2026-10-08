@@ -1,7 +1,7 @@
 # Packaging Arena for npm
 
-> **For whoever builds or publishes a package.** Installing one instead? Read [`react/PACKAGE.md`](./react/PACKAGE.md) or
-> [`angular/PACKAGE.md`](./angular/PACKAGE.md), which is the page npm shows.
+> **For whoever builds or publishes a package.** Installing one instead? Read
+> [`install.md`](../skills/design/references/install.md), which covers both layers.
 
 Arena ships three ways from one tree. Two of them assume the consumer has this repository:
 the Claude Code plugin, served from the git tag, and the Agent Skill. The third does not,
@@ -32,15 +32,13 @@ and the assembly copies each into its `dist/` as `README.md`. They live in the t
 than being written into `dist/` directly for one reason: `check:docs` reads them, so the
 page npm shows holds to the same size, punctuation and comment rules as everything else.
 
-**The half of that page which is the same page in both packages is written once**, in
-`scripts/generate/arena/generate-npm-pages.ts`, and emitted into the `@shared` regions per file:
-what the repository is, how a skin is declared, and the tail.
+**A page is an intro and a table of questions.** `scripts/lib/arena/npm-questions.ts` holds the
+rows, and `scripts/generate/arena/generate-npm-pages.ts` emits them into the `@shared` regions,
+each answer linking `skills/design/` at the tag of the release. The prose a consumer reads lives
+there, flat and once, with a heading per layer where a topic differs by layer.
 A person places the markers, so where a section sits on the page stays the page's decision and
-only what it says belongs to the script; `check:skills` holds every region equal to a fresh emit.
-What a layer decides stays hand-written in each: the import idiom, what the package exports, and
-how a layout is composed. The rule is the one `check:duplication` states for any pair of documents
-sharing a file name, applied to the pair a reader is most likely to meet: they are one page
-rendered per package, and a sentence said twice by hand goes stale in one of them.
+only what it says belongs to the script; `check:skills` holds every region equal to a fresh emit
+and every row to a file, a heading and a link from the skill.
 
 ## The one decision everything else follows from
 
@@ -58,7 +56,7 @@ So the packages ship everything that is invariant, and the consumer declares the
   derives the muted text levels from `--color-base-content`.
 - **The consumer's, in `arena.config.json`**: the palettes and the fonts.
 
-One command travels in each package, `arena-to-prod`, and `CLI_BINS` in
+One command travels in each package, `arena`, and `CLI_BINS` in
 [`scripts/lib/arena/package-assembly.ts`](../scripts/lib/arena/package-assembly.ts) is the
 list both manifests take their `bin` from. Its source is its own directory under
 `scripts/generate/core/`, described in
@@ -184,7 +182,7 @@ symbols each package exports, the files under `css/`, and the shape of `arena.co
 Re-skinning goes through the last of those, which is what it is for; content a consumer draws
 themselves is theirs, and their rules on their own elements are theirs too.
 
-**This is where the statement lives rather than only in each `PACKAGE.md`**, because the two
+**This is where the statement lives rather than only in the consumer references**, because the two
 say different things to different readers. A package's README tells an adopter what they may
 lean on. This tells us what we are free to change, and it is the reason a manifest edit ships
 in a patch. It is also the reason prefixing Arena's utilities, if that is ever worth doing,
@@ -228,17 +226,15 @@ and nothing in the tree ties an element's display to anything an adopter can nam
 package takes a class or a style from its consumer on any component, so there was no supported
 route into that box to withdraw.
 
-**This is the statement's home rather than each `PACKAGE.md`**, on the same split as the section
-above: a README tells an adopter what to do, and this says what we are free to change. Until now
-the consequence was written three times, once each in `ArenaPagination`'s, `ArenaCalendarEvent`'s
-and `ArenaBreadcrumbs`' own prompt, and the other components that pay it said nothing. A rule
+**This is the statement's home rather than the consumer references**, on the same split as the section
+above: a README tells an adopter what to do, and this says what we are free to change. A consequence written once per component, as in `ArenaPagination`'s, `ArenaCalendarEvent`'s
+and `ArenaBreadcrumbs`' own prompt, leaves the other components that pay it silent. A rule
 recorded per component is a rule that is missing wherever nobody thought to repeat it.
 
-**`css/rhythm.css` is the rule with something behind it.** Telling an adopter to put the layout
+**The vocabulary page lists `.arena-stack` and `.arena-row`.** Telling an adopter to put the layout
 on a container of their own is only half an answer while the system ships the spacing scale and
 nothing that applies a step from it, because the remaining decision, how far apart two
-components go, is then theirs to invent. That sheet holds `.arena-stack` and `.arena-row`, the
-three named steps of the page rhythm scale, and it is meant for exactly the container this
+components go, is then theirs to invent. Those classes hold the three named steps of the page rhythm scale, and they are meant for exactly the container this
 section says to write.
 
 ## Assembly, not restructuring
@@ -273,8 +269,9 @@ writing those into the tracked layer would leave build files beside the source.
 because the failure it prevents is silent: a `.variants.ts` importing a Tailwind manifest four
 directories up is a reach ng-packagr refuses, since it infers `rootDir` from the entry file's
 directory. A component composes its own class names from a table emitted beside it, so nothing
-reaches out and the staging tree is a compiler's requirement rather than the shape of a coupling. `build-angular-package.ts` fails on a staging run that copies zero files, so a layer
-that moved is loud rather than silently empty.
+reaches out and the staging tree is a compiler's requirement rather than the shape of a coupling.
+`build-angular-package.ts` fails on a staging run that copies zero files, so a layer that moved is
+loud rather than silently empty.
 
 ### What never ships
 
@@ -320,7 +317,7 @@ name is not the API" above before treating a manifest edit as a break.
 ## What `check:packages` holds
 
 **That the two palette emitters agree.** There are now two things that turn a palette into
-CSS: Style Dictionary, which serves this repository, and `arena-to-prod`, which serves a
+CSS: Style Dictionary, which serves this repository, and `arena build`, which serves a
 consumer who has no repository. The gate builds a config out of Arena's own skin, runs the
 CLI over it, and asserts every `--color-*` declaration matches
 `contracts/design-generated/palette.generated.css` in both blocks. A comparison that looked
@@ -359,8 +356,8 @@ whether `plugin.json`'s version is already on the registry, and if it is not, wh
 anything in `scripts/ci/arena/package-inputs.ts` has changed since the tag of the version
 that is. So a release touching only React publishes only React, and the Angular package
 keeps its number rather than shipping an identical tree under a new one. That is why the two
-packages can sit at different versions, and both `PACKAGE.md` files point a reader at
-[`../.github/workflows/AGENTS.md`](../.github/workflows/AGENTS.md) for the explanation.
+packages can sit at different versions. [`versioning.md`](../skills/design/references/versioning.md) tells a consumer so, and
+[`../.github/workflows/AGENTS.md`](../.github/workflows/AGENTS.md) is the explanation.
 
 Three things about the publish itself, each of which has a way of going wrong:
 

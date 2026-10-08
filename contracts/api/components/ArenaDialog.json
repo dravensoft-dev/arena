@@ -20,12 +20,6 @@
       "type": "string",
       "description": "A short kicker above the title."
     },
-    "width": {
-      "form": "primitive",
-      "type": "string",
-      "default": "calc(var(--sp-1) * 120)",
-      "description": "A CSS width for the panel. It defaults to 480px, which each layer reaches in its own idiom, and the input overrides whichever."
-    },
     "content": {
       "form": "slot",
       "description": "The dialog's body."
@@ -37,7 +31,7 @@
     "fillBelow": {
       "form": "enum",
       "type": "ArenaBreakpoint",
-      "description": "Below this breakpoint the panel fills the screen: full width and height, no radius and no shadow, the title bar pinned to the top and the footer to the bottom, the body scrolling between them, and every edge inset by the device's safe area. The measurement is the dialog's own box, which covers the viewport while open. Absent, the dialog never fills. The width member is ignored while filling."
+      "description": "Below this breakpoint the panel fills the screen: full width and height, no radius and no shadow, the title bar pinned to the top and the footer to the bottom, the body scrolling between them, and every edge inset by the device's safe area. The measurement is the dialog's own box, which covers the viewport while open. Absent, the dialog never fills. The width is ignored while filling."
     },
     "close": {
       "form": "event",

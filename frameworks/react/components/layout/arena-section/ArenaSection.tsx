@@ -2,11 +2,15 @@ import React from 'react';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaSection.classes.generated.ts';
 
-import type { ArenaHeadingLevel, ArenaSectionRhythm } from '../../../Api.generated';
+import type { ArenaHeadingLevel } from '../../../Api.generated';
+import type { ArenaSectionClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export interface ArenaSectionProps {
+  className?: ArenaSectionClass;
 
-  /** Names the region, both on screen and to assistive technology. Required, and guarded at runtime after trimming: a section is a heading over a group, and one with no heading is a stack, which css/rhythm.css already ships as a class. The guard trims first because the value it exists to catch is a present and useless one, not an absent one, which the type already refuses. */
+
+  /** Names the region, both on screen and to assistive technology. Required, and guarded at runtime after trimming: a section is a heading over a group, and one with no heading is a stack, which the vocabulary page lists as a class. The guard trims first because the value it exists to catch is a present and useless one, not an absent one, which the type already refuses. */
   title: string;
 
   /** Which rung of the document outline the title takes. Only the element changes: the title's class is the same at every value, so the render is identical and no appearance follows from it. It defaults to `h2` because the section register is already a step under a page's title and a step over a card's, and this is that register said as structure rather than as a size. `none` is refused at runtime, the rule every component whose `title` is required follows: a title required because it names the thing it draws cannot also be told that the name is not one. */
@@ -23,18 +27,12 @@ export interface ArenaSectionProps {
 
   /** Trailing content in the head row, aligned to the end and to the title's own baseline. Arena draws the row; the consumer draws what sits in it. A link that leads to the whole of what the section shows a slice of is the ordinary case. */
   action?: React.ReactNode;
-
-  /** How far the head stands from the body. The steps are the page rhythm scale itself, so sm reads as one unit, md as a head over its own content and lg as a head over a region of the page, and none closes the distance entirely for a section whose body carries its own top edge. Nothing here is a number this component chose. */
-  rhythm?: ArenaSectionRhythm;
 }
 
 const arenaSectionStyles = arenaStyles(manifest);
-const RHYTHMS = Object.keys(manifest.variants.rhythm);
-const rhythmOf = (rhythm: string | undefined): ArenaSectionRhythm =>
-  (rhythm && RHYTHMS.includes(rhythm) ? rhythm as ArenaSectionRhythm : 'md');
 
-export function ArenaSection({
-  title, headingLevel = 'h2', children, eyebrow, description, action, rhythm = 'md',
+export function ArenaSection({ className, 
+  title, headingLevel = 'h2', children, eyebrow, description, action,
 }: ArenaSectionProps) {
   if (!title?.trim()) {
     throw new Error('ArenaSection: `title` is required, and names the region its heading introduces');
@@ -45,20 +43,20 @@ export function ArenaSection({
   if (React.Children.toArray(children).length === 0) {
     throw new Error('ArenaSection: a section with no children is not a legal shape, because its heading would name nothing');
   }
-  const styles = arenaSectionStyles({ rhythm: rhythmOf(rhythm) });
+  const styles = arenaSectionStyles({});
   const Heading = headingLevel;
 
   return (
-    <section className={styles.root()} data-arena-part={manifest.parts.root}>
-      <div className={styles.head()} data-arena-part={manifest.parts.head}>
-        <div className={styles.titles()} data-arena-part={manifest.parts.titles}>
-          {eyebrow && <div className={styles.eyebrow()} data-arena-part={manifest.parts.eyebrow}>{eyebrow}</div>}
-          <Heading className={styles.title()} data-arena-part={manifest.parts.title}>{title}</Heading>
-          {description && <p className={styles.description()} data-arena-part={manifest.parts.description}>{description}</p>}
+    <section className={arenaClassName('ArenaSection', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+      <div className={styles.head()} data-arena-part={manifest.parts.head} {...styles.$data.head()}>
+        <div className={styles.titles()} data-arena-part={manifest.parts.titles} {...styles.$data.titles()}>
+          {eyebrow && <div className={styles.eyebrow()} data-arena-part={manifest.parts.eyebrow} {...styles.$data.eyebrow()}>{eyebrow}</div>}
+          <Heading className={styles.title()} data-arena-part={manifest.parts.title} {...styles.$data.title()}>{title}</Heading>
+          {description && <p className={styles.description()} data-arena-part={manifest.parts.description} {...styles.$data.description()}>{description}</p>}
         </div>
-        {action && <div className={styles.action()} data-arena-part={manifest.parts.action}>{action}</div>}
+        {action && <div className={styles.action()} data-arena-part={manifest.parts.action} {...styles.$data.action()} data-arena-boundary="">{action}</div>}
       </div>
-      <div className={styles.body()} data-arena-part={manifest.parts.body}>{children}</div>
+      <div className={styles.body()} data-arena-part={manifest.parts.body} {...styles.$data.body()} data-arena-boundary="">{children}</div>
     </section>
   );
 }

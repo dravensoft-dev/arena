@@ -9,14 +9,14 @@ import { Playground } from '../playground/Playground';
 import { PlaygroundStore } from '../playground/PlaygroundState';
 import type { Knob, KnobModel } from '../playground/PlaygroundCodec.generated';
 
-const size: Knob = {
-  member: 'size', form: 'enum', type: 'ArenaAvatarSize', bind: 'defaulted', bound: true,
-  control: 'select', codec: 'raw', options: ['xs', 'sm', 'md', 'lg'], initial: 'md', nodes: null,
-  doc: 'The avatar\'s diameter.',
+const kind: Knob = {
+  member: 'kind', form: 'enum', type: 'ArenaAvatarKind', bind: 'defaulted', bound: true,
+  control: 'select', codec: 'raw', options: ['person', 'team'], initial: 'person', nodes: null,
+  doc: 'The avatar\'s kind.',
 };
 
 const model: KnobModel = {
-  component: 'ArenaAvatar', description: '', note: '', affordances: [], knobs: [size], events: [],
+  component: 'ArenaAvatar', description: '', note: '', affordances: [], knobs: [kind], events: [],
   host: null, uses: [],
 };
 
@@ -32,9 +32,9 @@ class PlaygroundHost {
 test('an enum control shows the value it is bound to rather than the first option', () => {
   const fixture = TestBed.createComponent(PlaygroundHost);
   fixture.detectChanges();
-  const select = fixture.nativeElement.querySelector('#knob-size') as HTMLSelectElement;
+  const select = fixture.nativeElement.querySelector('#knob-kind') as HTMLSelectElement;
   assert.ok(select, 'the enum knob drew no select at all');
-  assert.equal(select.value, 'md',
+  assert.equal(select.value, 'person',
     'a select takes its value from the option marked selected, and a value written onto the '
     + 'element before its options exist is dropped by the browser with nothing to report it');
 });
@@ -42,8 +42,8 @@ test('an enum control shows the value it is bound to rather than the first optio
 test('an enum control follows the value the store moves to', () => {
   const fixture = TestBed.createComponent(PlaygroundHost);
   fixture.detectChanges();
-  fixture.componentInstance.store.setValue('size', 'lg');
+  fixture.componentInstance.store.setValue('kind', 'team');
   fixture.detectChanges();
-  const select = fixture.nativeElement.querySelector('#knob-size') as HTMLSelectElement;
-  assert.equal(select.value, 'lg');
+  const select = fixture.nativeElement.querySelector('#knob-kind') as HTMLSelectElement;
+  assert.equal(select.value, 'team');
 });

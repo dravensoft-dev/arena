@@ -5,7 +5,8 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
   entries, catalogue, search, nameOf, categoryOf, words, textOf, withUris, relIndex,
-  ROUTER_URI, SUPPORT_URI, ROLES_URI, LAYER_INDEX_URI, CATALOGUE_URI, SCHEME,
+  ROUTER_URI, SUPPORT_URI, ROLES_URI, LAYER_INDEX_URI, CATALOGUE_URI, VOCABULARY_URI, SCHEME,
+  extractFamilies, STYLE_PREFIX,
 } from './catalogue.ts';
 import type { Manifest } from './payload.ts';
 
@@ -165,4 +166,168 @@ test('a question with no words finds nothing rather than everything', () => {
 
 test('words are lowercased and split, so a question is matched on its parts', () => {
   assert.deepEqual([...words('Sortable Table, rows')], ['sortable', 'table', 'rows']);
+});
+
+test('extractFamilies parses family sections from vocabulary markdown', () => {
+  const text = '# The vocabulary\n\n## fill\n\nWhether a component takes width of the box. Write it and it stops.\n';
+  const families = extractFamilies(text);
+  assert.equal(families.length, 1);
+  assert.equal(families[0]?.name, 'fill');
+  assert.equal(families[0]?.description, 'Whether a component takes width of the box');
+});
+
+test('the vocabulary lists every family a component answers, searchable by family name', () => {
+  const dir = payload({
+    'frameworks/VOCABULARY.md': '# The vocabulary\n\n## fill\n\n'
+      + 'Whether a component takes the width of the box it sits in or the width of its own content. '
+      + 'Write it on the instance, and it stops at the content that component projects.\n',
+  });
+  const found = entries(dir, MANIFEST);
+  const uris = found.map((one) => one.uri);
+  assert.ok(uris.includes(`${SCHEME}://vocabulary`), 'the vocabulary page has its own URI');
+  assert.ok(uris.includes(`${SCHEME}://family/fill`), 'each family has its own URI');
+  rmSync(dir, { recursive: true });
+});
+
+test('a search for a family property finds the family entry', () => {
+  const dir = payload({
+    'frameworks/VOCABULARY.md': '# The vocabulary\n\n## fill\n\n'
+      + 'Whether a component takes the full width of the box it sits in. '
+      + 'Write it on the instance, and it stops at the content.\n',
+  });
+  const found = search(dir, entries(dir, MANIFEST), 'full width');
+  assert.ok(found.length > 0, 'full width is found');
+  const uris = found.map((one) => one.entry.uri);
+  assert.ok(
+    uris.includes(`${SCHEME}://family/fill`) || uris.includes(`${SCHEME}://vocabulary`),
+    'the result is the family or the vocabulary page',
+  );
+  rmSync(dir, { recursive: true });
+});
+
+test('a search for a family name finds that family', () => {
+  const dir = payload({
+    'frameworks/VOCABULARY.md': '# The vocabulary\n\n## fill\n\n'
+      + 'Whether a component takes width of the box. Write it and it stops.\n',
+  });
+  const found = search(dir, entries(dir, MANIFEST), 'fill');
+  assert.equal(found[0]?.entry.uri, `${SCHEME}://family/fill`, 'fill family is ranked first');
+  rmSync(dir, { recursive: true });
+});
+
+test('a token group and a behaviour pattern each get a URI, and the roles keep their own', () => {
+  const dir = payload({
+    'contracts/design/spacing.json': '{"sp":{}}',
+    'contracts/behaviour/tabs.json': '{"name":"tabs","requires":{}}',
+  });
+  try {
+    const uris = entries(dir, MANIFEST).map((one) => one.uri);
+    assert.ok(uris.includes(`${SCHEME}://tokens/spacing`));
+    assert.ok(uris.includes(`${SCHEME}://behaviour/tabs`));
+    assert.ok(uris.includes(ROLES_URI));
+    assert.equal(uris.includes(`${SCHEME}://tokens/roles`), false);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('a relative link to a carried token group or pattern resolves to its URI', () => {
+  const dir = payload({
+    'skills/design/references/page.md': '# The page\n\n[spacing](../../../contracts/design/spacing.json) '
+      + 'and [tabs](../../../contracts/behaviour/tabs.json)\n',
+    'contracts/design/spacing.json': '{}',
+    'contracts/behaviour/tabs.json': '{}',
+  });
+  try {
+    const { byUri, byRel } = catalogue(dir, MANIFEST);
+    const page = byUri.get(`${SCHEME}://reference/page`);
+    assert.ok(page);
+    const text = textOf(dir, page, byRel) ?? '';
+    assert.match(text, /\]\(arena:\/\/tokens\/spacing\)/);
+    assert.match(text, /\]\(arena:\/\/behaviour\/tabs\)/);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('behaviour and token JSON add no boilerplate words, so a reference on focus ranks first', () => {
+  const files: Record<string, string> = {
+    'skills/design/references/focus.md': '# Keyboard focus\n\nHow keys move focus.\n',
+  };
+  for (const name of ['tabs', 'menu', 'grid', 'listbox', 'dialog']) {
+    files[`contracts/behaviour/${name}.json`] = '{"requires":{"roles":["x"],"keys":["Tab"],"focus":"in"}}';
+  }
+  const dir = payload(files);
+  try {
+    const found = entries(dir, MANIFEST);
+    for (const q of ['focus', 'keys']) {
+      assert.equal(search(dir, found, q)[0]?.entry.uri, `${SCHEME}://reference/focus`, q);
+    }
+    assert.ok(search(dir, found, 'tabs keys').some((one) => one.entry.uri === `${SCHEME}://behaviour/tabs`));
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('a JSON resource that is not a token group or a pattern is found by what it opens with', () => {
+  const dir = payload({
+    'contracts/design/roles.json': '{"radius":{"$type":"dimension","compat":"the alias"}}',
+    'rules.json': '{"raw-value":{"says":"read sp-4 through its token, never a raw value"}}',
+  });
+  try {
+    const found = entries(dir, MANIFEST);
+    assert.equal(search(dir, found, 'radius')[0]?.entry.uri, ROLES_URI);
+    assert.ok(search(dir, found, 'raw value').some((one) => one.entry.uri === `${SCHEME}://rules`));
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('a token group is found by the names of its tokens', () => {
+  const dir = payload({
+    'contracts/design/spacing.json': JSON.stringify({ sp: { $type: 'dimension', 4: { $value: { value: 16, unit: 'px' } } } }),
+    'contracts/design/effects.json': JSON.stringify({ shadow: { $type: 'shadow', soft: { $value: 'x' } } }),
+  });
+  try {
+    const found = entries(dir, MANIFEST);
+    assert.equal(search(dir, found, 'sp-4')[0]?.entry.uri, `${SCHEME}://tokens/spacing`);
+    assert.equal(search(dir, found, 'shadow soft')[0]?.entry.uri, `${SCHEME}://tokens/effects`);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+const STYLE = {
+  'plugin-style-store/default/plugin.tokens.json': '{"color":{}}',
+  'plugin-style-store/catalogue/INDEX.md':
+    '# The catalogue\n\n| [A booking flow](./booking/ENTRY.md) | [`plugin.css`](./booking/plugin.css) |\n'
+    + '[the page](../../skills/design/references/page.md)\n',
+  'plugin-style-store/catalogue/booking/ENTRY.md': '# A booking flow\n\nA form completed once.\n',
+  'plugin-style-store/catalogue/booking/plugin.css': '.x { color: red; }',
+  'plugin-style-store/catalogue/booking/plugin.tokens.json': '{}',
+  'plugin-style-store/catalogue/booking/arena.config.json': '{}',
+};
+
+test('the default style plugin and each catalogue entry get a URI and the right mime type', () => {
+  const dir = payload(STYLE);
+  try {
+    const found = new Map(entries(dir, MANIFEST).map((one) => [one.uri, one.mime]));
+    assert.equal(found.get(`${STYLE_PREFIX}default/plugin.tokens.json`), 'application/json');
+    assert.equal(found.get(`${STYLE_PREFIX}catalogue/INDEX.md`), 'text/markdown');
+    assert.equal(found.get(`${STYLE_PREFIX}catalogue/booking/ENTRY.md`), 'text/markdown');
+    assert.equal(found.get(`${STYLE_PREFIX}catalogue/booking/plugin.css`), 'text/css');
+    assert.equal(found.get(`${STYLE_PREFIX}catalogue/booking/arena.config.json`), 'application/json');
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('the catalogue index links resolve to served URIs, the entry files and the references', () => {
+  const dir = payload(STYLE);
+  try {
+    const { byUri, byRel } = catalogue(dir, MANIFEST);
+    const index = byUri.get(`${STYLE_PREFIX}catalogue/INDEX.md`);
+    assert.ok(index);
+    const text = textOf(dir, index, byRel) ?? '';
+    assert.match(text, new RegExp(`\\]\\(${STYLE_PREFIX}catalogue/booking/ENTRY\\.md\\)`));
+    assert.match(text, new RegExp(`\\]\\(${STYLE_PREFIX}catalogue/booking/plugin\\.css\\)`));
+    assert.match(text, /\]\(arena:\/\/reference\/page\)/);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('an entry is found by the name of its directory, not by the file name every entry shares', () => {
+  const dir = payload(STYLE);
+  try {
+    const { entries: found } = catalogue(dir, MANIFEST);
+    const top = search(dir, found, 'booking')[0];
+    assert.equal(top?.entry.uri, `${STYLE_PREFIX}catalogue/booking/ENTRY.md`);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
 });

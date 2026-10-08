@@ -10,21 +10,22 @@ import { ArenaCalendarEvent } from '../components/display/arena-calendar-event/A
 
 afterEach(cleanup);
 
-const VARIANTS = ['block', 'line', 'text', 'circle'];
+const SHAPES = ['arena-skeleton-block', 'arena-skeleton-line', 'arena-skeleton-circle'] as const;
 
-test('ArenaSkeleton renders role=status in every variant, circle included', () => {
+test('ArenaSkeleton renders role=status in every shape, circle and stack included', () => {
   const seen: Record<string, boolean> = {};
-  for (const variant of VARIANTS) {
-    // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-    const container = mount(<ArenaSkeleton variant={variant} />);
-    seen[variant] = Boolean(container.querySelector<HTMLElement>('[role="status"]')!);
+  for (const shape of SHAPES) {
+    const container = mount(<ArenaSkeleton className={shape} />);
+    seen[shape] = Boolean(container.querySelector<HTMLElement>('[role="status"]'));
     cleanup();
   }
-  assert.deepEqual(seen, { block: true, line: true, text: true, circle: true });
+  const stack = mount(<ArenaSkeleton lines={2} />);
+  seen.stack = Boolean(stack.querySelector<HTMLElement>('[role="status"]'));
+  assert.deepEqual(seen, { 'arena-skeleton-block': true, 'arena-skeleton-line': true, 'arena-skeleton-circle': true, stack: true });
 });
 
 test('ArenaSkeleton circle carries the role and a name, like its siblings', () => {
-  const container = mount(<ArenaSkeleton variant="circle" />);
+  const container = mount(<ArenaSkeleton className="arena-skeleton-circle" />);
   const el = container.firstElementChild;
   assert.equal(el!.getAttribute('role'), 'status');
   assert.equal(el!.getAttribute('aria-label'), 'Loading');
@@ -33,7 +34,7 @@ test('ArenaSkeleton circle carries the role and a name, like its siblings', () =
 
 test('ArenaSkeleton matches its status binding, block and circle both', () => {
 
-  const placeholder = mount(<ArenaSkeleton variant="block" />);
+  const placeholder = mount(<ArenaSkeleton />);
   assertPattern({
     root: placeholder,
     bindingPath: join(REACT_COMPONENTS, 'display/arena-skeleton/ArenaSkeleton.behaviour.json'),
@@ -41,7 +42,7 @@ test('ArenaSkeleton matches its status binding, block and circle both', () => {
   });
   cleanup();
 
-  const circle = mount(<ArenaSkeleton variant="circle" />);
+  const circle = mount(<ArenaSkeleton className="arena-skeleton-circle" />);
   assertPattern({
     root: circle,
     bindingPath: join(REACT_COMPONENTS, 'display/arena-skeleton/ArenaSkeleton.behaviour.json'),

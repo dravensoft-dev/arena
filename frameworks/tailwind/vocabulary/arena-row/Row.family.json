@@ -1,0 +1,13 @@
+{
+  "family": "row",
+  "reach": "box",
+  "target": "markup",
+  "description": "Things side by side that read as one unit, at the group step: a mark beside a name, a label beside its badge, an icon and the word after it. Two elements side by side are already a row, however short the line, and each is where a display: flex with a gap of somebody's choosing gets written instead. arena-row--component is the step for things that are separate things, a bar's links or a toolbar's buttons. arena-row--start, arena-row--baseline and arena-row--between line the items up and carry no length. The row wraps when the line runs out. Write it on an element of yours: a component's own element may carry no box.",
+  "variants": {
+    "arena-row": "[display:flex] [flex-wrap:wrap] [align-items:center] [gap:var(--rhythm-group)]",
+    "arena-row--component": "[gap:var(--rhythm-component)]",
+    "arena-row--start": "[align-items:flex-start]",
+    "arena-row--baseline": "[align-items:baseline]",
+    "arena-row--between": "[justify-content:space-between]"
+  }
+}

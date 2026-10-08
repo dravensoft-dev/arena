@@ -1,0 +1,42 @@
+<!-- @dsCard group="Tailwind" viewport="820x520" name="board-column" subtitle="A box family: arena-board-column-md is the default, sm and lg change the narrowest column, and the property is the route for a width no step names" -->
+<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../../../intro/styles.css">
+<link rel="stylesheet" href="../../consume/Preflight.generated.css">
+<link rel="stylesheet" href="../../consume/components/layout/arena-board/ArenaBoard.styles.generated.css">
+<link rel="stylesheet" href="../../consume/vocabulary/BoardColumn.generated.css">
+<link rel="stylesheet" href="../../Specimen.css">
+</head><body><div id="root"></div>
+<script type="module">
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../Specimen.js';
+
+const manifest = await (await fetch('../../components/layout/arena-board/ArenaBoard.manifest.json')).json();
+const AXIS = '--arena-board-column';
+
+function column(text) {
+  return el('div', {
+    class: 'bg-surface-sunken border-[length:var(--bw)] border-neutral rounded-sm px-3 py-2.5 font-mono text-ctl-sm text-base-content/82',
+    text,
+  });
+}
+
+function board(option) {
+  const c = arenaClassesFor(manifest, {});
+  const d = arenaSlotDataFor(manifest, {});
+  const box = el('div', { class: `${c.root} ${option}`, ...d.root });
+  for (let i = 1; i <= 4; i += 1) box.append(column(`Column ${i}`));
+  return box;
+}
+
+function set(value) {
+  const holder = el('div', { style: { display: 'contents', [AXIS]: value } });
+  holder.append(board(''));
+  return holder;
+}
+
+mountSpecimen({ sections: [
+  section('arena-board-column-sm', [board('arena-board-column-sm')], { stack: true }),
+  section('arena-board-column-md, the default', [board('arena-board-column-md')], { stack: true }),
+  section('arena-board-column-lg', [board('arena-board-column-lg')], { stack: true }),
+  section('--arena-board-column: calc(var(--board-column-md) * 1.5) on a container', [set('calc(var(--board-column-md) * 1.5)')], { stack: true }),
+]});
+</script></body></html>

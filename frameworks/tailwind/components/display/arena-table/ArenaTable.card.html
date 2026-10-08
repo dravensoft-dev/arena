@@ -6,14 +6,17 @@
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor } from '../../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
 
 const manifest = await (await fetch('./ArenaTable.manifest.json')).json();
 const c = arenaClassesFor(manifest);
+const d = arenaSlotDataFor(manifest);
+const figure = arenaClassesFor(manifest, { numeric: true });
+const dFigure = arenaSlotDataFor(manifest, { numeric: true });
 
 const COLUMNS = [
   { key: 'project', header: 'Project' },
-  { key: 'commit', header: 'Commit', mono: true },
+  { key: 'commit', header: 'Commit', numeric: true },
   { key: 'status', header: 'Status' },
 ];
 const ROWS = [
@@ -23,28 +26,28 @@ const ROWS = [
 ];
 
 function wide() {
-  const head = el('tr', { class: c.headRow });
-  for (const column of COLUMNS) head.append(el('th', { class: c.th, text: column.header }));
+  const head = el('tr', { class: c.headRow, ...d.headRow });
+  for (const column of COLUMNS) head.append(el('th', { class: c.th, ...d.th, text: column.header }));
   const body = el('tbody');
   for (const [index, row] of ROWS.entries()) {
-    const tr = el('tr', { class: `${c.row} ${index === 0 ? c.rowFirst : ''} ${c.rowInteractive}` });
+    const tr = el('tr', { class: arenaClassesFor(manifest, { first: index === 0, interactive: true }).row, ...arenaSlotDataFor(manifest, { first: index === 0, interactive: true }).row });
     for (const column of COLUMNS) {
-      tr.append(el('td', { class: column.mono ? c.tdMono : c.td, text: row[column.key] }));
+      tr.append(el('td', { class: (column.numeric ? figure : c).td, ...(column.numeric ? dFigure : d).td, text: row[column.key] }));
     }
     body.append(tr);
   }
-  const table = el('table', { class: c.table }, el('thead', {}, head), body);
-  return el('div', { class: c.frame }, table);
+  const table = el('table', { class: c.table, ...d.table }, el('thead', {}, head), body);
+  return el('div', { class: c.frame, ...d.frame }, table);
 }
 
 function cards() {
-  const list = el('div', { class: c.cards });
+  const list = el('div', { class: c.cards, ...d.cards });
   for (const row of ROWS) {
-    const card = el('div', { class: c.card });
+    const card = el('div', { class: c.card, ...d.card });
     for (const column of COLUMNS) {
-      card.append(el('div', { class: c.cardRow },
-        el('span', { class: c.cardLabel, text: column.header }),
-        el('span', { class: column.mono ? c.cardValueMono : c.cardValue, text: row[column.key] })));
+      card.append(el('div', { class: c.cardRow, ...d.cardRow },
+        el('span', { class: c.cardLabel, ...d.cardLabel, text: column.header }),
+        el('span', { class: (column.numeric ? figure : c).cardValue, ...(column.numeric ? dFigure : d).cardValue, text: row[column.key] })));
     }
     list.append(card);
   }
@@ -52,10 +55,10 @@ function cards() {
 }
 
 function emptyTable() {
-  const head = el('tr', { class: c.headRow });
-  for (const column of COLUMNS) head.append(el('th', { class: c.th, text: column.header }));
-  const cell = el('td', { class: c.empty, colspan: COLUMNS.length, text: 'No deployments in this range.' });
-  return el('div', { class: c.frame }, el('table', { class: c.table }, el('thead', {}, head), el('tbody', {}, el('tr', {}, cell))));
+  const head = el('tr', { class: c.headRow, ...d.headRow });
+  for (const column of COLUMNS) head.append(el('th', { class: c.th, ...d.th, text: column.header }));
+  const cell = el('td', { class: c.empty, ...d.empty, colspan: COLUMNS.length, text: 'No deployments in this range.' });
+  return el('div', { class: c.frame, ...d.frame }, el('table', { class: c.table, ...d.table }, el('thead', {}, head), el('tbody', {}, el('tr', {}, cell))));
 }
 
 mountSpecimen({ sections: [

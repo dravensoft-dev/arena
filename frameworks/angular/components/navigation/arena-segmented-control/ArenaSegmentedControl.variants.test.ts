@@ -6,10 +6,10 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { arenaSegmentedControlStyles } from './ArenaSegmentedControl.variants';
 
-test('the default is an md track with nothing selected', () => {
+test('the default is a track with nothing selected', () => {
   assert.equal(
-    arenaSegmentedControlStyles().segment(),
-    arenaSegmentedControlStyles({ size: 'md', selected: false }).segment(),
+    JSON.stringify(arenaSegmentedControlStyles().$data.segment()),
+    JSON.stringify(arenaSegmentedControlStyles({ selected: false }).$data.segment()),
   );
 });
 

@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { renderToStaticMarkup } from 'react-dom/server';
 import React from 'react';
 import { ArenaDialog } from './ArenaDialog.tsx';
+import manifest from './ArenaDialog.manifest.generated.ts';
 
 const TITLE = 'Delete project';
 
@@ -54,20 +55,19 @@ test('eyebrow is drawn above the title when given, and nothing is drawn when it 
   assert.doesNotMatch(without, /text-transform:uppercase/, 'an empty eyebrow row was drawn');
 });
 
-test('width takes a CSS string and reaches the panel verbatim', () => {
-  const html = renderToStaticMarkup(
-    <ArenaDialog open onClose={() => {}} title={TITLE} width="calc(var(--sp-1) * 200)"><p>b</p></ArenaDialog>,
-  );
-  assert.match(html, /width:calc\(var\(--sp-1\) \* 200\)/);
-});
-
-test('an omitted width falls back to the panel\'s own default, and sets no inline width at all', () => {
+test('the panel carries no inline width, because the width is a family its class reads', () => {
   const html = renderToStaticMarkup(
     <ArenaDialog open onClose={() => {}} title={TITLE}><p>b</p></ArenaDialog>,
   );
-  assert.match(html, /\barena-dialog__panel\b/,
-    'the default is 480px, and the contract lets each layer reach it in its own idiom');
-  assert.doesNotMatch(html, /style="width/, 'an omitted width must leave the class to answer');
+  assert.match(html, /\barena-dialog__panel\b/);
+  assert.doesNotMatch(html, /style="/, 'a width written inline would beat the class and the property');
+});
+
+test('the panel slot reads the width through the channel of the family the dialog answers', () => {
+  const axis = `--arena-${manifest.answers.find((name) => name === 'dialog-width')}`;
+  const token = manifest.slots.panel.split(' ').find((name) => name.includes(`var(${axis},`));
+  assert.ok(token, `the panel slot reads no ${axis}`);
+  assert.match(token, new RegExp(`^w-\\[var\\(--[\\w-]+,var\\(${axis},var\\(--dialog-width-md\\)\\)\\)\\]$`));
 });
 
 test('open governs whether anything renders at all', () => {

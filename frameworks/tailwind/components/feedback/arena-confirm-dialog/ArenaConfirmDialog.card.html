@@ -6,7 +6,7 @@
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor } from '../../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
 
 const manifest = await (await fetch('./ArenaConfirmDialog.manifest.json')).json();
 
@@ -17,22 +17,24 @@ const manifest = await (await fetch('./ArenaConfirmDialog.manifest.json')).json(
    actually visible somewhere in the only visual artifact of this component. */
 function panel({ destructive, invalid, title, eyebrow, body, confirmLabel, requireText }) {
   const c = arenaClassesFor(manifest, { destructive: String(destructive), invalid: String(invalid) });
-  const head = el('div', { class: c.head }, el('div', { class: c.eyebrow, text: eyebrow }), el('div', { class: c.title, text: title }));
-  const content = el('div', { class: c.body }, body);
+  const d = arenaSlotDataFor(manifest, { destructive: String(destructive), invalid: String(invalid) });
+  const head = el('div', { class: c.head, ...d.head }, el('div', { class: c.eyebrow, ...d.eyebrow, text: eyebrow }), el('div', { class: c.title, ...d.title, text: title }));
+  const content = el('div', { class: c.body, ...d.body }, body);
   if (requireText) {
-    content.append(el('div', { class: c.requireBlock },
-      el('div', { class: c.requireLabel, text: `Type "${requireText}" to confirm` }),
-      el('input', { class: c.input, value: invalid ? 'Ardenne' : '' })));
+    content.append(el('div', { class: c.requireBlock, ...d.requireBlock },
+      el('div', { class: c.requireLabel, ...d.requireLabel, text: `Type "${requireText}" to confirm` }),
+      el('input', { class: c.input, ...d.input, value: invalid ? 'Ardenne' : '' })));
   }
-  const foot = el('div', { class: c.foot },
-    el('button', { class: c.cancel, type: 'button', text: 'Cancel' }),
-    el('button', { class: c.confirm, type: 'button', text: confirmLabel }));
-  return el('div', { class: c.panel }, head, content, foot);
+  const foot = el('div', { class: c.foot, ...d.foot },
+    el('button', { class: c.cancel, ...d.cancel, type: 'button', text: 'Cancel' }),
+    el('button', { class: c.confirm, ...d.confirm, type: 'button', text: confirmLabel }));
+  return el('div', { class: c.panel, ...d.panel }, head, content, foot);
 }
 
 function overlay() {
   const c = arenaClassesFor(manifest, { open: 'true' });
-  return el('div', { class: c.root },
+  const d = arenaSlotDataFor(manifest, { open: 'true' });
+  return el('div', { class: c.root, ...d.root },
     panel({ destructive: true, invalid: false, eyebrow: 'Irreversible', title: 'Delete project Ardennes?', body: 'Every deployment, log and artifact under this project is removed.', confirmLabel: 'Delete project', requireText: 'Ardennes' }));
 }
 

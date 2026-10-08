@@ -4,7 +4,7 @@ import {
   coverageProblems, shapeProblems, seedProblems, slotProblems, bindProblems, hostProblems,
   valueProblems, objectProblems, nodeProblems, fixtureProblems, citationProblems,
   loadContracts, loadFixtures, loadTypes, citingFiles, basenameIndex, emissionProblems,
-  pagePaths,
+  pagePaths, classProblems,
 } from './check-playgrounds.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import type { ComponentContract, TypeContract } from '../../lib/arena/contract-shapes.ts';
@@ -238,4 +238,60 @@ test('every component gets an emitted page in both layers, which is what a citat
   assert.equal(pages.length, 146);
   assert.equal(pages.filter((p) => p.startsWith('frameworks/react/')).length, 73);
   assert.equal(pages.filter((p) => p.startsWith('frameworks/angular/')).length, 73);
+});
+
+test('a class on a component that answers its family passes, and one it does not answer fails', () => {
+  const button: ComponentContract = { component: 'ArenaButton', api: { content: { form: 'slot', description: 'The label.' } } };
+  const all = new Map([...contracts, ['ArenaButton', button]]);
+  assert.deepEqual(nodeProblems('w', { component: 'ArenaButton', class: 'arena-fill' }, all, types, {}), []);
+  assert.match(
+    nodeProblems('w', { component: 'ArenaBadge', class: 'arena-fill' }, all, types, {})[0] ?? '',
+    /ArenaBadge does not answer the fill family/,
+  );
+});
+
+test('a class that is no option of any family fails', () => {
+  assert.match(
+    nodeProblems('w', { component: 'ArenaBadge', class: 'arena-wide' }, contracts, types, {})[0] ?? '',
+    /arena-wide is not an option of any family/,
+  );
+});
+
+test('two options of one family on one node fail, on a node and on the fixture', () => {
+  const two = { component: 'ArenaButton', class: 'arena-fill arena-fit' };
+  const button: ComponentContract = { component: 'ArenaButton', api: { content: { form: 'slot', description: 'The label.' } } };
+  const all = new Map([...contracts, ['ArenaButton', button]]);
+  assert.ok(nodeProblems('w', two, all, types, {}).some((p) => /two options of the fill family/.test(p)));
+  assert.ok(fixtureProblems('ArenaButton', button, { component: 'ArenaButton', class: 'arena-fill arena-fit' }, all, types)
+    .some((p) => /two options of the fill family/.test(p)));
+});
+
+test('a text node carries no class, and a fixture may hold the class key', () => {
+  assert.match(nodeProblems('w', { text: 'a', class: 'arena-fill' } as any, contracts, types, {})[0] ?? '', /never class/);
+  assert.deepEqual(shapeProblems('Widget', { ...ok, class: 'arena-fill' } as any), []);
+});
+
+test('a context class on a component that answers the family without that option fails, and one it does not answer at all is reach', () => {
+  const families = new Map([['size', {
+    family: 'size', reach: 'context' as const, description: 'The size.',
+    variants: { 'arena-size-md': '', 'arena-size-xl': '' },
+  }]]);
+  const answering = { answers: [{ family: 'size', options: ['arena-size-md'], default: 'arena-size-md' }] };
+  const source = (manifest: unknown) => ({ families, manifest: () => manifest as any });
+  assert.deepEqual(classProblems('w', 'ArenaButton', 'arena-size-md', source(answering)), []);
+  assert.match(classProblems('w', 'ArenaButton', 'arena-size-xl', source(answering))[0] ?? '',
+    /ArenaButton answers the size family without arena-size-xl/);
+  assert.deepEqual(classProblems('w', 'ArenaCard', 'arena-size-xl', source({ answers: [] })), []);
+  assert.deepEqual(classProblems('w', 'ArenaCard', 'arena-size-xl', source(null)), []);
+});
+
+test('a fixture\'s vars name --arena-* properties and hold strings', () => {
+  assert.deepEqual(shapeProblems('Widget', { ...ok, vars: { '--arena-column-status-align': 'right' } } as any), []);
+  assert.match(shapeProblems('Widget', { ...ok, vars: { color: 'red' } } as any).join('\n'), /vars sets color, and a fixture sets only --arena-\* properties/);
+  assert.match(shapeProblems('Widget', { ...ok, vars: { '--arena-x}; color: red': 'a' } } as any).join('\n'), /vars sets --arena-x\}; color: red, and a fixture sets only --arena-\* properties/);
+  assert.match(shapeProblems('Widget', { ...ok, vars: { '--arena-x': 1 } } as any).join('\n'), /vars --arena-x holds number/);
+  assert.match(shapeProblems('Widget', { ...ok, vars: 'x' } as any).join('\n'), /vars is a map/);
+  for (const bad of ['a"b', 'a;b', 'a{b', 'a}b', 'a<b'])
+    assert.match(shapeProblems('Widget', { ...ok, vars: { '--arena-x': bad } } as any).join('\n'), /would break the style attribute/);
+  assert.deepEqual(shapeProblems('Widget', { ...ok, vars: { '--arena-x': 'calc(var(--sp-1) * 4)' } } as any), []);
 });

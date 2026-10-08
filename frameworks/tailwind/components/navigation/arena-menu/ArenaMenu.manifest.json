@@ -1,24 +1,36 @@
 {
   "component": "ArenaMenu",
+  "transparent": {
+    "root": "the trigger is the adopter's own control and the wrapper draws nothing around it, so a box class on the wrapper or above it decides the trigger's box as it decides the wrapper's"
+  },
+  "answers": [
+    "fill"
+  ],
   "slots": {
-    "root": "inline-flex",
+    "root": "inline-flex w-[var(--arena-fill-width,fit-content)]",
     "panel": "arena-menu z-dropdown min-w-50 p-1.5 bg-surface-floating border-[length:var(--bw-surface)] border-edge-surface-floating rounded-surface-floating shadow-surface-floating",
-    "panelEnd": "left-auto right-0",
-    "item": "flex items-center gap-2.5 w-full text-left px-2.5 py-control-y border-none rounded-control bg-transparent font-body text-md shadow-control-rest active:scale-[var(--press-scale)] motion-reduce:active:scale-100",
-    "itemDefault": "cursor-pointer text-ink-body/(--level-ink-body) hover:bg-primary/14",
-    "itemDestructive": "cursor-pointer text-error hover:bg-hover",
-    "itemDisabled": "text-ink-muted/(--level-ink-muted) opacity-60 cursor-not-allowed",
+    "item": "flex items-center gap-row-floating w-full min-h-row-min text-left px-row-floating-x py-row-floating-y border-none rounded-control bg-transparent font-body text-md shadow-control-rest active:scale-[var(--press-scale)] motion-reduce:active:scale-100",
     "icon": "inline-flex text-[length:var(--icon-md)]",
     "label": "flex-1",
     "shortcut": "font-mono text-ctl-xs text-ink-muted/(--level-ink-muted)",
     "divider": "h-px my-1 bg-edge-separator",
-    "header": "font-face-label text-label tracking-label-role case-label text-ink-muted/(--level-ink-muted) px-2.5 pt-2 pb-1"
+    "header": "font-face-label text-label tracking-label-role case-label text-ink-muted/(--level-ink-muted) px-row-floating-x pt-[calc(var(--sp-1)*2*var(--dz-row-scale-y))] pb-[calc(var(--sp-1)*var(--dz-row-scale-y))]"
   },
-  "partOf": {
-    "itemDefault": "item",
-    "itemDestructive": "item",
-    "itemDisabled": "item",
-    "panelEnd": "panel"
+  "kind": {
+    "root": "none",
+    "panel": "floating",
+    "item": "row",
+    "icon": "none",
+    "label": "none",
+    "shortcut": "none",
+    "divider": "none",
+    "header": "row"
+  },
+  "floating": {
+    "panel": "a menu panel floats over the page, so the toolbar holding its trigger does not decide its rows"
+  },
+  "internal": {
+    "anchored": "the panel is positioned by the layer's overlay rather than by CSS"
   },
   "variants": {
     "anchored": {
@@ -27,9 +39,54 @@
         "panel": "absolute top-full left-0 mt-1.5"
       },
       "true": {}
+    },
+    "align": {
+      "start": {},
+      "end": {
+        "panel": "left-auto right-0"
+      }
+    },
+    "disabled": {
+      "true": {},
+      "false": {}
+    },
+    "destructive": {
+      "true": {},
+      "false": {}
     }
   },
+  "compoundVariants": [
+    {
+      "disabled": true,
+      "class": {
+        "item": "text-ink-muted/(--level-ink-muted) opacity-60 cursor-not-allowed"
+      }
+    },
+    {
+      "disabled": false,
+      "destructive": true,
+      "class": {
+        "item": "cursor-pointer text-[color:var(--arena-hue-ink)] hover:bg-hover"
+      }
+    },
+    {
+      "disabled": false,
+      "destructive": false,
+      "class": {
+        "item": "cursor-pointer text-ink-body/(--level-ink-body) hover:bg-primary/14"
+      }
+    }
+  ],
   "defaultVariants": {
-    "anchored": false
+    "anchored": false,
+    "align": "start",
+    "disabled": false,
+    "destructive": false
+  },
+  "hues": {
+    "destructive": {
+      "true": "danger",
+      "false": null
+    }
   }
 }

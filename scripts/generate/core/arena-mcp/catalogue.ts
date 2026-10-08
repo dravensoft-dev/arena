@@ -20,15 +20,55 @@ export const ROLES_URI = `${SCHEME}://roles`;
 export const RULES_URI = `${SCHEME}://rules`;
 export const LAYER_INDEX_URI = `${SCHEME}://index`;
 export const CATALOGUE_URI = `${SCHEME}://index/all`;
+export const VOCABULARY_URI = `${SCHEME}://vocabulary`;
 
 export const REFERENCE_DIR = 'skills/design/references';
 export const NEUTRAL_INDEX = 'frameworks/INDEX.md';
+export const VOCABULARY = 'frameworks/VOCABULARY.md';
 export const ROLES = 'contracts/design/roles.json';
 export const RULES = 'rules.json';
 export const PROMPT_SUFFIX = '.prompt.md';
 export const INDEX = 'INDEX.md';
+export const TOKENS_DIR = 'contracts/design';
+export const BEHAVIOUR_DIR = 'contracts/behaviour';
+export const TOKENS_PREFIX = `${SCHEME}://tokens/`;
+export const BEHAVIOUR_PREFIX = `${SCHEME}://behaviour/`;
+export const STYLE_DIR = 'plugin-style-store';
+export const STYLE_PREFIX = `${SCHEME}://style/`;
+export const STYLE_MIME: Record<string, string> = {
+  '.md': 'text/markdown', '.json': 'application/json', '.css': 'text/css',
+};
+
+export function styleMime(rel: string) {
+  const dot = rel.lastIndexOf('.');
+  return dot === -1 ? undefined : STYLE_MIME[rel.slice(dot)];
+}
+
+const jsonIn = (rel: string, dir: string) => dirPosix(rel) === dir && rel.endsWith('.json');
+const jsonName = (rel: string) => (rel.split('/').at(-1) ?? '').replace(/\.json$/, '');
+
+export const FAMILY_PREFIX = `${SCHEME}://family/`;
 
 export type Entry = { uri: string; rel: string; title: string; mime: string };
+
+export function extractFamilies(text: string): Array<{ name: string; description: string }> {
+  const families: Array<{ name: string; description: string }> = [];
+  const lines = text.split('\n');
+  for (let i = 0; i < lines.length; i += 1) {
+    const line = lines[i];
+    if (line && line.startsWith('## ') && !line.startsWith('## The')) {
+      const name = line.slice(3).trim();
+      let j = i + 1;
+      while (j < lines.length && lines[j]?.trim() === '') j += 1;
+      const description = lines[j]?.trim() ?? '';
+      const firstSentence = description.split(/[.!?]/)[0] ?? '';
+      if (name && firstSentence) {
+        families.push({ name, description: firstSentence });
+      }
+    }
+  }
+  return families;
+}
 
 export function nameOf(rel: string) {
   const last = rel.split('/').at(-1) ?? '';
@@ -60,12 +100,47 @@ export function entries(payload: string, manifest: Manifest): Entry[] {
     found.push({ uri: CATALOGUE_URI, rel: NEUTRAL_INDEX, mime: 'text/markdown',
       title: 'Whether a component exists at all, and which layers ship it' });
   }
+  if (files.includes(VOCABULARY)) {
+    found.push({ uri: VOCABULARY_URI, rel: VOCABULARY, mime: 'text/markdown',
+      title: 'The vocabulary: every class you write on a component to decide how it looks, such as full width' });
+    const text = readIn(payload, VOCABULARY);
+    if (text) {
+      const families = extractFamilies(text);
+      for (const family of families) {
+        found.push({
+          uri: `${FAMILY_PREFIX}${family.name}`,
+          rel: VOCABULARY,
+          mime: 'text/markdown',
+          title: `Family ${family.name}: ${family.description}`,
+        });
+      }
+    }
+  }
   const layerIndex = `frameworks/${layer}/${INDEX}`;
   if (files.includes(layerIndex)) {
     found.push({ uri: LAYER_INDEX_URI, rel: layerIndex, mime: 'text/markdown',
       title: `Every ${layer} component, under the category it is filed under` });
   }
   for (const rel of files) {
+    if (rel.startsWith(`${STYLE_DIR}/`)) {
+      const under = relPosix(STYLE_DIR, rel);
+      const mime = styleMime(rel);
+      if (mime !== undefined) {
+        found.push({ uri: `${STYLE_PREFIX}${under}`, rel, mime,
+          title: `Style store: ${under}` });
+      }
+      continue;
+    }
+    if (jsonIn(rel, TOKENS_DIR) && rel !== ROLES) {
+      found.push({ uri: `${TOKENS_PREFIX}${jsonName(rel)}`, rel, mime: 'application/json',
+        title: `Tokens: ${jsonName(rel)}` });
+      continue;
+    }
+    if (jsonIn(rel, BEHAVIOUR_DIR)) {
+      found.push({ uri: `${BEHAVIOUR_PREFIX}${jsonName(rel)}`, rel, mime: 'application/json',
+        title: `Behaviour: ${jsonName(rel)}` });
+      continue;
+    }
     if (rel.startsWith(`${REFERENCE_DIR}/`) && rel.endsWith('.md')) {
       found.push({ uri: `${SCHEME}://reference/${nameOf(rel)}`, rel, mime: 'text/markdown',
         title: `Reference: ${nameOf(rel)}` });
@@ -99,7 +174,13 @@ export const MARKDOWN_LINK = /\]\(([^)\s]+)\)/g;
 export const ADDRESSED = /^(?:[a-z][a-z0-9+.-]*:|#|\/)/i;
 
 export function relIndex(found: Entry[]) {
-  return new Map(found.map((one) => [one.rel, one.uri]));
+  const index = new Map<string, string>();
+  for (const entry of found) {
+    if (!entry.uri.startsWith(FAMILY_PREFIX)) {
+      index.set(entry.rel, entry.uri);
+    }
+  }
+  return index;
 }
 
 export function withUris(text: string, rel: string, byRel: Map<string, string>) {
@@ -129,8 +210,13 @@ export function words(text: string) {
   return new Set((text.replace(CAMEL, '$1 $2').toLowerCase().match(WORD) ?? []));
 }
 
+export function nameFor(entry: Entry) {
+  if (!entry.uri.startsWith(STYLE_PREFIX)) return nameOf(entry.rel);
+  return entry.uri.slice(STYLE_PREFIX.length).replace(/\.[a-z]+$/, '').replace(/\//g, ' ');
+}
+
 export function score(entry: Entry, wanted: Set<string>, summary: string) {
-  const name = words(nameOf(entry.rel));
+  const name = words(nameFor(entry));
   const title = words(entry.title);
   const opening = words(summary);
   let hits = 0;
@@ -144,6 +230,24 @@ export function score(entry: Entry, wanted: Set<string>, summary: string) {
   return { hits, rank };
 }
 
+export function tokenNames(node: unknown, path: string[] = []): string[] {
+  if (node === null || typeof node !== 'object') return [];
+  const own = '$value' in node ? [path.join('-')] : [];
+  return [...own, ...Object.entries(node).filter(([key]) => !key.startsWith('$'))
+    .flatMap(([key, child]) => tokenNames(child, [...path, key]))];
+}
+
+export function summaryOf(entry: Entry, text: string) {
+  if (entry.uri.startsWith(BEHAVIOUR_PREFIX)) return '';
+  if (!entry.uri.startsWith(TOKENS_PREFIX)) return text.slice(0, 400);
+  try {
+    const tree = JSON.parse(text);
+    return [...Object.keys(tree), ...tokenNames(tree)].join(' ');
+  } catch {
+    return '';
+  }
+}
+
 export function search(payload: string, found: Entry[], query: string, limit = 8) {
   const wanted = words(query);
   if (wanted.size === 0) return [];
@@ -151,8 +255,7 @@ export function search(payload: string, found: Entry[], query: string, limit = 8
   return found
     .map((entry) => {
       const text = textOf(payload, entry, byRel) ?? '';
-      const summary = text.slice(0, 400);
-      return { entry, ...score(entry, wanted, summary) };
+      return { entry, ...score(entry, wanted, summaryOf(entry, text)) };
     })
     .filter((one) => one.hits > 0)
     .sort((a, b) => b.rank - a.rank || byCodeUnit(a.entry.uri, b.entry.uri))

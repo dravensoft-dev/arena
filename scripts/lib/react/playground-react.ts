@@ -58,6 +58,10 @@ export function attributes(members: Record<string, any> | undefined, indent: str
     .join('');
 }
 
+export function classAttribute(value: string | undefined, indent: string) {
+  return value ? `\n${indent}className=${JSON.stringify(value)}` : '';
+}
+
 export function renderNode(node: FixtureNode, places: Places, depth: number): string {
   const pad = '  '.repeat(depth);
   if (typeof node.text === 'string' && !node.element) return `${pad}{${JSON.stringify(node.text)}}`;
@@ -73,6 +77,7 @@ export function renderNode(node: FixtureNode, places: Places, depth: number): st
   const named = (Object.entries(slots) as [string, FixtureNode[]][])
     .filter(([name]) => name !== 'content');
   const attrs = attributes(node.members, `${pad}  `)
+    + classAttribute(node.class, `${pad}  `)
     + named.map(([name, list]) => `\n${pad}  ${name}={${inlineList(list, places, depth + 1)}}`).join('');
   const children = (slots.content ?? []) as FixtureNode[];
   if (children.length === 0) return `${pad}<${place.name}${attrs} />`;
@@ -139,7 +144,7 @@ export function renderSubject(model: PlaygroundModel, places: Places, depth: num
       .filter((knob) => knob.form === 'slot' && knob.member !== 'content')
       .map((knob) => slotAttribute(knob, places, inner, depth + 1)))
     .concat(model.events.map((event) => eventAttribute(event, inner)))
-    .join('');
+    .join('') + classAttribute(model.class, inner);
 
   if (!content) return `${pad}<${name}${attrs} />`;
   return `${pad}<${name}${attrs}>\n${slotChildren(content, places, depth + 1)}\n${pad}</${name}>`;
@@ -162,6 +167,7 @@ export function renderTree(model: PlaygroundModel, places: Places, depth: number
     const named = (Object.entries(slots) as [string, FixtureNode[]][])
       .filter(([name]) => name !== 'content');
     const attrs = attributes(node.members, `${pad}  `)
+      + classAttribute(node.class, `${pad}  `)
       + named.map(([name, list]) => `\n${pad}  ${name}={${inlineList(list, places, level + 1)}}`).join('');
     const children = ((slots.content ?? []) as FixtureChild[])
       .filter((one): one is FixtureNode | typeof SUBJECT => one !== null)

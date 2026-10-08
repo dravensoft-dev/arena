@@ -4,6 +4,7 @@ export * from './Api.generated';
 export * from './components';
 export * from './ContainerSize';
 export * from './DataVisuals';
+export * from './StructuredData';
 export * from './FocusTrap';
 export * from './ProjectionMarkers';
 export * from './WarnOnce';

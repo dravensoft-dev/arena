@@ -1,8 +1,12 @@
 import React, { useEffect, useRef } from 'react';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaTextarea.classes.generated.ts';
+import type { ArenaTextareaClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export interface ArenaTextareaProps {
+  className?: ArenaTextareaClass;
+
 
   /** Field label; the counter and error sit under the field. */
   label?: string;
@@ -63,7 +67,7 @@ export function arenaFitToContent(element: HTMLElement | null): void {
 
 const arenaTextareaStyles = arenaStyles(manifest);
 
-export function ArenaTextarea({
+export function ArenaTextarea({ className, 
   label, id, hint, error, required = false, rows = 4, maxLength, counter = false,
   disabled = false, readOnly = false, autoResize = false, placeholder, name, value, onChange,
 }: ArenaTextareaProps) {
@@ -74,29 +78,30 @@ export function ArenaTextarea({
     state: error ? 'error' : 'neutral',
     resize: autoResize ? 'none' : 'vertical',
     disabled,
-    readonly: readOnly,
+    readOnly,
+    near: Boolean(counter && maxLength && len > maxLength * 0.9),
   });
   useEffect(() => {
     if (autoResize) arenaFitToContent(boxRef.current);
   }, [autoResize, value, rows]);
   return (
-    <div className={styles.root()} data-arena-part={manifest.parts.root}>
+    <div className={arenaClassName('ArenaTextarea', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
       {label && (
-        <label htmlFor={taId} className={styles.label()} data-arena-part={manifest.parts.label}>
-          {label}{required && <span className={styles.required()} data-arena-part={manifest.parts.required}>*</span>}
+        <label htmlFor={taId} className={styles.label()} data-arena-part={manifest.parts.label} {...styles.$data.label()}>
+          {label}{required && <span className={styles.required()} data-arena-part={manifest.parts.required} {...styles.$data.required()}>*</span>}
         </label>
       )}
       <textarea ref={boxRef} id={taId} rows={rows} maxLength={maxLength} disabled={disabled} required={required}
         readOnly={readOnly} placeholder={placeholder} name={name}
         aria-invalid={!!error} value={value}
         onChange={(e) => { if (autoResize) arenaFitToContent(e.target); onChange && onChange(e.target.value); }}
-        className={styles.field()} data-arena-part={manifest.parts.field} />
-      <div className={styles.foot()} data-arena-part={manifest.parts.foot}>
-        {error ? <span className={styles.error()} data-arena-part={manifest.parts.error}>{error}</span>
-          : hint ? <span className={styles.hint()} data-arena-part={manifest.parts.hint}>{hint}</span> : <span />}
+        className={styles.field()} data-arena-part={manifest.parts.field} {...styles.$data.field()} />
+      <div className={styles.foot()} data-arena-part={manifest.parts.foot} {...styles.$data.foot()}>
+        {error ? <span className={styles.error()} data-arena-part={manifest.parts.error} {...styles.$data.error()}>{error}</span>
+          : hint ? <span className={styles.hint()} data-arena-part={manifest.parts.hint} {...styles.$data.hint()}>{hint}</span> : <span />}
         {counter && maxLength && (
-          <span className={len > maxLength * 0.9 ? styles.counterNear() : styles.counter()}
-            data-arena-part={manifest.parts.counter}>{`${len}/${maxLength}`}</span>
+          <span className={styles.counter()}
+            data-arena-part={manifest.parts.counter} {...styles.$data.counter()}>{`${len}/${maxLength}`}</span>
         )}
       </div>
     </div>

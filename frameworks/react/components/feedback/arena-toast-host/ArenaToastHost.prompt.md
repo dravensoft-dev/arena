@@ -1,14 +1,19 @@
 The fixed box a stack of notices lives in. `ArenaToast` carries `--z-toast` and no `position` of its own. CSS only honors `z-index` on a positioned box or a flex item, so a `<ArenaToast>` dropped into static flow quietly stops floating. The column is what makes a notice a flex item.
 
 ```tsx
+const { toasts, dismiss } = useArenaToasts();
+
 <ArenaToastHost>
   {toasts.map((t) => (
     <ArenaToast key={t.id} tone={t.tone} title={t.title} message={t.message}
-           actionLabel={t.actionLabel} onAction={t.onAction}
-           persist={t.persist} dismissible onClose={() => drop(t.id)} />
+           actionLabel={t.actionLabel} onAction={() => retry(t.id)}
+           persist={t.persist} dismissible onClose={() => dismiss(t.id)} />
   ))}
 </ArenaToastHost>
 ```
+
+A notice is data, so it carries the action's label and never its handler. `retry` is yours, keyed by
+the id `raise` returned.
 
 <!-- @api GENERATED from contracts/api/components/ArenaToastHost.json. Edit the contract, not this table. -->
 
@@ -16,20 +21,26 @@ The fixed box a stack of notices lives in. `ArenaToast` carries `--z-toast` and 
 
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
-| `placement` | enum | `ArenaToastPlacement` | `"bottom-end"` | Which corner the stack is pinned to. A bottom placement clears the device's own bottom inset, so a stack on a phone never lands under the home indicator. |
 | `children` | slot |  |  | The notices, in the order they are read. The stack is a plain column and the visual order is the source order, whatever the corner: a reversed one would put the newest notice first on screen and last in the reading order, and the two must agree. Nothing here caps the count or times a dismissal, because the queue that produced these notices already holds their identity and their order, and a cap applied by the box that draws them would fight the queue that owns them. |
 
 <!-- @api end -->
 
-`placement` picks the corner: `top-start`, `top-end`, `bottom-start`, `bottom-end`, default
-`bottom-end`. The inline half is `start`/`end` rather than left/right, so a right-to-left document
+<!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
+
+**Answers** [`placement`](../../../../VOCABULARY.md#placement): `arena-placement-bottom-end` (default), `arena-placement-bottom-start`, `arena-placement-top-end`, `arena-placement-top-start`. Write one as `className="arena-placement-bottom-start"` on the component, or on a container whose components should all take it.
+
+<!-- @answers end -->
+
+<!-- @keys GENERATED from the binding. -->
+**Keys:** none.
+<!-- @keys end -->
+
+A placement class picks the corner: `arena-placement-top-start`, `arena-placement-top-end`, `arena-placement-bottom-start` or `arena-placement-bottom-end`, which is the default. The inline half is `start`/`end` rather than left/right, so a right-to-left document
 flips the stack with the text. A bottom placement stands off `max(var(--sp-6),
 var(--pad-safe-bottom))`, so on a phone the stack clears the home indicator instead of sitting
 under it.
 
-**The host owns no clock, and it counts nothing.** The queue that produced these notices already holds their ids, their order and how many there are. The timer and any ceiling stay there. Take the
-interval from `ARENA_TOAST_DISMISS`, exported beside `ArenaToast`, rather than typing a number:
-`if (!t.persist) setTimeout(dismiss, t.actionLabel ? ARENA_TOAST_DISMISS.actionable : ARENA_TOAST_DISMISS.default);`.
+**The host owns no clock, and it counts nothing.** `useArenaToasts()` is the queue that produces these notices: it holds their ids, their order and how many there are, and it runs the timer. A queue of your own takes the interval from `arenaToastDelay(notice, ARENA_TOAST_DISMISS)` rather than typing a number, and puts no timer on a notice it answers `null` for.
 
 **Do / Don't** - **Do** mount exactly one per placement, at the root of the app, outside anything that scrolls or transforms. A `transform` on an ancestor makes it the containing block for a fixed child, and the stack then scrolls away with that ancestor instead of staying put.
 - **Do** leave the notices in the order they were raised. The stack is a plain column, so what is read is what is seen. Reversing the array to put the newest on top puts it last in the reading order.
@@ -39,6 +50,6 @@ interval from `ARENA_TOAST_DISMISS`, exported beside `ArenaToast`, rather than t
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
+**The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

@@ -16,7 +16,7 @@ import {
   isConsumerDocument, BRANCH_SWITCH, branchSwitchProblems,
   RULE_OWNERS, CONTRIBUTOR_BRANCH, ruleOwnerProblems, statesRule, CONSUMER_OWN_OUTPUT,
   FOREIGN_CODE, foreignCodeProblems, componentCountProblems,
-  COMMENT_RULE_SKIPS, SOURCE_EXTENSIONS, MAX_CELL_CHARS, cellSizeProblems,
+  blobLinkProblems, COMMENT_RULE_SKIPS, SOURCE_EXTENSIONS, MAX_CELL_CHARS, cellSizeProblems,
 } from './check-docs.ts';
 
 function tree(files: Record<string, string>) {
@@ -644,4 +644,21 @@ test('no document offers a voice catalogue', () => {
       `check-docs still exports ${name}, and a page held to a catalogue is a page held to a `
       + 'decision Arena took for somebody else');
   }
+});
+
+test('a GitHub blob link into this repository fails outside the npm pages and the pull request template', () => {
+  const link = '[a](https://github.com/dravensoft-dev/arena/blob/main/AGENTS.md)\n';
+  const root = tree({
+    'docs-x/a.md': `fine [b](../AGENTS.md)\n`,
+    'intro/AGENTS.md': `see ${link}`,
+    'mcp/NPM.md': link,
+    'contracts/NPM.md': link,
+    'frameworks/react/PACKAGE.md': link,
+    'frameworks/angular/PACKAGE.md': link,
+    '.github/pull_request_template.md': link,
+  });
+  const problems = blobLinkProblems(root);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /^intro\/AGENTS\.md:1: .*relative path/);
+  rmSync(root, { recursive: true });
 });

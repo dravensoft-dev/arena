@@ -11,13 +11,13 @@ import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { RULES, type LanguageRule } from '../../lib/arena/language-rules.ts';
-import { RULE_TAGS } from '../../generate/core/arena-to-prod/audit.ts';
+import { RULE_TAGS } from '../../generate/core/arena-cli/audit.ts';
 import {
   TARGETS, MARKED, CONTEXT7, renderTarget, renderIndex,
 } from '../../generate/arena/generate-rules.ts';
 
 export const SOURCE = 'scripts/lib/arena/language-rules.ts';
-export const AUDIT = 'scripts/generate/core/arena-to-prod/audit.ts';
+export const AUDIT = 'scripts/generate/core/arena-cli/audit.ts';
 export const ID = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 export const node = {

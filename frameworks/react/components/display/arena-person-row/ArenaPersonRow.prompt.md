@@ -5,10 +5,10 @@ position in front and an optional figure behind. The row's size comes from the l
 <ArenaPersonRow rank={4} name="Priya Raman" src="/img/priya.jpg" figure="1815 XP" current />
 
 <ArenaPersonRow name="Tomas Klein" secondary="Platform, on call"
-  action={<ArenaIconButton icon="ph-bold ph-x" label="Remove Tomas Klein" size="sm" />} />
+  action={<ArenaIconButton icon="ph-bold ph-x" label="Remove Tomas Klein" className="arena-size-sm" />} />
 ```
 
-`name` is the row's text, the initials the face falls back to, and the image's alt text at once. A name spelt differently in any of those is the same person announced as two.
+`name` is the row's text and the initials the face falls back to at once, so a name spelt differently in either is the same person drawn as two. The face is composed with `nameShown`: the row already says the name in its text, so a screen reader hears it once. Compose an avatar beside a name of your own the same way.
 
 <!-- @api GENERATED from contracts/api/components/ArenaPersonRow.json. Edit the contract, not this table. -->
 
@@ -16,7 +16,7 @@ position in front and an optional figure behind. The row's size comes from the l
 
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
-| `name*` | primitive | `string` |  | The person or entity. It is the row's own text, the face's initials when there is no image, and that image's alt text, which is why one member carries all three: a name spelt differently in any of them is the same person announced as two. Required and guarded at runtime rather than defaulted, because nothing can derive who a row is about and a blank one draws a face, a rank and a figure around nobody. |
+| `name*` | primitive | `string` |  | The person or entity. It is the row's own text and the face's initials when there is no image, which is why one member carries both: a name spelt differently in either is the same person drawn as two. The face sets `nameShown`, so the row announces the name once, from its text. Required and guarded at runtime rather than defaulted, because nothing can derive who a row is about and a blank one draws a face, a rank and a figure around nobody. |
 | `src` | primitive | `string` |  | The face's image. Absent, the row draws the initials `name` gives it, which is the same fallback ArenaAvatar states and the reason a row needs no second member for the picture. |
 | `secondary` | primitive | `string` |  | One line under the name: a handle, a role, a team, why this person is being suggested. Prose rather than a value, so it is set in the body register and never in the numeric one. |
 | `rank` | primitive | `number` |  | The position this row holds, drawn in front of the face in a column wide enough for the list's longest. It is the number a standings list is read by, so it is set in the numeric register, and it says nothing about the order the rows are in: that is `ArenaPeopleList.ordered`. |
@@ -25,6 +25,16 @@ position in front and an optional figure behind. The row's size comes from the l
 | `action` | slot |  |  | One control at the end of the row: follow, invite, remove. It sits after the figure, and the row draws nothing for it beyond the space it takes. |
 
 <!-- @api end -->
+
+<!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
+
+**Answers.** No family of the [vocabulary](../../../../VOCABULARY.md) decides anything in this component's own box.
+
+<!-- @answers end -->
+
+<!-- @keys GENERATED from the binding. -->
+**Keys:** none.
+<!-- @keys end -->
 
 **Do / Don't**
 - Put the unit in `figure`: "1815 XP", "12 open", "38%". The value is one a reader says out loud, and formatting it where the data is beats formatting it here.
@@ -38,6 +48,6 @@ position in front and an optional figure behind. The row's size comes from the l
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
+**The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

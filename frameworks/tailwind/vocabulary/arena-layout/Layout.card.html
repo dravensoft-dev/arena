@@ -1,0 +1,34 @@
+<!-- @dsCard group="Tailwind" viewport="820x760" name="layout" subtitle="A box family: arena-layout-split is the default, arena-layout-stacked keeps one column, arena-layout-bleed lays the words on the figure" -->
+<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../../../intro/styles.css">
+<link rel="stylesheet" href="../../consume/Preflight.generated.css">
+<link rel="stylesheet" href="../../consume/components/layout/arena-hero/ArenaHero.styles.generated.css">
+<link rel="stylesheet" href="../../consume/vocabulary/Align.generated.css">
+<link rel="stylesheet" href="../../consume/vocabulary/Layout.generated.css">
+<link rel="stylesheet" href="../../Specimen.css">
+</head><body><div id="root"></div>
+<script type="module">
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../Specimen.js';
+
+const manifest = await (await fetch('../../components/layout/arena-hero/ArenaHero.manifest.json')).json();
+
+function hero(option) {
+  const c = arenaClassesFor(manifest);
+  const d = arenaSlotDataFor(manifest);
+  const words = el('div', { class: c.words, ...d.words },
+    el('h1', { class: c.title, ...d.title, text: 'Coffee that tells you where it grew' }),
+    el('p', { class: c.lede, ...d.lede, text: 'Every lot is traceable to the farm and the week it was picked.' }));
+  const figure = el('div', { class: c.figure, ...d.figure },
+    el('div', {
+      class: 'grid place-items-center bg-base-300 rounded-media aspect-square text-primary',
+      style: { minHeight: 'calc(var(--sp-1) * 40)' },
+    }, el('i', { class: 'ph-bold ph-mountains text-[length:var(--fs-display)]' })));
+  return el('section', { class: `${c.root} ${option}`, ...d.root }, words, figure);
+}
+
+mountSpecimen({ sections: [
+  section('arena-layout-split, the default: side by side, one column when the room runs out', [hero('arena-layout-split')], { stack: true }),
+  section('arena-layout-stacked: one column at every width', [hero('arena-layout-stacked')], { stack: true }),
+  section('arena-layout-bleed: the words laid on the figure', [hero('arena-layout-bleed')], { stack: true }),
+]});
+</script></body></html>

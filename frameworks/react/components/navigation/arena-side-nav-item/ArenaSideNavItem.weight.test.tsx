@@ -36,7 +36,7 @@ test('the active row is filled and every other row keeps the weight it was given
   const classes = glyphClasses(markup('home'));
   assert.equal(classes.length, 2);
   assert.match(classes[0]!, /\bph-fill\b/, 'the active row draws its glyph filled');
-  assert.doesNotMatch(classes[0]!, /\bph-bold\b/, 'and no longer bold');
+  assert.doesNotMatch(classes[0]!, /\bph-bold\b/, 'and carried the bold weight');
   assert.match(classes[1]!, /\bph-bold\b/, 'an inactive row is untouched');
   assert.doesNotMatch(classes[1]!, /\bph-fill\b/);
 });

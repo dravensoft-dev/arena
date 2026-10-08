@@ -31,6 +31,10 @@ Where two layers answer the same question differently, **the contract is what ma
 comparable**. A cross-layer *gate* under `scripts/check/arena/` reading several layers is that
 mechanism rather than an instance of the coupling, which is why `scripts/` is outside the gate's
 scope. **A fact only recorded as "matching the other layer" is a fact missing from a contract.**
+`anchored` on `ArenaTooltip` and `ArenaMenu` is the one attribute the layers build from different
+values: React leaves it unset and positions in CSS, Angular passes `true` and positions with the CDK
+overlay. It is an internal group of the recipe that no contract declares as a member and the pixels
+agree, so no gate sees it, and each layer's page states its own side.
 
 This page sits at the `frameworks/` root rather than inside a layer, which is why it may name
 all three. So does `Components.json`, and so do `demos/` and `kitchen-sink/`: each is a fact
@@ -54,7 +58,7 @@ a gate with nothing to check rather than something to fail.
    reaches a primitive **through** that chain. One missing from any link is never typechecked and
    no adopter can import it from the layer root either, so the gap is quiet in a green run.
 5. **Author its appearance** as a Tailwind manifest, unless it draws geometry rather than a
-   surface, which is what puts every chart drawing geometry outside.
+   surface. A chart's manifest holds its frame, legend and tooltip, and its plot is drawn by hand.
 6. **Seed its playground fixture** in `demos/`, or `check:playgrounds` fails the contract that
    has none.
 7. **Write its suites**, beside the source in each layer, to that layer's own naming: the
@@ -84,7 +88,8 @@ found by adding a component and reading what went red rather than by a list anyb
 of everything else, `scripts/check/arena/check-manifest-states.test.ts` holds that roster a second
 time, `scripts/check/arena/check-playgrounds.test.ts` counts emitted pages once in total and once
 per layer, and `frameworks/angular/test/HostClassBinding.test.ts` carries `NO_MANIFEST`, which is
-the one nothing points at from anywhere.
+the one nothing points at from anywhere. `arena-cli/style-plugin-rules.ts:RESERVED` fails a name
+the tree ships, so a component that ships one deletes its entry.
 
 **Two of those assert an ORDER and not a number, which fails in a shape that reads like a
 regression.** `unaskedHandDrawn` reports in `HAND_DRAWN` order, so a suite matching
@@ -106,7 +111,7 @@ stale one and an untracked one.
 **React is a trio, in the component's own directory**,
 `react/components/<category>/<component-kebab>/`: `<Name>.tsx` (implementation and its exported
 `<Name>Props`), `<Name>.prompt.md` (its prose, its examples and its Do/Don't around a generated
-member table) and a fixture at `demos/<Name>.demo.json`. **The layer carries no hand-written `.d.ts`**: the
+member table) and a fixture at `demos/<Name>.demo.json`. **The layer carries no hand-written declaration file**: the
 published one is emitted from the source, so the two cannot disagree.
 
 **Angular is a quartet**, the same three plus its recipe, in
@@ -163,8 +168,8 @@ page only *links* the CSS, which is identical whoever renders it, so it lives on
 `scripts/lib/tailwind/manifest-surfaces.ts`, names the ones that still do with a reason each.
 
 **No gate compares a manifest against a rendered component, and the mapping is not one-to-one**:
-a manifest mirrors a *surface*, so a compound family's members share the parent's and the three
-SVG charts have none. `check:tailwind` proves every class resolves; nothing proves a manifest
+a manifest mirrors a *surface*, so a compound family's members share the parent's and a chart's
+manifest holds its frame, legend and tooltip while its plot is drawn by hand. `check:tailwind` proves every class resolves; nothing proves a manifest
 still matches the contract it was written from, **so check by hand when either has moved**. One
 narrow slice is machine-checked: `check:states` fails a `hover:`/`focus:`-family modifier no
 contract the manifest covers declares. It checks states only, and nothing about colors, sizes or
@@ -272,8 +277,7 @@ its own document's.
 
 **A demo page is generated, one per component per layer, and never hand-written.** The two
 layers' pages differ in one path segment and take the same query string, so **a difference
-between them is a difference in the component**, which is the whole reason to generate them.
-`check:playgrounds` holds every fixture to its contract, every emitted file to a fresh run, and
+between them is a difference in the component**. `check:playgrounds` holds every fixture to its contract, every emitted file to a fresh run, and
 each layer's knob model to the other's. It opens none of them.
 
 ## What holds what, and what nothing holds
@@ -288,6 +292,8 @@ each layer's knob model to the other's. It opens none of them.
 | a dimension is a token | `check:dimensions`, with two declared blind spots |
 | a component renders its manifest rather than hand-drawing | `check:appearance`, `EXEMPT` empty |
 | a manifest's states are contracted | `check:states`, states only |
+| a component's measured box is the same in every branch its width selects | `check:measured-box`, `MEASURED` |
+| an inline component declares its own width on every branch | `check:intrinsic-width`, `EXEMPT` empty |
 | a modal traps Tab in a real browser | `check:focus-trap` |
 | **a manifest's colors, sizes or slot structure still match its contract** | **nothing. Read both when either moves** |
 | the emitted pages match a fresh run, and each layer's knob model matches the other's | `check:playgrounds`, over source |
@@ -317,6 +323,9 @@ that was solving something else, and the consumer finds out at their own build.
   the component. Read it inside a function, an effect or an after-render hook, or guard it with a
   `typeof` check; Angular's answer is the injected `DOCUMENT` token, and both layers already do
   this everywhere.
+- **The vocabulary rests on CSS `@scope`, so the browser baseline is Chrome 118, Safari 17.4 and
+  Firefox 146.** It is a promise rather than a measurement: `check:pixel-parity` and
+  `check:proximity` run in Chromium, and nothing here measures the other two engines.
 - **What each layer may reach, and the peer each one keeps optional, is that layer's own page.**
   `ENVELOPES` is where the two lists are declared, and the reason a package is in one belongs
   beside the layer that reaches it.

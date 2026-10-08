@@ -15,7 +15,7 @@ being hard to notice.
 | Whether small text shouts | `tt-label`, `tt-eyebrow`, `track-label`, `track-eyebrow` | no transform, normal tracking | a page name is the user's word and capitalising it would overwrite their intent |
 | How tight it is to the hand | `pad-control-*`, `gap-*` | the tightest padding of the four | a page tree is a long list, and the chrome around the document is trying to disappear |
 | How wide it breathes | `container-max`, `measure-prose`, `grid-min`, `gutter` | a narrow container, the widest prose measure of the four, and by far the largest gutter | the document is a reading column with a lot of margin around it |
-| Whether depth is real | `shadow-surface-floating`, `shadow-control-raised` | a soft shadow on a floating surface only, and none at rest or on a control | a menu floats and nothing else does, because a raised control would be an object on a page that has none |
+| Whether depth is real | `elevation-floating-shadow`, `emphasis-primary-shadow-hover` | a soft shadow on a floating surface only, and none at rest or on a control | a menu floats and nothing else does, because a raised control would be an object on a page that has none |
 | How it answers a hand | `press-scale`, `lift-control`, `dur-state`, `ease-state` | no shrink, no rise, the fast duration on an out curve | the least physical of the four, and the quickest, because the interface is trying to keep up with typing |
 | What shape a picture is | `aspect-media`, `fit-media` | a wide landscape, filled | a cover image at the head of a document rather than a picture in a grid |
 

@@ -15,7 +15,7 @@ import { PlaygroundStore } from './PlaygroundState';
     </header>
 
     <div class="pg-shell">
-      <div class="pg-stage"><ng-content /></div>
+      <div class="pg-stage" [style]="model().vars ?? null"><ng-content /></div>
       <aside class="pg-panel">
         <div class="pg-log-head">
           <span class="pg-panel-title">{{ model().knobs.length }} members</span>

@@ -90,3 +90,16 @@ test('a static centring transform needs no transition, so a slot that transition
   const manifest = { component: 'Fixture', slots: { caret: '-translate-y-1/2' } };
   assert.deepEqual(transitionProblems(manifest), []);
 });
+
+test('accepts a theme key that is a calc over Arena tokens only', () => {
+  const css = compiled('    --spacing-row-x: calc(var(--pad-row-x) * var(--dz-row-scale-x));', '');
+  const tokens = new Set(['pad-row-x', 'dz-row-scale-x']);
+  assert.deepEqual(checkCompiled(css, new Map([['X.manifest.json', { slots: {} }]]), tokens), []);
+});
+
+test('refuses a calc over an unknown var or with a px literal operand', () => {
+  const unknown = compiled('    --spacing-row-x: calc(var(--pad-row-x) * var(--dz-nope));', '');
+  assert.match(checkCompiled(unknown, new Map(), new Set(['pad-row-x'])).join('\n'), /--dz-nope is no such Arena token/);
+  const literal = compiled('    --spacing-row-x: calc(var(--pad-row-x) + 4px);', '');
+  assert.match(checkCompiled(literal, new Map(), new Set(['pad-row-x'])).join('\n'), /not a derivation of Arena tokens/);
+});

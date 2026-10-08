@@ -6,7 +6,8 @@ import manifest from './ArenaScrollerItem.classes.generated';
   selector: 'arena-scroller-item',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { '[class]': 'styles().root()',
+  host: {
+    'data-arena-boundary': '', '[class]': 'styles().root()',
     '[attr.data-arena-part]': 'parts.root', },
   template: `<ng-content />`,
 })

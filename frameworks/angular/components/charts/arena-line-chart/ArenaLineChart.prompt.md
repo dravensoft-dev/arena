@@ -2,12 +2,12 @@ Arena line chart, a value over an ordered sequence, hand-written SVG, every colo
 The chart takes series, one polyline each over the same sequence, and a series names itself. An
 optional 18% area tint sits under the line, for one series only. The crosshair snaps to the
 nearest point rather than drifting between them, and the numbers are also a real table for
-anyone who cannot see the line. Identity comes from a series' `slot`, meaning from its
+anyone who cannot see the line. Identity comes from a series' `colorId`, meaning from its
 `tone`; passing both warns and `tone` wins, because a chart carries identity or meaning,
 never both.
 
 ```ts
-readonly p95 = computed<ArenaSeries[]>(() => [{ label: 'p95 latency', values: this.latency(), slot: 3 }]);
+readonly p95 = computed<ArenaSeries[]>(() => [{ label: 'p95 latency', values: this.latency(), colorId: 3 }]);
 readonly percentiles = computed<ArenaSeries[]>(() => [
   { label: 'p50', values: this.median() },
   { label: 'p95', values: this.latency() },
@@ -33,12 +33,28 @@ readonly errors = computed<ArenaSeries[]>(() => [{ label: 'Error rate', values: 
 | `area` | primitive | `boolean` | `false` | Fill under the line at 18% of the series colour: a tint, never a gradient. For a single series; two fills occlude each other. |
 | `curve` | primitive | `boolean` | `false` | Draw the series as a smooth curve rather than straight segments between points. The interpolation is monotone cubic, not Catmull-Rom, and that is the whole of the decision: a Catmull-Rom curve overshoots, so between two measured points it draws a peak or a trough nobody measured, and a chart that draws data which does not exist is the one thing a chart may not do. A monotone curve stays inside the band its own two points define, keeps a flat tangent at a turning point, and never crosses zero unless the values do. It changes the path string and nothing else: the points, the crosshair, the tooltip and the data cursor read the same numbers at the same places. |
 | `valueSuffix` | primitive | `string` |  | Appended verbatim to every number the chart draws: the axis ticks, the tooltip and the accessible table. Carries its own leading space if one is wanted. |
-| `valuePrefix` | primitive | `string` |  | Drawn verbatim before every number the chart writes, as valueSuffix is drawn after it. A currency that precedes its amount is the majority case worldwide and had no expression: with suffix alone, "1234.5 Bs." is what a chart drew where the table beside it read "Bs. 1.234,50", and the accessible table inherited the disagreement. |
+| `valuePrefix` | primitive | `string` |  | Drawn verbatim before every number the chart writes, as valueSuffix is drawn after it. A currency that precedes its amount is the majority case worldwide, and a suffix alone cannot say it: "1234.5 Bs." would disagree with the table beside it reading "Bs. 1.234,50", and the accessible table would inherit the disagreement. |
 | `valueFormat` | object | `ArenaNumberFormat` |  | How each number is written before the prefix and suffix are added: which locale, how many fraction digits, whether thousands are grouped, whether large numbers are compacted. Absent, the raw JavaScript number, which is what this chart drew before the member existed. |
 | `height` | primitive | `number` | `280` | The plot's height in px, the --chart-height token by default. A number rather than a dimension string, because the chart does arithmetic with it to place every mark, and a caller-supplied "20rem" is neither a token nor a derivation of one. |
 | `minPointSpacing` | primitive | `number` |  | The narrowest gap, in px, the chart draws between two adjacent points. Below it the chart stops compressing and overflows its container horizontally instead, scrolled and anchored to the most recent point: marker spacing is a legibility constant, not something that yields to the viewport, and thirty days in 390px is unreadable at any font size. Absent, the chart fits whatever width it is given. The rail it scrolls in is the same region the data cursor lives in, and it is keyboard-reachable whether it overflows or not. |
 
 <!-- @api end -->
+
+<!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
+
+**Answers.** No family of the [vocabulary](../../../../VOCABULARY.md) decides anything in this component's own box.
+
+<!-- @answers end -->
+
+<!-- @keys GENERATED from the binding. -->
+**Keys**, from [`figure-with-data-table`](../../../../../contracts/behaviour/figure-with-data-table.json):
+- `ArrowLeft`: moves the data cursor to the previous point, clamping at the first.
+- `ArrowRight`: moves the data cursor to the next point, clamping at the last.
+- `Home`: moves the data cursor to the first point.
+- `End`: moves the data cursor to the last point.
+- `Escape`: clears the data cursor.
+- `data-cursor`: an addition of this component, see its binding.
+<!-- @keys end -->
 
 `valueSuffix` is appended to the tick labels, the tooltip and the numbers table together,
 so a unit written once appears everywhere. The suffix is appended verbatim, so write the space yourself:
@@ -143,6 +159,6 @@ smooth line between two counts implies values between them that were never count
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
+**The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

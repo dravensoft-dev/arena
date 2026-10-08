@@ -78,37 +78,108 @@ if it and this paragraph ever disagree, the file wins. Every value in it is a
 `var()` into a token, and each animation answers `prefers-reduced-motion` on its
 own terms: decorative motion stops, motion that reports work slows.
 
-## The two hand-authored treatments, and why neither is a manifest slot
+## The vocabulary: what an adopter writes on a component
 
-`Numerals.css` holds `.arena-num`: the mono face and `tabular-nums`, and no colour. It is here
-for the same reason the keyframes are, that it belongs to no surface. A manifest mirrors a
-surface and this is a treatment, applied to whatever figure a consumer is drawing themselves,
-in a definition list, a KPI or a cart line.
+**A family is a question about appearance with named answers, and an adopter writes the answer as
+a class.** Each lives in `vocabulary/arena-<family>/<Family>.family.json` beside a specimen card,
+and declares:
 
-It exists because `ArenaTableColumn.mono` does two things, the mono face **and** the gold ink, and
-the ink is what stops the treatment travelling: gold reads as an identifier, so a sale total in
-gold inside a card says the wrong thing. `mono` is this utility plus the ink, and
-`ArenaTable.manifest.json`'s mono slots carry the same `tabular-nums`, so a column of figures aligns
-by digit in both places.
+- `family` and `reach`. A `context` family crosses components and is cut only where a nearer class
+  answers it again, or at a floating surface. A `box` family reaches the nearest component only.
+- `description`: the argument for the family existing at all. It is required.
+- `variants`: each option class mapped to arbitrary properties writing only `--arena-<family>-*`
+  channels, as `"arena-fill": "[--arena-fill-width:100%]"`. A value names an Arena token or a role,
+  never a Tailwind theme key: the build compiles in `@reference` mode and emits none, so a read of
+  one is empty at runtime.
+- `default`: the option in effect when nothing is written.
+- `axis`, on a box family that has one: the public property an adopter sets for a value no option
+  names, a string or a list of strings when a family has more than one. Each is `--arena-<family>`
+  or `--arena-<family>-<suffix>`, belongs to one family, and is read by a manifest that answers the
+  family; an axis nobody reads, an axis of a family no manifest answers and an axis two families
+  share each fail `check:families`. A skeleton's width, height and corner are the axes of one family.
 
-**A second one is not free.** Every rule here is a class nothing gates against a contract, so
-the bar for adding another is that it belongs to no surface at all and that some component's
-own treatment is defined as it plus something.
+**A manifest takes part with a few keys.** `answers` names the families the component responds to,
+and a slot reads each channel with today's value as the `var()` fallback, as
+`w-[var(--arena-fill-width,fit-content)]`. The fallback IS the default and names an Arena token, never a theme key; a manifest
+never declares a channel, because a declaration on the slot would tie the family's rule on
+specificity and source order would decide again. **A read of a channel falls back through the
+family's axis**, `var(<channel>,var(<axis>,<default>))`: a class on the component sets the channel
+and wins, the property an adopter sets on a container is read when no class does, and the default
+is read when neither is there. `check:families` compares the fallback with the value the family
+writes, wrapped in its axis or not.
 
-`Rhythm.css` is the second, and it is here because it clears both halves of that bar rather
-than because a page wanted a shortcut. It holds `.arena-stack` and `.arena-row`, the air
-BETWEEN components, and it belongs to no surface because Arena draws no outer margin anywhere:
-the only root-level margin in the library is `ArenaGrid`'s own centring. The second half is
-`ArenaGrid`, whose `gap` variant is these same three rhythm tokens spent on the two axes of a
-grid instead of on a column, so a grid is this treatment plus a grid. It carries what the token
-family alone could not: a length nothing applies is a length every consumer re-decides.
+**An `answers` entry is a bare family name or an object.** The object,
+`{ "family": "size", "options": ["arena-size-sm", "arena-size-md", "arena-size-lg"], "default":
+"arena-size-md" }`, says which options the component has and which is its own default, so each read's
+fallback is that default's value and not the family's. An option compiles only over the parts of
+the manifests that answer it, so a class naming an option a component lacks selects nothing on it.
 
-Its classes go on an element the consumer wrote, never on an Arena element, and that is a
-property of the system rather than a preference. A component's host element may declare
-`display: contents` and carry no box, and `ArenaTabs` renders no element of its own at all, so a
-rule aimed at an Arena element can be discarded with nothing to report it. The statement lives
-in [`../PACKAGING.md`](../PACKAGING.md), which is the document that owns what an adopter may
-lean on and the one place allowed to say it of every target at once.
+- `bound` maps a channel the component reads without one of its own slot classes reading it, with
+  the reason: the people list's `--arena-size-face` is read by the avatar its row hands the face
+  to, and the hero's `--arena-align-bleed-justify` is read through a channel its layout writes
+  from it. The family must write the channel and the component must answer the family, and an
+  entry fails once either stops holding.
+- `floating` names a slot that is a floating surface, with its reason, and the component renders
+  it with `data-arena-surface="floating"`.
+- `transparent` names a slot that projects adopter content without being a boundary, with its
+  reason; the triggers of `ArenaTooltip` and `ArenaMenu` are the case, and so is the root of
+  `ArenaScroller`, which sets the width of the items it holds and paints nothing, each item being
+  a boundary of its own.
+
+**`build:tailwind` compiles a family to `consume/vocabulary/<Family>.generated.css`**, one `@scope`
+block per option over the parts of the manifests that answer that option, each selected as the
+scope root and as a descendant (`:scope[data-arena-part="p"], [data-arena-part="p"]`), because a bare
+selector inside `@scope` never matches the root, and a nesting selector (`&`) written directly
+inside `@scope` is one a bundler that lowers nesting drops. **The context limit** of a `context` family is
+`to ([data-arena-surface="floating"])`: the class reaches the root part of each answering
+component, which is where the channel is written, and stops at a surface that says it floats. A
+box family is limited by
+`to ([data-arena-boundary] > *, :scope[data-arena-boundary] > *)`, which is inclusive on purpose:
+the boundary is usually the component's own root, an exclusive limit drops that root from scope,
+and Chromium matches a limit among the root's descendants only. **A box family registers each
+channel with `@property` as not inherited**: a custom property inherits, so a part the rule reaches
+would otherwise hand its value down past the boundary the rule stops at. An axis is reset on
+`[data-arena-boundary] > *`. Every sheet opens with the layer order, so a vocabulary sheet loaded
+first cannot rank `utilities` below `components`. The packages ship each one as
+`css/vocabulary/<family>.css`, imported by `arena.css`.
+
+**Every `arena-` name the theme sheet ships as a utility is a family option, a class a manifest
+names, or an entry of `NOT_WRITTEN`** in `scripts/check/arena/check-classes.ts` with the reason an
+adopter does not write it, so a utility cannot reach a consumer unannounced. An entry no sheet
+defines any more fails as stale.
+
+`check:families` holds the files and the manifests' use of them, `check:channels` holds one writer
+kind per custom property, `check:boundaries` holds the boundary records, and `check:proximity`
+measures the cascade in Chromium in both load orders.
+
+**A keyed family has no options, no default and no axis**: `target: keyed` names a `keyed` field a
+component reads its key from, the `properties` an adopter sets with the key written into the name
+(`--arena-column-<key>-width`), the `channels` a manifest reads, and the components it `binds`. It
+compiles to no sheet, because no class writes it. The manifests answering it are exactly `binds`,
+the key field is reachable from a bound component's contract, and both layers write the binding
+beside a channel name, so a key no property names leaves the channel unset. The table's column is
+the case: each cell writes both column channels, as `initial` when it has no valid key, a card
+layout included, and a key that cannot name a property warns once.
+
+**A markup family has no default, no axis, and no answering manifest.** Its options are
+`[property:value]` tokens. A non-restating option writes declarations and never a custom property.
+A `restates` family names a contract file per option instead, and writes only the custom
+properties of that contract group. A markup family compiles unlayered to
+`@scope (.option) { :scope {…} }` in the order the file writes its options, because two modifiers
+writing one property are decided by that order. It ships at `css/vocabulary/<family>.css` like
+every family. **A component family is the one that carries a specimen card.** An adopter writes
+classes on a component or on markup, and every vocabulary class an adopter writes is a family
+option.
+
+## Hand-authored CSS that manifests name
+
+The hand-authored sheets a manifest names are `Case.css`, `Media.css` and `Animations.css`, with
+`Specimen.css` and `Theme.css` beside them. A manifest names the utilities of the first three.
+Through `css/tailwind-theme.css` a project compiling Tailwind may also write them, eight of them
+as `arena-` names such as `arena-spinner` and `arena-fade`. They are Tailwind utilities and not
+vocabulary classes, so no family lists them. The argument for `num` (the ink that stops
+`ArenaTableColumn.numeric` travelling) and for `stack` and `row` (no outer margin on anything) is in
+their `description` under `vocabulary/`.
 
 ## Arbitrary values are a build failure
 
@@ -198,13 +269,22 @@ one. Re-valuing the scale instead is not a repair, because a step is shared by e
 happens to want that length, and a card and a tooltip do not stop being different things by
 agreeing on 14 pixels.
 
-**The five kinds a role names.** A SURFACE has things placed inside it. A FLOATING surface is
-one that sits over the page rather than in it. A CONTROL is pressed. A FIELD is typed into. A
-MARKER encloses a label and nothing else, so it is none of the other four. A SEPARATOR is the
-sixth and it is not a kind of thing but a kind of edge: the line dividing one thing from the
-next INSIDE a surface. It is a separate role from `--bw-surface` for the reason that matters
-most to this whole tier, which is that a style plugin grouping by elevation removes the enclosure
-and a table whose row rules vanished with it would stop being readable.
+**The kinds a role names.** A SURFACE has things placed inside it. A FLOATING surface sits over
+the page rather than in it. A CONTROL is pressed. A FIELD is typed into. A MARKER encloses a label
+and nothing else. A STATUS is a message the page says about itself, such as an alert or a toast. A
+ROW is one item in a list: a menu entry, a table cell, a tab. A slot that is none of these is
+`none`. A SEPARATOR is not a kind of thing but a kind of edge: the line dividing one thing from the
+next INSIDE a surface. It is a separate role from `--bw-surface` because a style plugin grouping by
+elevation removes the enclosure, and a table whose row rules vanished with it would stop being
+readable.
+
+**Every slot declares its kind.** A manifest's `kind` map has one entry per slot, in the order of
+`slots`, and `check:roles` fails a slot with none, an unknown kind or a kind naming no slot
+(`scripts/lib/tailwind/slot-kinds.ts:kindProblems(manifest)`). It judges a slot's padding, gap,
+margin and radius by its kind (`KIND_AIR` and `KIND_FREE` in that file): a numeric step fails, and
+so does a role of another kind. `SCALE_USES` is the one way out. A `kind` map never reaches a class
+module or a sheet. Which role answers which kind is stated in
+[`contracts/design/StylePlugins.md`](../../contracts/design/StylePlugins.md).
 
 **Radius and depth are banned by utility name; a border width and a duration by TOKEN name; an
 easing by both.** The first two have a Tailwind namespace and the next two do not, so those are
@@ -232,13 +312,15 @@ shadow as offsets, blur, spread and a colour and has no way to spell the absence
 travel is `0px`.
 
 **A variant branch that restates a role as a literal un-paints it, and that is the same defect
-seen from the other end.** A root painting `shadow-surface-rest` whose `floating` variant writes
+seen from the other end.** A root painting `shadow-surface-rest` whose `floating` branch writes
 `shadow-none` on the false branch, which is the DEFAULT, resolves every ordinary card to a
 transparent literal instead of the role: the one token authored to let a style plugin trade
-hairline grouping for elevation then reaches nothing on the component it was written for. A branch meaning "the value the slot already paints" says nothing at all, because the base
-rule is already the answer. `shadow-none` is therefore in `SCALE_UTILITIES` beside `shadow-1`,
-with `ArenaTabs`'s tab on the record in `SCALE_USES`: that slot paints no depth role, so its
-literal cancels the selected branch's inset rule rather than overriding a role.
+hairline grouping for elevation then reaches nothing on the component it was written for. **The
+card reads the elevation channel instead**, `shadow-[var(--arena-elevation-shadow,var(--elevation-flat-shadow))]`,
+so each option answers its own role and no branch is a literal. A branch meaning "the value the slot already paints" says nothing
+at all, because the base rule is already the answer. `shadow-none` is therefore in `SCALE_UTILITIES`
+beside `shadow-1`, with `ArenaTabs`'s tab on the record in `SCALE_USES`: that slot paints no depth
+role, so its literal cancels the selected branch's inset rule rather than overriding a role.
 
 **Rest and raised compose by source order, not by merging.** A slot's resting depth sets
 `--tw-shadow` in the base rule and its hover sets the same variable in a rule emitted after it,
@@ -318,15 +400,11 @@ references and not a sibling: `../../../consume/components/<category>/<component
 which is the specimen's own directory read back under `consume/`.
 
 **Be exact about what catches a miscount, because nothing loads the page.** A broken **script**
-path (`Specimen.js`, or the page's own manifest `fetch`) leaves `#root` empty, which
-`classify()` reports as `unrendered`; `main()` routes that to `skip()`, which the repository's
-declared strict setting turns into a failure, and which an environment exporting
-`ARENA_CHECK_STRICT` as anything but `1` turns back into a SKIP and an INCOMPLETE run,
-**not a failure**. And a broken **stylesheet** path (`intro/styles.css`,
-`Utilities.generated.css`, `Specimen.css`) is not caught at all: the page still renders, so an
-unstyled specimen that happens to fit its declared box passes outright, and one that
-under-runs only warns. What actually stands behind a correct specimen is the by-hand
-check: run `bun run demos` and open the page.
+path leaves `#root` empty, which `classify()` reports as `unrendered` and `main()` routes to
+`skip()`: a failure under the declared strict setting, a SKIP and an INCOMPLETE run under an
+`ARENA_CHECK_STRICT` other than `1`. A broken **stylesheet** path is not caught at all, since the
+page still renders. What stands behind a correct specimen is the by-hand check: run
+`bun run demos` and open the page.
 
 **One shape of that IS caught, and it is the one a page adds by composing.** A specimen that
 `fetch`es a second manifest, as `ArenaUnauthCard` does `ArenaAppLogo` and `ArenaToastHost` does `ArenaToast`, renders
@@ -366,14 +444,14 @@ comm -13 <(find components -name '*.manifest.json' -exec basename {} .manifest.j
          <(python3 -c "import json;print('\n'.join(sorted(n for v in json.load(open('../Components.json')).values() for n in v)))")
 ```
 
-Two reasons put a component in it. **A compound family draws one surface**, so the parent's
-manifest holds every level of it and its members have none of their own. `MANIFEST_COVERS` in
-`scripts/lib/tailwind/manifest-surfaces.ts` is the mapping, read it there rather than from a list
-here. **And a chart drawing geometry has no surface a class string can describe**: a chart is SVG
-geometry driven by measured container width, its identity is path data and attribute bindings, and
-a manifest holding it would be a lie about where the styling lives. `HAND_DRAWN` beside
-`MANIFEST_COVERS` is that roster. `ArenaChartCard` is in neither and does have a manifest, since
-it is a bordered tile.
+**A compound family draws one surface**, so the parent's manifest holds every level of it and its
+members have none of their own. `MANIFEST_COVERS` in `scripts/lib/tailwind/manifest-surfaces.ts` is
+the mapping, read it there rather than from a list here.
+
+**A chart has a manifest too, for what a class can say**: the `frame` slot a plugin reaches, the
+legend and the tooltip. Its plot has no surface a class string can describe: it is SVG geometry
+driven by measured container width, and its identity is path data and attribute bindings. The
+`HAND_DRAWN` roster beside `MANIFEST_COVERS` names the plots drawn by hand.
 
 `Utilities.generated.css` is **generated** and **git-ignored**: `bun run build:tailwind`
 compiles the preset with the manifests as content, and `bun run check:tailwind-generated` fails
@@ -392,10 +470,8 @@ accumulates across the set. `visible` is one such collision, which is why the la
 for a shown/hidden boolean is `open`. Name variants with that in mind.
 
 **`compoundVariants` work and one manifest uses them.** `ArenaPageHead` needs a class that depends
-on two variants at once, `classesFor()` resolves them after every single-variant slot, and
-`arenaStyles` applies one only when every condition it names holds. They compile to a
-`--cv<n>` class in declaration order. Prefer a plain boolean variant where one will do: a
-compound is harder to read and the emitted name says less.
+on two variants at once and applies only when every condition it names holds, as one `:where()`
+after the variants. Prefer a plain boolean variant where one will do: a compound is harder to read.
 
 ## A slot name is a public contract
 
@@ -411,27 +487,41 @@ spells the class, from one module, because the generator and the browser specime
 read it. [`check:parts`](../../scripts/check/arena/check-parts.ts) fails an element that carries a
 slot class and no hook, in either layer.
 
-**A slot that is a second class on another slot's element declares that in `partOf`.** Some slots
-are not a part of the DOM at all: `tdMono` is the `td` element set in the mono face, `pageCurrent`
-is the `page` a pager marks as current, `indeterminate` is the `track` while it sweeps. A
-component composes those classes onto the base slot's element, so the element carries the base
-slot's hook and there is nothing for a hook of the variant's own to sit on. `partOf` maps the
-variant to its base and `classesManifest` resolves the part through it, so what the kernel
-advertises is what an element carries.
+**A slot that is a second class on another slot's element declares that in `partOf`.** Such a slot
+is no part of the DOM: the component composes its class onto the base slot's element, which
+carries the base slot's hook and has nothing for a hook of its own to sit on. `partOf` maps it to
+its base and `classesManifest` resolves the part through it, so what the kernel advertises is what
+an element carries. Without it a plugin's rule against the slot's name matches nothing while reading as coverage, which [`check:style-plugin-coverage`](../../scripts/check/core/check-style-plugin-coverage.ts)
+catches both ways, a part painted and never emitted as loudly as one emitted and never painted.
 
-**Without it the surface over-claims and nothing notices**, which is the failure this key exists
-to close: `check:parts` sees a hook on the element and passes, and a plugin's rule against the
-variant's name matches nothing on any page while still reading as coverage.
-[`check:style-plugin-coverage`](../../scripts/check/core/check-style-plugin-coverage.ts) now asks
-the question both ways, so a part painted and never emitted fails as loudly as one emitted and
-never painted. The cut is which decision a state is: a variant painted through a `variants` block
-needs no entry, because a variant class already belongs to the slot it modifies.
+## A variant group is a `data-arena` attribute, and meaning is a hue
+
+**`arenaStyles` renders each slot's classes and, beside them, `$data.<slot>()`: every group the
+slot is touched by as `data-arena-<group>`.** An enum renders its resolved value, defaults
+included, and a boolean the attribute's presence. A slot is touched by a group when a value, a
+compound or the group's `hues.on` names it, and a branch compiles to the slot class qualified by
+the attribute inside `:where()`. So TypeScript chooses no class by a value, and **a slot a
+component once picked by state, the current page or the first row, is a group on one slot**. Every
+group is a member, a field of a member's type, or an `internal` entry, `{ group: reason }`, which
+`check:api` holds.
+
+**`hues` maps a group's values to hues** (`danger`, `success`, `warning`, `info`, `identity-N`), and
+a value mapped to `null` writes every channel as `initial`. `build:tailwind` compiles it to the
+hue sheet, `consume/hues/<category>/<component-kebab>/<Component>.hues.generated.css`: one rule
+per slot and value on the element given the hue, never on an ancestor, so a badge inside a danger
+alert reads its own colour. What each hue writes is authored once, in
+[`Hues.json`](./Hues.json), and not as a `:root` rule, since a `var()` resolves where it is
+declared and a root definition would freeze the plugin scope. A slot reads a channel,
+`bg-[color:var(--arena-hue-fill-soft)]`, and declares none. **A slot whose hue no value varies
+names it under `hues.always`**, `{ slot: hue }`, written on the bare slot class ahead of the group
+rules, and no hued group reaches that slot; `check:api` holds both.
 
 ## What a manifest is compiled into
 
 A manifest is authored as Tailwind and never shipped as Tailwind. `bun run build:tailwind`
-translates each slot and each variant branch into an `@apply` rule under an
-`arena-<manifest>__<slot>` class name, compiles the lot, strips Tailwind's own theme
+translates each slot and each variant branch into an `@apply` rule on the `arena-<manifest>__<slot>`
+class, a branch qualified by its group's attribute inside `:where()` (`:where([data-arena-tone="danger"])`,
+`:where(:not([data-arena-sticky]))`, one `:where()` per compound) so it keeps its `(0,1,0)`. It compiles the lot, strips Tailwind's own theme
 indirection back to the Arena token behind it, and cuts the result into one stylesheet per
 component plus the prelude they share, all of it under `consume/`. What a component composes at
 runtime is the class names, never the utilities.
@@ -445,8 +535,9 @@ repository does not have.
 
 ## Invariants the manifests must reproduce
 
-- **Danger is outline:** `border` and `text` in `--error`, transparent fill; a
-  filled danger surface is reserved for `ArenaConfirmDialog`'s final confirmation.
+- **Danger is outline:** the danger hue's edge and ink, its strong fill closed to `transparent`, so a
+  presence, feed and progress marks read `--arena-hue-fill-strong` for the other hues and the ink for danger, and a chart legend swatch and the tag's dot read the ink;
+  the one filled danger surface is `ArenaConfirmDialog`'s final confirmation, `fill-confirm-final`.
 - **Focus is a ring, and which ring follows what is being focused.** A CONTROL takes the
   gold ring, `--focus-ring` at `--focus-width`. A SURFACE an activation is drawn around
   takes `ring-primary` with `ring-2`. Derive which manifests spend each with
@@ -497,42 +588,21 @@ slot is only a safe place for a modifier every variant branch is willing to lose
 
 ## Two classes at equal specificity are ordered alphabetically, not by manifest order
 
-Tailwind emits same-specificity utilities sorted by value inside each property
-bucket, so `bg-transparent` always compiles after `bg-primary/14` and
-`text-base-content/82` always compiles after `/62`, whatever order the
-manifest declares them in or however sensible the manifest's own ordering
-looks. When a base slot and an additive modifier slot both set one property,
-the alphabetically-later value wins the cascade, which is arbitrary with
-respect to intent rather than a rule anyone chose, and unpredictable from reading the
-manifest alone. Never rely on it, and never "fix" it by reordering the class
-string: reordering does nothing, because this is the *compiled stylesheet's*
-order rather than the string's. A property a modifier slot overrides does not belong
-on the base slot at all; put it in every modifier branch instead, so the base
-slot only ever carries a property no sibling modifier touches.
+Tailwind emits same-specificity utilities sorted by value inside each property bucket, so
+`bg-transparent` always compiles after `bg-primary/14`, whatever order the manifest writes them
+in. When a base slot and a modifier both set one property, the alphabetically-later value wins,
+which is arbitrary with respect to intent. Reordering the class string does nothing, because this
+is the *compiled stylesheet's* order. A property a modifier overrides does not belong on the base
+slot at all: put it in every branch, so the base only carries what no branch touches.
 
-This is a different failure from the one above: a state modifier (`hover:`,
-`focus-within:`) always wins on *specificity*, a real, deterministic ordering
-axis. Two *plain* classes for the same property, from a base slot and a named
-modifier slot, share one specificity band, and Tailwind's own sort order
-inside that band is what decides, which is what makes it look "correct" far
-more often than it should. `ArenaMenu`'s `item`/`itemDefault`/`itemDestructive`/
-`itemDisabled` is the reference shape: `item` carries only what no modifier
-branch overrides (layout, no color, no cursor), and every color and cursor
-value lives in exactly one of the three modifier slots, never on `item`
-itself. `ArenaCommandPalette`'s `row`/`rowDefault`/`rowActive` and
-`rowLabel`/`rowLabelDefault`/`rowLabelActive` follow the same shape for the
-same reason: a resting row needs its own explicit background and text color,
-not an absence that happens to lose to the active row's tint by alphabetical
-luck. A `arenaTv()` `variants` block does not carry this risk the same way: each of
-its slot's classes resolves through one `slot()` call, and the configured
-`arenaTv` (`frameworks/tailwind/Tv.ts`) merges that call's own base and chosen
-branch with `tailwind-merge`, which resolves same-property conflicts by
-config, not by generation order. The risk above is specifically about **named
-sibling slots**, meaning extra `slots` keys outside any `variants` block that a
-consumer string-concatenates onto a base slot by hand (a specimen's `el()`
-call, or a consumer's own template interpolation), because that
-concatenation never goes through `tailwind-merge` at all, in the specimen
-*or* in the real component.
+A `variants` block does not carry this risk: `classesFor`
+(`frameworks/tailwind/ManifestClasses.js:classesFor(manifest, chosen)`) concatenates a slot's base
+and each chosen branch, the build emits the branch's rule after the base's, and source order
+decides. The risk is a **named sibling slot**, an extra `slots` key outside any `variants` block
+that something concatenates onto a base slot by hand, because that never goes through the build's
+ordering. Arena's components have none: a state a component once picked as a sibling slot is a
+group on one slot, and a branch is qualified by its attribute inside `:where()`, so it keeps
+`(0,1,0)` and its order.
 
 One shape of copy is worth naming. `ArenaSegmentedControl.manifest.json`'s `selected`
 variant carries a hover affordance its contract declares, and `ArenaTabs`' visually

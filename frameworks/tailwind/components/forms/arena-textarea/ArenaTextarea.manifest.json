@@ -4,15 +4,26 @@
     "root": "flex flex-col gap-1.5",
     "label": "font-face-label text-ctl-xs tracking-label-role case-label text-ink-muted/(--level-ink-muted)",
     "required": "text-primary ml-1",
-    "field": "w-full px-control-x py-2.5 bg-field border-[length:var(--bw-field)] rounded-field text-ink-body placeholder:text-ink-muted/(--level-ink-muted) font-body text-ctl leading-body outline-none transition-[border-color,box-shadow] duration-[var(--dur-hover)] ease-hover",
+    "field": "w-full px-control-x py-control-text-y bg-field border-[length:var(--bw-field)] rounded-field text-ink-body placeholder:text-ink-muted/(--level-ink-muted) font-body text-ctl leading-body outline-none transition-[border-color,box-shadow] duration-[var(--dur-hover)] ease-hover",
     "foot": "flex justify-between gap-items",
     "hint": "font-body text-ctl-sm text-ink-muted/(--level-ink-muted)",
-    "error": "font-body text-ctl-sm text-error",
-    "counter": "font-mono text-ctl-xs text-ink-muted/(--level-ink-muted)",
-    "counterNear": "font-mono text-ctl-xs text-warning"
+    "error": "font-body text-ctl-sm text-[color:var(--arena-hue-ink)]",
+    "counter": "font-mono text-ctl-xs"
   },
-  "partOf": {
-    "counterNear": "counter"
+  "kind": {
+    "root": "none",
+    "label": "none",
+    "required": "none",
+    "field": "field",
+    "foot": "none",
+    "hint": "none",
+    "error": "none",
+    "counter": "none"
+  },
+  "internal": {
+    "state": "error when error is given",
+    "resize": "none while autoResize grows the field, vertical otherwise",
+    "near": "the length is past 90% of maxLength"
   },
   "variants": {
     "state": {
@@ -20,7 +31,7 @@
         "field": "border-edge-field focus:border-secondary focus:ring-[length:var(--focus-width)] focus:ring-secondary/16"
       },
       "error": {
-        "field": "border-error ring-[length:var(--focus-width)] ring-error/14"
+        "field": "border-[color:var(--arena-hue-edge)] ring-[length:var(--focus-width)] ring-[color:var(--arena-hue-fill-soft)]"
       }
     },
     "resize": {
@@ -37,17 +48,39 @@
       },
       "false": {}
     },
-    "readonly": {
+    "readOnly": {
       "true": {
         "field": "bg-base-200 cursor-default"
       },
       "false": {}
+    },
+    "near": {
+      "true": {
+        "counter": "text-[color:var(--arena-hue-ink)]"
+      },
+      "false": {
+        "counter": "text-ink-muted/(--level-ink-muted)"
+      }
     }
   },
   "defaultVariants": {
     "state": "neutral",
     "resize": "vertical",
     "disabled": false,
-    "readonly": false
+    "readOnly": false,
+    "near": false
+  },
+  "hues": {
+    "always": {
+      "error": "danger"
+    },
+    "state": {
+      "neutral": null,
+      "error": "danger"
+    },
+    "near": {
+      "true": "warning",
+      "false": null
+    }
   }
 }

@@ -1,0 +1,10 @@
+{
+  "family": "shell",
+  "reach": "box",
+  "target": "markup",
+  "description": "The window a page fills, so a short page's footer sits at the bottom rather than floating halfway up. arena-shell__main goes on the one child that takes the slack. A shell with a header, a main and a footer has exactly one child that should grow, and no rule can know which. When that child is an Arena component, put a div of yours around it and the class on the div. A component's own element may carry no box, so the slack would go to nothing.",
+  "variants": {
+    "arena-shell": "[display:flex] [flex-direction:column] [min-height:100dvh]",
+    "arena-shell__main": "[flex:1] [min-width:0]"
+  }
+}

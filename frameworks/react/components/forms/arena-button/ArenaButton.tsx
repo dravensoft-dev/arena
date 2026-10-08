@@ -1,17 +1,19 @@
 import React from 'react';
 
-import type { ArenaButtonType, ArenaButtonVariant, ArenaControlSize } from '../../../Api.generated';
+import type { ArenaButtonType } from '../../../Api.generated';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaButton.classes.generated.ts';
+import type { ArenaButtonClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export interface ArenaButtonProps {
+  className?: ArenaButtonClass;
+
 
   /** The button's label. Sits between the two icons when both are given. */
   children?: React.ReactNode;
-  /** Which action this is. Danger is outline, never filled. */
-  variant?: ArenaButtonVariant;
-  /** Height, from the density tokens, so the button re-densifies inside .arena-compact. */
-  size?: ArenaControlSize;
+  /** Whether the action destroys or removes something. Destructive draws the danger outline whatever emphasis the button is given: danger is never filled outside ArenaConfirmDialog's final confirmation. */
+  destructive?: boolean;
 
   /** Phosphor class name drawn before the label. Replaced by the spinner while loading. */
   icon?: string;
@@ -22,8 +24,6 @@ export interface ArenaButtonProps {
   /** Replaces the leading icon with a spinner and blocks activation. The spin slows under reduced motion rather than stopping: a frozen spinner reads as a hung process. */
   loading?: boolean;
 
-  /** Stretches to the container's width. */
-  full?: boolean;
   /** Blocks activation and dims the control. Implied by loading. */
   disabled?: boolean;
 
@@ -52,16 +52,16 @@ export interface ArenaButtonProps {
 
 const arenaButtonStyles = arenaStyles(manifest);
 
-export function ArenaButton({
-  children, variant = 'primary', size = 'md', icon, iconRight,
-  disabled = false, loading = false, full = false,
+export function ArenaButton({ className, 
+  children, destructive = false, icon, iconRight,
+  disabled = false, loading = false,
   type = 'button', name, value, autoFocus = false, form, onClick, tabStop = true,
 }: ArenaButtonProps) {
-  const styles = arenaButtonStyles({ variant, size, full });
+  const styles = arenaButtonStyles({ destructive });
 
   return (
     <button
-      className={styles.root()} data-arena-part={manifest.parts.root}
+      className={arenaClassName('ArenaButton', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()} data-arena-boundary=""
       type={type}
       name={name}
       value={value}
@@ -72,7 +72,7 @@ export function ArenaButton({
       disabled={disabled || loading}
     >
       {loading
-        ? <span className={styles.spinner()} data-arena-part={manifest.parts.spinner} aria-hidden="true" />
+        ? <span className={styles.spinner()} data-arena-part={manifest.parts.spinner} {...styles.$data.spinner()} aria-hidden="true" />
         : icon && <i className={icon} aria-hidden="true" />}
       {children}
       {iconRight && <i className={iconRight} aria-hidden="true" />}

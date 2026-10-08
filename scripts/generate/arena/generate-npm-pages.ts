@@ -1,41 +1,105 @@
-/* The half of an npm page that is the same page in both packages. Two documents with one file
- * name are one document rendered per layer, so what they share is a single source said twice: it
- * was said twice by hand, 8,700 characters of it, and the two had already drifted in wording
- * elsewhere on the page. Each region is emitted between markers a person placed, because where a
- * section sits on the page is the author's decision and only what it says is this file's.
- * Everything a layer decides, the import idiom, what the package exports and how a layout is
- * composed, stays hand-written in each. A region lands in both pages, so it names no layer:
- * `check:layer-independence` refuses a page under `frameworks/<A>/` that cites layer B. A fact
- * true of one package only is that package's own paragraph outside the markers, saying what it
- * does rather than what the other does instead; the test here holds every region to that. */
+/* The generated regions of the consumer pages: what the repository is, how a skin is declared,
+ * the sheet table, and each npm page's question table. Each region lands only in the targets
+ * REGION_TARGETS maps it to, between markers a person placed, because where a section sits is the
+ * author's decision and only what it says is this file's. The question tables come from
+ * NPM_QUESTIONS and link into skills/design/ at the tag of the release. A region shared by two
+ * pages names no layer: `check:layer-independence` refuses a page under `frameworks/<A>/` that
+ * cites layer B, and the test here holds every shared region to that. */
 
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
-import { AXES, renderAxes } from '../../lib/arena/support-matrix.ts';
-import { DOMAIN } from '../../lib/arena/site-pages.ts';
+import { packageSheetName, sheetFamilies } from '../../lib/tailwind/vocabulary.ts';
+import { CSS_CHAIN, tokenCatalogue } from '../../lib/arena/package-assembly.ts';
+import { NPM_PAGES, renderQuestions } from '../../lib/arena/npm-questions.ts';
+import { ARENA_EXT, RESERVED } from '../core/arena-cli/style-plugin-rules.ts';
+import { readJson } from '../../utils/read-file.ts';
+import { readPlugin, resolvedPlugin, PLUGIN_TOKENS } from '../core/arena-cli/theme-css.ts';
+import { CSS_TARGETS } from './generate-tokens.ts';
+import { HUES_FILE } from '../../lib/tailwind/hue-sheet.ts';
 
-export const TARGETS = [
-  'frameworks/react/PACKAGE.md',
-  'frameworks/angular/PACKAGE.md',
-];
+export const LOCALE_CONTRACT = 'contracts/api/types/arena-locale.json';
+export const ROLE_CONTRACT = 'contracts/design/roles.json';
+export const BEHAVIOUR_CONTRACT = 'contracts/design/behaviour.json';
+
+export function defaultedRoles(base = root) {
+  const roles = readJson(join(base, ROLE_CONTRACT)) as Record<string, { $extensions?: Record<string, { default?: unknown }> }>;
+  return Object.keys(roles).filter((name) => roles[name]?.$extensions?.[ARENA_EXT]?.default !== undefined).sort();
+}
+
+export function unansweredCount(base = root) {
+  const roles = readJson(join(base, ROLE_CONTRACT)) as Record<string, unknown>;
+  return Object.keys(roles).length - defaultedRoles(base).length;
+}
+
+export function toastIntervals(base = root) {
+  const behaviour = readJson(join(base, BEHAVIOUR_CONTRACT)) as {
+    dismiss: Record<'default' | 'actionable', { $value: { value: number; unit: string } }>;
+  };
+  const ms = (name: 'default' | 'actionable') => `${behaviour.dismiss[name].$value.value} ${behaviour.dismiss[name].$value.unit}`;
+  return { standard: ms('default'), actionable: ms('actionable') };
+}
+
+export function defaultedSentence(roles: string[], total = 0) {
+  if (roles.length === 0)
+    return `No role in this package carries a default, so your root style plugin answers every one of the ${total} roles and the command refuses a root plugin silent on any.`;
+  return `The roles carrying a default are ${roles.map((role) => `\`${role}\``).join(', ')}, and your root style plugin answers the other ${total}.`;
+}
+
+export function defaultsStatement(base = root) {
+  const roles = defaultedRoles(base);
+  return `${defaultedSentence(roles, unansweredCount(base))} A minor release may add a role that carries Arena's default. Your root plugin may then leave that role silent, and the role takes the default. The command notes it, as \`N role(s) your root style plugin leaves unanswered take Arena's default: …\`. Your package's \`arena.tokens.json\` writes a role's default beside its type.`;
+}
+
+export const DEFAULT_PLUGIN_DIR = 'plugin-style-store/default';
+export const LAYOUT_ROLES = ['container-max', 'gutter', 'measure-prose'] as const;
+
+export function layoutAnswers(base = root) {
+  const plugin = readPlugin('default', readJson(join(base, DEFAULT_PLUGIN_DIR, PLUGIN_TOKENS)));
+  const at = resolvedPlugin(plugin, tokenCatalogue(base));
+  return LAYOUT_ROLES.map((role) => {
+    const value = at.get(role);
+    if (value === undefined) throw new Error(`generate-npm-pages: the default style plugin answers no ${role}`);
+    return value;
+  });
+}
+
+export const REGION_TARGETS: Record<string, string[]> = {
+  repository: ['frameworks/react/PACKAGE.md', 'frameworks/angular/PACKAGE.md'],
+  skin: ['skills/design/references/config.md'],
+  tokens: ['skills/design/references/tokens.md'],
+  defaults: ['skills/design/references/style-kernel.md'],
+  sheets: ['skills/design/references/stylesheets.md'],
+  locale: ['skills/design/references/locale.md'],
+  toast: ['skills/design/references/exports.md'],
+  questions: NPM_PAGES,
+  layout: ['skills/design/references/style.md'],
+};
+
+export const TARGETS = [...new Set(Object.values(REGION_TARGETS).flat())];
 
 export const node = {
   name: 'generate:npm-pages',
-  reads: [...TARGETS],
+  reads: [...TARGETS, `${DEFAULT_PLUGIN_DIR}/${PLUGIN_TOKENS}`, '.claude-plugin/plugin.json', 'scripts/generate/core/arena-cli/style-plugin-rules.ts', LOCALE_CONTRACT, ROLE_CONTRACT, BEHAVIOUR_CONTRACT, ...CSS_TARGETS],
   writes: TARGETS,
   feeds: [
     'build:angular-package',
+    'build:contracts-package',
+    'build:mcp-package',
     'build:react-package',
     'check:arbitrary',
     'check:classes',
     'check:community',
+    'check:consumer',
+    'check:contracts',
+    'check:contracts-package',
     'check:dimensions',
     'check:duplicate-constants',
     'check:generated',
     'check:icons',
     'check:layer-independence',
+    'check:packages',
     'check:routes',
     'check:script-tokens',
     'check:skills', 'check:support', 'build:site',
@@ -47,110 +111,71 @@ export const openLine = (key: string) => `<!-- @shared ${key} GENERATED by bun r
 export const closeLine = (key: string) => `<!-- @shared ${key} end -->`;
 export const opensAt = (key: string) => new RegExp(`^<!-- @shared ${key} GENERATED `);
 
-export const REGIONS: Record<string, (base?: string) => string> = {
-  support: () => `## What this works with
-
-**Arena is built with bun, and bun is required nowhere.** The command below is a Node program
-reading three node modules, so whatever runs a Node program runs it. Those two axes decide
-whether this package fits a project at all. The rest of the repertoire is at
-[the repertoire page](https://${DOMAIN}/skills/design/references/stack.md): the bundler, the
-stylesheet route and the framework versions, each carrying the evidence behind it.
-
-${renderAxes(AXES.filter((axis) => axis.axis === 'runtime' || axis.axis === 'module-format'))}
-`,
-  offer: () => `## What Arena gives a project
-
-**Components whose API is a contract.** Every member of every component is declared once, in one place both layers are generated from and held to. A name, a type, a default and what it means are the same under either framework. The table documenting a component is emitted from that declaration rather than written beside it.
-
-**Behaviour each component binds rather than an audit somebody runs.** A component names the
-accessibility pattern it implements, and most of them are a
-[WAI-ARIA Authoring Practices](https://www.w3.org/WAI/ARIA/apg/patterns/) one. A pattern states
-the roles it carries, the keys it answers, where focus goes and what dismisses it. The pattern is recorded per
-component, and so is anything a component does not yet meet, with its reason.
-
-**A style kernel, which is how Arena stops looking like Arena.** Arena keeps the questions about shape, space, weight and depth, and ships one set of answers. A project writes its own as a style plugin, which is the ordinary case rather than an escape hatch. A palette is not an appearance,
-so the config below is the smaller half of that decision.
-
-**Every member documents itself where you already are.** The members of every component ship as this package's type declarations, each with the paragraph saying what it is for. An editor shows them on hover, and the file the \`types\` entry resolves to is the same reference in one place. The types are the member-level answer. What it does not carry is the language above it, which is the next section.
-
-**What a machine reads off a screen is part of what a component draws.** \`ArenaBreadcrumbs\` describes the trail it draws in \`schema.org\` terms. A crawler then reads the same trail a person does. Whether this package also writes your \`<head>\` is a thing only this package can answer,
-and it answers it below.`,
-
-  register: () => `## The screens it is for
-
-Arena is a **product-application library**, and its components are the furniture of an application somebody works in. The furniture is tables and their rows, forms and their fields, navigation, dialogs, charts, cards, and the empty, loading and error states around them. A media or a consumer product is a different register. A photo wall, a story ring, a feed of posts, a slideshow, a document editor and a game map are markup you write yourself.
-
-**The skin travels either way.** A style plugin answers every role whatever the product is, so
-what Arena does draw wears your appearance rather than Arena's. What runs out first is the
-component list.
-
-**When the answer is that the markup is yours, the pattern is still not.** This package ships \`contracts/behaviour/\`, one file per accessibility pattern. Each file states normatively what markup of yours has to do to carry it. A file names the roles it takes, the keys it answers, where focus goes on open, what it returns to on close, and what dismisses it. \`dialog-modal.json\` is the one a lightbox or a
-viewer of yours binds; \`feed.json\` a scrolling list of posts. Read the file for the pattern you
-are drawing, and take the exported helper named in the table below rather than writing a second
-copy of either half.`,
-
+export const REGIONS: Record<string, (base?: string, target?: string) => string> = {
   repository: () => `## This package ships the components and not the language
 
 See it before you install it: **https://arena.dravensoft.org** has the guidelines, a kitchen sink
 and a playground for every component. Source and full documentation:
 **https://github.com/dravensoft-dev/arena**
 
-**An agent building with Arena needs the language, and this tarball does not carry it.** None of three things is in here. The rules every component answers to, the usage document of each one, and the style kernel a project answers to make Arena look like its own product. What is in here is the code, and
-the two things markup of your own is held to: \`contracts/behaviour/\`, one file per accessibility
+**An agent building with Arena needs the language, and this tarball does not carry it.** Not the rules every component answers to, not the usage document of each one, and not the style kernel that makes Arena look like a project's own product. What is in here is the code, and
+what markup of your own is held to: \`contracts/behaviour/\`, one file per accessibility
 pattern, and \`arena.tokens.json\`.
 
-**Reach the language before you ask for the first screen**, by any one of four routes. Install **\`@dravensoft/arena-mcp\`** and configure it in your editor. The server carries the whole corpus, both halves of it, and serves the one your project installed a document at a time. The server says so when its version and this package's differ. Install the **Claude Code plugin**. Clone the repository and
+**Reach the language before you ask for the first screen**, by any one of these routes. Install **\`@dravensoft/arena-mcp\`** and configure it in your editor. The server carries the whole corpus, both halves of it, and serves the one your project installed a document at a time. The server says so when its version and this package's differ. Install the **Claude Code plugin**. Clone the repository and
 point your agent at \`skills/design/SKILL.md\`. Or work over HTTP, starting at
 **https://arena.dravensoft.org/llms.txt**.
 
-Without one of them an agent guesses. \`arena-to-prod --audit\` reads your own sources for the rules a source text can show, and nothing reports the rest. The screen renders, and the rules it breaks are the ones only a reader notices.
+Without one of them an agent guesses. \`arena audit\` reads your own sources for the rules a source text can show, and nothing reports the rest. The screen renders, and the rules it breaks are the ones only a reader notices.
 
 The package is the code. The server, the plugin and the repository are the language.`,
 
-  page: () => `## The page around the components
+  tokens: (base = root) => {
+    const groups = ['sp', 'r', 'bw', 'shadow', 'dur', 'loop', 'ease', 'z', 'bp'];
+    const { tokens } = tokenCatalogue(base);
+    const roles = new Set(Object.keys(readJson(join(base, ROLE_CONTRACT)) as Record<string, unknown>));
+    const rows = groups.flatMap((group) => Object.entries(tokens)
+      .filter(([name]) => !roles.has(name) && (name === group || name.startsWith(`${group}-`)))
+      .map(([name, value]) => `| \`--${name}\` | \`${value}\` |`));
+    return ['| custom property | value |', '| --- | --- |', ...rows].join('\n');
+  },
 
-**The floor is yours, and this package paints none of it.** \`--fill-page\` is the role the page
-itself takes, and it goes on the element that owns the whole viewport. A page that never applies it falls through to the browser's own canvas below the first screenful. The canvas is white under a dark palette, which is the most common way a correctly built screen looks broken. What the package does declare is \`color-scheme\`, from the palette's polarity. The scrollbars, the native controls and the autofill the browser draws then point the way the palette does, without you asking.
+  toast: (base = root) => {
+    const { standard, actionable } = toastIntervals(base);
+    return `**A notice leaves on one of three branches.** The default interval is ${standard}. The interval for a notice carrying an \`actionLabel\` is ${actionable}, because that notice asks the reader to decide and not only to read. A notice raised with \`persist\`, or with \`tone: 'danger'\`, has no timer at all and stays until it is dismissed. A \`danger\` notice ignores a \`persist\` of false.`;
+  },
 
-**Markup of your own takes a role the same way a component does.** Take \`--fill-surface\` and \`--edge-surface\` for a panel or a block of yours that reads as a card. Take \`--fill-surface-sunken\` for a well or a code block, \`--fill-field\` for a box somebody types into, and \`--fill-hover\` for a row of yours under the pointer. Take \`--ink-heading\`, \`--ink-body\` and \`--ink-muted\` for a heading, for text somebody reads, and for text held back. A role is what a style plugin answers, so
-a page painted through one wears the appearance the project adopts later without a rule of yours
-being edited. \`contracts/design/roles.json\` in the repository is one entry per role.
+  sheets: (base = root) => {
+    const families = sheetFamilies(base).map((one) => one.family).sort().map((family) => `\`${packageSheetName(family)}\``);
+    const tokens = CSS_CHAIN.map(({ to }) => to).filter((to) => to !== 'css/style-plugin-default.css')
+      .map((to) => `\`${to}\``);
+    const SHEETS_PER_SENTENCE = 20;
+    const chunks = Array.from({ length: Math.ceil(families.length / SHEETS_PER_SENTENCE) },
+      (_, at) => families.slice(at * SHEETS_PER_SENTENCE, (at + 1) * SHEETS_PER_SENTENCE).join(', '));
+    const sheetList = chunks.join('. Further sheets in that directory are ');
+    const listed = `${tokens.slice(0, -1).join(', ')} and ${tokens.at(-1)}`;
+    const hues = readJson(join(base, HUES_FILE)) as { hues: Record<string, Record<string, string>> };
+    const channels = [...new Set(Object.values(hues.hues).flatMap((one) => Object.keys(one)))].map((name) => `\`--arena-hue-${name}\``);
+    const channelList = `${channels.slice(0, -1).join(', ')} and ${channels.at(-1)}`;
+    return `| stylesheet | what it is |
+| --- | --- |
+| \`css/base.css\` | the browser reset and nothing of Arena's. Arena needs one: without \`button, input, select, textarea { font: inherit }\` a control falls back to the browser's 13.33px Arial. Every control in the library is then 20% off, with nothing to tell you. Keep yours or keep this one, but keep one |
+| \`css/components.css\` | every component Arena draws |
+| \`css/components/<name>.css\` | one component, named for its sheet as \`arena-button.css\` or \`arena-stat-card.css\`. Each imports the prelude it needs itself, so importing one alone is safe |
+| \`css/hues/<name>.css\` | a component's hue sheet, imported by its sheet, writing ${channelList} from the component's \`data-arena\` values, or unconditionally on a slot whose hue no value varies |
+| \`css/vocabulary/\` | One sheet per family on the vocabulary page: ${sheetList}. \`arena.css\` imports them. A project importing component sheets one by one imports these too, or a vocabulary class does nothing |
+| \`css/tailwind-theme.css\` | Arena's theme and utilities for markup of your own compiled with \`tailwindcss\` v4. Import it right after \`@import 'tailwindcss'\`: every utility then resolves to Arena's scale, \`case-eyebrow\`, \`case-label\`, \`fit-media\` and the animation utilities are available, and the compiler's own defaults are unreachable. A key of yours survives only below this import. The sheet's \`sm:\`, \`md:\` and \`lg:\` variants and their \`max-*\` complements sit at the \`--bp-*\` thresholds the viewport helper reads. A wide frame marked \`max-md:hidden\` and a phone frame marked \`md:hidden\` are therefore right at the first paint, a server's HTML included |
 
-**The short names in \`css/colors.css\` are aliases over the palette.** \`--crimson\` and \`--gold\` are the two accents, with a soft wash beside each. The four status colours are \`--danger\`, \`--success\`, \`--warning\` and \`--info\`, each with a soft wash of its own. Text at full strength is \`--bone\`, and text held back is \`--mute\`. Both are legitimate, and the difference is what
-happens when the appearance changes: a role follows the style plugin and an alias follows the
-palette. Reach for a role when the thing you are drawing is furniture, and an alias when it is
-voice.
+**The rest of what ships under \`css/\` is not a choice.** The token layer is these sheets: ${listed}. \`arena.css\` imports them in the order they have to be in, and \`css/prelude.css\` is what a single component sheet pulls in for itself. The one that IS a decision is \`css/style-plugin-default.css\`, the appearance this package installs with. The sheet arrives through \`arena.css\` like the rest. A \`stylePlugins\` list of your own that does not name \`default\` does not receive it, which is the point of writing one.`;
+  },
 
-**A role says which colour text takes, and a level says how far it is held back.** The two are separate values and both are needed. Under the appearance this package installs with, \`--ink-muted\` and \`--ink-body\` resolve to the same colour. The level mixed into a role is what holds a register back. Write it the way every component here writes it,
-\`color: color-mix(in oklab, var(--ink-muted) var(--level-ink-muted), transparent)\`, with
-\`--level-ink-body\` and \`--level-ink-quiet\` beside it. The levels are floors rather than constants. The command raises a level where a palette's ink has too little room to clear its contrast bar. A percentage of your own is the one value here that cannot follow the palette. A
-bare \`var(--ink-muted)\` paints at full strength, which is body copy wearing the name of a caption.
+  skin: (base = root) => {
+    const reserved = `\`${[...RESERVED.keys()].join(', ')}\``;
+    return `## Declare your skin
 
-**The column is three classes, and the air between two things is a named step.** \`.arena-shell\` fills the window. \`.arena-shell__main\` goes on the one child that should take the slack, and \`.arena-band\` centres the content at the page width with a gutter either side. Inside the band, \`.arena-stack\` is the step between two peers. \`.arena-stack--group\` is the one for things that read as one unit, and \`.arena-stack--section\` the one between two sections. \`.arena-row\` is all three laid across instead of down. Every one of them goes on a container of your own, and none of them
-does anything on a component this package draws.
-
-**\`.arena-row\` is for ANY two things side by side, and most of the misses are small ones.** A mark beside the product's name. Two links in a bar. A label next to the badge it describes, or an icon and the word after it. Each is a row at the group step, and each is where a \`display: flex\` with a gap of somebody's choosing gets written instead. A pair of elements does not look like it needs a class. The row wraps when the line runs out, which is a property of the class rather than the reason to reach for it.
-
-**When the child that should take the slack IS a component this package draws, put a \`<div>\` of your own around it and \`.arena-shell__main\` on the div.** A component's own element may declare \`display: contents\`, carrying no box. The class then lands on nothing, and the shell distributes its slack to an element that cannot hold it. The wrapper is not a workaround: these classes go on
-markup you wrote, and that is as true of the one that grows as it is of the rest.
-
-**The miss those replace has one shape, and it is small enough to look like nothing.** A column of your own carries \`display: flex\`, \`flex-direction: column\` and a gap. Or two blocks carry a margin between them. The column holds a title over its service inside a table cell, or a label over the value under it. Somebody wrote it inline, because reaching for a class felt like more than two lines were worth. \`.arena-stack--group\` is exactly that block, and the step a group is spent at is the same
-step wherever it is spent.
-
-**The band carries the width and the gutter and no block air**, so the space above and below a
-page's content column is yours, spent on the \`--sp-*\` scale. The rhythm classes answer the gap
-between two siblings, and this is the padding of the box that holds them. The gutter is a CEILING rather than a fixed inset. At or above the page width the band stands off by the whole of it. Below that width it holds the same share of the space it has, so a phone keeps a content column instead of spending two fifths of the screen on margin.
-
-**Two densities, and each is a class on an ancestor rather than a member on anything.** \`.arena-compact\` re-densifies the controls and the rows. The class is for a screen that has to hold more.
-\`.arena-comfortable\` grows them to a 48px touch target for a screen a thumb drives. Both answer the same keys, so a container wearing both gets whichever the stylesheet emits last. Answering the same keys is why the two are exclusive. Each re-answers the control and row sizes and nothing
-else: the rhythm above does not re-densify, so the air between two components stays where you
-spent it.`,
-
-  skin: () => `## Declare your skin
-
-**A palette is not an appearance.** Arena keeps 72 questions about shape, space, weight and depth, and the answers are a style plugin your project writes. The config below decides which colours a surface takes, and none of how round, how tight or how heavy the product is. That decision is paid
+**A palette is not an appearance.** Arena keeps its questions about shape, space, weight and depth, and the answers are a style plugin your project writes. The config below decides which colours a surface takes, and none of how round, how tight or how heavy the product is. That decision is paid
 once per project and belongs before the first screen, and
-\`skills/design/references/style-kernel.md\` in the repository is where it is made.
+[\`style-kernel.md\`](./style-kernel.md) is where it is made.
 
 Write \`arena.config.json\` in your project root. The block below is the whole file, with one palette and three fonts served by Google Fonts. The file is enough to start:
 
@@ -201,8 +226,7 @@ Write \`arena.config.json\` in your project root. The block below is the whole f
 }
 \`\`\`
 
-\`arena.config.example.json\` in this package is the same file with both Dravensoft palettes in
-it, ready to copy and edit.
+\`arena.config.example.json\`, which each package ships at its root, is the same file with two palettes, one dark and one light, ready to copy and edit.
 
 **\`stylePlugins\` is in that block because leaving it out is a decision and not a blank.** The value above is the appearance this package installs with, which is Dravensoft's. A project that means to look like itself replaces it with the path to a plugin directory of its own. Both
 are finished answers; only one of them is one somebody made.
@@ -211,9 +235,10 @@ What each part means:
 
 - **\`palettes\`** is an array, so declare as many as you want. Exactly one is the \`default\` and
   reaches \`:root\`; every other one becomes a class, \`.arena-<name>\`, that you put on
-  \`<html>\` to switch skin.
+  \`<html>\` to switch skin. The command refuses a palette or style plugin named after a class Arena
+  ships or is going to ship, naming the component a future class belongs to. The names held for a class Arena is going to ship are ${reserved}. A palette may still take its own polarity's name, \`dark\` or \`light\`, and a style plugin may not. A palette name is kebab-case, and a name declared twice is refused.
 - **\`polarity\`** is \`dark\` or \`light\`. The polarity decides the native date picker's colour, and it is what a first visit matches \`prefers-color-scheme\` against.
-- **\`colors\`** takes all 27 keys above. \`error-fill\` is the only optional one: leave it out and
+- **\`colors\`** takes every key above, each a six-digit hex such as \`#141010\`. \`error-fill\` is the only optional one: leave it out and
   Arena darkens \`error\` in oklab for the single filled danger surface it has.
 - **\`cat-1\`** through **\`cat-8\`** are the chart ramp. The order of the slots is their identity, so slot 3 is always slot 3. The slots are never used to mean anything, only to tell series apart.
 - **\`fonts\`** fills the three families Arena reads. \`src\` takes either a stylesheet URL, as
@@ -226,30 +251,43 @@ What each part means:
   project stopping there looks like every other one. Writing one of your own is what makes the
   corners, the weights, the borders, the depth and the internal air the product's own, with no
   component rewritten to get there.
-  The key is a list, because a build can carry more than one register. The first entry is what a page with no class on it looks like. Every later one emits under \`.arena-<name>\` and is a difference. An entry is the word
+  The key is a list, because a build can carry more than one register. The first entry is what a page with no class on it looks like. Every later one emits under \`.arena-<name>\`, which you put on \`<html>\` beside any palette class, and is a difference. An entry is the word
   \`default\`, which is the appearance this package installs with, or a path to a directory of
-  your own holding \`plugin.tokens.json\` and optionally \`plugin.css\`. The first entry answers every role Arena declares, and the command refuses one that does not. A custom property with no value is invalid at computed-value time, so an unanswered role is a missing border rather than a plainer look. Declare a list without \`default\` and you do not receive its stylesheet, the
+  your own holding \`plugin.tokens.json\` and optionally \`plugin.css\`. The plugin's name is the name of that directory, so a directory called \`ember\` declares the plugin \`ember\`. The name must be kebab-case, and it may not repeat a palette name or another plugin's. The first entry answers every role that carries no default. ${defaultsStatement(base)} A custom property with no value is invalid at computed-value time, so an unanswered role is a missing border rather than a plainer look. Declare a list without \`default\` and you do not receive its stylesheet, the
   same way the preflight can already be dropped.
 - **\`gradientMark\`** is optional, a boolean, and says the mark your product is drawn with is a
-  gradient. Arena ships no element that is one, so yours lives in your own CSS, where \`--audit\` reports it. The scope reads which directory a line sits in, which is right for a part hook and wrong for a brand. Declare it once and that rule goes quiet in your sources; the colours inside
+  gradient. Arena ships no element that is one, so yours lives in your own CSS, where \`arena audit\` reports it. The scope reads which directory a line sits in, which is right for a part hook and wrong for a brand. Declare it once and that rule goes quiet in your sources; the colours inside
   the gradient are still reported, since they are the skin. The key replaces an \`arena-audit allow\` marker, which silences every rule on its line and is repeated wherever the mark is drawn.
 
 **A plugin carrying a \`plugin.css\` gets a third generated file**, \`plugin.generated.css\`, and
-you import it beside the other two. The sheet declares the cascade layer order itself and then opens the reserved layer. Where your bundler places it among your other stylesheets cannot change what wins.`,
+you import it beside the other two. The sheet declares the cascade layer order itself and then opens the reserved layer. Where your bundler places it among your other stylesheets cannot change what wins.`;
+  },
 
-  tail: () => `## Why might this package's latest version not match Arena's latest version?
+  defaults: (base = root) => defaultsStatement(base),
 
-[Why are the published package versions not identical?](https://github.com/dravensoft-dev/arena/blob/main/.github/workflows/AGENTS.md#why-are-the-published-package-versions-not-identical)
+  locale: (base = root) => {
+    const contract = readJson(join(base, LOCALE_CONTRACT)) as {
+      fields: Record<string, { default: string; description: string }>;
+    };
+    const cell = (text: string) => text.replace(/\|/g, '\\|');
+    const rows = Object.entries(contract.fields)
+      .map(([name, field]) => `| \`${name}\` | \`${cell(field.default)}\` | ${cell(field.description)} |`);
+    return ['Every field is optional in what you provide, and one you leave out keeps the default below.', '',
+      '| field | English default | what it names |', '| --- | --- | --- |', ...rows].join('\n');
+  },
 
-## License
+  questions: (base = root, target = '') => renderQuestions(target, base),
 
-MIT. See the repository.`,
+  layout: (base = root) => {
+    const [container, gutter, measure] = layoutAnswers(base);
+    return `The default style plugin answers \`container-max\` with ${container}, \`gutter\` with ${gutter} and \`measure-prose\` with ${measure}. The three values are that plugin's answers, not Arena's constants: another plugin answers its own, and a release may change them.`;
+  },
 };
 
-export function renderRegion(key: string, base = root) {
+export function renderRegion(key: string, base = root, target = '') {
   const render = REGIONS[key];
   if (!render) throw new Error(`generate-npm-pages: no region called ${key}`);
-  return [openLine(key), '', render(base), '', closeLine(key)].join('\n');
+  return [openLine(key), '', render(base, target), '', closeLine(key)].join('\n');
 }
 
 export function applyRegion(source: string, key: string, region: string) {
@@ -266,9 +304,12 @@ export function applyRegion(source: string, key: string, region: string) {
   return [...lines.slice(0, from), ...region.split('\n'), ...lines.slice(to + 1)].join('\n');
 }
 
-export function renderTarget(source: string, base = root) {
-  return Object.keys(REGIONS).reduce(
-    (text, key) => applyRegion(text, key, renderRegion(key, base)), source,
+export const regionsOf = (target: string) => Object.keys(REGIONS)
+  .filter((key) => REGION_TARGETS[key]?.includes(target));
+
+export function renderTarget(source: string, target: string, base = root) {
+  return regionsOf(target).reduce(
+    (text, key) => applyRegion(text, key, renderRegion(key, base, target)), source,
   );
 }
 
@@ -277,7 +318,7 @@ export function writePages({ base = root, read = readFileSync, write = writeFile
   for (const target of TARGETS) {
     const path = join(base, target);
     const before = read(path, 'utf8');
-    const after = renderTarget(before, base);
+    const after = renderTarget(before, target, base);
     if (after === before) continue;
     write(path, after);
     written.push(target);
@@ -288,7 +329,7 @@ export function writePages({ base = root, read = readFileSync, write = writeFile
 function main() {
   const written = writePages();
   for (const target of written) console.log(`generate-npm-pages: wrote ${target}`);
-  console.log(`generate-npm-pages: ${TARGETS.length} page(s) carry ${Object.keys(REGIONS).length} shared region(s) each`);
+  console.log(`generate-npm-pages: ${TARGETS.length} target(s) carry their generated regions`);
 }
 
 if (isMainModule(import.meta.url)) main();

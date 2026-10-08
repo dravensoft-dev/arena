@@ -15,7 +15,7 @@ supplies the state.
               (requestChange)="askThenApply()" />
 
 <arena-switch label="Managed by policy" state disabled />
-<arena-switch label="Compact rows" size="sm" orientation="vertical" [state]="compact()" />
+<arena-switch label="Compact rows" [state]="compact()" class="arena-size-sm arena-orientation-vertical" />
 ```
 
 <!-- @api GENERATED from contracts/api/components/ArenaSwitch.json. Edit the contract, not this table. -->
@@ -25,8 +25,6 @@ supplies the state.
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
 | `state` | primitive | `boolean` | `false` | The current on/off value. Controlled: the consumer owns it and pushes it each render. |
-| `orientation` | enum | `ArenaOrientation` | `"horizontal"` | Whether the switch lies horizontally or stands vertically. |
-| `size` | enum | `ArenaSwitchSize` | `"md"` | The switch's overall size. |
 | `iconOn` | primitive | `string` |  | A Phosphor class name for the glyph shown while on. Arena draws the aria-hidden `<i>`. |
 | `iconOff` | primitive | `string` |  | A Phosphor class name for the glyph shown while off. |
 | `label*` | primitive | `string` |  | The accessible name for the switch, also drawn beside it. |
@@ -37,6 +35,19 @@ supplies the state.
 | `requestChange` | event |  |  | A change was requested while `confirm` is set: the host opens an ArenaConfirmDialog and, on confirmation, flips `state` (the requested value is always the negation of the current one). |
 
 <!-- @api end -->
+
+<!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
+
+**Answers** [`size`](../../../../VOCABULARY.md#size): `arena-size-2xl`, `arena-size-lg`, `arena-size-md` (default), `arena-size-sm`, `arena-size-xl`. Write one as `class="arena-size-2xl"` on the component, or on a container whose components should all take it.
+
+**Answers** [`orientation`](../../../../VOCABULARY.md#orientation): `arena-orientation-horizontal` (default), `arena-orientation-vertical`. Write one as `class="arena-orientation-vertical"` on the component, or on a container whose components should all take it.
+
+<!-- @answers end -->
+
+<!-- @keys GENERATED from the binding. -->
+**Keys**, from [`switch`](../../../../../contracts/behaviour/switch.json):
+- `Space`: toggle between on and off.
+<!-- @keys end -->
 
 **Do / Don't**
 - It is **controlled**. `state` is what the consumer owns; the component holds no copy, so a
@@ -56,7 +67,7 @@ supplies the state.
   current state's glyph is in the DOM. The two are decoration. The knob is `aria-hidden`, and `aria-checked` is what carries the state.
 - Use a switch for an immediate effect and `<arena-checkbox>` for a pending form value. A switch
   inside a form that only applies on submit is the wrong control.
-- `orientation="vertical"` transposes the track. The size exists for a dense sidebar. In a form row it reads as a mistake.
+- `arena-orientation-vertical` transposes the track. The size exists for a dense sidebar. In a form row it reads as a mistake.
 - Don't disable a switch to mean "you may not change this yet". A disabled switch is unreachable
   by Tab and announces no reason; `confirm` is the affordance for a change that needs a gate.
 
@@ -80,6 +91,6 @@ open `/frameworks/angular/components/forms/arena-switch/ArenaSwitch.demo.generat
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
+**The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

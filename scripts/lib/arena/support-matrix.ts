@@ -1,12 +1,12 @@
-/* What a consumer may choose, and how much evidence each answer has. This imports nothing, for
- * the reason package-exclusions.ts imports nothing: the publish guard and the gate both ask it
- * questions in jobs that have not installed anything. The peer ranges live here rather than in
- * the two assemblers because a range written twice is a range that disagrees with itself, and
- * the prose a consumer reads is emitted from this file rather than typed beside it. EVIDENCE is
- * the load-bearing column: a row saying a tool is allowed by the manifest and never exercised is
- * a complete answer, and promoting one without exercising it is the failure this table exists to
- * prevent. Arena builds against React 18 and Angular 22, so those two rows are the only framework
- * versions any suite here has ever run. */
+/* What a consumer may choose, and how much evidence each answer has. This imports nothing: the
+ * publish guard and the gate both ask it questions in jobs that have not installed anything. The
+ * peer ranges live here because a range written twice disagrees with itself, and the prose a
+ * consumer reads is emitted from this file. EVIDENCE is the load-bearing column: promoting a row
+ * nobody exercised is the failure it prevents. Arena builds against React 18 and Angular 22.
+ * A peer named with a range on the command line is an explicit install that moves the project to
+ * the highest version in range, so the install command never names the framework (FRAMEWORK, by
+ * scope). COMPANIONS and optional peers of that scope follow the framework's major, written as a
+ * placeholder; a peer outside the scope is named at its own range. */
 
 export const EVIDENCE = {
   gate: 'held by a gate',
@@ -163,7 +163,51 @@ export function renderPeers(layers = Object.keys(PEERS)) {
     const optional = OPTIONAL_PEERS[layer as keyof typeof OPTIONAL_PEERS] ?? {};
     return Object.entries(peers).map(([name, range]) =>
       `| \`${PACKAGE_OF[layer]}\` | \`${name}\` | \`${cell(range)}\` | `
-      + `${Object.hasOwn(optional, name) ? 'until you reach what needs it' : 'always'} |`);
+      + `${Object.hasOwn(optional, name) ? 'optional, add it when you reach what needs it' : 'required'} |`);
   });
   return [head, ...rows].join('\n');
+}
+
+const quoted = (name: string, range: string) => `'${name}@${range}'`;
+
+export const FRAMEWORK = {
+  react: /^react(-dom)?$/,
+  angular: /^@angular\//,
+} satisfies Record<string, RegExp>;
+
+export const COMPANIONS = {
+  react: [],
+  angular: ['@angular/cdk'],
+} satisfies Record<string, string[]>;
+
+export function installPeers(layer: string) {
+  const peers = PEERS[layer as keyof typeof PEERS] ?? {};
+  const optional = OPTIONAL_PEERS[layer as keyof typeof OPTIONAL_PEERS] ?? {};
+  const companions: string[] = COMPANIONS[layer as keyof typeof COMPANIONS] ?? [];
+  const scope = FRAMEWORK[layer as keyof typeof FRAMEWORK];
+  const own = (name: string) => scope.test(name);
+  const names = Object.keys(peers);
+  return {
+    framework: names.filter((n) => own(n) && !Object.hasOwn(optional, n) && !companions.includes(n)),
+    followers: names.filter((n) => own(n) && (companions.includes(n) || Object.hasOwn(optional, n))),
+    independent: names.filter((n) => !own(n)),
+  };
+}
+
+export function renderInstall(layers = Object.keys(PEERS)) {
+  const lines = layers.flatMap((layer) => {
+    const peers = PEERS[layer as keyof typeof PEERS] ?? {};
+    const optional = OPTIONAL_PEERS[layer as keyof typeof OPTIONAL_PEERS] ?? {};
+    const { followers, independent } = installPeers(layer);
+    const major = (name: string) => `'${name}@<${layer}-major>'`;
+    const required = [
+      ...followers.filter((n) => !Object.hasOwn(optional, n)).map(major),
+      ...independent.map((n) => quoted(n, (peers as Record<string, string>)[n] ?? '')),
+    ];
+    const extra = followers.filter((n) => Object.hasOwn(optional, n)).map(major);
+    const command = ['npm i', PACKAGE_OF[layer], ...required].join(' ');
+    const more = extra.length === 0 ? [] : [`npm i ${extra.join(' ')}   # optional peers, when you need them`];
+    return [command, ...more];
+  });
+  return ['```bash', ...lines, '```'].join('\n');
 }

@@ -4,7 +4,7 @@ and the accessible name all sit on it, with the spinning ring a decorative `aria
 
 ```html
 <arena-spinner label="Fetching deployments" />
-<arena-spinner size="sm" tone="on-accent" label="Saving" />
+<arena-spinner label="Saving" class="arena-size-sm arena-accent-ink" />
 ```
 
 <!-- @api GENERATED from contracts/api/components/ArenaSpinner.json. Edit the contract, not this table. -->
@@ -13,11 +13,21 @@ and the accessible name all sit on it, with the spinning ring a decorative `aria
 
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
-| `size` | enum | `ArenaControlSize` | `"md"` | Diameter. 'sm' is --icon-sm exactly, so a spinner at that size sits inline with control text. |
-| `tone` | enum | `ArenaSpinnerTone` | `"accent"` | Colour of the ring. 'on-accent' inside a filled button; 'accent' on a page surface. |
 | `label` | primitive | `string` |  | Accessible name, announced by the status role. Say what is loading when you can. Absent, the provided locale's spinnerLabel answers it, which reads Loading by default. |
 
 <!-- @api end -->
+
+<!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
+
+**Answers** [`size`](../../../../VOCABULARY.md#size): `arena-size-lg`, `arena-size-md` (default), `arena-size-sm`. Write one as `class="arena-size-lg"` on the component, or on a container whose components should all take it.
+
+**Answers** [`accent`](../../../../VOCABULARY.md#accent): `arena-accent-gold`, `arena-accent-ink`, `arena-accent-muted`, `arena-accent-primary` (default). Write one as `class="arena-accent-gold"` on the component, or on a container whose components should all take it.
+
+<!-- @answers end -->
+
+<!-- @keys GENERATED from the binding. -->
+**Keys:** none (`progressbar`).
+<!-- @keys end -->
 
 The spinner reports **no value at all**: no `aria-valuenow`, no `aria-valuemin` and no `aria-valuemax`. A spinner is indeterminate by definition, and ARIA expresses that by omitting the value.
 Reporting zero would be a determinate claim that nothing has happened.
@@ -28,7 +38,7 @@ exception the delegated binding carried. This clears it.
 
 An absent `label` reads the locale's `spinnerLabel`, `Loading` by default, which is a name rather than an absence. That name says what the component is instead of what the user is waiting for. Set it.
 
-`tone="on-accent"` exists for a spinner sitting **on** a filled brand surface, inside a loading
+`arena-accent-ink` exists for a spinner sitting **on** a filled brand surface, inside a loading
 button, on a crimson banner, where the accent ink would disappear into its own background.
 
 **Do / Don't**
@@ -37,8 +47,8 @@ button, on a crimson banner, where the accent ink would disappear into its own b
   better.
 - **Do** keep one spinner per wait. Three of them in a row are three live regions announcing the
   same thing.
-- **Don't** size it with a wrapper. `size` is the axis, `sm` matches an icon, `md` a control,
-  `lg` a page-level wait, and a scaled wrapper puts the ring's border width off the token.
+- **Don't** size it with a wrapper. `arena-size-*` is the axis: `arena-size-sm` matches an icon, `arena-size-md` a control,
+  `arena-size-lg` a page-level wait, and a scaled wrapper puts the ring's border width off the token.
 - **Don't** leave it on screen with nothing behind it. A spinner that never resolves is the one
   state `arena-error-state` is for.
 
@@ -48,13 +58,13 @@ button, on a crimson banner, where the accent ink would disappear into its own b
   `prefers-reduced-motion` rather than stopping, motion reporting work in progress keeps
   reporting it.
 - The gap in the ring is the transparent top border, so the rotation is legible at every size. At `sm` it must still read as a ring rather than a dot.
-- `on-accent` is the only tone that stays legible on a filled crimson surface, the card puts
+- `arena-accent-ink` is the only accent that stays legible on a filled crimson surface, the card puts
   all four on one to show it.
 
 **Words.** `label` names the spinner, and when it is absent the locale's `spinnerLabel` does.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
+**The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

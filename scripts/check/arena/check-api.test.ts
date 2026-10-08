@@ -6,12 +6,16 @@ import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import {
   bindingName, validateTypes, validateContract, compareSurface, docProblems,
   resolveAngularImplementations, resolveReactImplementations, zeroContractProblems,
-  angularImplementationProblems, implementationDefaultProblems, staleDerivedProblems, DERIVED_DEFAULT,
+  angularImplementationProblems, implementationDefaultProblems, staleDerivedProblems, DERIVED_DEFAULT, leakProblems,
 } from './check-api.ts';
 import { pascal } from '../../utils/case.ts';
 import { buildApiModules } from '../../generate/arena/generate-api-types.ts';
 import { reactSurface, UnrecognisedShape } from '../../lib/arena/api-surface.ts';
-import type { ContractCandidate } from '../../lib/arena/contract-shapes.ts';
+import type { ContractCandidate, TypeContract } from '../../lib/arena/contract-shapes.ts';
+import type { ComponentManifest } from '../../lib/tailwind/manifest-shapes.ts';
+import { groupProblems } from './check-api.ts';
+import { vocabularyMemberProblems } from './check-api.ts';
+import { OWN_ELEMENTLESS } from '../../lib/arena/elementless.ts';
 
 const TYPES = new Map([['ArenaTone', 'enum'], ['ArenaCrumb', 'object']]);
 
@@ -851,4 +855,125 @@ test('DERIVED_DEFAULT is the six chart heights, and each entry carries the reaso
     assert.ok(why.includes('--chart-height'), `${key}: the reason names the token the value comes from`);
     assert.ok(why.length > 80, `${key}: a reason short enough to be a label is not a reason`);
   }
+});
+
+const named = (type: string, required = false) => ({ name: 'className', form: 'named', type, required });
+
+test('a React component takes className typed with its own generated class and nothing wider', () => {
+  const contracted = new Set(['ArenaButton', 'ArenaTabs']);
+  assert.deepEqual(vocabularyMemberProblems('ArenaButton', [named('ArenaButtonClass')], 'react', contracted), []);
+  assert.match(vocabularyMemberProblems('ArenaButton', [], 'react', contracted)[0] ?? '', /takes no className/);
+  assert.match(vocabularyMemberProblems('ArenaButton', [{ name: 'className', form: 'primitive', type: 'string' }], 'react', contracted)[0] ?? '',
+    /only the generated ArenaButtonClass/);
+  assert.match(vocabularyMemberProblems('ArenaButton', [named('ArenaButtonClass', true)], 'react', contracted)[0] ?? '', /optional/);
+});
+
+test('a component with no element of its own takes no className, and Angular never does', () => {
+  const contracted = new Set(['ArenaTabs', 'ArenaButton']);
+  assert.deepEqual(vocabularyMemberProblems('ArenaTabs', [], 'react', contracted), []);
+  assert.match(vocabularyMemberProblems('ArenaTabs', [named('ArenaTabsClass')], 'react', contracted)[0] ?? '', /renders no element/);
+  assert.match(vocabularyMemberProblems('ArenaButton', [named('ArenaButtonClass')], 'angular', contracted)[0] ?? '', /host class/);
+});
+
+test('an elementless entry naming no contracted component is stale', () => {
+  assert.match(vocabularyMemberProblems('ArenaButton', [named('ArenaButtonClass')], 'react', new Set(['ArenaButton']),
+    new Map([['ArenaGone', 'why']]))[0] ?? '', /stale OWN_ELEMENTLESS: ArenaGone/);
+  assert.ok(OWN_ELEMENTLESS.has('ArenaTabs'));
+});
+
+const manifest = (over: Partial<ComponentManifest> = {}): ComponentManifest => ({
+  component: 'ArenaThing', slots: { root: '' },
+  variants: { size: { sm: {}, md: {} } }, ...over,
+});
+const thing = (api: ContractCandidate['api'] = { size: { form: 'enum', type: 'ArenaSize' } }) =>
+  new Map<string, ContractCandidate>([['ArenaThing', { component: 'ArenaThing', api }]]);
+const noTypes = new Map<string, TypeContract>();
+const sweep = (m: ComponentManifest, contracts = thing(), types = noTypes, extra: Parameters<typeof groupProblems>[3] = {}) =>
+  groupProblems(new Map([['ArenaThing.manifest.json', m]]), contracts, types, extra);
+
+test('a group resolving to a member, a field of a member type or an internal entry passes', () => {
+  assert.deepEqual(sweep(manifest()), []);
+  const types = new Map<string, TypeContract>([['ArenaRow', { name: 'ArenaRow', kind: 'object', fields: { size: { form: 'enum', type: 'ArenaSize' } } }]]);
+  assert.deepEqual(sweep(manifest(), thing({ rows: { form: 'array', of: 'ArenaRow' } }), types), []);
+  assert.deepEqual(sweep(manifest({ internal: { size: 'the size is measured' } }), thing({})), []);
+});
+
+test('a group naming no member, no field and no internal entry fails', () => {
+  assert.match(sweep(manifest(), thing({}))[0] ?? '', /ArenaThing\.size is a variant group naming no member, no field and no internal entry, so nothing says what it states/);
+});
+
+test('a group is resolved against the components the manifest covers', () => {
+  const covered = new Map<string, ContractCandidate>([['ArenaTableRow', { component: 'ArenaTableRow', api: { size: { form: 'enum', type: 'ArenaSize' } } }]]);
+  const table = { ...manifest(), component: 'ArenaTable' };
+  assert.deepEqual(groupProblems(new Map([['t', table]]), covered, noTypes), []);
+});
+
+test('an internal entry naming no group is stale, and one naming a member is declared twice', () => {
+  assert.match(sweep(manifest({ internal: { size: 'why', gone: 'why' } }), thing({}))[0] ?? '', /ArenaThing\.internal\.gone names no group/);
+  assert.match(sweep(manifest({ internal: { size: 'why' } }))[0] ?? '', /ArenaThing\.size is declared internal and a member at once/);
+});
+
+test('a hues key naming no group, a value the group lacks or an unknown hue fails', () => {
+  const hued = (hues: ComponentManifest['hues']) => sweep(manifest({ hues }), thing(), noTypes, { hueNames: new Set(['danger']) });
+  assert.deepEqual(hued({ size: { sm: null, md: 'danger', on: ['root'] } }), []);
+  assert.match(hued({ tone: { sm: null } })[0] ?? '', /ArenaThing\.hues\.tone names no group/);
+  assert.match(hued({ size: { xl: null } })[0] ?? '', /ArenaThing\.hues\.size\.xl names a value the group lacks/);
+  assert.match(hued({ size: { sm: 'violet' } })[0] ?? '', /ArenaThing\.hues\.size\.sm names hue "violet"/);
+  assert.deepEqual(sweep(manifest({ hues: { size: { sm: 'violet' } } })), []);
+});
+
+test('hues.always is no group, and an always entry naming a missing slot, an unknown hue or a hued slot fails', () => {
+  const hued = (hues: ComponentManifest['hues']) => sweep(manifest({ hues }), thing(), noTypes, { hueNames: new Set(['danger']) });
+  assert.deepEqual(hued({ always: { root: 'danger' } }), []);
+  assert.match(hued({ always: { gone: 'danger' } })[0] ?? '', /ArenaThing\.hues\.always\.gone names a slot the manifest lacks/);
+  assert.match(hued({ always: { root: 'violet' } })[0] ?? '', /ArenaThing\.hues\.always\.root names hue "violet"/);
+  const reached = manifest({ variants: { size: { sm: { root: 'x' }, md: {} } }, hues: { always: { root: 'danger' }, size: { sm: 'danger', md: null } } });
+  assert.match(sweep(reached, thing(), noTypes, { hueNames: new Set(['danger']) }).join('\n'), /hues\.always\.root is a slot the hued group size also reaches/);
+  const groupless = manifest({ variants: {}, hues: { always: { gone: 'danger' } } });
+  assert.match(groupProblems(new Map([['a', manifest()], ['b', groupless]]), thing(), noTypes).join('\n'), /hues\.always\.gone names a slot the manifest lacks/);
+});
+
+test('a sweep that finds no group fails', () => {
+  assert.match(groupProblems(new Map(), thing(), noTypes)[0] ?? '', /found 0 manifests with a variant group/);
+  assert.match(groupProblems(new Map([['t', manifest({ variants: {} })]]), thing(), noTypes)[0] ?? '', /found 0 manifests with a variant group/);
+});
+
+test('a description naming a repository path, a file or a gate is a problem', () => {
+  for (const text of [
+    'Held by frameworks/react/DataVisuals.ts.', 'Read from palette.dark.json.', 'check:script-tokens holds it.',
+    'Run bun run build.', 'See ProjectedInputs.ts.',
+    'Written to arena.out.css.', 'Loaded from vendor.min.js.', 'Imported from build.mjs.',
+    'Read from arena.config.json and ProjectedInputs.ts.',
+  ]) assert.equal(leakProblems('ArenaX', text).length, 1, text);
+});
+
+test('a description naming exports, tokens and a plain check is clean', () => {
+  assert.deepEqual(leakProblems('ArenaX', 'arenaCatColor(slot) returns var(--color-cat-n), guarded with a falsy check.'), []);
+  assert.deepEqual(leakProblems('ArenaX', undefined), []);
+});
+
+test('the files a consumer owns are named freely, in every extension the gate reads', () => {
+  for (const file of [
+    'arena.config.json', 'arena.tokens.json', 'arena.generated.css', 'arena.css',
+    'plugin.tokens.json', 'plugin.css', 'package.json',
+  ]) assert.deepEqual(leakProblems('ArenaX', `Written to ${file}, then read.`), [], file);
+  assert.equal(leakProblems('ArenaX', 'Written to other.arena.css.').length, 1);
+});
+
+test('validateTypes reports an object field whose description leaks a path or a file', () => {
+  const object = (description: string) => validateTypes([{
+    name: 'ArenaX', kind: 'object', description: 'Fine.',
+    fields: { size: { form: 'primitive', type: 'number', description } },
+  }]);
+  for (const text of ['Held by scripts/x.', 'Read from palette.css.', 'Loaded from x.js.', 'Run check:api.']) {
+    const problems = object(text);
+    assert.equal(problems.length, 1, text);
+    assert.match(problems[0] ?? '', /^ArenaX\.size: its description names/);
+  }
+  assert.deepEqual(object('Read from arena.config.json.'), []);
+});
+
+test('validateTypes reports a type whose description leaks a path', () => {
+  const problems = validateTypes([{ name: 'ArenaX', kind: 'enum', values: [1], description: 'See contracts/design/x.' }]);
+  assert.equal(problems.length, 1);
 });

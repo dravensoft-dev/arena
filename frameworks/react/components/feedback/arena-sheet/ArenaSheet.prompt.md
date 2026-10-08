@@ -3,7 +3,7 @@ a cart, a filter drawer, a detail pane. The sheet carries no scrim, traps no foc
 that is an `ArenaDialog`**, two stacking slots higher, and the scrim is how it says so.
 
 ```tsx
-<ArenaSheet open={cartOpen} placement="end" title="Cart"
+<ArenaSheet open={cartOpen} className="arena-placement-end" title="Cart"
        collapsed={folded} onCollapsedChange={setFolded}
        dismissible onClose={() => setCartOpen(false)}
        footer={<ArenaButton onClick={checkout}>Checkout</ArenaButton>}>
@@ -18,16 +18,27 @@ that is an `ArenaDialog`**, two stacking slots higher, and the scrim is how it s
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
 | `open*` | primitive | `boolean` |  | Whether the panel is on the page at all. The host owns it, the same way it owns a dialog's. Closed renders nothing, which is what distinguishes it from collapsed. |
-| `placement` | enum | `ArenaSheetPlacement` | `"bottom"` | The edge the panel is anchored to. It spans that edge and stands off the device's own inset there, so a bottom sheet on a phone clears the home indicator. |
 | `title*` | primitive | `string` |  | Names the panel for assistive technology and heads it visually. It is also the accessible name of the fold control, so a reader hears which panel is being folded rather than the word Toggle. Required and **guarded at runtime** rather than defaulted: what this panel is showing is editorial, and a constant fallback would satisfy the pattern mechanically while telling a screen-reader user nothing. |
 | `collapsed` | primitive | `boolean` | `false` | Whether the body is folded away. The header stays visible either way: a collapsed panel is still on the page and still says what it is, which is why folding is not the same act as closing. The body is hidden rather than removed, so the fold control's reference to it never points at nothing. |
 | `onCollapsedChange` | event | `boolean` |  | The fold control was pressed, carrying the state it moved to. Arena never folds the panel by itself, so a host that ignores this gets a control that reports and a body that does not move. |
-| `dismissible` | primitive | `boolean` | `false` | Whether the close control is shown. Every layer gates it on this member and never on whether anything listens for `close`, because Arena never derives what it draws from what a consumer listens for. |
+| `dismissible` | primitive | `boolean` | `false` | Whether the close control is shown. Every layer gates it on this member and never on whether anything listens for `onClose`, because Arena never derives what it draws from what a consumer listens for. |
 | `onClose` | event |  |  | The panel was dismissed, by the close control or by Escape. No payload. Escape reports here rather than adding a member of its own, and it is the only key the panel takes: a non-modal panel leaves every other key to the page behind it. |
 | `children` | slot |  |  | The panel's body, which is what folds away. |
 | `footer` | slot |  |  | A row that stays put while the body scrolls: a total and its action, a pair of filters buttons. It is outside the folding body on purpose, so a folded panel can still carry the one action it exists for. |
 
 <!-- @api end -->
+
+<!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
+
+**Answers** [`placement`](../../../../VOCABULARY.md#placement): `arena-placement-bottom` (default), `arena-placement-end`, `arena-placement-start`. Write one as `className="arena-placement-end"` on the component, or on a container whose components should all take it.
+
+<!-- @answers end -->
+
+<!-- @keys GENERATED from the binding. -->
+**Keys**, from [`disclosure`](../../../../../contracts/behaviour/disclosure.json):
+- `Enter`: activates the button and toggles the region.
+- `Space`: activates the button and toggles the region.
+<!-- @keys end -->
 
 **Closed and collapsed are two different states, and both exist.** `open` decides whether the panel is on the page at all. `collapsed` folds the body away and leaves the header and the footer where they were. The two states are what the pattern buys. A reader can put the cart out of the way, still see what it is and still check out, without losing it.
 
@@ -39,6 +50,7 @@ that is an `ArenaDialog`**, two stacking slots higher, and the scrim is how it s
 - **Do** own both booleans. Neither folds nor closes itself, so a handler that ignores
   `onCollapsedChange` gets a caret that turns and a body that does not move.
 - **Do** put the one action the panel exists for in `footer`. The footer sits outside the folding body, so a folded panel still carries it.
+- **Do** pair it with a rail when it is the navigation drawer on a phone: mark the sheet `md:hidden` and the rail `max-md:hidden`, or branch on `useArenaViewportBelow('md')`.
 - **Don't** reach for it as a menu or a popover. The sheet spans a whole edge and stays. `ArenaMenu` is the transient list that hangs off a trigger.
 - **Don't** open two at once on the same edge. The two share a stacking slot and one lands on the other. A second surface at the same time is a sign the first should have been an `ArenaDialog`.
 - **Don't** put a form a reader must finish in it. Nothing stops them clicking away mid-way, which
@@ -48,6 +60,6 @@ that is an `ArenaDialog`**, two stacking slots higher, and the scrim is how it s
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
+**The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

@@ -76,7 +76,7 @@ export const NEVER_SUBSCRIBES = new Map([
   ['scripts/check/arena/check-all.ts',
    'it is the runner rather than a step, and a runner that could come from the cache would hand '
    + 'back the whole run'],
-  ['scripts/generate/core/arena-to-prod',
+  ['scripts/generate/core/arena-cli',
    'the CLI both npm packages ship, and its siblings. It runs in a consumer project against their '
    + 'config, so nothing in this tree is its input and no build here produces its output'],
   ['scripts/generate/core/arena-mcp',

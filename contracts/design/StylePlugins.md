@@ -11,24 +11,33 @@ Not one value of appearance.
 
 | Surface | What it is |
 |---|---|
-| The floors | WCAG contrast, the 3:1 a control's boundary and the focus ring carry, target size, the reduced-motion policy, prose leading that never closes below 1.5, danger as an outline |
-| The role declaration | every role's name, `$type`, `$description` and, for a keyword, its closed set, in [`roles.json`](./roles.json). No value |
+| The floors | WCAG contrast, the 3:1 a control's boundary and the focus ring carry, target size, the reduced-motion policy, prose leading that never closes below 1.5, danger as an outline: the danger hue's strong fill is `transparent` |
+| The role declaration | every role's name, `$type`, `$description` and, for a keyword, its closed set, in [`roles.json`](./roles.json), and a kernel `default` where one is declared, which is an alias to another role or to a token the package emits. No value |
 | The value repertoire | the scales: the spacing grid, the radius, border, shadow, motion, weight, tracking, leading and type ladders, density, layering, chart and behaviour timing, all of them in this directory and catalogued in [`Scales.md`](./Scales.md) |
 | The part hooks | `data-arena-part="<component>.<slot>"` on every element drawing a slot of every manifest |
 | The cascade | `arena-plugin`, a layer declared after `utilities` |
 
-**A part hook belongs to a manifest, so the chart family has none.** Seven of the eight charts
-draw geometry whose coordinates are the data, which is why they carry no manifest, and a
-component with no slot has no hook: a plugin reaches `ArenaChartCard`, the frame, and nothing
-inside the plot. What carries the skin there instead is the token tier, since every value a
-chart paints is one the palette moves, and [`frameworks/CHARTS.md`](https://github.com/dravensoft-dev/arena/blob/main/frameworks/CHARTS.md)
+**A part hook belongs to a manifest, so the plot of a chart has none.** A chart draws geometry
+whose coordinates are the data, and a plot with no slot has no hook: a plugin reaches
+`ArenaChartCard`, the `frame` slot every chart draws inside, and the legend and tooltip each
+chart's own manifest carries, and nothing inside the plot. What carries the skin there instead is
+the token tier, since every value a chart paints is one the palette moves, and `edge-axis` is the
+role that draws the axis lines, the zero line and the crosshair, heavier than the grid rules
+`edge-separator` draws behind the marks. The remaining chart paint reads roles and never a compat
+alias, so a plugin that answers a role moves every chart.
+[`frameworks/CHARTS.md`](../../frameworks/CHARTS.md)
 records why the plot geometry cannot be a role at all.
 
 [`roles.json`](./roles.json) is a declaration of interface rather than a token file. A DTCG token
 with no `$value` is not a DTCG token, so it leaves `check:dtcg` by name and
 `scripts/check/core/check-role-contract.ts` holds it instead: a type, a description, a closed set
-for a keyword, and no value. That is the statement rather than a side effect. **The question
-belongs to the kernel and the answer never does.**
+for a keyword, and no value. That is the statement rather than a side effect. It holds the one
+answer a role may carry as well: `$extensions["com.dravensoft.arena"].default` is a `{…}` alias to
+a role or to a token the package emits, of the role's own `$type`, and
+`scripts/check/core/check-role-contract.ts:defaultProblems(roles, emitted)` fails a literal, an
+alias naming nothing, a type that disagrees, a keyword whose target can take a word outside its
+set, and a chain that leads back to itself. **The question belongs to the kernel and the answer
+never does.**
 
 The scales stay, and they stay with values, because a manifest never names one. They reach a page
 only through a role, so what they are is a shared repertoire a plugin picks from. A plugin answers
@@ -76,10 +85,36 @@ question unanswered, and the reason is sharper than tidiness: a custom property 
 invalid at computed-value time, so the declaration reading it is dropped and the whole property
 disappears. A partial root plugin is not a poorer appearance. It is a page with no borders.
 
+**Total means answered by the plugin or by a kernel default.** Which roles carry one is written
+beside each role's type, in `roles.json` and in the `arena.tokens.json` each package ships, and a
+role with none there is the plugin's to answer. A role carrying a default is
+answered for a root plugin of the project's own that is silent on it:
+`scripts/generate/core/arena-cli/style-plugin-rules.ts:withDefaults(plugin, roles)` completes the
+plugin before anything reads it. A role alias takes the plugin's answer to that role, itself
+completed the same way, and its light answer too unless the role has a light answer of its own; a
+token alias passes through as written. The floors, the reports and the
+`:root` block all read that one complete plugin, so a colour default is restated under every
+palette like any `{color.*}` answer, and the command notes each role the default answered. A later
+plugin takes a default only through a role it answers itself, since the root writes every other
+default: where both it and the root plugin are silent on a role carrying a default, it takes its
+own answer to the role the default names, which `withDefaults(plugin, roles, { root })` fills in. A
+root plugin's own answer to that role stands in every later scope, and the `default` root counts
+as silent, because its answer is the default. `default` and `complete` answer every role with the defaults ignored, a
+catalogue entry answers every role that carries no default, and `check-style-plugin.ts` holds the default plugin's answer to a role carrying a default
+to that default, so a project whose own copy is silent on the role renders it the way the default
+does.
+
 Every later entry emits under `.arena-<name>`, taken from the directory that holds it, and is a
 difference. Those sit over the root plugin in the cascade, so totality would be a demand with
 nothing behind it. A polarity group emits three compound selectors rather than one, because the
 plugin class and the theme class sit in either order or on the same element.
+
+The name is refused when the package already ships that class, and when
+`scripts/generate/core/arena-cli/style-plugin-rules.ts:RESERVED` holds it for a class Arena is going
+to ship. `reservedProblems(name, where)` words that refusal once, and a palette's name meets it too.
+The suite beside the module fails an entry the tree ships, so the change that lands a component
+deletes its entry, and a project meets the refusal on the day it picks the name, when renaming costs
+nothing.
 
 An empty list is not a configuration. Removable means replaceable.
 
@@ -103,6 +138,120 @@ plugin sheet parsed before the sheet carrying the prelude is exactly the case. R
 declaration is the same treatment a component sheet already gets when it imports its own prelude,
 and for the same reason: the file carries what it depends on rather than documenting it.
 
+## The kinds a role answers
+
+A slot declares what kind of thing it is, and the kind decides which padding, gap and radius
+roles it may ask. A slot of another kind spending one of these roles fails `check:roles`, which
+[`frameworks/tailwind/AGENTS.md`](../../frameworks/tailwind/AGENTS.md)
+describes. A plugin answers each role once and every slot of the kind follows.
+
+| Kind | Padding roles | Gap role | Radius role |
+|---|---|---|---|
+| `surface` | `pad-surface`, `pad-surface-head`, `pad-surface-head-top` | the kind-free rhythm | `rounded-surface` |
+| `floating` | `pad-floating-x`, `pad-floating-y`, `pad-floating-edge-x` | the kind-free rhythm, `gap-actions` | `rounded-surface-floating` |
+| `control` | `pad-control-x`, `pad-control-y`, `pad-control-text-y` | `gap-control` | `rounded-control`, `rounded-control-sm` |
+| `field` | `pad-control-x`, `pad-control-y`, `pad-control-text-y` | `gap-control` | `rounded-field` |
+| `marker` | `pad-marker-x`, `pad-marker-y` | `gap-marker` | `rounded-marker` |
+| `status` | `pad-status-x`, `pad-status-y` | the kind-free rhythm | `rounded-surface-floating` |
+| `row` | `pad-row-x`, `pad-row-y`, `pad-nav-row-x`, `pad-nav-row-y`, `pad-row-indent`, `pad-row-floating-x`, `pad-row-floating-y`, and the table's `--dz-row-px` and `--dz-row-py` | `gap-row`, `gap-row-floating` | `rounded-control` |
+| `band` | `pad-band-y`, and `pad-band-x` inside the band's ceiling of 7% of its width | the kind-free rhythm | the kind-free shapes only |
+| `none` | none | the kind-free rhythm only | the kind-free shapes only |
+
+The table is `scripts/lib/tailwind/slot-kinds.ts:KIND_AIR`, and the rhythm and shapes any kind
+may ask are `KIND_FREE` in the same file, which holds `gap-items` and `gap-inline`. The fill of a small readout raised over the content it
+annotates, a chart's tooltip, is `fill-surface-raised`.
+
+**A role answers a question the kind asks, and a numeric step on a kind with roles says what it
+sizes.** A card head's top, a sheet pinned to an edge, a skip link's and a textarea's block padding,
+a floating list's rows and the buttons of an action row at the foot of a floating surface each have
+a role their kind answers, so a plugin moves them. A slot that still spends a numeric step on a
+kind with roles is an entry of `SCALE_USES` in `scripts/check/tailwind/check-role-tokens.ts`, and
+its reason says one of two things: the length sizes air this slot spends at its own size, which no
+kind role asks, so a plugin cannot move it; or it sizes something other than air, such as a nesting
+depth, a clearance from a rule or a hairline added up. An entry that says neither is a decision
+nobody wrote down.
+
+**The glyph a component chooses by tone is content and not a class of a slot**: the alert's icon,
+an input's status icon, the stat card's arrow and a caret are chosen by the component from a
+member's value, so they read no hue channel. A constant a component writes inline, such as the
+scatter size legend's ink, is a constant and not a member's value, so it reads none either.
+
+**A row's padding is the role times the density row factor.** `pad-row-x` and `pad-row-y`, and the pair `pad-nav-row-x` and `pad-nav-row-y` that a side nav row reads in their place, are
+multiplied by `--dz-row-scale-x` and `--dz-row-scale-y`, which density restates, so a plugin
+answers the register of a row, how much air an item of that kind takes, and density answers how
+tight the row is. A plugin never writes a density factor into a row role. `--dz-row-min`, reached
+through `min-h-row-min`, is the floor a row takes to reach the pointer target in comfortable
+density. The interactive day head of `ArenaCalendar` takes it too, and `check:proximity` measures that the head clears the comfortable row. `pad-row-indent` is the side nav's inset per level of depth, read times the
+`--arena-side-nav-depth` channel the component writes, and the indent of a side nav item, trigger and section label starts from `pad-nav-row-x`.
+
+## The option roles
+
+**An option of a family is a question by construction.** `arena-size-sm` asks how tall a button is
+at that size, `arena-emphasis-ghost` asks what ink an action takes with no fill, and the answer to
+each is a plugin's. The family file in
+[`frameworks/tailwind/vocabulary/`](../../frameworks/tailwind/vocabulary/arena-size/Size.family.json)
+writes each channel from a role, so the option is the question and the role is where it is
+answered. An option no component draws differently asks nothing, and declares no role.
+
+**A role is named `<family>-<option>-<question>`**, with the option as the family names it after
+`arena-<family>-`: `size-sm-control-h`, `emphasis-ghost-fill-hover`, `elevation-floating-shadow`. Its
+`$description` says what the option asks and which components read it, and
+[`roles.json`](./roles.json) carries it beside the kind roles with no value, like every other
+role. The name is the whole of the contract: a plugin reads it, an option nobody answers is a
+question nobody asked, and `check:families` holds each channel to a component that reads it.
+
+**Every plugin answers every option role.** The root plugin is total, so `check:style-plugin` fails
+one that leaves an option unanswered; `check:catalogue` holds every entry under
+`plugin-style-store/catalogue/` to the same totality; and `check:style-plugin-coverage` holds
+`complete`, the witness, to an answer of its own for each. A plugin answers every option of a family, whatever subset of them
+a component takes.
+
+**A dimension role a density moves is answered with the density alias, and that is what keeps it
+re-densifying.** `size-sm-control-h` answered `{dz.ctl-h-sm}` follows `.arena-compact` the way the
+control always did, while the same role answered with a length fixes the height at every density.
+A row padding role named as taken before the density factor is multiplied by the row factor the
+way `pad-row-x` is, so a plugin answers the register and density answers how tight.
+
+## The hue matrix
+
+**A hue is a meaning a component wears, and the plugin answers what each hue is made of.** A
+manifest maps a member's value to a hue (`danger`, `success`, `warning`, `info`, or an identity),
+renders the group as `data-arena-<group>`, and the hue sheet writes its channels on the slots that
+carry it: `--arena-hue-ink`, `--arena-hue-edge`, `--arena-hue-fill-strong`, `--arena-hue-fill-soft`
+and `--arena-hue-on-ink`. A slot reads the channel it needs and never a status colour by name, so a
+plugin that moves one role moves every surface wearing that hue. A slot whose hue no value varies,
+a field's error message, names it under `hues.always`. A solid status mark (a presence or feed dot,
+a progress fill) reads the strong fill, and danger's marks the ink, its strong fill being closed;
+a chart legend swatch and the tag's dot read the ink, following series painted from the palette.
+A badge written with `arena-mark-solid` fills with the ink and sets its label in the on-ink, which
+defaults to the hue's `{color.<hue>-content}` and, for danger, to the page colour
+`{color.base-100}`, because the danger ink is tuned as text and too light to carry white. The roles are in
+[`roles.json`](./roles.json), one per hue and channel, each answered with a `{color.*}` alias:
+
+| Hue | Ink | Edge | Fill, strong | Fill, soft | On ink |
+|---|---|---|---|---|---|
+| danger | `hue-danger-ink` | `hue-danger-edge` | `hue-danger-fill-strong`, closed to `transparent` | `hue-danger-fill-soft` | `hue-danger-on-ink` |
+| success | `hue-success-ink` | `hue-success-edge` | `hue-success-fill-strong` | `hue-success-fill-soft` | `hue-success-on-ink` |
+| warning | `hue-warning-ink` | `hue-warning-edge` | `hue-warning-fill-strong` | `hue-warning-fill-soft` | `hue-warning-on-ink` |
+| info | `hue-info-ink` | `hue-info-edge` | `hue-info-fill-strong` | `hue-info-fill-soft` | `hue-info-on-ink` |
+
+**The soft fill is held back to a level, which is not a role.** The hue sheet composes
+`color-mix(in oklab, var(--hue-<hue>-fill-soft) var(--level-hue-soft-<hue>), transparent)`, with
+the percentage in [`colors.css`](./colors.css), so the role says which colour and the level says
+how far it is held back. The table of channels is authored once, in
+[`frameworks/tailwind/Hues.json`](../../frameworks/tailwind/Hues.json).
+
+**Identity has no roles.** The eight categorical colours derive their channels from the ramp: ink,
+edge and strong fill are `--color-cat-N`, and the soft fill is that colour at `--tint-soft` over
+`--fill-surface`. Its on-ink is `initial`, so a solid mark on it falls back to the neutral content. A
+plugin moves identity by moving the ramp in the palette. **Neutral is the
+absence of a hue**: its value writes every channel to `initial` and the slot keeps its own
+classes, so the matrix has no neutral row.
+
+**The final confirmation of `ArenaConfirmDialog` reads two roles of its own**, `fill-confirm-final`
+and `ink-confirm-final`, which a plugin answers as a pair. It is the one filled danger surface, which
+is why it is not `hue-danger-fill-strong`.
+
 ## Which floors a gate still holds, and which became reports
 
 This is the half that has to be written down rather than discovered.
@@ -110,7 +259,7 @@ This is the half that has to be written down rather than discovered.
 **A floor expressed as a token value is a floor over the token half only.** With plugin CSS open,
 the prohibition on gradients is the clear case: it is a floor because a fill whose colour is a
 range turns contrast into a range, and **a plugin paints the gradient from its own stylesheet
-whatever the token tier says**. It stops being a floor and becomes a report. `--audit` names it in
+whatever the token tier says**. It stops being a floor and becomes a report. `arena audit` names it in
 an application source and says nothing about it inside a declared plugin directory, because
 `--strict` may not refuse what this document permits.
 
@@ -118,14 +267,17 @@ an application source and says nothing about it inside a declared plugin directo
 |---|---|---|
 | prose leading, heading leading, prose measure | `check:style-plugin` | the root plugin, in the base scope and in every theme scope |
 | the same three floors | `check:catalogue` | every entry under `plugin-style-store/catalogue/`, in both polarities, resolved in memory because no entry is compiled |
+| the danger hue's strong fill, `hue-danger-fill-strong`, answered `transparent` | `check:style-plugin` | the root plugin and every scoped plugin, in both polarities |
+| the same floor | `check:catalogue` | every entry under `plugin-style-store/catalogue/`, in both polarities |
+| no `plugin.css` writes a `--arena-hue-*` channel or `--hue-danger-fill-strong` (reading a channel is allowed); a direct declaration on a part is not gated | `check:channels` | every `plugin.css` under `plugin-style-store/` and `plugin-style-store/catalogue/` |
 | a control's boundary at 3:1 where its border goes to zero | `check:boundary-contrast` | the root plugin, in both themes |
 | text contrast against the surfaces a plugin names | `check:text-contrast` | the root plugin and every scoped plugin this build emits |
 | the two layers draw one appearance identically | `check:pixel-parity` | every sink, exactly, with no allowance declared for any of them |
-| the compiled `arena-` class name is output rather than contract | `--audit`, in both scopes | a consumer's sources |
-| a raw colour or a bare pixel length where a token belongs | `--audit`, in both scopes | a consumer's sources |
-| no gradient | `--audit`, in the application scope, unless the project declares its mark is one | a consumer's sources |
-| a colour assigned through one of Arena's own aliases rather than a role | `--audit`, in the plugin scope only | a consumer's style plugins |
-| a declaration restating what the part's slot already paints | `--audit`, in the plugin scope only | a consumer's style plugins, and `complete` through `check:style-plugin-coverage` |
+| the compiled `arena-` class name is output rather than contract | `arena audit`, in both scopes | a consumer's sources |
+| a raw colour or a bare pixel length where a token belongs | `arena audit`, in both scopes | a consumer's sources |
+| no gradient | `arena audit`, in the application scope, unless the project declares its mark is one | a consumer's sources |
+| a colour assigned through one of Arena's own aliases rather than a role | `arena audit`, in the plugin scope only | a consumer's style plugins |
+| a declaration restating what the part's slot already paints | `arena audit`, in the plugin scope only | a consumer's style plugins, and `complete` through `check:style-plugin-coverage` |
 
 **A brand whose mark IS a gradient is the case that split does not cover.** The scope reads the
 directory a line sits in, which is the right question for a part hook and the wrong one for a
@@ -162,7 +314,7 @@ part no rule in the witness plugin paints.
 
 A manifest's slot names leave the repository as the part hook, so **renaming one is a break**.
 That is the price of the escape hatch, and it is recorded in
-[`frameworks/tailwind/AGENTS.md`](https://github.com/dravensoft-dev/arena/blob/main/frameworks/tailwind/AGENTS.md), where slots are defined,
+[`frameworks/tailwind/AGENTS.md`](../../frameworks/tailwind/AGENTS.md), where slots are defined,
 rather than left to be discovered at a consumer's build.
 `scripts/check/arena/check-parts.ts` fails an element that carries a slot class and no hook.
 
@@ -172,6 +324,19 @@ rather than left to be discovered at a consumer's build.
 > style plugins are measured painting the same decision by hand through the same part. What one
 > plugin paints is its own.
 
+**The rule has a second source, and it asks for no measurement.** An option of a family is a
+question by construction: a family is the declaration of a question with named answers, so each
+option's roles are added in the change that adds the option, and every plugin answers them in the
+same major. What a plugin paints by hand through a part is evidence for a role the kernel does not
+have yet. What an option declares is a role the kernel has already.
+
+**A role born after the roster carries a kernel default.**
+`scripts/check/core/roles-without-default.json` names the roles every adopter's root plugin
+already answers, written once from `roles.json` and never grown, and `check:role-contract` fails a
+role outside it that declares no default, so a minor adding a role stops no build whose root
+plugin is its own. A role on the list takes no default, because a default there would only loosen
+totality for plugins that already answer it.
+
 **A plugin selects by part and never by the value of a variant, and that decides which asks can
 become members at all.** A product whose avatar ring is a gradient in one state and a grey in the
 other cannot be served by a `ring` member taking a tone: the component would render one part in
@@ -180,8 +345,8 @@ difference between the two. An ask whose whole content is a difference the casca
 markup its own product writes, and no member Arena could add would carry it.
 
 **A role that does two jobs is a split waiting for its second product, not a name to be argued
-with.** `edge-marker` is the current case, and the count is now two products that moved it for two
-different reasons. It draws the edge of a chip, the edge of a photograph and the edge of a keyboard
+with.** `edge-marker` is the current case: two products moved it, for two different
+reasons. It draws the edge of a chip, the edge of a photograph and the edge of a keyboard
 cap: one product set it to nothing to take the border off its avatars, because no product wants a
 portrait outlined the way it wants a tag outlined, and a second answered it with the muted text
 colour so a cap can be found on a screen where every other edge is a hairline. **Two products

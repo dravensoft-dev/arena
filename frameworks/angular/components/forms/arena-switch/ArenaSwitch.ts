@@ -1,37 +1,28 @@
 import {
   ChangeDetectionStrategy, Component, booleanAttribute, computed, effect, inject, input, output,
 } from '@angular/core';
-import type { ArenaOrientation, ArenaSwitchSize } from '../../../Api.generated';
 import { arenaSwitchStyles } from './ArenaSwitch.variants';
 import manifest from './ArenaSwitch.classes.generated';
 import { ARENA_LOCALE } from '../../../ArenaLocale';
 import { ArenaControlBinding, arenaWarnDoubleBinding } from '../../../ControlBinding';
-
-export type SwitchFootprint = `${ArenaOrientation}-${ArenaSwitchSize}`;
-export type SwitchThumb = `${'on' | 'off'}-${ArenaOrientation}`;
-
-export function arenaFootprintFor(orientation: ArenaOrientation, size: ArenaSwitchSize): SwitchFootprint {
-  return `${orientation}-${size}`;
-}
-
-export function arenaThumbFor(state: boolean, orientation: ArenaOrientation): SwitchThumb {
-  return `${state ? 'on' : 'off'}-${orientation}`;
-}
+import { ArenaSlotAttributes } from '../../../SlotData';
 
 @Component({
   selector: 'arena-switch',
   standalone: true,
+  imports: [ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [ArenaControlBinding],
   host: { '[class]': 'styles().root()',
+    '[attr.data-arena-disabled]': "styles().$data.root()['data-arena-disabled'] ?? null",
     '[attr.data-arena-part]': 'parts.root', },
   template: `
-    <button type="button" role="switch" [class]="styles().track()" [attr.data-arena-part]="parts.track"
+    <button type="button" role="switch" [class]="styles().track()" [arenaSlotData]="styles().$data.track()" [attr.data-arena-part]="parts.track"
             [attr.aria-checked]="drawn()" [attr.aria-label]="label()"
             [disabled]="off()" (click)="activate()">
-      <span [class]="styles().knob()" [attr.data-arena-part]="parts.knob" aria-hidden="true">
+      <span [class]="styles().knob()" [arenaSlotData]="styles().$data.knob()" [attr.data-arena-part]="parts.knob" aria-hidden="true">
         @if (glyph()) {
-          <i [class]="glyphClass()" [attr.data-arena-part]="parts.icon" aria-hidden="true"></i>
+          <i [class]="glyphClass()" [arenaSlotData]="styles().$data.icon()" [attr.data-arena-part]="parts.icon" aria-hidden="true"></i>
         }
       </span>
     </button>
@@ -55,16 +46,6 @@ export class ArenaSwitch {
 
   /** The current on/off value. Controlled: the consumer owns it and pushes it each render. */
   readonly state = input(false, { transform: booleanAttribute });
-  /** Whether the switch lies horizontally or stands vertically. */
-  readonly orientation = input<ArenaOrientation, ArenaOrientation | undefined>(
-    'horizontal',
-    { transform: (value) => value ?? 'horizontal' },
-  );
-  /** The switch's overall size. */
-  readonly size = input<ArenaSwitchSize, ArenaSwitchSize | undefined>(
-    'md',
-    { transform: (value) => value ?? 'md' },
-  );
   /** A Phosphor class name for the glyph shown while on. Arena draws the aria-hidden `<i>`. */
   readonly iconOn = input<string>();
   /** A Phosphor class name for the glyph shown while off. */
@@ -85,12 +66,8 @@ export class ArenaSwitch {
   protected readonly glyph = computed(() => (this.drawn() ? this.iconOn() : this.iconOff()));
 
   protected readonly styles = computed(() => arenaSwitchStyles({
-    size: this.size(),
-    orientation: this.orientation(),
-    checked: this.drawn(),
+    state: this.drawn(),
     disabled: this.off(),
-    footprint: arenaFootprintFor(this.orientation(), this.size()),
-    thumb: arenaThumbFor(this.drawn(), this.orientation()),
   }));
 
   protected readonly glyphClass = computed(() => `${this.styles().icon()} ${this.glyph() ?? ''}`.trim());

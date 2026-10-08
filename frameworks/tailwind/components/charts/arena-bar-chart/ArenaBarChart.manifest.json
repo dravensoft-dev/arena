@@ -1,0 +1,83 @@
+{
+  "component": "ArenaBarChart",
+  "slots": {
+    "frame": "relative w-full",
+    "legend": "flex items-center gap-4 overflow-hidden whitespace-nowrap",
+    "legendItem": "flex items-center gap-marker min-w-0",
+    "legendSwatch": "size-2.5 rounded-marker shrink-0",
+    "legendLabel": "overflow-hidden text-ellipsis whitespace-nowrap font-body text-ctl-sm text-ink-body/(--level-ink-body)",
+    "tooltip": "absolute -translate-x-1/2 -translate-y-full pointer-events-none whitespace-nowrap bg-surface-raised border-[length:var(--bw-surface)] border-edge-surface-floating rounded-control shadow-surface-floating px-2.5 py-1.5",
+    "tooltipLabel": "font-body text-ctl-xs text-ink-muted/(--level-ink-muted)",
+    "tooltipValue": "font-mono text-ctl-md text-ink-body"
+  },
+  "kind": {
+    "frame": "none",
+    "legend": "none",
+    "legendItem": "marker",
+    "legendSwatch": "none",
+    "legendLabel": "none",
+    "tooltip": "floating",
+    "tooltipLabel": "none",
+    "tooltipValue": "none"
+  },
+  "variants": {
+    "tone": {
+      "success": {
+        "legendSwatch": "bg-[color:var(--arena-hue-ink)]"
+      },
+      "warning": {
+        "legendSwatch": "bg-[color:var(--arena-hue-ink)]"
+      },
+      "danger": {
+        "legendSwatch": "bg-[color:var(--arena-hue-ink)]"
+      },
+      "info": {
+        "legendSwatch": "bg-[color:var(--arena-hue-ink)]"
+      }
+    },
+    "colorId": {
+      "1": {
+        "legendSwatch": "bg-[color:var(--arena-hue-ink)]"
+      },
+      "2": {
+        "legendSwatch": "bg-[color:var(--arena-hue-ink)]"
+      },
+      "3": {
+        "legendSwatch": "bg-[color:var(--arena-hue-ink)]"
+      },
+      "4": {
+        "legendSwatch": "bg-[color:var(--arena-hue-ink)]"
+      },
+      "5": {
+        "legendSwatch": "bg-[color:var(--arena-hue-ink)]"
+      },
+      "6": {
+        "legendSwatch": "bg-[color:var(--arena-hue-ink)]"
+      },
+      "7": {
+        "legendSwatch": "bg-[color:var(--arena-hue-ink)]"
+      },
+      "8": {
+        "legendSwatch": "bg-[color:var(--arena-hue-ink)]"
+      }
+    }
+  },
+  "hues": {
+    "tone": {
+      "success": "success",
+      "warning": "warning",
+      "danger": "danger",
+      "info": "info"
+    },
+    "colorId": {
+      "1": "identity-1",
+      "2": "identity-2",
+      "3": "identity-3",
+      "4": "identity-4",
+      "5": "identity-5",
+      "6": "identity-6",
+      "7": "identity-7",
+      "8": "identity-8"
+    }
+  }
+}

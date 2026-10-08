@@ -176,7 +176,7 @@ export function Playground({ model, play, children }: PlaygroundProps) {
       </header>
 
       <div className="pg-shell">
-        <div className="pg-stage">{children}</div>
+        <div className="pg-stage" style={model.vars as React.CSSProperties | undefined}>{children}</div>
         <aside className="pg-panel">
           <div className="pg-log-head">
             <span className="pg-panel-title">{model.knobs.length} members</span>

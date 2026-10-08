@@ -394,6 +394,226 @@
   text-wrap: balance;
 }
 
+.arena-complete [data-arena-part="bar-chart.frame"] {
+  outline: var(--bw-surface) dotted var(--edge-marker);
+  outline-offset: calc(var(--sp-1) * -1);
+}
+.arena-complete [data-arena-part="bar-chart.legend"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="bar-chart.legend-item"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="bar-chart.legend-label"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="bar-chart.legend-swatch"] {
+  opacity: 0.72;
+  transform: rotate(-4deg);
+}
+.arena-complete [data-arena-part="bar-chart.tooltip"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="bar-chart.tooltip-label"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="bar-chart.tooltip-value"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="doughnut-chart.frame"] {
+  outline: var(--bw-surface) dotted var(--edge-marker);
+  outline-offset: calc(var(--sp-1) * -1);
+}
+.arena-complete [data-arena-part="doughnut-chart.legend"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="doughnut-chart.legend-label"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="doughnut-chart.legend-row"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="doughnut-chart.legend-swatch"] {
+  opacity: 0.72;
+  transform: rotate(-4deg);
+}
+.arena-complete [data-arena-part="doughnut-chart.legend-text"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="doughnut-chart.legend-value"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="horizontal-bar-chart.frame"] {
+  outline: var(--bw-surface) dotted var(--edge-marker);
+  outline-offset: calc(var(--sp-1) * -1);
+}
+.arena-complete [data-arena-part="horizontal-bar-chart.legend"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="horizontal-bar-chart.legend-item"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="horizontal-bar-chart.legend-label"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="horizontal-bar-chart.legend-swatch"] {
+  opacity: 0.72;
+  transform: rotate(-4deg);
+}
+.arena-complete [data-arena-part="horizontal-bar-chart.tooltip"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="horizontal-bar-chart.tooltip-label"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="horizontal-bar-chart.tooltip-value"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="line-chart.frame"] {
+  outline: var(--bw-surface) dotted var(--edge-marker);
+  outline-offset: calc(var(--sp-1) * -1);
+}
+.arena-complete [data-arena-part="line-chart.legend"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="line-chart.legend-item"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="line-chart.legend-label"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="line-chart.legend-swatch"] {
+  opacity: 0.72;
+  transform: rotate(-4deg);
+}
+.arena-complete [data-arena-part="line-chart.tooltip"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="line-chart.tooltip-label"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="line-chart.tooltip-value"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="pyramid-chart.frame"] {
+  outline: var(--bw-surface) dotted var(--edge-marker);
+  outline-offset: calc(var(--sp-1) * -1);
+}
+.arena-complete [data-arena-part="pyramid-chart.legend"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="pyramid-chart.legend-item"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="pyramid-chart.legend-label"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="pyramid-chart.legend-swatch"] {
+  opacity: 0.72;
+  transform: rotate(-4deg);
+}
+.arena-complete [data-arena-part="pyramid-chart.tooltip"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="pyramid-chart.tooltip-label"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="pyramid-chart.tooltip-value"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="radar-chart.frame"] {
+  outline: var(--bw-surface) dotted var(--edge-marker);
+  outline-offset: calc(var(--sp-1) * -1);
+}
+.arena-complete [data-arena-part="radar-chart.legend"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="radar-chart.legend-item"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="radar-chart.legend-label"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="radar-chart.legend-swatch"] {
+  opacity: 0.72;
+  transform: rotate(-4deg);
+}
+.arena-complete [data-arena-part="radar-chart.tooltip"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="radar-chart.tooltip-label"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="radar-chart.tooltip-value"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="scatter-chart.frame"] {
+  outline: var(--bw-surface) dotted var(--edge-marker);
+  outline-offset: calc(var(--sp-1) * -1);
+}
+.arena-complete [data-arena-part="scatter-chart.legend"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="scatter-chart.legend-item"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="scatter-chart.legend-label"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="scatter-chart.legend-swatch"] {
+  opacity: 0.72;
+  transform: rotate(-4deg);
+}
+.arena-complete [data-arena-part="scatter-chart.tooltip"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="scatter-chart.tooltip-label"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="scatter-chart.tooltip-value"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
 .arena-complete [data-arena-part="chart-card"] {
   border-radius: var(--r-media);
   outline: var(--bw-surface) dashed var(--edge-surface);

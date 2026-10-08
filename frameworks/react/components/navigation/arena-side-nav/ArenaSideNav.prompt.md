@@ -3,7 +3,7 @@ around it (brand, user footer, content area) stays the product's to compose.
 
 A **compound** component. You write one `<ArenaSideNavItem>` per destination; `ArenaSideNav`
 walks its direct children and injects where each sits, which `id` is active and the
-handler that reports `nav`. None of what it injects is a member of any contract,
+handler that reports `onNav`. None of what it injects is a member of any contract,
 the same shape as `ArenaTable`/`ArenaTableRow` and `ArenaRadioGroup`/`ArenaRadio`, one size down.
 
 ```tsx
@@ -22,12 +22,21 @@ the same shape as `ArenaTable`/`ArenaTableRow` and `ArenaRadioGroup`/`ArenaRadio
 |---|---|---|---|---|
 | `active` | primitive | `string` |  | The id of the current destination. The ArenaSideNavItem whose id matches is marked aria-current="page", and no item is marked when it names none of them. |
 | `ariaLabel*` | primitive | `string` |  | Names this navigation landmark. Required, and guarded at runtime: the guard trims before it decides, so a blank name is refused as well as an absent one, because ariaLabel="" renders a landmark with no accessible name, which is the defect arriving through a value that is present. Guarded rather than defaulted: the navigation pattern asks each landmark on a page for a UNIQUE name, and a constant default satisfies the existence half while two sidebars on one page stay indistinguishable. Nothing can derive it either; what a nav is FOR is editorial. Say what it navigates -- "Primary", "Project settings" -- the ArenaTable.label and ArenaSegmentedControl.ariaLabel shape. |
-| `children` | slot |  |  | The navigation tree. One ArenaSideNavItem per destination, optionally grouped by ArenaSideNavSection and ArenaSideNavCollapsible; where each child sits, which id is active and how it reports `nav` are the parent's to settle, and none of it is a member here. |
-| `indentStep` | primitive | `number` | `3` | How far each nesting level indents, as a MULTIPLIER of --sp-1 rather than a length: the row at depth N is padded calc(var(--sp-1) * 3 + var(--sp-1) * indentStep * N). A CSS string was rejected -- a caller-supplied "1.5rem" is neither a token nor a derivation of one, so it would stop re-densifying inside .arena-compact, and no gate would catch it because the gate that forbids a bare length scans source and not the values a caller passes in. |
+| `children` | slot |  |  | The navigation tree. One ArenaSideNavItem per destination, optionally grouped by ArenaSideNavSection and ArenaSideNavCollapsible; where each child sits, which id is active and how it reports `onNav` are the parent's to settle, and none of it is a member here. |
 | `collapsed` | primitive | `boolean` | `false` | Whether the list is an icon rail. Each item draws its icon alone and shows its label as a tooltip, which stays its accessible name; a badge becomes a dot whose count joins the name; a section's label is hidden and stays the group's name; a collapsible's items render at the rail level and its trigger is not drawn. An item with no icon is refused while collapsed. The frame around the list stays the consumer's. |
 | `onNav` | event | `string` |  | An item was activated, carrying its id. It carries the id alone, on the ArenaBreadcrumbs precedent that the platform event leaves the payload and the item travels by itself, and under the compound shape there is no item datum left to carry either, because the consumer wrote the element and already holds everything on it. Where the item has an href, Arena has already cancelled the anchor by the time this fires, so a listener routes and does not double-navigate; ctrl-click, middle-click and open-in-new-tab are the browser's and fire nothing, so a consumer who wires no listener still has a working column of real links. |
 
 <!-- @api end -->
+
+<!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
+
+**Answers.** No family of the [vocabulary](../../../../VOCABULARY.md) decides anything in this component's own box.
+
+<!-- @answers end -->
+
+<!-- @keys GENERATED from the binding. -->
+**Keys:** none (`navigation`).
+<!-- @keys end -->
 
 An item's click reports `onNav(id)` -- the activated item's `id`, with no DOM event.
 There is no item datum to carry: you wrote the element, so you already hold
@@ -38,7 +47,7 @@ item takes `--crimson-soft` behind `--crimson` text at `--fw-semibold`; the rest
 transparent, `--mute`, `--fw-medium`. Both read `--dz-text`, so the nav re-densifies
 inside `.arena-compact`.
 
-Group related items with `<ArenaSideNavSection label="Workspace">…</ArenaSideNavSection>`. Each nesting level indents one step deeper, and `indentStep`, which defaults to `3`, is the multiplier of `--sp-1` that step applies. A caller can only widen or narrow the multiplier, never supply a length of their own. The indent keeps re-densifying inside `.arena-compact` however far it is nested.
+Group related items with `<ArenaSideNavSection label="Workspace">…</ArenaSideNavSection>`. Each nesting level indents one step deeper. The step is the style plugin's `pad-row-indent` role, the indent of one level, times the row's depth, and no member of the component multiplies it.
 
 ```tsx
 <ArenaSideNav ariaLabel="Primary" active={route} onNav={(id) => setRoute(id)}>
@@ -84,7 +93,7 @@ it, because the automatic expansion is Arena's decision rather than the user's. 
 - **Don't** use it for tabs. `ArenaSideNav` navigates between destinations; `ArenaTabs` changes
   the view within one, and `ArenaSegmentedControl` filters within that.
 - **Don't** wrap it in your own `<nav>`. The component renders one.
-- **Don't** pass `indentStep` a length string. The member is a multiplier of `--sp-1` and never a CSS length. A value like `"1.5rem"` is neither a token nor a derivation of one, and it would stop re-densifying inside `.arena-compact` with no gate to catch it.
+- **Don't** reach for an indent member or an inline padding. Answer `pad-row-indent` in the style plugin with the indent of one level.
 
 ### `active` is an id, and there is no route matcher
 
@@ -113,10 +122,10 @@ and a class that matches no glyph is not an error. Nothing on your side catches 
 so check a name against the `@phosphor-icons/web` you installed if a wrong one would be
 expensive.
 
-**As a rail.** `collapsed` narrows the list to an icon rail and leaves the frame around it to you: the drawer, the button that collapses it and the page column are yours. Every item needs an `icon` while collapsed, and one without is refused. Each label stays the item's accessible name and shows as a tooltip on hover and on focus. A badge becomes a dot, and its count joins the name. Section labels are hidden but still name their groups, and a collapsible lays its items out in the rail with no trigger of its own.
+**As a rail.** `collapsed` narrows the list to an icon rail and leaves the frame around it to you: the drawer, the button that collapses it and the page column are yours. Every item needs an `icon` while collapsed, and one without is refused. Each label stays the item's accessible name and shows as a tooltip on hover and on focus. A badge becomes a dot, and its count joins the name. Section labels are hidden but still name their groups, and a collapsible lays its items out in the rail with no trigger of its own. Which of the two is on screen is the viewport's question: mark the rail `max-md:hidden` and the drawer `md:hidden` with the theme sheet's variants, or branch on `useArenaViewportBelow('md')`.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
+**The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

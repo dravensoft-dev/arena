@@ -105,9 +105,14 @@ export function dedent(text: string) {
     .map((line, i) => (i === 0 ? line : line.slice(shortest))).join('\n');
 }
 
-export function componentSheet(rules: string[], preludeSpecifier: string) {
+export function componentSheet(rules: string[], preludeSpecifier: string, after: string[] = []) {
   const body = rules.map((rule) => dedent(rule).replace(/^(?=.)/gm, '  ')).join('\n');
-  return `@import '${preludeSpecifier}';\n\n@layer utilities {\n${body}\n}\n`;
+  const imports = [preludeSpecifier, ...after].map((specifier) => `@import '${specifier}';\n`).join('');
+  return `${imports}\n@layer utilities {\n${body}\n}\n`;
+}
+
+export function hueSheet(rules: string) {
+  return `@layer utilities {\n${rules.replace(/^(?=.)/gm, '  ')}\n}\n`;
 }
 
 export function preludeSheet(shared: string, keyframes: string) {

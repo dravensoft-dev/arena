@@ -12,7 +12,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { Component } from '@angular/core';
 import { TestBed, type ComponentFixture } from '@angular/core/testing';
-import type { ArenaChartLegendLayout } from '../../../Api.generated';
+import type { ArenaChartLegendLayout, ArenaSeries } from '../../../Api.generated';
 import { ArenaDoughnutChart } from './ArenaDoughnutChart';
 
 const LABELS = ['Retail', 'Wholesale', 'Consignment', 'Export'];
@@ -29,7 +29,7 @@ const VALUES = [40, 25, 0, 35];
 class DoughnutHost {
   labels = LABELS;
   values = VALUES;
-  series = [{ label: 'Revenue by channel', values: VALUES }];
+  series: ArenaSeries[] = [{ label: 'Revenue by channel', values: VALUES }];
   legendLayout: ArenaChartLegendLayout = 'auto';
   seen: number[] = [];
 }
@@ -38,14 +38,14 @@ function stubResize(width: number): () => void {
   const globals = globalThis as { ResizeObserver?: unknown };
   const saved = globals.ResizeObserver;
   globals.ResizeObserver = class {
-    private readonly callback: (entries: Array<{ target: Element; contentRect: { width: number } }>) => void;
+    private readonly callback: (entries: Array<{ target: Element; borderBoxSize: Array<{ inlineSize: number; blockSize: number }>; contentRect: { width: number } }>) => void;
 
-    constructor(callback: (entries: Array<{ target: Element; contentRect: { width: number } }>) => void) {
+    constructor(callback: (entries: Array<{ target: Element; borderBoxSize: Array<{ inlineSize: number; blockSize: number }>; contentRect: { width: number } }>) => void) {
       this.callback = callback;
     }
 
     observe(target: Element): void {
-      this.callback([{ target, contentRect: { width } }]);
+      this.callback([{ target, borderBoxSize: [{ inlineSize: width, blockSize: 0 }], contentRect: { width } }]);
     }
 
     disconnect(): void {}
@@ -72,6 +72,10 @@ function click(el: Element): void {
 
 function textWrapper(fixture: ComponentFixture<DoughnutHost>): HTMLElement {
   return host(fixture).querySelector('[role="group"] > button > span:nth-child(2)') as HTMLElement;
+}
+
+function stackedText(fixture: ComponentFixture<DoughnutHost>): boolean {
+  return textWrapper(fixture).hasAttribute('data-arena-stacked');
 }
 
 test('a zero-valued slice paints no path, so the drawn shapes are not the values', async () => {
@@ -113,14 +117,14 @@ test('a narrow legend stacks the concept over the figure, and a wide one keeps o
   const restoreNarrow = stubResize(390);
   try {
     narrow = await render();
-    assert.equal(textWrapper(narrow).style.flexDirection, 'column',
+    assert.ok(stackedText(narrow),
       'on one line the figure does not yield, so the concept is what gets truncated');
     restoreNarrow();
 
     const restoreWide = stubResize(1200);
     try {
       wide = await render();
-      assert.notEqual(textWrapper(wide).style.flexDirection, 'column');
+      assert.ok(!stackedText(wide));
     } finally { restoreWide(); }
   } finally {
     narrow?.destroy();
@@ -134,16 +138,36 @@ test('the layout can be pinned either way, whatever the container measures', asy
   const restoreWide = stubResize(1200);
   try {
     forced = await render({ legendLayout: 'stacked' });
-    assert.equal(textWrapper(forced).style.flexDirection, 'column');
+    assert.ok(stackedText(forced));
     restoreWide();
 
     const restoreNarrow = stubResize(390);
     try {
       inline = await render({ legendLayout: 'inline' });
-      assert.notEqual(textWrapper(inline).style.flexDirection, 'column');
+      assert.ok(!stackedText(inline));
     } finally { restoreNarrow(); }
   } finally {
     forced?.destroy();
     inline?.destroy();
   }
+});
+
+test('a legend swatch carries its slice identity as an attribute and no inline colour', async () => {
+  const fixture = await render({ series: [{ label: 'Revenue by channel', values: VALUES, colorIds: [3, 9] }] });
+  try {
+    const swatches = [...host(fixture).querySelectorAll<HTMLElement>('[role="group"] > button > span:first-child')];
+    assert.deepEqual(swatches.map((one) => one.getAttribute('data-arena-color-id')), ['3', '8', '3', '4']);
+    for (const one of swatches) assert.equal(one.style.background, '', 'the swatch paints through its attribute');
+  } finally { fixture.destroy(); }
+});
+
+test('a toned series renders a toned swatch for every slice', async () => {
+  const fixture = await render({ series: [{ label: 'Revenue by channel', values: VALUES, tone: 'success' }] });
+  try {
+    const swatches = [...host(fixture).querySelectorAll<HTMLElement>('[role="group"] > button > span:first-child')];
+    for (const one of swatches) {
+      assert.equal(one.getAttribute('data-arena-tone'), 'success');
+      assert.equal(one.getAttribute('data-arena-color-id'), null);
+    }
+  } finally { fixture.destroy(); }
 });

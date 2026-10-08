@@ -3,32 +3,24 @@
 <link rel="stylesheet" href="../../../../../intro/styles.css">
 <link rel="stylesheet" href="../../../consume/Preflight.generated.css">
 <link rel="stylesheet" href="../../../consume/components/forms/arena-switch/ArenaSwitch.styles.generated.css">
+<link rel="stylesheet" href="../../../consume/vocabulary/Size.generated.css">
+<link rel="stylesheet" href="../../../consume/vocabulary/Orientation.generated.css">
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor } from '../../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
 
 const manifest = await (await fetch('./ArenaSwitch.manifest.json')).json();
 
-/* `footprint` and `thumb` are derived variants that exist only because
- * ManifestClasses.js (this harness) does not support tailwind-variants'
- * compoundVariants -- track's width/height genuinely depend on BOTH size
- * and orientation, and the knob's translate direction genuinely depends on
- * BOTH checked and orientation, so those two crossed pairs are flattened
- * into their own enumerated variants rather than declared as a compound.
- * `arena-switch` is the real arenaTv() consumer now, and it crosses the same two
- * pairs in `arenaFootprintFor()` and `arenaThumbFor()` -- the flattening stays because
- * this harness still needs it, and both sides compute the key the same way. */
-function toggle({ label, size = 'md', orientation = 'horizontal', checked = false, disabled = false, confirm = false, iconOn, iconOff }) {
-  const footprint = `${orientation}-${size}`;
-  const thumb = `${checked ? 'on' : 'off'}-${orientation}`;
-  const c = arenaClassesFor(manifest, { size, orientation, checked: String(checked), disabled: String(disabled), footprint, thumb });
+function toggle({ label, cls = '', checked = false, disabled = false, confirm = false, iconOn, iconOff }) {
+  const c = arenaClassesFor(manifest, { state: String(checked), disabled: String(disabled) });
+  const d = arenaSlotDataFor(manifest, { state: String(checked), disabled: String(disabled) });
   const icon = checked ? iconOn : iconOff;
-  const knob = el('span', { class: c.knob }, icon ? el('i', { class: `${c.icon} ${icon}` }) : '');
-  const track = el('button', { type: 'button', role: 'switch', class: c.track, 'aria-checked': String(checked), 'aria-label': label, disabled: disabled || undefined }, knob);
-  const text = el('span', { class: c.label }, label);
-  if (confirm) text.append(el('i', { class: `${c.guard} ph-bold ph-shield-check`, title: 'Requires confirmation' }));
-  return el('span', { class: c.root }, track, text);
+  const knob = el('span', { class: c.knob, ...d.knob }, icon ? el('i', { class: `${c.icon} ${icon}`, ...d.icon }) : '');
+  const track = el('button', { type: 'button', role: 'switch', class: c.track, ...d.track, 'aria-checked': String(checked), 'aria-label': label, disabled: disabled || undefined }, knob);
+  const text = el('span', { class: c.label, ...d.label }, label);
+  if (confirm) text.append(el('i', { class: `${c.guard} ph-bold ph-shield-check`, ...d.guard, title: 'Requires confirmation' }));
+  return el('span', { class: `${c.root} ${cls}`.trim(), ...d.root }, track, text);
 }
 
 mountSpecimen({ sections: [
@@ -38,11 +30,11 @@ mountSpecimen({ sections: [
     toggle({ label: 'Managed by policy', checked: true, disabled: true }),
   ]),
   section('Sizes — sm to 2xl', ['sm', 'md', 'lg', 'xl', '2xl'].map((size) =>
-    toggle({ label: size, size, checked: true, iconOn: 'ph-bold ph-check' })
+    toggle({ label: size, cls: `arena-size-${size}`, checked: true, iconOn: 'ph-bold ph-check' })
   )),
-  section('ArenaOrientation', [
-    toggle({ label: 'Horizontal', orientation: 'horizontal', checked: true, iconOn: 'ph-bold ph-check' }),
-    toggle({ label: 'Vertical', orientation: 'vertical', checked: true, iconOn: 'ph-bold ph-check' }),
+  section('Orientation', [
+    toggle({ label: 'Horizontal', cls: 'arena-orientation-horizontal', checked: true, iconOn: 'ph-bold ph-check' }),
+    toggle({ label: 'Vertical', cls: 'arena-orientation-vertical', checked: true, iconOn: 'ph-bold ph-check' }),
   ]),
   section('Guarded — opens a confirmation instead of flipping', [
     toggle({ label: 'Auto-deploy to production', checked: true, confirm: true }),

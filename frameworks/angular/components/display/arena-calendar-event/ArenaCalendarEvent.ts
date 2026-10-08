@@ -3,7 +3,7 @@ import {
   computed, inject, input, output, signal, viewChild,
 } from '@angular/core';
 import type { ArenaCatSlot } from '../../../Api.generated';
-import { arenaCatColor, arenaCatTint } from '../../../DataVisuals';
+import { arenaCatIndex } from '../../../DataVisuals';
 import { arenaPublished } from '../../../ProjectedInputs';
 import { ARENA_LOCALE } from '../../../ArenaLocale';
 import { ArenaIconButton } from '../../forms/arena-icon-button/ArenaIconButton';
@@ -12,6 +12,7 @@ import {
   type EventTimes, ARENA_DATE_OPTIONS, arenaFormatDate, arenaVisibleDetails, arenaFormatHM, arenaShowsTime, arenaStacksActions,
 } from '../arena-calendar/CalendarInternals';
 import { arenaCalendarEventStyles } from './ArenaCalendarEvent.variants';
+import { ArenaSlotAttributes } from '../../../SlotData';
 import manifest from '../arena-calendar/ArenaCalendar.classes.generated';
 
 const FOCUSABLE = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
@@ -22,17 +23,16 @@ let seq = 0;
   selector: 'arena-calendar-event',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ArenaIconButton],
+  imports: [ArenaIconButton, ArenaSlotAttributes],
   host: { style: 'display: contents', '[attr.title]': 'null', '[attr.id]': 'null' },
   template: `
     @if (across(); as across) {
       @if (hasPanel()) {
-        <div [id]="domId" [class]="chipClass()" [attr.data-arena-part]="parts.chip" [style]="across"
+        <div [id]="domId" [class]="chipStyles().chip()" [arenaSlotData]="chipStyles().$data.chip()" [attr.data-arena-part]="parts.chip" [style]="across"
              [style.top.px]="topPx()" [style.height.px]="heightPx()"
-             [style.background]="tint()" [style.borderLeftColor]="ink()"
              (keydown)="onKeydown($event)">
           @if (interactive()) {
-            <button #focusable type="button" tabindex="-1" [class]="bodyClass()" [attr.data-arena-part]="parts.chipBody"
+            <button #focusable type="button" tabindex="-1" [class]="bodyStyles().chipBody()" [arenaSlotData]="bodyStyles().$data.chipBody()" [attr.data-arena-part]="parts.chipBody"
                     [attr.aria-label]="label()" [attr.aria-disabled]="inert()"
                     (click)="onActivate($event)">
               <span [class]="styles().title()" [attr.data-arena-part]="parts.title">{{ heading() }}</span>
@@ -44,7 +44,7 @@ let seq = 0;
               }
             </button>
           } @else {
-            <span #focusable tabindex="-1" [class]="bodyClass()" [attr.data-arena-part]="parts.chipBody" (click)="onActivate($event)">
+            <span #focusable tabindex="-1" [class]="bodyStyles().chipBody()" [arenaSlotData]="bodyStyles().$data.chipBody()" [attr.data-arena-part]="parts.chipBody" (click)="onActivate($event)">
               <span [class]="styles().title()" [attr.data-arena-part]="parts.title">{{ heading() }}</span>
               @if (showTime()) {
                 <span [class]="styles().time()" [attr.data-arena-part]="parts.time">{{ timeLabel() }}</span>
@@ -57,20 +57,19 @@ let seq = 0;
               }
             </span>
           }
-          <span #kebabWrap [class]="kebabClass()" [attr.data-arena-part]="parts.kebabWrap">
-            <arena-icon-button icon="ph-bold ph-dots-three-vertical" [label]="locale.calendarEventActions" size="sm"
+          <span #kebabWrap [class]="kebabStyles().kebabWrap()" [arenaSlotData]="kebabStyles().$data.kebabWrap()" [attr.data-arena-part]="parts.kebabWrap">
+            <arena-icon-button icon="ph-bold ph-dots-three-vertical" [label]="locale.calendarEventActions" class="arena-size-sm"
                                [tabStop]="false" (click)="togglePanel()" />
             @if (panelOpen()) {
-              <span #panel [class]="styles().panel()" [attr.data-arena-part]="parts.panel" [style.zIndex]="1">
+              <span #panel [class]="styles().panel()" [attr.data-arena-part]="parts.panel" data-arena-boundary>
                 <ng-content select="[actions]" />
               </span>
             }
           </span>
         </div>
       } @else if (interactive()) {
-        <button #focusable [id]="domId" type="button" tabindex="-1" [class]="chipClass()" [attr.data-arena-part]="parts.chip"
+        <button #focusable [id]="domId" type="button" tabindex="-1" [class]="chipStyles().chip()" [arenaSlotData]="chipStyles().$data.chip()" [attr.data-arena-part]="parts.chip"
                 [style]="across" [style.top.px]="topPx()" [style.height.px]="heightPx()"
-                [style.background]="tint()" [style.borderLeftColor]="ink()"
                 [attr.aria-label]="label()" [attr.aria-disabled]="inert()"
                 (click)="onActivate($event)">
           <span [class]="styles().title()" [attr.data-arena-part]="parts.title">{{ heading() }}</span>
@@ -82,9 +81,8 @@ let seq = 0;
           }
         </button>
       } @else {
-        <div #focusable [id]="domId" tabindex="-1" [class]="chipClass()" [attr.data-arena-part]="parts.chip"
+        <div #focusable [id]="domId" tabindex="-1" [class]="chipStyles().chip()" [arenaSlotData]="chipStyles().$data.chip()" [attr.data-arena-part]="parts.chip"
              [style]="across" [style.top.px]="topPx()" [style.height.px]="heightPx()"
-             [style.background]="tint()" [style.borderLeftColor]="ink()"
              (click)="onActivate($event)">
           <span [class]="styles().title()" [attr.data-arena-part]="parts.title">{{ heading() }}</span>
           @if (showTime()) {
@@ -181,12 +179,6 @@ export class ArenaCalendarEvent {
     return at !== null && arenaStacksActions(this.heightPx(), this.state.slotWidth(at.cols));
   });
 
-  protected readonly ink = computed(() => arenaCatColor(this.colorId() ?? 1));
-
-  protected readonly tint = computed(
-    () => arenaCatTint(this.ink()),
-  );
-
   protected readonly timeLabel = computed(() => {
     const at = this.placement();
     return at ? `${arenaFormatHM(at.startMin)} – ${arenaFormatHM(at.endMin)}` : '';
@@ -212,19 +204,20 @@ export class ArenaCalendarEvent {
 
   protected readonly styles = computed(() => arenaCalendarEventStyles());
 
-  protected readonly chipClass = computed(() => arenaCalendarEventStyles({
+  protected readonly chipStyles = computed(() => arenaCalendarEventStyles({
+    colorId: String(arenaCatIndex(this.colorId() ?? 1)),
     reserve: this.hasPanel() && !this.actionsBelow(),
     panelOpen: this.panelOpen(),
     clickable: this.interactive() && !this.disabled(),
     disabled: this.interactive() && this.disabled(),
-  }).chip());
+  }));
 
-  protected readonly bodyClass = computed(
-    () => arenaCalendarEventStyles({ disabled: this.interactive() && this.disabled() }).chipBody(),
+  protected readonly bodyStyles = computed(
+    () => arenaCalendarEventStyles({ disabled: this.interactive() && this.disabled() }),
   );
 
-  protected readonly kebabClass = computed(
-    () => arenaCalendarEventStyles({ actionsBelow: this.actionsBelow() }).kebabWrap(),
+  protected readonly kebabStyles = computed(
+    () => arenaCalendarEventStyles({ actionsBelow: this.actionsBelow() }),
   );
 
   constructor() {

@@ -4,15 +4,18 @@ import { dismissDefault, dismissActionable } from '../../../Tokens.generated';
 import { arenaToastStyles } from './ArenaToast.variants';
 import manifest from './ArenaToast.classes.generated';
 import { ARENA_LOCALE } from '../../../ArenaLocale';
+import { ArenaSlotAttributes } from '../../../SlotData';
 
 export const ARENA_TOAST_DISMISS = { default: dismissDefault, actionable: dismissActionable } as const;
 
 @Component({
   selector: 'arena-toast',
   standalone: true,
+  imports: [ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'styles().root()',
+    '[attr.data-arena-tone]': "styles().$data.root()['data-arena-tone'] ?? null",
     '[attr.data-arena-part]': 'parts.root',
     '[attr.role]': "tone() === 'danger' ? 'alert' : 'status'",
     '[attr.aria-live]': "tone() === 'danger' ? 'assertive' : 'polite'",
@@ -30,7 +33,7 @@ export const ARENA_TOAST_DISMISS = { default: dismissDefault, actionable: dismis
         <div [class]="styles().message()" [attr.data-arena-part]="parts.message">{{ text }}</div>
       }
       @if (actionLabel(); as label) {
-        <button type="button" [class]="styles().action()" [attr.data-arena-part]="parts.action" (click)="action.emit()">{{ label }}</button>
+        <button type="button" [class]="styles().action()" [arenaSlotData]="styles().$data.action()" [attr.data-arena-part]="parts.action" (click)="action.emit()">{{ label }}</button>
       }
     </div>
     @if (dismissible()) {
@@ -48,7 +51,7 @@ export class ArenaToast {
   readonly title = input<string>();
   /** The body. */
   readonly message = input<string>();
-  /** The side bar's colour, and whether the toast announces assertively. */
+  /** The side bar's colour: neutral reports no outcome, success and danger report one. Whether the toast announces assertively. */
   readonly tone = input<ArenaToastTone, ArenaToastTone | undefined>(
     'neutral',
     { transform: (value) => value ?? 'neutral' },
@@ -57,7 +60,7 @@ export class ArenaToast {
   readonly actionLabel = input<string>();
   /** The inline action was activated. */
   readonly action = output<void>();
-  /** Disables the host's auto-dismiss and shows the Pinned marker. **Implied by `tone: "danger"`, which ignores `false`**: a critical message that vanishes on a timer is one a user can miss entirely, and this was documented as mandatory in an error state while nothing enforced it. Set it explicitly for any other tone that must not disappear on its own. */
+  /** Disables the host's auto-dismiss and shows the Pinned marker. **Implied by `tone: "danger"`, which ignores `false`**: a critical message that vanishes on a timer is one a user can miss entirely, so an error state makes the pin mandatory and the layers enforce it rather than leave it to documentation. Set it explicitly for any other tone that must not disappear on its own. */
   readonly persist = input(false, { transform: booleanAttribute });
   /** Whether the × is shown. Every layer gates the × on this member and never on whether anything listens for `close`, because Arena never derives what it draws from what a consumer listens for. */
   readonly dismissible = input(false, { transform: booleanAttribute });

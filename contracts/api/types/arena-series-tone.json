@@ -1,6 +1,6 @@
 {
   "name": "ArenaSeriesTone",
   "kind": "enum",
-  "description": "For a series that IS a state (error rate, pass/fail) rather than an identity. A chart carries identity or meaning, never both; passing tone alongside slot/slots warns in development and tone wins.",
+  "description": "For a series that IS a state (error rate, pass/fail) rather than an identity. A chart carries identity or meaning, never both; passing tone alongside colorId/colorIds warns in development and tone wins.",
   "values": ["success", "warning", "danger", "info"]
 }

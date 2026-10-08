@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  BOUNDARIES, removedBorders, boundaryProblems, collect, zeroBoundaryProblems,
+  BOUNDARIES, removedBorders, boundaryProblems, collect, zeroBoundaryProblems, axisProblems, collectAxis,
 } from './check-boundary-contrast.ts';
 
 const HEXES = {
@@ -56,4 +56,21 @@ test('the real tree holds: nothing shipped removes a boundary it cannot replace'
 test('a zero walk is a failure and not a clean pass', () => {
   assert.match(zeroBoundaryProblems(0)[0] ?? '', /0 boundary/i);
   assert.deepEqual(zeroBoundaryProblems(BOUNDARIES.length), []);
+});
+
+test('an axis that measures fainter than the separator on base-100 is one problem naming the plugin and the theme', () => {
+  const problems = axisProblems('probe/plugin.tokens.json', 'light',
+    { axis: '#999999', separator: '#555555', page: '#ffffff' });
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /probe\/plugin\.tokens\.json/);
+  assert.match(problems[0] ?? '', /light/);
+});
+
+test('an axis heavier than the separator passes, and one equal to it does not', () => {
+  assert.deepEqual(axisProblems('probe', 'light', { axis: '#555555', separator: '#999999', page: '#ffffff' }), []);
+  assert.equal(axisProblems('probe', 'dark', { axis: '#555555', separator: '#555555', page: '#ffffff' }).length, 1);
+});
+
+test('the real tree holds: every plugin Arena ships draws the axis heavier than the grid in both themes', () => {
+  assert.deepEqual(collectAxis(), []);
 });

@@ -14,19 +14,19 @@ const tag = readJson(join(repoRoot, 'frameworks/tailwind/components/display/aren
 test('the default variants apply when nothing is chosen', () => {
   const { root = '', dot = '' } = classesFor(tag);
   assert.ok(root.includes('rounded-marker'), 'the base slot is present');
-  assert.ok(root.includes('border-edge-surface'), 'tone=neutral is the default');
+  assert.ok(root.includes('border-[color:var(--arena-accent-edge,var(--accent-plain-edge))]'), 'tone=neutral is the default, and it adds no class of its own');
   assert.equal(dot, 'size-1.5 rounded-pill bg-current');
 });
 
 test('a chosen variant replaces the default', () => {
   const { root = '' } = classesFor(tag, { tone: 'danger' });
-  assert.ok(root.includes('border-error'), 'the chosen tone applies');
+  assert.ok(root.includes('border-[color:var(--arena-hue-edge)]'), 'the chosen tone applies');
   assert.ok(!root.includes('border-base-300'), 'the default tone does not');
 });
 
 test('the base slot always precedes the variant slot', () => {
-  const { root = '' } = classesFor(tag, { tone: 'primary' });
-  assert.ok(root.indexOf('inline-flex') < root.indexOf('border-primary'));
+  const { root = '' } = classesFor(tag, { tone: 'danger' });
+  assert.ok(root.indexOf('inline-flex') < root.indexOf('border-[color:var(--arena-hue-edge)]'));
 });
 
 test('an unknown variant value is a loud failure, not a silent base-only render', () => {
@@ -40,7 +40,7 @@ test('a slot with no variant contribution is still returned', () => {
 test('a compoundVariant applies only when every variant it names matches', () => {
   const withCompound = { ...tag, compoundVariants: [{ tone: 'danger', class: { root: 'ring-2' } }] };
   assert.ok((classesFor(withCompound, { tone: 'danger' }).root ?? '').includes('ring-2'), 'applies when the condition matches');
-  assert.ok(!(classesFor(withCompound, { tone: 'primary' }).root ?? '').includes('ring-2'), 'does not apply when it does not');
+  assert.ok(!(classesFor(withCompound, { tone: 'warning' }).root ?? '').includes('ring-2'), 'does not apply when it does not');
 });
 
 test('a compoundVariant matches the defaulted variant value, not only a chosen one', () => {
@@ -90,5 +90,18 @@ test('every manifest that ships names a part for every slot it names', () => {
     const built = classesManifest(manifest);
     assert.deepEqual(Object.keys(built.parts ?? {}), Object.keys(built.slots),
       `${manifest.component}: a slot with no part is a slot a style plugin cannot reach`);
+  }
+});
+
+test('classesManifest carries values and attributes for every manifest and never copies internal or hues', () => {
+  const all = [...layerManifests().values()];
+  assert.ok(all.length > 0, 'no manifest was read, so this asserts nothing');
+  for (const manifest of all) {
+    const out = classesManifest(manifest) as unknown as Record<string, unknown>;
+    const groups = Object.keys(manifest.variants ?? {}).sort();
+    assert.deepEqual(Object.keys(out.values as object).sort(), groups, `${manifest.component}: values`);
+    assert.deepEqual(Object.keys(out.attributes as object).sort(), groups, `${manifest.component}: attributes`);
+    assert.equal('internal' in out, false, `${manifest.component}: internal copied`);
+    assert.equal('hues' in out, false, `${manifest.component}: hues copied`);
   }
 });

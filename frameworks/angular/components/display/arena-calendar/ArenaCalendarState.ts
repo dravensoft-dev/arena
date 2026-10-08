@@ -26,7 +26,7 @@ export interface ChipEntry {
   focus: () => void;
   /** The chip's own times, as the CHIP published them. ArenaCalendar cannot read the three
    * required inputs off the instance: it places events while ONE projected sibling renders, and a
-   * sibling further down the same `@for` has no binding yet. See `ProjectedInputs.ts`. */
+   * sibling further down the same `@for` has no binding yet. */
   times: Signal<EventTimes | null>;
 }
 

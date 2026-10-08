@@ -1,82 +1,33 @@
-/* The tracks and the ceiling are computed from members and stay inline, so they are read
- * through declarations(); the gap and the centring are variants and are read off the class
- * list. Neither is spelt out as a "name: value" string, which would itself be a bare
- * dimension literal under frameworks/, and check:dimensions reads this file too. Original:
- * Every assertion reads the rendered style through declarations(), never by searching the
- * markup for a "name: value" string. A test that spelt one out would itself be a bare
- * dimension literal under frameworks/, and check:dimensions reads this file too. */
+/* The tracks, the ceiling and the gap are families an adopter writes as a class, so the root
+ * carries the option classes it is given and the slot class that reads the channel, and no
+ * style attribute. The slot string is read from the generated manifest, never spelt here. */
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { renderToStaticMarkup } from 'react-dom/server';
 import React from 'react';
 import { ArenaGrid } from './ArenaGrid.tsx';
-import type { ArenaGridGap } from '../../../Api.generated';
+import classes from './ArenaGrid.classes.generated.ts';
+import tailwind from './ArenaGrid.manifest.generated.ts';
 
-const GAPS = ['none', 'sm', 'md', 'lg'] as const;
+const rootClass = (html: string) => /<div[^>]*\bclass="([^"]*)"/.exec(html)?.[1] ?? '';
 
-function declarations(html: string): Record<string, string> {
-  const style = /style="([^"]*)"/.exec(html)?.[1] ?? '';
-  const out: Record<string, string> = {};
-  for (const part of style.split(';')) {
-    const at = part.indexOf(':');
-    if (at > 0) out[part.slice(0, at).trim()] = part.slice(at + 1).trim();
+test('a grid given a minimum and a gap option carries both on its root, beside its own class', () => {
+  const given = rootClass(renderToStaticMarkup(<ArenaGrid className="arena-grid-min-lg arena-grid-gap-section" />)).split(/\s+/);
+  for (const name of ['arena-grid-min-lg', 'arena-grid-gap-section', ...classes.slots.root.split(/\s+/)]) {
+    assert.ok(given.includes(name), `the root lacks ${name}`);
   }
-  return out;
-}
-
-const styleOf = (element: React.ReactElement) => declarations(renderToStaticMarkup(element));
-
-function decl(element: React.ReactElement, name: string): string {
-  const value = styleOf(element)[name];
-  assert.ok(value !== undefined, `the render declares no ${name}`);
-  return value;
-}
-
-test('the track list is auto-fit over the min, clamped against the container', () => {
-  const tracks = decl(<ArenaGrid />, 'grid-template-columns');
-  assert.match(tracks, /^repeat\(auto-fit, minmax\(min\(.+, 100%\), 1fr\)\)$/,
-    'the count must come from the room, and the min must be clamped or it overflows');
-  assert.ok(!/\d+px/.test(tracks.replace(/var\([^)]*\)/g, '')),
-    'the default min must reach the track list as a token derivation, never as a literal');
 });
 
-test('a min wider than any card still yields one clamped column rather than an overflow', () => {
-  const tracks = decl(<ArenaGrid min="calc(var(--sp-1) * 400)" />, 'grid-template-columns');
-  assert.match(tracks, /min\(calc\(var\(--sp-1\) \* 400\), 100%\)/);
+test('the root slot reads the minimum, the ceiling and the gap through their channels', () => {
+  const slot = tailwind.slots.root;
+  assert.ok(slot.includes('var(--arena-grid-min-width,var(--arena-grid-min,var(--grid-min)))'));
+  assert.ok(slot.includes('var(--arena-grid-max-width,var(--arena-grid-max,none))'));
+  assert.ok(slot.includes('var(--arena-grid-gap-size,var(--arena-grid-gap,var(--rhythm-component)))'));
 });
 
-const gapOf = (step: ArenaGridGap) =>
-  (/class="([^"]*)"/.exec(renderToStaticMarkup(<ArenaGrid gap={step} />))?.[1] ?? '')
-    .split(/\s+/).find((c) => c.startsWith('arena-grid__root--gap-')) ?? '';
-
-test('the four named steps are four distinct scale values, growing in the order they are named', () => {
-  const seen = GAPS.map(gapOf);
-  assert.equal(new Set(seen).size, GAPS.length, `two steps resolve to the same value: ${seen.join(', ')}`);
-  const step = (value: string) => GAPS.indexOf(/--gap-([a-z]+)$/.exec(value)![1] as ArenaGridGap);
-  const steps = seen.map(step);
-  assert.equal(steps[0], 0, 'the none step must be the zero of the scale');
-  assert.ok(steps[1]! < steps[2]! && steps[2]! < steps[3]!,
-    'the named steps must grow: a set that reads small to large and does not is worse than no set');
-});
-
-test('the default gap is md, matching the contract', () => {
-  assert.equal(renderToStaticMarkup(<ArenaGrid />), renderToStaticMarkup(<ArenaGrid gap="md" />));
-});
-
-test('an unknown gap falls back to the default rather than rendering with none at all', () => {
-  assert.equal(gapOf('huge' as ArenaGridGap), gapOf('md'));
-});
-
-test('maxWidth caps and centres, and its absence leaves the grid filling its container', () => {
-  const bare = renderToStaticMarkup(<ArenaGrid />);
-  assert.match(bare, /\barena-grid__root\b/, 'a grid with no ceiling must fill what contains it');
-  assert.ok(!('max-width' in styleOf(<ArenaGrid />)), 'and must declare no ceiling of its own');
-  assert.doesNotMatch(bare, /\barena-grid__root--centred-true\b/, 'and must not centre itself against nothing');
-
-  const capped = <ArenaGrid maxWidth="var(--container-max)" />;
-  assert.equal(decl(capped, 'max-width'), 'var(--container-max)', 'the ceiling is the consumer\'s string');
-  assert.match(renderToStaticMarkup(capped), /\barena-grid__root--centred-true\b/,
-    'a capped grid centres, or the ceiling reads as a left margin');
+test('no render of the grid carries a style attribute', () => {
+  assert.doesNotMatch(renderToStaticMarkup(<ArenaGrid />), /\bstyle=/);
+  assert.doesNotMatch(renderToStaticMarkup(<ArenaGrid className="arena-grid-max-md" />), /\bstyle=/);
 });
 
 test('every child is one cell exactly as written -- nothing is wrapped and nothing is measured', () => {

@@ -1,8 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  EXTERNAL_PROPERTIES, MANIFEST_FETCH, THEME_NAMESPACES, collect, keyframeDepths, preludeProblems,
+  ARENA_THEME_NAMED, EXTERNAL_PROPERTIES, MANIFEST_FETCH, staleThemeNamedProblems, THEME_NAMESPACES, collect, keyframeDepths, preludeProblems,
   propertiesIn, selectorsIn, themeLeaks,
+  isFamilyChannel,
 } from './check-component-css.ts';
 import { keyframesIn, sheetPath } from '../../build/tailwind/build-tailwind.ts';
 
@@ -26,6 +27,10 @@ test('a stylesheet lands under consume/, at the manifest\'s own category and dir
 
 test('only arena- selectors are collected, so a stray utility cannot be counted as a component rule', () => {
   assert.deepEqual([...selectorsIn('.arena-badge__root:hover { } .px-4 { }')], ['arena-badge__root']);
+  assert.deepEqual([...selectorsIn('.arena-badge__root:where([data-arena-tone="danger"]):hover { }')],
+    ['arena-badge__root:where([data-arena-tone="danger"])'], 'a variant is the slot class with its :where() qualifier');
+  assert.deepEqual([...selectorsIn('.a-b .arena-x__y:where(:not([data-arena-s])[data-arena-t="u"]) { }')],
+    ['arena-x__y:where(:not([data-arena-s])[data-arena-t="u"])']);
 });
 
 test('a property is collected wherever it is read, including inside calc and a fallback', () => {
@@ -79,4 +84,35 @@ test('every external property carries a reason, because an entry with none canno
   for (const [name, reason] of EXTERNAL_PROPERTIES) {
     assert.ok(reason && reason.length > 10, `--${name} has no usable reason`);
   }
+});
+
+test('a family\'s channel is defined by the sheet the family ships, and a channel of no family is not', () => {
+  const families = new Map([['fill', { family: 'fill' }]]);
+  assert.equal(isFamilyChannel('arena-fill-width', families), true);
+  assert.equal(isFamilyChannel('arena-size-ctl-h', families), false);
+});
+
+test('an axis, or the channel of a keyed family, is defined when a family declares it and not otherwise', () => {
+  const grid = new Map([['grid', { family: 'grid', axis: '--arena-grid-min' }]]);
+  const column = new Map([['column', { family: 'column', channels: ['--arena-column-width'] }]]);
+  const fill = new Map([['fill', { family: 'fill' }]]);
+  assert.equal(isFamilyChannel('arena-grid-min', grid), true);
+  assert.equal(isFamilyChannel('arena-grid-min', fill), false);
+  assert.equal(isFamilyChannel('arena-column-width', column), true);
+  assert.equal(isFamilyChannel('arena-column-width', fill), false);
+  const unprefixed = new Map([['column', { family: 'column', channels: ['--arena-col-width'] }]]);
+  assert.equal(isFamilyChannel('arena-col-width', unprefixed), true);
+  assert.equal(isFamilyChannel('arena-col-width', fill), false);
+  assert.equal(isFamilyChannel('arena-fill', new Map([['fill', { family: 'fill', axis: '--arena-fill' }]])), true);
+});
+
+test('an Arena aspect token is no leak, and an entry no sheet reads is stale', () => {
+  assert.deepEqual(themeLeaks('aspect-ratio: var(--aspect-media)'), []);
+  assert.deepEqual(themeLeaks('aspect-ratio: var(--aspect-media)', new Map()), ['aspect-media'], 'without the record the read is the leak');
+  assert.deepEqual(themeLeaks('aspect-ratio: var(--aspect-other)'), ['aspect-other'], 'only the five named tokens are Arena\'s');
+  assert.equal(ARENA_THEME_NAMED.size, 5);
+  assert.deepEqual(staleThemeNamedProblems(new Set(ARENA_THEME_NAMED.keys())), []);
+  const read = new Set(ARENA_THEME_NAMED.keys());
+  read.delete('aspect-wide');
+  assert.match(staleThemeNamedProblems(read).join('\n'), /--aspect-wide and no emitted sheet reads it/);
 });

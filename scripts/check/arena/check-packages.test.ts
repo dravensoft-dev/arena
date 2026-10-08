@@ -9,13 +9,14 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 import { iconManifest } from '../../lib/arena/icon-manifest.ts';
 import {
   GENERATED_PALETTE, PACKAGES, collect, componentMapProblems, componentReachProblems, bundledCssProblems, declaredComponents, distDir, exportProblems, globMatches, manifestProblems, paletteEquivalenceProblems, stripAtStatements, styleProblems,
-  payloadProblems, CARRIED_BY_PACKAGE, iconManifestProblems, entryPointProblems, COMPILED_BY_CONSUMER, directiveProblems, themeSheetProblems, themeCompileProblems, unlayeredTokenProblems
+  payloadProblems, CARRIED_BY_PACKAGE, iconManifestProblems, entryPointProblems, COMPILED_BY_CONSUMER, cssListProblems, CSS_HOMES, directiveProblems, themeSheetProblems, themeCompileProblems, unlayeredTokenProblems
 } from './check-packages.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
+import { referenceText } from '../../lib/arena/consumer-references.ts';
 
 const [REACT_PACKAGE, ANGULAR_PACKAGE] = PACKAGES;
 if (!REACT_PACKAGE || !ANGULAR_PACKAGE) throw new Error('PACKAGES no longer declares both layers');
@@ -30,24 +31,24 @@ test('an equal pair reports nothing and says how much it looked at', () => {
 
 test('a value that differs names both emitters and both values', () => {
   const { problems } = paletteEquivalenceProblems(generated, ':root{--color-primary:#ff0000;--color-base-100:#141010;}');
-  assert.deepEqual(problems, ['\:root --color-primary: Style Dictionary says #b52a20, arena-to-prod says #ff0000']);
+  assert.deepEqual(problems, ['\:root --color-primary: Style Dictionary says #b52a20, arena build says #ff0000']);
 });
 
 test('a missing declaration is reported as emitting nothing rather than as absent', () => {
   const { problems } = paletteEquivalenceProblems(generated, ':root{--color-base-100:#141010;}');
   assert.equal(problems.length, 1);
-  assert.match(problems[0] ?? '', /--color-primary: .* arena-to-prod says \(nothing\)/);
+  assert.match(problems[0] ?? '', /--color-primary: .* arena build says \(nothing\)/);
 });
 
 test('a colour the CLI invents is a problem in the other direction', () => {
   const { problems } = paletteEquivalenceProblems(generated, `${generated.slice(0, -1)}--color-brand:#000000;}`);
-  assert.deepEqual(problems, ['\:root --color-brand: arena-to-prod emits it and Style Dictionary does not']);
+  assert.deepEqual(problems, ['\:root --color-brand: arena build emits it and Style Dictionary does not']);
 });
 
 test('a whole missing block is one problem, not one per declaration', () => {
   const { problems } = paletteEquivalenceProblems(`${generated}.arena-light{--color-primary:#b52a20;}`, generated);
   assert.equal(problems.length, 1);
-  assert.match(problems[0] ?? '', /declares \.arena-light and arena-to-prod emits no such block/);
+  assert.match(problems[0] ?? '', /declares \.arena-light and arena build emits no such block/);
 });
 
 test('a comparison that looked at nothing fails rather than passing vacuously', () => {
@@ -162,9 +163,9 @@ test('a wildcard matches one path segment, the way Node resolves an exports patt
 test('a package exposing nothing is a problem, and so is a bin that was never emitted', () => {
   const dir = assembled({ 'README.md': '#', 'Index.d.ts': '' });
   assert.match(exportProblems(REACT_PACKAGE, manifest(), dir)[0] ?? '', /no exports target resolves/);
-  const m = manifest({ exports: { '.': './README.md' }, bin: { 'arena-to-prod': './bin/arena-to-prod.ts' } });
+  const m = manifest({ exports: { '.': './README.md' }, bin: { arena: './bin/arena.ts' } });
   assert.deepEqual(exportProblems(REACT_PACKAGE, m, dir),
-    ['@dravensoft/arena-react: bin arena-to-prod points at ./bin/arena-to-prod.ts, which was never emitted']);
+    ['@dravensoft/arena-react: bin arena points at ./bin/arena.ts, which was never emitted']);
   rmSync(dir, { recursive: true });
 });
 
@@ -484,4 +485,54 @@ test('a consumer compile resolves Arena\'s scale, keeps a later key, and reaches
 test('the token sheets arena.css reaches declare their custom properties outside any cascade layer', () => {
   assert.deepEqual(unlayeredTokenProblems(REACT_PKG, distTree({ 'arena.css': "@import './css/colors.css';", 'css/colors.css': ':root{--color-base-100:#141010}' })), []);
   assert.match(unlayeredTokenProblems(REACT_PKG, distTree({ 'arena.css': "@import './css/colors.css';", 'css/colors.css': '@layer x{:root{--color-base-100:#141010}}' })).join('\n'), /css\/colors\.css/);
+});
+
+test('a family channel declared inside a layer is not a token, and a token beside it still is', () => {
+  const sheet = '@layer utilities{@scope (.arena-fill){[data-arena-part="button"]{--arena-fill-width:100%}}}';
+  assert.deepEqual(unlayeredTokenProblems(REACT_PKG, distTree({ 'arena.css': "@import './css/vocabulary/fill.css';", 'css/vocabulary/fill.css': sheet })), []);
+  assert.match(unlayeredTokenProblems(REACT_PKG, distTree({ 'arena.css': "@import './css/x.css';", 'css/x.css': '@layer x{:root{--arena-fill-width:1px;--sp-1:4px}}' })).join('\n'), /css\/x\.css/);
+});
+
+test('a shipped css file the page never names fails, and a css path the page names that does not ship fails', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'pkg-'));
+  for (const rel of ['css/base.css', 'css/vocabulary/stack.css', 'css/components/arena-button.css']) {
+    mkdirSync(dirname(join(dir, rel)), { recursive: true });
+    writeFileSync(join(dir, rel), '');
+  }
+  const page = '| `css/base.css` | x |\n| `css/components/<name>.css` | y |\n| `css/rhythm.css` | z |';
+  const problems = cssListProblems({ layer: 'react', name: '@x/react' }, dir, page).join('\n');
+  rmSync(dir, { recursive: true, force: true });
+  assert.match(problems, /css\/vocabulary\/stack\.css ships and .*never name it/);
+  assert.match(problems, /name css\/rhythm\.css, which the package does not ship/);
+});
+
+test('the css/hues pattern row covers a shipped hue sheet, and without it the sheet fails', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'pkg-'));
+  for (const rel of ['css/base.css', 'css/hues/arena-button.css']) {
+    mkdirSync(dirname(join(dir, rel)), { recursive: true });
+    writeFileSync(join(dir, rel), '');
+  }
+  const pkg = { layer: 'react', name: '@x/react' };
+  const named = cssListProblems(pkg, dir, '| `css/base.css` | x |\n| `css/hues/<name>.css` | y |');
+  const unnamed = cssListProblems(pkg, dir, '| `css/base.css` | x |').join('\n');
+  rmSync(dir, { recursive: true, force: true });
+  assert.deepEqual(named, []);
+  assert.match(unnamed, /css\/hues\/arena-button\.css ships and .*never name it/);
+});
+
+test('a sheet only the other layer\'s section names does not count, and one naming an unshipped sheet fails', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'pkg-'));
+  mkdirSync(join(dir, 'css'), { recursive: true });
+  writeFileSync(join(dir, 'css/base.css'), '');
+  const base = mkdtempSync(join(tmpdir(), 'refs-'));
+  mkdirSync(join(base, 'skills/design/references'), { recursive: true });
+  writeFileSync(join(base, 'skills/design/references/stylesheets.md'),
+    '| `css/base.css` | x |\n\n## Which sheet re-bases the Angular CDK overlay?\n\n`css/arena-cdk.css` ships here.\n');
+  const text = (layer: 'react' | 'angular') => referenceText(base, CSS_HOMES, layer);
+  const pkg = { layer: 'react', name: '@x/react' };
+  assert.deepEqual(cssListProblems(pkg, dir, text('react')), []);
+  assert.match(cssListProblems(pkg, dir, text('angular')).join('\n'), /name css\/arena-cdk\.css, which the package does not ship/);
+  assert.doesNotMatch(cssListProblems(pkg, dir, text('react')).join('\n'), /arena-cdk/);
+  rmSync(dir, { recursive: true, force: true });
+  rmSync(base, { recursive: true, force: true });
 });

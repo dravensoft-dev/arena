@@ -3,11 +3,11 @@ signal I/O. The host stays bare and unstyled, and Arena's own styling lands on a
 
 ```html
 <arena-button (click)="save()">Save changes</arena-button>
-<arena-button variant="secondary" size="sm">Cancel</arena-button>
-<arena-button variant="danger" icon="ph-bold ph-trash" (click)="confirmDelete()">Delete project</arena-button>
-<arena-button variant="ghost" iconRight="ph-bold ph-caret-down">More</arena-button>
-<arena-button loading>Deploying</arena-button>
-<arena-button type="submit" form="project-form" full>Create project</arena-button>
+<arena-button class="arena-emphasis-secondary arena-size-sm">Cancel</arena-button>
+<arena-button destructive icon="ph-bold ph-trash" (click)="confirmDelete()">Delete project</arena-button>
+<arena-button iconRight="ph-bold ph-caret-down" class="arena-emphasis-ghost">More</arena-button>
+<arena-button loading class="arena-emphasis-secondary">Deploying</arena-button>
+<arena-button type="submit" form="project-form" class="arena-emphasis-secondary arena-fill">Create project</arena-button>
 ```
 
 <!-- @api GENERATED from contracts/api/components/ArenaButton.json. Edit the contract, not this table. -->
@@ -17,12 +17,10 @@ signal I/O. The host stays bare and unstyled, and Arena's own styling lands on a
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
 | `content` | slot |  |  | The button's label. Sits between the two icons when both are given. |
-| `variant` | enum | `ArenaButtonVariant` | `"primary"` | Which action this is. Danger is outline, never filled. |
-| `size` | enum | `ArenaControlSize` | `"md"` | Height, from the density tokens, so the button re-densifies inside .arena-compact. |
+| `destructive` | primitive | `boolean` | `false` | Whether the action destroys or removes something. Destructive draws the danger outline whatever emphasis the button is given: danger is never filled outside ArenaConfirmDialog's final confirmation. |
 | `icon` | primitive | `string` |  | Phosphor class name drawn before the label. Replaced by the spinner while loading. |
 | `iconRight` | primitive | `string` |  | Phosphor class name drawn after the label: a caret on a menu trigger, an arrow on a next action. |
 | `loading` | primitive | `boolean` | `false` | Replaces the leading icon with a spinner and blocks activation. The spin slows under reduced motion rather than stopping: a frozen spinner reads as a hung process. |
-| `full` | primitive | `boolean` | `false` | Stretches to the container's width. |
 | `disabled` | primitive | `boolean` | `false` | Blocks activation and dims the control. Implied by loading. |
 | `type` | enum | `ArenaButtonType` | `"button"` | Native button behaviour. Defaults to 'button' so a button inside a form does not submit it by accident. |
 | `name` | primitive | `string` |  | Submitted with the form, when the button submits one. |
@@ -34,8 +32,24 @@ signal I/O. The host stays bare and unstyled, and Arena's own styling lands on a
 
 <!-- @api end -->
 
+<!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
+
+**Answers** [`fill`](../../../../VOCABULARY.md#fill): `arena-fill`, `arena-fit` (default). Write one as `class="arena-fill"` on the component, or on a container whose components should all take it.
+
+**Answers** [`emphasis`](../../../../VOCABULARY.md#emphasis): `arena-emphasis-ghost`, `arena-emphasis-primary` (default), `arena-emphasis-secondary`. Write one as `class="arena-emphasis-ghost"` on the component, or on a container whose components should all take it.
+
+**Answers** [`size`](../../../../VOCABULARY.md#size): `arena-size-lg`, `arena-size-md` (default), `arena-size-sm`. Write one as `class="arena-size-lg"` on the component, or on a container whose components should all take it.
+
+<!-- @answers end -->
+
+<!-- @keys GENERATED from the binding. -->
+**Keys**, from [`button`](../../../../../contracts/behaviour/button.json):
+- `Space`: activate.
+- `Enter`: activate.
+<!-- @keys end -->
+
 **Do / Don't**
-- Use `variant="danger"` for a destructive action: transparent background, border and text in
+- Use `destructive` for a destructive action, at every emphasis: transparent background, border and text in
   `--error`. The outline is the danger convention. The only filled danger surface in Arena is `ArenaConfirmDialog`'s final confirmation.
 - `loading` implies `disabled`: it swaps the leading icon for a spinner and blocks activation,
   so there is no need to set both. The spin **slows** under `prefers-reduced-motion` rather
@@ -59,13 +73,13 @@ signal I/O. The host stays bare and unstyled, and Arena's own styling lands on a
 open `/frameworks/angular/components/forms/arena-button/ArenaButton.demo.generated.html`:
 - With `loading` set, the spinner turns; with `prefers-reduced-motion: reduce` forced in
   DevTools' Rendering pane, it keeps turning and only slows.
-- `active:scale-98` gives a real press response, and the gold focus ring is visible on
-  keyboard focus, for every one of the four variants, including `ghost`, whose border is
-  transparent.
-- `full` spans the row. The host is bare, so it carries `display: contents` to stay out of layout. Without that it blockifies to shrink-to-fit as a flex item, and `w-full` measures the shrunk host instead of the row.
+- `active:scale-98` gives a real press response. The gold focus ring is visible on
+  keyboard focus at every emphasis, including `arena-emphasis-ghost`, whose border is
+  transparent. The ring draws over any hover shadow.
+- `arena-fill` on the host spans the row. The host carries `display: contents`, so the class scopes over the button it draws. Without that the host would blockify to shrink-to-fit as a flex item, and the button would measure the host instead of the row.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
+**The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

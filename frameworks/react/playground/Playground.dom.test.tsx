@@ -234,3 +234,16 @@ test('the URL follows the state, and it is replaced rather than pushed', () => {
     window.history.pushState = realPush;
   }
 });
+
+test('the stage carries the model\'s vars as its style, and a model without any leaves it bare', () => {
+  const vars = { '--arena-column-status-align': 'right', '--arena-column-status-width': '8rem' };
+  const withVars: KnobModel = { ...model, vars };
+  const probe = (shown: KnobModel) => {
+    function Own() { const play = usePlayground(shown); return <Playground model={shown} play={play}>x</Playground>; }
+    return mount(<Own />).querySelector('.pg-stage') as HTMLElement;
+  };
+  const stage = probe(withVars);
+  for (const [name, value] of Object.entries(vars)) assert.equal(stage.style.getPropertyValue(name), value);
+  cleanup();
+  assert.equal(probe(model).getAttribute('style'), null);
+});

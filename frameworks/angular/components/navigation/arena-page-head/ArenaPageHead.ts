@@ -3,14 +3,17 @@ import { arenaContainerWidth, arenaReadBreakpoint } from '../../../ContainerSize
 import { ArenaActions } from '../../../ProjectionMarkers';
 import { arenaPageHeadStyles } from './ArenaPageHead.variants';
 import manifest from './ArenaPageHead.classes.generated';
-import type { ArenaHeadingLevel, ArenaPageHeadAlign } from '../../../Api.generated';
+import type { ArenaHeadingLevel } from '../../../Api.generated';
+import { ArenaSlotAttributes } from '../../../SlotData';
 
 @Component({
   selector: 'arena-page-head',
   standalone: true,
+  imports: [ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'styles().root()',
+    '[attr.data-arena-narrow]': "styles().$data.root()['data-arena-narrow'] ?? null",
     '[attr.data-arena-part]': 'parts.root',
     '[attr.title]': 'null',
   },
@@ -27,7 +30,7 @@ import type { ArenaHeadingLevel, ArenaPageHeadAlign } from '../../../Api.generat
       }
     </div>
     @if (actions()) {
-      <div [class]="styles().actions()" [attr.data-arena-part]="parts.actions"><ng-content select="[actions]" /></div>
+      <div [class]="styles().actions()" [arenaSlotData]="styles().$data.actions()" [attr.data-arena-part]="parts.actions" data-arena-boundary><ng-content select="[actions]" /></div>
     }
   `,
 })
@@ -42,11 +45,6 @@ export class ArenaPageHead {
   );
   /** A muted line under the title. */
   readonly subtitle = input<string>();
-  /** Cross-axis alignment of the actions block against the title, wide layout only. */
-  readonly align = input<ArenaPageHeadAlign, ArenaPageHeadAlign | undefined>(
-    'start',
-    { transform: (value) => value ?? 'start' },
-  );
 
   protected readonly actions = contentChild(ArenaActions);
 
@@ -63,6 +61,6 @@ export class ArenaPageHead {
 
   protected readonly styles = computed(() => {
     const measured = this.width();
-    return arenaPageHeadStyles({ narrow: measured !== null && measured < this.small, align: this.align() });
+    return arenaPageHeadStyles({ narrow: measured !== null && measured < this.small });
   });
 }

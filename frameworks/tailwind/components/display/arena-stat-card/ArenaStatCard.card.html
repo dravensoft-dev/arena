@@ -3,25 +3,27 @@
 <link rel="stylesheet" href="../../../../../intro/styles.css">
 <link rel="stylesheet" href="../../../consume/Preflight.generated.css">
 <link rel="stylesheet" href="../../../consume/components/display/arena-stat-card/ArenaStatCard.styles.generated.css">
+<link rel="stylesheet" href="../../../consume/vocabulary/Accent.generated.css">
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor } from '../../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
 
 const manifest = await (await fetch('./ArenaStatCard.manifest.json')).json();
 
-function tile({ label, value, delta, tone = 'neutral', deltaTone = 'neutral', direction = 'up', sub }) {
+function tile({ label, value, delta, accent = '', tone = 'neutral', deltaTone = 'neutral', direction = 'up', sub }) {
   const c = arenaClassesFor(manifest, { tone, deltaTone });
-  const root = el('div', { class: c.root });
+  const d = arenaSlotDataFor(manifest, { tone, deltaTone });
+  const root = el('div', { class: `${c.root} ${accent}`.trim(), ...d.root });
   root.style.width = '220px';
-  root.append(el('div', { class: c.head }, el('span', { class: c.label, text: label })));
-  root.append(el('div', { class: c.value, text: value }));
+  root.append(el('div', { class: c.head, ...d.head }, el('span', { class: c.label, ...d.label, text: label })));
+  root.append(el('div', { class: c.value, ...d.value, text: value }));
   if (delta) {
-    root.append(el('span', { class: c.delta },
+    root.append(el('span', { class: c.delta, ...d.delta },
       el('i', { class: direction === 'down' ? 'ph-bold ph-arrow-down' : 'ph-bold ph-arrow-up', 'aria-hidden': 'true' }),
       delta));
   }
-  if (sub) root.append(el('span', { class: c.sub, text: sub }));
+  if (sub) root.append(el('span', { class: c.sub, ...d.sub, text: sub }));
   return root;
 }
 
@@ -32,10 +34,13 @@ mountSpecimen({ sections: [
     tile({ label: 'Open incidents', value: '3', delta: '2', deltaTone: 'negative', sub: 'since Friday' }),
   ], { align: 'stretch' }),
   section('Without a delta', [tile({ label: 'Active projects', value: '17', sub: 'across 6 clients' })]),
+  section('Accents -- the colour of a figure that states no status', [
+    tile({ label: 'Plain', value: '128' }),
+    tile({ label: 'Primary', value: '$48.2k', accent: 'arena-accent-primary' }),
+    tile({ label: 'Gold tier', value: 'Tier 1', accent: 'arena-accent-gold' }),
+  ]),
   section('Value tones -- what the number IS, independent of the delta', [
     tile({ label: 'Neutral', value: '128', tone: 'neutral' }),
-    tile({ label: 'Accent', value: '$48.2k', tone: 'accent' }),
-    tile({ label: 'Gold tier', value: 'Tier 1', tone: 'gold' }),
     tile({ label: 'Uptime', value: '99.98%', tone: 'success' }),
     tile({ label: 'Disk used', value: '82%', tone: 'warning' }),
     tile({ label: 'Errors', value: '3', tone: 'danger' }),

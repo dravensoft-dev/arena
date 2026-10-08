@@ -3,8 +3,8 @@ actions. The head measures **itself** rather than the viewport, and stacks below
 head lays out controls the consumer wrote rather than declaring a second button API of its own.
 
 ```html
-<arena-page-head title="Deployments" subtitle="Everything shipped in the last 30 days" align="center">
-  <arena-button actions variant="secondary">Export</arena-button>
+<arena-page-head title="Deployments" subtitle="Everything shipped in the last 30 days" class="arena-align-center">
+  <arena-button actions class="arena-emphasis-secondary">Export</arena-button>
   <arena-button actions>New deployment</arena-button>
 </arena-page-head>
 ```
@@ -19,13 +19,21 @@ head lays out controls the consumer wrote rather than declaring a second button 
 | `headingLevel` | enum | `ArenaHeadingLevel` | `"h1"` | Which rung of the document outline the title takes. Only the element changes: the title's class is the same at every value, so the render is identical and no appearance follows from it. It defaults to `h1` because a page head is the page's own title and the screen it heads carries no other. Under a hero, the one rung above it on the title ladder, it takes `h2` and leaves the page's single `h1` to the hero; that is the one arrangement where the default is wrong, and it is a member rather than something read off the page, because what a component renders is never derived from what sits above it. `none` is refused at runtime, the rule every component whose `title` is required follows: a title required because it names the thing it draws cannot also be told that the name is not one. |
 | `subtitle` | primitive | `string` |  | A muted line under the title. |
 | `actions` | slot |  |  | Page-level controls, right-aligned in the head. |
-| `align` | enum | `ArenaPageHeadAlign` | `"start"` | Cross-axis alignment of the actions block against the title, wide layout only. |
 
 <!-- @api end -->
 
-`title` is required: a page head with no title is a bug, not a state. `align` (default
-`start`) governs only the wide layout's cross-axis alignment of the actions block against
-the title; below `--bp-sm` the row always stacks and `align` has no effect. `arena-page-head`
+<!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
+
+**Answers** [`align`](../../../../VOCABULARY.md#align): `arena-align-center`, `arena-align-start` (default). Write one as `class="arena-align-center"` on the component, or on a container whose components should all take it.
+
+<!-- @answers end -->
+
+<!-- @keys GENERATED from the binding. -->
+**Keys:** none.
+<!-- @keys end -->
+
+`title` is required: a page head with no title is a bug, not a state. `arena-align-start` (the default) keeps the actions top-aligned with a tall title, and `arena-align-center` centers them against it.
+Both govern only the wide layout; below `--bp-sm` the row always stacks and the align class has no effect. `arena-page-head`
 applies no outer bottom margin; the parent composes that spacing.
 
 Import `ArenaActions` from `@dravensoft/arena-angular` alongside `ArenaPageHead` in the host component's `imports`. `actions` is a directive rather than a plain attribute, because it is how the page head detects that actions were projected at all. Without it the attribute is inert, the
@@ -51,6 +59,6 @@ of them to import.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
+**The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

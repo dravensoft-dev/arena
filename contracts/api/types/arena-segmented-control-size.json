@@ -1,6 +1,0 @@
-{
-  "name": "ArenaSegmentedControlSize",
-  "kind": "enum",
-  "description": "Compact or default. Both sit below ArenaButton on purpose: a filter never outweighs an action. Distinct from ArenaControlSize, which offers a large step this control does not.",
-  "values": ["sm", "md"]
-}

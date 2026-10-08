@@ -26,7 +26,7 @@
       "of": "number",
       "description": "An optional third measurement per mark, drawn as the mark's SIZE, paired with `x` and `y` at the same index. A series that carries it turns its chart into a bubble chart. The mapping is by AREA and not by radius, because a reader compares the blot and doubling a radius quadruples it, so a linear radius would exaggerate the large value by a factor of four. Where a size is absent, at the series or at one index, the mark keeps the plain point radius and its table cell is empty: an unmeasured size is not a size of zero, and the mark still holds its place because its position WAS measured."
     },
-    "slot": {
+    "colorId": {
       "form": "primitive",
       "type": "number",
       "description": "One identity colour from the categorical ramp for the whole series. 1-based, clamped to the ramp, never cycled. Absent, the chart assigns the series its position in the list."
@@ -34,7 +34,7 @@
     "tone": {
       "form": "enum",
       "type": "ArenaSeriesTone",
-      "description": "Semantic colour, for a series that IS a state. Mutually exclusive with slot; passing both warns in development and tone wins."
+      "description": "Semantic colour, for a series that IS a state. Mutually exclusive with colorId; passing both warns in development and tone wins."
     }
   }
 }

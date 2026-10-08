@@ -1,5 +1,5 @@
-Filter/technology/status chip. `tone` follows the ArenaBadge/ArenaTag taxonomy and colours
-the chip's border, text and leading dot together. `removable` shows a dismiss
+Filter/technology/status chip. `tone` is `neutral`, `success`, `warning` or `danger`, never
+ArenaBadge's `info`, and colours the chip's border, text and leading dot together. `removable` shows a dismiss
 `×`, which uses the standard Phosphor icon `ph-x` (H4), the same close as
 ArenaToast.
 
@@ -22,13 +22,25 @@ and a project name are identities, so they take a ramp slot and keep it everywhe
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
 | `children` | slot |  |  | The tag's label. |
-| `tone` | enum | `ArenaTagTone` | `"neutral"` | The tag's emphasis colour. Ignored while `colorId` names a ramp slot, because a tag draws one colour and the two mean different things. |
-| `colorId` | enum | `ArenaCatSlot` |  | An identity colour from the categorical ramp, the ramp the charts and the calendar read, so one entity keeps its colour across a chart, a schedule and a label. Colour here means which thing and never what state, which is why it replaces `tone` rather than joining it: a label reading "Backend" is not a warning, and a tag that could say both at once would say neither. Optional, and its absence is the tone tag. The slot's colour also reaches the tag as a custom property, `--arena-tag-cat`, so an appearance that fills the marker rather than outlining it is a style plugin's to write and needs no member here. |
-| `removable` | primitive | `boolean` | `false` | Whether the dismiss × is shown. Every layer gates the × on this member and never on whether anything listens for `remove`, because Arena never derives what it draws from what a consumer listens for. Removability is a declared input, not something inferred from the event. |
+| `tone` | enum | `ArenaTagTone` | `"neutral"` | What state the tag reports; neutral reports none. Ignored while `colorId` names a ramp slot, because a tag draws one colour and the two mean different things. |
+| `colorId` | enum | `ArenaCatSlot` |  | An identity colour from the categorical ramp, the ramp the charts and the calendar read, so one entity keeps its colour across a chart, a schedule and a label. Colour here means which thing and never what state, which is why it replaces `tone` rather than joining it: a label reading "Backend" is not a warning, and a tag that could say both at once would say neither. Optional, and its absence is the tone tag. The slot reaches the tag as `data-arena-color-id` and its colour through the hue channels (`--arena-hue-ink`, `--arena-hue-edge`, `--arena-hue-fill-strong`, `--arena-hue-fill-soft`), so an appearance that fills the marker rather than outlining it is a style plugin's to write and needs no member here. |
+| `removable` | primitive | `boolean` | `false` | Whether the dismiss × is shown. Every layer gates the × on this member and never on whether anything listens for `onRemove`, because Arena never derives what it draws from what a consumer listens for. Removability is a declared input, not something inferred from the event. |
 | `disabled` | primitive | `boolean` | `false` | Whether removal is unavailable while the tag stays visible: a filter a consumer's permissions lock, not a tag that is merely inert. It reflects through `aria-disabled` rather than the native `disabled` attribute, so the × keeps its place in the tab order and a screen-reader user is told the action is unavailable instead of never finding it. With `removable` false there is no × and nothing to disable. |
 | `onRemove` | event |  |  | The dismiss × was activated. Never emitted while `disabled`. |
 
 <!-- @api end -->
+
+<!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
+
+**Answers** [`accent`](../../../../VOCABULARY.md#accent): `arena-accent-plain` (default), `arena-accent-primary`. Write one as `className="arena-accent-primary"` on the component, or on a container whose components should all take it.
+
+<!-- @answers end -->
+
+<!-- @keys GENERATED from the binding. -->
+**Keys**, from [`button`](../../../../../contracts/behaviour/button.json):
+- `Space`: activate.
+- `Enter`: activate.
+<!-- @keys end -->
 
 **Do / Don't**
 - Use `tone="danger"` for a blocked/destructive status: border and text render
@@ -44,22 +56,21 @@ and a project name are identities, so they take a ramp slot and keep it everywhe
   already inert; the state is about the remove action alone.
 - Don't mix the ArenaTag/ArenaToast × with the modal close: dialogs close with their
   explicit button (Cancel), not with the ph-x icon.
-- Don't add a `tone` outside the taxonomy: `neutral`, `primary`, `success`,
-  `warning`, `danger` are the whole set.
+- Don't make emphasis a `tone`: it is the `accent` family's `arena-accent-primary` class.
 - Reach for `colorId` when the colour identifies rather than warns, and give the same entity the same slot on every screen. The ramp is the one the charts and `ArenaCalendarEvent` read, so a label, a series and a schedule chip agree.
   Derive the slot from a stable key with `arenaCatSlotFor` rather than from the
   position of a row, which moves when the list is sorted.
 - Don't pass `tone` and `colorId` together expecting both: `colorId` wins, and a
   chip that carried a state colour and an identity colour at once would read as
   neither.
-- The identity chip outlines, like every other tone. A filled one is an
-  appearance decision: the ramp colour reaches the element as `--arena-tag-cat`,
-  so a style plugin fills `tag` with it and no member is needed here.
+- The identity chip outlines, like every other tone. A filled one is an appearance decision. The ramp colour reaches the element as `data-arena-color-id`
+  and the hue channels (`--arena-hue-ink`, `--arena-hue-edge`, `--arena-hue-fill-strong` and
+  `--arena-hue-fill-soft`). A style plugin fills `tag` with it, so no member is needed here.
 
 **Words.** `tagRemove` names the remove button.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
+**The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

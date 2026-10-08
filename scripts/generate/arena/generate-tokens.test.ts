@@ -9,6 +9,7 @@ import nodePath, { join, win32, posix } from 'node:path';
 import { readJson } from '../../utils/read-file.ts';
 import { DESIGN_DIR, FILES, REDECLARED_GROUPS, RESOLVES_AGAINST, SCOPE_SELECTORS, SCRIPT_TARGETS, collectScriptTokens, designPath, isFrom, referenceOf, scopesRedeclaring } from './generate-tokens.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
+import { readFamilies } from '../../lib/tailwind/vocabulary.ts';
 
 const DESIGN = join(repoRoot, DESIGN_DIR);
 const BLOCKS = FILES.flatMap((f) => f.blocks) as { source: string; dir?: string }[];
@@ -32,9 +33,9 @@ const SCRIPT_FLAG = /"script"\s*:\s*true/g;
 test('FILES declares no block outside a theme, a density or a plugin in the store', () => {
   const selectors = FILES.flatMap((f) => f.blocks.map((b) => b.selector));
   const scopes = [...new Set(selectors.filter((s) => s !== ':root'))].sort();
-  assert.deepEqual(scopes, ['.arena-comfortable', '.arena-compact', '.arena-complete', '.arena-light'],
-    'a scope this generator emits is a theme, a density or a plugin the store holds, and every other '
-    + 'selector would be an answer Arena curated for somebody else');
+  assert.deepEqual(scopes, ['.arena-complete', '.arena-light'],
+    'a scope this generator emits is a theme or a plugin the store holds; a density is a vocabulary '
+    + 'family and every other selector would be an answer Arena curated for somebody else');
 });
 
 test('a design source path carries no host separator, on the platform whose separator is one', () => {
@@ -126,9 +127,17 @@ test('an alias to a token nobody redeclares resolves, because 14px is 14px in ev
 });
 
 test('every group that is redeclared names scopes this build actually emits', () => {
-  const emitted = new Set(FILES.flatMap((file) => file.blocks.map((b) => b.selector)));
+  const written = FILES.flatMap((file) => file.blocks.map((b) => b.selector));
+  const families = [...readFamilies().values()];
   for (const [group, scopes] of REDECLARED_GROUPS) {
     assert.ok(scopes.length > 0, `${group} claims to be redeclared and names no scope`);
+    const emitted = new Set(written);
+    for (const family of families.filter((f) => f.restates === group)) {
+      for (const option of Object.keys(family.variants)) {
+        const selector = SCOPE_SELECTORS.get(option.replace(/^arena-/, ''));
+        if (selector) emitted.add(selector(':root'));
+      }
+    }
     for (const scope of scopes) {
       const selector = SCOPE_SELECTORS.get(scope);
       assert.ok(selector, `${group} names the scope "${scope}", which has no selector`);

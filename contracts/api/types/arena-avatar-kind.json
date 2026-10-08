@@ -1,0 +1,6 @@
+{
+  "name": "ArenaAvatarKind",
+  "kind": "enum",
+  "description": "Whether an avatar stands for a person or for a team or organisation.",
+  "values": ["person", "team"]
+}

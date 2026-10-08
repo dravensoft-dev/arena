@@ -1,6 +1,6 @@
 {
   "name": "ArenaMenuAlign",
   "kind": "enum",
-  "description": "Which edge of the trigger the dropdown panel lines its own edge up with. Checked against every enum already declared here before it was added; nothing carries this pair. ArenaPageHeadAlign is the near miss and is a different set -- start/center on a flex axis, with no `end`, where a panel hanging off a trigger has two edges to anchor to and no centre.",
+  "description": "Which edge of the trigger the dropdown panel lines its own edge up with. No other enum declared here carries this pair.",
   "values": ["start", "end"]
 }

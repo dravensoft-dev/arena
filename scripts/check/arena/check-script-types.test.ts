@@ -38,10 +38,8 @@ test('the project never emits, because a checking project writing output would s
 test('strict is on as a bundle, and the index tightening beyond it is on too', () => {
   const options = project().compilerOptions;
   assert.equal(options.strict, true,
-    'all seven are on, so the enumeration this file used to carry is gone. What it cost, for '
-    + 'the record: four of them nothing at all, useUnknownInCatchVariables seventeen catch '
-    + 'clauses, noImplicitAny 1,643 annotations and strictNullChecks 970. The order between '
-    + 'the last two was not free -- noImplicitAny first, or evolving-array inference is '
+    'all seven are on, so this file carries no enumeration. The order between '
+    + 'noImplicitAny and strictNullChecks is not free: noImplicitAny comes first, or evolving-array inference is '
     + 'unavailable and hundreds of never[] errors appear that it erases.');
 
   for (const off of ['strictFunctionTypes', 'strictBindCallApply', 'noImplicitThis',

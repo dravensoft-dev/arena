@@ -2,7 +2,7 @@ Icon-only button for toolbars and rows. Always pass `label` (accessible name in 
 
 ```tsx
 <ArenaIconButton label="More options" icon="ph-bold ph-dots-three-vertical" />
-<ArenaIconButton variant="solid" showLabel label="New project" icon="ph-bold ph-plus" />
+<ArenaIconButton showLabel label="New project" icon="ph-bold ph-plus" className="arena-emphasis-solid" />
 <ArenaIconButton label="Pin this view" icon="ph-bold ph-push-pin" pressed={pinned} onClick={() => setPinned(!pinned)} />
 ```
 
@@ -14,8 +14,6 @@ Icon-only button for toolbars and rows. Always pass `label` (accessible name in 
 |---|---|---|---|---|
 | `icon*` | primitive | `string` |  | Phosphor class name, e.g. 'ph-bold ph-plus'. Arena draws the <i> and hides it from assistive technology; `label` is the accessible name. |
 | `label*` | primitive | `string` |  | The accessible name, present in every state. Also the visible text when showLabel is set, and the title attribute when it is not. |
-| `size` | enum | `ArenaControlSize` | `"md"` | Height, from the density tokens: the same scale ArenaButton uses, so the two re-densify together in a toolbar. |
-| `variant` | enum | `ArenaIconButtonVariant` | `"ghost"` | Visual treatment. |
 | `showLabel` | primitive | `boolean` | `false` | Shows the label as text beside the icon (H6). Don't rely on the title alone on touch or keyboard surfaces. |
 | `pressed` | primitive | `boolean` |  | Whether this control is a toggle, and whether it is currently on. Present, Arena writes aria-pressed and draws the on state with the same accent tint a current ArenaSideNav item takes, so "this one is on" is one statement across the library; absent, the control is not a toggle at all. The tri-state is the point and a default of false would destroy it: aria-pressed="false" on a plain button announces a toggle that is off rather than a button, so every ArenaIconButton in the system would announce as an unpressed toggle. The label does NOT change with the state, which is what the button pattern means by a toggle: a control that renames itself is announced as a different control rather than as the same one in another state. |
 | `disabled` | primitive | `boolean` | `false` | Blocks activation and dims the control. |
@@ -29,6 +27,22 @@ Icon-only button for toolbars and rows. Always pass `label` (accessible name in 
 
 <!-- @api end -->
 
+<!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
+
+**Answers** [`fill`](../../../../VOCABULARY.md#fill): `arena-fill`, `arena-fit` (default). Write one as `className="arena-fill"` on the component, or on a container whose components should all take it.
+
+**Answers** [`emphasis`](../../../../VOCABULARY.md#emphasis): `arena-emphasis-ghost` (default), `arena-emphasis-solid`. Write one as `className="arena-emphasis-solid"` on the component, or on a container whose components should all take it.
+
+**Answers** [`size`](../../../../VOCABULARY.md#size): `arena-size-lg`, `arena-size-md` (default), `arena-size-sm`. Write one as `className="arena-size-lg"` on the component, or on a container whose components should all take it.
+
+<!-- @answers end -->
+
+<!-- @keys GENERATED from the binding. -->
+**Keys**, from [`button`](../../../../../contracts/behaviour/button.json):
+- `Space`: activate.
+- `Enter`: activate.
+<!-- @keys end -->
+
 - **`pressed` is what makes it a toggle, and leaving it off is a state of its own.** Passed, Arena writes `aria-pressed`. Arena draws the on state with the accent tint a current `ArenaSideNav` item takes. Omitted, the control is not a toggle at all. Never default it to `false`. On a plain button, `aria-pressed="false"` announces a toggle that is off rather than a button, so every icon button in the app would read as an unpressed toggle.
 - **A toggle keeps its `label` in both states.** Changing the name to carry the state is the workaround `pressed` exists to end. A screen reader then announces a different control instead of the same one in another state. Name what it does, not what pressing it will do next.
 - Pass `icon` as a Phosphor class name: `icon="ph-bold ph-plus"`. Arena draws the `<i>` and hides it; `label` is what a screen reader announces.
@@ -36,6 +50,6 @@ Icon-only button for toolbars and rows. Always pass `label` (accessible name in 
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
+**The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

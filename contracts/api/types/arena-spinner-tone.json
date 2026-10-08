@@ -1,6 +1,0 @@
-{
-  "name": "ArenaSpinnerTone",
-  "kind": "enum",
-  "description": "Colour for an indeterminate wait. 'accent' on a page surface, 'on-accent' inside a filled button. There is deliberately no success/warning/danger: a wait has no state to report, and a spinner tinted --danger would read as a failure that has not happened.",
-  "values": ["accent", "gold", "neutral", "on-accent"]
-}

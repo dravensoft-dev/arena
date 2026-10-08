@@ -2,10 +2,12 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
 import type { ArenaKeyValueRow } from '../../../Api.generated';
 import { arenaKeyValueStyles } from './ArenaKeyValue.variants';
 import manifest from './ArenaKeyValue.classes.generated';
+import { ArenaSlotAttributes } from '../../../SlotData';
 
 @Component({
   selector: 'arena-key-value',
   standalone: true,
+  imports: [ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { style: 'display: contents' },
   template: `
@@ -13,14 +15,16 @@ import manifest from './ArenaKeyValue.classes.generated';
       @for (row of rows(); track $index) {
         <div [class]="styles().row()" [attr.data-arena-part]="parts.row">
           <dt [class]="styles().term()" [attr.data-arena-part]="parts.term">{{ row.term }}</dt>
-          <dd [class]="row.numeric ? styles().valueNumeric() : styles().value()"
+          <dd [class]="(row.numeric ? figures() : styles()).value()"
+              [arenaSlotData]="(row.numeric ? figures() : styles()).$data.value()"
               [attr.data-arena-part]="parts.value">{{ row.value }}</dd>
         </div>
       }
       @if (total(); as sum) {
         <div [class]="styles().total()" [attr.data-arena-part]="parts.total">
           <dt [class]="styles().totalTerm()" [attr.data-arena-part]="parts.totalTerm">{{ sum.term }}</dt>
-          <dd [class]="sum.numeric ? styles().totalValueNumeric() : styles().totalValue()"
+          <dd [class]="(sum.numeric ? figures() : styles()).totalValue()"
+              [arenaSlotData]="(sum.numeric ? figures() : styles()).$data.totalValue()"
               [attr.data-arena-part]="parts.totalValue">{{ sum.value }}</dd>
         </div>
       }
@@ -36,4 +40,5 @@ export class ArenaKeyValue {
   readonly total = input<ArenaKeyValueRow>();
 
   protected readonly styles = computed(() => arenaKeyValueStyles());
+  protected readonly figures = computed(() => arenaKeyValueStyles({ numeric: true }));
 }

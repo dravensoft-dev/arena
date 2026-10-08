@@ -87,7 +87,7 @@ test('the row still activates from a cell that holds no control', () => {
     const cells = (fixture.nativeElement as HTMLElement).querySelectorAll('td[arena-table-cell]');
     click(cells[1] as Element);
     fixture.detectChanges();
-    assert.equal(fixture.componentInstance.activated, 1, 'a plain cell no longer activates its row');
+    assert.equal(fixture.componentInstance.activated, 1, 'a plain cell did not activate its row');
   } finally {
     fixture.destroy();
   }

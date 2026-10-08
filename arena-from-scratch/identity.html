@@ -7,7 +7,7 @@
 
 <!-- The one sheet this page reads, and the only line in it you change by hand.
      Working inside the Arena repository, point it at ../intro/styles.css.
-     Working inside a project that already ran arena-to-prod, point it at that project's
+     Working inside a project that already ran arena build, point it at that project's
      arena.generated.css instead, and the page draws that project's own answers.
      Serve this over HTTP. Opened from file:// the sheet does not load and every swatch is blank.
 
@@ -138,7 +138,7 @@
   <tr><td>whether an edge is drawn</td><td>every <code>bw-*</code></td><td class="ask">answer</td></tr>
   <tr><td>how loud type is</td><td><code>fw-heading</code>, <code>fw-eyebrow</code>, <code>fw-control</code></td><td class="ask">answer</td></tr>
   <tr><td>whether small text shouts</td><td><code>tt-label</code>, <code>tt-eyebrow</code>, <code>track-label</code>, <code>track-eyebrow</code></td><td class="ask">answer</td></tr>
-  <tr><td>whether depth is real</td><td><code>shadow-surface-floating</code>, <code>shadow-surface-deep</code>, <code>shadow-control-raised</code></td><td class="ask">answer</td></tr>
+  <tr><td>whether depth is real</td><td><code>shadow-surface-floating</code>, <code>shadow-surface-deep</code>, <code>shadow-control-raised</code>, <code>elevation-&lt;option&gt;-shadow</code>, <code>emphasis-primary-shadow-hover</code></td><td class="ask">answer</td></tr>
   <tr><td>how it answers a hand</td><td><code>press-scale</code>, <code>lift-control</code>, <code>dur-state</code>, <code>ease-state</code></td><td class="ask">answer</td></tr>
 </table>
 
@@ -147,7 +147,7 @@
 <div class="fill">The density this product expects, and the width it sits in.</div>
 <table>
   <tr><th>What it decides</th><th>The roles</th><th>This product's answer</th></tr>
-  <tr><td>how tight to the hand</td><td><code>pad-control-x</code>, <code>pad-control-y</code>, <code>gap-inline</code>, <code>gap-items</code>, <code>gap-control</code></td><td class="ask">answer</td></tr>
+  <tr><td>how tight to the hand</td><td><code>pad-control-x</code>, <code>pad-control-y</code>, <code>size-&lt;option&gt;-control-pad-x</code>, <code>gap-inline</code>, <code>gap-items</code>, <code>gap-control</code></td><td class="ask">answer</td></tr>
   <tr><td>how wide it breathes</td><td><code>container-max</code>, <code>measure-prose</code>, <code>grid-min</code>, <code>gutter</code></td><td class="ask">answer</td></tr>
   <tr><td>which density class</td><td><code>arena-compact</code>, <code>arena-comfortable</code>, or neither</td><td class="ask">answer</td></tr>
 </table>

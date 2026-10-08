@@ -1,21 +1,25 @@
 /* Holds the rule the router already states and nothing held: anything a package ships needs a
- * home on the consumer branch, and for a symbol that home is the layer's PACKAGE.md. A barrel
- * re-exports whole modules, so a helper written for one component reaches the package root beside
- * the components, and the npm page says a symbol it does not name carries no compatibility
- * promise. That pair is worse than either half: the tested focus trap behind a dialog ships,
- * reaches a consumer told to write their own overlay, and is disclaimed by omission, so the
- * consumer writes a second one. INTERNAL declares what reaches the root and is nobody's to lean
- * on, with the reason, and fails both ways. The subject is derived from the barrel rather than
- * listed, and it is what a consumer CALLS: a type is reached through the value whose signature
- * carries it, so naming the hook names its options. */
+ * home on the consumer branch, and for a symbol that home is the layer's own sections of the
+ * export, theme, locale, head and install references. A barrel re-exports whole modules, so a
+ * helper written for one component reaches the package root beside the components, and the
+ * export reference says a symbol it does not name carries no compatibility promise. A shipped
+ * focus trap thus reaches a consumer told to write their own overlay, who writes a second one.
+ * INTERNAL declares what reaches the root and is nobody's to lean on, with the reason, and fails
+ * both ways. The subject is derived from the barrel rather than listed, and it is what a
+ * consumer CALLS: a type is reached through the value whose signature carries it. */
 
 import { readFileSync, existsSync } from 'node:fs';
 import { createSourceFile, isFunctionDeclaration, isObjectBindingPattern, ScriptTarget } from 'typescript';
 import { join, dirname } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
+import { REFERENCES, referenceText } from '../../lib/arena/consumer-references.ts';
 
-export const PAGE = 'PACKAGE.md';
+export const HOMES = ['exports.md', 'theme.md', 'locale.md', 'seo.md', 'install.md'];
+
+export const PAGE = `${REFERENCES}/exports.md`;
+
+const asLayer = (layer: string) => (layer === 'angular' ? 'angular' : 'react');
 
 export const BARRELS = new Map([
   ['react', 'frameworks/react/Index.generated.ts'],
@@ -44,6 +48,8 @@ export const INTERNAL = new Map<string, string>([
     + 'A consumer asks the hook rather than the sheet'],
   ['ARENA_PAD', CHART_GEOMETRY],
   ['ARENA_CHART_HEIGHT', CHART_GEOMETRY],
+  ['ARENA_INK_BODY', CHART_GEOMETRY],
+  ['ARENA_INK_MUTED', CHART_GEOMETRY],
   ['arenaPlotWidth', CHART_GEOMETRY],
   ['arenaRailStyle', CHART_GEOMETRY],
   ['ARENA_RAIL_STYLE', CHART_GEOMETRY],
@@ -101,17 +107,20 @@ export function zeroReachProblems(reached: Map<string, string[]>) {
 export function homeProblems(base = root, reached = reachedSymbols(base), internal = INTERNAL) {
   const problems = [];
   for (const [layer, names] of reached) {
-    const page = join(base, 'frameworks', layer, PAGE);
-    if (!existsSync(page)) continue;
-    const text = readFileSync(page, 'utf8');
+    const text = referenceText(base, HOMES, asLayer(layer));
+    if (text === '') {
+      problems.push(`no ${layer} section of ${REFERENCES} (${HOMES.join(', ')}) exists to name what the `
+        + `${layer} package reaches, so the gate would pass every symbol by reading nothing`);
+      continue;
+    }
     for (const name of names) {
       if (internal.has(name) || text.includes(name)) continue;
       problems.push(
-        `${name} reaches the root of the ${layer} package and frameworks/${layer}/${PAGE} never `
-        + `names it. That page says a symbol it does not name carries no compatibility promise, so `
-        + `a consumer who needs this either writes a second one or leans on something Arena has `
-        + `told them not to. Name it there, or declare it in INTERNAL with the reason it is `
-        + `nobody's to call.`,
+        `${name} reaches the root of the ${layer} package and no ${layer} section of ${REFERENCES} `
+        + `(${HOMES.join(', ')}) names it. The export reference says a symbol it does not name `
+        + `carries no compatibility promise, so a consumer who needs this either writes a second `
+        + `one or leans on something Arena has told them not to. Name it in that layer's section, `
+        + `or declare it in INTERNAL with the reason it is nobody's to call.`,
       );
     }
   }
@@ -153,9 +162,8 @@ export function declaringModules(base: string, barrels = BARRELS) {
 export function signatureProblems(base = root, barrels = BARRELS) {
   const problems = [];
   for (const [layer, byName] of declaringModules(base, barrels)) {
-    const page = join(base, 'frameworks', layer, PAGE);
-    if (!existsSync(page)) continue;
-    for (const match of readFileSync(page, 'utf8').matchAll(CALL_FORM)) {
+    const text = referenceText(base, HOMES, asLayer(layer));
+    for (const match of text.matchAll(CALL_FORM)) {
       const [, name = '', written = ''] = match;
       const rel = byName.get(name);
       if (rel === undefined) continue;
@@ -163,10 +171,10 @@ export function signatureProblems(base = root, barrels = BARRELS) {
       if (real === null) continue;
       const shown = written.split(',').map((part) => part.trim()).filter(Boolean).join(', ');
       if (shown === real.join(', ')) continue;
-      problems.push(`frameworks/${layer}/${PAGE} writes ${name}(${written}) and ${rel} declares `
-        + `${name}(${real.join(', ')}). A consumer copying the page writes a call that does not `
-        + `compile, and the page is the only signature they have: the export table is the surface `
-        + `this package tells them to reach for instead of writing their own.`);
+      problems.push(`the ${layer} sections of ${REFERENCES} write ${name}(${written}) and ${rel} `
+        + `declares ${name}(${real.join(', ')}). A consumer copying the reference writes a call that `
+        + `does not compile, and the reference is the only signature they have: the export table is `
+        + `the surface this package tells them to reach for instead of writing their own.`);
     }
   }
   return problems;
@@ -188,8 +196,8 @@ function main() {
   }
   const reached = reachedSymbols();
   const counted = [...reached].map(([layer, names]) => `${layer} ${names.length}`).join(', ');
-  console.log(`check-exports: every symbol a barrel reaches has a home on its npm page (${counted}), `
-    + `with ${INTERNAL.size} declared internal, and every call form those pages write is the `
+  console.log(`check-exports: every symbol a barrel reaches has a home in its layer's references (${counted}), `
+    + `with ${INTERNAL.size} declared internal, and every call form those references write is the `
     + `signature its module declares`);
 }
 

@@ -15,7 +15,7 @@ next thing pressed matters more than getting more onto the screen.
 | Whether small text shouts | `tt-label`, `tt-eyebrow`, `track-label`, `track-eyebrow` | uppercase, with the badge tracking on a label | a control's own text is a shout, which is coherent with everything else here |
 | How tight it is to the hand | `pad-control-*`, `gap-*` | the loosest padding of the four | a target sized for a thumb rather than for a pointer |
 | How wide it breathes | `container-max`, `measure-prose`, `grid-min`, `gutter` | a moderate container and the narrowest prose measure of the four | a lesson is read one short line at a time |
-| Whether depth is real | `shadow-surface-floating`, `shadow-control-raised` | a hard offset with no blur at all | depth here is a solid edge under the object rather than a soft cloud behind it |
+| Whether depth is real | `elevation-floating-shadow`, `emphasis-primary-shadow-hover` | a hard offset with no blur at all | depth here is a solid edge under the object rather than a soft cloud behind it |
 | How it answers a hand | `press-scale`, `lift-control`, `dur-state`, `ease-state` | no shrink and no rise, on an emphatic curve | the press is painted instead, and the next section says why |
 | What shape a picture is | `aspect-media`, `fit-media` | square, contained | an illustration has to survive whole, so nothing is cropped |
 

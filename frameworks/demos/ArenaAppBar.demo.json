@@ -5,8 +5,8 @@
     "brand": [
       {
         "component": "ArenaAppLogo",
+        "class": "arena-size-sm",
         "members": {
-          "size": "sm",
           "name": "Meridian",
           "dim": " Roasters"
         },
@@ -37,9 +37,9 @@
     "actions": [
       {
         "component": "ArenaIconButton",
+        "class": "arena-emphasis-solid",
         "members": {
           "icon": "ph-bold ph-basket",
-          "variant": "solid",
           "label": "Basket, 2 items"
         }
       }

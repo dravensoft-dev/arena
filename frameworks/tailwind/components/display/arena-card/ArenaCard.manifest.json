@@ -1,27 +1,32 @@
 {
   "component": "ArenaCard",
+  "answers": [
+    {
+      "family": "accent",
+      "options": [
+        "arena-accent-plain",
+        "arena-accent-primary"
+      ],
+      "default": "arena-accent-plain"
+    },
+    {
+      "family": "elevation",
+      "options": [
+        "arena-elevation-flat",
+        "arena-elevation-floating"
+      ],
+      "default": "arena-elevation-flat"
+    }
+  ],
   "slots": {
-    "root": "block bg-surface border-[length:var(--bw-surface)] rounded-surface overflow-hidden shadow-surface-rest",
-    "head": "flex items-start justify-between px-surface pt-4.5 pb-surface-head border-b-[length:var(--bw-surface-head)] border-edge-separator",
+    "root": "block bg-surface border-[length:var(--bw-surface)] rounded-surface overflow-hidden border-[color:var(--arena-accent-edge,var(--accent-plain-edge))] shadow-[var(--arena-elevation-shadow,var(--elevation-flat-shadow))]",
+    "head": "flex items-start justify-between px-surface pt-surface-head-top pb-surface-head border-b-[length:var(--bw-surface-head)] border-edge-separator",
     "eyebrow": "font-face-eyebrow text-eyebrow tracking-eyebrow case-eyebrow text-ink-eyebrow mb-1.5 font-eyebrow",
     "title": "font-face-heading font-heading text-title-surface text-ink-heading tracking-heading leading-heading",
     "body": "p-surface flex flex-col gap-items min-w-0"
   },
+  "kind": { "root": "surface", "head": "surface", "eyebrow": "none", "title": "none", "body": "surface" },
   "variants": {
-    "accent": {
-      "true": {
-        "root": "border-primary"
-      },
-      "false": {
-        "root": "border-edge-surface"
-      }
-    },
-    "floating": {
-      "true": {
-        "root": "shadow-surface-floating"
-      },
-      "false": {}
-    },
     "interactive": {
       "true": {
         "root": "cursor-pointer text-left w-full transition-[background,box-shadow] duration-[var(--dur-hover)] ease-hover hover:bg-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary aria-disabled:opacity-45 aria-disabled:cursor-not-allowed"
@@ -32,8 +37,6 @@
     }
   },
   "defaultVariants": {
-    "accent": false,
-    "floating": false,
     "interactive": false
   }
 }

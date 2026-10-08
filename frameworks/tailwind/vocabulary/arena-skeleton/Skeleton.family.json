@@ -1,0 +1,16 @@
+{
+  "family": "skeleton",
+  "reach": "box",
+  "description": "The shape of a loading placeholder that stands in for one box. The shapes are a block for a card or an image, a line for a run of text, and a circle for an avatar. The question is the adopter's, because only the page knows what is loading. arena-skeleton-block is the default. Set --arena-skeleton-width, --arena-skeleton-height and --arena-skeleton-radius on a container for a size or a corner no shape names. Write a token, or a derivation of tokens, such as var(--sp-1) or calc(var(--sp-1) * 40). The radius is read by the block only. A line keeps the marker corner and a circle the pill, and a circle is one diameter, so its height wins over its width. A placeholder given lines is a stack of text lines whatever its class, and reads only the width.",
+  "default": "arena-skeleton-block",
+  "variants": {
+    "arena-skeleton-block": "[--arena-skeleton-box-width:var(--arena-skeleton-width,100%)] [--arena-skeleton-box-height:var(--arena-skeleton-height,calc(var(--sp-1)*24))] [--arena-skeleton-box-radius:var(--arena-skeleton-radius,var(--r-surface))]",
+    "arena-skeleton-line": "[--arena-skeleton-box-width:var(--arena-skeleton-width,100%)] [--arena-skeleton-box-height:var(--arena-skeleton-height,calc(var(--sp-1)*3))] [--arena-skeleton-box-radius:var(--r-marker)]",
+    "arena-skeleton-circle": "[--arena-skeleton-box-width:var(--arena-skeleton-height,var(--arena-skeleton-width,calc(var(--sp-1)*10)))] [--arena-skeleton-box-height:var(--arena-skeleton-height,var(--arena-skeleton-width,calc(var(--sp-1)*10)))] [--arena-skeleton-box-radius:var(--r-pill)]"
+  },
+  "axis": [
+    "--arena-skeleton-width",
+    "--arena-skeleton-height",
+    "--arena-skeleton-radius"
+  ]
+}

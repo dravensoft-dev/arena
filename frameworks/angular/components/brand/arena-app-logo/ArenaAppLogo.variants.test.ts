@@ -2,13 +2,10 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { arenaAppLogoStyles } from './ArenaAppLogo.variants';
 
-test('size moves the mark box and the wordmark together -- they are one decision, not two independent knobs', () => {
-  const sm = arenaAppLogoStyles({ size: 'sm' });
-  const xl = arenaAppLogoStyles({ size: 'xl' });
-  assert.notEqual(sm.mark(), xl.mark(), 'the mark box did not change between sm and xl');
-  assert.notEqual(sm.name(), xl.name(), 'the wordmark size did not change between sm and xl');
-
-  assert.equal(sm.root(), xl.root(), 'size must not change the root slot');
-  assert.equal(sm.dim(), xl.dim(), 'size must not change the dim slot');
+test('the logo recipe carries no size or orientation attribute: both are classes an adopter writes', () => {
+  const styles = arenaAppLogoStyles();
+  for (const slot of ['root', 'mark', 'name', 'dim'] as const) {
+    const data = JSON.stringify(styles.$data[slot]());
+    assert.ok(!data.includes('data-arena-size') && !data.includes('data-arena-orientation'), `${slot} carries a size or orientation attribute`);
+  }
 });
-

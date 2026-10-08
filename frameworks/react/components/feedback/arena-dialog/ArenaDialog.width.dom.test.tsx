@@ -1,45 +1,41 @@
-/* `width` takes a CSS width, and a consumer reaching for a named size gets a compile that sets an
- * invalid declaration the browser drops in silence. The check skips any value carrying a
- * parenthesis, which is every CSS function: happy-dom's CSSOM rejects calc(var(--sp-1) * 160) as
- * readily as it rejects md, and a warning that fires on the idiom Arena teaches would be worse
- * than the silence it replaces. */
+/* The panel reads --arena-dialog-width through its class, so the property is the only way a width
+ * arrives, and a value the browser would drop is reported once. happy-dom does not inherit custom
+ * properties, so each case declares the property with a rule on the panel part itself. */
 import test, { afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import React from 'react';
 import { mount, cleanup } from '../../../test/Harness.tsx';
 import { forgetArenaWarnings } from '../../../WarnOnce.ts';
 import { ArenaDialog } from './ArenaDialog.tsx';
+import manifest from './ArenaDialog.classes.generated.ts';
 
 afterEach(() => { cleanup(); forgetArenaWarnings(); });
 
-function warnings(width?: string): string[] {
+function captureWarnings(body: () => void): string[] {
   const said: string[] = [];
   const saved = globalThis.console.warn;
   globalThis.console.warn = (...parts: unknown[]) => { said.push(parts.map(String).join(' ')); };
   try {
-    mount(<ArenaDialog open title="Delete project" width={width}>body</ArenaDialog>);
+    body();
   } finally {
     globalThis.console.warn = saved;
   }
   return said;
 }
 
-test('a named size the browser refuses is reported, quoting what was passed', () => {
-  const said = warnings('md');
-  assert.equal(said.length, 1, 'the silent case stayed silent');
-  assert.match(said[0] ?? '', /"md" is not one/);
-  assert.match(said[0] ?? '', /calc\(var\(--sp-1\) \* 160\)/);
+test('a property that is not a width warns once, and a length or a derivation does not', () => {
+  for (const [value, warns] of [['md', true], ['40rem', false], ['calc(var(--sp-1) * 160)', false]] as const) {
+    forgetArenaWarnings();
+    const sheet = document.head.appendChild(document.createElement('style'));
+    sheet.textContent = `[data-arena-part="${manifest.parts.panel}"] { --arena-dialog-width: ${value}; }`;
+    const warned = captureWarnings(() => mount(<ArenaDialog open onClose={() => {}} title="T">{null}</ArenaDialog>));
+    assert.equal(warned.length, warns ? 1 : 0, value);
+    if (warns) assert.match(warned[0] ?? '', /--arena-dialog-width is "md"/);
+    sheet.remove();
+    cleanup();
+  }
 });
 
-test('a real length says nothing', () => {
-  assert.deepEqual(warnings('40rem'), []);
-});
-
-test('the spacing scale arithmetic says nothing, which is the case that made this hard', () => {
-  assert.deepEqual(warnings('calc(var(--sp-1) * 160)'), []);
-  assert.deepEqual(warnings('min(90vw, 40rem)'), []);
-});
-
-test('an absent width says nothing, because the default is the manifest\'s', () => {
-  assert.deepEqual(warnings(undefined), []);
+test('an unset property says nothing, because the default is the manifest\'s', () => {
+  assert.deepEqual(captureWarnings(() => mount(<ArenaDialog open onClose={() => {}} title="T">{null}</ArenaDialog>)), []);
 });

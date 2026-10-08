@@ -10,7 +10,7 @@
  * emphasis does not end one, and a marker whose partner stayed behind is not published. */
 
 import { existsSync, readFileSync } from 'node:fs';
-import { basename, join } from 'node:path';
+import { basename, join, posix } from 'node:path';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { relPosix } from '../../utils/posix-path.ts';
 import { repoRoot as root } from './repo-root.ts';
@@ -29,6 +29,7 @@ export const PARAGRAPH = /\n\s*\n/;
 export const EMPHASIS = /^(\*\*|\*)/;
 export const INLINE_LINK = /\[([^\]]*)\]\((?:[^()]|\([^()]*\))*\)/g;
 export const LAYER_INDEX = `frameworks/${INDEX}`;
+export const VOCABULARY_PAGE = 'frameworks/VOCABULARY.md';
 export const BUILD_INTERMEDIATE = 'build/package';
 
 export const ASSEMBLED = 'dist/';
@@ -74,7 +75,6 @@ export function prompts(layer: string, base = root) {
 export function layerDocs(layer: string, base = root) {
   return [
     `frameworks/${layer}/${INDEX}`,
-    `frameworks/${layer}/PACKAGE.md`,
     ...categoryIndexes(layer, base),
     ...prompts(layer, base),
   ].filter((rel) => existsSync(join(base, rel)));
@@ -182,9 +182,11 @@ export function blurb(rel: string, base = root) {
 }
 
 export function servedDocs(base = root) {
-  return [ROUTER, ...references(base), LAYER_INDEX, ...LAYERS.flatMap((layer) => layerDocs(layer, base))]
+  return [ROUTER, ...references(base), LAYER_INDEX, VOCABULARY_PAGE, ...LAYERS.flatMap((layer) => layerDocs(layer, base))]
     .filter((rel) => existsSync(join(base, rel)));
 }
+
+export const writtenPages = () => [LLMS_INDEX, ...LAYERS.map(layerFile)];
 
 export const nameOf = (rel: string) => basename(rel).replace(PROMPT_SUFFIX, '').replace(/\.md$/, '');
 
@@ -197,7 +199,7 @@ export function index(base = root) {
     `> ${summary(base)}`,
     '',
     'Arena carries the design language and not the skin: a consuming project declares its own',
-    'palettes and fonts in `arena.config.json`, and the `arena-to-prod` command each package ships',
+    'palettes and fonts in `arena.config.json`, and the `arena` command each package ships',
     'turns that into the one stylesheet a package cannot carry.',
     '',
     '**Read your own framework\'s documents and not the other\'s.** Every component ships under both',
@@ -217,7 +219,7 @@ export function index(base = root) {
     const title = layer.charAt(0).toUpperCase() + layer.slice(1);
     lines.push(`## ${title}`, '');
     lines.push(`- [Layer index](${docUrl(`frameworks/${layer}/${INDEX}`)}): every component under this framework's own names.`);
-    lines.push(`- [Install and configure](${docUrl(`frameworks/${layer}/PACKAGE.md`)}): the package, \`arena.config.json\`, and what the CLI writes.`);
+    lines.push(`- [Install and configure](${docUrl('skills/design/references/install.md')}): the package, \`arena.config.json\`, and what the CLI writes.`);
     lines.push(`- [Everything above and every component document, in one file](https://${DOMAIN}/${layerFile(layer)}): the whole ${title} corpus, and nothing from the other layer.`);
     for (const rel of categoryIndexes(layer, base)) {
       lines.push(`- [${categoryOf(rel)}](${docUrl(rel)}): the ${categoryOf(rel)} components under ${title}.`);
@@ -238,6 +240,16 @@ export function index(base = root) {
   return lines.join('\n');
 }
 
+export const RELATIVE_LINK = /\]\((?![a-z][a-z0-9+.-]*:|#|\/)([^)\s]+)\)/g;
+
+export function onSite(text: string, rel: string) {
+  return text.replace(RELATIVE_LINK, (_, target: string) => {
+    const [path, anchor] = target.split('#');
+    const resolved = posix.normalize(posix.join(posix.dirname(rel), path ?? ''));
+    return `](${docUrl(resolved)}${anchor === undefined ? '' : `#${anchor}`})`;
+  });
+}
+
 export function corpus(layer: string, base = root) {
   const title = layer.charAt(0).toUpperCase() + layer.slice(1);
   const parts = [
@@ -250,8 +262,8 @@ export function corpus(layer: string, base = root) {
     'under both names and the two documents are not interchangeable.',
     '',
   ];
-  for (const rel of [ROUTER, ...references(base), LAYER_INDEX, ...layerDocs(layer, base)]) {
-    parts.push('', `<!-- ${rel} -->`, '', readFileSync(join(base, rel), 'utf8').trim(), '');
+  for (const rel of [ROUTER, ...references(base), LAYER_INDEX, VOCABULARY_PAGE, ...layerDocs(layer, base)]) {
+    parts.push('', `<!-- ${rel} -->`, '', onSite(readFileSync(join(base, rel), 'utf8').trim(), rel), '');
   }
   return `${parts.join('\n')}\n`;
 }

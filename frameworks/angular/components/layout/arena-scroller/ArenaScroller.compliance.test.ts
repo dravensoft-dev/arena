@@ -14,6 +14,7 @@ import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import type { ArenaScrollerBehaviour } from '../../../Api.generated';
 import { ArenaScroller } from './ArenaScroller';
+import manifest from './ArenaScroller.classes.generated';
 import { assertPattern, ANGULAR_COMPONENTS } from '../../../test/Compliance';
 
 const BINDING = join(ANGULAR_COMPONENTS, 'layout/arena-scroller/ArenaScroller.behaviour.json');
@@ -22,7 +23,7 @@ const BINDING = join(ANGULAR_COMPONENTS, 'layout/arena-scroller/ArenaScroller.be
   standalone: true,
   imports: [ArenaScroller],
   template: `
-    <arena-scroller [label]="label" [behaviour]="behaviour" [itemWidth]="itemWidth">
+    <arena-scroller [label]="label" [behaviour]="behaviour">
       <span>One</span>
       <span>Two</span>
     </arena-scroller>
@@ -31,8 +32,14 @@ const BINDING = join(ANGULAR_COMPONENTS, 'layout/arena-scroller/ArenaScroller.be
 class ScrollerHost {
   label = 'Recently landed lots';
   behaviour: ArenaScrollerBehaviour = 'snap';
-  itemWidth: string | undefined = undefined;
 }
+
+@Component({
+  standalone: true,
+  imports: [ArenaScroller],
+  template: `<arena-scroller class="arena-scroller-item-lg" label="Recently landed lots"><span>One</span></arena-scroller>`,
+})
+class OptionScrollerHost {}
 
 @Component({
   standalone: true,
@@ -48,7 +55,7 @@ function render(patch: Partial<ScrollerHost> = {}) {
   return fixture;
 }
 
-const scrollerOf = (fixture: ReturnType<typeof render>) =>
+const scrollerOf = (fixture: { nativeElement: HTMLElement }) =>
   fixture.nativeElement.querySelector('arena-scroller') as HTMLElement;
 
 test('arena-scroller meets the scrollable-region pattern it binds', () => {
@@ -85,15 +92,23 @@ test('the container is the tab stop, and it is the only one the row adds', () =>
   } finally { fixture.destroy(); }
 });
 
-test('the item width reaches the children as a property, and defaults to the grid role', () => {
+test('the row carries its slot class and any option class beside it, takes no style, and is no boundary', () => {
   const fixture = render();
   try {
-    assert.equal(scrollerOf(fixture).style.getPropertyValue('--arena-scroller-item'), 'var(--grid-min)');
+    const scroller = scrollerOf(fixture);
+    assert.ok(scroller.classList.contains(manifest.slots.root), 'the root slot class is on the host');
+    assert.equal(scroller.getAttribute('style'), null, 'a row takes no style: the item width is a class on the row');
+    assert.equal(scroller.hasAttribute('data-arena-boundary'), false, 'the row is transparent, so a class on it reaches its items');
   } finally { fixture.destroy(); }
 
-  const given = render({ itemWidth: 'calc(var(--sp-1) * 62)' });
+  const given = TestBed.createComponent(OptionScrollerHost);
+  given.detectChanges();
   try {
-    assert.equal(scrollerOf(given).style.getPropertyValue('--arena-scroller-item'), 'calc(var(--sp-1) * 62)');
+    const scroller = scrollerOf(given);
+    for (const cls of [manifest.slots.root, 'arena-scroller-item-lg']) {
+      assert.ok(scroller.classList.contains(cls), `${cls} is lost from the host`);
+    }
+    assert.equal(scroller.getAttribute('style'), null);
   } finally { given.destroy(); }
 });
 

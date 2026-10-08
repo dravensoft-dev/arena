@@ -1,10 +1,13 @@
 {
   "component": "ArenaBoard",
+  "answers": [
+    "board-column"
+  ],
   "slots": {
-    "root": "grid grid-flow-col auto-cols-[minmax(var(--arena-board-column),1fr)] items-start gap-component overflow-x-auto font-body rounded-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+    "root": "grid grid-flow-col auto-cols-[minmax(var(--arena-board-column-width,var(--arena-board-column,var(--board-column-md))),1fr)] items-start gap-component overflow-x-auto font-body rounded-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
     "column": "grid gap-items p-2 rounded-surface bg-surface-sunken",
     "head": "flex items-center gap-items min-w-0",
-    "dot": "size-1.5 shrink-0 rounded-pill bg-[color:var(--arena-board-column-cat)]",
+    "dot": "size-1.5 shrink-0 rounded-pill",
     "title": "min-w-0 truncate text-ctl-md font-medium text-ink-heading",
     "count": "shrink-0 font-mono tabular-nums text-ctl-xs text-ink-muted/(--level-ink-muted)",
     "action": "shrink-0 flex items-center ms-auto",
@@ -12,11 +15,68 @@
     "stack": "grid gap-items",
     "foot": "grid"
   },
+  "kind": {
+    "root": "surface",
+    "column": "surface",
+    "head": "none",
+    "dot": "none",
+    "title": "none",
+    "count": "none",
+    "action": "none",
+    "summary": "none",
+    "stack": "none",
+    "foot": "none"
+  },
   "variants": {
-    "identity": {
-      "true": { "title": "text-[color:var(--arena-board-column-cat)]" },
-      "false": {}
+    "colorId": {
+      "1": {
+        "dot": "bg-[color:var(--arena-hue-ink)]",
+        "title": "text-[color:var(--arena-hue-ink)]"
+      },
+      "2": {
+        "dot": "bg-[color:var(--arena-hue-ink)]",
+        "title": "text-[color:var(--arena-hue-ink)]"
+      },
+      "3": {
+        "dot": "bg-[color:var(--arena-hue-ink)]",
+        "title": "text-[color:var(--arena-hue-ink)]"
+      },
+      "4": {
+        "dot": "bg-[color:var(--arena-hue-ink)]",
+        "title": "text-[color:var(--arena-hue-ink)]"
+      },
+      "5": {
+        "dot": "bg-[color:var(--arena-hue-ink)]",
+        "title": "text-[color:var(--arena-hue-ink)]"
+      },
+      "6": {
+        "dot": "bg-[color:var(--arena-hue-ink)]",
+        "title": "text-[color:var(--arena-hue-ink)]"
+      },
+      "7": {
+        "dot": "bg-[color:var(--arena-hue-ink)]",
+        "title": "text-[color:var(--arena-hue-ink)]"
+      },
+      "8": {
+        "dot": "bg-[color:var(--arena-hue-ink)]",
+        "title": "text-[color:var(--arena-hue-ink)]"
+      }
     }
   },
-  "defaultVariants": { "identity": false }
+  "defaultVariants": {},
+  "hues": {
+    "colorId": {
+      "on": [
+        "column"
+      ],
+      "1": "identity-1",
+      "2": "identity-2",
+      "3": "identity-3",
+      "4": "identity-4",
+      "5": "identity-5",
+      "6": "identity-6",
+      "7": "identity-7",
+      "8": "identity-8"
+    }
+  }
 }

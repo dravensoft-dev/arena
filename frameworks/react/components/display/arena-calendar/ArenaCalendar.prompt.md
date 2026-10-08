@@ -6,13 +6,13 @@ Week or day schedule on a time grid: a toolbar, one column per day, events posit
 
 Two things this default is not. The default is not a `'UTC'` fallback. Such a fallback would be arbitrary, wrong for almost every reader, and would silently produce the very defect the member exists to prevent. And the default is **not safe under server rendering**. On a server it resolves to the *server's* zone, and then to the client's on hydration. A server-rendered calendar must pass `timeZone` explicitly. Same shape as `useArenaContainerWidth` reporting `null` before it has measured.
 
-`ArenaCalendar` reads the categorical ramp through the same `arenaCatColor` the charts use, and measures its container to pick the view. Both travel with it: importing from `@dravensoft/arena-react` brings them, and both are exported for a legend or a responsive panel of your own.
+`ArenaCalendar` reads the categorical ramp through the same `arenaCatIndex` the charts use, which is the value each chip carries as `data-arena-color-id`, and measures its container to pick the view. Both travel with it: importing from `@dravensoft/arena-react` brings them, and both are exported for a legend or a responsive panel of your own.
 
 ```tsx
 <ArenaCalendar
   timeZone="Europe/Madrid"
   onRangeChange={(iso) => refetch(iso)}
-  actions={<ArenaButton size="sm" variant="secondary">New class</ArenaButton>}
+  actions={<ArenaButton className="arena-emphasis-secondary arena-size-sm">New class</ArenaButton>}
 >
   {classes.map((c) => (
     <ArenaCalendarEvent key={c.id} id={c.id} title={c.name} start={c.start} end={c.end}
@@ -35,12 +35,25 @@ Two things this default is not. The default is not a `'UTC'` fallback. Such a fa
 | `dayEnd` | primitive | `string` | `"23:00"` | HH:MM the grid ends at. |
 | `weekStartsOn` | primitive | `number` | `1` | 0 = Sunday … 6 = Saturday. |
 | `hideEmptyWeekend` | primitive | `boolean` | `true` | Drop Sunday from the week unless an event falls on it. |
-| `dayInteractive` | primitive | `boolean` | `false` | Whether a day can be activated. A boolean rather than "is `dateClick` bound?", because Arena never derives what it draws from what a consumer listens for, and the same member `ArenaTableRow.interactive` and `ArenaCalendarEvent.interactive` are for the same reason; here the derived render was the day's own cursor, and the layers diverged on screen because of it. With it on, the day header is a <button> (the keyboard's route to the date, and the one element that already names it), and the column background takes a pointer cursor; with it off both are inert and the cursor says so. The default is false because a schedule someone only reads is the ordinary calendar, and a pointer cursor over days that answer nothing is the defect this member exists to end. |
+| `dayInteractive` | primitive | `boolean` | `false` | Whether a day can be activated. A boolean rather than "is `onDateClick` bound?", because Arena never derives what it draws from what a consumer listens for, and the same member `ArenaTableRow.interactive` and `ArenaCalendarEvent.interactive` are for the same reason; here the derived render would be the day's own cursor, which a layer whose subscriber list is private would draw differently from the other. With it on, the day header is a <button> (the keyboard's route to the date, and the one element that already names it), and the column background takes a pointer cursor; with it off both are inert and the cursor says so. The default is false because a schedule someone only reads is the ordinary calendar, and a pointer cursor over days that answer nothing is the defect this member exists to end. |
 | `onDateClick` | event | `string` |  | A day header or column background was activated; carries the ISO date. Never emitted unless `dayInteractive`. |
 | `onRangeChange` | event | `string` |  | The anchor moved via prev/Today/next; carries the new ISO date. A date rather than a delta, because Today is not a delta. |
 | `actions` | slot |  |  | Right-aligned in the toolbar, beside the range title. |
 
 <!-- @api end -->
+
+<!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
+
+**Answers.** No family of the [vocabulary](../../../../VOCABULARY.md) decides anything in this component's own box.
+
+<!-- @answers end -->
+
+<!-- @keys GENERATED from the binding. -->
+**Keys**, from [`grid`](../../../../../contracts/behaviour/grid.json):
+- `ArrowKeys`: moves focus one cell in the arrow's direction; focus does not move past the grid's edge.
+- `Home`: moves focus to the first cell in the current row.
+- `End`: moves focus to the last cell in the current row.
+<!-- @keys end -->
 
 The anchor is internal, so prev/Today/next work with nothing wired. `onRangeChange` reports the new anchor date; take it as the cue to refetch. Pass `anchorDate` only when you want to drive the date yourself; it wins whenever it changes.
 
@@ -101,6 +114,6 @@ not a chip is still silently skipped by the placement lookup.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
+**The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

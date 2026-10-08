@@ -6,35 +6,37 @@
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor } from '../../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
 
 const manifest = await (await fetch('./ArenaSideNav.manifest.json')).json();
 const c = arenaClassesFor(manifest);
+const d = arenaSlotDataFor(manifest);
 
 /* One destination. `href` decides the element, as ArenaSideNavItem.json contracts,
    and the glyph carries the manifest's `icon` slot alongside the Phosphor class
    name the consumer supplies -- the single-icon convention: Arena styles the
    element, the consumer names it. */
 function item({ label, href, icon, current }) {
-  const active = arenaClassesFor(manifest, { active: String(Boolean(current)) });
+  const active = arenaClassesFor(manifest, { current: String(Boolean(current)) });
+  const dActive = arenaSlotDataFor(manifest, { current: String(Boolean(current)) });
   const kids = [];
-  if (icon) kids.push(el('i', { class: `${c.icon} ${icon}`, 'aria-hidden': 'true' }));
+  if (icon) kids.push(el('i', { class: `${c.icon} ${icon}`, ...d.icon, 'aria-hidden': 'true' }));
   kids.push(label);
-  const attrs = { class: active.item, 'aria-current': current ? 'page' : undefined };
+  const attrs = { class: active.item, ...dActive.item, 'aria-current': current ? 'page' : undefined };
   return href
     ? el('a', { ...attrs, href }, ...kids)
     : el('button', { ...attrs, type: 'button' }, ...kids);
 }
 
 function nav(children, ariaLabel) {
-  return el('nav', { class: c.root, 'aria-label': ariaLabel }, ...children);
+  return el('nav', { class: c.root, ...d.root, 'aria-label': ariaLabel }, ...children);
 }
 
 /* The labelled role=group wrapper ArenaSideNavSection binds, and the heading that names it. */
 function group(label, children) {
   const id = `sn-${label.toLowerCase().replace(/\W+/g, '-')}`;
-  return el('div', { class: c.section, role: 'group', 'aria-labelledby': id },
-    el('div', { class: c.sectionLabel, id, text: label }),
+  return el('div', { class: c.section, ...d.section, role: 'group', 'aria-labelledby': id },
+    el('div', { class: c.sectionLabel, ...d.sectionLabel, id, text: label }),
     ...children);
 }
 
@@ -45,20 +47,20 @@ function group(label, children) {
 function collapsible(label, icon, expanded, children) {
   const id = `sn-${label.toLowerCase().replace(/\W+/g, '-')}`;
   const trigger = el('button', {
-    class: c.trigger, type: 'button', id: `${id}-trigger`,
+    class: c.trigger, ...d.trigger, type: 'button', id: `${id}-trigger`,
     'aria-expanded': String(expanded), 'aria-controls': `${id}-region`,
   },
-    el('i', { class: `${c.icon} ${icon}`, 'aria-hidden': 'true' }),
-    el('span', { class: c.triggerLabel, text: label }),
+    el('i', { class: `${c.icon} ${icon}`, ...d.icon, 'aria-hidden': 'true' }),
+    el('span', { class: c.triggerLabel, ...d.triggerLabel, text: label }),
     el('i', {
-      class: `${c.caret} ph-bold ${expanded ? 'ph-caret-down' : 'ph-caret-right'}`,
+      class: `${c.caret} ph-bold ${expanded ? 'ph-caret-down' : 'ph-caret-right'}`, ...d.caret,
       'aria-hidden': 'true',
     }));
   const region = el('div', {
-    class: c.region, id: `${id}-region`, role: 'group',
+    class: c.region, ...d.region, id: `${id}-region`, role: 'group',
     'aria-labelledby': `${id}-trigger`, hidden: expanded ? undefined : '',
   }, ...children);
-  return el('div', { class: c.section }, trigger, region);
+  return el('div', { class: c.section, ...d.section }, trigger, region);
 }
 
 mountSpecimen({ sections: [

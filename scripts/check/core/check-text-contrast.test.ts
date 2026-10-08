@@ -1,9 +1,19 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import {
-  COLORS, PAIRS, PALETTE, REMOVED, resolvePercent, scopesToMeasure, structureOf, surfacesUnder,
+  COLORS, COMPONENT_SHEETS, ON_INK_GATE, PAIRS, PALETTE, REMOVED, ROLE_SHEETS, SCOPED_PLUGINS, VOCABULARY_SHEETS,
+  answeredColour, catalogueOnInk, componentSheets, onInkPairs, paletteColours, resolvePercent, scopesToMeasure, structureOf, surfacesUnder, THEMES,
 } from './check-text-contrast.ts';
-import { FILL_PAIRS } from '../../generate/core/arena-to-prod/palette-keys.ts';
+import { paletteBlock } from '../../lib/core/palette-read.ts';
+import { resolvedFor } from './check-style-plugin.ts';
+import { repoRoot } from '../../lib/arena/repo-root.ts';
+import {
+  derivedLevels, levelDefaults, levelReports, levelsIn, raisedReports, STATUS_HUES,
+} from '../../generate/core/arena-cli/levels.ts';
+import { CATALOGUE } from './check-catalogue.ts';
+import { FILL_PAIRS } from '../../generate/core/arena-cli/palette-keys.ts';
 
 test('this gate and the shipped command hold the same fills legible', () => {
   const key = (p: { fill: string, content: string }) => `${p.fill}/${p.content}`;
@@ -86,4 +96,65 @@ test('a style plugin that moves no fill adds no scope, so the run is not the sam
   const scopes = scopesToMeasure(css, 'dark', ['quiet', 'loud']);
   assert.deepEqual(scopes.map((s) => s.label), ['the root plugin', '.arena-loud']);
   assert.deepEqual(scopes[1]?.surfaces, ['color-base-100', 'color-base-300']);
+});
+
+test('the vocabulary sheets are read with the component sheets, so a level a family writes is measured', () => {
+  assert.ok(COMPONENT_SHEETS.includes(VOCABULARY_SHEETS), 'a family sheet is where the accent and emphasis inks now live');
+  assert.ok(componentSheets().some((css) => css.includes('--arena-accent-ink')), 'the accent family sheet is among those read');
+});
+
+const accentSheet = () => componentSheets().find((css) => css.includes('--arena-accent-quiet-ink:')) as string;
+
+function measured(defaults: Record<string, number>) {
+  const palette = readFileSync(join(repoRoot, PALETTE), 'utf8');
+  const effects = ROLE_SHEETS.map((sheet) => readFileSync(join(repoRoot, sheet), 'utf8')).join('\n');
+  return THEMES.flatMap((theme) => {
+    const roles = resolvedFor(effects, '', theme.name);
+    const colours = paletteColours(paletteBlock(palette, theme.selector, 'palette.generated.css'));
+    const levels = levelsIn(accentSheet(), defaults);
+    const derived = derivedLevels(levels, roles, colours);
+    return [...levelReports(levels, roles, colours, derived), ...raisedReports(derived)];
+  });
+}
+
+test('a level the accent family draws is measured, and lowering one below its floor fails', () => {
+  const defaults = levelDefaults(readFileSync(join(repoRoot, COLORS), 'utf8'));
+  assert.deepEqual(measured(defaults), [], 'the levels the shipped colors.css declares clear the bars');
+  assert.ok(measured({ ...defaults, 'level-ink-quiet': 20, 'level-ink-muted': 20 }).length > 0,
+    'the quiet ink and the muted ink a family writes fail once their levels fall under what AA needs');
+  const soft = levelsIn(accentSheet(), { ...defaults, 'level-accent-soft-gold': 4 }).find((one) => one.level === 'level-accent-soft-gold');
+  assert.equal(soft?.percent, 4, 'the gold wash level is read off the family sheet, so a change of it is a change of what is measured');
+  assert.equal(soft?.selector, '.arena-accent-gold');
+});
+
+test('the on-ink of each status hue is measured over its ink in both themes, in the root plugin and every scoped one', () => {
+  const palette = readFileSync(join(repoRoot, PALETTE), 'utf8');
+  const effects = ROLE_SHEETS.map((sheet) => readFileSync(join(repoRoot, sheet), 'utf8')).join('\n');
+  assert.deepEqual([...STATUS_HUES], ['danger', 'success', 'warning', 'info']);
+  for (const theme of THEMES) {
+    const body = paletteBlock(palette, theme.selector, 'palette.generated.css');
+    for (const scope of ['', ...SCOPED_PLUGINS]) {
+      const roles = resolvedFor(effects, scope, theme.name);
+      const pairs = onInkPairs(roles, body);
+      assert.deepEqual(pairs.map((one) => one.hue), [...STATUS_HUES]);
+      for (const one of pairs)
+        assert.ok(one.ratio !== null && one.ratio >= ON_INK_GATE, `${theme.name} ${scope || 'root'}: ${one.hue} on-ink over ink is ${one.ratio}`);
+      const same = new Map(roles).set('hue-danger-on-ink', roles.get('hue-danger-ink') ?? '');
+      assert.ok((onInkPairs(same, body)[0]?.ratio ?? 0) < ON_INK_GATE, 'content set in its own fill reads as nothing');
+    }
+  }
+});
+
+test('every catalogue entry sets each status hue\'s on-ink legibly over its ink in every palette it declares', () => {
+  const pairs = catalogueOnInk();
+  assert.ok(new Set(pairs.map((one) => one.entry)).size > 0, `no entry measured under ${CATALOGUE}`);
+  const failing = pairs.filter((one) => one.ratio === null || one.ratio < ON_INK_GATE);
+  assert.deepEqual(failing, []);
+});
+
+test('an entry\'s answer wins over the kernel default, and a silent entry takes the default', () => {
+  const colors = { 'base-100': '#ffffff', 'success-content': '#000000' };
+  const defaults = { 'hue-success-on-ink': '{color.success-content}' };
+  assert.equal(answeredColour('hue-success-on-ink', {}, {}, defaults, colors, 'dark'), '#000000');
+  assert.equal(answeredColour('hue-success-on-ink', { 'hue-success-on-ink': { $value: '{color.base-100}' } }, {}, defaults, colors, 'dark'), '#ffffff');
 });

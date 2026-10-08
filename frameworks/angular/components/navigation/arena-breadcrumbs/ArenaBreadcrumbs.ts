@@ -7,10 +7,12 @@ import { arenaBreadcrumbList } from '../../../StructuredData';
 import type { ArenaCrumb } from '../../../Api.generated';
 import { arenaBreadcrumbsStyles } from './ArenaBreadcrumbs.variants';
 import manifest from './ArenaBreadcrumbs.classes.generated';
+import { ArenaSlotAttributes } from '../../../SlotData';
 
 @Component({
   selector: 'arena-breadcrumbs',
   standalone: true,
+  imports: [ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { style: 'display: contents' },
   template: `
@@ -20,9 +22,9 @@ import manifest from './ArenaBreadcrumbs.classes.generated';
           <span [class]="styles().current()" [attr.data-arena-part]="parts.current" aria-current="page">{{ crumb.label }}</span>
         } @else {
           @if (crumb.href; as destination) {
-            <a [class]="linked().crumb()" [attr.data-arena-part]="parts.crumb" [attr.href]="destination" (click)="onCrumbClick(crumb, $event)">{{ crumb.label }}</a>
+            <a [class]="linked().crumb()" [arenaSlotData]="linked().$data.crumb()" [attr.data-arena-part]="parts.crumb" [attr.href]="destination" (click)="onCrumbClick(crumb, $event)">{{ crumb.label }}</a>
           } @else {
-            <span [class]="unlinked().crumb()" [attr.data-arena-part]="parts.crumb">{{ crumb.label }}</span>
+            <span [class]="unlinked().crumb()" [arenaSlotData]="unlinked().$data.crumb()" [attr.data-arena-part]="parts.crumb">{{ crumb.label }}</span>
           }
           <span [class]="styles().separator()" [attr.data-arena-part]="parts.separator" aria-hidden="true">{{ separator() }}</span>
         }
@@ -33,7 +35,7 @@ import manifest from './ArenaBreadcrumbs.classes.generated';
 export class ArenaBreadcrumbs {
   protected readonly parts = manifest.parts;
 
-  /** Names this navigation landmark. Required, and guarded at runtime: nothing can derive it, and the constant "Breadcrumb" it used to hardcode made two trails on one page indistinguishable as landmarks while satisfying the requirement mechanically. Say which hierarchy this is a trail through: "Project navigation", never "Breadcrumb". */
+  /** Names this navigation landmark. Required, and guarded at runtime: nothing can derive it, and a constant such as "Breadcrumb" makes two trails on one page indistinguishable as landmarks while satisfying the requirement mechanically. Say which hierarchy this is a trail through: "Project navigation", never "Breadcrumb". */
   readonly ariaLabel = input.required<string>();
   /** The trail, root first. The last entry is the current location and is never a link. */
   readonly items = input.required<readonly ArenaCrumb[]>();

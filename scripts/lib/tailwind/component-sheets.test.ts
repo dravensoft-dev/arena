@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  LAYER_ORDER, componentSheet, dedent, matchingBrace, ownersOf, preflightSheet, preludeSheet, splitUtilities,
+  LAYER_ORDER, componentSheet, dedent, hueSheet, matchingBrace, ownersOf, preflightSheet, preludeSheet, splitUtilities,
   topLevelChildren,
 } from './component-sheets.ts';
 
@@ -88,6 +88,12 @@ test('a component sheet imports the prelude first, so importing one alone is saf
   const sheet = componentSheet(['.arena-badge__root {\n  display: flex;\n}'], '../prelude.css');
   assert.match(sheet, /^@import '\.\.\/prelude\.css';/);
   assert.match(sheet, /@layer utilities \{\n {2}\.arena-badge__root \{\n {4}display: flex;\n {2}\}\n\}/);
+});
+
+test('a component sheet imports its hue sheet after the prelude, and a hue sheet is one utilities layer', () => {
+  const sheet = componentSheet(['.a {\n  b: 1;\n}'], '../prelude.css', ['../hues/a.hues.generated.css']);
+  assert.match(sheet, /^@import '\.\.\/prelude\.css';\n@import '\.\.\/hues\/a\.hues\.generated\.css';\n\n@layer utilities \{/);
+  assert.equal(hueSheet('.a {\n  --x: 1;\n}'), '@layer utilities {\n  .a {\n    --x: 1;\n  }\n}\n');
 });
 
 test('dedent removes the common indent and leaves relative depth intact', () => {

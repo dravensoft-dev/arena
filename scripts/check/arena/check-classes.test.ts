@@ -8,9 +8,10 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { REFERENCES } from '../../lib/arena/consumer-references.ts';
 import {
-  PAGE, SHEETS, NOT_WRITTEN, classesIn, shipped, zeroClassProblems, homeProblems,
-  staleExemptProblems, collect,
+  HOMES, PAGE, SHEETS, VOCABULARY_PAGE, NOT_WRITTEN, classesIn, shipped, zeroClassProblems, homeProblems,
+  staleExemptProblems, collect, utilitiesIn, themeUtilities,
 } from './check-classes.ts';
 
 function tree(files: Record<string, string>) {
@@ -26,7 +27,7 @@ function tree(files: Record<string, string>) {
 test('the subject is derived from the sheets the assembly copies, and the tree carries them', () => {
   assert.ok(SHEETS.length > 0, 'no sheet is declared, so every assertion below is vacuous');
   const names = shipped();
-  assert.ok(names.includes('arena-stack'), 'the rhythm sheet reached this gate');
+  assert.ok(names.includes('arena-stack'), 'the stack family\'s sheet reached this gate');
   assert.ok(names.includes('arena-compact'), 'the token layer reached this gate');
 });
 
@@ -56,25 +57,67 @@ test('an empty subject is a failure rather than a clean pass', () => {
   assert.deepEqual(zeroClassProblems(['arena-band']), []);
 });
 
-test('a class the sheets ship and the npm page never names is reported per layer', () => {
+test('a class the sheets ship and no home reference names is reported', () => {
   const base = tree({
-    [`frameworks/react/${PAGE}`]: 'the page names `.arena-band` and nothing else\n',
-    [`frameworks/angular/${PAGE}`]: 'the page names `.arena-band` and `.arena-compact`\n',
+    [PAGE]: 'the page names `.arena-band` and nothing else\n',
+    [`${REFERENCES}/style.md`]: 'another reference names `.arena-stack`\n',
   });
-  const problems = homeProblems(base, ['arena-band', 'arena-compact'], new Map());
-  assert.equal(problems.length, 1, 'one page names both and the other names one');
+  const problems = homeProblems(base, ['arena-band', 'arena-compact', 'arena-stack'], new Map());
+  assert.equal(problems.length, 1, 'any home reference naming a class is enough');
   assert.match(problems[0] ?? '', /arena-compact/);
-  assert.match(problems[0] ?? '', /react/);
+  assert.ok(HOMES.includes('install.md') && HOMES.includes('page.md'));
 });
 
 test('a declared class is kept off the page without a report', () => {
   const base = tree({
-    [`frameworks/react/${PAGE}`]: 'names nothing\n',
-    [`frameworks/angular/${PAGE}`]: 'names nothing\n',
+    [PAGE]: 'names nothing\n',
   });
   assert.deepEqual(homeProblems(base, ['arena-light'], NOT_WRITTEN), []);
 });
 
+const FAMILY = (dir: string, target: string) => ({
+  [`frameworks/tailwind/vocabulary/${dir}/F.family.json`]: JSON.stringify({ family: dir, reach: 'box', ...(target === 'markup' ? { target } : {}),
+    description: 'd', variants: { [`arena-${dir}-a`]: '[--arena-x:1px]' } }),
+});
+
+test('a component family option named only on the vocabulary page passes, one named nowhere fails', () => {
+  const base = tree({
+    ...FAMILY('opt', 'component'),
+    [PAGE]: 'names nothing\n',
+    [VOCABULARY_PAGE]: '| `opt` | `arena-opt-a` |\n',
+  });
+  assert.deepEqual(homeProblems(base, ['arena-opt-a'], new Map()), []);
+  assert.equal(homeProblems(base, ['arena-opt-b'], new Map()).length, 1, 'named nowhere, so it fails');
+});
+
+test('a component family option fails when the vocabulary page is absent or does not name it', () => {
+  const files = {
+    ...FAMILY('opt', 'component'),
+    [PAGE]: 'names nothing\n',
+  };
+  assert.equal(homeProblems(tree(files), ['arena-opt-a'], new Map()).length, 1, 'no vocabulary page');
+  assert.equal(homeProblems(tree({ ...files, [VOCABULARY_PAGE]: '| `opt` | `arena-opt-z` |\n' }), ['arena-opt-a'], new Map()).length, 1, 'a page that names other options');
+});
+
+test('a markup class named only on the vocabulary page still fails', () => {
+  const base = tree({
+    ...FAMILY('opt', 'markup'),
+    [PAGE]: 'names nothing\n',
+    [VOCABULARY_PAGE]: '| `opt` | `arena-opt-a` |\n',
+  });
+  assert.equal(homeProblems(base, ['arena-opt-a'], new Map()).length, 1);
+});
+
 test('the tree it actually ships passes, which is the claim the gate prints', () => {
   assert.deepEqual(collect(), []);
+});
+
+test('NOT_WRITTEN names the eight theme utilities, and an entry no sheet and no utility defines is stale', () => {
+  const eight = ['arena-shimmer', 'arena-pop', 'arena-menu', 'arena-fade', 'arena-prog-indeterminate', 'arena-prog-ring', 'arena-btn-spin', 'arena-spinner'];
+  for (const name of eight) assert.ok(NOT_WRITTEN.has(name), `${name} is recorded`);
+  assert.deepEqual([...themeUtilities().keys()].filter((name) => !NOT_WRITTEN.has(name)), []);
+  assert.deepEqual(utilitiesIn('/* @utility arena-no { } */ @utility arena-yes {\n a: b }\n@utility other { }'), ['arena-yes']);
+  const only = new Map([['arena-spinner', 'a reason long enough to be a reason']]);
+  assert.deepEqual(staleExemptProblems([], only, ['arena-spinner']), []);
+  assert.equal(staleExemptProblems([], only, []).length, 1);
 });

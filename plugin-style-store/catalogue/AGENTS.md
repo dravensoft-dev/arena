@@ -20,9 +20,10 @@ build in every project that took it, and none of those projects is in this tree 
 
 Four files, and a gate fails an entry missing any of them.
 
-- **`plugin.tokens.json`**, answering every role in `contracts/design/roles.json`. It is a root
-  plugin, since a project taking an entry names it first, so a role left unanswered is a missing
-  border rather than a plainer appearance.
+- **`plugin.tokens.json`**, answering every role in `contracts/design/roles.json` that carries no
+  default. It is a root plugin, because a project taking an entry names it first, so a role left
+  unanswered is a missing border rather than a plainer appearance; a role carrying a default is
+  completed with it, so an entry may stay silent on one.
 - **`plugin.css`**, selecting only through the `data-arena-part` hooks, unscoped by any class for
   the reason above, and never spelling `@layer`.
 - **`arena.config.json`**, carrying both polarities, the whole colour set and the three font slots,
@@ -35,9 +36,11 @@ Four files, and a gate fails an entry missing any of them.
 entry a cold start reads before it has chosen one. Node 4 of
 [`skills/design/references/cold-start.md`](../../skills/design/references/cold-start.md) matches a
 description against that line across the whole catalogue and then opens a single entry, which is
-what keeps choosing as cheap as the catalogue grows: an index would be a second answer to a question
-the entries already answer, and it would go stale where the entry it describes does not.
-`check:catalogue` fails an entry that carries no such line.
+what keeps choosing as cheap as the catalogue grows. It reads the line in
+[`INDEX.md`](./INDEX.md), which `generate:skills` writes by copying each entry's paragraph, because a
+reader served by the site or by `@dravensoft/arena-mcp` gets no directory listing to walk. The copy
+is not a second answer: `check:skills` fails it stale, and `check:catalogue` fails an entry that
+carries no such line.
 
 **The line names the SHAPE of the screen and not only what the product is about**, because the
 domain is what collides. A support desk and a project tracker are both a tool somebody keeps open

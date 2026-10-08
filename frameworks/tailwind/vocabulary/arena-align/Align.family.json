@@ -1,0 +1,10 @@
+{
+  "family": "align",
+  "reach": "box",
+  "description": "Whether a block of words and actions runs from the start edge or is centred in its column. The alignment is a decision about one composition, separate from its layout.",
+  "default": "arena-align-start",
+  "variants": {
+    "arena-align-start": "[--arena-align-items:flex-start] [--arena-align-text:start] [--arena-align-bleed-justify:flex-end]",
+    "arena-align-center": "[--arena-align-items:center] [--arena-align-text:center] [--arena-align-bleed-justify:center]"
+  }
+}

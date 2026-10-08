@@ -1,6 +1,0 @@
-{
-  "name": "ArenaOrientation",
-  "kind": "enum",
-  "description": "Whether a component's parts lay out side by side or stacked: which axis it runs along.",
-  "values": ["horizontal", "vertical"]
-}

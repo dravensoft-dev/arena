@@ -21,7 +21,17 @@ A named group of items inside an `ArenaSideNav` -- a subheading plus the items u
 
 <!-- @api end -->
 
-The heading reads `label`, in the mono uppercase micro-label treatment, and it is the group's accessible name. An `aria-labelledby` on the `role="group"` wrapper points at that same heading element, so the grouping a sighted user sees is the grouping a screen reader announces. Every item inside indents one step deeper than the section itself. That indent is `indentStep` from the enclosing `ArenaSideNav`, applied again, rather than a second value of its own. See `ArenaSideNav.indentStep`.
+<!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
+
+**Answers.** No family of the [vocabulary](../../../../VOCABULARY.md) decides anything in this component's own box.
+
+<!-- @answers end -->
+
+<!-- @keys GENERATED from the binding. -->
+**Keys:** none.
+<!-- @keys end -->
+
+The heading reads `label`, in the mono uppercase micro-label treatment, and it is the group's accessible name. An `aria-labelledby` on the `role="group"` wrapper points at that same heading element, so the grouping a sighted user sees is the grouping a screen reader announces. Every item inside indents one step deeper than the section itself. That indent is the style plugin's `pad-row-indent` role times the section's depth, rather than a second value of its own.
 
 ## Do / Don't
 
@@ -35,6 +45,6 @@ The heading reads `label`, in the mono uppercase micro-label treatment, and it i
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
+**The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

@@ -61,10 +61,10 @@ test('arena-key-value renders a real definition list and nothing to act on', () 
   } finally { fixture.destroy(); }
 });
 
-test('a figure takes a different value class from a line of prose', () => {
+test('a figure takes a different value attribute from a line of prose', () => {
   const fixture = render();
   try {
-    const values = Array.from(listOf(fixture).querySelectorAll('dd')).map((dd) => dd.className);
+    const values = Array.from(listOf(fixture).querySelectorAll('dd')).map((dd) => dd.getAttribute('data-arena-numeric'));
     assert.notEqual(values[0], values[1],
       'a money column that does not take tabular numerals is a column that jitters as it changes');
   } finally { fixture.destroy(); }

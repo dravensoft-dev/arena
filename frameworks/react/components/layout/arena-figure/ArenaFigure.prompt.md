@@ -3,6 +3,7 @@ answers, and it clips whatever you put in it, so a wall of figures reads as a wa
 
 ```tsx
 <ArenaFigure
+  className="arena-ratio-portrait"
   media={<img src={lot.image} alt={`${lot.farm}, ${lot.region}`} />}
   fallback={<i className="ph-bold ph-coffee-bean" aria-hidden="true" />}
   caption={`${lot.farm}, ${lot.altitude} m`} />
@@ -18,17 +19,26 @@ answers, and it clips whatever you put in it, so a wall of figures reads as a wa
 | `fallback` | slot |  |  | What the frame shows when there is no media, drawn centred and at rest rather than as an error: an icon standing for a category, a monogram, a shape. Absent along with media, the frame is an empty box of the right shape, which is what a loading wall wants. |
 | `overlay` | slot |  |  | Content laid over the media, on the wash the overlay role paints, so a mark or a line of text stays readable against a picture nobody chose. It is inside the frame and the caption is under it, which is the whole difference between the two. |
 | `caption` | primitive | `string` |  | A line under the frame, rendered as a real figcaption inside a real figure, so the association is the platform's rather than a class name's. Absent, the figure renders no caption element at all rather than an empty one. |
-| `ratio` | primitive | `string` | `"var(--aspect-media)"` | The shape of the frame, as a CSS aspect ratio. The default is the role, so a style plugin answers it for every figure at once and a shop crops portrait where a gallery tiles square. Give it a value outright for the figure whose shape is not the plugin's to decide: a video is sixteen by nine whatever the page sounds like. |
 
 <!-- @api end -->
+
+<!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
+
+**Answers** [`ratio`](../../../../VOCABULARY.md#ratio): `arena-ratio-media` (default), `arena-ratio-portrait`, `arena-ratio-square`, `arena-ratio-video`, `arena-ratio-wide`. Write one as `className="arena-ratio-portrait"` on the component, or on a container whose components should all take it. Property: `--arena-ratio`, set on a container of yours for a value no option names.
+
+<!-- @answers end -->
+
+<!-- @keys GENERATED from the binding. -->
+**Keys:** none.
+<!-- @keys end -->
 
 **Nothing here takes a source or an alternative text**, and that is the point. The picture is the
 element you wrote, so `src`, `srcset`, `loading` and `alt` stay where the platform already asks for
 them. An image's alternative is editorial: it says what the picture means on this page, which
 nothing can derive from a file name.
 
-**`ratio` defaults to the role.** A style plugin answers the shape of every figure at once. A shop then crops portrait where a gallery tiles square, and the same markup follows. Pass a value outright
-only for the figure whose shape is not the plugin's to decide, such as a video.
+**The `arena-ratio` default is the role.** `arena-ratio-media` reads `--aspect-media`, which a style plugin answers for every figure at once. A shop then crops portrait where a gallery tiles square, and the same markup follows. Write a class outright
+only for the figure whose shape is not the plugin's to decide, such as `arena-ratio-video`. For a shape no option names, set `--arena-ratio` on a container to a number, a fraction such as `3 / 2` or a token. A class on the figure wins over a property on its container.
 
 **`fallback` is a state and not an error.** The fallback draws centred and at rest when there is no media,
 which is what a category icon or a monogram is for. With neither media nor fallback the frame is
@@ -40,11 +50,11 @@ an empty box of the right shape, which is what a loading wall wants.
 - **Do** put the alternative text on your own `<img>`, and leave it empty when the figure is
   decorative and the caption already says everything.
 - **Do** let the frame crop. `fit-media` is exactly that, and a style plugin that would rather letterbox re-answers it for the whole page at once.
-- **Don't** wrap it in a box of your own to size it. The figure fills the column it is in and takes its shape from `ratio`.
+- **Don't** wrap it in a box of your own to size it. The figure fills the column it is in and takes its shape from the `arena-ratio` class.
 - **Don't** put a control in the overlay and expect it to be reachable before the caption. The slot is in the frame, which comes first in the reading order.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
+**The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

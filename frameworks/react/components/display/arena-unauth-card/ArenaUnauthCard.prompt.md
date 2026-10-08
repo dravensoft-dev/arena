@@ -8,13 +8,13 @@ supply. `brand`, `footer` and the children default slot stay nodes.
 
 ```tsx
 <ArenaUnauthCard
-  brand={<ArenaAppLogo size="md" mark={<img src="/assets/rotor-crimson.svg" alt="" />} name="Draven" dim="soft" />}
+  brand={<ArenaAppLogo mark={<img src="/assets/rotor-crimson.svg" alt="" />} name="Draven" dim="soft" className="arena-size-md" />}
   eyebrow="Delivery console"
   title="Welcome back"
   footer={<a href="/reset">Forgot your password?</a>}>
   <ArenaInput label="Email" value={email} onChange={onEmail} />
   <ArenaInput label="Password" type="password" />
-  <ArenaButton variant="primary" full>Sign in</ArenaButton>
+  <ArenaButton className="arena-fill">Sign in</ArenaButton>
 </ArenaUnauthCard>
 ```
 
@@ -32,6 +32,16 @@ supply. `brand`, `footer` and the children default slot stay nodes.
 | `footer` | slot |  |  | Centred muted line below the content: a recovery link, a legal note. |
 
 <!-- @api end -->
+
+<!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
+
+**Answers.** No family of the [vocabulary](../../../../VOCABULARY.md) decides anything in this component's own box.
+
+<!-- @answers end -->
+
+<!-- @keys GENERATED from the binding. -->
+**Keys:** none.
+<!-- @keys end -->
 
 **The panel does not centre itself.** The product owns the page. The wrapper is three lines,
 and writing them is what keeps a split layout beside an illustration possible:
@@ -63,6 +73,6 @@ and writing them is what keeps a split layout beside an illustration possible:
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
+**The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

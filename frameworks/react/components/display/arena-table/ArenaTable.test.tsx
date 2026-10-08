@@ -8,7 +8,7 @@ import { ArenaTableCell } from '../arena-table-cell/ArenaTableCell.tsx';
 import { ArenaBadge } from '../arena-badge/ArenaBadge.tsx';
 
 const COLUMNS = [
-  { header: 'Build', mono: true },
+  { header: 'Build', numeric: true },
   { header: 'Project' },
 ];
 const ROWS = [
@@ -58,9 +58,9 @@ test('every row, header cell and data cell takes its grid role from the element 
   const html = render();
   const count = (re: RegExp) => (html.match(re) || []).length;
 
-  assert.equal(count(/<tr\b/g), 3, 'the fixture no longer renders three rows');
-  assert.equal(count(/<th\b/g), 2, 'the fixture no longer renders two header cells');
-  assert.equal(count(/<td\b/g), 4, 'the fixture no longer renders four data cells');
+  assert.equal(count(/<tr\b/g), 3, 'the fixture did not render three rows');
+  assert.equal(count(/<th\b/g), 2, 'the fixture did not render two header cells');
+  assert.equal(count(/<td\b/g), 4, 'the fixture did not render four data cells');
 
   assert.equal(count(/<tr[^>]*role="row"/g), 0,
     'a <tr> already maps to a row, so writing the role back onto it is the hand-rebuild the contract refuses');
@@ -173,4 +173,20 @@ test('ArenaTableCell drops a consumer attribute -- the {...rest} escape is gone'
     <ArenaTableRow key="a"><ArenaTableCell data-stray="x">x</ArenaTableCell></ArenaTableRow>,
   ]);
   assert.doesNotMatch(html, /data-stray/, 'a consumer attribute reached the rendered <td> -- the {...rest} escape is back');
+});
+
+test('the first row, a sortable head and a numeric cell are groups on the base slots', () => {
+  const html = render({ sort: { column: 0, direction: 'asc' }, columns: [{ header: 'Build', numeric: true, sortable: true }, { header: 'Project' }] });
+  assert.match(html, /data-arena-part="table.th"[^>]*\bdata-arena-sortable=""/);
+  assert.equal((html.match(/data-arena-part="table.row"[^>]*\bdata-arena-first=""/g) || []).length, 1, 'only the first body row');
+  assert.match(html, /data-arena-part="table.td"[^>]*\bdata-arena-numeric=""/);
+});
+
+test('an interactive row selects the interactive group', () => {
+  const html = renderToStaticMarkup(
+    <ArenaTable columns={COLUMNS} label={LABEL} responsive={false}>
+      <ArenaTableRow interactive onClick={() => {}}><ArenaTableCell>a</ArenaTableCell><ArenaTableCell>b</ArenaTableCell></ArenaTableRow>
+    </ArenaTable>,
+  );
+  assert.match(html, /data-arena-part="table.row"[^>]*\bdata-arena-interactive=""/);
 });

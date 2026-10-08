@@ -16,18 +16,20 @@ import {
   resolvePayload, manifestIn, disagreement, LAYERS, type Manifest, type Installed,
 } from './payload.ts';
 import { catalogue, search, textOf, ROUTER_URI, SCHEME, type Entry } from './catalogue.ts';
-import { auditText } from '../arena-to-prod/audit.ts';
+import { auditText, loadVocabulary, type VocabularyIndex } from '../arena-cli/audit.ts';
 
 export const NAME = 'arena';
 
 export const CHECKED_AS = 'src/App.tsx';
 
 export const CHECK_SCOPE = 'Read as an application source, so a style plugin of your own is not '
-  + 'judged here: run arena-to-prod --audit for that half, which reads your config and knows '
+  + 'judged here: run `arena audit` for that half, which reads your config and knows '
   + 'which directories are plugins.';
 
-export function checked(source: string, path: string = CHECKED_AS) {
-  const found = auditText(path, source);
+export function checked(
+  source: string, path: string = CHECKED_AS, vocabulary: VocabularyIndex | null = null,
+) {
+  const found = auditText(path, source, 'app', false, vocabulary);
   return found.length === 0
     ? `No finding. ${CHECK_SCOPE}`
     : `${found.length} finding(s):\n${found.join('\n')}\n\n${CHECK_SCOPE}`;
@@ -81,7 +83,12 @@ export function opening(manifest: Manifest, entries: Entry[], installed: Install
     + (drift === null ? '' : `\n\n${drift}`);
 }
 
+export function vocabularyOf(payload: string, installed: Installed | null = null) {
+  return loadVocabulary(payload) ?? (installed === null ? null : loadVocabulary(installed.dir));
+}
+
 export function build(payload: string, manifest: Manifest, installed: Installed | null = null) {
+  const vocabulary = vocabularyOf(payload, installed);
   const { entries, byUri, byRel } = catalogue(payload, manifest);
   const server = new McpServer({ name: NAME, version: manifest.version });
 
@@ -91,7 +98,7 @@ export function build(payload: string, manifest: Manifest, installed: Installed 
       async (uri) => {
         const text = textOf(payload, entry, byRel);
         if (text === null) throw new Error(`${entry.rel} is named by the payload and is not there`);
-        return { contents: [{ uri: uri.href, text }] };
+        return { contents: [{ uri: uri.href, text, mimeType: entry.mime }] };
       });
   }
 
@@ -152,7 +159,7 @@ export function build(payload: string, manifest: Manifest, installed: Installed 
         + `whether it is read as a stylesheet or as markup. Defaults to ${CHECKED_AS}`),
     }),
   }, async ({ source, path }) => ({
-    content: [{ type: 'text' as const, text: checked(source, path ?? CHECKED_AS) }],
+    content: [{ type: 'text' as const, text: checked(source, path ?? CHECKED_AS, vocabulary) }],
   }));
 
   return { server, entries };

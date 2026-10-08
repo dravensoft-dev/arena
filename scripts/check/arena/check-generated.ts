@@ -6,7 +6,7 @@
 import { readFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { hostBinary } from '../../lib/arena/host-binary.ts';
-import { join } from 'node:path';
+import { join, posix } from 'node:path';
 import { globToRegExp } from '../../utils/text.ts';
 import { relPosix } from '../../utils/posix-path.ts';
 import { isMainModule } from '../../utils/main-module.ts';
@@ -77,15 +77,13 @@ export const UNTRACKED = {
     + 'the charts and ArenaTable share.',
   'frameworks/react/UseArenaContainerWidth.generated.js': 'the same, for the container-width hook.',
   'frameworks/react/UseDialogModal.generated.js': 'the same, for the modal focus helper.',
+  'frameworks/react/VocabularyClass.generated.js': 'the same, for the filter that keeps a className to its vocabulary.',
+  'frameworks/react/Vocabulary.generated.js': 'the same, for the vocabulary each component takes.',
   'frameworks/react/components/**/*.manifest.generated.ts':
     'the shared recipe for one component, emitted into the layer that renders it. The manifest is '
     + 'authored once as JSON under frameworks/tailwind/ and emitted per layer for the reason the '
     + 'script tokens are: a component\'s import then never crosses a layer boundary. '
     + 'check:tailwind-generated holds every copy to a fresh compile of the one source.',
-  'frameworks/react/Tv.generated.ts':
-    'the configured tailwind-variants instance both layers resolve a manifest through, emitted '
-    + 'beside the manifests for the same reason and held to its source by the same gate.',
-  'frameworks/react/Tv.generated.js': 'the compiled sibling of that, which a demo page loads.',
   'frameworks/react/Index.generated.ts':
     'the layer entry point, derived from the component directories. The package build compiles '
     + 'it and emits its declaration, so the only reader outside this repository is a tarball.',
@@ -127,6 +125,11 @@ export const UNTRACKED = {
     + 'directory is the one consumption surface, so no copy of it can disagree with another. '
     + 'The package build collects these into css/components/; check:component-css holds each to '
     + 'the manifest it came from.',
+  'frameworks/tailwind/consume/hues/**/*.hues.generated.css':
+    'the hue sheet of one component: one rule per slot and value of every group the manifest maps to '
+    + 'a hue, and one per slot its hues.always fixes, writing the hue channels on the element that reads them, compiled from the '
+    + 'manifest and Hues.json. The component sheet imports it after the prelude, and the package '
+    + 'build collects these into css/hues/.',
   'frameworks/tailwind/consume/Components.generated.css':
     'the barrel of every component sheet, in one import, which is what a page drawing most of '
     + 'the library links and what the package ships as css/components.css. A page that draws a '
@@ -149,6 +152,12 @@ export const UNTRACKED = {
     + 'import never crosses a boundary. It replaces the two runtime dependencies outright.',
   'frameworks/angular/ArenaStyles.generated.ts': 'the same file, emitted into the other layer.',
   'frameworks/react/ArenaStyles.generated.js': 'the compiled sibling of that, which a demo page loads.',
+  'frameworks/tailwind/consume/vocabulary/*.generated.css':
+    'one sheet per vocabulary family, compiled from its family file and the manifests that answer it, '
+    + 'which a page and a package import beside the component sheets.',
+  'frameworks/react/Vocabulary.generated.ts':
+    'the vocabulary class each component takes, as a type and as the runtime list the className '
+    + 'filter keeps, emitted from the families and the manifests\' answers.',
 };
 
 function walk(dir: string, root: string): string[] {
@@ -214,6 +223,21 @@ function gitRun(args: string[], cwd: string) {
   return (stdout ?? '').split('\n').filter(Boolean);
 }
 
+export function introImportProblems(root = ROOT, run = gitRun) {
+  const tracked = new Set(run(['ls-files'], root));
+  const problems = [];
+  for (const sheet of [...tracked].filter((rel) => rel.startsWith('intro/') && rel.endsWith('.css'))) {
+    const source = readFileSync(join(root, sheet), 'utf8');
+    for (const [, target] of source.matchAll(/@import\s+(?:url\()?["']([^"')]+)["']/g)) {
+      if (!target || /^([a-z]+:)?\/\//i.test(target)) continue;
+      const rel = posix.normalize(posix.join(posix.dirname(sheet), target));
+      if (!tracked.has(rel))
+        problems.push(`${sheet} @imports ${rel}, which the index does not hold — a tag or an unbuilt clone serves the page without it`);
+    }
+  }
+  return problems;
+}
+
 export function unmarkedCoverageProblems(root = ROOT, run = gitRun) {
   const tracked = run(['ls-files'], root);
   return Object.keys(UNMARKED)
@@ -222,7 +246,7 @@ export function unmarkedCoverageProblems(root = ROOT, run = gitRun) {
 }
 
 function main() {
-  const problems = [...unmarkedProblems(), ...trackingProblems(), ...unmarkedCoverageProblems()];
+  const problems = [...unmarkedProblems(), ...trackingProblems(), ...unmarkedCoverageProblems(), ...introImportProblems()];
   if (problems.length > 0) {
     for (const problem of problems) console.error(`check-generated: ${problem}`);
     console.error(`\ncheck-generated: ${problems.length} problem(s)`);

@@ -4,8 +4,8 @@ Arena's component list is the furniture of an application somebody works in. A p
 ring, a feed of posts, a slideshow, a document editor and a game map are outside that list. The
 router says so before it says anything else. This page is what that sentence owes you.
 
-**The answer is not that Arena is the wrong choice.** The skin travels either way: a style plugin
-answers every role whatever the product is, and one of the products measured on this kernel is a
+**The answer is not that Arena is the wrong choice.** The skin travels either way: a style plugin's
+answers hold whatever the product is, and one of the products measured on this kernel is a
 photo feed. What changes is that you write the markup and Arena hands you the parts. The
 question stops being "which component" and becomes "which of Arena's pieces does this element
 need". Read this once, when you have found the first screen with no component under it.
@@ -26,22 +26,64 @@ markup can be held to:
 Read the one your element is, and bind what it requires. These files are the same source Arena's
 own components are held to, so what you write is held to the standard the components are.
 
-## One of those two is handed over, and the other is not
+## The modal contract is handed over, and the feed's keys are written here
 
-**You do not write a focus trap.** The package exports the one Arena's own dialogs run on. Your
-layer's `PACKAGE.md` names three exports. The three are the modal contract, the tone-to-colour map for
+**You do not write a focus trap.** The package exports the one Arena's own dialogs run on. [`exports.md`](./exports.md) lists what is handed over here, with the wiring in each layer. The handover is the modal contract, the tone-to-colour map for
 a status shape you draw, and the visually-hidden style object for a label the design does not
 show. Reach
-for those rather than writing a second copy, and read that page's export table before you reach
+for those rather than writing a second copy, and read its export table before you reach
 for anything else: what it names is what carries a promise.
 
 **The feed pattern has no such export, and it is not an oversight you can wait out.** Arena binds
 it once, inside `ArenaActivityFeed`, and that component is not your feed. `ArenaActivityFeed` is
 an event log with a fixed row and no slot for your markup. Reaching for it because the name
-matches is the mistake this section exists to stop. Read how that component binds the pattern, in
-its own source, and write the same thing around your own article. The paging keys move focus
-between articles rather than scrolling, which is the part a reimplementation from memory gets
-wrong. Until an export exists, that reading is the handover.
+matches is the mistake this section exists to stop. The function below is how
+that component binds the keys, written for your own articles. The paging keys move focus between
+articles rather than scrolling, which is the part a reimplementation from memory gets wrong.
+
+```ts
+import { arenaFocusableElements } from '@dravensoft/arena-react'; // or '@dravensoft/arena-angular'
+
+export function onFeedKeydown(event: KeyboardEvent, feed: HTMLElement) {
+  if (event.ctrlKey && (event.key === 'End' || event.key === 'Home')) {
+    const after = event.key === 'End';
+    const side = after ? Node.DOCUMENT_POSITION_FOLLOWING : Node.DOCUMENT_POSITION_PRECEDING;
+    const outside = arenaFocusableElements(feed.ownerDocument.body)
+      .filter((one) => !feed.contains(one) && feed.compareDocumentPosition(one) & side);
+    const target = after ? outside[0] : outside.at(-1);
+    if (target) { event.preventDefault(); target.focus(); }
+    return;
+  }
+  if (event.key !== 'PageDown' && event.key !== 'PageUp') return;
+  const articles = [...feed.querySelectorAll<HTMLElement>('article')];
+  const from = event.target instanceof Element ? event.target.closest('article') : null;
+  const step = event.key === 'PageDown' ? 1 : -1;
+  const there = from === null ? (step === 1 ? 0 : articles.length - 1) : articles.indexOf(from) + step;
+  if (there < 0 || there >= articles.length) return;
+  event.preventDefault();
+  articles[there]?.focus();
+}
+```
+
+Keep the handler in its own module beside the component. Call it from the feed's own key handler: `onKeyDown={(e) => onFeedKeydown(e.nativeEvent, e.currentTarget)}` in React, `(keydown)="onFeedKeydown($event, feed)"` on a `#feed` element in Angular, with the function assigned to a field of the component. Each `article` carries `tabindex="0"`, so the keys have somewhere to land.
+
+```ts
+import { Component } from '@angular/core';
+import { onFeedKeydown } from './feed-keydown';
+
+@Component({
+  selector: 'app-feed',
+  template: `
+    <div #feed role="feed" aria-label="Posts" (keydown)="onFeedKeydown($event, feed)">
+      <article tabindex="0">First post</article>
+      <article tabindex="0">Second post</article>
+    </div>
+  `,
+})
+export class AppFeed {
+  protected readonly onFeedKeydown = onFeedKeydown;
+}
+```
 
 **`isArenaOwnActivation(target, container)`** is the one to know about by name. A post that opens on tap and carries a like button inside it is two activations on one
 surface. The predicate is how the outer one keeps its hands off the inner, and it is the same rule
@@ -49,18 +91,18 @@ Arena's own clickable rows run on.
 
 ## The stylesheets are for content you draw
 
-The package ships more than the components' own CSS. Four stylesheets are written for markup that
-is not a component. `css/rhythm.css` is the vertical stack between your elements. `css/page.css`
-is the column the page sits in. `css/numerals.css` is a figure that must not jitter as it counts.
-`css/sr-only.css` is the label a screen reader needs and the design does not show. Your layer's `PACKAGE.md` has the whole tree and says which depth to pick.
+The package ships more than the components' own CSS. Seven classes are written for markup that
+is not a component. The vocabulary page lists `.arena-stack` for the vertical stack between your elements and `.arena-row` for the horizontal one. `.arena-shell`, `.arena-shell__main` and `.arena-band` are the column the page sits in. `.arena-num` is a figure that must not jitter as it counts.
+`.arena-sr-only` is the label a screen reader needs and the design does not show. [`stylesheets.md`](./stylesheets.md) has the whole tree and each depth.
 
 **The frame around a picture is a component, and the grid around the frames usually is not.**
-`ArenaFigure` is the cell. That component's `ratio` defaults to the `aspect-media` role and its overlay slot paints
+`ArenaFigure` is the cell. That component's frame is `arena-ratio-media` unless a step class or `--arena-ratio` says
+otherwise, and `arena-ratio-media` reads the `aspect-media` role. The figure's overlay slot paints
 `overlay-media`, so the two roles below are answered for every picture at once. A wall then
 reads as a wall rather than as whatever sizes the images happened to be. Use it for a post's image
 and for a wall's cell alike.
 
-The grid holding them is the split. `ArenaGrid` auto-fits off the `grid-min` role, which is what
+The grid holding them is the split. `ArenaGrid` auto-fills off the `grid-min` role, which is what
 you want when the count is the data's and the plugin decides how dense it looks. A wall that is **three across because the design says three** is
 `grid-template-columns: repeat(3, 1fr)` on an element of your own, in one line. `ArenaGrid`'s own
 Don't says so, because two products measured wanting a fixed count wrote exactly that line rather

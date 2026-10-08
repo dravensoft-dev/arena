@@ -16,28 +16,39 @@ const [dark, setDark] = useState(false);
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
 | `state` | primitive | `boolean` | `false` | The current on/off value. Controlled: the consumer owns it and pushes it each render. |
-| `orientation` | enum | `ArenaOrientation` | `"horizontal"` | Whether the switch lies horizontally or stands vertically. |
-| `size` | enum | `ArenaSwitchSize` | `"md"` | The switch's overall size. |
 | `iconOn` | primitive | `string` |  | A Phosphor class name for the glyph shown while on. Arena draws the aria-hidden `<i>`. |
 | `iconOff` | primitive | `string` |  | A Phosphor class name for the glyph shown while off. |
 | `label*` | primitive | `string` |  | The accessible name for the switch, also drawn beside it. |
 | `disabled` | primitive | `boolean` | `false` | Whether the switch is inoperable. |
-| `confirm` | primitive | `boolean` | `false` | When set, a change is not applied on the fly; it is requested through `requestChange` so the host can confirm it first. |
+| `confirm` | primitive | `boolean` | `false` | When set, a change is not applied on the fly; it is requested through `onRequestChange` so the host can confirm it first. |
 | `onFuncOn` | event |  |  | The switch was turned on. |
 | `onFuncOff` | event |  |  | The switch was turned off. |
 | `onRequestChange` | event |  |  | A change was requested while `confirm` is set: the host opens an ArenaConfirmDialog and, on confirmation, flips `state` (the requested value is always the negation of the current one). |
 
 <!-- @api end -->
 
+<!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
+
+**Answers** [`size`](../../../../VOCABULARY.md#size): `arena-size-2xl`, `arena-size-lg`, `arena-size-md` (default), `arena-size-sm`, `arena-size-xl`. Write one as `className="arena-size-2xl"` on the component, or on a container whose components should all take it.
+
+**Answers** [`orientation`](../../../../VOCABULARY.md#orientation): `arena-orientation-horizontal` (default), `arena-orientation-vertical`. Write one as `className="arena-orientation-vertical"` on the component, or on a container whose components should all take it.
+
+<!-- @answers end -->
+
+<!-- @keys GENERATED from the binding. -->
+**Keys**, from [`switch`](../../../../../contracts/behaviour/switch.json):
+- `Space`: toggle between on and off.
+<!-- @keys end -->
+
 `onFuncOn`/`onFuncOff` are transition events rather than a value; each fires with no payload,
 once, for the direction the activation moved. There is no `onChange`: read the direction
 from which handler fired, not from an event argument.
 
-For **high-impact** toggles (H5) add `confirm`. An activate no longer fires `onFuncOn` or `onFuncOff` at all, and calls `onRequestChange()` instead. That call is payload-less too, since the requested value is always `!state`. The host can then open an ArenaConfirmDialog and push `state` itself once the user confirms. **`confirm` alone is what diverts the activation**,
+For **high-impact** toggles (H5) add `confirm`. An activate fires neither `onFuncOn` nor `onFuncOff`, and calls `onRequestChange()` instead. That call is payload-less too, since the requested value is always `!state`. The host can then open an ArenaConfirmDialog and push `state` itself once the user confirms. **`confirm` alone is what diverts the activation**,
 never whether a handler was passed: `confirm` set with no `onRequestChange` is a switch that
-does nothing at all. The cost is the accepted one of the rule that no render or behaviour follows from whether a listener is bound. The cost is worth paying, because what it replaced applied a guarded change silently. **No runtime guard can catch it**: "is anything listening?"
+does nothing at all. The cost is the accepted one of the rule that no render or behaviour follows from whether a listener is bound. The cost is worth paying, because a fallback on a bound listener applies a guarded change silently. **No runtime guard can catch it**: "is anything listening?"
 is precisely the question a component may not ask. The behaviour is pinned, so the fallback
-cannot come back unnoticed.
+cannot appear unnoticed.
 
 ```tsx
 const [armed, setArmed] = useState(false);
@@ -53,9 +64,8 @@ const [pending, setPending] = useState(false);
 </ArenaConfirmDialog>
 ```
 
-`orientation`, which is `'horizontal'` by default or `'vertical'`, lays the track along the other axis. Reach for `vertical` only where the surrounding layout is itself vertical, such as a narrow settings rail, and never as a decorative variant. `size` (`'sm' | 'md' | 'lg' | 'xl' | '2xl'`,
-default `'md'`) scales the track and knob together; `'md'` matches the pre-redesign
-component's only size exactly, so an existing call site that names no `size` renders
+`arena-orientation-vertical` lays the track along the other axis, and `arena-orientation-horizontal` is the default. Reach for the vertical class only where the surrounding layout is itself vertical, such as a narrow settings rail, and never as decoration. The `arena-size-*` classes, `sm` to `2xl`, scale the track and knob together. `arena-size-md` is the default and matches the pre-redesign
+component's only size exactly, so an existing call site that names no size class renders
 unchanged.
 
 **Do** own `state` in the parent and push it back from `onFuncOn`/`onFuncOff` (or from
@@ -84,6 +94,6 @@ resolves (typically `ArenaConfirmDialog`'s `onConfirm`), not from a transition e
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
+**The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

@@ -1,4 +1,5 @@
-Arena status/emphasis tag, a chip whose `tone` follows the ArenaBadge/ArenaTag taxonomy.
+Arena status/emphasis tag, a chip whose `tone` is `neutral`, `success`, `warning` or
+`danger`, never ArenaBadge's `info`.
 Standalone, `OnPush`, signal I/O. `removable` shows an
 Arena-drawn dismiss `×` that emits `remove` on click.
 
@@ -8,7 +9,7 @@ and a project name are identities, so they take a ramp slot and keep it everywhe
 
 ```html
 <arena-tag>Neutral</arena-tag>
-<arena-tag tone="primary">Active</arena-tag>
+<arena-tag class="arena-accent-primary">Active</arena-tag>
 <arena-tag tone="danger">Blocked</arena-tag>
 <arena-tag [colorId]="3">Backend</arena-tag>
 <arena-tag removable (remove)="drop('staging')">Staging</arena-tag>
@@ -21,18 +22,30 @@ and a project name are identities, so they take a ramp slot and keep it everywhe
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
 | `content` | slot |  |  | The tag's label. |
-| `tone` | enum | `ArenaTagTone` | `"neutral"` | The tag's emphasis colour. Ignored while `colorId` names a ramp slot, because a tag draws one colour and the two mean different things. |
-| `colorId` | enum | `ArenaCatSlot` |  | An identity colour from the categorical ramp, the ramp the charts and the calendar read, so one entity keeps its colour across a chart, a schedule and a label. Colour here means which thing and never what state, which is why it replaces `tone` rather than joining it: a label reading "Backend" is not a warning, and a tag that could say both at once would say neither. Optional, and its absence is the tone tag. The slot's colour also reaches the tag as a custom property, `--arena-tag-cat`, so an appearance that fills the marker rather than outlining it is a style plugin's to write and needs no member here. |
+| `tone` | enum | `ArenaTagTone` | `"neutral"` | What state the tag reports; neutral reports none. Ignored while `colorId` names a ramp slot, because a tag draws one colour and the two mean different things. |
+| `colorId` | enum | `ArenaCatSlot` |  | An identity colour from the categorical ramp, the ramp the charts and the calendar read, so one entity keeps its colour across a chart, a schedule and a label. Colour here means which thing and never what state, which is why it replaces `tone` rather than joining it: a label reading "Backend" is not a warning, and a tag that could say both at once would say neither. Optional, and its absence is the tone tag. The slot reaches the tag as `data-arena-color-id` and its colour through the hue channels (`--arena-hue-ink`, `--arena-hue-edge`, `--arena-hue-fill-strong`, `--arena-hue-fill-soft`), so an appearance that fills the marker rather than outlining it is a style plugin's to write and needs no member here. |
 | `removable` | primitive | `boolean` | `false` | Whether the dismiss × is shown. Every layer gates the × on this member and never on whether anything listens for `remove`, because Arena never derives what it draws from what a consumer listens for. Removability is a declared input, not something inferred from the event. |
 | `disabled` | primitive | `boolean` | `false` | Whether removal is unavailable while the tag stays visible: a filter a consumer's permissions lock, not a tag that is merely inert. It reflects through `aria-disabled` rather than the native `disabled` attribute, so the × keeps its place in the tab order and a screen-reader user is told the action is unavailable instead of never finding it. With `removable` false there is no × and nothing to disable. |
 | `remove` | event |  |  | The dismiss × was activated. Never emitted while `disabled`. |
 
 <!-- @api end -->
 
+<!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
+
+**Answers** [`accent`](../../../../VOCABULARY.md#accent): `arena-accent-plain` (default), `arena-accent-primary`. Write one as `class="arena-accent-primary"` on the component, or on a container whose components should all take it.
+
+<!-- @answers end -->
+
+<!-- @keys GENERATED from the binding. -->
+**Keys**, from [`button`](../../../../../contracts/behaviour/button.json):
+- `Space`: activate.
+- `Enter`: activate.
+<!-- @keys end -->
+
 **Do / Don't**
 - Use `tone="danger"` for a blocked/destructive status: the chip's border and
-  text render in `--error`, never a fill. The outline is the danger convention. The only filled danger surface in Arena is `ArenaConfirmDialog`'s final confirmation.
-- The leading dot is filled (`bg-current`, coloured by `tone`) even for `tone="danger"`, though the chip itself is outline. A tone dot is an identity mark rather than a danger surface, in the same family as `ArenaActivityFeed`'s own dot and `ArenaAvatar`'s presence dot. convention section.
+  text render in the danger hue (`--arena-hue-ink`), never a fill. The outline is the danger convention. The only filled danger surface in Arena is `ArenaConfirmDialog`'s final confirmation.
+- The leading dot is filled (`bg-current`, coloured by `tone`) even for `tone="danger"`, though the chip itself is outline. A tone dot is an identity mark rather than a danger surface, in the same family as `ArenaActivityFeed`'s own dot and `ArenaAvatar`'s presence dot.
 - Use `removable` only when removing the tag is a real user action (applied
   filters), not on informational tags, and handle `(remove)`, or the × has
   nothing wired to it.
@@ -41,21 +54,21 @@ and a project name are identities, so they take a ramp slot and keep it everywhe
 - Don't use `disabled` to mean "this tag is greyed out". A tag with no `×` is
   already inert; the state is about the remove action alone.
 - Don't use a tag as a button. The chip is a status or emphasis label. An action belongs on an `arena-button` rather than on the chip itself. The dismiss `×` is the one exception, and it is a real `<button>` gated on `removable`.
-- Don't add a `tone` outside the taxonomy: the five tones are the whole set.
+- Don't make emphasis a `tone`: it is the `accent` family's `arena-accent-primary` class.
 - Reach for `colorId` when the colour identifies rather than warns, and give the same entity the same slot on every screen. The ramp is the one the charts and `arena-calendar-event` read, so a label, a series and a schedule chip agree. Derive the slot from a stable key with
   `arenaCatSlotFor` rather than from the position of a row, which moves when the list is sorted.
 - Bind it, `[colorId]="3"`, rather than writing `colorId="3"`: the input takes a number and an
   unbound attribute hands it the string.
 - Don't pass `tone` and `colorId` together expecting both: `colorId` wins, and a chip that
   carried a state colour and an identity colour at once would read as neither.
-- The identity chip outlines, like every other tone. A filled one is an appearance decision: the
-  ramp colour reaches the host as `--arena-tag-cat`, so a style plugin fills `tag` with it and no
-  member is needed here.
+- The identity chip outlines, like every other tone. A filled one is an appearance decision. The ramp colour reaches the host as `data-arena-color-id`
+  and the hue channels (`--arena-hue-ink`, `--arena-hue-edge`, `--arena-hue-fill-strong` and
+  `--arena-hue-fill-soft`). A style plugin fills `tag` with it, so no member is needed here.
 
 **Words.** `tagRemove` names the remove button.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
+**The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

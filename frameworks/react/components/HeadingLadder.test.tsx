@@ -69,7 +69,7 @@ test('a level moves the element and nothing else', () => {
     assert.equal(after?.[1], 'h4', `${name}: every component on the ladder answers the member`);
     assert.equal(after?.[2], before?.[2],
       `${name}: a rung may not reach the class, or the member is a styling surface and a style `
-      + 'plugin no longer owns the register a title is drawn in');
+      + 'plugin does not own the register a title is drawn in');
   }
 });
 

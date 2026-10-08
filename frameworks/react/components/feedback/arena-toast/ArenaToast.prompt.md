@@ -13,14 +13,24 @@ Ephemeral notification. Use `actionLabel` + `onAction` to give the user an out: 
 |---|---|---|---|---|
 | `title` | primitive | `string` |  | The bold lead line. |
 | `message` | primitive | `string` |  | The body. |
-| `tone` | enum | `ArenaToastTone` | `"neutral"` | The side bar's colour, and whether the toast announces assertively. |
+| `tone` | enum | `ArenaToastTone` | `"neutral"` | The side bar's colour: neutral reports no outcome, success and danger report one. Whether the toast announces assertively. |
 | `actionLabel` | primitive | `string` |  | The label of the single inline action: Undo, Retry, View logs. Absent renders no action. |
 | `onAction` | event |  |  | The inline action was activated. |
-| `persist` | primitive | `boolean` | `false` | Disables the host's auto-dismiss and shows the Pinned marker. **Implied by `tone: "danger"`, which ignores `false`**: a critical message that vanishes on a timer is one a user can miss entirely, and this was documented as mandatory in an error state while nothing enforced it. Set it explicitly for any other tone that must not disappear on its own. |
-| `dismissible` | primitive | `boolean` | `false` | Whether the × is shown. Every layer gates the × on this member and never on whether anything listens for `close`, because Arena never derives what it draws from what a consumer listens for. |
+| `persist` | primitive | `boolean` | `false` | Disables the host's auto-dismiss and shows the Pinned marker. **Implied by `tone: "danger"`, which ignores `false`**: a critical message that vanishes on a timer is one a user can miss entirely, so an error state makes the pin mandatory and the layers enforce it rather than leave it to documentation. Set it explicitly for any other tone that must not disappear on its own. |
+| `dismissible` | primitive | `boolean` | `false` | Whether the × is shown. Every layer gates the × on this member and never on whether anything listens for `onClose`, because Arena never derives what it draws from what a consumer listens for. |
 | `onClose` | event |  |  | The × was activated. |
 
 <!-- @api end -->
+
+<!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
+
+**Answers** [`accent`](../../../../VOCABULARY.md#accent): `arena-accent-gold`, `arena-accent-plain` (default). Write one as `className="arena-accent-gold"` on the component, or on a container whose components should all take it.
+
+<!-- @answers end -->
+
+<!-- @keys GENERATED from the binding. -->
+**Keys:** none (`alert`, `status`).
+<!-- @keys end -->
 
 The action is a label and an event, never one object. An object member is pure data with known fields, and a callback is not data. `ArenaAlert` takes the same pair for the same reason.
 
@@ -32,7 +42,7 @@ close button, because a layer that cannot detect a listener could not implement 
 ```tsx
 const { toasts, raise, dismiss } = useArenaToasts();
 // raise({ tone: 'danger', title: 'Pipeline failed' })
-<ArenaToastHost placement="bottom-end">
+<ArenaToastHost className="arena-placement-bottom-end">
   {toasts.map((t) => <ArenaToast key={t.id} {...t} dismissible onClose={() => dismiss(t.id)} />)}
 </ArenaToastHost>
 ```
@@ -49,6 +59,6 @@ and answers `null` for a notice that must not be taken away. The two are tokens,
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
+**The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

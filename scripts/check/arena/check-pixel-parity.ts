@@ -1,13 +1,12 @@
-/* Captures the kitchen-sink page every layer draws, once per arrangement, and fails on one
- * differing pixel. The render suites go through happy-dom, which has no layout, so a geometry, an inherited
- * typography or a computed colour that moved in one layer alone passes every other gate. No
- * baseline: one browser renders both pages, so the question is whether they agree with EACH OTHER.
- * ALLOWED is the one relief and it is EMPTY, which is the claim: every appearance an arrangement
- * declares is identical to the pixel in both layers. An entry would be per sink and bounded on count AND
- * delta, and one nothing spends is stale, so no blanket threshold ever absorbs a move. Motion,
- * focus and MEASUREMENT stop before the shutter, the third because the shutter reaches past the
- * viewport and hands width 0 to every live ResizeObserver: a chart redraws collapsed and the
- * compositor takes the rest from that frame. Pairs are walked, and a sweep finding none fails. */
+/* Captures the kitchen-sink page every layer draws, once per arrangement, and fails on one differing
+ * pixel. The render suites go through happy-dom, which has no layout, so a geometry, an inherited
+ * typography or a computed colour that moved in one layer alone passes every other gate. One browser
+ * renders both pages, so the question is whether they agree with EACH OTHER; --baseline <ref> asks
+ * instead whether each layer agrees with itself built at that ref, a phase's acceptance instrument
+ * rather than a member of GATES. ALLOWED is the one relief and it is EMPTY: an entry would be per
+ * sink, bounded on count AND delta, and stale when unspent. Motion, focus and MEASUREMENT stop before
+ * the shutter, the third because the shutter reaches past the viewport and hands width 0 to every
+ * live ResizeObserver, so a chart redraws collapsed. Pairs are walked, and a sweep finding none fails. */
 import { readdirSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { withTimeout } from '../../utils/with-timeout.ts';
@@ -25,7 +24,8 @@ import {
 } from '../../lib/arena/page-errors.ts';
 import { READY, PAGE_FILE } from '../../lib/arena/kitchen-sink-page.ts';
 import { SINK_LAYERS } from '../../generate/arena/generate-kitchen-sink.ts';
-import { decode, difference, CHANNEL_NAMES } from '../../lib/arena/png.ts';
+import { decode, difference, CHANNEL_NAMES, type Raster } from '../../lib/arena/png.ts';
+import { prepareBaseline } from '../../lib/arena/baseline-tree.ts';
 
 export const node = {
   name: 'check:pixel-parity',
@@ -127,12 +127,12 @@ export function readyExpression(bound: Deadline) {
   })`;
 }
 
-export function sinkDir(layer: string) {
-  return join(root, 'frameworks', layer, 'kitchen-sink');
+export function sinkDir(layer: string, base = root) {
+  return join(base, 'frameworks', layer, 'kitchen-sink');
 }
 
-export function sinksIn(layer: string) {
-  const dir = sinkDir(layer);
+export function sinksIn(layer: string, base = root) {
+  const dir = sinkDir(layer, base);
   if (!existsSync(dir)) return [];
   return readdirSync(dir, { withFileTypes: true })
     .filter((entry) => entry.isDirectory() && existsSync(join(dir, entry.name, PAGE_FILE)))
@@ -222,7 +222,7 @@ export function dumpDir(env = arenaEnv()) {
   return env.ARENA_PIXEL_DUMP;
 }
 
-export function dump(dir: string, name: string, png: { react: Buffer; angular: Buffer }) {
+export function dump(dir: string, name: string, png: Record<string, Buffer>) {
   mkdirSync(dir, { recursive: true });
   const written = [];
   for (const [layer, bytes] of Object.entries(png)) {
@@ -242,7 +242,35 @@ export function loaded(cdp: Cdp, sessionId: string) {
   });
 }
 
-async function capture(cdp: Cdp, url: string) {
+export type Rect = { left: number; top: number; right: number; bottom: number };
+
+export function rectsExpression(selector: string) {
+  return `[...document.querySelectorAll(${JSON.stringify(selector)})].flatMap((e) => { `
+    + 'const all = [e, ...e.querySelectorAll("*")].filter((n) => n.getClientRects().length > 0).map((n) => n.getBoundingClientRect()); '
+    + 'if (all.length === 0) return []; '
+    + 'return [{ left: Math.min(...all.map((r) => r.left)) + scrollX, top: Math.min(...all.map((r) => r.top)) + scrollY, '
+    + 'right: Math.max(...all.map((r) => r.right)) + scrollX, bottom: Math.max(...all.map((r) => r.bottom)) + scrollY }]; })';
+}
+
+export class SelectorProblem extends Error {}
+
+export async function rectsOf(ev: (expression: string) => Promise<unknown>, selectors: string[]) {
+  const rects: Rect[][] = [];
+  for (const selector of selectors) {
+    try {
+      rects.push(await ev(rectsExpression(selector)) as Rect[]);
+    } catch (error) {
+      if (!(error instanceof PageThrew)) throw error;
+      throw new SelectorProblem(`check-pixel-parity: the allowance selector ${JSON.stringify(selector)} is not a valid selector (${error.message})`);
+    }
+  }
+  return rects;
+}
+
+export const matchedLine = (spent: number, matched: number, known: boolean) =>
+  `${!known ? 'no such sink' : spent === 0 ? 'unspent' : `${spent} pixel(s) spent`}, matched ${matched} element(s)`;
+
+export async function capture(cdp: Cdp, url: string, selectors: string[] = []) {
   const { targetId } = await cdp.send('Target.createTarget', { url: 'about:blank' });
   try {
     const { sessionId } = await cdp.send('Target.attachToTarget', { targetId, flatten: true });
@@ -273,7 +301,7 @@ async function capture(cdp: Cdp, url: string) {
       if (error instanceof PageThrew) return undefined;
       throw error;
     }) as Silence | undefined;
-    if (!painted.ready) return { png: null, settled: false, tries: 0, painted, silence, threw };
+    if (!painted.ready) return { png: null, settled: false, tries: 0, painted, silence, threw, rects: [] as Rect[][] };
 
     await ev(STILL);
     await ev(stableHeightExpression(PAINTED));
@@ -294,11 +322,11 @@ async function capture(cdp: Cdp, url: string) {
     let previous = await once();
     for (let tries = 1; tries <= SETTLE_TRIES; tries += 1) {
       const next = await once();
-      if (next.equals(previous)) return { png: next, settled: true, tries, painted, silence };
+      if (next.equals(previous)) return { png: next, settled: true, tries, painted, silence, rects: await rectsOf(ev, selectors) };
       previous = next;
       if (Date.now() >= until) break;
     }
-    return { png: previous, settled: false, tries: SETTLE_TRIES, painted, silence, threw };
+    return { png: previous, settled: false, tries: SETTLE_TRIES, painted, silence, threw, rects: await rectsOf(ev, selectors) };
   } finally {
     try { await cdp.send('Target.closeTarget', { targetId }); } catch { void 0; }
   }
@@ -324,6 +352,149 @@ export function paintProblem(name: string, layer: string,
       + `what it painted is not what it was asked to paint${silenceOf(shot.silence)}`;
   }
   return null;
+}
+
+export type Allow = { sink: string; selector: string };
+
+export function parseParityArgs(argv: string[]): { baseline: string | null; allow: Allow[] } {
+  const allow: Allow[] = [];
+  for (let i = 0; i < argv.length; i += 1) {
+    if (argv[i] !== '--allow') continue;
+    const value = argv[i + 1] ?? '';
+    const eq = value.indexOf('=');
+    if (eq <= 0 || eq === value.length - 1) {
+      throw new Error('check-pixel-parity: --allow takes <sink>=<selector>, as in --allow \'complete=[data-arena-part*="-chart"]\'');
+    }
+    allow.push({ sink: value.slice(0, eq), selector: value.slice(eq + 1) });
+  }
+  const at = argv.indexOf('--baseline');
+  if (at === -1) {
+    if (allow.length > 0) throw new Error('check-pixel-parity: --allow needs --baseline, since only a baseline run has a difference to allow');
+    return { baseline: null, allow };
+  }
+  const ref = argv[at + 1];
+  if (!ref || ref.startsWith('--')) {
+    throw new Error('check-pixel-parity: --baseline takes a git ref, as in --baseline HEAD~1');
+  }
+  return { baseline: ref, allow };
+}
+
+export function allowancesFor(allow: Allow[], sink: string) {
+  return allow.map((one, index) => ({ one, index }))
+    .filter(({ one }) => one.sink === '*' || one.sink === sink);
+}
+
+export function maskedProblem(name: string, baseline: Raster, tree: Raster, rects: Rect[]) {
+  if (baseline.width !== tree.width || baseline.height !== tree.height) {
+    return { problem: `${name}: the page is not the size it was. The baseline is ${baseline.width}x${baseline.height} `
+      + `and the tree is ${tree.width}x${tree.height}, which is content that reflowed, and no allowance covers that`,
+    inside: 0, outside: 0 };
+  }
+  const { width, height, channels } = baseline;
+  const boxes = rects.map((r) => ({ left: Math.floor(r.left), top: Math.floor(r.top),
+    right: Math.ceil(r.right), bottom: Math.ceil(r.bottom) }));
+  let inside = 0;
+  let outside = 0;
+  let box: Rect | null = null;
+  for (let y = 0; y < height; y += 1) {
+    for (let x = 0; x < width; x += 1) {
+      const at = (y * width + x) * channels;
+      let differs = false;
+      for (let c = 0; c < channels; c += 1) if (baseline.data[at + c] !== tree.data[at + c]) { differs = true; break; }
+      if (!differs) continue;
+      if (boxes.some((r) => x >= r.left && x < r.right && y >= r.top && y < r.bottom)) { inside += 1; continue; }
+      outside += 1;
+      box = box ? { left: Math.min(box.left, x), top: Math.min(box.top, y), right: Math.max(box.right, x),
+        bottom: Math.max(box.bottom, y) } : { left: x, top: y, right: x, bottom: y };
+    }
+  }
+  if (outside === 0) return { problem: null, inside, outside };
+  return { problem: `${name}: ${outside} pixel(s) differ outside the allowed parts, inside x=${box?.left}..${box?.right} `
+    + `y=${box?.top}..${box?.bottom}; ${inside} more differ inside them. Set ARENA_PIXEL_DUMP to a directory to have both captures written`,
+  inside, outside };
+}
+
+export function rasterProblem(name: string, baseline: Raster, tree: Raster) {
+  const size = baseline.width === tree.width && baseline.height === tree.height ? null
+    : `${name}: the page is not the size it was. The baseline is ${baseline.width}x${baseline.height} `
+      + `and the tree is ${tree.width}x${tree.height}, which is content that reflowed`;
+  const diff = difference(baseline, tree);
+  if (!diff) return { problem: size, pixels: 0 };
+  const { pixels, box, maxDelta, channel } = diff;
+  return { problem: `${name}: ${pixels} pixel(s) differ from the baseline, inside x=${box.left}..${box.right} `
+    + `y=${box.top}..${box.bottom}, the largest by ${maxDelta} on the ${CHANNEL_NAMES[channel] ?? channel} `
+    + `channel${size ? `. ${size}` : ''}. Set ARENA_PIXEL_DUMP to a directory to have both captures written`,
+  pixels };
+}
+
+async function baselineMain(ref: string, allow: Allow[]) {
+  const { dir, sha, reused } = prepareBaseline(ref, root);
+  const pairs = SINK_LAYERS.flatMap((layer) => sinksIn(layer)
+    .filter((sink) => sinksIn(layer, dir).includes(sink))
+    .map((sink) => ({ layer, sink })));
+  if (pairs.length === 0) {
+    console.error(`check-pixel-parity: found 0 page(s) drawn both in the tree and at ${sha.slice(0, 12)}. `
+      + 'An empty comparison is a failure rather than a clean pass: run bun run build in the tree.');
+    process.exit(1);
+  }
+  const exe = browserOrExit('check-pixel-parity');
+  const into = dumpDir();
+  const tree = await startStaticServer(root);
+  const base = await startStaticServer(dir);
+  const chrome = await launchChromium(exe);
+  const cdp = await connect(chrome.wsUrl);
+  const problems: string[] = [];
+  const spent = allow.map(() => 0);
+  const matched = new Set<number>();
+  const elements = allow.map(() => 0);
+  let compared = 0;
+  try {
+    for (const { layer, sink } of pairs) {
+      const mine = allowancesFor(allow, sink);
+      for (const { index } of mine) matched.add(index);
+      const selectors = mine.map(({ one }) => one.selector);
+      for (const theme of THEMES) {
+        const name = `${layer}/${sink}:${theme}`;
+        const page = (port: number) => `http://127.0.0.1:${port}/${pagePath(layer, sink)}?theme=${theme}`;
+        const now = await capture(cdp, page(tree.port), selectors);
+        const then = await capture(cdp, page(base.port), selectors);
+        const unpainted = [paintProblem(name, 'tree', now), paintProblem(name, 'baseline', then)]
+          .filter((one): one is string => one !== null);
+        if (unpainted.length > 0) { problems.push(...unpainted); continue; }
+        mine.forEach(({ index }, k) => { elements[index] = (elements[index] ?? 0) + (now.rects[k]?.length ?? 0); });
+        if (!now.png || !then.png) continue;
+        compared += 1;
+        if (now.png.equals(then.png)) continue;
+        const before = decode(then.png);
+        const after = decode(now.png);
+        const rects = mine.flatMap((_, k) => [...(now.rects[k] ?? []), ...(then.rects[k] ?? [])]);
+        const { problem } = mine.length === 0 ? rasterProblem(name, before, after)
+          : maskedProblem(name, before, after, rects);
+        mine.forEach(({ index }, k) => {
+          const own = [...(now.rects[k] ?? []), ...(then.rects[k] ?? [])];
+          spent[index] = (spent[index] ?? 0) + maskedProblem(name, before, after, own).inside;
+        });
+        if (problem === null) continue;
+        problems.push(problem);
+        if (into) dump(into, name.replace(/[/:]/g, '-'), { tree: now.png, baseline: then.png });
+      }
+    }
+  } finally {
+    await chrome.kill?.();
+    tree.close?.();
+    base.close?.();
+  }
+  const where = `${dir}${reused ? ', reused' : ''}; remove it with git worktree remove --force ${dir}`;
+  if (problems.length) {
+    console.error(`check-pixel-parity --baseline ${ref}: ${problems.length} page(s) moved against ${sha.slice(0, 12)} (${where})\n`);
+    for (const p of problems) console.error(`  ${p}\n`);
+    process.exit(1);
+  }
+  console.log(`check-pixel-parity --baseline ${ref}: ${compared} page(s) identical to ${sha.slice(0, 12)} byte for byte bar the allowed parts (${where})`);
+  allow.forEach((one, index) => {
+    const pixels = spent[index] ?? 0;
+    console.log(`  allow ${one.sink}=${one.selector}: ${matchedLine(pixels, elements[index] ?? 0, matched.has(index))}`);
+  });
 }
 
 const skip: (reason: string) => never = (reason) => cannotRun('check-pixel-parity', reason);
@@ -398,5 +569,13 @@ async function main() {
 
 if (isMainModule(import.meta.url)) {
   if (SINK_LAYERS.length < 2) skip('a comparison needs two layers, and the emitter names fewer');
-  await main();
+  const { baseline, allow } = parseParityArgs(process.argv.slice(2));
+  if (baseline) {
+    await baselineMain(baseline, allow).catch((error: unknown) => {
+      if (!(error instanceof SelectorProblem)) throw error;
+      console.error(error.message);
+      process.exit(1);
+    });
+  }
+  else await main();
 }

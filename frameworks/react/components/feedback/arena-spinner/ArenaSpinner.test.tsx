@@ -9,7 +9,7 @@ test('ArenaSpinner announces its label through an explicitly polite progressbar'
   assert.match(html, /role="progressbar"/);
   assert.match(html, /aria-live="polite"/,
     'role="progressbar" carries no implicit live region, so dropping the explicit aria-live '
-    + 'silently removes the announcement role="status" used to provide');
+    + 'silently removes the announcement role="status" provides');
   assert.match(html, /aria-label="Loading deploys"/);
 });
 
@@ -17,15 +17,14 @@ test('ArenaSpinner falls back to "Loading" when no label is given', () => {
   assert.match(renderToStaticMarkup(<ArenaSpinner />), /aria-label="Loading"/);
 });
 
-test('ArenaSpinner renders the diameter its size names, not the default', () => {
-  assert.match(renderToStaticMarkup(<ArenaSpinner size="sm" />), /\barena-spinner__circle--size-sm\b/);
-  assert.match(renderToStaticMarkup(<ArenaSpinner size="lg" />), /\barena-spinner__circle--size-lg\b/);
-  assert.doesNotMatch(renderToStaticMarkup(<ArenaSpinner size="lg" />), /\barena-spinner__circle--size-md\b/);
+test('ArenaSpinner takes its size as a class', () => {
+  assert.match(renderToStaticMarkup(<ArenaSpinner className="arena-size-lg" />), /\barena-size-lg\b/);
+  assert.doesNotMatch(renderToStaticMarkup(<ArenaSpinner />), /data-arena-size/);
 });
 
-test('ArenaSpinner renders the colour its tone names, and the ring takes it from currentColor', () => {
-  assert.match(renderToStaticMarkup(<ArenaSpinner tone="on-accent" />), /\barena-spinner__root--tone-on-accent\b/);
-  assert.match(renderToStaticMarkup(<ArenaSpinner tone="gold" />), /\barena-spinner__root--tone-gold\b/);
+test('ArenaSpinner takes its accent as a class, and the ring takes it from the root', () => {
+  assert.match(renderToStaticMarkup(<ArenaSpinner className="arena-accent-gold" />), /\bclass="[^"]*\barena-accent-gold\b[^"]*"[^>]*data-arena-part="spinner"/);
+  assert.doesNotMatch(renderToStaticMarkup(<ArenaSpinner />), /data-arena-tone/);
   assert.match(renderToStaticMarkup(<ArenaSpinner />), /\barena-spinner__circle\b/,
     'the ring reads the tone off the root rather than naming a colour of its own');
 });

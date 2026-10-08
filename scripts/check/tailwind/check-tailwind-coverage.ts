@@ -4,6 +4,11 @@ import { isMainModule } from '../../utils/main-module.ts';
 import { arenaTokens } from '../../lib/core/arena-tokens.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { MANIFESTS, PRESET } from '../../build/tailwind/build-tailwind.ts';
+import { readHues } from '../../lib/tailwind/hue-sheet.ts';
+import { readFamilies } from '../../lib/tailwind/vocabulary.ts';
+import type { Family } from '../../lib/tailwind/vocabulary.ts';
+import { readJson } from '../../utils/read-file.ts';
+import { ROOT_PLUGIN } from '../core/check-style-plugin.ts';
 
 export const node = {
   name: 'check:coverage',
@@ -14,6 +19,8 @@ export const node = {
 import { captured } from '../../utils/captures.ts';
 
 export const EXCLUDED = new Map([
+  ['pad-band-x', 'read inside the band\'s min()'],
+  ['pad-row-indent', 'only the side nav\'s arbitrary inset reads it'],
   ['sp-0', 'p-0 compiles to a literal 0px in v4 regardless of the theme'],
   ['lh-root', 'the floor every element inherits, set once on html in contracts/design/reset.css and '
     + 'never picked per element. A leading-root utility would invite a component to restate the '
@@ -38,13 +45,17 @@ export const EXCLUDED = new Map([
   ['fit-media', 'v4 has no object-fit namespace, and its object-cover/object-contain and the rest are '
     + 'static utilities naming a value, which is the shape of a scale rather than of a role. Reached '
     + 'through .fit-media in frameworks/tailwind/Media.css, hand-authored for exactly that reason'],
-  ['aspect-media', 'the shape of a media frame, which a member carries and ArenaFigure writes inline the '
-    + 'way ArenaGrid writes its track list, because a consumer pinning a video to sixteen by nine is '
-    + 'answering about one figure and not about the appearance. A theme key would also have collided with '
-    + 'the token: v4 emits aspect-<key> from --aspect-*, and the role is already spelt --aspect-media'],
-  ['grid-min', 'the narrowest column of an auto-fitting grid, which lands inside a repeat(auto-fit, '
-    + 'minmax(min(...), 1fr)) track list rather than on any property a utility sets. Reached as '
-    + 'grid-cols-[repeat(auto-fit,minmax(min(var(--grid-min),100%),1fr))]'],
+  ['aspect-media', 'the shape of a media frame, which the figure\'s frame reads through the ratio family, '
+    + 'because a consumer pinning a video to sixteen by nine is answering about one figure and not about the '
+    + 'appearance (R4). A theme key would also have collided with the token: v4 emits aspect-<key> from '
+    + '--aspect-*, and the role is already spelt --aspect-media'],
+  ['aspect-square', 'a frame a ratio option reads through its channel, never a utility'],
+  ['aspect-video', 'a frame a ratio option reads through its channel, never a utility'],
+  ['aspect-portrait', 'a frame a ratio option reads through its channel, never a utility'],
+  ['aspect-wide', 'a frame a ratio option reads through its channel, never a utility'],
+  ['grid-min', 'the narrowest column of an auto-filling grid, which lands inside a repeat(auto-fill, '
+    + 'minmax(min(...), 1fr)) track list rather than on any property a utility sets. Reached by the manifest '
+    + 'read of the grid-min family, grid-cols-[repeat(auto-fill,minmax(min(var(--arena-grid-min-width,var(--arena-grid-min,var(--grid-min))),100%),1fr))]'],
   ['bw', 'v4 has no border-width namespace; reached as border-[length:var(--bw)]'],
   ['bw-strong', 'v4 has no border-width namespace; no consumer today, available as border-[length:var(--bw-strong)]'],
   ['bw-surface', 'v4 has no border-width namespace, so a border role cannot become a named utility the way a radius role does; reached as border-[length:var(--bw-surface)]'],
@@ -98,6 +109,40 @@ export const EXCLUDED = new Map([
   ['limit-pagination-siblings', 'script-readable: an array bound, and the elision threshold derives from it in JS'],
 ]);
 
+for (const [hue, channels] of readHues()) {
+  if (hue.startsWith('identity-')) continue;
+  for (const channel of Object.keys(channels))
+    EXCLUDED.set(`hue-${hue}-${channel}`, 'a hue role, answered by the style plugin and read by the hue sheet '
+      + '(frameworks/tailwind/Hues.json) into a channel a manifest reads, so no utility is named after it');
+}
+
+export const OPTION_ROLE_REASON = 'an option role, read through a family channel rather than a utility';
+
+export function optionPrefixes(families: Iterable<Pick<Family, 'family' | 'variants'>>) {
+  const out = new Set<string>();
+  for (const { family, variants } of families)
+    for (const option of Object.keys(variants)) {
+      const name = option.replace(/^arena-/, '');
+      if (name.startsWith(`${family}-`)) out.add(`${name}-`);
+    }
+  return out;
+}
+
+export function optionRoles(roles: Iterable<string>, families: Iterable<Pick<Family, 'family' | 'variants'>>) {
+  const out = new Map<string, string>();
+  const prefixes = [...optionPrefixes(families)];
+  const names = new Set(prefixes.map((prefix) => prefix.slice(0, -1)));
+  for (const role of roles)
+    if (names.has(role) || prefixes.some((prefix) => role.startsWith(prefix))) out.set(role, OPTION_ROLE_REASON);
+  return out;
+}
+
+export function pluginOptionRoles(root = repoRoot) {
+  const roles = Object.keys(readJson(join(root, ROOT_PLUGIN)) as object);
+  const families = [...readFamilies(root).values()];
+  return { roles, excluded: optionRoles(roles, families), families };
+}
+
 export function presetTokens(css: string) {
   const out = new Set<string>();
   const m = css.match(/@theme\s*\{([\s\S]*)\}/);
@@ -110,8 +155,7 @@ export function presetTokens(css: string) {
     const key = line.slice(0, i).trim();
 
     if (!key.startsWith('--') || key.startsWith('--default-')) continue;
-    const ref = line.slice(i + 1).match(/^\s*var\(--([a-z0-9-]+)\)\s*$/);
-    if (ref) out.add(captured(ref));
+    for (const ref of line.slice(i + 1).matchAll(/var\(--([a-z0-9-]+)\)/g)) out.add(captured(ref));
   }
   return out;
 }
@@ -138,13 +182,14 @@ function main() {
   const tokens = arenaTokens();
   const preset = readFileSync(join(repoRoot, 'frameworks/tailwind/Theme.css'), 'utf8');
   const exposed = presetTokens(preset);
-  const errs = checkCoverage(tokens, exposed, EXCLUDED);
+  const excluded = new Map([...EXCLUDED, ...pluginOptionRoles().excluded]);
+  const errs = checkCoverage(tokens, exposed, excluded);
   if (errs.length) {
     console.error(`check-tailwind-coverage: ${errs.length} token(s) undeclared\n`);
     for (const e of errs) console.error(`  ${e}`);
     process.exit(1);
   }
-  console.log(`check-tailwind-coverage: ${tokens.size} token(s) — ${exposed.size} exposed, ${EXCLUDED.size} excluded on the record`);
+  console.log(`check-tailwind-coverage: ${tokens.size} token(s) — ${exposed.size} exposed, ${excluded.size} excluded on the record`);
 }
 
 if (isMainModule(import.meta.url)) main();

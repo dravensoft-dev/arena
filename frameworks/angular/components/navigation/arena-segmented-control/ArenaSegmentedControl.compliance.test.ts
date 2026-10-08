@@ -28,7 +28,7 @@ const RANGES: ArenaSegmentOption[] = [
   standalone: true,
   imports: [ArenaSegmentedControl],
   template: `<arena-segmented-control [options]="options" [ariaLabel]="ariaLabel" [name]="name"
-                                      [value]="value" [defaultValue]="defaultValue" [size]="size"
+                                      [value]="value" [defaultValue]="defaultValue"
                                       (change)="chosen.push($event)" />`,
 })
 class SegmentedControlHost {
@@ -37,7 +37,6 @@ class SegmentedControlHost {
   name: string | undefined = 'range';
   value: string | undefined = '7d';
   defaultValue: string | undefined = undefined;
-  size: 'sm' | 'md' = 'md';
   chosen: string[] = [];
 }
 
@@ -137,8 +136,8 @@ test('the selected segment is the styled one, and it changes when the value does
   const { fixture, host } = render();
   try {
     const labels = Array.from(host.querySelectorAll('label'));
-    assert.match(labels[1].getAttribute('class') ?? '', /arena-segmented-control__segment--selected-true/);
-    assert.match(labels[0].getAttribute('class') ?? '', /arena-segmented-control__segment--selected-false/);
+    assert.equal(labels[1].getAttribute('data-arena-selected'), '');
+    assert.equal(labels[0].hasAttribute('data-arena-selected'), false);
   } finally {
     fixture.destroy();
   }
@@ -146,8 +145,8 @@ test('the selected segment is the styled one, and it changes when the value does
   const other = render({ value: '24h' });
   try {
     const labels = Array.from(other.host.querySelectorAll('label'));
-    assert.match(labels[0].getAttribute('class') ?? '', /arena-segmented-control__segment--selected-true/);
-    assert.match(labels[1].getAttribute('class') ?? '', /arena-segmented-control__segment--selected-false/);
+    assert.equal(labels[0].getAttribute('data-arena-selected'), '');
+    assert.equal(labels[1].hasAttribute('data-arena-selected'), false);
   } finally {
     other.fixture.destroy();
   }

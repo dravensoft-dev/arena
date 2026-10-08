@@ -6,11 +6,13 @@
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor } from '../../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
 
 const manifest = await (await fetch('./ArenaCalendar.manifest.json')).json();
 const c = arenaClassesFor(manifest);
+const d = arenaSlotDataFor(manifest);
 const v = (opts) => arenaClassesFor(manifest, opts);
+const w = (opts) => arenaSlotDataFor(manifest, opts);
 
 const DAYS = [
   { weekday: 'Mon', number: '13', today: false },
@@ -28,11 +30,6 @@ const CHIPS = [
   { title: 'Retro', time: '10:00 – 11:00', slot: 2, top: 44, height: 44, day: 2, col: 0, cols: 1 },
 ];
 
-const paint = (slot) => ({
-  background: `color-mix(in oklab, var(--color-cat-${slot}) 16%, var(--surface-card))`,
-  borderLeftColor: `var(--color-cat-${slot})`,
-});
-
 const across = (day, col, cols) => {
   const left = ((day + col / cols) / DAYS.length) * 100;
   const share = (1 / (cols * DAYS.length)) * 100;
@@ -41,88 +38,88 @@ const across = (day, col, cols) => {
 
 function chip(spec, showTime) {
   const node = el('div', {
-    class: v({ clickable: true }).chip,
-    style: { top: `${spec.top}px`, height: `${spec.height}px`, ...across(spec.day, spec.col, spec.cols), ...paint(spec.slot) },
-  }, el('span', { class: c.title, text: spec.title }));
-  if (showTime) node.append(el('span', { class: c.time, text: spec.time }));
+    class: v({ clickable: true, colorId: String(spec.slot) }).chip, ...w({ clickable: true, colorId: String(spec.slot) }).chip,
+    style: { top: `${spec.top}px`, height: `${spec.height}px`, ...across(spec.day, spec.col, spec.cols) },
+  }, el('span', { class: c.title, ...d.title, text: spec.title }));
+  if (showTime) node.append(el('span', { class: c.time, ...d.time, text: spec.time }));
   return node;
 }
 
 function grid() {
-  const head = el('div', { class: c.headStrip, style: { gridTemplateColumns: TRACKS } });
+  const head = el('div', { class: c.headStrip, ...d.headStrip, style: { gridTemplateColumns: TRACKS } });
   for (const day of DAYS) {
-    head.append(el('div', { class: c.dayHead },
-      el('div', { class: c.weekday, text: day.weekday }),
-      el('div', { class: v({ today: day.today }).dayNumber, text: day.number })));
+    head.append(el('div', { class: c.dayHead, ...d.dayHead },
+      el('div', { class: c.weekday, ...d.weekday, text: day.weekday }),
+      el('div', { class: v({ today: day.today }).dayNumber, ...w({ today: day.today }).dayNumber, text: day.number })));
   }
 
-  const gutter = el('div', { class: c.gutter });
+  const gutter = el('div', { class: c.gutter, ...d.gutter });
   for (const [index, label] of HOURS.entries()) {
-    gutter.append(el('div', { class: c.hourLabel, style: { top: `${index * HOUR_H}px` }, text: label }));
+    gutter.append(el('div', { class: c.hourLabel, ...d.hourLabel, style: { top: `${index * HOUR_H}px` }, text: label }));
   }
 
-  const plot = el('div', { class: c.grid, style: { gridTemplateColumns: TRACKS } });
+  const plot = el('div', { class: c.grid, ...d.grid, style: { gridTemplateColumns: TRACKS } });
   for (const index of HOURS.keys()) {
-    plot.append(el('div', { class: c.rule, style: { top: `${index * HOUR_H}px` }, 'aria-hidden': 'true' }));
+    plot.append(el('div', { class: c.rule, ...d.rule, style: { top: `${index * HOUR_H}px` }, 'aria-hidden': 'true' }));
   }
   for (const index of DAYS.keys()) {
-    const column = el('div', { class: v({ firstColumn: index === 0 }).column });
+    const column = el('div', { class: v({ firstColumn: index === 0 }).column, ...w({ firstColumn: index === 0 }).column });
     for (const hour of HOURS.keys()) {
-      column.append(el('div', { class: c.cell, style: { top: `${hour * HOUR_H}px`, height: `${HOUR_H}px` } }));
+      column.append(el('div', { class: c.cell, ...d.cell, style: { top: `${hour * HOUR_H}px`, height: `${HOUR_H}px` } }));
     }
     plot.append(column);
   }
   for (const spec of CHIPS) plot.append(chip(spec, spec.height >= 32));
-  plot.append(el('div', { class: c.now, style: { top: '66px' } },
-    el('span', { class: c.nowDot })));
+  plot.append(el('div', { class: c.now, ...d.now, style: { top: '66px' } },
+    el('span', { class: c.nowDot, ...d.nowDot })));
 
-  const body = el('div', { class: c.body, style: { height: `${HOURS.length * HOUR_H}px` } }, gutter, plot);
-  return el('div', { class: c.root, style: { width: '820px' } },
-    head, el('div', { class: c.scroll }, body));
+  const body = el('div', { class: c.body, ...d.body, style: { height: `${HOURS.length * HOUR_H}px` } }, gutter, plot);
+  return el('div', { class: c.root, ...d.root, style: { width: '820px' } },
+    head, el('div', { class: c.scroll, ...d.scroll }, body));
 }
 
 function states() {
   const stage = el('div', { style: { position: 'relative', width: '820px', height: '76px' } });
 
   const plain = el('div', {
-    class: v({ clickable: true }).chip,
-    style: { top: '0px', height: '68px', left: '0%', right: '70%', ...paint(4) },
-  }, el('span', { class: c.title, text: 'Inert chip' }), el('span', { class: c.time, text: '09:00 – 10:30' }));
+    class: v({ clickable: true, colorId: '4' }).chip, ...w({ clickable: true, colorId: '4' }).chip,
+    style: { top: '0px', height: '68px', left: '0%', right: '70%' },
+  }, el('span', { class: c.title, ...d.title, text: 'Inert chip' }), el('span', { class: c.time, ...d.time, text: '09:00 – 10:30' }));
 
   const reserved = el('div', {
-    class: v({ clickable: true, reserve: true }).chip,
-    style: { top: '0px', height: '68px', left: '33%', right: '37%', ...paint(6) },
+    class: v({ clickable: true, reserve: true, colorId: '6' }).chip, ...w({ clickable: true, reserve: true, colorId: '6' }).chip,
+    style: { top: '0px', height: '68px', left: '33%', right: '37%' },
   },
-    el('span', { class: c.title, text: 'Kebab beside the title' }),
-    el('span', { class: c.time, text: '09:00 – 10:30' }),
-    el('span', { class: v({ actionsBelow: false }).kebabWrap },
+    el('span', { class: c.title, ...d.title, text: 'Kebab beside the title' }),
+    el('span', { class: c.time, ...d.time, text: '09:00 – 10:30' }),
+    el('span', { class: v({ actionsBelow: false }).kebabWrap, ...w({ actionsBelow: false }).kebabWrap },
       el('i', { class: 'ph-bold ph-dots-three-vertical', style: { fontSize: 'var(--icon-md)', color: 'var(--mute)' } })));
 
   const opened = el('div', {
-    class: v({ clickable: true, reserve: true, panelOpen: true }).chip,
-    style: { top: '0px', height: '68px', left: '66%', right: '4%', ...paint(8) },
+    class: v({ clickable: true, reserve: true, panelOpen: true, colorId: '8' }).chip, ...w({ clickable: true, reserve: true, panelOpen: true, colorId: '8' }).chip,
+    style: { top: '0px', height: '68px', left: '66%', right: '4%' },
   },
-    el('span', { class: c.title, text: 'Panel open' }),
-    el('span', { class: c.time, text: '09:00 – 10:30' }),
-    el('span', { class: v({ actionsBelow: false }).kebabWrap },
+    el('span', { class: c.title, ...d.title, text: 'Panel open' }),
+    el('span', { class: c.time, ...d.time, text: '09:00 – 10:30' }),
+    el('span', { class: v({ actionsBelow: false }).kebabWrap, ...w({ actionsBelow: false }).kebabWrap },
       el('i', { class: 'ph-bold ph-dots-three-vertical', style: { fontSize: 'var(--icon-md)', color: 'var(--mute)' } }),
-      el('span', { class: c.panel, style: { zIndex: 1 } },
-        el('span', { class: c.time, text: 'Edit' }),
-        el('span', { class: c.time, text: 'Cancel' }))));
+      el('span', { class: c.panel, ...d.panel, style: { zIndex: 1 } },
+        el('span', { class: c.time, ...d.time, text: 'Edit' }),
+        el('span', { class: c.time, ...d.time, text: 'Cancel' }))));
 
   stage.append(plain, reserved, opened);
   return stage;
 }
 
 function toolbar() {
-  return el('div', { class: c.toolbar, style: { width: '820px' } },
-    el('button', { class: c.nav, type: 'button', 'aria-label': 'Previous' },
+  return el('div', { class: c.toolbar, ...d.toolbar, style: { width: '820px' } },
+    el('button', { class: c.nav, ...d.nav, type: 'button', 'aria-label': 'Previous' },
       el('i', { class: 'ph-bold ph-caret-left' })),
-    el('button', { class: c.today, type: 'button', text: 'Today' }),
-    el('button', { class: c.nav, type: 'button', 'aria-label': 'Next' },
+    el('button', { class: c.today, ...d.today, type: 'button', text: 'Today' }),
+    el('button', { class: c.nav, ...d.nav, type: 'button', 'aria-label': 'Next' },
       el('i', { class: 'ph-bold ph-caret-right' })),
-    el('div', { class: c.heading, text: '13 – 15 Jul 2026' }),
-    el('div', { class: c.actions }, el('button', { class: c.today, type: 'button', text: 'New event' })));
+    el('div', { class: c.heading, ...d.heading, text: '13 – 15 Jul 2026' }),
+    el('div', { class: c.actions, ...d.actions }, el('button', { class: c.today, ...d.today, type: 'button', text: 'New event' })));
 }
 
 mountSpecimen({ sections: [

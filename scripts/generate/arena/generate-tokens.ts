@@ -7,7 +7,7 @@
  * An alias resolves to its value EXCEPT where that value is the SKIN's, which LATE_BOUND names:
  * the palette and the faces belong to the consuming project and the density axis to another
  * scope, so a role resolved at build time freezes one answer and inherits it everywhere.
- * REDECLARED_GROUPS says which of those are additionally restated per scope. */
+ * REDECLARED_GROUPS restates some of those per scope, and check:proximity's step-* cases hold it. */
 
 import StyleDictionary from 'style-dictionary';
 import { writeFileSync } from 'node:fs';
@@ -16,8 +16,8 @@ import { toPosix } from '../../utils/posix-path.ts';
 import type { PathModule } from '../../utils/posix-path.ts';
 import { camel } from '../../utils/case.ts';
 import { isMainModule } from '../../utils/main-module.ts';
-import { serialize } from '../core/arena-to-prod/serialize-token.ts';
-import { scopeOn } from '../core/arena-to-prod/style-plugin-rules.ts';
+import { serialize } from '../core/arena-cli/serialize-token.ts';
+import { scopeOn } from '../core/arena-cli/style-plugin-rules.ts';
 import { serializeScript } from '../../lib/core/serialize-script.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { ARENA_EXT, childEntries, isStamped, isToken } from '../../lib/core/dtcg-shapes.ts';
@@ -41,8 +41,6 @@ export const FILES = [
     { selector: ':root', source: 'spacing.json' },
     { selector: ':root', source: 'icon.json' },
     { selector: ':root', source: 'component.json' },
-    { selector: '.arena-compact', source: 'density.compact.json' },
-    { selector: '.arena-comfortable', source: 'density.comfortable.json' },
   ] },
   { out: 'effects.generated.css', blocks: [
     { selector: ':root', source: 'effects.json' },
@@ -128,6 +126,9 @@ export const node = {
   ])],
   writes: [...CSS_TARGETS, ...SCRIPT_TARGETS, BREAKPOINT_TARGET],
   feeds: [
+    'generate:npm-pages',
+    'check:channels',
+    'check:proximity',
     'build:angular-demo',
     'build:angular-package',
     'build:angular-tests',
@@ -144,6 +145,7 @@ export const node = {
     'check:coverage',
     'check:dimensions',
     'check:duplicate-constants',
+    'check:families',
     'check:style-plugin',
     'check:style-plugin-coverage',
     'check:generated',

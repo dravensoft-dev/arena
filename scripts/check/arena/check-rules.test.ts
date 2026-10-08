@@ -4,7 +4,7 @@ import {
   collect, heldProblems, shapeProblems, zeroScanProblems, emitProblems, ID,
 } from './check-rules.ts';
 import { RULES, type LanguageRule } from '../../lib/arena/language-rules.ts';
-import { RULE_TAGS } from '../../generate/core/arena-to-prod/audit.ts';
+import { RULE_TAGS } from '../../generate/core/arena-cli/audit.ts';
 import { TARGETS, MARKED, CONTEXT7 } from '../../generate/arena/generate-rules.ts';
 
 const rule = (over: Partial<LanguageRule> = {}): LanguageRule => ({
@@ -78,4 +78,20 @@ test('the copy rule is about the product\'s language, and Arena\'s words answer 
   assert.equal(copy.short, 'Copy is formal and direct, in the product\'s language.');
   assert.match(copy.body, /Arena's words follow the locale\./);
   assert.equal(RULES.some((one) => one.id === 'copy-is-english'), false);
+});
+
+test('the rules say a class of the vocabulary is the only thing on a component, and appearance is one', () => {
+  const own = RULES.find((one) => one.id === 'own-class');
+  assert.ok(own, 'own-class is declared');
+  assert.equal(own.short, 'Only a class of the vocabulary goes on an Arena component.');
+  assert.match(own.body, /Every class you may write is on the vocabulary page[;.]/);
+  assert.equal(own.held, 'own-class');
+  const appearance = RULES.find((one) => one.id === 'appearance-is-a-class');
+  assert.ok(appearance, 'appearance-is-a-class is declared');
+  assert.equal(appearance.short, 'Appearance is a class of the vocabulary, never a member.');
+  assert.equal(appearance.held, null);
+  assert.match(appearance.unheld ?? '', /type error in React and a template compile error in Angular/);
+  assert.doesNotMatch(appearance.body, /reported/);
+  const ids = RULES.map((one) => one.id);
+  assert.equal(ids.indexOf('appearance-is-a-class'), ids.indexOf('own-class') + 1);
 });

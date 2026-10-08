@@ -145,12 +145,12 @@ test('the counter needs both counter and maxLength, and shows neither without th
   }
 });
 
-test('the counter changes slot past nine tenths of the cap rather than changing a variant', () => {
+test('the counter changes slot past nine tenths of the cap rather than changing a group', () => {
   const calm = render({ value: 'a'.repeat(90), maxLength: 100, counter: true });
   try {
     const el = Array.from(calm.host.querySelectorAll('span')).find((s) => s.textContent === '90/100');
     assert.ok(el, 'the counter did not render at 90/100');
-    assert.doesNotMatch(el.getAttribute('class') ?? '', /arena-textarea__counter-near/);
+    assert.equal(el.hasAttribute('data-arena-near'), false);
   } finally {
     calm.fixture.destroy();
   }
@@ -159,7 +159,7 @@ test('the counter changes slot past nine tenths of the cap rather than changing 
   try {
     const el = Array.from(near.host.querySelectorAll('span')).find((s) => s.textContent === '95/100');
     assert.ok(el);
-    assert.match(el.getAttribute('class') ?? '', /arena-textarea__counter-near/);
+    assert.equal(el.getAttribute('data-arena-near'), '');
   } finally {
     near.fixture.destroy();
   }

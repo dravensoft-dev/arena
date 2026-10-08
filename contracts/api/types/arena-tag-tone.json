@@ -1,6 +1,6 @@
 {
   "name": "ArenaTagTone",
   "kind": "enum",
-  "description": "The tag's emphasis colour, per the ArenaBadge/ArenaTag tone taxonomy.",
-  "values": ["neutral", "primary", "success", "warning", "danger"]
+  "description": "The state a tag reports, per the ArenaBadge/ArenaTag tone taxonomy.",
+  "values": ["neutral", "success", "warning", "danger"]
 }

@@ -71,8 +71,8 @@ test('a surface a component renders INSIDE itself is linked too, since no fixtur
   assert.deepEqual(surfacesDrawn({ component: 'ArenaTable', uses: [] }, graph), ['ArenaPagination', 'ArenaTable']);
 });
 
-test('a hand-drawn chart contributes no sheet, and anything else with no surface is an error', () => {
-  assert.deepEqual(surfacesDrawn({ component: 'ArenaBarChart', uses: [] }, NOTHING_COMPOSED), []);
+test('a hand-drawn chart contributes the sheet of its legend and tooltip, and anything else with no surface is an error', () => {
+  assert.deepEqual(surfacesDrawn({ component: 'ArenaBarChart', uses: [] }, NOTHING_COMPOSED), ['ArenaBarChart']);
   assert.throws(
     () => surfacesDrawn({ component: 'ArenaBadge', uses: ['Nonexistent'] }, NOTHING_COMPOSED),
     /render it unstyled/,

@@ -44,3 +44,11 @@ test('an inert chip keeps its shed details in its text, visually hidden', () => 
   assert.deepEqual(shed, ['Ada, Grace', '8 of 12 seats', 'Room 4']);
   assert.equal(chip.getAttribute('aria-label'), null);
 });
+
+test('an interactive disabled chip carries no clickable state, and an enabled one does', () => {
+  const chip = (props: Partial<React.ComponentProps<typeof ArenaCalendarEvent>>) =>
+    chipFor(30, props).querySelector('[data-arena-part="calendar.chip"]')!;
+  assert.equal(chip({ interactive: true, disabled: true }).hasAttribute('data-arena-clickable'), false);
+  assert.equal(chip({ interactive: true }).hasAttribute('data-arena-clickable'), true);
+  assert.equal(chip({}).hasAttribute('data-arena-clickable'), false);
+});

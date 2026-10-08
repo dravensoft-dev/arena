@@ -15,7 +15,7 @@ import { ArenaTableCell } from '../arena-table-cell/ArenaTableCell.tsx';
 afterEach(cleanup);
 
 const LABEL = 'Recent deployments';
-const COLUMNS = [{ header: 'Service' }, { header: 'Commit', mono: true }];
+const COLUMNS = [{ header: 'Service' }, { header: 'Commit', numeric: true }];
 
 function rows() {
   return [

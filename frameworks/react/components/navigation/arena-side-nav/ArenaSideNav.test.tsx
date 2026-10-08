@@ -4,7 +4,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import React from 'react';
 import { ArenaSideNav } from './ArenaSideNav.tsx';
 import { ArenaSideNavItem } from '../arena-side-nav-item/ArenaSideNavItem.tsx';
-import { arenaIndentFor } from './SideNavInject.tsx';
+import { arenaIndentDepth } from './SideNavInject.tsx';
 
 const TREE = [
   <ArenaSideNavItem key="dashboard" id="dashboard" icon="ph-bold ph-squares-four" label="Projects" href="/projects" />,
@@ -29,11 +29,10 @@ test('the nav is labelled', () => {
 
 test('active and inactive items differ in weight and colour', () => {
   const html = renderToStaticMarkup(<ArenaSideNav ariaLabel="Primary" active="dashboard">{TREE}</ArenaSideNav>);
-  assert.match(html, /\barena-side-nav__item--active-true\b/);
-  assert.match(html, /\barena-side-nav__item--active-true\b/);
-  assert.match(html, /\barena-side-nav__item--active-true\b/);
-  assert.match(html, /\b(?:arena-side-nav__trigger|arena-side-nav__item--active-false)\b/);
-  assert.match(html, /\b(?:arena-side-nav__trigger|arena-side-nav__item--active-false)\b/);
+  assert.match(html, /data-arena-part="side-nav.item"[^>]*\bdata-arena-current=""/);
+  assert.match(html, /data-arena-part="side-nav.item"[^>]*\bdata-arena-current=""/);
+  assert.match(html, /data-arena-part="side-nav.item"[^>]*\bdata-arena-current=""/);
+  assert.match(html, /data-arena-part="side-nav.item"(?:(?!data-arena-current=)[^>])*>/);
 });
 
 test('onNav carries the activated id alone, and no DOM event reaches the handler', () => {
@@ -123,16 +122,9 @@ test('the item text re-densifies with the control scale', () => {
     'the control text step is what .arena-compact re-densifies, and the row reads it as a utility');
 });
 
-test('arenaIndentFor returns token arithmetic at every depth, never a bare length', () => {
-  assert.equal(arenaIndentFor(3, 0), 'calc(var(--sp-1) * 3)');
-  assert.equal(arenaIndentFor(3, 1), 'calc(var(--sp-1) * 3 + var(--sp-1) * 3)');
-  assert.equal(arenaIndentFor(3, 2), 'calc(var(--sp-1) * 3 + var(--sp-1) * 6)');
-
-  for (const depth of [0, 1, 2, 5]) {
-    const out = arenaIndentFor(3, depth);
-    assert.match(out, /var\(--sp-1\)/, 'the indent stopped reading a token');
-    assert.doesNotMatch(out, /\d+(px|rem|em)\b/, `arenaIndentFor(3, ${depth}) emitted a bare length: ${out}`);
-  }
+test('arenaIndentDepth returns the depth itself at every depth', () => {
+  assert.equal(arenaIndentDepth(0), 0);
+  assert.equal(arenaIndentDepth(2), 2);
 });
 
 test('ArenaSideNavItem: `id` is required and a blank one throws too', () => {

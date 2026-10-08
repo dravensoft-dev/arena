@@ -4,7 +4,7 @@ itself out of layout and the component renders the real `<ul>` or `<ol>`, becaus
 of a list are the element and not a class.
 
 ```html
-<arena-people-list label="Ruby league standings" ordered size="sm">
+<arena-people-list label="Ruby league standings" ordered class="arena-size-sm">
   @for (player of league(); track player.id) {
     <arena-person-row [rank]="player.rank" [name]="player.name" [src]="player.avatar"
                       [figure]="player.xp + ' XP'" [current]="player.isMe" />
@@ -15,13 +15,13 @@ of a list are the element and not a class.
   @for (account of suggestions(); track account.handle) {
     <arena-person-row [name]="account.name" [src]="account.avatar"
                       secondary="Followed by marisol.b">
-      <arena-button action variant="ghost" size="sm">Follow</arena-button>
+      <arena-button action class="arena-emphasis-ghost arena-size-sm">Follow</arena-button>
     </arena-person-row>
   }
 </arena-people-list>
 ```
 
-`size` is the list's, not the row's: the list provides it and each row pulls it, the same
+The `arena-size-*` class belongs on the list, not the row: the list provides the size and each row pulls it, the same
 direction `arena-radio` reads its group. The face, the name and the figure move together, and
 rows in one list that disagreed about their size would be a defect rather than a design.
 
@@ -33,10 +33,19 @@ rows in one list that disagreed about their size would be a defect rather than a
 |---|---|---|---|---|
 | `label*` | primitive | `string` |  | Names the list for assistive technology: what these people are a list OF, never that they are people. "Ruby league standings", "Suggested accounts", never "People". Required and guarded at runtime rather than defaulted, because nothing can derive it and a name that only says what the component is satisfies the requirement mechanically while telling a screen-reader user nothing: two lists on one page announce identically. |
 | `ordered` | primitive | `boolean` | `false` | Whether the order is part of the meaning. A standings table read in any other order is a different claim, and its rows are numbered; a set of suggestions is a set. It is a declared input rather than something inferred from the rows carrying a `rank`, because Arena never derives what it draws from what a consumer happened to pass, and a numbered list whose numbers are decoration is a lie told to a screen reader. |
-| `size` | enum | `ArenaControlSize` | `"md"` | How big every row in the list is: the face, the name and the figure move together. It sits on the list rather than on the row because rows in one list that disagree about their size are a defect and never a design, and how the list hands it down is each layer's business rather than this contract's. |
 | `content` | slot |  |  | The rows. One ArenaPersonRow per person; a row is what says who and how much, and the list decides only where each one goes. |
 
 <!-- @api end -->
+
+<!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
+
+**Answers** [`size`](../../../../VOCABULARY.md#size): `arena-size-lg`, `arena-size-md` (default), `arena-size-sm`. Write one as `class="arena-size-lg"` on the component, or on a container whose components should all take it.
+
+<!-- @answers end -->
+
+<!-- @keys GENERATED from the binding. -->
+**Keys:** none.
+<!-- @keys end -->
 
 **Do / Don't**
 - **Do** say what the list is OF in `label`: "Ruby league standings", "Reviewers on this pull
@@ -56,6 +65,6 @@ rows in one list that disagreed about their size would be a defect rather than a
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
+**The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

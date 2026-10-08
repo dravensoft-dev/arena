@@ -1,19 +1,40 @@
 {
   "component": "ArenaSegmentedControl",
+  "answers": [
+    "fill",
+    {
+      "family": "size",
+      "options": [
+        "arena-size-sm",
+        "arena-size-md"
+      ],
+      "default": "arena-size-md"
+    }
+  ],
   "slots": {
-    "track": "inline-flex items-center gap-0.5 p-1 bg-track border-[length:var(--bw-control)] border-edge-control-quiet rounded-control transition-[border-color,box-shadow] duration-[var(--dur-hover)] ease-hover focus-within:border-secondary focus-within:ring-[length:var(--focus-width)] focus-within:ring-secondary/16 shadow-control-rest",
-    "segment": "relative inline-flex items-center justify-center min-h-ctl-h-sm rounded-control-sm font-body cursor-pointer select-none whitespace-nowrap transition-[background,color] duration-[var(--dur-hover)] ease-hover",
+    "track": "inline-flex items-center gap-0.5 p-1 bg-track border-[length:var(--bw-control)] border-edge-control-quiet rounded-control transition-[border-color,box-shadow] duration-[var(--dur-hover)] ease-hover focus-within:border-secondary focus-within:ring-[length:var(--focus-width)] focus-within:ring-secondary/16 shadow-control-rest w-[var(--arena-fill-width,fit-content)]",
+    "segment": "relative inline-flex items-center justify-center min-h-ctl-h-sm rounded-control-sm font-body cursor-pointer select-none whitespace-nowrap transition-[background,color] duration-[var(--dur-hover)] ease-hover h-[var(--arena-size-segment-h,var(--size-md-segment-h))] px-[var(--arena-size-segment-pad-x,var(--size-md-segment-pad-x))] text-[length:var(--arena-size-segment-step,var(--size-md-segment-step))]",
     "input": "absolute opacity-0 size-0"
   },
+  "kind": {
+    "track": "control",
+    "segment": "control",
+    "input": "none"
+  },
+  "internal": {
+    "selected": "the option is the selected one"
+  },
   "variants": {
-    "size": {
-      "sm": { "segment": "h-7 px-2.5 text-ctl-sm" },
-      "md": { "segment": "h-8.5 px-3.5 text-ctl-md" }
-    },
     "selected": {
-      "true": { "segment": "bg-neutral text-ink-body font-control shadow-1" },
-      "false": { "segment": "bg-transparent text-ink-muted/(--level-ink-muted) font-medium hover:text-ink-body/(--level-ink-body)" }
+      "true": {
+        "segment": "bg-neutral text-ink-body font-control shadow-1"
+      },
+      "false": {
+        "segment": "bg-transparent text-ink-muted/(--level-ink-muted) font-medium hover:text-ink-body/(--level-ink-body)"
+      }
     }
   },
-  "defaultVariants": { "size": "md", "selected": false }
+  "defaultVariants": {
+    "selected": false
+  }
 }

@@ -1,0 +1,40 @@
+{
+  "$description": "What each hue writes on the elements a component marks with it: the channels --arena-hue-ink, --arena-hue-edge, --arena-hue-fill-strong, --arena-hue-fill-soft and --arena-hue-on-ink, as the expression each takes. on-ink is the content set on a mark filled with the hue's ink; identity-N writes it as initial, so a solid mark on a categorical colour falls back to the neutral content. A status hue reads its own roles (--hue-<hue>-*, answered by the style plugin) and its own wash level (--level-hue-soft-<hue>); identity-N stands for the eight categorical colours, N read as 1 to 8. It is a table rather than a CSS rule because a hue is a name a manifest gives a value, and the hue sheet writes it as one rule per slot and value so that the element reading a channel is always the element given it: a CSS rule selecting by ancestor would let a nested component read the colour of the one around it. A value mapped to no hue writes every channel as initial.",
+  "hues": {
+    "danger": {
+      "ink": "var(--hue-danger-ink)",
+      "edge": "var(--hue-danger-edge)",
+      "fill-strong": "var(--hue-danger-fill-strong)",
+      "fill-soft": "color-mix(in oklab, var(--hue-danger-fill-soft) var(--level-hue-soft-danger), transparent)",
+      "on-ink": "var(--hue-danger-on-ink)"
+    },
+    "success": {
+      "ink": "var(--hue-success-ink)",
+      "edge": "var(--hue-success-edge)",
+      "fill-strong": "var(--hue-success-fill-strong)",
+      "fill-soft": "color-mix(in oklab, var(--hue-success-fill-soft) var(--level-hue-soft-success), transparent)",
+      "on-ink": "var(--hue-success-on-ink)"
+    },
+    "warning": {
+      "ink": "var(--hue-warning-ink)",
+      "edge": "var(--hue-warning-edge)",
+      "fill-strong": "var(--hue-warning-fill-strong)",
+      "fill-soft": "color-mix(in oklab, var(--hue-warning-fill-soft) var(--level-hue-soft-warning), transparent)",
+      "on-ink": "var(--hue-warning-on-ink)"
+    },
+    "info": {
+      "ink": "var(--hue-info-ink)",
+      "edge": "var(--hue-info-edge)",
+      "fill-strong": "var(--hue-info-fill-strong)",
+      "fill-soft": "color-mix(in oklab, var(--hue-info-fill-soft) var(--level-hue-soft-info), transparent)",
+      "on-ink": "var(--hue-info-on-ink)"
+    },
+    "identity-N": {
+      "ink": "var(--color-cat-N)",
+      "edge": "var(--color-cat-N)",
+      "fill-strong": "var(--color-cat-N)",
+      "fill-soft": "color-mix(in oklab, var(--color-cat-N) var(--tint-soft), var(--fill-surface))",
+      "on-ink": "initial"
+    }
+  }
+}

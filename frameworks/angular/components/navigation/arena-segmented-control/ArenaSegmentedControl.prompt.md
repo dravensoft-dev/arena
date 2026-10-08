@@ -7,8 +7,8 @@ the accessible name and the focus ring.
 <arena-segmented-control ariaLabel="Time range" [options]="ranges" [value]="range()"
                          (change)="range.set($event)" />
 
-<arena-segmented-control ariaLabel="Status" size="sm" [options]="statuses"
-                         defaultValue="failing" (change)="filter.set($event)" />
+<arena-segmented-control ariaLabel="Status" [options]="statuses"
+                         defaultValue="failing" (change)="filter.set($event)" class="arena-size-sm" />
 ```
 
 <!-- @api GENERATED from contracts/api/components/ArenaSegmentedControl.json. Edit the contract, not this table. -->
@@ -20,12 +20,25 @@ the accessible name and the focus ring.
 | `options*` | array | `readonly ArenaSegmentOption[]` |  | The options, in order. Two to four with one-word labels. |
 | `value` | primitive | `string` |  | The selected option's value. Omit and pass `defaultValue` to let it govern itself. |
 | `defaultValue` | primitive | `string` |  | The initially selected value when uncontrolled. Defaults to the first option. |
-| `size` | enum | `ArenaSegmentedControlSize` | `"md"` | Compact or default. |
 | `ariaLabel*` | primitive | `string` |  | Names what is being filtered: "Time range", not "Filter". A radio group with no accessible name is announced unlabelled. |
 | `name` | primitive | `string` |  | Shared name for the underlying radios; generated when omitted. |
 | `change` | event | `string` |  | A different option was chosen; carries its value. |
 
 <!-- @api end -->
+
+<!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
+
+**Answers** [`fill`](../../../../VOCABULARY.md#fill): `arena-fill`, `arena-fit` (default). Write one as `class="arena-fill"` on the component, or on a container whose components should all take it.
+
+**Answers** [`size`](../../../../VOCABULARY.md#size): `arena-size-md` (default), `arena-size-sm`. Write one as `class="arena-size-sm"` on the component, or on a container whose components should all take it.
+
+<!-- @answers end -->
+
+<!-- @keys GENERATED from the binding. -->
+**Keys**, from [`radiogroup`](../../../../../contracts/behaviour/radiogroup.json):
+- `ArrowKeys`: Right/Down or Left/Up moves focus to the next/previous button, unchecking the previously focused one and checking the newly focused one, wrapping at the ends.
+- `Space`: checks the focused radio button if it is not already checked.
+<!-- @keys end -->
 
 ```ts
 readonly ranges: ArenaSegmentOption[] = [
@@ -60,6 +73,6 @@ readonly ranges: ArenaSegmentOption[] = [
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
+**The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `class` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

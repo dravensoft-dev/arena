@@ -9,21 +9,25 @@ useTestEnvironment();
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ArenaFigure } from './ArenaFigure';
+import manifest from './ArenaFigure.classes.generated';
 import { ArenaFallback, ArenaMedia, ArenaOverlay } from '../../../ProjectionMarkers';
-import { assertPattern, isFocusable, ANGULAR_COMPONENTS } from '../../../test/Compliance';
+import { assertPattern, isFocusable, ANGULAR_COMPONENTS, TAILWIND_COMPONENTS, REPO } from '../../../test/Compliance';
 import { assertNoNode } from '../../../test/NodeAssert';
 
+const source = JSON.parse(readFileSync(join(TAILWIND_COMPONENTS, 'layout/arena-figure/ArenaFigure.manifest.json'), 'utf8')) as { slots: { frame: string } };
+const family = JSON.parse(readFileSync(join(REPO, 'frameworks/tailwind/vocabulary/arena-ratio/Ratio.family.json'), 'utf8')) as { axis: string; default: string; variants: Record<string, string> };
 const BINDING = join(ANGULAR_COMPONENTS, 'layout/arena-figure/ArenaFigure.behaviour.json');
 
 @Component({
   standalone: true,
   imports: [ArenaFigure, ArenaMedia, ArenaFallback, ArenaOverlay],
   template: `
-    <arena-figure [caption]="caption" [ratio]="ratio">
+    <arena-figure [caption]="caption">
       @if (withMedia) { <img media src="lot.png" alt="Finca El Injerto" /> }
       <i fallback class="ph-bold ph-coffee-bean" aria-hidden="true"></i>
       @if (withOverlay) { <span overlay>In stock</span> }
@@ -32,7 +36,6 @@ const BINDING = join(ANGULAR_COMPONENTS, 'layout/arena-figure/ArenaFigure.behavi
 })
 class FigureHost {
   caption: string | undefined = 'Kochere, 2050 m';
-  ratio: string | undefined = undefined;
   withMedia = false;
   withOverlay = false;
 }
@@ -96,16 +99,31 @@ test('the fallback draws only when there is no media, because it is a state and 
   } finally { filled.destroy(); }
 });
 
-test('the shape defaults to the role and takes a value outright when one is given', () => {
-  const byRole = render();
+test('the frame carries the ratio channel on its class and no inline shape', () => {
+  const fixture = render();
   try {
-    const frame = figureOf(byRole).firstElementChild as HTMLElement;
-    assert.equal(frame.style.getPropertyValue('aspect-ratio'), 'var(--aspect-media)');
-  } finally { byRole.destroy(); }
+    const frame = figureOf(fixture).firstElementChild as HTMLElement;
+    assert.equal(frame.hasAttribute('style'), false);
+    assert.ok(frame.classList.contains(manifest.slots.frame));
+    const [, channel, value] = /^\[(--[\w-]+):(.+)\]$/.exec(family.variants[family.default]) ?? [];
+    assert.ok(channel && value);
+    assert.ok(source.slots['frame'].split(' ').includes(`aspect-[var(${channel},var(${family.axis},${value}))]`));
+  } finally { fixture.destroy(); }
+});
 
-  const pinned = render({ ratio: '16 / 9' });
+@Component({
+  standalone: true,
+  imports: [ArenaFigure],
+  template: `<arena-figure class="arena-ratio-wide" caption="c"></arena-figure>`,
+})
+class OptionHost {}
+
+test('an option class written on the host stays on the host, where the frame reads it', () => {
+  const fixture = TestBed.createComponent(OptionHost);
   try {
-    const frame = figureOf(pinned).firstElementChild as HTMLElement;
-    assert.equal(frame.style.getPropertyValue('aspect-ratio'), '16 / 9');
-  } finally { pinned.destroy(); }
+    fixture.detectChanges();
+    const host = fixture.nativeElement.querySelector('arena-figure') as HTMLElement;
+    assert.ok(host.classList.contains('arena-ratio-wide'));
+    assert.equal((host.querySelector('figure') as HTMLElement).hasAttribute('style'), false);
+  } finally { fixture.destroy(); }
 });

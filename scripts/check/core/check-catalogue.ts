@@ -1,13 +1,13 @@
 /* Whether a catalogue entry is still usable by somebody who is not in this tree. Nothing under
- * plugin-style-store/catalogue is compiled, so no other gate reads one: an entry that stopped
- * answering a role the kernel gained is a build that refuses in every project that took it, and
- * none of those projects is here to report it. The rules are the shipped command's own, imported
- * rather than restated, so an entry is measured by what will measure it once it is copied. The
- * floors are reached the same way a consumer's build reaches them, by resolving the entry against
- * the token catalogue in memory, since nothing emits a sheet for one here. keyProblems is the one
- * rule left out: it asks every token for a $description that no plugin in this tree carries and
- * that would put the reasoning somewhere ENTRY.md already owns. What it holds besides that, a key
- * that is a role at all and a type agreeing with roles.json, is held below in this gate's words. */
+ * plugin-style-store/catalogue is compiled, so no other gate reads one: an entry silent on a role
+ * is a build that refuses in every project that took it, or one that falls back on a kernel
+ * default the entry never chose, and none of those projects is here to report it. The rules are
+ * the shipped command's own, imported rather than restated, so an entry is measured by what will
+ * measure it once it is copied. The floors are reached the way a consumer's build reaches them, by
+ * resolving the entry against the token catalogue in memory, because nothing emits a sheet for one
+ * here. keyProblems is the one rule left out: it asks every token for a $description no plugin in
+ * this tree carries, which would put the reasoning where ENTRY.md owns it. What it holds besides,
+ * a key that is a role at all and a type agreeing with roles.json, is held below in this gate's words. */
 
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
@@ -16,15 +16,15 @@ import { readJson } from '../../utils/read-file.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import {
   POLARITIES, FONT_ROLES, requiredKeys,
-} from '../../generate/core/arena-to-prod/palette-keys.ts';
+} from '../../generate/core/arena-cli/palette-keys.ts';
 import { CSS_TARGETS } from '../../generate/arena/generate-tokens.ts';
 import { tokenCatalogue } from '../../lib/arena/package-assembly.ts';
-import { readPlugin, resolvedPlugin } from '../../generate/core/arena-to-prod/theme-css.ts';
-import type { TokenCatalogue } from '../../generate/core/arena-to-prod/theme-css.ts';
+import { readPlugin, resolvedPlugin } from '../../generate/core/arena-cli/theme-css.ts';
+import type { TokenCatalogue } from '../../generate/core/arena-cli/theme-css.ts';
 import { ROLES, movedTokens } from './check-style-plugin.ts';
 import {
-  floorProblems, nameProblems, totalityProblems, valueProblems,
-} from '../../generate/core/arena-to-prod/style-plugin-rules.ts';
+  ARENA_EXT, floorProblems, nameProblems, totalityProblems, valueProblems,
+} from '../../generate/core/arena-cli/style-plugin-rules.ts';
 
 export const CATALOGUE = 'plugin-style-store/catalogue';
 
@@ -94,7 +94,10 @@ export function tokenProblems(name: string, roles: Record<string, unknown>, base
     if (role) problems.push(...valueProblems(where, key, token, role));
   }
 
-  problems.push(...totalityProblems(Object.keys(roles), Object.keys(tokens))
+  const asked = Object.entries(roles as Record<string, { $extensions?: Record<string, { default?: unknown }> }>)
+    .filter(([, role]) => role.$extensions?.[ARENA_EXT]?.default === undefined)
+    .map(([role]) => role);
+  problems.push(...totalityProblems(asked, Object.keys(tokens))
     .map((problem) => `${where}: ${problem}`));
   return problems;
 }

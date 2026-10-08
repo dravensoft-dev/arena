@@ -26,7 +26,7 @@ export const node = {
   reads: ['scripts/lib/arena/language-rules.ts', ...TARGETS],
   writes: TARGETS,
   feeds: ['build:mcp-package', 'build:site', 'check:community', 'check:routes', 'check:rules',
-    'check:support',
+    'check:skills', 'check:support',
     'check:register'],
 };
 

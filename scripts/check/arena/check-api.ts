@@ -5,7 +5,9 @@
  * ways, on an entry whose initialiser became a literal and on a non-literal nobody named. Both
  * layers go through one comparison, because a default read in one layer alone is how a member
  * that renders one way and is documented another shipped. R2 and R3 are authoring rules no gate
- * asserts, and neither is a fact about source text -- contracts/api/AGENTS.md states why. */
+ * asserts, and neither is a fact about source text -- contracts/api/AGENTS.md states why.
+ * className is the one member no contract names: React types it with the generated class of its
+ * vocabulary, a component rendering no element takes none, and Angular takes the host class. */
 
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { join, relative } from 'node:path';
@@ -15,7 +17,7 @@ import { buildApiModules } from '../../generate/arena/generate-api-types.ts';
 import { PREFIX } from './check-structure.ts';
 import {
   reactSurface, angularSurface, reactImplementation, angularImplementation, defaultProblems,
-  literalValue, normaliseDoc, UnrecognisedShape, bindingName,
+  literalValue, normaliseDoc, layerDescription, UnrecognisedShape, bindingName,
 } from '../../lib/arena/api-surface.ts';
 import { pascal } from '../../utils/case.ts';
 import { readLayer } from '../../lib/arena/layers.ts';
@@ -24,12 +26,19 @@ import { MEMBER_FORMS, memberEntries, fieldEntries } from '../../lib/arena/contr
 import type { ContractCandidate, TypeContract } from '../../lib/arena/contract-shapes.ts';
 import type { SurfaceMember } from '../../lib/arena/api-surface.ts';
 import { relPosix } from '../../utils/posix-path.ts';
+import { kebab } from '../../utils/case.ts';
+import { layerManifests } from '../../lib/tailwind/tailwind-compile.ts';
+import { ALWAYS, alwaysProblems, hueProblems, readHues } from '../../lib/tailwind/hue-sheet.ts';
+import { coveredContracts } from '../../lib/tailwind/manifest-surfaces.ts';
+import type { ComponentManifest, Manifests } from '../../lib/tailwind/manifest-shapes.ts';
+import { OWN_ELEMENTLESS } from '../../lib/arena/elementless.ts';
 
 export const node = {
   name: 'check:api',
   reads: [
     'contracts/api', 'frameworks/Components.json',
     'frameworks/react/components/**/*.tsx', 'frameworks/angular/components/**/*.ts',
+    'frameworks/tailwind/components/**/*.manifest.json',
     'frameworks/react/Api.generated.ts', 'frameworks/angular/Api.generated.ts',
   ],
   writes: [],
@@ -62,7 +71,7 @@ export function docProblems(contract: ContractCandidate, docs: Map<string, strin
     if (!spec.description) continue;
 
     if (layer === 'angular' && spec.form === 'slot') continue;
-    wanted.set(bindingName(name, spec.form, layer), { member: name, text: normaliseDoc(spec.description) });
+    wanted.set(bindingName(name, spec.form, layer), { member: name, text: normaliseDoc(layerDescription(spec.description, contract, layer)) });
   }
 
   for (const [bound, { member, text }] of wanted) {
@@ -93,6 +102,21 @@ export function docProblems(contract: ContractCandidate, docs: Map<string, strin
   return problems;
 }
 
+const CONSUMER_FILES = new Set([
+  'arena.config.json', 'arena.tokens.json', 'arena.generated.css', 'arena.css',
+  'plugin.tokens.json', 'plugin.css', 'package.json',
+]);
+
+const REPO_LEAK = /\b(?:frameworks|contracts|scripts|plugin-style-store)\/|\b[\w-]+(?:\.[\w-]+)*\.(?:tsx?|json|md|css|m?js)\b|\b(?:check|generate|build):[a-z]|\bbun run\b/g;
+
+export function leakProblems(where: string, description: string | undefined) {
+  for (const hit of (description ?? '').matchAll(REPO_LEAK)) {
+    if (CONSUMER_FILES.has(hit[0])) continue;
+    return [`${where}: its description names "${hit[0]}", a repository path or gate name, which means nothing in an installed package. Say what the thing is and does, and name an export by its name`];
+  }
+  return [];
+}
+
 export function validateTypes(types: TypeContract[]) {
   const problems = [];
   const seen = new Set();
@@ -109,6 +133,10 @@ export function validateTypes(types: TypeContract[]) {
     }
     if (seen.has(type.name)) problems.push(`${type.name}: declared twice`);
     seen.add(type.name);
+    problems.push(...leakProblems(type.name, type.description));
+    if (type.kind === 'object') {
+      for (const [field, spec] of fieldEntries(type.fields)) problems.push(...leakProblems(`${type.name}.${field}`, spec.description));
+    }
     if (type.kind === 'enum') {
       if (!Array.isArray(type.values) || !type.values.length) {
         problems.push(`${type.name}: an enum is a closed set and this declares no values`);
@@ -156,6 +184,7 @@ export function validateContract(contract: ContractCandidate, typeNames: Map<str
   const held = [];
   const routes = [];
   for (const [member, spec] of memberEntries(contract.api)) {
+    problems.push(...leakProblems(`${where}.${member}`, spec.description));
     if (!FORMS.has(spec.form)) {
       problems.push(`${where}.${member}: form "${spec.form}" is none of the nine — see contracts/api/AGENTS.md`);
       continue;
@@ -208,6 +237,37 @@ export function validateContract(contract: ContractCandidate, typeNames: Map<str
         + `taking it in must also declare a slot parameter or an event payload of "${CONSUMER_DATA}" that hands it back`,
       );
     }
+  }
+  return problems;
+}
+
+export const VOCABULARY_MEMBER = 'className';
+
+export function vocabularyMemberProblems(
+  component: string, members: SurfaceMember[], layer: string, contracted: Set<string>,
+  elementless: ReadonlyMap<string, string> = OWN_ELEMENTLESS,
+) {
+  const problems: string[] = [];
+  const where = `${layer}/${component}`;
+  const member = members.find((m) => m.name === VOCABULARY_MEMBER);
+  for (const name of elementless.keys())
+    if (!contracted.has(name)) problems.push(`stale OWN_ELEMENTLESS: ${name} is no contracted component -- ${elementless.get(name)}`);
+  if (layer !== 'react') {
+    if (member) problems.push(`${where}.className: Angular takes a vocabulary class on the host class, and a className input is a second route to the same decision`);
+    return problems;
+  }
+  if (elementless.has(component)) {
+    if (member) problems.push(`${where}.className: the component renders no element of its own, so the class lands nowhere -- ${elementless.get(component)}`);
+    return problems;
+  }
+  const wanted = `${component}Class`;
+  if (!member) {
+    problems.push(`${where}: takes no className, so no vocabulary class reaches its root. Declare className?: ${wanted}, `
+      + 'apply it through arenaClassName on the root, or name the component in OWN_ELEMENTLESS with why it has no root');
+  } else if (member.form !== 'named' || member.type !== wanted) {
+    problems.push(`${where}.className: typed ${member.type ?? member.form}, and only the generated ${wanted} keeps a utility out`);
+  } else if (member.required) {
+    problems.push(`${where}.className: declared required, and a vocabulary class is always optional`);
   }
   return problems;
 }
@@ -525,6 +585,72 @@ function angularImplementations() {
   };
 }
 
+type JudgedManifest = ComponentManifest & { readonly values?: Readonly<Record<string, readonly string[]>> };
+
+type GroupOptions = {
+  hueNames?: ReadonlySet<string>;
+};
+
+const groupsOf = (manifest: JudgedManifest) =>
+  new Set([...Object.keys(manifest.variants ?? {}), ...Object.keys(manifest.values ?? {})]);
+
+const groupValues = (manifest: JudgedManifest, group: string) =>
+  new Set(manifest.values?.[group] ?? Object.keys(manifest.variants?.[group] ?? {}));
+
+function groupSources(component: string, group: string, contracts: Map<string, ContractCandidate>, types: Map<string, TypeContract>) {
+  const keys: string[] = [];
+  for (const covered of coveredContracts(component)) {
+    const api = contracts.get(covered)?.api ?? {};
+    if (group in api) keys.push(`contracts/api/components/${covered}.json:api.${group}`);
+    for (const spec of Object.values(api)) {
+      const type = spec.of ?? spec.type;
+      if (type && types.get(type)?.fields && group in (types.get(type)?.fields ?? {}))
+        keys.push(`contracts/api/types/${kebab(type)}.json:fields.${group}`);
+    }
+  }
+  return keys;
+}
+
+function judgeGroups(manifests: Manifests, contracts: Map<string, ContractCandidate>, types: Map<string, TypeContract>, options: GroupOptions) {
+  const problems: string[] = [];
+  let swept = 0;
+  for (const manifest of manifests.values()) {
+    problems.push(...alwaysProblems(manifest, options.hueNames));
+    const groups = groupsOf(manifest);
+    if (groups.size === 0) continue;
+    swept += 1;
+    const name = manifest.component;
+    const internal = manifest.internal ?? {};
+    for (const group of groups) {
+      const sources = groupSources(name, group, contracts, types);
+      if (sources.length > 0 && group in internal)
+        problems.push(`${name}.${group} is declared internal and a member at once: drop the internal entry, the member says what it states`);
+      else if (sources.length === 0 && !(group in internal))
+        problems.push(`${name}.${group} is a variant group naming no member, no field and no internal entry, so nothing says what it states`);
+    }
+    for (const key of Object.keys(internal))
+      if (!groups.has(key)) problems.push(`${name}.internal.${key} names no group, so the entry is stale: drop it`);
+    for (const [group, hue] of Object.entries(manifest.hues ?? {})) {
+      if (group === ALWAYS) continue;
+      if (!groups.has(group)) { problems.push(`${name}.hues.${group} names no group of the manifest`); continue; }
+      const values = groupValues(manifest, group);
+      for (const [value, hueName] of Object.entries(hue)) {
+        if (value === 'on') continue;
+        if (!values.has(value)) problems.push(`${name}.hues.${group}.${value} names a value the group lacks`);
+        else if (options.hueNames && typeof hueName === 'string' && !options.hueNames.has(hueName))
+          problems.push(`${name}.hues.${group}.${value} names hue "${hueName}", which frameworks/tailwind/Hues.json does not declare`);
+      }
+    }
+  }
+  if (swept === 0)
+    problems.push('found 0 manifests with a variant group — an empty result set is a failure, not a clean pass; check the discovery path');
+  return { problems };
+}
+
+export function groupProblems(manifests: Manifests, contracts: Map<string, ContractCandidate>, types: Map<string, TypeContract>, options: GroupOptions = {}) {
+  return judgeGroups(manifests, contracts, types, options).problems;
+}
+
 function main() {
   const problems = [];
 
@@ -545,6 +671,7 @@ function main() {
   const contractDir = join(root, 'contracts/api/components');
   const files = existsSync(contractDir) ? readdirSync(contractDir).filter((f) => f.endsWith('.json')).sort() : [];
   problems.push(...zeroContractProblems({ contracts: files.length, types: types.length }));
+  const contractNames = new Set(files.map((f) => f.replace(/\.json$/, '')));
 
   const reactLayer = reactImplementations();
   problems.push(...reactLayer.problems);
@@ -581,7 +708,9 @@ function main() {
       for (const base of surface.heritage ?? []) {
         problems.push(`${layer}/${contract.component}: extends "${base}" — the {...rest} escape is none of the nine forms, R4`);
       }
-      problems.push(...compareSurface(contract, surface.members, layer, typesByName));
+      problems.push(...vocabularyMemberProblems(contract.component, surface.members, layer, contractNames));
+      const members = surface.members.filter((m: SurfaceMember) => m.name !== VOCABULARY_MEMBER);
+      problems.push(...compareSurface(contract, members, layer, typesByName));
       problems.push(...docProblems(contract, surface.docs ?? new Map(), layer));
       if (layer === 'react') problems.push(...reactImplementationProblems(contract, path, derivedSeen));
       else problems.push(...angularImplementationProblems(contract, path, derivedSeen));
@@ -590,12 +719,22 @@ function main() {
 
   problems.push(...staleDerivedProblems(derivedSeen));
 
+  const manifests = layerManifests();
+  const contractsByName = new Map<string, ContractCandidate>(files.map((f) => {
+    const c = readJson(join(contractDir, f));
+    return [c.component, c];
+  }));
+  const hues = readHues();
+  const judged = judgeGroups(manifests, contractsByName, typesByName, { hueNames: new Set(hues.keys()) });
+  problems.push(...judged.problems);
+  for (const manifest of manifests.values()) problems.push(...hueProblems(manifest, hues));
+
   if (problems.length) {
     console.error(`check-api: ${problems.length} problem(s)\n`);
-    for (const p of problems) console.error(`  ${p}`);
+    for (const p of new Set(problems)) console.error(`  ${p}`);
     process.exit(1);
   }
-  console.log(`check-api: ${files.length} contract(s) and ${types.length} type(s) hold across ${layersChecked} layer implementation(s)`);
+  console.log(`check-api: ${files.length} contract(s) and ${types.length} type(s) hold across ${layersChecked} layer implementation(s); every manifest group names a member, a field or an internal entry`);
 }
 
 if (isMainModule(import.meta.url)) main();

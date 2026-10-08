@@ -1,19 +1,67 @@
 {
   "component": "ArenaBadge",
+  "answers": [
+    {
+      "family": "accent",
+      "options": [
+        "arena-accent-plain",
+        "arena-accent-primary",
+        "arena-accent-gold"
+      ],
+      "default": "arena-accent-plain"
+    },
+    {
+      "family": "mark",
+      "options": [
+        "arena-mark-soft",
+        "arena-mark-solid"
+      ],
+      "default": "arena-mark-soft"
+    },
+    {
+      "family": "size",
+      "options": [
+        "arena-size-sm",
+        "arena-size-md"
+      ],
+      "default": "arena-size-md"
+    }
+  ],
   "slots": {
-    "root": "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-marker font-face-label text-ctl-xs font-bold tracking-label-role case-label",
+    "root": "inline-flex items-center gap-marker px-[var(--arena-size-badge-pad-x,calc(var(--sp-1)*2.5))] py-[var(--arena-size-badge-pad-y,var(--pad-marker-y))] rounded-marker font-face-label text-[length:var(--arena-size-badge-step,var(--dz-text-xs))] font-bold tracking-label-role case-label w-fit bg-[color:var(--arena-mark-fill,var(--arena-accent-fill-soft,var(--accent-plain-fill-soft)))] text-[color:var(--arena-mark-ink,color-mix(in_oklab,var(--ink-body)_var(--level-ink-body),transparent))]",
     "dot": "size-1.5 rounded-pill bg-current"
+  },
+  "kind": {
+    "root": "marker",
+    "dot": "none"
   },
   "variants": {
     "tone": {
-      "neutral": { "root": "bg-base-300 text-ink-body/(--level-ink-body)" },
-      "accent": { "root": "bg-primary/14 text-ink-body/(--level-ink-body)" },
-      "gold": { "root": "bg-secondary/16 text-ink-body/(--level-ink-body)" },
-      "success": { "root": "bg-success/16 text-ink-body/(--level-ink-body)" },
-      "warning": { "root": "bg-warning/18 text-ink-body/(--level-ink-body)" },
-      "danger": { "root": "bg-error/14 text-ink-body/(--level-ink-body)" },
-      "info": { "root": "bg-info/16 text-ink-body/(--level-ink-body)" }
+      "neutral": {},
+      "success": {
+        "root": "bg-[color:var(--arena-mark-fill,var(--arena-hue-fill-soft))]"
+      },
+      "warning": {
+        "root": "bg-[color:var(--arena-mark-fill,var(--arena-hue-fill-soft))]"
+      },
+      "danger": {
+        "root": "bg-[color:var(--arena-mark-fill,var(--arena-hue-fill-soft))]"
+      },
+      "info": {
+        "root": "bg-[color:var(--arena-mark-fill,var(--arena-hue-fill-soft))]"
+      }
     }
   },
-  "defaultVariants": { "tone": "neutral" }
+  "defaultVariants": {
+    "tone": "neutral"
+  },
+  "hues": {
+    "tone": {
+      "neutral": null,
+      "success": "success",
+      "warning": "warning",
+      "danger": "danger",
+      "info": "info"
+    }
+  }
 }

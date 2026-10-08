@@ -75,18 +75,13 @@ export const MANIFEST_COVERS = new Map([
 ]);
 
 export const HAND_DRAWN = new Map([
-  ['ArenaScatterChart', 'draws geometry rather than a surface: each mark is placed from two of the data\'s own ranges against a measured plot box, so a class string cannot describe a shape whose coordinates ARE the data.'],
-  ['ArenaRadarChart', 'draws geometry rather than a surface: the polygon vertices are polar projections of the data\'s own reach, so a class string cannot describe a shape whose coordinates ARE the data.'],
-  ['ArenaPyramidChart', 'draws geometry rather than a surface, like every chart that plots data: the two mirrored runs of bars are positioned from the data\'s own reach against a measured inner width, so a class string cannot describe a shape whose coordinates ARE the data.'],
-  ['ArenaHorizontalBarChart', 'draws geometry rather than a surface, for the same reason ArenaBarChart does: the bar rectangles are positioned from the data\'s own range against a measured inner width, so a class string cannot describe a shape whose coordinates ARE the data. It carries no manifest and writes its own appearance.'],
-  ['ArenaBarChart', 'draws geometry rather than a surface: bar rectangles positioned from the data\'s '
-    + 'own range against a measured inner height. A class string cannot describe a shape whose '
-    + 'coordinates ARE the data, so it carries no manifest, writes its own appearance, and is '
-    + 'what the react half of check-manifest-states reads.'],
-  ['ArenaDoughnutChart', 'the same, for arc paths swept from each slice\'s share of the total, and for '
-    + 'a legend laid out against the ring it annotates.'],
-  ['ArenaLineChart', 'the same, for a polyline whose points are the series projected onto the measured '
-    + 'plot area.'],
+  ['ArenaScatterChart', 'draws its plot by hand: each mark is placed from two of the data\'s own ranges against a measured plot box, so a class string cannot describe a shape whose coordinates ARE the data. The frame, the legend and the tooltip are drawn from the chart\'s manifest.'],
+  ['ArenaRadarChart', 'draws its plot by hand: the polygon vertices are polar projections of the data\'s own reach, so a class string cannot describe a shape whose coordinates ARE the data. The frame, the legend and the tooltip are drawn from the chart\'s manifest.'],
+  ['ArenaPyramidChart', 'draws its plot by hand: the two mirrored runs of bars are positioned from the data\'s own reach against a measured inner width, so a class string cannot describe a shape whose coordinates ARE the data. The frame, the legend and the tooltip are drawn from the chart\'s manifest.'],
+  ['ArenaHorizontalBarChart', 'draws its plot by hand: the bar rectangles are positioned from the data\'s own range against a measured inner width, so a class string cannot describe a shape whose coordinates ARE the data. The frame, the legend and the tooltip are drawn from the chart\'s manifest.'],
+  ['ArenaBarChart', 'draws its plot by hand: the bar rectangles are positioned from the data\'s own range against a measured inner height, so a class string cannot describe a shape whose coordinates ARE the data. The frame, the legend and the tooltip are drawn from the chart\'s manifest.'],
+  ['ArenaDoughnutChart', 'draws its plot by hand: the arc paths are swept from each slice\'s share of the total, so a class string cannot describe a shape whose coordinates ARE the data. The frame and the legend are drawn from the chart\'s manifest.'],
+  ['ArenaLineChart', 'draws its plot by hand: the polyline points are the series projected onto the measured plot area, so a class string cannot describe a shape whose coordinates ARE the data. The frame, the legend and the tooltip are drawn from the chart\'s manifest.'],
 ]);
 
 const COMPONENTS_JSON = join(repoRoot, 'frameworks/Components.json');
@@ -144,10 +139,6 @@ export function surfaceProblems(root = repoRoot) {
   }
   for (const [name, reason] of HAND_DRAWN) {
     if (!known.has(name)) problems.push(`HAND_DRAWN names ${name}, and no component is called that`);
-    else if (hasOwnManifest(name, root)) {
-      problems.push(`HAND_DRAWN names ${name}, and a manifest for it is now on disk -- delete the entry, `
-        + 'because a component with a surface to render is not one that draws by hand');
-    }
     if (!reason?.trim()) problems.push(`HAND_DRAWN names ${name} with no reason, and a reason is the whole entry`);
   }
   if (HAND_DRAWN.size === 0) {

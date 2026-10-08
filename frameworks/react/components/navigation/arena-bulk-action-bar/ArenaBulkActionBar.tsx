@@ -6,10 +6,14 @@ import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaBulkActionBar.classes.generated.ts';
 import { useArenaLocale } from '../../../ArenaLocale.ts';
 import { arenaPhraseParts } from '../../../Phrase.ts';
+import type { ArenaBulkActionBarClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export type { ArenaBulkAction };
 
 export interface ArenaBulkActionBarProps {
+  className?: ArenaBulkActionBarClass;
+
 
   /** How many rows are selected. Zero renders no bar at all. */
   count: number;
@@ -26,7 +30,7 @@ export interface ArenaBulkActionBarProps {
   /** Whether the bar may stack. 'auto' measures its OWN container, not the viewport, and drops the count, the actions and Clear onto separate rows when one row does not fit; 'inline' keeps the single row at every width, for a bar in a place the consumer knows is wide. It is a member rather than something a consumer reaches in with CSS because the alternative is what happens without it: reordering the bar's own children by position, which puts focus order out of step with visual order and breaks the next time anything inside moves. Stacking here reorders nothing, so the tab order and the reading order stay the same order they are wide. */
   layout?: ArenaBulkActionBarLayout;
 
-  /** Whether the Clear control is drawn. Every layer gates on this member and never on whether anything listens for `clear`, because Arena never derives what it draws from what a consumer listens for. */
+  /** Whether the Clear control is drawn. Every layer gates on this member and never on whether anything listens for `onClear`, because Arena never derives what it draws from what a consumer listens for. */
   clearable?: boolean;
 
   /** The Clear control was activated. */
@@ -36,7 +40,7 @@ export interface ArenaBulkActionBarProps {
 
 const barStyles = arenaStyles(manifest);
 
-export function ArenaBulkActionBar({ count, noun, actions, layout = 'auto', onRun, onClear, clearable = true }: ArenaBulkActionBarProps) {
+export function ArenaBulkActionBar({ className, count, noun, actions, layout = 'auto', onRun, onClear, clearable = true }: ArenaBulkActionBarProps) {
   const locale = useArenaLocale();
   const counted = noun ?? locale.bulkActionBarNoun;
   if (count == null) throw new Error('ArenaBulkActionBar: `count` is required');
@@ -70,28 +74,28 @@ export function ArenaBulkActionBar({ count, noun, actions, layout = 'auto', onRu
   return (
     <div role="toolbar" aria-label={locale.bulkActionBarLabel}
       ref={barRef} onKeyDown={onKeyDown}
-      className={styles.root()} data-arena-part={manifest.parts.root}>
-      <span className={styles.count()} data-arena-part={manifest.parts.count}>
+      className={arenaClassName('ArenaBulkActionBar', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+      <span className={styles.count()} data-arena-part={manifest.parts.count} {...styles.$data.count()}>
         {arenaPhraseParts(locale.bulkActionBarCount).map((part, i) => ('slot' in part && part.slot === 'count'
-          ? <b key={i} className={styles.number()} data-arena-part={manifest.parts.number}>{count}</b>
+          ? <b key={i} className={styles.number()} data-arena-part={manifest.parts.number} {...styles.$data.number()}>{count}</b>
           : <React.Fragment key={i}>{'text' in part ? part.text : counted}</React.Fragment>))}
       </span>
       {!narrow && (
-        <span aria-hidden="true" className={styles.divider()} data-arena-part={manifest.parts.divider} />
+        <span aria-hidden="true" className={styles.divider()} data-arena-part={manifest.parts.divider} {...styles.$data.divider()} />
       )}
-      <div className={styles.actions()} data-arena-part={manifest.parts.actions}>
+      <div className={styles.actions()} data-arena-part={manifest.parts.actions} {...styles.$data.actions()}>
         {actions.map((a, i) => (
           <button key={i} onClick={() => onRun && onRun(a)}
             tabIndex={i === at ? 0 : -1} onFocus={() => setCursor(i)}
-            className={barStyles({ narrow, open: true, destructive: Boolean(a.destructive) }).action()} data-arena-part={manifest.parts.action}>
-            {a.icon && <span className={styles.actionIcon()} data-arena-part={manifest.parts.actionIcon}><i className={a.icon} aria-hidden="true" /></span>}{a.label}
+            className={barStyles({ narrow, open: true, destructive: Boolean(a.destructive) }).action()} data-arena-part={manifest.parts.action} {...barStyles({ narrow, open: true, destructive: Boolean(a.destructive) }).$data.action()}>
+            {a.icon && <span className={styles.actionIcon()} data-arena-part={manifest.parts.actionIcon} {...styles.$data.actionIcon()}><i className={a.icon} aria-hidden="true" /></span>}{a.label}
           </button>
         ))}
       </div>
       {clearable && (
         <button onClick={() => onClear && onClear()} aria-label={locale.bulkActionBarClearLabel}
           tabIndex={actions.length === at ? 0 : -1} onFocus={() => setCursor(actions.length)}
-          className={styles.clear()} data-arena-part={manifest.parts.clear}>
+          className={styles.clear()} data-arena-part={manifest.parts.clear} {...styles.$data.clear()}>
           {locale.bulkActionBarClear}
         </button>
       )}

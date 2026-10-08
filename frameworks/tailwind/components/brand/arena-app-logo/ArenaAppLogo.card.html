@@ -3,18 +3,21 @@
 <link rel="stylesheet" href="../../../../../intro/styles.css">
 <link rel="stylesheet" href="../../../consume/Preflight.generated.css">
 <link rel="stylesheet" href="../../../consume/components/brand/arena-app-logo/ArenaAppLogo.styles.generated.css">
+<link rel="stylesheet" href="../../../consume/vocabulary/Size.generated.css">
+<link rel="stylesheet" href="../../../consume/vocabulary/Orientation.generated.css">
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor } from '../../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
 
 const manifest = await (await fetch('./ArenaAppLogo.manifest.json')).json();
 
 function logo(size, orientation = 'horizontal') {
-  const c = arenaClassesFor(manifest, { size, orientation });
-  return el('span', { class: c.root },
-    el('span', { class: c.mark }, el('img', { src: '../../../../../assets/rotor-crimson.svg', alt: '' })),
-    el('span', { class: c.name }, 'Draven', el('span', { class: c.dim, text: 'soft' })));
+  const c = arenaClassesFor(manifest);
+  const d = arenaSlotDataFor(manifest);
+  return el('span', { class: `${c.root} arena-size-${size} arena-orientation-${orientation}`, ...d.root },
+    el('span', { class: c.mark, ...d.mark }, el('img', { src: '../../../../../assets/rotor-crimson.svg', alt: '' })),
+    el('span', { class: c.name, ...d.name }, 'Draven', el('span', { class: c.dim, ...d.dim, text: 'soft' })));
 }
 
 mountSpecimen({ sections: [

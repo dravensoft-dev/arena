@@ -2,9 +2,13 @@ import React from 'react';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaHero.classes.generated.ts';
 
-import type { ArenaHeadingLevel, ArenaHeroAlign, ArenaHeroLayout } from '../../../Api.generated';
+import type { ArenaHeadingLevel } from '../../../Api.generated';
+import type { ArenaHeroClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export interface ArenaHeroProps {
+  className?: ArenaHeroClass;
+
 
   /** The one line the page is built around. Required, and guarded at runtime after trimming: a hero is that line plus its setting, and a hero without it is a figure with buttons under it. The guard trims first because the value it exists to catch is a present and useless one, not an absent one, which the type already refuses. */
   title: string;
@@ -23,27 +27,11 @@ export interface ArenaHeroProps {
 
   /** The picture, the mark or the shape beside the words, or behind them under the bleed layout. It is a slot rather than a source, so an ArenaFigure, an illustration or a single glyph all land the same way. */
   figure?: React.ReactNode;
-
-  /** How the words sit against the figure. Split puts them side by side and falls to one column when the room runs out, with no breakpoint deciding when; stacked keeps them in one column at every width, for a hero whose figure is a band rather than a partner; bleed lays the words on the figure, over the wash the media overlay role paints, which is the arrangement that needs that role to be readable. */
-  layout?: ArenaHeroLayout;
-
-  /** Whether the words run from the start edge or are centred in their column. Centred is what a bleed hero usually wants and a split one usually does not, and it is a separate decision from the layout because a stacked hero can want either. */
-  align?: ArenaHeroAlign;
 }
 
 const arenaHeroStyles = arenaStyles(manifest);
-const LAYOUTS = Object.keys(manifest.variants.layout);
-const ALIGNS = Object.keys(manifest.variants.align);
-
-const layoutOf = (layout: string | undefined): ArenaHeroLayout =>
-  (layout && LAYOUTS.includes(layout) ? layout as ArenaHeroLayout : 'split');
-const alignOf = (align: string | undefined): ArenaHeroAlign =>
-  (align && ALIGNS.includes(align) ? align as ArenaHeroAlign : 'start');
-
-const SPLIT_MIN = 'calc(var(--grid-min) * 1.5)';
-
-export function ArenaHero({
-  title, headingLevel = 'h1', eyebrow, lede, actions, figure, layout = 'split', align = 'start',
+export function ArenaHero({ className, 
+  title, headingLevel = 'h1', eyebrow, lede, actions, figure,
 }: ArenaHeroProps) {
   if (!title?.trim()) {
     throw new Error('ArenaHero: `title` is required, and names the page it opens');
@@ -52,21 +40,17 @@ export function ArenaHero({
     throw new Error('ArenaHero: `headingLevel` cannot be none, because `title` is required and is the line the page is built around');
   }
   const Heading = headingLevel;
-  const chosen = layoutOf(layout);
-  const styles = arenaHeroStyles({ layout: chosen, align: alignOf(align) });
-  const tracks = chosen === 'split'
-    ? `repeat(auto-fit, minmax(min(${SPLIT_MIN}, 100%), 1fr))`
-    : undefined;
+  const styles = arenaHeroStyles();
 
   return (
-    <section className={styles.root()} data-arena-part={manifest.parts.root} style={{ gridTemplateColumns: tracks }}>
-      <div className={styles.words()} data-arena-part={manifest.parts.words}>
-        {eyebrow && <p className={styles.eyebrow()} data-arena-part={manifest.parts.eyebrow}>{eyebrow}</p>}
-        <Heading className={styles.title()} data-arena-part={manifest.parts.title}>{title}</Heading>
-        {lede && <p className={styles.lede()} data-arena-part={manifest.parts.lede}>{lede}</p>}
-        {actions && <div className={styles.actions()} data-arena-part={manifest.parts.actions}>{actions}</div>}
+    <section className={arenaClassName('ArenaHero', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+      <div className={styles.words()} data-arena-part={manifest.parts.words} {...styles.$data.words()}>
+        {eyebrow && <p className={styles.eyebrow()} data-arena-part={manifest.parts.eyebrow} {...styles.$data.eyebrow()}>{eyebrow}</p>}
+        <Heading className={styles.title()} data-arena-part={manifest.parts.title} {...styles.$data.title()}>{title}</Heading>
+        {lede && <p className={styles.lede()} data-arena-part={manifest.parts.lede} {...styles.$data.lede()}>{lede}</p>}
+        {actions && <div className={styles.actions()} data-arena-part={manifest.parts.actions} {...styles.$data.actions()} data-arena-boundary="">{actions}</div>}
       </div>
-      {figure && <div className={styles.figure()} data-arena-part={manifest.parts.figure}>{figure}</div>}
+      {figure && <div className={styles.figure()} data-arena-part={manifest.parts.figure} {...styles.$data.figure()} data-arena-boundary="">{figure}</div>}
     </section>
   );
 }

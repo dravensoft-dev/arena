@@ -3,8 +3,12 @@ import { delayOpen, delayClose } from '../../../Tokens.generated.js';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaTooltip.classes.generated.ts';
 import { arenaAccessibleText, arenaTooltipRedundant } from './TooltipName.ts';
+import type { ArenaTooltipClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export interface ArenaTooltipProps {
+  className?: ArenaTooltipClass;
+
 
   /** The bubble's text. Arena draws the bubble; the consumer names it. */
   label: string;
@@ -16,7 +20,7 @@ export interface ArenaTooltipProps {
 
 const arenaTooltipStyles = arenaStyles(manifest);
 
-export function ArenaTooltip({ children, label }: ArenaTooltipProps) {
+export function ArenaTooltip({ className, children, label }: ArenaTooltipProps) {
   if (!label) throw new Error('ArenaTooltip: `label` is required');
   if (!React.isValidElement(children) || children.type === React.Fragment) {
     throw new Error(
@@ -61,14 +65,14 @@ export function ArenaTooltip({ children, label }: ArenaTooltipProps) {
   }, [describedBy]);
   const styles = arenaTooltipStyles();
   return (
-    <span ref={wrapRef} className={styles.root()} data-arena-part={manifest.parts.root}
+    <span ref={wrapRef} className={arenaClassName('ArenaTooltip', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}
       onMouseEnter={() => schedule(true, delayOpen)}
       onMouseLeave={() => schedule(false, delayClose)}
       onFocus={() => now(true)}
       onBlur={() => now(false)}>
       {described}
       {show && (
-        <span role="tooltip" id={bubbleId} className={styles.bubble()} data-arena-part={manifest.parts.bubble}>
+        <span role="tooltip" id={bubbleId} className={styles.bubble()} data-arena-part={manifest.parts.bubble} {...styles.$data.bubble()} data-arena-surface="floating">
           {quiet ? <span aria-hidden="true">{label}</span> : label}
         </span>
       )}

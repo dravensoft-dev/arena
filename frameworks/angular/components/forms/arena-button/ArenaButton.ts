@@ -2,20 +2,22 @@ import {
   ChangeDetectionStrategy, Component, ElementRef, afterNextRender, booleanAttribute, computed,
   input, output, viewChild,
 } from '@angular/core';
-import type { ArenaButtonType, ArenaButtonVariant, ArenaControlSize } from '../../../Api.generated';
+import type { ArenaButtonType } from '../../../Api.generated';
 import { arenaButtonStyles } from './ArenaButton.variants';
 import manifest from './ArenaButton.classes.generated';
+import { ArenaSlotAttributes } from '../../../SlotData';
 
 @Component({
   selector: 'arena-button',
   standalone: true,
+  imports: [ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     style: 'display: contents',
     '[attr.name]': 'null',
   },
   template: `
-    <button #control [class]="styles().root()" [attr.data-arena-part]="parts.root" [attr.type]="type()" [disabled]="inert()"
+    <button #control [class]="styles().root()" [arenaSlotData]="styles().$data.root()" [attr.data-arena-part]="parts.root" data-arena-boundary [attr.type]="type()" [disabled]="inert()"
             [attr.name]="name()" [attr.value]="value()" [attr.form]="form()"
             [attr.tabindex]="tabStop() ? null : -1" (click)="onClick($event)">
       @if (loading()) {
@@ -33,24 +35,14 @@ import manifest from './ArenaButton.classes.generated';
 export class ArenaButton {
   protected readonly parts = manifest.parts;
 
-  /** Which action this is. Danger is outline, never filled. */
-  readonly variant = input<ArenaButtonVariant, ArenaButtonVariant | undefined>(
-    'primary',
-    { transform: (value) => value ?? 'primary' },
-  );
-  /** Height, from the density tokens, so the button re-densifies inside .arena-compact. */
-  readonly size = input<ArenaControlSize, ArenaControlSize | undefined>(
-    'md',
-    { transform: (value) => value ?? 'md' },
-  );
+  /** Whether the action destroys or removes something. Destructive draws the danger outline whatever emphasis the button is given: danger is never filled outside ArenaConfirmDialog's final confirmation. */
+  readonly destructive = input(false, { transform: booleanAttribute });
   /** Phosphor class name drawn before the label. Replaced by the spinner while loading. */
   readonly icon = input<string>();
   /** Phosphor class name drawn after the label: a caret on a menu trigger, an arrow on a next action. */
   readonly iconRight = input<string>();
   /** Replaces the leading icon with a spinner and blocks activation. The spin slows under reduced motion rather than stopping: a frozen spinner reads as a hung process. */
   readonly loading = input(false, { transform: booleanAttribute });
-  /** Stretches to the container's width. */
-  readonly full = input(false, { transform: booleanAttribute });
   /** Blocks activation and dims the control. Implied by loading. */
   readonly disabled = input(false, { transform: booleanAttribute });
   /** Native button behaviour. Defaults to 'button' so a button inside a form does not submit it by accident. */
@@ -72,9 +64,7 @@ export class ArenaButton {
   readonly click = output<void>();
 
   protected readonly inert = computed(() => this.disabled() || this.loading());
-  protected readonly styles = computed(() => arenaButtonStyles({
-    variant: this.variant(), size: this.size(), full: this.full(),
-  }));
+  protected readonly styles = computed(() => arenaButtonStyles({ destructive: this.destructive() }));
 
   private readonly control = viewChild<ElementRef<HTMLButtonElement>>('control');
 

@@ -1,6 +1,6 @@
 {
   "component": "ArenaTable",
-  "description": "Data table on the density tokens. ArenaTable draws the header row from `columns`, owns the grid and its keyboard, and decides where each row sits. The consumer writes one ArenaTableRow per row and one ArenaTableCell per cell. A cell's content is then a value or one of Arena's own components, rather than something returned from a per-item render function. Below --bp-md the table becomes one card per row, measured on its own container rather than the viewport.",
+  "description": "Data table on the density tokens. ArenaTable draws the header row from `columns`, owns the grid and its keyboard, and decides where each row sits. The consumer writes one ArenaTableRow per row and one ArenaTableCell per cell. A cell's content is then a value or one of Arena's own components, rather than something returned from a per-item render function. Below --bp-md the table becomes one card per row, measured on its own container rather than the viewport. A table nested in a cell reads the outer property set under the same key, so it takes another key.",
   "affordances": [
     "focus",
     "hover"
@@ -55,7 +55,7 @@
       "form": "enum",
       "type": "ArenaTablePageControl",
       "default": "auto",
-      "description": "Whether ArenaTable draws the pager below the grid. 'auto' draws it whenever `page` is bound, which is what a table showing one list of its own wants; 'none' draws nothing and leaves the consumer to place an ArenaPagination themselves, over this table or over two of them at once. It is a separate member from `page` because the two are separate facts: `page` is what the table KNOWS about a longer list, and this is what it DRAWS about it. Bound together, a consumer who wanted the control elsewhere had to withhold `page` and leave the table knowing nothing about paging at all, which is a member deliberately unbound and a comment explaining why. The same split, and the same reasoning, as `sort` and `sortControl`."
+      "description": "Whether ArenaTable draws the pager below the grid. 'auto' draws it whenever `page` is bound, which is what a table showing one list of its own wants; 'none' draws nothing and leaves the consumer to place an ArenaPagination themselves, over this table or over two of them at once. It is a separate member from `page` because the two are separate facts: `page` is what the table KNOWS about a longer list, and this is what it DRAWS about it. Bound together, a consumer who wants the control elsewhere would have to withhold `page` and leave the table knowing nothing about paging at all, which is a member deliberately unbound and a comment explaining why. The same split, and the same reasoning, as `sort` and `sortControl`."
     },
     "sortControl": {
       "form": "enum",

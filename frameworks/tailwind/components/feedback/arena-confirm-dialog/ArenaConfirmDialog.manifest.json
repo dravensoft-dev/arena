@@ -3,21 +3,40 @@
   "slots": {
     "root": "fixed inset-0 z-modal-nested flex items-center justify-center bg-scrim backdrop-blur-scrim",
     "panel": "w-115 max-w-[92vw] bg-surface-floating border-[length:var(--bw-surface)] border-edge-surface-floating rounded-surface shadow-surface-deep overflow-hidden",
-    "head": "px-6 pt-5.5",
+    "head": "px-floating-x pt-5.5",
     "eyebrow": "font-face-eyebrow text-eyebrow tracking-eyebrow case-eyebrow mb-2 font-eyebrow",
     "title": "font-face-heading font-heading text-title-section text-ink-heading tracking-heading leading-heading",
-    "body": "px-6 py-4 font-body text-md leading-prose text-ink-body/(--level-ink-body)",
+    "body": "px-floating-x py-floating-y font-body text-md leading-prose text-ink-body/(--level-ink-body)",
     "requireBlock": "mt-3.5",
     "requireLabel": "font-face-label text-ctl-xs tracking-label-role case-label text-ink-muted/(--level-ink-muted) mb-1.5",
-    "input": "w-full h-ctl-h px-control-x bg-field border-[length:var(--bw-field)] rounded-field text-ink-body font-mono text-ctl outline-none focus-visible:ring-[length:var(--focus-width)] focus-visible:ring-error",
-    "foot": "flex flex-wrap justify-end gap-2.5 px-6 pb-5.5",
+    "input": "w-full h-ctl-h px-control-x bg-field border-[length:var(--bw-field)] rounded-field text-ink-body font-mono text-ctl outline-none focus-visible:ring-[length:var(--focus-width)] focus-visible:ring-[color:var(--arena-hue-edge)]",
+    "foot": "flex flex-wrap justify-end gap-actions px-floating-x pb-5.5",
     "confirm": "inline-flex items-center justify-center h-ctl-h px-4.5 rounded-control border-[length:var(--bw-control)] border-transparent font-body font-control text-ctl cursor-pointer disabled:opacity-45 disabled:cursor-not-allowed gap-control transition-[background,box-shadow] duration-[var(--dur-hover)] ease-hover hover:shadow-control-raised shadow-control-rest outline-none focus-visible:shadow-[inset_0_0_0_var(--focus-width)_var(--focus-ring)]"
+  },
+  "kind": {
+    "root": "none",
+    "panel": "floating",
+    "head": "floating",
+    "eyebrow": "none",
+    "title": "none",
+    "body": "floating",
+    "requireBlock": "none",
+    "requireLabel": "none",
+    "input": "field",
+    "foot": "floating",
+    "confirm": "control"
+  },
+  "floating": {
+    "root": "a modal surface lays itself over the page, so the region it was opened from does not decide its controls"
+  },
+  "internal": {
+    "invalid": "the typed confirmation text does not match yet"
   },
   "variants": {
     "destructive": {
       "true": {
-        "eyebrow": "text-error",
-        "confirm": "bg-error-fill text-error-content"
+        "eyebrow": "text-[color:var(--arena-hue-ink)]",
+        "confirm": "bg-confirm-final text-ink-confirm-final"
       },
       "false": {
         "eyebrow": "text-ink-eyebrow",
@@ -26,7 +45,7 @@
     },
     "invalid": {
       "true": {
-        "input": "border-error"
+        "input": "border-[color:var(--arena-hue-edge)]"
       },
       "false": {
         "input": "border-edge-field"
@@ -43,5 +62,14 @@
     "destructive": false,
     "invalid": false,
     "open": false
+  },
+  "hues": {
+    "always": {
+      "input": "danger"
+    },
+    "destructive": {
+      "true": "danger",
+      "false": null
+    }
   }
 }

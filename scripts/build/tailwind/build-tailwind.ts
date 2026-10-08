@@ -8,8 +8,8 @@
  * nothing says so. preludeSpecifier is the exception and throws, since a depth cannot be
  * negative -- which on Windows it was, by three, for every component in the tree. */
 
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { basename, dirname, join } from 'node:path';
+import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { basename, dirname, join, posix } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { compileLayer, compileEntry, layerInputs, layerManifests } from '../../lib/tailwind/tailwind-compile.ts';
 import {
@@ -17,11 +17,20 @@ import {
 } from '../../lib/tailwind/component-css.ts';
 import { dropBlindFallbacks, mergeSupports } from '../../lib/tailwind/supports-blocks.ts';
 import {
-  componentSheet, matchingBrace, preflightSheet, preludeSheet, splitUtilities,
+  componentSheet, hueSheet, matchingBrace, preflightSheet, preludeSheet, splitUtilities,
 } from '../../lib/tailwind/component-sheets.ts';
 import { splitCompiledSheet } from '../../lib/tailwind/sheet-split.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
-import type { ComponentManifest } from '../../lib/tailwind/manifest-shapes.ts';
+import { relPosix } from '../../utils/posix-path.ts';
+import { OWN_ELEMENTLESS } from '../../lib/arena/elementless.ts';
+import { DOMAIN } from '../../lib/arena/site-pages.ts';
+import type { ArenaAnswer, ComponentManifest } from '../../lib/tailwind/manifest-shapes.ts';
+import { HUE_SHEETS, hueRules, huePath, readHues } from '../../lib/tailwind/hue-sheet.ts';
+import { readJson } from '../../utils/read-file.ts';
+import {
+  VOCABULARY_DIR, VOCABULARY_SHEETS, answerOf, compileFamily, familyFiles, readFamilies, sheetFamilies, sheetName, targetOf,
+  type Family,
+} from '../../lib/tailwind/vocabulary.ts';
 
 type BuildOptions = { root?: string; manifests?: Map<string, any> };
 
@@ -58,28 +67,28 @@ export const BARREL = `${CONSUME}/Components.generated.css`;
 export const PREFLIGHT = `${CONSUME}/Preflight.generated.css`;
 
 export const MANIFESTS = 'frameworks/**/*.manifest.json';
+export const VOCABULARY_PAGE = 'frameworks/VOCABULARY.md';
+export const VOCABULARY_TYPES = 'frameworks/react/Vocabulary.generated.ts';
+
 
 export const PRESET = [
   'frameworks/tailwind/Theme.css', 'frameworks/tailwind/Animations.css',
-  'frameworks/tailwind/Case.css', 'frameworks/tailwind/Numerals.css', 'frameworks/tailwind/SrOnly.css',
-  'frameworks/tailwind/Prose.css', 'frameworks/tailwind/Rhythm.css',
+  'frameworks/tailwind/Case.css',
   'frameworks/tailwind/Breakpoints.generated.css', 'contracts/design-generated',
 ];
 
 export const node = {
   name: 'build:tailwind',
   reads: [
-    ...PRESET, MANIFESTS,
-    'frameworks/tailwind/ArenaStyles.ts', 'frameworks/tailwind/Tv.ts',
+    ...PRESET, MANIFESTS, 'frameworks/tailwind/Hues.json', `${VOCABULARY_DIR}/**`, 'contracts/api/components',
+    'frameworks/tailwind/ArenaStyles.ts',
   ],
   writes: [
     'frameworks/tailwind/Utilities.generated.css', PRELUDE, BARREL, PREFLIGHT,
-    `${CONSUME}/**/*.styles.generated.css`,
+    `${CONSUME}/**/*.styles.generated.css`, `${HUE_SHEETS}/**/*.hues.generated.css`, `${VOCABULARY_SHEETS}/*.generated.css`, VOCABULARY_TYPES,
     ...CONSUMING_LAYERS.map((layer) => `frameworks/${layer}/components/**/*.manifest.generated.ts`),
     ...CSS_CONSUMING_LAYERS.map((layer) => `frameworks/${layer}/components/**/*.classes.generated.ts`),
-    ...CONSUMING_LAYERS.flatMap((layer) => [
-      `frameworks/${layer}/ArenaStyles.generated.ts`, `frameworks/${layer}/Tv.generated.ts`,
-    ]),
+    ...CONSUMING_LAYERS.map((layer) => `frameworks/${layer}/ArenaStyles.generated.ts`),
   ],
   feeds: [
     'build:angular-demo',
@@ -95,9 +104,13 @@ export const node = {
     'check:behaviour',
     'check:compliance',
     'check:component-css',
+    'check:channels',
+    'check:classes',
+    'check:proximity',
     'check:demos',
     'check:dimensions',
     'check:duplicate-constants',
+    'check:families',
     'check:focus-trap',
     'check:generated',
     'check:icons',
@@ -162,28 +175,95 @@ export function buildComponentCss(opts: BuildOptions = {}) {
   const byComponent = new Map();
   for (const [file, manifest] of manifests) byComponent.set(classBase(manifest.component), file);
 
-  const settled = mergeSupports(dropBlindFallbacks(stripIndirection(raw)));
+  const settled = mergeSupports(dropBlindFallbacks(stripIndirection(raw, themeMapFor(root))));
   const { shared, components } = splitUtilities(settled, new Set(byComponent.keys()));
   const out = new Map();
   out.set(join(root, PRELUDE), BANNER + preludeSheet(shared, keyframesOf(root)));
 
+  const hues = readHues(root);
   const sheets = [];
   for (const [name, rules] of components) {
     const file = byComponent.get(name);
     if (!file) throw new Error(`build-tailwind: ${name} has rules but no manifest to write them beside`);
     const rel = sheetPath(file);
     sheets.push(rel);
-    out.set(join(root, rel), BANNER + componentSheet(rules, preludeSpecifier(rel)));
+    const written = hueRules(manifests.get(file) as ComponentManifest, hues);
+    const hueRel = huePath(file);
+    if (written) out.set(join(root, hueRel), BANNER + hueSheet(written));
+    out.set(join(root, rel), BANNER + componentSheet(rules, preludeSpecifier(rel),
+      written ? [relPosix(posix.dirname(rel), hueRel, posix)] : []));
   }
 
   const imports = sheets.sort().map((rel) => `@import './${rel.replace(`${CONSUME}/`, '')}';`);
   const barrel = `${BANNER}@import './${basename(PREFLIGHT)}';\n`
-    + `@import './${basename(PRELUDE)}';\n${imports.join('\n')}\n`;
+    + `@import './${basename(PRELUDE)}';\n${[...imports, ...vocabularyImports(root)].join('\n')}\n`;
   out.set(join(root, BARREL), barrel);
   out.set(join(root, PREFLIGHT),
     BANNER + preflightSheet(splitCompiledSheet(readFileSync(generatedPath({ root }), 'utf8')).base));
 
   return out;
+}
+
+export function buildVocabularyCss(opts: BuildOptions = {}) {
+  const root = opts.root ?? repoRoot;
+  const manifests = opts.manifests ?? layerManifests(root);
+  const out = new Map<string, string>();
+  for (const rel of familyFiles(root)) {
+    const family = readJson(join(root, rel)) as Family;
+    if (targetOf(family) === 'keyed') continue;
+    out.set(join(root, VOCABULARY_SHEETS, sheetName(family.family)), manifestBanner(rel) + compileFamily(family, manifests.values()));
+  }
+  return out;
+}
+
+export function vocabularyImports(root = repoRoot) {
+  return sheetFamilies(root).map((one) => one.family).sort().map((family) => `@import './vocabulary/${sheetName(family)}';`);
+}
+
+
+const unionOf = (classes: string[]) => (classes.length ? classes.map((one) => `'${one}'`).join(' | ') : 'never');
+const typeName = (family: string) => `Arena${family.split('-').map((w) => w.slice(0, 1).toUpperCase() + w.slice(1)).join('')}FamilyClass`;
+
+export function vocabularyTypes(families: Family[], answers: Map<string, readonly ArenaAnswer[]>, components: string[], page: string,
+  elementless: ReadonlyMap<string, string> = OWN_ELEMENTLESS) {
+  const sorted = [...families].sort((a, b) => (a.family < b.family ? -1 : 1));
+  const options = (family: Family) => Object.keys(family.variants).sort();
+  const context = sorted.filter((one) => one.reach === 'context').flatMap(options);
+  const boxes = sorted.filter((one) => one.reach === 'box' && targetOf(one) === 'component');
+  const lines = [
+    `/* GENERATED by scripts/build/tailwind/build-tailwind.ts — edit a family under ${VOCABULARY_DIR}/ or a manifest's answers, not this file. */`,
+    `export const ARENA_VOCABULARY_PAGE = '${page}';`,
+    'export type ArenaClassList<T extends string> = T | `${T} ${T}` | `${T} ${T} ${T}`;',
+    `export type ArenaContextClass = ${unionOf(context)};`,
+    ...boxes.map((one) => `export type ${typeName(one.family)} = ${unionOf(options(one))};`),
+  ];
+  const lists: string[] = [];
+  for (const component of [...components].sort()) {
+    if (elementless.has(component)) continue;
+    const answered = answers.get(component) ?? [];
+    const taken = boxes.flatMap((one) => {
+      const own = answerOf({ component, answers: answered }, one);
+      if (!own) return [];
+      const kept = options(one).filter((option) => own.options.includes(option));
+      return [{ one, kept, whole: kept.length === options(one).length }];
+    });
+    const tokens = ['ArenaContextClass', ...taken.flatMap(({ one, kept, whole }) => (whole ? [typeName(one.family)] : kept.map((option) => `'${option}'`)))];
+    lines.push(`export type ${component}Class = ArenaClassList<${tokens.join(' | ')}>;`);
+    lists.push(`  ${JSON.stringify(component)}: ${JSON.stringify([...context, ...taken.flatMap(({ kept }) => kept)]).replace(/","/g, '", "')},`);
+  }
+  lines.push('export const ARENA_VOCABULARY: Readonly<Record<string, readonly string[]>> = {', ...lists, '};');
+  return `${lines.join('\n')}\n`;
+}
+
+export function buildVocabularyTypes(opts: BuildOptions = {}) {
+  const root = opts.root ?? repoRoot;
+  const manifests = opts.manifests ?? layerManifests(root);
+  const answers = new Map<string, readonly ArenaAnswer[]>();
+  for (const manifest of manifests.values()) if (manifest.answers?.length) answers.set(manifest.component, manifest.answers);
+  const components = readdirSync(join(root, 'contracts/api/components'))
+    .filter((file) => file.endsWith('.json')).map((file) => file.slice(0, -'.json'.length));
+  const text = vocabularyTypes([...readFamilies(root).values()], answers, components, `https://${DOMAIN}/${VOCABULARY_PAGE}`);
+  return new Map([[join(root, VOCABULARY_TYPES), text]]);
 }
 
 export function preludeSpecifier(rel: string) {
@@ -244,15 +324,6 @@ export function buildManifestModules(opts: BuildOptions = {}) {
   return out;
 }
 
-export function buildRecipeRuntime(opts: BuildOptions = {}) {
-  const root = opts.root ?? repoRoot;
-  const source = readFileSync(join(root, 'frameworks/tailwind/Tv.ts'), 'utf8');
-  const out = new Map();
-  for (const layer of CONSUMING_LAYERS)
-    out.set(join(root, `frameworks/${layer}/Tv.generated.ts`), manifestBanner('frameworks/tailwind/Tv.ts') + source);
-  return out;
-}
-
 function main() {
   const text = buildTailwind();
   const path = generatedPath();
@@ -260,8 +331,9 @@ function main() {
   console.log(`build-tailwind: wrote ${path} (${text.length} bytes)`);
 
   const emitted = [
-    ...buildManifestModules(), ...buildRecipeRuntime(),
-    ...buildComponentCss(), ...buildClassModules(), ...buildStylesRuntime(),
+    ...buildManifestModules(),
+    ...buildComponentCss(), ...buildClassModules(), ...buildStylesRuntime(), ...buildVocabularyCss(),
+    ...buildVocabularyTypes(),
   ];
   for (const [filePath, content] of emitted) {
     mkdirSync(dirname(filePath), { recursive: true });

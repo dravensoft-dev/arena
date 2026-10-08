@@ -1,0 +1,9 @@
+{
+  "family": "band",
+  "reach": "box",
+  "target": "markup",
+  "description": "The column a page's content sits in, at the page width with a gutter either side, centred. Both lengths are roles, so a style plugin narrows or widens every page at once. The gutter is a ceiling rather than a fixed inset. Below the page width the band stands off by the same share of the space it has. A phone then keeps a content column instead of spending two fifths of the screen on margin. The band carries no block air; the space above and below is yours, on the spacing scale.",
+  "variants": {
+    "arena-band": "[width:100%] [max-width:var(--container-max)] [margin-inline:auto] [padding-inline:min(var(--gutter),7%)]"
+  }
+}

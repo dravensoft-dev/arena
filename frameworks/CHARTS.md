@@ -71,18 +71,21 @@ exact shape hides behind. **`arenaScaleValue` does not clamp**: a scale maps, an
 the caller's rule. The doughnut keeps its own floor, because a negative share of a whole is
 meaningless, and the bar and line charts keep none.
 
-**A shared appearance module is a manifest, and these charts have none by charter**, so the
-tooltip's arithmetic and its appearance part company. `ChartTooltip.ts` is paired and holds
-`arenaTooltipAnchor(x, y)`, which is where the hovered datum meets `--chart-tooltip-offset`; the
-style objects stay where each layer already kept them. Angular's were module-level constants
-duplicated across two components and now sit once in `ChartTooltipStyles.ts`, which is
-deliberately **not** in `PAIRED` because its members are constants rather than functions, and
-`check-shared-arithmetic.ts` compares only functions. React has no counterpart on purpose:
-`check-appearance.ts` excuses a chart that draws geometry but not a loose module beside it, so
-lifting the same literals out of the JSX would ask for the manifest the charter refuses. **Do
-not add one.** `ChartLegendStyles.ts` is the second file that rule produced, on the same reading
-and the same asymmetry: Angular's cartesian legend constants were about to be duplicated across
-the bar and line charts, so they sit once, unpaired; React's stay in the JSX that draws them.
+**A chart's legend and tooltip render from the chart's own manifest.** Each chart carries one under
+`frameworks/tailwind/components/charts/arena-<chart>/`, holding the slots of its legend and its
+tooltip, so both layers draw them from the same classes and a style plugin reaches them through
+the part hook. Each chart also draws inside a `frame` slot of that manifest, which is the box a
+plugin reaches around the plot, and an Angular chart's host is boxless (`display: contents`), so a
+class that needs a box goes on a wrapper of the adopter's. The axis lines, the zero line and the
+crosshair are drawn in the `edge-axis` role and the grid rules behind the marks in `edge-separator`;
+no chart paint reads a compat alias. The roles those slots spend are in
+[`contracts/design/StylePlugins.md`](../contracts/design/StylePlugins.md). **A legend swatch reads the hue channels**: the legend item's group is the series' `tone` or `colorId`,
+rendered as `data-arena-tone` or `data-arena-color-id`, and the swatch paints `--arena-hue-ink`. What
+stays inline is what the render computes: the tooltip's anchor, the strip height and the hover
+opacity. The plot keeps its token reads, since a mark's coordinates are the data and a role cannot
+carry them. `ChartTooltip.ts` is paired and holds `arenaTooltipAnchor(x, y)`, which is where the
+hovered datum meets `--chart-tooltip-offset`. `scripts/lib/tailwind/manifest-surfaces.ts:HAND_DRAWN`
+keeps each chart for the plot geometry only, whose coordinates are the data.
 
 **A cartesian legend is a key and not a control, so it takes no focus.** It renders
 `aria-hidden="true"`, and that is the honest reading of the pattern rather than an omission:
@@ -155,11 +158,10 @@ is recorded.** A role is a custom property with no value, answered in the cascad
 position is JavaScript arithmetic that produces an SVG attribute, and reading a custom property
 back out of the cascade to divide by it would put a layout pass between the data and the mark.
 So the geometry belongs to the tokens, the tokens belong to the scales, and what a plugin can
-say about a chart is what it can say about `ArenaChartCard`. **That is the whole consequence of
-the charter above**: these charts carry no manifest, so they carry no slot, so they carry no part
-hook, and a product's data visualisation is the one region of its screen a style plugin cannot
-re-skin. It wears the skin all the same, because every value a chart paints is a token the
-palette moves: the ramp, the surfaces, the muted ink, the mono face and the hairline.
+say about a chart is what it can say about `ArenaChartCard`, the `frame` slot, the legend, the tooltip and the `edge-axis` role. **That is the whole consequence of
+the geometry**: the plot carries no slot, so it carries no part hook, and the plot is the one
+region of a chart a style plugin cannot re-skin. It wears the skin all the same, because every
+value a chart paints is a token the palette moves: the ramp, the surfaces, the muted ink, the mono face and the hairline.
 
 **Every mark of text inside a plot is set from the `dz` ladder, and none of it from `fs`.** A tick,
 a category name, a point label, a legend key and a tooltip are all chrome around data rather than
@@ -259,4 +261,4 @@ component that draws it. They also carry no comment, because `allowsHeader()` in
 `scripts/check/arena/check-docs.ts` grants one only under `scripts/` or a test path, which is
 why the reasoning is here instead. `DataVisuals.ts` stays at the layer root beside them and
 keeps the colour contract and the number writer, since `arena-calendar-event` reads
-`arenaCatColor(slot)` too and a module a schedule grid consumes is not chart internals.
+`arenaCatIndex(slot)` too and a module a schedule grid consumes is not chart internals.

@@ -11,9 +11,12 @@ export const ARENA_CAT_SLOTS = catSlots;
 export const ARENA_CHART_HEIGHT = chartHeight;
 export const ARENA_PAD = { t: chartPadTop, r: chartPadRight, b: chartPadBottom, l: chartPadLeft };
 
+export function arenaCatIndex(slot: number): number {
+  return Math.min(ARENA_CAT_SLOTS, Math.max(1, Math.round(slot) || 1));
+}
+
 export function arenaCatColor(slot: number): string {
-  const n = Math.min(ARENA_CAT_SLOTS, Math.max(1, Math.round(slot) || 1));
-  return `var(--color-cat-${n})`;
+  return `var(--color-cat-${arenaCatIndex(slot)})`;
 }
 
 export function arenaCatSlotFor(key: string): number {
@@ -43,10 +46,12 @@ export function arenaAreaFill(colour: string): string {
   return `color-mix(in oklab, ${colour} ${tintArea}%, transparent)`;
 }
 
+export const ARENA_INK_BODY = 'color-mix(in oklab,var(--ink-body) var(--level-ink-body),transparent)';
+
+export const ARENA_INK_MUTED = 'color-mix(in oklab,var(--ink-muted) var(--level-ink-muted),transparent)';
+
 const TONE_VARS: Record<ArenaTone, string> = {
-  neutral: 'var(--text-body)',
-  accent: 'var(--accent)',
-  gold: 'var(--gold)',
+  neutral: ARENA_INK_BODY,
   success: 'var(--success)',
   warning: 'var(--warning)',
   danger: 'var(--danger)',
@@ -98,5 +103,5 @@ export const arenaRailStyle: React.CSSProperties = {
 
 export const arenaSrOnly: React.CSSProperties = {
   position: 'absolute', width: 1, height: 1, padding: 0, margin: -1,
-  overflow: 'hidden', clip: 'rect(0 0 0 0)', whiteSpace: 'nowrap', border: 0,
+  overflow: 'hidden', clipPath: 'inset(50%)', whiteSpace: 'nowrap', border: 0,
 };

@@ -89,16 +89,15 @@ test('the picker indicator is styled by the manifest, so nothing injects a style
 
 test('the three field states are three branches of one recipe', () => {
   const neutral = renderToStaticMarkup(<ArenaInput label="A" />);
-  assert.match(neutral, /(?:arena-input__field--state-neutral|arena-input__field--state-valid)/, 'focus is a modifier, not a reported state');
-  assert.match(neutral, /\barena-input__field--state-neutral\b/);
+  assert.match(neutral, /data-arena-part="input.field"[^>]*\bdata-arena-state="neutral"/);
 
   const bad = renderToStaticMarkup(<ArenaInput label="A" error="Nope" />);
-  assert.match(bad, /\barena-input__field--state-error\b/);
-  assert.match(bad, /\b(?:arena-input__error|arena-input__status-icon--state-error)\b/);
+  assert.match(bad, /data-arena-part="input.field"[^>]*\bdata-arena-state="error"/);
+  assert.match(bad, /\barena-input__error\b/);
 
   const good = renderToStaticMarkup(<ArenaInput label="A" valid />);
-  assert.match(good, /\barena-input__field--state-valid\b/);
-  assert.match(good, /\barena-input__status-icon--state-valid\b/);
+  assert.match(good, /data-arena-part="input.field"[^>]*\bdata-arena-state="valid"/);
+  assert.match(good, /data-arena-part="input.status-icon"[^>]*\bdata-arena-state="valid"/);
 });
 
 test('ArenaInput drops a consumer style object -- the ...style escape is gone', () => {
@@ -123,4 +122,11 @@ test('without a consumer id the label-derived one is still generated', () => {
   const html = renderToStaticMarkup(<ArenaInput label="Email" />);
   assert.match(html, /id="in-email"/);
   assert.match(html, /for="in-email"/);
+});
+
+test('readOnly is a group on the field and the input', () => {
+  const on = renderToStaticMarkup(<ArenaInput label="Slug" readOnly />);
+  assert.match(on, /data-arena-part="input.field"[^>]*\bdata-arena-read-only=""/);
+  assert.match(on, /data-arena-part="input.input"[^>]*\bdata-arena-read-only=""/);
+  assert.doesNotMatch(renderToStaticMarkup(<ArenaInput label="Slug" />), /read-only-true/);
 });

@@ -16,6 +16,7 @@ import { blankComments, expressionLeaves, readValue, skipString } from './check-
 import { HAND_DRAWN, categoryOf, inScope, manifestFor } from '../../lib/tailwind/manifest-surfaces.ts';
 import { kebab } from '../../utils/case.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
+import { COMPAT_ALIASES } from '../../generate/core/arena-cli/audit.ts';
 import { withForeignTrees } from '../../lib/arena/foreign-trees.ts';
 
 export const node = {
@@ -174,9 +175,7 @@ export function componentDir(name: string) {
 }
 
 export function reactRendersManifest(text: string, manifest: string) {
-  const throughRecipe = /from '[^']*Tv\.generated/.test(text) && text.includes(`${manifest}.manifest.generated`);
-  const throughClasses = /from '[^']*ArenaStyles\.generated/.test(text) && text.includes(`${manifest}.classes.generated`);
-  return throughRecipe || throughClasses;
+  return /from '[^']*ArenaStyles\.generated/.test(text) && text.includes(`${manifest}.classes.generated`);
 }
 
 export function angularRendersManifest(text: string) {
@@ -193,8 +192,7 @@ export function adoptionProblems(name: string) {
   const react = reactSource(name);
   if (react && !reactRendersManifest(readFileSync(react, 'utf8'), manifest)) {
     problems.push(`${name}: ${relPosix(repoRoot, react)} does not render its manifest -- it has to `
-      + `import arenaStyles from ArenaStyles.generated and ${manifest}.classes.generated (or, until it `
-      + `is migrated, arenaTv from Tv.generated and ${manifest}.manifest.generated), and draw its slots`);
+      + `import arenaStyles from ArenaStyles.generated and ${manifest}.classes.generated, and draw its slots`);
   }
   const angular = angularSource(name);
   if (angular && !angularRendersManifest(readFileSync(angular, 'utf8'))) {
@@ -202,6 +200,39 @@ export function adoptionProblems(name: string) {
       + 'import the recipe built from it, its own .variants or the family parent\'s');
   }
   return problems;
+}
+
+export const CHART_ALIASES_KEPT = new Map<string, string>([
+  ['success', 'the status tone a chart reads on purpose through arenaToneColor'],
+  ['warning', 'the status tone a chart reads on purpose through arenaToneColor'],
+  ['danger', 'the status tone a chart reads on purpose through arenaToneColor'],
+  ['info', 'the status tone a chart reads on purpose through arenaToneColor'],
+  ['level-ink-body', 'the intensity the neutral ink composes over var(--ink-body); a level is no colour'],
+  ['level-ink-muted', 'the intensity the muted ink composes over var(--ink-muted); a level is no colour'],
+]);
+
+export const CHART_DATA_VISUALS = ['frameworks/react/DataVisuals.ts', 'frameworks/angular/DataVisuals.ts'];
+
+const VAR_READ = /var\(\s*--([A-Za-z0-9_-]+)/g;
+
+export function chartAliasProblems(text: string, path: string, kept: ReadonlyMap<string, string> = CHART_ALIASES_KEPT) {
+  const problems = [];
+  for (const m of blankComments(text).matchAll(VAR_READ)) {
+    const alias = m[1] as string;
+    if (COMPAT_ALIASES.includes(alias) && !kept.has(alias)) {
+      problems.push(`${path}: var(--${alias}) reads a compatibility alias; a chart paints in roles `
+        + '(--edge-axis, --edge-separator, --ink-muted, --fill-surface), so name the role');
+    }
+  }
+  return problems;
+}
+
+export function chartSources() {
+  const found = CHART_DATA_VISUALS.filter((rel) => existsSync(join(repoRoot, rel)));
+  for (const name of HAND_DRAWN.keys()) {
+    for (const path of [reactSource(name), angularSource(name)]) if (path) found.push(relPosix(repoRoot, path));
+  }
+  return found;
 }
 
 export function collect() {
@@ -227,9 +258,14 @@ export function collect() {
         + 'literal, so it belongs in the manifest');
   }
 
+  const chartFiles = chartSources();
+  const chartAliases = chartFiles.flatMap((rel) => chartAliasProblems(readFileSync(join(repoRoot, rel), 'utf8'), rel));
+
   return {
     adoption,
     literals,
+    chartFiles,
+    chartAliases,
     files: files.map((p) => relPosix(repoRoot, p)),
     walked: files.length,
     scanned,
@@ -237,7 +273,7 @@ export function collect() {
   };
 }
 
-export function zeroProblems({ scope, walked, scanned }: { scope: number; walked: number; scanned: number }) {
+export function zeroProblems({ scope, walked, scanned, chartFiles }: { scope: number; walked: number; scanned: number; chartFiles: string[] }) {
   const problems = [];
   if (scope === 0) problems.push('the scope is empty, so the adoption half asked nothing of anybody');
   if (walked === 0) problems.push('the literal half walked 0 files, which is a failure rather than a clean pass');
@@ -245,12 +281,13 @@ export function zeroProblems({ scope, walked, scanned }: { scope: number; walked
     problems.push('every walked file was excused by HAND_DRAWN, so the literal half read nothing; '
       + 'a gate whose whole subject is excused reports nothing wrong with everything');
   }
+  if (chartFiles.length === 0) problems.push('the chart half scanned 0 files, which is a failure rather than a clean pass');
   return problems;
 }
 
 function main() {
   const found = collect();
-  const problems = [...zeroProblems(found), ...found.adoption, ...found.literals];
+  const problems = [...zeroProblems(found), ...found.adoption, ...found.literals, ...found.chartAliases];
 
   if (problems.length > 0) {
     console.error(`check-appearance: ${problems.length} problem(s)\n`);
@@ -262,7 +299,7 @@ function main() {
 
   console.log(`check-appearance: ${found.scope} component(s) in scope render their manifest and write no `
     + `appearance by hand, ${HAND_DRAWN.size} draw by hand by charter; ${found.scanned} of `
-    + `${found.walked} React source(s) read for a literal`);
+    + `${found.walked} React source(s) read for a literal, ${found.chartFiles.length} chart source(s) read for a compatibility alias`);
 }
 
 if (isMainModule(import.meta.url)) main();

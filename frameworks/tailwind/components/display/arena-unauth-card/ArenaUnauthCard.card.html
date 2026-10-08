@@ -4,28 +4,31 @@
 <link rel="stylesheet" href="../../../consume/Preflight.generated.css">
 <link rel="stylesheet" href="../../../consume/components/brand/arena-app-logo/ArenaAppLogo.styles.generated.css">
 <link rel="stylesheet" href="../../../consume/components/display/arena-unauth-card/ArenaUnauthCard.styles.generated.css">
+<link rel="stylesheet" href="../../../consume/vocabulary/Size.generated.css">
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor } from '../../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
 
 const manifest = await (await fetch('./ArenaUnauthCard.manifest.json')).json();
 const logo = await (await fetch('../../brand/arena-app-logo/ArenaAppLogo.manifest.json')).json();
 
 function panel({ eyebrow, title, body, footer }) {
   const c = arenaClassesFor(manifest);
-  const l = arenaClassesFor(logo, { size: 'md' });
-  return el('div', { class: c.root },
-    el('div', { class: c.panel },
-      el('div', { class: c.body },
-        el('div', { class: c.brand },
-          el('span', { class: l.root },
-            el('span', { class: l.mark }, el('img', { src: '../../../../../assets/rotor-crimson.svg', alt: '' })),
-            el('span', { class: l.name }, 'Draven', el('span', { class: l.dim, text: 'soft' })))),
-        el('div', { class: c.eyebrow, text: eyebrow }),
-        el('div', { class: c.title, text: title }),
+  const d = arenaSlotDataFor(manifest);
+  const l = arenaClassesFor(logo);
+  const dL = arenaSlotDataFor(logo);
+  return el('div', { class: c.root, ...d.root },
+    el('div', { class: c.panel, ...d.panel },
+      el('div', { class: c.body, ...d.body },
+        el('div', { class: c.brand, ...d.brand },
+          el('span', { class: `${l.root} arena-size-md`, ...dL.root },
+            el('span', { class: l.mark, ...dL.mark }, el('img', { src: '../../../../../assets/rotor-crimson.svg', alt: '' })),
+            el('span', { class: l.name, ...dL.name }, 'Draven', el('span', { class: l.dim, ...dL.dim, text: 'soft' })))),
+        el('div', { class: c.eyebrow, ...d.eyebrow, text: eyebrow }),
+        el('div', { class: c.title, ...d.title, text: title }),
         el('div', { class: 'font-body text-md text-base-content/82', text: body }),
-        el('div', { class: c.footer, text: footer }))));
+        el('div', { class: c.footer, ...d.footer, text: footer }))));
 }
 
 mountSpecimen({ sections: [

@@ -5,6 +5,7 @@ import {
 import { arenaTextareaStyles } from './ArenaTextarea.variants';
 import manifest from './ArenaTextarea.classes.generated';
 import { ArenaControlBinding, arenaWarnDoubleBinding } from '../../../ControlBinding';
+import { ArenaSlotAttributes } from '../../../SlotData';
 
 export const ARENA_COUNTER_WARNING_SHARE = 0.9;
 
@@ -24,10 +25,12 @@ export function arenaBorderBoxSlack(element: HTMLElement): number {
 @Component({
   selector: 'arena-textarea',
   standalone: true,
+  imports: [ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [ArenaControlBinding],
   host: {
     '[class]': 'styles().root()',
+    '[attr.data-arena-disabled]': "styles().$data.root()['data-arena-disabled'] ?? null",
     '[attr.data-arena-part]': 'parts.root',
     '[attr.name]': 'null',
     '[attr.id]': 'null',
@@ -38,7 +41,7 @@ export function arenaBorderBoxSlack(element: HTMLElement): number {
         <span [class]="styles().required()" [attr.data-arena-part]="parts.required">*</span>
       }</label>
     }
-    <textarea #control [class]="styles().field()" [attr.data-arena-part]="parts.field" [attr.id]="controlId()" [attr.rows]="rows()"
+    <textarea #control [class]="styles().field()" [arenaSlotData]="styles().$data.field()" [attr.data-arena-part]="parts.field" [attr.id]="controlId()" [attr.rows]="rows()"
               [attr.maxlength]="maxLength()" [disabled]="off()" [required]="required()"
               [readOnly]="readOnly()" [attr.placeholder]="placeholder()" [attr.name]="name()"
               [attr.aria-invalid]="hasError()" [value]="drawn() ?? ''"
@@ -52,7 +55,7 @@ export function arenaBorderBoxSlack(element: HTMLElement): number {
         <span></span>
       }
       @if (counterText(); as text) {
-        <span [class]="counterClass()" [attr.data-arena-part]="parts.counter">{{ text }}</span>
+        <span [class]="styles().counter()" [arenaSlotData]="styles().$data.counter()" [attr.data-arena-part]="parts.counter">{{ text }}</span>
       }
     </div>
   `,
@@ -101,26 +104,20 @@ export class ArenaTextarea {
   protected readonly shownError = computed(() => this.error() ?? null);
   protected readonly hasError = computed(() => Boolean(this.shownError()));
 
+  protected readonly length = computed(() => (this.drawn() ?? '').length);
+
   protected readonly styles = computed(() => arenaTextareaStyles({
     state: this.hasError() ? 'error' : 'neutral',
     resize: this.autoResize() ? 'none' : 'vertical',
     disabled: this.off(),
-    readonly: this.readOnly(),
+    readOnly: this.readOnly(),
+    near: this.counter() && this.maxLength() !== undefined && arenaCounterIsNear(this.length(), this.maxLength()!),
   }));
-
-  protected readonly length = computed(() => (this.drawn() ?? '').length);
 
   protected readonly counterText = computed(() => {
     const cap = this.maxLength();
     if (!this.counter() || cap === undefined) return null;
     return `${this.length()}/${cap}`;
-  });
-
-  protected readonly counterClass = computed(() => {
-    const cap = this.maxLength();
-    return cap !== undefined && arenaCounterIsNear(this.length(), cap)
-      ? this.styles().counterNear()
-      : this.styles().counter();
   });
 
   private readonly control = viewChild<ElementRef<HTMLTextAreaElement>>('control');

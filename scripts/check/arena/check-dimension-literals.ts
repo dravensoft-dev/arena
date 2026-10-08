@@ -1,7 +1,10 @@
 /* Fails on a bare dimension literal in a framework layer. EXEMPT and PASSTHROUGH are
  * asserted by name in the paired suite, so changing either is a change to both.
- * Two blind spots are known and unfixed: a kebab-case SVG attribute, and Angular's [style.x]
- * binding form, which sits outside all four of the scanners below. */
+ * A write of a PROPS property into style in a component file passes as a channel binding,
+ * var(--…) alone, and otherwise is listed in COMPUTED, the render's own arithmetic, or EXEMPT.
+ * Three writes stay unscanned: a kebab-case SVG attribute, a [style] bound whole to a class
+ * member (ArenaCalendarEvent's across), and a reassigned local style object (ArenaOnboarding's
+ * pos). */
 
 import { readFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
@@ -14,7 +17,7 @@ import { emittedTree } from '../../lib/arena/layers.ts';
 import { captured } from '../../utils/captures.ts';
 import { byCodeUnit, byKey } from '../../utils/compare.ts';
 import { relPosix } from '../../utils/posix-path.ts';
-import { UNMODELLED_UNITS } from '../../generate/core/arena-to-prod/audit.ts';
+import { UNMODELLED_UNITS } from '../../generate/core/arena-cli/audit.ts';
 
 export const node = {
   name: 'check:dimensions',
@@ -59,17 +62,88 @@ export const EXEMPT = new Map([
   ['frameworks/react/components/display/arena-calendar/ArenaCalendar.tsx:height:`max(calc(var(--sp-1) * 6.5), ${rawH}px)`',
    'the max()\'s floor, calc(var(--sp-1) * 6.5), already reads a token, and stays governed — only the computed arm is exempt: rawH is an event\'s duration in minutes projected to pixels, the same data-to-pixel category as the two chart entries above, never a fixed dimension'],
   ['frameworks/react/DataVisuals.ts:width:1',
-   'arenaSrOnly is the standard visually-hidden idiom, and its 1px box is not a design dimension — it is the smallest non-zero footprint that keeps the element in the accessibility tree, paired with clip:rect(0 0 0 0) to hide it regardless of box size. 0 would drop it from the tree in some engines and defeat the whole point. Nothing in contracts/design/ could stand in for it: the number is a constraint of the a11y idiom, and it must be a fixed literal for the negative margin below to cancel exactly'],
+   'arenaSrOnly is the standard visually-hidden idiom, and its 1px box is not a design dimension — it is the smallest non-zero footprint that keeps the element in the accessibility tree, paired with clip-path:inset(50%) to hide it regardless of box size. 0 would drop it from the tree in some engines and defeat the whole point. Nothing in contracts/design/ could stand in for it: the number is a constraint of the a11y idiom, and it must be a fixed literal for the negative margin below to cancel exactly'],
   ['frameworks/react/DataVisuals.ts:height:1',
    'the other axis of the same 1px visually-hidden box as the width entry above'],
   ['frameworks/react/DataVisuals.ts:margin:-1',
    'the same idiom\'s negative pull, which must cancel exactly the 1px box above so the hidden table shifts no sibling — it is bound to that literal, not to Arena\'s spacing scale, and a token here would break the cancellation'],
   ['frameworks/angular/DataVisuals.ts:width:\'1px\'',
-   'ARENA_SR_ONLY is the standard visually-hidden idiom, and its 1px box is not a design dimension — it is the smallest non-zero footprint that keeps the element in the accessibility tree, paired with clip:rect(0 0 0 0) to hide it regardless of box size. 0 would drop it from the tree in some engines and defeat the whole point. Nothing in contracts/design/ could stand in for it: the number is a constraint of the a11y idiom, and it must be a fixed literal for the negative margin below to cancel exactly'],
+   'ARENA_SR_ONLY is the standard visually-hidden idiom, and its 1px box is not a design dimension — it is the smallest non-zero footprint that keeps the element in the accessibility tree, paired with clip-path:inset(50%) to hide it regardless of box size. 0 would drop it from the tree in some engines and defeat the whole point. Nothing in contracts/design/ could stand in for it: the number is a constraint of the a11y idiom, and it must be a fixed literal for the negative margin below to cancel exactly'],
   ['frameworks/angular/DataVisuals.ts:height:\'1px\'',
    'the other axis of the same 1px visually-hidden box as the width entry above'],
   ['frameworks/angular/DataVisuals.ts:margin:\'-1px\'',
    'the same idiom\'s negative pull, which must cancel exactly the 1px box above so the hidden table shifts no sibling — it is bound to that literal, not to Arena\'s spacing scale, and a token here would break the cancellation'],
+]);
+
+export const COMPUTED: ReadonlyMap<string, string> = new Map([
+  ['frameworks/angular/components/display/arena-calendar/ArenaCalendar.ts:height',
+   'the grid body spans the visible hours, a pixel height `frameworks/angular/components/display/arena-calendar/ArenaCalendarState.ts:y(min)` projects from the last visible minute'],
+  ['frameworks/angular/components/display/arena-calendar/ArenaCalendar.ts:top',
+   'an hour line, a slot and the now line sit where `frameworks/angular/components/display/arena-calendar/ArenaCalendarState.ts:y(min)` projects their minute'],
+  ['frameworks/angular/components/display/arena-calendar-event/ArenaCalendarEvent.ts:top',
+   'a chip starts where `frameworks/angular/components/display/arena-calendar/ArenaCalendarState.ts:y(min)` projects its start minute'],
+  ['frameworks/angular/components/display/arena-calendar-event/ArenaCalendarEvent.ts:height',
+   'a chip is as tall as `frameworks/angular/components/display/arena-calendar/ArenaCalendarState.ts:y(min)` projects its end minute past its start'],
+  ['frameworks/angular/components/feedback/arena-onboarding/ArenaOnboarding.ts:top',
+   'the panel sits below the anchor and clamps against the viewport height in `frameworks/angular/components/feedback/arena-onboarding/ArenaOnboarding.ts:position()`'],
+  ['frameworks/angular/components/feedback/arena-onboarding/ArenaOnboarding.ts:left',
+   'the panel aligns to the anchor and clamps against the viewport width in `frameworks/angular/components/feedback/arena-onboarding/ArenaOnboarding.ts:position()`'],
+  ['frameworks/angular/components/feedback/arena-progress-bar/ArenaProgressBar.ts:width',
+   'the fill is as wide as the clamped progress, computed by `frameworks/angular/components/feedback/arena-progress-bar/ArenaProgressBar.ts:percentage()`'],
+  ['frameworks/react/components/display/arena-calendar/ArenaCalendar.tsx:height',
+   'a slot is as tall as `frameworks/react/components/display/arena-calendar/ArenaCalendar.tsx:y(min)` projects its end minute past its start'],
+  ['frameworks/react/components/display/arena-calendar/ArenaCalendar.tsx:top',
+   'an hour line, a slot and the now line sit where `frameworks/react/components/display/arena-calendar/ArenaCalendar.tsx:y(min)` projects their minute'],
+  ['frameworks/react/components/feedback/arena-progress-bar/ArenaProgressBar.tsx:width',
+   'the fill is as wide as the clamped progress `frameworks/react/components/feedback/arena-progress-bar/ArenaProgressBar.tsx:ArenaProgressBar({ progressPercentage })` computes'],
+  ['frameworks/angular/components/charts/arena-bar-chart/ArenaBarChart.ts:height',
+   "the key covers the plot frame, as tall as the chart's `height` input, and the legend strip, as tall as `frameworks/angular/components/charts/ChartLegend.ts:arenaLegendStrip(height, seriesCount, sizeKey)` computes"],
+  ['frameworks/angular/components/charts/arena-bar-chart/ArenaBarChart.ts:left',
+   "the tooltip's anchor, projected from the hovered datum by `frameworks/angular/components/charts/ChartTooltip.ts:arenaTooltipAnchor(x, y)`"],
+  ['frameworks/angular/components/charts/arena-bar-chart/ArenaBarChart.ts:top',
+   "the tooltip's anchor, projected from the hovered datum by `frameworks/angular/components/charts/ChartTooltip.ts:arenaTooltipAnchor(x, y)`"],
+  ['frameworks/react/components/charts/arena-bar-chart/ArenaBarChart.tsx:height',
+   'the legend strip, as tall as `frameworks/react/components/charts/ChartLegend.ts:arenaLegendStrip(height, seriesCount, sizeKey)` computes'],
+  ['frameworks/angular/components/charts/arena-horizontal-bar-chart/ArenaHorizontalBarChart.ts:height',
+   "the key covers the plot frame, as tall as the chart's `height` input, and the legend strip, as tall as `frameworks/angular/components/charts/ChartLegend.ts:arenaLegendStrip(height, seriesCount, sizeKey)` computes"],
+  ['frameworks/angular/components/charts/arena-horizontal-bar-chart/ArenaHorizontalBarChart.ts:left',
+   "the tooltip's anchor, projected from the hovered datum by `frameworks/angular/components/charts/ChartTooltip.ts:arenaTooltipAnchor(x, y)`"],
+  ['frameworks/angular/components/charts/arena-horizontal-bar-chart/ArenaHorizontalBarChart.ts:top',
+   "the tooltip's anchor, projected from the hovered datum by `frameworks/angular/components/charts/ChartTooltip.ts:arenaTooltipAnchor(x, y)`"],
+  ['frameworks/react/components/charts/arena-horizontal-bar-chart/ArenaHorizontalBarChart.tsx:height',
+   'the legend strip, as tall as `frameworks/react/components/charts/ChartLegend.ts:arenaLegendStrip(height, seriesCount, sizeKey)` computes'],
+  ['frameworks/angular/components/charts/arena-line-chart/ArenaLineChart.ts:height',
+   "the key covers the plot frame, as tall as the chart's `height` input, and the legend strip, as tall as `frameworks/angular/components/charts/ChartLegend.ts:arenaLegendStrip(height, seriesCount, sizeKey)` computes"],
+  ['frameworks/angular/components/charts/arena-line-chart/ArenaLineChart.ts:left',
+   "the tooltip's anchor, projected from the hovered datum by `frameworks/angular/components/charts/ChartTooltip.ts:arenaTooltipAnchor(x, y)`"],
+  ['frameworks/angular/components/charts/arena-line-chart/ArenaLineChart.ts:top',
+   "the tooltip's anchor, projected from the hovered datum by `frameworks/angular/components/charts/ChartTooltip.ts:arenaTooltipAnchor(x, y)`"],
+  ['frameworks/react/components/charts/arena-line-chart/ArenaLineChart.tsx:height',
+   'the legend strip, as tall as `frameworks/react/components/charts/ChartLegend.ts:arenaLegendStrip(height, seriesCount, sizeKey)` computes'],
+  ['frameworks/angular/components/charts/arena-pyramid-chart/ArenaPyramidChart.ts:height',
+   "the key covers the plot frame, as tall as the chart's `height` input, and the legend strip, as tall as `frameworks/angular/components/charts/ChartLegend.ts:arenaLegendStrip(height, seriesCount, sizeKey)` computes"],
+  ['frameworks/angular/components/charts/arena-pyramid-chart/ArenaPyramidChart.ts:left',
+   "the tooltip's anchor, projected from the hovered datum by `frameworks/angular/components/charts/ChartTooltip.ts:arenaTooltipAnchor(x, y)`"],
+  ['frameworks/angular/components/charts/arena-pyramid-chart/ArenaPyramidChart.ts:top',
+   "the tooltip's anchor, projected from the hovered datum by `frameworks/angular/components/charts/ChartTooltip.ts:arenaTooltipAnchor(x, y)`"],
+  ['frameworks/react/components/charts/arena-pyramid-chart/ArenaPyramidChart.tsx:height',
+   'the legend strip, as tall as `frameworks/react/components/charts/ChartLegend.ts:arenaLegendStrip(height, seriesCount, sizeKey)` computes'],
+  ['frameworks/angular/components/charts/arena-radar-chart/ArenaRadarChart.ts:height',
+   "the key covers the plot frame, as tall as the chart's `height` input, and the legend strip, as tall as `frameworks/angular/components/charts/ChartLegend.ts:arenaLegendStrip(height, seriesCount, sizeKey)` computes"],
+  ['frameworks/angular/components/charts/arena-radar-chart/ArenaRadarChart.ts:left',
+   "the tooltip's anchor, projected from the hovered datum by `frameworks/angular/components/charts/ChartTooltip.ts:arenaTooltipAnchor(x, y)`"],
+  ['frameworks/angular/components/charts/arena-radar-chart/ArenaRadarChart.ts:top',
+   "the tooltip's anchor, projected from the hovered datum by `frameworks/angular/components/charts/ChartTooltip.ts:arenaTooltipAnchor(x, y)`"],
+  ['frameworks/react/components/charts/arena-radar-chart/ArenaRadarChart.tsx:height',
+   'the legend strip, as tall as `frameworks/react/components/charts/ChartLegend.ts:arenaLegendStrip(height, seriesCount, sizeKey)` computes'],
+  ['frameworks/angular/components/charts/arena-scatter-chart/ArenaScatterChart.ts:height',
+   "the key covers the plot frame, as tall as the chart's `height` input, and the legend strip, as tall as `frameworks/angular/components/charts/ChartLegend.ts:arenaLegendStrip(height, seriesCount, sizeKey)` computes and the size key, as tall as the same function's size key height"],
+  ['frameworks/angular/components/charts/arena-scatter-chart/ArenaScatterChart.ts:left',
+   "the tooltip's anchor, projected from the hovered datum by `frameworks/angular/components/charts/ChartTooltip.ts:arenaTooltipAnchor(x, y)`"],
+  ['frameworks/angular/components/charts/arena-scatter-chart/ArenaScatterChart.ts:top',
+   "the tooltip's anchor, projected from the hovered datum by `frameworks/angular/components/charts/ChartTooltip.ts:arenaTooltipAnchor(x, y)`"],
+  ['frameworks/react/components/charts/arena-scatter-chart/ArenaScatterChart.tsx:height',
+   "the legend strip, as tall as `frameworks/react/components/charts/ChartLegend.ts:arenaLegendStrip(height, seriesCount, sizeKey)` computes, and the size key, as tall as the same function's size key height"],
 ]);
 
 export { UNMODELLED_UNITS };
@@ -405,9 +479,91 @@ export function scanAttributes(rawText: string) {
   return out;
 }
 
-const PASSTHROUGH = new Map([
-  ['ArenaAppLogo', { prop: 'size', governs: 'width' }],
-]);
+const COMPONENT_FILE = /^frameworks\/(react|angular)\/components\/.*\.(ts|tsx)$/;
+const CHANNEL_VALUE = /^['"`]var\(\s*--[\w-]+\s*(?:,\s*var\(\s*--[\w-]+\s*\)\s*)*\)['"`]$/;
+const ANGULAR_STYLE = /\[style\.([\w-]+)(\.[a-z%]+)?\]['"]?\s*[:=]\s*(?:"([^"]*)"|'([^']*)')/g;
+const ANGULAR_STYLE_OBJECT = /\[style\]\s*=\s*"([^"]*)"/g;
+const REACT_STYLE = /\bstyle\s*=\s*\{/g;
+
+export function isChannelValue(rawValue: string) {
+  return expressionLeaves(rawValue).every((leaf) => CHANNEL_VALUE.test(leaf.trim()));
+}
+
+function objectEntries(body: string) {
+  const out: { prop: string; value: string; at: number }[] = [];
+  let at = 0;
+  while (at <= body.length) {
+    const { text: entry, end } = readValue(body, at, new Set([',']));
+    const m = /^\s*([a-zA-Z]+)\s*:\s*([\s\S]*)$/.exec(entry);
+    if (m && PROPS.has(captured(m))) out.push({ prop: captured(m), value: captured(m, 2).trim(), at });
+    at = end + 1;
+  }
+  return out;
+}
+
+function objectBody(text: string, open: number) {
+  if (text[open] !== '{') return null;
+  const { text: inner } = readValue(text, open + 1, new Set(['}']));
+  return inner;
+}
+
+const CHANNEL_DECL = /(?<![\w.])(?:const|let|readonly)\s+([a-zA-Z_$][\w$]*)\s*(?::[^=;]+)?=\s*/g;
+
+function boundChannels(text: string) {
+  const rhsOf = new Map<string, string>();
+  for (const m of text.matchAll(CHANNEL_DECL)) {
+    const { text: rhs } = readValue(text, m.index + m[0].length, STATEMENT_STOP);
+    rhsOf.set(captured(m), rhs.trim());
+  }
+  const bound = new Map<string, string>();
+  for (const name of rhsOf.keys()) {
+    let value = rhsOf.get(name) ?? '';
+    for (let hop = 0; hop < 3 && BARE_IDENTIFIER.test(value) && rhsOf.has(value); hop++) value = rhsOf.get(value) ?? '';
+    if (isChannelValue(value)) bound.set(name, value);
+  }
+  return bound;
+}
+
+export function scanStyleWrites(rawText: string) {
+  const text = blankComments(rawText);
+  const out: { prop: string; raw: string; line: number }[] = [];
+  const bound = boundChannels(text);
+  const push = (prop: string, raw: string, line: number) => {
+    const resolved = BARE_IDENTIFIER.test(raw.trim()) && bound.has(raw.trim()) ? bound.get(raw.trim()) ?? raw : raw;
+    if (!isChannelValue(resolved)) out.push({ prop, raw, line });
+  };
+  for (const m of text.matchAll(ANGULAR_STYLE)) {
+    const prop = camel(captured(m));
+    if (!PROPS.has(prop)) continue;
+    push(prop, `${m[3] ?? m[4] ?? ''}${m[2] ?? ''}`, lineOf(text, m.index));
+  }
+  for (const m of text.matchAll(ANGULAR_STYLE_OBJECT)) {
+    const expr = captured(m).trim();
+    const body = expr.startsWith('{') ? objectBody(expr, 0) : null;
+    for (const e of objectEntries(body ?? '')) push(e.prop, e.value, lineOf(text, m.index));
+  }
+  const decls = localDeclarations(text);
+  for (const m of text.matchAll(REACT_STYLE)) {
+    const open = m.index + m[0].length;
+    const line = lineOf(text, m.index);
+    let body = objectBody(text, open);
+    if (body === null) {
+      const ident = /^\s*([a-zA-Z_$][\w$]*)\s*\}/.exec(text.slice(open));
+      for (const d of ident ? decls.get(captured(ident)) ?? [] : []) {
+        const rhs = d.rhs.trim();
+        body = rhs.startsWith('{') ? objectBody(rhs, 0) : null;
+        for (const e of objectEntries(body ?? '')) push(e.prop, e.value, d.line);
+      }
+      continue;
+    }
+    for (const e of objectEntries(body)) push(e.prop, e.value, line);
+  }
+  return out;
+}
+
+export type Passthrough = Map<string, { prop: string; governs: string }>;
+
+export const PASSTHROUGH: Passthrough = new Map();
 
 const COMPONENT_PARAMS = /function\s+([A-Za-z_]\w*)\s*\(\{([\s\S]*?)\}(?:\s*:\s*[^)]+)?\)\s*\{/g;
 const PARAM_DEFAULT = /(?<![\w.])([a-zA-Z]+)\s*=\s*('[^']*'|"[^"]*"|`[^`]*`|[-\w.%]+)(?=[,\s]|$)/g;
@@ -422,14 +578,14 @@ export function zeroComponentParamProblems(count: number) {
     + 'scanner read nothing, so every default value in the tree reports clean'];
 }
 
-export function scanDefaultsAndCallSites(rawText: string) {
+export function scanDefaultsAndCallSites(rawText: string, passthrough: Passthrough = PASSTHROUGH) {
   const text = blankComments(rawText);
   const out = [];
   for (const fn of text.matchAll(COMPONENT_PARAMS)) {
     const name = captured(fn);
     const params = captured(fn, 2);
     const paramsStart = fn.index + fn[0].indexOf('{');
-    const via = PASSTHROUGH.get(name);
+    const via = passthrough.get(name);
     for (const m of params.matchAll(PARAM_DEFAULT)) {
       const prop = captured(m);
       const raw = captured(m, 2);
@@ -439,7 +595,7 @@ export function scanDefaultsAndCallSites(rawText: string) {
       if (hit) out.push({ prop: governs, raw, reason: hit.reason, line: lineOf(text, paramsStart + m.index) });
     }
   }
-  for (const [name, via] of PASSTHROUGH) {
+  for (const [name, via] of passthrough) {
     const re = new RegExp(`<${name}\\b[^>]*?\\b${via.prop}\\s*=\\s*\\{([^}]+)\\}`, 'g');
     for (const m of text.matchAll(re)) {
       const raw = captured(m).trim();
@@ -459,8 +615,8 @@ function passthroughSightings(rawText: string) {
   return seen;
 }
 
-export function stalePassthrough(seenComponents: Set<string>) {
-  return [...PASSTHROUGH.keys()].filter((k) => !seenComponents.has(k));
+export function stalePassthrough(seenComponents: Set<string>, passthrough: Passthrough = PASSTHROUGH) {
+  return [...passthrough.keys()].filter((k) => !seenComponents.has(k));
 }
 
 export function sourceFiles(dir: string): string[] {
@@ -473,14 +629,28 @@ export function staleExemptions(matchedKeys: Set<string>) {
   return [...EXEMPT.keys()].filter((k) => !matchedKeys.has(k));
 }
 
+export function staleComputed(matchedKeys: Set<string>) {
+  return [...COMPUTED.keys()].filter((k) => !matchedKeys.has(k));
+}
+
 function collect() {
   const found = [];
   const matchedKeys = new Set<string>();
   const seenComponents = new Set<string>();
   let paramLists = 0;
+  const computedMatched = new Set<string>();
+  const undeclared: { file: string; line: number; prop: string; raw: string }[] = [];
   for (const file of sourceFiles(join(repoRoot, 'frameworks'))) {
     const rel = relPosix(repoRoot, file);
     const text = readFileSync(file, 'utf8');
+    if (COMPONENT_FILE.test(rel) && !/\.(test|spec)\./.test(rel))
+      for (const w of scanStyleWrites(text)) {
+        const key = `${rel}:${w.prop}`;
+        computedMatched.add(key);
+        const exemptKey = `${rel}:${w.prop}:${w.raw}`;
+        if (EXEMPT.has(exemptKey)) { matchedKeys.add(exemptKey); continue; }
+        if (!COMPUTED.has(key)) undeclared.push({ file: rel, ...w });
+      }
     paramLists += componentParamCount(text);
     for (const name of passthroughSightings(text)) seenComponents.add(name);
     const hits = [...scanText(text), ...scanDefaultsAndCallSites(text), ...scanInjectedCss(text), ...scanAttributes(text)];
@@ -493,6 +663,8 @@ function collect() {
   }
   return {
     found,
+    undeclared,
+    staleComputed: staleComputed(computedMatched),
     stale: staleExemptions(matchedKeys),
     stalePassthrough: stalePassthrough(seenComponents),
     zeroParams: zeroComponentParamProblems(paramLists),
@@ -524,7 +696,7 @@ function reportSites(found: DimensionHit[]) {
 }
 
 function main() {
-  const { found, stale, stalePassthrough: stalePT, zeroParams } = collect();
+  const { found, undeclared, staleComputed: staleC, stale, stalePassthrough: stalePT, zeroParams } = collect();
   if (process.argv.includes('--report=sites')) { reportSites(found); return; }
   if (process.argv.includes('--report')) { report(found); return; }
   let failed = false;
@@ -539,6 +711,16 @@ function main() {
     for (const key of stale) console.error(`  ${key} — ${EXEMPT.get(key)}`);
     console.error('\nThe site was fixed, deleted, or its raw text changed shape. Remove the');
     console.error('entry, or re-key it to match the current text exactly.');
+  }
+  if (staleC.length) {
+    failed = true;
+    console.error(`check-dimension-literals: ${staleC.length} stale COMPUTED entr${staleC.length === 1 ? 'y' : 'ies'}, naming a style write that no longer exists\n`);
+    for (const key of staleC) console.error(`  ${key} - ${COMPUTED.get(key)}`);
+  }
+  if (undeclared.length) {
+    failed = true;
+    console.error(`check-dimension-literals: ${undeclared.length} style write(s) that are neither var(--...) nor listed in COMPUTED\n`);
+    for (const f of undeclared) console.error(`  ${f.file}:${f.line}: ${f.prop}: ${f.raw}`);
   }
   if (stalePT.length) {
     failed = true;

@@ -1,6 +1,0 @@
-{
-  "name": "ArenaPageHeadAlign",
-  "kind": "enum",
-  "description": "How the actions block aligns against the title in ArenaPageHead's wide layout.",
-  "values": ["start", "center"]
-}

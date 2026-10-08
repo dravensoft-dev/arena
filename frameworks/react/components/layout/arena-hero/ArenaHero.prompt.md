@@ -6,8 +6,8 @@ The opening of a landing page. The hero holds one line the page is built around 
   title="Coffee that tells you where it grew"
   lede="Every lot is traceable to the farm, the altitude and the week it was picked."
   actions={<>
-    <ArenaButton variant="primary" size="lg" icon="ph-bold ph-storefront">Shop the lots</ArenaButton>
-    <ArenaButton variant="ghost" size="lg" iconRight="ph-bold ph-arrow-right">How we buy</ArenaButton>
+    <ArenaButton icon="ph-bold ph-storefront" className="arena-size-lg">Shop the lots</ArenaButton>
+    <ArenaButton iconRight="ph-bold ph-arrow-right" className="arena-emphasis-ghost arena-size-lg">How we buy</ArenaButton>
   </>}
   figure={<ArenaFigure fallback={<i className="ph-bold ph-mountains" aria-hidden="true" />} />} />
 ```
@@ -24,15 +24,25 @@ The opening of a landing page. The hero holds one line the page is built around 
 | `lede` | primitive | `string` |  | The paragraph under the title, held to a reading width rather than to the column's, because a line that runs the whole width of a hero loses its return sweep. Named lede and not description, since this is the sentence that carries the page and not a note about the heading. |
 | `actions` | slot |  |  | What the page asks the reader to do, in a wrapping row under the lede. Arena draws the row; the consumer draws what sits in it, and one primary action beside one secondary is the shape this is sized for. |
 | `figure` | slot |  |  | The picture, the mark or the shape beside the words, or behind them under the bleed layout. It is a slot rather than a source, so an ArenaFigure, an illustration or a single glyph all land the same way. |
-| `layout` | enum | `ArenaHeroLayout` | `"split"` | How the words sit against the figure. Split puts them side by side and falls to one column when the room runs out, with no breakpoint deciding when; stacked keeps them in one column at every width, for a hero whose figure is a band rather than a partner; bleed lays the words on the figure, over the wash the media overlay role paints, which is the arrangement that needs that role to be readable. |
-| `align` | enum | `ArenaHeroAlign` | `"start"` | Whether the words run from the start edge or are centred in their column. Centred is what a bleed hero usually wants and a split one usually does not, and it is a separate decision from the layout because a stacked hero can want either. |
 
 <!-- @api end -->
+
+<!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
+
+**Answers** [`align`](../../../../VOCABULARY.md#align): `arena-align-center`, `arena-align-start` (default). Write one as `className="arena-align-center"` on the component, or on a container whose components should all take it.
+
+**Answers** [`layout`](../../../../VOCABULARY.md#layout): `arena-layout-bleed`, `arena-layout-split` (default), `arena-layout-stacked`. Write one as `className="arena-layout-bleed"` on the component, or on a container whose components should all take it.
+
+<!-- @answers end -->
+
+<!-- @keys GENERATED from the binding. -->
+**Keys:** none.
+<!-- @keys end -->
 
 **`split` falls to one column with no breakpoint deciding when.** The threshold is derived from `--grid-min`, the role that already answers how narrow a card may get. A style plugin that widens the grid minimum widens when a hero splits, which is one decision about how dense a page is rather than two that can disagree.
 
 **`bleed` lays the words on the figure**, which is the arrangement that makes the media overlay
-role load-bearing. Give the figure something that fills its box, and give the words `align="center"`
+role load-bearing. Give the figure something that fills its box, and give the words `arena-align-center`
 unless the picture has an empty corner they can sit in.
 
 **The hero claims no `banner` landmark.** Banner is the site header, one per page, and a hero is content inside the main region rather than the furniture around it. The heading is what a reader navigates
@@ -50,6 +60,6 @@ to.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
-**The rules of the language hold in the code you write from this page.** An Arena component is not a styling surface, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena-to-prod --audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
+**The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.
 
 <!-- @rules end -->

@@ -40,7 +40,7 @@
   font-weight: var(--fw-semibold);
 }
 
-[data-arena-part="menu.item-destructive"] {
+[data-arena-part="menu.item"][data-arena-destructive] {
   font-weight: var(--fw-bold);
 }
 

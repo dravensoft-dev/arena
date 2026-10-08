@@ -1,0 +1,62 @@
+<!-- @dsCard group="Tailwind" viewport="760x560" name="accent" subtitle="A box family: the editorial colour a component wears when nothing it says calls for a hue, and a status it states always wins" -->
+<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../../../intro/styles.css">
+<link rel="stylesheet" href="../../consume/Preflight.generated.css">
+<link rel="stylesheet" href="../../consume/components/display/arena-badge/ArenaBadge.styles.generated.css">
+<link rel="stylesheet" href="../../consume/components/display/arena-card/ArenaCard.styles.generated.css">
+<link rel="stylesheet" href="../../consume/components/display/arena-tag/ArenaTag.styles.generated.css">
+<link rel="stylesheet" href="../../consume/components/feedback/arena-spinner/ArenaSpinner.styles.generated.css">
+<link rel="stylesheet" href="../../consume/vocabulary/Accent.generated.css">
+<link rel="stylesheet" href="../../Specimen.css">
+</head><body><div id="root"></div>
+<script type="module">
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../Specimen.js';
+
+const badge = await (await fetch('../../components/display/arena-badge/ArenaBadge.manifest.json')).json();
+const tag = await (await fetch('../../components/display/arena-tag/ArenaTag.manifest.json')).json();
+const card = await (await fetch('../../components/display/arena-card/ArenaCard.manifest.json')).json();
+const spinner = await (await fetch('../../components/feedback/arena-spinner/ArenaSpinner.manifest.json')).json();
+
+function badgeOf(option, label, chosen = {}) {
+  const c = arenaClassesFor(badge, chosen);
+  const d = arenaSlotDataFor(badge, chosen);
+  return el('span', { class: `${c.root} ${option}`, ...d.root, text: label });
+}
+
+function tagOf(option, label) {
+  const c = arenaClassesFor(tag);
+  const d = arenaSlotDataFor(tag);
+  return el('span', { class: `${c.root} ${option}`, ...d.root }, el('span', { class: c.dot, ...d.dot }), label);
+}
+
+function cardOf(option, title) {
+  const c = arenaClassesFor(card);
+  const d = arenaSlotDataFor(card);
+  const root = el('div', { class: `${c.root} ${option}`, ...d.root });
+  root.style.width = '220px';
+  root.append(el('div', { class: c.body, ...d.body }, el('span', { class: 'font-body text-md', text: title }), tagOf('', 'In the body')));
+  return root;
+}
+
+function spinnerOf(option) {
+  const c = arenaClassesFor(spinner);
+  const d = arenaSlotDataFor(spinner);
+  return el('span', { class: `${c.root} ${option}`, ...d.root, role: 'status', 'aria-label': 'Loading' },
+    el('span', { class: c.circle, ...d.circle, 'aria-hidden': 'true' }));
+}
+
+mountSpecimen({ sections: [
+  section('arena-accent-plain, the default, and primary and gold: the wash of a badge that states no status', [
+    badgeOf('arena-accent-plain', 'plain'), badgeOf('arena-accent-primary', 'primary'), badgeOf('arena-accent-gold', 'gold'),
+  ]),
+  section('A status wins: a success badge stays success whatever accent it is given', [
+    badgeOf('arena-accent-gold', 'success, gold', { tone: 'success' }),
+  ]),
+  section('A box option stops at the card body: the card draws the accent edge and the tag inside it stays plain', [
+    cardOf('arena-accent-primary', 'arena-accent-primary'),
+  ]),
+  section('arena-accent-muted and arena-accent-ink: the ink of a spinner', [
+    spinnerOf('arena-accent-primary'), spinnerOf('arena-accent-gold'), spinnerOf('arena-accent-muted'), spinnerOf('arena-accent-ink'),
+  ]),
+]});
+</script></body></html>

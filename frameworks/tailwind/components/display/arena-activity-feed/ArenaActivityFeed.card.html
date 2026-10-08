@@ -1,23 +1,25 @@
-<!-- @dsCard group="Tailwind" viewport="568x300" name="ArenaActivityFeed" subtitle="The grammar and the tone dots, rendered from ArenaActivityFeed.manifest.json" -->
+<!-- @dsCard group="Tailwind" viewport="568x300" name="ArenaActivityFeed" subtitle="The grammar the tone dots and the accent, rendered from ArenaActivityFeed.manifest.json" -->
 <!doctype html><html><head><meta charset="utf-8">
 <link rel="stylesheet" href="../../../../../intro/styles.css">
 <link rel="stylesheet" href="../../../consume/Preflight.generated.css">
 <link rel="stylesheet" href="../../../consume/components/display/arena-activity-feed/ArenaActivityFeed.styles.generated.css">
+<link rel="stylesheet" href="../../../consume/vocabulary/Accent.generated.css">
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor } from '../../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
 
 const manifest = await (await fetch('./ArenaActivityFeed.manifest.json')).json();
 
-function feed(items) {
-  const root = el('ul', { class: arenaClassesFor(manifest).root });
+function feed(items, accent = '') {
+  const root = el('ul', { class: `${arenaClassesFor(manifest).root} ${accent}`.trim(), ...arenaSlotDataFor(manifest).root });
   items.forEach((item, i) => {
-    const c = arenaClassesFor(manifest, { tone: item.tone ?? 'accent', divided: i > 0 });
-    const text = el('span', { class: c.text }, el('b', { class: c.actor, text: item.actor }), ` ${item.action} `);
-    if (item.target) text.append(el('span', { class: c.target, text: item.target }));
-    const li = el('li', { class: c.item }, el('span', { class: c.dot }), text);
-    if (item.time) li.append(el('span', { class: c.time, text: item.time }));
+    const c = arenaClassesFor(manifest, { tone: item.tone, divided: i > 0 });
+    const d = arenaSlotDataFor(manifest, { tone: item.tone, divided: i > 0 });
+    const text = el('span', { class: c.text, ...d.text }, el('b', { class: c.actor, ...d.actor, text: item.actor }), ` ${item.action} `);
+    if (item.target) text.append(el('span', { class: c.target, ...d.target, text: item.target }));
+    const li = el('li', { class: c.item, ...d.item }, el('span', { class: c.dot, ...d.dot }), text);
+    if (item.time) li.append(el('span', { class: c.time, ...d.time, text: item.time }));
     root.append(li);
   });
   root.style.width = '520px';
@@ -31,5 +33,9 @@ mountSpecimen({ sections: [
     { actor: 'Rae', action: 'approved the rollback', time: '1h' },
     { actor: 'Noor', action: 'invited', target: 'j.okafor@client.io', time: '3h', tone: 'info' },
   ])], { stack: true }),
+  section('A gold feed: an item with no tone wears the feed\'s accent', [feed([
+    { actor: 'Rae', action: 'approved the rollback', time: '1h' },
+    { actor: 'Marta', action: 'deployed', target: 'billing@2.4.1', time: '2m', tone: 'success' },
+  ], 'arena-accent-gold')]),
 ]});
 </script></body></html>

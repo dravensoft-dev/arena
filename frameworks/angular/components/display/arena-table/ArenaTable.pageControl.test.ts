@@ -70,7 +70,7 @@ test('a page past the end still resets, because that is knowledge rather than dr
     fixture.componentInstance.page = { index: 9, size: 10, total: 45 };
     fixture.detectChanges();
     assert.equal(fixture.componentInstance.chose, 1,
-      'the one reset ArenaTable performs went away with the control it no longer draws');
+      'the one reset ArenaTable performs did not run when no pager is drawn');
   } finally {
     fixture.destroy();
   }

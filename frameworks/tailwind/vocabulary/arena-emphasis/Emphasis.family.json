@@ -1,0 +1,12 @@
+{
+  "family": "emphasis",
+  "reach": "context",
+  "description": "How loudly an action speaks: filled in the accent, a quiet surface, or no surface at all. Emphasis is the treatment channel, and meaning composes with it: a destructive action keeps whichever emphasis it is given and draws it in danger. At most one primary stands in a view.",
+  "default": "arena-emphasis-primary",
+  "variants": {
+    "arena-emphasis-primary": "[--arena-emphasis-fill:var(--emphasis-primary-fill)] [--arena-emphasis-ink:var(--emphasis-primary-ink)] [--arena-emphasis-edge:var(--emphasis-primary-edge)] [--arena-emphasis-fill-hover:var(--emphasis-primary-fill)] [--arena-emphasis-shadow-hover:var(--emphasis-primary-shadow-hover)]",
+    "arena-emphasis-secondary": "[--arena-emphasis-fill:var(--emphasis-secondary-fill)] [--arena-emphasis-ink:var(--emphasis-secondary-ink)] [--arena-emphasis-edge:var(--emphasis-secondary-edge)] [--arena-emphasis-fill-hover:var(--emphasis-secondary-fill-hover)] [--arena-emphasis-shadow-hover:var(--shadow-control-rest)]",
+    "arena-emphasis-ghost": "[--arena-emphasis-fill:transparent] [--arena-emphasis-ink:color-mix(in_oklab,var(--emphasis-ghost-ink)_var(--level-ink-body),transparent)] [--arena-emphasis-edge:transparent] [--arena-emphasis-icon-edge:var(--emphasis-ghost-icon-edge)] [--arena-emphasis-edge-style:solid] [--arena-emphasis-fill-hover:var(--emphasis-ghost-fill-hover)] [--arena-emphasis-shadow-hover:var(--shadow-control-rest)]",
+    "arena-emphasis-solid": "[--arena-emphasis-fill:var(--emphasis-solid-fill)] [--arena-emphasis-ink:var(--emphasis-solid-ink)] [--arena-emphasis-icon-edge:transparent] [--arena-emphasis-edge-style:none] [--arena-emphasis-fill-hover:var(--emphasis-solid-fill)]"
+  }
+}

@@ -1,28 +1,25 @@
 import {
-  booleanAttribute, ChangeDetectionStrategy, Component, computed, inject, input, signal,
+  booleanAttribute, ChangeDetectionStrategy, Component, computed, ElementRef, inject, input, signal, viewChild,
 } from '@angular/core';
 import { arenaContainerWidth } from '../../../ContainerSize';
-import {
-  ARENA_CHART_HEIGHT, ARENA_SR_ONLY, arenaAreaFill, arenaValueWriter,
-} from '../../../DataVisuals';
+import { ARENA_CHART_HEIGHT, ARENA_INK_MUTED, ARENA_SR_ONLY, arenaAreaFill, arenaValueWriter } from '../../../DataVisuals';
 import { arenaLinearScale, arenaScaleValue } from '../ChartScales';
 import { arenaLinePoints } from '../ChartMarks';
 import {
   arenaPolarPoint, arenaPolarIndex, arenaPolarAnchor, arenaRadarRings, arenaRadarRadius, arenaRadarLabelRadius,
 } from '../ChartPolar';
 import {
-  arenaChartTable, arenaSeriesColors, arenaSeriesPointCount, arenaRadarDomain,
+  arenaChartTable, arenaSeriesColors, arenaSwatchChoice, arenaSeriesPointCount, arenaRadarDomain,
 } from '../ChartSeries';
 import { arenaLegendStrip } from '../ChartLegend';
 import { arenaTooltipAnchor } from '../ChartTooltip';
 import { arenaCursorHandles, arenaCursorStep, arenaPointerClears, arenaPointerUpdates } from '../ChartPointer';
-import { ARENA_TOOLTIP_STYLE, ARENA_TOOLTIP_LABEL_STYLE, ARENA_TOOLTIP_VALUE_STYLE } from '../ChartTooltipStyles';
-import {
-  ARENA_LEGEND_STRIP_STYLE, ARENA_LEGEND_ITEM_STYLE, ARENA_LEGEND_SWATCH_STYLE, ARENA_LEGEND_LABEL_STYLE,
-} from '../ChartLegendStyles';
+import { arenaRadarChartStyles } from './ArenaRadarChart.variants';
+import manifest from './ArenaRadarChart.classes.generated';
 import type { ArenaNumberFormat, ArenaSeries } from '../../../Api.generated';
 import { chartPointR, chartPointRHover } from '../../../Tokens.generated';
 import { ARENA_LOCALE } from '../../../ArenaLocale';
+import { ArenaSlotAttributes } from '../../../SlotData';
 import { arenaPhrase } from '../../../Phrase';
 
 const ASSUMED_WIDTH = 600;
@@ -41,23 +38,22 @@ const SERIES_STROKE_STYLE = { strokeWidth: 'var(--bw-strong)' } as const satisfi
 @Component({
   selector: 'arena-radar-chart',
   standalone: true,
+  imports: [ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: {
-    style: 'display:block;position:relative;width:100%',
-    '[style.height.px]': 'height()',
-  },
+  host: { style: 'display: contents' },
   template: `
-    <div [style]="regionStyle" tabindex="0" role="group" [attr.aria-label]="name()"
+    <div [class]="styles.frame()" [attr.data-arena-part]="parts.frame" [style.height.px]="height()">
+    <div #region [style]="regionStyle" tabindex="0" role="group" [attr.aria-label]="name()"
          (keydown)="onKey($event)">
     <svg width="100%" [attr.height]="plotH()" role="img" [attr.aria-label]="name()"
          style="display:block;overflow:visible">
       @for (ring of rings(); track ring.value) {
-        <polygon [attr.points]="ring.points" fill="none" stroke="var(--border)" [style]="lineStyle" />
+        <polygon [attr.points]="ring.points" fill="none" stroke="var(--edge-separator)" [style]="lineStyle" />
       }
 
       @for (spoke of spokes(); track spoke.index) {
         <line [attr.x1]="centreX()" [attr.y1]="centreY()" [attr.x2]="spoke.x" [attr.y2]="spoke.y"
-              [attr.stroke]="hover() === spoke.index ? 'var(--border-strong)' : 'var(--border)'"
+              [attr.stroke]="hover() === spoke.index ? 'var(--edge-axis)' : 'var(--edge-separator)'"
               [style]="lineStyle" />
       }
 
@@ -75,13 +71,13 @@ const SERIES_STROKE_STYLE = { strokeWidth: 'var(--bw-strong)' } as const satisfi
       @for (mark of marks(); track mark.key) {
         <circle [attr.cx]="mark.x" [attr.cy]="mark.y"
                 [attr.r]="hover() === mark.axis ? pointRHover : pointR"
-                [attr.fill]="mark.color" stroke="var(--surface-card)" [style]="seriesStrokeStyle" />
+                [attr.fill]="mark.color" stroke="var(--fill-surface)" [style]="seriesStrokeStyle" />
       }
 
       @for (spoke of spokes(); track spoke.index) {
         <text [attr.x]="spoke.labelX" [attr.y]="spoke.labelY" [attr.text-anchor]="spoke.anchor"
               dominant-baseline="middle"
-              fill="var(--text-muted)" font-family="var(--font-body)"
+              [attr.fill]="inkMuted" font-family="var(--font-body)"
               [style]="categoryLabelStyle">{{ spoke.label }}</text>
       }
 
@@ -92,21 +88,21 @@ const SERIES_STROKE_STYLE = { strokeWidth: 'var(--bw-strong)' } as const satisfi
     </div>
 
     @if (legend(); as keys) {
-      <div aria-hidden="true" [style]="legendStripStyle" [style.height.px]="stripH()">
+      <div aria-hidden="true" [class]="styles.legend()" [attr.data-arena-part]="parts.legend" [style.height.px]="stripH()">
         @for (key of keys; track key.index) {
-          <span [style]="legendItemStyle">
-            <span [style]="legendSwatchStyle" [style.background]="key.color"></span>
-            <span [style]="legendLabelStyle">{{ key.label }}</span>
+          <span [class]="styles.legendItem()" [attr.data-arena-part]="parts.legendItem">
+            <span [class]="styles.legendSwatch()" [arenaSlotData]="key.swatch" [attr.data-arena-part]="parts.legendSwatch"></span>
+            <span [class]="styles.legendLabel()" [attr.data-arena-part]="parts.legendLabel">{{ key.label }}</span>
           </span>
         }
       </div>
     }
 
     @if (active(); as point) {
-      <div [style]="tooltipStyle" [style.left.px]="point.anchor.left" [style.top]="point.anchor.top">
-        <div [style]="tooltipLabelStyle">{{ point.label }}</div>
+      <div [class]="styles.tooltip()" [attr.data-arena-part]="parts.tooltip" [style.left.px]="point.anchor.left" [style.top]="point.anchor.top">
+        <div [class]="styles.tooltipLabel()" [attr.data-arena-part]="parts.tooltipLabel">{{ point.label }}</div>
         @for (reading of point.readings; track reading.key) {
-          <div [style]="tooltipValueStyle">{{ reading.name }}{{ reading.value }}</div>
+          <div [class]="styles.tooltipValue()" [attr.data-arena-part]="parts.tooltipValue">{{ reading.name }}{{ reading.value }}</div>
         }
       </div>
     }
@@ -120,6 +116,7 @@ const SERIES_STROKE_STYLE = { strokeWidth: 'var(--bw-strong)' } as const satisfi
         }
       </tbody>
     </table>
+    </div>
   `,
 })
 export class ArenaRadarChart {
@@ -144,18 +141,14 @@ export class ArenaRadarChart {
     { transform: (value) => value ?? ARENA_CHART_HEIGHT },
   );
 
+  protected readonly parts = manifest.parts;
+  protected readonly styles = arenaRadarChartStyles();
   protected readonly arenaSrOnly = ARENA_SR_ONLY;
   protected readonly regionStyle = REGION_STYLE;
   protected readonly lineStyle = LINE_STYLE;
+  protected readonly inkMuted = ARENA_INK_MUTED;
   protected readonly seriesStrokeStyle = SERIES_STROKE_STYLE;
   protected readonly categoryLabelStyle = CATEGORY_LABEL_STYLE;
-  protected readonly tooltipStyle = ARENA_TOOLTIP_STYLE;
-  protected readonly tooltipLabelStyle = ARENA_TOOLTIP_LABEL_STYLE;
-  protected readonly tooltipValueStyle = ARENA_TOOLTIP_VALUE_STYLE;
-  protected readonly legendStripStyle = ARENA_LEGEND_STRIP_STYLE;
-  protected readonly legendItemStyle = ARENA_LEGEND_ITEM_STYLE;
-  protected readonly legendSwatchStyle = ARENA_LEGEND_SWATCH_STYLE;
-  protected readonly legendLabelStyle = ARENA_LEGEND_LABEL_STYLE;
   protected readonly pointR = chartPointR;
   protected readonly pointRHover = chartPointRHover;
   protected readonly hover = signal<number | null>(null);
@@ -164,7 +157,9 @@ export class ArenaRadarChart {
     prefix: this.valuePrefix(), suffix: this.valueSuffix(), format: this.valueFormat(),
   }));
 
-  private readonly measured = arenaContainerWidth();
+  private readonly region = viewChild<ElementRef<HTMLElement>>('region');
+
+  private readonly measured = arenaContainerWidth(() => this.region()?.nativeElement);
   private readonly width = computed(() => this.measured() ?? ASSUMED_WIDTH);
 
   protected readonly name = computed(() => {
@@ -252,8 +247,9 @@ export class ArenaRadarChart {
 
   protected readonly legend = computed(() => {
     if (this.strip().stripH === 0) return null;
-    const colors = this.colors();
-    return this.series().map((one, index) => ({ index, label: one.label, color: colors[index] }));
+    return this.series().map((one, index) => ({
+      index, label: one.label, swatch: arenaRadarChartStyles(arenaSwatchChoice(one, index + 1)).$data.legendSwatch(),
+    }));
   });
 
   protected readonly table = computed(() => arenaChartTable(

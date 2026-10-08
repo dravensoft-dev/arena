@@ -1,28 +1,25 @@
 import {
-  booleanAttribute, ChangeDetectionStrategy, Component, computed, inject, input, signal,
+  booleanAttribute, ChangeDetectionStrategy, Component, computed, ElementRef, inject, input, signal, viewChild,
 } from '@angular/core';
 import { arenaContainerWidth } from '../../../ContainerSize';
-import {
-  ARENA_CHART_HEIGHT, ARENA_SR_ONLY, arenaValueWriter,
-} from '../../../DataVisuals';
+import { ARENA_CHART_HEIGHT, ARENA_INK_MUTED, ARENA_SR_ONLY, arenaValueWriter } from '../../../DataVisuals';
 import {
   arenaLinearScale, arenaBandScale, arenaBandCenter, arenaBandIndex, arenaBandMark, arenaBandSubBand, arenaScaleValue,
 } from '../ChartScales';
 import { arenaBarPathH } from '../ChartMarks';
 import { arenaPlotBoxH, arenaAxisModelX, arenaCategoryLabelX, arenaTickLabelY } from '../ChartAxis';
 import {
-  arenaChartTable, arenaSeriesColors, arenaSeriesDomain, arenaSeriesPointCount, arenaStackSegments, arenaStackDomain,
+  arenaChartTable, arenaSeriesColors, arenaSwatchChoice, arenaSeriesDomain, arenaSeriesPointCount, arenaStackSegments, arenaStackDomain,
 } from '../ChartSeries';
 import { arenaLegendStrip } from '../ChartLegend';
 import { arenaTooltipAnchor } from '../ChartTooltip';
 import { arenaCursorHandles, arenaCursorStep, arenaPointerClears, arenaPointerUpdates } from '../ChartPointer';
-import { ARENA_TOOLTIP_STYLE, ARENA_TOOLTIP_LABEL_STYLE, ARENA_TOOLTIP_VALUE_STYLE } from '../ChartTooltipStyles';
-import {
-  ARENA_LEGEND_STRIP_STYLE, ARENA_LEGEND_ITEM_STYLE, ARENA_LEGEND_SWATCH_STYLE, ARENA_LEGEND_LABEL_STYLE,
-} from '../ChartLegendStyles';
+import { arenaHorizontalBarChartStyles } from './ArenaHorizontalBarChart.variants';
+import manifest from './ArenaHorizontalBarChart.classes.generated';
 import type { ArenaNumberFormat, ArenaSeries } from '../../../Api.generated';
 import { chartBarGap, chartSeriesGap, chartBarRadius } from '../../../Tokens.generated';
 import { ARENA_LOCALE } from '../../../ArenaLocale';
+import { ArenaSlotAttributes } from '../../../SlotData';
 import { arenaPhrase } from '../../../Phrase';
 
 const BAR_RADIUS = chartBarRadius;
@@ -45,27 +42,26 @@ const BAR_STYLE = { transition: 'opacity var(--dur-hover) var(--ease-hover)' } a
 @Component({
   selector: 'arena-horizontal-bar-chart',
   standalone: true,
+  imports: [ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: {
-    style: 'display:block;position:relative;width:100%',
-    '[style.height.px]': 'height()',
-  },
+  host: { style: 'display: contents' },
   template: `
-    <div [style]="regionStyle" tabindex="0" role="group" [attr.aria-label]="name()"
+    <div [class]="styles.frame()" [attr.data-arena-part]="parts.frame" [style.height.px]="height()">
+    <div #region [style]="regionStyle" tabindex="0" role="group" [attr.aria-label]="name()"
          (keydown)="onKey($event)">
     <svg width="100%" [attr.height]="plotH()" role="img" [attr.aria-label]="name()"
          style="display:block;overflow:visible">
       @for (tick of gridLines(); track tick.value) {
         <g>
           <line [attr.x1]="tick.x" [attr.x2]="tick.x" [attr.y1]="plotTop()" [attr.y2]="plotBottom()"
-                stroke="var(--border)" [style]="lineStyle" />
+                stroke="var(--edge-separator)" [style]="lineStyle" />
           <text [attr.x]="tick.x" [attr.y]="tickLabelY()" text-anchor="middle"
-                fill="var(--text-muted)" font-family="var(--font-mono)"
+                [attr.fill]="inkMuted" font-family="var(--font-mono)"
                 [style]="tickLabelStyle">{{ tick.label }}</text>
         </g>
       }
       <line [attr.x1]="zeroX()" [attr.x2]="zeroX()" [attr.y1]="plotTop()" [attr.y2]="plotBottom()"
-            stroke="var(--line-strong)" [style]="lineStyle" />
+            stroke="var(--edge-axis)" [style]="lineStyle" />
 
       @for (bar of bars(); track bar.index) {
         <g>
@@ -79,7 +75,7 @@ const BAR_STYLE = { transition: 'opacity var(--dur-hover) var(--ease-hover)' } a
 
       @for (bar of bars(); track bar.index) {
         <text [attr.x]="categoryLabelX" [attr.y]="bar.midY" text-anchor="end" dominant-baseline="middle"
-              fill="var(--text-muted)" font-family="var(--font-body)"
+              [attr.fill]="inkMuted" font-family="var(--font-body)"
               [style]="categoryLabelStyle">{{ bar.label }}</text>
       }
 
@@ -90,21 +86,21 @@ const BAR_STYLE = { transition: 'opacity var(--dur-hover) var(--ease-hover)' } a
     </div>
 
     @if (legend(); as keys) {
-      <div aria-hidden="true" [style]="legendStripStyle" [style.height.px]="stripH()">
+      <div aria-hidden="true" [class]="styles.legend()" [attr.data-arena-part]="parts.legend" [style.height.px]="stripH()">
         @for (key of keys; track key.index) {
-          <span [style]="legendItemStyle">
-            <span [style]="legendSwatchStyle" [style.background]="key.color"></span>
-            <span [style]="legendLabelStyle">{{ key.label }}</span>
+          <span [class]="styles.legendItem()" [attr.data-arena-part]="parts.legendItem">
+            <span [class]="styles.legendSwatch()" [arenaSlotData]="key.swatch" [attr.data-arena-part]="parts.legendSwatch"></span>
+            <span [class]="styles.legendLabel()" [attr.data-arena-part]="parts.legendLabel">{{ key.label }}</span>
           </span>
         }
       </div>
     }
 
     @if (active(); as point) {
-      <div [style]="tooltipStyle" [style.left.px]="point.anchor.left" [style.top]="point.anchor.top">
-        <div [style]="tooltipLabelStyle">{{ point.label }}</div>
+      <div [class]="styles.tooltip()" [attr.data-arena-part]="parts.tooltip" [style.left.px]="point.anchor.left" [style.top]="point.anchor.top">
+        <div [class]="styles.tooltipLabel()" [attr.data-arena-part]="parts.tooltipLabel">{{ point.label }}</div>
         @for (mark of point.marks; track mark.key) {
-          <div [style]="tooltipValueStyle">{{ mark.name }}{{ mark.value }}</div>
+          <div [class]="styles.tooltipValue()" [attr.data-arena-part]="parts.tooltipValue">{{ mark.name }}{{ mark.value }}</div>
         }
       </div>
     }
@@ -118,6 +114,7 @@ const BAR_STYLE = { transition: 'opacity var(--dur-hover) var(--ease-hover)' } a
         }
       </tbody>
     </table>
+    </div>
   `,
 })
 export class ArenaHorizontalBarChart {
@@ -132,7 +129,7 @@ export class ArenaHorizontalBarChart {
   readonly stack = input(false, { transform: booleanAttribute });
   /** Appended verbatim to every number the chart draws: the axis ticks, the tooltip and the accessible table. Carries its own leading space if one is wanted. */
   readonly valueSuffix = input<string>();
-  /** Drawn verbatim before every number the chart writes, as valueSuffix is drawn after it. A currency that precedes its amount is the majority case worldwide and had no expression: with suffix alone, "1234.5 Bs." is what a chart drew where the table beside it read "Bs. 1.234,50", and the accessible table inherited the disagreement. */
+  /** Drawn verbatim before every number the chart writes, as valueSuffix is drawn after it. A currency that precedes its amount is the majority case worldwide, and a suffix alone cannot say it: "1234.5 Bs." would disagree with the table beside it reading "Bs. 1.234,50", and the accessible table would inherit the disagreement. */
   readonly valuePrefix = input<string>();
   /** How each number is written before the prefix and suffix are added: which locale, how many fraction digits, whether thousands are grouped, whether large numbers are compacted. Absent, the raw JavaScript number, which is what this chart drew before the member existed. */
   readonly valueFormat = input<ArenaNumberFormat>();
@@ -142,19 +139,15 @@ export class ArenaHorizontalBarChart {
     { transform: (value) => value ?? ARENA_CHART_HEIGHT },
   );
 
+  protected readonly parts = manifest.parts;
+  protected readonly styles = arenaHorizontalBarChartStyles();
   protected readonly arenaSrOnly = ARENA_SR_ONLY;
   protected readonly regionStyle = REGION_STYLE;
   protected readonly lineStyle = LINE_STYLE;
+  protected readonly inkMuted = ARENA_INK_MUTED;
   protected readonly tickLabelStyle = TICK_LABEL_STYLE;
   protected readonly categoryLabelStyle = CATEGORY_LABEL_STYLE;
   protected readonly barStyle = BAR_STYLE;
-  protected readonly tooltipStyle = ARENA_TOOLTIP_STYLE;
-  protected readonly tooltipLabelStyle = ARENA_TOOLTIP_LABEL_STYLE;
-  protected readonly tooltipValueStyle = ARENA_TOOLTIP_VALUE_STYLE;
-  protected readonly legendStripStyle = ARENA_LEGEND_STRIP_STYLE;
-  protected readonly legendItemStyle = ARENA_LEGEND_ITEM_STYLE;
-  protected readonly legendSwatchStyle = ARENA_LEGEND_SWATCH_STYLE;
-  protected readonly legendLabelStyle = ARENA_LEGEND_LABEL_STYLE;
   protected readonly categoryLabelX = arenaCategoryLabelX();
   protected readonly hover = signal<number | null>(null);
 
@@ -162,7 +155,9 @@ export class ArenaHorizontalBarChart {
     prefix: this.valuePrefix(), suffix: this.valueSuffix(), format: this.valueFormat(),
   }));
 
-  private readonly measured = arenaContainerWidth();
+  private readonly region = viewChild<ElementRef<HTMLElement>>('region');
+
+  private readonly measured = arenaContainerWidth(() => this.region()?.nativeElement);
 
   private readonly width = computed(() => this.measured() ?? ASSUMED_WIDTH);
 
@@ -251,7 +246,7 @@ export class ArenaHorizontalBarChart {
     return series.map((one, index) => ({
       index,
       label: one.label,
-      color: arenaSeriesColors(one, this.points(), index + 1)[0],
+      swatch: arenaHorizontalBarChartStyles(arenaSwatchChoice(one, index + 1)).$data.legendSwatch(),
     }));
   });
 

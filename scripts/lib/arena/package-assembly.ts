@@ -16,10 +16,12 @@ import { repoRoot } from './repo-root.ts';
 import { kebab } from '../../utils/case.ts';
 import { componentMap, MAP_FILE } from './component-map.ts';
 import { iconManifest, MANIFEST_FILE } from './icon-manifest.ts';
-import { shippedNames } from '../../generate/core/arena-to-prod/icon-css.ts';
+import { shippedNames } from '../../generate/core/arena-cli/icon-css.ts';
 import { manifestFiles } from '../tailwind/tailwind-compile.ts';
 import { preflightSheet } from '../tailwind/component-sheets.ts';
+import { huePath } from '../tailwind/hue-sheet.ts';
 import { CONSUME, sheetPath } from '../../build/tailwind/build-tailwind.ts';
+import { VOCABULARY_SHEETS, packageSheetName, sheetFamilies, sheetName } from '../tailwind/vocabulary.ts';
 import { DOMAIN, REPOSITORY } from './site-pages.ts';
 import { FRONTMATTER, unquote } from './llms-index.ts';
 import { parseDecls } from './css-decls.ts';
@@ -50,17 +52,9 @@ export const CSS_CHAIN: CssChainEntry[] = [
   { from: 'contracts/design/environment.css', to: 'css/environment.css' },
 ];
 
-export const CONSUMER_SHEETS: CssChainEntry[] = [
-  { from: 'frameworks/tailwind/Numerals.css', to: 'css/numerals.css' },
-  { from: 'frameworks/tailwind/Page.css', to: 'css/page.css' },
-  { from: 'frameworks/tailwind/Prose.css', to: 'css/prose.css' },
-  { from: 'frameworks/tailwind/Rhythm.css', to: 'css/rhythm.css' },
-  { from: 'frameworks/tailwind/SrOnly.css', to: 'css/sr-only.css' },
-];
-
 export const arenaCssHeader = (name: string) => [
   `/* ${name} -- the invariant half of Arena's stylesheet.`,
-  '   Import this FIRST, then the file arena-to-prod wrote from your arena.config.json,',
+  '   Import this FIRST, then the file arena build wrote from your arena.config.json,',
   '   whose palette and font values are meant to win. reset.css leads so anything can',
   '   override it, and colors.css derives its muted levels from --color-base-content,',
   '   so it follows the palette rather than defining one. environment.css composes the',
@@ -141,25 +135,43 @@ export function componentSheets(css: string, split: (css: string) => { base: str
     throw new Error('package-assembly: no component stylesheet was found, so the package would ship '
       + 'a barrel that imports nothing and every component would render unstyled');
   }
-  const named = files.map((file) => ({
-    to: `css/components/${kebab(basename(file).split('.')[0] ?? '')}.css`,
-    content: readFileSync(file, 'utf8').replace(/@import '(?:\.\.\/)+Prelude\.generated\.css';/, "@import '../prelude.css';"),
-    linked: false,
-  }));
+  const named = files.map((file) => {
+    const name = kebab(basename(file).split('.')[0] ?? '');
+    return {
+      to: `css/components/${name}.css`,
+      content: readFileSync(file, 'utf8')
+        .replace(/@import '(?:\.\.\/)+Prelude\.generated\.css';/, "@import '../prelude.css';")
+        .replace(/@import '(?:\.\.\/)+hues\/[^']+';/, `@import '../hues/${name}.css';`),
+      linked: false,
+    };
+  });
+  const hueSheets = manifestFiles(join(dir, 'components')).flatMap((file) => {
+    const rel = relPosix(root, file);
+    const hue = join(root, huePath(rel));
+    return existsSync(hue)
+      ? [{ to: `css/hues/${kebab(basename(rel).split('.')[0] ?? '')}.css`, content: readFileSync(hue, 'utf8'), linked: false }]
+      : [];
+  });
   const barrel = named.map(({ to }) => `@import './components/${basename(to)}';`).join('\n');
   return [
     { to: 'css/base.css', content: `${SHEET_BANNERS.base}\n${preflightSheet(base)}` },
-    ...CONSUMER_SHEETS.map(({ from, to }) => ({
-      to, content: readFileSync(join(root, ...(from ?? '').split('/')), 'utf8'),
-    })),
     { to: 'css/prelude.css', content: readFileSync(join(consume, 'Prelude.generated.css'), 'utf8') },
     ...named,
+    ...hueSheets,
     { to: 'css/components.css', content: `${SHEET_BANNERS.components}\n${barrel}\n` },
+    ...sheetFamilies(root).map((one) => one.family).sort().map((family) => ({
+      to: packageSheetName(family),
+      content: readFileSync(join(root, ...VOCABULARY_SHEETS.split('/'), sheetName(family)), 'utf8'),
+    })),
   ];
 }
 
-export function agentBases(): Bases {
-  return { site: `https://${DOMAIN}`, repository: `${REPOSITORY}/blob/main` };
+export function repositoryBase(root = repoRoot) {
+  return `${REPOSITORY}/blob/v${version(root)}`;
+}
+
+export function agentBases(root = repoRoot): Bases {
+  return { site: `https://${DOMAIN}`, repository: repositoryBase(root) };
 }
 
 export function carriedFiles(layer: string, root = repoRoot) {
@@ -207,7 +219,7 @@ export function agentRules(rules = RULES) {
 }
 
 export function copyAgentPayload(dir: string, layer: string, name: string, root = repoRoot) {
-  const bases = agentBases();
+  const bases = agentBases(root);
   const at = payloadDir(layer);
   const written = [];
   const files = carriedFiles(layer, root);
@@ -248,6 +260,15 @@ export function copyBehaviourContracts(dir: string, root = repoRoot) {
 
 export const CATALOGUE_FILE = 'arena.tokens.json';
 
+export function catalogueRole(role: Record<string, any>) {
+  const own = role.$extensions?.[ARENA_EXT] ?? {};
+  return {
+    type: role.$type,
+    ...(own.values ? { values: own.values } : {}),
+    ...(own.default !== undefined ? { default: own.default } : {}),
+  };
+}
+
 export function tokenCatalogue(root = repoRoot) {
   const decls = new Map<string, Map<string, string>>();
   for (const target of CSS_TARGETS) {
@@ -257,15 +278,14 @@ export function tokenCatalogue(root = repoRoot) {
   const tokens = Object.fromEntries(decls.get(':root') ?? []);
 
   const roleFile = readJson(join(root, 'contracts', 'design', 'roles.json')) as Record<string, any>;
-  const roles = Object.fromEntries(Object.entries(roleFile).map(([name, role]) => [name, {
-    type: role.$type,
-    ...(role.$extensions?.[ARENA_EXT]?.values ? { values: role.$extensions[ARENA_EXT].values } : {}),
-  }]));
+  const roles = Object.fromEntries(Object.entries(roleFile).map(([name, role]) => [name, catalogueRole(role)]));
 
   return { tokens, roles };
 }
 
-export const CLI_BINS = { 'arena-to-prod': './bin/arena-to-prod.mjs' };
+export const CLI_BINS = { arena: './bin/arena.mjs' };
+
+export const CLI_SOURCES = ['arena-cli'];
 
 export const SHIPPED_SPECIFIER = /(from\s+')(\.[^']*)\.ts(')/g;
 
@@ -278,7 +298,7 @@ export function emitCli(source: string) {
 
 export function copyCli(dir: string, root = repoRoot) {
   const written: string[] = [];
-  for (const name of Object.keys(CLI_BINS)) {
+  for (const name of CLI_SOURCES) {
     const from = join(root, 'scripts', 'generate', 'core', name);
     const copied = collectFiles(from, (file) => !excluded(basename(file))).map((file) => {
       const to = `bin/${relPosix(from, file)}`;

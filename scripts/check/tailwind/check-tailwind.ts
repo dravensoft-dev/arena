@@ -74,6 +74,14 @@ export function checkCompiled(css: string, manifests: Map<string, ManifestClassS
 
   for (const [key, value] of themeKeys(css)) {
     if (key.startsWith('tw-') || key.startsWith('default-')) continue;
+    const calc = value.match(/^calc\((.*)\)$/);
+    if (calc) {
+      const vars = [...calc[1].matchAll(/var\(--([a-z0-9-]+)\)/g)].map((m) => m[1]);
+      const rest = calc[1].replace(/var\(--[a-z0-9-]+\)/g, '');
+      if (!vars.length || !/^[\s\d.*/+()-]*$/.test(rest)) { errs.push(`--${key}: not a derivation of Arena tokens — emits \`${value}\``); continue; }
+      for (const name of vars) if (!tokens.has(name)) errs.push(`--${key}: --${name} is no such Arena token`);
+      continue;
+    }
     const ref = value.match(/^var\(--([a-z0-9-]+)\)$/);
     if (!ref) { errs.push(`--${key}: not a var() into an Arena token — emits \`${value}\``); continue; }
     if (!tokens.has(ref[1])) errs.push(`--${key}: --${ref[1]} is no such Arena token`);

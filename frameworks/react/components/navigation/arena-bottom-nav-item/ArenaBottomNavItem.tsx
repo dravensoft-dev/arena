@@ -4,8 +4,12 @@ import { arenaActiveWeight, arenaBadgeCount } from '../NavRow.ts';
 import type { ArenaBottomNavInjected } from '../arena-bottom-nav/BottomNavInject.tsx';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from '../arena-bottom-nav/ArenaBottomNav.classes.generated.ts';
+import type { ArenaBottomNavItemClass } from '../../../Vocabulary.generated.ts';
+import { arenaClassName } from '../../../VocabularyClass.ts';
 
 export interface ArenaBottomNavItemProps {
+  className?: ArenaBottomNavItemClass;
+
 
   /** Identifies the destination. ArenaBottomNav.active names one of these, and the item whose id matches is the one marked aria-current="page". Required, and guarded with a falsy check rather than an absence check: a blank id can never match and is an omission wearing a value. */
   id: string;
@@ -19,7 +23,7 @@ export interface ArenaBottomNavItemProps {
   /** A count drawn over the glyph's trailing corner: pending orders, unread notices. Zero draws nothing, because a badge reading 0 is a mark that says there is nothing to mark; above 99 it reads "99+", so a four-digit count cannot widen the column. A number rather than a string, because both rules are arithmetic and a caller who has already formatted the value has taken them away. It is NOT hidden from assistive technology, so the destination announces "Orders 12". */
   badge?: number;
 
-  /** Present => the item renders an <a>; absent => a <button>. A control that navigates must be a link: openable in a new tab, address copyable, announced as a link. An item that only changes local state is a button. A primary click with no modifier is cancelled and reported through ArenaBottomNav's `nav`, so a router owns it; a modified or middle click is the browser's and reports nothing. */
+  /** Present => the item renders an <a>; absent => a <button>. A control that navigates must be a link: openable in a new tab, address copyable, announced as a link. An item that only changes local state is a button. A primary click with no modifier is cancelled and reported through ArenaBottomNav's `onNav`, so a router owns it; a modified or middle click is the browser's and reports nothing. */
   href?: string;
 
   /** Whether the destination is drawn but cannot be reached. It reflects through `aria-disabled` rather than the native attribute, and rather than by not rendering the item at all: a destination a user can see and hear announced as unavailable is what tells them it exists. The anchor keeps its `href` so the case split stays what it is; what changes is that activation is refused and the state is announced. */
@@ -28,7 +32,7 @@ export interface ArenaBottomNavItemProps {
 
 const arenaBottomNavStyles = arenaStyles(manifest);
 
-export function ArenaBottomNavItem({
+export function ArenaBottomNavItem({ className, 
   id, label, icon, badge, href, disabled = false,
   activeId, onActivate,
 }: ArenaBottomNavItemProps & Partial<ArenaBottomNavInjected>) {
@@ -38,7 +42,7 @@ export function ArenaBottomNavItem({
   if (!icon) throw new Error('ArenaBottomNavItem: `icon` is required');
   const on = id === activeId;
   const tally = arenaBadgeCount(badge);
-  const styles = arenaBottomNavStyles({ active: on });
+  const styles = arenaBottomNavStyles({ current: on });
 
   const shared = {
     'aria-current': on ? 'page' as const : undefined,
@@ -51,17 +55,18 @@ export function ArenaBottomNavItem({
       }
       if (onActivate) onActivate(id);
     },
-    className: styles.item(),
+    className: arenaClassName('ArenaBottomNavItem', styles.item(), className),
     'data-arena-part': manifest.parts.item,
+    ...styles.$data.item(),
   };
 
   const body = (
     <React.Fragment>
-      <span className={styles.glyph()} data-arena-part={manifest.parts.glyph}>
+      <span className={styles.glyph()} data-arena-part={manifest.parts.glyph} {...styles.$data.glyph()}>
         <i className={on ? arenaActiveWeight(icon) : icon} aria-hidden="true" />
-        {tally !== null && <span className={styles.badge()} data-arena-part={manifest.parts.badge}>{tally}</span>}
+        {tally !== null && <span className={styles.badge()} data-arena-part={manifest.parts.badge} {...styles.$data.badge()}>{tally}</span>}
       </span>
-      <span className={styles.label()} data-arena-part={manifest.parts.label}>{label}</span>
+      <span className={styles.label()} data-arena-part={manifest.parts.label} {...styles.$data.label()}>{label}</span>
     </React.Fragment>
   );
 
