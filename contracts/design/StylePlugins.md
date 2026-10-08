@@ -85,7 +85,9 @@ question unanswered, and the reason is sharper than tidiness: a custom property 
 invalid at computed-value time, so the declaration reading it is dropped and the whole property
 disappears. A partial root plugin is not a poorer appearance. It is a page with no borders.
 
-**Total means answered by the plugin or by a kernel default.** A role carrying a default is
+**Total means answered by the plugin or by a kernel default.** Which roles carry one is written
+beside each role's type, in `roles.json` and in the `arena.tokens.json` each package ships, and a
+role with none there is the plugin's to answer. A role carrying a default is
 answered for a root plugin of the project's own that is silent on it:
 `scripts/generate/core/arena-cli/style-plugin-rules.ts:withDefaults(plugin, roles)` completes the
 plugin before anything reads it. A role alias takes the plugin's answer to that role, itself

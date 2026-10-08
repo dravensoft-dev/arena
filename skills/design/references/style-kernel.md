@@ -65,7 +65,7 @@ yours is running to hundreds, the answer is almost always a role you have not mo
 
 ## The two rules that decide everything else
 
-**The first entry in `stylePlugins` is the root plugin, and it answers every role.** The root plugin emits on `:root`, and a custom property with no value is invalid at
+**The first entry in `stylePlugins` is the root plugin, and it answers every role.** Your package's `arena.tokens.json` writes a role's default beside its type, and only a role carrying one may be left silent. The command answers such a role with its default and names it in a note. The root plugin emits on `:root`, and a custom property with no value is invalid at
 computed-value time. The declaration reading it is dropped and the property disappears. A partial root plugin is not a plainer
 appearance, it is a page with no borders. Every later entry emits under `.arena-<name>`, taken from
 its directory, and you put that class on `<html>`. A later entry is a difference sitting over the root plugin, so it answers only what it changes.
@@ -166,7 +166,7 @@ from the palette**, so settle what the screen is before assigning any of it.
 
 The appearance Arena installs with does not give those answers. That appearance is a design of
 its own and assigns several of these differently, so it is a plugin to read rather than a baseline
-to inherit. A plugin you write answers every role itself, and nothing is inherited from it.
+to inherit. A plugin you write answers every role itself, and nothing is inherited from that one.
 The default plugin is
 [`plugin-style-store/default/plugin.tokens.json`](../../../plugin-style-store/default/plugin.tokens.json)
 and
@@ -261,7 +261,7 @@ Stated so you can plan around it rather than discover it.
 
 **Some of this is refused rather than reported, and knowing which is which saves you an
 afternoon.** Five things are **hard failures of the plain command**. A role left unanswered
-by the root plugin. A value of the wrong type. A colour role answered with anything but a
+by the root plugin that carries no default. A value of the wrong type. A colour role answered with anything but a
 `{color.*}` alias. An alias that resolves to nothing. And a broken reading floor. The command
 writes nothing and exits non-zero.
 Everything the audit says is a **report**, and stays one until you pass `--strict`.
