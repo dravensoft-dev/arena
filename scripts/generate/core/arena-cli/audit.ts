@@ -220,9 +220,15 @@ export function rawColour(line: string, isStylesheet: boolean) {
   return false;
 }
 
+export const RAW_HEX_MESSAGE = 'a raw hex where a token belongs. Read the value through its '
+  + 'custom property, as var(--color-primary)';
+
+export const GRADIENT_MESSAGE = 'a gradient. Depth comes from the base-100 to base-300 surface '
+  + 'scale, the hairline border and the shadow roles';
+
 export const RAW_COLOUR_MESSAGE = 'a raw colour where a token belongs. A channel value and a '
   + 'colour\'s name are both the skin written down: read the colour through its custom property, '
-  + 'as var(--crimson), or compose one with color-mix() over var()';
+  + 'as var(--color-primary), or compose one with color-mix() over var()';
 export const COMPAT_ALIASES = [
   'level-ink-body', 'level-ink-quiet', 'level-ink-muted', 'level-presence',
   'level-hue-soft-danger', 'level-hue-soft-success', 'level-hue-soft-warning', 'level-hue-soft-info',
@@ -255,9 +261,27 @@ export const DANGER_FILL_MESSAGE = 'a filled danger surface. Danger is outline i
   + 'danger surface in the system is the final confirmation inside ArenaConfirmDialog, and '
   + 'var(--danger-soft) is the tint a surface of your own may carry';
 
+const MIX_SHARE = String.raw`\d+(?:\.\d+)?%`;
+const DANGER_OPERAND = String.raw`var\(\s*(--[a-z-]+)\s*(?:,[^()]*)?\)`;
+const DANGER_FIRST = String.raw`${DANGER_OPERAND}\s*(${MIX_SHARE})?\s*,\s*transparent(?:\s+(${MIX_SHARE}))?`;
+const TRANSPARENT_FIRST = String.raw`transparent(?:\s+(${MIX_SHARE}))?\s*,\s*${DANGER_OPERAND}(?:\s+(${MIX_SHARE}))?`;
+const HUE_METHOD = String.raw`(?:\s+(?:shorter|longer|increasing|decreasing)\s+hue)?`;
+const TINT = new RegExp(
+  String.raw`color-mix\(\s*in\s+[a-z-]+${HUE_METHOD}\s*,\s*(?:${DANGER_FIRST}|${TRANSPARENT_FIRST})\s*\)`,
+  'g',
+);
+
+function dangerShare(groups: (string | undefined)[]) {
+  const own = groups[2] ?? groups[6];
+  if (own) return parseFloat(own);
+  const other = groups[3] ?? groups[4];
+  return other ? 100 - parseFloat(other) : 50;
+}
+
 export function fillsWithDanger(line: string) {
   if (!FILL_PROPERTY.test(line)) return false;
-  return DANGER_FILL_TOKENS.some((token) => new RegExp(`var\\(\\s*${token}\\s*[,)]`).test(line));
+  const untinted = line.replace(TINT, (...groups) => (dangerShare(groups) < 100 ? '' : groups[0]));
+  return DANGER_FILL_TOKENS.some((token) => new RegExp(`var\\(\\s*${token}\\s*[,)]`).test(untinted));
 }
 
 const GRADIENT = /\b(?:linear|radial|conic)-gradient\s*\(/;
@@ -541,7 +565,7 @@ export function bareOfEmphasis(raw: string) {
 }
 
 export function primaryMessage(first: number) {
-  return `a second primary action on this screen, and the first is on line ${first}. Crimson is `
+  return `a second primary action on this screen, and the first is on line ${first}. The primary emphasis is `
     + 'the voice, so at most one arena-emphasis-primary action stands in a view. Write '
     + 'arena-emphasis-secondary or arena-emphasis-ghost on the others, and keep the primary for the '
     + 'one action the screen is for. A button with no emphasis class is primary too';
@@ -717,8 +741,7 @@ export function lineFindings(line: string, isStylesheet: boolean, scope: Scope =
 
   const styled = isStylesheet || INLINE_STYLE.test(line) || inStyleObject;
   if (styled && RAW_HEX.test(line))
-    found.push(at(0, 'raw-value', 'a raw hex where a token belongs. Read the value through its '
-      + 'custom property, as var(--crimson)'));
+    found.push(at(0, 'raw-value', RAW_HEX_MESSAGE));
   if (styled && rawColour(line, isStylesheet))
     found.push(at(0, 'raw-value', RAW_COLOUR_MESSAGE));
   if (styled && BARE_PIXELS.test(line))
@@ -728,8 +751,7 @@ export function lineFindings(line: string, isStylesheet: boolean, scope: Scope =
     found.push(at(0, 'compat-alias', COMPAT_ALIAS_MESSAGE));
 
   if (styled && scope === 'app' && !gradientMark && GRADIENT.test(line))
-    found.push(at(0, 'raw-value', 'a gradient. Depth comes from the base-100 to base-300 surface '
-      + 'scale, the hairline border and the warm shadow'));
+    found.push(at(0, 'raw-value', GRADIENT_MESSAGE));
 
   if (styled && scope === 'app' && fillsWithDanger(line))
     found.push(at(0, 'danger-fill', DANGER_FILL_MESSAGE));

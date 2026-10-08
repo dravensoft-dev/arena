@@ -97,9 +97,9 @@ source text cannot show, is `arena://rules` on the MCP server.
 
 - **Tokens are the only styling layer.** A raw colour is a bug, as is a bare `16px`. A hex, a
   channel triple in `rgb()` or `oklch()`, and a colour's own name are one defect written three
-  ways. Read a value through its custom property, as `var(--crimson)` or `var(--sp-4)`. Derive one
-  with `calc()` or `clamp()`, or mix one with `color-mix()`, over a token. **`arena audit` reports
-  this one.**
+  ways. Read a value through its custom property, as `var(--color-primary)` or `var(--sp-4)`.
+  Derive one with `calc()` or `clamp()`, or mix one with `color-mix()`, over a token. **`arena
+  audit` reports this one.**
 - **Only a class of the vocabulary goes on an Arena component.** Write it as a literal on the
   component, or on a container whose components all take it. Write no rule targeting a component:
   its `arena-<component>__<slot>` classes are compiler output no contract names, and a slot may be
@@ -112,12 +112,12 @@ source text cannot show, is `arena://rules` on the MCP server.
   content read `--danger`. Arena draws one filled danger surface, the final irreversible
   confirmation inside `ArenaConfirmDialog`. A surface of your own may carry the `--danger-soft`
   tint. **`arena audit` reports this one.**
-- **One primary accent per view.** Crimson is the voice: one `arena-emphasis-primary` action at
-  most stands on a screen, and a button with no emphasis class is it. Gold is distinction and
-  focus, not a second primary. **`arena audit` reports this one.**
+- **One primary accent per view.** The primary emphasis is the voice: one `arena-emphasis-primary`
+  action at most stands on a screen, and a button with no emphasis class is it. Gold is
+  distinction and focus, not a second primary. **`arena audit` reports this one.**
 - **No gradients, on any surface.** Depth comes from the `base-100`, `base-200`, `base-300`
-  surface scale, the hairline border and the warm shadow. `ArenaSkeleton`'s neutral shimmer is the
-  one exception. A brand whose mark is a gradient sets `gradientMark` in `arena.config.json`.
+  surface scale, the hairline border and the shadow roles. `ArenaSkeleton`'s neutral shimmer is
+  the one exception. A brand whose mark is a gradient sets `gradientMark` in `arena.config.json`.
   **`arena audit` reports this one.**
 - **No emoji, in product or in copy.** **`arena audit` reports this one.**
 - **Icons are Phosphor class-name strings, never elements and never SVG.** Write `icon="ph-bold

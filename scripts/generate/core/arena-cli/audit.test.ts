@@ -6,9 +6,9 @@ import { repoRoot } from '../../../lib/arena/repo-root.ts';
 import {
   auditText, auditFindings, findings, lineFindings, isLegalBracket, scanText, scanFile, markerAllowlist,
   paintedParts, sourceScope, outlineGap, kebabTag, HEADING_RUNGS, OWN_CLASS_ATTRIBUTE,
-  LINKABLE_TAGS, statedRung, fillsWithDanger, RULE_TAGS,
+  LINKABLE_TAGS, statedRung, fillsWithDanger, namesAnAlias, RULE_TAGS,
   UNMODELLED_UNITS, styleIdentifiers, styleObjectLines,
-  ownClassFindings, type VocabularyIndex,
+  ownClassFindings, RAW_COLOUR_MESSAGE, RAW_HEX_MESSAGE, GRADIENT_MESSAGE, primaryMessage, DANGER_FILL_MESSAGE, type VocabularyIndex,
 } from './audit.ts';
 import { vocabularyIndex } from '../../../lib/arena/vocabulary-index.ts';
 
@@ -449,6 +449,32 @@ test('a filled danger surface is read in an inline style, and only in an applica
     'plugin').join('\n').includes('danger-fill'), false,
     'the one filled danger surface in the system is a part a style plugin paints, so the scope '
     + 'that owns it is the scope that may draw it');
+});
+
+test('a danger tint is not a fill, in either operand order, and a full mix or a mix with a colour is', () => {
+  assert.equal(fillsWithDanger('.x { background: color-mix(in oklab, var(--color-error) 16%, transparent) }'), false);
+  assert.equal(fillsWithDanger('.x { background: color-mix(in oklab, transparent 84%, var(--danger)) }'), false);
+  assert.equal(fillsWithDanger('.x { background: color-mix(in srgb, var(--danger) 100%, transparent) }'), true);
+  assert.equal(fillsWithDanger('.x { background: color-mix(in oklab, var(--danger) 40%, white) }'), true);
+  assert.equal(fillsWithDanger('.x { background: color-mix(in oklab, var(--danger), transparent) }'), false);
+  assert.equal(fillsWithDanger('.x { background: var(--danger) }'), true);
+  assert.equal(fillsWithDanger('.x { background: color-mix(in oklab, transparent, var(--danger) 30%) }'), false);
+  assert.equal(fillsWithDanger('.x { background: color-mix(in oklab, transparent, var(--danger) 100%) }'), true);
+  assert.equal(fillsWithDanger('.x { background: color-mix(in oklab, transparent 0%, var(--danger)) }'), true);
+  assert.equal(fillsWithDanger('.x { background: color-mix(in oklab, transparent 100%, var(--danger)) }'), false);
+  assert.equal(fillsWithDanger('.x { background: color-mix(in oklab, var(--danger, red) 16%, transparent) }'), false);
+  assert.equal(fillsWithDanger('.x { background: color-mix(in oklch longer hue, var(--danger) 16%, transparent) }'), false);
+  assert.equal(fillsWithDanger('.x { background: color-mix(in oklch shorter hue, transparent, var(--danger, red) 100%) }'), true);
+});
+
+test('whitespace inside var() does not hide a danger fill or an alias reference', () => {
+  assert.equal(fillsWithDanger('.x { background: var( --danger ) }'), true);
+  assert.equal(namesAnAlias('.x { color: var( --level-presence ) }'), true);
+});
+
+test('no audit message names a palette colour', () => {
+  for (const message of [RAW_COLOUR_MESSAGE, primaryMessage(1), DANGER_FILL_MESSAGE, RAW_HEX_MESSAGE, GRADIENT_MESSAGE])
+    assert.doesNotMatch(message, /crimson|warm shadow/i);
 });
 
 test('a fill and a token are read as one pair, so a danger token elsewhere on the line is not a fill', () => {

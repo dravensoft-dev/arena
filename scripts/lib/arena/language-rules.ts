@@ -21,7 +21,7 @@ export const RULES: LanguageRule[] = [
     short: 'Tokens are the only styling layer.',
     body: 'A raw colour is a bug, as is a bare `16px`. A hex, a channel triple in `rgb()` or '
       + '`oklch()`, and a colour\'s own name are one defect written three ways. Read a value '
-      + 'through its custom property, as `var(--crimson)` or `var(--sp-4)`. Derive one with '
+      + 'through its custom property, as `var(--color-primary)` or `var(--sp-4)`. Derive one with '
       + '`calc()` or `clamp()`, or mix one with `color-mix()`, over a token.',
     held: 'raw-value',
     unheld: null,
@@ -57,7 +57,7 @@ export const RULES: LanguageRule[] = [
   {
     id: 'one-primary',
     short: 'One primary accent per view.',
-    body: 'Crimson is the voice: one `arena-emphasis-primary` action at most stands on a screen, and a '
+    body: 'The primary emphasis is the voice: one `arena-emphasis-primary` action at most stands on a screen, and a '
       + 'button with no emphasis class is it. '
       + 'Gold is distinction and focus, not a second primary.',
     held: 'one-primary',
@@ -67,7 +67,7 @@ export const RULES: LanguageRule[] = [
     id: 'no-gradients',
     short: 'No gradients, on any surface.',
     body: 'Depth comes from the `base-100`, `base-200`, `base-300` surface scale, the hairline '
-      + 'border and the warm shadow. `ArenaSkeleton`\'s neutral shimmer is the one exception. '
+      + 'border and the shadow roles. `ArenaSkeleton`\'s neutral shimmer is the one exception. '
       + 'A brand whose mark is a gradient sets `gradientMark` in `arena.config.json`.',
     held: 'raw-value',
     unheld: null,
