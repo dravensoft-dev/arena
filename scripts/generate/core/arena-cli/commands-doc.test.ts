@@ -14,7 +14,7 @@ import { fileURLToPath } from 'node:url';
 import { COMMANDS, main } from './arena.ts';
 import { COMMAND_NAMES, FLAGS, FLAG_NAMES, NEIGHBOURS, SPECS } from './args.ts';
 import type { FlagName } from './args.ts';
-import { KINDS_BY_COMMAND } from './reports.ts';
+import { KINDS_BY_COMMAND, RULES_BY_KIND } from './reports.ts';
 import { OUTPUT_SHEETS } from './sources.ts';
 import { MAP, SHEETS, captureIo, hostRoot, phosphor, project, readable } from './cli-fixtures.ts';
 import type { HostEnvironment } from './host.ts';
@@ -80,6 +80,20 @@ test('every kind --strict holds is named on the line that names its command, and
     const cells = line.split('|').slice(2).join('|');
     for (const [, named] of cells.matchAll(/`([^`]+)`/g)) {
       assert.ok((kinds as readonly string[]).includes(named ?? ''), `the arena ${command} --strict row names ${named}, which arena ${command} does not hold`);
+    }
+  }
+});
+
+test('every rule --strict can name is on the rules row of its kind, and kind:rule is said', () => {
+  const source = page();
+  assert.ok(source.includes('`<kind>:<rule>`'), 'the page never says how a rule is named');
+  for (const [kind, rules] of Object.entries(RULES_BY_KIND)) {
+    const line = source.split('\n').find((one) => one.startsWith(`| \`${kind}\` |`));
+    assert.ok(line, `the rules table has no row for ${kind}`);
+    for (const rule of rules ?? []) assert.ok(line.includes(`\`${rule}\``), `the ${kind} row does not name ${rule}`);
+    const cells = line.split('|').slice(2).join('|');
+    for (const [, named] of cells.matchAll(/`([^`]+)`/g)) {
+      assert.ok((rules ?? []).includes(named ?? ''), `the ${kind} row names ${named}, which ${kind} does not have`);
     }
   }
 });

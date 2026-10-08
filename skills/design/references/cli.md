@@ -32,13 +32,19 @@ A sheet is written only when its bytes change, so a bundler watching an untouche
 
 ## What does `--strict` hold?
 
-A report never changes the exit until `--strict` holds its kind. Bare, `--strict` holds every kind that command reports; `--strict=contrast,glyph` holds the ones you name. A kind another command holds, or a `--strict=` naming none, is refused.
+A report never changes the exit until `--strict` holds it. Bare, `--strict` holds every kind that command reports; `--strict=contrast,glyph` holds the kinds you name. A kind with rules can also be held one rule at a time, written `<kind>:<rule>`: `--strict=audit:emoji,restated` holds the `emoji` rule of `audit` and every `restated` report, and leaves every other audit rule reported and not held. A kind another command holds, a rule its kind does not have, a rule on a kind without rules, or a `--strict=` naming none, is refused.
 
 | command | kinds |
 | --- | --- |
 | `arena check --strict` | `components`, `contrast`, `ramp`, `weight`, `glyph`, `markers` |
 | `arena audit --strict` | `audit`, `restated` |
 | `arena doctor --strict` | `environment` |
+
+| kind | rules `--strict=<kind>:<rule>` names |
+| --- | --- |
+| `audit` | `compat-alias`, `danger-fill`, `emoji`, `icon-element`, `one-primary`, `outline-gap`, `own-class`, `raw-value`, `router-link`, `stale-allowance` |
+
+**`arena init` writes the names that exist when it runs.** Its `arena:audit` names every audit rule and `restated` one by one, so a rule that arrives with a later package is reported by that script and changes no exit until you add its name. A bare `--strict`, or `--strict=audit`, holds every rule, including the ones that arrive later. The tag at the end of each finding, such as `(raw-value)`, is the rule to name; `stale-allowance` is an `arena-audit allow` marker on a line with nothing left to exempt, and its line carries no tag.
 
 **Name the kinds when one of them is a decision you already made.** A brand under 4.5:1 can be deliberate, and one switch would make it the price of holding the rest in CI. `weight` says a role asks for a weight the face you loaded does not carry. `glyph` is a name Phosphor does not draw. `markers` is an Angular projection marker, such as `[footer]`, written in a template that does not import its directive. That marker renders nothing, and neither the build nor `ngc --strictTemplates` reports it; [`exports.md`](./exports.md) lists every marker. `restated` is a plugin rule restating the value its part's slot already paints. `environment` says Arena's own icons went uncounted, outside an Arena package or without its `icons.json`. In `arena doctor` it also says Node misses `engines.node`, or that range is one it cannot compare. `wash` is reported and never held: a token on a wash of its own colour clears AA at no percentage, and a gate nobody can fix is not a gate.
 
