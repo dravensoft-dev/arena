@@ -43,16 +43,6 @@ sheet a build would write and a sheet doctor calls current are therefore the sam
 construction, never by two renderers agreeing. `CLI_BINS` is the list both manifests take their
 `bin` from, and it holds `arena` alone.
 
-## What counts as new to `--strict`
-
-`arena init` writes `--strict=` with every rule and kind that exists when it runs (`reports.ts:strictNames(command)`), so a project holds exactly what existed that day and a minor never turns its CI red. That only holds while anything that reports what was not reported before arrives under a name no project has written:
-
-- a new audit rule is a new tag in `audit.ts:RULE_TAGS`, emitted through `at()` so `audit.test.ts` holds the two equal;
-- an existing rule that widens ships the widened part as a rule of its own: a component added to what `router-link` reads is a new tag beside it, not a new entry in `LINKABLE_TAGS`;
-- a stricter producer inside a kind without rules ships as a kind of its own in `KINDS_BY_COMMAND`.
-
-A bare `--strict` and `--strict=<kind>` hold everything, so a project that wrote them chose to.
-
 ## Running them
 
 `fetch-fonts.ts` is **not part of `bun run build`**, since it reaches the network and its
@@ -63,3 +53,18 @@ the binaries already on disk. `check:fonts` asserts every declared family has a 
 repository is its input. It runs in a consumer's project, against the files that project wrote.
 
 Every `X.test.ts` beside a script covers that script.
+
+## What counts as new to `--strict`
+
+`arena init` writes `--strict=` with every rule and kind that exists when it runs
+(`reports.ts:strictNames(command)`), so a project holds exactly what existed that day and a minor
+never turns its CI red. That only holds while anything that reports what was not reported before
+arrives under a name no project has written:
+
+- a new audit rule is a new tag in `audit.ts:RULE_TAGS`, emitted through `at()` so `audit.test.ts`
+  holds the two equal;
+- an existing rule that widens ships the widened part as a rule of its own: a component added to
+  what `router-link` reads is a new tag beside it, not a new entry in `LINKABLE_TAGS`;
+- a stricter producer inside a kind without rules ships as a kind of its own in `KINDS_BY_COMMAND`.
+
+A bare `--strict` and `--strict=<kind>` hold everything, so a project that wrote them chose to.
