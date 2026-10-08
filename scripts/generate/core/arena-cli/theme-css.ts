@@ -15,7 +15,7 @@ import {
 } from './palette-keys.ts';
 import { validate, contrast } from './validate-palette.mjs';
 import {
-  FS_STEP, RHYTHM_STEP, floorProblems, nameProblems, scopeOn, totalityProblems,
+  FS_STEP, RHYTHM_STEP, floorProblems, nameProblems, reservedProblems, scopeOn, totalityProblems,
 } from './style-plugin-rules.ts';
 import { serialize } from './serialize-token.ts';
 import { errorFill } from './oklab.ts';
@@ -116,6 +116,8 @@ function paletteProblems(
         + 'utility and component Arena draws, so the colours would land on whatever that class '
         + `already selects. The one name a palette may take out of that set is its own polarity, `
         + `which is the scope a palette of that polarity is meant to answer to.`);
+    } else {
+      problems.push(...reservedProblems(palette.name, `${at}.name`));
     }
   }
 

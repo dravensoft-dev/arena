@@ -13,11 +13,11 @@ const CATALOGUED = {
   catalogue: { tokens: { 'color-base-200': 'var(--color-base-200)', 'lh-prose': '1.6', 'lh-heading': '1.5', 'measure-prose': '72ch' }, roles: { 'ink-eyebrow': { type: 'color' } } },
 };
 
-function withPlugin(css: string) {
-  const root = project({ ...readable, stylePlugins: ['default', './design/andina'] });
-  mkdirSync(join(root, 'design', 'andina'), { recursive: true });
-  writeFileSync(join(root, 'design', 'andina', 'plugin.tokens.json'), JSON.stringify({ 'ink-eyebrow': { $value: '{color.base-200}', $type: 'color' } }));
-  writeFileSync(join(root, 'design', 'andina', 'plugin.css'), css);
+function withPlugin(css: string, name = 'andina') {
+  const root = project({ ...readable, stylePlugins: ['default', `./design/${name}`] });
+  mkdirSync(join(root, 'design', name), { recursive: true });
+  writeFileSync(join(root, 'design', name, 'plugin.tokens.json'), JSON.stringify({ 'ink-eyebrow': { $value: '{color.base-200}', $type: 'color' } }));
+  writeFileSync(join(root, 'design', name, 'plugin.css'), css);
   return root;
 }
 
@@ -163,4 +163,30 @@ test('--watch hands over to watchBuild (6c)', async () => {
   assert.ok(out.some((line) => /watching \d+ location\(s\)/.test(line)));
   controller.abort();
   assert.equal(await done, 0);
+});
+
+test('a style plugin directory named popover stops the build naming the reservation, and brand builds', async () => {
+  const { web } = phosphor();
+  const held = withPlugin('.x { color: red }\n', 'popover');
+  const refused = captureIo(held, environment(web));
+  assert.equal(await run(flags(held), refused.io), 1);
+  assert.ok(refused.err.some((line) => line.startsWith('arena build: stylePlugins[1]: "popover" is held for ArenaPopover')),
+    refused.err.join('\n'));
+  assert.ok(!existsSync(join(held, 'src', THEME_SHEET)));
+
+  const free = withPlugin('.x { color: red }\n', 'brand');
+  assert.equal(await run(flags(free), captureIo(free, environment(web)).io), 0);
+});
+
+test('a palette named popover stops the build naming the reservation, and brand builds', async () => {
+  const { web } = phosphor();
+  const second = (name: string) => ({ ...readable, palettes: [...readable.palettes, { ...readable.palettes[0], name, default: false }] });
+  const held = project(second('popover'));
+  const refused = captureIo(held, environment(web));
+  assert.equal(await run(flags(held), refused.io), 1);
+  assert.ok(refused.err.some((line) => line.startsWith('arena build: palettes[1].name: "popover" is held for ArenaPopover')),
+    refused.err.join('\n'));
+
+  const free = project(second('brand'));
+  assert.equal(await run(flags(free), captureIo(free, environment(web)).io), 0);
 });

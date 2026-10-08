@@ -27,6 +27,33 @@ export const MAX_PROSE_MEASURE = 90;
 
 export const DANGER_FLOOR = 'hue-danger-fill-strong';
 
+export const RESERVED = new Map<string, string>([
+  ['divider', 'ArenaDivider, a rule between two regions (spec 01)'],
+  ['kbd', 'ArenaKbd, a key or a key combination (spec 02)'],
+  ['fieldset', 'ArenaFieldset, a labelled group of form controls (spec 03)'],
+  ['link', 'ArenaLink, an inline link (spec 04)'],
+  ['copy-button', 'ArenaCopyButton, a button that copies a value (spec 05)'],
+  ['meter', 'ArenaMeter, a value inside a known range (spec 06)'],
+  ['accordion', 'ArenaAccordion, a stack of disclosure sections (spec 10)'],
+  ['stepper', 'ArenaStepper, the steps of a process and where it stands (spec 11)'],
+  ['timeline', 'ArenaTimeline, milestones in order (spec 12)'],
+  ['number-field', 'ArenaNumberField, a formatted number input (spec 13)'],
+  ['pin-input', 'ArenaPinInput, a code entered one character per cell (spec 14)'],
+  ['file-input', 'ArenaFileInput, a file picker with a drop zone (spec 15)'],
+  ['slider', 'ArenaSlider, a number chosen inside a range (spec 16)'],
+  ['sparkline', 'ArenaSparkline, a small inline trend chart (spec 17)'],
+  ['gauge-chart', 'ArenaGaugeChart, one value against banded thresholds (spec 18)'],
+  ['filter-bar', 'ArenaFilterBar, the filters applied to a collection (spec 19)'],
+  ['funnel-chart', 'ArenaFunnelChart, the stages a count narrows through (spec 20)'],
+  ['popover', 'ArenaPopover, an anchored panel (spec 21)'],
+  ['combobox', 'ArenaCombobox, a text input that filters a list of options (spec 22)'],
+  ['split-button', 'ArenaSplitButton, an action with a menu of alternatives (spec 24)'],
+  ['tree-view', 'ArenaTreeView, a hierarchy that expands and collapses (spec 25)'],
+  ['heatmap-chart', 'ArenaHeatmapChart, values on a grid of two categories (spec 26)'],
+  ['sticky-head', 'the sticky family option that keeps a table head in view (spec 27)'],
+  ['sticky-none', 'the sticky family option that lets a table head scroll away (spec 27)'],
+]);
+
 export const scopeOn = (className: string) => (selector: string) => (selector === ':root'
   ? className
   : `${className}${selector}, ${className} ${selector}, ${selector} ${className}`);
@@ -102,6 +129,14 @@ export function totalityProblems(declared: string[], answered: string[]) {
     + 'an unanswered role is not a plainer appearance, it is a missing border.');
 }
 
+export function reservedProblems(name: string, where: string) {
+  const reason = RESERVED.get(name);
+  if (reason === undefined) return [];
+  return [`${where}: "${name}" is held for ${reason}, which Arena is going to ship as the class .arena-${name}. `
+    + 'A build naming it would fail on the release that ships that class, so the name is refused while '
+    + 'renaming costs nothing.'];
+}
+
 export function nameProblems(
   name: string, polarities: readonly string[], where: string, shipped: readonly string[] = [],
 ) {
@@ -116,6 +151,7 @@ export function nameProblems(
       + `.arena-${name}. A style plugin shares one class namespace with every scope, utility and `
       + 'component Arena draws, so the roles it answers would land on whatever that class already '
       + 'selects.');
+  else problems.push(...reservedProblems(name, where));
   if (!KEBAB.test(name))
     problems.push(`${where}: "${name}" is not kebab-case, and the name becomes the class .arena-${name}`);
   return problems;

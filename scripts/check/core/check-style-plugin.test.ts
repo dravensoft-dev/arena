@@ -30,8 +30,8 @@ const ROLES = {
 test('the rules module carries floors and shape checks and no design theory', () => {
   assert.deepEqual(Object.keys(rules).sort(), [
     'ARENA_EXT', 'DANGER_FLOOR', 'FS_STEP', 'KEBAB', 'MAX_PROSE_MEASURE', 'MIN_HEADING_LEADING',
-    'MIN_PROSE_LEADING', 'MIN_PROSE_MEASURE', 'RHYTHM_STEP',
-    'floorProblems', 'keyProblems', 'nameProblems', 'scopeOn', 'totalityProblems', 'valueProblems',
+    'MIN_PROSE_LEADING', 'MIN_PROSE_MEASURE', 'RESERVED', 'RHYTHM_STEP',
+    'floorProblems', 'keyProblems', 'nameProblems', 'reservedProblems', 'scopeOn', 'totalityProblems', 'valueProblems',
   ], 'a rule that keeps a catalogue coherent is Arena design theory, and a floor is a claim about '
   + 'a reader: only the second one has any business binding somebody else\'s product');
 });
@@ -74,7 +74,7 @@ test('a name that is a theme polarity fails, since that class is already the pal
 
 test('a name that is merely unused by the config is ordinary', () => {
   assert.deepEqual(nameProblems('none', ['light'], 'at'), [],
-    'a build declares the plugins it wants and never the absence of one, so no word is reserved');
+    'a build declares the plugins it wants and never the absence of one, so "none" is an ordinary name');
   assert.deepEqual(nameProblems('default', ['light'], 'at'), []);
 });
 

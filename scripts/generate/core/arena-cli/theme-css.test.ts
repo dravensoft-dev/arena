@@ -129,6 +129,33 @@ test('a palette named after a class the package ships is refused, and its own po
   assert.match(problems[1] ?? '', /^palettes\[3\]\.name: "stat-card" is already a class this package ships/);
 });
 
+test('a palette named after a class Arena is going to ship is refused, with or without a package', () => {
+  const c = config({ palettes: [
+    { name: 'light', default: true, polarity: 'light', colors: colors() },
+    { name: 'popover', polarity: 'dark', colors: colors() },
+    { name: 'brand', polarity: 'dark', colors: colors() },
+  ] });
+  for (const sheets of [withScopes(['light', 'stat-card']), undefined]) {
+    const problems = configProblems(c, sheets);
+    assert.equal(problems.length, 1);
+    assert.match(problems[0] ?? '', /^palettes\[1\]\.name: "popover" is held for ArenaPopover, an anchored panel \(spec 21\)/);
+  }
+});
+
+test('a palette and a style plugin both named for a reserved class each report the reservation', () => {
+  const c = config({
+    palettes: [
+      { name: 'light', default: true, polarity: 'light', colors: colors() },
+      { name: 'slider', polarity: 'dark', colors: colors() },
+    ],
+    stylePlugins: ['default', './plugins/slider'],
+  });
+  const problems = configProblems(c, withScopes(['light']));
+  assert.ok(problems.some((line) => line.startsWith('palettes[1].name: "slider" is held for ArenaSlider')), problems.join('\n'));
+  assert.ok(problems.some((line) => line.startsWith('stylePlugins[1]: "slider" is held for ArenaSlider')), problems.join('\n'));
+  assert.ok(problems.some((line) => line.startsWith('stylePlugins[1]: "slider" is also the name of a palette')), problems.join('\n'));
+});
+
 test('a palette claiming a polarity scope it does not answer to is refused', () => {
   const c = config({ palettes: [
     { name: 'midnight', default: true, polarity: 'dark', colors: colors() },
