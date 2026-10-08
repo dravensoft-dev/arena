@@ -12,7 +12,7 @@ Not one value of appearance.
 | Surface | What it is |
 |---|---|
 | The floors | WCAG contrast, the 3:1 a control's boundary and the focus ring carry, target size, the reduced-motion policy, prose leading that never closes below 1.5, danger as an outline: the danger hue's strong fill is `transparent` |
-| The role declaration | every role's name, `$type`, `$description` and, for a keyword, its closed set, in [`roles.json`](./roles.json). No value |
+| The role declaration | every role's name, `$type`, `$description` and, for a keyword, its closed set, in [`roles.json`](./roles.json), and a kernel `default` where one is declared, which is an alias to another role or to a token the package emits. No value |
 | The value repertoire | the scales: the spacing grid, the radius, border, shadow, motion, weight, tracking, leading and type ladders, density, layering, chart and behaviour timing, all of them in this directory and catalogued in [`Scales.md`](./Scales.md) |
 | The part hooks | `data-arena-part="<component>.<slot>"` on every element drawing a slot of every manifest |
 | The cascade | `arena-plugin`, a layer declared after `utilities` |
@@ -31,8 +31,13 @@ records why the plot geometry cannot be a role at all.
 [`roles.json`](./roles.json) is a declaration of interface rather than a token file. A DTCG token
 with no `$value` is not a DTCG token, so it leaves `check:dtcg` by name and
 `scripts/check/core/check-role-contract.ts` holds it instead: a type, a description, a closed set
-for a keyword, and no value. That is the statement rather than a side effect. **The question
-belongs to the kernel and the answer never does.**
+for a keyword, and no value. That is the statement rather than a side effect. It holds the one
+answer a role may carry as well: `$extensions["com.dravensoft.arena"].default` is a `{…}` alias to
+a role or to a token the package emits, of the role's own `$type`, and
+`scripts/check/core/check-role-contract.ts:defaultProblems(roles, emitted)` fails a literal, an
+alias naming nothing, a type that disagrees, a keyword whose target can take a word outside its
+set, and a chain that leads back to itself. **The question belongs to the kernel and the answer
+never does.**
 
 The scales stay, and they stay with values, because a manifest never names one. They reach a page
 only through a role, so what they are is a shared repertoire a plugin picks from. A plugin answers
@@ -79,6 +84,19 @@ answers every declared role**. `scripts/check/core/check-style-plugin.ts` fails 
 question unanswered, and the reason is sharper than tidiness: a custom property with no value is
 invalid at computed-value time, so the declaration reading it is dropped and the whole property
 disappears. A partial root plugin is not a poorer appearance. It is a page with no borders.
+
+**Total means answered by the plugin or by a kernel default.** A role carrying a default is
+answered for a root plugin of the project's own that is silent on it:
+`scripts/generate/core/arena-cli/style-plugin-rules.ts:withDefaults(plugin, roles)` completes the
+plugin before anything reads it. A role alias takes the plugin's answer to that role, itself
+completed the same way, and its light answer too unless the role has a light answer of its own; a
+token alias passes through as written. The floors, the reports and the
+`:root` block all read that one complete plugin, so a colour default is restated under every
+palette like any `{color.*}` answer, and the command notes each role the default answered. A later
+plugin is never completed. The plugins this repository ships answer every role with the defaults
+ignored, and `check-style-plugin.ts` holds the default plugin's answer to a role carrying a default
+to that default, so a project whose own copy is silent on the role renders it the way the default
+does.
 
 Every later entry emits under `.arena-<name>`, taken from the directory that holds it, and is a
 difference. Those sit over the root plugin in the cascade, so totality would be a demand with
@@ -301,6 +319,13 @@ option's roles are added in the change that adds the option, and every plugin an
 same major. What a plugin paints by hand through a part is evidence for a role the kernel does not
 have yet. What an option declares is a role the kernel has already.
 
+**A role born after the roster carries a kernel default.**
+`scripts/check/core/roles-without-default.json` names the roles every adopter's root plugin
+already answers, written once from `roles.json` and never grown, and `check:role-contract` fails a
+role outside it that declares no default, so a minor adding a role stops no build whose root
+plugin is its own. A role on the list takes no default, because a default there would only loosen
+totality for plugins that already answer it.
+
 **A plugin selects by part and never by the value of a variant, and that decides which asks can
 become members at all.** A product whose avatar ring is a gradient in one state and a grey in the
 other cannot be served by a `ring` member taking a tone: the component would render one part in
@@ -309,8 +334,8 @@ difference between the two. An ask whose whole content is a difference the casca
 markup its own product writes, and no member Arena could add would carry it.
 
 **A role that does two jobs is a split waiting for its second product, not a name to be argued
-with.** `edge-marker` is the current case, and the count is now two products that moved it for two
-different reasons. It draws the edge of a chip, the edge of a photograph and the edge of a keyboard
+with.** `edge-marker` is the current case: two products moved it, for two different
+reasons. It draws the edge of a chip, the edge of a photograph and the edge of a keyboard
 cap: one product set it to nothing to take the border off its avatars, because no product wants a
 portrait outlined the way it wants a tag outlined, and a second answered it with the muted text
 colour so a cap can be found on a screen where every other edge is a hairline. **Two products
