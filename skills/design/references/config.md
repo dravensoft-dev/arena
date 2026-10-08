@@ -129,6 +129,6 @@ Name the sheets yourself when the project renders through indirection. Naming th
 { "stylesheet": { "components": ["arena-button", "arena-page-head", "arena-side-nav", "arena-stat-card", "arena-table"] } }
 ```
 
-A name the package does not ship fails the command and lists the names it does ship. A typo stops the build. The list is then yours to keep current.
+A name the package does not ship fails the command and lists the names it does ship. A typo stops the build. The command closes a named list the way it closes `"auto"`. Name the components your project renders. The command adds the ones Arena draws on your behalf, and prints them. The list is then yours to keep current for the components you render yourself.
 
 A sheet name is the component's own name, as `arena-button`. [`stylesheets.md`](./stylesheets.md) lists the sheet files.
