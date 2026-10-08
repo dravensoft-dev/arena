@@ -64,7 +64,7 @@ Run `arena init` once. In a project on `@dravensoft/arena-react` it adds these s
     "prebuild": "arena build",
     "predev": "arena build",
     "arena:check": "arena check --strict=components,glyph,markers",
-    "arena:audit": "arena audit --strict"
+    "arena:audit": "arena audit --strict=audit:compat-alias,audit:danger-fill,audit:emoji,audit:icon-element,audit:one-primary,audit:outline-gap,audit:own-class,audit:raw-value,audit:router-link,audit:stale-allowance,restated"
   }
 }
 ```
@@ -81,7 +81,7 @@ The same, on `@dravensoft/arena-angular`, with `prestart` in place of `predev`.
     "prebuild": "arena build",
     "prestart": "arena build",
     "arena:check": "arena check --strict=components,glyph,markers",
-    "arena:audit": "arena audit --strict"
+    "arena:audit": "arena audit --strict=audit:compat-alias,audit:danger-fill,audit:emoji,audit:icon-element,audit:one-primary,audit:outline-gap,audit:own-class,audit:raw-value,audit:router-link,audit:stale-allowance,restated"
   }
 }
 ```

@@ -6,9 +6,13 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { run } from './command-init.ts';
 import { captureIo, hostRoot } from './cli-fixtures.ts';
+import { RULE_TAGS } from './audit.ts';
+import { parseArgs } from './args.ts';
+import { strictNames } from './reports.ts';
 
 const REACT = '@dravensoft/arena-react';
 const ANGULAR = '@dravensoft/arena-angular';
+const AUDIT = `arena audit --strict=${strictNames('audit').join(',')}`;
 const EXAMPLE = '{\n  "palettes": [],\n  "x": 1\n}\n';
 
 function setup(name = REACT, pkg: string | null = '{}\n') {
@@ -28,7 +32,7 @@ test('React: an empty {} package.json gains prebuild, predev, arena:check and ar
     prebuild: 'arena build',
     predev: 'arena build',
     'arena:check': 'arena check --strict=components,glyph,markers',
-    'arena:audit': 'arena audit --strict',
+    'arena:audit': AUDIT,
   });
   assert.ok(out.includes('arena init: added prebuild, predev, arena:check, arena:audit to package.json'));
 });
@@ -61,7 +65,7 @@ test('an existing identical script is not rewritten', () => {
   run([], io);
   assert.deepEqual(Object.keys(scriptsOf(cwd)), ['prebuild', 'predev', 'arena:check', 'arena:audit']);
   const again = setup(REACT, JSON.stringify({ scripts: { prebuild: 'arena build', predev: 'arena build',
-    'arena:check': 'arena check --strict=components,glyph,markers', 'arena:audit': 'arena audit --strict' } }));
+    'arena:check': 'arena check --strict=components,glyph,markers', 'arena:audit': AUDIT } }));
   writeFileSync(join(again.cwd, 'arena.config.json'), 'x');
   const before = readFileSync(join(again.cwd, 'package.json'), 'utf8');
   again.out.length = 0;
@@ -121,7 +125,7 @@ test('a non-default --config is appended to every script it writes', () => {
     prebuild: 'arena build --config config/arena.json',
     predev: 'arena build --config config/arena.json',
     'arena:check': 'arena check --strict=components,glyph,markers --config config/arena.json',
-    'arena:audit': 'arena audit --strict --config config/arena.json',
+    'arena:audit': `${AUDIT} --config config/arena.json`,
   });
   assert.equal(readFileSync(join(cwd, 'config', 'arena.json'), 'utf8'), EXAMPLE);
 });
@@ -186,7 +190,7 @@ test('a --config path with a space is wrapped in plain double quotes, with no ba
   const { cwd, io } = setup();
   assert.equal(run(['--config', 'my config/a b.json'], io), 0);
   assert.equal(scriptsOf(cwd).prebuild, 'arena build --config "my config/a b.json"');
-  assert.equal(scriptsOf(cwd)['arena:audit'], 'arena audit --strict --config "my config/a b.json"');
+  assert.equal(scriptsOf(cwd)['arena:audit'], `${AUDIT} --config "my config/a b.json"`);
   const plain = setup();
   run(['--config', 'conf/a-b_c.json'], plain.io);
   assert.equal(scriptsOf(plain.cwd).prebuild, 'arena build --config conf/a-b_c.json');
@@ -247,4 +251,22 @@ test('a package.json saved with a byte order mark is read, and keeps the mark', 
   const text = readFileSync(join(cwd, 'package.json'), 'utf8');
   assert.ok(text.startsWith('﻿{\n  "name": "app",\n  "scripts": {'), JSON.stringify(text.slice(0, 40)));
   assert.equal(JSON.parse(text.slice(1)).scripts.prebuild, 'arena build');
+});
+
+test('the written arena:audit names every audit rule and restated, and parses back to those names', () => {
+  const { cwd, io } = setup();
+  assert.equal(run([], io), 0);
+  const script = scriptsOf(cwd)['arena:audit'] as string;
+  for (const rule of RULE_TAGS) assert.ok(script.includes(`audit:${rule}`), rule);
+  assert.ok(script.endsWith(',restated'), script);
+  const parsed = parseArgs('audit', script.split(' ').slice(2));
+  assert.equal(parsed.kind, 'options');
+  if (parsed.kind === 'options') assert.deepEqual(parsed.options.strict, strictNames('audit'));
+});
+
+test('a project wired with the bare switch keeps it on a second init', () => {
+  const { cwd, io, out } = setup(REACT, JSON.stringify({ scripts: { 'arena:audit': 'arena audit --strict' } }));
+  assert.equal(run([], io), 0);
+  assert.equal(scriptsOf(cwd)['arena:audit'], 'arena audit --strict');
+  assert.ok(out.includes('arena init: kept arena:audit, which reads "arena audit --strict"'), out.join('\n'));
 });

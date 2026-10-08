@@ -1,11 +1,14 @@
 /* arena init: copies the example config the package carries and wires the scripts that keep the
- * sheets current. It adds what is absent and never rewrites what a project already wrote. */
+ * sheets current. It adds what is absent and never rewrites what a project already wrote. The audit
+ * script names every rule and kind that exists when init runs, so a rule added afterwards is reported
+ * and holds nothing until the project names it. */
 import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname } from 'node:path';
 import { DEFAULT_CONFIG, commandOptions, parseArgs } from './args.ts';
 import { hostManifest, resolveEnvironment } from './host.ts';
 import { under, voice } from './io.ts';
 import type { Io } from './io.ts';
+import { strictNames } from './reports.ts';
 
 const LAYER_SCRIPTS: Record<string, string[]> = {
   '@dravensoft/arena-react': ['prebuild', 'predev'],
@@ -83,7 +86,7 @@ export function run(argv: string[], io: Io): number {
   const wanted: [string, string][] = [
     ...layer.map((script): [string, string] => [script, `arena build${suffix}`]),
     ['arena:check', `arena check --strict=components,glyph,markers${suffix}`],
-    ['arena:audit', `arena audit --strict${suffix}`],
+    ['arena:audit', `arena audit --strict=${strictNames('audit').join(',')}${suffix}`],
   ];
 
   const scripts = (pkg.scripts ?? {}) as Record<string, string>;

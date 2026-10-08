@@ -7,6 +7,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { run } from './command-audit.ts';
 import { captureIo, hostRoot, readable } from './cli-fixtures.ts';
+import { strictNames } from './reports.ts';
 
 const BREAK = '<div style={{ color: "#b52a20" }} />';
 const CARD = '.arena-card__title {\n  color: var(--ink-muted);\n}\n';
@@ -117,4 +118,22 @@ test('a --config spelled like the default that is not there exits 2, since it wa
   const result = audit(root, arena, ['--config', 'arena.config.json']);
   assert.equal(result.code, 2);
   assert.match(result.err[0]!, /^arena audit: cannot read .*arena\.config\.json: /);
+});
+
+test('a rule the written list does not name is reported and not held, and held once named', () => {
+  const { root, arena } = setup({ 'src/App.tsx': BREAK });
+  const named = strictNames('audit');
+  const unnamed = audit(root, arena, [`--strict=${named.filter((one) => one !== 'audit:raw-value').join(',')}`]);
+  assert.equal(unnamed.code, 0);
+  assert.match(unnamed.err.join('\n'), /\[audit\] .*\(raw-value\)/);
+  const held = audit(root, arena, [`--strict=${named.join(',')}`]);
+  assert.equal(held.code, 1);
+  assert.match(held.err.join('\n'), /and this run reports 1 of them: audit:raw-value$/m);
+});
+
+test('a stale allowance is held by the list init writes', () => {
+  const { root, arena } = setup({ 'src/App.tsx': 'const x = 1; // arena-audit allow\n' });
+  const result = audit(root, arena, [`--strict=${strictNames('audit').join(',')}`]);
+  assert.equal(result.code, 1);
+  assert.match(result.err.join('\n'), /reports 1 of them: audit:stale-allowance$/m);
 });
