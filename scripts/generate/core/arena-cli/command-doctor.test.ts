@@ -8,7 +8,7 @@ import { join } from 'node:path';
 import { run, satisfies } from './command-doctor.ts';
 import { plan } from './plan.ts';
 import { ICON_MANIFEST, PLUGIN_SHEET } from './sheets.ts';
-import { captureIo, hostRoot, options, phosphor, project } from './cli-fixtures.ts';
+import { MAP, SHEETS, captureIo, hostRoot, options, phosphor, project, readable } from './cli-fixtures.ts';
 
 function setup(extra: Record<string, unknown> = {}) {
   const root = project();
@@ -157,4 +157,23 @@ test('--strict=contrast exits 2 naming arena check', () => {
   const { io, err } = captureIo(root, environment);
   assert.equal(run(['--strict=contrast'], io), 2);
   assert.ok(err[0]!.includes('belongs to arena check'));
+});
+
+test('a tree built from a named list the map closes is current, and one built from the list as written is stale', () => {
+  const { web } = phosphor();
+  const root = project({ ...readable, stylesheet: { components: ['table'] } });
+  const environment = { arena: null, packageName: '@dravensoft/arena-react', phosphor: web, sheets: SHEETS, map: MAP, vocabulary: null };
+
+  const asWritten = plan(options(root), { ...environment, map: null });
+  for (const one of asWritten.outputs) writeFileSync(one.path, one.content);
+  const before = captureIo(root, environment);
+  assert.equal(run([], before.io), 1);
+  assert.ok(before.err.includes(`arena doctor: ${asWritten.outputs[0]!.path} is stale; arena build rewrites it`));
+
+  const built = plan(options(root), environment);
+  assert.match(built.outputs[0]!.content, /css\/components\/pagination\.css/);
+  for (const one of built.outputs) writeFileSync(one.path, one.content);
+  const after = captureIo(root, environment);
+  assert.equal(run([], after.io), 0);
+  for (const one of built.outputs) assert.ok(after.out.includes(`arena doctor: ${one.path} is current`), one.path);
 });

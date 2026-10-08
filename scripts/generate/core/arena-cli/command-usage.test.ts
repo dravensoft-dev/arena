@@ -110,3 +110,12 @@ test('a --config spelled like the default that is not there exits 2, since it wa
     assert.match(err[0]!, /^arena usage: cannot read .*arena\.config\.json: /);
   } finally { rmSync(root, { recursive: true, force: true }); }
 });
+
+test('a named list leaves what usage counts as drawn to the sources alone', () => {
+  const root = project({ ...readable, stylesheet: { components: ['table'] } }, { 'app.html': '<arena-button></arena-button>' });
+  try {
+    const { io, out } = captureIo(root, environment);
+    assert.equal(run([], io), 0);
+    assert.ok(out.some((line) => line.endsWith('2 drawn nowhere: arena-bar-chart, arena-table')), out.join('\n'));
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});

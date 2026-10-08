@@ -1,7 +1,9 @@
 /* What a build would leave on disk, worked out without leaving anything. themeSheets and
  * iconsSheet are the theme and icons steps with the writes taken out: they read the disk and answer
  * the sheets, their reports and the code a failure carries. plan runs them in order and answers
- * all the sheets or none, so a tree never pairs a new theme with an old icon subset. */
+ * all the sheets or none, so a tree never pairs a new theme with an old icon subset. A named
+ * component list is closed against the same map before the config is validated, so a sheet its
+ * components draw is never left out, and with no map it is used as written. */
 
 import { readFileSync, existsSync } from 'node:fs';
 import { dirname, basename, join, resolve } from 'node:path';
@@ -21,7 +23,7 @@ import {
   iconManifest, pluginCss, pluginSheets, readPlugins,
 } from './sheets.ts';
 import { OUTPUT_SHEETS, missingSource, sourceFiles } from './sources.ts';
-import { autoComponents, reportLines } from './steps.ts';
+import { autoComponents, namedComponents, reportLines } from './steps.ts';
 import type { Options } from './args.ts';
 import type { resolveEnvironment } from './host.ts';
 
@@ -50,7 +52,7 @@ export function themeSheets(options: PlanOptions, { packageName, sheets, map }: 
     return stop(2, [`cannot read ${options.config}: ${(error as Error).message}`]);
   }
 
-  const auto = { reports: [] as Report[], notes: [] as string[] };
+  const closure = { reports: [] as Report[], notes: [] as string[] };
   if (config.stylesheet?.components === AUTO) {
     if (!map) {
       return stop(1, [`"components": "${AUTO}" reads the component map this package carries, and it is not `
@@ -59,8 +61,12 @@ export function themeSheets(options: PlanOptions, { packageName, sheets, map }: 
     const resolved = autoComponents(config, { paths: options.paths, config: options.config }, map, packageName);
     if (resolved.fatal) return stop(1, resolved.fatal);
     config = { ...config, stylesheet: { ...config.stylesheet, components: resolved.components } };
-    auto.reports.push(...resolved.reports.map((line) => report('components', line)));
-    auto.notes.push(resolved.note);
+    closure.reports.push(...resolved.reports.map((line) => report('components', line)));
+    closure.notes.push(resolved.note);
+  } else if (Array.isArray(config.stylesheet?.components) && map) {
+    const named = namedComponents(config.stylesheet.components, map);
+    config = { ...config, stylesheet: { ...config.stylesheet, components: named.components } };
+    if (named.note) closure.notes.push(named.note);
   }
 
   const from = dirname(resolve(options.config));
@@ -70,7 +76,7 @@ export function themeSheets(options: PlanOptions, { packageName, sheets, map }: 
   const problems = configProblems(config, sheets, plugins);
   if (problems.length) return stop(1, problems);
 
-  const reports = [...auto.reports,
+  const reports = [...closure.reports,
     ...reportLines(paletteReports(config, sheets?.catalogue ?? null, plugins, sheets?.levels ?? [], sheets?.washes ?? [])),
     ...weightReports(config, sheets?.catalogue ?? null, plugins)];
   const css = themeCss(config, {
@@ -86,7 +92,7 @@ export function themeSheets(options: PlanOptions, { packageName, sheets, map }: 
       summary: `${layered.length} bytes, wrapped in @layer ${PLUGIN_LAYER}`,
     });
   }
-  return { code: 0, fatal: [], reports, notes: auto.notes, sheets: out };
+  return { code: 0, fatal: [], reports, notes: closure.notes, sheets: out };
 }
 
 export function iconsSheet(options: PlanOptions, { arena, phosphor }: { arena: string | null; phosphor: string | null }):

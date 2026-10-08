@@ -12,7 +12,7 @@ import { markerProblems } from './markers.ts';
 import { restatedFindings, sheetFor } from './restated.ts';
 import { report } from './reports.ts';
 import type { Report } from './reports.ts';
-import { AUTO, resolve as resolveComponents } from './components.ts';
+import { AUTO, pulledBy, resolve as resolveComponents } from './components.ts';
 import type { ComponentMap } from './components.ts';
 import type { ArenaConfig, TokenCatalogue } from './theme-css.ts';
 import { pluginTokenMaps } from './sheets.ts';
@@ -23,6 +23,16 @@ type StepOptions = { paths: string[]; config: string };
 export function reportLines(reports: { palette: string; messages: Report[] }[]) {
   return reports.flatMap(({ palette, messages }) =>
     messages.map((one) => report(one.kind, `${palette}: ${one.message}`)));
+}
+
+export const drawsForYou = (pulled: string[]) => `${pulled.length} Arena draws for you: ${pulled.join(', ')}`;
+
+export function namedComponents(named: unknown[], map: ComponentMap) {
+  const pulled = pulledBy(map.needs, named);
+  return {
+    components: [...named, ...pulled],
+    note: pulled.length ? `${named.length} component sheet(s) named, and ${drawsForYou(pulled)}` : null,
+  };
 }
 
 export function autoComponents(config: ArenaConfig, options: StepOptions,
@@ -46,7 +56,7 @@ export function autoComponents(config: ArenaConfig, options: StepOptions,
     components: found.components,
     reports: found.unplaced.map((one) => `${one} is not a component this package ships, so no sheet was added for it`),
     note: `${found.drawn.length} component sheet(s) drawn`
-      + (found.pulled.length ? `, and ${found.pulled.length} Arena draws for you: ${found.pulled.join(', ')}` : ''),
+      + (found.pulled.length ? `, and ${drawsForYou(found.pulled)}` : ''),
   };
 }
 

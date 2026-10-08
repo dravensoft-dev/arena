@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
-import { undrawnStep, auditStep, reportLines, paintedBy } from './steps.ts';
+import { undrawnStep, auditStep, reportLines, paintedBy, namedComponents, drawsForYou } from './steps.ts';
 import { report } from './reports.ts';
 import { auto, MAP, options, project, readable } from './cli-fixtures.ts';
 
@@ -83,4 +83,14 @@ test('an audit report carries the rule that produced it, and its message ends in
   assert.equal(raw[0]?.kind, 'audit');
   assert.ok(raw[0]?.message.endsWith('(raw-value)'), raw[0]?.message);
   rmSync(root, { recursive: true, force: true });
+});
+
+test('a named list keeps its names as written and appends what they pull, sorted', () => {
+  assert.deepEqual(namedComponents(['table'], MAP),
+    { components: ['table', 'pagination', 'select'], note: '1 component sheet(s) named, and 2 Arena draws for you: pagination, select' });
+  assert.deepEqual(namedComponents(['table', 'table', 7], MAP).components, ['table', 'table', 7, 'pagination', 'select'],
+    'a repeat and a non-string stay for stylesheetProblems to refuse');
+  assert.deepEqual(namedComponents(['select', 'table', 'pagination'], MAP),
+    { components: ['select', 'table', 'pagination'], note: null });
+  assert.equal(drawsForYou(['pagination', 'select']), '2 Arena draws for you: pagination, select');
 });

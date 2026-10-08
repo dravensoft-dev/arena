@@ -235,3 +235,60 @@ test('running outside an Arena package reports the environment and nothing else'
   assert.deepEqual(result.reports.filter((one) => one.kind === 'environment' || one.kind === 'glyph').map((one) => one.kind), ['environment']);
   cleanup(root, held);
 });
+
+const named = (components: unknown[]) => ({ ...readable, stylesheet: { components } });
+const imported = (css: string) => [...css.matchAll(/css\/components\/([a-z-]+)\.css/g)].map((m) => m[1]);
+
+test('a named list is closed against the map, keeps its order, and notes what Arena added', () => {
+  const { root: held, web } = phosphor();
+  const root = project(named(['table']));
+  const result = plan(options(root), environment(web, { sheets: SHEETS, map: MAP }));
+  assert.equal(result.code, 0);
+  assert.deepEqual(result.notes, ['1 component sheet(s) named, and 2 Arena draws for you: pagination, select']);
+  assert.deepEqual(imported(result.outputs[0]!.content), ['table', 'pagination', 'select']);
+  cleanup(root, held);
+});
+
+test('with no map beside the command a named list is used as written, with no note', () => {
+  const { root: held, web } = phosphor();
+  const root = project(named(['table']));
+  const result = plan(options(root), environment(web, { sheets: SHEETS, map: null }));
+  assert.equal(result.code, 0);
+  assert.deepEqual(result.notes, []);
+  assert.deepEqual(imported(result.outputs[0]!.content), ['table']);
+  cleanup(root, held);
+});
+
+test('a named list that already holds what it needs writes the bytes it writes with no map, and notes nothing', () => {
+  const { root: held, web } = phosphor();
+  const root = project(named(['select', 'table', 'pagination']));
+  const closed = plan(options(root), environment(web, { sheets: SHEETS, map: MAP }));
+  const asWritten = plan(options(root), environment(web, { sheets: SHEETS, map: null }));
+  assert.equal(closed.code, 0);
+  assert.deepEqual(closed.notes, []);
+  assert.equal(closed.outputs[0]!.content, asWritten.outputs[0]!.content);
+  cleanup(root, held);
+});
+
+test('a name the package does not ship still stops a closed list, naming the shipped sheets', () => {
+  const { root: held, web } = phosphor();
+  for (const name of ['tabel', 'constructor', '__proto__', 7, null]) {
+    const root = project(named(['table', name]));
+    const result = plan(options(root), environment(web, { sheets: SHEETS, map: MAP }));
+    assert.equal(result.code, 1, String(name));
+    assert.deepEqual(result.fatal, [`stylesheet.components: ${JSON.stringify(name)} is not a sheet this package ships, `
+      + 'which are button, pagination, select, table']);
+    assert.deepEqual(result.outputs, []);
+    cleanup(root);
+  }
+  cleanup(held);
+});
+
+test('a name written twice is still refused once the list is closed', () => {
+  const { root: held, web } = phosphor();
+  const root = project(named(['table', 'table']));
+  const result = plan(options(root), environment(web, { sheets: SHEETS, map: MAP }));
+  assert.equal(result.code, 1);
+  assert.deepEqual(result.fatal, ['stylesheet.components: table is named twice']);
+  cleanup(root, held);
+});
