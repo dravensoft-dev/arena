@@ -6,7 +6,7 @@
 import { readFileSync, existsSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { toPosix } from './posix.ts';
-import { auditText, paintedParts, sourceScope } from './audit.ts';
+import { auditFindings, paintedParts, sourceScope } from './audit.ts';
 import type { VocabularyIndex } from './audit.ts';
 import { markerProblems } from './markers.ts';
 import { restatedFindings, sheetFor } from './restated.ts';
@@ -78,7 +78,8 @@ export function auditStep(
     const cited = toPosix(file);
     const text = readFileSync(file, 'utf8');
     const scope = sourceScope(resolve(file), dirs);
-    reports.push(...auditText(cited, text, scope, declaredMark, vocabulary).map((line) => report('audit', line)));
+    reports.push(...auditFindings(cited, text, scope, declaredMark, vocabulary)
+      .map((one) => report('audit', one.text, one.rule)));
     if (scope !== 'plugin') continue;
     for (const part of paintedParts(text)) painted.add(part);
     if (!file.endsWith('.css')) continue;

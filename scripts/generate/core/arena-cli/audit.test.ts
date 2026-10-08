@@ -4,7 +4,7 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { repoRoot } from '../../../lib/arena/repo-root.ts';
 import {
-  auditText, findings, lineFindings, isLegalBracket, scanText, scanFile, markerAllowlist,
+  auditText, auditFindings, findings, lineFindings, isLegalBracket, scanText, scanFile, markerAllowlist,
   paintedParts, sourceScope, outlineGap, kebabTag, HEADING_RUNGS, OWN_CLASS_ATTRIBUTE,
   LINKABLE_TAGS, statedRung, fillsWithDanger, RULE_TAGS,
   UNMODELLED_UNITS, styleIdentifiers, styleObjectLines,
@@ -769,4 +769,23 @@ test('text that only looks like a comment does not carry a modal past its close 
     + '<ArenaButton>New</ArenaButton>\n</>'), []);
   assert.deepEqual(defaultPrimaries("<>\n<ArenaDialog open><ArenaButton>Confirm</ArenaButton><p>{'src/**/*.tsx'}</p></ArenaDialog>\n"
     + '<ArenaButton>New</ArenaButton>\n</>\n/* a note */'), []);
+});
+
+test('every audit line carries its rule, and the line ends in it unless it is the stale allowance', () => {
+  const source = '<div style={{ color: "#b52a20" }} /> 🎉\nconst x = 1; // arena-audit allow\n';
+  const found = auditFindings('src/App.tsx', source);
+  assert.ok(found.length >= 3, 'the fixture breaks raw-value and emoji and carries a stale allowance');
+  for (const one of found) {
+    assert.ok((RULE_TAGS as readonly string[]).includes(one.rule), one.rule);
+    if (one.rule === 'stale-allowance') assert.ok(!one.text.endsWith(')'), one.text);
+    else assert.ok(one.text.endsWith(` (${one.rule})`), one.text);
+  }
+  assert.ok(found.some((one) => one.rule === 'stale-allowance'));
+  assert.deepEqual(auditText('src/App.tsx', source), found.map((one) => one.text));
+});
+
+test('the stale allowance line reads as it always has', () => {
+  assert.deepEqual(auditFindings('a.tsx', 'const x = 1; // arena-audit allow\n'), [{
+    rule: 'stale-allowance', text: 'a.tsx:1: stale arena-audit allowance, and nothing on the line to exempt',
+  }]);
 });

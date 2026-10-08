@@ -12,7 +12,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 export const RULE_TAGS = ['compat-alias', 'danger-fill', 'emoji', 'icon-element',
-  'one-primary', 'outline-gap', 'own-class', 'raw-value', 'router-link'] as const;
+  'one-primary', 'outline-gap', 'own-class', 'raw-value', 'router-link', 'stale-allowance'] as const;
 
 export const UNMODELLED_UNITS = ['%', 'ch', 'fr', 'vh', 'vw', 'vmin', 'vmax', 'deg'];
 
@@ -806,8 +806,8 @@ export function findings(relPath: string, text: string, scope: Scope = 'app',
     .sort((a, b) => a.line - b.line);
 }
 
-export function auditText(relPath: string, text: string, scope: Scope = 'app',
-  gradientMark = false, vocabulary: VocabularyIndex | null = null): string[] {
+export function auditFindings(relPath: string, text: string, scope: Scope = 'app',
+  gradientMark = false, vocabulary: VocabularyIndex | null = null) {
   const lines = text.split('\n');
   const byLine = new Map<number, Finding[]>();
   for (const one of findings(relPath, text, scope, gradientMark, vocabulary)) {
@@ -815,18 +815,24 @@ export function auditText(relPath: string, text: string, scope: Scope = 'app',
     (byLine.get(one.line) ?? []).push(one);
   }
 
-  const problems: string[] = [];
+  const problems: { rule: string; text: string }[] = [];
   lines.forEach((line, index) => {
     const number = index + 1;
     const found = byLine.get(number) ?? [];
     if (ALLOW_MARKER.test(line)) {
-      if (found.length === 0)
-        problems.push(`${relPath}:${number}: stale arena-audit allowance, and nothing on the line `
-          + 'to exempt');
+      if (found.length === 0) {
+        const stale = at(number, 'stale-allowance', 'stale arena-audit allowance, and nothing on the line to exempt');
+        problems.push({ rule: stale.rule, text: `${relPath}:${number}: ${stale.message}` });
+      }
       return;
     }
-    for (const one of found) problems.push(`${relPath}:${number}: ${one.message} (${one.rule})`);
+    for (const one of found) problems.push({ rule: one.rule, text: `${relPath}:${number}: ${one.message} (${one.rule})` });
   });
 
   return problems;
+}
+
+export function auditText(relPath: string, text: string, scope: Scope = 'app',
+  gradientMark = false, vocabulary: VocabularyIndex | null = null): string[] {
+  return auditFindings(relPath, text, scope, gradientMark, vocabulary).map((one) => one.text);
 }

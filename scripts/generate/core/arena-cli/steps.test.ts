@@ -73,3 +73,14 @@ test('the note on what a style plugin paints is its own sentence, so the audit s
   assert.match(paintedBy([]), /^your style plugin\(s\) paint no part\(s\)\. /);
   assert.match(paintedBy(['table.th', 'card']), /^your style plugin\(s\) paint 2 part\(s\): table\.th, card\. /);
 });
+
+test('an audit report carries the rule that produced it, and its message ends in it', () => {
+  const root = project(readable);
+  mkdirSync(join(root, 'src'), { recursive: true });
+  writeFileSync(join(root, 'src', 'a.tsx'), '<div style={{ color: "#b52a20" }} />\n');
+  const raw = auditStep(options(root)).reports.filter((one) => one.rule === 'raw-value');
+  assert.ok(raw.length >= 1);
+  assert.equal(raw[0]?.kind, 'audit');
+  assert.ok(raw[0]?.message.endsWith('(raw-value)'), raw[0]?.message);
+  rmSync(root, { recursive: true, force: true });
+});
