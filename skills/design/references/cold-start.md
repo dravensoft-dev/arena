@@ -73,12 +73,13 @@ reads as two products sharing a screen.
 
 **Two arrivals reach this node**, one that would rather pick than answer and one that will not
 answer at all, and it is a real answer to both. Ask for one thing only: a short description of
-the app. Then match that description against the catalogue in `plugin-style-store/catalogue/`,
-where each directory is a register measured on a real product and carrying its own `ENTRY.md`.
+the app. Then match that description against the catalogue's index,
+[`plugin-style-store/catalogue/INDEX.md`](../../../plugin-style-store/catalogue/INDEX.md), one row
+per register measured on a real product, each with its own `ENTRY.md` and the files you copy.
 
-**Match on one line rather than on the entries themselves.** Every `ENTRY.md` carries a line
+**Match on one line rather than on the entries themselves.** The index carries each entry's line
 beginning `Take this entry when`, which says what that register is for in the terms a description
-arrives in. Read those lines, pick the one the description fits, and only then open that entry. Read
+arrives in. Read that column, pick the row the description fits, and only then open that entry. Read
 it, do not remember it.
 
 **Name the entry you picked and what it decides, and wait.** Say which register it is, what it
@@ -99,8 +100,8 @@ beside its `ENTRY.md`.
 ## 5. Write the identity document, and stop
 
 Whatever route reached this node, the output is the same. The output is a page stating the palette in both polarities, the three faces, the character, the
-air, the media shape and the page shape, with the reason beside each. `arena-from-scratch/identity.html` in the Arena repository is the template, and
-`arena-from-scratch/identity.example.html` beside it is one worked answer to read first.
+air, the media shape and the page shape, with the reason beside each. [`arena-from-scratch/identity.html`](../../../arena-from-scratch/identity.html) in the Arena repository is the template, and
+[`identity.example.html`](../../../arena-from-scratch/identity.example.html) beside it is one worked answer to read first; no package carries either.
 
 The output is a page rather than a list, because a palette described in prose is a palette nobody
 can approve. Serve it over HTTP, show it to the user, and change what they change.

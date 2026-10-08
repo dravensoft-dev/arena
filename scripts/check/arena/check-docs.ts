@@ -117,6 +117,7 @@ export function isConsumerDocument(repoRelativePath: string) {
   if (repoRelativePath.startsWith(SKILL_TREE)) return true;
   if (repoRelativePath.endsWith(CONSUMER_LAST_STOP)) return true;
   if (repoRelativePath === CONSUMER_VOCABULARY) return true;
+  if (repoRelativePath === `${CONSUMER_CATALOGUE}${CONSUMER_INDEX}`) return true;
   if (basename(repoRelativePath) === CONSUMER_CATALOGUE_CARD
     && repoRelativePath.startsWith(CONSUMER_CATALOGUE)) return true;
   if (basename(repoRelativePath) === CONSUMER_PACKAGE_PAGE && repoRelativePath.startsWith(CONSUMER_TREE)) return true;
