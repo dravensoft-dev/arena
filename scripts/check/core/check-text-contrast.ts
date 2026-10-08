@@ -2,7 +2,7 @@
  * collects a node's declaration by importing the script that carries it. A gate doing its work
  * where an import reaches it cannot be collected, and this one exits the process outright. */
 
-import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { relPosix } from '../../utils/posix-path.ts';
 import { contrast } from '../../lib/core/validate-palette.mjs';
@@ -15,8 +15,10 @@ import { HUE_SHEETS } from '../../lib/tailwind/hue-sheet.ts';
 import { PALETTE_KEYS } from '../../generate/core/arena-cli/palette-keys.ts';
 import {
   derivedLevels, drawnBy, inlineHues, levelDefaults, levelReports, levelsIn, paletteKey, raisedReports,
-  washesIn, washReports,
+  STATUS_HUES, washesIn, washReports,
 } from '../../generate/core/arena-cli/levels.ts';
+import { ARENA_EXT } from '../../generate/core/arena-cli/style-plugin-rules.ts';
+import { CATALOGUE, entries } from './check-catalogue.ts';
 import {
   composite, darkenOklab, errorFill, FILL_FALLBACK_KEEP,
 } from '../../generate/core/arena-cli/oklab.ts';
@@ -35,14 +37,12 @@ export const VOCABULARY_SHEETS = 'frameworks/tailwind/consume/vocabulary/*.gener
 
 export const COMPONENT_SHEETS = ['frameworks/tailwind/consume/components/**/*.styles.generated.css', VOCABULARY_SHEETS];
 
-export const CATALOGUE_DIR = 'plugin-style-store/catalogue';
-
 export const ROLES = 'contracts/design/roles.json';
 
 export const node = {
   name: 'check:text-contrast',
   reads: [PALETTE, COLORS, ...ROLE_SHEETS, ...COMPONENT_SHEETS, `${HUE_SHEETS}/**/*.hues.generated.css`, ROLES,
-    `${CATALOGUE_DIR}/*/plugin.tokens.json`, `${CATALOGUE_DIR}/*/arena.config.json`],
+    `${CATALOGUE}/*/plugin.tokens.json`, `${CATALOGUE}/*/arena.config.json`],
   writes: [],
   feeds: [],
 };
@@ -120,8 +120,6 @@ const ON_SURFACE = [
   { token: 'secondary', gate: null, note: 'REPORTED, NOT GATED — gold as text/focus ring; brand value, see header' },
 ];
 
-export const ON_INK_HUES = ['danger', 'success', 'warning', 'info'] as const;
-
 export const ON_INK_GATE = 4.5;
 
 export function onInkPairs(roles: Map<string, string>, body: string) {
@@ -129,7 +127,7 @@ export function onInkPairs(roles: Map<string, string>, body: string) {
     const key = paletteKey(roles.get(role));
     return key ? tryHex(body, `color-${key}`) : null;
   };
-  return ON_INK_HUES.map((hue) => {
+  return STATUS_HUES.map((hue) => {
     const ink = hex(`hue-${hue}-ink`);
     const onInk = hex(`hue-${hue}-on-ink`);
     return { hue, ink, onInk, ratio: ink && onInk ? contrast(onInk, ink) : null };
@@ -151,19 +149,24 @@ export function answeredColour(role: string, answers: Answers, light: Answers, d
   return answeredColour(target, answers, light, defaults, colors, polarity, [...seen, role]);
 }
 
-export function catalogueOnInk(at = root) {
+export function roleDefaults(at = root) {
   const roles = JSON.parse(readFileSync(join(at, ROLES), 'utf8')) as Record<string, { $extensions?: Record<string, { default?: string }> }>;
-  const defaults = Object.fromEntries(Object.entries(roles)
-    .map(([name, role]) => [name, role.$extensions?.['com.dravensoft.arena']?.default])
+  return Object.fromEntries(Object.entries(roles)
+    .map(([name, role]) => [name, role.$extensions?.[ARENA_EXT]?.default])
     .filter((pair): pair is [string, string] => typeof pair[1] === 'string'));
-  const dir = join(at, CATALOGUE_DIR);
-  const entries = readdirSync(dir, { withFileTypes: true })
-    .filter((one) => one.isDirectory() && existsSync(join(dir, one.name, 'plugin.tokens.json')))
-    .map((one) => one.name).sort();
-  return entries.flatMap((entry) => {
+}
+
+export function catalogueEntries(at = root) {
+  return entries(at).filter((name) => existsSync(join(at, CATALOGUE, name, 'plugin.tokens.json')));
+}
+
+export function catalogueOnInk(at = root) {
+  const defaults = roleDefaults(at);
+  const dir = join(at, CATALOGUE);
+  return catalogueEntries(at).flatMap((entry) => {
     const answers = JSON.parse(readFileSync(join(dir, entry, 'plugin.tokens.json'), 'utf8')) as Answers & { light?: Answers };
     const config = JSON.parse(readFileSync(join(dir, entry, 'arena.config.json'), 'utf8')) as { palettes?: EntryPalette[] };
-    return (config.palettes ?? []).flatMap((palette) => ON_INK_HUES.map((hue) => {
+    return (config.palettes ?? []).flatMap((palette) => STATUS_HUES.map((hue) => {
       const colour = (role: string) => answeredColour(role, answers, (answers.light ?? {}) as Answers, defaults,
         palette.colors ?? {}, palette.polarity ?? 'dark');
       const ink = colour(`hue-${hue}-ink`);
@@ -342,7 +345,7 @@ function main() {
   console.log('\nthe catalogue: each status hue\'s on-ink over its ink in every palette of every entry');
   if (entries.length === 0) {
     ok = false;
-    console.log(`  [FAIL] measured 0 entries under ${CATALOGUE_DIR}; an empty sweep is a failure rather than a clean pass`);
+    console.log(`  [FAIL] measured 0 entries under ${CATALOGUE}; an empty sweep is a failure rather than a clean pass`);
   }
   for (const { entry, palette, hue, ink, onInk, ratio } of entries) {
     const failed = ratio === null || ratio < ON_INK_GATE;

@@ -12,11 +12,17 @@ import { paletteBlock, readHex, THEMES } from '../../lib/core/palette-read.ts';
 import { isMainModule } from '../../utils/main-module.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { readJson } from '../../utils/read-file.ts';
+import { answeredColour, catalogueEntries, paletteColours, roleDefaults } from './check-text-contrast.ts';
+import { CATALOGUE } from './check-catalogue.ts';
 
 export const node = {
   name: 'check:boundary-contrast',
   reads: [
     'plugin-style-store/default/plugin.tokens.json',
+    'plugin-style-store/complete/plugin.tokens.json',
+    'plugin-style-store/catalogue/*/plugin.tokens.json',
+    'plugin-style-store/catalogue/*/arena.config.json',
+    'contracts/design/roles.json',
     'contracts/design-generated/palette.generated.css',
   ],
   writes: [],
@@ -73,6 +79,57 @@ export function boundaryProblems(
   return problems;
 }
 
+export type AxisHexes = { axis: string; separator: string; page: string };
+
+export function axisProblems(where: string, theme: string, hexes: AxisHexes) {
+  const axis = contrast(hexes.axis, hexes.page);
+  const separator = contrast(hexes.separator, hexes.page);
+  if (axis > separator) return [];
+  return [`${where} answers --edge-axis lighter than --edge-separator in the ${theme} theme `
+    + `(${axis.toFixed(2)}:1 against ${separator.toFixed(2)}:1 on base-100), so a chart's axis reads `
+    + 'fainter than its grid. Answer edge-axis with a heavier neutral.'];
+}
+
+type Answers = Record<string, { $value?: unknown } | undefined>;
+type Scope = { where: string; theme: string; colors: Record<string, string> };
+
+export function axisScopes(): Scope[] {
+  const palette = readFileSync(join(repoRoot, PALETTE), 'utf8');
+  const generated = THEMES.map((theme) => ({
+    theme: theme.name, colors: paletteColours(paletteBlock(palette, theme.selector, PALETTE)),
+  }));
+  const dir = join(repoRoot, CATALOGUE);
+  return [
+    ...['default', 'complete'].flatMap((name) => generated.map((one) => ({
+      where: `plugin-style-store/${name}/${ANSWERS}`, ...one,
+    }))),
+    ...catalogueEntries().flatMap((entry) => {
+      const config = readJson(join(dir, entry, 'arena.config.json')) as
+        { palettes?: { name?: string; polarity?: string; colors?: Record<string, string> }[] };
+      return (config.palettes ?? []).map((one) => ({
+        where: `${CATALOGUE}/${entry}/${ANSWERS}`,
+        theme: one.polarity ?? 'dark', colors: one.colors ?? {},
+      }));
+    }),
+  ];
+}
+
+export function collectAxis(scopes = axisScopes()) {
+  const defaults = roleDefaults(repoRoot);
+  return scopes.flatMap(({ where, theme, colors }) => {
+    const answers = readJson(join(repoRoot, where)) as Answers & { light?: Answers };
+    const colour = (role: string) => answeredColour(
+      role, answers, (answers.light ?? {}) as Answers, defaults, colors, theme,
+    );
+    const hexes = { axis: colour('edge-axis'), separator: colour('edge-separator'), page: colors['base-100'] };
+    if (!hexes.axis || !hexes.separator || !hexes.page) {
+      return [`${where}: edge-axis or edge-separator does not resolve to a palette colour `
+        + `in the ${theme} theme`];
+    }
+    return axisProblems(where, theme, hexes as AxisHexes);
+  });
+}
+
 export function zeroBoundaryProblems(count: number) {
   if (count > 0) return [];
   return ['measured 0 boundary(ies) -- an empty result set is a failure, not a clean pass; check the '
@@ -96,14 +153,14 @@ export function collect(dir = ANSWER_DIR, file = ANSWERS) {
 
 function main() {
   const zero = zeroBoundaryProblems(BOUNDARIES.length);
-  const problems = [...zero, ...(zero.length ? [] : collect())];
+  const problems = [...zero, ...(zero.length ? [] : [...collect(), ...collectAxis()])];
   if (problems.length) {
     console.error(`check-boundary-contrast: ${problems.length} problem(s)\n`);
     for (const p of problems) console.error(`  ${p}`);
     process.exit(1);
   }
   console.log(`check-boundary-contrast: ${BOUNDARIES.length} control boundary(ies) in `
-    + `${PLUGIN_DIR}/${ANSWERS}, measured in both themes`);
+    + `${PLUGIN_DIR}/${ANSWERS}, measured in both themes, and every plugin Arena ships draws a chart's axis heavier than its grid`);
 }
 
 if (isMainModule(import.meta.url)) main();

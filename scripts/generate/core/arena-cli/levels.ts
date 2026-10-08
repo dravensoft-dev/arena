@@ -379,3 +379,34 @@ export function raisedReports(
   }
   return out;
 }
+
+export const STATUS_HUES = ['danger', 'success', 'warning', 'info'];
+
+export function axisReports(roles: Map<string, string>, colors: Record<string, string>, theme: string) {
+  const colour = (role: string) => colors[paletteKey(roles.get(role)) ?? ''];
+  const axis = colour('edge-axis');
+  const separator = colour('edge-separator');
+  const page = colors[PAGE_KEY];
+  if (!axis || !separator || !page) return [];
+  const heavy = contrast(axis, page);
+  const light = contrast(separator, page);
+  if (heavy > light) return [];
+  return [report('contrast', `--edge-axis is lighter than --edge-separator in the ${theme} theme `
+    + `(${heavy.toFixed(2)}:1 against ${light.toFixed(2)}:1 on base-100), so a chart's axis reads `
+    + 'fainter than its grid')];
+}
+
+export function onInkReports(roles: Map<string, string>, colors: Record<string, string>, theme: string) {
+  const out: Report[] = [];
+  for (const hue of STATUS_HUES) {
+    const ink = colors[paletteKey(roles.get(`hue-${hue}-ink`)) ?? ''];
+    const onInk = colors[paletteKey(roles.get(`hue-${hue}-on-ink`)) ?? ''];
+    if (!ink || !onInk) continue;
+    const ratio = contrast(onInk, ink);
+    if (ratio >= TEXT_MIN) continue;
+    out.push(report('contrast', `--hue-${hue}-on-ink measures ${ratio.toFixed(2)}:1 over `
+      + `--hue-${hue}-ink in the ${theme} theme, below ${TEXT_MIN}:1, so a solid badge's label is `
+      + 'hard to read'));
+  }
+  return out;
+}

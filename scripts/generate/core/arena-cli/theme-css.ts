@@ -19,7 +19,7 @@ import {
 } from './style-plugin-rules.ts';
 import { serialize } from './serialize-token.ts';
 import { errorFill } from './oklab.ts';
-import { derivedLevels, levelReports, raisedReports, washReports } from './levels.ts';
+import { axisReports, derivedLevels, levelReports, onInkReports, raisedReports, washReports } from './levels.ts';
 import type { Level, Wash } from './levels.ts';
 import { report } from './reports.ts';
 import type { Report } from './reports.ts';
@@ -511,6 +511,8 @@ export function paletteReports(
           `text, ${what}: ${ratio.toFixed(2)}:1, under the ${TEXT_MIN}:1 Arena holds itself to`));
       }
     }
+
+    messages.push(...axisReports(roles, colors, mode), ...onInkReports(roles, colors, mode));
 
     const derived = derivedLevels(levels, roles, colors);
     messages.push(...levelReports(levels, roles, colors, derived));

@@ -3,15 +3,16 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
-  CATALOGUE_DIR, COLORS, COMPONENT_SHEETS, ON_INK_GATE, ON_INK_HUES, PAIRS, PALETTE, REMOVED, ROLE_SHEETS, SCOPED_PLUGINS, VOCABULARY_SHEETS,
+  COLORS, COMPONENT_SHEETS, ON_INK_GATE, PAIRS, PALETTE, REMOVED, ROLE_SHEETS, SCOPED_PLUGINS, VOCABULARY_SHEETS,
   answeredColour, catalogueOnInk, componentSheets, onInkPairs, paletteColours, resolvePercent, scopesToMeasure, structureOf, surfacesUnder, THEMES,
 } from './check-text-contrast.ts';
 import { paletteBlock } from '../../lib/core/palette-read.ts';
 import { resolvedFor } from './check-style-plugin.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import {
-  derivedLevels, levelDefaults, levelReports, levelsIn, raisedReports,
+  derivedLevels, levelDefaults, levelReports, levelsIn, raisedReports, STATUS_HUES,
 } from '../../generate/core/arena-cli/levels.ts';
+import { CATALOGUE } from './check-catalogue.ts';
 import { FILL_PAIRS } from '../../generate/core/arena-cli/palette-keys.ts';
 
 test('this gate and the shipped command hold the same fills legible', () => {
@@ -129,13 +130,13 @@ test('a level the accent family draws is measured, and lowering one below its fl
 test('the on-ink of each status hue is measured over its ink in both themes, in the root plugin and every scoped one', () => {
   const palette = readFileSync(join(repoRoot, PALETTE), 'utf8');
   const effects = ROLE_SHEETS.map((sheet) => readFileSync(join(repoRoot, sheet), 'utf8')).join('\n');
-  assert.deepEqual([...ON_INK_HUES], ['danger', 'success', 'warning', 'info']);
+  assert.deepEqual([...STATUS_HUES], ['danger', 'success', 'warning', 'info']);
   for (const theme of THEMES) {
     const body = paletteBlock(palette, theme.selector, 'palette.generated.css');
     for (const scope of ['', ...SCOPED_PLUGINS]) {
       const roles = resolvedFor(effects, scope, theme.name);
       const pairs = onInkPairs(roles, body);
-      assert.deepEqual(pairs.map((one) => one.hue), [...ON_INK_HUES]);
+      assert.deepEqual(pairs.map((one) => one.hue), [...STATUS_HUES]);
       for (const one of pairs)
         assert.ok(one.ratio !== null && one.ratio >= ON_INK_GATE, `${theme.name} ${scope || 'root'}: ${one.hue} on-ink over ink is ${one.ratio}`);
       const same = new Map(roles).set('hue-danger-on-ink', roles.get('hue-danger-ink') ?? '');
@@ -146,7 +147,7 @@ test('the on-ink of each status hue is measured over its ink in both themes, in 
 
 test('every catalogue entry sets each status hue\'s on-ink legibly over its ink in every palette it declares', () => {
   const pairs = catalogueOnInk();
-  assert.ok(new Set(pairs.map((one) => one.entry)).size > 0, `no entry measured under ${CATALOGUE_DIR}`);
+  assert.ok(new Set(pairs.map((one) => one.entry)).size > 0, `no entry measured under ${CATALOGUE}`);
   const failing = pairs.filter((one) => one.ratio === null || one.ratio < ON_INK_GATE);
   assert.deepEqual(failing, []);
 });

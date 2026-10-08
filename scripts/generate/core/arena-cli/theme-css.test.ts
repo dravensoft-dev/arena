@@ -847,3 +847,52 @@ test('a project naming its own component subset still imports every vocabulary s
   assert.ok(lines.includes("@import '@dravensoft/arena-react/css/vocabulary/fill.css';"));
   assert.ok(lines.includes("@import '@dravensoft/arena-react/css/components/button.css';"));
 });
+
+const COLOUR_ROLES = {
+  tokens: Object.fromEntries(['neutral', 'secondary', 'base-content', 'base-100', 'base-300', 'error', 'info']
+    .map((key) => [`color-${key}`, `var(--color-${key})`])),
+};
+
+const answered = (answers: Record<string, string>) => readPlugin('console',
+  Object.fromEntries(Object.entries(answers).map(([role, value]) => [role, { $type: 'color', $value: value }])));
+
+const axisConfig = () => config({ palettes: [{ name: 'day', default: true, polarity: 'light', colors: colors({
+  'base-100': '#ffffff', 'base-300': '#e6e6e6', 'base-content': '#111111', neutral: '#f0f0f0',
+}) }] });
+
+const contrastMessages = (c: any, answers: Record<string, string>) =>
+  (paletteReports(c, COLOUR_ROLES as any, [answered(answers)])[0]?.messages ?? [])
+    .filter((m) => m.kind === 'contrast' && /^--(edge|hue)-/.test(m.message)).map((m) => m.message);
+
+test('an axis answered with a neutral lighter than the grid is reported under contrast', () => {
+  const [message] = contrastMessages(axisConfig(),
+    { 'edge-separator': '{color.base-300}', 'edge-axis': '{color.neutral}' });
+  const ratio = String.raw`\d\.\d\d:1`;
+  assert.match(message ?? '', new RegExp('^--edge-axis is lighter than --edge-separator in the light theme '
+    + `\\(${ratio} against ${ratio} on base-100\\), so a chart's axis reads fainter than its grid$`));
+});
+
+test('an axis answered with base-content, heavier than the grid, is not reported', () => {
+  assert.deepEqual(contrastMessages(axisConfig(),
+    { 'edge-separator': '{color.base-300}', 'edge-axis': '{color.base-content}' }), []);
+});
+
+test('a status hue whose on-ink measures under 4.5:1 over its ink is reported with its ratio', () => {
+  const c = config({ palettes: [{ name: 'night', default: true, polarity: 'dark', colors: colors({
+    'base-100': '#101010', error: '#aa3333', info: '#334455', 'base-content': '#f0f0f0',
+  }) }] });
+  const messages = contrastMessages(c, {
+    'hue-danger-ink': '{color.error}', 'hue-danger-on-ink': '{color.base-100}',
+    'hue-info-ink': '{color.info}', 'hue-info-on-ink': '{color.base-content}',
+  });
+  assert.equal(messages.length, 1);
+  assert.match(messages[0] ?? '', new RegExp('^--hue-danger-on-ink measures \\d\\.\\d\\d:1 over '
+    + '--hue-danger-ink in the dark theme, below 4\\.5:1, so a solid badge\'s label is hard to read$'));
+});
+
+test('a status hue whose on-ink clears 4.5:1 over its ink is not reported', () => {
+  const c = config({ palettes: [{ name: 'night', default: true, polarity: 'dark', colors: colors({
+    'base-100': '#101010', error: '#ff8888',
+  }) }] });
+  assert.deepEqual(contrastMessages(c, { 'hue-danger-ink': '{color.error}', 'hue-danger-on-ink': '{color.base-100}' }), []);
+});
