@@ -3,6 +3,7 @@
  * assert which commands run where, and the real build is the acceptance run's to pay for. */
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { join } from 'node:path';
 import {
   prepareBaseline, baselineDir, resolveRef, resolveBinary, BUILT_MARKER, BASELINE_BUILD, type Run,
 } from './baseline-tree.ts';
@@ -41,7 +42,7 @@ test('an unbuilt baseline adds a detached worktree, installs from the lockfile a
   ]);
   assert.equal(calls[4]?.cwd, out.dir);
   assert.equal(calls[4]?.timeout, BASELINE_BUILD.ms);
-  assert.deepEqual(marked, [`${out.dir}/${BUILT_MARKER}`]);
+  assert.deepEqual(marked, [join(out.dir, BUILT_MARKER)]);
 });
 
 test('a built baseline is reused and nothing runs but the ref lookup', () => {
