@@ -42,6 +42,7 @@ export function isArenaActivatable(item: ArenaMenuItem): boolean {
     '[class]': 'styles().root()',
     '[attr.data-arena-anchored]': "styles().$data.root()['data-arena-anchored'] ?? null",
     '[attr.data-arena-part]': 'parts.root',
+    '[attr.align]': 'null',
   },
   template: `
     <ng-content select="[trigger]" />

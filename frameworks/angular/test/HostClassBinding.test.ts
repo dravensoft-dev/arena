@@ -23,6 +23,7 @@ import { arenaBreadcrumbsStyles } from '../components/navigation/arena-breadcrum
 import { ArenaBulkActionBar } from '../components/navigation/arena-bulk-action-bar/ArenaBulkActionBar';
 import type { ArenaBulkAction } from '../Api.generated';
 import { arenaBulkActionBarStyles } from '../components/navigation/arena-bulk-action-bar/ArenaBulkActionBar.variants';
+import { ArenaButton } from '../components/forms/arena-button/ArenaButton';
 import { ArenaChartCard } from '../components/charts/arena-chart-card/ArenaChartCard';
 import { arenaChartCardStyles } from '../components/charts/arena-chart-card/ArenaChartCard.variants';
 import { ArenaDoughnutChart } from '../components/charts/arena-doughnut-chart/ArenaDoughnutChart';
@@ -31,6 +32,7 @@ import { arenaEmptyStateStyles } from '../components/feedback/arena-empty-state/
 import { ArenaErrorState } from '../components/feedback/arena-error-state/ArenaErrorState';
 import { arenaErrorStateStyles } from '../components/feedback/arena-error-state/ArenaErrorState.variants';
 import { ArenaLineChart } from '../components/charts/arena-line-chart/ArenaLineChart';
+import { ArenaMenu } from '../components/navigation/arena-menu/ArenaMenu';
 import { ArenaPageHead } from '../components/navigation/arena-page-head/ArenaPageHead';
 import { arenaPageHeadStyles } from '../components/navigation/arena-page-head/ArenaPageHead.variants';
 import { ArenaSkeleton } from '../components/display/arena-skeleton/ArenaSkeleton';
@@ -58,6 +60,15 @@ class AppLogoStaticAttributeHost {}
   template: `<arena-avatar class="consumer-class" name="Juan Carlos" />`,
 })
 class AvatarHost {}
+
+@Component({
+  standalone: true,
+  imports: [ArenaMenu, ArenaButton],
+  template: `<arena-menu align="end" [items]="items"><arena-button trigger>Open</arena-button></arena-menu>`,
+})
+class MenuAlignHost {
+  readonly items = [{ id: 'rename', label: 'Rename' }];
+}
 
 @Component({
   standalone: true,
@@ -306,7 +317,7 @@ test('arena-app-logo: a static "name" attribute satisfies the required input and
   const host = fixture.nativeElement.querySelector('arena-app-logo') as HTMLElement;
   assert.equal(host.getAttribute('name'), null,
     'the static attribute survived on the host. Angular writes it during the creation pass whether or not it '
-    + "also matches an input, which is what '[attr.name]': 'null' in the host block exists to undo — a stray "
+    + "also matches an input, which is what '[attr.name]': 'null' in the host block exists to undo: a stray "
     + 'global attribute the consumer never meant to set, and for `title` a browser tooltip over the whole component.');
   assert.ok(host.classList.contains('consumer-class'), `sanity: the static class attribute survives the host [class] binding: "${host.className}"`);
   const nameClass = arenaAppLogoStyles().name().split(/\s+/)[0];
@@ -315,6 +326,16 @@ test('arena-app-logo: a static "name" attribute satisfies the required input and
     'Draven',
     'the attribute must reach the name input, not merely sit on the element',
   );
+  fixture.destroy();
+});
+
+test('arena-menu: a static "align" attribute satisfies the align input and is then cleared off the host', () => {
+  const fixture = TestBed.createComponent(MenuAlignHost);
+  fixture.detectChanges();
+  const host = fixture.nativeElement.querySelector('arena-menu') as HTMLElement;
+  assert.equal(host.getAttribute('align'), null,
+    "the static attribute survived on the host. '[attr.align]': 'null' in the host block exists to undo it, because "
+    + 'the browser maps the legacy align attribute to text-align on the host.');
   fixture.destroy();
 });
 
@@ -880,12 +901,13 @@ test('a chart host keeps no box and its frame slot fills the inline axis, so a c
   }
 });
 
-const GLOBAL_ATTRIBUTE_INPUTS = ['title', 'name', 'id'] as const;
+const GLOBAL_ATTRIBUTE_INPUTS = ['title', 'name', 'id', 'align'] as const;
 
 const HOST_COST: Record<(typeof GLOBAL_ATTRIBUTE_INPUTS)[number], string> = {
   title: ' and the browser draws a tooltip over it',
   name: '',
   id: ' AND on the real control inside -- two elements with one id, where a <label for> resolves to the host, which is not a labelable control',
+  align: ' and the browser maps the legacy attribute to text-align on the host',
 };
 
 function hostBlockOf(source: string): string {
@@ -925,6 +947,7 @@ test('a primitive whose input is named after a global HTML attribute clears that
 
   for (const { name, path, source } of sources) {
     const host = hostBlockOf(source);
+    const tag = name.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
     for (const attribute of GLOBAL_ATTRIBUTE_INPUTS) {
       const takesInput = new RegExp(`^  readonly ${attribute} = input`, 'm').test(source);
       const clears = host.includes(`'[attr.${attribute}]': 'null'`);
@@ -934,7 +957,7 @@ test('a primitive whose input is named after a global HTML attribute clears that
         problems.push(
           `${path}: ${name} takes a \`${attribute}\` input and does not clear the attribute. `
           + 'Angular writes a static attribute to the DOM during the creation pass whether or not it '
-          + `also matches an input, so <arena-${name.toLowerCase()} ${attribute}="…"> leaves a real `
+          + `also matches an input, so <${tag} ${attribute}="…"> leaves a real `
           + `${attribute} on the host` + HOST_COST[attribute]
           + `. Add '[attr.${attribute}]': 'null' to the host block.`,
         );
@@ -948,7 +971,7 @@ test('a primitive whose input is named after a global HTML attribute clears that
     }
   }
 
-  assert.ok(declared > 0, 'no primitive declares a title, name or id input -- the guard matched nothing, so it proves nothing');
+  assert.ok(declared > 0, `no primitive declares an input named one of ${GLOBAL_ATTRIBUTE_INPUTS.join(', ')} -- the guard matched nothing, so it proves nothing`);
   assert.deepEqual(problems, [], `\n  ${problems.join('\n  ')}`);
 });
 
