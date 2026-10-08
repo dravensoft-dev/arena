@@ -259,7 +259,8 @@ export const FILL_PROPERTY = /(?:^|[\s;{"'])(?:background|background-color|backg
 export const DANGER_FILL_MESSAGE = 'a filled danger surface. Danger is outline in Arena: leave the '
   + 'background transparent and read var(--danger) for the border and the content. The one filled '
   + 'danger surface in the system is the final confirmation inside ArenaConfirmDialog, and '
-  + 'var(--danger-soft) is the tint a surface of your own may carry';
+  + 'var(--danger-soft) is the tint a surface of your own may carry. A filled status mark is an '
+  + 'ArenaBadge with arena-mark-solid';
 
 const MIX_SHARE = String.raw`\d+(?:\.\d+)?%`;
 const DANGER_OPERAND = String.raw`var\(\s*(--[a-z-]+)\s*(?:,[^()]*)?\)`;

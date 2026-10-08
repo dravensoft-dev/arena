@@ -17,6 +17,7 @@ import { ARENA_EXT, RESERVED } from '../core/arena-cli/style-plugin-rules.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { readPlugin, resolvedPlugin, PLUGIN_TOKENS } from '../core/arena-cli/theme-css.ts';
 import { CSS_TARGETS } from './generate-tokens.ts';
+import { HUES_FILE } from '../../lib/tailwind/hue-sheet.ts';
 
 export const LOCALE_CONTRACT = 'contracts/api/types/arena-locale.json';
 export const ROLE_CONTRACT = 'contracts/design/roles.json';
@@ -153,12 +154,15 @@ The package is the code. The server, the plugin and the repository are the langu
       (_, at) => families.slice(at * SHEETS_PER_SENTENCE, (at + 1) * SHEETS_PER_SENTENCE).join(', '));
     const sheetList = chunks.join('. Further sheets in that directory are ');
     const listed = `${tokens.slice(0, -1).join(', ')} and ${tokens.at(-1)}`;
+    const hues = readJson(join(base, HUES_FILE)) as { hues: Record<string, Record<string, string>> };
+    const channels = [...new Set(Object.values(hues.hues).flatMap((one) => Object.keys(one)))].map((name) => `\`--arena-hue-${name}\``);
+    const channelList = `${channels.slice(0, -1).join(', ')} and ${channels.at(-1)}`;
     return `| stylesheet | what it is |
 | --- | --- |
 | \`css/base.css\` | the browser reset and nothing of Arena's. Arena needs one: without \`button, input, select, textarea { font: inherit }\` a control falls back to the browser's 13.33px Arial. Every control in the library is then 20% off, with nothing to tell you. Keep yours or keep this one, but keep one |
 | \`css/components.css\` | every component Arena draws |
 | \`css/components/<name>.css\` | one component, named for its sheet as \`arena-button.css\` or \`arena-stat-card.css\`. Each imports the prelude it needs itself, so importing one alone is safe |
-| \`css/hues/<name>.css\` | one component's hue sheet, imported by that component's sheet, writing \`--arena-hue-ink\`, \`--arena-hue-edge\`, \`--arena-hue-fill-strong\` and \`--arena-hue-fill-soft\` from the component's \`data-arena\` values, or unconditionally on a slot whose hue no value varies |
+| \`css/hues/<name>.css\` | a component's hue sheet, imported by its sheet, writing ${channelList} from the component's \`data-arena\` values, or unconditionally on a slot whose hue no value varies |
 | \`css/vocabulary/\` | One sheet per family on the vocabulary page: ${sheetList}. \`arena.css\` imports them. A project importing component sheets one by one imports these too, or a vocabulary class does nothing |
 | \`css/tailwind-theme.css\` | Arena's theme and utilities for markup of your own compiled with \`tailwindcss\` v4. Import it right after \`@import 'tailwindcss'\`: every utility then resolves to Arena's scale, \`case-eyebrow\`, \`case-label\`, \`fit-media\` and the animation utilities are available, and the compiler's own defaults are unreachable. A key of yours survives only below this import. The sheet's \`sm:\`, \`md:\` and \`lg:\` variants and their \`max-*\` complements sit at the \`--bp-*\` thresholds the viewport helper reads. A wide frame marked \`max-md:hidden\` and a phone frame marked \`md:hidden\` are therefore right at the first paint, a server's HTML included |
 

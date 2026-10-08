@@ -711,6 +711,10 @@
     "$type": "color",
     "$value": "{color.success}"
   },
+  "hue-success-on-ink": {
+    "$type": "color",
+    "$value": "{color.base-100}"
+  },
   "hue-success-edge": {
     "$type": "color",
     "$value": "{color.success}"
@@ -742,6 +746,10 @@
   "hue-info-ink": {
     "$type": "color",
     "$value": "{color.info}"
+  },
+  "hue-info-on-ink": {
+    "$type": "color",
+    "$value": "{color.base-100}"
   },
   "hue-info-edge": {
     "$type": "color",

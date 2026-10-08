@@ -9,10 +9,18 @@
         "arena-accent-gold"
       ],
       "default": "arena-accent-plain"
+    },
+    {
+      "family": "mark",
+      "options": [
+        "arena-mark-soft",
+        "arena-mark-solid"
+      ],
+      "default": "arena-mark-soft"
     }
   ],
   "slots": {
-    "root": "inline-flex items-center gap-marker px-2.5 py-marker-y rounded-marker font-face-label text-ctl-xs font-bold tracking-label-role case-label w-fit bg-[color:var(--arena-accent-fill-soft,var(--accent-plain-fill-soft))] text-ink-body/(--level-ink-body)",
+    "root": "inline-flex items-center gap-marker px-2.5 py-marker-y rounded-marker font-face-label text-ctl-xs font-bold tracking-label-role case-label w-fit bg-[color:var(--arena-mark-fill,var(--arena-accent-fill-soft,var(--accent-plain-fill-soft)))] text-[color:var(--arena-mark-ink,color-mix(in_oklab,var(--ink-body)_var(--level-ink-body),transparent))]",
     "dot": "size-1.5 rounded-pill bg-current"
   },
   "kind": {
@@ -23,16 +31,16 @@
     "tone": {
       "neutral": {},
       "success": {
-        "root": "bg-[color:var(--arena-hue-fill-soft)]"
+        "root": "bg-[color:var(--arena-mark-fill,var(--arena-hue-fill-soft))]"
       },
       "warning": {
-        "root": "bg-[color:var(--arena-hue-fill-soft)]"
+        "root": "bg-[color:var(--arena-mark-fill,var(--arena-hue-fill-soft))]"
       },
       "danger": {
-        "root": "bg-[color:var(--arena-hue-fill-soft)]"
+        "root": "bg-[color:var(--arena-mark-fill,var(--arena-hue-fill-soft))]"
       },
       "info": {
-        "root": "bg-[color:var(--arena-hue-fill-soft)]"
+        "root": "bg-[color:var(--arena-mark-fill,var(--arena-hue-fill-soft))]"
       }
     }
   },

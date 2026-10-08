@@ -24,6 +24,8 @@ The host **is** the chip: it binds the root slot, so an attribute you write on
 
 **Answers** [`accent`](../../../../VOCABULARY.md#accent): `arena-accent-gold`, `arena-accent-plain` (default), `arena-accent-primary`. Write one as `class="arena-accent-gold"` on the component, or on a container whose components should all take it.
 
+**Answers** [`mark`](../../../../VOCABULARY.md#mark): `arena-mark-soft` (default), `arena-mark-solid`. Write one as `class="arena-mark-solid"` on the component, or on a container whose components should all take it.
+
 <!-- @answers end -->
 
 <!-- @keys GENERATED from the binding. -->
@@ -35,6 +37,16 @@ The host **is** the chip: it binds the root slot, so an attribute you write on
   (a deploy, a service, a version). `dot` reinforces "live status".
 - **Emphasis**: `arena-accent-primary` (new/featured) and `arena-accent-gold` (priority/distinction) colour the badge as editorial
   emphasis, never a state. `neutral` carries no semantic weight.
+
+**Soft or filled.** A badge is a soft wash of its tone by default (`arena-mark-soft`). Write
+`arena-mark-solid` when a status mark must read as filled, such as a live indicator over a
+picture. The badge then fills with its tone's ink and sets its label in that tone's on-ink, and a
+neutral badge fills with the neutral colour. Danger fills through its ink too, so a solid danger
+badge is a status mark and not a danger surface.
+
+```html
+<arena-badge tone="danger" class="arena-mark-solid">Live</arena-badge>
+```
 
 **Do / Don't**
 - Keep the label to one or two words. A badge is a chip, not a sentence, if it

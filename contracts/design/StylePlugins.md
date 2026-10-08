@@ -216,21 +216,24 @@ way `pad-row-x` is, so a plugin answers the register and density answers how tig
 
 **A hue is a meaning a component wears, and the plugin answers what each hue is made of.** A
 manifest maps a member's value to a hue (`danger`, `success`, `warning`, `info`, or an identity),
-renders the group as `data-arena-<group>`, and the hue sheet writes four channels on the slots that
-carry it: `--arena-hue-ink`, `--arena-hue-edge`, `--arena-hue-fill-strong` and
-`--arena-hue-fill-soft`. A slot reads the channel it needs and never a status colour by name, so a
+renders the group as `data-arena-<group>`, and the hue sheet writes its channels on the slots that
+carry it: `--arena-hue-ink`, `--arena-hue-edge`, `--arena-hue-fill-strong`, `--arena-hue-fill-soft`
+and `--arena-hue-on-ink`. A slot reads the channel it needs and never a status colour by name, so a
 plugin that moves one role moves every surface wearing that hue. A slot whose hue no value varies,
 a field's error message, names it under `hues.always`. A solid status mark (a presence or feed dot,
 a progress fill) reads the strong fill, and danger's marks the ink, its strong fill being closed;
-a chart legend swatch and the tag's dot read the ink, following series painted from the palette. The roles are in
+a chart legend swatch and the tag's dot read the ink, following series painted from the palette.
+A badge written with `arena-mark-solid` fills with the ink and sets its label in the on-ink, which
+defaults to the hue's `{color.<hue>-content}` and, for danger, to the page colour
+`{color.base-100}`, because the danger ink is tuned as text and too light to carry white. The roles are in
 [`roles.json`](./roles.json), one per hue and channel, each answered with a `{color.*}` alias:
 
-| Hue | Ink | Edge | Fill, strong | Fill, soft |
-|---|---|---|---|---|
-| danger | `hue-danger-ink` | `hue-danger-edge` | `hue-danger-fill-strong`, closed to `transparent` | `hue-danger-fill-soft` |
-| success | `hue-success-ink` | `hue-success-edge` | `hue-success-fill-strong` | `hue-success-fill-soft` |
-| warning | `hue-warning-ink` | `hue-warning-edge` | `hue-warning-fill-strong` | `hue-warning-fill-soft` |
-| info | `hue-info-ink` | `hue-info-edge` | `hue-info-fill-strong` | `hue-info-fill-soft` |
+| Hue | Ink | Edge | Fill, strong | Fill, soft | On ink |
+|---|---|---|---|---|---|
+| danger | `hue-danger-ink` | `hue-danger-edge` | `hue-danger-fill-strong`, closed to `transparent` | `hue-danger-fill-soft` | `hue-danger-on-ink` |
+| success | `hue-success-ink` | `hue-success-edge` | `hue-success-fill-strong` | `hue-success-fill-soft` | `hue-success-on-ink` |
+| warning | `hue-warning-ink` | `hue-warning-edge` | `hue-warning-fill-strong` | `hue-warning-fill-soft` | `hue-warning-on-ink` |
+| info | `hue-info-ink` | `hue-info-edge` | `hue-info-fill-strong` | `hue-info-fill-soft` | `hue-info-on-ink` |
 
 **The soft fill is held back to a level, which is not a role.** The hue sheet composes
 `color-mix(in oklab, var(--hue-<hue>-fill-soft) var(--level-hue-soft-<hue>), transparent)`, with
@@ -240,8 +243,9 @@ how far it is held back. The table of channels is authored once, in
 
 **Identity has no roles.** The eight categorical colours derive their channels from the ramp: ink,
 edge and strong fill are `--color-cat-N`, and the soft fill is that colour at `--tint-soft` over
-`--fill-surface`. A plugin moves identity by moving the ramp in the palette. **Neutral is the
-absence of a hue**: its value writes the four channels to `initial` and the slot keeps its own
+`--fill-surface`. Its on-ink is `initial`, so a solid mark on it falls back to the neutral content. A
+plugin moves identity by moving the ramp in the palette. **Neutral is the
+absence of a hue**: its value writes every channel to `initial` and the slot keeps its own
 classes, so the matrix has no neutral row.
 
 **The final confirmation of `ArenaConfirmDialog` reads two roles of its own**, `fill-confirm-final`

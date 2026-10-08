@@ -1,10 +1,12 @@
 /* Holds the vocabulary to its own rules: a family declares a reach, a description that argues for
  * it, a default among its options, and options that write only its own channels; every channel is
  * read by a manifest that answers the family, with the default's value as that read's fallback, so
- * the look with no class written is the look the default names; every answers names a family, and
- * every transparent slot is a slot of its manifest with a reason. The vocabulary page must equal a
- * fresh render of the same files. An empty vocabulary fails, and so does an arena- class in a compiled
- * or shipped sheet that no family and no manifest emits. */
+ * the look with no class written is the look the default names, a default writing initial reading
+ * the fallback itself; every answers names a family, a manifest answering mark maps its values only
+ * to a hue whose on-ink is measured or to none, and every transparent slot is a slot of its manifest
+ * with a reason. The vocabulary page must equal a fresh render of the same files. An empty
+ * vocabulary fails, and so does an arena- class in a compiled or shipped sheet that no family and
+ * no manifest emits. */
 
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -23,6 +25,7 @@ import {
   optionDeclarations, readFamilies, slotClassStrings, type Family,
 } from '../../lib/tailwind/vocabulary.ts';
 import type { ComponentManifest } from '../../lib/tailwind/manifest-shapes.ts';
+import { readHues } from '../../lib/tailwind/hue-sheet.ts';
 
 export const node = {
   name: 'check:families',
@@ -31,6 +34,19 @@ export const node = {
   writes: [],
   feeds: [],
 };
+
+export const MARK_FAMILY = 'mark';
+
+export function markHueProblems(manifest: ComponentManifest, measured: ReadonlySet<string>) {
+  if (!answeredFamilies(manifest).includes(MARK_FAMILY)) return [];
+  const problems: string[] = [];
+  for (const [group, values] of Object.entries(manifest.hues ?? {}))
+    for (const [value, hue] of Object.entries(values ?? {}))
+      if (typeof hue === 'string' && !measured.has(hue))
+        problems.push(`${manifest.component}: answers ${MARK_FAMILY} and hues.${group}.${value} maps to ${hue}, a hue whose on-ink `
+          + 'is initial, so arena-mark-solid would set content no gate measures over that ink; map it to a status hue or to null');
+  return problems;
+}
 
 const THEME_KEY = /var\(\s*(--(?:spacing(?![a-z0-9])|spacing-|radius-|text-|color-)[a-z0-9-]*)/g;
 
@@ -212,8 +228,10 @@ export function familyProblems(
   const readsByFamily = new Map<string, Set<string>>();
   const axisReads = new Map<string, Set<string>>();
   const answeredOptions = new Map<string, Set<string>>();
+  const measured = new Set([...readHues()].filter(([, channels]) => channels['on-ink'] !== 'initial').map(([name]) => name));
   for (const manifest of manifests.values()) {
     const answers = answeredFamilies(manifest);
+    problems.push(...markHueProblems(manifest, measured));
     for (const answer of manifest.answers ?? []) {
       const name = typeof answer === 'string' ? answer : answer.family;
       const family = families.get(name);
@@ -246,7 +264,7 @@ export function familyProblems(
         const chosen = answerOf(manifest, family)?.default ?? family.default;
         const written = (() => { try { return chosen === undefined ? [] : declarations(family.variants[chosen] ?? ''); } catch { return []; } })()
           .find(([property]) => property === channel)?.[1];
-        if (written !== undefined && !axisWrapped(fallback, written, axesOf(family))) {
+        if (written !== undefined && written.trim() !== 'initial' && !axisWrapped(fallback, written, axesOf(family))) {
           problems.push(`${manifest.component}.${slot}: ${channel} falls back to ${raw === null ? 'nothing' : fallback} and the default ${chosen} writes ${written}, `
             + 'so the component with no class written does not look like its default');
         }

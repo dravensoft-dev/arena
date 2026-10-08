@@ -314,3 +314,23 @@ test('the sweep reads the utilities a theme sheet ships, so an unnamed one fails
 test('the built tree is clean', () => {
   assert.deepEqual(collect().problems, []);
 });
+
+const MARK: Family = { family: 'mark', reach: 'box', description: 'Whether a status mark is washed or filled.', default: 'arena-mark-soft',
+  variants: { 'arena-mark-soft': '[--arena-mark-fill:initial]', 'arena-mark-solid': '[--arena-mark-fill:var(--arena-hue-ink,_red)]' } };
+const badge = (hues: Record<string, string | null>) => ({
+  component: 'ArenaBadge', answers: ['mark'], slots: { root: 'bg-[color:var(--arena-mark-fill,var(--wash))]' },
+  variants: { tone: Object.fromEntries(Object.keys(hues).map((tone) => [tone, { root: 'x' }])) }, hues: { tone: hues },
+});
+
+test('a default writing initial stands for the read\'s own fallback, because initial is how a registered channel reads it', () => {
+  const problems = runWith(MARK, badge({ neutral: null, danger: 'danger' })).join('\n');
+  assert.doesNotMatch(problems, /does not look like its default/);
+  assert.doesNotMatch(problems, /maps tone/);
+  const pinned = { ...MARK, variants: { ...MARK.variants, 'arena-mark-soft': '[--arena-mark-fill:blue]' } };
+  assert.match(runWith(pinned, badge({ neutral: null })).join('\n'), /falls back to var\(--wash\) and the default arena-mark-soft writes blue/);
+});
+
+test('a component answering mark maps a value only to a status hue or to none, so every solid fill is a measured pair', () => {
+  assert.match(runWith(MARK, badge({ neutral: null, cat: 'identity-2' })).join('\n'),
+    /ArenaBadge: answers mark and hues\.tone\.cat maps to identity-2/);
+});

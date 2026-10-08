@@ -128,6 +128,8 @@ test('the sheets region splits a long list into sentences within the register wo
     writeFileSync(join(base, 'frameworks/tailwind/vocabulary', dir, `${dir}.family.json`),
       JSON.stringify({ family: dir, reach: 'box', description: 'd', variants: { [`arena-${dir}`]: '[display:flex]' } }));
   }
+  mkdirSync(join(base, 'frameworks/tailwind'), { recursive: true });
+  writeFileSync(join(base, 'frameworks/tailwind/Hues.json'), JSON.stringify({ hues: { danger: { ink: 'x', 'on-ink': 'y' } } }));
   const region = renderRegion('sheets', base);
   const named = sheetNamesIn(region);
   assert.equal(named.length, 45);

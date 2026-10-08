@@ -472,6 +472,10 @@ test('whitespace inside var() does not hide a danger fill or an alias reference'
   assert.equal(namesAnAlias('.x { color: var( --level-presence ) }'), true);
 });
 
+test('the danger fill message names the filled status mark a screen writes instead', () => {
+  assert.match(DANGER_FILL_MESSAGE, /arena-mark-solid/);
+});
+
 test('no audit message names a palette colour', () => {
   for (const message of [RAW_COLOUR_MESSAGE, primaryMessage(1), DANGER_FILL_MESSAGE, RAW_HEX_MESSAGE, GRADIENT_MESSAGE])
     assert.doesNotMatch(message, /crimson|warm shadow/i);

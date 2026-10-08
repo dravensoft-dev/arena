@@ -572,6 +572,10 @@
     "$type": "color",
     "$value": "{color.base-content}"
   },
+  "hue-danger-on-ink": {
+    "$type": "color",
+    "$value": "{color.base-200}"
+  },
   "hue-danger-edge": {
     "$type": "color",
     "$value": "{color.base-content}"
@@ -587,6 +591,10 @@
   "hue-success-ink": {
     "$type": "color",
     "$value": "{color.base-content}"
+  },
+  "hue-success-on-ink": {
+    "$type": "color",
+    "$value": "{color.base-100}"
   },
   "hue-success-edge": {
     "$type": "color",
@@ -604,6 +612,10 @@
     "$type": "color",
     "$value": "{color.base-content}"
   },
+  "hue-warning-on-ink": {
+    "$type": "color",
+    "$value": "{color.base-100}"
+  },
   "hue-warning-edge": {
     "$type": "color",
     "$value": "{color.base-content}"
@@ -619,6 +631,10 @@
   "hue-info-ink": {
     "$type": "color",
     "$value": "{color.base-content}"
+  },
+  "hue-info-on-ink": {
+    "$type": "color",
+    "$value": "{color.base-100}"
   },
   "hue-info-edge": {
     "$type": "color",

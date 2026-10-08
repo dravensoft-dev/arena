@@ -1,7 +1,7 @@
 /* One writer kind per custom property across the compiled sheets, which is what makes the API's
  * channels and the vocabulary's disjoint by construction rather than by a precedence rule. A
  * family writes --arena-<family>-* or the contract group it restates, which the token sheet may
- * also write, a token sheet writes values and roles, a hue sheet writes the four hue channels and
+ * also write, a token sheet writes values and roles, a hue sheet writes the hue channels and
  * nothing else, and a component sheet writes nothing but Tailwind's own --tw-* plumbing: a manifest
  * declaring anything else is a component choosing a channel. A component sheet reads a hue channel
  * only under a selector its hue sheet writes it on with a value other than initial, so the element

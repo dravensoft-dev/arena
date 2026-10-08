@@ -124,7 +124,7 @@ export const ROUTES: Route[] = [
       'skills/design/references/config.md',
       'skills/design/references/cli.md',
     ],
-    budget: 29_800,
+    budget: 29_900,
     reason:
       'paid once per project rather than per screen, so it carries what the build route may not: '
       + 'the install, the config file and the command, each as its own reference so a reader opens '
@@ -136,7 +136,8 @@ export const ROUTES: Route[] = [
       + 'init` writes, and the audit one names every rule, so each audit rule is paid here by its '
       + 'name. Being right moves this number, and a gate failing them keeps it honest. The config '
       + 'reference lists the names the build refuses and the note a defaulted role prints, so neither '
-      + 'arrives as news, and lists the roles that carry a default. The install page says the '
+      + 'arrives as news, and lists the roles that carry a default, a list that grows per role. '
+      + 'The install page says the '
       + 'package sheet alone has no colour and prints a generated command per layer that leaves the '
       + 'framework alone, and config states the naming rules and what a sheet list refuses.',
   },
@@ -146,14 +147,14 @@ export const ROUTES: Route[] = [
       + 'document that says what the questions are and which answers carry the difference',
     entry: 'consumer',
     stops: ['skills/design/references/style-kernel.md'],
-    budget: 18_700,
+    budget: 18_800,
     reason:
       'paid once per project and never per screen, which is what lets it carry the whole surface '
       + 'the kernel exposes rather than a pointer to it, so a project stops learning the kernel from '
       + 'a normative contributor document. It states which scale each role draws from, that a reading '
       + 'floor refuses the build rather than reporting, which answers a project may inherit and which '
-      + 'it has to make, and how the one exception to the scale rule is keyed. A cold walk without '
-      + 'those had to guess each of them. The differentiation table is a measurement over the '
+      + 'it has to make, and how the one exception to the scale rule is keyed. The differentiation '
+      + 'table is a measurement over the '
       + 'catalogue, so it grows by remeasuring and not by writing, and a row the catalogue moves from '
       + 'inherited to decided is a decision this page is obliged to name. The number is what the '
       + 'stops measure with room for the kernel to grow a section, and it moves when the kernel grows '
@@ -161,7 +162,7 @@ export const ROUTES: Route[] = [
       + 'role\'s default is written and states first, in a region generated with the config page\'s, '
       + 'which roles carry a default and that the root answers the rest, because a mechanism read '
       + 'before its roster reads as one with members. It says where a project with no clone '
-      + 'fetches the default plugin.',
+      + 'fetches the default plugin. The roster grows per role.',
   },
   {
     name: 'consumer-register',
@@ -350,7 +351,7 @@ export const ROUTES: Route[] = [
       + 'and the shape a token is authored in',
     entry: 'contributor',
     stops: ['contracts/AGENTS.md', 'contracts/design/AGENTS.md', 'contracts/design/TokenTypes.md'],
-    budget: 68_700,
+    budget: 69_000,
     reason:
       'the normative half of the tree, where a stop is read for what a value means rather than for '
       + 'how to write one, so it is bounded by what a person can hold rather than by what an agent '
@@ -361,7 +362,8 @@ export const ROUTES: Route[] = [
       + 'another elsewhere. The specification states the muted levels as floors a palette moves up '
       + 'and never down, target size as the axis density answers, and what DTCG deliberately does not '
       + 'model. The route moves when the level describes something bigger, never when it describes '
-      + 'the same thing at more length. It states the frame shapes and the roles a kind answers.',
+      + 'the same thing at more length. It states the frame shapes and the roles a kind answers, and '
+      + 'names the filled status mark beside the presence dot.',
   },
   {
     name: 'contributor-gate',

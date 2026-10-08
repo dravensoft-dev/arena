@@ -1,0 +1,10 @@
+{
+  "family": "mark",
+  "reach": "box",
+  "description": "Whether a status mark is washed or filled. The question is the screen's. A badge beside a row reads as a soft wash of its hue, and a live indicator over a picture has to read as a filled marker. arena-mark-soft is the default and sets both channels to initial, so the badge keeps the wash of its tone or of its accent. A soft badge inside a container written solid stays soft. arena-mark-solid fills the mark with its hue's ink and sets its content in that hue's on-ink. That ink is the one ArenaAvatar's busy dot fills with, so danger fills through its ink and its strong fill stays closed. A neutral badge with arena-mark-solid fills with the neutral colour and its content.",
+  "default": "arena-mark-soft",
+  "variants": {
+    "arena-mark-soft": "[--arena-mark-fill:initial] [--arena-mark-ink:initial]",
+    "arena-mark-solid": "[--arena-mark-fill:var(--arena-hue-ink,_var(--color-neutral))] [--arena-mark-ink:var(--arena-hue-on-ink,_var(--color-neutral-content))]"
+  }
+}

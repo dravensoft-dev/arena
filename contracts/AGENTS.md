@@ -89,9 +89,9 @@ every element that projects adopter content, which carries `data-arena-boundary`
 manifest declares the slot `transparent` with a reason. A surface rendered in a portal also leaves
 the subtree its trigger sits in, so no class above the trigger reaches it either way.
 
-**Meaning reaches the DOM as `data-arena-<group>`, and meaning alone writes the four hue
+**Meaning reaches the DOM as `data-arena-<group>`, and meaning alone writes the hue
 channels.** A component renders each manifest group as an attribute on every slot it touches; a
-Tailwind rule keyed on it writes `--arena-hue-ink`, `-edge`, `-fill-strong` and `-fill-soft` from
+Tailwind rule keyed on it writes `--arena-hue-ink`, `-edge`, `-fill-strong`, `-fill-soft` and `-on-ink` from
 the roles a plugin answers, and a slot reads them. No component chooses a class or a colour by a
 member's value. **A floor lives in the answer**: a closed set on the role, `hue-danger-fill-strong`
 answering `transparent`, held in every plugin ([`design/StylePlugins.md`](./design/StylePlugins.md)).

@@ -519,6 +519,15 @@
     "$type": "color",
     "$description": "Which colour the danger hue takes as text and as an icon. Read by every slot that paints the hue as a foreground: an alert's title and icon, a badge's label, a tag's text, a toast's icon, a stat card's delta, a field's message. Answered with a {color.*} alias, never a literal. The hue sheet carries it to every slot of the danger variant (--arena-hue-ink), so a plugin that moves it moves every danger surface at once."
   },
+  "hue-danger-on-ink": {
+    "$type": "color",
+    "$description": "The content colour on a mark filled with this hue's ink, such as a solid badge.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "default": "{color.base-100}"
+      }
+    }
+  },
   "hue-danger-edge": {
     "$type": "color",
     "$description": "Which colour the danger hue takes as a line. Read by every slot that draws the hue as a border or a rule: an alert's border, a toast's leading edge, a field's ring when it is invalid or confirmed. Answered with a {color.*} alias, never a literal. The hue sheet carries it to every slot of the danger variant (--arena-hue-edge), so a plugin that moves it moves every danger surface at once."
@@ -542,6 +551,15 @@
     "$type": "color",
     "$description": "Which colour the success hue takes as text and as an icon. Read by every slot that paints the hue as a foreground: an alert's title and icon, a badge's label, a tag's text, a toast's icon, a stat card's delta, a field's message. Answered with a {color.*} alias, never a literal. The hue sheet carries it to every slot of the success variant (--arena-hue-ink), so a plugin that moves it moves every success surface at once."
   },
+  "hue-success-on-ink": {
+    "$type": "color",
+    "$description": "The content colour on a mark filled with this hue's ink, such as a solid badge.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "default": "{color.success-content}"
+      }
+    }
+  },
   "hue-success-edge": {
     "$type": "color",
     "$description": "Which colour the success hue takes as a line. Read by every slot that draws the hue as a border or a rule: an alert's border, a toast's leading edge, a field's ring when it is invalid or confirmed. Answered with a {color.*} alias, never a literal. The hue sheet carries it to every slot of the success variant (--arena-hue-edge), so a plugin that moves it moves every success surface at once."
@@ -558,6 +576,15 @@
     "$type": "color",
     "$description": "Which colour the warning hue takes as text and as an icon. Read by every slot that paints the hue as a foreground: an alert's title and icon, a badge's label, a tag's text, a toast's icon, a stat card's delta, a field's message. Answered with a {color.*} alias, never a literal. The hue sheet carries it to every slot of the warning variant (--arena-hue-ink), so a plugin that moves it moves every warning surface at once."
   },
+  "hue-warning-on-ink": {
+    "$type": "color",
+    "$description": "The content colour on a mark filled with this hue's ink, such as a solid badge.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "default": "{color.warning-content}"
+      }
+    }
+  },
   "hue-warning-edge": {
     "$type": "color",
     "$description": "Which colour the warning hue takes as a line. Read by every slot that draws the hue as a border or a rule: an alert's border, a toast's leading edge, a field's ring when it is invalid or confirmed. Answered with a {color.*} alias, never a literal. The hue sheet carries it to every slot of the warning variant (--arena-hue-edge), so a plugin that moves it moves every warning surface at once."
@@ -573,6 +600,15 @@
   "hue-info-ink": {
     "$type": "color",
     "$description": "Which colour the info hue takes as text and as an icon. Read by every slot that paints the hue as a foreground: an alert's title and icon, a badge's label, a tag's text, a toast's icon, a stat card's delta, a field's message. Answered with a {color.*} alias, never a literal. The hue sheet carries it to every slot of the info variant (--arena-hue-ink), so a plugin that moves it moves every info surface at once."
+  },
+  "hue-info-on-ink": {
+    "$type": "color",
+    "$description": "The content colour on a mark filled with this hue's ink, such as a solid badge.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "default": "{color.info-content}"
+      }
+    }
   },
   "hue-info-edge": {
     "$type": "color",

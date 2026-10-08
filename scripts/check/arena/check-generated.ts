@@ -127,7 +127,7 @@ export const UNTRACKED = {
     + 'the manifest it came from.',
   'frameworks/tailwind/consume/hues/**/*.hues.generated.css':
     'the hue sheet of one component: one rule per slot and value of every group the manifest maps to '
-    + 'a hue, and one per slot its hues.always fixes, writing the four hue channels on the element that reads them, compiled from the '
+    + 'a hue, and one per slot its hues.always fixes, writing the hue channels on the element that reads them, compiled from the '
     + 'manifest and Hues.json. The component sheet imports it after the prelude, and the package '
     + 'build collects these into css/hues/.',
   'frameworks/tailwind/consume/Components.generated.css':

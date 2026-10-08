@@ -8,9 +8,10 @@ import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
-  declarations, compileFamily, channelReads, answerOf, answeredFamilies, markupDeclarations, restatedDeclarations, answeringParts, axisWrapped, LIMIT, sheetName, packageSheetName, type Family,
+  declarations, compileFamily, readFamilies, channelReads, answerOf, answeredFamilies, markupDeclarations, restatedDeclarations, answeringParts, axisWrapped, LIMIT, sheetName, packageSheetName, type Family,
 } from './vocabulary.ts';
 import { LAYER_ORDER } from './component-sheets.ts';
+import { layerManifests } from './tailwind-compile.ts';
 import type { ComponentManifest } from './manifest-shapes.ts';
 
 const reading = (...parts: string[]): ComponentManifest[] => parts.map((part) => ({
@@ -225,4 +226,17 @@ test('a keyed family compiles to no sheet', () => {
 test('no compiled vocabulary block carries a nesting selector', () => {
   assert.doesNotMatch(compileFamily(FILL, reading('button', 'tooltip')), /&/);
   assert.doesNotMatch(compileFamily(STACK, []), /&/);
+});
+
+test('arena-mark-solid fills a badge with its hue\'s ink and writes on-ink over it, and the soft default resets both channels', () => {
+  const mark = readFamilies().get('mark');
+  assert.ok(mark, 'the mark family is declared');
+  const css = compileFamily(mark, layerManifests().values());
+  const solid = css.split('@scope (.arena-mark-solid)')[1] ?? '';
+  assert.match(solid, /^ to \([^)]*\) \{\n\s+:scope\[data-arena-part="badge"\], \[data-arena-part="badge"\] \{/);
+  assert.match(solid, /--arena-mark-fill: var\(--arena-hue-ink, var\(--color-neutral\)\);/);
+  assert.match(solid, /--arena-mark-ink: var\(--arena-hue-on-ink, var\(--color-neutral-content\)\);/);
+  const soft = css.split('@scope (.arena-mark-soft)')[1]?.split('@scope')[0] ?? '';
+  assert.match(soft, /--arena-mark-fill: initial;\n\s+--arena-mark-ink: initial;/,
+    'initial is the guaranteed-invalid value of a registered channel, so the badge reads its fallbacks under a container written solid');
 });

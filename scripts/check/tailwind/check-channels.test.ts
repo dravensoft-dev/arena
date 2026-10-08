@@ -68,7 +68,7 @@ test('a component sheet declaring a hue channel fails, and so does a family or t
     /t\/y\.css declares --arena-hue-edge, which only a hue sheet writes/);
 });
 
-test('a hue sheet declaring anything but the four channels fails', () => {
+test('a hue sheet declaring anything but the hue channels fails', () => {
   assert.match(channelProblems(hued('.x{--tw-a:1}', '.a { --arena-x: 1; }')).join('\n'), /ArenaTag\.hues\.generated\.css declares --arena-x/);
 });
 

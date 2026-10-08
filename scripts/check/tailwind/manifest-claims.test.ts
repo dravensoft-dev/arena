@@ -176,6 +176,8 @@ const INK = 'text-[color:var(--arena-hue-ink)]';
 const EDGE = 'border-[color:var(--arena-hue-edge)]';
 const SOFT = 'bg-[color:var(--arena-hue-fill-soft)]';
 const STRONG = 'bg-[color:var(--arena-hue-fill-strong)]';
+const MARK_SOFT = 'bg-[color:var(--arena-mark-fill,var(--arena-hue-fill-soft))]';
+const MARK_INK = 'text-[color:var(--arena-mark-ink,color-mix(in_oklab,var(--ink-body)_var(--level-ink-body),transparent))]';
 const STRONG_INK = 'text-[color:var(--arena-hue-fill-strong)]';
 const FILLED_WHY = 'a solid status fill reads the strong fill channel, and danger, whose strong fill is closed to transparent, keeps the mark through its ink';
 const STATUS = ['success', 'warning', 'danger', 'info'];
@@ -541,9 +543,9 @@ export const CLAIMS = {
     { slot: 'foot', has: ['justify-between'], why: 'the foot spaces the help text and the counter to opposite ends' },
   ],
   ArenaBadge: [
-    ...hueClaims('root', Object.fromEntries(STATUS.map((tone) => [tone, [SOFT]]))),
-    { chosen: { tone: 'neutral' }, slot: 'root', hasNot: [SOFT, 'bg-base-300', 'bg-primary/14', 'bg-secondary/16'], why: 'a neutral badge is the absence of a hue, so the accent channel washes it and the tone adds no class' },
-    { slot: 'root', has: ['text-ink-body/(--level-ink-body)'], why: 'the ink of a badge is the body ink under every tone, so it sits once in the base' },
+    ...hueClaims('root', Object.fromEntries(STATUS.map((tone) => [tone, [MARK_SOFT]]))),
+    { chosen: { tone: 'neutral' }, slot: 'root', hasNot: [MARK_SOFT, SOFT, 'bg-base-300', 'bg-primary/14', 'bg-secondary/16'], why: 'a neutral badge is the absence of a hue, so the accent channel washes it and the tone adds no class' },
+    { slot: 'root', has: [MARK_INK], hasNot: ['text-ink-body/(--level-ink-body)'], why: 'the ink of a badge is the body ink under every tone unless arena-mark-solid writes the hue\'s on-ink, so it sits once in the base behind the mark channel' },
     { slot: 'root', has: ['w-fit'], why: 'a badge is as wide as its label in a card body, where a width of auto would stretch it' },
     { slot: 'dot', has: ['bg-current'], why: 'the dot takes the tone ink from the text colour around it rather than naming one' },
     ...['neutral', 'success', 'warning', 'danger', 'info'].map((tone) => ({
@@ -594,7 +596,9 @@ const READS: [component: string, slot: string, question: string, reads: string[]
   ['ArenaIconButton', 'root', 'emphasis.icon-edge', ['border-[length:var(--bw-control)]', 'border-[color:var(--arena-emphasis-icon-edge,var(--emphasis-ghost-icon-edge))]', '[border-style:var(--arena-emphasis-edge-style,solid)]']],
   ['ArenaButton', 'root', 'emphasis.fill-hover', ['hover:bg-[color:var(--arena-emphasis-fill-hover,var(--emphasis-primary-fill))]']],
   ['ArenaIconButton', 'root', 'emphasis.fill-hover', ['hover:bg-[color:var(--arena-emphasis-fill-hover,var(--emphasis-ghost-fill-hover))]'], { pressed: 'false' }],
-  ['ArenaBadge', 'root', 'accent.fill-soft', ['bg-[color:var(--arena-accent-fill-soft,var(--accent-plain-fill-soft))]']],
+  ['ArenaBadge', 'root', 'accent.fill-soft', ['bg-[color:var(--arena-mark-fill,var(--arena-accent-fill-soft,var(--accent-plain-fill-soft)))]']],
+  ['ArenaBadge', 'root', 'mark.fill', ['bg-[color:var(--arena-mark-fill,var(--arena-accent-fill-soft,var(--accent-plain-fill-soft)))]']],
+  ['ArenaBadge', 'root', 'mark.ink', [MARK_INK]],
   ['ArenaStatCard', 'value', 'accent.ink', ['text-[color:var(--arena-accent-ink,var(--accent-plain-ink))]']],
   ['ArenaProgressBar', 'track', 'accent.ink', ['text-[color:var(--arena-accent-ink,var(--accent-primary-ink))]']],
   ['ArenaProgressBar', 'ring', 'accent.ink', ['text-[color:var(--arena-accent-ink,var(--accent-primary-ink))]']],
@@ -627,8 +631,8 @@ for (const [component, slot, question, reads, chosen] of READS) {
   });
 }
 
-test('every size, orientation, emphasis, accent, elevation, align, layout and placement question a slot answers is read through its own channel with a fallback', () => {
-  const channels = READS.flatMap(([, , , reads]) => reads.flatMap((one) => [...one.matchAll(/var\(--arena-(?:size|orientation|emphasis|accent|elevation|align|layout|placement)-[a-z0-9-]+,/g)]));
+test('every size, orientation, emphasis, accent, mark, elevation, align, layout and placement question a slot answers is read through its own channel with a fallback', () => {
+  const channels = READS.flatMap(([, , , reads]) => reads.flatMap((one) => [...one.matchAll(/var\(--arena-(?:size|orientation|emphasis|accent|mark|elevation|align|layout|placement)-[a-z0-9-]+,/g)]));
   assert.ok(channels.length >= READS.length, 'a read names a channel and the fallback that stands in for it');
   for (const [component, slot, question, reads] of READS) {
     const family = question.split('.')[0]!;

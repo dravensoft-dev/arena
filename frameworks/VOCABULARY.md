@@ -20,6 +20,7 @@
 | [`grid-max`](#grid-max) | box | `arena-grid-max-lg`, `arena-grid-max-md`, `arena-grid-max-none` (default), `arena-grid-max-sm` | `--arena-grid-max` | ArenaGrid ([React](./react/components/layout/arena-grid/ArenaGrid.prompt.md), [Angular](./angular/components/layout/arena-grid/ArenaGrid.prompt.md)) |
 | [`grid-min`](#grid-min) | box | `arena-grid-min-lg`, `arena-grid-min-md` (default), `arena-grid-min-sm` | `--arena-grid-min` | ArenaGrid ([React](./react/components/layout/arena-grid/ArenaGrid.prompt.md), [Angular](./angular/components/layout/arena-grid/ArenaGrid.prompt.md)) |
 | [`layout`](#layout) | box | `arena-layout-bleed`, `arena-layout-split` (default), `arena-layout-stacked` |  | ArenaHero ([React](./react/components/layout/arena-hero/ArenaHero.prompt.md), [Angular](./angular/components/layout/arena-hero/ArenaHero.prompt.md)) |
+| [`mark`](#mark) | box | `arena-mark-soft` (default), `arena-mark-solid` |  | ArenaBadge ([React](./react/components/display/arena-badge/ArenaBadge.prompt.md), [Angular](./angular/components/display/arena-badge/ArenaBadge.prompt.md)) |
 | [`num`](#num) | box | `arena-num` |  | markup you write |
 | [`orientation`](#orientation) | box | `arena-orientation-horizontal` (default), `arena-orientation-vertical` |  | ArenaAppLogo ([React](./react/components/brand/arena-app-logo/ArenaAppLogo.prompt.md), [Angular](./angular/components/brand/arena-app-logo/ArenaAppLogo.prompt.md)), ArenaSwitch ([React](./react/components/forms/arena-switch/ArenaSwitch.prompt.md), [Angular](./angular/components/forms/arena-switch/ArenaSwitch.prompt.md)) |
 | [`placement`](#placement) | box | `arena-placement-bottom` (default), `arena-placement-bottom-end`, `arena-placement-bottom-start`, `arena-placement-end`, `arena-placement-start`, `arena-placement-top-end`, `arena-placement-top-start` |  | ArenaSheet ([React](./react/components/feedback/arena-sheet/ArenaSheet.prompt.md), [Angular](./angular/components/feedback/arena-sheet/ArenaSheet.prompt.md)) (`arena-placement-bottom`, `arena-placement-end`, `arena-placement-start`), ArenaToastHost ([React](./react/components/feedback/arena-toast-host/ArenaToastHost.prompt.md), [Angular](./angular/components/feedback/arena-toast-host/ArenaToastHost.prompt.md)) (`arena-placement-bottom-end`, `arena-placement-bottom-start`, `arena-placement-top-end`, `arena-placement-top-start`; default `arena-placement-bottom-end`) |
@@ -173,6 +174,15 @@ How the words of a hero sit against its figure. Split puts them side by side and
 - **Reach:** box: it reaches the nearest component, and stops at the content that component projects.
 - **Answered by:**
   - ArenaHero ([React](./react/components/layout/arena-hero/ArenaHero.prompt.md), [Angular](./angular/components/layout/arena-hero/ArenaHero.prompt.md)).
+
+## mark
+
+Whether a status mark is washed or filled. The question is the screen's. A badge beside a row reads as a soft wash of its hue, and a live indicator over a picture has to read as a filled marker. arena-mark-soft is the default and sets both channels to initial, so the badge keeps the wash of its tone or of its accent. A soft badge inside a container written solid stays soft. arena-mark-solid fills the mark with its hue's ink and sets its content in that hue's on-ink. That ink is the one ArenaAvatar's busy dot fills with, so danger fills through its ink and its strong fill stays closed. A neutral badge with arena-mark-solid fills with the neutral colour and its content.
+
+- **Options:** `arena-mark-soft` (default), `arena-mark-solid`.
+- **Reach:** box: it reaches the nearest component, and stops at the content that component projects.
+- **Answered by:**
+  - ArenaBadge ([React](./react/components/display/arena-badge/ArenaBadge.prompt.md), [Angular](./angular/components/display/arena-badge/ArenaBadge.prompt.md)).
 
 ## num
 

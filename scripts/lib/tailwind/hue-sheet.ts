@@ -1,5 +1,5 @@
 /* The hue sheet of a component: for each group a manifest maps to hues, one rule per slot the
- * group's attribute reaches and per value, writing the four channels of the hue that value names
+ * group's attribute reaches and per value, writing the channels of the hue that value names
  * (or `initial` for a value that names none). A rule rather than an inherited custom property is
  * the point: the element reading a channel is the element the rule writes it on, so a badge inside
  * a danger alert reads its own colour and never the alert's. Hues.json is the table of what each
@@ -14,9 +14,9 @@ import { repoRoot } from '../arena/repo-root.ts';
 import { groupSlots, slotClass, variantSelector } from './component-css.ts';
 import type { ComponentManifest } from './manifest-shapes.ts';
 
-export type HueChannels = Readonly<{ ink: string; edge: string; 'fill-strong': string; 'fill-soft': string }>;
+export type HueChannels = Readonly<{ ink: string; edge: string; 'fill-strong': string; 'fill-soft': string; 'on-ink': string }>;
 
-export const HUE_CHANNELS = ['--arena-hue-ink', '--arena-hue-edge', '--arena-hue-fill-strong', '--arena-hue-fill-soft'] as const;
+export const HUE_CHANNELS = ['--arena-hue-ink', '--arena-hue-edge', '--arena-hue-fill-strong', '--arena-hue-fill-soft', '--arena-hue-on-ink'] as const;
 
 export const HUE_SHEETS = 'frameworks/tailwind/consume/hues';
 export const HUES_FILE = 'frameworks/tailwind/Hues.json';
@@ -24,7 +24,7 @@ export const IDENTITY = 'identity-N';
 export const IDENTITY_COUNT = 8;
 export const ALWAYS = 'always';
 
-const KEYS = ['ink', 'edge', 'fill-strong', 'fill-soft'] as const;
+const KEYS = ['ink', 'edge', 'fill-strong', 'fill-soft', 'on-ink'] as const;
 
 export function readHues(root = repoRoot): Map<string, HueChannels> {
   const table = (readJson(join(root, HUES_FILE)) as { hues: Record<string, HueChannels> }).hues;
@@ -49,7 +49,7 @@ const block = (selector: string, channels: HueChannels) => `.${selector} {\n`
   + HUE_CHANNELS.map((channel, i) => `  ${channel}: ${channels[KEYS[i] as keyof HueChannels]};\n`).join('')
   + '}';
 
-const INITIAL: HueChannels = { ink: 'initial', edge: 'initial', 'fill-strong': 'initial', 'fill-soft': 'initial' };
+const INITIAL: HueChannels = { ink: 'initial', edge: 'initial', 'fill-strong': 'initial', 'fill-soft': 'initial', 'on-ink': 'initial' };
 
 export function hueRules(manifest: ComponentManifest, hues: Map<string, HueChannels>) {
   const mapped = manifest.hues;

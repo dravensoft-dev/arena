@@ -21,6 +21,8 @@ Status label in mono uppercase. Short text (1–2 words); if it's longer, it's n
 
 **Answers** [`accent`](../../../../VOCABULARY.md#accent): `arena-accent-gold`, `arena-accent-plain` (default), `arena-accent-primary`. Write one as `className="arena-accent-gold"` on the component, or on a container whose components should all take it.
 
+**Answers** [`mark`](../../../../VOCABULARY.md#mark): `arena-mark-soft` (default), `arena-mark-solid`. Write one as `className="arena-mark-solid"` on the component, or on a container whose components should all take it.
+
 <!-- @answers end -->
 
 <!-- @keys GENERATED from the binding. -->
@@ -30,6 +32,12 @@ Status label in mono uppercase. Short text (1–2 words); if it's longer, it's n
 **Tone taxonomy (H4).** Two families, don't mix them:
 - **Status**: `success` `warning` `danger` `info`: reflect the actual state of the system (deploy, service, version). The `dot` reinforces "live status".
 - **Emphasis**: `arena-accent-primary` (new/featured) and `arena-accent-gold` (priority/distinction) colour the badge as editorial emphasis, never a status. `neutral` = no semantic weight.
+
+**Soft or filled.** A badge is a soft wash of its tone by default (`arena-mark-soft`). Write `arena-mark-solid` when a status mark must read as filled, such as a live indicator over a picture. The badge then fills with its tone's ink and sets its label in that tone's on-ink, and a neutral badge fills with the neutral colour. Danger fills through its ink too, so a solid danger badge is a status mark and not a danger surface.
+
+```tsx
+<ArenaBadge tone="danger" className="arena-mark-solid">Live</ArenaBadge>
+```
 
 **Don't**
 - Don't use `arena-accent-primary` to communicate a status (use a status tone); reserve its crimson for "new/featured".

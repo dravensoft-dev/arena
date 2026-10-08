@@ -1,4 +1,4 @@
-/* The hue sheet writes the four channels of a hue on each slot a group's attribute reaches, once
+/* The hue sheet writes the channels of a hue on each slot a group's attribute reaches, once
  * per value, `initial` for a value mapped to no hue. */
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -19,8 +19,20 @@ const probe = (extra: Partial<ComponentManifest> = {}): ComponentManifest => ({
   ...extra,
 } as ComponentManifest);
 
-test('the four channels are the ones a hue sheet may declare', () => {
-  assert.deepEqual([...HUE_CHANNELS], ['--arena-hue-ink', '--arena-hue-edge', '--arena-hue-fill-strong', '--arena-hue-fill-soft']);
+test('the channels are the ones a hue sheet may declare', () => {
+  assert.deepEqual([...HUE_CHANNELS], ['--arena-hue-ink', '--arena-hue-edge', '--arena-hue-fill-strong', '--arena-hue-fill-soft', '--arena-hue-on-ink']);
+});
+
+test('every status hue writes its on-ink role, and an identity hue writes none', () => {
+  const tones = ['success', 'warning', 'danger', 'info'];
+  const css = hueRules({
+    component: 'ArenaProbe', slots: { root: 'flex' },
+    variants: { tone: Object.fromEntries([...tones, 'cat'].map((tone) => [tone, { root: 'x' }])) },
+    hues: { tone: { ...Object.fromEntries(tones.map((tone) => [tone, tone])), cat: 'identity-2' } },
+  } as unknown as ComponentManifest, hues);
+  for (const tone of tones)
+    assert.match(css, new RegExp(`data-arena-tone="${tone}"\\]\\) \\{[^}]*--arena-hue-on-ink: var\\(--hue-${tone}-on-ink\\);`));
+  assert.match(css, /data-arena-tone="cat"\]\) \{[^}]*--arena-hue-on-ink: initial;/);
 });
 
 test('Hues.json expands identity-N to the eight categorical colours', () => {

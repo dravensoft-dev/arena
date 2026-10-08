@@ -506,7 +506,7 @@ group is a member, a field of a member's type, or an `internal` entry, `{ group:
 `check:api` holds.
 
 **`hues` maps a group's values to hues** (`danger`, `success`, `warning`, `info`, `identity-N`), and
-a value mapped to `null` writes the four channels as `initial`. `build:tailwind` compiles it to the
+a value mapped to `null` writes every channel as `initial`. `build:tailwind` compiles it to the
 hue sheet, `consume/hues/<category>/<component-kebab>/<Component>.hues.generated.css`: one rule
 per slot and value on the element given the hue, never on an ancestor, so a badge inside a danger
 alert reads its own colour. What each hue writes is authored once, in
