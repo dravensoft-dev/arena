@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { resolve, selectorKeys, symbolKeys, namedImports, AUTO } from './components.ts';
+import { resolve, pulledBy, selectorKeys, symbolKeys, namedImports, AUTO } from './components.ts';
 import type { ComponentMap } from './components.ts';
 
 const ANGULAR: ComponentMap = {
@@ -129,4 +129,34 @@ test('a generic type argument is not a tag, so a type-only import is not reporte
   assert.deepEqual(read.unplaced, [],
     'useState<ArenaTableSort> is a type position: reporting it tells a consumer their type import '
     + 'is a component this package does not ship, and --strict=components fails the build on it');
+});
+
+test('pulledBy follows needs to the end of a chain, stops on a cycle, and leaves out what was named', () => {
+  const needs = {
+    'split-button': ['menu'], menu: ['anchored'], anchored: [],
+    loop: ['back'], back: ['loop'],
+  };
+  assert.deepEqual(pulledBy(needs, ['split-button']), ['anchored', 'menu']);
+  assert.deepEqual(pulledBy(needs, ['split-button', 'menu']), ['anchored'], 'menu was named, so it is not pulled');
+  assert.deepEqual(pulledBy(needs, ['loop']), ['back']);
+  assert.deepEqual(pulledBy(needs, ['button']), []);
+});
+
+test('pulledBy reads only what needs declares, whatever a config spells', () => {
+  const needs = { table: ['pagination'] };
+  assert.deepEqual(pulledBy(needs, ['constructor', 'toString', '__proto__', 7, null, 'table']), ['pagination'],
+    'a prototype key or a non-string names no sheet, and stylesheetProblems is what refuses it');
+  assert.deepEqual(pulledBy({ table: ['pagination', 7] } as never, ['table']), ['pagination'], 'a non-string entry in needs pulls nothing');
+});
+
+test('"auto" pulls through pulledBy, so a map whose needs is not closed is closed anyway', () => {
+  const open: ComponentMap = {
+    match: 'selector',
+    draws: { 'arena-split-button': 'split-button', 'arena-menu': 'menu', 'arena-anchored': 'anchored' },
+    needs: { 'split-button': ['menu'], menu: ['anchored'] },
+  };
+  const found = resolved(open, ['<arena-split-button />'], '@dravensoft/arena-angular');
+  assert.deepEqual(found.drawn, ['split-button']);
+  assert.deepEqual(found.pulled, ['anchored', 'menu']);
+  assert.deepEqual(found.components, ['anchored', 'menu', 'split-button']);
 });

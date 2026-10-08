@@ -1,13 +1,13 @@
-/* Resolving "components": "auto" against the map the package carries. A key is what the consumer
- * writes and a sheet is what dresses it, so a row, an item and a tab resolve to their parent's,
- * and a chart resolves to no sheet at all, which is an answer and not a miss. Then the closure,
- * because Arena draws components a consumer never names: a table brings a pagination and a
- * select, and a subset without them renders with no border and no colour and reports nothing.
- * A key it cannot place is a line on stderr rather than a stop, since an element of the
- * consumer's own may wear the prefix. React is read through the import naming the package AND
- * the JSX opening the tag, and is unplaced only when both agree and the map still does not know
- * it: an import alone is a type or a helper as often as a component, and a tag alone belongs to
- * whoever wrote it -- half this library is called ArenaCard or ArenaTable in somebody's code. */
+/* Resolving "components": "auto" against the map the package carries. A key is what the consumer writes and a
+ * sheet is what dresses it, so a row, an item and a tab resolve to their parent's, and a chart resolves to no
+ * sheet at all, which is an answer and not a miss. Then the closure, because Arena draws components a consumer
+ * never names: a table brings a pagination and a select, and a subset without them renders with no border and
+ * no colour and reports nothing. A key it cannot place is a line on stderr rather than a stop, since an element
+ * of the consumer's own may wear the prefix. React is read through the import naming the package AND the JSX
+ * opening the tag, and is unplaced only when both agree and the map still does not know it: an import alone is
+ * a type or a helper as often as a component, and a tag alone belongs to whoever wrote it -- half this library
+ * is called ArenaCard or ArenaTable in somebody's code. A list the consumer names is closed through the same
+ * pulledBy, so a sheet a component needs reaches a project that names its sheets as surely as one that scans. */
 
 export const AUTO = 'auto';
 
@@ -70,6 +70,23 @@ export function symbolKeys(map: ComponentMap, sources: string[], packageName: st
   };
 }
 
+export function pulledBy(needs: Record<string, string[]>, sheets: readonly unknown[]) {
+  const named = new Set(sheets.filter((one): one is string => typeof one === 'string'));
+  const reached = new Set<string>();
+  const pending = [...named];
+  while (pending.length) {
+    const key = pending.pop() ?? '';
+    const next = Object.hasOwn(needs, key) ? needs[key] : null;
+    if (!Array.isArray(next)) continue;
+    for (const one of next) {
+      if (typeof one !== 'string' || named.has(one) || reached.has(one)) continue;
+      reached.add(one);
+      pending.push(one);
+    }
+  }
+  return [...reached].sort();
+}
+
 export function resolve(map: ComponentMap, sources: string[], packageName: string) {
   const read = map.match === 'selector' ? selectorKeys(map, sources)
     : map.match === 'symbol' ? symbolKeys(map, sources, packageName)
@@ -79,9 +96,7 @@ export function resolve(map: ComponentMap, sources: string[], packageName: strin
   const drawn = [...new Set((read.drawn as string[])
     .map((key) => map.draws[key])
     .filter((sheet): sheet is string => Boolean(sheet)))].sort();
-  const pulled = [...new Set(drawn.flatMap((sheet) => map.needs[sheet] ?? []))]
-    .filter((sheet) => !drawn.includes(sheet))
-    .sort();
+  const pulled = pulledBy(map.needs, drawn);
 
   return { components: [...drawn, ...pulled].sort(), keys: read.drawn, drawn, pulled, unplaced: read.unplaced };
 }
