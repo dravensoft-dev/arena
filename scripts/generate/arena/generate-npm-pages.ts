@@ -13,11 +13,16 @@ import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { packageSheetName, sheetFamilies } from '../../lib/tailwind/vocabulary.ts';
 import { CSS_CHAIN } from '../../lib/arena/package-assembly.ts';
 import { NPM_PAGES, renderQuestions } from '../../lib/arena/npm-questions.ts';
+import { RESERVED } from '../core/arena-cli/style-plugin-rules.ts';
+import { readJson } from '../../utils/read-file.ts';
+
+export const LOCALE_CONTRACT = 'contracts/api/types/arena-locale.json';
 
 export const REGION_TARGETS: Record<string, string[]> = {
   repository: ['frameworks/react/PACKAGE.md', 'frameworks/angular/PACKAGE.md'],
   skin: ['skills/design/references/config.md'],
   sheets: ['skills/design/references/stylesheets.md'],
+  locale: ['skills/design/references/locale.md'],
   questions: NPM_PAGES,
 };
 
@@ -25,7 +30,7 @@ export const TARGETS = [...new Set(Object.values(REGION_TARGETS).flat())];
 
 export const node = {
   name: 'generate:npm-pages',
-  reads: [...TARGETS, '.claude-plugin/plugin.json'],
+  reads: [...TARGETS, '.claude-plugin/plugin.json', 'scripts/generate/core/arena-cli/style-plugin-rules.ts', LOCALE_CONTRACT],
   writes: TARGETS,
   feeds: [
     'build:angular-package',
@@ -95,7 +100,9 @@ The package is the code. The server, the plugin and the repository are the langu
 **The rest of what ships under \`css/\` is not a choice.** The token layer is these sheets: ${listed}. \`arena.css\` imports them in the order they have to be in, and \`css/prelude.css\` is what a single component sheet pulls in for itself. The one that IS a decision is \`css/style-plugin-default.css\`, the appearance this package installs with. The sheet arrives through \`arena.css\` like the rest. A \`stylePlugins\` list of your own that does not name \`default\` does not receive it, which is the point of writing one.`;
   },
 
-  skin: () => `## Declare your skin
+  skin: () => {
+    const reserved = `\`${[...RESERVED.keys()].join(', ')}\``;
+    return `## Declare your skin
 
 **A palette is not an appearance.** Arena keeps its questions about shape, space, weight and depth, and the answers are a style plugin your project writes. The config below decides which colours a surface takes, and none of how round, how tight or how heavy the product is. That decision is paid
 once per project and belongs before the first screen, and
@@ -161,9 +168,9 @@ What each part means:
 - **\`palettes\`** is an array, so declare as many as you want. Exactly one is the \`default\` and
   reaches \`:root\`; every other one becomes a class, \`.arena-<name>\`, that you put on
   \`<html>\` to switch skin. The command refuses a palette or style plugin named after a class Arena
-  ships or is going to ship, naming the component a future class belongs to.
+  ships or is going to ship, naming the component a future class belongs to. The names held for a class Arena is going to ship are ${reserved}. A palette may still take its own polarity's name, \`dark\` or \`light\`, and a style plugin may not.
 - **\`polarity\`** is \`dark\` or \`light\`. The polarity decides the native date picker's colour, and it is what a first visit matches \`prefers-color-scheme\` against.
-- **\`colors\`** takes every key above. \`error-fill\` is the only optional one: leave it out and
+- **\`colors\`** takes every key above, each a six-digit hex such as \`#141010\`. \`error-fill\` is the only optional one: leave it out and
   Arena darkens \`error\` in oklab for the single filled danger surface it has.
 - **\`cat-1\`** through **\`cat-8\`** are the chart ramp. The order of the slots is their identity, so slot 3 is always slot 3. The slots are never used to mean anything, only to tell series apart.
 - **\`fonts\`** fills the three families Arena reads. \`src\` takes either a stylesheet URL, as
@@ -178,14 +185,26 @@ What each part means:
   component rewritten to get there.
   The key is a list, because a build can carry more than one register. The first entry is what a page with no class on it looks like. Every later one emits under \`.arena-<name>\`, which you put on \`<html>\` beside any palette class, and is a difference. An entry is the word
   \`default\`, which is the appearance this package installs with, or a path to a directory of
-  your own holding \`plugin.tokens.json\` and optionally \`plugin.css\`. The first entry answers every role Arena declares, and the command refuses one silent on a role that carries no default of Arena's. A role carrying Arena's default takes that default when your plugin is silent on it, and the command notes which roles did. A custom property with no value is invalid at computed-value time, so an unanswered role is a missing border rather than a plainer look. Declare a list without \`default\` and you do not receive its stylesheet, the
+  your own holding \`plugin.tokens.json\` and optionally \`plugin.css\`. The first entry answers every role Arena declares, and the command refuses one silent on a role that carries no default of Arena's. A role carrying Arena's default takes that default when your plugin is silent on it, and the command notes which roles did, as \`N role(s) your root style plugin leaves unanswered take Arena's default: …\`. Your package's \`arena.tokens.json\` writes a role's default beside its type, and a role with none there is one your plugin answers. A custom property with no value is invalid at computed-value time, so an unanswered role is a missing border rather than a plainer look. Declare a list without \`default\` and you do not receive its stylesheet, the
   same way the preflight can already be dropped.
 - **\`gradientMark\`** is optional, a boolean, and says the mark your product is drawn with is a
   gradient. Arena ships no element that is one, so yours lives in your own CSS, where \`arena audit\` reports it. The scope reads which directory a line sits in, which is right for a part hook and wrong for a brand. Declare it once and that rule goes quiet in your sources; the colours inside
   the gradient are still reported, since they are the skin. The key replaces an \`arena-audit allow\` marker, which silences every rule on its line and is repeated wherever the mark is drawn.
 
 **A plugin carrying a \`plugin.css\` gets a third generated file**, \`plugin.generated.css\`, and
-you import it beside the other two. The sheet declares the cascade layer order itself and then opens the reserved layer. Where your bundler places it among your other stylesheets cannot change what wins.`,
+you import it beside the other two. The sheet declares the cascade layer order itself and then opens the reserved layer. Where your bundler places it among your other stylesheets cannot change what wins.`;
+  },
+
+  locale: (base = root) => {
+    const contract = readJson(join(base, LOCALE_CONTRACT)) as {
+      fields: Record<string, { default: string; description: string }>;
+    };
+    const cell = (text: string) => text.replace(/\|/g, '\\|');
+    const rows = Object.entries(contract.fields)
+      .map(([name, field]) => `| \`${name}\` | \`${cell(field.default)}\` | ${cell(field.description)} |`);
+    return ['Every field is optional in what you provide, and one you leave out keeps the default below.', '',
+      '| field | English default | what it names |', '| --- | --- | --- |', ...rows].join('\n');
+  },
 
   questions: (base = root, target = '') => renderQuestions(target, base),
 };

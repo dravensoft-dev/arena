@@ -72,9 +72,9 @@ What each part means:
 - **`palettes`** is an array, so declare as many as you want. Exactly one is the `default` and
   reaches `:root`; every other one becomes a class, `.arena-<name>`, that you put on
   `<html>` to switch skin. The command refuses a palette or style plugin named after a class Arena
-  ships or is going to ship, naming the component a future class belongs to.
+  ships or is going to ship, naming the component a future class belongs to. The names held for a class Arena is going to ship are `divider, kbd, fieldset, link, copy-button, meter, accordion, stepper, timeline, number-field, pin-input, file-input, slider, sparkline, gauge-chart, filter-bar, funnel-chart, popover, combobox, split-button, tree-view, heatmap-chart, sticky-head, sticky-none`. A palette may still take its own polarity's name, `dark` or `light`, and a style plugin may not.
 - **`polarity`** is `dark` or `light`. The polarity decides the native date picker's colour, and it is what a first visit matches `prefers-color-scheme` against.
-- **`colors`** takes every key above. `error-fill` is the only optional one: leave it out and
+- **`colors`** takes every key above, each a six-digit hex such as `#141010`. `error-fill` is the only optional one: leave it out and
   Arena darkens `error` in oklab for the single filled danger surface it has.
 - **`cat-1`** through **`cat-8`** are the chart ramp. The order of the slots is their identity, so slot 3 is always slot 3. The slots are never used to mean anything, only to tell series apart.
 - **`fonts`** fills the three families Arena reads. `src` takes either a stylesheet URL, as
@@ -89,7 +89,7 @@ What each part means:
   component rewritten to get there.
   The key is a list, because a build can carry more than one register. The first entry is what a page with no class on it looks like. Every later one emits under `.arena-<name>`, which you put on `<html>` beside any palette class, and is a difference. An entry is the word
   `default`, which is the appearance this package installs with, or a path to a directory of
-  your own holding `plugin.tokens.json` and optionally `plugin.css`. The first entry answers every role Arena declares, and the command refuses one silent on a role that carries no default of Arena's. A role carrying Arena's default takes that default when your plugin is silent on it, and the command notes which roles did. A custom property with no value is invalid at computed-value time, so an unanswered role is a missing border rather than a plainer look. Declare a list without `default` and you do not receive its stylesheet, the
+  your own holding `plugin.tokens.json` and optionally `plugin.css`. The first entry answers every role Arena declares, and the command refuses one silent on a role that carries no default of Arena's. A role carrying Arena's default takes that default when your plugin is silent on it, and the command notes which roles did, as `N role(s) your root style plugin leaves unanswered take Arena's default: …`. Your package's `arena.tokens.json` writes a role's default beside its type, and a role with none there is one your plugin answers. A custom property with no value is invalid at computed-value time, so an unanswered role is a missing border rather than a plainer look. Declare a list without `default` and you do not receive its stylesheet, the
   same way the preflight can already be dropped.
 - **`gradientMark`** is optional, a boolean, and says the mark your product is drawn with is a
   gradient. Arena ships no element that is one, so yours lives in your own CSS, where `arena audit` reports it. The scope reads which directory a line sits in, which is right for a part hook and wrong for a brand. Declare it once and that rule goes quiet in your sources; the colours inside
@@ -110,7 +110,7 @@ The `stylesheet` key is how a project pays only for what it renders. Set `"compo
 
 The command counts a component as drawn when your sources use it. The command adds what Arena draws on your behalf. A table renders a pagination and a select that you never wrote. The command prints both counts. The command names on stderr anything it saw and could not place.
 
-`preflight: false` is a separate switch. Set it when the project already ships an equivalent browser reset.
+`preflight: false` is a separate switch. Set it when the project already ships an equivalent browser reset. The switch drops `css/base.css` and nothing else: the token layer and every vocabulary sheet arrive whatever the list names.
 
 ### What counts as drawn in React?
 
@@ -130,6 +130,6 @@ Name the sheets yourself when the project renders through indirection. Naming th
 { "stylesheet": { "components": ["arena-button", "arena-page-head", "arena-side-nav", "arena-stat-card", "arena-table"] } }
 ```
 
-A name the package does not ship fails the command and lists the names it does ship. A typo stops the build. The command closes a named list the way it closes `"auto"`. Name the components your project renders. The command adds the ones Arena draws on your behalf, and prints them. The list is then yours to keep current for the components you render yourself.
+A name the package does not ship fails the command and lists the names it does ship. A typo stops the build. The command closes a named list the way it closes `"auto"`. Name the components your project renders. The command adds the ones Arena draws on your behalf, and prints them on standard output as `arena build: N component sheet(s) named, and M Arena draws for you: …`. A list needing nothing added prints no such line. The list is then yours to keep current for the components you render yourself.
 
 A sheet name is the component's own name, as `arena-button`. [`stylesheets.md`](./stylesheets.md) lists the sheet files.
