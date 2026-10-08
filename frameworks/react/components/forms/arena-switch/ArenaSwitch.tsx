@@ -19,7 +19,7 @@ export interface ArenaSwitchProps {
   label: string;
   /** Whether the switch is inoperable. */
   disabled?: boolean;
-  /** When set, a change is not applied on the fly; it is requested through `requestChange` so the host can confirm it first. */
+  /** When set, a change is not applied on the fly; it is requested through `onRequestChange` so the host can confirm it first. */
   confirm?: boolean;
   /** The switch was turned on. */
   onFuncOn?: () => void;

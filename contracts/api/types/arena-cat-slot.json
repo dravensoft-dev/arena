@@ -1,6 +1,6 @@
 {
   "name": "ArenaCatSlot",
   "kind": "enum",
-  "description": "A slot in the categorical ramp, in fixed order and never cycled. Colour here means which thing, never what state. The same ramp the charts use (identity is one system across Arena, not one per component), but typed as an enum only here: ArenaBarChart, ArenaLineChart and ArenaDoughnutChart series still declare a bare number, which their runtime clamp (frameworks/react/DataVisuals.ts:arenaCatIndex(slot)) makes safe rather than correct, and narrowing them is an open contract change and not a fact this type states. The bound is not authored here either: it is the count of --color-cat-* slots in contracts/design/palette.dark.json, and check:script-tokens fails if this set stops matching it.",
+  "description": "Which slot of the categorical ramp a thing takes, taken in fixed order and never cycled. Colour here means which thing, never what state. Slot n is the colour `--color-cat-n`, a property `arena build` writes from the palette, and the bound is the number of those slots the build emits. arenaCatColor(slot) returns that colour as a CSS value, and arenaCatSurface(slot) returns a matching tinted `fill` and `border`. Both clamp a slot past the ramp to its last one instead of wrapping to the first, so a series past the ramp never reuses a colour. The chart components take a series colour as a plain number and apply the same clamp.",
   "values": [1, 2, 3, 4, 5, 6, 7, 8]
 }

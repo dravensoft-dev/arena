@@ -1,7 +1,7 @@
 {
   "name": "ArenaSeries",
   "kind": "object",
-  "description": "One plotted series: what it is called, its numbers in order, and the colour it carries. It is what replaced five loose members on every chart (values, seriesLabel, colorId, colorIds and tone), because those five described ONE series and a chart that draws two had nowhere to put the second. The name is not decoration: it heads the series' own column in the accessible table and names the series in a legend, so a chart of three series says which is which without the reader guessing from colour alone.",
+  "description": "One plotted series: what it is called, its numbers in order, and the colour it carries. It stands for what five loose members (values, seriesLabel, colorId, colorIds and tone) would otherwise describe on every chart, because those five describe ONE series and a chart that draws two would have nowhere to put the second. The name is not decoration: it heads the series' own column in the accessible table and names the series in a legend, so a chart of three series says which is which without the reader guessing from colour alone.",
   "fields": {
     "label": { "form": "primitive", "type": "string", "required": true,
                "description": "Names this series, for its column in the accessible table and for a legend. Required and guarded rather than defaulted: \"Series 2\" satisfies a heading mechanically and tells a screen-reader user nothing, and nothing can derive what a series is about, which is the same reason ArenaTable.label is required." },

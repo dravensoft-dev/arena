@@ -20,7 +20,7 @@ const [dark, setDark] = useState(false);
 | `iconOff` | primitive | `string` |  | A Phosphor class name for the glyph shown while off. |
 | `label*` | primitive | `string` |  | The accessible name for the switch, also drawn beside it. |
 | `disabled` | primitive | `boolean` | `false` | Whether the switch is inoperable. |
-| `confirm` | primitive | `boolean` | `false` | When set, a change is not applied on the fly; it is requested through `requestChange` so the host can confirm it first. |
+| `confirm` | primitive | `boolean` | `false` | When set, a change is not applied on the fly; it is requested through `onRequestChange` so the host can confirm it first. |
 | `onFuncOn` | event |  |  | The switch was turned on. |
 | `onFuncOff` | event |  |  | The switch was turned off. |
 | `onRequestChange` | event |  |  | A change was requested while `confirm` is set: the host opens an ArenaConfirmDialog and, on confirmation, flips `state` (the requested value is always the negation of the current one). |

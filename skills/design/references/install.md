@@ -51,7 +51,7 @@ import './arena.generated.css';
 import './plugin.generated.css';   // only when a style plugin of yours carries CSS
 ```
 
-The import happens in JavaScript. A bundler resolves each specifier as a stylesheet.
+The import happens in JavaScript. A bundler resolves each specifier as a stylesheet. `arena.generated.css` holds every colour and every font face. The package's `arena.css` has neither, so a page importing it alone paints with no colour.
 
 ## How do I import the stylesheets in Angular?
 
@@ -65,7 +65,7 @@ Import the generated files from `src/styles.css`, and import them last.
 
 The CDK overlay sheet comes with them. `arena.css` imports `css/arena-cdk.css` itself, and a `stylesheet` block carries it too.
 
-That sheet re-bases the CDK overlay onto Arena's `--z-*` scale. Without it a dialog's menu paints behind the dialog. Write the import yourself only under `--no-import`, as `@import '@dravensoft/arena-angular/arena.css';`.
+That sheet re-bases the CDK overlay onto Arena's `--z-*` scale. Without it a dialog's menu paints behind the dialog. Write the import yourself only under `--no-import`, which leaves the package import out of `arena.generated.css`. Import the generated sheet as well, because it alone holds the colours: `arena.css` by itself paints with no colour.
 
 ## Why does TypeScript report TS2307 on a stylesheet import in React?
 

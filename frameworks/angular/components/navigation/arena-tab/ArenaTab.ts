@@ -24,7 +24,7 @@ import manifest from '../arena-tabs/ArenaTabs.classes.generated';
 export class ArenaTab {
   protected readonly parts = manifest.parts;
 
-  /** What this tab selects, and what the parent's `change` carries. */
+  /** What this tab selects, and what the `change` event of ArenaTabs carries. */
   readonly value = input.required<string>();
   /** What the tab reads. Arena draws the button; the consumer names it. */
   readonly label = input.required<string>();

@@ -72,7 +72,7 @@ export const routes: Routes = [
 ];
 ```
 
-The writer composes on Angular's own `title:` through the `TitleStrategy` that Angular defines for this. `title: 'Orders'` keeps its meaning and gains a suffix, a description, a canonical and the `og:*` pair beside it.
+The writer composes on Angular's own `title:` through the `TitleStrategy` that Angular defines for this. `title: 'Orders'` keeps its meaning and gains a suffix, a description and a canonical. Six Open Graph tags join them: `og:type` (`website` unless the page sets a type), `og:title`, `og:description`, `og:url`, `og:image` and `og:site_name`. A tag whose value is missing or empty is removed from the head.
 
 `robots` defaults to `noindex`. The `cash` route above is private without anybody remembering to make it so. The `orders` route is public because it said so. That key on `provideArenaMetadata` moves the default for the whole application, and a route still outranks it.
 

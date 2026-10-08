@@ -123,7 +123,7 @@ export const ROUTES: Route[] = [
       'skills/design/references/config.md',
       'skills/design/references/cli.md',
     ],
-    budget: 28_100,
+    budget: 28_400,
     reason:
       'paid once per project rather than per screen, so it carries what the build route may not: '
       + 'the install, the config file and the command, each as its own reference so a reader opens '
@@ -132,13 +132,14 @@ export const ROUTES: Route[] = [
       + 'these references never name is a thing nobody imports: an export, a stylesheet, a class, '
       + 'a second entry point, a config key. The config block is copied whole, so it states every '
       + 'key that decides the appearance, and the install reference gives the evidence behind each '
-      + 'package manager and runtime it names. The three are charged together. The command '
+      + 'package manager and runtime it names. The command '
       + 'reference quotes whole the scripts `arena init` writes, and the audit one names every rule, '
       + 'so each audit rule is paid here by its name. '
       + 'What moves this number is being right, since that is what the references are for, and what '
       + 'keeps it honest is that a gate fails them rather than a reader discovering it. The config '
       + 'reference lists the names the build refuses and the note a defaulted role prints, so '
-      + 'neither arrives as news.',
+      + 'neither arrives as news. It says first that no role has a default, and that the package '
+      + 'sheet alone has no colour.',
   },
   {
     name: 'consumer-skin',
@@ -146,7 +147,7 @@ export const ROUTES: Route[] = [
       + 'document that says what the questions are and which answers carry the difference',
     entry: 'consumer',
     stops: ['skills/design/references/style-kernel.md'],
-    budget: 18_200,
+    budget: 18_400,
     reason:
       'paid once per project and never per screen, which is what lets it carry the whole surface '
       + 'the kernel exposes rather than a pointer to it, so a project stops learning the kernel from '
@@ -158,8 +159,9 @@ export const ROUTES: Route[] = [
       + 'inherited to decided is a decision this page is obliged to name. The number is what the '
       + 'stops measure with room for the kernel to grow a section, and it moves when the kernel grows '
       + 'a question rather than when the document grows a paragraph. The root rule says where a '
-      + 'role\'s default is written, because the kernel\'s totality reads as unconditional without it, '
-      + 'and where the roles carrying one are named, because a mechanism with no member reads as one with some.',
+      + 'role\'s default is written and states first, in a region generated with the config page\'s, how '
+      + 'many roles the root answers and that none carries a default, because a mechanism read before '
+      + 'its empty roster reads as one with members.',
   },
   {
     name: 'consumer-register',
@@ -189,7 +191,7 @@ export const ROUTES: Route[] = [
       + 'then the page that says what Arena writes into the head and which layer writes it',
     entry: 'consumer',
     stops: ['skills/design/references/seo.md'],
-    budget: 7_500,
+    budget: 7_700,
     reason:
       'paid once per project and taken before the first screen, because the answer reaches the '
       + 'layer and the install rather than a component, so a project that settles it afterwards '
@@ -203,7 +205,8 @@ export const ROUTES: Route[] = [
       + 'The page also carries the Angular head entry point as a table of what it exports, so the '
       + 'layer that supplies a head names its own surface. The number is what the stops measure with '
       + 'room for one section, and it grows when Arena gains something to write into the head. It '
-      + 'says how each layer mounts a structured-data script.',
+      + 'says how each layer mounts a structured-data script, and names each Open Graph tag Angular '
+      + 'writes: a pair reads as two where six arrive.',
   },
   {
     name: 'consumer-surface',

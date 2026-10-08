@@ -42,7 +42,7 @@ The dialog's width is the `arena-dialog-width` class, `sm`, `md` or `lg`, and `-
 `92vw` regardless, so a wide dialog still fits a narrow viewport.
 
 Arena dismisses the dialog two ways, and both report through `onClose`: **Escape**
-and a click on the backdrop. A third path is yours rather than Arena's: a button in `footer` wired to the same handler. The third path is worth naming only so the count is not mistaken. `close` is one event with two sources inside the component, which is what `contracts/api/components/ArenaDialog.json` declares. Opening moves focus to the first focusable element inside the panel. Closing returns it to whatever had focus before, so a keyboard user lands back on the control that opened the dialog. Tab and Shift+Tab wrap at the panel's edges rather than
+and a click on the backdrop. A third path is yours rather than Arena's: a button in `footer` wired to the same handler. The third path is worth naming only so the count is not mistaken. `onClose` is one event with two sources inside the component, which is what `contracts/api/components/ArenaDialog.json` declares. Opening moves focus to the first focusable element inside the panel. Closing returns it to whatever had focus before, so a keyboard user lands back on the control that opened the dialog. Tab and Shift+Tab wrap at the panel's edges rather than
 walking out into the page behind the scrim.
 
 - **Do** give every dialog a `title` that says what it is about, not what it is

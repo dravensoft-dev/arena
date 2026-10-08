@@ -48,6 +48,24 @@ test('a member row binds the name to the layer and stars a required one', () => 
   assert.equal(memberRow('content', spec, 'angular'), '| `content*` | slot |  |  | The label text. |');
 });
 
+test('an event a description names in a code span is written under the layer\'s own name', () => {
+  const contract = { component: 'ArenaX', api: { nav: { form: 'event', payload: 'string' }, active: { form: 'primitive', type: 'string' } } };
+  const spec = { form: 'primitive', type: 'string', description: 'Reported through `nav`, not `active`, and ArenaSideNav\'s `nav` and `active`.' };
+  assert.equal(memberRow('href', spec, 'react', contract),
+    '| `href` | primitive | `string` |  | Reported through `onNav`, not `active`, and ArenaSideNav\'s `onNav` and `active`. |');
+  assert.equal(memberRow('href', spec, 'angular', contract),
+    '| `href` | primitive | `string` |  | Reported through `nav`, not `active`, and ArenaSideNav\'s `nav` and `active`. |');
+});
+
+test('a named component\'s event is translated in the dotted and the "event of" forms, and a non-event is left alone', () => {
+  const contract = { component: 'ArenaX', api: { nav: { form: 'event', payload: 'string' } } };
+  const spec = { form: 'primitive', type: 'string', description: 'Same as ArenaTableRow.click and `ArenaTableRow.click`, the `change` event of ArenaTabs, not ArenaCard.href, the `nav` event of ArenaSideNav, and own `nav`.' };
+  assert.equal(memberRow('href', spec, 'react', contract),
+    '| `href` | primitive | `string` |  | Same as ArenaTableRow.onClick and `ArenaTableRow.onClick`, the `onChange` event of ArenaTabs, not ArenaCard.href, the `onNav` event of ArenaSideNav, and own `onNav`. |');
+  assert.equal(memberRow('href', spec, 'angular', contract),
+    '| `href` | primitive | `string` |  | Same as ArenaTableRow.click and `ArenaTableRow.click`, the `change` event of ArenaTabs, not ArenaCard.href, the `nav` event of ArenaSideNav, and own `nav`. |');
+});
+
 test('a description spanning lines becomes one cell, and a pipe cannot split the row', () => {
   const spec = { form: 'primitive', type: 'string', description: 'one\ntwo | three' };
   assert.match(memberRow('a', spec, 'react'), /\| one two \\\| three \|$/);

@@ -16,7 +16,7 @@ export interface ArenaTabProps {
   className?: ArenaTabClass;
 
 
-  /** What this tab selects, and what the parent's `change` carries. */
+  /** What this tab selects, and what the `onChange` event of ArenaTabs carries. */
   value: string;
 
   /** What the tab reads. Arena draws the button; the consumer names it. */

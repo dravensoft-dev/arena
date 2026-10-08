@@ -10,7 +10,7 @@ import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
-import { bindingName, normaliseDoc } from '../../lib/arena/api-surface.ts';
+import { bindingName, normaliseDoc, layerDescription } from '../../lib/arena/api-surface.ts';
 import type { ContractCandidate, MemberCandidate } from '../../lib/arena/contract-shapes.ts';
 import {
   CONSUMER_LAYERS, componentDir, loadCategories, loadContract, escapeCell,
@@ -180,10 +180,10 @@ export function defaultCell(spec: MemberCandidate) {
   return spec.default === undefined ? '' : `\`${escapeCell(JSON.stringify(spec.default))}\``;
 }
 
-export function memberRow(name: string, spec: MemberCandidate, layer: string) {
+export function memberRow(name: string, spec: MemberCandidate, layer: string, contract: ContractCandidate = {}) {
   const bound = bindingName(name, spec.form ?? '', layer);
   return `| \`${bound}${spec.required ? '*' : ''}\` | ${spec.form} | ${typeCell(spec)} | ${
-    defaultCell(spec)} | ${escapeCell(normaliseDoc(spec.description ?? ''))} |`;
+    defaultCell(spec)} | ${escapeCell(normaliseDoc(layerDescription(spec.description ?? '', contract, layer)))} |`;
 }
 
 export function renderRegion(contract: ContractCandidate, layer: string) {
@@ -199,7 +199,7 @@ export function renderRegion(contract: ContractCandidate, layer: string) {
     lines.push('');
     lines.push('| Member | Form | Type | Default | What it is |');
     lines.push('|---|---|---|---|---|');
-    for (const [name, spec] of members) lines.push(memberRow(name, spec, layer));
+    for (const [name, spec] of members) lines.push(memberRow(name, spec, layer, contract));
   }
   lines.push('');
   lines.push(CLOSE_LINE);

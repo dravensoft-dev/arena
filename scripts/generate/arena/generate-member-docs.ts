@@ -9,7 +9,7 @@ import { isMainModule } from '../../utils/main-module.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { docComment } from './generate-api-types.ts';
-import { normaliseDoc } from '../../lib/arena/api-surface.ts';
+import { normaliseDoc, layerDescription } from '../../lib/arena/api-surface.ts';
 import { memberEntries } from '../../lib/arena/contract-shapes.ts';
 import type { ContractCandidate } from '../../lib/arena/contract-shapes.ts';
 import type { ComponentTree } from '../../lib/arena/layers.ts';
@@ -124,7 +124,7 @@ export function docsFor(
   const docs = new Map();
   for (const [name, spec] of memberEntries(contract.api)) {
     if (!spec.description) continue;
-    docs.set(bindingName(name, spec.form, layer), normaliseDoc(spec.description));
+    docs.set(bindingName(name, spec.form, layer), normaliseDoc(layerDescription(spec.description, contract, layer)));
   }
   return docs;
 }

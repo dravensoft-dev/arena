@@ -12,13 +12,13 @@ import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { LAYER_TOKENS, FORBIDDEN } from '../../check/arena/check-layer-independence.ts';
 import {
   TARGETS, openLine, closeLine, renderRegion, applyRegion, renderTarget, regionsOf,
-  ROLE_CONTRACT, defaultedRoles, defaultedSentence,
+  ROLE_CONTRACT, defaultedRoles, defaultedSentence, defaultsStatement, unansweredCount,
 } from './generate-npm-pages.ts';
 import { NPM_PAGES } from '../../lib/arena/npm-questions.ts';
 import { packageSheetName, sheetFamilies } from '../../lib/tailwind/vocabulary.ts';
 import { MAX_WORDS, plain, words } from '../../check/arena/check-register.ts';
 
-const SHARED = ['repository', 'skin', 'sheets'];
+const SHARED = ['repository', 'skin', 'defaults', 'sheets'];
 
 test('a region shared by several pages names no layer, because it is written into each at once', () => {
   const tokens = Object.entries(LAYER_TOKENS)
@@ -42,6 +42,7 @@ test('each target carries exactly the regions mapped to it', () => {
   assert.deepEqual(regionsOf('frameworks/react/PACKAGE.md'), ['repository', 'questions']);
   assert.deepEqual(regionsOf('skills/design/references/config.md'), ['skin']);
   assert.deepEqual(regionsOf('skills/design/references/stylesheets.md'), ['sheets']);
+  assert.deepEqual(regionsOf('skills/design/references/style-kernel.md'), ['defaults']);
   assert.deepEqual(regionsOf('mcp/NPM.md'), ['questions']);
 });
 
@@ -140,10 +141,23 @@ test('the skin region names which roles carry a default, so an empty set reads a
   const write = (roles: object) => writeFileSync(join(base, ROLE_CONTRACT), JSON.stringify(roles));
   write({ 'r-surface': { $type: 'dimension' }, 'gap-row': { $type: 'dimension' } });
   assert.deepEqual(defaultedRoles(base), []);
-  assert.match(defaultedSentence([]), /No role in this package carries one/);
+  assert.match(defaultedSentence([], 2), /^No role in this package carries a default, so your root style plugin answers every one of the 2 roles/);
+  assert.equal(unansweredCount(base), 2);
   write({ 'r-surface': { $type: 'dimension' }, 'gap-row': { $type: 'dimension', $extensions: { 'com.dravensoft.arena': { default: '{sp.3}' } } } });
   assert.deepEqual(defaultedRoles(base), ['gap-row']);
-  assert.match(defaultedSentence(['gap-row']), /The roles carrying one are `gap-row`/);
-  assert.ok(renderRegion('skin').includes(defaultedSentence(defaultedRoles())),
+  assert.match(defaultedSentence(['gap-row'], 1), /The roles carrying a default are `gap-row`, and your root style plugin answers the other 1/);
+  assert.equal(unansweredCount(base), 1);
+  assert.match(defaultsStatement(base), /^The roles carrying a default are `gap-row`/);
+  assert.ok(renderRegion('skin').includes(defaultsStatement()),
     'the region on the page says what roles.json carries');
+});
+
+test('the defaults statement leads with the fact and cites the figure the roles-without-default list gives', () => {
+  const silent = JSON.parse(readFileSync(join(repoRoot, 'scripts/check/core/roles-without-default.json'), 'utf8')) as string[];
+  assert.equal(unansweredCount(), silent.length - defaultedRoles().filter((role) => silent.includes(role)).length);
+  const statement = defaultsStatement();
+  if (defaultedRoles().length === 0) assert.ok(statement.startsWith(`No role in this package carries a default, so your root style plugin answers every one of the ${silent.length} roles`));
+  assert.ok(statement.indexOf('may add a role') > statement.indexOf('roles'), 'the mechanism follows the fact');
+  for (const target of ['skills/design/references/config.md', 'skills/design/references/style-kernel.md'])
+    assert.ok(readFileSync(join(repoRoot, target), 'utf8').includes(statement), `${target} carries the statement`);
 });

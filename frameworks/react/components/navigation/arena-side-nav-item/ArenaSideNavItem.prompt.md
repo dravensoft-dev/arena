@@ -18,7 +18,7 @@ One destination in an `ArenaSideNav`. Write one per destination, as a direct chi
 | `icon` | primitive | `string` |  | A Phosphor class name drawn before the label -- Arena draws the <i>, the consumer names the glyph. **The ACTIVE row is drawn in the filled weight, and there is no member for it**: the item whose id matches ArenaSideNav.active swaps whatever weight the string carries for `ph-fill`, so a consumer passes one string per destination rather than two and a conditional. It is Arena's convention, so Arena applies it, the same judgement that inverted ArenaPageHead's guidance rather than adding a boolean whose false nobody wants. Pass `ph-fill` yourself and nothing changes, since the swap is idempotent. |
 | `disabled` | primitive | `boolean` | `false` | Whether the destination is drawn but cannot be reached -- one the consumer's rules lock, such as a feature the current plan does not include. It reflects through `aria-disabled` rather than the native attribute, and rather than by not rendering the item at all: an unavailable destination a user can see and hear announced as unavailable is what tells them it exists, which is the whole reason to draw it. The anchor keeps its `href` so the case split stays what it is -- what changes is that activation is refused and the state is announced. |
 | `badge` | primitive | `number` |  | A count drawn at the row's trailing edge -- pending orders, unread notices. Zero draws nothing, because a badge reading 0 is a mark that says there is nothing to mark; above 99 it reads "99+", so a four-digit count cannot widen the column. A number rather than a string, because the two rules above are arithmetic and a caller who has already formatted the value has taken them away. It is NOT hidden from assistive technology, so the row announces "Orders 12": a count a screen-reader user cannot hear is a count that is not there, and aria-hidden on it would trade a real loss for a tidier name. What the 12 counts stays unsaid, because nothing can derive it and no member states it -- say it in the label where it matters. |
-| `href` | primitive | `string` |  | Present => the item renders an <a>; absent => a <button>. A control that navigates must be a link -- openable in a new tab, address copyable, announced as a link. An item that only changes local state is a button. A primary click with no modifier is cancelled and reported through ArenaSideNav's `nav`, so a router owns it; a modified or middle click is the browser's and reports nothing. |
+| `href` | primitive | `string` |  | Present => the item renders an <a>; absent => a <button>. A control that navigates must be a link -- openable in a new tab, address copyable, announced as a link. An item that only changes local state is a button. A primary click with no modifier is cancelled and reported through ArenaSideNav's `onNav`, so a router owns it; a modified or middle click is the browser's and reports nothing. |
 
 <!-- @api end -->
 
@@ -38,7 +38,7 @@ One destination in an `ArenaSideNav`. Write one per destination, as a direct chi
 present ⇒ an `<a>`, absent ⇒ a `<button>`. The active item, the one whose `id`
 matches `ArenaSideNav.active`, takes `aria-current="page"`, `--crimson-soft` behind
 `--crimson` text at `--fw-semibold`; the rest are transparent, `--mute`,
-`--fw-medium`. `ArenaSideNav` injects everything about *where* the item sits. That covers its nesting depth, which id is active, the indent and the handler that reports `nav`, and none of it is part of this component's API. You never write those.
+`--fw-medium`. `ArenaSideNav` injects everything about *where* the item sits. That covers its nesting depth, which id is active, the indent and the handler that reports `onNav`, and none of it is part of this component's API. You never write those.
 
 ## Do / Don't
 
@@ -58,7 +58,7 @@ matches `ArenaSideNav.active`, takes `aria-current="page"`, `--crimson-soft` beh
 - **Don't** render one outside an `ArenaSideNav`. The item renders, and nothing injects the active id or the handler. The item is a link that reports nothing and never marks itself current.
 
 - **`disabled` draws the destination and refuses it.** The member reflects through `aria-disabled` rather than by not rendering the item. An unavailable destination a user can see, and hear announced as unavailable, is what tells them it exists. A feature behind a plan they do not have is worth showing. The anchor keeps its `href`, so the shape does not change; what changes is that the
-  click is prevented and `onActivate` never fires.
+  click is prevented and the parent's `onNav` reports nothing.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

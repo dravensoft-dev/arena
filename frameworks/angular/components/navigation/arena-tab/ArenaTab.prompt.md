@@ -15,7 +15,7 @@ Arena tab, one view inside an `arena-tabs` strip. Standalone, `OnPush`, signal I
 
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
-| `value*` | primitive | `string` |  | What this tab selects, and what the parent's `change` carries. |
+| `value*` | primitive | `string` |  | What this tab selects, and what the `change` event of ArenaTabs carries. |
 | `label*` | primitive | `string` |  | What the tab reads. Arena draws the button; the consumer names it. |
 | `content` | slot |  |  | What the panel shows while this tab is selected. ArenaTabs places it; ArenaTab never renders it, because a tabpanel may not sit inside a tablist. |
 

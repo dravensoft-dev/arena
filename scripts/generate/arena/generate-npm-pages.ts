@@ -24,15 +24,26 @@ export function defaultedRoles(base = root) {
   return Object.keys(roles).filter((name) => roles[name]?.$extensions?.[ARENA_EXT]?.default !== undefined).sort();
 }
 
-export function defaultedSentence(roles: string[]) {
+export function unansweredCount(base = root) {
+  const roles = readJson(join(base, ROLE_CONTRACT)) as Record<string, unknown>;
+  return Object.keys(roles).length - defaultedRoles(base).length;
+}
+
+export function defaultedSentence(roles: string[], total = 0) {
   if (roles.length === 0)
-    return 'No role in this package carries one, so the first entry answers every role and the command refuses it silent on any.';
-  return `The roles carrying one are ${roles.map((role) => `\`${role}\``).join(', ')}, and every other role is one your plugin answers.`;
+    return `No role in this package carries a default, so your root style plugin answers every one of the ${total} roles and the command refuses a root plugin silent on any.`;
+  return `The roles carrying a default are ${roles.map((role) => `\`${role}\``).join(', ')}, and your root style plugin answers the other ${total}.`;
+}
+
+export function defaultsStatement(base = root) {
+  const roles = defaultedRoles(base);
+  return `${defaultedSentence(roles, unansweredCount(base))} A minor release may add a role that carries Arena's default. Your root plugin may then leave that role silent, and the role takes the default. The command notes it, as \`N role(s) your root style plugin leaves unanswered take Arena's default: …\`. Your package's \`arena.tokens.json\` writes a role's default beside its type.`;
 }
 
 export const REGION_TARGETS: Record<string, string[]> = {
   repository: ['frameworks/react/PACKAGE.md', 'frameworks/angular/PACKAGE.md'],
   skin: ['skills/design/references/config.md'],
+  defaults: ['skills/design/references/style-kernel.md'],
   sheets: ['skills/design/references/stylesheets.md'],
   locale: ['skills/design/references/locale.md'],
   questions: NPM_PAGES,
@@ -197,7 +208,7 @@ What each part means:
   component rewritten to get there.
   The key is a list, because a build can carry more than one register. The first entry is what a page with no class on it looks like. Every later one emits under \`.arena-<name>\`, which you put on \`<html>\` beside any palette class, and is a difference. An entry is the word
   \`default\`, which is the appearance this package installs with, or a path to a directory of
-  your own holding \`plugin.tokens.json\` and optionally \`plugin.css\`. The first entry answers every role Arena declares, and the command refuses one silent on a role that carries no default of Arena's. A role carrying Arena's default takes that default when your plugin is silent on it, and the command notes which roles did, as \`N role(s) your root style plugin leaves unanswered take Arena's default: …\`. Your package's \`arena.tokens.json\` writes a role's default beside its type. ${defaultedSentence(defaultedRoles(base))} A custom property with no value is invalid at computed-value time, so an unanswered role is a missing border rather than a plainer look. Declare a list without \`default\` and you do not receive its stylesheet, the
+  your own holding \`plugin.tokens.json\` and optionally \`plugin.css\`. The first entry answers every role Arena declares. ${defaultsStatement(base)} A custom property with no value is invalid at computed-value time, so an unanswered role is a missing border rather than a plainer look. Declare a list without \`default\` and you do not receive its stylesheet, the
   same way the preflight can already be dropped.
 - **\`gradientMark\`** is optional, a boolean, and says the mark your product is drawn with is a
   gradient. Arena ships no element that is one, so yours lives in your own CSS, where \`arena audit\` reports it. The scope reads which directory a line sits in, which is right for a part hook and wrong for a brand. Declare it once and that rule goes quiet in your sources; the colours inside
@@ -206,6 +217,8 @@ What each part means:
 **A plugin carrying a \`plugin.css\` gets a third generated file**, \`plugin.generated.css\`, and
 you import it beside the other two. The sheet declares the cascade layer order itself and then opens the reserved layer. Where your bundler places it among your other stylesheets cannot change what wins.`;
   },
+
+  defaults: (base = root) => defaultsStatement(base),
 
   locale: (base = root) => {
     const contract = readJson(join(base, LOCALE_CONTRACT)) as {

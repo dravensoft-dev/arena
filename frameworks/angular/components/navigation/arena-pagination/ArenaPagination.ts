@@ -41,7 +41,7 @@ export class ArenaPagination {
   readonly page = input.required<number>();
   /** How many pages there are. Required, and guarded at runtime: an ArenaPagination with no page count renders a window over nothing. */
   readonly pageCount = input.required<number>();
-  /** Names this navigation landmark. Required, and guarded at runtime: two paginated tables in one dashboard is a routine layout, and a shared constant name leaves them indistinguishable while satisfying the requirement mechanically. It was optional with a "ArenaPagination" default for one batch, which narrowed the gap rather than closing it: a name the caller omits is still the constant. Say what is being paged: "Deployments", not "Pages". */
+  /** Names this navigation landmark. Required, and guarded at runtime: two paginated tables in one dashboard is a routine layout, and a shared constant name leaves them indistinguishable while satisfying the requirement mechanically. A default name would narrow the gap rather than close it: a name the caller omits is still the constant. Say what is being paged: "Deployments", not "Pages". */
   readonly ariaLabel = input.required<string>();
   /** A page was chosen; carries the new 1-based page. Never fires for the current page, nor for a page outside 1..pageCount. */
   readonly change = output<number>();

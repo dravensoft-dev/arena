@@ -20,7 +20,7 @@ Bulk actions (H7). Appears when there's a selection and operates on the set. Com
 | `actions*` | array | `readonly ArenaBulkAction[]` |  | The actions offered for the current selection. |
 | `onRun` | event | `ArenaBulkAction` |  | An action was activated, carrying which one. |
 | `layout` | enum | `ArenaBulkActionBarLayout` | `"auto"` | Whether the bar may stack. 'auto' measures its OWN container, not the viewport, and drops the count, the actions and Clear onto separate rows when one row does not fit; 'inline' keeps the single row at every width, for a bar in a place the consumer knows is wide. It is a member rather than something a consumer reaches in with CSS because the alternative is what happens without it: reordering the bar's own children by position, which puts focus order out of step with visual order and breaks the next time anything inside moves. Stacking here reorders nothing, so the tab order and the reading order stay the same order they are wide. |
-| `clearable` | primitive | `boolean` | `true` | Whether the Clear control is drawn. Every layer gates on this member and never on whether anything listens for `clear`, because Arena never derives what it draws from what a consumer listens for. |
+| `clearable` | primitive | `boolean` | `true` | Whether the Clear control is drawn. Every layer gates on this member and never on whether anything listens for `onClear`, because Arena never derives what it draws from what a consumer listens for. |
 | `onClear` | event |  |  | The Clear control was activated. |
 
 <!-- @api end -->

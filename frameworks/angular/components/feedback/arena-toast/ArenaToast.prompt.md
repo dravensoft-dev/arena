@@ -28,7 +28,7 @@ taken away on a timer.
 | `tone` | enum | `ArenaToastTone` | `"neutral"` | The side bar's colour: neutral reports no outcome, success and danger report one. Whether the toast announces assertively. |
 | `actionLabel` | primitive | `string` |  | The label of the single inline action: Undo, Retry, View logs. Absent renders no action. |
 | `action` | event |  |  | The inline action was activated. |
-| `persist` | primitive | `boolean` | `false` | Disables the host's auto-dismiss and shows the Pinned marker. **Implied by `tone: "danger"`, which ignores `false`**: a critical message that vanishes on a timer is one a user can miss entirely, and this was documented as mandatory in an error state while nothing enforced it. Set it explicitly for any other tone that must not disappear on its own. |
+| `persist` | primitive | `boolean` | `false` | Disables the host's auto-dismiss and shows the Pinned marker. **Implied by `tone: "danger"`, which ignores `false`**: a critical message that vanishes on a timer is one a user can miss entirely, so an error state makes the pin mandatory and the layers enforce it rather than leave it to documentation. Set it explicitly for any other tone that must not disappear on its own. |
 | `dismissible` | primitive | `boolean` | `false` | Whether the × is shown. Every layer gates the × on this member and never on whether anything listens for `close`, because Arena never derives what it draws from what a consumer listens for. |
 | `close` | event |  |  | The × was activated. |
 

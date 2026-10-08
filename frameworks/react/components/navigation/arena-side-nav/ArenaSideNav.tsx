@@ -9,7 +9,7 @@ export interface ArenaSideNavProps {
   className?: ArenaSideNavClass;
 
 
-  /** The navigation tree. One ArenaSideNavItem per destination, optionally grouped by ArenaSideNavSection and ArenaSideNavCollapsible; where each child sits, which id is active and how it reports `nav` are the parent's to settle, and none of it is a member here. */
+  /** The navigation tree. One ArenaSideNavItem per destination, optionally grouped by ArenaSideNavSection and ArenaSideNavCollapsible; where each child sits, which id is active and how it reports `onNav` are the parent's to settle, and none of it is a member here. */
   children?: React.ReactNode;
 
   /** The id of the current destination. The ArenaSideNavItem whose id matches is marked aria-current="page", and no item is marked when it names none of them. */

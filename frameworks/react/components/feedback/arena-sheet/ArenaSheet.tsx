@@ -22,7 +22,7 @@ export interface ArenaSheetProps {
   /** The fold control was pressed, carrying the state it moved to. Arena never folds the panel by itself, so a host that ignores this gets a control that reports and a body that does not move. */
   onCollapsedChange?: (collapsed: boolean) => void;
 
-  /** Whether the close control is shown. Every layer gates it on this member and never on whether anything listens for `close`, because Arena never derives what it draws from what a consumer listens for. */
+  /** Whether the close control is shown. Every layer gates it on this member and never on whether anything listens for `onClose`, because Arena never derives what it draws from what a consumer listens for. */
   dismissible?: boolean;
 
   /** The panel was dismissed, by the close control or by Escape. No payload. Escape reports here rather than adding a member of its own, and it is the only key the panel takes: a non-modal panel leaves every other key to the page behind it. */

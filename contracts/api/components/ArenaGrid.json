@@ -1,6 +1,6 @@
 {
   "component": "ArenaGrid",
-  "description": "A grid that decides its own column count from the room it is given, rather than from a breakpoint anyone had to pick. Cells are as wide as they can be at or above a minimum, and the count falls as the room does, all the way to one. A row the items do not fill keeps its empty tracks, so a card on a short last page is as wide as a card on a full one. A grid given a height keeps its rows at their content height.",
+  "description": "A grid that decides its own column count from the room it is given, rather than from a breakpoint anyone has to pick. Cells are as wide as they can be at or above a minimum, and the count falls as the room does, all the way to one. A row the items do not fill keeps its empty tracks, so a card on a short last page is as wide as a card on a full one. A grid given a height keeps its rows at their content height.",
   "affordances": [],
   "api": {
     "content": {

@@ -17,7 +17,7 @@ import { buildApiModules } from '../../generate/arena/generate-api-types.ts';
 import { PREFIX } from './check-structure.ts';
 import {
   reactSurface, angularSurface, reactImplementation, angularImplementation, defaultProblems,
-  literalValue, normaliseDoc, UnrecognisedShape, bindingName,
+  literalValue, normaliseDoc, layerDescription, UnrecognisedShape, bindingName,
 } from '../../lib/arena/api-surface.ts';
 import { pascal } from '../../utils/case.ts';
 import { readLayer } from '../../lib/arena/layers.ts';
@@ -71,7 +71,7 @@ export function docProblems(contract: ContractCandidate, docs: Map<string, strin
     if (!spec.description) continue;
 
     if (layer === 'angular' && spec.form === 'slot') continue;
-    wanted.set(bindingName(name, spec.form, layer), { member: name, text: normaliseDoc(spec.description) });
+    wanted.set(bindingName(name, spec.form, layer), { member: name, text: normaliseDoc(layerDescription(spec.description, contract, layer)) });
   }
 
   for (const [bound, { member, text }] of wanted) {
@@ -102,6 +102,21 @@ export function docProblems(contract: ContractCandidate, docs: Map<string, strin
   return problems;
 }
 
+const CONSUMER_FILES = new Set([
+  'arena.config.json', 'arena.tokens.json', 'arena.generated.css', 'arena.css',
+  'plugin.tokens.json', 'plugin.css', 'package.json',
+]);
+
+const REPO_LEAK = /\b(?:frameworks|contracts|scripts|plugin-style-store)\/|\b[\w-]+(?:\.[\w-]+)*\.(?:tsx?|json|md|css|m?js)\b|\b(?:check|generate|build):[a-z]|\bbun run\b/g;
+
+export function leakProblems(where: string, description: string | undefined) {
+  for (const hit of (description ?? '').matchAll(REPO_LEAK)) {
+    if (CONSUMER_FILES.has(hit[0])) continue;
+    return [`${where}: its description names "${hit[0]}", a repository path or gate name, which means nothing in an installed package. Say what the thing is and does, and name an export by its name`];
+  }
+  return [];
+}
+
 export function validateTypes(types: TypeContract[]) {
   const problems = [];
   const seen = new Set();
@@ -118,6 +133,10 @@ export function validateTypes(types: TypeContract[]) {
     }
     if (seen.has(type.name)) problems.push(`${type.name}: declared twice`);
     seen.add(type.name);
+    problems.push(...leakProblems(type.name, type.description));
+    if (type.kind === 'object') {
+      for (const [field, spec] of fieldEntries(type.fields)) problems.push(...leakProblems(`${type.name}.${field}`, spec.description));
+    }
     if (type.kind === 'enum') {
       if (!Array.isArray(type.values) || !type.values.length) {
         problems.push(`${type.name}: an enum is a closed set and this declares no values`);
@@ -165,6 +184,7 @@ export function validateContract(contract: ContractCandidate, typeNames: Map<str
   const held = [];
   const routes = [];
   for (const [member, spec] of memberEntries(contract.api)) {
+    problems.push(...leakProblems(`${where}.${member}`, spec.description));
     if (!FORMS.has(spec.form)) {
       problems.push(`${where}.${member}: form "${spec.form}" is none of the nine — see contracts/api/AGENTS.md`);
       continue;

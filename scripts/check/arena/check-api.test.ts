@@ -6,7 +6,7 @@ import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import {
   bindingName, validateTypes, validateContract, compareSurface, docProblems,
   resolveAngularImplementations, resolveReactImplementations, zeroContractProblems,
-  angularImplementationProblems, implementationDefaultProblems, staleDerivedProblems, DERIVED_DEFAULT,
+  angularImplementationProblems, implementationDefaultProblems, staleDerivedProblems, DERIVED_DEFAULT, leakProblems,
 } from './check-api.ts';
 import { pascal } from '../../utils/case.ts';
 import { buildApiModules } from '../../generate/arena/generate-api-types.ts';
@@ -936,4 +936,44 @@ test('hues.always is no group, and an always entry naming a missing slot, an unk
 test('a sweep that finds no group fails', () => {
   assert.match(groupProblems(new Map(), thing(), noTypes)[0] ?? '', /found 0 manifests with a variant group/);
   assert.match(groupProblems(new Map([['t', manifest({ variants: {} })]]), thing(), noTypes)[0] ?? '', /found 0 manifests with a variant group/);
+});
+
+test('a description naming a repository path, a file or a gate is a problem', () => {
+  for (const text of [
+    'Held by frameworks/react/DataVisuals.ts.', 'Read from palette.dark.json.', 'check:script-tokens holds it.',
+    'Run bun run build.', 'See ProjectedInputs.ts.',
+    'Written to arena.out.css.', 'Loaded from vendor.min.js.', 'Imported from build.mjs.',
+    'Read from arena.config.json and ProjectedInputs.ts.',
+  ]) assert.equal(leakProblems('ArenaX', text).length, 1, text);
+});
+
+test('a description naming exports, tokens and a plain check is clean', () => {
+  assert.deepEqual(leakProblems('ArenaX', 'arenaCatColor(slot) returns var(--color-cat-n), guarded with a falsy check.'), []);
+  assert.deepEqual(leakProblems('ArenaX', undefined), []);
+});
+
+test('the files a consumer owns are named freely, in every extension the gate reads', () => {
+  for (const file of [
+    'arena.config.json', 'arena.tokens.json', 'arena.generated.css', 'arena.css',
+    'plugin.tokens.json', 'plugin.css', 'package.json',
+  ]) assert.deepEqual(leakProblems('ArenaX', `Written to ${file}, then read.`), [], file);
+  assert.equal(leakProblems('ArenaX', 'Written to other.arena.css.').length, 1);
+});
+
+test('validateTypes reports an object field whose description leaks a path or a file', () => {
+  const object = (description: string) => validateTypes([{
+    name: 'ArenaX', kind: 'object', description: 'Fine.',
+    fields: { size: { form: 'primitive', type: 'number', description } },
+  }]);
+  for (const text of ['Held by scripts/x.', 'Read from palette.css.', 'Loaded from x.js.', 'Run check:api.']) {
+    const problems = object(text);
+    assert.equal(problems.length, 1, text);
+    assert.match(problems[0] ?? '', /^ArenaX\.size: its description names/);
+  }
+  assert.deepEqual(object('Read from arena.config.json.'), []);
+});
+
+test('validateTypes reports a type whose description leaks a path', () => {
+  const problems = validateTypes([{ name: 'ArenaX', kind: 'enum', values: [1], description: 'See contracts/design/x.' }]);
+  assert.equal(problems.length, 1);
 });

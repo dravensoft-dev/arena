@@ -22,7 +22,7 @@ export interface ArenaAlertProps {
   actionLabel?: string;
   /** The inline action button was activated. */
   onAction?: () => void;
-  /** Whether the × is shown. Every layer gates the × on this member and never on whether anything listens for `close`, because Arena never derives what it draws from what a consumer listens for. */
+  /** Whether the × is shown. Every layer gates the × on this member and never on whether anything listens for `onClose`, because Arena never derives what it draws from what a consumer listens for. */
   dismissible?: boolean;
   /** The × was activated. */
   onClose?: () => void;
