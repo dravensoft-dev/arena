@@ -172,7 +172,7 @@ source text cannot show, is `arena://rules` on the MCP server.
 | Where is each style decision made, and which of them are mine? | [`references/style.md`](./references/style.md): the five places, and the two you write in |
 | What exactly does this member take? | the members table in that same prompt |
 | Why does this member exist at all? | `contracts/api/components/<Name>.json` |
-| What else does the package export, and how do I size a layout or a panel? | [exports](./references/exports.md), then [page](./references/page.md) for a frame. Switching palettes is [theme](./references/theme.md) and Arena's words are [locale](./references/locale.md) |
+| What else does the package export: density by breakpoint, a focus trap for my own overlay, the toast and confirmation queues, router predicates, tabular figures and hidden labels? How do I size a layout or a panel? | [exports](./references/exports.md), then [page](./references/page.md) for a frame. Switching palettes is [theme](./references/theme.md) and Arena's words are [locale](./references/locale.md) |
 | What do I paint my page and my own markup with? | [`references/page.md`](./references/page.md): the floor, the colour roles, and why a role follows the skin where an alias follows the palette. **Arena paints no page of yours** |
 | How much air goes between two components, and what column does the page sit in? | [`references/style.md`](./references/style.md): the four classes the column is made of, and the stack and row steps as classes and as tokens. That page also draws the cut between air you place and air the kernel answers |
 | What does Arena ship at all, and how much of it do I have to take? | [`references/surface.md`](./references/surface.md): every part in one table with the document that owns it, and three steps a project can stop at |
@@ -194,8 +194,10 @@ answers a question in the table above.
 ## Two ways to deliver
 
 **A visual artifact** (a slide, a mock, a throwaway prototype): copy the assets you need out
-of `assets/`, and write static HTML that links `intro/styles.css`. That one stylesheet pulls
-in every token, so the page is on-brand with no build step. Serve the page over HTTP rather than
+of `assets/`, and write static HTML that links `intro/styles.css`. Neither ships in a package;
+https://arena.dravensoft.org serves both, so link them there when you have no clone. That one stylesheet pulls
+in every token and no glyph: link Phosphor's `src/bold/style.css` and `src/fill/style.css` beside it,
+which the site serves under `node_modules/@phosphor-icons/web/`. Serve the page over HTTP rather than
 opening it from `file://`.
 
 **Production code**: use the component library for the consumer's framework, import from

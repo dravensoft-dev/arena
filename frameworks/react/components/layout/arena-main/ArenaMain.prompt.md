@@ -33,7 +33,7 @@ whose main landmark is swapped for a plain `<div>` looks identical. Where things
 container you own, which is what [`style.md`](../../../../../skills/design/references/style.md) says under "Where does my spacing and sizing go?" and what this deliberately does not reopen.
 What it says is only what the region IS.
 
-**`.arena-shell__main` goes on a `<div>` around it, never on the component.** The component takes no `className`, by the rule every component here follows. The `<main>` it renders is Arena's element rather than yours, so there is no element here for the class to land on. Wrap it, put the
+**`.arena-shell__main` goes on a `<div>` around it, never on the component.** The component's `className` takes only the vocabulary's context classes, the ones that reach the components inside it, and `arena-shell__main` is not one of them. The `<main>` it renders is Arena's element rather than yours, so there is no element here for the class to land on. Wrap it, put the
 class on the wrapper, and the shell has a child that can take the slack. Omitting the class
 because the component refuses it is the shape that gets shipped, and it reads as a footer floating
 halfway up a short page.

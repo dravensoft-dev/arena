@@ -75,7 +75,7 @@ Spend one the way every Arena component spends it:
 color: color-mix(in oklab, var(--ink-muted) var(--level-ink-muted), transparent);
 ```
 
-`--level-ink-body`, `--level-ink-quiet` and `--level-ink-muted` are the three, in
+`--level-ink-body`, `--level-ink-quiet` and `--level-ink-muted` are the three, the quiet one for a label that sits between body copy and a caption, in
 [`contracts/design/colors.css`](../../../contracts/design/colors.css). The three are floors rather than
 constants. `arena build` raises one for a palette whose ink has too little room to clear its
 contrast bar. So a percentage of your own is the one value on this page that cannot follow the
@@ -109,7 +109,7 @@ what each step is for.
 **Every other group reads the same way.** Your package's `arena.tokens.json` lists each
 value: `--fs-*`, `--fw-*`, `--lh-*`, `--ls-*` and `--font-*` for type, `--r-*`, `--bw-*`,
 `--shadow-*`, `--dur-*`, `--ease-*`, `--loop-*`, `--z-*`, `--bp-*` and `--dz-*`. A media query
-takes no `var()`, so a frame uses the `md:` variants or the breakpoint helper.
+takes no `var()`, so a frame uses the `md:` variants or the breakpoint helper, `useArenaViewportBelow` in React and `arenaViewportBelow` in Angular, in [`exports.md`](./exports.md). The file's keys drop the leading `--`, so `sp-4` there is `--sp-4` here.
 
 **`--pad-safe-top`, `--pad-safe-right`, `--pad-safe-bottom` and `--pad-safe-left`** compose the
 device's own insets with that scale, in

@@ -21,11 +21,11 @@ The stylesheets are a tree, and you pick your depth. `@dravensoft/arena-react/ar
 
 ## Which order do the token layer and the component sheets import in?
 
-The two halves are the token layer and `css/components.css`. Importing them in place of `arena.css` makes the order yours. Arena's components have to come before your own rules if you want yours to win.
+The two halves are the token layer and `css/components.css`. Importing them in place of `arena.css` makes the order yours. By hand it is the order `arena.css` itself uses. The token layer comes first as listed above, with your style plugin's sheet, or `css/style-plugin-default.css`, right after `css/effects.css`. Then come `css/base.css`, `css/prelude.css`, the component sheets and the vocabulary sheets. Arena's components have to come before your own rules if you want yours to win.
 
 ## Which sheet re-bases the Angular CDK overlay?
 
-`css/arena-cdk.css` ships in the Angular package. That sheet re-bases the CDK overlay onto Arena's layering. `arena.css` imports it, and so does a `stylesheet` block.
+`css/arena-cdk.css` ships in the Angular package. That sheet re-bases the CDK overlay onto Arena's layering. `arena.css` imports it, and so does a `stylesheet` block, which [`config.md`](./config.md) covers under Build to production.
 
 ## Does Angular need a Tailwind `@source` for Arena?
 

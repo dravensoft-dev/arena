@@ -29,7 +29,7 @@ The package has no runtime dependency and needs no CSS toolchain. Every componen
 
 The peers are `@angular/core`, `@angular/common` and `@angular/platform-browser`, which the project already has. `@angular/cdk` arrives too. A primitive that anchors a surface to a trigger uses its overlay, and `arena-tabs` uses its roving-focus key manager. The CDK supplies position only. The roles, the keys and the focus are Arena's own.
 
-`@phosphor-icons/web` is the last peer and may be new to the project. The font is installed beside the package. `tslib` is the only runtime dependency the package declares.
+`@phosphor-icons/web` is the last required peer and may be new to the project. `@angular/router` and `@angular/forms` are optional peers, installed when you reach `@dravensoft/arena-angular/metadata` or `@dravensoft/arena-angular/forms`. The font is installed beside the package. `tslib` is the only runtime dependency the package declares.
 
 Angular's own Node floor is the stricter of the two, so Angular decides which Node the project runs. Arena never refuses a Node that the framework accepts.
 
@@ -39,7 +39,7 @@ You do not need to run Tailwind. Every component's CSS ships compiled, and one `
 
 An icon is a class name and never an element. Every `icon` prop in React and every `icon` input in Angular takes a Phosphor class list such as `"ph-bold ph-bell"`. The component renders it.
 
-The stylesheet that turns those classes into glyphs is the sheet `arena build` writes for the glyphs you draw. Phosphor's own stylesheet is not the one Arena reads. [`cli.md`](./cli.md) says how the sheet is built.
+The stylesheet that turns those classes into glyphs is the sheet `arena build` writes for the glyphs you draw. A project does not import Phosphor's own stylesheet; only a static page with no build links it. [`cli.md`](./cli.md) says how the sheet is built.
 
 ## How do I import the stylesheets in React?
 

@@ -53,7 +53,7 @@ The exports that carry all three are in the next section. Open it when the answe
 
 ## What does the Angular head entry point export?
 
-`provideArenaMetadata()` is the one thing the Angular package does not ship from its root.
+The head is the one surface the Angular package does not ship from its root: `provideArenaMetadata()` and what goes with it come from `@dravensoft/arena-angular/metadata`.
 
 ```ts
 import { provideArenaMetadata, arenaRouteMeta } from '@dravensoft/arena-angular/metadata';
@@ -96,8 +96,8 @@ The component's own prompt is where that member is documented.
 binds it when the markup describes a structure worth handing to a reader rather than only to a
 person. The file asks for a script of type `application/ld+json` next to the markup, and the same
 structure in `schema.org` terms. The file also asks for `<` escaped in the serialisation, so no value
-you supply can close the tag. `arenaEscapeJsonLd(json)`, exported by both packages, is that escape:
-serialise with `JSON.stringify` and write what it returns into the script. That file is the one pattern in `contracts/behaviour/` that is not an accessibility
+you supply can close the tag. `arenaEscapeJsonLd(json)`, exported from the root of both packages, is that escape:
+serialise with `JSON.stringify` and write what it returns into the script. React writes it through `dangerouslySetInnerHTML`; an Angular template drops a `<script>`, so a component creates the element through `DOCUMENT` and sets its `textContent`. That file is the one pattern in `contracts/behaviour/` that is not an accessibility
 requirement.
 
 ## What Arena does not decide
