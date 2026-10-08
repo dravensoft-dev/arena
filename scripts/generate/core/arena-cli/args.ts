@@ -1,7 +1,7 @@
 /* The grammar of every arena subcommand, declared once: which flags exist, which command takes
  * which, what a refused flag points at, and the usage text derived from all of it. A command
  * calls commandOptions and gets either its options or an exit code. */
-import { KINDS_BY_COMMAND, holder, type StrictCommand, type StrictKind } from './reports.ts';
+import { KINDS_BY_COMMAND, RULES_BY_KIND, holder, type StrictCommand, type StrictKind, type StrictName } from './reports.ts';
 import { DEFAULT_SOURCE } from './sources.ts';
 import { under, type Io } from './io.ts';
 
@@ -50,7 +50,7 @@ export type Options = {
   out: string;
   importHeader: boolean;
   watch: boolean;
-  strict: StrictKind[];
+  strict: StrictName[];
   configGiven: boolean;
 };
 
@@ -117,21 +117,31 @@ export const NEIGHBOURS: Record<Command, Partial<Record<FlagName, string>>> = {
   },
 };
 
-export function strictKinds(command: StrictCommand, value: string): { kinds: StrictKind[] } | { error: string } {
+export function strictKinds(command: StrictCommand, value: string): { names: StrictName[] } | { error: string } {
   const held = KINDS_BY_COMMAND[command] as readonly StrictKind[];
   const list = held.join(', ');
-  const named = value.split(',').map((one) => one.trim()).filter(Boolean);
+  const named = value.split(',').map((one) => one.trim()).filter(Boolean)
+    .map((one) => one.split(':').map((half) => half.trim()).join(':'));
   if (named.length === 0) return { error: `--strict= names no kind; arena ${command} holds ${list}` };
   for (const name of named) {
-    if (name === 'wash') {
+    const at = name.indexOf(':');
+    const kind = at === -1 ? name : name.slice(0, at);
+    if (kind === 'wash') {
       return { error: `wash is reported and never held, since no configuration can clear it; arena ${command} holds ${list}` };
     }
-    if (held.includes(name as StrictKind)) continue;
-    const other = holder(name);
-    if (other) return { error: `--strict=${name} belongs to arena ${other}; arena ${command} holds ${list}` };
-    return { error: `--strict does not report on ${name}; arena ${command} holds ${list}` };
+    if (!held.includes(kind as StrictKind)) {
+      const other = holder(kind);
+      if (other) return { error: `--strict=${name} belongs to arena ${other}; arena ${command} holds ${list}` };
+      return { error: `--strict does not report on ${name}; arena ${command} holds ${list}` };
+    }
+    if (at === -1) continue;
+    const rules = RULES_BY_KIND[kind as StrictKind];
+    if (!rules) return { error: `${kind} has no rules to name, so --strict=${name} holds nothing; name ${kind} whole` };
+    if (!rules.includes(name.slice(at + 1))) {
+      return { error: `--strict=${name} names no rule of ${kind}; ${kind} has ${rules.join(', ')}` };
+    }
   }
-  return { kinds: named as StrictKind[] };
+  return { names: named as StrictName[] };
 }
 
 const NEEDS = { path: 'a path', dir: 'a directory' } as const;
@@ -183,7 +193,7 @@ export function parseArgs(command: Command, argv: string[]): Parsed {
       }
       const named = strictKinds(command as StrictCommand, hit.value);
       if ('error' in named) return { kind: 'error', error: named.error };
-      options.strict = named.kinds;
+      options.strict = named.names;
       continue;
     }
     const value = hit.value ?? argv[++i];
@@ -202,22 +212,28 @@ function placeholder(flag: FlagSpec) {
   return '';
 }
 
+const ruled = (command: Command) => (KINDS_BY_COMMAND[command as StrictCommand] ?? [] as readonly StrictKind[])
+  .filter((kind) => RULES_BY_KIND[kind] !== undefined);
+
 export function usageOf(command: Command) {
   const spec = SPECS[command];
+  const rules = ruled(command);
+  const kindsHead = rules.length > 0 ? '=<kind>|<kind>:<rule>,...' : '=<kind>,...';
   const heads = spec.flags.map((name) => {
     const flag = FLAGS[name];
     const spelling = [...flag.spellings].sort((a, b) => b.length - a.length)[0]!;
-    if (flag.takes === 'kinds') return `[${spelling}[=<kind>,...]]`;
+    if (flag.takes === 'kinds') return `[${spelling}[${kindsHead}]]`;
     if (flag.takes === 'none') return `[${spelling}]`;
     return `[${spelling} ${placeholder(flag)}${flag.repeatable ? '...' : ''}]`;
   });
   const lines = spec.flags.map((name) => {
     const flag = FLAGS[name];
     const spellings = flag.spellings.join(', ');
-    const head = flag.takes === 'kinds' ? `${spellings}[=<kind>,...]`
+    const head = flag.takes === 'kinds' ? `${spellings}[${kindsHead}]`
       : flag.takes === 'none' ? spellings : `${spellings} ${placeholder(flag)}`;
     const help = flag.takes === 'kinds'
       ? `exit 1 on a report of these kinds: ${KINDS_BY_COMMAND[command as StrictCommand].join(', ')} (all of them when no list is given)`
+        + rules.map((kind) => `; ${kind}:<rule> holds one rule of ${kind}: ${RULES_BY_KIND[kind]!.join(', ')}`).join('')
       : flag.help;
     return `  ${head}  ${help}`;
   });

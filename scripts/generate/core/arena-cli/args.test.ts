@@ -7,6 +7,7 @@ import {
   DEFAULT_CONFIG, DEFAULT_OUT, type Command, type Options,
 } from './args.ts';
 import { KINDS_BY_COMMAND, type StrictCommand } from './reports.ts';
+import { RULE_TAGS } from './audit.ts';
 import { DEFAULT_SOURCE } from './sources.ts';
 import { captureIo } from './cli-fixtures.ts';
 
@@ -208,4 +209,38 @@ test('commandOptions prints usage on help with 0, prints the error and usage on 
   });
   const defaults = commandOptions('check', [], captureIo(root).io) as Options;
   assert.deepEqual(defaults.paths, [join(root, DEFAULT_SOURCE)]);
+});
+
+test('--strict= takes kind:rule beside kind, and keeps the names as written', () => {
+  assert.deepEqual(options('audit', ['--strict=audit:one-primary']).strict, ['audit:one-primary']);
+  assert.deepEqual(options('audit', ['--strict=audit:one-primary,audit:emoji,restated']).strict,
+    ['audit:one-primary', 'audit:emoji', 'restated']);
+  assert.deepEqual(options('audit', ['--strict= audit : emoji ,audit']).strict, ['audit:emoji', 'audit']);
+});
+
+test('a rule its kind does not have is refused, naming the rules it has', () => {
+  const rules = RULE_TAGS.join(', ');
+  assert.equal(error('audit', ['--strict=audit:nope']), `--strict=audit:nope names no rule of audit; audit has ${rules}`);
+  assert.equal(error('audit', ['--strict=audit:']), `--strict=audit: names no rule of audit; audit has ${rules}`);
+});
+
+test('a rule on a kind with no rules is refused', () => {
+  assert.equal(error('audit', ['--strict=restated:x']),
+    'restated has no rules to name, so --strict=restated:x holds nothing; name restated whole');
+  assert.equal(error('check', ['--strict=glyph:x']),
+    'glyph has no rules to name, so --strict=glyph:x holds nothing; name glyph whole');
+});
+
+test('a rule of a kind another command holds names that command', () => {
+  assert.equal(error('check', ['--strict=audit:emoji']),
+    `--strict=audit:emoji belongs to arena audit; arena check holds ${KINDS_BY_COMMAND.check.join(', ')}`);
+  assert.equal(error('audit', ['--strict=wash:x']),
+    'wash is reported and never held, since no configuration can clear it; arena audit holds audit, restated');
+});
+
+test('the audit usage says what kind:rule does, and check and doctor say nothing of rules', () => {
+  const audit = usageOf('audit');
+  assert.ok(audit.includes('[--strict[=<kind>|<kind>:<rule>,...]]'), audit);
+  assert.ok(audit.includes(`audit:<rule> holds one rule of audit: ${RULE_TAGS.join(', ')}`), audit);
+  for (const command of ['check', 'doctor'] as const) assert.ok(!usageOf(command).includes('<rule>'), command);
 });
