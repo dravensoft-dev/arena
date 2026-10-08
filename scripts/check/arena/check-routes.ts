@@ -97,7 +97,7 @@ export const ROUTES: Route[] = [
       'frameworks/*/components/*/INDEX.md',
       'frameworks/*/components/**/*.prompt.md',
     ],
-    budget: 34_600,
+    budget: 34_800,
     reason:
       'the route every build takes, and the only one paid per screen rather than per project. The '
       + 'layer-neutral index is deliberately not a stop: it answers whether a component exists at '
@@ -110,8 +110,9 @@ export const ROUTES: Route[] = [
       + 'big its list is and where the page starts in it, and the header row taking the first index '
       + 'is arithmetic no member description can carry. The number is what the stops measure with '
       + 'room for one component to grow, and it is the ceiling a new rule on the consumer branch is '
-      + 'argued against. Each prompt names its vocabulary families and their properties, and the layer '
-      + 'directory links the install references.',
+      + 'argued against. Each prompt names its vocabulary families and their properties, and the '
+      + 'layer directory links the install references. A description names a parent\'s event in the '
+      + 'layer\'s own spelling.',
   },
   {
     name: 'consumer-install',
@@ -135,9 +136,9 @@ export const ROUTES: Route[] = [
       + 'init` writes, and the audit one names every rule, so each audit rule is paid here by its '
       + 'name. Being right moves this number, and a gate failing them keeps it honest. The config '
       + 'reference lists the names the build refuses and the note a defaulted role prints, so neither '
-      + 'arrives as news, and says first that no role has a default and that the package sheet alone '
-      + 'has no colour. The install page prints a generated command per layer with its peers, and '
-      + 'config states the naming rules and what a sheet list refuses.',
+      + 'arrives as news, and says first that no role has a default. The install page says the '
+      + 'package sheet alone has no colour and prints a generated command per layer that leaves the '
+      + 'framework alone, and config states the naming rules and what a sheet list refuses.',
   },
   {
     name: 'consumer-skin',
@@ -190,22 +191,21 @@ export const ROUTES: Route[] = [
       + 'then the page that says what Arena writes into the head and which layer writes it',
     entry: 'consumer',
     stops: ['skills/design/references/seo.md'],
-    budget: 9_100,
+    budget: 9_300,
     reason:
       'paid once per project and taken before the first screen, because the answer reaches the '
       + 'layer and the install rather than a component, so a project that settles it afterwards '
-      + 'settles it against code already written. What it buys is that the metadata entry point is '
-      + 'reachable from the decision instead of from deep inside the install page. Every default it '
-      + 'surfaces is silent in the direction that costs: a route is born unindexed, and an '
-      + 'application with no origin publishes no canonical, so both are correct until a screen is '
-      + 'missing from a result nobody checked. It states which layer supplies a head and that a '
-      + 'framework picked to be found supplies its own, and it points at the node carrying the '
-      + 'server-rendering evidence at the decision. The page also carries the Angular head entry '
-      + 'point as a table of what it exports, so the layer that supplies a head names its own '
-      + 'surface. The number is what the stops measure with room for one section, and it grows when '
-      + 'Arena gains something to write into the head. It says how each layer mounts a '
-      + 'structured-data script, names each Open Graph tag Angular writes, and shows React a head and '
-      + 'a JSON-LD script of its own, because React ships no writer.',
+      + 'settles it against code already written. It makes the metadata entry point reachable from '
+      + 'the decision. Every default it surfaces is silent in the direction that costs: a route is '
+      + 'born unindexed, and an application with no origin publishes no canonical, so both are '
+      + 'correct until a screen is missing from a result nobody checked. It states which layer '
+      + 'supplies a head and that a framework picked to be found supplies its own, and it points at '
+      + 'the node carrying the server-rendering evidence at the decision, without choosing an '
+      + 'architecture for the project. It tables what the Angular head entry point exports. The '
+      + 'number is what the stops measure with room for one section, and it grows when Arena gains '
+      + 'something to write into the head. It says how each layer mounts a structured-data script, '
+      + 'names each Open Graph tag Angular writes, and shows React a head and a JSON-LD script of its '
+      + 'own, because React ships no writer, and names the breadcrumb serialiser beside the escape.',
   },
   {
     name: 'consumer-surface',
@@ -234,7 +234,7 @@ export const ROUTES: Route[] = [
       + 'each of those answers has',
     entry: 'consumer',
     stops: ['skills/design/references/stack.md'],
-    budget: 10_800,
+    budget: 11_000,
     reason:
       'paid once per project like the surface, skin, register and seo routes, and taken beside the '
       + 'cold start tree rather than after it, because a toolchain settled after the first screen is '
@@ -246,7 +246,8 @@ export const ROUTES: Route[] = [
       + 'deliberately does not carry is the layer decision and the render architecture, which are '
       + 'nodes of the cold start tree: naming them here would give a project two places to answer one '
       + 'thing, and the tree is where the answer reaches a peer dependency rather than a preference. '
-      + 'The peers table says which peer is required and which optional, as the manifests do.',
+      + 'The peers table says which peer is required and which optional, as the manifests do, and why '
+      + 'a command names no framework peer.',
   },
   {
     name: 'consumer-page',
@@ -255,7 +256,7 @@ export const ROUTES: Route[] = [
       + 'column it sits in and how much air goes between two components',
     entry: 'consumer',
     stops: ['skills/design/references/page.md', 'skills/design/references/style.md'],
-    budget: 22_400,
+    budget: 22_800,
     reason:
       'paid per element a builder draws themselves, which every screen has. What it buys is the '
       + 'half of a page that is never a component: which colour role each thing a builder draws takes '
@@ -265,12 +266,11 @@ export const ROUTES: Route[] = [
       + 'line; what to wrap when the element being laid out is a component; the block air the band '
       + 'leaves; the gutter as a ceiling; and which frame the viewport shows, through the theme '
       + 'sheet\'s variants, and where a value no step names is set. The style reference also holds the '
-      + 'layout container, the width a page column takes and the sizing section for each layer, so '
-      + 'the two pages cost what the container and the layer sections add. It names each layer\'s '
-      + 'breakpoint helper and what the quiet ink level is for. The number is what the stops measure, '
-      + 'and it grows when Arena ships a piece for somebody else\'s markup rather than when these '
-      + 'pages argue again for one they already name. The page links the step before it and the token '
-      + 'table.',
+      + 'layout container, the width a page column takes and the sizing section for each layer. It '
+      + 'names each layer\'s breakpoint helper and what the quiet ink level is for. The number is what '
+      + 'the stops measure, and it grows when Arena ships a piece for somebody else\'s markup rather '
+      + 'than when these pages argue again for one they already name. The page links the step before '
+      + 'it and the token table, and the style page prints the default plugin\'s layout answers.',
   },
   {
     name: 'consumer-coldstart',

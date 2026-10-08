@@ -15,6 +15,7 @@ import { CSS_CHAIN, tokenCatalogue } from '../../lib/arena/package-assembly.ts';
 import { NPM_PAGES, renderQuestions } from '../../lib/arena/npm-questions.ts';
 import { ARENA_EXT, RESERVED } from '../core/arena-cli/style-plugin-rules.ts';
 import { readJson } from '../../utils/read-file.ts';
+import { readPlugin, resolvedPlugin, PLUGIN_TOKENS } from '../core/arena-cli/theme-css.ts';
 import { CSS_TARGETS } from './generate-tokens.ts';
 
 export const LOCALE_CONTRACT = 'contracts/api/types/arena-locale.json';
@@ -50,6 +51,19 @@ export function defaultsStatement(base = root) {
   return `${defaultedSentence(roles, unansweredCount(base))} A minor release may add a role that carries Arena's default. Your root plugin may then leave that role silent, and the role takes the default. The command notes it, as \`N role(s) your root style plugin leaves unanswered take Arena's default: …\`. Your package's \`arena.tokens.json\` writes a role's default beside its type.`;
 }
 
+export const DEFAULT_PLUGIN_DIR = 'plugin-style-store/default';
+export const LAYOUT_ROLES = ['container-max', 'gutter', 'measure-prose'] as const;
+
+export function layoutAnswers(base = root) {
+  const plugin = readPlugin('default', readJson(join(base, DEFAULT_PLUGIN_DIR, PLUGIN_TOKENS)));
+  const at = resolvedPlugin(plugin, tokenCatalogue(base));
+  return LAYOUT_ROLES.map((role) => {
+    const value = at.get(role);
+    if (value === undefined) throw new Error(`generate-npm-pages: the default style plugin answers no ${role}`);
+    return value;
+  });
+}
+
 export const REGION_TARGETS: Record<string, string[]> = {
   repository: ['frameworks/react/PACKAGE.md', 'frameworks/angular/PACKAGE.md'],
   skin: ['skills/design/references/config.md'],
@@ -59,13 +73,14 @@ export const REGION_TARGETS: Record<string, string[]> = {
   locale: ['skills/design/references/locale.md'],
   toast: ['skills/design/references/exports.md'],
   questions: NPM_PAGES,
+  layout: ['skills/design/references/style.md'],
 };
 
 export const TARGETS = [...new Set(Object.values(REGION_TARGETS).flat())];
 
 export const node = {
   name: 'generate:npm-pages',
-  reads: [...TARGETS, '.claude-plugin/plugin.json', 'scripts/generate/core/arena-cli/style-plugin-rules.ts', LOCALE_CONTRACT, ROLE_CONTRACT, BEHAVIOUR_CONTRACT, ...CSS_TARGETS],
+  reads: [...TARGETS, `${DEFAULT_PLUGIN_DIR}/${PLUGIN_TOKENS}`, '.claude-plugin/plugin.json', 'scripts/generate/core/arena-cli/style-plugin-rules.ts', LOCALE_CONTRACT, ROLE_CONTRACT, BEHAVIOUR_CONTRACT, ...CSS_TARGETS],
   writes: TARGETS,
   feeds: [
     'build:angular-package',
@@ -258,6 +273,11 @@ you import it beside the other two. The sheet declares the cascade layer order i
   },
 
   questions: (base = root, target = '') => renderQuestions(target, base),
+
+  layout: (base = root) => {
+    const [container, gutter, measure] = layoutAnswers(base);
+    return `The default style plugin answers \`container-max\` with ${container}, \`gutter\` with ${gutter} and \`measure-prose\` with ${measure}. The three values are that plugin's answers, not Arena's constants: another plugin answers its own, and a release may change them.`;
+  },
 };
 
 export function renderRegion(key: string, base = root, target = '') {

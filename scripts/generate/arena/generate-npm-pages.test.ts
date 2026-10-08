@@ -20,7 +20,7 @@ import { readJson } from '../../utils/read-file.ts';
 import { packageSheetName, sheetFamilies } from '../../lib/tailwind/vocabulary.ts';
 import { MAX_WORDS, plain, words } from '../../check/arena/check-register.ts';
 
-const SHARED = ['repository', 'skin', 'defaults', 'sheets', 'toast'];
+const SHARED = ['repository', 'skin', 'defaults', 'sheets', 'toast', 'layout'];
 
 test('a region shared by several pages names no layer, because it is written into each at once', () => {
   const tokens = Object.entries(LAYER_TOKENS)
@@ -46,6 +46,7 @@ test('each target carries exactly the regions mapped to it', () => {
   assert.deepEqual(regionsOf('skills/design/references/stylesheets.md'), ['sheets']);
   assert.deepEqual(regionsOf('skills/design/references/tokens.md'), ['tokens']);
   assert.deepEqual(regionsOf('skills/design/references/style-kernel.md'), ['defaults']);
+  assert.deepEqual(regionsOf('skills/design/references/style.md'), ['layout']);
   assert.deepEqual(regionsOf('mcp/NPM.md'), ['questions']);
 });
 

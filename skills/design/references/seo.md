@@ -130,6 +130,8 @@ const data = { '@context': 'https://schema.org', '@type': 'Organization', name: 
 <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: arenaEscapeJsonLd(JSON.stringify(data)) }} />
 ```
 
+A trail of your own that does not use `ArenaBreadcrumbs` takes `arenaBreadcrumbList(items, origin?)`, exported from the root of both packages. The call returns the `BreadcrumbList` already escaped, so the string goes into the same script as written.
+
 ## What Arena does not decide
 
 Arena renders no page and lists none. Arena writes the `<head>` of whatever page your application
