@@ -123,7 +123,7 @@ export const ROUTES: Route[] = [
       'skills/design/references/config.md',
       'skills/design/references/cli.md',
     ],
-    budget: 25_000,
+    budget: 27_000,
     reason:
       'paid once per project rather than per screen, so it carries what the build route may not: '
       + 'the install, the config file and the command, each as its own reference so a reader opens '
@@ -132,7 +132,9 @@ export const ROUTES: Route[] = [
       + 'these references never name is a thing nobody imports: an export, a stylesheet, a class, '
       + 'a second entry point, a config key. The config block is copied whole, so it states every '
       + 'key that decides the appearance, and the install reference gives the evidence behind each '
-      + 'package manager and runtime it names. The three are charged together. '
+      + 'package manager and runtime it names. The three are charged together. The command '
+      + 'reference quotes whole the scripts `arena init` writes, and the audit one names every rule, '
+      + 'so each audit rule is paid here by its name. '
       + 'What moves this number is being right, since that is what the references are for, and what '
       + 'keeps it honest is that a gate fails them rather than a reader discovering it.',
   },
