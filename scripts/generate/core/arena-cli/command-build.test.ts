@@ -190,3 +190,17 @@ test('a palette named popover stops the build naming the reservation, and brand 
   const free = project(second('brand'));
   assert.equal(await run(flags(free), captureIo(free, environment(web)).io), 0);
 });
+
+test('a root plugin silent on a role with a kernel default builds and the build notes the role', async () => {
+  const { web } = phosphor();
+  const root = project({ ...readable, stylePlugins: ['./design/andina'] });
+  mkdirSync(join(root, 'design', 'andina'), { recursive: true });
+  writeFileSync(join(root, 'design', 'andina', 'plugin.tokens.json'),
+    JSON.stringify({ 'ink-eyebrow': { $value: '{color.base-200}', $type: 'color' } }));
+  const sheets = { ...CATALOGUED, catalogue: { tokens: CATALOGUED.catalogue.tokens,
+    roles: { 'ink-eyebrow': { type: 'color' }, 'ink-link': { type: 'color', default: '{ink-eyebrow}' } } } };
+  const { io, out } = captureIo(root, { ...environment(web), sheets });
+  assert.equal(await run(flags(root), io), 0);
+  assert.equal(out[0], 'arena build: 1 role(s) your root style plugin leaves unanswered take Arena\'s default: ink-link');
+  assert.match(readFileSync(join(root, 'src', THEME_SHEET), 'utf8'), /--ink-link:var\(--color-base-200\);/);
+});

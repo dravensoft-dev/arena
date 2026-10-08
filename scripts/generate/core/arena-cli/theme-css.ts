@@ -15,7 +15,7 @@ import {
 } from './palette-keys.ts';
 import { validate, contrast } from './validate-palette.mjs';
 import {
-  FS_STEP, RHYTHM_STEP, floorProblems, nameProblems, reservedProblems, scopeOn, totalityProblems,
+  FS_STEP, RHYTHM_STEP, floorProblems, nameProblems, reservedProblems, scopeOn, totalityProblems, withDefaults,
 } from './style-plugin-rules.ts';
 import { serialize } from './serialize-token.ts';
 import { errorFill } from './oklab.ts';
@@ -27,7 +27,7 @@ import type { SerializableToken } from './serialize-token.ts';
 
 export type TokenCatalogue = {
   tokens: Record<string, string>;
-  roles: Record<string, { type?: string; values?: string[] }>;
+  roles: Record<string, { type?: string; values?: string[]; default?: string }>;
 };
 
 export type CheckedSheets = {
@@ -377,16 +377,17 @@ function resolvedProblems(
       + 'command, so a style plugin cannot be checked against it'];
   }
 
+  const whole = isRoot ? withDefaults(plugin, catalogue.roles ?? {}).plugin : plugin;
   problems.push(...pluginTokenProblems(plugin.name, plugin.tokens, catalogue));
   problems.push(...pluginTokenProblems(`${plugin.name}.${THEME_GROUP}`, plugin.light, catalogue));
   if (isRoot) {
-    problems.push(...totalityProblems(Object.keys(catalogue.roles ?? {}), Object.keys(plugin.tokens))
+    problems.push(...totalityProblems(Object.keys(catalogue.roles ?? {}), Object.keys(whole.tokens))
       .map((problem) => `${at}: ${problem}`));
   }
   if (problems.length) return problems;
 
   for (const polarity of POLARITIES) {
-    problems.push(...floorProblems(resolvedPlugin(plugin, catalogue, polarity), polarity, `${at}: "${plugin.name}"`));
+    problems.push(...floorProblems(resolvedPlugin(whole, catalogue, polarity), polarity, `${at}: "${plugin.name}"`));
   }
   return problems;
 }
@@ -420,6 +421,16 @@ export function stylePluginProblems(
     ? resolvedProblems(plugin, `stylePlugins[${i}]`, i === 0, sheets)
     : []));
 }
+
+export function rootWithDefaults(plugins: ResolvedPlugins, catalogue: TokenCatalogue | null) {
+  const root = plugins?.[0];
+  if (!plugins || !root || !catalogue) return { plugins, defaulted: [] as string[] };
+  const { plugin, defaulted } = withDefaults(root, catalogue.roles ?? {});
+  return { plugins: [plugin, ...plugins.slice(1)], defaulted };
+}
+
+export const defaultedNote = (roles: string[]) =>
+  `${roles.length} role(s) your root style plugin leaves unanswered take Arena's default: ${roles.join(', ')}`;
 
 export function gradientMarkProblems(config: ArenaConfig) {
   const declared = config.gradientMark;

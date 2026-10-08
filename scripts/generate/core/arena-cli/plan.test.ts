@@ -31,6 +31,22 @@ function withPlugin(css: string) {
   return root;
 }
 
+const DEFAULTED = {
+  ...CATALOGUED,
+  catalogue: {
+    tokens: { ...CATALOGUED.catalogue.tokens, 'ink-link': 'var(--color-base-content)' },
+    roles: { 'ink-eyebrow': { type: 'color' }, 'ink-link': { type: 'color', default: '{ink-eyebrow}' } },
+  },
+};
+
+function ownRoot() {
+  const root = project({ ...readable, stylePlugins: ['./design/andina'] });
+  mkdirSync(join(root, 'design', 'andina'), { recursive: true });
+  writeFileSync(join(root, 'design', 'andina', 'plugin.tokens.json'),
+    JSON.stringify({ 'ink-eyebrow': { $value: '{color.base-200}', $type: 'color' } }));
+  return root;
+}
+
 function cleanup(...paths: string[]) {
   for (const path of paths) rmSync(path, { recursive: true, force: true });
 }
@@ -290,5 +306,39 @@ test('a name written twice is still refused once the list is closed', () => {
   const result = plan(options(root), environment(web, { sheets: SHEETS, map: MAP }));
   assert.equal(result.code, 1);
   assert.deepEqual(result.fatal, ['stylesheet.components: table is named twice']);
+  cleanup(root, held);
+});
+
+test('a root plugin silent on a role with a kernel default builds through its own answer and notes the role', () => {
+  const { root: held, web } = phosphor();
+  const root = ownRoot();
+  const result = plan(options(root), environment(web, { sheets: DEFAULTED }));
+  assert.deepEqual(result.fatal, []);
+  assert.deepEqual(result.notes, ['1 role(s) your root style plugin leaves unanswered take Arena\'s default: ink-link']);
+  const theme = result.outputs.find((one) => one.name === THEME_SHEET)?.content ?? '';
+  assert.match(theme, /:root\{[^}]*--ink-link:var\(--color-base-200\);/);
+  assert.doesNotMatch(theme, /--ink-link:var\(--color-base-content\)/);
+  cleanup(root, held);
+});
+
+test('the same role without a default stops the build with the totality message', () => {
+  const { root: held, web } = phosphor();
+  const root = ownRoot();
+  const bare = { ...DEFAULTED, catalogue: { ...DEFAULTED.catalogue,
+    roles: { 'ink-eyebrow': { type: 'color' }, 'ink-link': { type: 'color' } } } };
+  const result = plan(options(root), environment(web, { sheets: bare }));
+  assert.equal(result.code, 1);
+  assert.deepEqual(result.fatal, ['stylePlugins[0]: the root style plugin does not answer ink-link. A custom property '
+    + 'with no value is invalid at computed-value time, so the declaration reading it is dropped and the property '
+    + 'disappears: an unanswered role is not a plainer appearance, it is a missing border.']);
+  cleanup(root, held);
+});
+
+test('a root that is the default plugin is never completed and notes nothing', () => {
+  const { root: held, web } = phosphor();
+  const root = withPlugin('.x { color: red }\n');
+  const result = plan(options(root), environment(web, { sheets: DEFAULTED }));
+  assert.deepEqual(result.fatal, []);
+  assert.deepEqual(result.notes, []);
   cleanup(root, held);
 });

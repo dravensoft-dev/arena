@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   configProblems, themeCss, paletteReports, defaultPalette, isStylesheet, scopedImports,
-  pluginName, pluginValue, readPlugin, weightReports,
+  pluginName, pluginValue, readPlugin, weightReports, rootWithDefaults, resolvedPlugin,
   type CheckedStylesheet, type CheckedSheets,
 } from './theme-css.ts';
 import { PALETTE_KEYS } from './palette-keys.ts';
@@ -583,6 +583,89 @@ test('only the root plugin is held to totality', () => {
   assert.match(pluginProblems(listed(['marketing', 'console']), [scoped(), total()])[0] ?? '',
     /does not answer/);
   assert.deepEqual(pluginProblems(listed(['console', 'marketing']), [total(), scoped()]), []);
+});
+
+const DEFAULTED = {
+  ...SHEETS_FULL,
+  catalogue: {
+    tokens: {
+      ...SHEETS_FULL.catalogue.tokens,
+      'r-lg': '14px', 'lh-tight': '1.1', 'ink-link': 'var(--color-base-content)', 'r-popover': '8px',
+    },
+    roles: {
+      ...SHEETS_FULL.catalogue.roles,
+      'ink-link': { type: 'color', default: '{ink-eyebrow}' },
+      'r-popover': { type: 'dimension', default: '{r.lg}' },
+    },
+  },
+};
+
+const BARE = {
+  ...DEFAULTED,
+  catalogue: {
+    ...DEFAULTED.catalogue,
+    roles: { ...SHEETS_FULL.catalogue.roles, 'ink-link': { type: 'color' }, 'r-popover': { type: 'dimension' } },
+  },
+};
+
+const silent = (...keys: string[]) => readPlugin('console',
+  Object.fromEntries(Object.entries(ROOT_ANSWERS).filter(([key]) => !keys.includes(key))));
+
+const twoPalettes = { palettes: [
+  { name: 'dark', default: true, polarity: 'dark', colors: colors() },
+  { name: 'light', polarity: 'light', colors: colors() },
+] };
+
+test('a root plugin silent on a role with a kernel default is total, and without the default it is not', () => {
+  assert.deepEqual(configProblems(listed(['console']), DEFAULTED, [total()]).filter((p) => p.includes('stylePlugin')), []);
+  const bare = configProblems(listed(['console']), BARE, [total()])
+    .filter((p) => p.includes('stylePlugin'));
+  assert.deepEqual(bare.map((p) => p.slice(0, p.indexOf('.'))), [
+    'stylePlugins[0]: the root style plugin does not answer ink-link',
+    'stylePlugins[0]: the root style plugin does not answer r-popover',
+  ]);
+});
+
+test('a default resolves through the root plugin\'s own answer and is restated under every palette', () => {
+  const { plugins, defaulted } = rootWithDefaults([total()], DEFAULTED.catalogue);
+  assert.deepEqual(defaulted, ['ink-link', 'r-popover']);
+  const css = themeCss(listed(['console'], twoPalettes), { sheets: DEFAULTED, importHeader: false, plugins });
+  assert.match(css, /:root\{[^}]*--ink-link:var\(--color-secondary\);[^}]*--r-popover:14px;/);
+  assert.match(css, /\.arena-light\{[^}]*--ink-link:var\(--color-secondary\);/);
+  assert.doesNotMatch(css, /--ink-link:var\(--color-base-content\)/,
+    'the catalogue carries the default plugin\'s answer, and a project\'s default follows its own');
+});
+
+test('a default follows the root plugin\'s light answer to the role it aliases', () => {
+  const root = total({ light: { 'ink-eyebrow': { $type: 'color', $value: '{color.base-200}' } } });
+  const { plugins } = rootWithDefaults([root], DEFAULTED.catalogue);
+  const css = themeCss(listed(['console'], twoPalettes), { sheets: DEFAULTED, importHeader: false, plugins });
+  const light = /\.arena-light\{([^}]*)\}/.exec(css)?.[1] ?? '';
+  assert.ok(light.lastIndexOf('--ink-link:var(--color-base-200);') > light.lastIndexOf('--ink-link:var(--color-secondary);'), light);
+});
+
+test('only a root plugin of the project\'s own is completed, and a catalogue with no default leaves it as it was', () => {
+  assert.deepEqual(rootWithDefaults([total(), scoped()], DEFAULTED.catalogue).plugins?.[1], scoped());
+  assert.deepEqual(rootWithDefaults([null, scoped()], DEFAULTED.catalogue), { plugins: [null, scoped()], defaulted: [] });
+  const same = rootWithDefaults([total()], SHEETS_FULL.catalogue);
+  assert.deepEqual(same.defaulted, []);
+  assert.deepEqual(same.plugins, [total()]);
+  assert.deepEqual(Object.keys(same.plugins?.[0]?.tokens ?? {}), Object.keys(total().tokens));
+});
+
+test('the floors and the reports read a role the default answered', () => {
+  const floored = { ...DEFAULTED, catalogue: { ...DEFAULTED.catalogue, roles: {
+    ...DEFAULTED.catalogue.roles, 'lh-prose': { type: 'number', default: '{lh.tight}' },
+  } } };
+  assert.match(configProblems(listed(['console']), floored, [total()]).join('\n'), /--lh-prose is 1\.1 in dark/);
+
+  const surfaced = { ...DEFAULTED.catalogue, roles: {
+    ...DEFAULTED.catalogue.roles, 'fill-surface': { type: 'color', default: '{fill-page}' },
+  } };
+  const root = rootWithDefaults([silent('fill-surface')], surfaced).plugins?.[0];
+  assert.ok(root);
+  assert.equal(resolvedPlugin(root, surfaced, 'dark').get('fill-surface'), 'var(--color-base-100)',
+    'paletteReports and the level declarations read the surface through this map');
 });
 
 test('a style plugin is held to the floors the repository holds its own to', () => {

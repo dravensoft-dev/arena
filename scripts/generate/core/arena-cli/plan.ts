@@ -8,7 +8,7 @@
 import { readFileSync, existsSync } from 'node:fs';
 import { dirname, basename, join, resolve } from 'node:path';
 import { relativeFrom } from './posix.ts';
-import { configProblems, paletteReports, themeCss, weightReports } from './theme-css.ts';
+import { configProblems, defaultedNote, paletteReports, rootWithDefaults, themeCss, weightReports } from './theme-css.ts';
 import type { PackageSheets } from './theme-css.ts';
 import { AUTO } from './components.ts';
 import type { ComponentMap } from './components.ts';
@@ -76,11 +76,13 @@ export function themeSheets(options: PlanOptions, { packageName, sheets, map }: 
   const problems = configProblems(config, sheets, plugins);
   if (problems.length) return stop(1, problems);
 
+  const completed = rootWithDefaults(plugins, sheets?.catalogue ?? null);
+  if (completed.defaulted.length) closure.notes.push(defaultedNote(completed.defaulted));
   const reports = [...closure.reports,
-    ...reportLines(paletteReports(config, sheets?.catalogue ?? null, plugins, sheets?.levels ?? [], sheets?.washes ?? [])),
-    ...weightReports(config, sheets?.catalogue ?? null, plugins)];
+    ...reportLines(paletteReports(config, sheets?.catalogue ?? null, completed.plugins, sheets?.levels ?? [], sheets?.washes ?? [])),
+    ...weightReports(config, sheets?.catalogue ?? null, completed.plugins)];
   const css = themeCss(config, {
-    packageName, importHeader: options.importHeader, source: basename(options.config), sheets, plugins,
+    packageName, importHeader: options.importHeader, source: basename(options.config), sheets, plugins: completed.plugins,
   });
   const out: SheetOutput[] = [{ name: THEME_SHEET, path: join(options.out, THEME_SHEET), content: css, summary: `${css.length} bytes` }];
   const layered = pluginCss(pluginSheets(config, from));
