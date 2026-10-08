@@ -203,6 +203,10 @@ export const CLAIMS = {
     { slot: 'media', has: ['[&>img]:fit-media', '[&>video]:fit-media'], why: 'how the picture meets the frame is a role, and it is scoped to the media box so an image in the overlay or the fallback is not cropped with it' },
     { slot: 'overlay', has: ['bg-overlay-media/72'], why: 'the wash is a colour role with the opacity in the manifest, so which colour and how held back stay two decisions and the contrast is measurable' },
     { slot: 'frame', has: ['aspect-[var(--arena-ratio-frame,var(--arena-ratio,var(--aspect-media)))]'], hasNot: ['aspect-square', 'aspect-video'], why: 'the shape is read from the ratio family\'s channel, then its axis, then the media role, because a consumer pinning a video is answering about one figure and not about the appearance' },
+    { slot: 'frame', has: ['grid-rows-1', 'grid-cols-1'], why: 'the frame\'s one track does not grow with its picture, so a picture taller than the ratio is fitted by object-fit and never stretches the frame' },
+    { slot: 'fallback', has: ['col-start-1', 'row-start-1', 'place-items-center'], why: 'the fallback sits in the frame\'s one track and centres in it, so a figure with no picture keeps its box' },
+    { slot: 'overlay', has: ['col-start-1', 'row-start-1', 'self-end'], why: 'the overlay shares the media\'s cell and rests on its bottom edge, so the track fix never moves it' },
+    { slot: 'media', has: ['min-h-0'], why: 'the media cell may be shorter than its picture, which is what lets the track hold the ratio' },
   ],
   ArenaHero: [
     { slot: 'title', has: ['text-title-hero'], hasNot: ['text-display', 'text-hero', 'text-h1'], why: 'the top rung of the title ladder is a role, so a style plugin re-pitches a hero with the three registers under it rather than around them' },
