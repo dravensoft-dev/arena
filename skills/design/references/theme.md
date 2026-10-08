@@ -25,7 +25,7 @@ function ThemeButton() {
 }
 ```
 
-`initArenaTheme` reads the stored choice. The function falls back to `prefers-color-scheme`, matched against each palette's polarity. Then the function puts the right class on `<html>`. Called with nothing, it answers `dark` and `light`.
+`initArenaTheme` reads the stored choice. The function falls back to `prefers-color-scheme`, matched against each palette's polarity. Then the function puts the right class on `<html>`. Called with nothing, it answers `dark` and `light`. Outside a component, `setArenaTheme(name)`, `toggleArenaTheme()` and `getArenaTheme()` do what the hook does. A name the palettes do not declare throws, and a config with no `default` takes its first palette.
 
 ## How do I switch palettes in Angular?
 
@@ -47,7 +47,7 @@ bootstrapApplication(App, {
 });
 ```
 
-Pass the same palettes your config declares. Call `set('light')` on the service, or `toggle()` to walk the palettes in order. `theme` is a signal, so a template reads it directly. With no providers the service answers `dark` and `light`.
+Pass the same palettes your config declares. Call `set('light')` on the service, or `toggle()` to walk the palettes in order. `theme` is a signal, so a template reads it directly. With no providers the service answers `dark` and `light`. **The service applies and stores the palette only once something injects it**, so inject it in your root component even when no control there switches palette. `set()` throws on a name the palettes do not declare.
 
 ## How do I avoid a flash on first paint?
 

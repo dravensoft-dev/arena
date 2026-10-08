@@ -39,9 +39,9 @@ not installed anywhere.
 |---|---|
 | `arena_start` | What is installed, and the one document to read before writing a screen. Call it first |
 | `arena_list` | Every Arena document, as addressable URIs |
-| `arena_find` | Which documents answer a question, by words in their name and their opening |
-| `arena_read` | One document by its URI, for a client that calls tools and does not read resources |
-| `arena_check` | The code you just wrote, against the rules of the language, before you save it |
+| `arena_find` | Which documents answer a question, by words in their name and their opening. Takes `query` |
+| `arena_read` | One document by its URI, for a client that calls tools and does not read resources. Takes `uri`, as `arena_list` gives it |
+| `arena_check` | The code you just wrote, against the rules of the language, before you save it. Takes `source`, and an optional `path` whose extension decides whether the text is read as a stylesheet or as markup |
 
 ## Which arena:// resources does the server offer?
 

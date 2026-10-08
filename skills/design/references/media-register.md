@@ -26,10 +26,10 @@ markup can be held to:
 Read the one your element is, and bind what it requires. These files are the same source Arena's
 own components are held to, so what you write is held to the standard the components are.
 
-## One of those two is handed over, and the other is not
+## The modal contract is handed over, and the feed's keys are written here
 
-**You do not write a focus trap.** The package exports the one Arena's own dialogs run on. [`exports.md`](./exports.md) lists three handed over here: the modal contract and the tone-to-colour map for
-a status shape you draw. The third is the visually-hidden style object for a label the design does not
+**You do not write a focus trap.** The package exports the one Arena's own dialogs run on. [`exports.md`](./exports.md) lists what is handed over here, with the wiring in each layer. The handover is the modal contract, the tone-to-colour map for
+a status shape you draw, and the visually-hidden style object for a label the design does not
 show. Reach
 for those rather than writing a second copy, and read its export table before you reach
 for anything else: what it names is what carries a promise.
@@ -37,10 +37,35 @@ for anything else: what it names is what carries a promise.
 **The feed pattern has no such export, and it is not an oversight you can wait out.** Arena binds
 it once, inside `ArenaActivityFeed`, and that component is not your feed. `ArenaActivityFeed` is
 an event log with a fixed row and no slot for your markup. Reaching for it because the name
-matches is the mistake this section exists to stop. Read how that component binds the pattern, in
-its own source, and write the same thing around your own article. The paging keys move focus
-between articles rather than scrolling, which is the part a reimplementation from memory gets
-wrong. Until an export exists, that reading is the handover.
+matches is the mistake this section exists to stop. The function below is how
+that component binds the keys, written for your own articles. The paging keys move focus between
+articles rather than scrolling, which is the part a reimplementation from memory gets wrong.
+
+```ts
+import { arenaFocusableElements } from '@dravensoft/arena-react'; // or '@dravensoft/arena-angular'
+
+export function onFeedKeydown(event: KeyboardEvent, feed: HTMLElement) {
+  if (event.ctrlKey && (event.key === 'End' || event.key === 'Home')) {
+    const after = event.key === 'End';
+    const side = after ? Node.DOCUMENT_POSITION_FOLLOWING : Node.DOCUMENT_POSITION_PRECEDING;
+    const outside = arenaFocusableElements(feed.ownerDocument.body)
+      .filter((one) => !feed.contains(one) && feed.compareDocumentPosition(one) & side);
+    const target = after ? outside[0] : outside.at(-1);
+    if (target) { event.preventDefault(); target.focus(); }
+    return;
+  }
+  if (event.key !== 'PageDown' && event.key !== 'PageUp') return;
+  const articles = [...feed.querySelectorAll<HTMLElement>('article')];
+  const from = event.target instanceof Element ? event.target.closest('article') : null;
+  const step = event.key === 'PageDown' ? 1 : -1;
+  const there = from === null ? (step === 1 ? 0 : articles.length - 1) : articles.indexOf(from) + step;
+  if (there < 0 || there >= articles.length) return;
+  event.preventDefault();
+  articles[there]?.focus();
+}
+```
+
+Call it from the feed's own key handler: `onKeyDown={(e) => onFeedKeydown(e.nativeEvent, e.currentTarget)}` in React, `(keydown)="onFeedKeydown($event, feed)"` on a `#feed` element in Angular, with the function assigned to a field of the component. Each `article` carries `tabindex="0"`, so the keys have somewhere to land.
 
 **`isArenaOwnActivation(target, container)`** is the one to know about by name. A post that opens on tap and carries a like button inside it is two activations on one
 surface. The predicate is how the outer one keeps its hands off the inner, and it is the same rule

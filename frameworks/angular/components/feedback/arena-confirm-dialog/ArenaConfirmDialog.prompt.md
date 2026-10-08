@@ -74,7 +74,7 @@ close, and Tab wraps at the panel's edges.
 
 **Words.** `eyebrow`, `confirmLabel` and `cancelLabel` answer first; when one is absent, the locale's `confirmDialogEyebrow`, `confirmDialogConfirm` or `confirmDialogCancel` does. `confirmDialogRequire` is the prompt above the field `requireText` asks for, with that text in `{text}`.
 
-**Asked from code.** A service that needs a yes or a no before it goes on asks `ArenaConfirmQueue` rather than holding an `open` signal of its own. `ask` returns the answer as a promise, and the one open request is rendered once, in the shell, with this dialog. The dialog is still what draws the confirmation, its focus trap and its one filled danger surface included.
+**Asked from code.** A service that needs a yes or a no before it goes on asks `ArenaConfirmQueue` rather than holding an `open` signal of its own. `ask` returns the answer as a promise ([the wiring](../../../../../skills/design/references/exports.md#how-do-i-raise-a-confirmation-from-code-in-angular)), and the one open request is rendered once, in the shell, with this dialog. The dialog is still what draws the confirmation, its focus trap and its one filled danger surface included.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

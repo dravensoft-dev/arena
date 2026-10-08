@@ -18,6 +18,24 @@ contracts/behaviour/*.json    one accessibility pattern per file, cited to its s
 
 `arena.contracts.json` is the entry point and the manifest at once. Read it first. The manifest lists what the installed version holds. A generator iterates that list and never globs a directory and hopes.
 
+The manifest is `{ "name", "version", "contracts": [...] }`, each path relative to the package root, and the package's own entry point is that file. A script in Node reads it like this:
+
+```js
+import { readFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
+import { dirname, join } from 'node:path';
+
+const require = createRequire(import.meta.url);
+const root = dirname(require.resolve('@dravensoft/arena-contracts/package.json'));
+const read = (path) => JSON.parse(readFileSync(join(root, path), 'utf8'));
+const manifest = read('arena.contracts.json');
+
+for (const path of manifest.contracts.filter((one) => one.startsWith('contracts/design/'))) {
+  const group = read(path);
+  // a token is a leaf carrying $value: read('contracts/design/spacing.json').sp['4'].$value is { value: 16, unit: 'px' }
+}
+```
+
 The package holds no code, no stylesheet and no dependency. Nothing in it assumes a browser is reading. Values are strict [DTCG 2025.10](https://tr.designtokens.org/format/).
 
 ## How do I read a design value?

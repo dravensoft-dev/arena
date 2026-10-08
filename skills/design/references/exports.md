@@ -1,6 +1,6 @@
 # What each package exports besides the components
 
-Which helpers, hooks, services and constants does the React or Angular package export besides components? Which ones carry a compatibility promise? How do I raise a toast or a confirmation from code? Which Angular marker directives must I import? How do I bind Angular reactive forms? Read this before you write a second copy of something a package already exports.
+Which helpers, hooks, services and constants does the React or Angular package export besides components? Which ones carry a compatibility promise? How do I raise a toast or a confirmation from code, trap focus in an overlay of my own, route my own anchor, or change density below a breakpoint? Which Angular marker directives must I import? How do I bind Angular reactive forms? Read this before you write a second copy of something a package already exports.
 
 A name on this page may be leaned on. A symbol you found by autocomplete may not. [`media-register.md`](./media-register.md) says when the markup is yours and which of these exports to reach for.
 
@@ -17,17 +17,17 @@ Every component is imported from the package root, and its types ship with it. T
 | `initArenaTheme`, `useArenaTheme`, `getArenaTheme`, `setArenaTheme`, `toggleArenaTheme`, `arenaPalettes`, `ArenaPalette`, `ArenaThemeConfig` | the theme surface, covered in [`theme.md`](./theme.md) |
 | `ArenaLocaleProvider`, `useArenaLocale`, `arenaMergeLocale`, `ARENA_DEFAULT_LOCALE` | Arena's own words, covered in [`locale.md`](./locale.md) |
 | `useArenaContainerWidth(target?)` | `[ref, width]`: attach the ref to the box and read its outer width, the border box with no transform applied. Subtract your own padding and border when you need the content width. For a component or a panel that has to fit the room it was given. **The hook measures when React attaches the ref, before the browser paints**, then a `ResizeObserver` follows the box. A phone's first frame is already narrow, as Arena's own components are. `width` is `null` in a server render and for a box that has never had a width, such as one first drawn in a hidden parent. A box hidden later keeps its last width. Render the wide branch while `width` is `null`, which is what a server's HTML carries. Pass a `useRef` as `target`; a sealed ref is measured after the paint |
-| `useArenaViewportBelow(name)` | a boolean over `not all and (min-width: N)`, where `name` is `'sm' \| 'md' \| 'lg'` and resolves the same `--bp-*` token Arena's own components branch on. For a page's own layout, such as swapping `arena-compact` for `arena-comfortable` below a breakpoint, and **never for a component**: that is wrong the first time somebody puts it in a narrow column. Call `forgetArenaBreakpoints()` if your app swaps its stylesheet at runtime. **It answers in the first client render.** A server render answers `false` until the client takes over, so a frame a server renders takes the `md:` and `max-md:` variants instead |
-| `arenaCatColor(slot)`, `arenaCatIndex(slot)`, `arenaCatSurface(slot)`, `arenaCatTint(colour)`, `arenaCatSlotFor(key)`, `ARENA_CAT_SLOTS` | the chart ramp, for a legend or a chip you draw yourself. The ramp's order is its identity, so a slot means the same thing in every chart on the screen. `arenaCatIndex` clamps and rounds a number to the ramp's 1..8, the value `data-arena-color-id` carries. `arenaCatTint` is the soft surface an identity colour stands on, over whatever answers `fill-surface`; it takes a colour, not a slot, and fills `arenaCatSurface` |
+| `useArenaViewportBelow(name)` | a boolean over `not all and (min-width: N)`, where `name` is `'sm' \| 'md' \| 'lg'` and resolves the same `--bp-*` token Arena's own components branch on. For a page's own layout, such as swapping `arena-compact` for `arena-comfortable` below a breakpoint, and **never for a component**: that is wrong the first time somebody puts it in a narrow column. [How do I change density below a breakpoint?](#how-do-i-change-density-below-a-breakpoint) has it in use. Call `forgetArenaBreakpoints()` if your app swaps its stylesheet at runtime. **It answers in the first client render.** A server render answers `false` until the client takes over, so a frame a server renders takes the `md:` and `max-md:` variants instead |
+| `arenaCatColor(slot)`, `arenaCatIndex(slot)`, `arenaCatSurface(slot)`, `arenaCatTint(colour)`, `arenaCatSlotFor(key)`, `ARENA_CAT_SLOTS` | the chart ramp, for a legend or a chip you draw yourself. The ramp's order is its identity, so a slot means the same thing in every chart on the screen. `arenaCatIndex` clamps and rounds a number to the ramp's 1..8, the value `data-arena-color-id` carries. `arenaCatTint` is the soft surface an identity colour stands on, over whatever answers `fill-surface`; it takes a colour, not a slot, and fills `arenaCatSurface`, which returns `{ fill, border }`. `arenaCatSlotFor` hashes a key to a stable slot, so two keys may share one; give series their slots in order when they must differ |
 | `useArenaToasts()` | the notice queue: it holds their identity and their order, and runs the clock `ArenaToastHost` deliberately does not own. `raise(notice)` returns an id, `dismiss(id)` takes one away, `clear()` takes them all, and `toasts` is what you render into the host. The three-branch dismissal rule is inside it, including the one invisible in a signature: a `danger` notice is never put on a timer, and it ignores a `persist` of false |
 | `useArenaConfirm()` | the confirmation queue. `ask(request)` returns a promise of the answer, `current` is the one open request, an `ArenaConfirmEntry`, and `settle(id, answer)` resolves it and opens the next |
-| `arenaToastDelay(notice, dismiss)` | that rule on its own, for a queue of your own: the interval a notice runs on, or `null` when it must not be taken away |
-| `isArenaPrimaryActivation(event)` | the predicate behind the anchor rule: true for a primary click with no modifier, false for every modified click, middle click and context menu |
-| `isArenaOwnActivation(target, container)` | true when an activation landed on the container itself rather than on a link, a button, a field or any other interactive element inside it. The predicate is what lets a clickable row hold a checkbox and a row action without taking their presses |
-| `useArenaDialogModal({ open, panelRef, onDismiss })`, `arenaFocusableElements(container)`, `arenaFocusFirstFocusable(container)`, `arenaTrapTabKey(container, event, activeElement)` | the modal contract, for an overlay Arena does not ship. Arena's own dialogs run on these. A lightbox or a viewer of yours traps Tab, takes focus on open and restores the invoker on close. One piece of code does that, rather than a second one written from memory. Reach for this surface whenever the answer is that the markup is yours |
+| `arenaToastDelay(notice, dismiss)`, `ARENA_TOAST_DISMISS` | that rule on its own, for a queue of your own: the interval a notice runs on, or `null` when it must not be taken away. Pass `ARENA_TOAST_DISMISS` as `dismiss`: its `actionable` interval runs a notice carrying an `actionLabel`, and its `default` interval every other |
+| `isArenaPrimaryActivation(event)` | the predicate behind the anchor rule: true for a primary click with no modifier, false for every modified click, middle click and context menu. The predicate reads a pointer event, so Enter on an element of yours is a `keydown` you handle beside it |
+| `isArenaOwnActivation(target, container)` | true when an activation landed on the container itself rather than on a link, a button, a field or any other interactive element inside it. The predicate is what lets a clickable row hold a checkbox and a row action without taking their presses. A `label` and an element with a widget `role` count as interactive too. [How do I route an activation of my own?](#how-do-i-route-an-activation-of-my-own) has both in use |
+| `useArenaDialogModal({ open, panelRef, onDismiss })`, `arenaFocusableElements(container)`, `arenaFocusFirstFocusable(container)`, `arenaTrapTabKey(container, event, activeElement)` | the modal contract, for an overlay Arena does not ship. Arena's own dialogs run on these. A lightbox or a viewer of yours traps Tab, takes focus on open and restores the invoker on close. One piece of code does that, rather than a second one written from memory. Reach for this surface whenever the answer is that the markup is yours. The hook returns the `onKeyDown` handler for the element around the panel, and [How do I trap focus in an overlay of my own in React?](#how-do-i-trap-focus-in-an-overlay-of-my-own-in-react) wires it |
 | `ARENA_MAIN_ID` | the id `ArenaMain` writes on its landmark and `ArenaSkipLink` points at, as a string. A page has one main region, so the id is a constant rather than something coordinated at the call site. Read it when you write a second route into the content, an anchor of your own, or a test that has to find the region |
-| `arenaToneColor(tone)` | the colour a status tone resolves to, for a shape you draw yourself and want to keep meaning what the components mean by it. Status colours are meaning and the chart ramp is identity, so this is never a series colour. `neutral` returns the body ink at its own level as a `color-mix()` value. A status tone returns a `var()` of its colour. Keep the string it returns and never test it against a variable name |
-| `arenaSrOnly` | the style object that hides an element from sight and keeps it for a screen reader, for markup of yours that needs a label the design does not show. `css/vocabulary/sr-only.css` is the same thing as a class |
+| `arenaToneColor(tone)` | `tone` is an `ArenaTone`: `'neutral'`, `'success'`, `'warning'`, `'danger'` or `'info'`. The colour a status tone resolves to, for a shape you draw yourself and want to keep meaning what the components mean by it. Status colours are meaning and the chart ramp is identity, so this is never a series colour. `neutral` returns the body ink at its own level as a `color-mix()` value. A status tone returns a `var()` of its colour. Keep the string it returns and never test it against a variable name |
+| `arenaSrOnly` | the style object that hides an element from sight and keeps it for a screen reader, for markup of yours that needs a label the design does not show. The class `arena-sr-only`, from `css/vocabulary/sr-only.css`, is the same thing, and `arena-num` beside it sets a figure in tabular digits; [`style.md`](./style.md) has both |
 
 ## How do I raise a confirmation from code in React?
 
@@ -53,6 +53,30 @@ return (
 
 `await confirms.ask({ title: 'Delete the project?', destructive: true })` answers `true` or `false`. One request is open at a time, in the order asked. A blank title throws at once. Every pending request answers `false` when the component that holds the queue unmounts.
 
+## How do I trap focus in an overlay of my own in React?
+
+Call the hook above the early return, put its handler on the element around the panel, and give the panel its role, its name and `tabindex="-1"`. The hook focuses the panel itself when nothing inside it can take focus.
+
+```tsx
+import { useRef } from 'react';
+import { useArenaDialogModal } from '@dravensoft/arena-react';
+
+function Lightbox({ open, label, onClose, children }: { open: boolean; label: string; onClose: () => void; children: React.ReactNode }) {
+  const panelRef = useRef<HTMLDivElement>(null);
+  const onKeyDown = useArenaDialogModal({ open, panelRef, onDismiss: onClose });
+  if (!open) return null;
+  return (
+    <div className="lightbox" onKeyDown={onKeyDown}>
+      <div ref={panelRef} role="dialog" aria-modal="true" aria-label={label} tabIndex={-1}>
+        {children}
+      </div>
+    </div>
+  );
+}
+```
+
+Tab wraps inside the panel and Escape calls `onDismiss`. Focus goes back to the invoker when `open` turns false. Close the overlay through `open` and keep the component calling the hook mounted, because unmounting it at once leaves focus nowhere. [`media-register.md`](./media-register.md) says what the overlay itself draws.
+
 ## What does the Angular package export besides components?
 
 Every component is standalone, so import the ones a template uses. **A parent does not bring its children with it.** A table needs `ArenaTableRow` and `ArenaTableCell` in the same `imports` array. So does every other family whose parts are separate elements. Everything else that reaches the package root is in this table.
@@ -62,17 +86,17 @@ Every component is standalone, so import the ones a template uses. **A parent do
 | `provideArenaThemes`, `ArenaThemeService`, `arenaThemeClass`, `ArenaPalette`, `ArenaThemeConfig` | the theme surface, covered in [`theme.md`](./theme.md) |
 | `provideArenaLocale`, `ARENA_LOCALE`, `arenaMergeLocale`, `ARENA_DEFAULT_LOCALE` | Arena's own words, covered in [`locale.md`](./locale.md) |
 | `arenaContainerWidth(target?)` | `Signal<number \| null>` over the host's box, or the `ElementRef` you pass: its outer width, the border box with no transform, so subtract your padding and border for the content width. For a component or panel that has to fit its room. **The box is read in the render hook of the tick that first draws it, before the paint**, then a `ResizeObserver` follows it. A phone's first frame is already narrow. The width is `null` in a server render and for a box that never had a width, such as one first drawn hidden. A box hidden later keeps its last width. Render the wide branch while it is `null`, as a server's HTML does |
-| `arenaViewportBelow(name)` | `Signal<boolean>` over `not all and (min-width: N)`, where `name` is `'sm' \| 'md' \| 'lg'` and resolves the same `--bp-*` token Arena's own components branch on. For a page's own layout, such as swapping `arena-compact` for `arena-comfortable` below a breakpoint, and **never for a component**: that is wrong the first time somebody puts it in a narrow column. Call `forgetArenaBreakpoints()` if your app swaps its stylesheet at runtime. **It answers from construction**, so the first change detection draws the right frame. A server render answers `false` until the client takes over, so a frame a server renders takes the `md:` and `max-md:` variants instead |
-| `arenaCatColor(slot)`, `arenaCatIndex(slot)`, `arenaCatSurface(slot)`, `arenaCatTint(colour)`, `arenaCatSlotFor(key)`, `ARENA_CAT_SLOTS` | the chart ramp, for a legend or a chip you draw yourself. The ramp's order is its identity, so a slot means the same thing in every chart on the screen. `arenaCatIndex` clamps and rounds a number to the ramp's 1..8, the value `data-arena-color-id` carries. `arenaCatTint` is the soft surface an identity colour stands on, over whatever answers `fill-surface`; it takes a colour, not a slot, and fills `arenaCatSurface` |
+| `arenaViewportBelow(name)` | `Signal<boolean>` over `not all and (min-width: N)`, where `name` is `'sm' \| 'md' \| 'lg'` and resolves the same `--bp-*` token Arena's own components branch on. For a page's own layout, such as swapping `arena-compact` for `arena-comfortable` below a breakpoint, and **never for a component**: that is wrong the first time somebody puts it in a narrow column. [How do I change density below a breakpoint?](#how-do-i-change-density-below-a-breakpoint) has it in use. Call `forgetArenaBreakpoints()` if your app swaps its stylesheet at runtime. **It answers from construction**, so the first change detection draws the right frame. A server render answers `false` until the client takes over, so a frame a server renders takes the `md:` and `max-md:` variants instead |
+| `arenaCatColor(slot)`, `arenaCatIndex(slot)`, `arenaCatSurface(slot)`, `arenaCatTint(colour)`, `arenaCatSlotFor(key)`, `ARENA_CAT_SLOTS` | the chart ramp, for a legend or a chip you draw yourself. The ramp's order is its identity, so a slot means the same thing in every chart on the screen. `arenaCatIndex` clamps and rounds a number to the ramp's 1..8, the value `data-arena-color-id` carries. `arenaCatTint` is the soft surface an identity colour stands on, over whatever answers `fill-surface`; it takes a colour, not a slot, and fills `arenaCatSurface`, which returns `{ fill, border }`. `arenaCatSlotFor` hashes a key to a stable slot, so two keys may share one; give series their slots in order when they must differ |
 | `ArenaToastQueue` | the notice queue, provided in root: it holds their identity and their order, and runs the clock `arena-toast-host` deliberately does not own. `raise(notice)` returns an id, `dismiss(id)` takes one away, `clear()` takes them all, and `toasts` is the signal you render into the host. The three-branch dismissal rule is inside it, including the one invisible in a signature: a `danger` notice is never put on a timer, and it ignores a `persist` of false |
 | `ArenaConfirmQueue` | the confirmation queue, provided in root. `ask(request)` returns a promise of the answer, `current` is the signal holding the one open request, an `ArenaConfirmEntry`, and `settle(id, answer)` resolves it and opens the next |
-| `arenaToastDelay(notice, dismiss)` | that rule on its own, for a queue of your own: the interval a notice runs on, or `null` when it must not be taken away |
-| `isArenaPrimaryActivation(event)` | the predicate behind the anchor rule: true for a primary click with no modifier, false for every modified click, middle click and context menu |
-| `isArenaOwnActivation(target, container)` | true when an activation landed on the container itself rather than on a link, a button, a field or any other interactive element inside it. The predicate is what lets a clickable row hold a checkbox and a row action without taking their presses |
-| `arenaFocusableElements(container)`, `arenaFocusFirstFocusable(container)`, `arenaTrapTabKey(container, event, activeElement)`, `arenaHandleOpenTransition(state, isOpen, panel, activeElement)` | the modal contract, for an overlay Arena does not ship. Arena's own dialogs run on these. A lightbox or a viewer of yours traps Tab, takes focus on open and restores the invoker on close. One piece of code does that, rather than a second one written from memory. Reach for this surface whenever the answer is that the markup is yours |
-| `arenaToneColor(tone)` | the colour a status tone resolves to, for a shape you draw yourself and want to keep meaning what the components mean by it. Status colours are meaning and the chart ramp is identity, so this is never a series colour. `neutral` returns the body ink at its own level as a `color-mix()` value. A status tone returns a `var()` of its colour. Keep the string it returns and never test it against a variable name |
+| `arenaToastDelay(notice, dismiss)`, `ARENA_TOAST_DISMISS` | that rule on its own, for a queue of your own: the interval a notice runs on, or `null` when it must not be taken away. Pass `ARENA_TOAST_DISMISS` as `dismiss`: its `actionable` interval runs a notice carrying an `actionLabel`, and its `default` interval every other |
+| `isArenaPrimaryActivation(event)` | the predicate behind the anchor rule: true for a primary click with no modifier, false for every modified click, middle click and context menu. The predicate reads a pointer event, so Enter on an element of yours is a `keydown` you handle beside it |
+| `isArenaOwnActivation(target, container)` | true when an activation landed on the container itself rather than on a link, a button, a field or any other interactive element inside it. The predicate is what lets a clickable row hold a checkbox and a row action without taking their presses. A `label` and an element with a widget `role` count as interactive too. [How do I route an activation of my own?](#how-do-i-route-an-activation-of-my-own) has both in use |
+| `arenaFocusableElements(container)`, `arenaFocusFirstFocusable(container)`, `arenaTrapTabKey(container, event, activeElement)`, `arenaHandleOpenTransition(state, isOpen, panel, activeElement)`, `FocusTrapState` | the modal contract, for an overlay Arena does not ship. Arena's own dialogs run on these. A lightbox or a viewer of yours traps Tab, takes focus on open and restores the invoker on close. One piece of code does that, rather than a second one written from memory. Reach for this surface whenever the answer is that the markup is yours. `state` is a `FocusTrapState`, `{ wasOpen: false, restoreTo: null }` when you create it, and [How do I trap focus in an overlay of my own in Angular?](#how-do-i-trap-focus-in-an-overlay-of-my-own-in-angular) wires all of it |
+| `arenaToneColor(tone)` | `tone` is an `ArenaTone`: `'neutral'`, `'success'`, `'warning'`, `'danger'` or `'info'`. The colour a status tone resolves to, for a shape you draw yourself and want to keep meaning what the components mean by it. Status colours are meaning and the chart ramp is identity, so this is never a series colour. `neutral` returns the body ink at its own level as a `color-mix()` value. A status tone returns a `var()` of its colour. Keep the string it returns and never test it against a variable name |
 | `ARENA_MAIN_ID` | the id `arena-main` writes on its landmark and `arena-skip-link` points at, as a string. A page has one main region, so the id is a constant rather than something coordinated at the call site. Read it when you write a second route into the content, an anchor of your own, or a test that has to find the region |
-| `ARENA_SR_ONLY` | the style object that hides an element from sight and keeps it for a screen reader, for markup of yours that needs a label the design does not show. `css/vocabulary/sr-only.css` is the same thing as a class |
+| `ARENA_SR_ONLY` | the style object that hides an element from sight and keeps it for a screen reader, for markup of yours that needs a label the design does not show. The class `arena-sr-only`, from `css/vocabulary/sr-only.css`, is the same thing, and `arena-num` beside it sets a figure in tabular digits; [`style.md`](./style.md) has both |
 
 Call either measurement from an injection context, a field initializer or the constructor. `DestroyRef` disconnects the observer. `afterNextRender` decides when there is a box to measure at all.
 
@@ -94,6 +118,96 @@ The `<head>` writer is not in that table. The writer lives at `@dravensoft/arena
 ```
 
 `await confirms.ask({ title: 'Delete the project?', destructive: true })` answers `true` or `false`. One request is open at a time, in the order asked. A blank title throws at once. Every pending request answers `false` when the injector is destroyed.
+
+## How do I trap focus in an overlay of my own in Angular?
+
+Keep a `FocusTrapState`, run the open transition in an `afterRenderEffect`, and trap Tab and close on Escape from the host's `keydown`. `arena-dialog` runs on the same functions the same way.
+
+```ts
+import { Component, DOCUMENT, ElementRef, afterRenderEffect, inject, input, output, untracked, viewChild } from '@angular/core';
+import { type FocusTrapState, arenaHandleOpenTransition, arenaTrapTabKey } from '@dravensoft/arena-angular';
+
+@Component({
+  selector: 'app-lightbox',
+  host: { '(keydown)': 'onKeydown($event)' },
+  template: `@if (open()) {
+    <div #panel role="dialog" aria-modal="true" [attr.aria-label]="label()" tabindex="-1"><ng-content /></div>
+  }`,
+})
+export class Lightbox {
+  readonly open = input.required<boolean>();
+  readonly label = input.required<string>();
+  readonly close = output<void>();
+  private readonly doc = inject(DOCUMENT);
+  private readonly panel = viewChild<ElementRef<HTMLElement>>('panel');
+  private readonly trap: FocusTrapState = { wasOpen: false, restoreTo: null };
+
+  constructor() {
+    afterRenderEffect(() => {
+      const isOpen = this.open();
+      untracked(() => arenaHandleOpenTransition(this.trap, isOpen, this.panel()?.nativeElement ?? null, this.doc.activeElement));
+    });
+  }
+
+  protected onKeydown(event: KeyboardEvent) {
+    if (!this.open()) return;
+    if (event.key === 'Escape') { event.preventDefault(); this.close.emit(); return; }
+    const panel = this.panel()?.nativeElement;
+    if (event.key === 'Tab' && panel) arenaTrapTabKey(panel, event, this.doc.activeElement);
+  }
+}
+```
+
+The transition focuses the first focusable element on open, or the panel itself when there is none, and gives focus back to the invoker on close. Escape is yours to wire, as above. [`media-register.md`](./media-register.md) says what the overlay itself draws.
+
+## How do I route an activation of my own?
+
+**An Arena component with an `href` reports its activation through its own event, and your router's navigate in that handler is the whole bridge.** Never wrap the component in your router's link. An element you draw yourself takes the same split through the two predicates: a primary click is routed, and every other press stays the browser's or the control's.
+
+```tsx
+// React: an anchor of your own, and a surface of your own holding controls
+<a href={`/orders/${id}`} onClick={(event) => {
+  if (!isArenaPrimaryActivation(event)) return;
+  event.preventDefault();
+  navigate(`/orders/${id}`);
+}}>{label}</a>
+
+<article onClick={(event) => { if (isArenaOwnActivation(event.target, event.currentTarget)) open(id); }}>
+  <button type="button" onClick={like}>Like</button>
+</article>
+```
+
+```ts
+// Angular: the same two handlers in a component
+protected follow(event: MouseEvent, url: string) {
+  if (!isArenaPrimaryActivation(event)) return;
+  event.preventDefault();
+  void this.router.navigateByUrl(url);
+}
+protected openPost(event: MouseEvent, row: HTMLElement, id: string) {
+  if (isArenaOwnActivation(event.target, row)) this.open(id);
+}
+```
+
+A surface of yours that is not an anchor and takes the keyboard handles Enter in its own `keydown`. An active id comes from the router, and the side nav's own usage page in your layer has that bridge.
+
+## How do I change density below a breakpoint?
+
+Read the viewport helper in the frame of the page and swap the density class there, never inside a component.
+
+```tsx
+// React
+const narrow = useArenaViewportBelow('md');
+return <div className={narrow ? 'arena-comfortable' : 'arena-compact'}>{children}</div>;
+```
+
+```ts
+// Angular: call the helper in a field initializer, an injection context
+protected readonly narrow = arenaViewportBelow('md');
+// template: <div [class.arena-comfortable]="narrow()" [class.arena-compact]="!narrow()">…</div>
+```
+
+The two classes are exclusive and reach every component inside the element, and [`VOCABULARY.md`](../../../frameworks/VOCABULARY.md) says what each one changes. The helper needs Arena's stylesheet loaded, because it reads the `--bp-*` threshold from it.
 
 ## Which Angular projection markers must I import?
 
