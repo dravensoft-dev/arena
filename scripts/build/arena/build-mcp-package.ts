@@ -60,6 +60,8 @@ export const node = {
     'frameworks/*/INDEX.md', 'frameworks/*/components/*/INDEX.md',
     'frameworks/*/components/**/*.prompt.md',
     'frameworks/*/components/**/*.behaviour.json',
+    'plugin-style-store/default/*', 'plugin-style-store/complete/*', 'plugin-style-store/catalogue/INDEX.md',
+    'plugin-style-store/catalogue/*/*',
     'frameworks/tailwind/vocabulary/**', 'frameworks/tailwind/components/**/*.json',
   ],
   writes: [`${DIST}/**`],

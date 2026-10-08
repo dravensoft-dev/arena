@@ -11,13 +11,15 @@ import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { packageSheetName, sheetFamilies } from '../../lib/tailwind/vocabulary.ts';
-import { CSS_CHAIN } from '../../lib/arena/package-assembly.ts';
+import { CSS_CHAIN, tokenCatalogue } from '../../lib/arena/package-assembly.ts';
 import { NPM_PAGES, renderQuestions } from '../../lib/arena/npm-questions.ts';
 import { ARENA_EXT, RESERVED } from '../core/arena-cli/style-plugin-rules.ts';
 import { readJson } from '../../utils/read-file.ts';
+import { CSS_TARGETS } from './generate-tokens.ts';
 
 export const LOCALE_CONTRACT = 'contracts/api/types/arena-locale.json';
 export const ROLE_CONTRACT = 'contracts/design/roles.json';
+export const BEHAVIOUR_CONTRACT = 'contracts/design/behaviour.json';
 
 export function defaultedRoles(base = root) {
   const roles = readJson(join(base, ROLE_CONTRACT)) as Record<string, { $extensions?: Record<string, { default?: unknown }> }>;
@@ -27,6 +29,14 @@ export function defaultedRoles(base = root) {
 export function unansweredCount(base = root) {
   const roles = readJson(join(base, ROLE_CONTRACT)) as Record<string, unknown>;
   return Object.keys(roles).length - defaultedRoles(base).length;
+}
+
+export function toastIntervals(base = root) {
+  const behaviour = readJson(join(base, BEHAVIOUR_CONTRACT)) as {
+    dismiss: Record<'default' | 'actionable', { $value: { value: number; unit: string } }>;
+  };
+  const ms = (name: 'default' | 'actionable') => `${behaviour.dismiss[name].$value.value} ${behaviour.dismiss[name].$value.unit}`;
+  return { standard: ms('default'), actionable: ms('actionable') };
 }
 
 export function defaultedSentence(roles: string[], total = 0) {
@@ -43,9 +53,11 @@ export function defaultsStatement(base = root) {
 export const REGION_TARGETS: Record<string, string[]> = {
   repository: ['frameworks/react/PACKAGE.md', 'frameworks/angular/PACKAGE.md'],
   skin: ['skills/design/references/config.md'],
+  tokens: ['skills/design/references/tokens.md'],
   defaults: ['skills/design/references/style-kernel.md'],
   sheets: ['skills/design/references/stylesheets.md'],
   locale: ['skills/design/references/locale.md'],
+  toast: ['skills/design/references/exports.md'],
   questions: NPM_PAGES,
 };
 
@@ -53,7 +65,7 @@ export const TARGETS = [...new Set(Object.values(REGION_TARGETS).flat())];
 
 export const node = {
   name: 'generate:npm-pages',
-  reads: [...TARGETS, '.claude-plugin/plugin.json', 'scripts/generate/core/arena-cli/style-plugin-rules.ts', LOCALE_CONTRACT, ROLE_CONTRACT],
+  reads: [...TARGETS, '.claude-plugin/plugin.json', 'scripts/generate/core/arena-cli/style-plugin-rules.ts', LOCALE_CONTRACT, ROLE_CONTRACT, BEHAVIOUR_CONTRACT, ...CSS_TARGETS],
   writes: TARGETS,
   feeds: [
     'build:angular-package',
@@ -101,6 +113,21 @@ point your agent at \`skills/design/SKILL.md\`. Or work over HTTP, starting at
 Without one of them an agent guesses. \`arena audit\` reads your own sources for the rules a source text can show, and nothing reports the rest. The screen renders, and the rules it breaks are the ones only a reader notices.
 
 The package is the code. The server, the plugin and the repository are the language.`,
+
+  tokens: (base = root) => {
+    const groups = ['sp', 'r', 'bw', 'shadow', 'dur', 'loop', 'ease', 'z', 'bp'];
+    const { tokens } = tokenCatalogue(base);
+    const roles = new Set(Object.keys(readJson(join(base, ROLE_CONTRACT)) as Record<string, unknown>));
+    const rows = groups.flatMap((group) => Object.entries(tokens)
+      .filter(([name]) => !roles.has(name) && (name === group || name.startsWith(`${group}-`)))
+      .map(([name, value]) => `| \`--${name}\` | \`${value}\` |`));
+    return ['| custom property | value |', '| --- | --- |', ...rows].join('\n');
+  },
+
+  toast: (base = root) => {
+    const { standard, actionable } = toastIntervals(base);
+    return `**A notice leaves on one of three branches.** The default interval is ${standard}. The interval for a notice carrying an \`actionLabel\` is ${actionable}, because that notice asks the reader to decide and not only to read. A notice raised with \`persist\`, or with \`tone: 'danger'\`, has no timer at all and stays until it is dismissed. A \`danger\` notice ignores a \`persist\` of false.`;
+  },
 
   sheets: (base = root) => {
     const families = sheetFamilies(base).map((one) => one.family).sort().map((family) => `\`${packageSheetName(family)}\``);
@@ -180,8 +207,7 @@ Write \`arena.config.json\` in your project root. The block below is the whole f
 }
 \`\`\`
 
-\`arena.config.example.json\`, which each package ships, is the same file with both Dravensoft palettes in
-it, ready to copy and edit.
+\`arena.config.example.json\`, which each package ships at its root, is the same file with two palettes, one dark and one light, ready to copy and edit.
 
 **\`stylePlugins\` is in that block because leaving it out is a decision and not a blank.** The value above is the appearance this package installs with, which is Dravensoft's. A project that means to look like itself replaces it with the path to a plugin directory of its own. Both
 are finished answers; only one of them is one somebody made.
@@ -191,7 +217,7 @@ What each part means:
 - **\`palettes\`** is an array, so declare as many as you want. Exactly one is the \`default\` and
   reaches \`:root\`; every other one becomes a class, \`.arena-<name>\`, that you put on
   \`<html>\` to switch skin. The command refuses a palette or style plugin named after a class Arena
-  ships or is going to ship, naming the component a future class belongs to. The names held for a class Arena is going to ship are ${reserved}. A palette may still take its own polarity's name, \`dark\` or \`light\`, and a style plugin may not.
+  ships or is going to ship, naming the component a future class belongs to. The names held for a class Arena is going to ship are ${reserved}. A palette may still take its own polarity's name, \`dark\` or \`light\`, and a style plugin may not. A palette name is kebab-case, and a name declared twice is refused.
 - **\`polarity\`** is \`dark\` or \`light\`. The polarity decides the native date picker's colour, and it is what a first visit matches \`prefers-color-scheme\` against.
 - **\`colors\`** takes every key above, each a six-digit hex such as \`#141010\`. \`error-fill\` is the only optional one: leave it out and
   Arena darkens \`error\` in oklab for the single filled danger surface it has.
@@ -208,7 +234,7 @@ What each part means:
   component rewritten to get there.
   The key is a list, because a build can carry more than one register. The first entry is what a page with no class on it looks like. Every later one emits under \`.arena-<name>\`, which you put on \`<html>\` beside any palette class, and is a difference. An entry is the word
   \`default\`, which is the appearance this package installs with, or a path to a directory of
-  your own holding \`plugin.tokens.json\` and optionally \`plugin.css\`. The first entry answers every role Arena declares. ${defaultsStatement(base)} A custom property with no value is invalid at computed-value time, so an unanswered role is a missing border rather than a plainer look. Declare a list without \`default\` and you do not receive its stylesheet, the
+  your own holding \`plugin.tokens.json\` and optionally \`plugin.css\`. The plugin's name is the name of that directory, so a directory called \`ember\` declares the plugin \`ember\`. The name must be kebab-case, and it may not repeat a palette name or another plugin's. The first entry answers every role Arena declares. ${defaultsStatement(base)} A custom property with no value is invalid at computed-value time, so an unanswered role is a missing border rather than a plainer look. Declare a list without \`default\` and you do not receive its stylesheet, the
   same way the preflight can already be dropped.
 - **\`gradientMark\`** is optional, a boolean, and says the mark your product is drawn with is a
   gradient. Arena ships no element that is one, so yours lives in your own CSS, where \`arena audit\` reports it. The scope reads which directory a line sits in, which is right for a part hook and wrong for a brand. Declare it once and that rule goes quiet in your sources; the colours inside

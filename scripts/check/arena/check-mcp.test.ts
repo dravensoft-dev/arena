@@ -7,6 +7,7 @@ import {
   collect, dependencyProblems, importedPackages, binProblems, corpusProblems, catalogueProblems,
   unresolvedTarget, targetsIn, registryProblems, SITE_BASE, REGISTRY_SCHEMA,
   REGISTRY_DESCRIPTION_LIMIT, flatProblems, ESCAPING_SPECIFIER, vocabularyProblems,
+  styleStoreProblems,
 } from './check-mcp.ts';
 import {
   RUNTIME_DEPENDENCIES, ENTRY, NAME, LAYERS, DIST, REGISTRY_NAME, manifest,
@@ -245,4 +246,33 @@ test('the pattern reads a specifier and not a path that happens to sit in a stri
   assert.deepEqual(of("import { a } from '../b/c.mjs';"), ['../b/c.mjs']);
   assert.deepEqual(of("import { a } from './c.mjs';"), []);
   assert.deepEqual(of("const note = '../b/c.mjs';"), []);
+});
+
+test('a default plugin or a catalogue entry missing from the assembled corpus is reported', () => {
+  const store = {
+    'plugin-style-store/default/plugin.tokens.json': '{}',
+    'plugin-style-store/catalogue/INDEX.md': '# i\n',
+    'plugin-style-store/catalogue/booking/ENTRY.md': '# b\n',
+    'plugin-style-store/catalogue/booking/plugin.css': '.x{}',
+  };
+  const base = corpus(store);
+  const bundle = (files: Record<string, string>) => corpus(Object.fromEntries(LAYERS.flatMap((layer) => [
+    [`agent/${layer}/skill.json`, MANIFEST.replace('react', layer)],
+    [`agent/${layer}/skills/design/ROUTER.md`, '# r\n'],
+    [`agent/${layer}/support.json`, '{}'],
+    [`agent/${layer}/frameworks/${layer}/components/a/ArenaA.prompt.md`, 'a\n'],
+    ...Object.entries(files).map(([rel, body]) => [`agent/${layer}/${rel}`, body]),
+  ])));
+  const whole = bundle(store);
+  const without = bundle(store);
+  const noEntry = bundle(Object.fromEntries(Object.entries(store)
+    .filter(([rel]) => !rel.includes('booking/plugin.css'))));
+  try {
+    assert.deepEqual(styleStoreProblems(whole, base), []);
+    assert.match(styleStoreProblems(noEntry, base).join('\n'), /style\/catalogue\/booking\/plugin\.css/);
+    rmSync(join(without, 'agent', 'react', 'plugin-style-store', 'default'), { recursive: true });
+    assert.match(styleStoreProblems(without, base).join('\n'), /style\/default\/plugin\.tokens\.json/);
+  } finally {
+    for (const dir of [base, whole, without, noEntry]) rmSync(dir, { recursive: true, force: true });
+  }
 });

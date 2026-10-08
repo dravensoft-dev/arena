@@ -275,7 +275,9 @@ export function llmsProblems(out: string, base = root) {
       if (at !== 1) problems.push(`${layerFile(layer)} carries ${rel} ${at} time(s), and a corpus is every document of its layer exactly once`);
     }
     const other = LAYERS.find((name) => name !== layer);
-    if (other && body.includes(`frameworks/${other}/components/`)) {
+    const carried = other !== undefined && body.split(`frameworks/${other}/components/`).slice(0, -1)
+      .some((before) => !before.endsWith(`${DOMAIN}/`));
+    if (carried) {
       problems.push(`${layerFile(layer)} carries a document from ${other}. A component ships under both names and the two are not interchangeable, so one corpus holding both hands an agent the idiom it was told not to read`);
     }
   }

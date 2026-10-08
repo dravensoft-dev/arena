@@ -65,7 +65,25 @@ export function onFeedKeydown(event: KeyboardEvent, feed: HTMLElement) {
 }
 ```
 
-Call it from the feed's own key handler: `onKeyDown={(e) => onFeedKeydown(e.nativeEvent, e.currentTarget)}` in React, `(keydown)="onFeedKeydown($event, feed)"` on a `#feed` element in Angular, with the function assigned to a field of the component. Each `article` carries `tabindex="0"`, so the keys have somewhere to land.
+Keep the handler in its own module beside the component. Call it from the feed's own key handler: `onKeyDown={(e) => onFeedKeydown(e.nativeEvent, e.currentTarget)}` in React, `(keydown)="onFeedKeydown($event, feed)"` on a `#feed` element in Angular, with the function assigned to a field of the component. Each `article` carries `tabindex="0"`, so the keys have somewhere to land.
+
+```ts
+import { Component } from '@angular/core';
+import { onFeedKeydown } from './feed-keydown';
+
+@Component({
+  selector: 'app-feed',
+  template: `
+    <div #feed role="feed" aria-label="Posts" (keydown)="onFeedKeydown($event, feed)">
+      <article tabindex="0">First post</article>
+      <article tabindex="0">Second post</article>
+    </div>
+  `,
+})
+export class AppFeed {
+  protected readonly onFeedKeydown = onFeedKeydown;
+}
+```
 
 **`isArenaOwnActivation(target, container)`** is the one to know about by name. A post that opens on tap and carries a like button inside it is two activations on one
 surface. The predicate is how the outer one keeps its hands off the inner, and it is the same rule

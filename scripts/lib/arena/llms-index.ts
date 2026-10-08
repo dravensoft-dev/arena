@@ -10,7 +10,7 @@
  * emphasis does not end one, and a marker whose partner stayed behind is not published. */
 
 import { existsSync, readFileSync } from 'node:fs';
-import { basename, join } from 'node:path';
+import { basename, join, posix } from 'node:path';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { relPosix } from '../../utils/posix-path.ts';
 import { repoRoot as root } from './repo-root.ts';
@@ -240,6 +240,16 @@ export function index(base = root) {
   return lines.join('\n');
 }
 
+export const RELATIVE_LINK = /\]\((?![a-z][a-z0-9+.-]*:|#|\/)([^)\s]+)\)/g;
+
+export function onSite(text: string, rel: string) {
+  return text.replace(RELATIVE_LINK, (_, target: string) => {
+    const [path, anchor] = target.split('#');
+    const resolved = posix.normalize(posix.join(posix.dirname(rel), path ?? ''));
+    return `](${docUrl(resolved)}${anchor === undefined ? '' : `#${anchor}`})`;
+  });
+}
+
 export function corpus(layer: string, base = root) {
   const title = layer.charAt(0).toUpperCase() + layer.slice(1);
   const parts = [
@@ -253,7 +263,7 @@ export function corpus(layer: string, base = root) {
     '',
   ];
   for (const rel of [ROUTER, ...references(base), LAYER_INDEX, VOCABULARY_PAGE, ...layerDocs(layer, base)]) {
-    parts.push('', `<!-- ${rel} -->`, '', readFileSync(join(base, rel), 'utf8').trim(), '');
+    parts.push('', `<!-- ${rel} -->`, '', onSite(readFileSync(join(base, rel), 'utf8').trim(), rel), '');
   }
   return `${parts.join('\n')}\n`;
 }

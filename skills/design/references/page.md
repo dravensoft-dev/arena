@@ -4,6 +4,8 @@ Arena paints no page of yours. Arena draws the components, declares the floor th
 ships the column and the air as classes you put on your own markup. The page itself is a thing you
 write, and Arena hands you every value to write it with.
 
+Run `arena init` and `arena build` first ([`cli.md`](./cli.md#which-commands-are-there)), then import their sheets ([React](./install.md#how-do-i-import-the-stylesheets-in-react), [Angular](./install.md#how-do-i-import-the-stylesheets-in-angular)).
+
 Read this page first. Three questions are its own: what colour your own markup takes,
 how wide the content column gets, and how much space goes between one component and the next.
 
@@ -92,7 +94,7 @@ palette it was written against.
 other's job.** The components hold that rule, and markup of yours holds it the same
 way. Otherwise a reader learns that green is sometimes a category.
 
-- **Meaning** is the four status colours. `arenaToneColor(tone)` from your package resolves the
+- **Meaning** is the four status colours. `arenaToneColor(tone)` from `@dravensoft/arena-react` or `@dravensoft/arena-angular` resolves the
   one a tone stands for, so a shape you draw yourself keeps meaning what the components mean by
   it.
 - **Identity** is the eight ramp slots, `--color-cat-1` through `--color-cat-8`, in fixed order.
@@ -101,15 +103,9 @@ way. Otherwise a reader learns that green is sometimes a category.
 
 ## The rest of the scale, and the edges of the device
 
-**`--sp-*` is the spacing scale in thirteen steps**, and everything the rhythm classes do not cover reads it. The steps
-are `--sp-0` through `--sp-6` one at a time, then `--sp-8`, `--sp-10`, `--sp-12`, `--sp-16`,
-`--sp-20` and `--sp-24`. A bare length is a bug, and this scale makes it unnecessary. [`contracts/design/Scales.md`](../../../contracts/design/Scales.md) says
-what each step is for.
+**`--sp-*` is the spacing scale**, and everything the rhythm classes do not cover reads it. A bare length is a bug, and this scale makes it unnecessary. [`contracts/design/Scales.md`](../../../contracts/design/Scales.md) says what each step is for.
 
-**Every other group reads the same way.** Your package's `arena.tokens.json` lists each
-value: `--fs-*`, `--fw-*`, `--lh-*`, `--ls-*` and `--font-*` for type, `--r-*`, `--bw-*`,
-`--shadow-*`, `--dur-*`, `--ease-*`, `--loop-*`, `--z-*`, `--bp-*` and `--dz-*`. A media query
-takes no `var()`, so a frame uses the `md:` variants or the breakpoint helper, `useArenaViewportBelow` in React and `arenaViewportBelow` in Angular, in [`exports.md`](./exports.md). The file's keys drop the leading `--`, so `sp-4` there is `--sp-4` here.
+**Every other group reads the same way.** [`tokens.md`](./tokens.md) tables the steps above and the radius, border, shadow, motion, layer and breakpoint values. Your package's `arena.tokens.json` lists every value, nested under `tokens` beside `roles`, with the type and density groups. The file's keys drop the leading `--`, so `sp-4` there is `--sp-4` here. A media query takes no `var()`, so a frame uses the `md:` variants or the breakpoint helper, `useArenaViewportBelow` in React and `arenaViewportBelow` in Angular, in [`exports.md`](./exports.md).
 
 **`--pad-safe-top`, `--pad-safe-right`, `--pad-safe-bottom` and `--pad-safe-left`** compose the
 device's own insets with that scale, in

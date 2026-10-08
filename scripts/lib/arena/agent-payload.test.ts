@@ -30,7 +30,7 @@ test('the payload carries the references, the neutral index, the roles and the p
 });
 
 test('a spec list names the shared files plus the layer tree, and nothing else', () => {
-  assert.equal(carriedSpecs('react').length, 9);
+  assert.equal(carriedSpecs('react').length, 13);
   assert.ok(carriedSpecs('react').every((spec) => !spec.includes('angular')));
 });
 
@@ -122,4 +122,17 @@ test('the payload carries every token group, so a value a reference names can be
   }
   assert.equal(inPayload('contracts/design/Scales.md', 'react'), false,
     'the prose specification stays on the site, only the DTCG groups travel');
+});
+
+test('the default style plugin and the catalogue travel in both layers, and what is not a copy does not', () => {
+  for (const layer of ['react', 'angular']) {
+    for (const rel of ['plugin-style-store/default/plugin.tokens.json',
+      'plugin-style-store/catalogue/INDEX.md', 'plugin-style-store/catalogue/booking/ENTRY.md',
+      'plugin-style-store/catalogue/booking/plugin.css',
+      'plugin-style-store/catalogue/booking/arena.config.json']) {
+      assert.ok(inPayload(rel, layer), `${rel} is not carried in ${layer}`);
+    }
+  }
+  assert.equal(inPayload('plugin-style-store/catalogue/AGENTS.md', 'react'), false);
+  assert.equal(inPayload('plugin-style-store/AGENTS.md', 'react'), false);
 });

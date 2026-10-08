@@ -6,7 +6,7 @@ import { join } from 'node:path';
 import {
   entries, catalogue, search, nameOf, categoryOf, words, textOf, withUris, relIndex,
   ROUTER_URI, SUPPORT_URI, ROLES_URI, LAYER_INDEX_URI, CATALOGUE_URI, VOCABULARY_URI, SCHEME,
-  extractFamilies,
+  extractFamilies, STYLE_PREFIX,
 } from './catalogue.ts';
 import type { Manifest } from './payload.ts';
 
@@ -284,5 +284,50 @@ test('a token group is found by the names of its tokens', () => {
     const found = entries(dir, MANIFEST);
     assert.equal(search(dir, found, 'sp-4')[0]?.entry.uri, `${SCHEME}://tokens/spacing`);
     assert.equal(search(dir, found, 'shadow soft')[0]?.entry.uri, `${SCHEME}://tokens/effects`);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+const STYLE = {
+  'plugin-style-store/default/plugin.tokens.json': '{"color":{}}',
+  'plugin-style-store/catalogue/INDEX.md':
+    '# The catalogue\n\n| [A booking flow](./booking/ENTRY.md) | [`plugin.css`](./booking/plugin.css) |\n'
+    + '[the page](../../skills/design/references/page.md)\n',
+  'plugin-style-store/catalogue/booking/ENTRY.md': '# A booking flow\n\nA form completed once.\n',
+  'plugin-style-store/catalogue/booking/plugin.css': '.x { color: red; }',
+  'plugin-style-store/catalogue/booking/plugin.tokens.json': '{}',
+  'plugin-style-store/catalogue/booking/arena.config.json': '{}',
+};
+
+test('the default style plugin and each catalogue entry get a URI and the right mime type', () => {
+  const dir = payload(STYLE);
+  try {
+    const found = new Map(entries(dir, MANIFEST).map((one) => [one.uri, one.mime]));
+    assert.equal(found.get(`${STYLE_PREFIX}default/plugin.tokens.json`), 'application/json');
+    assert.equal(found.get(`${STYLE_PREFIX}catalogue/INDEX.md`), 'text/markdown');
+    assert.equal(found.get(`${STYLE_PREFIX}catalogue/booking/ENTRY.md`), 'text/markdown');
+    assert.equal(found.get(`${STYLE_PREFIX}catalogue/booking/plugin.css`), 'text/css');
+    assert.equal(found.get(`${STYLE_PREFIX}catalogue/booking/arena.config.json`), 'application/json');
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('the catalogue index links resolve to served URIs, the entry files and the references', () => {
+  const dir = payload(STYLE);
+  try {
+    const { byUri, byRel } = catalogue(dir, MANIFEST);
+    const index = byUri.get(`${STYLE_PREFIX}catalogue/INDEX.md`);
+    assert.ok(index);
+    const text = textOf(dir, index, byRel) ?? '';
+    assert.match(text, new RegExp(`\\]\\(${STYLE_PREFIX}catalogue/booking/ENTRY\\.md\\)`));
+    assert.match(text, new RegExp(`\\]\\(${STYLE_PREFIX}catalogue/booking/plugin\\.css\\)`));
+    assert.match(text, /\]\(arena:\/\/reference\/page\)/);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('an entry is found by the name of its directory, not by the file name every entry shares', () => {
+  const dir = payload(STYLE);
+  try {
+    const { entries: found } = catalogue(dir, MANIFEST);
+    const top = search(dir, found, 'booking')[0];
+    assert.equal(top?.entry.uri, `${STYLE_PREFIX}catalogue/booking/ENTRY.md`);
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });

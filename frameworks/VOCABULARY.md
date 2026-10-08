@@ -7,30 +7,30 @@
 | Family | Reach | Options | Property | Answered by |
 |---|---|---|---|---|
 | [`accent`](#accent) | box | `arena-accent-gold`, `arena-accent-ink`, `arena-accent-muted`, `arena-accent-plain` (default), `arena-accent-primary` |  | ArenaActivityFeed and ArenaProgressBar (`arena-accent-gold`, `arena-accent-primary`; default `arena-accent-primary`), ArenaBadge and ArenaStatCard (`arena-accent-gold`, `arena-accent-plain`, `arena-accent-primary`), ArenaCard and ArenaTag (`arena-accent-plain`, `arena-accent-primary`), ArenaSpinner (`arena-accent-gold`, `arena-accent-ink`, `arena-accent-muted`, `arena-accent-primary`; default `arena-accent-primary`), ArenaToast (`arena-accent-gold`, `arena-accent-plain`) |
-| [`align`](#align) | box | `arena-align-center`, `arena-align-start` (default) |  | ArenaHero, ArenaPageHead |
+| [`align`](#align) | box | `arena-align-center`, `arena-align-start` (default) |  | ArenaHero ([React](./react/components/layout/arena-hero/ArenaHero.prompt.md), [Angular](./angular/components/layout/arena-hero/ArenaHero.prompt.md)), ArenaPageHead ([React](./react/components/navigation/arena-page-head/ArenaPageHead.prompt.md), [Angular](./angular/components/navigation/arena-page-head/ArenaPageHead.prompt.md)) |
 | [`band`](#band) | box | `arena-band` |  | markup you write |
-| [`board-column`](#board-column) | box | `arena-board-column-lg`, `arena-board-column-md` (default), `arena-board-column-sm` | `--arena-board-column` | ArenaBoard |
+| [`board-column`](#board-column) | box | `arena-board-column-lg`, `arena-board-column-md` (default), `arena-board-column-sm` | `--arena-board-column` | ArenaBoard ([React](./react/components/layout/arena-board/ArenaBoard.prompt.md), [Angular](./angular/components/layout/arena-board/ArenaBoard.prompt.md)) |
 | [`column`](#column) | box | keyed by `key` | `--arena-column-<key>-width`, `--arena-column-<key>-align` | ArenaTable |
 | [`density`](#density) | context | `arena-comfortable`, `arena-compact` |  | markup you write |
-| [`dialog-width`](#dialog-width) | box | `arena-dialog-width-lg`, `arena-dialog-width-md` (default), `arena-dialog-width-sm` | `--arena-dialog-width` | ArenaDialog |
-| [`elevation`](#elevation) | box | `arena-elevation-flat` (default), `arena-elevation-floating` |  | ArenaCard |
-| [`emphasis`](#emphasis) | context | `arena-emphasis-ghost`, `arena-emphasis-primary` (default), `arena-emphasis-secondary`, `arena-emphasis-solid` |  | ArenaButton (`arena-emphasis-ghost`, `arena-emphasis-primary`, `arena-emphasis-secondary`), ArenaIconButton (`arena-emphasis-ghost`, `arena-emphasis-solid`; default `arena-emphasis-ghost`) |
-| [`fill`](#fill) | box | `arena-fill`, `arena-fit` (default) |  | ArenaButton, ArenaIconButton, ArenaMenu, ArenaSegmentedControl, ArenaTooltip |
-| [`grid-gap`](#grid-gap) | box | `arena-grid-gap-component` (default), `arena-grid-gap-group`, `arena-grid-gap-none`, `arena-grid-gap-section` | `--arena-grid-gap` | ArenaGrid |
-| [`grid-max`](#grid-max) | box | `arena-grid-max-lg`, `arena-grid-max-md`, `arena-grid-max-none` (default), `arena-grid-max-sm` | `--arena-grid-max` | ArenaGrid |
-| [`grid-min`](#grid-min) | box | `arena-grid-min-lg`, `arena-grid-min-md` (default), `arena-grid-min-sm` | `--arena-grid-min` | ArenaGrid |
-| [`layout`](#layout) | box | `arena-layout-bleed`, `arena-layout-split` (default), `arena-layout-stacked` |  | ArenaHero |
+| [`dialog-width`](#dialog-width) | box | `arena-dialog-width-lg`, `arena-dialog-width-md` (default), `arena-dialog-width-sm` | `--arena-dialog-width` | ArenaDialog ([React](./react/components/feedback/arena-dialog/ArenaDialog.prompt.md), [Angular](./angular/components/feedback/arena-dialog/ArenaDialog.prompt.md)) |
+| [`elevation`](#elevation) | box | `arena-elevation-flat` (default), `arena-elevation-floating` |  | ArenaCard ([React](./react/components/display/arena-card/ArenaCard.prompt.md), [Angular](./angular/components/display/arena-card/ArenaCard.prompt.md)) |
+| [`emphasis`](#emphasis) | context | `arena-emphasis-ghost`, `arena-emphasis-primary` (default), `arena-emphasis-secondary`, `arena-emphasis-solid` |  | ArenaButton ([React](./react/components/forms/arena-button/ArenaButton.prompt.md), [Angular](./angular/components/forms/arena-button/ArenaButton.prompt.md)) (`arena-emphasis-ghost`, `arena-emphasis-primary`, `arena-emphasis-secondary`), ArenaIconButton ([React](./react/components/forms/arena-icon-button/ArenaIconButton.prompt.md), [Angular](./angular/components/forms/arena-icon-button/ArenaIconButton.prompt.md)) (`arena-emphasis-ghost`, `arena-emphasis-solid`; default `arena-emphasis-ghost`) |
+| [`fill`](#fill) | box | `arena-fill`, `arena-fit` (default) |  | ArenaButton ([React](./react/components/forms/arena-button/ArenaButton.prompt.md), [Angular](./angular/components/forms/arena-button/ArenaButton.prompt.md)), ArenaIconButton ([React](./react/components/forms/arena-icon-button/ArenaIconButton.prompt.md), [Angular](./angular/components/forms/arena-icon-button/ArenaIconButton.prompt.md)), ArenaMenu ([React](./react/components/navigation/arena-menu/ArenaMenu.prompt.md), [Angular](./angular/components/navigation/arena-menu/ArenaMenu.prompt.md)), ArenaSegmentedControl ([React](./react/components/navigation/arena-segmented-control/ArenaSegmentedControl.prompt.md), [Angular](./angular/components/navigation/arena-segmented-control/ArenaSegmentedControl.prompt.md)), ArenaTooltip ([React](./react/components/feedback/arena-tooltip/ArenaTooltip.prompt.md), [Angular](./angular/components/feedback/arena-tooltip/ArenaTooltip.prompt.md)) |
+| [`grid-gap`](#grid-gap) | box | `arena-grid-gap-component` (default), `arena-grid-gap-group`, `arena-grid-gap-none`, `arena-grid-gap-section` | `--arena-grid-gap` | ArenaGrid ([React](./react/components/layout/arena-grid/ArenaGrid.prompt.md), [Angular](./angular/components/layout/arena-grid/ArenaGrid.prompt.md)) |
+| [`grid-max`](#grid-max) | box | `arena-grid-max-lg`, `arena-grid-max-md`, `arena-grid-max-none` (default), `arena-grid-max-sm` | `--arena-grid-max` | ArenaGrid ([React](./react/components/layout/arena-grid/ArenaGrid.prompt.md), [Angular](./angular/components/layout/arena-grid/ArenaGrid.prompt.md)) |
+| [`grid-min`](#grid-min) | box | `arena-grid-min-lg`, `arena-grid-min-md` (default), `arena-grid-min-sm` | `--arena-grid-min` | ArenaGrid ([React](./react/components/layout/arena-grid/ArenaGrid.prompt.md), [Angular](./angular/components/layout/arena-grid/ArenaGrid.prompt.md)) |
+| [`layout`](#layout) | box | `arena-layout-bleed`, `arena-layout-split` (default), `arena-layout-stacked` |  | ArenaHero ([React](./react/components/layout/arena-hero/ArenaHero.prompt.md), [Angular](./angular/components/layout/arena-hero/ArenaHero.prompt.md)) |
 | [`num`](#num) | box | `arena-num` |  | markup you write |
-| [`orientation`](#orientation) | box | `arena-orientation-horizontal` (default), `arena-orientation-vertical` |  | ArenaAppLogo, ArenaSwitch |
-| [`placement`](#placement) | box | `arena-placement-bottom` (default), `arena-placement-bottom-end`, `arena-placement-bottom-start`, `arena-placement-end`, `arena-placement-start`, `arena-placement-top-end`, `arena-placement-top-start` |  | ArenaSheet (`arena-placement-bottom`, `arena-placement-end`, `arena-placement-start`), ArenaToastHost (`arena-placement-bottom-end`, `arena-placement-bottom-start`, `arena-placement-top-end`, `arena-placement-top-start`; default `arena-placement-bottom-end`) |
+| [`orientation`](#orientation) | box | `arena-orientation-horizontal` (default), `arena-orientation-vertical` |  | ArenaAppLogo ([React](./react/components/brand/arena-app-logo/ArenaAppLogo.prompt.md), [Angular](./angular/components/brand/arena-app-logo/ArenaAppLogo.prompt.md)), ArenaSwitch ([React](./react/components/forms/arena-switch/ArenaSwitch.prompt.md), [Angular](./angular/components/forms/arena-switch/ArenaSwitch.prompt.md)) |
+| [`placement`](#placement) | box | `arena-placement-bottom` (default), `arena-placement-bottom-end`, `arena-placement-bottom-start`, `arena-placement-end`, `arena-placement-start`, `arena-placement-top-end`, `arena-placement-top-start` |  | ArenaSheet ([React](./react/components/feedback/arena-sheet/ArenaSheet.prompt.md), [Angular](./angular/components/feedback/arena-sheet/ArenaSheet.prompt.md)) (`arena-placement-bottom`, `arena-placement-end`, `arena-placement-start`), ArenaToastHost ([React](./react/components/feedback/arena-toast-host/ArenaToastHost.prompt.md), [Angular](./angular/components/feedback/arena-toast-host/ArenaToastHost.prompt.md)) (`arena-placement-bottom-end`, `arena-placement-bottom-start`, `arena-placement-top-end`, `arena-placement-top-start`; default `arena-placement-bottom-end`) |
 | [`prose`](#prose) | box | `arena-prose` |  | markup you write |
-| [`ratio`](#ratio) | box | `arena-ratio-media` (default), `arena-ratio-portrait`, `arena-ratio-square`, `arena-ratio-video`, `arena-ratio-wide` | `--arena-ratio` | ArenaFigure |
-| [`rhythm`](#rhythm) | box | `arena-rhythm-component` (default), `arena-rhythm-group`, `arena-rhythm-none`, `arena-rhythm-section` | `--arena-rhythm` | ArenaSection |
+| [`ratio`](#ratio) | box | `arena-ratio-media` (default), `arena-ratio-portrait`, `arena-ratio-square`, `arena-ratio-video`, `arena-ratio-wide` | `--arena-ratio` | ArenaFigure ([React](./react/components/layout/arena-figure/ArenaFigure.prompt.md), [Angular](./angular/components/layout/arena-figure/ArenaFigure.prompt.md)) |
+| [`rhythm`](#rhythm) | box | `arena-rhythm-component` (default), `arena-rhythm-group`, `arena-rhythm-none`, `arena-rhythm-section` | `--arena-rhythm` | ArenaSection ([React](./react/components/layout/arena-section/ArenaSection.prompt.md), [Angular](./angular/components/layout/arena-section/ArenaSection.prompt.md)) |
 | [`row`](#row) | box | `arena-row`, `arena-row--baseline`, `arena-row--between`, `arena-row--component`, `arena-row--start` |  | markup you write |
-| [`scroller-item`](#scroller-item) | box | `arena-scroller-item-lg`, `arena-scroller-item-md` (default), `arena-scroller-item-sm` | `--arena-scroller-item` | ArenaScroller, ArenaScrollerItem |
+| [`scroller-item`](#scroller-item) | box | `arena-scroller-item-lg`, `arena-scroller-item-md` (default), `arena-scroller-item-sm` | `--arena-scroller-item` | ArenaScroller ([React](./react/components/layout/arena-scroller/ArenaScroller.prompt.md), [Angular](./angular/components/layout/arena-scroller/ArenaScroller.prompt.md)), ArenaScrollerItem ([React](./react/components/layout/arena-scroller-item/ArenaScrollerItem.prompt.md), [Angular](./angular/components/layout/arena-scroller-item/ArenaScrollerItem.prompt.md)) |
 | [`shell`](#shell) | box | `arena-shell`, `arena-shell__main` |  | markup you write |
 | [`size`](#size) | context | `arena-size-2xl`, `arena-size-lg`, `arena-size-md` (default), `arena-size-sm`, `arena-size-xl`, `arena-size-xs` |  | ArenaAppLogo (`arena-size-lg`, `arena-size-md`, `arena-size-sm`, `arena-size-xl`), ArenaAvatar (`arena-size-lg`, `arena-size-md`, `arena-size-sm`, `arena-size-xs`), ArenaButton, ArenaIconButton, ArenaPeopleList, ArenaProgressBar and ArenaSpinner (`arena-size-lg`, `arena-size-md`, `arena-size-sm`), ArenaSegmentedControl (`arena-size-md`, `arena-size-sm`), ArenaSwitch (`arena-size-2xl`, `arena-size-lg`, `arena-size-md`, `arena-size-sm`, `arena-size-xl`) |
-| [`skeleton`](#skeleton) | box | `arena-skeleton-block` (default), `arena-skeleton-circle`, `arena-skeleton-line` | `--arena-skeleton-width`, `--arena-skeleton-height`, `--arena-skeleton-radius` | ArenaSkeleton |
+| [`skeleton`](#skeleton) | box | `arena-skeleton-block` (default), `arena-skeleton-circle`, `arena-skeleton-line` | `--arena-skeleton-width`, `--arena-skeleton-height`, `--arena-skeleton-radius` | ArenaSkeleton ([React](./react/components/display/arena-skeleton/ArenaSkeleton.prompt.md), [Angular](./angular/components/display/arena-skeleton/ArenaSkeleton.prompt.md)) |
 | [`sr-only`](#sr-only) | box | `arena-sr-only` |  | markup you write |
 | [`stack`](#stack) | box | `arena-stack`, `arena-stack--end`, `arena-stack--group`, `arena-stack--section`, `arena-stack--start` |  | markup you write |
 
@@ -41,11 +41,11 @@ Which editorial colour a component wears when nothing it says calls for a hue. A
 - **Options:** `arena-accent-gold`, `arena-accent-ink`, `arena-accent-muted`, `arena-accent-plain` (default), `arena-accent-primary`.
 - **Reach:** box: it reaches the nearest component, and stops at the content that component projects.
 - **Answered by:**
-  - ArenaActivityFeed and ArenaProgressBar (`arena-accent-gold`, `arena-accent-primary`; default `arena-accent-primary`).
-  - ArenaBadge and ArenaStatCard (`arena-accent-gold`, `arena-accent-plain`, `arena-accent-primary`).
-  - ArenaCard and ArenaTag (`arena-accent-plain`, `arena-accent-primary`).
-  - ArenaSpinner (`arena-accent-gold`, `arena-accent-ink`, `arena-accent-muted`, `arena-accent-primary`; default `arena-accent-primary`).
-  - ArenaToast (`arena-accent-gold`, `arena-accent-plain`).
+  - ArenaActivityFeed ([React](./react/components/display/arena-activity-feed/ArenaActivityFeed.prompt.md), [Angular](./angular/components/display/arena-activity-feed/ArenaActivityFeed.prompt.md)) and ArenaProgressBar ([React](./react/components/feedback/arena-progress-bar/ArenaProgressBar.prompt.md), [Angular](./angular/components/feedback/arena-progress-bar/ArenaProgressBar.prompt.md)) (`arena-accent-gold`, `arena-accent-primary`; default `arena-accent-primary`).
+  - ArenaBadge ([React](./react/components/display/arena-badge/ArenaBadge.prompt.md), [Angular](./angular/components/display/arena-badge/ArenaBadge.prompt.md)) and ArenaStatCard ([React](./react/components/display/arena-stat-card/ArenaStatCard.prompt.md), [Angular](./angular/components/display/arena-stat-card/ArenaStatCard.prompt.md)) (`arena-accent-gold`, `arena-accent-plain`, `arena-accent-primary`).
+  - ArenaCard ([React](./react/components/display/arena-card/ArenaCard.prompt.md), [Angular](./angular/components/display/arena-card/ArenaCard.prompt.md)) and ArenaTag ([React](./react/components/display/arena-tag/ArenaTag.prompt.md), [Angular](./angular/components/display/arena-tag/ArenaTag.prompt.md)) (`arena-accent-plain`, `arena-accent-primary`).
+  - ArenaSpinner ([React](./react/components/feedback/arena-spinner/ArenaSpinner.prompt.md), [Angular](./angular/components/feedback/arena-spinner/ArenaSpinner.prompt.md)) (`arena-accent-gold`, `arena-accent-ink`, `arena-accent-muted`, `arena-accent-primary`; default `arena-accent-primary`).
+  - ArenaToast ([React](./react/components/feedback/arena-toast/ArenaToast.prompt.md), [Angular](./angular/components/feedback/arena-toast/ArenaToast.prompt.md)) (`arena-accent-gold`, `arena-accent-plain`).
 
 ## align
 
@@ -53,7 +53,9 @@ Whether a block of words and actions runs from the start edge or is centred in i
 
 - **Options:** `arena-align-center`, `arena-align-start` (default).
 - **Reach:** box: it reaches the nearest component, and stops at the content that component projects.
-- **Answered by:** ArenaHero, ArenaPageHead.
+- **Answered by:**
+  - ArenaHero ([React](./react/components/layout/arena-hero/ArenaHero.prompt.md), [Angular](./angular/components/layout/arena-hero/ArenaHero.prompt.md)).
+  - ArenaPageHead ([React](./react/components/navigation/arena-page-head/ArenaPageHead.prompt.md), [Angular](./angular/components/navigation/arena-page-head/ArenaPageHead.prompt.md)).
 
 ## band
 
@@ -70,7 +72,8 @@ How narrow a column of a board may get before the board scrolls sideways rather 
 - **Options:** `arena-board-column-lg`, `arena-board-column-md` (default), `arena-board-column-sm`.
 - **Reach:** box: it reaches the nearest component, and stops at the content that component projects.
 - **Property:** `--arena-board-column`, set on a container of yours for a value no option names, with a token or a derivation of tokens.
-- **Answered by:** ArenaBoard.
+- **Answered by:**
+  - ArenaBoard ([React](./react/components/layout/arena-board/ArenaBoard.prompt.md), [Angular](./angular/components/layout/arena-board/ArenaBoard.prompt.md)).
 
 ## column
 
@@ -97,7 +100,8 @@ How wide the panel of a dialog is, which decides how much of a form or a message
 - **Options:** `arena-dialog-width-lg`, `arena-dialog-width-md` (default), `arena-dialog-width-sm`.
 - **Reach:** box: it reaches the nearest component, and stops at the content that component projects.
 - **Property:** `--arena-dialog-width`, set on a container of yours for a value no option names, with a token or a derivation of tokens.
-- **Answered by:** ArenaDialog.
+- **Answered by:**
+  - ArenaDialog ([React](./react/components/feedback/arena-dialog/ArenaDialog.prompt.md), [Angular](./angular/components/feedback/arena-dialog/ArenaDialog.prompt.md)).
 
 ## elevation
 
@@ -105,7 +109,8 @@ Whether a surface rests on the page or lifts off it. Depth comes from the shadow
 
 - **Options:** `arena-elevation-flat` (default), `arena-elevation-floating`.
 - **Reach:** box: it reaches the nearest component, and stops at the content that component projects.
-- **Answered by:** ArenaCard.
+- **Answered by:**
+  - ArenaCard ([React](./react/components/display/arena-card/ArenaCard.prompt.md), [Angular](./angular/components/display/arena-card/ArenaCard.prompt.md)).
 
 ## emphasis
 
@@ -114,8 +119,8 @@ How loudly an action speaks: filled in the accent, a quiet surface, or no surfac
 - **Options:** `arena-emphasis-ghost`, `arena-emphasis-primary` (default), `arena-emphasis-secondary`, `arena-emphasis-solid`.
 - **Reach:** context: it reaches every component inside, until a nearer class answers it again.
 - **Answered by:**
-  - ArenaButton (`arena-emphasis-ghost`, `arena-emphasis-primary`, `arena-emphasis-secondary`).
-  - ArenaIconButton (`arena-emphasis-ghost`, `arena-emphasis-solid`; default `arena-emphasis-ghost`).
+  - ArenaButton ([React](./react/components/forms/arena-button/ArenaButton.prompt.md), [Angular](./angular/components/forms/arena-button/ArenaButton.prompt.md)) (`arena-emphasis-ghost`, `arena-emphasis-primary`, `arena-emphasis-secondary`).
+  - ArenaIconButton ([React](./react/components/forms/arena-icon-button/ArenaIconButton.prompt.md), [Angular](./angular/components/forms/arena-icon-button/ArenaIconButton.prompt.md)) (`arena-emphasis-ghost`, `arena-emphasis-solid`; default `arena-emphasis-ghost`).
 
 ## fill
 
@@ -123,7 +128,12 @@ Whether a component takes the width of the box it sits in or the width of its ow
 
 - **Options:** `arena-fill`, `arena-fit` (default).
 - **Reach:** box: it reaches the nearest component, and stops at the content that component projects.
-- **Answered by:** ArenaButton, ArenaIconButton, ArenaMenu, ArenaSegmentedControl, ArenaTooltip.
+- **Answered by:**
+  - ArenaButton ([React](./react/components/forms/arena-button/ArenaButton.prompt.md), [Angular](./angular/components/forms/arena-button/ArenaButton.prompt.md)).
+  - ArenaIconButton ([React](./react/components/forms/arena-icon-button/ArenaIconButton.prompt.md), [Angular](./angular/components/forms/arena-icon-button/ArenaIconButton.prompt.md)).
+  - ArenaMenu ([React](./react/components/navigation/arena-menu/ArenaMenu.prompt.md), [Angular](./angular/components/navigation/arena-menu/ArenaMenu.prompt.md)).
+  - ArenaSegmentedControl ([React](./react/components/navigation/arena-segmented-control/ArenaSegmentedControl.prompt.md), [Angular](./angular/components/navigation/arena-segmented-control/ArenaSegmentedControl.prompt.md)).
+  - ArenaTooltip ([React](./react/components/feedback/arena-tooltip/ArenaTooltip.prompt.md), [Angular](./angular/components/feedback/arena-tooltip/ArenaTooltip.prompt.md)).
 
 ## grid-gap
 
@@ -132,7 +142,8 @@ The air between the cells of a grid, on both axes. The question is the adopter's
 - **Options:** `arena-grid-gap-component` (default), `arena-grid-gap-group`, `arena-grid-gap-none`, `arena-grid-gap-section`.
 - **Reach:** box: it reaches the nearest component, and stops at the content that component projects.
 - **Property:** `--arena-grid-gap`, set on a container of yours for a value no option names, with a token or a derivation of tokens.
-- **Answered by:** ArenaGrid.
+- **Answered by:**
+  - ArenaGrid ([React](./react/components/layout/arena-grid/ArenaGrid.prompt.md), [Angular](./angular/components/layout/arena-grid/ArenaGrid.prompt.md)).
 
 ## grid-max
 
@@ -141,7 +152,8 @@ The widest a grid runs before it centres in whatever contains it. The question i
 - **Options:** `arena-grid-max-lg`, `arena-grid-max-md`, `arena-grid-max-none` (default), `arena-grid-max-sm`.
 - **Reach:** box: it reaches the nearest component, and stops at the content that component projects.
 - **Property:** `--arena-grid-max`, set on a container of yours for a value no option names, with a token or a derivation of tokens.
-- **Answered by:** ArenaGrid.
+- **Answered by:**
+  - ArenaGrid ([React](./react/components/layout/arena-grid/ArenaGrid.prompt.md), [Angular](./angular/components/layout/arena-grid/ArenaGrid.prompt.md)).
 
 ## grid-min
 
@@ -150,7 +162,8 @@ How narrow a cell of a grid may get before the grid drops a column, which decide
 - **Options:** `arena-grid-min-lg`, `arena-grid-min-md` (default), `arena-grid-min-sm`.
 - **Reach:** box: it reaches the nearest component, and stops at the content that component projects.
 - **Property:** `--arena-grid-min`, set on a container of yours for a value no option names, with a token or a derivation of tokens.
-- **Answered by:** ArenaGrid.
+- **Answered by:**
+  - ArenaGrid ([React](./react/components/layout/arena-grid/ArenaGrid.prompt.md), [Angular](./angular/components/layout/arena-grid/ArenaGrid.prompt.md)).
 
 ## layout
 
@@ -158,7 +171,8 @@ How the words of a hero sit against its figure. Split puts them side by side and
 
 - **Options:** `arena-layout-bleed`, `arena-layout-split` (default), `arena-layout-stacked`.
 - **Reach:** box: it reaches the nearest component, and stops at the content that component projects.
-- **Answered by:** ArenaHero.
+- **Answered by:**
+  - ArenaHero ([React](./react/components/layout/arena-hero/ArenaHero.prompt.md), [Angular](./angular/components/layout/arena-hero/ArenaHero.prompt.md)).
 
 ## num
 
@@ -174,7 +188,9 @@ Whether a component lies along the line it sits in or stands across it. Orientat
 
 - **Options:** `arena-orientation-horizontal` (default), `arena-orientation-vertical`.
 - **Reach:** box: it reaches the nearest component, and stops at the content that component projects.
-- **Answered by:** ArenaAppLogo, ArenaSwitch.
+- **Answered by:**
+  - ArenaAppLogo ([React](./react/components/brand/arena-app-logo/ArenaAppLogo.prompt.md), [Angular](./angular/components/brand/arena-app-logo/ArenaAppLogo.prompt.md)).
+  - ArenaSwitch ([React](./react/components/forms/arena-switch/ArenaSwitch.prompt.md), [Angular](./angular/components/forms/arena-switch/ArenaSwitch.prompt.md)).
 
 ## placement
 
@@ -183,8 +199,8 @@ Which edge or corner of the viewport a fixed surface is pinned to. Each placemen
 - **Options:** `arena-placement-bottom` (default), `arena-placement-bottom-end`, `arena-placement-bottom-start`, `arena-placement-end`, `arena-placement-start`, `arena-placement-top-end`, `arena-placement-top-start`.
 - **Reach:** box: it reaches the nearest component, and stops at the content that component projects.
 - **Answered by:**
-  - ArenaSheet (`arena-placement-bottom`, `arena-placement-end`, `arena-placement-start`).
-  - ArenaToastHost (`arena-placement-bottom-end`, `arena-placement-bottom-start`, `arena-placement-top-end`, `arena-placement-top-start`; default `arena-placement-bottom-end`).
+  - ArenaSheet ([React](./react/components/feedback/arena-sheet/ArenaSheet.prompt.md), [Angular](./angular/components/feedback/arena-sheet/ArenaSheet.prompt.md)) (`arena-placement-bottom`, `arena-placement-end`, `arena-placement-start`).
+  - ArenaToastHost ([React](./react/components/feedback/arena-toast-host/ArenaToastHost.prompt.md), [Angular](./angular/components/feedback/arena-toast-host/ArenaToastHost.prompt.md)) (`arena-placement-bottom-end`, `arena-placement-bottom-start`, `arena-placement-top-end`, `arena-placement-top-start`; default `arena-placement-bottom-end`).
 
 ## prose
 
@@ -201,7 +217,8 @@ The shape of the frame a figure clips its picture to, as the ratio of its width 
 - **Options:** `arena-ratio-media` (default), `arena-ratio-portrait`, `arena-ratio-square`, `arena-ratio-video`, `arena-ratio-wide`.
 - **Reach:** box: it reaches the nearest component, and stops at the content that component projects.
 - **Property:** `--arena-ratio`, set on a container of yours for a value no option names, with a token or a derivation of tokens.
-- **Answered by:** ArenaFigure.
+- **Answered by:**
+  - ArenaFigure ([React](./react/components/layout/arena-figure/ArenaFigure.prompt.md), [Angular](./angular/components/layout/arena-figure/ArenaFigure.prompt.md)).
 
 ## rhythm
 
@@ -210,7 +227,8 @@ How far the head of a section stands from its body. The question is the adopter'
 - **Options:** `arena-rhythm-component` (default), `arena-rhythm-group`, `arena-rhythm-none`, `arena-rhythm-section`.
 - **Reach:** box: it reaches the nearest component, and stops at the content that component projects.
 - **Property:** `--arena-rhythm`, set on a container of yours for a value no option names, with a token or a derivation of tokens.
-- **Answered by:** ArenaSection.
+- **Answered by:**
+  - ArenaSection ([React](./react/components/layout/arena-section/ArenaSection.prompt.md), [Angular](./angular/components/layout/arena-section/ArenaSection.prompt.md)).
 
 ## row
 
@@ -227,7 +245,9 @@ How wide each item of a scrolling row is laid out, which makes the row a rail ra
 - **Options:** `arena-scroller-item-lg`, `arena-scroller-item-md` (default), `arena-scroller-item-sm`.
 - **Reach:** box: it reaches the nearest component, and stops at the content that component projects.
 - **Property:** `--arena-scroller-item`, set on a container of yours for a value no option names, with a token or a derivation of tokens.
-- **Answered by:** ArenaScroller, ArenaScrollerItem.
+- **Answered by:**
+  - ArenaScroller ([React](./react/components/layout/arena-scroller/ArenaScroller.prompt.md), [Angular](./angular/components/layout/arena-scroller/ArenaScroller.prompt.md)).
+  - ArenaScrollerItem ([React](./react/components/layout/arena-scroller-item/ArenaScrollerItem.prompt.md), [Angular](./angular/components/layout/arena-scroller-item/ArenaScrollerItem.prompt.md)).
 
 ## shell
 
@@ -244,11 +264,11 @@ How big a control, a meter, a face or a mark is drawn. The region a component si
 - **Options:** `arena-size-2xl`, `arena-size-lg`, `arena-size-md` (default), `arena-size-sm`, `arena-size-xl`, `arena-size-xs`.
 - **Reach:** context: it reaches every component inside, until a nearer class answers it again.
 - **Answered by:**
-  - ArenaAppLogo (`arena-size-lg`, `arena-size-md`, `arena-size-sm`, `arena-size-xl`).
-  - ArenaAvatar (`arena-size-lg`, `arena-size-md`, `arena-size-sm`, `arena-size-xs`).
-  - ArenaButton, ArenaIconButton, ArenaPeopleList, ArenaProgressBar and ArenaSpinner (`arena-size-lg`, `arena-size-md`, `arena-size-sm`).
-  - ArenaSegmentedControl (`arena-size-md`, `arena-size-sm`).
-  - ArenaSwitch (`arena-size-2xl`, `arena-size-lg`, `arena-size-md`, `arena-size-sm`, `arena-size-xl`).
+  - ArenaAppLogo ([React](./react/components/brand/arena-app-logo/ArenaAppLogo.prompt.md), [Angular](./angular/components/brand/arena-app-logo/ArenaAppLogo.prompt.md)) (`arena-size-lg`, `arena-size-md`, `arena-size-sm`, `arena-size-xl`).
+  - ArenaAvatar ([React](./react/components/display/arena-avatar/ArenaAvatar.prompt.md), [Angular](./angular/components/display/arena-avatar/ArenaAvatar.prompt.md)) (`arena-size-lg`, `arena-size-md`, `arena-size-sm`, `arena-size-xs`).
+  - ArenaButton ([React](./react/components/forms/arena-button/ArenaButton.prompt.md), [Angular](./angular/components/forms/arena-button/ArenaButton.prompt.md)), ArenaIconButton ([React](./react/components/forms/arena-icon-button/ArenaIconButton.prompt.md), [Angular](./angular/components/forms/arena-icon-button/ArenaIconButton.prompt.md)), ArenaPeopleList ([React](./react/components/display/arena-people-list/ArenaPeopleList.prompt.md), [Angular](./angular/components/display/arena-people-list/ArenaPeopleList.prompt.md)), ArenaProgressBar ([React](./react/components/feedback/arena-progress-bar/ArenaProgressBar.prompt.md), [Angular](./angular/components/feedback/arena-progress-bar/ArenaProgressBar.prompt.md)) and ArenaSpinner ([React](./react/components/feedback/arena-spinner/ArenaSpinner.prompt.md), [Angular](./angular/components/feedback/arena-spinner/ArenaSpinner.prompt.md)) (`arena-size-lg`, `arena-size-md`, `arena-size-sm`).
+  - ArenaSegmentedControl ([React](./react/components/navigation/arena-segmented-control/ArenaSegmentedControl.prompt.md), [Angular](./angular/components/navigation/arena-segmented-control/ArenaSegmentedControl.prompt.md)) (`arena-size-md`, `arena-size-sm`).
+  - ArenaSwitch ([React](./react/components/forms/arena-switch/ArenaSwitch.prompt.md), [Angular](./angular/components/forms/arena-switch/ArenaSwitch.prompt.md)) (`arena-size-2xl`, `arena-size-lg`, `arena-size-md`, `arena-size-sm`, `arena-size-xl`).
 
 ## skeleton
 
@@ -257,7 +277,8 @@ The shape of a loading placeholder that stands in for one box. The shapes are a 
 - **Options:** `arena-skeleton-block` (default), `arena-skeleton-circle`, `arena-skeleton-line`.
 - **Reach:** box: it reaches the nearest component, and stops at the content that component projects.
 - **Property:** `--arena-skeleton-width`, `--arena-skeleton-height`, `--arena-skeleton-radius`, set on a container of yours for a value no option names, with a token or a derivation of tokens.
-- **Answered by:** ArenaSkeleton.
+- **Answered by:**
+  - ArenaSkeleton ([React](./react/components/display/arena-skeleton/ArenaSkeleton.prompt.md), [Angular](./angular/components/display/arena-skeleton/ArenaSkeleton.prompt.md)).
 
 ## sr-only
 

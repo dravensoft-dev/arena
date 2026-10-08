@@ -18,10 +18,12 @@ import {
   DIST, SOURCE, ENTRY, BIN, NAME, REGISTRY_NAME, RUNTIME_DEPENDENCIES, manifest, sources,
 } from '../../build/arena/build-mcp-package.ts';
 import { loadVocabulary } from '../../generate/core/arena-cli/audit.ts';
-import { catalogue, textOf, MARKDOWN_LINK, ADDRESSED } from '../../generate/core/arena-mcp/catalogue.ts';
+import {
+  catalogue, textOf, MARKDOWN_LINK, ADDRESSED, STYLE_PREFIX, STYLE_DIR,
+} from '../../generate/core/arena-mcp/catalogue.ts';
 import { manifestIn, bundledPayload } from '../../generate/core/arena-mcp/payload.ts';
 import { servedDocs, writtenPages } from '../../lib/arena/llms-index.ts';
-import { LINK, INLINE, isRepoPath } from '../../lib/arena/agent-payload.ts';
+import { LINK, INLINE, isRepoPath, inPayload } from '../../lib/arena/agent-payload.ts';
 import { LAYERS as BUILT_LAYERS } from '../../build/arena/build-mcp-package.ts';
 
 export const REGISTRY_FILE = 'server.json';
@@ -293,6 +295,36 @@ export function catalogueProblems(dir: string, base = root) {
   return problems;
 }
 
+export const DEFAULT_PLUGIN = `${STYLE_DIR}/default/plugin.tokens.json`;
+
+export function styleStoreProblems(dir: string, base = root) {
+  const wanted = walkFiles(join(base, STYLE_DIR)).map((file) => relPosix(base, file));
+  const problems = [];
+  for (const layer of BUILT_LAYERS) {
+    const payload = bundledPayload(layer, dir);
+    if (payload === null) continue;
+    const found = manifestIn(payload);
+    if (found === null) continue;
+    const served = new Set(catalogue(payload, found).entries.map((one) => one.uri));
+    const expected = wanted.filter((rel) => inPayload(rel, layer));
+    if (!expected.includes(DEFAULT_PLUGIN)) {
+      problems.push(`${NAME}: ${DEFAULT_PLUGIN} is not among the files the corpus is specified to carry`);
+    }
+    for (const rel of expected) {
+      const uri = `${STYLE_PREFIX}${relPosix(STYLE_DIR, rel)}`;
+      if (served.has(uri)) continue;
+      problems.push(`${NAME}: the ${layer} corpus does not serve ${uri} for ${rel}. The default style `
+        + 'plugin and each catalogue entry are what an agent with no clone copies into a project, '
+        + 'and a file missing here is one it has to guess');
+    }
+    if (!expected.some((rel) => rel.endsWith('/ENTRY.md'))) {
+      problems.push(`${NAME}: the ${layer} corpus carries no catalogue entry, so a project with no `
+        + 'appearance of its own is told to pick one from a catalogue that is empty here');
+    }
+  }
+  return problems;
+}
+
 export function collect(base = root) {
   const dir = assembled(base);
   const problems = [...dependencyProblems(base), ...registryProblems(base)];
@@ -301,6 +333,7 @@ export function collect(base = root) {
     problems: [
       ...problems, ...binProblems(dir), ...flatProblems(dir), ...corpusProblems(dir),
       ...vocabularyProblems(dir), ...servedLinkProblems(dir), ...catalogueProblems(dir, base),
+      ...styleStoreProblems(dir, base),
     ],
     assembled: true,
   };

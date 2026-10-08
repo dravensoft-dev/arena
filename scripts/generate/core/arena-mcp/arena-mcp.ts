@@ -98,7 +98,7 @@ export function build(payload: string, manifest: Manifest, installed: Installed 
       async (uri) => {
         const text = textOf(payload, entry, byRel);
         if (text === null) throw new Error(`${entry.rel} is named by the payload and is not there`);
-        return { contents: [{ uri: uri.href, text }] };
+        return { contents: [{ uri: uri.href, text, mimeType: entry.mime }] };
       });
   }
 

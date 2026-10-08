@@ -33,6 +33,16 @@ export const TOKENS_DIR = 'contracts/design';
 export const BEHAVIOUR_DIR = 'contracts/behaviour';
 export const TOKENS_PREFIX = `${SCHEME}://tokens/`;
 export const BEHAVIOUR_PREFIX = `${SCHEME}://behaviour/`;
+export const STYLE_DIR = 'plugin-style-store';
+export const STYLE_PREFIX = `${SCHEME}://style/`;
+export const STYLE_MIME: Record<string, string> = {
+  '.md': 'text/markdown', '.json': 'application/json', '.css': 'text/css',
+};
+
+export function styleMime(rel: string) {
+  const dot = rel.lastIndexOf('.');
+  return dot === -1 ? undefined : STYLE_MIME[rel.slice(dot)];
+}
 
 const jsonIn = (rel: string, dir: string) => dirPosix(rel) === dir && rel.endsWith('.json');
 const jsonName = (rel: string) => (rel.split('/').at(-1) ?? '').replace(/\.json$/, '');
@@ -112,6 +122,15 @@ export function entries(payload: string, manifest: Manifest): Entry[] {
       title: `Every ${layer} component, under the category it is filed under` });
   }
   for (const rel of files) {
+    if (rel.startsWith(`${STYLE_DIR}/`)) {
+      const under = relPosix(STYLE_DIR, rel);
+      const mime = styleMime(rel);
+      if (mime !== undefined) {
+        found.push({ uri: `${STYLE_PREFIX}${under}`, rel, mime,
+          title: `Style store: ${under}` });
+      }
+      continue;
+    }
     if (jsonIn(rel, TOKENS_DIR) && rel !== ROLES) {
       found.push({ uri: `${TOKENS_PREFIX}${jsonName(rel)}`, rel, mime: 'application/json',
         title: `Tokens: ${jsonName(rel)}` });
@@ -191,8 +210,13 @@ export function words(text: string) {
   return new Set((text.replace(CAMEL, '$1 $2').toLowerCase().match(WORD) ?? []));
 }
 
+export function nameFor(entry: Entry) {
+  if (!entry.uri.startsWith(STYLE_PREFIX)) return nameOf(entry.rel);
+  return entry.uri.slice(STYLE_PREFIX.length).replace(/\.[a-z]+$/, '').replace(/\//g, ' ');
+}
+
 export function score(entry: Entry, wanted: Set<string>, summary: string) {
-  const name = words(nameOf(entry.rel));
+  const name = words(nameFor(entry));
   const title = words(entry.title);
   const opening = words(summary);
   let hits = 0;

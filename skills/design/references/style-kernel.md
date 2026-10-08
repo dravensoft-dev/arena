@@ -179,7 +179,7 @@ The default plugin is
 [`plugin-style-store/default/plugin.tokens.json`](../../../plugin-style-store/default/plugin.tokens.json)
 and
 [`plugin-style-store/complete/`](../../../plugin-style-store/complete/plugin.tokens.json) beside
-it is a second one answering the same roles differently. Read one before writing yours, because a worked answer is worth more than a list of role names. **Both are on the site and in the repository, not the package.** Start by
+it is a second one answering the same roles differently. Read one before writing yours, because a worked answer is worth more than a list of role names. **Both are on the site at `https://arena.dravensoft.org/plugin-style-store/default/plugin.tokens.json` and `https://arena.dravensoft.org/plugin-style-store/complete/plugin.tokens.json`, and in the repository, not in the package. The MCP server serves both, under `arena://style/default/` and `arena://style/complete/`.** Start by
 copying the default into `design/<name>/` and replacing one role at a time: `["default"]` is no
 start, because your root plugin inherits nothing from it.
 

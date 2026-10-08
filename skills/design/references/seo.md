@@ -72,11 +72,13 @@ export const routes: Routes = [
 ];
 ```
 
-The writer composes on Angular's own `title:` through the `TitleStrategy` that Angular defines for this. `title: 'Orders'` keeps its meaning and gains a suffix, a description and a canonical. Six Open Graph tags join them: `og:type` (`website` unless the page sets a type), `og:title`, `og:description`, `og:url`, `og:image` and `og:site_name`. A tag whose value is missing or empty is removed from the head.
+The writer composes on Angular's own `title:` through the `TitleStrategy` that Angular defines for this. `title: 'Orders'` keeps its meaning and gains a suffix, a description and a canonical. These Open Graph tags join them: `og:type` (`website` unless the page sets a type), `og:title`, `og:description`, `og:url`, `og:image` and `og:site_name`. A tag whose value is missing or empty is removed from the head.
 
 `robots` defaults to `noindex`. The `cash` route above is private without anybody remembering to make it so. The `orders` route is public because it said so. That key on `provideArenaMetadata` moves the default for the whole application, and a route still outranks it.
 
 Without `origin` there is no canonical and no `og:url`, on purpose. An origin read off `window.location` differs between a server render and the client that hydrates it. A project that wants a canonical says where it lives. The fragment is dropped from it. A route whose canonical is not the url it was reached by says so with `canonical`.
+
+The missing origin is reported once, with a `console.warn`, and only on an indexable route. A `noindex` route stays quiet without an origin. A `noindex` route with an `origin` still publishes the canonical and `og:url`.
 
 | export | what it is |
 | --- | --- |
@@ -84,6 +86,26 @@ Without `origin` there is no canonical and no `og:url`, on purpose. An origin re
 | `arenaRouteMeta(meta)` | a route's own `description`, `robots`, `image`, `type` and `canonical`, under one key of the `data` that is yours. Typed, because `Route.data` is not: written flat, a misspelled `descripton` is a metadatum that never appears and nothing that fails. A deeper route wins a key and keeps what it did not name, so a layout route sets what its section shares |
 | `ArenaMetadataService` | the writer itself, one method, `apply(page)`. Call it for a page whose metadata is not a fact about the route: a detail screen described by the record it just loaded |
 | `ArenaTitleStrategy` | the strategy the provider installs, exported so one of your own extends it rather than replaces it |
+
+## How does a React project write the head?
+
+Arena ships no head writer for React, so the project uses its framework's own mechanism. The package accepts React 18 and 19, which differ here. React 19 hoists a `<title>`, a `<meta>` and a `<link>` rendered anywhere in the tree into the document head.
+
+```tsx
+export function Orders() {
+  return (
+    <>
+      <title>Orders · Andina</title>
+      <meta name="description" content="Every order in the system." />
+      <meta name="robots" content="index,follow" />
+      <link rel="canonical" href="https://andina.example/orders" />
+      <h1>Orders</h1>
+    </>
+  );
+}
+```
+
+A project on React 18 uses the head API of its framework instead. The values to decide are the same: a private default, a canonical built from an origin you supply, and a title that composes.
 
 ## What both layers publish
 
@@ -99,6 +121,14 @@ structure in `schema.org` terms. The file also asks for `<` escaped in the seria
 you supply can close the tag. `arenaEscapeJsonLd(json)`, exported from the root of both packages, is that escape:
 serialise with `JSON.stringify` and write what it returns into the script. React writes it through `dangerouslySetInnerHTML`; an Angular template drops a `<script>`, so a component creates the element through `DOCUMENT` and sets its `textContent`. That file is the one pattern in `contracts/behaviour/` that is not an accessibility
 requirement.
+
+```tsx
+import { arenaEscapeJsonLd } from '@dravensoft/arena-react';
+
+const data = { '@context': 'https://schema.org', '@type': 'Organization', name: 'Andina', url: 'https://andina.example' };
+
+<script type="application/ld+json" dangerouslySetInnerHTML={{ __html: arenaEscapeJsonLd(JSON.stringify(data)) }} />
+```
 
 ## What Arena does not decide
 

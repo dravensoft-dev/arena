@@ -12,13 +12,15 @@ import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { LAYER_TOKENS, FORBIDDEN } from '../../check/arena/check-layer-independence.ts';
 import {
   TARGETS, openLine, closeLine, renderRegion, applyRegion, renderTarget, regionsOf,
-  ROLE_CONTRACT, defaultedRoles, defaultedSentence, defaultsStatement, unansweredCount,
+  ROLE_CONTRACT, BEHAVIOUR_CONTRACT, toastIntervals, defaultedRoles, defaultedSentence, defaultsStatement, unansweredCount,
 } from './generate-npm-pages.ts';
+import { tokenCatalogue } from '../../lib/arena/package-assembly.ts';
 import { NPM_PAGES } from '../../lib/arena/npm-questions.ts';
+import { readJson } from '../../utils/read-file.ts';
 import { packageSheetName, sheetFamilies } from '../../lib/tailwind/vocabulary.ts';
 import { MAX_WORDS, plain, words } from '../../check/arena/check-register.ts';
 
-const SHARED = ['repository', 'skin', 'defaults', 'sheets'];
+const SHARED = ['repository', 'skin', 'defaults', 'sheets', 'toast'];
 
 test('a region shared by several pages names no layer, because it is written into each at once', () => {
   const tokens = Object.entries(LAYER_TOKENS)
@@ -42,6 +44,7 @@ test('each target carries exactly the regions mapped to it', () => {
   assert.deepEqual(regionsOf('frameworks/react/PACKAGE.md'), ['repository', 'questions']);
   assert.deepEqual(regionsOf('skills/design/references/config.md'), ['skin']);
   assert.deepEqual(regionsOf('skills/design/references/stylesheets.md'), ['sheets']);
+  assert.deepEqual(regionsOf('skills/design/references/tokens.md'), ['tokens']);
   assert.deepEqual(regionsOf('skills/design/references/style-kernel.md'), ['defaults']);
   assert.deepEqual(regionsOf('mcp/NPM.md'), ['questions']);
 });
@@ -152,12 +155,47 @@ test('the skin region names which roles carry a default, so an empty set reads a
     'the region on the page says what roles.json carries');
 });
 
-test('the defaults statement leads with the fact and cites the figure the roles-without-default list gives', () => {
+test('the defaults statement leads with the fact and cites the roles the roles-without-default list gives', () => {
   const silent = JSON.parse(readFileSync(join(repoRoot, 'scripts/check/core/roles-without-default.json'), 'utf8')) as string[];
-  assert.equal(unansweredCount(), silent.length - defaultedRoles().filter((role) => silent.includes(role)).length);
+  const carried = new Set(defaultedRoles());
+  const withoutDefault = Object.keys(JSON.parse(readFileSync(join(repoRoot, ROLE_CONTRACT), 'utf8')) as object)
+    .filter((role) => !carried.has(role)).sort();
+  assert.deepEqual(withoutDefault, [...silent].sort(), 'roles.json and the roles-without-default list name the same roles');
+  assert.equal(unansweredCount(), withoutDefault.length);
   const statement = defaultsStatement();
-  if (defaultedRoles().length === 0) assert.ok(statement.startsWith(`No role in this package carries a default, so your root style plugin answers every one of the ${silent.length} roles`));
-  assert.ok(statement.indexOf('may add a role') > statement.indexOf('roles'), 'the mechanism follows the fact');
+  const fact = defaultedSentence(defaultedRoles(), unansweredCount());
+  assert.equal(statement.indexOf(fact), 0, 'the statement opens on the sentence naming the roles with a default');
+  if (carried.size === 0) assert.ok(fact.startsWith(`No role in this package carries a default, so your root style plugin answers every one of the ${silent.length} roles`));
+  const mechanism = statement.indexOf('A minor release may add a role');
+  assert.ok(mechanism > 0, 'the mechanism sentence is present');
+  assert.ok(statement.indexOf(fact) + fact.length <= mechanism, 'the fact sentence ends before the mechanism sentence begins');
   for (const target of ['skills/design/references/config.md', 'skills/design/references/style-kernel.md'])
     assert.ok(readFileSync(join(repoRoot, target), 'utf8').includes(statement), `${target} carries the statement`);
+});
+
+test('the toast region writes the intervals the behaviour contract holds, and no number is typed by hand', () => {
+  const base = mkdtempSync(join(tmpdir(), 'npm-toast-'));
+  mkdirSync(join(base, 'contracts/design'), { recursive: true });
+  writeFileSync(join(base, BEHAVIOUR_CONTRACT), JSON.stringify({
+    dismiss: { default: { $value: { value: 111, unit: 'ms' } }, actionable: { $value: { value: 222, unit: 'ms' } } },
+  }));
+  assert.deepEqual(toastIntervals(base), { standard: '111 ms', actionable: '222 ms' });
+  const region = renderRegion('toast', base);
+  assert.match(region, /default interval is 111 ms\. The interval for a notice carrying an `actionLabel` is 222 ms/);
+  assert.match(region, /`persist`, or with `tone: 'danger'`, has no timer/);
+});
+
+test('the tokens region tables every value of its nine groups that no role answers, and no role at all', () => {
+  const { tokens } = tokenCatalogue(repoRoot);
+  const roles = new Set(Object.keys(readJson(join(repoRoot, ROLE_CONTRACT)) as Record<string, unknown>));
+  const region = renderRegion('tokens');
+  for (const group of ['sp', 'r', 'bw', 'shadow', 'dur', 'loop', 'ease', 'z', 'bp']) {
+    const names = Object.keys(tokens).filter((name) => (name === group || name.startsWith(`${group}-`)) && !roles.has(name));
+    assert.ok(names.length > 0, `the catalogue holds the ${group} group`);
+    for (const name of names)
+      assert.ok(region.includes(`| \`--${name}\` | \`${tokens[name]}\` |`), `--${name} is a row with its value`);
+  }
+  for (const role of roles) assert.ok(!region.includes(`| \`--${role}\` |`), `--${role} is a role a style plugin answers`);
+  assert.ok(roles.has('r-surface') && region.includes('--r-xs'), 'the scale stays and the role goes');
+  assert.ok(!region.includes('--fs-'), 'a group outside the nine is not tabled');
 });

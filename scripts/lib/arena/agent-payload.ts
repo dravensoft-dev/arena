@@ -24,6 +24,8 @@ export const ROLES = 'contracts/design/roles.json';
 export const TOKENS = 'contracts/design/*.json';
 export const BEHAVIOUR = 'contracts/behaviour/*.json';
 
+export const STYLE_STORE = 'plugin-style-store';
+
 export const CARRIED_SHARED = [
   `${REFERENCE_DIR}/*.md`,
   LAYER_NEUTRAL_INDEX,
@@ -31,6 +33,10 @@ export const CARRIED_SHARED = [
   ROLES,
   TOKENS,
   BEHAVIOUR,
+  `${STYLE_STORE}/default/*`,
+  `${STYLE_STORE}/complete/*`,
+  `${STYLE_STORE}/catalogue/INDEX.md`,
+  `${STYLE_STORE}/catalogue/*/*`,
 ];
 
 export function carriedSpecs(layer: string) {

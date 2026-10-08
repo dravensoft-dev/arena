@@ -3,10 +3,13 @@
  * answer it, then one section per family carrying its description, which is the argument for it.
  * Components that answer the same options, or have the same default, are named once, so a family
  * most components answer in part stays inside the sentence length the register holds.
+ * A component links to its prompt in each layer that ships one, as two short links, because the page
+ * is layer-neutral and a prompt is not; a table cell too long for the links names the components
+ * alone and its section carries them.
  * Every other consumer page points here rather than restating a family, and check:families holds
  * the page to a fresh emit. */
 
-import { writeFileSync } from 'node:fs';
+import { existsSync, readdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
@@ -21,6 +24,30 @@ export const node = {
   writes: [VOCABULARY_TARGET],
   feeds: ['check:families', 'check:classes', 'check:community', 'check:generated', 'check:icons', 'check:arbitrary', 'build:mcp-package', 'build:site'],
 };
+
+const PROMPT_LAYERS = [['React', 'react'], ['Angular', 'angular']] as const;
+
+function promptLinks(root: string) {
+  const found = new Map<string, string[]>();
+  for (const [label, layer] of PROMPT_LAYERS) {
+    const base = join(root, 'frameworks', layer, 'components');
+    if (!existsSync(base)) continue;
+    for (const category of readdirSync(base, { withFileTypes: true }).filter((one) => one.isDirectory())) {
+      for (const folder of readdirSync(join(base, category.name), { withFileTypes: true }).filter((one) => one.isDirectory())) {
+        for (const file of readdirSync(join(base, category.name, folder.name)).filter((one) => one.endsWith('.prompt.md'))) {
+          const name = file.slice(0, -'.prompt.md'.length);
+          found.set(name, [...(found.get(name) ?? []), `[${label}](./${layer}/components/${category.name}/${folder.name}/${file})`]);
+        }
+      }
+    }
+  }
+  return (name: string) => (found.has(name) ? `${name} (${found.get(name)!.join(', ')})` : name);
+}
+
+const CELL_LIMIT = 1800;
+const CELL_WORDS = 24;
+
+const spoken = (text: string) => text.replace(/`[^`]*`/g, '').replace(/\]\([^)]*\)/g, ']').split(' ').filter(Boolean).length;
 
 const BANNER = `<!-- GENERATED from ${VOCABULARY_DIR}/ by bun run generate:vocabulary. Edit a family there, not this page. -->`;
 
@@ -38,7 +65,8 @@ const properties = (family: Family) => (isKeyed(family) ? family.properties ?? [
 export function renderVocabulary(root = repoRoot) {
   const families = [...readFamilies(root).values()].sort((a, b) => (a.family < b.family ? -1 : 1));
   const manifests = [...layerManifests(root).values()];
-  const answering = (family: Family) => {
+  const linked = promptLinks(root);
+  const answering = (family: Family, link: (name: string) => string = linked) => {
     const groups = new Map<string, string[]>();
     for (const one of manifests) {
       const answer = answerOf(one, family);
@@ -46,11 +74,15 @@ export function renderVocabulary(root = repoRoot) {
       const subset = answer.options.length < Object.keys(family.variants).length;
       const notes = [...(subset ? [[...answer.options].sort().map((option) => `\`${option}\``).join(', ')] : []),
         ...(answer.default !== family.default ? [`default \`${answer.default}\``] : [])].join('; ');
-      groups.set(notes, [...(groups.get(notes) ?? []), one.component]);
+      groups.set(notes, [...(groups.get(notes) ?? []), link(one.component)]);
     }
     const joined = (names: string[]) => (names.length > 1 ? `${names.slice(0, -1).join(', ')} and ${names.at(-1)}` : names[0]!);
     return [...groups].flatMap(([notes, names]) => (notes === '' ? names.sort() : [`${joined(names.sort())} (${notes})`]))
       .sort();
+  };
+  const cell = (family: Family) => {
+    const withLinks = answering(family).join(', ');
+    return withLinks.length <= CELL_LIMIT && spoken(withLinks) <= CELL_WORDS ? withLinks : answering(family, (name) => name).join(', ');
   };
   const answeredBy = (family: Family) => {
     const groups = answering(family);
@@ -81,7 +113,7 @@ export function renderVocabulary(root = repoRoot) {
       + 'Those utilities are Tailwind utilities that a manifest names, and not vocabulary classes.', '',
     '| Family | Reach | Options | Property | Answered by |', '|---|---|---|---|---|',
     ...families.map((family) => `| [\`${family.family}\`](#${family.family}) | ${family.reach} | ${options(family)} | `
-      + `${properties(family)} | ${isMarkup(family) ? 'markup you write' : isKeyed(family) ? (family.binds ?? []).join(', ') : answering(family).join(', ')} |`),
+      + `${properties(family)} | ${isMarkup(family) ? 'markup you write' : isKeyed(family) ? (family.binds ?? []).join(', ') : cell(family)} |`),
   ];
   for (const family of families) {
     lines.push('', `## ${family.family}`, '', family.description, '',

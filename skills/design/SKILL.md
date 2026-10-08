@@ -168,16 +168,16 @@ source text cannot show, is `arena://rules` on the MCP server.
 | Which category holds the component I am reaching for? | `frameworks/<layer>/INDEX.md`, which names every one of them and describes none |
 | What is it called in my framework, what does it take, and where is its prompt? | `frameworks/<layer>/components/<category>/INDEX.md` |
 | How do I use this component? | the component's own `.prompt.md`, linked from that index |
-| How do I make this one wider, smaller, filled or quieter? | [`frameworks/VOCABULARY.md`](../../frameworks/VOCABULARY.md): every class you may write on a component, and the components that answer it |
+| How do I make this one wider, smaller, filled or quieter? | [`frameworks/VOCABULARY.md`](../../frameworks/VOCABULARY.md): every class you may write on a component, and the components that answer it. Quiet is `emphasis` `secondary`/`ghost`, or a spinner's `arena-accent-muted` |
 | Where is each style decision made, and which of them are mine? | [`references/style.md`](./references/style.md): the five places, and the two you write in |
 | What exactly does this member take? | the members table in that same prompt |
 | Why does this member exist at all? | `contracts/api/components/<Name>.json` |
-| What else does the package export: density by breakpoint, a focus trap for my own overlay, the toast and confirmation queues, router predicates, tabular figures and hidden labels? How do I size a layout or a panel? | [exports](./references/exports.md), then [page](./references/page.md) for a frame. Switching palettes is [theme](./references/theme.md) and Arena's words are [locale](./references/locale.md) |
+| What else is exported: density by breakpoint, a focus trap, toast and confirmation queues, router predicates, tabular figures, hidden labels, the categorical ramp and tone colours for my own chart? How do I size a layout or a panel? | [exports](./references/exports.md), then [page](./references/page.md) for a frame. Switching palettes is [theme](./references/theme.md) and Arena's words are [locale](./references/locale.md) |
 | What do I paint my page and my own markup with? | [`references/page.md`](./references/page.md): the floor, the colour roles, and why a role follows the skin where an alias follows the palette. **Arena paints no page of yours** |
 | How much air goes between two components, and what column does the page sit in? | [`references/style.md`](./references/style.md): the four classes the column is made of, and the stack and row steps as classes and as tokens. That page also draws the cut between air you place and air the kernel answers |
 | What does Arena ship at all, and how much of it do I have to take? | [`references/surface.md`](./references/surface.md): every part in one table with the document that owns it, and three steps a project can stop at |
 | Where does Arena stop? | the last section of [`references/surface.md`](./references/surface.md), which is a list of decisions rather than gaps waiting to close |
-| What is the value of a token? | the DTCG JSON for its group in `contracts/design/` (`ls contracts/design/*.json`), which is the machine-readable form and is cheaper than the specification below. Two files hold what DTCG cannot: `contracts/design/colors.css` and `contracts/design/environment.css`, both of which [`references/page.md`](./references/page.md) reads for you |
+| What is the value of a token? | the DTCG JSON for its group in `contracts/design/` (`ls contracts/design/*.json`), which is the machine-readable form and is cheaper than the specification below. Two files hold what DTCG cannot: `contracts/design/colors.css` and `contracts/design/environment.css`, both of which [`references/page.md`](./references/page.md) reads for you. The values of spacing, radius, border, shadow, motion, layer and breakpoint are tabled in [`references/tokens.md`](./references/tokens.md) |
 | What does a value mean, and why is it that? | [`contracts/design/AGENTS.md`](../../contracts/design/AGENTS.md), the normative design specification |
 | What must this kind of component do to be accessible, and what does an Arena one promise? | `contracts/behaviour/<pattern>.json`, one file per pattern and shipped inside your package. The page handing you the markup names the file it binds: [`references/media-register.md`](./references/media-register.md) for a feed, a lightbox or a viewer, [`references/seo.md`](./references/seo.md) for structured data. What one of Arena's own components does is its `.prompt.md`; the file recording which pattern it binds is what Arena is held to, not a document you read |
 | How do I install Arena in my app? | [install](./references/install.md), then [config](./references/config.md) for `arena.config.json`, [cli](./references/cli.md) for the `arena` command and [stylesheets](./references/stylesheets.md) for the import depth |
@@ -194,11 +194,8 @@ answers a question in the table above.
 ## Two ways to deliver
 
 **A visual artifact** (a slide, a mock, a throwaway prototype): copy the assets you need out
-of `assets/`, and write static HTML that links `intro/styles.css`. Neither ships in a package;
-https://arena.dravensoft.org serves both, so link them there when you have no clone. That one stylesheet pulls
-in every token and no glyph: link Phosphor's `src/bold/style.css` and `src/fill/style.css` beside it,
-which the site serves under `node_modules/@phosphor-icons/web/`. Serve the page over HTTP rather than
-opening it from `file://`.
+of `assets/`, and write static HTML that links `intro/styles.css` and Phosphor's sheets. Neither
+ships in a package; https://arena.dravensoft.org serves both ([artifact](./references/artifact.md)).
 
 **Production code**: use the component library for the consumer's framework, import from
 `@dravensoft/arena-react` or `@dravensoft/arena-angular`, and follow the prompts. The rules above

@@ -99,3 +99,12 @@ test('the page\'s Property and Answered by cells equal what the families and the
     assert.deepEqual(listed.sort(), [...answered].sort(), `${family.family} Answered by`);
   }
 });
+
+test('a component with a prompt in a layer links to it, and a table cell too long for links names the components alone', () => {
+  const page = renderVocabulary();
+  const section = page.split('\n## accent\n')[1]?.split('\n## ')[0] ?? '';
+  assert.match(section, /ArenaSpinner \(\[React\]\(\.\/react\/components\/feedback\/arena-spinner\/ArenaSpinner\.prompt\.md\), \[Angular\]\(\.\/angular\/components\/feedback\/arena-spinner\/ArenaSpinner\.prompt\.md\)\)/);
+  const row = page.split('\n').find((line) => line.startsWith('| [`size`]'));
+  assert.ok(row && !row.includes('.prompt.md'), 'the size row is too long for links');
+  for (const line of page.split('\n')) assert.ok(line.length < 2000, line.slice(0, 80));
+});

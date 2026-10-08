@@ -14,12 +14,12 @@ import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { isConsumerDocument } from './check-docs.ts';
 import { skips } from './check-routes.ts';
 import { AXES, EVIDENCE, PEERS, NODE_ENGINE } from '../../lib/arena/support-matrix.ts';
-import { TARGET, emit } from '../../generate/arena/generate-support.ts';
+import { TARGET, TARGETS, emit } from '../../generate/arena/generate-support.ts';
 
 export const node = {
   name: 'check:support',
   reads: [
-    TARGET, 'skills/**', 'frameworks/*/PACKAGE.md', 'frameworks/*/INDEX.md',
+    ...TARGETS.map(([target]) => target), 'skills/**', 'frameworks/*/PACKAGE.md', 'frameworks/*/INDEX.md',
     'frameworks/*/components/**/*.prompt.md', 'scripts/lib/arena/support-matrix.ts',
   ],
   writes: [],
@@ -48,16 +48,18 @@ export function documents(base = root) {
 }
 
 export function regionProblems(base = root) {
-  const path = join(base, ...TARGET.split('/'));
-  if (!existsSync(path)) {
-    return [`${TARGET} is not there, and it is the page every other claim here is about`];
-  }
-  const source = readFileSync(path, 'utf8');
-  return emit(source) === source
-    ? []
-    : [`${TARGET}: a @support region does not match a fresh emit. The repertoire is said once, in `
-       + 'support-matrix.ts, so a table edited in the page is a table the next generate overwrites: '
-       + 'run bun run generate:support'];
+  return TARGETS.flatMap(([target, regions]) => {
+    const path = join(base, ...target.split('/'));
+    if (!existsSync(path)) {
+      return [`${target} is not there, and it is a page the repertoire is emitted into`];
+    }
+    const source = readFileSync(path, 'utf8');
+    return emit(source, regions, target) === source
+      ? []
+      : [`${target}: a @support region does not match a fresh emit. The repertoire is said once, in `
+         + 'support-matrix.ts, so a table edited in the page is a table the next generate overwrites: '
+         + 'run bun run generate:support'];
+  });
 }
 
 export function declaredRanges() {

@@ -10,17 +10,18 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
-import { AXES, renderAxes, renderPeers } from '../../lib/arena/support-matrix.ts';
+import { AXES, renderAxes, renderInstall, renderPeers } from '../../lib/arena/support-matrix.ts';
 
 export const TARGET = 'skills/design/references/stack.md';
+export const INSTALL_TARGET = 'skills/design/references/install.md';
 
 export const node = {
   name: 'generate:support',
-  reads: [TARGET, 'scripts/lib/arena/support-matrix.ts'],
-  writes: [TARGET],
+  reads: [TARGET, INSTALL_TARGET, 'scripts/lib/arena/support-matrix.ts'],
+  writes: [TARGET, INSTALL_TARGET],
   feeds: [
     'build:mcp-package', 'build:site',
-    'check:community', 'check:routes', 'check:skills', 'check:support',
+    'check:classes', 'check:community', 'check:packages', 'check:routes', 'check:skills', 'check:support',
     'check:register'],
 };
 
@@ -33,15 +34,24 @@ export const REGIONS: Record<string, () => string> = {
   peers: () => renderPeers(),
 };
 
-export function emit(source: string) {
+export const INSTALL_REGIONS: Record<string, () => string> = {
+  install: () => renderInstall(),
+};
+
+export const TARGETS: Array<[string, Record<string, () => string>]> = [
+  [TARGET, REGIONS],
+  [INSTALL_TARGET, INSTALL_REGIONS],
+];
+
+export function emit(source: string, regions = REGIONS, target = TARGET) {
   let text = source;
-  for (const [key, body] of Object.entries(REGIONS)) {
+  for (const [key, body] of Object.entries(regions)) {
     const open = openLine(key);
     const close = closeLine(key);
     const from = text.indexOf(open);
     const to = text.indexOf(close);
     if (from === -1 || to === -1 || to < from) {
-      throw new Error(`generate-support: ${TARGET} carries no @support ${key} region. The markers are `
+      throw new Error(`generate-support: ${target} carries no @support ${key} region. The markers are `
         + 'placed by hand, so a region this script emits and the page does not open is a region '
         + 'nobody reads');
     }
@@ -51,15 +61,17 @@ export function emit(source: string) {
 }
 
 export function generateSupport(base = root) {
-  const path = join(base, ...TARGET.split('/'));
-  const emitted = emit(readFileSync(path, 'utf8'));
-  writeFileSync(path, emitted);
-  return emitted;
+  return TARGETS.map(([target, regions]) => {
+    const path = join(base, ...target.split('/'));
+    const emitted = emit(readFileSync(path, 'utf8'), regions, target);
+    writeFileSync(path, emitted);
+    return emitted;
+  }).join('');
 }
 
 function main() {
   const emitted = generateSupport();
-  console.log(`generate-support: ${TARGET}, ${Object.keys(REGIONS).length} region(s), `
+  console.log(`generate-support: ${TARGETS.length} page(s), ${TARGETS.reduce((n, [, r]) => n + Object.keys(r).length, 0)} region(s), `
     + `${emitted.length} character(s)`);
 }
 

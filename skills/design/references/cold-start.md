@@ -76,6 +76,7 @@ answer at all, and it is a real answer to both. Ask for one thing only: a short 
 the app. Then match that description against the catalogue's index,
 [`plugin-style-store/catalogue/INDEX.md`](../../../plugin-style-store/catalogue/INDEX.md), one row
 per register measured on a real product, each with its own `ENTRY.md` and the files you copy.
+Without a clone, fetch the index at `https://arena.dravensoft.org/plugin-style-store/catalogue/INDEX.md` and the entry files it links, or call `arena_read` on `arena://style/catalogue/INDEX.md` and on each entry's URI that the index links. The package does not carry them.
 
 **Match on one line rather than on the entries themselves.** The index carries each entry's line
 beginning `Take this entry when`, which says what that register is for in the terms a description
