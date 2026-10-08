@@ -5,7 +5,7 @@ import { join } from 'node:path';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import * as rules from '../../generate/core/arena-cli/style-plugin-rules.ts';
 import {
-  SCOPES, collect, floorProblems, keyProblems, movedTokens, nameProblems, resolvedFor, totalityProblems,
+  SCOPES, collect, defaultAnswerProblems, floorProblems, keyProblems, movedTokens, nameProblems, resolvedFor, totalityProblems,
   valueProblems, zeroScopeProblems,
 } from './check-style-plugin.ts';
 
@@ -276,4 +276,32 @@ test('the contrast composition defines nothing and only re-points a role at a st
       + 'step of a ladder that is already in the token tier, the way colors.css holds no colour');
     assert.notEqual(value, `var(${name})`, `${name} resolves to itself`);
   }
+});
+
+const KERNEL = {
+  'ink-eyebrow': {},
+  'ink-link': { $extensions: { 'com.dravensoft.arena': { default: '{ink-eyebrow}' } } },
+  'r-popover': { $extensions: { 'com.dravensoft.arena': { default: '{r.lg}' } } },
+};
+
+const answering = (over: Record<string, unknown> = {}) => ({
+  'ink-eyebrow': { $type: 'color', $value: '{color.secondary}' },
+  'ink-link': { $type: 'color', $value: '{color.secondary}' },
+  'r-popover': { $type: 'dimension', $value: '{r.lg}' },
+  ...over,
+});
+
+test('the default plugin answers a role with a kernel default the way the default does', () => {
+  assert.deepEqual(defaultAnswerProblems(KERNEL, answering()), []);
+  const problems = defaultAnswerProblems(KERNEL, answering({ 'ink-link': { $type: 'color', $value: '{color.base-200}' } }));
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '',
+    /--ink-link is "\{color\.base-200\}" and its kernel default \{ink-eyebrow\} comes to "\{color\.secondary\}"/);
+});
+
+test('a light answer is held too, and a role the default plugin is silent on is totality\'s to report', () => {
+  const lit = answering({ light: { 'ink-eyebrow': { $type: 'color', $value: '{color.base-200}' } } });
+  assert.equal(defaultAnswerProblems(KERNEL, lit).length, 1);
+  const silent = Object.fromEntries(Object.entries(answering()).filter(([key]) => key !== 'r-popover'));
+  assert.deepEqual(defaultAnswerProblems(KERNEL, silent), []);
 });

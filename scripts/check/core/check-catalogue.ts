@@ -1,13 +1,13 @@
 /* Whether a catalogue entry is still usable by somebody who is not in this tree. Nothing under
- * plugin-style-store/catalogue is compiled, so no other gate reads one: an entry that stopped
- * answering a role the kernel gained is a build that refuses in every project that took it, and
- * none of those projects is here to report it. The rules are the shipped command's own, imported
- * rather than restated, so an entry is measured by what will measure it once it is copied. The
- * floors are reached the same way a consumer's build reaches them, by resolving the entry against
- * the token catalogue in memory, since nothing emits a sheet for one here. keyProblems is the one
- * rule left out: it asks every token for a $description that no plugin in this tree carries and
- * that would put the reasoning somewhere ENTRY.md already owns. What it holds besides that, a key
- * that is a role at all and a type agreeing with roles.json, is held below in this gate's words. */
+ * plugin-style-store/catalogue is compiled, so no other gate reads one: an entry silent on a role
+ * is a build that refuses in every project that took it, or one that falls back on a kernel
+ * default the entry never chose, and none of those projects is here to report it. The rules are
+ * the shipped command's own, imported rather than restated, so an entry is measured by what will
+ * measure it once it is copied. The floors are reached the way a consumer's build reaches them, by
+ * resolving the entry against the token catalogue in memory, because nothing emits a sheet for one
+ * here. keyProblems is the one rule left out: it asks every token for a $description no plugin in
+ * this tree carries, which would put the reasoning where ENTRY.md owns it. What it holds besides,
+ * a key that is a role at all and a type agreeing with roles.json, is held below in this gate's words. */
 
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
