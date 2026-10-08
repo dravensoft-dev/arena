@@ -244,3 +244,13 @@ test('the audit usage says what kind:rule does, and check and doctor say nothing
   assert.ok(audit.includes(`audit:<rule> holds one rule of audit: ${RULE_TAGS.join(', ')}`), audit);
   for (const command of ['check', 'doctor'] as const) assert.ok(!usageOf(command).includes('<rule>'), command);
 });
+
+test('the check and doctor usage keep the kinds-only --strict head and help line', () => {
+  for (const command of ['check', 'doctor'] as const) {
+    const usage = usageOf(command);
+    const lines = usage.split('\n');
+    assert.ok(lines[0]?.endsWith(' [--strict[=<kind>,...]]'), usage);
+    assert.equal(lines.find((line) => line.startsWith('  --strict')),
+      `  --strict[=<kind>,...]  exit 1 on a report of these kinds: ${KINDS_BY_COMMAND[command].join(', ')} (all of them when no list is given)`);
+  }
+});
