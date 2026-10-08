@@ -160,7 +160,8 @@ What each part means:
 
 - **\`palettes\`** is an array, so declare as many as you want. Exactly one is the \`default\` and
   reaches \`:root\`; every other one becomes a class, \`.arena-<name>\`, that you put on
-  \`<html>\` to switch skin.
+  \`<html>\` to switch skin. The command refuses a palette or style plugin named after a class Arena
+  ships or is going to ship, naming the component a future class belongs to.
 - **\`polarity\`** is \`dark\` or \`light\`. The polarity decides the native date picker's colour, and it is what a first visit matches \`prefers-color-scheme\` against.
 - **\`colors\`** takes every key above. \`error-fill\` is the only optional one: leave it out and
   Arena darkens \`error\` in oklab for the single filled danger surface it has.
