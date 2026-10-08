@@ -549,7 +549,7 @@ export const CLAIMS = {
     { slot: 'root', has: ['w-fit'], why: 'a badge is as wide as its label in a card body, where a width of auto would stretch it' },
     { slot: 'dot', has: ['bg-current'], why: 'the dot takes the tone ink from the text colour around it rather than naming one' },
     ...['neutral', 'success', 'warning', 'danger', 'info'].map((tone) => ({
-      chosen: { tone }, slot: 'root', has: ['rounded-marker', 'font-face-label', 'case-label', 'text-ctl-xs', 'tracking-label-role'],
+      chosen: { tone }, slot: 'root', has: ['rounded-marker', 'font-face-label', 'case-label', 'tracking-label-role'],
       why: 'every tone keeps the shared chip base, the marker radius roles.json gives a badge, and the mono uppercase micro-label',
     })),
   ],
@@ -584,6 +584,9 @@ const READS: [component: string, slot: string, question: string, reads: string[]
   ['ArenaPeopleList', 'secondary', 'size.caption-step', ['text-[length:var(--arena-size-caption-step,var(--size-md-caption-step))]']],
   ['ArenaPeopleList', 'name', 'size.name-step', ['text-[length:var(--arena-size-name-step,var(--size-md-name-step))]']],
   ['ArenaPeopleList', 'figure', 'size.figure-step', ['text-[length:var(--arena-size-figure-step,var(--size-md-figure-step))]']],
+  ['ArenaBadge', 'root', 'size.badge-pad-x', ['px-[var(--arena-size-badge-pad-x,calc(var(--sp-1)*2.5))]']],
+  ['ArenaBadge', 'root', 'size.badge-pad-y', ['py-[var(--arena-size-badge-pad-y,var(--pad-marker-y))]']],
+  ['ArenaBadge', 'root', 'size.badge-step', ['text-[length:var(--arena-size-badge-step,var(--dz-text-xs))]']],
   ['ArenaAppLogo', 'root', 'orientation.direction', ['[flex-direction:var(--arena-orientation-direction,row)]']],
   ['ArenaSwitch', 'track', 'orientation.direction', ['[flex-direction:var(--arena-orientation-direction,row)]']],
   ['ArenaAppLogo', 'root', 'orientation.logo-gap', ['gap-[var(--arena-orientation-logo-gap,calc(var(--sp-1)*2.5))]']],

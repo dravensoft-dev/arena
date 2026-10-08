@@ -220,6 +220,9 @@
   --size-sm-face:32px;
   --size-md-face:40px;
   --size-lg-face:56px;
+  --size-sm-badge-pad-x:8px;
+  --size-sm-badge-pad-y:4px;
+  --size-sm-badge-step:var(--dz-text-xs);
   --emphasis-primary-fill:var(--color-secondary);
   --emphasis-secondary-fill:var(--color-base-300);
   --emphasis-solid-fill:var(--color-secondary);
@@ -336,6 +339,7 @@
   --size-sm-figure-step:var(--dz-text-xs);
   --size-md-figure-step:var(--dz-text-md);
   --size-lg-figure-step:var(--dz-text);
+  --size-sm-badge-step:var(--dz-text-xs);
 }
 .arena-comfortable.arena-complete, .arena-comfortable .arena-complete, .arena-complete .arena-comfortable{
   --step-label:var(--dz-text-xs);
@@ -357,4 +361,5 @@
   --size-sm-figure-step:var(--dz-text-xs);
   --size-md-figure-step:var(--dz-text-md);
   --size-lg-figure-step:var(--dz-text);
+  --size-sm-badge-step:var(--dz-text-xs);
 }

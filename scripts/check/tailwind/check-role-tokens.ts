@@ -139,7 +139,7 @@ export const SCALE_USES = new Map<string, string>([
   ['ArenaActivityFeed:item:py-[calc(var(--sp-1)*3.5*var(--dz-row-scale-y))]', 'an activity entry, a row at 14px before density scales it, where pad-row-y answers 10px: air this slot spends at its own size, which no kind role asks, so a plugin cannot move it'],
   ['ArenaAlert:action:mt-2.5', 'the word a reader presses to answer an alert, under its message: 10px of separation inside the component, which no role answers'],
   ['ArenaAlert:message:mt-1', 'the message of a titled alert, under its title: 4px of separation inside the component, which no role answers'],
-  ['ArenaBadge:root:px-2.5', 'a badge, at 10px on its sides, where pad-marker-x answers 6px: air this slot spends at its own size, which no kind role asks, so a plugin cannot move it'],
+  ['ArenaBadge:root:px-[var(--arena-size-badge-pad-x,calc(var(--sp-1)*2.5))]', 'a badge at arena-size-md, at 10px on its sides, where pad-marker-x answers 6px: air this slot spends at its own size, which no kind role asks, so a plugin cannot move it'],
   ['ArenaBoard:column:p-2', 'a column of a board, the sunken lane its cards sit in, at 8px on every side, where pad-surface answers 20px: air this slot spends at its own size, which no kind role asks, so a plugin cannot move it'],
   ['ArenaBottomNav:badge:px-1', 'the count on a bottom nav glyph, at 4px on its sides, where pad-marker-x answers 6px: air this slot spends at its own size, which no kind role asks, so a plugin cannot move it'],
   ['ArenaBottomNav:item:gap-1', 'an item of a bottom nav, between its glyph and the label stacked under it, at 4px, where gap-row answers 12px: air this slot spends at its own size, which no kind role asks, so a plugin cannot move it'],
@@ -369,6 +369,8 @@ function kindProblem(utility: string, kind: SlotKind) {
   const role = PAD_ROLE.exec(utility);
   if (role && padStems().has(role[1]!)) return !air.pad.includes(role[1]!);
   const arbitrary = PAD_ARBITRARY.exec(utility);
+  const read = arbitrary && /^var\(--arena-[a-z0-9-]+,var\(--pad-([a-z]+(?:-[a-z]+)*)\)\)$/.exec(arbitrary[1]!);
+  if (read && padStems().has(read[1]!)) return !air.pad.includes(read[1]!);
   const operand = arbitrary && /var\(--pad-([a-z]+(?:-[a-z]+)*)\)/.exec(arbitrary[1]!);
   if (operand && padStems().has(operand[1]!)) return true;
   if (gapRoles().has(utility.replace(/^gap-[xy]-/, 'gap-'))) return !air.gap.includes(utility.replace(/^gap-[xy]-/, 'gap-'));

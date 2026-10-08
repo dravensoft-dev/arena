@@ -58,6 +58,13 @@ const TEMPLATES: Record<string, string> = {
   'meaning-wins-over-accent': '<arena-badge class="arena-accent-gold" tone="success">Paid</arena-badge>',
   'solid-container-fills-its-badge': '<arena-badge tone="success">Live</arena-badge>',
   'soft-badge-stays-soft-in-a-solid-container': '<arena-badge class="arena-mark-soft" tone="success">Live</arena-badge>',
+  'small-region-compacts-its-badge': '<arena-badge tone="danger" class="arena-mark-solid">Live</arena-badge>',
+  'small-region-tightens-its-badge-block': '<arena-badge tone="danger" class="arena-mark-solid">Live</arena-badge>',
+  'small-region-tightens-its-badge-ends': '<arena-badge tone="danger" class="arena-mark-solid">Live</arena-badge>',
+  'small-badge-compacts-itself': '<arena-badge tone="danger" class="arena-mark-solid arena-size-sm">Live</arena-badge>',
+  'small-badge-tightens-its-block': '<arena-badge tone="danger" class="arena-mark-solid arena-size-sm">Live</arena-badge>',
+  'small-badge-tightens-its-ends': '<arena-badge tone="danger" class="arena-mark-solid arena-size-sm">Live</arena-badge>',
+  'medium-badge-stays-medium-in-a-small-region': '<arena-badge tone="danger" class="arena-mark-solid arena-size-md">Live</arena-badge>',
   'accent-stops-at-the-card-body': '<arena-card class="arena-accent-primary"><arena-tag>Draft</arena-tag></arena-card>',
   'placement-stops-at-the-sheet-body': '<arena-sheet [open]="true" title="Outer"><arena-sheet [open]="true" title="Inner" /></arena-sheet>',
   'grid-min-reaches-the-grid': '<div style="display: contents; --arena-grid-min: 300px"><arena-grid><arena-card title="A" /></arena-grid></div>',
@@ -71,13 +78,20 @@ const TEMPLATES: Record<string, string> = {
   'day-head-clears-the-comfortable-row': '<arena-calendar view="week" anchorDate="2025-03-03" dayInteractive />',
 };
 
-const BARE = new Set(['meaning-wins-over-accent', 'accent-stops-at-the-card-body']);
+const BARE = new Set(['meaning-wins-over-accent', 'accent-stops-at-the-card-body', 'small-badge-compacts-itself', 'small-badge-tightens-its-block', 'small-badge-tightens-its-ends']);
 const SUBJECT: Record<string, { part: string; index: number }> = {
   'people-list-face-follows-the-list': { part: 'avatar.box', index: -1 },
   'meaning-follows-the-base': { part: 'button', index: 0 },
   'meaning-wins-over-accent': { part: 'badge', index: -1 },
   'solid-container-fills-its-badge': { part: 'badge', index: -1 },
   'soft-badge-stays-soft-in-a-solid-container': { part: 'badge', index: -1 },
+  'small-region-compacts-its-badge': { part: 'badge', index: -1 },
+  'small-region-tightens-its-badge-block': { part: 'badge', index: -1 },
+  'small-region-tightens-its-badge-ends': { part: 'badge', index: -1 },
+  'small-badge-compacts-itself': { part: 'badge', index: -1 },
+  'small-badge-tightens-its-block': { part: 'badge', index: -1 },
+  'small-badge-tightens-its-ends': { part: 'badge', index: -1 },
+  'medium-badge-stays-medium-in-a-small-region': { part: 'badge', index: -1 },
   'accent-stops-at-the-card-body': { part: 'card', index: -1 },
   'placement-stops-at-the-sheet-body': { part: 'sheet', index: 0 },
   'grid-min-reaches-the-grid': { part: 'grid', index: 0 },

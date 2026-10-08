@@ -17,10 +17,18 @@
         "arena-mark-solid"
       ],
       "default": "arena-mark-soft"
+    },
+    {
+      "family": "size",
+      "options": [
+        "arena-size-sm",
+        "arena-size-md"
+      ],
+      "default": "arena-size-md"
     }
   ],
   "slots": {
-    "root": "inline-flex items-center gap-marker px-2.5 py-marker-y rounded-marker font-face-label text-ctl-xs font-bold tracking-label-role case-label w-fit bg-[color:var(--arena-mark-fill,var(--arena-accent-fill-soft,var(--accent-plain-fill-soft)))] text-[color:var(--arena-mark-ink,color-mix(in_oklab,var(--ink-body)_var(--level-ink-body),transparent))]",
+    "root": "inline-flex items-center gap-marker px-[var(--arena-size-badge-pad-x,calc(var(--sp-1)*2.5))] py-[var(--arena-size-badge-pad-y,var(--pad-marker-y))] rounded-marker font-face-label text-[length:var(--arena-size-badge-step,var(--dz-text-xs))] font-bold tracking-label-role case-label w-fit bg-[color:var(--arena-mark-fill,var(--arena-accent-fill-soft,var(--accent-plain-fill-soft)))] text-[color:var(--arena-mark-ink,color-mix(in_oklab,var(--ink-body)_var(--level-ink-body),transparent))]",
     "dot": "size-1.5 rounded-pill bg-current"
   },
   "kind": {

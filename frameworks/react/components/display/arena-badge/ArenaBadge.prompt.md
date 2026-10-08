@@ -23,6 +23,8 @@ Status label in mono uppercase. Short text (1–2 words); if it's longer, it's n
 
 **Answers** [`mark`](../../../../VOCABULARY.md#mark): `arena-mark-soft` (default), `arena-mark-solid`. Write one as `className="arena-mark-solid"` on the component, or on a container whose components should all take it.
 
+**Answers** [`size`](../../../../VOCABULARY.md#size): `arena-size-md` (default), `arena-size-sm`. Write one as `className="arena-size-sm"` on the component, or on a container whose components should all take it.
+
 <!-- @answers end -->
 
 <!-- @keys GENERATED from the binding. -->
@@ -37,6 +39,12 @@ Status label in mono uppercase. Short text (1–2 words); if it's longer, it's n
 
 ```tsx
 <ArenaBadge tone="danger" className="arena-mark-solid">Live</ArenaBadge>
+```
+
+**Compact.** Write `arena-size-sm` when the badge marks a picture rather than a row, such as a live indicator over a story. The style plugin answers a smaller label and tighter padding than at `arena-size-md`, in the same face, weight and corner.
+
+```tsx
+<ArenaBadge tone="danger" className="arena-mark-solid arena-size-sm">Live</ArenaBadge>
 ```
 
 **Don't**

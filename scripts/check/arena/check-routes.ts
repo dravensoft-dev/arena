@@ -144,7 +144,7 @@ export const ROUTES: Route[] = [
       + 'document that says what the questions are and which answers carry the difference',
     entry: 'consumer',
     stops: ['skills/design/references/style-kernel.md'],
-    budget: 18_800,
+    budget: 19_300,
     reason:
       'paid once per project and never per screen, which is what lets it carry the whole surface '
       + 'the kernel exposes rather than a pointer to it, so a project stops learning the kernel from '
@@ -157,9 +157,9 @@ export const ROUTES: Route[] = [
       + 'stops measure with room for the kernel to grow a section, and it moves when the kernel grows '
       + 'a question rather than when the document grows a paragraph. The root rule says where a '
       + 'role\'s default is written and states first, in a region generated with the config page\'s, '
-      + 'which roles carry a default and that the root answers the rest, because a mechanism read '
+      + 'which roles carry a default and that the root answers the rest, as a mechanism read '
       + 'before its roster reads as one with members. It says where a project with no clone '
-      + 'fetches the default plugin. The roster grows per role.',
+      + 'fetches the default plugin. The roster grows per role, as does how a later entry reads it.',
   },
   {
     name: 'consumer-register',

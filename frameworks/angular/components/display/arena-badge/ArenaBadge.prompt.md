@@ -26,6 +26,8 @@ The host **is** the chip: it binds the root slot, so an attribute you write on
 
 **Answers** [`mark`](../../../../VOCABULARY.md#mark): `arena-mark-soft` (default), `arena-mark-solid`. Write one as `class="arena-mark-solid"` on the component, or on a container whose components should all take it.
 
+**Answers** [`size`](../../../../VOCABULARY.md#size): `arena-size-md` (default), `arena-size-sm`. Write one as `class="arena-size-sm"` on the component, or on a container whose components should all take it.
+
 <!-- @answers end -->
 
 <!-- @keys GENERATED from the binding. -->
@@ -46,6 +48,14 @@ badge is a status mark and not a danger surface.
 
 ```html
 <arena-badge tone="danger" class="arena-mark-solid">Live</arena-badge>
+```
+
+**Compact.** Write `arena-size-sm` when the badge marks a picture rather than a row, such as a
+live indicator over a story. The style plugin answers a smaller label and tighter padding than
+at `arena-size-md`, in the same face, weight and corner.
+
+```html
+<arena-badge tone="danger" class="arena-mark-solid arena-size-sm">Live</arena-badge>
 ```
 
 **Do / Don't**

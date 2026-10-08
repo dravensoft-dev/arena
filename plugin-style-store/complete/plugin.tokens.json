@@ -1147,6 +1147,18 @@
     "$type": "dimension",
     "$value": "{avatar.lg}"
   },
+  "size-sm-badge-pad-x": {
+    "$type": "dimension",
+    "$value": "{sp.2}"
+  },
+  "size-sm-badge-pad-y": {
+    "$type": "dimension",
+    "$value": "{sp.1}"
+  },
+  "size-sm-badge-step": {
+    "$type": "dimension",
+    "$value": "{dz.text-xs}"
+  },
   "emphasis-primary-fill": {
     "$type": "color",
     "$value": "{color.secondary}"

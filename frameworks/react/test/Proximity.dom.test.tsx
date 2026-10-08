@@ -47,6 +47,13 @@ const COMPOSITIONS: Record<string, () => React.ReactElement> = {
   'meaning-wins-over-accent': () => <ArenaBadge className="arena-accent-gold" tone="success">Paid</ArenaBadge>,
   'solid-container-fills-its-badge': () => <ArenaBadge tone="success">Live</ArenaBadge>,
   'soft-badge-stays-soft-in-a-solid-container': () => <ArenaBadge className="arena-mark-soft" tone="success">Live</ArenaBadge>,
+  'small-region-compacts-its-badge': () => <ArenaBadge tone="danger" className="arena-mark-solid">Live</ArenaBadge>,
+  'small-region-tightens-its-badge-block': () => <ArenaBadge tone="danger" className="arena-mark-solid">Live</ArenaBadge>,
+  'small-region-tightens-its-badge-ends': () => <ArenaBadge tone="danger" className="arena-mark-solid">Live</ArenaBadge>,
+  'small-badge-compacts-itself': () => <ArenaBadge tone="danger" className="arena-mark-solid arena-size-sm">Live</ArenaBadge>,
+  'small-badge-tightens-its-block': () => <ArenaBadge tone="danger" className="arena-mark-solid arena-size-sm">Live</ArenaBadge>,
+  'small-badge-tightens-its-ends': () => <ArenaBadge tone="danger" className="arena-mark-solid arena-size-sm">Live</ArenaBadge>,
+  'medium-badge-stays-medium-in-a-small-region': () => <ArenaBadge tone="danger" className="arena-mark-solid arena-size-md">Live</ArenaBadge>,
   'accent-stops-at-the-card-body': () => <ArenaCard className="arena-accent-primary"><ArenaTag>Draft</ArenaTag></ArenaCard>,
   'placement-stops-at-the-sheet-body': () => <ArenaSheet open title="Outer"><ArenaSheet open title="Inner">{null}</ArenaSheet></ArenaSheet>,
   'grid-min-reaches-the-grid': () => <div style={axis}><ArenaGrid><ArenaCard title="A">{null}</ArenaCard></ArenaGrid></div>,
@@ -60,13 +67,20 @@ const COMPOSITIONS: Record<string, () => React.ReactElement> = {
   'day-head-clears-the-comfortable-row': () => <ArenaCalendar view="week" anchorDate="2025-03-03" dayInteractive />,
 };
 
-const BARE = new Set(['meaning-wins-over-accent', 'accent-stops-at-the-card-body']);
+const BARE = new Set(['meaning-wins-over-accent', 'accent-stops-at-the-card-body', 'small-badge-compacts-itself', 'small-badge-tightens-its-block', 'small-badge-tightens-its-ends']);
 const SUBJECT: Record<string, { part: string; at: number }> = {
   'people-list-face-follows-the-list': { part: 'avatar.box', at: -1 },
   'meaning-follows-the-base': { part: 'button', at: 0 },
   'meaning-wins-over-accent': { part: 'badge', at: 0 },
   'solid-container-fills-its-badge': { part: 'badge', at: 0 },
   'soft-badge-stays-soft-in-a-solid-container': { part: 'badge', at: 0 },
+  'small-region-compacts-its-badge': { part: 'badge', at: 0 },
+  'small-region-tightens-its-badge-block': { part: 'badge', at: 0 },
+  'small-region-tightens-its-badge-ends': { part: 'badge', at: 0 },
+  'small-badge-compacts-itself': { part: 'badge', at: 0 },
+  'small-badge-tightens-its-block': { part: 'badge', at: 0 },
+  'small-badge-tightens-its-ends': { part: 'badge', at: 0 },
+  'medium-badge-stays-medium-in-a-small-region': { part: 'badge', at: 0 },
   'accent-stops-at-the-card-body': { part: 'card', at: 0 },
   'placement-stops-at-the-sheet-body': { part: 'sheet', at: 0 },
   'grid-min-reaches-the-grid': { part: 'grid', at: 0 },

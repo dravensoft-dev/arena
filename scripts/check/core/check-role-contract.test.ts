@@ -116,3 +116,12 @@ test('the side nav row and app bar band padding roles default to what they read'
     'pad-nav-row-x': '{pad-row-x}', 'pad-nav-row-y': '{pad-row-y}', 'pad-band-x': '{gutter}', 'pad-band-y': '{sp.3}',
   });
 });
+
+test('a badge at arena-size-sm defaults to a smaller label and tighter padding than at arena-size-md', () => {
+  const roles = readJson(join(repoRoot, ROLES)) as Record<string, { $extensions?: Record<string, { default?: string }> }>;
+  const defaults = Object.fromEntries(['size-sm-badge-pad-x', 'size-sm-badge-pad-y', 'size-sm-badge-step']
+    .map((name) => [name, roles[name]?.$extensions?.[ARENA]?.default]));
+  assert.deepEqual(defaults, {
+    'size-sm-badge-pad-x': '{sp.1}', 'size-sm-badge-pad-y': '{sp.0}', 'size-sm-badge-step': '{dz.text-2xs}',
+  });
+});

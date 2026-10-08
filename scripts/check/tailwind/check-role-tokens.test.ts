@@ -161,6 +161,15 @@ test('the one-word surface padding stem is judged by kind, bare and as an operan
   ]);
 });
 
+test('a channel read falling back to a padding role is judged by that role\'s kind', () => {
+  const manifest = {
+    component: 'Fixture',
+    slots: { a: 'py-[var(--arena-size-badge-pad-y,var(--pad-marker-y))]', b: 'py-[var(--arena-size-badge-pad-y,var(--pad-surface))]' },
+    kind: { a: 'marker', b: 'marker' },
+  };
+  assert.deepEqual(evaluateManifest(manifest, new Map()).map((f) => [f.slot, f.why]), [['b', 'kind']]);
+});
+
 test('a radius role outside the kind is a kind finding', () => {
   const manifest = { component: 'Fixture', slots: { panel: 'rounded-surface' }, kind: { panel: 'floating' } };
   assert.deepEqual(evaluateManifest(manifest, new Map()).map((f) => [f.utility, f.why]), [['rounded-surface', 'kind']]);

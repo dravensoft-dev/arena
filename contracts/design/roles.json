@@ -962,6 +962,33 @@
     "$type": "dimension",
     "$description": "The diameter of the face in a people-list row, which the row binds its avatar to at arena-size-lg. An option of a family is a question by construction, so the plugin answers it."
   },
+  "size-sm-badge-pad-x": {
+    "$type": "dimension",
+    "$description": "The inline padding of a badge at arena-size-sm, read by ArenaBadge. A compact marker keeps less air at its ends than a badge at arena-size-md. An option of a family is a question by construction, so the plugin answers it.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "default": "{sp.1}"
+      }
+    }
+  },
+  "size-sm-badge-pad-y": {
+    "$type": "dimension",
+    "$description": "The block padding of a badge at arena-size-sm, read by ArenaBadge. A compact marker keeps less air above and below its label than a badge at arena-size-md. An option of a family is a question by construction, so the plugin answers it.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "default": "{sp.0}"
+      }
+    }
+  },
+  "size-sm-badge-step": {
+    "$type": "dimension",
+    "$description": "The label step of a badge at arena-size-sm, read by ArenaBadge. A compact marker sets a smaller label than a badge at arena-size-md. An option of a family is a question by construction, so the plugin answers it.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "default": "{dz.text-2xs}"
+      }
+    }
+  },
   "emphasis-primary-fill": {
     "$type": "color",
     "$description": "The fill of an action at arena-emphasis-primary, read by ArenaButton. An option of a family is a question by construction, so the plugin answers it."
