@@ -7,7 +7,7 @@ import {
   auditText, auditFindings, findings, lineFindings, isLegalBracket, scanText, scanFile, markerAllowlist,
   paintedParts, sourceScope, outlineGap, kebabTag, HEADING_RUNGS, OWN_CLASS_ATTRIBUTE,
   LINKABLE_TAGS, statedRung, fillsWithDanger, namesAnAlias, RULE_TAGS,
-  UNMODELLED_UNITS, styleIdentifiers, styleObjectLines,
+  UNMODELLED_UNITS, styleIdentifiers, styleObjectLines, unknownInputs,
   ownClassFindings, RAW_COLOUR_MESSAGE, RAW_HEX_MESSAGE, GRADIENT_MESSAGE, primaryMessage, DANGER_FILL_MESSAGE, type VocabularyIndex,
 } from './audit.ts';
 import { vocabularyIndex } from '../../../lib/arena/vocabulary-index.ts';
@@ -818,4 +818,79 @@ test('the stale allowance line reads as it always has', () => {
   assert.deepEqual(auditFindings('a.tsx', 'const x = 1; // arena-audit allow\n'), [{
     rule: 'stale-allowance', text: 'a.tsx:1: stale arena-audit allowance, and nothing on the line to exempt',
   }]);
+});
+
+const INPUT_INDEX = vocabularyIndex();
+
+function inputRules(source: string, path = 'src/app.html') {
+  return auditText(path, source, 'app', false, INPUT_INDEX).join('\n');
+}
+
+test('a static attribute an Arena component does not take is reported in a template', () => {
+  assert.match(inputRules('<arena-icon-button icon="x" label="Close" size="sm" />'), /unknown-input/);
+  assert.match(inputRules('<arena-button variant="secondary">Go</arena-button>'), /unknown-input/);
+  assert.match(inputRules('@Component({ template: `<arena-button variant="secondary">Go</arena-button>` }) class A {}', 'src/a.component.ts'), /unknown-input/);
+  assert.match(inputRules('<arena-button variant="a" variant="b" kind="c">Go</arena-button>'), new RegExp('an attribute variant that '
+    + 'arena-button takes as no input or output, so no Arena component reads it\\. Write the class or input the component reads '
+    + 'instead, or mark the line arena-audit allow when a directive of your own reads it \\(unknown-input\\)'));
+  assert.match(inputRules('<arena-card heading-level="2">Body</arena-card>'), /an attribute heading-level that arena-card/,
+    'Angular binds the camel name alone, so the kebab spelling reaches no input');
+});
+
+test('inputs, outputs, markers, globals and Angular syntax are not reported', () => {
+  for (const ok of [
+    '<arena-icon-button icon="x" label="Close" class="arena-size-sm" />',
+    '<arena-button id="go" title="Go" role="link" tabindex="0" aria-describedby="h" data-test="go" slot="end" hidden>Go</arena-button>',
+    '<arena-menu [items]="items" (select)="on($event)"><arena-button trigger>Open</arena-button></arena-menu>',
+    '<arena-button #b *ngIf="on" i18n i18n-title title="Go" ngNonBindable>Go</arena-button>',
+    '@if (on) { <arena-button>Go</arena-button> }',
+    '<arena-button [attr.aria-label]="x" (click)="go()" [class.arena-size-sm]="small" ngModel>Go</arena-button>',
+    '<arena-button on-click="go()" bind-title="x" bindon-ngModel="y" let-item>Go</arena-button>',
+    '<arena-card headingLevel="2">Body</arena-card>',
+  ]) assert.doesNotMatch(inputRules(ok), /unknown-input/, ok);
+});
+
+test('a name without ngModel and a form directive on a tag that has none are reported', () => {
+  assert.match(inputRules('<arena-card name="submit">Body</arena-card>'), /an attribute name that arena-card/);
+  assert.match(inputRules('<arena-button formControlName="x">Go</arena-button>'), /an attribute formControlName that arena-button/);
+});
+
+test('an attribute a forms directive selects on is not reported, on Arena\'s controls and on a group', () => {
+  for (const ok of [
+    '<arena-textarea label="Note" formControlName="note" />',
+    '<arena-input label="Name" formControlName="name" [error]="name.touched ? messageFor(name.errors) : \'\'" />',
+    '<arena-checkbox label="Terms" formControlName="terms" />',
+    '<arena-select label="Plan" formControlName="plan" name="plan" />',
+    '<arena-switch label="On" ngModel name="on" />',
+    '<arena-input label="Name" ngModel name="x" />',
+    '<arena-card formGroupName="address" formArrayName="lines">Body</arena-card>',
+  ]) assert.doesNotMatch(inputRules(ok), /unknown-input/, ok);
+});
+
+const DOC_TAG = /<(arena-[a-z0-9-]+)((?:\s+[^\s=>/]+(?:\s*=\s*(?:"[^"]*"|'[^']*'))?)*)\s*\/?>/g;
+
+function docPages(dir: string, suffix: string) {
+  return readdirSync(join(repoRoot, dir), { recursive: true, encoding: 'utf8' })
+    .filter((entry) => entry.endsWith(suffix) && !entry.includes('node_modules')).map((entry) => join(dir, entry));
+}
+
+test('no Arena tag a consumer page shows carries an attribute unknown-input reports', () => {
+  const found: string[] = [];
+  for (const page of [...docPages('skills/design', '.md'), ...docPages('frameworks/angular/components', '.prompt.md')]) {
+    for (const [, tag = '', attributes = ''] of readFileSync(join(repoRoot, page), 'utf8').matchAll(DOC_TAG))
+      for (const name of unknownInputs(tag, attributes, INPUT_INDEX)) if (name !== '...') found.push(`${page}: ${tag} ${name}`);
+  }
+  assert.deepEqual(found, []);
+});
+
+test('a React source is not read by unknown-input', () => {
+  assert.doesNotMatch(inputRules('<ArenaButton variant="secondary">Go</ArenaButton>', 'src/App.tsx'), /unknown-input/);
+});
+
+test('an arena-audit allow on the line exempts it', () => {
+  assert.doesNotMatch(inputRules('<arena-button variant="x">Go</arena-button> <!-- arena-audit allow -->'), /unknown-input/);
+});
+
+test('without an index of inputs nothing is reported', () => {
+  assert.doesNotMatch(rules('<arena-button variant="x">Go</arena-button>', 'src/app.html'), /unknown-input/);
 });

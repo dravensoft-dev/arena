@@ -42,9 +42,13 @@ A report never changes the exit until `--strict` holds it. Bare, `--strict` hold
 
 | kind | rules `--strict=<kind>:<rule>` names |
 | --- | --- |
-| `audit` | `compat-alias`, `danger-fill`, `emoji`, `icon-element`, `one-primary`, `outline-gap`, `own-class`, `raw-value`, `router-link`, `stale-allowance` |
+| `audit` | `compat-alias`, `danger-fill`, `emoji`, `icon-element`, `one-primary`, `outline-gap`, `own-class`, `raw-value`, `router-link`, `stale-allowance`, `unknown-input` |
 
 **`arena init` writes the names that exist when it runs.** The `arena:audit` script it writes names every audit rule and `restated`. A rule a later package adds is reported there, and changes no exit until you add its name. A bare `--strict`, or `--strict=audit`, holds every rule, later ones included. An audit finding ends in its rule, such as `(raw-value)`. The one without a tag is `stale-allowance`: an `arena-audit allow` marker on a line with nothing left to exempt.
+
+`unknown-input` names a static attribute on an Arena element in an Angular template that the component takes as no input or output. A forms attribute such as `formControlName` is never named. When a directive of your own reads the attribute, mark the line `arena-audit allow`.
+
+`contrast` also reports a chart axis answered lighter than the grid (`--edge-axis` against `--edge-separator` on base-100). `contrast` reports a status hue whose `--hue-<hue>-on-ink` measures under 4.5:1 over `--hue-<hue>-ink`, the label of a solid badge over its fill, in either polarity.
 
 **Name the kinds when one of them is a decision you already made.** A brand under 4.5:1 can be deliberate, and one switch would make it the price of holding the rest in CI. `weight` says a role asks for a weight the face you loaded does not carry. `glyph` is a name Phosphor does not draw. `markers` is an Angular projection marker, such as `[footer]`, written in a template that does not import its directive. That marker renders nothing, and neither the build nor `ngc --strictTemplates` reports it; [`exports.md`](./exports.md) lists every marker. `restated` is a plugin rule restating the value its part's slot already paints. `environment` says Arena's own icons went uncounted, outside an Arena package or without its `icons.json`. In `arena doctor` it also says Node misses `engines.node`, or that range is one it cannot compare. `wash` is reported and never held: a token on a wash of its own colour clears AA at no percentage, and a gate nobody can fix is not a gate.
 
@@ -70,7 +74,7 @@ Run `arena init` once. In a project on `@dravensoft/arena-react` it adds these s
     "prebuild": "arena build",
     "predev": "arena build",
     "arena:check": "arena check --strict=components,glyph,markers",
-    "arena:audit": "arena audit --strict=audit:compat-alias,audit:danger-fill,audit:emoji,audit:icon-element,audit:one-primary,audit:outline-gap,audit:own-class,audit:raw-value,audit:router-link,audit:stale-allowance,restated"
+    "arena:audit": "arena audit --strict=audit:compat-alias,audit:danger-fill,audit:emoji,audit:icon-element,audit:one-primary,audit:outline-gap,audit:own-class,audit:raw-value,audit:router-link,audit:stale-allowance,audit:unknown-input,restated"
   }
 }
 ```
@@ -87,7 +91,7 @@ The same, on `@dravensoft/arena-angular`, with `prestart` in place of `predev`.
     "prebuild": "arena build",
     "prestart": "arena build",
     "arena:check": "arena check --strict=components,glyph,markers",
-    "arena:audit": "arena audit --strict=audit:compat-alias,audit:danger-fill,audit:emoji,audit:icon-element,audit:one-primary,audit:outline-gap,audit:own-class,audit:raw-value,audit:router-link,audit:stale-allowance,restated"
+    "arena:audit": "arena audit --strict=audit:compat-alias,audit:danger-fill,audit:emoji,audit:icon-element,audit:one-primary,audit:outline-gap,audit:own-class,audit:raw-value,audit:router-link,audit:stale-allowance,audit:unknown-input,restated"
   }
 }
 ```

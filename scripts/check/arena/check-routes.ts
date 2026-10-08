@@ -124,22 +124,19 @@ export const ROUTES: Route[] = [
       'skills/design/references/config.md',
       'skills/design/references/cli.md',
     ],
-    budget: 29_900,
+    budget: 30_600,
     reason:
       'paid once per project rather than per screen, so it carries what the build route may not: '
-      + 'the install, the config file and the command, each as its own reference so a reader opens '
-      + 'the one that answers. The package carries none of the language, so a thing the package ships '
-      + 'and these references never name is a thing nobody imports: an export, a stylesheet, a class, '
-      + 'a second entry point, a config key. The config block is copied whole, so it states every key '
-      + 'that decides the appearance, and the install reference gives the evidence behind each '
-      + 'package manager and runtime it names. The command reference quotes whole the scripts `arena '
-      + 'init` writes, and the audit one names every rule, so each audit rule is paid here by its '
-      + 'name. Being right moves this number, and a gate failing them keeps it honest. The config '
-      + 'reference lists the names the build refuses and the note a defaulted role prints, so neither '
-      + 'arrives as news, and lists the roles that carry a default, a list that grows per role. '
-      + 'The install page says the '
-      + 'package sheet alone has no colour and prints a generated command per layer that leaves the '
-      + 'framework alone, and config states the naming rules and what a sheet list refuses.',
+      + 'the install, the config file and the command, each as its own reference. The package '
+      + 'carries none of the language, so a thing the package ships and these references never name '
+      + 'is a thing nobody imports: an export, a stylesheet, a class, a config key. The config block '
+      + 'is copied whole and the install reference gives the evidence behind each package manager it '
+      + 'names. The command reference quotes whole the scripts `arena init` writes and names every '
+      + 'audit rule, unknown-input among them, in the rule table and in both scripts, and says how to '
+      + 'mark a line whose attribute a directive of the project reads. It also states '
+      + 'what the contrast kind reports, the axis and solid badge reports included. The config '
+      + 'reference lists the names the build refuses, the note a defaulted role prints and the roles '
+      + 'that carry a default, a list that grows per role.',
   },
   {
     name: 'consumer-skin',
@@ -324,7 +321,7 @@ export const ROUTES: Route[] = [
       + 'written twice, as the initial value and as the fallback, a pair no gate holds. The roof '
       + 'carries what binds both layers and each layer carries its own envelope and peer, which is '
       + 'the split that keeps the pair from going stale in one of them. The roof also states the one '
-      + 'attribute the layers build from different values, and each layer the binding that interpolates a property name. The Tailwind page also names the :scope part selector a family\'s block writes and why the Angular builder needs it.',
+      + 'attribute the layers build from different values, and each layer the binding that interpolates a property name. The Tailwind page also names the :scope part selector a family\'s block writes and why a bundler needs it.',
   },
   {
     name: 'contributor-authoring',
@@ -371,7 +368,7 @@ export const ROUTES: Route[] = [
       + 'the domain the gate lands in',
     entry: 'contributor',
     stops: ['scripts/AGENTS.md', 'scripts/check/AGENTS.md', 'scripts/check/*/AGENTS.md'],
-    budget: 88_900,
+    budget: 89_300,
     reason:
       'the route a contributor takes most often after the component one, and the one whose last '
       + 'stop grows every time a gate lands, since each gate has a row in its domain\'s table. The '
@@ -382,9 +379,9 @@ export const ROUTES: Route[] = [
       + 'become the page. Before writing a row, measure the median and the '
       + 'longest row of the domain table, because the row that breaks a budget is the long one and '
       + 'the median is what says how often that happens. The families and neutrality rows of the '
-      + 'arena domain table state what the gates now refuse: axis lists, keyed families and an '
+      + 'arena domain table state what the gates refuse: axis lists, keyed families and an '
       + 'enum of option values, and the classes row names the vocabulary page as a second home for an '
-      + 'option of a component family, and the appearance and neutrality rows name the chart alias and the description alias guards, and the parts, role-token and families rows what each refuses. The geometry gates each carry a row.',
+      + 'option of a component family, and the appearance and neutrality rows name the chart alias and the description alias guards, and the parts, role-token and families rows what each refuses, the mark hue among them. The geometry gates each carry a row.',
   },
   {
     name: 'contributor-tailwind',

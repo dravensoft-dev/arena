@@ -2,7 +2,7 @@
  * answers, since the audit inside a package cannot read either. */
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { vocabularyIndex, vocabularyIndexOf } from './vocabulary-index.ts';
+import { directiveAttributes, vocabularyIndex, vocabularyIndexOf } from './vocabulary-index.ts';
 
 test('every option is indexed with its family and reach, and every answering component with its families', () => {
   const index = vocabularyIndexOf(
@@ -16,6 +16,7 @@ test('every option is indexed with its family and reach, and every answering com
     defaults: { ArenaButton: { fill: 'arena-fit' } },
     axes: {},
     modals: [],
+    inputs: {},
   });
 });
 
@@ -61,4 +62,22 @@ test('the shipped index names the dialogs from their bindings', () => {
   const modals = vocabularyIndex().modals ?? [];
   assert.ok(modals.includes('ArenaDialog') && modals.includes('ArenaConfirmDialog'));
   assert.ok(!modals.includes('ArenaButton'));
+});
+
+test('every component indexes its members as Angular binds them and every projection marker', () => {
+  const inputs = vocabularyIndex().inputs ?? {};
+  assert.ok(inputs['arena-icon-button']?.includes('label'));
+  assert.ok(inputs['arena-card']?.includes('headingLevel'));
+  assert.ok(!inputs['arena-card']?.includes('heading-level'));
+  assert.ok(inputs['arena-button']?.includes('trigger'));
+  assert.ok(!inputs['arena-button']?.includes('variant'));
+});
+
+test('a control indexes the attributes its forms directive selects on, read from the directive', () => {
+  const directives = directiveAttributes();
+  for (const tag of ['arena-input', 'arena-textarea', 'arena-select', 'arena-checkbox', 'arena-radio-group', 'arena-switch'])
+    assert.deepEqual(directives[tag], ['formControl', 'formControlName', 'ngModel'], tag);
+  const inputs = vocabularyIndex().inputs ?? {};
+  assert.ok(inputs['arena-input']?.includes('formControlName'));
+  assert.ok(!inputs['arena-button']?.includes('formControlName'));
 });

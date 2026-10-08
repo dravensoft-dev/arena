@@ -12,7 +12,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 export const RULE_TAGS = ['compat-alias', 'danger-fill', 'emoji', 'icon-element',
-  'one-primary', 'outline-gap', 'own-class', 'raw-value', 'router-link', 'stale-allowance'] as const;
+  'one-primary', 'outline-gap', 'own-class', 'raw-value', 'router-link', 'stale-allowance', 'unknown-input'] as const;
 
 export const UNMODELLED_UNITS = ['%', 'ch', 'fr', 'vh', 'vw', 'vmin', 'vmax', 'deg'];
 
@@ -335,6 +335,7 @@ export type VocabularyIndex = {
   axes?: Record<string, string[]>;
   defaults?: Record<string, Record<string, string>>;
   modals?: string[];
+  inputs?: Record<string, string[]>;
 };
 
 export const VOCABULARY_INDEX = 'arena.vocabulary.json';
@@ -443,6 +444,27 @@ export function ownClassFindings(tag: string, attributes: string, vocabulary: Vo
 export const ROUTER_LINK_MESSAGE = 'an Arena component wrapped in a link of your own, which nests '
   + 'an anchor inside an anchor and in Angular does not bind at all. Pass the href to the '
   + 'component and route from the event it reports';
+
+export const UNKNOWN_INPUT_MESSAGE = (name: string, tag: string) => `an attribute ${name} that ${tag} takes as no input `
+  + 'or output, so no Arena component reads it. Write the class or input the component reads instead, or mark the '
+  + 'line arena-audit allow when a directive of your own reads it';
+
+const TEMPLATE_TAG = /^arena-[a-z0-9-]+$/;
+const BARE_ATTRIBUTE_NAME = /(?:^|\s)([^\s=/]+)/g;
+const SYNTAX_ATTRIBUTE = /^(?:[[(*#@]|aria-|data-|i18n|(?:bind|bindon|on|let)-|on[a-z]|ng[A-Z]|router[A-Z])/;
+const GLOBAL_ATTRIBUTES = new Set(['class', 'style', 'id', 'title', 'role', 'tabindex', 'hidden', 'lang', 'dir', 'slot',
+  'part', 'ngNonBindable', 'inert', 'autofocus', 'draggable', 'spellcheck', 'translate', 'popover']);
+const ANGULAR_FORM_ATTRIBUTES = new Set(['formGroupName', 'formArrayName']);
+const NG_MODEL_NAME = /^\[?\(?ngModel\)?\]?$/;
+
+export function unknownInputs(tag: string, attributes: string, vocabulary: VocabularyIndex | null): string[] {
+  const taken = vocabulary?.inputs?.[tag];
+  if (!TEMPLATE_TAG.test(tag) || taken === undefined) return [];
+  const names = [...attributes.replace(/"[^"]*"|'[^']*'/g, '').matchAll(BARE_ATTRIBUTE_NAME)].map((m) => group(m));
+  const named = names.some((name) => NG_MODEL_NAME.test(name));
+  return [...new Set(names)].filter((name) => !SYNTAX_ATTRIBUTE.test(name) && !GLOBAL_ATTRIBUTES.has(name) && !ANGULAR_FORM_ATTRIBUTES.has(name)
+    && !(named && name === 'name') && !taken.includes(name));
+}
 
 export const HEADING_RUNGS: Record<string, number> = {
   'arena-hero': 1,
@@ -690,6 +712,9 @@ export function structuralFindings(text: string, vocabulary: VocabularyIndex | n
     if (ARENA_TAG.test(name))
       for (const message of ownClassFindings(name, attributes, vocabulary, raw))
         found.push(at(lineAt(text, start), 'own-class', message));
+
+    for (const attribute of unknownInputs(name, attributes, vocabulary))
+      found.push(at(lineAt(text, start), 'unknown-input', UNKNOWN_INPUT_MESSAGE(attribute, name)));
 
     if (ARENA_TAG.test(name) && STATED_PRIMARY.test(attributes)) primaries.push({ scope, line: lineAt(text, start) });
     const emphasis = EMPHASIS_OPTION.test(attributes) || EMPHASIS_OPTION.test(classValues(raw));
