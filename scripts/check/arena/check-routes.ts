@@ -136,7 +136,7 @@ export const ROUTES: Route[] = [
       + 'init` writes, and the audit one names every rule, so each audit rule is paid here by its '
       + 'name. Being right moves this number, and a gate failing them keeps it honest. The config '
       + 'reference lists the names the build refuses and the note a defaulted role prints, so neither '
-      + 'arrives as news, and says first that no role has a default. The install page says the '
+      + 'arrives as news, and lists the roles that carry a default. The install page says the '
       + 'package sheet alone has no colour and prints a generated command per layer that leaves the '
       + 'framework alone, and config states the naming rules and what a sheet list refuses.',
   },
@@ -146,7 +146,7 @@ export const ROUTES: Route[] = [
       + 'document that says what the questions are and which answers carry the difference',
     entry: 'consumer',
     stops: ['skills/design/references/style-kernel.md'],
-    budget: 18_600,
+    budget: 18_700,
     reason:
       'paid once per project and never per screen, which is what lets it carry the whole surface '
       + 'the kernel exposes rather than a pointer to it, so a project stops learning the kernel from '
@@ -159,8 +159,8 @@ export const ROUTES: Route[] = [
       + 'stops measure with room for the kernel to grow a section, and it moves when the kernel grows '
       + 'a question rather than when the document grows a paragraph. The root rule says where a '
       + 'role\'s default is written and states first, in a region generated with the config page\'s, '
-      + 'how many roles the root answers and that none carries a default, because a mechanism read '
-      + 'before its empty roster reads as one with members. It says where a project with no clone '
+      + 'which roles carry a default and that the root answers the rest, because a mechanism read '
+      + 'before its roster reads as one with members. It says where a project with no clone '
       + 'fetches the default plugin.',
   },
   {
@@ -288,7 +288,7 @@ export const ROUTES: Route[] = [
         ],
       },
     ],
-    budget: 29_400,
+    budget: 29_500,
     reason:
       'the route declared as a tree, and the reason that shape exists: a reader answers a question '
       + 'and walks one way, so the route is charged its worst branch and never the sum. Handed a '
@@ -310,10 +310,10 @@ export const ROUTES: Route[] = [
       + 'layer that binds it',
     entry: 'contributor',
     stops: ['frameworks/AGENTS.md', 'frameworks/*/AGENTS.md'],
-    budget: 75_500,
+    budget: 75_600,
     reason:
-      'the most-walked contributor route and the one carrying the most reasoning per stop, allowed '
-      + 'to cost more than any consumer route because it is paid by whoever changes Arena. It may not '
+      'the most-walked contributor route and the one carrying the most reasoning per stop, paid by '
+      + 'whoever changes Arena rather than by a consumer. It may not '
       + 'carry one category\'s own tour: the chart family is a page of its own, frameworks/CHARTS.md, '
       + 'for whoever changes a chart. What it carries is what every component meets: the ordered '
       + 'steps a new component takes, including the barrel chain an Angular primitive needs to be '
@@ -323,7 +323,7 @@ export const ROUTES: Route[] = [
       + 'written twice, as the initial value and as the fallback, a pair no gate holds. The roof '
       + 'carries what binds both layers and each layer carries its own envelope and peer, which is '
       + 'the split that keeps the pair from going stale in one of them. The roof also states the one '
-      + 'attribute the layers build from different values, and each layer the binding that interpolates a property name.',
+      + 'attribute the layers build from different values, and each layer the binding that interpolates a property name. The Tailwind page also names the :scope part selector a family\'s block writes and why the Angular builder needs it.',
   },
   {
     name: 'contributor-authoring',

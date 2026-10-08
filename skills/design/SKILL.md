@@ -17,7 +17,7 @@ charts, cards and the states around them, which is the furniture of an applicati
 in. A
 media or a consumer product is a different register. A photo wall, a feed of posts, a document
 editor or a game map is markup you write yourself. The skin travels either way, because a style
-plugin answers every role whatever the product is. **When that is your product**, or one screen of
+plugin's answers hold whatever the product is. **When that is your product**, or one screen of
 it, read [`references/media-register.md`](./references/media-register.md). That page is what Arena
 hands you instead of a component: the pattern your markup binds, the parts the package already
 ships for it, and the one rule that bends.

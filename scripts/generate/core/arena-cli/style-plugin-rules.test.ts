@@ -118,6 +118,35 @@ test('a light answer to the target follows the default, and a light answer of th
   assert.equal(own.tokens['ink-link'], '{color.primary}');
 });
 
+test('a later plugin takes a default only through a role it answers, since the root emits every other default', () => {
+  const later = { root: null };
+  const { plugin, defaulted } = withDefaults({ tokens: { 'ink-link': '{color.accent}' }, light: { 'ink-body': '{color.neutral}' } }, kernel, later);
+  assert.deepEqual(plugin.tokens, { 'ink-link': '{color.accent}', 'ink-visited': '{color.accent}' });
+  assert.deepEqual(plugin.light, { 'ink-body': '{color.neutral}' }, 'ink-link is its own answer, so the light ink-body stops there');
+  assert.deepEqual(defaulted, ['ink-visited']);
+  assert.deepEqual(withDefaults({ tokens: {}, light: {} }, kernel, later).plugin.tokens, {});
+});
+
+test('a later plugin answering the target and only the light half of the role takes the target for the role\'s dark half', () => {
+  const { plugin } = withDefaults(
+    { tokens: { 'ink-body': '{color.primary}' }, light: { 'ink-link': '{color.info}' } }, kernel, { root: null });
+  assert.equal(plugin.tokens['ink-link'], '{color.primary}');
+  assert.equal(plugin.light['ink-link'], '{color.info}');
+  const root = withDefaults({ tokens: { 'ink-body': '{color.primary}' }, light: { 'ink-link': '{color.info}' } }, kernel).plugin;
+  assert.deepEqual([root.tokens['ink-link'], root.light['ink-link']], [plugin.tokens['ink-link'], plugin.light['ink-link']],
+    'a later plugin and a root plugin complete the same answers the same way');
+});
+
+test('a root\'s own answer to a defaulted role holds inside a later plugin\'s scope, and a root silent on it lets the later plugin follow', () => {
+  const later = { tokens: { 'ink-body': '{color.accent}' }, light: {} };
+  const said = withDefaults(later, kernel, { root: { tokens: { 'ink-body': '{color.primary}', 'ink-link': '{color.info}' }, light: {} } }).plugin;
+  assert.equal(Object.hasOwn(said.tokens, 'ink-link'), false, 'the root answered ink-link itself, so its answer stands');
+  assert.equal(Object.hasOwn(said.tokens, 'ink-visited'), false, 'ink-visited follows ink-link, which does not move here');
+  const silent = withDefaults(later, kernel, { root: { tokens: { 'ink-body': '{color.primary}' }, light: {} } }).plugin;
+  assert.equal(silent.tokens['ink-link'], '{color.accent}');
+  assert.equal(silent.tokens['ink-visited'], '{color.accent}');
+});
+
 test('a default naming a role nobody answered, a cycle or a non-alias answers nothing and ends', () => {
   const { plugin, defaulted } = withDefaults({ tokens: {}, light: {} }, {
     'ink-body': {}, 'ink-link': { default: '{ink-body}' },

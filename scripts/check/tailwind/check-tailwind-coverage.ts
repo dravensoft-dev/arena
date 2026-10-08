@@ -19,6 +19,7 @@ export const node = {
 import { captured } from '../../utils/captures.ts';
 
 export const EXCLUDED = new Map([
+  ['pad-band-x', 'read inside the band\'s min()'],
   ['pad-row-indent', 'only the side nav\'s arbitrary inset reads it'],
   ['sp-0', 'p-0 compiles to a literal 0px in v4 regardless of the theme'],
   ['lh-root', 'the floor every element inherits, set once on html in contracts/design/reset.css and '

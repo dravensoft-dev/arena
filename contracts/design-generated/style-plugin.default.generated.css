@@ -70,6 +70,10 @@
   --pad-row-indent:12px;
   --pad-row-floating-x:10px;
   --pad-row-floating-y:8px;
+  --pad-nav-row-x:12px;
+  --pad-nav-row-y:10px;
+  --pad-band-x:88px;
+  --pad-band-y:12px;
   --gap-marker:6px;
   --gap-row:12px;
   --gap-row-floating:10px;

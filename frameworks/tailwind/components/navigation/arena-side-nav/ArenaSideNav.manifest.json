@@ -2,12 +2,12 @@
   "component": "ArenaSideNav",
   "slots": {
     "root": "flex flex-col gap-1 transition-[width] duration-[var(--dur-state)] ease-state motion-reduce:transition-none",
-    "item": "flex items-center gap-row min-h-ctl-h px-row-x py-row-y rounded-control border-none cursor-pointer text-left no-underline font-body text-ctl shadow-control-rest active:scale-[var(--press-scale)] motion-reduce:active:scale-100",
+    "item": "flex items-center gap-row min-h-ctl-h px-nav-row-x py-nav-row-y rounded-control border-none cursor-pointer text-left no-underline font-body text-ctl shadow-control-rest active:scale-[var(--press-scale)] motion-reduce:active:scale-100",
     "icon": "inline-flex text-[length:var(--icon-lg)]",
     "badge": "ms-auto inline-flex items-center justify-center min-w-5 px-marker-x rounded-pill font-mono text-ctl-2xs font-bold tracking-badge",
     "section": "flex flex-col gap-1",
     "sectionLabel": "py-[calc(var(--sp-1)*1.5*var(--dz-row-scale-y))] font-face-label text-label tracking-label-role case-label text-ink-muted/(--level-ink-muted)",
-    "trigger": "flex items-center gap-row min-h-ctl-h px-row-x py-row-y rounded-control border-none cursor-pointer text-left font-body text-ctl ps-[calc(var(--pad-row-x)*var(--dz-row-scale-x)+var(--pad-row-indent)*var(--arena-side-nav-depth,0))] bg-transparent text-ink-muted/(--level-ink-muted) font-medium shadow-control-rest hover:bg-hover active:scale-[var(--press-scale)] motion-reduce:active:scale-100",
+    "trigger": "flex items-center gap-row min-h-ctl-h px-nav-row-x py-nav-row-y rounded-control border-none cursor-pointer text-left font-body text-ctl ps-[calc(var(--pad-nav-row-x)*var(--dz-row-scale-x)+var(--pad-row-indent)*var(--arena-side-nav-depth,0))] bg-transparent text-ink-muted/(--level-ink-muted) font-medium shadow-control-rest hover:bg-hover active:scale-[var(--press-scale)] motion-reduce:active:scale-100",
     "triggerLabel": "flex-1",
     "caret": "inline-flex text-[length:var(--icon-md)]",
     "region": "flex flex-col gap-1",
@@ -53,8 +53,8 @@
       },
       "false": {
         "root": "w-full",
-        "item": "ps-[calc(var(--pad-row-x)*var(--dz-row-scale-x)+var(--pad-row-indent)*var(--arena-side-nav-depth,0))]",
-        "sectionLabel": "ps-[calc(var(--pad-row-x)*var(--dz-row-scale-x)+var(--pad-row-indent)*var(--arena-side-nav-depth,0))]"
+        "item": "ps-[calc(var(--pad-nav-row-x)*var(--dz-row-scale-x)+var(--pad-row-indent)*var(--arena-side-nav-depth,0))]",
+        "sectionLabel": "ps-[calc(var(--pad-nav-row-x)*var(--dz-row-scale-x)+var(--pad-row-indent)*var(--arena-side-nav-depth,0))]"
       }
     }
   },

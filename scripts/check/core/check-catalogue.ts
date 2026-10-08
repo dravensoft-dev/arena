@@ -23,7 +23,7 @@ import { readPlugin, resolvedPlugin } from '../../generate/core/arena-cli/theme-
 import type { TokenCatalogue } from '../../generate/core/arena-cli/theme-css.ts';
 import { ROLES, movedTokens } from './check-style-plugin.ts';
 import {
-  floorProblems, nameProblems, totalityProblems, valueProblems,
+  ARENA_EXT, floorProblems, nameProblems, totalityProblems, valueProblems,
 } from '../../generate/core/arena-cli/style-plugin-rules.ts';
 
 export const CATALOGUE = 'plugin-style-store/catalogue';
@@ -94,7 +94,10 @@ export function tokenProblems(name: string, roles: Record<string, unknown>, base
     if (role) problems.push(...valueProblems(where, key, token, role));
   }
 
-  problems.push(...totalityProblems(Object.keys(roles), Object.keys(tokens))
+  const asked = Object.entries(roles as Record<string, { $extensions?: Record<string, { default?: unknown }> }>)
+    .filter(([, role]) => role.$extensions?.[ARENA_EXT]?.default === undefined)
+    .map(([role]) => role);
+  problems.push(...totalityProblems(asked, Object.keys(tokens))
     .map((problem) => `${where}: ${problem}`));
   return problems;
 }

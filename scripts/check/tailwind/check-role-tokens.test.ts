@@ -202,6 +202,10 @@ for (const [cls, kind, bad] of [
   ['px-row-floating-x', 'row', 'control'],
   ['py-row-floating-y', 'row', 'control'],
   ['gap-row-floating', 'row', 'control'],
+  ['py-nav-row-y', 'row', 'control'],
+  ['px-nav-row-x', 'row', 'control'],
+  ['py-band-y', 'band', 'row'],
+  ['py-band-y', 'band', 'none'],
 ] as const) {
   test(`${cls} passes on a ${kind} slot and fails on a ${bad} slot`, () => {
     const at = (k: string) => evaluateManifest({ component: 'X', slots: { s: cls }, kind: { s: k } }, new Map());
@@ -212,7 +216,7 @@ for (const [cls, kind, bad] of [
 
 test('a pad stem in roles.json that no kind lists fails on a slot of every kind', () => {
   assert.equal(padStems().has('row-indent'), true);
-  for (const k of ['surface', 'floating', 'control', 'field', 'marker', 'status', 'row', 'none']) {
+  for (const k of ['surface', 'floating', 'control', 'field', 'marker', 'status', 'row', 'band', 'none']) {
     const found = evaluateManifest({ component: 'X', slots: { s: 'pt-row-indent' }, kind: { s: k } }, new Map());
     assert.equal(found.length, 1, k);
   }

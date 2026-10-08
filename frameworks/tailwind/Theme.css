@@ -290,6 +290,9 @@
   --spacing-marker: var(--gap-marker);
   --spacing-row-x: calc(var(--pad-row-x) * var(--dz-row-scale-x));
   --spacing-row-y: calc(var(--pad-row-y) * var(--dz-row-scale-y));
+  --spacing-nav-row-x: calc(var(--pad-nav-row-x) * var(--dz-row-scale-x));
+  --spacing-nav-row-y: calc(var(--pad-nav-row-y) * var(--dz-row-scale-y));
+  --spacing-band-y: var(--pad-band-y);
   --spacing-row-floating-x: calc(var(--pad-row-floating-x) * var(--dz-row-scale-x));
   --spacing-row-floating-y: calc(var(--pad-row-floating-y) * var(--dz-row-scale-y));
   --spacing-row: var(--gap-row);

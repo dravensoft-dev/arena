@@ -131,22 +131,29 @@ export function totalityProblems(declared: string[], answered: string[]) {
 
 const ALIAS_PATH = /^\{([a-z][\w-]*(?:\.[\w-]+)*)\}$/;
 
-export function withDefaults<P extends { tokens: Record<string, unknown>; light: Record<string, unknown> }>(
-  plugin: P, roles: Record<string, { default?: unknown }>,
+type Answers = { tokens: Record<string, unknown>; light: Record<string, unknown> };
+
+export function withDefaults<P extends Answers>(
+  plugin: P, roles: Record<string, { default?: unknown }>, later?: { root: Answers | null },
 ) {
   const tokens = { ...plugin.tokens };
   const light = { ...plugin.light };
   const defaulted: string[] = [];
+  const rootSaid = (role: string) =>
+    Boolean(later?.root && (Object.hasOwn(later.root.tokens, role) || Object.hasOwn(later.root.light, role)));
   const answer = (role: string, open: readonly string[]): boolean => {
     if (Object.hasOwn(tokens, role)) return true;
+    const lightOnly = later !== undefined && Object.hasOwn(light, role);
     const alias = Object.hasOwn(roles, role) ? roles[role]?.default : undefined;
-    if (typeof alias !== 'string' || open.includes(role)) return false;
+    if (typeof alias !== 'string' || open.includes(role) || rootSaid(role)) return lightOnly;
     const target = ALIAS_PATH.exec(alias.trim())?.[1]?.replace(/\./g, '-');
-    if (target === undefined) return false;
+    if (target === undefined) return lightOnly;
     if (Object.hasOwn(roles, target)) {
-      if (!answer(target, [...open, role])) return false;
-      tokens[role] = tokens[target];
+      if (!answer(target, [...open, role])) return lightOnly;
+      if (Object.hasOwn(tokens, target)) tokens[role] = tokens[target];
       if (Object.hasOwn(light, target) && !Object.hasOwn(light, role)) light[role] = light[target];
+    } else if (later) {
+      return lightOnly;
     } else {
       tokens[role] = alias.trim();
     }

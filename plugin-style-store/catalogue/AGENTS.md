@@ -20,9 +20,10 @@ build in every project that took it, and none of those projects is in this tree 
 
 Four files, and a gate fails an entry missing any of them.
 
-- **`plugin.tokens.json`**, answering every role in `contracts/design/roles.json`. It is a root
-  plugin, since a project taking an entry names it first, so a role left unanswered is a missing
-  border rather than a plainer appearance.
+- **`plugin.tokens.json`**, answering every role in `contracts/design/roles.json` that carries no
+  default. It is a root plugin, because a project taking an entry names it first, so a role left
+  unanswered is a missing border rather than a plainer appearance; a role carrying a default is
+  completed with it, so an entry may stay silent on one.
 - **`plugin.css`**, selecting only through the `data-arena-part` hooks, unscoped by any class for
   the reason above, and never spelling `@layer`.
 - **`arena.config.json`**, carrying both polarities, the whole colour set and the three font slots,

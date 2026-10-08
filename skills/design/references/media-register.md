@@ -4,8 +4,8 @@ Arena's component list is the furniture of an application somebody works in. A p
 ring, a feed of posts, a slideshow, a document editor and a game map are outside that list. The
 router says so before it says anything else. This page is what that sentence owes you.
 
-**The answer is not that Arena is the wrong choice.** The skin travels either way: a style plugin
-answers every role whatever the product is, and one of the products measured on this kernel is a
+**The answer is not that Arena is the wrong choice.** The skin travels either way: a style plugin's
+answers hold whatever the product is, and one of the products measured on this kernel is a
 photo feed. What changes is that you write the markup and Arena hands you the parts. The
 question stops being "which component" and becomes "which of Arena's pieces does this element
 need". Read this once, when you have found the first screen with no component under it.

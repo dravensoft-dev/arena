@@ -155,7 +155,7 @@ test('selection never moves the tab padding', () => {
     'a tab that changed its padding when selected would shift every tab beside it');
 });
 
-const SIDE_NAV_INSET = 'ps-[calc(var(--pad-row-x)*var(--dz-row-scale-x)+var(--pad-row-indent)*var(--arena-side-nav-depth,0))]';
+const SIDE_NAV_INSET = 'ps-[calc(var(--pad-nav-row-x)*var(--dz-row-scale-x)+var(--pad-row-indent)*var(--arena-side-nav-depth,0))]';
 
 test('every ArenaSideNav slot that indents carries the depth inset while expanded and none while collapsed', () => {
   for (const slot of ['item', 'trigger', 'sectionLabel']) {
@@ -169,6 +169,8 @@ test('every ArenaSideNav slot that indents carries the depth inset while expande
 });
 
 const BAND_CEILING = 'px-[min(var(--gutter),7%)]';
+
+const APP_BAR_CEILING = 'px-[min(var(--pad-band-x),7%)]';
 
 const INK = 'text-[color:var(--arena-hue-ink)]';
 const EDGE = 'border-[color:var(--arena-hue-edge)]';
@@ -316,8 +318,8 @@ export const CLAIMS = {
     { chosen: { titled: true }, slot: 'message', has: ['mt-1'], why: 'the message carries the title-separating margin only when a title is present' },
   ],
   ArenaAppBar: [
-    { slot: 'band', has: [BAND_CEILING], hasNot: ['px-gutter'],
-      why: 'the bar\'s contents line up with the page column under it only if they stand off the edge by the same ceiling .arena-band does' },
+    { slot: 'band', has: [APP_BAR_CEILING], hasNot: ['px-gutter'],
+      why: 'the bar\'s contents stand off the edge by the ceiling .arena-band does, through the role that defaults to the gutter, so a style plugin that answers it moves the bar apart from the page column' },
   ],
   ArenaBottomNav: [
     { slot: 'root', has: ['pb-[var(--pad-safe-bottom)]'], why: 'the bar adds the safe-area inset to its own height rather than eating into the row' },
@@ -499,7 +501,7 @@ export const CLAIMS = {
       why: 'the display utility stays on the base, since the host binds the root slot and a placement class writes no display' },
   ],
   ArenaSideNav: [
-    ...['item', 'trigger'].map((slot) => ({ slot, has: ['flex', 'items-center', 'gap-row', 'px-row-x', 'py-row-y', 'rounded-control'],
+    ...['item', 'trigger'].map((slot) => ({ slot, has: ['flex', 'items-center', 'gap-row', 'px-nav-row-x', 'py-nav-row-y', 'rounded-control'],
       why: 'the trigger matches the item metrics, or a collapsible header will not line up with its siblings' })),
     { slot: 'root', has: ['flex', 'flex-col'], why: 'the rail is a column, and it is a display utility because the host binds it' },
   ],

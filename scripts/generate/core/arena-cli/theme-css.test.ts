@@ -644,13 +644,52 @@ test('a default follows the root plugin\'s light answer to the role it aliases',
   assert.ok(light.lastIndexOf('--ink-link:var(--color-base-200);') > light.lastIndexOf('--ink-link:var(--color-secondary);'), light);
 });
 
-test('only a root plugin of the project\'s own is completed, and a catalogue with no default leaves it as it was', () => {
+test('a later plugin answering no role a default aliases comes back as it was, and a catalogue with no default leaves the root as it was', () => {
   assert.deepEqual(rootWithDefaults([total(), scoped()], DEFAULTED.catalogue).plugins?.[1], scoped());
   assert.deepEqual(rootWithDefaults([null, scoped()], DEFAULTED.catalogue), { plugins: [null, scoped()], defaulted: [] });
   const same = rootWithDefaults([total()], SHEETS_FULL.catalogue);
   assert.deepEqual(same.defaulted, []);
   assert.deepEqual(same.plugins, [total()]);
   assert.deepEqual(Object.keys(same.plugins?.[0]?.tokens ?? {}), Object.keys(total().tokens));
+});
+
+test('a later plugin silent on a defaulted role takes its own answer to the role the default aliases', () => {
+  const ember = scoped({ 'ink-eyebrow': { $type: 'color', $value: '{color.base-200}' } });
+  const { plugins, defaulted } = rootWithDefaults([total(), ember], DEFAULTED.catalogue);
+  assert.deepEqual(defaulted, ['ink-link', 'r-popover'], 'the note names the root plugin\'s defaults only');
+  assert.equal(plugins?.[1]?.tokens['ink-link'], '{color.base-200}');
+  assert.equal(Object.hasOwn(plugins?.[1]?.tokens ?? {}, 'r-popover'), false,
+    'a default naming a token and not a role is the root\'s answer, and the root already emits it');
+  const css = themeCss(listed(['console', 'marketing']), { sheets: DEFAULTED, importHeader: false, plugins });
+  assert.match(css, /\.arena-marketing\{[^}]*--ink-link:var\(--color-base-200\);/);
+  const light = rootWithDefaults([total(), scoped({ light: { 'ink-eyebrow': { $type: 'color', $value: '{color.accent}' } } })],
+    DEFAULTED.catalogue).plugins?.[1];
+  assert.equal(light?.light['ink-link'], '{color.accent}', 'a light answer of the later plugin follows the default too');
+  assert.equal(Object.hasOwn(light?.tokens ?? {}, 'ink-link'), false);
+});
+
+test('a root plugin\'s own answer to a defaulted role is not replaced inside a later plugin\'s scope', () => {
+  const root = total({ 'ink-link': { $type: 'color', $value: '{color.secondary}' } });
+  const ember = scoped({ 'ink-eyebrow': { $type: 'color', $value: '{color.base-200}' } });
+  const { plugins } = rootWithDefaults([root, ember], DEFAULTED.catalogue);
+  assert.equal(Object.hasOwn(plugins?.[1]?.tokens ?? {}, 'ink-link'), false);
+  const css = themeCss(listed(['console', 'marketing']), { sheets: DEFAULTED, importHeader: false, plugins });
+  assert.doesNotMatch(/\.arena-marketing\{([^}]*)\}/.exec(css)?.[1] ?? '', /--ink-link/);
+});
+
+test('the default root sheet answers a defaulted role with its default, so a later plugin follows its own answer under it', () => {
+  const ember = scoped({ 'ink-eyebrow': { $type: 'color', $value: '{color.base-200}' } });
+  assert.equal(rootWithDefaults([null, ember], DEFAULTED.catalogue).plugins?.[1]?.tokens['ink-link'], '{color.base-200}');
+});
+
+test('a later plugin is held to the floors on a role it takes through a default', () => {
+  const floored = { ...DEFAULTED, catalogue: { ...DEFAULTED.catalogue, roles: {
+    ...DEFAULTED.catalogue.roles, 'lh-prose': { type: 'number', default: '{lh-heading}' },
+  } } };
+  const ember = scoped({ 'lh-heading': { $type: 'number', $value: 1.2 } });
+  const problems = configProblems(listed(['console', 'marketing']), floored, [total(), ember]).join('\n');
+  assert.match(problems, /stylePlugins\[1\][^\n]*--lh-prose is 1\.2 in dark/);
+  assert.doesNotMatch(problems, /stylePlugins\[0\]/);
 });
 
 test('the floors and the reports read a role the default answered', () => {

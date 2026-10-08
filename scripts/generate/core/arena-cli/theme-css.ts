@@ -364,8 +364,9 @@ function entryProblems(
 }
 
 function resolvedProblems(
-  plugin: StylePlugin, at: string, isRoot: boolean, sheets: PackageSheets,
+  plugin: StylePlugin, at: string, root: StylePlugin | null, sheets: PackageSheets,
 ) {
+  const isRoot = plugin === root;
   const catalogue = sheets?.catalogue;
   const problems = [];
   if (Object.keys(plugin.tokens).length === 0) {
@@ -377,7 +378,7 @@ function resolvedProblems(
       + 'command, so a style plugin cannot be checked against it'];
   }
 
-  const whole = isRoot ? withDefaults(plugin, catalogue.roles ?? {}).plugin : plugin;
+  const whole = withDefaults(plugin, catalogue.roles ?? {}, isRoot ? undefined : { root }).plugin;
   problems.push(...pluginTokenProblems(plugin.name, plugin.tokens, catalogue));
   problems.push(...pluginTokenProblems(`${plugin.name}.${THEME_GROUP}`, plugin.light, catalogue));
   if (isRoot) {
@@ -418,15 +419,16 @@ export function stylePluginProblems(
   if (problems.length || !plugins) return problems;
 
   return plugins.flatMap((plugin, i) => (plugin
-    ? resolvedProblems(plugin, `stylePlugins[${i}]`, i === 0, sheets)
+    ? resolvedProblems(plugin, `stylePlugins[${i}]`, plugins[0] ?? null, sheets)
     : []));
 }
 
 export function rootWithDefaults(plugins: ResolvedPlugins, catalogue: TokenCatalogue | null) {
-  const root = plugins?.[0];
-  if (!plugins || !root || !catalogue) return { plugins, defaulted: [] as string[] };
-  const { plugin, defaulted } = withDefaults(root, catalogue.roles ?? {});
-  return { plugins: [plugin, ...plugins.slice(1)], defaulted };
+  const root = plugins?.[0] ?? null;
+  if (!plugins || !catalogue) return { plugins, defaulted: [] as string[] };
+  const { plugin, defaulted } = root ? withDefaults(root, catalogue.roles ?? {}) : { plugin: null, defaulted: [] as string[] };
+  const later = plugins.slice(1).map((one) => (one ? withDefaults(one, catalogue.roles ?? {}, { root }).plugin : one));
+  return { plugins: [plugin, ...later], defaulted };
 }
 
 export const defaultedNote = (roles: string[]) =>

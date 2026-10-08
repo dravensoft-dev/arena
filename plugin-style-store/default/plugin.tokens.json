@@ -376,6 +376,28 @@
     "$type": "dimension",
     "$value": "{sp.2}"
   },
+  "pad-nav-row-x": {
+    "$type": "dimension",
+    "$value": "{sp.3}"
+  },
+  "pad-nav-row-y": {
+    "$type": "dimension",
+    "$value": {
+      "value": 10,
+      "unit": "px"
+    }
+  },
+  "pad-band-x": {
+    "$type": "dimension",
+    "$value": {
+      "value": 88,
+      "unit": "px"
+    }
+  },
+  "pad-band-y": {
+    "$type": "dimension",
+    "$value": "{sp.3}"
+  },
   "gap-marker": {
     "$type": "dimension",
     "$value": {

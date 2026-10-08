@@ -95,8 +95,12 @@ completed the same way, and its light answer too unless the role has a light ans
 token alias passes through as written. The floors, the reports and the
 `:root` block all read that one complete plugin, so a colour default is restated under every
 palette like any `{color.*}` answer, and the command notes each role the default answered. A later
-plugin is never completed. The plugins this repository ships answer every role with the defaults
-ignored, and `check-style-plugin.ts` holds the default plugin's answer to a role carrying a default
+plugin takes a default only through a role it answers itself, since the root writes every other
+default: where both it and the root plugin are silent on a role carrying a default, it takes its
+own answer to the role the default names, which `withDefaults(plugin, roles, { root })` fills in. A
+root plugin's own answer to that role stands in every later scope, and the `default` root counts
+as silent, because its answer is the default. `default` and `complete` answer every role with the defaults ignored, a
+catalogue entry answers every role that carries no default, and `check-style-plugin.ts` holds the default plugin's answer to a role carrying a default
 to that default, so a project whose own copy is silent on the role renders it the way the default
 does.
 
@@ -149,7 +153,8 @@ describes. A plugin answers each role once and every slot of the kind follows.
 | `field` | `pad-control-x`, `pad-control-y`, `pad-control-text-y` | `gap-control` | `rounded-field` |
 | `marker` | `pad-marker-x`, `pad-marker-y` | `gap-marker` | `rounded-marker` |
 | `status` | `pad-status-x`, `pad-status-y` | the kind-free rhythm | `rounded-surface-floating` |
-| `row` | `pad-row-x`, `pad-row-y`, `pad-row-indent`, `pad-row-floating-x`, `pad-row-floating-y`, and the table's `--dz-row-px` and `--dz-row-py` | `gap-row`, `gap-row-floating` | `rounded-control` |
+| `row` | `pad-row-x`, `pad-row-y`, `pad-nav-row-x`, `pad-nav-row-y`, `pad-row-indent`, `pad-row-floating-x`, `pad-row-floating-y`, and the table's `--dz-row-px` and `--dz-row-py` | `gap-row`, `gap-row-floating` | `rounded-control` |
+| `band` | `pad-band-y`, and `pad-band-x` inside the band's ceiling of 7% of its width | the kind-free rhythm | the kind-free shapes only |
 | `none` | none | the kind-free rhythm only | the kind-free shapes only |
 
 The table is `scripts/lib/tailwind/slot-kinds.ts:KIND_AIR`, and the rhythm and shapes any kind
@@ -171,13 +176,13 @@ an input's status icon, the stat card's arrow and a caret are chosen by the comp
 member's value, so they read no hue channel. A constant a component writes inline, such as the
 scatter size legend's ink, is a constant and not a member's value, so it reads none either.
 
-**A row's padding is the role times the density row factor.** `pad-row-x` and `pad-row-y` are
+**A row's padding is the role times the density row factor.** `pad-row-x` and `pad-row-y`, and the pair `pad-nav-row-x` and `pad-nav-row-y` that a side nav row reads in their place, are
 multiplied by `--dz-row-scale-x` and `--dz-row-scale-y`, which density restates, so a plugin
 answers the register of a row, how much air an item of that kind takes, and density answers how
 tight the row is. A plugin never writes a density factor into a row role. `--dz-row-min`, reached
 through `min-h-row-min`, is the floor a row takes to reach the pointer target in comfortable
 density. The interactive day head of `ArenaCalendar` takes it too, and `check:proximity` measures that the head clears the comfortable row. `pad-row-indent` is the side nav's inset per level of depth, read times the
-`--arena-side-nav-depth` channel the component writes.
+`--arena-side-nav-depth` channel the component writes, and the indent of a side nav item, trigger and section label starts from `pad-nav-row-x`.
 
 ## The option roles
 

@@ -2,14 +2,14 @@
   "component": "ArenaAppBar",
   "slots": {
     "root": "block w-full bg-surface border-b-[length:var(--bw-surface)] border-edge-surface",
-    "band": "flex flex-wrap items-center gap-items w-full mx-auto px-[min(var(--gutter),7%)] py-3",
+    "band": "flex flex-wrap items-center gap-items w-full mx-auto px-[min(var(--pad-band-x),7%)] py-band-y",
     "brand": "shrink-0",
     "nav": "flex flex-wrap items-center gap-inline min-w-0 me-auto",
     "actions": "flex flex-wrap items-center gap-inline ms-auto"
   },
   "kind": {
     "root": "none",
-    "band": "none",
+    "band": "band",
     "brand": "none",
     "nav": "none",
     "actions": "none"

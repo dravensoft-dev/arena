@@ -315,6 +315,42 @@
     "$type": "dimension",
     "$description": "The room above and below a row in a floating list, read by the items of ArenaMenu. Density scales it by the row factor."
   },
+  "pad-nav-row-x": {
+    "$type": "dimension",
+    "$description": "The room a side nav row gives its content across, apart from every other row, because a navigation column is the row a product most often sets tighter or looser than its lists. Density scales it by the row factor.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "default": "{pad-row-x}"
+      }
+    }
+  },
+  "pad-nav-row-y": {
+    "$type": "dimension",
+    "$description": "The room a side nav row gives its content down, apart from tabs, palette and list rows. Density scales it by the row factor.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "default": "{pad-row-y}"
+      }
+    }
+  },
+  "pad-band-x": {
+    "$type": "dimension",
+    "$description": "The room an app bar's band leaves at each end, capped at 7% of its width.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "default": "{gutter}"
+      }
+    }
+  },
+  "pad-band-y": {
+    "$type": "dimension",
+    "$description": "The room an app bar's band gives its content down.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "default": "{sp.3}"
+      }
+    }
+  },
   "gap-marker": {
     "$type": "dimension",
     "$description": "The gap between the parts of a marker: a dot and its label, a label and its dismiss. It is cut from gap-control because a marker is read and not pressed, so a style plugin that opens controls up leaves its markers compact."

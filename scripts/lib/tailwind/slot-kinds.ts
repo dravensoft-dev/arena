@@ -3,7 +3,7 @@
 
 import type { ComponentManifest } from './manifest-shapes.ts';
 
-export const KINDS = ['surface', 'floating', 'control', 'field', 'marker', 'status', 'row', 'none'] as const;
+export const KINDS = ['surface', 'floating', 'control', 'field', 'marker', 'status', 'row', 'band', 'none'] as const;
 
 export type SlotKind = typeof KINDS[number];
 
@@ -19,7 +19,8 @@ export const KIND_AIR: Readonly<Record<SlotKind, { pad: readonly string[]; gap: 
   field: { pad: ['control-x', 'control-y', 'control-text-y'], gap: ['gap-control'], radius: ['rounded-field'] },
   marker: { pad: ['marker-x', 'marker-y'], gap: ['gap-marker'], radius: ['rounded-marker'] },
   status: { pad: ['status-x', 'status-y'], gap: ['gap-items', 'gap-inline'], radius: ['rounded-surface-floating'] },
-  row: { pad: ['row-x', 'row-y', 'row-px', 'row-py', 'row-floating-x', 'row-floating-y'], gap: ['gap-row', 'gap-row-floating'], radius: ['rounded-control'] },
+  row: { pad: ['row-x', 'row-y', 'nav-row-x', 'nav-row-y', 'row-px', 'row-py', 'row-floating-x', 'row-floating-y'], gap: ['gap-row', 'gap-row-floating'], radius: ['rounded-control'] },
+  band: { pad: ['band-y'], gap: [], radius: [] },
   none: { pad: [], gap: [], radius: [] },
 };
 

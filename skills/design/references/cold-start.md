@@ -123,7 +123,7 @@ Each is settled before the first screen and never per screen. The four are in th
 |---|---|---|
 | What does Arena ship, and how much of it am I taking | [`surface.md`](./surface.md) | never, because the three below ask how much of a thing you have not been shown |
 | Is Arena's component list right for this product | [`media-register.md`](./media-register.md) | the register is an application somebody works in and nothing on screen is a wall, a feed, a viewer or a document |
-| How does it answer the kernel's roles | [`style-kernel.md`](./style-kernel.md) | node 7 found a plugin that already answers every role |
+| How does it answer the kernel's roles | [`style-kernel.md`](./style-kernel.md) | node 7 found a plugin that already answers every role that carries no default |
 | Does anybody outside it have to find it | [`seo.md`](./seo.md) | never, because a no that was never chosen is announced by nothing and reaches the install rather than a screen |
 
 Then go to 8, because the last of those four is a yes or a no and the next node is how much.
@@ -134,7 +134,7 @@ An identity somebody already established is context to acquire, not a step to sk
 anything:
 
 - Read `arena.config.json`. The file names the palettes, the leading polarity, the fonts and the
-  plugin that comes first. That first plugin is the root and answers every role.
+  plugin that comes first. That first plugin is the root and answers every role that carries no default.
 - Read the project's own `plugin.tokens.json`: which roles it answers and with what. A role it does
   not answer is a property that disappears rather than a plainer look.
 - Read its `plugin.css`, if it has one, to see which decisions the project paints by hand. Those decisions are the ones no role reaches, and they are the ones your new screen has to
@@ -142,7 +142,7 @@ anything:
 - Run `arena audit` and report what it names before you write anything. The audit reads the project's own sources and its declared plugin directories for the rules a
   source text can show.
 
-Say what you found. A project whose plugin answers every role needs no style plugin work, and
+Say what you found. A project whose plugin answers every role that carries no default needs no style plugin work, and
 saying so is what stops an agent rewriting an appearance somebody already chose.
 
 Then go to 6, and skip the rows it says you may skip. **Stop there rather than going on to 8**,
@@ -256,7 +256,7 @@ Then, in this order, because each file is read by the next.
   wears the answers Arena installs with, which are Dravensoft's. `["default"]`, or leaving the key out, is that same appearance chosen on purpose rather than
   by omission. That answer is a finished one for a first screen, or for a tool nobody
   outside the team looks at.
-- `design/<name>/plugin.tokens.json`, answering every role. Shapes first, then space, then weight,
+- `design/<name>/plugin.tokens.json`, answering every role that carries no default. Shapes first, then space, then weight,
   then depth, and leave the colour roles at the answers
   [`style-kernel.md`](./style-kernel.md) reports eight products converged on.
 - `design/<name>/plugin.css`, only for a decision no role reaches.

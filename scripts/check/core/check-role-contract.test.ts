@@ -1,6 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { declarationProblems, defaultProblems, emittedTypes, rosterProblems, zeroRoleProblems, collect } from './check-role-contract.ts';
+import { declarationProblems, defaultProblems, emittedTypes, rosterProblems, zeroRoleProblems, collect, ROLES } from './check-role-contract.ts';
+import { join } from 'node:path';
+import { readJson } from '../../utils/read-file.ts';
+import { repoRoot } from '../../lib/arena/repo-root.ts';
 
 const described = { $type: 'dimension', $description: 'x' };
 
@@ -103,4 +106,13 @@ test('the emitted tokens are the scales, typed, and never a role', () => {
   assert.equal(emitted.get('color-primary'), 'color');
   assert.equal(emitted.has('r-surface'), false);
   assert.ok(emitted.size > 100, `found ${emitted.size} emitted tokens`);
+});
+
+test('the side nav row and app bar band padding roles default to what they read', () => {
+  const roles = readJson(join(repoRoot, ROLES)) as Record<string, { $extensions?: Record<string, { default?: string }> }>;
+  const defaults = Object.fromEntries(['pad-nav-row-x', 'pad-nav-row-y', 'pad-band-x', 'pad-band-y']
+    .map((name) => [name, roles[name]?.$extensions?.[ARENA]?.default]));
+  assert.deepEqual(defaults, {
+    'pad-nav-row-x': '{pad-row-x}', 'pad-nav-row-y': '{pad-row-y}', 'pad-band-x': '{gutter}', 'pad-band-y': '{sp.3}',
+  });
 });

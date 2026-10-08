@@ -85,6 +85,22 @@ test('a whole entry built from the roles themselves is clean, which is what make
   } finally { clean(); }
 });
 
+test('a role carrying a kernel default may stay unanswered by an entry', () => {
+  const { base, clean } = bench((dir) => {
+    wholeEntry(dir);
+    const answers = readJson(join(dir, TOKENS)) as Record<string, unknown>;
+    delete answers['r-control'];
+    writeFileSync(join(dir, TOKENS), JSON.stringify(answers));
+  });
+  try {
+    const defaulted = {
+      ...roles,
+      'r-control': { ...roles['r-control']!, $extensions: { 'com.dravensoft.arena': { default: '{r-surface}' } } },
+    };
+    assert.deepEqual(tokenProblems('a-register', defaulted, base), []);
+  } finally { clean(); }
+});
+
 test('a role the kernel declares and the entry does not answer is a missing border, not a plainer look', () => {
   const { base, clean } = bench((dir) => {
     wholeEntry(dir);
