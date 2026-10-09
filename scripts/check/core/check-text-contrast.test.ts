@@ -158,3 +158,31 @@ test('an entry\'s answer wins over the kernel default, and a silent entry takes 
   assert.equal(answeredColour('hue-success-on-ink', {}, {}, defaults, colors, 'dark'), '#000000');
   assert.equal(answeredColour('hue-success-on-ink', { 'hue-success-on-ink': { $value: '{color.base-100}' } }, {}, defaults, colors, 'dark'), '#ffffff');
 });
+
+const tableSheet = () => componentSheets().find((css) => css.includes('.arena-table__td')) as string;
+
+function figureReports(answer?: string) {
+  const palette = readFileSync(join(repoRoot, PALETTE), 'utf8');
+  const effects = ROLE_SHEETS.map((sheet) => readFileSync(join(repoRoot, sheet), 'utf8')).join('\n');
+  const defaults = levelDefaults(readFileSync(join(repoRoot, COLORS), 'utf8'));
+  const levels = levelsIn(tableSheet(), defaults).filter((one) => one.variable === 'ink-figure');
+  return {
+    levels,
+    reports: THEMES.flatMap((theme) => {
+      const roles = resolvedFor(effects, '', theme.name);
+      if (answer) roles.set('ink-figure', answer);
+      const colours = paletteColours(paletteBlock(palette, theme.selector, 'palette.generated.css'));
+      return levelReports(levels, roles, colours, derivedLevels(levels, roles, colours)).map((one) => `${theme.name}: ${one.message}`);
+    }),
+  };
+}
+
+test('a table\'s figures are drawn in a role the contrast gate measures, and it clears AA in both themes', () => {
+  const { levels, reports } = figureReports();
+  assert.deepEqual([...new Set(levels.map((one) => one.selector))].sort(), ['.arena-table__card-value:where([data-arena-numeric])', '.arena-table__td:where([data-arena-numeric])'],
+    'a numeric cell and a numeric card value paint --ink-figure through a level, which is the one shape levelReports reads; '
+    + 'a raw var(--color-secondary) was an accent drawn as ink that nothing measured');
+  assert.deepEqual(reports, [], 'the figures of a pricing table are the numbers a reader came for');
+  assert.ok(figureReports('var(--color-secondary)').reports.some((one) => one.startsWith('light: --ink-figure')),
+    'a plugin raising gold to the figures owes 4.5:1, and on the light card it does not clear it');
+});

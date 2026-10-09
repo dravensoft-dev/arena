@@ -415,6 +415,15 @@
     "$type": "color",
     "$description": "The colour of text held back: a caption, a hint, a timestamp, a secondary line.\nBorn at base-content, which is what every muted slot points at today.\n\nWhat it does NOT carry is the level. Fifty-nine slots write base-content at 62 percent and\nthirty-one at 82, and those percentages stay in the manifests: a role names WHICH colour and the\nopacity modifier is a second decision that Tailwind composes on top. So a style plugin re-points muted\ntext at a genuinely muted colour, and the level it is held at is unchanged.\n\nThe alternative was a role per level, which is three roles saying one thing and a style plugin unable to\nmove any of them without moving all three."
   },
+  "ink-figure": {
+    "$type": "color",
+    "$description": "The colour of a figure a reader compares: a numeric cell of a table and the value beside it in the stacked card a narrow table becomes. Born at base-content, the ink every palette already holds to 4.5:1 on its surfaces, so a figure is legible in both polarities of any palette that passes at all.\n\nA role rather than a palette step, because painting a figure in an accent is a style decision over a palette Arena does not know, and that decision is the style plugin's. A plugin that raises an accent to it owes the 4.5:1 every other ink owes: the figures are drawn through --level-ink-figure, so check:text-contrast and the shipped command measure it like any level and report the palette where the accent does not clear.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "default": "{color.base-content}"
+      }
+    }
+  },
   "edge-surface": {
     "$type": "color",
     "$description": "The colour of the line that encloses a surface. Standing to bw-surface exactly as\nfill-surface stands to it: one says how thick the enclosure is, this says what colour it is, and\na style plugin needs both because a hairline in the page's own ramp and a hairline in neutral are two\ndifferent statements about how hard the region is.\n\nBorn at base-300, which thirty-four slots name outright. It was dropped once with the stroke\nroles for want of a style plugin that asked, and those thirty-four uses are the measurement of what not\nhaving it cost."
