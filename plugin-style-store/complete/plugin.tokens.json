@@ -469,6 +469,10 @@
     "$type": "color",
     "$value": "{color.neutral-content}"
   },
+  "ink-action": {
+    "$type": "color",
+    "$value": "{color.neutral-content}"
+  },
   "edge-surface": {
     "$type": "color",
     "$value": "{color.primary}"

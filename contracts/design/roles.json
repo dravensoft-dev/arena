@@ -417,7 +417,16 @@
   },
   "ink-figure": {
     "$type": "color",
-    "$description": "The colour of a figure a reader compares: a numeric cell of a table and the value beside it in the stacked card a narrow table becomes. Born at base-content, the ink every palette already holds to 4.5:1 on its surfaces, so a figure is legible in both polarities of any palette that passes at all.\n\nA role rather than a palette step, because painting a figure in an accent is a style decision over a palette Arena does not know, and that decision is the style plugin's. A plugin that raises an accent to it owes the 4.5:1 every other ink owes: the figures are drawn through --level-ink-figure, so check:text-contrast and the shipped command measure it like any level and report the palette where the accent does not clear.",
+    "$description": "The colour of a figure or a code a reader compares or scans for: a numeric cell of a table and the value beside it in the stacked card a narrow table becomes, the count of a bulk action bar, the target an activity feed's row acted on. Born at base-content, the ink every palette already holds to 4.5:1 on its surfaces, so a figure is legible in both polarities of any palette that passes at all.\n\nA role rather than a palette step, because painting a figure in an accent is a style decision over a palette Arena does not know, and that decision is the style plugin's. A plugin that raises an accent to it owes the 4.5:1 every other ink owes: the figures are drawn through --level-ink-full, so check:text-contrast and the shipped command measure it like any level and report the palette where the accent does not clear.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "default": "{color.base-content}"
+      }
+    }
+  },
+  "ink-action": {
+    "$type": "color",
+    "$description": "The colour of an action set as text rather than drawn as a control: a toast's undo or retry. Born at base-content, the ink every palette already holds to 4.5:1 on its surfaces, and the same in every tone, because the tone is carried by the toast's side edge and an action is not a risk trigger, so a danger toast's retry is not drawn as danger.\n\nA role rather than a palette step, because an action in an accent is a style decision over a palette Arena does not know. It was crimson in two tones and gold in the third, which is 2.80:1 on the dark floating surface and 2.24:1 on the light card. A plugin that raises an accent to it owes the 4.5:1 every other ink owes: the action is drawn through --level-ink-full, so check:text-contrast and the shipped command measure it like any level.",
     "$extensions": {
       "com.dravensoft.arena": {
         "default": "{color.base-content}"

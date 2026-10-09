@@ -399,9 +399,9 @@ export const CLAIMS = {
   ],
   ArenaToast: [
     ...['success', 'danger'].map((tone) => ({ chosen: { tone }, slot: 'root', has: ['border-l-[color:var(--arena-hue-edge)]'], why: HUE_WHY })),
-    { chosen: { tone: 'success' }, slot: 'action', has: ['text-primary'], hasNot: [INK], why: 'every action but the danger one is the brand ink, an editorial choice rather than a hue' },
-    { chosen: { tone: 'danger' }, slot: 'action', has: ['text-secondary'], why: 'danger is the one tone whose action flips to the secondary ink, so it never sits crimson on crimson' },
-    { chosen: { tone: 'neutral' }, slot: 'action', has: ['text-primary'], why: 'every other tone leaves the action on the brand ink' },
+    ...['neutral', 'success', 'danger'].map((tone) => ({ chosen: { tone }, slot: 'action',
+      has: ['text-ink-action/(--level-ink-full)'], hasNot: [INK, 'text-primary', 'text-secondary'],
+      why: 'every tone draws the action in one measured role: the tone is the side edge, an undo is not a risk trigger, and an accent as ink is the style plugin\'s to raise' })),
     { slot: 'root', has: ['flex', 'z-toast'], why: 'the root sits on --z-toast, the one slot above every other overlay' },
   ],
   ArenaTooltip: [

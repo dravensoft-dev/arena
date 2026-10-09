@@ -159,30 +159,62 @@ test('an entry\'s answer wins over the kernel default, and a silent entry takes 
   assert.equal(answeredColour('hue-success-on-ink', { 'hue-success-on-ink': { $value: '{color.base-100}' } }, {}, defaults, colors, 'dark'), '#ffffff');
 });
 
-const tableSheet = () => componentSheets().find((css) => css.includes('.arena-table__td')) as string;
+const sheetOf = (marker: string) => componentSheets().find((css) => css.includes(marker)) as string;
 
-function figureReports(answer?: string) {
+function inkReports(marker: string, role: string, answer?: string) {
   const palette = readFileSync(join(repoRoot, PALETTE), 'utf8');
   const effects = ROLE_SHEETS.map((sheet) => readFileSync(join(repoRoot, sheet), 'utf8')).join('\n');
   const defaults = levelDefaults(readFileSync(join(repoRoot, COLORS), 'utf8'));
-  const levels = levelsIn(tableSheet(), defaults).filter((one) => one.variable === 'ink-figure');
+  const levels = levelsIn(sheetOf(marker), defaults).filter((one) => one.variable === role);
   return {
     levels,
     reports: THEMES.flatMap((theme) => {
       const roles = resolvedFor(effects, '', theme.name);
-      if (answer) roles.set('ink-figure', answer);
+      if (answer) roles.set(role, answer);
       const colours = paletteColours(paletteBlock(palette, theme.selector, 'palette.generated.css'));
       return levelReports(levels, roles, colours, derivedLevels(levels, roles, colours)).map((one) => `${theme.name}: ${one.message}`);
     }),
   };
 }
 
+const selectorsOf = (levels: { selector: string }[]) => [...new Set(levels.map((one) => one.selector))].sort();
+
 test('a table\'s figures are drawn in a role the contrast gate measures, and it clears AA in both themes', () => {
-  const { levels, reports } = figureReports();
-  assert.deepEqual([...new Set(levels.map((one) => one.selector))].sort(), ['.arena-table__card-value:where([data-arena-numeric])', '.arena-table__td:where([data-arena-numeric])'],
+  const { levels, reports } = inkReports('.arena-table__td', 'ink-figure');
+  assert.deepEqual(selectorsOf(levels), ['.arena-table__card-value:where([data-arena-numeric])', '.arena-table__td:where([data-arena-numeric])'],
     'a numeric cell and a numeric card value paint --ink-figure through a level, which is the one shape levelReports reads; '
     + 'a raw var(--color-secondary) was an accent drawn as ink that nothing measured');
   assert.deepEqual(reports, [], 'the figures of a pricing table are the numbers a reader came for');
-  assert.ok(figureReports('var(--color-secondary)').reports.some((one) => one.startsWith('light: --ink-figure')),
+  assert.ok(inkReports('.arena-table__td', 'ink-figure', 'var(--color-secondary)').reports.some((one) => one.startsWith('light: --ink-figure')),
     'a plugin raising gold to the figures owes 4.5:1, and on the light card it does not clear it');
+});
+
+test('a bulk action bar\'s count is a figure, drawn in a role the contrast gate measures', () => {
+  const { levels, reports } = inkReports('.arena-bulk-action-bar__number', 'ink-figure');
+  assert.deepEqual(selectorsOf(levels), ['.arena-bulk-action-bar__number'],
+    'the number of rows selected paints --ink-figure through a level; a raw var(--color-secondary) was gold drawn as ink that nothing measured');
+  assert.deepEqual(reports, [], 'the count is what the bar is about');
+  assert.ok(inkReports('.arena-bulk-action-bar__number', 'ink-figure', 'var(--color-secondary)').reports.some((one) => one.startsWith('light: --ink-figure')),
+    'a plugin raising gold to the count owes 4.5:1, and on the light floating surface it does not clear it');
+});
+
+test('an activity feed\'s target is a code, drawn in a role the contrast gate measures', () => {
+  const { levels, reports } = inkReports('.arena-activity-feed__target', 'ink-figure');
+  assert.deepEqual(selectorsOf(levels), ['.arena-activity-feed__target'],
+    'the identifier a row acted on paints --ink-figure through a level, as a table\'s codes do; a raw var(--color-secondary) was gold drawn as ink that nothing measured');
+  assert.deepEqual(reports, [], 'the target is the half of the row a reader scans for');
+  assert.ok(inkReports('.arena-activity-feed__target', 'ink-figure', 'var(--color-secondary)').reports.some((one) => one.startsWith('light: --ink-figure')),
+    'a plugin raising gold to the target owes 4.5:1, and on the light page it does not clear it');
+});
+
+test('a toast\'s action reads one measured role in every tone, and it clears AA in both themes', () => {
+  const { levels, reports } = inkReports('.arena-toast__action', 'ink-action');
+  assert.deepEqual(selectorsOf(levels), ['.arena-toast__action'],
+    'the action paints --ink-action through a level in every tone; crimson in neutral and success and gold in danger were accents drawn as ink, '
+    + 'and crimson on the dark floating surface is 2.80:1');
+  assert.deepEqual(reports, [], 'an undo nobody can read is an undo nobody takes');
+  assert.ok(inkReports('.arena-toast__action', 'ink-action', 'var(--color-primary)').reports.some((one) => one.startsWith('dark: --ink-action')),
+    'a plugin raising crimson to the action owes 4.5:1, and on the dark floating surface it does not clear it');
+  assert.ok(inkReports('.arena-toast__action', 'ink-action', 'var(--color-secondary)').reports.some((one) => one.startsWith('light: --ink-action')),
+    'a plugin raising gold to the action owes 4.5:1, and on the light floating surface it does not clear it');
 });

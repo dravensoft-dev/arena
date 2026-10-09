@@ -44,7 +44,7 @@
   --level-ink-body:82%;    /* body copy */
   --level-ink-quiet:70%;   /* a neutral tag's label, quieter than body and above muted */
   --level-ink-muted:62%;   /* captions, meta, the held-back register */
-  --level-ink-figure:100%; /* a table's figures: not held back, and measured like any level */
+  --level-ink-full:100%;   /* a figure, a code, a text action: not held back, and measured like any level */
   --level-presence:52%;    /* ArenaAvatar's offline dot: a graphical object, 3:1 */
   --level-hue-soft-danger:14%;   /* the danger hue's wash */
   --level-hue-soft-success:16%;  /* the success hue's wash */
