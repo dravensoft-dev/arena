@@ -90,6 +90,8 @@
   --ink-body:var(--color-neutral-content);
   --ink-eyebrow:var(--color-secondary);
   --ink-muted:var(--color-neutral-content);
+  --ink-figure:var(--color-neutral-content);
+  --ink-action:var(--color-neutral-content);
   --edge-surface:var(--color-primary);
   --edge-surface-floating:var(--color-secondary);
   --edge-control-quiet:var(--color-neutral);
@@ -226,10 +228,10 @@
   --emphasis-primary-fill:var(--color-secondary);
   --emphasis-secondary-fill:var(--color-base-300);
   --emphasis-solid-fill:var(--color-secondary);
-  --emphasis-primary-ink:var(--color-base-content);
+  --emphasis-primary-ink:var(--color-secondary-content);
   --emphasis-secondary-ink:var(--color-neutral-content);
   --emphasis-ghost-ink:var(--color-neutral-content);
-  --emphasis-solid-ink:var(--color-base-content);
+  --emphasis-solid-ink:var(--color-secondary-content);
   --emphasis-primary-edge:var(--color-secondary);
   --emphasis-secondary-edge:var(--color-secondary);
   --emphasis-ghost-icon-edge:var(--color-neutral);
@@ -265,6 +267,8 @@
   --ink-body:var(--color-neutral-content);
   --ink-eyebrow:var(--color-secondary);
   --ink-muted:var(--color-neutral-content);
+  --ink-figure:var(--color-neutral-content);
+  --ink-action:var(--color-neutral-content);
   --edge-surface:var(--color-primary);
   --edge-surface-floating:var(--color-secondary);
   --edge-control-quiet:var(--color-neutral);
@@ -297,10 +301,10 @@
   --emphasis-primary-fill:var(--color-secondary);
   --emphasis-secondary-fill:var(--color-base-300);
   --emphasis-solid-fill:var(--color-secondary);
-  --emphasis-primary-ink:var(--color-base-content);
+  --emphasis-primary-ink:var(--color-secondary-content);
   --emphasis-secondary-ink:var(--color-neutral-content);
   --emphasis-ghost-ink:var(--color-neutral-content);
-  --emphasis-solid-ink:var(--color-base-content);
+  --emphasis-solid-ink:var(--color-secondary-content);
   --emphasis-primary-edge:var(--color-secondary);
   --emphasis-secondary-edge:var(--color-secondary);
   --emphasis-ghost-icon-edge:var(--color-neutral);

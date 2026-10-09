@@ -58,6 +58,8 @@ Each role's full description is one entry in
 | text somebody reads, and the default answer for any text slot | `--ink-body` |
 | the small line above a title that says what kind of thing this is | `--ink-eyebrow` |
 | text held back: a caption, a hint, a timestamp | `--ink-muted` |
+| a figure a reader compares: a price, a total, a column of numbers of yours | `--ink-figure` |
+| an action set as text rather than drawn as a button: an undo, a retry | `--ink-action` |
 | the line enclosing a surface, and the default ground line | `--edge-surface` |
 | the line around a floating surface | `--edge-surface-floating` |
 | the line around a control, a quiet control, a field, a marker | `--edge-control`, `--edge-control-quiet`, `--edge-field`, `--edge-marker` |
@@ -77,9 +79,9 @@ Spend one the way every Arena component spends it:
 color: color-mix(in oklab, var(--ink-muted) var(--level-ink-muted), transparent);
 ```
 
-`--level-ink-body`, `--level-ink-quiet` and `--level-ink-muted` are the three, the quiet one for a label that sits between body copy and a caption, in
-[`contracts/design/colors.css`](../../../contracts/design/colors.css). The three are floors rather than
-constants. `arena build` raises one for a palette whose ink has too little room to clear its
+`--level-ink-body`, `--level-ink-quiet` and `--level-ink-muted` are the held-back ones, the quiet one for a label that sits between body copy and a caption. `--level-ink-full` holds a figure or a text action at full strength. All of them are in
+[`contracts/design/colors.css`](../../../contracts/design/colors.css). Each is a floor rather than a
+constant. `arena build` raises one for a palette whose ink has too little room to clear its
 contrast bar. So a percentage of your own is the one value on this page that cannot follow the
 palette it was written against.
 

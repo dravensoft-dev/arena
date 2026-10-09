@@ -16,7 +16,7 @@
     "dot": "flex-none size-2 rounded-pill bg-current text-[color:var(--arena-accent-ink,var(--accent-primary-ink))]",
     "text": "font-body text-ctl text-ink-body/(--level-ink-body)",
     "actor": "font-bold text-ink-body",
-    "target": "font-mono text-ctl-md text-secondary",
+    "target": "font-mono text-ctl-md text-ink-figure/(--level-ink-full)",
     "time": "ml-auto font-mono text-ctl-sm text-ink-muted/(--level-ink-muted)"
   },
   "kind": {

@@ -396,6 +396,23 @@ export function axisReports(roles: Map<string, string>, colors: Record<string, s
     + 'fainter than its grid')];
 }
 
+export const EMPHASIS_PAIRS = ['primary', 'solid'];
+
+export function emphasisReports(roles: Map<string, string>, colors: Record<string, string>, theme: string) {
+  const out: Report[] = [];
+  for (const name of EMPHASIS_PAIRS) {
+    const fill = colors[paletteKey(roles.get(`emphasis-${name}-fill`)) ?? ''];
+    const ink = colors[paletteKey(roles.get(`emphasis-${name}-ink`)) ?? ''];
+    if (!fill || !ink) continue;
+    const ratio = contrast(ink, fill);
+    if (ratio >= TEXT_MIN) continue;
+    out.push(report('contrast', `--emphasis-${name}-ink measures ${ratio.toFixed(2)}:1 over `
+      + `--emphasis-${name}-fill in the ${theme} theme, below ${TEXT_MIN}:1, so the label of a filled `
+      + 'button is hard to read; a palette that splits primary-fill from primary fills the button with primary-fill'));
+  }
+  return out;
+}
+
 export function onInkReports(roles: Map<string, string>, colors: Record<string, string>, theme: string) {
   const out: Report[] = [];
   for (const hue of STATUS_HUES) {

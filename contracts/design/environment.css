@@ -2,11 +2,15 @@
    unit, and env() is neither: it is resolved by the browser, per device, at paint. So it is a
    composition-layer derivation, the third one, beside colors.css's color-mix() and the
    generated @font-face bundling. Nothing here defines a value; each is max() of a token and a
-   number only the device knows, so on a device with no inset the token is what applies. */
+   number only the device knows, so on a device with no inset the token is what applies.
+   --title-hero-fit composes the hero role with the width of the container the line sits in:
+   the role from 1280px up, narrowing toward the page step below it and never past it, because
+   one word of a hero line at the wide step outgrows a 320px phone. */
 
 :root {
   --pad-safe-bottom: max(var(--sp-3), env(safe-area-inset-bottom));
   --pad-safe-top: max(var(--sp-0), env(safe-area-inset-top));
   --pad-safe-left: max(var(--sp-0), env(safe-area-inset-left));
   --pad-safe-right: max(var(--sp-0), env(safe-area-inset-right));
+  --title-hero-fit: clamp(min(var(--step-title-page), var(--step-title-hero)), calc(var(--step-title-hero) - (1280px - 100cqi) / 24), var(--step-title-hero));
 }

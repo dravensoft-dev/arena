@@ -1,4 +1,4 @@
-An event feed. The component knows the grammar: someone did something to something, then. Each part takes its own ink. `actor` is `--bone`, `action` is `--bone-dim`, `target` is mono `--gold`, and `time` is mono `--mute` pushed right. A tone dot leads
+An event feed. The component knows the grammar: someone did something to something, then. Each part takes its own ink. `actor` is `--bone`, `action` is `--bone-dim`, `target` is mono `--ink-figure`, and `time` is mono `--mute` pushed right. A tone dot leads
 each row.
 
 ```tsx

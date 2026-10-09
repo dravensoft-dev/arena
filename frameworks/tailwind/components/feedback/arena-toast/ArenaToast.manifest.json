@@ -16,7 +16,7 @@
     "title": "flex items-center gap-control font-body font-semibold text-ctl text-ink-heading",
     "pinned": "font-face-label text-label tracking-label-role case-label text-ink-muted/(--level-ink-muted) border-[length:var(--bw-marker)] border-edge-surface rounded-marker px-1",
     "message": "font-body text-sm text-ink-muted/(--level-ink-muted) mt-0.5",
-    "action": "mt-2.5 inline-flex items-center min-h-ctl-h-sm min-w-ctl-h-sm bg-transparent border-none p-0 cursor-pointer font-face-label text-ctl-sm font-bold tracking-uppercase-status case-label",
+    "action": "mt-2.5 inline-flex items-center min-h-ctl-h-sm min-w-ctl-h-sm bg-transparent border-none p-0 cursor-pointer font-face-label text-ctl-sm font-bold tracking-uppercase-status case-label text-ink-action/(--level-ink-full)",
     "close": "inline-flex items-center justify-center size-ctl-h-sm shrink-0 bg-transparent border-none cursor-pointer text-ink-muted/(--level-ink-muted) text-[length:var(--icon-md)] leading-ctl"
   },
   "kind": {
@@ -30,16 +30,12 @@
   },
   "variants": {
     "tone": {
-      "neutral": {
-        "action": "text-primary"
-      },
+      "neutral": {},
       "success": {
-        "root": "border-l-[color:var(--arena-hue-edge)]",
-        "action": "text-primary"
+        "root": "border-l-[color:var(--arena-hue-edge)]"
       },
       "danger": {
-        "root": "border-l-[color:var(--arena-hue-edge)]",
-        "action": "text-secondary"
+        "root": "border-l-[color:var(--arena-hue-edge)]"
       }
     }
   },

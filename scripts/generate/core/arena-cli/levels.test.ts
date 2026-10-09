@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
   DECORATIVE, derivedLevels, exemptionFor, gateFor, inlineHues, levelReports, levelsIn, raisedReports,
-  surfaceKeys, washesIn, washReports,
+  emphasisReports, surfaceKeys, washesIn, washReports,
 } from './levels.ts';
 import { walkFiles } from '../../../utils/walk-files.ts';
 import { repoRoot } from '../../../lib/arena/repo-root.ts';
@@ -339,4 +339,16 @@ test('a wash whose percent is a level reads its default, and one with no default
   ].join('\n');
   assert.deepEqual(washesIn(css, { 'level-wash': 14 }), [{ selector: '.arena-x__y', variable: 'ink-x', percent: 14 }]);
   assert.deepEqual(washesIn(css), []);
+});
+
+test('a filled button\'s ink is measured on the fill the style plugin gives it', () => {
+  const colours = { 'primary': '#9e77ed', 'primary-fill': '#7f56d9', 'primary-content': '#ffffff' };
+  const roles = (fill: string) => new Map([
+    ['emphasis-primary-fill', fill], ['emphasis-primary-ink', 'var(--color-primary-content)'],
+    ['emphasis-solid-fill', fill], ['emphasis-solid-ink', 'var(--color-primary-content)'],
+  ]);
+  assert.deepEqual(emphasisReports(roles('var(--color-primary-fill)'), colours, 'dark'), []);
+  const stale = emphasisReports(roles('var(--color-primary)'), colours, 'dark');
+  assert.deepEqual(stale.map((one) => one.message.split(' measures')[0]), ['--emphasis-primary-ink', '--emphasis-solid-ink'],
+    'a plugin still filling the button with primary sets white on #9e77ed, 3.33:1, and the palette pair cannot see it');
 });

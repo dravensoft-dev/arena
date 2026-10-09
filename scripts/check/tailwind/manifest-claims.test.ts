@@ -213,7 +213,7 @@ export const CLAIMS = {
     { slot: 'media', has: ['min-h-0'], why: 'the media cell may be shorter than its picture, which is what lets the track hold the ratio' },
   ],
   ArenaHero: [
-    { slot: 'title', has: ['text-title-hero'], hasNot: ['text-display', 'text-hero', 'text-h1'], why: 'the top rung of the title ladder is a role, so a style plugin re-pitches a hero with the three registers under it rather than around them' },
+    { slot: 'title', has: ['text-[length:var(--title-hero-fit)]'], hasNot: ['text-title-hero', 'text-display', 'text-hero', 'text-h1'], why: 'the top rung of the title ladder is a role, so a style plugin re-pitches a hero with the three registers under it rather than around them, and it reaches the line through --title-hero-fit, which narrows it toward the page step in a container too narrow for one word of it' },
     { slot: 'lede', has: ['max-w-prose'], why: 'a line that runs the whole width of a hero loses its return sweep, and the reading width is the role that already answers how long a line may be' },
     { slot: 'words', has: ['col-start-[var(--arena-layout-place,auto)]', 'row-start-[var(--arena-layout-place,auto)]', '[align-items:var(--arena-align-items,flex-start)]'], why: 'bleed lays the words ON the figure, which is one grid cell carrying both, and the layout writes that cell as a channel the words and the figure both read' },
     { slot: 'root', has: ['[grid-template-columns:var(--arena-layout-cols,repeat(auto-fit,minmax(min(calc(var(--grid-min)*1.5),100%),1fr)))]'], hasNot: ['grid-cols-1', 'py-section'], why: 'split is the only layout whose track list comes from the room, so the tracks are the fallback of the channel and no other layout is a class on the root' },
@@ -234,7 +234,7 @@ export const CLAIMS = {
     { slot: 'head', has: ['justify-between', 'items-center', 'flex-wrap'], why: 'the head row spaces title and actions to opposite ends and wraps, since the slot projects one element per control' },
   ],
   ArenaActivityFeed: [
-    { slot: 'dot', has: ['bg-current'], hasNot: ['bg-error', 'bg-success', 'bg-warning', 'bg-info', 'bg-primary', 'bg-secondary'], why: 'the dot carries the tone as a colour, never as a fill of its own' },
+    { slot: 'dot', has: ['bg-current'], hasNot: ['bg-error', 'bg-success', 'bg-warning', 'bg-info', 'bg-primary', 'bg-primary-fill', 'bg-secondary'], why: 'the dot carries the tone as a colour, never as a fill of its own' },
     ...['success', 'warning', 'info'].map((tone) => ({ chosen: { tone }, slot: 'dot', has: [STRONG_INK], hasNot: [INK], why: FILLED_WHY })),
     { chosen: { tone: 'danger' }, slot: 'dot', has: [INK], hasNot: [STRONG_INK], why: FILLED_WHY },
     { chosen: { divided: true }, slot: 'item', has: ['border-t-[length:var(--bw-separator)]'], why: 'divided draws the rule between rows' },
@@ -348,7 +348,7 @@ export const CLAIMS = {
   ArenaConfirmDialog: [
     { chosen: { destructive: true }, slot: 'eyebrow', has: [INK], why: HUE_WHY },
     { chosen: { destructive: true }, slot: 'confirm', has: ['bg-confirm-final', 'text-ink-confirm-final'], hasNot: ['bg-error', 'bg-error-fill', STRONG], why: 'the final confirmation is the one filled danger surface, and it reads the roles of its own rather than the danger hue, whose fill is closed to transparent' },
-    { chosen: { destructive: false }, slot: 'confirm', has: ['bg-primary', 'text-primary-content'], hasNot: ['bg-confirm-final'], why: 'a confirmation that is not destructive fills with the brand' },
+    { chosen: { destructive: false }, slot: 'confirm', has: ['bg-primary-fill', 'text-primary-content'], hasNot: ['bg-confirm-final'], why: 'a confirmation that is not destructive fills with the brand' },
     { chosen: { open: true }, slot: 'foot', has: ['flex-wrap'], why: 'the footer wraps the way ArenaDialog, ArenaPageHead and ArenaChartCard all do, and a third action row behaving differently is worse than none' },
     { chosen: { open: true }, slot: 'root', has: ['flex'], why: 'the root carries a display utility in its own base string, independent of the open variant' },
     { slot: 'input', has: ['focus-visible:ring-[color:var(--arena-hue-edge)]'], hasNot: ['focus-visible:ring-error'], why: 'the require-text input confirms a destructive action, so its focus ring is the danger edge channel always gives this slot' },
@@ -399,9 +399,9 @@ export const CLAIMS = {
   ],
   ArenaToast: [
     ...['success', 'danger'].map((tone) => ({ chosen: { tone }, slot: 'root', has: ['border-l-[color:var(--arena-hue-edge)]'], why: HUE_WHY })),
-    { chosen: { tone: 'success' }, slot: 'action', has: ['text-primary'], hasNot: [INK], why: 'every action but the danger one is the brand ink, an editorial choice rather than a hue' },
-    { chosen: { tone: 'danger' }, slot: 'action', has: ['text-secondary'], why: 'danger is the one tone whose action flips to the secondary ink, so it never sits crimson on crimson' },
-    { chosen: { tone: 'neutral' }, slot: 'action', has: ['text-primary'], why: 'every other tone leaves the action on the brand ink' },
+    ...['neutral', 'success', 'danger'].map((tone) => ({ chosen: { tone }, slot: 'action',
+      has: ['text-ink-action/(--level-ink-full)'], hasNot: [INK, 'text-primary', 'text-secondary'],
+      why: 'every tone draws the action in one measured role: the tone is the side edge, an undo is not a risk trigger, and an accent as ink is the style plugin\'s to raise' })),
     { slot: 'root', has: ['flex', 'z-toast'], why: 'the root sits on --z-toast, the one slot above every other overlay' },
   ],
   ArenaTooltip: [
@@ -417,7 +417,7 @@ export const CLAIMS = {
       why: 'a destructive button never lifts on hover whatever its emphasis, because the raised hover shadow is the emphasis destructive does not govern' },
     { chosen: { destructive: false }, slot: 'root', has: ['hover:shadow-[var(--arena-emphasis-shadow-hover,var(--emphasis-primary-shadow-hover))]'],
       why: 'a button that states no meaning lifts as its emphasis says, through the emphasis channel, and the meaning branch is the only one that overrides it' },
-    { chosen: { destructive: false }, slot: 'root', hasNot: ['bg-primary', 'bg-base-200', 'bg-transparent', 'text-primary-content', 'border-primary'],
+    { chosen: { destructive: false }, slot: 'root', hasNot: ['bg-primary', 'bg-primary-fill', 'bg-base-200', 'bg-transparent', 'text-primary-content', 'border-primary', 'border-primary-fill'],
       why: 'the fill, the ink and the edge are the emphasis channels, so no emphasis is a class of this manifest any more' },
     { slot: 'root', has: ['rounded-control', 'inline-flex'], why: 'the shared control geometry sits in the base, so every emphasis keeps it' },
     { slot: 'root', has: ['w-[var(--arena-fill-width,fit-content)]'], hasNot: ['w-auto', 'w-full', 'w-fit'], why: 'the width is the fill channel, which fits the content until a vocabulary class says otherwise, in a column as in a row' },
@@ -425,7 +425,7 @@ export const CLAIMS = {
   ],
   ArenaCheckbox: [
     { slot: 'box', has: ['[&:has(~input:focus-visible)]:shadow-[0_0_0_var(--focus-width)_var(--focus-ring)]'], why: 'the focus ring is a selector on the box, so nothing injects a stylesheet and no hook class survives, and it is the full-strength role because the accent at 16% is a wash rather than an edge' },
-    { chosen: { checked: true }, slot: 'box', has: ['bg-primary', 'border-primary'], why: 'checked fills with the brand; unchecked is the input surface behind a neutral hairline' },
+    { chosen: { checked: true }, slot: 'box', has: ['bg-primary-fill', 'border-primary-fill'], why: 'checked fills with the brand; unchecked is the input surface behind a neutral hairline' },
     { chosen: { checked: false }, slot: 'box', has: ['bg-base-300', 'border-edge-control'], why: 'checked fills with the brand; unchecked is the input surface behind a neutral hairline' },
     { chosen: { checked: true }, slot: 'check', has: ['text-primary-content'], why: 'the tick reads on the filled box, which is the one pairing that has to hold' },
     { chosen: { disabled: true }, slot: 'root', has: ['opacity-50', 'cursor-not-allowed'], why: 'disabled dims the whole control and takes the pointer away; enabled offers it' },
@@ -479,8 +479,8 @@ export const CLAIMS = {
   ArenaPagination: [
     { slot: 'root', has: ['inline-flex', 'items-center'], why: 'a host-bound root is never the UA-default inline box' },
     { slot: 'nav', has: ['disabled:text-ink-muted/40', 'disabled:cursor-not-allowed'], why: 'an unreachable step says so through a :disabled variant, which only a real disabled control matches' },
-    { chosen: { current: true }, slot: 'page', has: ['bg-primary', 'text-primary-content'], why: 'the current page is the one filled control in the row' },
-    { chosen: { current: false }, slot: 'page', has: ['bg-transparent'], hasNot: ['bg-primary'], why: 'the current page is the one filled control in the row' },
+    { chosen: { current: true }, slot: 'page', has: ['bg-primary-fill', 'text-primary-content'], why: 'the current page is the one filled control in the row' },
+    { chosen: { current: false }, slot: 'page', has: ['bg-transparent'], hasNot: ['bg-primary-fill'], why: 'the current page is the one filled control in the row' },
     { slot: 'page', has: ['h-ctl-h-sm', 'min-w-ctl-h-sm', 'border-[length:var(--bw-control)]'], why: 'the shared box is set once on the page slot, so a state slot never fights it, and it reads the density rather than a step, so a page number is a target a thumb can hit in the density chosen for one' },
   ],
   ArenaSegmentedControl: [
@@ -510,7 +510,7 @@ export const CLAIMS = {
   ArenaSwitch: [
     { chosen: { state: true }, slot: 'knob', has: ['[translate:var(--arena-orientation-knob-on,100%_0)]'], hasNot: ['translate-x-0'], why: 'the knob travels to the end its orientation names, and the channel falls back to the horizontal one' },
     { chosen: { state: false }, slot: 'knob', has: ['translate-x-0'], hasNot: ['[translate:var(--arena-orientation-knob-on,100%_0)]'], why: 'an off knob rests at the start, whichever way the switch lies' },
-    { chosen: { state: true }, slot: 'track', has: ['bg-primary'], why: 'on fills with the brand and off stays the neutral rail' },
+    { chosen: { state: true }, slot: 'track', has: ['bg-primary-fill'], why: 'on fills with the brand and off stays the neutral rail' },
     { chosen: { state: false }, slot: 'track', has: ['bg-neutral'], why: 'on fills with the brand and off stays the neutral rail' },
     { slot: 'icon', has: ['text-primary'], why: 'the icon reads the brand ink on the knob' },
     { slot: 'knob', has: ['bg-primary-content'], why: 'the knob is the content colour against the filled track' },

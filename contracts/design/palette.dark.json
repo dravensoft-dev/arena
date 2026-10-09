@@ -8,6 +8,7 @@
     "base-content": { "$value": { "colorSpace": "srgb", "components": [0.9529, 0.9294, 0.898], "hex": "#f3ede5" }, "$description": "text on base" },
     "primary": { "$value": { "colorSpace": "srgb", "components": [0.7098, 0.1647, 0.1255], "hex": "#b52a20" }, "$description": "crimson" },
     "primary-content": { "$value": { "colorSpace": "srgb", "components": [1, 1, 1], "hex": "#ffffff" } },
+    "primary-fill": { "$value": { "colorSpace": "srgb", "components": [0.7098, 0.1647, 0.1255], "hex": "#b52a20" }, "$description": "The ground primary-content sits on: a filled button, a checked box, a current page.\nOPTIONAL, like error-fill: omit it and the fill is primary. It exists for a\npalette whose accent, tuned to read as ink on its page, is too light to carry\nits content; crimson carries white in both themes, so this skin pins primary." },
     "secondary": { "$value": { "colorSpace": "srgb", "components": [0.7725, 0.6275, 0.349], "hex": "#c5a059" }, "$description": "gold" },
     "secondary-content": { "$value": { "colorSpace": "srgb", "components": [0.0784, 0.0627, 0.0627], "hex": "#141010" } },
     "neutral": { "$value": { "colorSpace": "srgb", "components": [0.1725, 0.1333, 0.1176], "hex": "#2c221e" }, "$description": "neutral surface" },

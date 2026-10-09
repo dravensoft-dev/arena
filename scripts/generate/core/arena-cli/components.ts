@@ -13,7 +13,7 @@ export const AUTO = 'auto';
 
 export const SELECTOR_LIKE = /<(arena-[a-z0-9-]+)[\s/>]/g;
 
-export const HOOK_LIKE = /<[a-z][a-z0-9]*(?:\s[^<>]*?)?\s(arena-[a-z0-9-]+)(?=[\s/>=])/g;
+export const HOOK_LIKE = /<[a-z][a-z0-9]*(?:\s(?:"[^"]*"|'[^']*'|[^<>"'])*?)?\s(arena-[a-z0-9-]+)(?=[\s/>=])/g;
 
 export type ComponentMap = {
   match: string;

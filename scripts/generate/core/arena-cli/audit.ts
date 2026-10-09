@@ -230,7 +230,7 @@ export const RAW_COLOUR_MESSAGE = 'a raw colour where a token belongs. A channel
   + 'colour\'s name are both the skin written down: read the colour through its custom property, '
   + 'as var(--color-primary), or compose one with color-mix() over var()';
 export const COMPAT_ALIASES = [
-  'level-ink-body', 'level-ink-quiet', 'level-ink-muted', 'level-presence',
+  'level-ink-body', 'level-ink-quiet', 'level-ink-muted', 'level-ink-full', 'level-presence',
   'level-hue-soft-danger', 'level-hue-soft-success', 'level-hue-soft-warning', 'level-hue-soft-info',
   'level-accent-soft-primary', 'level-accent-soft-gold',
   'picker-invert', 'ink', 'ink-2', 'panel', 'line-strong', 'bone', 'bone-dim', 'mute',

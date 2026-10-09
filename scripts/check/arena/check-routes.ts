@@ -124,7 +124,7 @@ export const ROUTES: Route[] = [
       'skills/design/references/config.md',
       'skills/design/references/cli.md',
     ],
-    budget: 30_600,
+    budget: 31_100,
     reason:
       'paid once per project rather than per screen, so it carries what the build route may not: '
       + 'the install, the config file and the command, each as its own reference. The package '
@@ -144,7 +144,7 @@ export const ROUTES: Route[] = [
       + 'document that says what the questions are and which answers carry the difference',
     entry: 'consumer',
     stops: ['skills/design/references/style-kernel.md'],
-    budget: 19_300,
+    budget: 19_400,
     reason:
       'paid once per project and never per screen, which is what lets it carry the whole surface '
       + 'the kernel exposes rather than a pointer to it, so a project stops learning the kernel from '
@@ -254,7 +254,7 @@ export const ROUTES: Route[] = [
       + 'column it sits in and how much air goes between two components',
     entry: 'consumer',
     stops: ['skills/design/references/page.md', 'skills/design/references/style.md'],
-    budget: 22_800,
+    budget: 23_000,
     reason:
       'paid per element a builder draws themselves, which every screen has. What it buys is the '
       + 'half of a page that is never a component: which colour role each thing a builder draws takes '
@@ -348,7 +348,7 @@ export const ROUTES: Route[] = [
       + 'and the shape a token is authored in',
     entry: 'contributor',
     stops: ['contracts/AGENTS.md', 'contracts/design/AGENTS.md', 'contracts/design/TokenTypes.md'],
-    budget: 69_000,
+    budget: 70_100,
     reason:
       'the normative half of the tree, where a stop is read for what a value means rather than for '
       + 'how to write one, so it is bounded by what a person can hold rather than by what an agent '

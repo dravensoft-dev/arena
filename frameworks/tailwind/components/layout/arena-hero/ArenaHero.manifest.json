@@ -23,7 +23,7 @@
     "root": "grid w-full [align-items:var(--arena-layout-items,center)] gap-[var(--arena-layout-gap,var(--rhythm-section))] [grid-template-columns:var(--arena-layout-cols,repeat(auto-fit,minmax(min(calc(var(--grid-min)*1.5),100%),1fr)))] [position:var(--arena-layout-frame,static)] [overflow:var(--arena-layout-clip,visible)] rounded-[var(--arena-layout-radius,0)] py-[var(--arena-layout-pad-block,var(--rhythm-section))] px-[var(--arena-layout-pad-inline,0)]",
     "words": "flex flex-col gap-items min-w-0 [align-items:var(--arena-align-items,flex-start)] [text-align:var(--arena-align-text,start)] col-start-[var(--arena-layout-place,auto)] row-start-[var(--arena-layout-place,auto)] z-[var(--arena-layout-z,auto)] [justify-content:var(--arena-layout-words-justify,normal)]",
     "eyebrow": "font-face-eyebrow text-eyebrow tracking-eyebrow case-eyebrow text-ink-eyebrow m-0 font-eyebrow",
-    "title": "font-face-heading font-heading text-title-hero text-ink-heading tracking-heading leading-heading m-0",
+    "title": "font-face-heading font-heading text-[length:var(--title-hero-fit)] text-ink-heading tracking-heading leading-heading m-0",
     "lede": "font-body text-lg text-ink-body leading-prose max-w-prose m-0",
     "actions": "flex flex-wrap items-center gap-inline",
     "figure": "min-w-0 col-start-[var(--arena-layout-place,auto)] row-start-[var(--arena-layout-place,auto)] [align-self:var(--arena-layout-self,auto)]"

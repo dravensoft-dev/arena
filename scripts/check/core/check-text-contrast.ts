@@ -14,7 +14,7 @@ import { walkFiles } from '../../utils/walk-files.ts';
 import { HUE_SHEETS } from '../../lib/tailwind/hue-sheet.ts';
 import { PALETTE_KEYS } from '../../generate/core/arena-cli/palette-keys.ts';
 import {
-  derivedLevels, drawnBy, inlineHues, levelDefaults, levelReports, levelsIn, paletteKey, raisedReports,
+  derivedLevels, drawnBy, emphasisReports, inlineHues, levelDefaults, levelReports, levelsIn, paletteKey, raisedReports,
   STATUS_HUES, washesIn, washReports,
 } from '../../generate/core/arena-cli/levels.ts';
 import { ARENA_EXT } from '../../generate/core/arena-cli/style-plugin-rules.ts';
@@ -104,7 +104,7 @@ const LEVELS = [
 ];
 
 export const PAIRS = [
-  { fill: 'primary', content: 'primary-content', gate: 4.5, note: 'button text via --on-accent (ArenaButton, ArenaIconButton solid, ArenaPagination active); ArenaCheckbox tick, ArenaSwitch knob, and ArenaSwitch’s knob glyph read the other way round (text-primary on bg-primary-content)' },
+  { fill: 'primary-fill', content: 'primary-content', gate: 4.5, note: 'every ground primary-content sits on: a filled button, a checked box, a switch track, a current page, a count badge; ArenaCheckbox tick and ArenaSwitch knob are the content, and primary itself is the accent read as ink and as a line' },
 
   { fill: 'error-fill', content: 'error-content', gate: 4.5, deriveFrom: 'error', keep: FILL_FALLBACK_KEEP, note: "ArenaConfirmDialog's final confirmation — Arena's only filled danger surface" },
   { fill: 'secondary', content: 'secondary-content', gate: 4.5, note: 'daisyUI pair — legible content on the fill' },
@@ -325,6 +325,10 @@ function main() {
         const detail = ratio === null ? 'a role that names no palette colour' : `${onInk} on ${ink}  ${ratio.toFixed(2)}:1`;
         console.log(`  [${failed ? 'FAIL' : 'PASS'}] --hue-${hue}-on-ink over --hue-${hue}-ink  ${detail}  gate ${ON_INK_GATE}:1`);
       }
+      const emphasis = emphasisReports(resolvedFor(effects, name, t.name), paletteColours(body), t.name);
+      if (emphasis.length) ok = false;
+      for (const one of emphasis) console.log(`  [FAIL] ${one.message}`);
+      if (!emphasis.length) console.log('  [PASS] a filled button\'s ink over its fill, primary and solid');
     }
 
     const errHex = tryHex(body, 'color-error');

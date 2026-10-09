@@ -160,3 +160,20 @@ test('"auto" pulls through pulledBy, so a map whose needs is not closed is close
   assert.deepEqual(found.pulled, ['anchored', 'menu']);
   assert.deepEqual(found.components, ['anchored', 'menu', 'split-button']);
 });
+
+test('a hook is read from an attribute name and never from inside a quoted value', () => {
+  const page = '<div class="arena-band arena-stack arena-stack--section"><arena-button /></div>'
+    + "<section class='arena-stack arena-stack--group' title=\"see arena-widget > here\"></section>";
+  const read = selectorKeys(ANGULAR, [page]);
+  assert.deepEqual(read.unplaced, [],
+    'the class list the design skill opens every page with is not a component, '
+    + 'and --strict=components fails a consumer who wrote exactly what it prescribes');
+  assert.deepEqual(read.drawn, ['arena-button']);
+
+  const hooks = selectorKeys(ANGULAR, ['<tr class="arena-stack" arena-table-row (click)="a > b"><td arena-table-cell>1</td></tr>']);
+  assert.deepEqual(hooks.drawn, ['arena-table-row']);
+  assert.deepEqual(hooks.unplaced, ['arena-table-cell'], 'a hook after a quoted value is still read');
+
+  const unknown = selectorKeys(ANGULAR, ['<div class="arena-stack" arena-algo></div>']);
+  assert.deepEqual(unknown.unplaced, ['arena-algo'], 'an attribute the package does not ship is still reported');
+});

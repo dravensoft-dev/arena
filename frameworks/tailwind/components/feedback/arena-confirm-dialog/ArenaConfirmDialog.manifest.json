@@ -40,7 +40,7 @@
       },
       "false": {
         "eyebrow": "text-ink-eyebrow",
-        "confirm": "bg-primary text-primary-content"
+        "confirm": "bg-primary-fill text-primary-content"
       }
     },
     "invalid": {

@@ -76,8 +76,8 @@
     },
     "numeric": {
       "true": {
-        "td": "font-mono tabular-nums text-secondary",
-        "cardValue": "font-mono tabular-nums text-secondary"
+        "td": "font-mono tabular-nums text-ink-figure/(--level-ink-full)",
+        "cardValue": "font-mono tabular-nums text-ink-figure/(--level-ink-full)"
       },
       "false": {
         "td": "font-body text-ink-body/(--level-ink-body)",

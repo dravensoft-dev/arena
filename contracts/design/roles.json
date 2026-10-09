@@ -161,7 +161,7 @@
   },
   "step-title-hero": {
     "$type": "dimension",
-    "$description": "Which step the one line a landing page is built around takes. The fourth and last rung of the title ladder, above the page register rather than beside it: a page head names the screen a reader navigated to, and this is the sentence a page opens with.\n\nBorn at fs.display rather than at fs.hero, which is the step above it and has no consumer by design. 64 is where a hero line sits when it shares a viewport with a paragraph and two buttons; 96 is a poster, and a style plugin that wants one has the step to reach for. Being able to reach it is the point of the role."
+    "$description": "Which step the one line a landing page is built around takes. The fourth and last rung of the title ladder, above the page register rather than beside it: a page head names the screen a reader navigated to, and this is the sentence a page opens with.\n\nBorn at fs.display rather than at fs.hero, which is the step above it and has no consumer by design. 64 is where a hero line sits when it shares a viewport with a paragraph and two buttons; 96 is a poster, and a style plugin that wants one has the step to reach for. Being able to reach it is the point of the role.\n\nIt is the size the line is drawn at in a container 1280px wide and up. Below that the line narrows toward step-title-page and never past it, because a hero line opens a landing page on a phone as often as on a desk, and one word of it at the wide step outgrows a 320px screen."
   },
   "pad-control-x": {
     "$type": "dimension",
@@ -414,6 +414,24 @@
   "ink-muted": {
     "$type": "color",
     "$description": "The colour of text held back: a caption, a hint, a timestamp, a secondary line.\nBorn at base-content, which is what every muted slot points at today.\n\nWhat it does NOT carry is the level. Fifty-nine slots write base-content at 62 percent and\nthirty-one at 82, and those percentages stay in the manifests: a role names WHICH colour and the\nopacity modifier is a second decision that Tailwind composes on top. So a style plugin re-points muted\ntext at a genuinely muted colour, and the level it is held at is unchanged.\n\nThe alternative was a role per level, which is three roles saying one thing and a style plugin unable to\nmove any of them without moving all three."
+  },
+  "ink-figure": {
+    "$type": "color",
+    "$description": "The colour of a figure or a code a reader compares or scans for: a numeric cell of a table and the value beside it in the stacked card a narrow table becomes, the count of a bulk action bar, the target an activity feed's row acted on. Born at base-content, the ink every palette already holds to 4.5:1 on its surfaces, so a figure is legible in both polarities of any palette that passes at all.\n\nA role rather than a palette step, because painting a figure in an accent is a style decision over a palette Arena does not know, and that decision is the style plugin's. A plugin that raises an accent to it owes the 4.5:1 every other ink owes: the figures are drawn through --level-ink-full, so check:text-contrast and the shipped command measure it like any level and report the palette where the accent does not clear.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "default": "{color.base-content}"
+      }
+    }
+  },
+  "ink-action": {
+    "$type": "color",
+    "$description": "The colour of an action set as text rather than drawn as a control: a toast's undo or retry. Born at base-content, the ink every palette already holds to 4.5:1 on its surfaces, and the same in every tone, because the tone is carried by the toast's side edge and an action is not a risk trigger, so a danger toast's retry is not drawn as danger.\n\nA role rather than a palette step, because an action in an accent is a style decision over a palette Arena does not know. It was crimson in two tones and gold in the third, which is 2.80:1 on the dark floating surface and 2.24:1 on the light card. A plugin that raises an accent to it owes the 4.5:1 every other ink owes: the action is drawn through --level-ink-full, so check:text-contrast and the shipped command measure it like any level.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "default": "{color.base-content}"
+      }
+    }
   },
   "edge-surface": {
     "$type": "color",

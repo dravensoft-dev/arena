@@ -69,6 +69,8 @@
   --color-ink-body: var(--ink-body);
   --color-ink-eyebrow: var(--ink-eyebrow);
   --color-ink-muted: var(--ink-muted);
+  --color-ink-figure: var(--ink-figure);
+  --color-ink-action: var(--ink-action);
 
   /* Edge ROLES. v4 has no border-color namespace: a border colour is a --color-* key read by
      border-<key>, which is why these sit here rather than beside the bw roles they pair with. */
@@ -84,6 +86,7 @@
   /* brand voice */
   --color-primary: var(--color-primary);
   --color-primary-content: var(--color-primary-content);
+  --color-primary-fill: var(--color-primary-fill);
   --color-secondary: var(--color-secondary);
   --color-secondary-content: var(--color-secondary-content);
 
