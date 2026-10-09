@@ -15,32 +15,32 @@ installed.
 
 | Question | Answer |
 | --- | --- |
-| How do I install the server? | [mcp.md](https://github.com/dravensoft-dev/arena/blob/v12.0.0/skills/design/references/mcp.md#how-do-i-install-the-server) |
-| How do I point my editor at the server? | [mcp.md](https://github.com/dravensoft-dev/arena/blob/v12.0.0/skills/design/references/mcp.md#how-do-i-point-my-editor-at-the-server) |
-| What do --layer and --payload do? | [mcp.md → What do `--layer` and `--payload` do?](https://github.com/dravensoft-dev/arena/blob/v12.0.0/skills/design/references/mcp.md#what-do---layer-and---payload-do) |
+| How do I install the server? | [mcp.md](https://github.com/dravensoft-dev/arena/blob/v12.1.0/skills/design/references/mcp.md#how-do-i-install-the-server) |
+| How do I point my editor at the server? | [mcp.md](https://github.com/dravensoft-dev/arena/blob/v12.1.0/skills/design/references/mcp.md#how-do-i-point-my-editor-at-the-server) |
+| What do --layer and --payload do? | [mcp.md → What do `--layer` and `--payload` do?](https://github.com/dravensoft-dev/arena/blob/v12.1.0/skills/design/references/mcp.md#what-do---layer-and---payload-do) |
 
 ## What the server serves
 
 | Question | Answer |
 | --- | --- |
-| Which tools does the server offer? | [mcp.md](https://github.com/dravensoft-dev/arena/blob/v12.0.0/skills/design/references/mcp.md#which-tools-does-the-server-offer) |
-| Which arena:// resources does the server offer? | [mcp.md](https://github.com/dravensoft-dev/arena/blob/v12.0.0/skills/design/references/mcp.md#which-arena-resources-does-the-server-offer) |
-| What does arena_check read? | [mcp.md](https://github.com/dravensoft-dev/arena/blob/v12.0.0/skills/design/references/mcp.md#what-does-arena_check-read) |
-| What if the server and my package differ in version? | [mcp.md](https://github.com/dravensoft-dev/arena/blob/v12.0.0/skills/design/references/mcp.md#what-if-the-server-and-my-package-differ-in-version) |
-| What is the Arena MCP server not? | [mcp.md → What is the server not?](https://github.com/dravensoft-dev/arena/blob/v12.0.0/skills/design/references/mcp.md#what-is-the-server-not) |
+| Which tools does the server offer? | [mcp.md](https://github.com/dravensoft-dev/arena/blob/v12.1.0/skills/design/references/mcp.md#which-tools-does-the-server-offer) |
+| Which arena:// resources does the server offer? | [mcp.md](https://github.com/dravensoft-dev/arena/blob/v12.1.0/skills/design/references/mcp.md#which-arena-resources-does-the-server-offer) |
+| What does arena_check read? | [mcp.md](https://github.com/dravensoft-dev/arena/blob/v12.1.0/skills/design/references/mcp.md#what-does-arena_check-read) |
+| What if the server and my package differ in version? | [mcp.md](https://github.com/dravensoft-dev/arena/blob/v12.1.0/skills/design/references/mcp.md#what-if-the-server-and-my-package-differ-in-version) |
+| What is the Arena MCP server not? | [mcp.md → What is the server not?](https://github.com/dravensoft-dev/arena/blob/v12.1.0/skills/design/references/mcp.md#what-is-the-server-not) |
 
 ## Building with an agent
 
 | Question | Answer |
 | --- | --- |
-| How does an agent start on Arena? | [SKILL.md → Which job is this?](https://github.com/dravensoft-dev/arena/blob/v12.0.0/skills/design/SKILL.md#which-job-is-this) |
-| What does an agent decide before the first screen? | [cold-start.md → Before the first screen](https://github.com/dravensoft-dev/arena/blob/v12.0.0/skills/design/references/cold-start.md#before-the-first-screen) |
+| How does an agent start on Arena? | [SKILL.md → Which job is this?](https://github.com/dravensoft-dev/arena/blob/v12.1.0/skills/design/SKILL.md#which-job-is-this) |
+| What does an agent decide before the first screen? | [cold-start.md → Before the first screen](https://github.com/dravensoft-dev/arena/blob/v12.1.0/skills/design/references/cold-start.md#before-the-first-screen) |
 
 ## Versions and licence
 
 | Question | Answer |
 | --- | --- |
-| Why might a package version differ from the Arena version? | [versioning.md → Why might a package's latest version not match Arena's latest version?](https://github.com/dravensoft-dev/arena/blob/v12.0.0/skills/design/references/versioning.md#why-might-a-packages-latest-version-not-match-arenas-latest-version) |
-| Which licence does Arena carry? | [versioning.md](https://github.com/dravensoft-dev/arena/blob/v12.0.0/skills/design/references/versioning.md#which-licence-does-arena-carry) |
+| Why might a package version differ from the Arena version? | [versioning.md → Why might a package's latest version not match Arena's latest version?](https://github.com/dravensoft-dev/arena/blob/v12.1.0/skills/design/references/versioning.md#why-might-a-packages-latest-version-not-match-arenas-latest-version) |
+| Which licence does Arena carry? | [versioning.md](https://github.com/dravensoft-dev/arena/blob/v12.1.0/skills/design/references/versioning.md#which-licence-does-arena-carry) |
 
 <!-- @shared questions end -->

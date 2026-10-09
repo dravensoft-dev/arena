@@ -19,21 +19,21 @@ stylesheet. Install this one when you are writing the layer itself.
 
 | Question | Answer |
 | --- | --- |
-| What does the contracts package arrive with? | [contracts.md → What arrives](https://github.com/dravensoft-dev/arena/blob/v12.0.0/skills/design/references/contracts.md#what-arrives) |
+| What does the contracts package arrive with? | [contracts.md → What arrives](https://github.com/dravensoft-dev/arena/blob/v12.1.0/skills/design/references/contracts.md#what-arrives) |
 
 ## Reading the contracts
 
 | Question | Answer |
 | --- | --- |
-| How do I read a design value? | [contracts.md](https://github.com/dravensoft-dev/arena/blob/v12.0.0/skills/design/references/contracts.md#how-do-i-read-a-design-value) |
-| How do I read a component contract? | [contracts.md](https://github.com/dravensoft-dev/arena/blob/v12.0.0/skills/design/references/contracts.md#how-do-i-read-a-component-contract) |
+| How do I read a design value? | [contracts.md](https://github.com/dravensoft-dev/arena/blob/v12.1.0/skills/design/references/contracts.md#how-do-i-read-a-design-value) |
+| How do I read a component contract? | [contracts.md](https://github.com/dravensoft-dev/arena/blob/v12.1.0/skills/design/references/contracts.md#how-do-i-read-a-component-contract) |
 
 ## Versions and licence
 
 | Question | Answer |
 | --- | --- |
-| How do I version the contracts package? | [contracts.md](https://github.com/dravensoft-dev/arena/blob/v12.0.0/skills/design/references/contracts.md#how-do-i-version-the-contracts-package) |
-| Why might a package version differ from the Arena version? | [versioning.md → Why might a package's latest version not match Arena's latest version?](https://github.com/dravensoft-dev/arena/blob/v12.0.0/skills/design/references/versioning.md#why-might-a-packages-latest-version-not-match-arenas-latest-version) |
-| Which licence does Arena carry? | [versioning.md](https://github.com/dravensoft-dev/arena/blob/v12.0.0/skills/design/references/versioning.md#which-licence-does-arena-carry) |
+| How do I version the contracts package? | [contracts.md](https://github.com/dravensoft-dev/arena/blob/v12.1.0/skills/design/references/contracts.md#how-do-i-version-the-contracts-package) |
+| Why might a package version differ from the Arena version? | [versioning.md → Why might a package's latest version not match Arena's latest version?](https://github.com/dravensoft-dev/arena/blob/v12.1.0/skills/design/references/versioning.md#why-might-a-packages-latest-version-not-match-arenas-latest-version) |
+| Which licence does Arena carry? | [versioning.md](https://github.com/dravensoft-dev/arena/blob/v12.1.0/skills/design/references/versioning.md#which-licence-does-arena-carry) |
 
 <!-- @shared questions end -->
