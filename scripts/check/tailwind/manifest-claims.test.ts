@@ -213,7 +213,7 @@ export const CLAIMS = {
     { slot: 'media', has: ['min-h-0'], why: 'the media cell may be shorter than its picture, which is what lets the track hold the ratio' },
   ],
   ArenaHero: [
-    { slot: 'title', has: ['text-title-hero'], hasNot: ['text-display', 'text-hero', 'text-h1'], why: 'the top rung of the title ladder is a role, so a style plugin re-pitches a hero with the three registers under it rather than around them' },
+    { slot: 'title', has: ['text-[length:var(--title-hero-fit)]'], hasNot: ['text-title-hero', 'text-display', 'text-hero', 'text-h1'], why: 'the top rung of the title ladder is a role, so a style plugin re-pitches a hero with the three registers under it rather than around them, and it reaches the line through --title-hero-fit, which narrows it toward the page step in a container too narrow for one word of it' },
     { slot: 'lede', has: ['max-w-prose'], why: 'a line that runs the whole width of a hero loses its return sweep, and the reading width is the role that already answers how long a line may be' },
     { slot: 'words', has: ['col-start-[var(--arena-layout-place,auto)]', 'row-start-[var(--arena-layout-place,auto)]', '[align-items:var(--arena-align-items,flex-start)]'], why: 'bleed lays the words ON the figure, which is one grid cell carrying both, and the layout writes that cell as a channel the words and the figure both read' },
     { slot: 'root', has: ['[grid-template-columns:var(--arena-layout-cols,repeat(auto-fit,minmax(min(calc(var(--grid-min)*1.5),100%),1fr)))]'], hasNot: ['grid-cols-1', 'py-section'], why: 'split is the only layout whose track list comes from the room, so the tracks are the fallback of the channel and no other layout is a class on the root' },

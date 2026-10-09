@@ -161,7 +161,7 @@
   },
   "step-title-hero": {
     "$type": "dimension",
-    "$description": "Which step the one line a landing page is built around takes. The fourth and last rung of the title ladder, above the page register rather than beside it: a page head names the screen a reader navigated to, and this is the sentence a page opens with.\n\nBorn at fs.display rather than at fs.hero, which is the step above it and has no consumer by design. 64 is where a hero line sits when it shares a viewport with a paragraph and two buttons; 96 is a poster, and a style plugin that wants one has the step to reach for. Being able to reach it is the point of the role."
+    "$description": "Which step the one line a landing page is built around takes. The fourth and last rung of the title ladder, above the page register rather than beside it: a page head names the screen a reader navigated to, and this is the sentence a page opens with.\n\nBorn at fs.display rather than at fs.hero, which is the step above it and has no consumer by design. 64 is where a hero line sits when it shares a viewport with a paragraph and two buttons; 96 is a poster, and a style plugin that wants one has the step to reach for. Being able to reach it is the point of the role.\n\nIt is the size the line is drawn at in a container 1280px wide and up. Below that the line narrows toward step-title-page and never past it, because a hero line opens a landing page on a phone as often as on a desk, and one word of it at the wide step outgrows a 320px screen."
   },
   "pad-control-x": {
     "$type": "dimension",
