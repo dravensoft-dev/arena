@@ -19,7 +19,7 @@ import {
 } from './style-plugin-rules.ts';
 import { serialize } from './serialize-token.ts';
 import { errorFill } from './oklab.ts';
-import { axisReports, derivedLevels, levelReports, onInkReports, raisedReports, washReports } from './levels.ts';
+import { axisReports, derivedLevels, emphasisReports, levelReports, onInkReports, raisedReports, washReports } from './levels.ts';
 import type { Level, Wash } from './levels.ts';
 import { report } from './reports.ts';
 import type { Report } from './reports.ts';
@@ -512,7 +512,7 @@ export function paletteReports(
       }
     }
 
-    messages.push(...axisReports(roles, colors, mode), ...onInkReports(roles, colors, mode));
+    messages.push(...axisReports(roles, colors, mode), ...onInkReports(roles, colors, mode), ...emphasisReports(roles, colors, mode));
 
     const derived = derivedLevels(levels, roles, colors);
     messages.push(...levelReports(levels, roles, colors, derived));
@@ -622,11 +622,13 @@ function block(selector: string, declarations: string[]) {
 }
 
 export function derivedColours(colors: Record<string, string>) {
-  const { error } = colors;
+  const { error, primary } = colors;
   const content = colors['error-content'];
-  return colors['error-fill'] === undefined && error !== undefined && content !== undefined
+  const out: Record<string, string> = colors['error-fill'] === undefined && error !== undefined && content !== undefined
     ? { ...colors, 'error-fill': errorFill(error, content) }
-    : colors;
+    : { ...colors };
+  if (out['primary-fill'] === undefined && primary !== undefined) out['primary-fill'] = primary;
+  return out;
 }
 
 function colourDeclarations(palette: CheckedPalette) {

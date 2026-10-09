@@ -1181,7 +1181,7 @@
   },
   "emphasis-primary-ink": {
     "$type": "color",
-    "$value": "{color.base-content}"
+    "$value": "{color.secondary-content}"
   },
   "emphasis-secondary-ink": {
     "$type": "color",
@@ -1193,7 +1193,7 @@
   },
   "emphasis-solid-ink": {
     "$type": "color",
-    "$value": "{color.base-content}"
+    "$value": "{color.secondary-content}"
   },
   "emphasis-primary-edge": {
     "$type": "color",

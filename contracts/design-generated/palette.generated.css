@@ -14,6 +14,13 @@
   --color-base-content:#f3ede5; /* text on base */
   --color-primary:#b52a20; /* crimson */
   --color-primary-content:#ffffff;
+  /*
+     The ground primary-content sits on: a filled button, a checked box, a current page.
+     OPTIONAL, like error-fill: omit it and the fill is primary. It exists for a
+     palette whose accent, tuned to read as ink on its page, is too light to carry
+     its content; crimson carries white in both themes, so this skin pins primary.
+   */
+  --color-primary-fill:#b52a20;
   --color-secondary:#c5a059; /* gold */
   --color-secondary-content:#141010;
   --color-neutral:#2c221e; /* neutral surface */
@@ -67,6 +74,13 @@
   --color-base-content:#1a1a1a; /* text: near-black gray */
   --color-primary:#b52a20;
   --color-primary-content:#ffffff;
+  /*
+     The ground primary-content sits on: a filled button, a checked box, a current page.
+     OPTIONAL, like error-fill: omit it and the fill is primary. It exists for a
+     palette whose accent, tuned to read as ink on its page, is too light to carry
+     its content; crimson carries white in both themes, so this skin pins primary.
+   */
+  --color-primary-fill:#b52a20;
   --color-secondary:#c5a059;
   --color-secondary-content:#141010;
   --color-neutral:#cabcad;

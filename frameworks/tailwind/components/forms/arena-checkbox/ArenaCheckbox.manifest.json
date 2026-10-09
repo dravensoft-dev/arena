@@ -17,7 +17,7 @@
   "variants": {
     "checked": {
       "true": {
-        "box": "bg-primary border-primary"
+        "box": "bg-primary-fill border-primary-fill"
       },
       "false": {
         "box": "bg-base-300 border-edge-control"

@@ -5,12 +5,12 @@
  * FILL_PAIRS and SURFACE_PAIRS say which colour has to be legible on which, and they
  * are here rather than in the gate for the same reason: check:text-contrast holds them
  * over Arena's own skin and the shipped command holds them over the consumer's, and a
- * pair listed in one place only is the half nobody measures. FILL_PAIRS carries no
- * error/error-content, because danger is an outline and error is never a fill. */
+ * pair listed in one place only is the half nobody measures. FILL_PAIRS pairs neither
+ * error nor primary with its content: danger is an outline, and both contents sit on a fill. */
 
 export const PALETTE_KEYS = [
   'base-100', 'base-200', 'base-300', 'base-content',
-  'primary', 'primary-content',
+  'primary', 'primary-content', 'primary-fill',
   'secondary', 'secondary-content',
   'neutral', 'neutral-content',
   'info', 'info-content',
@@ -20,10 +20,10 @@ export const PALETTE_KEYS = [
   'cat-1', 'cat-2', 'cat-3', 'cat-4', 'cat-5', 'cat-6', 'cat-7', 'cat-8',
 ];
 
-export const OPTIONAL_KEYS = new Set(['error-fill']);
+export const OPTIONAL_KEYS = new Set(['error-fill', 'primary-fill']);
 
 export const FILL_PAIRS = [
-  { fill: 'primary', content: 'primary-content' },
+  { fill: 'primary-fill', content: 'primary-content' },
   { fill: 'secondary', content: 'secondary-content' },
   { fill: 'neutral', content: 'neutral-content' },
   { fill: 'info', content: 'info-content' },

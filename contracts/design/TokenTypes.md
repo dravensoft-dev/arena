@@ -13,7 +13,7 @@ values; do not re-derive them.
 
 | Token group | Source file | DTCG `$type` | Notes |
 |---|---|---|---|
-| Base neutrals, brand, status, `error-fill`, `cat-1..8` | `palette.dark.json` / `palette.light.json` | `color` | per-theme (dark on `:root`, light on `.arena-light`) |
+| Base neutrals, brand, status, `primary-fill`, `error-fill`, `cat-1..8` | `palette.dark.json` / `palette.light.json` | `color` | per-theme (dark on `:root`, light on `.arena-light`) |
 | Font families (`font-display/body/mono`) | `typography.json` | `fontFamily` | comma stacks preserved; generics stay unquoted |
 | Font weights (`fw-*`) | `typography.json` | `fontWeight` | numeric 400-900 |
 | Font sizes (`fs-*`) | `typography.json` | `dimension` | px; `fs.mega` (150px) and `fs.hero` (96px) extend the scale above `display` (64px), extrapolating its accelerating ratio; `fs.hero` has no consumer today by design, so do not delete it as dead API |

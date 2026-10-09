@@ -69,6 +69,27 @@ test('error-fill is the one colour a palette may omit', () => {
   assert.deepEqual(configProblems(c), []);
 });
 
+test('primary-fill is a colour a palette may omit', () => {
+  const c = config();
+  delete c.palettes[0].colors['primary-fill'];
+  assert.deepEqual(configProblems(c), []);
+});
+
+test('a palette that leaves primary-fill out fills with primary, so nothing it already draws moves', () => {
+  const without = colors({ primary: '#6941c6' });
+  delete without['primary-fill'];
+  const c = config({ palettes: [{ name: 'day', default: true, polarity: 'light', colors: without }] });
+  assert.equal(parseDecls(themeCss(c)).get(':root').get('color-primary-fill'), '#6941c6',
+    'a button, a checked box and a current page compile to var(--color-primary-fill) with no fallback');
+});
+
+test('a palette may split the primary fill from the primary ink, and the content is measured on the fill', () => {
+  const split = colors({ primary: '#9e77ed', 'primary-fill': '#7f56d9', 'primary-content': '#ffffff' });
+  const [report] = paletteReports(config({ palettes: [{ name: 'night', default: true, polarity: 'dark', colors: split }] }));
+  assert.ok(!report?.messages.some((m) => m.message.includes('primary-content on')),
+    'white on #7f56d9 clears 4.5:1; white on #9e77ed would not, and nothing sets it there');
+});
+
 test('a key Arena does not have is a problem, not a passthrough', () => {
   const c = config({ palettes: [{ name: 'dark', polarity: 'dark', colors: colors({ 'brand-x': '#ffffff' }) }] });
   assert.deepEqual(configProblems(c), ['palettes[0].colors: brand-x is not an Arena palette key']);

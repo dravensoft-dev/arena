@@ -1162,7 +1162,7 @@
   },
   "emphasis-primary-fill": {
     "$type": "color",
-    "$value": "{color.primary}"
+    "$value": "{color.primary-fill}"
   },
   "emphasis-secondary-fill": {
     "$type": "color",
@@ -1170,7 +1170,7 @@
   },
   "emphasis-solid-fill": {
     "$type": "color",
-    "$value": "{color.primary}"
+    "$value": "{color.primary-fill}"
   },
   "emphasis-primary-ink": {
     "$type": "color",
@@ -1190,7 +1190,7 @@
   },
   "emphasis-primary-edge": {
     "$type": "color",
-    "$value": "{color.primary}"
+    "$value": "{color.primary-fill}"
   },
   "emphasis-secondary-edge": {
     "$type": "color",

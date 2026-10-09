@@ -12,7 +12,7 @@
     "caret": "inline-flex text-[length:var(--icon-md)]",
     "region": "flex flex-col gap-1",
     "itemLabel": "min-w-0",
-    "dot": "absolute top-1 end-1 w-2 h-2 rounded-pill bg-primary",
+    "dot": "absolute top-1 end-1 w-2 h-2 rounded-pill bg-primary-fill",
     "separator": "border-t-[length:var(--bw-separator)] border-edge-separator my-1"
   },
   "kind": {
@@ -37,7 +37,7 @@
     "current": {
       "true": {
         "item": "bg-primary/14 text-ink-body/(--level-ink-body) font-control",
-        "badge": "bg-primary text-primary-content"
+        "badge": "bg-primary-fill text-primary-content"
       },
       "false": {
         "item": "bg-transparent text-ink-muted/(--level-ink-muted) font-medium hover:bg-hover",

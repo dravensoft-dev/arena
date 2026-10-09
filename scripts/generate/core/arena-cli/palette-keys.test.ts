@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { PALETTE_KEYS, OPTIONAL_KEYS, ARENA_CAT_SLOTS, FONT_ROLES, catKeys, requiredKeys } from './palette-keys.ts';
+import { PALETTE_KEYS, OPTIONAL_KEYS, ARENA_CAT_SLOTS, FILL_PAIRS, FONT_ROLES, catKeys, requiredKeys } from './palette-keys.ts';
 import { repoRoot as root } from '../../../lib/arena/repo-root.ts';
 
 const skin = (theme: string) => JSON.parse(readFileSync(join(root, `contracts/design/palette.${theme}.json`), 'utf8'));
@@ -21,9 +21,16 @@ test('the ramp is the catSlots the API contract pins, and every slot is required
   assert.deepEqual(catKeys().filter((k) => OPTIONAL_KEYS.has(k)), []);
 });
 
-test('error-fill is the one optional key, because colors.css derives it when absent', () => {
-  assert.deepEqual([...OPTIONAL_KEYS], ['error-fill']);
-  assert.equal(requiredKeys().length, PALETTE_KEYS.length - 1);
+test('the two fills are the optional keys, because each is derived when absent', () => {
+  assert.deepEqual([...OPTIONAL_KEYS].sort(), ['error-fill', 'primary-fill']);
+  assert.equal(requiredKeys().length, PALETTE_KEYS.length - 2);
+});
+
+test('primary-content is measured on the primary fill, which is where it sits', () => {
+  assert.ok(FILL_PAIRS.some((one) => one.fill === 'primary-fill' && one.content === 'primary-content'),
+    'every surface carrying primary-content is filled with primary-fill');
+  assert.ok(!FILL_PAIRS.some((one) => one.fill === 'primary'),
+    'primary is the accent read as ink and as a line, and nothing sets primary-content on it');
 });
 
 test('the font roles are the three --font-* tokens typography.json declares', () => {

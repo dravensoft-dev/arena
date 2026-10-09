@@ -40,7 +40,7 @@
   "variants": {
     "state": {
       "true": {
-        "track": "bg-primary",
+        "track": "bg-primary-fill",
         "knob": "[translate:var(--arena-orientation-knob-on,100%_0)]"
       },
       "false": {

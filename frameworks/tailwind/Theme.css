@@ -86,6 +86,7 @@
   /* brand voice */
   --color-primary: var(--color-primary);
   --color-primary-content: var(--color-primary-content);
+  --color-primary-fill: var(--color-primary-fill);
   --color-secondary: var(--color-secondary);
   --color-secondary-content: var(--color-secondary-content);
 

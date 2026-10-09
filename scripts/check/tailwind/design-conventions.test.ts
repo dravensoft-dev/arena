@@ -2,7 +2,9 @@
  * background. The one filled danger surface in the system is the final irreversible
  * confirmation inside ArenaConfirmDialog, and it says so by reading roles of its own, through
  * bg-confirm-final, rather than --error at full strength. Both halves are asserted once over the authored manifests,
- * because a component renders its own class names and a resolved class string is not there to read. */
+ * because a component renders its own class names and a resolved class string is not there to read.
+ * Primary is two colours for the same reason: a solid primary ground reads primary-fill, the colour
+ * primary-content is measured on, and only a wash at a fraction stays on the accent itself. */
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -65,4 +67,17 @@ test('no manifest draws a gradient, the sole exception being ArenaSkeleton\'s ne
     }
   }
   assert.deepEqual(offenders, [], `${offenders.join('\n')}\n(ArenaSkeleton's shimmer is an @utility in Animations.css, not a manifest class)`);
+});
+
+test('a solid primary ground or its edge reads primary-fill, and only a wash reads primary', () => {
+  const offenders = [];
+  for (const manifest of manifests.values()) {
+    for (const { where, classes } of everyClassString(manifest)) {
+      for (const cls of classes) {
+        if (/^(?:[a-z-]+:)*(?:bg|border)-primary$/.test(cls)) offenders.push(`${where}: ${cls}`);
+      }
+    }
+  }
+  assert.deepEqual(offenders, [],
+    'primary-content is measured on primary-fill, so a ground of primary is a pair nothing measures');
 });

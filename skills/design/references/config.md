@@ -28,6 +28,7 @@ Write `arena.config.json` in your project root. The block below is the whole fil
         "base-content": "#f3ede5",
         "primary": "#b52a20",
         "primary-content": "#ffffff",
+        "primary-fill": "#b52a20",
         "secondary": "#c5a059",
         "secondary-content": "#141010",
         "neutral": "#2c221e",
@@ -73,8 +74,8 @@ What each part means:
   `<html>` to switch skin. The command refuses a palette or style plugin named after a class Arena
   ships or is going to ship, naming the component a future class belongs to. The names held for a class Arena is going to ship are `divider, kbd, fieldset, link, copy-button, meter, accordion, stepper, timeline, number-field, pin-input, file-input, slider, sparkline, gauge-chart, filter-bar, funnel-chart, popover, combobox, split-button, tree-view, heatmap-chart, sticky-head, sticky-none`. A palette may still take its own polarity's name, `dark` or `light`, and a style plugin may not. A palette name is kebab-case, and a name declared twice is refused.
 - **`polarity`** is `dark` or `light`. The polarity decides the native date picker's colour, and it is what a first visit matches `prefers-color-scheme` against.
-- **`colors`** takes every key above, each a six-digit hex such as `#141010`. `error-fill` is the only optional one: leave it out and
-  Arena darkens `error` in oklab for the single filled danger surface it has.
+- **`colors`** takes every key above, each a six-digit hex such as `#141010`. `error-fill` and `primary-fill` are the two optional ones. Leave
+  `error-fill` out and Arena darkens `error` in oklab for the single filled danger surface it has. Leave `primary-fill` out and every ground `primary-content` sits on, a filled button, a checked box, a current page, fills with `primary`. Declare it when the accent you tuned to read as ink on your page cannot also carry `primary-content`. A violet light enough to read on a dark page is too light to carry white. Name a deeper violet here and keep the light one as `primary`.
 - **`cat-1`** through **`cat-8`** are the chart ramp. The order of the slots is their identity, so slot 3 is always slot 3. The slots are never used to mean anything, only to tell series apart.
 - **`fonts`** fills the three families Arena reads. `src` takes either a stylesheet URL, as
   above, or a font binary you host yourself, which becomes an `@font-face`:
