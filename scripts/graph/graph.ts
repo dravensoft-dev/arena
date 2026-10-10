@@ -105,6 +105,20 @@ export function transitiveFeeds(nodes: GraphNode[], from: string) {
   return reached;
 }
 
+export function upstreamOf(nodes: GraphNode[], from: string) {
+  const needs = needsOf(nodes);
+  const reached = new Set<string>();
+  const walk = (name: string) => {
+    for (const need of needs.get(name) ?? []) {
+      if (reached.has(need)) continue;
+      reached.add(need);
+      walk(need);
+    }
+  };
+  walk(from);
+  return reached;
+}
+
 export function duplicateWriters(nodes: GraphNode[], resolve: Resolve) {
   const writers = new Map<string, string[]>();
   for (const node of nodes) {

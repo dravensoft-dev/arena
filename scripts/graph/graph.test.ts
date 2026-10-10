@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { cyclePath, duplicateWriters, needsOf, selfFeeds, subscriptionProblems, topoOrder, transitiveFeeds, unknownFeeds } from './graph.ts';
+import { cyclePath, duplicateWriters, needsOf, selfFeeds, subscriptionProblems, topoOrder, transitiveFeeds, unknownFeeds, upstreamOf } from './graph.ts';
 
 const node = (name: string, over: Partial<{ reads: string[]; writes: string[]; feeds: string[] }> = {}) =>
   ({ name, reads: [], writes: [], feeds: [], ...over });
@@ -128,4 +128,28 @@ test('a failure reaches everything downstream of it, however many hops away', ()
 test('a cycle does not hang the walk downstream', () => {
   const nodes = [node('a', { feeds: ['b'] }), node('b', { feeds: ['a'] })];
   assert.deepEqual([...transitiveFeeds(nodes, 'a')].sort(), ['a', 'b']);
+});
+
+test('upstream is the other direction of transitiveFeeds: every step a target reads from, transitively', () => {
+  const nodes = [
+    node('generate:tokens', { feeds: ['build:tailwind', 'check:ramp'] }),
+    node('build:tailwind', { feeds: ['build:demos'] }),
+    node('build:vendor', { feeds: ['build:demos'] }),
+    node('build:demos'),
+    node('build:intro'),
+    node('check:ramp'),
+  ];
+  assert.deepEqual([...upstreamOf(nodes, 'build:demos')].sort(), ['build:tailwind', 'build:vendor', 'generate:tokens']);
+  assert.deepEqual([...upstreamOf(nodes, 'generate:tokens')], [],
+    'a step nothing feeds reads from nothing the graph declares');
+  assert.deepEqual([...upstreamOf(nodes, 'build:intro')], []);
+});
+
+test('a name the graph does not hold has no upstream', () => {
+  assert.deepEqual([...upstreamOf([node('a', { feeds: ['b'] }), node('b')], 'c')], []);
+});
+
+test('a cycle upstream is walked once and ends', () => {
+  const nodes = [node('a', { feeds: ['b'] }), node('b', { feeds: ['a'] })];
+  assert.deepEqual([...upstreamOf(nodes, 'a')].sort(), ['a', 'b']);
 });
