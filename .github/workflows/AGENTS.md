@@ -45,11 +45,16 @@ layer's components read the class names that step writes. A build job per layer 
 them redoing most of what the others did.
 [`../../scripts/build/AGENTS.md`](../../scripts/build/AGENTS.md) carries how the order is decided.
 
-**Every workflow runs `bun run build:release`, never `bun run build`.** Locally the build keeps
-what nothing has moved under, which is the point of it. In a workflow that would be the wrong kind
-of green: the step after it proves the build idempotent with `git diff --exit-code`, and a build
-that did nothing satisfies that by doing nothing. `build:release` passes `--force --assert-full`,
-so every step runs and a run that kept anything fails on its own.
+**A workflow that verifies or publishes builds with `--force --assert-full`, never with
+`bun run build`.** Locally the build keeps what nothing has moved under, which is the point of
+it. In a workflow that would be the wrong kind of green. A job that verifies runs
+`bun run build:release`, every step, and the step after it proves the build idempotent with
+`git diff --exit-code`, which a build that did nothing satisfies by doing nothing; the `portable`
+legs of `Arena develop` are the exception, and that section says why. A publish workflow or the
+site, on a cache miss, runs `run-build.ts --force --assert-full --target=<its step>`, that step and
+every step it reads from, so what it packs or serves is what this run built. The mcp publish adds
+the playground and kitchen-sink generators as targets, because `check:mcp` holds every page the
+prompts name. A publish never assembles a package it does not ship.
 
 **`.cache/` is not in the paths a build hands over, and that is the load-bearing part.** The list
 is `scripts/graph/handoff.ts:BUILD_HANDOFF_PATHS`, the generated sources and every built tree a
@@ -266,11 +271,12 @@ more. That is exactly the shape this needs: `Arena main` is a push and writes, a
 that follows it reads.
 
 **A miss is expected rather than exceptional, so the build stays in the file behind an `if`.**
-Seven days unread evicts the cache, and the hand dispatch above can ask about a commit whose run
-is long past. There are no `restore-keys`, so a miss is a miss: a prefix fallback would hand this
-job the assembled tree of a different release and pack it under this version. What a miss costs
-is the build this change was written to avoid, which is the right price for the rare case and the
-wrong one for every push.
+A cache nobody reads is evicted, as the `Arena main` section says, and the hand dispatch above can
+ask about a commit whose run is long past. There are no `restore-keys`, so a miss is a miss: a
+prefix fallback would hand this job the assembled tree of a different release and pack it under
+this version. What a miss costs is the package's own build step, every step it reads from and any
+step whose output its gate reads, through `--target`, rather than the whole release: the Angular
+publish never assembles React, and the other way round.
 
 Authentication is a trusted publisher over OIDC: no token lives in this repository, and
 provenance is attested automatically, with no `--provenance` flag. **The file name of each
@@ -302,7 +308,7 @@ failure is red.
 **The site is build output, so publishing from a branch is not an option**: the kitchen sinks and
 every playground are what `.gitignore` keeps out of the tree on purpose. It restores what
 `Arena main` saved for the same commit, the same hand-off the package workflows use, and
-falls back to a build of its own on a miss.
+on a miss builds `--target=build:site`, the site and every step it reads from.
 
 `bun run build:site` copies rather than rewrites, so a page served from the domain is the page a
 clone serves, and `bun run check:site` holds every href and src in the output to a file that is

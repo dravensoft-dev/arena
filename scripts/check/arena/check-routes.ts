@@ -423,7 +423,7 @@ export const ROUTES: Route[] = [
       + 'package is, and what CI does with the tag once it exists',
     entry: 'contributor',
     stops: ['versioning_steps.md', 'frameworks/PACKAGING.md', '.github/workflows/AGENTS.md'],
-    budget: 69_600,
+    budget: 70_000,
     reason:
       'the least frequent route on the branch and the most expensive one to get wrong, because '
       + 'every one of its failures publishes nothing and errors nowhere. The sequence is the first '
@@ -435,7 +435,8 @@ export const ROUTES: Route[] = [
       + 'never reads; each package has a publisher of its own, one of them npm for the attestation '
       + 'Bun cannot give; a first publish needs a trusted publisher configured by hand; and the '
       + 'corpus and the components travel apart, so both are installed to check them. Each is this '
-      + 'route\'s failure mode: nothing errors, and nobody is told.',
+      + 'route\'s failure mode: nothing errors, and nobody is told. The page also says which target a '
+      + 'publish that misses its cache builds.',
   },
 ];
 

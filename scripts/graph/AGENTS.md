@@ -7,7 +7,7 @@ judging.
 
 | module | answers |
 | --- | --- |
-| `graph.ts` | the algebra over the declared set, and nothing about where it came from: `needsOf`, `topoOrder`, `cyclePath`, `duplicateWriters`, `subscriptionProblems`, `unknownFeeds`, `selfFeeds`. Resolution is handed in, so it holds no table and imports no script. |
+| `graph.ts` | the algebra over the declared set, and nothing about where it came from: `needsOf`, `upstreamOf`, `topoOrder`, `cyclePath`, `duplicateWriters`, `subscriptionProblems`, `unknownFeeds`, `selfFeeds`. Resolution is handed in, so it holds no table and imports no script. |
 | `nodes.ts` | the set itself: `collectedScripts(root)` walks the three phases and `allNodes(root)` imports each and keeps what exports a node. `NEVER_SUBSCRIBES` and `NOT_YET_SUBSCRIBED` say what is out. |
 | `pathspecs.ts` | what a declared spec reaches: `matchesSpec(spec, path)` and `resolveSpecs(specs, universe)` against a path list, plus `unreachedSpecs(specs, universe)` and `reachesNoDirectory(spec, universe)`, which is how a typo is told from a spec written ahead of the tree. |
 | `inputs.ts` | what a file is, as a fingerprint: `universe(root)` walks the tree once, `stampOf(path, previous)` filters on the stat and arbitrates on the hash, and `digestOf(paths, stamps)` folds a list into one value. |
@@ -15,7 +15,7 @@ judging.
 | `fingerprint.ts` | what a node is worth comparing: `fingerprintOne(node, measure)` and `fingerprintNodes(...)` over the whole set, in dependency order. |
 | `state.ts` | what the last green run left behind, under `.cache/`: `readFiles`, `writeFiles`, `readState`, `writeState`, `recordGreen`, `forget`. It records the machine as well as the version, and discards on either. |
 | `plan.ts` | whether a node runs and the sentence saying why: `decide(node, current, previous, onDisk)`. |
-| `run-build.ts` | the build, in the order the graph derives. |
+| `run-build.ts` | the build, in the order the graph derives; `selectSteps(nodes, declaredIn, options)` decides which steps, and `--target=<step>` selects that step's upstream closure instead. |
 | `graph-problems.ts` | everything `check:graph` asserts, so the gate under `check/arena/` is a print and an exit. |
 | `handoff.ts` | what a build hands to a job or a run that did not make it: `BUILD_HANDOFF_PATHS`, and `handoffProblems(nodes, workflows, tracked)`, which holds every `arena-build-` cache or artifact step in every workflow to that list and that list to every artifact a clone lacks, plus `handoffSteps`, `workflowTexts`, `sampleOf` and `trackedPaths`. |
 | `fs-trace.ts`, `trace-preload.ts` | what a run actually opens: the preload wraps the read entry points before the script's own imports run. |

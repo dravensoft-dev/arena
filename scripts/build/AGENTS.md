@@ -28,7 +28,7 @@ contributor found each by hitting it.
 | a Chromium-family browser | `bun run check:focus-trap` | the one gate that measures a real render drives Chrome, Chromium or Edge over CDP. Discovery is keyed by platform, so an install in the usual place needs no configuration; `CHROME_PATH` names one anywhere else and is **terminal**, so pointing it at nothing reports that rather than falling back. |
 | the network, once | `bun scripts/generate/core/fetch-fonts.ts` | only to rebuild the webfonts. Their outputs are tracked precisely because a clone cannot reproduce them, so a normal build never needs it. |
 
-**On macOS** that is the whole list, and nothing here is Linux-shaped any more.
+**On macOS** that is the whole list: nothing here is Linux-shaped.
 
 **On Windows the supported path is WSL2, and the clone belongs in the Linux filesystem.** A tree
 under `/mnt/c` costs a coarser mtime through the 9p layer, which widens the build cache's one
@@ -108,9 +108,9 @@ The blocking is transitive. `generate:tokens` does not feed `build:demos` direct
 through `build:tailwind`, and a single hop would let a step compile against tokens that were never
 written. A blocked step records nothing: it did not run, so there is no green to write down.
 
-**`bun run build:release` is the full run**, and it is what every workflow uses. It passes
-`--force --assert-full`: every step runs, and a run that kept anything fails on its own. That is
-not belt and braces. The step after the build in each workflow proves it idempotent with
+**`bun run build:release` is the full run**, and it is what every workflow that verifies uses. It
+passes `--force --assert-full`: every step runs, and a run that kept anything fails on its own.
+That is not belt and braces. The step after the build in each workflow proves it idempotent with
 `git diff --exit-code`, and a build that skipped everything satisfies that by doing nothing, which
 is the one way this whole arrangement could turn a real failure green.
 
@@ -118,17 +118,25 @@ is the one way this whole arrangement could turn a real failure green.
 each says so in its own node through `releaseOnly`, with the reason: ng-packagr and the declaration
 emit cost more than a development loop should pay for an artefact only a release ships.
 
-**`--assemble` is what includes them**, so there are three ways to run this graph and each says what
-it is for. `bun run build` is the loop: thirteen steps, keeping what has not moved.
-`bun run build:packages` is the same plus the two packages, still keeping what has not moved.
-`bun run build:release` is `--assemble --force --assert-full`: fifteen steps, every one of them run,
-and a run that kept anything fails on its own. Every workflow uses the last one, and none of them
-assembles in a second step any more.
+**`--assemble` is what includes them**, so each way to run this graph says what it is for.
+`bun run build` is the loop, keeping what has not moved. `bun run build:packages` is the same plus
+the packages, still keeping what has not moved. `bun run build:release` is
+`--assemble --force --assert-full`: every step run, and a run that kept anything fails on its own.
+Every workflow that verifies uses the last one.
 
-`build:angular-tests` is deliberately **not** part of any of the three, and its node says so through
+**`--target=<step>` replaces the selection of any of them with that step and every step it reads
+from**, transitively, release-only steps included with or without `--assemble`, and it repeats;
+`--force` and `--assert-full` keep their meaning. It is how a publish workflow that missed its
+cache builds its own package and no other: `--target=build:angular-package` never assembles React.
+A step whose output a gate reads is named beside it, as the mcp publish names the generators of the
+pages `check:mcp` holds. A name that is not a build step is refused, because a gate judges rather
+than builds and `build:angular-tests` belongs to the suites.
+`scripts/graph/run-build.ts:selectSteps(nodes, declaredIn, options)` decides the list.
+
+`build:angular-tests` is deliberately **not** part of any of these, and its node says so through
 `runsBeforeSuites` rather than `releaseOnly`: the reason is not cost, it is that `bun run test` and
 `check-all`'s `testStep()` run it immediately before the suites that read the emit, so staleness
-there is prevented by ordering. `--assemble` leaves it out too, since a release ships no test
+there is prevented by ordering. `--assemble` leaves it out too, because a release ships no test
 surface.
 
 **It is in the graph even so, and it feeds nobody.** It was given a node on the claim that
