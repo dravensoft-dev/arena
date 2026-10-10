@@ -170,9 +170,9 @@ jobs:
 
       # A miss is expected rather than exceptional: a cache is evicted after seven days
       # unread, and a hand dispatch can ask about a commit whose run is long past.
-      - name: build the sources and assemble the package, if that cache was not there
+      - name: build this package and every step it reads from, if that cache is not there
         if: steps.build.outputs.cache-hit != 'true'
-        run: bun run build:release
+        run: bun scripts/graph/run-build.ts --force --assert-full --target=build:angular-package
 
       - name: hold the manifests and the CLI
         run: bun run check:packages
