@@ -1,18 +1,20 @@
 /* A child's output read from a file, because a pipe silently loses the end of it. A child that
  * writes its results and then calls process.exit() -- tsc, ngc, every JavaScript compiler this
  * tree spawns -- exits before the tail of stdout has drained, and spawnSync reports that short
- * read as a whole one: status 0, no error, the output simply missing its last lines. Nothing
- * downstream can tell the difference. The loss is a race: the tsc listing is 485 lines and came
- * back at 445 and at 316 in 2 of 30 runs through a pipe, and whole in 30 of 30 through a file,
- * so it survives local runs and lands in CI, where it had check:script-types name 16 files as
- * unreached by globs that reach them. An inherited descriptor is written synchronously and has
- * no buffer to lose, at the cost of a temp directory per call, so this is for spawns whose
- * output is READ. Readers split on '\n' and a Windows compiler emits CRLF, so the CR goes here. */
+ * read as a whole one: status 0, no error, the last lines missing. The tsc listing came back
+ * short in 2 of 30 runs through a pipe and whole in 30 of 30 through a file: an inherited
+ * descriptor is written synchronously and has no buffer to lose. childOutputAsync is the same
+ * capture for a runner that keeps several children going at once: both streams share one file,
+ * in the order the child wrote them, so a step prints as one block, and an abort ends the child
+ * with SIGTERM and, when it ignores that for TERM_GRACE, SIGKILL on that one pid. Readers split on
+ * '\n' and a Windows compiler emits CRLF, so the CR goes here. */
 
-import { spawnSync } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
+import type { ChildProcess } from 'node:child_process';
 import { closeSync, mkdtempSync, openSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { deadline, type Deadline } from './deadline.ts';
 
 export type ChildOutput = {
   status: number;
@@ -42,6 +44,64 @@ export function childOutput(command: string, args: string[]): ChildOutput {
     const stderr = withoutCr(readFileSync(errPath, 'utf8'));
     return { status: r.status ?? 1, stdout, stderr, output: `${stdout}${stderr}`, error: r.error };
   } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+}
+
+export type StepOutput = {
+  code: number | null;
+  signal: string | null;
+  output: string;
+  error?: Error | undefined;
+  ignored?: string | undefined;
+};
+
+type Ended = Omit<StepOutput, 'output'>;
+
+export const TERM_GRACE: Deadline = deadline('child-output:term-grace', 3_000,
+  'a compiler or a browser winds down within a fraction of a second of SIGTERM, so three seconds leaves '
+  + 'a loaded machine its time and ends only a child that ignores the signal');
+
+export async function childOutputAsync(
+  command: string,
+  args: string[],
+  options: { cwd?: string | undefined; signal?: AbortSignal | undefined } = {},
+): Promise<StepOutput> {
+  const dir = mkdtempSync(join(tmpdir(), 'arena-child-'));
+  const path = join(dir, 'output');
+  const fd = openSync(path, 'w');
+  try {
+    const ended = await new Promise<Ended>((resolve) => {
+      let child: ChildProcess;
+      try {
+        child = spawn(command, args, { cwd: options.cwd, stdio: ['ignore', fd, fd] });
+      } catch (err) {
+        resolve({ code: null, signal: null, error: err as Error });
+        return;
+      }
+      let grace: ReturnType<typeof setTimeout> | undefined;
+      let ignored: string | undefined;
+      const stop = () => {
+        if (grace !== undefined) return;
+        child.kill('SIGTERM');
+        grace = setTimeout(() => {
+          ignored = 'SIGTERM';
+          child.kill('SIGKILL');
+        }, TERM_GRACE.ms);
+      };
+      const settle = (result: Ended) => {
+        clearTimeout(grace);
+        options.signal?.removeEventListener('abort', stop);
+        resolve(ignored === undefined ? result : { ...result, ignored });
+      };
+      child.once('error', (error) => settle({ code: null, signal: null, error }));
+      child.once('exit', (code, signal) => settle({ code, signal }));
+      if (options.signal?.aborted) stop();
+      else options.signal?.addEventListener('abort', stop, { once: true });
+    });
+    return { ...ended, output: withoutCr(readFileSync(path, 'utf8')) };
+  } finally {
+    closeSync(fd);
     rmSync(dir, { recursive: true, force: true });
   }
 }

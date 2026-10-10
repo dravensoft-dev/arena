@@ -94,9 +94,10 @@ export const RULES: Rule[] = [
   {
     id: 'process-group-signal',
     pattern: /detached\s*:|process\.kill\(\s*-|SIGKILL|taskkill/g,
-    owners: ['scripts/lib/arena/chromium.ts'],
+    owners: ['scripts/lib/arena/chromium.ts', 'scripts/lib/arena/child-output.ts'],
     why: 'a process group is a POSIX idea and a negative pid means nothing on Windows, so the one '
-      + 'place that reaps a tree is the one that launched it',
+      + 'place that reaps a tree is the one that launched it; child-output.ts kills a single pid there, '
+      + 'a child that ignored SIGTERM, and never a group',
   },
   {
     id: 'raw-symlink',

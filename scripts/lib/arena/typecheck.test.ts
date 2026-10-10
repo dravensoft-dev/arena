@@ -9,8 +9,9 @@ import { join } from 'node:path';
 import { repoRoot } from './repo-root.ts';
 import { TSC_SPAWN, tscBin, typecheck, projectFiles, verdictFor, zeroProjectProblems } from './typecheck.ts';
 import { budgetFor } from './deadline.ts';
+import { TERM_GRACE } from './child-output.ts';
 
-const BUDGET_MS = budgetFor(TSC_SPAWN);
+const BUDGET_MS = budgetFor(TSC_SPAWN, TERM_GRACE);
 
 test('tsc runs under plain node, so a gate built on this has no skip path to take', () => {
   assert.ok(tscBin(repoRoot).endsWith(join('typescript', 'lib', 'tsc.js')));
