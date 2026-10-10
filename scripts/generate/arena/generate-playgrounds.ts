@@ -58,6 +58,7 @@ export const node = {
     'check:generated',
     'check:icons',
     'check:layer-independence',
+    'check:mcp',
     'check:playgrounds',
     'check:react-types',
     'check:script-tokens',

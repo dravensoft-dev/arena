@@ -23,6 +23,7 @@ import {
 } from '../../generate/core/arena-mcp/catalogue.ts';
 import { manifestIn, bundledPayload } from '../../generate/core/arena-mcp/payload.ts';
 import { servedDocs, writtenPages } from '../../lib/arena/llms-index.ts';
+import { PAGE_FILE } from '../../lib/arena/kitchen-sink-page.ts';
 import { LINK, INLINE, isRepoPath, inPayload } from '../../lib/arena/agent-payload.ts';
 import { LAYERS as BUILT_LAYERS } from '../../build/arena/build-mcp-package.ts';
 
@@ -41,7 +42,13 @@ export type ServerJson = {
 
 export const node = {
   name: 'check:mcp',
-  reads: [`${SOURCE}/**`, `${DIST}/**`, 'frameworks/Components.json', REGISTRY_FILE],
+  reads: [
+    `${SOURCE}/**`, `${DIST}/**`, 'frameworks/Components.json', REGISTRY_FILE,
+    ...BUILT_LAYERS.flatMap((layer) => [
+      `frameworks/${layer}/components/**/*.demo.generated.html`,
+      `frameworks/${layer}/kitchen-sink/**/${PAGE_FILE}`,
+    ]),
+  ],
   writes: [],
   feeds: [],
 };

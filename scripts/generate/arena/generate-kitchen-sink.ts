@@ -51,6 +51,7 @@ export const node = {
     'check:icons',
     'check:kitchen-sink',
     'check:layer-independence',
+    'check:mcp',
     'check:target-size', 'check:pixel-parity',
     'check:react-types',
     'check:script-tokens',
