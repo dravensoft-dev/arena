@@ -1,11 +1,8 @@
 # .github/workflows/
 
-One guards a pull request, one guards `main`, one guards `develop`, three publish a package, one
-writes a release page and one serves the site. `ls .github/workflows/*.yml` is what says how
-many, and this page carried the figure instead until the count and the directory disagreed:
-`portability.yml` ran the operating system matrix, was named in no diagram here, and is now a job
-of `Arena develop`, which is the same omission read twice. A number no assertion holds is the
-defect that rule exists to stop.
+One guards a pull request, one guards `main`, one guards `develop`, one per package publishes it,
+one writes a release page and one serves the site. `ls .github/workflows/*.yml` is what says how
+many, because a figure written here is a number no assertion holds.
 
 ```
 pull_request -> main|develop  Arena PR
@@ -54,13 +51,15 @@ of green: the step after it proves the build idempotent with `git diff --exit-co
 that did nothing satisfies that by doing nothing. `build:release` passes `--force --assert-full`,
 so every step runs and a run that kept anything fails on its own.
 
-**`.cache/` is not in the paths `actions/cache` restores, and that is the load-bearing part.** The
-list is `frameworks/**/*.generated.*`, the two layer `dist/` trees, `frameworks/angular/build`,
-`dist/contracts` and `dist/site`, and `check:graph` holds it to every artifact a clone does not carry:
-[`../../scripts/graph/AGENTS.md`](../../scripts/graph/AGENTS.md) says how. It was a list nothing
-held until `check:site` ran here over a `dist/site` no job had handed it. Adding
-`.cache` there would hand the next job the graph's recorded state and turn the whole gate from a
-full run into an incremental one, in silence. `--assert-full` is what would catch it; this
+**`.cache/` is not in the paths a build hands over, and that is the load-bearing part.** The list
+is `scripts/graph/handoff.ts:BUILD_HANDOFF_PATHS`, the generated sources and every built tree a
+clone lacks, and `check:graph` holds every `arena-build-` cache or artifact step in every workflow
+to it, path for path and in order, because `actions/cache` derives an entry's version from its
+path list and a restore naming another list misses on the right key. The same gate holds the
+list to every artifact a clone does not carry:
+[`../../scripts/graph/AGENTS.md`](../../scripts/graph/AGENTS.md) says how. Adding `.cache` there
+would hand the next job the graph's recorded state and turn the whole gate from a full run into an
+incremental one, in silence. `--assert-full` is what would catch it; this
 paragraph is what explains the failure to whoever added the path. **Caching a build's inputs is a
 non-goal, and carrying its outputs is not the same thing**: `.cache/` is restored nowhere in this
 directory, so no workflow here ever builds incrementally. What a restore hands over is a finished
@@ -120,12 +119,12 @@ A domain that owns suites and reported no case fails the run, as does a tree tha
 contributed nothing and a case belonging to no domain. A reporter that quietly dropped a
 suite would otherwise print a confident table of zeros.
 
-**It saves its build, and that is the only reason the three publish workflows and the site are
-cheap.** All four fire on this workflow's success, and each would otherwise build the same commit
-again, which is one push to `main` building Arena five times. The key is `arena-build-<os>-<sha>`, the commit rather than the
-run, because the run that reads it is not this one and does not know its number. The save sits
-directly after the idempotency check, which is the last moment the tree is known to be exactly
-what the build wrote and nothing a gate has since touched.
+**It saves its build, and that is the only reason the publish workflows and the site are cheap.**
+Each fires on this workflow's success and would otherwise build the same commit for itself. The
+key is `arena-build-<os>-<sha>`, the commit rather than the run, because the run that reads it is
+not this one and does not know its number. The save sits directly after the idempotency check,
+which is the last moment the tree is known to be exactly what the build wrote and nothing a gate
+has touched after it.
 
 The eviction rule is what makes the commit the right key rather than a happy one. A cache goes
 unread for seven days and is gone, so a release cut long after its push finds nothing, and a key
@@ -302,7 +301,7 @@ failure is red.
 
 **The site is build output, so publishing from a branch is not an option**: the kitchen sinks and
 every playground are what `.gitignore` keeps out of the tree on purpose. It restores what
-`Arena main` saved for the same commit, the same hand-off the three package workflows use, and
+`Arena main` saved for the same commit, the same hand-off the package workflows use, and
 falls back to a build of its own on a miss.
 
 `bun run build:site` copies rather than rewrites, so a page served from the domain is the page a
@@ -435,18 +434,18 @@ whose dependency is missing fails instead of skipping. There is nothing to confi
 nothing to remember; a missing browser is a red run.
 
 **The cache is not an artifact.** `actions/cache` carries a build to the jobs that need it and
-nothing else, and it does that twice, with no `restore-keys` either time. Inside `Arena PR` the
-key is the run and its attempt, so it is never stale, and a restore that misses fails the job
-rather than testing an unbuilt tree. From `Arena main` to the four that follow it the key is the
-commit, because the reader is a separate run, and a restore that misses builds instead,
-because there is a real commit whose build has simply aged out. Both keys are exact for the same
+nothing else, with no `restore-keys` anywhere. Inside `Arena PR` the key is the run and its
+attempt, so it is never stale, and a restore that misses fails the job rather than testing an
+unbuilt tree. From `Arena main` to the workflows that follow it the key is the commit, because
+the reader is a separate run, and a restore that misses builds instead, because there is a real
+commit whose build has simply aged out. Both keys are exact for the same
 reason: a prefix fallback would hand a job somebody else's build.
 
-`upload-artifact` appears only in the three publish workflows, where the artifact is a release
+`upload-artifact` appears only in the publish workflows, where the artifact is a release
 record rather than a hand-off. The two never trade places. A cache is evicted at seven days
 unread and is addressed by a key nobody keeps; an artifact is kept for ninety days and is the
 account of what shipped.
 
 **`check:docs` reads this directory.** Every `.md` here is held to the size limit and to the
-punctuation rule, the same as anywhere else in the tree. It does not read `.yml`: nothing
-does, so the workflows themselves are held only by GitHub.
+punctuation rule, the same as anywhere else in the tree. It does not read `.yml`; `check:graph`,
+`check:portability` and `check:workflow-scripts` do, each for the part of a workflow it holds.
