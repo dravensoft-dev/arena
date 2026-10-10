@@ -22,6 +22,7 @@ import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import {
   COLLECT, REPORT, paintedProblem, silenceOf, threwProblem, type Painted, type Silence,
 } from '../../lib/arena/page-errors.ts';
+import { loadInFreshTab, networkChangedProblem, type Lost } from '../../lib/arena/page-load.ts';
 import { READY, PAGE_FILE } from '../../lib/arena/kitchen-sink-page.ts';
 import { SINK_LAYERS } from '../../generate/arena/generate-kitchen-sink.ts';
 import { decode, difference, CHANNEL_NAMES, type Raster } from '../../lib/arena/png.ts';
@@ -233,7 +234,7 @@ export function dump(dir: string, name: string, png: Record<string, Buffer>) {
   return written;
 }
 
-export function loaded(cdp: Cdp, sessionId: string) {
+export function loaded(cdp: Pick<Cdp, 'on'>, sessionId: string) {
   return new Promise<void>((resolve) => {
     cdp.on((message) => {
       if (message.method === 'Page.loadEventFired'
@@ -271,71 +272,75 @@ export const matchedLine = (spent: number, matched: number, known: boolean) =>
   `${!known ? 'no such sink' : spent === 0 ? 'unspent' : `${spent} pixel(s) spent`}, matched ${matched} element(s)`;
 
 export async function capture(cdp: Cdp, url: string, selectors: string[] = []) {
-  const { targetId } = await cdp.send('Target.createTarget', { url: 'about:blank' });
+  const { result, changed } = await loadInFreshTab(cdp,
+    (sessionId) => captureIn(cdp, sessionId, url, selectors),
+    (shot) => !shot.painted.ready && shot.threw === undefined);
+  return { ...result, changed };
+}
+
+async function captureIn(cdp: Cdp, sessionId: string, url: string, selectors: string[]) {
+  await cdp.send('Emulation.setDeviceMetricsOverride', VIEWPORT, sessionId);
+  await cdp.send('Emulation.setEmulatedMedia', {
+    features: [{ name: 'prefers-reduced-motion', value: 'reduce' }],
+  }, sessionId);
+  await cdp.send('Page.enable', {}, sessionId);
+  await cdp.send('Page.addScriptToEvaluateOnNewDocument', { source: COLLECT }, sessionId);
+  await cdp.send('Page.addScriptToEvaluateOnNewDocument', { source: WATCH }, sessionId);
+  const settled = loaded(cdp, sessionId);
+  await withTimeout(cdp.send('Page.navigate', { url }, sessionId), NAVIGATE.ms,
+    `${url}: navigate timed out after ${NAVIGATE.ms}ms, which is that size because ${NAVIGATE.why}`);
+  await withTimeout(settled, NAVIGATE.ms,
+    `${url}: the load event never fired, within ${NAVIGATE.ms}ms, which is that size because ${NAVIGATE.why}`);
+
+  const ev = (expression: string) => evaluate(cdp, expression, sessionId);
+
+  let painted: Painted = { ready: false, waitedMs: 0 };
+  let threw: string | undefined;
   try {
-    const { sessionId } = await cdp.send('Target.attachToTarget', { targetId, flatten: true });
-    await cdp.send('Emulation.setDeviceMetricsOverride', VIEWPORT, sessionId);
-    await cdp.send('Emulation.setEmulatedMedia', {
-      features: [{ name: 'prefers-reduced-motion', value: 'reduce' }],
-    }, sessionId);
-    await cdp.send('Page.enable', {}, sessionId);
-    await cdp.send('Page.addScriptToEvaluateOnNewDocument', { source: COLLECT }, sessionId);
-    await cdp.send('Page.addScriptToEvaluateOnNewDocument', { source: WATCH }, sessionId);
-    const settled = loaded(cdp, sessionId);
-    await withTimeout(cdp.send('Page.navigate', { url }, sessionId), NAVIGATE.ms,
-      `${url}: navigate timed out after ${NAVIGATE.ms}ms, which is that size because ${NAVIGATE.why}`);
-    await withTimeout(settled, NAVIGATE.ms,
-      `${url}: the load event never fired, within ${NAVIGATE.ms}ms, which is that size because ${NAVIGATE.why}`);
-
-    const ev = (expression: string) => evaluate(cdp, expression, sessionId);
-
-    let painted: Painted = { ready: false, waitedMs: 0 };
-    let threw: string | undefined;
-    try {
-      painted = await ev(readyExpression(PAINTED));
-    } catch (error) {
-      if (!(error instanceof PageThrew)) throw error;
-      threw = error.message;
-    }
-    const silence = await ev(REPORT).catch((error: unknown) => {
-      if (error instanceof PageThrew) return undefined;
-      throw error;
-    }) as Silence | undefined;
-    if (!painted.ready) return { png: null, settled: false, tries: 0, painted, silence, threw, rects: [] as Rect[][] };
-
-    await ev(STILL);
-    await ev(stableHeightExpression(PAINTED));
-    await ev(FROZEN);
-
-    const once = async () => {
-      const shot = await withTimeout(
-        cdp.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: true }, sessionId),
-        CAPTURE.ms,
-        `${url}: capture timed out after ${CAPTURE.ms}ms, which is that size because ${CAPTURE.why}`,
-      );
-      return Buffer.from(shot.data, 'base64');
-    };
-
-    await once();
-
-    const until = Date.now() + SETTLED.ms;
-    let previous = await once();
-    for (let tries = 1; tries <= SETTLE_TRIES; tries += 1) {
-      const next = await once();
-      if (next.equals(previous)) return { png: next, settled: true, tries, painted, silence, rects: await rectsOf(ev, selectors) };
-      previous = next;
-      if (Date.now() >= until) break;
-    }
-    return { png: previous, settled: false, tries: SETTLE_TRIES, painted, silence, threw, rects: await rectsOf(ev, selectors) };
-  } finally {
-    try { await cdp.send('Target.closeTarget', { targetId }); } catch { void 0; }
+    painted = await ev(readyExpression(PAINTED));
+  } catch (error) {
+    if (!(error instanceof PageThrew)) throw error;
+    threw = error.message;
   }
+  const silence = await ev(REPORT).catch((error: unknown) => {
+    if (error instanceof PageThrew) return undefined;
+    throw error;
+  }) as Silence | undefined;
+  if (!painted.ready) return { png: null, settled: false, tries: 0, painted, silence, threw, rects: [] as Rect[][] };
+
+  await ev(STILL);
+  await ev(stableHeightExpression(PAINTED));
+  await ev(FROZEN);
+
+  const once = async () => {
+    const shot = await withTimeout(
+      cdp.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: true }, sessionId),
+      CAPTURE.ms,
+      `${url}: capture timed out after ${CAPTURE.ms}ms, which is that size because ${CAPTURE.why}`,
+    );
+    return Buffer.from(shot.data, 'base64');
+  };
+
+  await once();
+
+  const until = Date.now() + SETTLED.ms;
+  let previous = await once();
+  for (let tries = 1; tries <= SETTLE_TRIES; tries += 1) {
+    const next = await once();
+    if (next.equals(previous)) return { png: next, settled: true, tries, painted, silence, rects: await rectsOf(ev, selectors) };
+    previous = next;
+    if (Date.now() >= until) break;
+  }
+  return { png: previous, settled: false, tries: SETTLE_TRIES, painted, silence, threw, rects: await rectsOf(ev, selectors) };
 }
 
 export function paintProblem(name: string, layer: string,
-  shot: { painted: Painted; settled: boolean; tries: number; silence?: Silence; threw?: string }) {
+  shot: { painted: Painted; settled: boolean; tries: number; silence?: Silence; threw?: string; changed?: Lost[] }) {
   if (shot.threw !== undefined) {
     return threwProblem(`${name}: the ${layer} page`, shot.threw, shot.silence);
+  }
+  if (!shot.painted.ready && (shot.changed?.length ?? 0) > 0) {
+    return networkChangedProblem(`${name}: the ${layer} page`, shot.changed ?? []);
   }
   if (shot.painted.ready && !shot.settled) {
     return `${name}: the ${layer} page never stopped changing. ${SETTLE_TRIES} captures in a row `

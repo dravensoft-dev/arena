@@ -2,7 +2,9 @@
  * load order, and the verdict on a measurement. The browser half is the gate's run. */
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { partClasses, partData, pageHtml, verdict, markupVerdict, witnessManifests } from './check-proximity.ts';
+import { partClasses, partData, pageHtml, verdict, markupVerdict, witnessManifests, pageProblem, driveTab } from './check-proximity.ts';
+import { NETWORK_CHANGED } from '../../lib/arena/page-load.ts';
+import type { CdpMessage } from '../../lib/arena/cdp.ts';
 import { readManifests } from './check-measured-box.ts';
 
 test('a part is rebuilt with the classes its slot resolves to by default', () => {
@@ -72,4 +74,93 @@ test('a witness part with an options subset answers as an object, and a bare par
   const [card, button] = witnessManifests(family);
   assert.deepEqual(card!.answers, ['w']);
   assert.deepEqual(button!.answers, [{ family: 'w', options: ['arena-w-a'], default: 'arena-w-a' }]);
+});
+
+test('a page whose sheets never loaded because the network changed is written once more, then named for it', async () => {
+  const recorder = fakeRecorder();
+  const lost = recorder.lost;
+  const notes: string[] = [];
+  let writes = 0;
+  const problem = await pageProblem(recorder, 'n (react, components-first)', async () => {
+    writes += 1;
+    lost.push({ url: `http://127.0.0.1/s${writes}.css`, errorText: NETWORK_CHANGED });
+    return false;
+  }, (line) => notes.push(line));
+
+  assert.equal(notes.length, 1, 'the rewrite says it happens, once');
+
+  assert.equal(writes, 2);
+  assert.match(problem ?? '', /n \(react, components-first\): the page never signalled/);
+  assert.match(problem ?? '', /host's network changed while the page loaded/);
+});
+
+test('a page that loads on the second write is no problem, and one that fails on its own says so', async () => {
+  const recorder = fakeRecorder();
+  const lost = recorder.lost;
+  const notes: string[] = [];
+  let writes = 0;
+  const recovered = await pageProblem(recorder, 'n', async () => {
+    writes += 1;
+    if (writes === 1) lost.push({ url: 'u', errorText: NETWORK_CHANGED });
+    return writes > 1;
+  }, (line) => notes.push(line));
+  assert.equal(notes.length, 1);
+  assert.equal(recovered, null);
+  assert.equal(writes, 2);
+
+  writes = 0;
+  const own = await pageProblem(fakeRecorder(), 'n', async () => { writes += 1; return false; });
+  assert.equal(writes, 1);
+  assert.equal(own, 'n: a stylesheet never loaded, so nothing was measured');
+});
+
+function fakeRecorder() {
+  const lost: { url: string; errorText: string }[] = [];
+  return { lost, forget() { lost.length = 0; } };
+}
+
+test('each page starts from a cleared recorder, so the list never grows across a run', async () => {
+  const recorder = fakeRecorder();
+  recorder.lost.push({ url: 'from the page before', errorText: NETWORK_CHANGED });
+  let seen = -1;
+  await pageProblem(recorder, 'n', async () => { seen = recorder.lost.length; return true; });
+  assert.equal(seen, 0);
+});
+
+function fakeBrowser(landedAt: (origin: string) => string) {
+  let unsubscribed = 0;
+  let origin = '';
+  const handlers: ((message: CdpMessage) => void)[] = [];
+  return {
+    get unsubscribed() { return unsubscribed; },
+    cdp: {
+      on(handler: (message: CdpMessage) => void) {
+        handlers.push(handler);
+        return () => { unsubscribed += 1; };
+      },
+      async send(method: string, params?: { url?: string }, sessionId?: string) {
+        if (method === 'Target.createTarget') return { targetId: 't1' };
+        if (method === 'Target.attachToTarget') return { sessionId: 's1' };
+        if (method === 'Page.navigate') {
+          origin = params?.url ?? '';
+          for (const handler of handlers) handler({ method: 'Page.loadEventFired', sessionId });
+        }
+        if (method === 'Runtime.evaluate') return { result: { value: landedAt(origin) } };
+        return {};
+      },
+    },
+  };
+}
+
+const PLAN = { port: 1, cases: [], markup: [], classes: new Map(), data: new Map(), witnessCss: '', sheets: { components: [], vocabulary: [] } };
+
+test('the tab work stops its recorder when the run ends, and when it throws', async () => {
+  const clean = fakeBrowser((origin) => origin);
+  const done = await driveTab(clean.cdp, PLAN);
+  assert.deepEqual(done, { problems: [], measured: 0 });
+  assert.equal(clean.unsubscribed, 1);
+
+  const wrong = fakeBrowser(() => 'http://elsewhere/');
+  await assert.rejects(driveTab(wrong.cdp, PLAN), /the page is at http:\/\/elsewhere\/ and not/);
+  assert.equal(wrong.unsubscribed, 1);
 });

@@ -249,3 +249,18 @@ test('each allowance says what it matched beside whether it was spent', () => {
   assert.equal(matchedLine(40, 3, true), '40 pixel(s) spent, matched 3 element(s)');
   assert.equal(matchedLine(0, 0, false), 'no such sink, matched 0 element(s)');
 });
+
+test('a page that lost requests to a network change says the host changed, and a throw keeps its own sentence', () => {
+  const changed = [{ url: 'http://127.0.0.1:1/theme.js', errorText: 'net::ERR_NETWORK_CHANGED' }];
+  const problem = paintProblem('default:dark', 'react', {
+    painted: { ready: false, waitedMs: PAINTED.ms }, settled: false, tries: 0, silence: SILENT, changed,
+  });
+  assert.match(problem ?? '', /host's network changed while the page loaded/);
+  assert.match(problem ?? '', /theme\.js/);
+  assert.doesNotMatch(problem ?? '', /within \d+ms/);
+
+  const threw = paintProblem('default:dark', 'react', {
+    painted: { ready: false, waitedMs: 3 }, settled: false, tries: 0, silence: SILENT, changed, threw: 'TypeError: x',
+  });
+  assert.match(threw ?? '', /threw while the gate was reading it/);
+});

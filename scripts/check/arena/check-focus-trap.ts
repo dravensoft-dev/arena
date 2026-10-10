@@ -20,6 +20,7 @@ import type { Cdp } from '../../lib/arena/cdp.ts';
 import { cannotRun } from '../../lib/arena/arena-scripts-vars.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { threwProblem } from '../../lib/arena/page-errors.ts';
+import { loadInFreshTab, networkChangedProblem, type Lost } from '../../lib/arena/page-load.ts';
 
 export const node = {
   name: 'check:focus-trap',
@@ -117,6 +118,7 @@ export type TrapWalk = {
   panel: boolean;
   threw?: string;
   silence?: Silence;
+  changed?: Lost[];
   focusables?: number;
   startsInside?: boolean;
   visited?: number;
@@ -139,6 +141,9 @@ export function walkProblems(name: string, walk: TrapWalk) {
   const problems: string[] = [];
   if (walk.threw !== undefined) {
     return [threwProblem(`${name}: the page`, walk.threw, walk.silence)];
+  }
+  if (walk.expired && (walk.changed?.length ?? 0) > 0) {
+    return [networkChangedProblem(`${name}: the page`, walk.changed ?? [])];
   }
   if (walk.expired) {
     return [`${name}: ${PANEL_HELD.name} was not seen within ${PANEL_HELD.ms}ms, which is that `
@@ -181,83 +186,84 @@ async function walkTrap(cdp: Cdp, url: string): Promise<TrapWalk> {
 }
 
 async function walkOnce(cdp: Cdp, url: string): Promise<TrapWalk> {
-  const { targetId } = await cdp.send('Target.createTarget', { url: 'about:blank' });
-  try {
-    const { sessionId } = await cdp.send('Target.attachToTarget', { targetId, flatten: true });
-    await cdp.send('Emulation.setDeviceMetricsOverride', { width: 1000, height: 760, deviceScaleFactor: 1, mobile: false }, sessionId);
-    await cdp.send('Page.enable', {}, sessionId);
-    await cdp.send('Page.addScriptToEvaluateOnNewDocument', { source: COLLECT_ERRORS }, sessionId);
-    await withTimeout(cdp.send('Page.navigate', { url }, sessionId), NAVIGATE.ms,
-      `${url}: navigate timed out after ${NAVIGATE.ms}ms, which is that size because ${NAVIGATE.why}`);
+  const { result, changed } = await loadInFreshTab(cdp,
+    (sessionId) => walkIn(cdp, sessionId, url),
+    (walk) => walk.expired === true);
+  return { ...result, changed };
+}
 
-    const ev = (expression: string) => evaluate(cdp, expression, sessionId);
-    const tab = async (shift: boolean, canMove: boolean) => {
-      const modifiers = shift ? 8 : 0;
-      await ev(armExpression());
-      for (const type of ['rawKeyDown', 'keyUp']) {
-        await cdp.send('Input.dispatchKeyEvent', { type, windowsVirtualKeyCode: 9, key: 'Tab', code: 'Tab', modifiers }, sessionId);
-      }
-      await ev(canMove ? movedExpression(FOCUS_MOVED) : heldExpression(FOCUS_MOVED));
-    };
+async function walkIn(cdp: Cdp, sessionId: string, url: string): Promise<TrapWalk> {
+  await cdp.send('Emulation.setDeviceMetricsOverride', { width: 1000, height: 760, deviceScaleFactor: 1, mobile: false }, sessionId);
+  await cdp.send('Page.enable', {}, sessionId);
+  await cdp.send('Page.addScriptToEvaluateOnNewDocument', { source: COLLECT_ERRORS }, sessionId);
+  await withTimeout(cdp.send('Page.navigate', { url }, sessionId), NAVIGATE.ms,
+    `${url}: navigate timed out after ${NAVIGATE.ms}ms, which is that size because ${NAVIGATE.why}`);
 
-    const ready = await ev(heldExpression(PANEL_HELD));
-
-    const seen = await ev(`(() => {
-      const panel = document.querySelector(${JSON.stringify(PANEL)});
-      if (!panel) return { panel: false, focusables: 0, startsInside: false, silence: {
-        readyState: document.readyState,
-        elements: document.body ? document.body.getElementsByTagName('*').length : 0,
-        errors: (window.__arenaTrapErrors || []).slice(0, 5),
-        scripts: performance.getEntriesByType('resource')
-          .filter((r) => r.name.endsWith('.js'))
-          .map((r) => new URL(r.name).pathname.split('/').pop()
-            + ' ' + (r.responseStatus === undefined ? '?' : r.responseStatus)
-            + ' ' + r.decodedBodySize + 'B')
-          .slice(0, 8),
-      } };
-      const list = [...panel.querySelectorAll(${JSON.stringify(FOCUSABLE)})];
-      list.forEach((el, i) => { el.dataset.arenaTrapIndex = String(i); });
-      return { panel: true, focusables: list.length, startsInside: panel.contains(document.activeElement) };
-    })()`);
-    const waited = { expired: !ready.held, waitedMs: ready.waitedMs };
-    if (!seen.panel || seen.focusables === 0) {
-      return { ...seen, ...waited, forward: [], visited: 0, wrapsForward: false, wrapsBackward: false };
+  const ev = (expression: string) => evaluate(cdp, expression, sessionId);
+  const tab = async (shift: boolean, canMove: boolean) => {
+    const modifiers = shift ? 8 : 0;
+    await ev(armExpression());
+    for (const type of ['rawKeyDown', 'keyUp']) {
+      await cdp.send('Input.dispatchKeyEvent', { type, windowsVirtualKeyCode: 9, key: 'Tab', code: 'Tab', modifiers }, sessionId);
     }
+    await ev(canMove ? movedExpression(FOCUS_MOVED) : heldExpression(FOCUS_MOVED));
+  };
 
-    const canMove = seen.focusables > 1;
-    const reached = new Set();
-    const forward = [];
-    for (let press = 1; press <= seen.focusables + 1; press += 1) {
-      await tab(false, canMove);
-      const step = await ev(`(() => {
-        const panel = document.querySelector(${JSON.stringify(PANEL)});
-        const active = document.activeElement;
-        return { inside: panel.contains(active), index: active?.dataset?.arenaTrapIndex ?? null };
-      })()`);
-      forward.push({ press, inside: step.inside });
-      if (step.index !== null) reached.add(step.index);
-    }
-    const afterLoop = await ev(`document.activeElement?.dataset?.arenaTrapIndex ?? null`);
+  const ready = await ev(heldExpression(PANEL_HELD));
 
-    await ev(`(() => {
-      const panel = document.querySelector(${JSON.stringify(PANEL)});
-      panel.querySelector('[data-arena-trap-index="0"]').focus();
-      return true;
-    })()`);
-    await tab(true, canMove);
-    const back = await ev(`document.activeElement?.dataset?.arenaTrapIndex ?? null`);
-
-    return {
-      ...seen,
-      ...waited,
-      forward,
-      visited: reached.size,
-      wrapsForward: afterLoop === '0' || reached.size === seen.focusables,
-      wrapsBackward: back === String(seen.focusables - 1),
-    };
-  } finally {
-    try { await cdp.send('Target.closeTarget', { targetId }); } catch { void 0; }
+  const seen = await ev(`(() => {
+    const panel = document.querySelector(${JSON.stringify(PANEL)});
+    if (!panel) return { panel: false, focusables: 0, startsInside: false, silence: {
+      readyState: document.readyState,
+      elements: document.body ? document.body.getElementsByTagName('*').length : 0,
+      errors: (window.__arenaTrapErrors || []).slice(0, 5),
+      scripts: performance.getEntriesByType('resource')
+        .filter((r) => r.name.endsWith('.js'))
+        .map((r) => new URL(r.name).pathname.split('/').pop()
+          + ' ' + (r.responseStatus === undefined ? '?' : r.responseStatus)
+          + ' ' + r.decodedBodySize + 'B')
+        .slice(0, 8),
+    } };
+    const list = [...panel.querySelectorAll(${JSON.stringify(FOCUSABLE)})];
+    list.forEach((el, i) => { el.dataset.arenaTrapIndex = String(i); });
+    return { panel: true, focusables: list.length, startsInside: panel.contains(document.activeElement) };
+  })()`);
+  const waited = { expired: !ready.held, waitedMs: ready.waitedMs };
+  if (!seen.panel || seen.focusables === 0) {
+    return { ...seen, ...waited, forward: [], visited: 0, wrapsForward: false, wrapsBackward: false };
   }
+
+  const canMove = seen.focusables > 1;
+  const reached = new Set();
+  const forward = [];
+  for (let press = 1; press <= seen.focusables + 1; press += 1) {
+    await tab(false, canMove);
+    const step = await ev(`(() => {
+      const panel = document.querySelector(${JSON.stringify(PANEL)});
+      const active = document.activeElement;
+      return { inside: panel.contains(active), index: active?.dataset?.arenaTrapIndex ?? null };
+    })()`);
+    forward.push({ press, inside: step.inside });
+    if (step.index !== null) reached.add(step.index);
+  }
+  const afterLoop = await ev(`document.activeElement?.dataset?.arenaTrapIndex ?? null`);
+
+  await ev(`(() => {
+    const panel = document.querySelector(${JSON.stringify(PANEL)});
+    panel.querySelector('[data-arena-trap-index="0"]').focus();
+    return true;
+  })()`);
+  await tab(true, canMove);
+  const back = await ev(`document.activeElement?.dataset?.arenaTrapIndex ?? null`);
+
+  return {
+    ...seen,
+    ...waited,
+    forward,
+    visited: reached.size,
+    wrapsForward: afterLoop === '0' || reached.size === seen.focusables,
+    wrapsBackward: back === String(seen.focusables - 1),
+  };
 }
 
 const skip: (reason: string) => never = (reason) => cannotRun('check-focus-trap', reason);

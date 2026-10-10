@@ -12,12 +12,13 @@ import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { relPosix } from '../../utils/posix-path.ts';
+import { loadInPlace, networkChangedProblem, withRecorder, type Lost, type Note } from '../../lib/arena/page-load.ts';
 import { withTimeout } from '../../utils/with-timeout.ts';
 import { deadline, type Deadline } from '../../lib/arena/deadline.ts';
 import { POLL_MS } from '../../lib/arena/wait-for.ts';
 import { startStaticServer } from '../../lib/arena/static-server.ts';
 import { browserOrExit, launchChromium } from '../../lib/arena/chromium.ts';
-import { connect, evaluate } from '../../lib/arena/cdp.ts';
+import { connect, evaluate, type Cdp } from '../../lib/arena/cdp.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { arenaClassesFor, arenaSlotDataFor, classesManifest } from '../../lib/tailwind/component-css.ts';
 import { VOCABULARY_SHEETS, compileFamily, declarations } from '../../lib/tailwind/vocabulary.ts';
@@ -170,6 +171,83 @@ export function witnessManifests(family: WitnessFamily): ComponentManifest[] {
   });
 }
 
+type Plan = {
+  port: number;
+  cases: ReturnType<typeof readProximity>['cases'];
+  markup: ReturnType<typeof readProximity>['markup'];
+  classes: Map<string, string>;
+  data: Map<string, Record<string, string>>;
+  witnessCss: string;
+  sheets: { components: string[]; vocabulary: string[] };
+};
+
+export async function driveTab(cdp: Pick<Cdp, 'send' | 'on'>, plan: Plan) {
+  const { cases, markup, classes, data, witnessCss, sheets } = plan;
+  const problems: string[] = [];
+  let measured = 0;
+  const { targetId } = await cdp.send('Target.createTarget', { url: 'about:blank' });
+  const { sessionId } = await cdp.send('Target.attachToTarget', { targetId, flatten: true });
+  await cdp.send('Page.enable', {}, sessionId);
+  await withRecorder(cdp, sessionId, async (tab) => {
+    await cdp.send('Network.enable', {}, sessionId);
+    await cdp.send('Emulation.setDeviceMetricsOverride', VIEWPORT, sessionId);
+    const origin = `http://127.0.0.1:${plan.port}/package.json`;
+    const settled = loadFired(cdp, sessionId);
+    await withTimeout(cdp.send('Page.navigate', { url: origin }, sessionId), NAVIGATE.ms,
+      `${origin}: navigate timed out after ${NAVIGATE.ms}ms, which is that size because ${NAVIGATE.why}`);
+    await withTimeout(settled, NAVIGATE.ms,
+      `${origin}: the load event never fired, within ${NAVIGATE.ms}ms, which is that size because ${NAVIGATE.why}`);
+    const landed = await evaluate(cdp, 'location.href', sessionId);
+    if (landed !== origin) throw new Error(`check-proximity: the page is at ${landed} and not ${origin}, so a case would be written onto the wrong origin`);
+    const base = `<base href="http://127.0.0.1:${plan.port}/">`;
+    for (const kase of cases) {
+      for (const layer of ['react', 'angular'] as const) {
+        const tree = kase[layer]!;
+        const body = treeHtml(tree, (part) => classes.get(part) ?? '', (part) => data.get(part) ?? {})
+          .replace(/^<div/, `<div style="width: ${CONTAINER_WIDTH}px; display: flex; flex-direction: column; align-items: flex-start"`);
+        for (const order of ORDERS) {
+          const html = pageHtml(order, body, witnessCss, sheets).replace('<head>', `<head>${base}`);
+          const unloaded = await pageProblem(tab, `${kase.name} (${layer}, ${order})`, async () => {
+            await evaluate(cdp, WRITE_PAGE(html), sessionId);
+            return withTimeout(evaluate(cdp, LOADED_EXPRESSION, sessionId), LOADED.ms + LOADED_MARGIN.ms,
+              `${kase.name}: the page never finished loading its sheets, within ${LOADED.ms}ms, which is that size because ${LOADED.why}`);
+          });
+          if (unloaded !== null) { problems.push(unloaded); continue; }
+          const property = 'property' in kase.measure ? kase.measure.property : '--arena-fill-width';
+          const parts = 'property' in kase.measure ? Object.keys(kase.measure.others ?? {}) : [];
+          const result = await evaluate(cdp, MEASURE(property, parts), sessionId) as Measured | null;
+          if (!result) { problems.push(`${kase.name} (${layer}, ${order}): the tree carries no subject`); continue; }
+          measured += 1;
+          const problem = verdict(kase, layer, order, result);
+          if (problem) problems.push(problem);
+        }
+      }
+    }
+    for (const kase of markup) {
+      const properties = 'equal' in kase ? Object.entries(kase.equal).flat() : Object.keys(kase.expect);
+      const body = `<div style="width: ${CONTAINER_WIDTH}px; font-family: var(--font-body)">${kase.html}</div>`;
+      for (const order of ORDERS) {
+        const html = pageHtml(order, body, witnessCss, { components: sheets.components, vocabulary: sheets.vocabulary }, kase.root)
+          .replace('<head>', `<head>${base}`);
+        const unloaded = await pageProblem(tab, `${kase.name} (${order})`, async () => {
+          await evaluate(cdp, WRITE_PAGE(html), sessionId);
+          return withTimeout(evaluate(cdp, LOADED_EXPRESSION, sessionId), LOADED.ms + LOADED_MARGIN.ms,
+            `${kase.name}: the page never finished loading its sheets, within ${LOADED.ms}ms, which is that size because ${LOADED.why}`);
+        });
+        if (unloaded !== null) { problems.push(unloaded); continue; }
+        await withTimeout(evaluate(cdp, FACE_EXPRESSION, sessionId), FACE.ms,
+          `${kase.name} (${order}): the subject's face never loaded, within ${FACE.ms}ms, which is that size because ${FACE.why}`);
+        const result = await evaluate(cdp, MEASURE_MARKUP(properties), sessionId) as Record<string, string> | null;
+        if (!result) { problems.push(`${kase.name} (${order}): the markup carries no subject`); continue; }
+        measured += 1;
+        const problem = markupVerdict(kase, order, result);
+        if (problem) problems.push(problem);
+      }
+    }
+  });
+  return { problems, measured };
+}
+
 async function main() {
   const { families, cases, markup } = readProximity();
   const unrecorded = cases.flatMap((one) => (['react', 'angular'] as const).filter((layer) => one[layer] === null).map((layer) => `${one.name} (${layer})`));
@@ -188,72 +266,30 @@ async function main() {
   const server = await startStaticServer(root);
   const chrome = await launchChromium(exe);
   const cdp = await connect(chrome.wsUrl);
-  const problems: string[] = [];
-  let measured = 0;
+  const plan = { port: server.port, cases, markup, classes, data, witnessCss, sheets };
+  let outcome: Awaited<ReturnType<typeof driveTab>>;
   try {
-    const { targetId } = await cdp.send('Target.createTarget', { url: 'about:blank' });
-    const { sessionId } = await cdp.send('Target.attachToTarget', { targetId, flatten: true });
-    await cdp.send('Page.enable', {}, sessionId);
-    await cdp.send('Emulation.setDeviceMetricsOverride', VIEWPORT, sessionId);
-    const origin = `http://127.0.0.1:${server.port}/package.json`;
-    const settled = loadFired(cdp, sessionId);
-    await withTimeout(cdp.send('Page.navigate', { url: origin }, sessionId), NAVIGATE.ms,
-      `${origin}: navigate timed out after ${NAVIGATE.ms}ms, which is that size because ${NAVIGATE.why}`);
-    await withTimeout(settled, NAVIGATE.ms,
-      `${origin}: the load event never fired, within ${NAVIGATE.ms}ms, which is that size because ${NAVIGATE.why}`);
-    const landed = await evaluate(cdp, 'location.href', sessionId);
-    if (landed !== origin) throw new Error(`check-proximity: the page is at ${landed} and not ${origin}, so a case would be written onto the wrong origin`);
-    const base = `<base href="http://127.0.0.1:${server.port}/">`;
-    for (const kase of cases) {
-      for (const layer of ['react', 'angular'] as const) {
-        const tree = kase[layer]!;
-        const body = treeHtml(tree, (part) => classes.get(part) ?? '', (part) => data.get(part) ?? {})
-          .replace(/^<div/, `<div style="width: ${CONTAINER_WIDTH}px; display: flex; flex-direction: column; align-items: flex-start"`);
-        for (const order of ORDERS) {
-          const html = pageHtml(order, body, witnessCss, sheets).replace('<head>', `<head>${base}`);
-          await evaluate(cdp, WRITE_PAGE(html), sessionId);
-          const loaded = await withTimeout(evaluate(cdp, LOADED_EXPRESSION, sessionId), LOADED.ms + LOADED_MARGIN.ms,
-            `${kase.name}: the page never finished loading its sheets, within ${LOADED.ms}ms, which is that size because ${LOADED.why}`);
-          if (!loaded) { problems.push(`${kase.name} (${layer}, ${order}): a stylesheet never loaded, so nothing was measured`); continue; }
-          const property = 'property' in kase.measure ? kase.measure.property : '--arena-fill-width';
-          const parts = 'property' in kase.measure ? Object.keys(kase.measure.others ?? {}) : [];
-          const result = await evaluate(cdp, MEASURE(property, parts), sessionId) as Measured | null;
-          if (!result) { problems.push(`${kase.name} (${layer}, ${order}): the tree carries no subject`); continue; }
-          measured += 1;
-          const problem = verdict(kase, layer, order, result);
-          if (problem) problems.push(problem);
-        }
-      }
-    }
-    for (const kase of markup) {
-      const properties = 'equal' in kase ? Object.entries(kase.equal).flat() : Object.keys(kase.expect);
-      const body = `<div style="width: ${CONTAINER_WIDTH}px; font-family: var(--font-body)">${kase.html}</div>`;
-      for (const order of ORDERS) {
-        const html = pageHtml(order, body, witnessCss, { components: sheets.components, vocabulary: sheets.vocabulary }, kase.root)
-          .replace('<head>', `<head>${base}`);
-        await evaluate(cdp, WRITE_PAGE(html), sessionId);
-        const loaded = await withTimeout(evaluate(cdp, LOADED_EXPRESSION, sessionId), LOADED.ms + LOADED_MARGIN.ms,
-          `${kase.name}: the page never finished loading its sheets, within ${LOADED.ms}ms, which is that size because ${LOADED.why}`);
-        if (!loaded) { problems.push(`${kase.name} (${order}): a stylesheet never loaded, so nothing was measured`); continue; }
-        await withTimeout(evaluate(cdp, FACE_EXPRESSION, sessionId), FACE.ms,
-          `${kase.name} (${order}): the subject's face never loaded, within ${FACE.ms}ms, which is that size because ${FACE.why}`);
-        const result = await evaluate(cdp, MEASURE_MARKUP(properties), sessionId) as Record<string, string> | null;
-        if (!result) { problems.push(`${kase.name} (${order}): the markup carries no subject`); continue; }
-        measured += 1;
-        const problem = markupVerdict(kase, order, result);
-        if (problem) problems.push(problem);
-      }
-    }
+    outcome = await driveTab(cdp, plan);
   } finally {
     await chrome.kill?.();
     server.close?.();
   }
+  const { problems, measured } = outcome;
   if (problems.length) {
     console.error(`check-proximity: ${problems.length} problem(s)\n`);
     for (const p of problems) console.error(`  ${p}`);
     process.exit(1);
   }
   console.log(`check-proximity: ${measured} measurement(s) across ${cases.length} case(s), both layers and both load orders, each as the case expects`);
+}
+
+export async function pageProblem(recorder: { lost: Lost[]; forget(): void }, label: string,
+  write: () => Promise<boolean>, note?: Note) {
+  recorder.forget();
+  const { result: loaded, changed } = await loadInPlace(recorder.lost, write, (one) => !one, note);
+  if (loaded) return null;
+  if (changed.length > 0) return networkChangedProblem(`${label}: the page`, changed);
+  return `${label}: a stylesheet never loaded, so nothing was measured`;
 }
 
 if (isMainModule(import.meta.url)) await main();
