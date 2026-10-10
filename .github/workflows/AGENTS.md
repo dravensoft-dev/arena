@@ -166,10 +166,11 @@ to be kept honest across. `portable` restores a bun install cache per operating 
 none of the build, because what it is asking is whether a fresh tree builds on that platform.
 
 **Assembling is part of the build rather than a step of its own.** `bun run build:release` passes
-`--assemble`, so all four packages are part of the run the workflow already makes. Dropping the
+`--assemble`, so every package is part of the run the workflow already makes. Dropping the
 assembly would not skip package work: `check:packages` reads no manifest and passes while saying so,
-which is a quieter green rather than a faster one, and `check:consumer` assembles a missing `dist/`
-itself. Assembling nothing is not publishing nothing, and nothing here publishes.
+which is a quieter green rather than a faster one, and `check:consumer` fails on a missing
+`dist/`, because it judges an assembled package and never builds one. Assembling nothing is not
+publishing nothing, and nothing here publishes.
 
 ## Publish arena-react, Publish arena-angular, Publish arena-contracts, Publish arena-mcp
 

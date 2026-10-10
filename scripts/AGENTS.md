@@ -97,8 +97,10 @@ the tail of stdout has drained, and `spawnSync` reports that short read as a who
 0, no error, output simply missing its last lines. The loss is a race, so it survives local
 runs and lands in CI, where it has `check:script-types` name files as unreached by globs that
 reach them. A gate that parses what it captured is the dangerous case, because a
-truncated read there is a wrong answer rather than a failure. Spawning with `stdio: 'inherit'`
-is unaffected and stays as it is: a runner that only relays a child's output reads none of it.
+truncated read there is a wrong answer rather than a failure. A runner that only relays a child's
+output reads none of it, so inheriting stdio is safe there; `check-all` captures through a file of
+its own, with `childOutputAsync`, because its steps run side by side and a shared terminal would
+interleave them.
 
 **No script assumes one operating system, and `check:portability` holds it.** Every rule is a
 ban with a named owner, so the question is never whether a construct is correct but where it

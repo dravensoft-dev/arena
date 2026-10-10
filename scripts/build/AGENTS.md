@@ -134,10 +134,10 @@ than builds and `build:angular-tests` belongs to the suites.
 `scripts/graph/run-build.ts:selectSteps(nodes, declaredIn, options)` decides the list.
 
 `build:angular-tests` is deliberately **not** part of any of these, and its node says so through
-`runsBeforeSuites` rather than `releaseOnly`: the reason is not cost, it is that `bun run test` and
-`check-all`'s `testStep()` run it immediately before the suites that read the emit, so staleness
-there is prevented by ordering. `--assemble` leaves it out too, because a release ships no test
-surface.
+`runsBeforeSuites` rather than `releaseOnly`: the reason is not cost, it is that `bun run test` runs
+it before the suites that read the emit, and in `check-all` the Angular suite step waits for it, so
+staleness there is prevented by ordering. `--assemble` leaves it out too, because a release ships no
+test surface.
 
 **It is in the graph even so, and it feeds nobody.** It was given a node on the claim that
 `check:generated` and `check:icons` sweep `frameworks/` and reach the emit. They do not: both walks

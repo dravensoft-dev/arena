@@ -13,10 +13,10 @@ judging.
 | `inputs.ts` | what a file is, as a fingerprint: `universe(root)` walks the tree once, `stampOf(path, previous)` filters on the stat and arbitrates on the hash, and `digestOf(paths, stamps)` folds a list into one value. |
 | `script-closure.ts` | every module under `scripts/` a script reaches: `relativeSpecifiers(source)` and `scriptClosure(entry, root)`. |
 | `fingerprint.ts` | what a node is worth comparing: `fingerprintOne(node, measure)` and `fingerprintNodes(...)` over the whole set, in dependency order. |
-| `state.ts` | what the last green run left behind, under `.cache/`: `readFiles`, `writeFiles`, `readState`, `writeState`, `recordGreen`, `forget`. It records the machine as well as the version, and discards on either. |
+| `state.ts` | what the last green run left behind, under `.cache/`: `readFiles`, `writeFiles`, `readState`, `writeState`, `recordGreen`, `forget`. It records the machine as well as the version, and discards on either. A file is replaced whole, through a rename (`scripts/utils/write-atomic.ts:writeAtomic`). |
 | `plan.ts` | whether a node runs and the sentence saying why: `decide(node, current, previous, onDisk)`. |
 | `run-build.ts` | the build, in the order the graph derives; `selectSteps(nodes, declaredIn, options)` decides which steps, and `--target=<step>` selects that step's upstream closure instead. |
-| `scheduler.ts` | steps side by side within pools sized from the machine: `schedule(steps, slots, hooks)` starts a step once every step in its `after` has finished, `slotsFor(jobs)` sizes the light, heavy and browser slots, `parseJobs` reads `--jobs=<n>`, and `interruptOn()` turns SIGINT and SIGTERM into an abort. `check-all` runs on it. |
+| `scheduler.ts` | steps side by side within pools sized from the machine: `schedule(steps, slots, hooks)` starts a step once every step in its `after` has finished, `slotsFor(jobs)` sizes the light, heavy and browser slots, `parseJobs` reads `--jobs=<n>`, `interruptOn()` turns SIGINT and SIGTERM into an abort, and a step still running `ABORT_GRACE` after one is a FAIL and is left. `check-all` runs on it. |
 | `graph-problems.ts` | everything `check:graph` asserts, so the gate under `check/arena/` is a print and an exit. |
 | `handoff.ts` | what a build hands to a job or a run that did not make it: `BUILD_HANDOFF_PATHS`, and `handoffProblems(nodes, workflows, tracked)`, which holds every `arena-build-` cache or artifact step in every workflow to that list and that list to every artifact a clone lacks, plus `handoffSteps`, `workflowTexts`, `sampleOf` and `trackedPaths`. |
 | `fs-trace.ts`, `trace-preload.ts` | what a run actually opens: the preload wraps the read entry points before the script's own imports run. |
@@ -151,10 +151,12 @@ answer kept.
 
 ## Only a green run writes an entry
 
-Every other outcome deletes it. A SKIP recorded as green is a node that never runs again, and a node
-with no entry cannot be kept, so a machine that cannot run a step is honest about it for ever rather
-than once. The entry is written after each node, so a run that stops halfway keeps the greens before
-the failure.
+Every other outcome deletes it. A SKIP recorded as green is a node that stops running for good,
+and a node with no entry cannot be kept, so a machine that cannot run a step is honest about it
+for ever rather than once. `run-build` writes the state after each node, so a build that stops
+halfway keeps the greens before the failure; `check-all` records each gate as it finishes and
+writes once, at the end. Either way a file is replaced whole, through a rename, so a reader never
+meets half of one.
 
 ## `.cache/` belongs to one machine and one operating system
 
