@@ -7,7 +7,7 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync, utimesSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, readdirSync, rmSync, statSync, utimesSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { VERSION, CACHE_DIR, cached, cachedReading, digestOf, entryPath, purge, read, write } from './artifact-cache.ts';
@@ -131,4 +131,18 @@ test('purge empties the directory and reports what it held, which is what --forc
   assert.equal(read('one', root), null);
   assert.equal(purge(root), 0, 'purging a directory that is not there is 0 rather than a throw');
   rmSync(root, { recursive: true, force: true });
+});
+
+test('an entry is replaced through a rename, so two gates keeping one entry leave it whole', () => {
+  const root = mkdtempSync(join(tmpdir(), 'artifact-cache-rename-'));
+  try {
+    write('tailwind-0123456789ab', [], { value: 1 }, root);
+    const path = entryPath('tailwind-0123456789ab', root);
+    const before = statSync(path).ino;
+    write('tailwind-0123456789ab', [], { value: 1 }, root);
+    assert.notEqual(statSync(path).ino, before);
+    assert.deepEqual(readdirSync(join(root, CACHE_DIR)), ['tailwind-0123456789ab.json']);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
 });

@@ -9,10 +9,11 @@
  * the value a miss would have produced. */
 
 import { createHash } from 'node:crypto';
-import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { readJson } from '../../utils/read-file.ts';
 import { byCodeUnit } from '../../utils/compare.ts';
+import { writeAtomic } from '../../utils/write-atomic.ts';
 import { arch, platform } from './platform.ts';
 import { repoRoot } from './repo-root.ts';
 
@@ -53,7 +54,7 @@ export function write<T>(name: string, inputs: string[], value: T, root = repoRo
   const { digest, count } = digestOf(inputs, root);
   const path = entryPath(name, root);
   mkdirSync(join(root, CACHE_DIR), { recursive: true });
-  writeFileSync(path, `${JSON.stringify({ version: VERSION, platform, arch, digest, count, value }, null, 1)}\n`);
+  writeAtomic(path, `${JSON.stringify({ version: VERSION, platform, arch, digest, count, value }, null, 1)}\n`);
   return digest;
 }
 

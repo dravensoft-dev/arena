@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { tmpdir } from 'node:os';
 import {
@@ -114,4 +114,19 @@ test('entries are written in a stable order, so a diff of the cache reads as a c
     writeState(state, root);
     assert.deepEqual([...readState(root).keys()], ['build:tailwind', 'generate:tokens']);
   });
+});
+
+test('both files are replaced through a rename, and nothing temporary stays under .cache/graph', () => {
+  const root = mkdtempSync(join(tmpdir(), 'state-rename-'));
+  try {
+    writeState(new Map(), root);
+    writeFiles(new Map(), root);
+    const state = join(root, STATE_PATH);
+    const before = statSync(state).ino;
+    writeState(new Map(), root);
+    assert.notEqual(statSync(state).ino, before);
+    assert.deepEqual(readdirSync(dirname(state)).sort(), ['files.json', 'state.json']);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
 });

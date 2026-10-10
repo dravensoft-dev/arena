@@ -1,16 +1,18 @@
 /* What the last green run left behind, under .cache/, which this tree ignores. Two files, because
  * the two are sized differently: a stamp belongs to a FILE and is shared by every node reading it,
  * so it is written once and is the size of the repository; a node's entry keeps a digest and a
- * count of what it read rather than the pairs, since the gates with the widest subjects resolve
+ * count of what it read rather than the pairs, because the gates with the widest subjects resolve
  * thousands of paths and a copy per node turns a cache into a database. Only a green run writes an
- * entry, and every other outcome deletes it: a SKIP recorded as green is a gate that never runs
- * again, and an entry is written after each node so a crash keeps the greens before it. Both files
- * carry the machine too, and a mismatch is discarded as an older version is: one tree is reachable
- * by two operating systems, where the schema agrees and the answer does not. */
+ * entry, and every other outcome deletes it: a SKIP recorded as green is a gate that stops running
+ * for good. run-build writes after each node, so a crash keeps the greens before it; check-all
+ * writes once, at the end. A file is replaced whole, through a rename. Both files carry the
+ * machine too, and a mismatch is discarded as an older version is: one tree is reachable by two
+ * operating systems, where the schema agrees and the answer does not. */
 
-import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { readJson } from '../utils/read-file.ts';
+import { writeAtomic } from '../utils/write-atomic.ts';
 import { repoRoot } from '../lib/arena/repo-root.ts';
 import { arch, platform } from '../lib/arena/platform.ts';
 import type { Stamp } from './inputs.ts';
@@ -41,7 +43,7 @@ function read(root: string, rel: string, key: string) {
 function write(root: string, rel: string, key: string, value: unknown) {
   const path = join(root, rel);
   mkdirSync(dirname(path), { recursive: true });
-  writeFileSync(path, `${JSON.stringify({ version: VERSION, platform, arch, [key]: value }, null, 1)}\n`);
+  writeAtomic(path, `${JSON.stringify({ version: VERSION, platform, arch, [key]: value }, null, 1)}\n`);
 }
 
 export function readFiles(root = repoRoot) {
