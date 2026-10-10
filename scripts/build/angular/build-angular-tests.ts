@@ -42,8 +42,8 @@ export const node = {
   ],
   writes: [`${LAYER}/build/test/**`],
   feeds: [],
-  runsBeforeSuites: 'bun run test and check-all\'s testStep() run it immediately before the suites '
-    + 'that read the emit, so staleness there is prevented by ordering rather than by a gate. A '
+  runsBeforeSuites: 'bun run test runs it before the suites that read the emit, and check-all\'s Angular suite '
+    + 'step waits for it, so staleness there is prevented by ordering rather than by a gate. A '
     + 'build that emitted it would be emitting a tree no build step reads',
 };
 
