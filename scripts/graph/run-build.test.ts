@@ -4,6 +4,9 @@ import { isBuildStep, parseBuildArgs, partialRunProblems, selectSteps, summarize
 import { repoRoot } from '../lib/arena/repo-root.ts';
 import { budgetFor } from '../lib/arena/deadline.ts';
 import { COLLECTION, allNodes } from './nodes.ts';
+import { upstreamOf, type GraphNode } from './graph.ts';
+import { trackedPaths, workflowTexts } from './handoff.ts';
+import { isExclusion, resolveSpecs } from './pathspecs.ts';
 
 test('the runner takes four flags and refuses anything else', () => {
   assert.deepEqual(parseBuildArgs([]), { force: false, assertFull: false, assemble: false, targets: [] });
@@ -210,3 +213,137 @@ test('each package and the site build from their own closure, and no closure ass
       assert.ok(!closure(light).includes('build:angular-demo'), `${light} compiles no Angular`);
     }
   });
+
+const PACKAGES = ['build:angular-package', 'build:react-package'];
+const RUNNER = /^bun scripts\/graph\/run-build\.ts((?: --[a-z-]+(?:=[\w:-]+)?)+)$/;
+
+function missBuild(file: string, text: string) {
+  const lines = text.split('\n');
+  const misses = lines.flatMap((line, at) => (line.includes("cache-hit != 'true'") ? [at] : []));
+  if (misses.length !== 1) throw new Error(`${file} has ${misses.length} step(s) that build on a cache miss; the suite reads exactly one`);
+  const rest = lines.slice(misses[0]! + 1);
+  const run = rest.findIndex((line) => /^\s*run:/.test(line));
+  const named = rest.findIndex((line) => /^\s*- name:/.test(line));
+  if (run < 0 || (named >= 0 && named < run)) throw new Error(`${file}: the step that builds on a cache miss has no run: line`);
+  const command = (rest[run] ?? '').replace(/^\s*run:\s*/, '').trimEnd();
+  if (/^[|>]/.test(command) || command.endsWith('\\')) {
+    throw new Error(`${file}: the step that builds on a cache miss runs a block or a continued line, which the suite does not read; write it as one run: line`);
+  }
+  const flags = RUNNER.exec(command)?.[1]?.trim().split(' ');
+  if (!flags) throw new Error(`${file}: the miss step's command "${command}" is not bun scripts/graph/run-build.ts followed by flags`);
+  const targets = flags.filter((flag) => flag.startsWith('--target=')).map((flag) => flag.slice('--target='.length));
+  const stray = flags.filter((flag) => !['--force', '--assert-full'].includes(flag) && !flag.startsWith('--target='));
+  if (stray.length > 0 || targets.length === 0) {
+    throw new Error(`${file}: the miss step's flags ${flags.join(' ')} are not --force, --assert-full and at least one --target=<step>`);
+  }
+  const gate = rest.slice(run).join('\n').match(/bun run (check:[\w:-]+)/)?.[1];
+  if (!gate) throw new Error(`${file} runs no gate after the step that builds on a cache miss`);
+  return { targets, gate };
+}
+
+test('a miss step the suite cannot read in full is refused with a sentence, never read in part', () => {
+  const step = (run: string) => ['      - name: build', "        if: steps.build.outputs.cache-hit != 'true'", run,
+    '      - run: bun run check:mcp'].join('\n');
+  const flat = 'bun scripts/graph/run-build.ts --force --assert-full';
+  assert.deepEqual(missBuild('a.yml', step(`        run: ${flat} --target=build:site --target=generate:tokens`)),
+    { targets: ['build:site', 'generate:tokens'], gate: 'check:mcp' });
+  assert.throws(() => missBuild('a.yml', step('        run: |\n          bun scripts/graph/run-build.ts --target=build:site')),
+    /a\.yml: .*runs a block or a continued line/);
+  assert.throws(() => missBuild('a.yml', step(`        run: ${flat} --target=build:site \\\n          --target=generate:tokens`)),
+    /a\.yml: .*runs a block or a continued line/);
+  assert.throws(() => missBuild('a.yml', step(`        run: ${flat} --target=build:site --target=$TARGET`)),
+    /a\.yml: the miss step's command/);
+  assert.throws(() => missBuild('a.yml', step(`        run: ${flat}`)), /at least one --target/);
+  assert.throws(() => missBuild('a.yml', step(`        run: ${flat} --target=build:site\n`) + '\n' + step('        run: x')),
+    /2 step\(s\) that build on a cache miss/);
+  assert.throws(() => missBuild('a.yml', 'name: x'), /0 step\(s\) that build on a cache miss/);
+});
+
+function requiredOf(nodes: GraphNode[], declaredIn: Map<string, string>, tracked: string[], gate: string) {
+  const known = new Map(nodes.map((node) => [node.name, node]));
+  const absentFromAClone = (node: GraphNode) => node.writes
+    .filter((spec) => !isExclusion(spec))
+    .some((spec) => resolveSpecs([spec], tracked).length === 0);
+  return [...upstreamOf(nodes, gate)]
+    .filter((name) => isBuildStep(declaredIn, known.get(name)!, true) && absentFromAClone(known.get(name)!));
+}
+
+function unbuilt(
+  nodes: GraphNode[], declaredIn: Map<string, string>, tracked: string[], gate: string, targets: string[],
+) {
+  const selected = (list: string[]) => new Set(names(selectSteps(nodes, declaredIn, { assemble: false, targets: list })));
+  const built = selected(targets);
+  const otherOnly = new Set<string>();
+  if (gate === 'check:packages') {
+    const other = PACKAGES.filter((one) => !targets.includes(one));
+    if (other.length !== PACKAGES.length - 1) {
+      throw new Error(`a miss for ${gate} must build exactly one of ${PACKAGES.join(' and ')}, and it builds ${targets.join(', ')}`);
+    }
+    for (const name of selected(other)) if (!built.has(name)) otherOnly.add(name);
+  }
+  return requiredOf(nodes, declaredIn, tracked, gate).filter((name) => !built.has(name) && !otherOnly.has(name));
+}
+
+function ownStep(file: string, nodes: GraphNode[]) {
+  const named = /\/npm-publish-([a-z]+)-package\.yml$/.exec(file);
+  const step = named ? `build:${named[1]}-package` : file.endsWith('/pages.yml') ? 'build:site' : undefined;
+  if (!step || !nodes.some((node) => node.name === step)) {
+    throw new Error(`${file} maps to no package step the graph holds: a publish is npm-publish-<name>-package.yml for `
+      + 'build:<name>-package, and the site is pages.yml for build:site');
+  }
+  return step;
+}
+
+test('a miss builds every step its gate reads whose output a clone does not carry', () => {
+  const declaredIn = new Map([
+    ['generate:page', 'scripts/generate/a.ts'], ['generate:doc', 'scripts/generate/b.ts'],
+    ['build:pack', 'scripts/build/c.ts'], ['build:other', 'scripts/build/d.ts'],
+  ]);
+  const graph = [
+    { ...step('generate:page', { feeds: ['check:gate'] }), writes: ['out/page.html'] },
+    { ...step('generate:doc', { feeds: ['check:gate'] }), writes: ['docs/doc.md', '!docs/skip.md'] },
+    { ...step('build:pack', { feeds: ['check:gate'] }), writes: ['out/pack.tgz'] },
+    step('check:gate'),
+  ];
+  const tracked = ['docs/doc.md'];
+  assert.deepEqual(unbuilt(graph, declaredIn, tracked, 'check:gate', ['build:pack']), ['generate:page'],
+    'a step whose every write a clone checks out is not required; one whose write it lacks is');
+  assert.deepEqual(unbuilt(graph, declaredIn, tracked, 'check:gate', ['build:pack', 'generate:page']), []);
+  assert.throws(() => unbuilt(graph, declaredIn, tracked, 'check:packages', ['build:pack']),
+    /must build exactly one of build:angular-package and build:react-package, and it builds build:pack/);
+});
+
+test('every publish and the site builds on a miss what its gate reads that a clone does not carry',
+  { timeout: budgetFor(COLLECTION) }, async () => {
+    const { nodes, declaredIn } = await allNodes(repoRoot);
+    const tracked = trackedPaths(repoRoot);
+    const files = workflowTexts(repoRoot).filter((one) => /\/(npm-publish-.*|pages)\.yml$/.test(one.file));
+    assert.ok(files.length >= 5, 'the publish workflows and the site are found');
+    const packageSteps = files.filter((one) => !one.file.endsWith('/pages.yml')).map((one) => ownStep(one.file, nodes));
+    const checked: string[] = [];
+    for (const { file, text } of files) {
+      const { targets, gate } = missBuild(file, text);
+      const expected = ownStep(file, nodes);
+      const picked = names(selectSteps(nodes, declaredIn, { assemble: false, targets }));
+      const foreign = packageSteps.filter((one) => one !== expected && picked.includes(one));
+      assert.ok(targets.includes(expected) && foreign.length === 0,
+        `${file} builds ${picked.filter((one) => packageSteps.includes(one) || one === 'build:site').join(', ')} and should build ${expected} alone`);
+      const required = requiredOf(nodes, declaredIn, tracked, gate);
+      assert.ok(required.length > 0, `${file}: ${gate} reads no step whose output a clone lacks, which the tree contradicts; tracked paths are wrong`);
+      if (gate === 'check:mcp') {
+        assert.ok(['generate:playgrounds', 'generate:kitchen-sink'].every((one) => required.includes(one)),
+          `${file}: ${gate} holds the playground and kitchen-sink pages, which are gitignored, so both generators are required`);
+      }
+      assert.deepEqual(unbuilt(nodes, declaredIn, tracked, gate, targets), [],
+        `${file}: ${gate} reads steps the miss does not build; add them as --target`);
+      checked.push(file);
+    }
+    assert.equal(checked.length, files.length, 'every workflow found is checked');
+  });
+
+test('a publish workflow that names no package step the graph holds is refused, not skipped', () => {
+  const graph = [step('build:mcp-package')];
+  assert.equal(ownStep('.github/workflows/npm-publish-mcp-package.yml', graph), 'build:mcp-package');
+  assert.throws(() => ownStep('.github/workflows/npm-publish-vue-package.yml', graph), /maps to no package step the graph holds/);
+  assert.throws(() => ownStep('.github/workflows/release.yml', graph), /maps to no package step the graph holds/);
+});
