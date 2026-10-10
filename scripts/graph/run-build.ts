@@ -1,19 +1,20 @@
 /* Runs the build in the order the graph derives, so the sequence follows what each step declares
  * rather than prose in package.json that nothing tests. It runs the steps under build/ and
- * generate/ and never a gate: every node is in one graph, and the phase that declared one says
- * whether a build is what runs it. A failure stops what READS what that step writes, transitively,
- * and nothing else: a step compiled against a failed upstream reports a second error over the real
- * one, and a step in another part of the graph has no reason to wait. The fingerprint RECORDED is
- * measured after the step, since two generators write into what they read. --assert-full fails a
- * run that kept anything, which stops a workflow proving the build idempotent over one that did
- * nothing. */
+ * generate/ and never a gate: the phase that declared a node says whether a build runs it. A
+ * failure stops what READS what that step writes, transitively, and nothing else: a step compiled
+ * against a failed upstream reports a second error over the real one. --target=<step> selects
+ * instead that step and every step it reads from, release-only ones included, which lets a
+ * publish build its own package and no other. The fingerprint RECORDED is measured after the
+ * step, because two generators write into what they read. --assert-full fails a run that kept
+ * anything, which stops a workflow proving the build idempotent over one that did nothing. */
 
 import { spawnSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { isMainModule } from '../utils/main-module.ts';
 import { repoRoot } from '../lib/arena/repo-root.ts';
-import { needsOf, topoOrder, transitiveFeeds } from './graph.ts';
+import { byName, needsOf, topoOrder, transitiveFeeds, upstreamOf } from './graph.ts';
+import type { GraphNode } from './graph.ts';
 import { allNodes } from './nodes.ts';
 import { stampAll, universe } from './inputs.ts';
 import { fingerprintOne } from './fingerprint.ts';
@@ -30,17 +31,48 @@ export const isBuildStep = (
   && (assemble || !node.releaseOnly)
   && BUILT_BY.some((phase) => (declaredIn.get(node.name) ?? '').startsWith(phase));
 
+export function selectSteps(
+  nodes: GraphNode[],
+  declaredIn: Map<string, string>,
+  options: { assemble: boolean; targets: string[] },
+) {
+  const order = topoOrder(nodes);
+  if (options.targets.length === 0) return order.filter((node) => isBuildStep(declaredIn, node, options.assemble));
+  const known = byName(nodes);
+  for (const target of options.targets) {
+    const node = known.get(target);
+    if (!node) {
+      throw new Error(`run-build: --target=${target} names no step the graph holds; a target is the npm `
+        + 'script of a step under build/ or generate/');
+    }
+    if (!isBuildStep(declaredIn, node, true)) {
+      throw new Error(`run-build: --target=${target} is not a build step: a gate judges rather than builds, `
+        + 'and a step the suites run belongs to them');
+    }
+  }
+  const closure = new Set(options.targets);
+  for (const target of options.targets) for (const name of upstreamOf(nodes, target)) closure.add(name);
+  return order.filter((node) => closure.has(node.name) && isBuildStep(declaredIn, node, true));
+}
+
 export function parseBuildArgs(argv: string[]) {
   let force = false;
   let assertFull = false;
   let assemble = false;
+  const targets: string[] = [];
   for (const arg of argv) {
     if (arg === '--force') { force = true; continue; }
     if (arg === '--assert-full') { assertFull = true; continue; }
     if (arg === '--assemble') { assemble = true; continue; }
-    throw new Error(`run-build: unrecognised argument "${arg}"; it takes --force, --assert-full and --assemble`);
+    if (arg.startsWith('--target=')) {
+      const target = arg.slice('--target='.length);
+      if (target === '') throw new Error('run-build: --target= names no step; write --target=<the npm script of a build step>');
+      if (!targets.includes(target)) targets.push(target);
+      continue;
+    }
+    throw new Error(`run-build: unrecognised argument "${arg}"; it takes --force, --assert-full, --assemble and --target=<step>`);
   }
-  return { force, assertFull, assemble };
+  return { force, assertFull, assemble, targets };
 }
 
 export function keptButFailed(results: { name: string; status: string }[], wouldKeep: Set<string>) {
@@ -86,8 +118,16 @@ async function main() {
   }
 
   const collected = await allNodes(repoRoot);
-  const order = topoOrder(collected.nodes)
-    .filter((node) => isBuildStep(collected.declaredIn, node, options.assemble));
+  let order;
+  try {
+    order = selectSteps(collected.nodes, collected.declaredIn, options);
+  } catch (err) {
+    console.error((err as Error).message);
+    process.exit(1);
+  }
+  if (options.targets.length > 0) {
+    console.log(`run-build: ${order.length} step(s), the upstream closure of ${options.targets.join(', ')}`);
+  }
   const needs = needsOf(collected.nodes);
   const state = readState(repoRoot);
   const upstream = new Map<string, string>();

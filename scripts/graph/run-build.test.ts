@@ -1,23 +1,39 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { isBuildStep, parseBuildArgs, partialRunProblems, summarize } from './run-build.ts';
+import { isBuildStep, parseBuildArgs, partialRunProblems, selectSteps, summarize } from './run-build.ts';
+import { repoRoot } from '../lib/arena/repo-root.ts';
+import { budgetFor } from '../lib/arena/deadline.ts';
+import { COLLECTION, allNodes } from './nodes.ts';
 
-test('the runner takes three flags and refuses anything else', () => {
-  assert.deepEqual(parseBuildArgs([]), { force: false, assertFull: false, assemble: false });
-  assert.deepEqual(parseBuildArgs(['--force']), { force: true, assertFull: false, assemble: false });
+test('the runner takes four flags and refuses anything else', () => {
+  assert.deepEqual(parseBuildArgs([]), { force: false, assertFull: false, assemble: false, targets: [] });
+  assert.deepEqual(parseBuildArgs(['--force']), { force: true, assertFull: false, assemble: false, targets: [] });
   assert.deepEqual(parseBuildArgs(['--assemble', '--force', '--assert-full']),
-    { force: true, assertFull: true, assemble: true });
+    { force: true, assertFull: true, assemble: true, targets: [] });
   assert.throws(() => parseBuildArgs(['--forse']), /unrecognised argument/);
 });
 
 test('the three flags are what tells the three commands apart', () => {
-  assert.deepEqual(parseBuildArgs(['--assemble']), { force: false, assertFull: false, assemble: true },
+  assert.deepEqual(parseBuildArgs(['--assemble']), { force: false, assertFull: false, assemble: true, targets: [] },
     'bun run build:packages assembles and still keeps what has not moved, for iterating on packaging');
-  assert.deepEqual(parseBuildArgs([]), { force: false, assertFull: false, assemble: false },
+  assert.deepEqual(parseBuildArgs([]), { force: false, assertFull: false, assemble: false, targets: [] },
     'bun run build is the loop, and leaves out what only a release ships');
   assert.deepEqual(parseBuildArgs(['--assemble', '--force', '--assert-full']),
-    { force: true, assertFull: true, assemble: true },
+    { force: true, assertFull: true, assemble: true, targets: [] },
     'bun run build:release is every step, run, with a kept step failing the run on its own');
+});
+
+test('--target names a step, may repeat, and a repeat is one target', () => {
+  assert.deepEqual(parseBuildArgs(['--target=build:site']).targets, ['build:site']);
+  assert.deepEqual(
+    parseBuildArgs(['--target=build:site', '--force', '--target=build:mcp-package', '--target=build:site']).targets,
+    ['build:site', 'build:mcp-package'],
+  );
+});
+
+test('--target with no step is refused, not read as no target', () => {
+  assert.throws(() => parseBuildArgs(['--target=']), /names no step/);
+  assert.throws(() => parseBuildArgs(['--target']), /unrecognised argument/);
 });
 
 test('the tail never collapses the count, so a cheap run cannot read as a whole one', () => {
@@ -101,3 +117,96 @@ test('a step the suites run is out of every build invocation, assembly included'
   assert.equal(isBuildStep(declaredIn, { name: 'build:angular-tests' }), true,
     'without the field the phase alone would put it in, which is what it did before');
 });
+
+const DECLARED_IN = new Map([
+  ['generate:tokens', 'scripts/generate/arena/generate-tokens.ts'],
+  ['build:tailwind', 'scripts/build/tailwind/build-tailwind.ts'],
+  ['build:vendor', 'scripts/build/react/build-vendor.ts'],
+  ['build:intro', 'scripts/build/arena/build-intro.ts'],
+  ['build:react-package', 'scripts/build/react/build-react-package.ts'],
+  ['build:mcp-package', 'scripts/build/arena/build-mcp-package.ts'],
+  ['build:angular-tests', 'scripts/build/angular/build-angular-tests.ts'],
+  ['check:tailwind', 'scripts/check/tailwind/check-tailwind.ts'],
+]);
+
+const step = (name: string, over: Partial<{ feeds: string[]; releaseOnly: string; runsBeforeSuites: string }> = {}) =>
+  ({ name, reads: [], writes: [], feeds: [], ...over });
+
+const GRAPH = [
+  step('generate:tokens', { feeds: ['build:tailwind', 'build:mcp-package'] }),
+  step('build:tailwind', { feeds: ['build:react-package', 'check:tailwind', 'build:angular-tests'] }),
+  step('build:vendor', { feeds: ['build:react-package'] }),
+  step('build:intro'),
+  step('build:react-package', { releaseOnly: 'a reason' }),
+  step('build:mcp-package', { releaseOnly: 'a reason' }),
+  step('build:angular-tests', { runsBeforeSuites: 'a reason' }),
+  step('check:tailwind'),
+];
+
+const names = (steps: { name: string }[]) => steps.map((one) => one.name);
+
+test('with no target the selection is the one each command makes without the flag', () => {
+  assert.deepEqual(names(selectSteps(GRAPH, DECLARED_IN, { assemble: false, targets: [] })).sort(),
+    ['build:intro', 'build:tailwind', 'build:vendor', 'generate:tokens']);
+  assert.deepEqual(names(selectSteps(GRAPH, DECLARED_IN, { assemble: true, targets: [] })).sort(),
+    ['build:intro', 'build:mcp-package', 'build:react-package', 'build:tailwind', 'build:vendor', 'generate:tokens']);
+});
+
+test('a target is built with every step it reads from and nothing else, itself last', () => {
+  const picked = names(selectSteps(GRAPH, DECLARED_IN, { assemble: false, targets: ['build:tailwind'] }));
+  assert.deepEqual(picked, ['generate:tokens', 'build:tailwind']);
+});
+
+test('a release-only target, or a release-only upstream, is built without --assemble', () => {
+  const picked = names(selectSteps(GRAPH, DECLARED_IN, { assemble: false, targets: ['build:react-package'] }));
+  assert.deepEqual([...picked].sort(), ['build:react-package', 'build:tailwind', 'build:vendor', 'generate:tokens']);
+  assert.equal(picked.at(-1), 'build:react-package');
+  assert.ok(!picked.includes('build:intro') && !picked.includes('check:tailwind') && !picked.includes('build:angular-tests'),
+    'a step outside the closure, a gate and the suites\' own emit stay out');
+});
+
+test('two targets that share an upstream run it once', () => {
+  const picked = names(selectSteps(GRAPH, DECLARED_IN,
+    { assemble: false, targets: ['build:react-package', 'build:mcp-package'] }));
+  assert.equal(picked.filter((one) => one === 'generate:tokens').length, 1);
+  assert.equal(new Set(picked).size, picked.length);
+  assert.ok(picked.indexOf('generate:tokens') < picked.indexOf('build:mcp-package'));
+});
+
+test('a target the graph does not hold, a gate, or the suites\' emit is refused before anything runs', () => {
+  assert.throws(() => selectSteps(GRAPH, DECLARED_IN, { assemble: false, targets: ['build:nothing'] }),
+    /--target=build:nothing names no step the graph holds/);
+  assert.throws(() => selectSteps(GRAPH, DECLARED_IN, { assemble: false, targets: ['check:tailwind'] }),
+    /--target=check:tailwind is not a build step/);
+  assert.throws(() => selectSteps(GRAPH, DECLARED_IN, { assemble: false, targets: ['build:angular-tests'] }),
+    /--target=build:angular-tests is not a build step/);
+});
+
+test('a gate and the suites\' emit upstream of a target are left out, whatever feeds them', () => {
+  const graph = [
+    step('generate:tokens', { feeds: ['build:tailwind'] }),
+    step('check:tailwind', { feeds: ['build:tailwind'] }),
+    step('build:angular-tests', { runsBeforeSuites: 'a reason', feeds: ['build:tailwind'] }),
+    step('build:tailwind'),
+  ];
+  assert.deepEqual(names(selectSteps(graph, DECLARED_IN, { assemble: false, targets: ['build:tailwind'] })),
+    ['generate:tokens', 'build:tailwind']);
+});
+
+test('each package and the site build from their own closure, and no closure assembles another package',
+  { timeout: budgetFor(COLLECTION) }, async () => {
+    const { nodes, declaredIn } = await allNodes(repoRoot);
+    const closure = (target: string) => names(selectSteps(nodes, declaredIn, { assemble: false, targets: [target] }));
+    const packages = ['build:angular-package', 'build:react-package', 'build:mcp-package', 'build:contracts-package'];
+    for (const target of [...packages, 'build:site']) {
+      const picked = closure(target);
+      assert.equal(picked.at(-1), target, `${target} runs after everything it reads from`);
+      assert.ok(picked.every((one) => !one.startsWith('check:')), `${target} builds and never judges`);
+      for (const other of packages.filter((one) => one !== target)) {
+        assert.ok(!picked.includes(other), `${target} does not assemble ${other}`);
+      }
+    }
+    for (const light of ['build:mcp-package', 'build:contracts-package']) {
+      assert.ok(!closure(light).includes('build:angular-demo'), `${light} compiles no Angular`);
+    }
+  });
