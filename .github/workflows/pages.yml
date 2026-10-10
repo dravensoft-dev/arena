@@ -61,6 +61,9 @@ jobs:
             frameworks/react/dist
             frameworks/angular/dist
             frameworks/angular/build
+            dist/contracts
+            dist/mcp
+            dist/site
           key: arena-build-${{ runner.os }}-${{ github.event.workflow_run.head_sha || github.sha }}
 
       # A miss is expected rather than exceptional: a cache is evicted after seven days unread,
