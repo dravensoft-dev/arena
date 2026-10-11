@@ -14,7 +14,7 @@ import { isMainModule } from '../../utils/main-module.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { relPosix } from '../../utils/posix-path.ts';
 import { readJson } from '../../utils/read-file.ts';
-import { ngcBin } from '../../check/angular/check-angular.ts';
+import { ngcBin } from '../../lib/angular/ngc-bin.ts';
 import { angularEmitRoot } from '../../lib/angular/emit-root.ts';
 import { stampOf, type Stamp } from '../../graph/inputs.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';

@@ -2,12 +2,12 @@
  * the React layer and check:script-types over the tooling itself. It sits in lib/
  * because a gate importing another domain's gate would make the domain grid a lie,
  * and lib/ is the one direction always allowed. Placed in arena/ by the vocabulary
- * rule: tsc and tsconfig belong to no single layer. check:angular keeps its own
- * runner, because ngc is another compiler. One spawn answers both questions a gate asks:
- * `--listFiles` prints the files the program read after the diagnostics, so a gate can prove
- * its project matched something without building the program twice, and a line the listing
- * cannot place is an error rather than a file or a diagnostic. tsc runs through
- * spawnForwarding, so an interrupt of the gate ends it too, and its output is read from a file. */
+ * rule: tsc and tsconfig belong to no single layer. ngc is another compiler, and the Angular
+ * layer's verdict is the emit of build:angular-tests (check-all.ts:ANGULAR_EMIT). One spawn
+ * answers both questions a gate asks: `--listFiles` prints the files the program read after
+ * the diagnostics, so a gate can prove its project matched something without building twice,
+ * and a line the listing cannot place is an error. tsc runs through spawnForwarding, so an
+ * interrupt of the gate ends it too, and its output is read from a file. */
 
 import { existsSync } from 'node:fs';
 import { isAbsolute, join } from 'node:path';

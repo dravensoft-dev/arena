@@ -34,7 +34,6 @@ export const node = {
     'build:react-barrel',
     'build:react-package',
     'generate:kitchen-sink',
-    'check:angular',
     'check:api',
     'check:appearance',
     'check:parts',

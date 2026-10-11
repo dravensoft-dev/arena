@@ -134,7 +134,6 @@ export const node = {
     'build:angular-tests',
     'build:react-package',
     'build:tailwind',
-    'check:angular',
     'check:arbitrary',
     'check:boundary-contrast',
     'check:classes',

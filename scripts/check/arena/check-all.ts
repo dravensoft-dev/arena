@@ -120,7 +120,6 @@ export const GATES: Gate[] = [
   { name: 'check:consumer', file: 'arena/check-consumer.ts' },
   { name: 'check:exports', file: 'arena/check-exports.ts' },
   { name: 'check:classes', file: 'arena/check-classes.ts' },
-  { name: 'check:angular', file: 'angular/check-angular.ts', pool: 'compiler', cost: 19.3 },
   { name: 'check:angular-demos', file: 'angular/check-angular-demos.ts' },
   { name: 'check:assertions', file: 'angular/check-assertions.ts' },
   { name: 'check:cdk', file: 'angular/check-cdk.ts' },
@@ -166,7 +165,7 @@ export function parseCheckArgs(argv: string[]) {
   return { domains, tests, force, release, jobs };
 }
 
-export const ANGULAR_EMIT: TestStep = { name: 'build (ngc emit of the Angular test surface)', args: ['run', 'build:angular-tests'], pool: 'compiler', cost: 18.8 };
+export const ANGULAR_EMIT: TestStep = { name: 'build (ngc emit of the Angular layer)', args: ['run', 'build:angular-tests'], pool: 'compiler', cost: 21.2 };
 
 export const SUITES: Record<string, { emit: boolean; args: string[] }> = {
   scripts: { emit: false, args: ['test', 'scripts'] },
@@ -191,6 +190,10 @@ export function testStep({ isBun, testFiles }: { isBun: boolean; testFiles: stri
   ];
   return [{ name: `test (node --test over every suite under scripts/, ${testFiles.length} found)`,
             args: ['--test', ...testFiles] }];
+}
+
+export function typeSteps(domains: string[]): TestStep[] {
+  return domains.includes('angular') ? [ANGULAR_EMIT] : [];
 }
 
 export function suiteSteps(name: string) {
@@ -373,7 +376,7 @@ export async function main(argv: string[] = process.argv.slice(2), list: Gate[] 
 
   const tests = selection.tests
     ? testStep({ isBun: Boolean(process.versions.bun), testFiles: testFilesUnder(join(root, 'scripts')).sort() })
-    : [];
+    : typeSteps(selection.domains);
   const cores = availableParallelism();
   const free = freemem();
   const slots = slotsFor(selection.jobs, cores, free);

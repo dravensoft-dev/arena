@@ -54,9 +54,9 @@ a gate with nothing to check rather than something to fail.
    pattern `contracts/behaviour/` declares.
 4. **Implement it in each layer**, to that layer's shape: React's trio, Angular's quartet.
    **The quartet is not the end of the Angular half**: the primitive is exported up its own
-   `index.ts`, its category's, `components/index.ts` and the layer's own, because `check:angular`
-   reaches a primitive **through** that chain. One missing from any link is never typechecked and
-   no adopter can import it from the layer root either, so the gap is quiet in a green run.
+   `index.ts`, its category's, `components/index.ts` and the layer's own: an adopter imports
+   **through** that chain, and one missing from any link compiles yet cannot be imported from the
+   layer root. `test/Barrels.test.ts` fails on the gap.
 5. **Author its appearance** as a Tailwind manifest, unless it draws geometry rather than a
    surface. A chart's manifest holds its frame, legend and tooltip, and its plot is drawn by hand.
 6. **Seed its playground fixture** in `demos/`, or `check:playgrounds` fails the contract that

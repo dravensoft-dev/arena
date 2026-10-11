@@ -43,7 +43,6 @@ export const node = {
     'build:angular-tests',
     'build:demos',
     'build:react-package',
-    'check:angular',
     'check:angular-demos',
     'check:api',
     'check:appearance',

@@ -17,7 +17,7 @@ import { ABORT_GRACE, BROWSER_CAP, GIB } from '../../graph/scheduler.ts';
 import { resolveSpecs } from '../../graph/pathspecs.ts';
 import {
   testStep, summarize, summaryLine, stepStatus, GATES, DOMAINS, gatesFor, parseCheckArgs, testFilesUnder,
-  keptButFailed, ANGULAR_EMIT, planSteps, runSteps, collate, exitCode, stepOutcome, block, poolProblems,
+  keptButFailed, ANGULAR_EMIT, typeSteps, planSteps, runSteps, collate, exitCode, stepOutcome, block, poolProblems,
   slotsLine, type Planned, type Result,
 } from './check-all.ts';
 
@@ -36,28 +36,28 @@ const BUDGET = budgetFor(COLLECTION, INTERRUPTED, TERM_GRACE, ABORT_GRACE);
 
 const MEASURED_HEAVY = new Map([
   ['check:pixel-parity', 'browser'], ['check:target-size', 'browser'], ['check:proximity', 'browser'],
-  ['check:focus-trap', 'browser'], ['check:angular', 'compiler'], ['check:script-types', 'compiler'],
+  ['check:focus-trap', 'browser'], ['check:script-types', 'compiler'],
   ['check:react-types', 'compiler'],
 ]);
 
 const MEASURED_COST = new Map([
-  ['check:pixel-parity', 34], ['check:angular', 19.3], ['check:script-types', 13.5], ['check:react-types', 12.7],
+  ['check:pixel-parity', 34], ['check:script-types', 13.5], ['check:react-types', 12.7],
   ['check:target-size', 11.9], ['check:proximity', 10.2], ['check:focus-trap', 4.1],
 ]);
 
 const TEST_COST = new Map([
-  ['build (ngc emit of the Angular test surface)', 18.8], ['test (scripts)', 38.1], ['test (react)', 0.7],
+  ['build (ngc emit of the Angular layer)', 21.2], ['test (scripts)', 38.1], ['test (react)', 0.7],
   ['test (react-dom)', 6.9], ['test (angular)', 5.4],
 ]);
 
-const SPLIT_TESTS = ['build (ngc emit of the Angular test surface)', 'test (scripts)', 'test (react)',
+const SPLIT_TESTS = ['build (ngc emit of the Angular layer)', 'test (scripts)', 'test (react)',
   'test (react-dom)', 'test (angular)'];
 
 test('GATES lists every check gate', () => {
-  assert.equal(GATES.length, 90);
+  assert.equal(GATES.length, 89);
   assert.deepEqual(
     GATES.map((g) => g.name),
-    ['check:docs', 'check:graph', 'check:portability', 'check:workflow-scripts', 'check:generated', 'check:skill-spec', 'check:skills', 'check:support', 'check:prompts', 'check:rules', 'check:register', 'check:routes', 'check:vocabulary', 'check:families', 'check:architecture', 'check:duplication', 'check:dtcg', 'check:user-scale', 'check:catalogue', 'check:style-plugin', 'check:style-plugin-coverage', 'check:role-contract', 'check:compat-aliases', 'check:polarity', 'check:tokens', 'check:token-collisions', 'check:script-tokens', 'check:duplicate-constants', 'check:deadlines', 'check:ramp', 'check:boundary-contrast', 'check:text-contrast', 'check:tailwind', 'check:tailwind-generated', 'check:coverage', 'check:radius', 'check:roles', 'check:arbitrary', 'check:safe-area', 'check:component-css', 'check:channels', 'check:dimensions', 'check:states', 'check:measured-box', 'check:intrinsic-width', 'check:appearance', 'check:parts', 'check:boundaries', 'check:layer-independence', 'check:structure', 'check:contracts', 'check:contracts-package', 'check:mcp', 'check:contracts-neutrality', 'check:contracts-resolve', 'check:behaviour', 'check:compliance', 'check:api', 'check:playgrounds', 'check:kitchen-sink', 'check:citations', 'check:agents', 'check:agents-spec', 'check:community', 'check:site', 'check:icons', 'check:fonts', 'check:intro', 'check:vendor', 'check:demos', 'check:react-barrel', 'check:react-types', 'check:text-runs', 'check:script-types', 'check:script-reach', 'check:focus-trap', 'check:target-size', 'check:pixel-parity', 'check:proximity', 'check:shared-arithmetic', 'check:packages', 'check:consumer', 'check:exports', 'check:classes', 'check:angular', 'check:angular-demos', 'check:assertions', 'check:cdk', 'check:boolean-inputs', 'check:optional-inputs'],
+    ['check:docs', 'check:graph', 'check:portability', 'check:workflow-scripts', 'check:generated', 'check:skill-spec', 'check:skills', 'check:support', 'check:prompts', 'check:rules', 'check:register', 'check:routes', 'check:vocabulary', 'check:families', 'check:architecture', 'check:duplication', 'check:dtcg', 'check:user-scale', 'check:catalogue', 'check:style-plugin', 'check:style-plugin-coverage', 'check:role-contract', 'check:compat-aliases', 'check:polarity', 'check:tokens', 'check:token-collisions', 'check:script-tokens', 'check:duplicate-constants', 'check:deadlines', 'check:ramp', 'check:boundary-contrast', 'check:text-contrast', 'check:tailwind', 'check:tailwind-generated', 'check:coverage', 'check:radius', 'check:roles', 'check:arbitrary', 'check:safe-area', 'check:component-css', 'check:channels', 'check:dimensions', 'check:states', 'check:measured-box', 'check:intrinsic-width', 'check:appearance', 'check:parts', 'check:boundaries', 'check:layer-independence', 'check:structure', 'check:contracts', 'check:contracts-package', 'check:mcp', 'check:contracts-neutrality', 'check:contracts-resolve', 'check:behaviour', 'check:compliance', 'check:api', 'check:playgrounds', 'check:kitchen-sink', 'check:citations', 'check:agents', 'check:agents-spec', 'check:community', 'check:site', 'check:icons', 'check:fonts', 'check:intro', 'check:vendor', 'check:demos', 'check:react-barrel', 'check:react-types', 'check:text-runs', 'check:script-types', 'check:script-reach', 'check:focus-trap', 'check:target-size', 'check:pixel-parity', 'check:proximity', 'check:shared-arithmetic', 'check:packages', 'check:consumer', 'check:exports', 'check:classes', 'check:angular-demos', 'check:assertions', 'check:cdk', 'check:boolean-inputs', 'check:optional-inputs'],
   );
 });
 
@@ -217,12 +217,12 @@ test('the node step names how many suites it found, because a narrowed run and a
 test('testStep runs the emit and each suite in its own process, the Angular suites after the emit they read', () => {
   const steps = testStep({ isBun: true, testFiles: ['a.test.mjs', 'b.test.mjs'] });
   assert.deepEqual(steps, [
-    { name: 'build (ngc emit of the Angular test surface)', args: ['run', 'build:angular-tests'], pool: 'compiler', cost: 18.8 },
+    { name: 'build (ngc emit of the Angular layer)', args: ['run', 'build:angular-tests'], pool: 'compiler', cost: 21.2 },
     { name: 'test (scripts)', args: ['test', 'scripts'], pool: 'compiler', cost: 38.1 },
     { name: 'test (react)', args: ['test', 'frameworks/react', '--path-ignore-patterns=**/*.dom.test.*'], pool: 'compiler', cost: 0.7 },
     { name: 'test (react-dom)', args: ['test', '--preload', './frameworks/react/test/Preload.js', '.dom.test.'], pool: 'compiler', cost: 6.9 },
     { name: 'test (angular)', args: ['test', 'frameworks/angular/build/test'], pool: 'compiler', cost: 5.4,
-      after: ['build (ngc emit of the Angular test surface)'] },
+      after: ['build (ngc emit of the Angular layer)'] },
   ]);
   assert.equal(steps[0], ANGULAR_EMIT);
 });
@@ -233,6 +233,13 @@ test('bun is pointed at the tree ngc actually emits, so a rootDir edit cannot ru
   assert.equal(runs.length, 4, 'the bun branch runs four test invocations');
   assert.ok(runs.some((s) => s.args.includes(toPosix(emitted))),
     `no test step runs ${emitted}, which is where ngc emits`);
+});
+
+test('a run without the suites still compiles the Angular layer when it selects angular, because the emit is its type verdict', () => {
+  assert.deepEqual(typeSteps(['angular']), [ANGULAR_EMIT]);
+  assert.deepEqual(typeSteps(['core', 'angular']), [ANGULAR_EMIT]);
+  assert.deepEqual(typeSteps(['core', 'arena']), []);
+  assert.deepEqual(typeSteps(DOMAINS), [ANGULAR_EMIT]);
 });
 
 test('testStep runs `node --test` over the discovered files under node', () => {
@@ -290,7 +297,7 @@ test('a failure the graph would have run anyway is the gate\'s own, and says not
 });
 
 test('every gate measured as a browser or a compiler declares that pool, and no other gate declares one', () => {
-  assert.equal(MEASURED_HEAVY.size, 7);
+  assert.equal(MEASURED_HEAVY.size, 6);
   const declared = new Map(GATES.filter((g) => g.pool !== undefined).map((g) => [g.name, g.pool]));
   for (const name of MEASURED_HEAVY.keys()) assert.ok(GATES.some((g) => g.name === name), `${name} is not in GATES`);
   assert.deepEqual([...declared].sort(), [...MEASURED_HEAVY].sort(),
@@ -311,10 +318,10 @@ test('a pool no step can run in is refused from the declarations, before anythin
   const slots = { total: 4, heavy: 2, browser: 1 };
   const steps = testStep({ isBun: true, testFiles: [] });
   assert.deepEqual(poolProblems(GATES, steps, slots), []);
-  const typo = GATES.map((g) => (g.name === 'check:angular' ? { ...g, pool: 'compilr' as never } : g));
+  const typo = GATES.map((g) => (g.name === 'check:script-types' ? { ...g, pool: 'compilr' as never } : g));
   const problems = poolProblems(typo, steps, slots);
   assert.equal(problems.length, 1);
-  assert.match(problems[0] ?? '', /check:angular declares pool "compilr", which is none of browser, compiler/);
+  assert.match(problems[0] ?? '', /check:script-types declares pool "compilr", which is none of browser, compiler/);
   const lightCost = GATES.map((g) => (g.name === 'check:docs' ? { ...g, cost: 1 } : g));
   assert.match(poolProblems(lightCost, steps, slots).join(), /check:docs declares a cost and no pool/);
   assert.match(poolProblems(GATES, steps, { total: 0, heavy: 1, browser: 1 }).join(), /total slots are 0/);
@@ -328,20 +335,47 @@ test('main refuses a misspelt pool with the sentence and exit 1, before --force 
       const url = JSON.stringify(pathToFileURL(join(repoRoot, 'scripts', 'check', 'arena', 'check-all.ts')).href);
       writeFileSync(harness, [
         `import { GATES, main } from ${url};`,
-        "const typo = GATES.map((g) => (g.name === 'check:angular' ? { ...g, pool: 'compilr' } : g));",
-        `await main(['--domain=angular', '--no-tests', '--force'], typo, ${JSON.stringify(dir)});`,
+        "const typo = GATES.map((g) => (g.name === 'check:script-types' ? { ...g, pool: 'compilr' } : g));",
+        `await main(['--domain=arena', '--no-tests', '--force'], typo, ${JSON.stringify(dir)});`,
       ].join('\n'));
       const canary = join(dir, '.cache', 'artifacts', 'canary.json');
       mkdirSync(join(dir, '.cache', 'artifacts'), { recursive: true });
       writeFileSync(canary, '{}');
       const r = await childOutputAsync(process.execPath, [harness], { cwd: dir });
       assert.equal(r.code, 1, r.output);
-      assert.match(r.output, /check-all: the run cannot be scheduled: check:angular declares pool "compilr"/);
+      assert.match(r.output, /check-all: the run cannot be scheduled: check:script-types declares pool "compilr"/);
       assert.doesNotMatch(r.output, /--force dropped/, 'the purge ran before the refusal');
       assert.ok(existsSync(canary), 'the refusal came after the purge deleted the artifacts');
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
+  });
+
+async function refusal(domain: string, gate: Record<string, unknown>) {
+  const dir = mkdtempSync(join(tmpdir(), 'check-all-emit-'));
+  try {
+    const harness = join(dir, 'harness.ts');
+    const url = JSON.stringify(pathToFileURL(join(repoRoot, 'scripts', 'check', 'arena', 'check-all.ts')).href);
+    writeFileSync(harness, [
+      `import { main } from ${url};`,
+      `await main(['--domain=${domain}', '--no-tests'], [${JSON.stringify(gate)}], ${JSON.stringify(dir)});`,
+    ].join('\n'));
+    return await childOutputAsync(process.execPath, [harness], { cwd: dir });
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+}
+
+test('main with --no-tests plans the emit when it selects angular and plans no step otherwise',
+  { timeout: BUDGET }, async () => {
+    const twin = { name: ANGULAR_EMIT.name, file: 'angular/twin.ts' };
+    const angular = await refusal('angular', twin);
+    assert.equal(angular.code, 1, angular.output);
+    assert.match(angular.output, /build \(ngc emit of the Angular layer\) is listed twice/, angular.output);
+    const core = await refusal('core', { name: 'check:dtcg', file: 'core/check-dtcg.ts', pool: 'compilr' });
+    assert.equal(core.code, 1, core.output);
+    assert.match(core.output, /check:dtcg declares pool "compilr"/, core.output);
+    assert.doesNotMatch(core.output, /listed twice|ngc emit/, core.output);
   });
 
 test('the slots line names what bounded each figure, so a flag the cores capped is not credited with the number', () => {

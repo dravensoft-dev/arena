@@ -7,6 +7,8 @@ import { platform } from '../../lib/arena/platform.ts';
 import { budgetFor } from '../../lib/arena/deadline.ts';
 import { TERM_GRACE } from '../../lib/arena/child-output.ts';
 import { PROBE_ENDED, PROBE_SPAWNED, assertCompilerEnded, probeInterrupt } from '../../lib/arena/forwarding-probe.ts';
+import { readJson } from '../../utils/read-file.ts';
+import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { collectInputs, missingEmitProblems, readStamp, recordInputs, stalenessReason } from './build-angular-tests.ts';
 
 const roots: string[] = [];
@@ -155,4 +157,28 @@ test('an interrupt of the test-surface step ends the ngc it spawned', {
     body: 'await step.compileTests(stub, "unused.json", root);',
   });
   assertCompilerEnded(probed, false);
+});
+
+const BUILD_ONLY_OPTIONS = ['outDir', 'sourceMap', 'incremental', 'tsBuildInfoFile'];
+
+test('the one Angular program reaches the suites and every page entry, and relaxes nothing', () => {
+  const emit = readJson(join(repoRoot, 'frameworks/angular/tsconfig.test.json'));
+  assert.equal(emit.extends, './tsconfig.check.json',
+    'the emit project must inherit the layer project rather than restate its strictness');
+  for (const dir of ['./test/', './components/', './playground/', './kitchen-sink/', './metadata/', './forms/']) {
+    assert.ok(Array.isArray(emit.include) && emit.include.some((p: string) => p.startsWith(dir)),
+      `the emit project does not cover ${dir}, and it is the only Angular program: ${JSON.stringify(emit.include)}`);
+  }
+  assert.equal(emit.angularCompilerOptions, undefined,
+    'the emit project must carry no angularCompilerOptions of its own -- it relaxes nothing');
+  const extra = Object.keys(emit.compilerOptions ?? {}).filter((k) => !BUILD_ONLY_OPTIONS.includes(k));
+  assert.deepEqual(extra, [],
+    `the emit project may carry build configuration only; these are something else: ${extra.join(', ')}`);
+});
+
+test('the layer project names the shipped entry points, which the one program reaches', () => {
+  const layer = readJson(join(repoRoot, 'frameworks/angular/tsconfig.check.json'));
+  assert.deepEqual(layer.files, ['./index.ts', './metadata/index.ts', './forms/index.ts']);
+  assert.ok(layer.angularCompilerOptions?.strictTemplates === true,
+    'the emit is the layer\'s type verdict, and without strictTemplates a template error compiles');
 });

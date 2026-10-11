@@ -2,7 +2,6 @@
 
 | gate | fails when |
 | --- | --- |
-| `check-angular.ts` | the layer stops typechecking under `ngc --strictTemplates`. A green compile is a claim about **types**, and never about behaviour. |
 | `check-angular-demos.ts` | a component has no `<Name>.demo.generated.html` and `<Name>.demo.entry.generated.ts` beside it, or its page loads a module other than the bundle that entry compiles to. **There is no coverage list**, because every component has a page: the inventory is the component tree, so a page cannot go missing behind a list and a list cannot go stale. Structural and portable, needing no browser and no bundler, because the pages' script is git-ignored build output, and a blank page would pass a viewport check by having nothing to overflow. Whether a page RENDERS is held by nothing. |
 | `check-assertions.ts` | an Angular suite compares DOM nodes with an equality assertion. `node:assert` renders both operands into its diff, and a **connected** happy-dom node reaches the whole document from there. With one document shared across the run, a failing identity assertion is what exhausts the run rather than what reports the defect. |
 | `check-cdk.ts` | the CDK overlay bridge overrides a rule that overrides nothing, names a token that resolves to nothing, or targets a class the CDK has renamed upstream. It examines the selectors, which it can because the prebuilt sheet is the oracle; what it still cannot check is whether the override is the **right** value. |

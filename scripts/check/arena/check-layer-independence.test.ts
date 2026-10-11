@@ -1,6 +1,6 @@
 /* FORBIDDEN is asserted by literal value because it IS the rule -- a layer quietly dropped
  * from another's foreign set would leave the gate green over the coupling it exists to catch.
- * The lowercase cases matter as much: check:angular, test:react and build:tailwind are script
+ * The lowercase cases matter as much: check:cdk, test:react and build:tailwind are script
  * names every layer may write, and a case-insensitive token would have failed all three. */
 
 import { test } from 'node:test';
@@ -73,7 +73,7 @@ test('ALLOWED_SPECIFIERS is answerable to the real tree: a pattern nothing refer
 
 test('a citation of another layer is a hit, and a script name of any layer is not', () => {
   const tokens = foreignTokens('angular');
-  assert.deepEqual(textualHits('bun run check:angular && bun run test:react', tokens), []);
+  assert.deepEqual(textualHits('bun run check:cdk && bun run test:react', tokens), []);
   assert.equal(textualHits('matching React exactly', tokens).length, 1);
   assert.equal(textualHits('the same values ArenaCheckbox.tsx reads', tokens)[0]?.token, '.tsx');
 });

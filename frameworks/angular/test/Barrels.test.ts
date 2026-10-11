@@ -1,13 +1,12 @@
-/* `tsconfig.check.json` declares `files: ["./index.ts"]`, so `check:angular` typechecks the
- * transitive closure of the barrels and nothing else -- a primitive missing from one is not
- * compiled under strictTemplates, and an adopter importing from the layer root cannot reach
- * it. Five display primitives were missing for exactly that long, and the gap also hid a real
- * name collision between two `GridCursor` shapes. PRIVATE and ROOT_PRIVATE are the record of
- * what a barrel deliberately does NOT export, and both carry the bidirectional staleness rule:
- * a named module that has since become exported fails here. A demo entry is out of scope on the
- * same footing as a suite: it is a page's own bootstrap, it is generated, and it ships nowhere.
- * A `.classes.generated.ts` does ship, but a `.variants.ts` imports it, so the barrel already
- * typechecks it, and exporting it would read as a promise that a class name is API. */
+/* An adopter imports from the layer root, so a primitive missing from a barrel cannot be reached
+ * from there, though the one ngc program over the layer still compiles it under strictTemplates.
+ * A missing export can also hide a real name collision between two `GridCursor` shapes.
+ * PRIVATE and ROOT_PRIVATE are the record of what a barrel deliberately does NOT export, and
+ * both carry the bidirectional staleness rule: a named module that becomes exported fails here.
+ * A demo entry is out of scope on the same footing as a suite: it is a page's own bootstrap, it
+ * is generated, and it ships nowhere. A `.classes.generated.ts` does ship, but a `.variants.ts`
+ * imports it, so the barrel already typechecks it, and exporting it would read as a promise that
+ * a class name is API. */
 
 import test from 'node:test';
 import assert from 'node:assert/strict';

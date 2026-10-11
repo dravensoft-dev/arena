@@ -11,6 +11,7 @@
     "./components/**/*.ts",
     "./playground/**/*.ts",
     "./test/**/*.ts",
+    "./kitchen-sink/**/*.ts",
     "./metadata/**/*.ts",
     "./forms/**/*.ts",
     "./theme/**/*.ts",

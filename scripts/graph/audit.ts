@@ -18,7 +18,6 @@ import type { GraphNode } from './graph.ts';
 
 export const UNTRACEABLE = new Map([
   ['check:react-types', 'it spawns tsc, and the compiler opens the layer in the other process'],
-  ['check:angular', 'it spawns ngc once per project, and the compiler opens the layer in there'],
   ['check:angular-demos', 'it reads what ngc emitted, and ngc ran elsewhere'],
   ['check:focus-trap', 'it drives a browser, which fetches over a socket rather than opening a file'],
   ['check:consumer', 'it runs the shipped CLI in a scratch project, in another process'],

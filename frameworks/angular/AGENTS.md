@@ -336,14 +336,14 @@ overlay in a real browser, which is where a z-index that stacks wrongly is visib
 
 ## Verifying the layer
 
-`bun run check:angular` compiles every primitive with `ngc` under `strictTemplates`
-(`tsconfig.check.json`), and it reaches a primitive **through the barrel**, so a
-primitive missing from its own `index.ts`, its category's, `components/index.ts` or the
-layer's `index.ts` is not typechecked, and no adopter can import it from the layer root
-either. `test/Barrels.test.ts` walks that chain and fails on a gap; what a barrel
-deliberately withholds is named in its `PRIVATE`/`ROOT_PRIVATE` maps with a reason each,
-under the same bidirectional staleness rule the other records carry. Each manifest-backed
-primitive also has a static specimen at
+`bun run build:angular-tests` compiles the whole layer with `ngc` under `strictTemplates`, in one
+program over every primitive, suite and page entry (`tsconfig.test.json`, which extends
+`tsconfig.check.json`), and its exit is the layer's type verdict. A primitive missing from its own
+`index.ts`, its category's, `components/index.ts` or the layer's `index.ts` still compiles, and no
+adopter can import it from the layer root. `test/Barrels.test.ts` walks that chain and fails on a
+gap; what a barrel deliberately withholds is named in its `PRIVATE`/`ROOT_PRIVATE` maps with a
+reason each, under the same bidirectional staleness rule the other records carry. Each
+manifest-backed primitive also has a static specimen at
 `frameworks/tailwind/components/<category>/<component-kebab>/<Component>.card.html`,
 which renders the real markup
 with the real recipe and no Angular executed. A specimen therefore proves the *recipe*,

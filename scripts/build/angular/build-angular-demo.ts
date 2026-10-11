@@ -9,7 +9,7 @@ import { existsSync, rmSync } from 'node:fs';
 import { isMainModule } from '../../utils/main-module.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { relPosix } from '../../utils/posix-path.ts';
-import { ngcBin } from '../../check/angular/check-angular.ts';
+import { ngcBin } from '../../lib/angular/ngc-bin.ts';
 import { angularEmitRoot } from '../../lib/angular/emit-root.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { endIfInterrupted, spawnForwarding } from '../../lib/arena/spawn-forwarding.ts';
