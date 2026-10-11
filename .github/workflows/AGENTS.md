@@ -1,13 +1,14 @@
 # .github/workflows/
 
-One guards a pull request, one guards `main`, one guards `develop`, one per package publishes it,
-one writes a release page and one serves the site. `ls .github/workflows/*.yml` is what says how
-many, because a figure written here is a number no assertion holds.
+One verifies, one guards a pull request, one guards `main`, one guards `develop`, one per package
+publishes it, one writes a release page and one serves the site. `ls .github/workflows/*.yml` is
+what says how many, because a figure written here is a number no assertion holds. `Arena verify` is
+the workflow the guards call, and `Arena main` verifies and then saves the build.
 
 ```
-pull_request -> main|develop  Arena PR
-push to develop               Arena develop         and the operating system matrix
-push to main                  Arena main            builds, and saves that build
+pull_request -> main|develop  Arena PR              calls Arena verify
+push to develop               Arena develop         calls Arena verify, and the operating system matrix
+push to main                  Arena main            calls Arena verify, then saves that build
    |
    +-- on success             Publish arena-react      restores it
    +-- on success             Publish arena-angular    restores it
@@ -17,33 +18,38 @@ push to main                  Arena main            builds, and saves that build
    +-- on success             Release notes            describes the tag this commit reaches
 ```
 
-## Arena PR
+## Arena verify
 
-Two stages, `build` then `test`, and the fan-out is in the second one.
+Called by the guards and run by no event of its own. It takes the inputs `domains`, the
+`check-all` domains the caller selects, comma-separated, and `chrome-path`, the browser only
+`Arena main` names and empty for the rest. They are inputs because a called workflow takes none of
+its caller's `env:`.
 
 ```
-changes            which layers this diff reaches
+build                bun run build:release, the idempotency check, then the artifact
    |
-build              bun run build:release, which assembles too, then one cache entry
+   +-- gates             every gate of the selected domains, side by side
+   +-- suites-scripts    always            the suites under scripts/
+   +-- suites-react      if react          the React invocations
+   +-- suites-angular    if angular        the emit, then the suites off it
    |
-   +-- test-core       always            the core and arena gates + the suites under scripts/
-   +-- test-react      if react          the react gates + the two React invocations
-   +-- test-angular    if angular        the angular gates + the suites off the ngc emit
-   +-- test-tailwind   if tailwind       the tailwind gates
-   |
-pr-gate            the only required check, and it waits for every job above
+summarize            joins the reports the suite jobs wrote
 ```
-
-**The operating system matrix is not here**, and `Arena develop` carries it. The reason is the
-event: this one fires on every push to an open pull request, and Arena takes pull requests from
-anyone, so a matrix here bills three operating systems per revision of every contribution rather
-than once per change that was accepted.
 
 **`build` is one job because the build is one thing.** The steps run in an order the graph derives
 and the order is not decorative: the Tailwind preset compiles against the token CSS, and every
 layer's components read the class names that step writes. A build job per layer would have each of
 them redoing most of what the others did.
 [`../../scripts/build/AGENTS.md`](../../scripts/build/AGENTS.md) carries how the order is decided.
+
+It runs `bun run build:release`, proves the build idempotent with `git diff --exit-code`, and
+uploads the tree as `arena-build-<run id>`, the paths of
+`scripts/graph/handoff.ts:BUILD_HANDOFF_PATHS`. The upload sets `include-hidden-files: true`,
+because the Angular package's `.npmignore` and the emit's stamp open with a dot and
+`upload-artifact` leaves such files out otherwise; `check:graph` holds that flag. Retention is one
+day, and `overwrite` lets a re-run of every job replace the first attempt's build rather than fail
+on its name. Every job that runs the tree downloads that artifact after it installs, and a missing
+one is a defect of the run, so the job fails rather than testing an unbuilt tree.
 
 **A workflow that verifies or publishes builds with `--force --assert-full`, never with
 `bun run build`.** Locally the build keeps what nothing has moved under, which is the point of
@@ -70,66 +76,85 @@ non-goal, and carrying its outputs is not the same thing**: `.cache/` is restore
 directory, so no workflow here ever builds incrementally. What a restore hands over is a finished
 tree, and a job that takes one either uses it whole or builds the whole thing itself.
 
-**The four names are on the test stage, where the layers are genuinely disjoint.** A gate
-belongs to exactly one of the five domains `check-all.ts` sorts by, and the jobs partition
-that set: `core` takes the `core` and `arena` domains, and the other three take their own.
-`check-all.test.ts` asserts the partition, so a gate cannot join `GATES` and run in no job.
+**The gates run in one job, side by side.** `check-all --no-tests` takes the domains the caller
+selects and runs every gate of them at once, and `scripts/graph/scheduler.ts:slotsFor` sizes the
+slots from the runner, so no `--jobs` is written here. Gates and suites are split, and a job per
+domain is not the shape: a job per domain repeats the checkout, the install and the download to run
+a few seconds of gates.
 
-**`core` runs on every change, and that is not caution.** The `arena` domain is where the
+**Each suite runs in a job of its own.** A suite job runs `bun run ci:summarize --suite=<name>`,
+and the Angular one runs the emit first, which the restored stamp answers without compiling. A
+suite job whose `if` names a domain runs only when its caller selects that domain, and each uploads
+the reports it wrote as `junit-<name>`.
+
+**`summarize` downloads every `junit-*` report and joins them** with
+`bun run ci:summarize --join --domains`, so the run summary carries a table of passes per domain.
+
+A domain that owns suites and reported no case fails the run, as does a tree that
+contributed nothing and a case belonging to no domain. A selected suite with no report fails it, and
+so does a report nothing selected. A reporter that quietly dropped a suite would otherwise print a
+confident table of zeros.
+
+**`scripts/ci/arena/verify-workflow.ts` reads this file and its callers**, so no list of CI jobs is
+kept beside it. `check-all.test.ts` holds through it that one job runs the gates, that every domain
+is selected by some caller, and that each suite runs in one job gated by its domain.
+
+## Arena PR
+
+`changes` routes, `verify` is a call to `Arena verify`, and `pr-gate` is the one check branch
+protection requires.
+
+```
+changes            which layers this diff reaches, as the domains verify takes
+   |
+verify             Arena verify, with the domains from changes
+   |
+pr-gate            the only required check, and it waits for every job above
+```
+
+**The operating system matrix is not here**, and `Arena develop` carries it. The reason is the
+event: this one fires on every push to an open pull request, and Arena takes pull requests from
+anyone, so a matrix here bills every operating system per revision of every contribution rather
+than once per accepted change.
+
+**`core` and `arena` run on every change, and that is not caution.**
+`scripts/ci/arena/changed-layers.ts:domainsOf` keeps every domain that is no layer, so a pull
+request selects both of them and each layer its diff reaches. The `arena` domain is where the
 cross-layer gates are: `check:api`, `check:behaviour`, `check:compliance`, `check:structure`,
-`check:dimensions`, `check:layer-independence`, `check:focus-trap`. Each of
-them reads more than one layer, so none of them is a React question or an Angular question.
-And `scripts/lib/arena/behaviour-contracts.test.ts` asserts the React component count by
-literal value: a change confined to `frameworks/react/` breaks a suite under `scripts/`.
+`check:dimensions`, `check:layer-independence`, `check:focus-trap`. Each of them reads more than
+one layer, so none of them is a React question or an Angular question. And
+`scripts/lib/arena/behaviour-contracts.test.ts` asserts the React component count by literal
+value: a change confined to `frameworks/react/` breaks a suite under `scripts/`.
 
 **Which layers a diff reaches is decided by `scripts/ci/arena/changed-layers.ts`**, not by
 a path filter written here, because that module has a suite and a YAML filter does not. Its
 least obvious rule is the one worth reading: a Tailwind edit routes to both other layers,
-because each compiles something that layer emits.
+because each compiles something that layer emits. The route prints the `domains=` line that
+`verify` takes as its input, next to a `layer=` line for each layer.
 
-**`pr-gate` is the single required check.** A job skipped by an `if` reports success to
-branch protection, so requiring `test-react` directly would be satisfied by a React change
-that failed to route. `pr-gate` runs with `always()` and reads `needs.*.result`, which no
-routing decision can skip. It is green when every result is `success` or `skipped`, and red on
-`failure` or `cancelled`.
+**`pr-gate` is the single required check.** A job skipped by an `if` inside `Arena verify` reports
+success, so requiring `verify / suites-react` directly would be satisfied by a change that failed
+to route. `pr-gate` runs with `always()` and reads `needs.*.result`, which no routing decision can
+skip, and `verify` reports failure when any job inside it fails. It is green when every result is
+`success` or `skipped`, and red on `failure` or `cancelled`.
 
 **Being the single required check makes its `needs` list the whole gate**, and a job missing from
-it is a job whose failure branch protection never hears about. That is not hypothetical: the
-operating system matrix was a workflow of its own, `needs` cannot name a job in another workflow,
-and `pr-gate` was therefore green over a red macOS for as long as the arrangement lasted. The
-matrix is a job here now, and `check:portability` holds the list to **every other job in this
-file** rather than to a copy of it kept in step by hand.
-
-**`portable` is the one job that does not take the `build` cache**, and it must not. It asks
-whether `bun run build` works on a machine that is not this one, so a job handed the Linux build
-would be answering a question nobody asked. It builds on each of its three runners and then
-compares the result to what the Linux tree committed, which is what `git diff --exit-code` is
-doing in a matrix leg.
-
-**A leg that fails without failing the gate is `continue-on-error`, and the flag comes from one
-place.** `scripts/ci/arena/supported-os.ts` declares `blocking` per platform with its reason, the
-matrix sets `continue-on-error: ${{ !matrix.blocking }}`, and a failing leg with that flag hands
-`needs` a result of `success`. So the flag is the single edit that decides whether a platform
-gates, and `pr-gate` needs no clause of its own about any of them: a leg declared blocking turns
-a red operating system into a merge request that cannot land.
+it is a job whose failure branch protection never hears about. `needs` cannot name a job in another
+workflow, so the operating system matrix, which lives in `develop.yml`, is not in this list, and
+`check:portability` holds the list to **every other job in this file** rather than to a copy of it
+kept in step by hand.
 
 ## Arena main
 
-One job, and deliberately not the fan-out. It runs every gate and then the whole suite
-through `bun run ci:summarize`, which takes the invocation from `testStep()` in
-`check-all.ts` and appends the two junit flags. `check-all.ts` stays the one place the
-test invocation is written down, and the run summary carries a table of passes per domain.
-
-A domain that owns suites and reported no case fails the run, as does a tree that
-contributed nothing and a case belonging to no domain. A reporter that quietly dropped a
-suite would otherwise print a confident table of zeros.
+`verify` calls `Arena verify` with every domain and the one `chrome-path`. `cache` downloads the
+artifact that run uploaded and saves it.
 
 **It saves its build, and that is the only reason the publish workflows and the site are cheap.**
 Each fires on this workflow's success and would otherwise build the same commit for itself. The
 key is `arena-build-<os>-<sha>`, the commit rather than the run, because the run that reads it is
-not this one and does not know its number. The save sits directly after the idempotency check,
-which is the last moment the tree is known to be exactly what the build wrote and nothing a gate
-has touched after it.
+not this one and does not know its number. The save happens after every gate and suite passed, on
+the tree the build job uploaded straight after its idempotency check, which is the last moment the
+tree is known to be exactly what the build wrote and nothing a gate has touched after it.
 
 The eviction rule is what makes the commit the right key rather than a happy one. A cache goes
 unread for seven days and is gone, so a release cut long after its push finds nothing, and a key
@@ -139,15 +164,14 @@ so a re-run keeps the first run's build and stays green.
 
 ## Arena develop
 
-Two jobs. `verify` is the same five steps as `Arena main`, in the same order, and it is the only
-job here that is a copy of another. It exists because work lands on `develop` before it lands on
-`main`, and what lands there is not always what a pull request tested. `Arena PR` runs on pull
-requests into `develop` as well as into `main`, and each run tests the head at that moment; a
-merge commit resolved afterwards, and a push straight to the branch, are verified by this
-workflow and by nothing else.
+`verify` calls the same workflow as `Arena main` with every domain. It exists because work lands on
+`develop` before it lands on `main`, and what lands there is not always what a pull request
+tested. `Arena PR` runs on pull requests into `develop` as well as into `main`, and each run tests
+the head at that moment; a merge commit resolved afterwards, and a push straight to the branch, are
+verified by this workflow and by nothing else.
 
-**`portable` is the operating system matrix**, three legs on their own `bun run build`, and this
-is where the question is asked. `check:portability` holds the legs equal to
+**`portable` is the operating system matrix**, one leg per platform on its own `bun run build`, and
+this is where the question is asked. `check:portability` holds the legs equal to
 [`../../scripts/ci/arena/supported-os.ts`](../../scripts/ci/arena/supported-os.ts) and reads this
 file to do it. A merge request from `develop` to `main` is opened on a green `develop`, so a
 platform this matrix reddens is one that never reaches the branch the packages publish from.
@@ -155,15 +179,28 @@ platform this matrix reddens is one that never reaches the branch the packages p
 It is a separate file rather than a second branch on `Arena main`'s trigger, and the reason is
 the name. Every workflow downstream of a release fires on `workflow_run` of the workflow named
 `Arena main`, so a `develop` push carrying that name would raise the publish question about a
-branch that is not `main`. Their `branches: [main]` filter refuses it, but the refusal is one file away from the
-event; a name of its own puts the answer in the workflow that asks.
+branch that is not `main`. Their `branches: [main]` filter refuses it, but the refusal is one file
+away from the event; a name of its own puts the answer in the workflow that asks.
 
-**`verify` caches nothing**, so `bun install` is cold on every run, and it saves nothing either.
-`Arena PR` caches because a pull request is pushed to repeatedly and its four test jobs each need
-the one build, and `Arena main` because four later workflows read what it built. `verify` runs
-once per merge and is read by nobody, where a cache saves a fraction of a run it would also have
-to be kept honest across. `portable` restores a bun install cache per operating system and saves
-none of the build, because what it is asking is whether a fresh tree builds on that platform.
+**`verify` saves no build.** The jobs of `Arena verify` restore the bun install cache
+the way a pull request's do, and the build travels inside the run as an artifact, but `develop`
+saves no build for any later run. `Arena main` saves one because the publish workflows and the site
+read what it built, and nothing reads what a push to `develop` built. `portable` restores a bun
+install cache per operating system and saves none of the build, because what it is asking is
+whether a fresh tree builds on that platform.
+
+**`portable` is the one job that does not take the build artifact**, and it must not. It asks
+whether `bun run build` works on a machine that is not this one, so a job handed the Linux build
+would be answering a question nobody asked. It builds on each of its runners and then compares the
+result to what the Linux tree committed, which is what `git diff --exit-code` is doing in a matrix
+leg.
+
+**A leg that fails without failing the gate is `continue-on-error`, and the flag comes from one
+place.** `scripts/ci/arena/supported-os.ts` declares `blocking` per platform with its reason, the
+matrix sets `continue-on-error: ${{ !matrix.blocking }}`, and a failing leg with that flag hands
+`needs` a result of `success`. So the flag is the single edit that decides whether a platform
+gates, and the matrix needs no clause of its own about any of them: a leg declared blocking turns
+a red operating system into a merge request that cannot land.
 
 **Assembling is part of the build rather than a step of its own.** `bun run build:release` passes
 `--assemble`, so every package is part of the run the workflow already makes. Dropping the
@@ -314,9 +351,9 @@ on a miss builds `--target=build:site`, the site and every step it reads from.
 `bun run build:site` copies rather than rewrites, so a page served from the domain is the page a
 clone serves, and `bun run check:site` holds every href and src in the output to a file that is
 there. **It needs a browser**, because the card a link preview reads is rendered from the site's
-own tokens rather than exported by hand, and it takes the one `pr.yml` already takes:
-`browser-actions/setup-chrome` with `CHROME_PATH` deliberately unexported, since
-`check:portability` fails when a second workflow names it.
+own tokens rather than exported by hand, and it takes the one the `portable` legs of
+`develop.yml` take too: the `browser-actions/setup-chrome` step with `CHROME_PATH` deliberately
+unexported, because `check:portability` fails when a second workflow names it.
 
 **It is also the only job here that builds a second repository.** The benches are written in
 `dravensoft-dev/arena-web-benches`, and this job checks that repository out into the workspace,
@@ -404,10 +441,11 @@ always built from the same tree.
 Either half satisfies it. Bun answers a bare specifier in a job with no `bun install` by fetching
 it at whatever major the registry serves rather than the one `bun.lock` pins, so a script that
 reaches one is a script whose behaviour is decided elsewhere and can change with no commit here.
-The guard jobs of the three publish workflows, the routing job of `pr.yml` and the whole of
-`release.yml` deliberately skip the install, because what each asks costs less than it would; their scripts therefore
-import only `node:` builtins and files in this tree. `check:workflow-scripts` reads a job rather
-than a workflow and refuses the other combination.
+The guard jobs of the publish workflows, the routing job of `pr.yml`, the `summarize` job of
+`verify.yml` and the whole of `release.yml` deliberately skip the install, because what each asks
+costs less than it would; their scripts therefore import only `node:` builtins and files in this
+tree. `check:workflow-scripts` reads a job rather than a workflow and refuses the other
+combination.
 
 ## Notes on the runner
 
@@ -428,31 +466,35 @@ question to answer rather than a flag to set. `actions/setup-node` from v6 cache
 only when `packageManager` names npm, and this repository's names bun, so a jump to v5 rather than
 past it would have switched on a cache nobody asked for.
 
-**Chromium.** The gates that measure a real render drive a browser, and `CHROME_PATH` is terminal: set and pointing
-at nothing, they report that rather than falling back to the candidate list. **Only `main.yml`
-sets it**, to `/usr/bin/google-chrome`, which the image documents. `pr.yml` and `develop.yml`
-name no browser on purpose, so every pull request proves the candidate list finds one, and the
-single workflow that does name one keeps the terminal-override branch exercised. Exporting it
-everywhere is what made that list unreachable in the first place, and a runner is the last place
-that should be re-established.
+**Chromium.** The gates that measure a real render drive a browser, and `CHROME_PATH` is terminal:
+set and pointing at nothing, they report that rather than falling back to the candidate list.
+**Only `main.yml` names a browser**, by passing `/usr/bin/google-chrome`, which the image documents,
+as the `chrome-path` input of `verify.yml`, and `verify.yml` hands it to every job as `CHROME_PATH`.
+An empty value is no value to `scripts/lib/arena/chromium.ts:findChromium`, so `pr.yml` and
+`develop.yml`, which pass none, prove the candidate list finds one, and the single workflow that
+does name one keeps the terminal-override branch exercised. `check:portability` holds that one
+workflow names one. Exporting it everywhere is what made that list unreachable in the first place,
+and a runner is the last place that should be re-established.
 
 **Strictness is automatic.** GitHub sets `CI=true`, which `skipExitCode()` reads, so a gate
 whose dependency is missing fails instead of skipping. There is nothing to configure and
 nothing to remember; a missing browser is a red run.
 
-**The cache is not an artifact.** `actions/cache` carries a build to the jobs that need it and
-nothing else, with no `restore-keys` anywhere. Inside `Arena PR` the key is the run and its
-attempt, so it is never stale, and a restore that misses fails the job rather than testing an
-unbuilt tree. From `Arena main` to the workflows that follow it the key is the commit, because
-the reader is a separate run, and a restore that misses builds instead, because there is a real
-commit whose build has simply aged out. Both keys are exact for the same
-reason: a prefix fallback would hand a job somebody else's build.
+**The cache is not an artifact.** Inside one run the build travels as an artifact: `verify.yml`
+uploads it for one day, and a download that misses fails the job rather than testing an unbuilt
+tree. From `Arena main` to the workflows that follow it the build travels as a cache keyed by the
+commit, because the reader is a separate run, and a restore that misses builds instead, because
+there is a real commit whose build has simply aged out. There is no `restore-keys` anywhere, for
+the same reason in both: a prefix fallback would hand a job somebody else's build.
 
-`upload-artifact` appears only in the publish workflows, where the artifact is a release
-record rather than a hand-off. The two never trade places. A cache is evicted at seven days
-unread and is addressed by a key nobody keeps; an artifact is kept for ninety days and is the
-account of what shipped.
+`upload-artifact` appears in `verify.yml` and in the publish workflows. In `verify.yml` the artifact
+is a hand-off inside the run, kept one day, and in the publish workflows it is a release record. A
+cache is evicted at seven days unread and is addressed by a key nobody keeps; a release record is
+kept for ninety days and is the account of what shipped.
 
 **`check:docs` reads this directory.** Every `.md` here is held to the size limit and to the
 punctuation rule, the same as anywhere else in the tree. It does not read `.yml`; `check:graph`,
 `check:portability` and `check:workflow-scripts` do, each for the part of a workflow it holds.
+`check-all.test.ts` reads them through `scripts/ci/arena/verify-workflow.ts`,
+`scripts/graph/run-build.test.ts` reads the publish workflows and `pages.yml`, and
+`scripts/ci/arena/run-portability.test.ts` reads `develop.yml`.

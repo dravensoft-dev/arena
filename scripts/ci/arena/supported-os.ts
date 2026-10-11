@@ -1,7 +1,7 @@
 /* Which operating systems Arena is developed on, declared here rather than only in a matrix.
  * A routing rule that lives in YAML alone is a rule nothing tests, which is the argument
  * changed-layers.ts already makes about the layer filter; check:portability holds the matrix in
- * pr.yml equal to this list AND holds each leg's blocking flag to what is claimed here, so a leg
+ * develop.yml equal to this list AND holds each leg's blocking flag to what is claimed, so a leg
  * cannot quietly stop counting. Each entry carries its reason, because a matrix row is otherwise
  * indistinguishable from a habit. `blocking: false` is a platform whose branches are written and
  * whose runner has not yet confirmed them: it reports and does not gate, and the flag flipping to

@@ -20,7 +20,7 @@ judging.
 | `pools.ts` | `POOLS` and `Pool`, the pools a heavy step can name, kept apart from the scheduler so a declaration is typed and judged without importing the deadlines the scheduler carries. |
 | `step-block.ts` | `stepBlock(runner, step, output, outcome)`, the block a runner prints for a step when it ends: the reason it ran, its `> <name>` header, its whole output and its outcome's note, so steps that run side by side never interleave. |
 | `graph-problems.ts` | everything `check:graph` asserts, so the gate under `check/arena/` is a print and an exit. |
-| `handoff.ts` | what a build hands to a job or a run that did not make it: `BUILD_HANDOFF_PATHS`, and `handoffProblems(nodes, workflows, tracked)`, which holds every `arena-build-` cache or artifact step in every workflow to that list and that list to every artifact a clone lacks, plus `handoffSteps`, `workflowTexts`, `sampleOf` and `trackedPaths`. |
+| `handoff.ts` | what a build hands to a job or a run that did not make it: `BUILD_HANDOFF_PATHS`, and `handoffProblems(nodes, workflows, tracked)`, which holds every `arena-build-` cache or artifact step in every workflow to that list, an `UPLOAD` among them to `include-hidden-files: true`, and that list to every artifact a clone lacks, plus `handoffSteps`, `workflowTexts`, `sampleOf` and `trackedPaths`. |
 | `fs-trace.ts`, `trace-preload.ts` | what a run actually opens: the preload wraps the read entry points before the script's own imports run. |
 | `audit.ts` | `auditProblems(node, script)`, which compares a traced run against the declaration. `UNTRACEABLE` names what spawns a process the tracer cannot enter. |
 | `gate-plan.ts` | what `check-all.ts` asks the graph, kept out of the runner so that file stays the single authority for how the suite is invoked. |
@@ -77,16 +77,18 @@ would make this gate answer one way where the step ran and another where it did 
 exactly what an unbuilt CI checkout is: `build:angular-tests` writes `frameworks/angular/build/test/`,
 which a clone does not hold until the step has run, and the gate must not care.
 
-**An artifact no clone checks out has to be carried to whatever reads it.** `Arena PR` builds in
-one job and gates in others, and the publish workflows and the site take the build `Arena main`
-made, so an output absent from a checkout reaches them only through a cache or an artifact, and a
-gate handed a tree without it judges an absence rather than an artifact. `handoff.ts` asks the
-tracked list which outputs those are and holds `BUILD_HANDOFF_PATHS` to them, then holds every
-`arena-build-` step in every workflow to that one list, in order, because `actions/cache` derives
-an entry's version from its path list and a restore naming another list misses on the right key.
-It reads neither the tree nor the cache: a spec is compared as a path it would reach, so
-the answer is the same on a machine that has built and on the unbuilt checkout where the hand-off
-is the only thing standing between a gate and nothing at all.
+**An artifact no clone checks out has to be carried to whatever reads it.** `verify.yml` builds in
+one job and gates in others, for every caller, and the publish workflows and the site take the build
+`Arena main` made, so an output absent from a checkout reaches them only through a cache or an
+artifact, and a gate handed a tree without it judges an absence rather than an artifact.
+`handoff.ts` asks the tracked list which outputs those are and holds `BUILD_HANDOFF_PATHS` to
+them, then holds every `arena-build-` step in every workflow to that one list, in order, because
+`actions/cache` derives an entry's version from its path list and a restore naming another list
+misses on the right key. An `arena-build-` upload must also set `include-hidden-files: true`,
+because the Angular package's `.npmignore` and the emit's stamp open with a dot and the action
+leaves such files out otherwise. It reads neither the tree nor the cache: a spec is compared as a
+path it would reach, so the answer is the same on a machine that has built and on the unbuilt
+checkout where the hand-off is the only thing standing between a gate and nothing at all.
 
 **A step a development loop should not pay for says so, and says why.** `releaseOnly` is cost:
 ng-packagr and the declaration emit are not worth a development loop, and `--assemble` puts those

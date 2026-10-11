@@ -46,7 +46,7 @@ injected, which is why they can be covered from a Linux runner at all. What only
 confirms is the whole of it running together, and that is the one thing the leg buys. Which
 platforms gate lives where `DOUBTS.md` says such a claim belongs, in a reason-carrying map a gate
 holds rather than in prose: `../ci/arena/supported-os.ts` carries a `blocking` flag per platform
-with its reason, and `check:portability` fails if the matrix in `pr.yml` and that list disagree
+with its reason, and `check:portability` fails if the matrix in `develop.yml` and that list disagree
 about either the names or the flags. **A `blocking: false` leg reports and does not gate**, which
 is the single place a platform stops gating and the reason the gate holds no clause of its own.
 

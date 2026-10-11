@@ -422,7 +422,7 @@ export const ROUTES: Route[] = [
       + 'package is, and what CI does with the tag once it exists',
     entry: 'contributor',
     stops: ['versioning_steps.md', 'frameworks/PACKAGING.md', '.github/workflows/AGENTS.md'],
-    budget: 70_100,
+    budget: 72_900,
     reason:
       'the least frequent route on the branch and the most expensive one to get wrong, because '
       + 'every one of its failures publishes nothing and errors nowhere. The sequence is the first '
@@ -436,7 +436,8 @@ export const ROUTES: Route[] = [
       + 'corpus and the components travel apart, so both are installed to check them. Each is this '
       + 'route\'s failure mode: nothing errors, and nobody is told. The page also says which target a '
       + 'publish that misses its cache builds; check:consumer refuses an unassembled package '
-      + 'rather than building one.',
+      + 'rather than building one; pull requests, develop and main verify through one reusable '
+      + 'workflow, and which suites read them.',
   },
 ];
 

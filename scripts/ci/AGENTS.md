@@ -15,14 +15,14 @@ rule written in YAML.
 
 | domain | what a script there answers |
 | --- | --- |
-| [`arena/`](./arena/AGENTS.md) | every one of them: which layers a diff reaches, what the suite reported, what a package is assembled from, which platforms are supported and which gates are worth re-running on one, and what a release says |
+| [`arena/`](./arena/AGENTS.md) | every one of them: which layers a diff reaches, what the suite reported, what `verify.yml` runs and which domains each caller selects, what a package is assembled from, which platforms are supported and which gates are worth re-running on one, and what a release says |
 
 Every script here is `arena`, because each reads two or more layers or the repository root. The
 other four domains exist and are empty, the way they are under every phase.
 
-`summarize-tests` is the one with an npm script, `bun run ci:summarize`, because it is worth
-running by hand: with no `GITHUB_STEP_SUMMARY` in the environment it prints the table to
-stdout. The other two read stdin or are imported, and are run by path.
+`summarize-tests` has `bun run ci:summarize`, because it is worth running by hand: with no
+`GITHUB_STEP_SUMMARY` in the environment it prints the table to stdout. `run-suite` backs the
+`test:` scripts. The modules that read stdin or are imported are run by path.
 
 [`../../.github/workflows/AGENTS.md`](../../.github/workflows/AGENTS.md) is where the jobs
 that call them are described.

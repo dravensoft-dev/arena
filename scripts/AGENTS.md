@@ -69,8 +69,9 @@ reaching for `repo-root.ts` or `layers.ts` is a `lib/` module in the wrong direc
 **An npm script's prefix names its phase directory.** `bun run generate:tokens` runs something
 under `generate/`, `bun run build:demos` something under `build/`. The reverse does not hold:
 a script worth running only from a workflow needs no entry. `check-release` is the one gate
-run by path, and under `ci/` only `summarize-tests` has a script, because the other two read
-stdin or are imported.
+run by path, and under `ci/` a script has an entry when it is worth running by hand
+(`summarize-tests`) or backs other entries (`run-suite`), while the modules that read stdin or are
+imported are run by path.
 
 ## Rules a script here holds to
 
