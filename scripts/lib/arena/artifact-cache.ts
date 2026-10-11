@@ -68,17 +68,32 @@ export function purge(root = repoRoot) {
 
 export type Built<T> = { value: T; read: string[]; keep: boolean };
 
+function heldReading<T>(name: string, candidates: string[], root: string) {
+  const held = read<{ value: T; read: string[] }>(name, root);
+  if (!held || !Array.isArray(held.value?.read)) return null;
+  const seen = digestOf([...candidates, ...held.value.read], root);
+  return seen.digest === held.digest && seen.count === held.count ? { value: held.value.value } : null;
+}
+
+function keepReading<T>(name: string, candidates: string[], built: Built<T>, root: string) {
+  if (built.keep) write(name, [...candidates, ...built.read], { value: built.value, read: built.read }, root);
+  return built.value;
+}
+
 export function cachedReading<T>(
   name: string, candidates: string[], build: () => Built<T>, root = repoRoot,
 ): T {
-  const held = read<{ value: T; read: string[] }>(name, root);
-  if (held && Array.isArray(held.value?.read)) {
-    const now = digestOf([...candidates, ...held.value.read], root);
-    if (now.digest === held.digest && now.count === held.count) return held.value.value;
-  }
-  const built = build();
-  if (built.keep) write(name, [...candidates, ...built.read], { value: built.value, read: built.read }, root);
-  return built.value;
+  const held = heldReading<T>(name, candidates, root);
+  if (held) return held.value;
+  return keepReading(name, candidates, build(), root);
+}
+
+export async function cachedReadingAsync<T>(
+  name: string, candidates: string[], build: () => Promise<Built<T>>, root = repoRoot,
+): Promise<T> {
+  const held = heldReading<T>(name, candidates, root);
+  if (held) return held.value;
+  return keepReading(name, candidates, await build(), root);
 }
 
 export function cached<T>(name: string, inputs: string[], build: () => T, root = repoRoot): T {

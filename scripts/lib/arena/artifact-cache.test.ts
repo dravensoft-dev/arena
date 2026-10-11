@@ -10,7 +10,7 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, readdirSync, rmSync, statSync, utimesSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { VERSION, CACHE_DIR, cached, cachedReading, digestOf, entryPath, purge, read, write } from './artifact-cache.ts';
+import { VERSION, CACHE_DIR, cached, cachedReading, cachedReadingAsync, digestOf, entryPath, purge, read, write } from './artifact-cache.ts';
 
 function fixture() {
   const root = mkdtempSync(join(tmpdir(), 'arena-artifact-'));
@@ -119,6 +119,28 @@ test('cachedReading covers what the build turned out to read, not only what it w
   writeFileSync(join(root, 'b.txt'), 'moved');
   run();
   assert.equal(built, 2, 'b.txt was never a candidate, and the entry has to carry it or it goes stale unnoticed');
+  rmSync(root, { recursive: true, force: true });
+});
+
+test('the async reading holds the same entry the sync one does: what it read, kept only when asked', async () => {
+  const root = fixture();
+  let built = 0;
+  const run = (keep: boolean) => cachedReadingAsync('reach', ['a.txt'], async () => {
+    built += 1;
+    return { value: { verdict: keep ? 'ok' : 'red' }, read: ['b.txt'], keep };
+  }, root);
+
+  assert.deepEqual(await run(false), { verdict: 'red' });
+  assert.deepEqual(await run(false), { verdict: 'red' });
+  assert.equal(built, 2, 'an answer the builder refuses to keep re-runs');
+  assert.deepEqual(await run(true), { verdict: 'ok' });
+  assert.deepEqual(await run(true), { verdict: 'ok' });
+  assert.equal(built, 3, 'a kept answer is held');
+  assert.deepEqual(cachedReading('reach', ['a.txt'], () => { built += 1; return { value: { verdict: 'sync' }, read: [], keep: true }; }, root),
+    { verdict: 'ok' }, 'the sync reading answers from the entry the async one wrote');
+  writeFileSync(join(root, 'b.txt'), 'moved');
+  await run(true);
+  assert.equal(built, 4, 'what the build read is covered, not only the candidates');
   rmSync(root, { recursive: true, force: true });
 });
 
