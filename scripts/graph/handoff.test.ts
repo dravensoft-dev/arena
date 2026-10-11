@@ -240,7 +240,7 @@ test('a one-line path says to write a block, and the message does not describe a
 
 test('an artifact step whose list differs gives the artifact reason, not the cache version reason', () => {
   const upload = step(['- uses: actions/upload-artifact@v7', '  with:', '    name: arena-build-x', '    path: |',
-    '      dist/site']);
+    '      dist/site', '    include-hidden-files: true']);
   const [problem] = readAll(workflow(upload));
   assert.match(problem ?? '', /handed only what the list carries/);
   assert.doesNotMatch(problem ?? '', /derives an entry/);
@@ -304,4 +304,51 @@ test('a quoted key under with: is read, and its list is held to the constant', (
   const steps = handoffSteps('w.yml', workflow(quoted));
   assert.equal(steps.length, 1);
   assert.deepEqual(stepProblems(steps), []);
+});
+
+const upload = (hidden: string[]) => step([
+  '- name: the build this run hands to its gates and suites',
+  '  uses: actions/upload-artifact@v7',
+  '  with:',
+  '    name: arena-build-${{ github.run_id }}',
+  '    path: |',
+  ...BUILD_HANDOFF_PATHS.map((one) => `      ${one}`),
+  ...hidden,
+]);
+
+test('an upload of the build keeps the files whose names open with a dot, and one that drops them fails', () => {
+  assert.deepEqual(readAll(workflow(upload(['    include-hidden-files: true']))), []);
+  for (const [name, hidden] of Object.entries({ absent: [], off: ['    include-hidden-files: false'] })) {
+    const problems = readAll(workflow(upload(hidden)));
+    assert.equal(problems.length, 1, name);
+    assert.match(problems[0] ?? '', /^w\.yml:5 \(the build this run hands to its gates and suites\) uploads without include-hidden-files: true/, name);
+    assert.match(problems[0] ?? '', /\.npmignore and the emit's stamp/, name);
+  }
+});
+
+test('a comment after the flag is not part of its value, and a spelling the gate cannot read says so', () => {
+  assert.deepEqual(readAll(workflow(upload(['    include-hidden-files: true # the dotfiles']))), []);
+  assert.deepEqual(readAll(workflow(upload(['    include-hidden-files: "true"']))), []);
+  for (const spelling of ['True', 'yes', '${{ inputs.hidden }}']) {
+    const problems = readAll(workflow(upload([`    include-hidden-files: ${spelling} # note`])));
+    assert.equal(problems.length, 1, spelling);
+    assert.match(problems[0] ?? '', new RegExp(`include-hidden-files: ${spelling.replace(/[$.{}]/g, '\\$&')}, which is in a shape this gate cannot read`), spelling);
+    assert.doesNotMatch(problems[0] ?? '', /uploads without/, spelling);
+  }
+});
+
+test('the hidden-file rule reads the upload only: a download and a cache step are not asked it', () => {
+  const download = step(['- uses: actions/download-artifact@v8', '  with:', '    name: arena-build-${{ github.run_id }}']);
+  const steps = handoffSteps('w.yml', workflow(download, restore(BUILD_HANDOFF_PATHS)));
+  assert.equal(steps.length, 2);
+  assert.ok(steps.every((one) => !('hidden' in one)), 'only an upload carries the flag');
+  assert.deepEqual(stepProblems(steps), []);
+});
+
+test('an upload whose list differs and drops hidden files names both, so one fix does not hide the other', () => {
+  const short = upload([]).replace(/\n\s+dist\/site/, '');
+  const problems = readAll(workflow(short));
+  assert.equal(problems.length, 2);
+  assert.match(problems.join('\n'), /include-hidden-files: true/);
+  assert.match(problems.join('\n'), /missing dist\/site/);
 });

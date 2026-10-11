@@ -4,7 +4,8 @@
  * version from its path list, so a restore naming a different list misses on the right key: every
  * such list in every workflow is BUILD_HANDOFF_PATHS, in its order. Which outputs need carrying is
  * decided by the tracked list rather than by the filesystem, and a spec is compared as a path it
- * would reach, so the answer is the same on a built machine and on a fresh checkout. */
+ * would reach, so the answer is the same on a built machine and on a fresh checkout. An upload
+ * takes include-hidden-files: true, because the list carries files whose names open with a dot. */
 
 import { spawnSync } from 'node:child_process';
 import { readFileSync, readdirSync } from 'node:fs';
@@ -29,7 +30,11 @@ export const HANDOFF_PREFIX = 'arena-build-';
 const HANDOFF_ACTION = /^actions\/(?:cache|cache\/save|cache\/restore|upload-artifact|download-artifact)$/;
 
 export type Workflow = { file: string; text: string };
-export type HandoffStep = { file: string; line: number; label: string; uses: string; paths: string[] | null; unreadable?: boolean };
+export type HandoffStep = {
+  file: string; line: number; label: string; uses: string; paths: string[] | null; unreadable?: boolean; hidden?: boolean; hiddenSpelling?: string;
+};
+
+export const UPLOAD = 'actions/upload-artifact';
 
 export function workflowTexts(base: string): Workflow[] {
   let names: string[];
@@ -109,7 +114,11 @@ export function handoffSteps(file: string, text: string): HandoffStep[] {
     const pathAt = block.findIndex((one) => new RegExp(`^ {${childAt}}path:`).test(one));
     const header = /^\s*path:\s*\|[-+]?\d*\s*(#.*)?$/;
     const paths = !unreadable && pathAt >= 0 && header.test(block[pathAt] ?? '') ? blockList(block, pathAt, childAt) : null;
-    steps.push({ file, line: start + 1, label, uses, paths, ...(unreadable ? { unreadable } : {}) });
+    const flag = (field('include-hidden-files', childAt, block) ?? '').replace(/\s+#.*$/, '').replace(/^['"]|['"]$/g, '');
+    const hidden = uses === UPLOAD
+      ? { hidden: flag === 'true', ...(flag === '' || flag === 'true' || flag === 'false' ? {} : { hiddenSpelling: flag }) }
+      : {};
+    steps.push({ file, line: start + 1, label, uses, paths, ...(unreadable ? { unreadable } : {}), ...hidden });
   });
   return steps;
 }
@@ -140,6 +149,15 @@ export function stepProblems(steps: HandoffStep[], carried: readonly string[] = 
       problems.push(`${where} names its paths on one line or not at all, so nothing can hold them to `
         + 'BUILD_HANDOFF_PATHS; write them as a block list, one path per line under `path: |`');
       continue;
+    }
+    if (step.hiddenSpelling !== undefined) {
+      problems.push(`${where} writes include-hidden-files: ${step.hiddenSpelling}, which is in a shape this gate `
+        + 'cannot read; write true or false');
+    } else if (step.uses === UPLOAD && step.hidden !== true) {
+      problems.push(`${where} uploads without include-hidden-files: true, and upload-artifact then leaves out `
+        + 'every file whose name opens with a dot. BUILD_HANDOFF_PATHS carries such files, the Angular '
+        + 'package\'s .npmignore and the emit\'s stamp among them, so the job that downloads it is handed a '
+        + 'tree that lost them');
     }
     if (step.paths.join('\n') === carried.join('\n')) continue;
     const reason = step.uses.startsWith('actions/cache')
