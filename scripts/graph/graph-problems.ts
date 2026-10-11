@@ -112,11 +112,11 @@ export function unreachedSpecNotes(
   unreached: (specs: string[]) => string[] = (specs) => unreachedSpecs(specs, paths),
 ) {
   return nodes.flatMap((node) => [
-    ...unreached(node.reads)
+    ...unreached(node.reads.filter((spec) => !isExclusion(spec)))
       .filter((spec) => !reachesNoDirectory(spec, paths))
       .map((spec) => `${node.name} names ${spec}, which matches no file today; its directory is `
         + 'there, so this reads as an extension the node compiles and the tree does not hold yet'),
-    ...unreached(node.writes)
+    ...unreached(node.writes.filter((spec) => !isExclusion(spec)))
       .map((spec) => `${node.name} writes ${spec}, and nothing here matches it; what a step emits `
         + 'is on disk once that step has run, so this is either the tree before the run or a typo, '
         + 'and only a full build tells them apart'),
@@ -133,8 +133,7 @@ export function writingGateProblems(nodes: GraphNode[]) {
 
 export function outsideBuildProblems(nodes: GraphNode[]) {
   return nodes
-    .filter((node) => [node.releaseOnly, node.runsBeforeSuites]
-      .some((reason) => reason !== undefined && reason.length < 40))
+    .filter((node) => node.releaseOnly !== undefined && node.releaseOnly.length < 40)
     .map((node) => `${node.name} is outside bun run build and the record does not say why; a step `
       + 'a development loop skips is a decision, and a decision without its reason is worthless');
 }

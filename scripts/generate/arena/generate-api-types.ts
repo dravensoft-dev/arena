@@ -25,7 +25,6 @@ export const node = {
   reads: [TYPES_DIR],
   writes: [...API_TARGETS, ...LOCALE_TARGETS],
   feeds: [
-    'build:angular-demo',
     'build:angular-package',
     'build:angular-tests',
     'build:demos',

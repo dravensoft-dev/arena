@@ -1,11 +1,13 @@
-/* The emit is skipped when no input differs from the last one, because `bun run test` and
- * `bun run check` both run this first and the compile costs around 17 seconds against suites that
- * cost around 12. Freshness is a stamp this script writes after a successful emit, never the
- * outputs' own times: `ngc` is incremental and does not rewrite a file it did not change. The
- * stamp records each compiled input's path, size, mtime and sha256. An input whose size and mtime
- * match is unchanged unread; one whose time moved is hashed, and only other content is stale, so
- * a build that rewrites the same bytes costs no compile. An added or deleted input is stale too.
- * `--force` compiles unconditionally. */
+/* One ngc program over the whole Angular layer, its suites and every page entry, under
+ * strictTemplates: its exit is the layer's type verdict, its tree is what the suites run and what
+ * build:angular-demo bundles, so the layer is compiled once rather than once per reader. The emit
+ * is skipped when no input differs from the last one, because `bun run build`, `bun run test` and
+ * `bun run check` all run it. Freshness is a stamp this script writes after a successful emit,
+ * never the outputs' own times: `ngc` is incremental and does not rewrite a file it did not
+ * change. The stamp records each compiled input's path, size, mtime and sha256. An input whose
+ * size and mtime match is unchanged unread; one whose time moved is hashed, and only other
+ * content is stale, so a rewrite of the same bytes costs no compile. The package in dist/ is no
+ * input: ngc never reads it. An added or deleted input is stale too. `--force` compiles. */
 
 import { join, relative } from 'node:path';
 import { existsSync, rmSync, writeFileSync } from 'node:fs';
@@ -39,14 +41,14 @@ export const LAYER = 'frameworks/angular';
 export const node = {
   name: 'build:angular-tests',
   reads: [
-    `${LAYER}/**/*.ts`, `${LAYER}/**/*.json`, '!frameworks/angular/build/**',
+    `${LAYER}/**/*.ts`, `${LAYER}/**/*.json`, '!frameworks/angular/build/**', '!frameworks/angular/dist/**',
+    '!frameworks/angular/*.md/**',
     'package.json', 'bun.lock',
   ],
   writes: [`${LAYER}/build/test/**`],
-  feeds: [],
-  runsBeforeSuites: 'bun run test runs it before the suites that read the emit, and check-all\'s Angular suite '
-    + 'step waits for it, so staleness there is prevented by ordering rather than by a gate. A '
-    + 'build that emitted it would be emitting a tree no build step reads',
+  feeds: ['build:angular-demo'],
+  pool: 'compiler' as const,
+  cost: 21.2,
 };
 
 function pruneOrphans(dir: string) {
@@ -95,12 +97,19 @@ export function missingEmitProblems(sourceTests: string[], emittedTests: string[
 export type Recorded = Record<string, Stamp>;
 
 export function collectInputs(
-  repo = repoRoot, layer = LAYER_ROOT, skipDir = EMITTED, external = EXTERNAL_INPUTS,
+  repo = repoRoot, layer = LAYER_ROOT, skipDirs = [join(layer, 'build'), join(layer, 'dist')],
+  external = EXTERNAL_INPUTS,
 ) {
-  const out = walkFiles(layer, { skip: (_name, path) => path === skipDir })
+  const out = walkFiles(layer, { skip: (_name, path) => skipDirs.includes(path) })
     .filter((full) => full.endsWith('.ts') || full.endsWith('.json'));
   for (const path of external) if (existsSync(path)) out.push(path);
   return out.map((full) => relPosix(repo, full));
+}
+
+export function emitStaleness(
+  repo = repoRoot, layer = LAYER_ROOT, stampFile = STAMP, skipDirs?: string[], external = EXTERNAL_INPUTS,
+) {
+  return stalenessReason(repo, collectInputs(repo, layer, skipDirs, external), readStamp(stampFile));
 }
 
 export function recordInputs(repo: string, paths: string[], previous: Recorded = {}) {
@@ -162,7 +171,7 @@ export async function compileTests(bin: string, project: string, cwd: string) {
 
 async function main() {
   if (!process.argv.includes('--force')) {
-    const reason = stalenessReason(repoRoot, collectInputs(), readStamp());
+    const reason = emitStaleness();
     if (reason === null) {
       console.log(
         'build-angular-tests: no input differs from what the last emit compiled, so ngc is not run. '
@@ -188,14 +197,14 @@ async function main() {
     process.exit(1);
   }
   if (r.signal) {
-    console.error(`build-angular-tests: ngc ended on ${r.signal}, which this step did not send, so the Angular test surface is not compiled`);
+    console.error(`build-angular-tests: ngc ended on ${r.signal}, which this step did not send, so the Angular layer is not compiled`);
     process.exit(1);
   }
   if (r.status !== 0) {
-    console.error('\nbuild-angular-tests: the Angular test surface does not compile, so its suites cannot run');
+    console.error('\nbuild-angular-tests: the Angular layer does not compile under strictTemplates, so its suites cannot run and its demo pages cannot be built');
     process.exit(r.status ?? 1);
   }
-  console.log('build-angular-tests: the Angular test surface compiled to frameworks/angular/build/test');
+  console.log('build-angular-tests: the Angular layer compiled to frameworks/angular/build/test');
   verifyEmit();
   writeFileSync(STAMP, JSON.stringify({ at: new Date().toISOString(), inputs }));
 }

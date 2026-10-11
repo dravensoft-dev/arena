@@ -129,7 +129,6 @@ export const node = {
     'generate:npm-pages',
     'check:channels',
     'check:proximity',
-    'build:angular-demo',
     'build:angular-package',
     'build:angular-tests',
     'build:react-package',

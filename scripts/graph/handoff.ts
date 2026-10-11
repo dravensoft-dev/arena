@@ -4,8 +4,7 @@
  * version from its path list, so a restore naming a different list misses on the right key: every
  * such list in every workflow is BUILD_HANDOFF_PATHS, in its order. Which outputs need carrying is
  * decided by the tracked list rather than by the filesystem, and a spec is compared as a path it
- * would reach, so the answer is the same on a built machine and on a fresh checkout. A step no
- * build invocation runs is out, because the job reading its output runs it first. */
+ * would reach, so the answer is the same on a built machine and on a fresh checkout. */
 
 import { spawnSync } from 'node:child_process';
 import { readFileSync, readdirSync } from 'node:fs';
@@ -166,7 +165,6 @@ export const carriedBy = (list: readonly string[], spec: string) =>
 export function uncarriedProblems(nodes: GraphNode[], tracked: string[], carried: readonly string[] = BUILD_HANDOFF_PATHS) {
   const problems = [];
   for (const node of nodes) {
-    if (node.runsBeforeSuites !== undefined) continue;
     for (const spec of node.writes.filter((one) => !isExclusion(one))) {
       if (resolveSpecs([spec], tracked).length > 0) continue;
       if (carriedBy(carried, spec)) continue;

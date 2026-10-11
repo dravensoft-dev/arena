@@ -140,24 +140,17 @@ from**, transitively, release-only steps included with or without `--assemble`, 
 cache builds its own package and no other: `--target=build:angular-package` never assembles React.
 A step whose output a gate reads is named beside it, as the mcp publish names the generators of the
 pages `check:mcp` holds. A name that is not a build step is refused, because a gate judges rather
-than builds and `build:angular-tests` belongs to the suites.
+than builds.
 `scripts/graph/run-build.ts:selectSteps(nodes, declaredIn, options)` decides the list.
 
-`build:angular-tests` is deliberately **not** part of any of these, and its node says so through
-`runsBeforeSuites` rather than `releaseOnly`: the reason is not cost, it is that `bun run test` runs
-it before the suites that read the emit, and in `check-all` the Angular suite step waits for it, so
-staleness there is prevented by ordering. `--assemble` leaves it out too, because a release ships no
-test surface.
-
-**It is in the graph even so, and it feeds nobody.** It was given a node on the claim that
-`check:generated` and `check:icons` sweep `frameworks/` and reach the emit. They do not: both walks
-skip any directory named `build`, so neither has ever opened a file under
-`frameworks/angular/build/test/`. The two `feeds` entries only ever held because the gates' broad
-`frameworks/**` overlapped the emit path on a machine where a previous `bun run test` had left it on
-disk, and on a CI checkout, where it has not, they failed. Both gates now exclude
-`frameworks/angular/build/**`, which is what their walks were already doing. What the node is worth
-is its `reads` and `writes` being written down where every other step's are; its own stamp of
-size, mtime and content hash is what decides whether `bun run test` recompiles, and that has not changed.
+`build:angular-tests` is a build step like the others. It runs in `bun run build`, in the compiler
+pool, and feeds `build:angular-demo`, which bundles the page entries from
+`frameworks/angular/build/test/` and spawns no compiler, so `--target=build:angular-demo` builds the
+emit first and `--target=build:angular-tests` builds its own upstream and nothing downstream. Its
+output travels in `BUILD_HANDOFF_PATHS` with every other artifact. The emit reads neither the
+package in `dist/` nor the layer's Markdown pages, so `build:angular-package` is not in the closure
+of `build:site`. The step skips itself by a stamp of each input's size, mtime and content hash, which
+is what lets `bun run build`, `bun run test` and `bun run check` share one compile per input change.
 
 ## The five domains
 
@@ -165,7 +158,7 @@ A script's domain is decided by what it **touches**, never by what it is about.
 
 | domain | what a build there compiles |
 | --- | --- |
-| [`angular/`](./angular/AGENTS.md) | the AOT emits: demo bundles, the package and the test surface |
+| [`angular/`](./angular/AGENTS.md) | the layer's one emit, the demo bundles over it and the package |
 | [`arena/`](./arena/AGENTS.md) | the `intro/` page bundles, which are what let those pages read `scripts/lib/` |
 | [`react/`](./react/AGENTS.md) | JSX to JS, the barrel, the package, and the CommonJS→ESM vendor bundle |
 | [`tailwind/`](./tailwind/AGENTS.md) | the utility layer and the manifest modules |

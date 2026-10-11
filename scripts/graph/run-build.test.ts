@@ -170,15 +170,11 @@ test('a step that says it is release-only stays out of the development build', (
     + 'for it, so the node says it and carries the why');
 });
 
-test('a step the suites run is out of every build invocation, assembly included', () => {
+test('the Angular emit is a build step in every invocation, assembly included', () => {
   const declaredIn = new Map([['build:angular-tests', 'scripts/build/angular/build-angular-tests.ts']]);
-  const node = { name: 'build:angular-tests', runsBeforeSuites: 'a reason' };
-  assert.equal(isBuildStep(declaredIn, node), false);
-  assert.equal(isBuildStep(declaredIn, node, true), false,
-    '--assemble includes what a release ships, and the Angular test emit is not that: bun run test runs it before the suites that read it, '
-    + 'and check-all\'s Angular suite step waits for it');
-  assert.equal(isBuildStep(declaredIn, { name: 'build:angular-tests' }), true,
-    'without the field the phase alone would put it in, which is what it did before');
+  const node = { name: 'build:angular-tests' };
+  assert.equal(isBuildStep(declaredIn, node), true);
+  assert.equal(isBuildStep(declaredIn, node, true), true);
 });
 
 const DECLARED_IN = new Map([
@@ -189,10 +185,11 @@ const DECLARED_IN = new Map([
   ['build:react-package', 'scripts/build/react/build-react-package.ts'],
   ['build:mcp-package', 'scripts/build/arena/build-mcp-package.ts'],
   ['build:angular-tests', 'scripts/build/angular/build-angular-tests.ts'],
+  ['build:angular-demo', 'scripts/build/angular/build-angular-demo.ts'],
   ['check:tailwind', 'scripts/check/tailwind/check-tailwind.ts'],
 ]);
 
-const step = (name: string, over: Partial<{ feeds: string[]; releaseOnly: string; runsBeforeSuites: string }> = {}) =>
+const step = (name: string, over: Partial<{ feeds: string[]; releaseOnly: string }> = {}) =>
   ({ name, reads: [], writes: [], feeds: [], ...over });
 
 const GRAPH = [
@@ -202,7 +199,8 @@ const GRAPH = [
   step('build:intro'),
   step('build:react-package', { releaseOnly: 'a reason' }),
   step('build:mcp-package', { releaseOnly: 'a reason' }),
-  step('build:angular-tests', { runsBeforeSuites: 'a reason' }),
+  step('build:angular-tests', { feeds: ['build:angular-demo'] }),
+  step('build:angular-demo'),
   step('check:tailwind'),
 ];
 
@@ -210,9 +208,10 @@ const names = (steps: { name: string }[]) => steps.map((one) => one.name);
 
 test('with no target the selection is the one each command makes without the flag', () => {
   assert.deepEqual(names(selectSteps(GRAPH, DECLARED_IN, { assemble: false, targets: [] })).sort(),
-    ['build:intro', 'build:tailwind', 'build:vendor', 'generate:tokens']);
+    ['build:angular-demo', 'build:angular-tests', 'build:intro', 'build:tailwind', 'build:vendor', 'generate:tokens']);
   assert.deepEqual(names(selectSteps(GRAPH, DECLARED_IN, { assemble: true, targets: [] })).sort(),
-    ['build:intro', 'build:mcp-package', 'build:react-package', 'build:tailwind', 'build:vendor', 'generate:tokens']);
+    ['build:angular-demo', 'build:angular-tests', 'build:intro', 'build:mcp-package', 'build:react-package',
+      'build:tailwind', 'build:vendor', 'generate:tokens']);
 });
 
 test('a target is built with every step it reads from and nothing else, itself last', () => {
@@ -220,12 +219,19 @@ test('a target is built with every step it reads from and nothing else, itself l
   assert.deepEqual(picked, ['generate:tokens', 'build:tailwind']);
 });
 
+test('the Angular emit as a target builds its upstream closure and nothing downstream', () => {
+  const picked = names(selectSteps(GRAPH, DECLARED_IN, { assemble: false, targets: ['build:angular-tests'] }));
+  assert.deepEqual(picked, ['generate:tokens', 'build:tailwind', 'build:angular-tests']);
+  const demo = names(selectSteps(GRAPH, DECLARED_IN, { assemble: false, targets: ['build:angular-demo'] }));
+  assert.deepEqual(demo, ['generate:tokens', 'build:tailwind', 'build:angular-tests', 'build:angular-demo']);
+});
+
 test('a release-only target, or a release-only upstream, is built without --assemble', () => {
   const picked = names(selectSteps(GRAPH, DECLARED_IN, { assemble: false, targets: ['build:react-package'] }));
   assert.deepEqual([...picked].sort(), ['build:react-package', 'build:tailwind', 'build:vendor', 'generate:tokens']);
   assert.equal(picked.at(-1), 'build:react-package');
   assert.ok(!picked.includes('build:intro') && !picked.includes('check:tailwind') && !picked.includes('build:angular-tests'),
-    'a step outside the closure, a gate and the suites\' own emit stay out');
+    'a step outside the closure and a gate stay out');
 });
 
 test('two targets that share an upstream run it once', () => {
@@ -236,20 +242,17 @@ test('two targets that share an upstream run it once', () => {
   assert.ok(picked.indexOf('generate:tokens') < picked.indexOf('build:mcp-package'));
 });
 
-test('a target the graph does not hold, a gate, or the suites\' emit is refused before anything runs', () => {
+test('a target the graph does not hold, or a gate, is refused before anything runs', () => {
   assert.throws(() => selectSteps(GRAPH, DECLARED_IN, { assemble: false, targets: ['build:nothing'] }),
     /--target=build:nothing names no step the graph holds/);
   assert.throws(() => selectSteps(GRAPH, DECLARED_IN, { assemble: false, targets: ['check:tailwind'] }),
     /--target=check:tailwind is not a build step/);
-  assert.throws(() => selectSteps(GRAPH, DECLARED_IN, { assemble: false, targets: ['build:angular-tests'] }),
-    /--target=build:angular-tests is not a build step/);
 });
 
-test('a gate and the suites\' emit upstream of a target are left out, whatever feeds them', () => {
+test('a gate upstream of a target is left out, whatever feeds it', () => {
   const graph = [
     step('generate:tokens', { feeds: ['build:tailwind'] }),
     step('check:tailwind', { feeds: ['build:tailwind'] }),
-    step('build:angular-tests', { runsBeforeSuites: 'a reason', feeds: ['build:tailwind'] }),
     step('build:tailwind'),
   ];
   assert.deepEqual(names(selectSteps(graph, DECLARED_IN, { assemble: false, targets: ['build:tailwind'] })),

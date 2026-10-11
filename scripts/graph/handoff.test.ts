@@ -10,7 +10,7 @@ import { COLLECTION, allNodes } from './nodes.ts';
 
 const BUDGET_MS = budgetFor(COLLECTION);
 
-const node = (name: string, over: Partial<{ writes: string[]; runsBeforeSuites: string }> = {}) =>
+const node = (name: string, over: Partial<{ writes: string[] }> = {}) =>
   ({ name, reads: [], writes: [], feeds: [], ...over });
 
 const step = (lines: string[]) => lines.map((line) => `      ${line}`).join('\n');
@@ -146,12 +146,10 @@ test('an output a clone already has needs no hand-off', () => {
   assert.deepEqual(uncarriedProblems(nodes, TRACKED, ['dist/site']), []);
 });
 
-test('a step no build invocation runs is out, because the job that reads it runs it first', () => {
-  const nodes = [node('build:angular-tests', {
-    writes: ['frameworks/angular/build/test/**'],
-    runsBeforeSuites: 'bun run test runs the emit immediately before the suites that read it',
-  })];
-  assert.deepEqual(uncarriedProblems(nodes, TRACKED, ['dist/site']), []);
+test('the Angular emit is handed on like any other output, because the demo bundle and the suites read it', () => {
+  const nodes = [node('build:angular-tests', { writes: ['frameworks/angular/build/test/**'] })];
+  assert.equal(uncarriedProblems(nodes, TRACKED, ['dist/site']).length, 1);
+  assert.deepEqual(uncarriedProblems(nodes, TRACKED, BUILD_HANDOFF_PATHS), []);
 });
 
 test('an empty checkout is reported rather than compared against', () => {

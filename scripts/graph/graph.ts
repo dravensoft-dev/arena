@@ -12,7 +12,6 @@ export type GraphNode = {
   writes: string[];
   feeds: string[];
   releaseOnly?: string;
-  runsBeforeSuites?: string;
   pool?: Pool | undefined;
   cost?: number | undefined;
 };

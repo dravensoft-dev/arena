@@ -48,7 +48,6 @@ export const node = {
   ],
   writes: [`${LAYER}/dist/**`, `${STAGING}/**`],
   feeds: [
-    'build:angular-tests',
     'check:arbitrary',
     'check:community',
     'check:consumer',

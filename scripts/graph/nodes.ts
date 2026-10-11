@@ -92,10 +92,9 @@ export const BUILT_BY = ['scripts/build/', 'scripts/generate/'];
 
 export const isBuildStep = (
   declaredIn: Map<string, string>,
-  node: { name: string; releaseOnly?: string; runsBeforeSuites?: string },
+  node: { name: string; releaseOnly?: string },
   assemble = false,
-) => !node.runsBeforeSuites
-  && (assemble || !node.releaseOnly)
+) => (assemble || !node.releaseOnly)
   && BUILT_BY.some((phase) => (declaredIn.get(node.name) ?? '').startsWith(phase));
 
 export const NOT_YET_SUBSCRIBED = new Set<string>([]);

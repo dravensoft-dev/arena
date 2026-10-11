@@ -23,7 +23,7 @@ export const UNTRACEABLE = new Map([
   ['check:consumer', 'it runs the shipped CLI in a scratch project, in another process'],
   ['check:packages', 'it reads dist/, which ng-packagr and the React emit wrote in other processes'],
   ['build:tailwind', 'it compiles through Tailwind, which resolves its own imports'],
-  ['build:angular-demo', 'it spawns ngc and then bundles'],
+  ['build:angular-demo', 'it bundles through Bun.build, which reads the emit natively'],
   ['build:angular-tests', 'it spawns ngc, which reads the layer in a process this cannot enter'],
   ['build:angular-package', 'it spawns ng-packagr, which resolves and reads the layer itself'],
   ['build:react-package', 'it spawns tsc, which reads the layer in a process this cannot enter'],

@@ -8,7 +8,7 @@ judging.
 | module | answers |
 | --- | --- |
 | `graph.ts` | the algebra over the declared set, and nothing about where it came from: `needsOf`, `upstreamOf`, `topoOrder`, `cyclePath`, `duplicateWriters`, `subscriptionProblems`, `unknownFeeds`, `selfFeeds`. Resolution is handed in, so it holds no table and imports no script. |
-| `nodes.ts` | the set itself: `collectedScripts(root)` walks the phases and `allNodes(root)` imports each and keeps what exports a node. `NEVER_SUBSCRIBES` and `NOT_YET_SUBSCRIBED` say what is out. `isBuildStep(declaredIn, node, assemble)` says whether a build invocation runs a node, from the phase that declared it and the node's own `releaseOnly` and `runsBeforeSuites`. |
+| `nodes.ts` | the set itself: `collectedScripts(root)` walks the phases and `allNodes(root)` imports each and keeps what exports a node. `NEVER_SUBSCRIBES` and `NOT_YET_SUBSCRIBED` say what is out. `isBuildStep(declaredIn, node, assemble)` says whether a build invocation runs a node, from the phase that declared it and the node's own `releaseOnly`. |
 | `pathspecs.ts` | what a declared spec reaches: `matchesSpec(spec, path)` and `resolveSpecs(specs, universe)` against a path list, plus `unreachedSpecs(specs, universe)` and `reachesNoDirectory(spec, universe)`, which is how a typo is told from a spec written ahead of the tree. |
 | `inputs.ts` | what a file is, as a fingerprint: `universe(root)` walks the tree once, `stampOf(path, previous)` filters on the stat and arbitrates on the hash, `digestOf(paths, stamps)` folds a list into one value, and `restamp(root, specs, paths, stamps)` re-reads what one step's writes reach, under the directories they name, when that step ends. |
 | `script-closure.ts` | every module under `scripts/` a script reaches: `relativeSpecifiers(source)` and `scriptClosure(entry, root)`. |
@@ -32,7 +32,7 @@ export const node = {
   name: 'generate:tokens',
   reads:  SOURCES.map((source) => `contracts/design/${source}`),
   writes: [...CSS_TARGETS, ...SCRIPT_TARGETS, BREAKPOINT_TARGET],
-  feeds:  ['build:tailwind', 'build:angular-demo'],
+  feeds:  ['build:tailwind', 'build:angular-tests'],
 };
 ```
 
@@ -75,7 +75,7 @@ directory with no matching file yet is reported and allowed. A `writes` names wh
 CREATES, so a tree without it is the step not having run, and it is only ever reported. Judging it
 would make this gate answer one way where the step ran and another where it did not, which is
 exactly what an unbuilt CI checkout is: `build:angular-tests` writes `frameworks/angular/build/test/`,
-no build invocation runs it, and the gate must not care.
+which a clone does not hold until the step has run, and the gate must not care.
 
 **An artifact no clone checks out has to be carried to whatever reads it.** `Arena PR` builds in
 one job and gates in others, and the publish workflows and the site take the build `Arena main`
@@ -86,19 +86,15 @@ tracked list which outputs those are and holds `BUILD_HANDOFF_PATHS` to them, th
 an entry's version from its path list and a restore naming another list misses on the right key.
 It reads neither the tree nor the cache: a spec is compared as a path it would reach, so
 the answer is the same on a machine that has built and on the unbuilt checkout where the hand-off
-is the only thing standing between a gate and nothing at all. A `runsBeforeSuites` step is out of
-it, because the job reading that output runs the step itself and no cache entry could carry it.
+is the only thing standing between a gate and nothing at all.
 
-**A step no build invocation should run says so, and says why.** Two fields do it, because there
-are two reasons. `releaseOnly` is cost: ng-packagr and the declaration emit are not worth a
-development loop, and `--assemble` puts those steps back, which is how `build:packages` and
-`build:release` differ from `build`. `runsBeforeSuites` is ownership: `bun run test` runs the Angular
-emit immediately before the suites that read it, so no build invocation should, `--assemble`
-included. Both carry a reason and `check:graph` refuses one that is a label. The
-phase a script sits in says what it IS, and only the node can say that building it on every
-iteration is not worth the wait: `build:react-package` and `build:angular-package` write a `dist/`
-only a release publishes. `check:graph` refuses a `releaseOnly` that is a label rather than a reason,
-the same way it refuses one in `NEVER_SUBSCRIBES`.
+**A step a development loop should not pay for says so, and says why.** `releaseOnly` is cost:
+ng-packagr and the declaration emit are not worth a development loop, and `--assemble` puts those
+steps back, which is how `build:packages` and `build:release` differ from `build`. The phase a
+script sits in says what it IS, and only the node can say that building it on every iteration is
+not worth the wait: `build:react-package` and `build:angular-package` write a `dist/` only a
+release publishes. `check:graph` refuses a `releaseOnly` that is a label rather than a reason, the
+same way it refuses one in `NEVER_SUBSCRIBES`.
 
 ## `check:graph --audit` answers what `check:graph` cannot
 

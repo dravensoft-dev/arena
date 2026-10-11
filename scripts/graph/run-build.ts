@@ -45,8 +45,7 @@ export function selectSteps(
         + 'script of a step under build/ or generate/');
     }
     if (!isBuildStep(declaredIn, node, true)) {
-      throw new Error(`run-build: --target=${target} is not a build step: a gate judges rather than builds, `
-        + 'and a step the suites run belongs to them');
+      throw new Error(`run-build: --target=${target} is not a build step: a gate judges rather than builds`);
     }
   }
   const closure = new Set(options.targets);

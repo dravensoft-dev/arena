@@ -91,6 +91,17 @@ test('a spec whose directory holds no file fails, and one whose directory is the
   ]);
 });
 
+test('an exclusion a node reads is not an extension the tree lacks, whether or not it matches a file', () => {
+  const excluding = node('build:y', {
+    reads: ['contracts/design/colors.css', '!frameworks/angular/*.md/**', '!frameworks/react/components/**'],
+    writes: ['!frameworks/angular/build/**'],
+  });
+  const paths = [...PATHS, 'frameworks/angular/index.ts'];
+  assert.deepEqual(unreachedSpecNotes([excluding], paths), []);
+  const literal = node('build:z', { reads: ['contracts/design/colors.css', 'frameworks/angular/*.md/**'] });
+  assert.equal(unreachedSpecNotes([literal], paths).length, 1, 'the same spec without its ! still reads as ahead of the tree');
+});
+
 test('a spec a node writes names what that node creates, so a tree without it is not a defect', () => {
   const resolve = (specs: string[]) => (specs.includes('contracts/design/colors.css') ? PATHS : []);
   const emit = node('build:x', {
@@ -130,8 +141,6 @@ test('a pool and a cost belong to a heavy build step, and a shape no runner read
     [step('build:c', { pool: 'compiler' }), /build:c declares pool "compiler" and no cost in seconds above zero/],
     [step('build:c', { pool: 'compiler', cost: 0 }), /build:c declares pool "compiler" and no cost in seconds above zero/],
     [step('check:g', { pool: 'browser', cost: 4 }), /check:g declares a pool or a cost, and no build invocation runs it/],
-    [step('build:t', { runsBeforeSuites: 'the suites run it before the suites that read it, in their own order', pool: 'compiler', cost: 18 }),
-      /build:t declares a pool or a cost, and no build invocation runs it/],
   ];
   for (const [one, problem] of rows) {
     const found = poolProblems([one], DECLARED);
@@ -142,10 +151,10 @@ test('a pool and a cost belong to a heavy build step, and a shape no runner read
       assert.match(found[0] ?? '', problem);
     }
   }
-  assert.equal(rows.length, 8);
+  assert.equal(rows.length, 7);
 });
 
-const MEASURED_COMPILER = new Map([['build:angular-package', 16.5], ['build:angular-demo', 11.9], ['build:react-package', 11.5]]);
+const MEASURED_COMPILER = new Map([['build:angular-package', 16.5], ['build:angular-tests', 21.2], ['build:react-package', 11.5]]);
 
 test('the build steps measured as compilers declare that pool and their cost, and no other node declares either',
   { timeout: budgetFor(COLLECTION) }, async () => {

@@ -23,15 +23,21 @@ function tree(files: Record<string, string>) {
 }
 after(() => { for (const root of roots) rmSync(root, { recursive: true, force: true }); });
 
-const FILES = { 'layer/a.ts': 'export const a = 1;', 'layer/b.json': '{}', 'layer/build/skipped.ts': 'x', 'package.json': '{}' };
-const gather = (repo: string) => collectInputs(repo, join(repo, 'layer'), join(repo, 'layer', 'build'), [join(repo, 'package.json')]);
+const FILES = { 'layer/a.ts': 'export const a = 1;', 'layer/b.json': '{}', 'layer/build/skipped.ts': 'x', 'layer/dist/skipped.json': '{}', 'package.json': '{}' };
+const gather = (repo: string) => collectInputs(repo, join(repo, 'layer'), [join(repo, 'layer', 'build'), join(repo, 'layer', 'dist')], [join(repo, 'package.json')]);
 const stampFor = (repo: string) => ({ inputs: recordInputs(repo, gather(repo)) });
 const later = (path: string) => utimesSync(path, new Date(Date.now() + 60_000), new Date(Date.now() + 60_000));
 
-test('collectInputs walks exactly the .ts and .json under the layer, minus the emit, plus the externals', () => {
+test('collectInputs walks exactly the .ts and .json under the layer, minus the emit and the package, plus the externals', () => {
   const paths = gather(tree(FILES));
   assert.deepEqual([...paths].sort(), ['layer/a.ts', 'layer/b.json', 'package.json']);
   assert.equal(Object.keys(recordInputs(tree(FILES), paths)).length, paths.length);
+});
+
+test('collectInputs with its defaults leaves out the layer\'s build and dist trees', () => {
+  const repo = tree(FILES);
+  const paths = collectInputs(repo, join(repo, 'layer'), undefined, []);
+  assert.deepEqual([...paths].sort(), ['layer/a.ts', 'layer/b.json']);
 });
 
 test('an untouched tree is fresh', () => {
@@ -169,6 +175,8 @@ test('the one Angular program reaches the suites and every page entry, and relax
     assert.ok(Array.isArray(emit.include) && emit.include.some((p: string) => p.startsWith(dir)),
       `the emit project does not cover ${dir}, and it is the only Angular program: ${JSON.stringify(emit.include)}`);
   }
+  assert.ok(Array.isArray(emit.exclude) && emit.exclude.includes('./components/**/*.card.entry.ts'),
+    'a card entry is a page the static specimens load, and the one program must not compile it');
   assert.equal(emit.angularCompilerOptions, undefined,
     'the emit project must carry no angularCompilerOptions of its own -- it relaxes nothing');
   const extra = Object.keys(emit.compilerOptions ?? {}).filter((k) => !BUILD_ONLY_OPTIONS.includes(k));

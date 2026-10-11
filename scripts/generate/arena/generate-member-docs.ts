@@ -27,7 +27,6 @@ export const node = {
   feeds: [
     'check:families',
     'check:architecture',
-    'build:angular-demo',
     'build:angular-package',
     'build:angular-tests',
     'build:demos',

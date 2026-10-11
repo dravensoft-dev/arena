@@ -358,10 +358,9 @@ observable in happy-dom. It is generated from the component's API contract and i
 `frameworks/demos/` fixture into this layer and into every other, so the page for a component
 differs from another layer's by one path segment and takes the same query string. That is what
 makes a difference between two pages a difference in the component.
-`bun run demos` builds the pages and serves them; the build is `bun run build:angular-demo`,
-two steps because neither tool does the other's job: `ngc -p tsconfig.demo.json` compiles the
-templates AOT, and `Bun.build` bundles that output for a browser, one shared Angular chunk
-across every page. An entry imports `@angular/compiler` because `@angular/*` ships partially
+`bun run demos` builds the pages and serves them; `bun run build:angular-demo` bundles the page
+entries the one `ngc` program compiled into `build/test/` with `Bun.build`, one shared Angular
+chunk across every page. An entry imports `@angular/compiler` because `@angular/*` ships partially
 compiled and its injectables need the JIT fallback; without it the page throws before mounting.
 
 The bundle is git-ignored build output, which is why **no Angular page declares `@dsCard`**:
