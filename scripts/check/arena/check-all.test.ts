@@ -40,6 +40,16 @@ const MEASURED_HEAVY = new Map([
   ['check:react-types', 'compiler'],
 ]);
 
+const MEASURED_COST = new Map([
+  ['check:pixel-parity', 34], ['check:angular', 19.3], ['check:script-types', 13.5], ['check:react-types', 12.7],
+  ['check:target-size', 11.9], ['check:proximity', 10.2], ['check:focus-trap', 4.1],
+]);
+
+const TEST_COST = new Map([
+  ['build (ngc emit of the Angular test surface)', 18.8], ['test (scripts)', 38.1], ['test (react)', 0.7],
+  ['test (react-dom)', 6.9], ['test (angular)', 5.4],
+]);
+
 const SPLIT_TESTS = ['build (ngc emit of the Angular test surface)', 'test (scripts)', 'test (react)',
   'test (react-dom)', 'test (angular)'];
 
@@ -207,11 +217,11 @@ test('the node step names how many suites it found, because a narrowed run and a
 test('testStep runs the emit and each suite in its own process, the Angular suites after the emit they read', () => {
   const steps = testStep({ isBun: true, testFiles: ['a.test.mjs', 'b.test.mjs'] });
   assert.deepEqual(steps, [
-    { name: 'build (ngc emit of the Angular test surface)', args: ['run', 'build:angular-tests'], pool: 'compiler' },
-    { name: 'test (scripts)', args: ['test', 'scripts'], pool: 'compiler' },
-    { name: 'test (react)', args: ['test', 'frameworks/react', '--path-ignore-patterns=**/*.dom.test.*'], pool: 'compiler' },
-    { name: 'test (react-dom)', args: ['test', '--preload', './frameworks/react/test/Preload.js', '.dom.test.'], pool: 'compiler' },
-    { name: 'test (angular)', args: ['test', 'frameworks/angular/build/test'], pool: 'compiler',
+    { name: 'build (ngc emit of the Angular test surface)', args: ['run', 'build:angular-tests'], pool: 'compiler', cost: 18.8 },
+    { name: 'test (scripts)', args: ['test', 'scripts'], pool: 'compiler', cost: 38.1 },
+    { name: 'test (react)', args: ['test', 'frameworks/react', '--path-ignore-patterns=**/*.dom.test.*'], pool: 'compiler', cost: 0.7 },
+    { name: 'test (react-dom)', args: ['test', '--preload', './frameworks/react/test/Preload.js', '.dom.test.'], pool: 'compiler', cost: 6.9 },
+    { name: 'test (angular)', args: ['test', 'frameworks/angular/build/test'], pool: 'compiler', cost: 5.4,
       after: ['build (ngc emit of the Angular test surface)'] },
   ]);
   assert.equal(steps[0], ANGULAR_EMIT);
@@ -305,6 +315,8 @@ test('a pool no step can run in is refused from the declarations, before anythin
   const problems = poolProblems(typo, steps, slots);
   assert.equal(problems.length, 1);
   assert.match(problems[0] ?? '', /check:angular declares pool "compilr", which is none of browser, compiler/);
+  const lightCost = GATES.map((g) => (g.name === 'check:docs' ? { ...g, cost: 1 } : g));
+  assert.match(poolProblems(lightCost, steps, slots).join(), /check:docs declares a cost and no pool/);
   assert.match(poolProblems(GATES, steps, { total: 0, heavy: 1, browser: 1 }).join(), /total slots are 0/);
 });
 
@@ -335,9 +347,9 @@ test('main refuses a misspelt pool with the sentence and exit 1, before --force 
 test('the slots line names what bounded each figure, so a flag the cores capped is not credited with the number', () => {
   const capped = `and ${BROWSER_CAP} a browser (capped at ${BROWSER_CAP})`;
   const rows: [number | null, number, number, string][] = [
-    [null, 8, 16 * GIB, `up to 8 step(s) at once (the 8 cores), 8 of them a browser or a compiler (the free memory allows that many) ${capped}`],
-    [64, 8, 16 * GIB, `up to 8 step(s) at once (--jobs=64 capped at the 8 cores), 8 of them a browser or a compiler (the free memory allows that many) ${capped}`],
-    [3, 8, 3.5 * GIB, 'up to 3 step(s) at once (--jobs=3), 1 of them a browser or a compiler (bounded by the free memory) and 1 a browser (the heavy limit)'],
+    [null, 8, 16 * GIB, `up to 8 step(s) at once (the 8 cores), 8 of them a browser or a compiler (the free memory allows that many) ${capped}, the heavy ones longest first`],
+    [64, 8, 16 * GIB, `up to 8 step(s) at once (--jobs=64 capped at the 8 cores), 8 of them a browser or a compiler (the free memory allows that many) ${capped}, the heavy ones longest first`],
+    [3, 8, 3.5 * GIB, 'up to 3 step(s) at once (--jobs=3), 1 of them a browser or a compiler (bounded by the free memory) and 1 a browser (the heavy limit), the heavy ones longest first'],
   ];
   for (const [jobs, cores, free, line] of rows) {
     assert.equal(slotsLine(jobs, cores, free), `check-all: ${line}`);
@@ -354,6 +366,7 @@ test('the plan holds every gate once and every suite step once, and a kept gate 
   assert.deepEqual(all.kept, []);
   const pixel = all.planned.find((one) => one.name === 'check:pixel-parity');
   assert.equal(pixel?.pool, 'browser');
+  assert.equal(pixel?.cost, 34);
   assert.equal(pixel?.command, '/bin/bun');
   assert.match(pixel?.args[0] ?? '', /check-pixel-parity\.ts$/);
 
@@ -542,3 +555,22 @@ test('an interrupt ends every running child, kills one that ignores SIGTERM, sta
       rmSync(dir, { recursive: true, force: true });
     }
   });
+
+test('every gate and suite step with a pool declares its cost in seconds, and no light gate declares one', () => {
+  assert.equal(MEASURED_COST.size, MEASURED_HEAVY.size);
+  const costed = new Map(GATES.filter((g) => g.cost !== undefined).map((g) => [g.name, g.cost]));
+  assert.deepEqual([...costed].sort(), [...MEASURED_COST].sort(),
+    'a heavy gate with no cost starts after every costed one whatever it takes, and a light gate with one is refused');
+  const steps = testStep({ isBun: true, testFiles: [] });
+  assert.equal(steps.length, TEST_COST.size);
+  assert.deepEqual(steps.map((one) => [one.name, one.cost]), [...TEST_COST]);
+});
+
+test('runSteps hands each step its cost, so with one heavy slot the longest heavy step runs first', { timeout: BUDGET }, async () => {
+  const quick = (name: string, cost: number): Planned => ({
+    name, command: process.execPath, args: ['-e', "console.log('ok')"], pool: 'compiler', cost,
+  });
+  const { finished } = await runSteps([quick('short', 1), quick('long', 9)], { total: 2, heavy: 1, browser: 1 },
+    { print: () => {} });
+  assert.deepEqual(finished.map((one) => one.name), ['long', 'short']);
+});

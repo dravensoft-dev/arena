@@ -20,19 +20,20 @@ import { purge } from '../../lib/arena/artifact-cache.ts';
 import { gateDecisions, shortFingerprint } from '../../graph/gate-plan.ts';
 import { childOutputAsync, type StepOutput } from '../../lib/arena/child-output.ts';
 import {
-  BROWSER_CAP, interruptOn, parseJobs, schedule, scheduleProblems, slotsFor,
+  describeSlots, interruptOn, parseJobs, schedule, scheduleProblems, slotsFor,
   type Finished, type Outcome, type Pool, type Slots, type Step,
 } from '../../graph/scheduler.ts';
+import { stepBlock } from '../../graph/step-block.ts';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const checkRoot = join(here, '..');
 
 export { DOMAINS };
 
-export type Gate = { name: string; file: string; pool?: Pool | undefined };
-export type TestStep = { name: string; args: string[]; pool?: Pool | undefined; after?: string[] | undefined };
+export type Gate = { name: string; file: string; pool?: Pool | undefined; cost?: number | undefined };
+export type TestStep = { name: string; args: string[]; pool?: Pool | undefined; cost?: number | undefined; after?: string[] | undefined };
 export type Result = { name: string; status: 'pass' | 'fail' | 'skip' | 'cached'; note?: string | undefined; ms?: number | undefined };
-export type Planned = { name: string; command: string; args: string[]; pool?: Pool | undefined; after?: string[] | undefined; reason?: string | null | undefined };
+export type Planned = { name: string; command: string; args: string[]; pool?: Pool | undefined; cost?: number | undefined; after?: string[] | undefined; reason?: string | null | undefined };
 
 export const GATES: Gate[] = [
   { name: 'check:docs', file: 'arena/check-docs.ts' },
@@ -106,20 +107,20 @@ export const GATES: Gate[] = [
   { name: 'check:vendor', file: 'react/check-vendor-generated.ts' },
   { name: 'check:demos', file: 'react/check-demos-generated.ts' },
   { name: 'check:react-barrel', file: 'react/check-react-barrel.ts' },
-  { name: 'check:react-types', file: 'react/check-react-types.ts', pool: 'compiler' },
+  { name: 'check:react-types', file: 'react/check-react-types.ts', pool: 'compiler', cost: 12.7 },
   { name: 'check:text-runs', file: 'react/check-text-runs.ts' },
-  { name: 'check:script-types', file: 'arena/check-script-types.ts', pool: 'compiler' },
+  { name: 'check:script-types', file: 'arena/check-script-types.ts', pool: 'compiler', cost: 13.5 },
   { name: 'check:script-reach', file: 'arena/check-script-reach.ts' },
-  { name: 'check:focus-trap', file: 'arena/check-focus-trap.ts', pool: 'browser' },
-  { name: 'check:target-size', file: 'arena/check-target-size.ts', pool: 'browser' },
-  { name: 'check:pixel-parity', file: 'arena/check-pixel-parity.ts', pool: 'browser' },
-  { name: 'check:proximity', file: 'arena/check-proximity.ts', pool: 'browser' },
+  { name: 'check:focus-trap', file: 'arena/check-focus-trap.ts', pool: 'browser', cost: 4.1 },
+  { name: 'check:target-size', file: 'arena/check-target-size.ts', pool: 'browser', cost: 11.9 },
+  { name: 'check:pixel-parity', file: 'arena/check-pixel-parity.ts', pool: 'browser', cost: 34 },
+  { name: 'check:proximity', file: 'arena/check-proximity.ts', pool: 'browser', cost: 10.2 },
   { name: 'check:shared-arithmetic', file: 'arena/check-shared-arithmetic.ts' },
   { name: 'check:packages', file: 'arena/check-packages.ts' },
   { name: 'check:consumer', file: 'arena/check-consumer.ts' },
   { name: 'check:exports', file: 'arena/check-exports.ts' },
   { name: 'check:classes', file: 'arena/check-classes.ts' },
-  { name: 'check:angular', file: 'angular/check-angular.ts', pool: 'compiler' },
+  { name: 'check:angular', file: 'angular/check-angular.ts', pool: 'compiler', cost: 19.3 },
   { name: 'check:angular-demos', file: 'angular/check-angular-demos.ts' },
   { name: 'check:assertions', file: 'angular/check-assertions.ts' },
   { name: 'check:cdk', file: 'angular/check-cdk.ts' },
@@ -165,7 +166,7 @@ export function parseCheckArgs(argv: string[]) {
   return { domains, tests, force, release, jobs };
 }
 
-export const ANGULAR_EMIT: TestStep = { name: 'build (ngc emit of the Angular test surface)', args: ['run', 'build:angular-tests'], pool: 'compiler' };
+export const ANGULAR_EMIT: TestStep = { name: 'build (ngc emit of the Angular test surface)', args: ['run', 'build:angular-tests'], pool: 'compiler', cost: 18.8 };
 
 export const SUITES: Record<string, { emit: boolean; args: string[] }> = {
   scripts: { emit: false, args: ['test', 'scripts'] },
@@ -183,10 +184,10 @@ const suiteArgs = (name: string) => {
 export function testStep({ isBun, testFiles }: { isBun: boolean; testFiles: string[] }): TestStep[] {
   if (isBun) return [
     ANGULAR_EMIT,
-    { name: 'test (scripts)', args: suiteArgs('scripts'), pool: 'compiler' },
-    { name: 'test (react)', args: suiteArgs('react'), pool: 'compiler' },
-    { name: 'test (react-dom)', args: suiteArgs('react-dom'), pool: 'compiler' },
-    { name: 'test (angular)', args: suiteArgs('angular'), pool: 'compiler', after: [ANGULAR_EMIT.name] },
+    { name: 'test (scripts)', args: suiteArgs('scripts'), pool: 'compiler', cost: 38.1 },
+    { name: 'test (react)', args: suiteArgs('react'), pool: 'compiler', cost: 0.7 },
+    { name: 'test (react-dom)', args: suiteArgs('react-dom'), pool: 'compiler', cost: 6.9 },
+    { name: 'test (angular)', args: suiteArgs('angular'), pool: 'compiler', cost: 5.4, after: [ANGULAR_EMIT.name] },
   ];
   return [{ name: `test (node --test over every suite under scripts/, ${testFiles.length} found)`,
             args: ['--test', ...testFiles] }];
@@ -261,15 +262,17 @@ export function planSteps(
 ) {
   const kept: Result[] = [];
   const planned: Planned[] = [];
-  for (const { name, file, pool } of gates) {
+  for (const { name, file, pool, cost } of gates) {
     const decided = decisions.get(name);
     if (decided && !decided.run) {
       kept.push({ name, status: 'cached', note: `${shortFingerprint(decided.fingerprint)}, unchanged from the previous run` });
       continue;
     }
-    planned.push({ name, command, args: [join(checkRoot, file)], pool, reason: decided?.reason ?? null });
+    planned.push({ name, command, args: [join(checkRoot, file)], pool, cost, reason: decided?.reason ?? null });
   }
-  for (const step of tests) planned.push({ name: step.name, command, args: step.args, pool: step.pool, after: step.after });
+  for (const step of tests) {
+    planned.push({ name: step.name, command, args: step.args, pool: step.pool, cost: step.cost, after: step.after });
+  }
   return { kept, planned };
 }
 
@@ -288,6 +291,7 @@ export function poolProblems(gates: Gate[], tests: TestStep[], slots: Slots) {
   const steps: Step[] = [...gates, ...tests].map((one) => ({
     name: one.name,
     pool: one.pool,
+    cost: one.cost,
     after: 'after' in one ? one.after : undefined,
     run: async () => ({ status: 'pass' as const }),
   }));
@@ -295,20 +299,11 @@ export function poolProblems(gates: Gate[], tests: TestStep[], slots: Slots) {
 }
 
 export function slotsLine(jobs: number | null, cores: number, free: number) {
-  const slots = slotsFor(jobs, cores, free);
-  let total = `the ${cores} cores`;
-  if (jobs !== null) total = slots.total === jobs ? `--jobs=${jobs}` : `--jobs=${jobs} capped at the ${cores} cores`;
-  const heavy = slots.heavy < slots.total ? 'bounded by the free memory' : 'the free memory allows that many';
-  const browser = slots.browser < slots.heavy ? `capped at ${BROWSER_CAP}` : 'the heavy limit';
-  return `check-all: up to ${slots.total} step(s) at once (${total}), ${slots.heavy} of them a browser or a compiler `
-    + `(${heavy}) and ${slots.browser} a browser (${browser})`;
+  return `check-all: ${describeSlots(jobs, cores, free)}`;
 }
 
 export function block(step: { name: string; reason?: string | null | undefined }, output: string, outcome: Outcome) {
-  const why = step.reason ? `\ncheck-all: ${step.name} runs, because ${step.reason}\n` : '';
-  const body = output === '' || output.endsWith('\n') ? output : `${output}\n`;
-  const note = outcome.note ? `  ${outcome.note}\n` : '';
-  return `${why}\n> ${step.name}\n\n${body}${note}`;
+  return stepBlock('check-all', step, output, outcome);
 }
 
 export async function runSteps(
@@ -320,6 +315,7 @@ export async function runSteps(
   const steps: Step[] = planned.map((one) => ({
     name: one.name,
     pool: one.pool,
+    cost: one.cost,
     after: one.after,
     run: async () => {
       const ended = await childOutputAsync(one.command, one.args, { cwd: options.cwd ?? repoRoot, signal: options.signal });
