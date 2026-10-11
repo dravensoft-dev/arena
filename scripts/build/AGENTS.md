@@ -130,7 +130,9 @@ Every workflow that verifies uses the last one.
 order**, which is how a failure that shows only beside another step is told from one that shows
 alone. Without it the build takes the slots the machine allows, the compiling steps sharing the
 heavy slots, longest first, and prints what bounded them. An interrupt ends every running step,
-starts none of the rest, names them in the tail and exits 130.
+starts none of the rest, names them in the tail and exits 130. A step that spawns a compiler runs it
+through `scripts/lib/arena/spawn-forwarding.ts:spawnForwarding`, which sends the interrupt on to the
+compiler, so no compiler outlives the run that ended its step.
 
 **`--target=<step>` replaces the selection of any of them with that step and every step it reads
 from**, transitively, release-only steps included with or without `--assemble`, and it repeats;

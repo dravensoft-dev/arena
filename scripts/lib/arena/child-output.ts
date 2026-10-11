@@ -48,6 +48,20 @@ export function childOutput(command: string, args: string[]): ChildOutput {
   }
 }
 
+export function outputFile() {
+  const dir = mkdtempSync(join(tmpdir(), 'arena-child-'));
+  const path = join(dir, 'output');
+  const fd = openSync(path, 'w');
+  return {
+    fd,
+    read: () => withoutCr(readFileSync(path, 'utf8')),
+    close: () => {
+      closeSync(fd);
+      rmSync(dir, { recursive: true, force: true });
+    },
+  };
+}
+
 export type StepOutput = {
   code: number | null;
   signal: string | null;
@@ -67,9 +81,8 @@ export async function childOutputAsync(
   args: string[],
   options: { cwd?: string | undefined; signal?: AbortSignal | undefined } = {},
 ): Promise<StepOutput> {
-  const dir = mkdtempSync(join(tmpdir(), 'arena-child-'));
-  const path = join(dir, 'output');
-  const fd = openSync(path, 'w');
+  const file = outputFile();
+  const { fd } = file;
   try {
     const ended = await new Promise<Ended>((resolve) => {
       let child: ChildProcess;
@@ -99,9 +112,8 @@ export async function childOutputAsync(
       if (options.signal?.aborted) stop();
       else options.signal?.addEventListener('abort', stop, { once: true });
     });
-    return { ...ended, output: withoutCr(readFileSync(path, 'utf8')) };
+    return { ...ended, output: file.read() };
   } finally {
-    closeSync(fd);
-    rmSync(dir, { recursive: true, force: true });
+    file.close();
   }
 }

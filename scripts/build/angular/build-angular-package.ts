@@ -4,18 +4,19 @@
  * the tracked layer would leave build files beside the source. It stages nothing of
  * another layer: a component composes its own class names, so nothing reaches out. Staging
  * is also where each style factory is marked pure, because the annotation belongs to what
- * ships and a component directory is the one place a bare block comment is refused. After ng-packagr
- * runs it rewrites dist/.npmignore with the nested package.json lines in SECONDARY_ENTRY_POINTS
- * order, because ng-packagr writes them in the order an async glob finishes. */
+ * ships and a component directory is the one place a bare block comment is refused. After
+ * ng-packagr runs it rewrites dist/.npmignore with the nested package.json lines in
+ * SECONDARY_ENTRY_POINTS order, because ng-packagr writes them in the order an async glob
+ * finishes. ng-packagr runs through spawnForwarding, so an interrupt of this step ends it too. */
 
 import { readFileSync, existsSync, mkdirSync } from 'node:fs';
-import { spawnSync } from 'node:child_process';
 import { join, posix } from 'node:path';
 import { relPosix } from '../../utils/posix-path.ts';
 import { isMainModule } from '../../utils/main-module.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { nodeBin } from '../../lib/arena/node-bin.ts';
+import { endIfInterrupted, spawnForwarding } from '../../lib/arena/spawn-forwarding.ts';
 import { arenaConfig } from '../../lib/core/arena-config.ts';
 import {
   collectFiles, reset, write, copy, writeCssChain, componentSheets, copyCli, baseManifest, report,
@@ -187,7 +188,14 @@ export function ngPackagrBin(root = repoRoot) {
   try { return nodeBin('ng-packagr', undefined, root); } catch { return null; }
 }
 
-export function buildAngularPackage(root = repoRoot) {
+export async function runNgPackagr(bin: string, staging: string) {
+  const result = await spawnForwarding(process.execPath,
+    [bin, '-p', 'ng-package.json', '-c', 'tsconfig.lib.json'], { cwd: staging, capture: true });
+  endIfInterrupted('build-angular-package', result);
+  return result;
+}
+
+export async function buildAngularPackage(root = repoRoot) {
   const bin = ngPackagrBin(root);
   if (!bin) throw new Error('build-angular-package: ng-packagr is not installed; run bun install');
 
@@ -197,11 +205,9 @@ export function buildAngularPackage(root = repoRoot) {
   const dist = join(root, LAYER, 'dist');
   mkdirSync(dist, { recursive: true });
 
-  const result = spawnSync(process.execPath, [bin, '-p', 'ng-package.json', '-c', 'tsconfig.lib.json'], {
-    cwd: staging, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'],
-  });
-  if (result.status !== 0) {
-    throw new Error(`build-angular-package: ng-packagr failed\n${result.stdout ?? ''}${result.stderr ?? ''}`);
+  const result = await runNgPackagr(bin, staging);
+  if (result.error || result.status !== 0) {
+    throw new Error(`build-angular-package: ng-packagr failed\n${result.error ? `${result.error.message}\n` : ''}${result.output}`);
   }
 
   const written = [];
@@ -230,7 +236,7 @@ export function buildAngularPackage(root = repoRoot) {
   const emitted = readJson(join(dist, 'package.json'));
   write(dist, 'package.json', `${JSON.stringify(withAssets(emitted), null, 2)}\n`);
 
-  return { dir: dist, written, staged: staged.length, log: result.stdout };
+  return { dir: dist, written, staged: staged.length, log: result.output };
 }
 
 export type NgPackage = {
@@ -258,10 +264,10 @@ export function withAssets(emitted: NgPackage): NgPackage & { exports: Record<st
   };
 }
 
-function main() {
-  const { dir, written, staged } = buildAngularPackage();
+async function main() {
+  const { dir, written, staged } = await buildAngularPackage();
   console.log(report('build-angular-package', dir, written));
   console.log(`build-angular-package: ${staged} source(s) staged and compiled by ng-packagr`);
 }
 
-if (isMainModule(import.meta.url)) main();
+if (isMainModule(import.meta.url)) await main();

@@ -13,7 +13,7 @@ import { join, relative, dirname } from 'node:path';
 import { toPosix, relPosix } from '../../utils/posix-path.ts';
 import { isMainModule } from '../../utils/main-module.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
-import { childOutput } from '../../lib/arena/child-output.ts';
+import { endIfInterrupted, spawnForwarding } from '../../lib/arena/spawn-forwarding.ts';
 import { tscBin } from '../../lib/arena/typecheck.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { arenaConfig } from '../../lib/core/arena-config.ts';
@@ -71,11 +71,14 @@ export function distFiles(dir: string, keep: (path: string) => boolean) {
   return walkFiles(dir).filter(keep);
 }
 
-export function emitDeclarations(root: string, outDir: string) {
+export async function emitDeclarations(root: string, outDir: string) {
   const args = [tscBin(root), '-p', join(root, DIST_PROJECT)];
   if (outDir) args.push('--outDir', outDir);
-  const r = childOutput(process.execPath, args);
+  const r = await spawnForwarding(process.execPath, args, { capture: true });
+  endIfInterrupted('build-react-package', r);
   if (r.error) throw new Error(`build-react-package: tsc failed to spawn: ${r.error.message || r.error}`);
+  if (r.signal)
+    throw new Error(`build-react-package: tsc ended on ${r.signal}, which this step did not send\n${r.output}`);
   if (r.status !== 0)
     throw new Error(`build-react-package: the declaration emit did not typecheck\n${r.output}`);
 }
@@ -110,7 +113,7 @@ export function unresolvedProblems(dir: string) {
   return problems;
 }
 
-export function assembleModules(root: string, dir: string) {
+export async function assembleModules(root: string, dir: string) {
   const layer = join(root, LAYER);
   const written = [];
   const compiled: string[] = [];
@@ -142,7 +145,7 @@ export function assembleModules(root: string, dir: string) {
     written.push(write(dir, name, rewriteSourceSpecifiers(readFileSync(from, 'utf8'))));
   }
 
-  emitDeclarations(root, dir);
+  await emitDeclarations(root, dir);
   for (const path of distFiles(dir, (p: string) => p.endsWith('.d.ts')))
     writeFileSync(path, rewriteSourceSpecifiers(readFileSync(path, 'utf8')));
   const declarations = distFiles(dir, (p: string) => p.endsWith('.d.ts'));
@@ -187,7 +190,7 @@ export async function buildReactPackage(root = repoRoot) {
 
   reset(dir);
 
-  const { written: modules, compiled, declarations } = assembleModules(root, dir);
+  const { written: modules, compiled, declarations } = await assembleModules(root, dir);
   written.push(...modules);
   const sources = { length: compiled.length };
   const carried = declarations;

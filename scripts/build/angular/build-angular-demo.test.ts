@@ -7,6 +7,11 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { join } from 'node:path';
+import { platform } from '../../lib/arena/platform.ts';
+import { budgetFor } from '../../lib/arena/deadline.ts';
+import { TERM_GRACE } from '../../lib/arena/child-output.ts';
+import { PROBE_ENDED, PROBE_SPAWNED, assertCompilerEnded, probeInterrupt } from '../../lib/arena/forwarding-probe.ts';
 import { missingEntryProblems, unbundledProblems, isEntry } from './build-angular-demo.ts';
 
 const ENTRY = 'ArenaDialog.demo.entry.generated.js';
@@ -39,4 +44,15 @@ test('an entry is recognised by suffix in either extension, since one side is so
   assert.equal(isEntry(ENTRY), true);
   assert.equal(isEntry('ArenaDialog.demo.entry.generated.ts', '.ts'), true);
   assert.equal(isEntry('ArenaDialog.ts', '.ts'), false);
+});
+
+test('an interrupt of the demo step ends the ngc it spawned', {
+  timeout: budgetFor(PROBE_SPAWNED, PROBE_ENDED, TERM_GRACE),
+  skip: platform === 'win32' ? 'a signal sent to a process is a POSIX idea' : false,
+}, async () => {
+  const probed = await probeInterrupt({
+    module: join(import.meta.dirname, 'build-angular-demo.ts'),
+    body: 'await step.compileDemo(stub, "unused.json", root);',
+  });
+  assertCompilerEnded(probed, false);
 });

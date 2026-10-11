@@ -1,11 +1,15 @@
 /* Covers the staging and the manifest of build-angular-package.ts, and the .npmignore it rewrites
  * so the nested package.json lines follow SECONDARY_ENTRY_POINTS whatever order ng-packagr
- * found them in. */
+ * found them in, and that an interrupt of the step ends the ng-packagr it spawned. */
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
 import { join, posix } from 'node:path';
+import { platform } from '../../lib/arena/platform.ts';
+import { budgetFor } from '../../lib/arena/deadline.ts';
+import { TERM_GRACE } from '../../lib/arena/child-output.ts';
+import { PROBE_ENDED, PROBE_SPAWNED, assertCompilerEnded, probeInterrupt } from '../../lib/arena/forwarding-probe.ts';
 import {
   manifest, ngPackageConfig, libTsconfig, withAssets, ngPackagrBin, annotatePure,
   NAME, RUNTIME_DEPENDENCIES, STAGING, LAYER, VARIANTS, SECONDARY_ENTRY_POINTS, rewriteEntryImports,
@@ -149,4 +153,15 @@ test('a set of lines that differs from the entry points is refused with a senten
   }
   assert.equal(walked, rows.length);
   assert.equal(rows.length, 5);
+});
+
+test('an interrupt of the package step ends the ng-packagr it spawned and prints what it wrote', {
+  timeout: budgetFor(PROBE_SPAWNED, PROBE_ENDED, TERM_GRACE),
+  skip: platform === 'win32' ? 'a signal sent to a process is a POSIX idea' : false,
+}, async () => {
+  const probed = await probeInterrupt({
+    module: join(import.meta.dirname, 'build-angular-package.ts'),
+    body: 'await step.runNgPackagr(stub, root);',
+  });
+  assertCompilerEnded(probed, true);
 });

@@ -6,7 +6,6 @@
  * The stamp also records which inputs it compiled, because deleting a source bumps no surviving
  * file's time and a compared timestamp alone would skip. `--force` compiles unconditionally. */
 
-import { spawnSync } from 'node:child_process';
 import { join, relative } from 'node:path';
 import { existsSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -17,6 +16,7 @@ import { readJson } from '../../utils/read-file.ts';
 import { ngcBin } from '../../check/angular/check-angular.ts';
 import { angularEmitRoot } from '../../lib/angular/emit-root.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
+import { endIfInterrupted, spawnForwarding } from '../../lib/arena/spawn-forwarding.ts';
 
 const PROJECT = 'frameworks/angular/tsconfig.test.json';
 const OUT_DIR = join(repoRoot, 'frameworks', 'angular', 'build', 'test');
@@ -129,7 +129,13 @@ export function stalenessReason(
   return null;
 }
 
-function main() {
+export async function compileTests(bin: string, project: string, cwd: string) {
+  const r = await spawnForwarding(process.execPath, [bin, '-p', project], { cwd });
+  endIfInterrupted('build-angular-tests', r);
+  return r;
+}
+
+async function main() {
   if (!process.argv.includes('--force')) {
     const reason = stalenessReason(collectInputs(), readStamp());
     if (reason === null) {
@@ -150,9 +156,13 @@ function main() {
     console.error(`build-angular-tests: ${(err as Error).message}`);
     process.exit(1);
   }
-  const r = spawnSync(process.execPath, [bin, '-p', join(repoRoot, PROJECT)], { stdio: 'inherit', cwd: repoRoot });
+  const r = await compileTests(bin, join(repoRoot, PROJECT), repoRoot);
   if (r.error) {
     console.error(`build-angular-tests: ngc failed to spawn: ${r.error.message || r.error}`);
+    process.exit(1);
+  }
+  if (r.signal) {
+    console.error(`build-angular-tests: ngc ended on ${r.signal}, which this step did not send, so the Angular test surface is not compiled`);
     process.exit(1);
   }
   if (r.status !== 0) {
@@ -185,4 +195,4 @@ function verifyEmit() {
   }
 }
 
-if (isMainModule(import.meta.url)) main();
+if (isMainModule(import.meta.url)) await main();

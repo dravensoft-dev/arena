@@ -1,5 +1,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { join } from 'node:path';
+import { platform } from '../../lib/arena/platform.ts';
+import { budgetFor } from '../../lib/arena/deadline.ts';
+import { TERM_GRACE } from '../../lib/arena/child-output.ts';
+import { PROBE_ENDED, PROBE_SPAWNED, assertCompilerEnded, probeInterrupt } from '../../lib/arena/forwarding-probe.ts';
 import { missingEmitProblems, stalenessReason } from './build-angular-tests.ts';
 
 const stamped = (mtimeMs: number, paths: string[]) => ({ mtimeMs, paths });
@@ -77,4 +82,15 @@ test('an extra emitted file with no source is not this function\'s problem -- pr
     ['A.test.js', 'Orphan.test.js'],
   );
   assert.deepEqual(problems, []);
+});
+
+test('an interrupt of the test-surface step ends the ngc it spawned', {
+  timeout: budgetFor(PROBE_SPAWNED, PROBE_ENDED, TERM_GRACE),
+  skip: platform === 'win32' ? 'a signal sent to a process is a POSIX idea' : false,
+}, async () => {
+  const probed = await probeInterrupt({
+    module: join(import.meta.dirname, 'build-angular-tests.ts'),
+    body: 'await step.compileTests(stub, "unused.json", root);',
+  });
+  assertCompilerEnded(probed, false);
 });

@@ -1,9 +1,9 @@
 /* Two steps, because neither tool does the other's job: ngc compiles the templates
  * AOT into ESM that still carries bare @angular/* specifiers and extensionless
  * relative imports, and Bun.build resolves both into something a browser loads.
- * `splitting` keeps the Angular runtime in one shared chunk across every page. */
+ * `splitting` keeps the Angular runtime in one shared chunk across every page. ngc runs
+ * through spawnForwarding, so an interrupt of this step ends ngc as well. */
 
-import { spawnSync } from 'node:child_process';
 import { basename, join, relative } from 'node:path';
 import { existsSync, rmSync } from 'node:fs';
 import { isMainModule } from '../../utils/main-module.ts';
@@ -12,6 +12,7 @@ import { relPosix } from '../../utils/posix-path.ts';
 import { ngcBin } from '../../check/angular/check-angular.ts';
 import { angularEmitRoot } from '../../lib/angular/emit-root.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
+import { endIfInterrupted, spawnForwarding } from '../../lib/arena/spawn-forwarding.ts';
 const PROJECT = 'frameworks/angular/tsconfig.demo.json';
 const OUT_DIR = join(repoRoot, 'frameworks', 'angular', 'build', 'demo');
 const TSC_DIR = join(OUT_DIR, 'tsc');
@@ -102,6 +103,12 @@ function collectSourceEntries(dir: string) {
     .map((full) => relPosix(dir, full));
 }
 
+export async function compileDemo(bin: string, project: string, cwd: string) {
+  const r = await spawnForwarding(process.execPath, [bin, '-p', project], { cwd });
+  endIfInterrupted('build-angular-demo', r);
+  return r;
+}
+
 async function main() {
   if (typeof Bun === 'undefined' || typeof Bun.build !== 'function') {
     console.error(
@@ -119,9 +126,13 @@ async function main() {
     process.exit(1);
   }
 
-  const r = spawnSync(process.execPath, [bin, '-p', join(repoRoot, PROJECT)], { stdio: 'inherit', cwd: repoRoot });
+  const r = await compileDemo(bin, join(repoRoot, PROJECT), repoRoot);
   if (r.error) {
     console.error(`build-angular-demo: ngc failed to spawn: ${r.error.message || r.error}`);
+    process.exit(1);
+  }
+  if (r.signal) {
+    console.error(`build-angular-demo: ngc ended on ${r.signal}, which this step did not send, so the Angular layer is not compiled`);
     process.exit(1);
   }
   if (r.status !== 0) {
