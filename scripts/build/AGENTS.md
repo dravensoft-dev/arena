@@ -156,8 +156,8 @@ skip any directory named `build`, so neither has ever opened a file under
 `frameworks/**` overlapped the emit path on a machine where a previous `bun run test` had left it on
 disk, and on a CI checkout, where it has not, they failed. Both gates now exclude
 `frameworks/angular/build/**`, which is what their walks were already doing. What the node is worth
-is its `reads` and `writes` being written down where every other step's are; its own mtime stamp is
-what decides whether `bun run test` recompiles, and that has not changed.
+is its `reads` and `writes` being written down where every other step's are; its own stamp of
+size, mtime and content hash is what decides whether `bun run test` recompiles, and that has not changed.
 
 ## The five domains
 
