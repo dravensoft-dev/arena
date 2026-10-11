@@ -16,7 +16,7 @@ import { isMainModule } from '../../utils/main-module.ts';
 import { startStaticServer } from '../../lib/arena/static-server.ts';
 import { browserOrExit, launchChromium } from '../../lib/arena/chromium.ts';
 import { connect, evaluate, PageThrew } from '../../lib/arena/cdp.ts';
-import type { Cdp } from '../../lib/arena/cdp.ts';
+import type { Cdp, CdpSend } from '../../lib/arena/cdp.ts';
 import { arenaEnv, cannotRun } from '../../lib/arena/arena-scripts-vars.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import {
@@ -67,6 +67,17 @@ export const SETTLED: Deadline = deadline('pixel-parity:settled', 120_000,
   + 'charts spend re-measuring their plot boxes after the first layout');
 
 export const SETTLE_TRIES = 12;
+
+export const SHOT = { format: 'png', captureBeyondViewport: true, optimizeForSpeed: true } as const;
+
+export async function shoot(cdp: CdpSend, sessionId: string, url: string) {
+  const shot = await withTimeout(
+    cdp.send('Page.captureScreenshot', SHOT, sessionId),
+    CAPTURE.ms,
+    `${url}: capture timed out after ${CAPTURE.ms}ms, which is that size because ${CAPTURE.why}`,
+  );
+  return Buffer.from(shot.data, 'base64');
+}
 
 export const STILL = `(() => {
   const style = document.createElement('style');
@@ -312,14 +323,7 @@ async function captureIn(cdp: Cdp, sessionId: string, url: string, selectors: st
   await ev(stableHeightExpression(PAINTED));
   await ev(FROZEN);
 
-  const once = async () => {
-    const shot = await withTimeout(
-      cdp.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: true }, sessionId),
-      CAPTURE.ms,
-      `${url}: capture timed out after ${CAPTURE.ms}ms, which is that size because ${CAPTURE.why}`,
-    );
-    return Buffer.from(shot.data, 'base64');
-  };
+  const once = () => shoot(cdp, sessionId, url);
 
   await once();
 

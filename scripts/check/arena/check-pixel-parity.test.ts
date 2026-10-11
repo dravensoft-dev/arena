@@ -7,7 +7,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import {
-  THEMES, VIEWPORT, STILL, PAINTED, SETTLE_TRIES, WATCH, FROZEN, pagePath, sinksIn,
+  THEMES, VIEWPORT, STILL, PAINTED, SETTLE_TRIES, WATCH, FROZEN, SHOT, pagePath, sinksIn, shoot,
   pairProblems, sizeProblem, paintProblem, dumpDir,
   ALLOWED, staleAllowanceProblems, within, parseParityArgs, rasterProblem, maskedProblem, allowancesFor,
   rectsExpression, rectsOf, matchedLine, SelectorProblem, type Rect,
@@ -49,8 +49,25 @@ test('the freeze runs after the page has settled, or it pins the width nothing h
   const body = source.slice(source.indexOf('async function capture('));
   assert.ok(body.indexOf('ev(FROZEN)') > body.indexOf('stableHeightExpression'),
     'frozen before the last measurement lands, every chart on the page draws at its assumed width');
-  assert.ok(body.indexOf('ev(FROZEN)') < body.indexOf('Page.captureScreenshot'),
+  assert.ok(body.indexOf('ev(FROZEN)') < body.indexOf('shoot(')
+    && body.indexOf('ev(FROZEN)') < body.indexOf('await once()'),
     'frozen after the first capture, that capture is the one this gate exists to stop reporting');
+});
+
+test('every capture is a lossless png of the whole page, encoded for speed', async () => {
+  const calls: unknown[][] = [];
+  const send = async (method: string, params?: unknown, sessionId?: string) => {
+    calls.push([method, params, sessionId]);
+    return { data: Buffer.from('painted').toString('base64') };
+  };
+  const png = await shoot({ send }, 'session-1', 'http://127.0.0.1/page.html');
+  assert.equal(png.toString(), 'painted');
+  assert.deepEqual(calls, [['Page.captureScreenshot',
+    { format: 'png', captureBeyondViewport: true, optimizeForSpeed: true }, 'session-1']],
+    'png is lossless, so the faster encoding writes other bytes for the same pixels: both layers '
+    + 'and every settle capture go through this call, so bytes are only ever compared with bytes '
+    + 'written the same way');
+  assert.equal(SHOT.format, 'png');
 });
 
 test('a page is walked from the tree, and the pair points at the same file in every layer', () => {
