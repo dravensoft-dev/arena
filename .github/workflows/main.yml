@@ -11,41 +11,28 @@ concurrency:
   group: main
   cancel-in-progress: false
 
-env:
-  BUN_VERSION: 1.3.14
-  # The one workflow that names a browser, so the terminal-override branch stays exercised.
-  # pr.yml and develop.yml name none, which is what proves the candidate list finds one.
-  CHROME_PATH: /usr/bin/google-chrome
-
 jobs:
   verify:
     name: build and test everything
+    uses: ./.github/workflows/verify.yml
+    with:
+      domains: core,react,angular,tailwind,arena
+      # The one workflow that names a browser, so the terminal-override branch stays exercised.
+      # pr.yml and develop.yml name none, which is what proves the candidate list finds one.
+      chrome-path: /usr/bin/google-chrome
+
+  cache:
+    name: the build the workflows after this one restore
+    needs: [verify]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - name: the build verify made and every gate and suite passed over
+        uses: actions/download-artifact@v8
         with:
-          fetch-depth: 0
-          fetch-tags: true
-      - uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: ${{ env.BUN_VERSION }}
-      - uses: actions/cache@v6
-        with:
-          path: ~/.bun/install/cache
-          key: bun-cache-${{ runner.os }}-${{ hashFiles('bun.lock') }}
-          restore-keys: bun-cache-${{ runner.os }}-
-      - run: bun install --frozen-lockfile
+          name: arena-build-${{ github.run_id }}
 
-      - name: build and assemble, every step run
-        run: bun run build:release
-
-      - name: the build is idempotent, so a tracked file it rewrote is a generator out of step
-        run: git diff --exit-code
-
-      # Saved here rather than at the end of the job: this is the tree the step above just
-      # vouched for, before a gate has had the chance to write anything into it. A re-run of
-      # this workflow reserves a key that already exists, which actions/cache/save logs as a
-      # warning and does not fail on, so the second run keeps the first run's build.
+      # A re-run of this workflow reserves a key that already exists, which actions/cache/save
+      # logs as a warning and does not fail on, so the second run keeps the first run's build.
       - name: the build every workflow that follows this one restores
         uses: actions/cache/save@v6
         with:
@@ -58,9 +45,3 @@ jobs:
             dist/mcp
             dist/site
           key: arena-build-${{ runner.os }}-${{ github.sha }}
-
-      - name: every gate
-        run: bun scripts/check/arena/check-all.ts --no-tests
-
-      - name: the whole suite, counted per domain
-        run: bun run ci:summarize

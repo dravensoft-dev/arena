@@ -15,18 +15,19 @@ import { waitFor } from '../../lib/arena/wait-for.ts';
 import { COLLECTION, allNodes, neverSubscribesReason } from '../../graph/nodes.ts';
 import { ABORT_GRACE, BROWSER_CAP, GIB } from '../../graph/scheduler.ts';
 import { resolveSpecs } from '../../graph/pathspecs.ts';
+import { LAYERS } from '../../lib/arena/layers.ts';
+import { workflowTexts } from '../../graph/handoff.ts';
+import { VERIFY_WORKFLOW, callerSelections, verifySelection } from '../../ci/arena/verify-workflow.ts';
+import { SUITE_DOMAINS } from '../../ci/arena/summarize-tests.ts';
+import { domainsOf } from '../../ci/arena/changed-layers.ts';
+import { jobBlocks } from './check-portability.ts';
 import {
-  testStep, summarize, summaryLine, stepStatus, GATES, DOMAINS, gatesFor, parseCheckArgs, testFilesUnder,
+  testStep, summarize, summaryLine, stepStatus, GATES, DOMAINS, SUITES, gatesFor, parseCheckArgs, testFilesUnder,
   keptButFailed, ANGULAR_EMIT, typeSteps, planSteps, runSteps, collate, exitCode, stepOutcome, block, poolProblems,
   slotsLine, type Planned, type Result,
 } from './check-all.ts';
 
-const CI_JOBS = {
-  core: ['core', 'arena'],
-  react: ['react'],
-  angular: ['angular'],
-  tailwind: ['tailwind'],
-};
+const verify = () => verifySelection(readFileSync(join(repoRoot, VERIFY_WORKFLOW), 'utf8'));
 
 const INTERRUPTED: Deadline = deadline('check-all:interrupted', 20_000,
   'four bun processes start, each writes its pid, and the runner is signalled; a cold bun start on '
@@ -141,15 +142,44 @@ test('selecting every domain selects every gate, so no gate can hide outside the
   assert.equal(gatesFor(DOMAINS).length, GATES.length);
 });
 
-test('the four CI jobs partition GATES: each gate runs in exactly one of them', () => {
-  const seen = new Map();
-  for (const [job, domains] of Object.entries(CI_JOBS)) {
-    for (const gate of gatesFor(domains)) {
-      assert.ok(!seen.has(gate.name), `${gate.name} runs in both ${seen.get(gate.name)} and ${job}`);
-      seen.set(gate.name, job);
+test('verify.yml runs the gates of the domains its caller selects in one job, so each gate runs once', () => {
+  const selection = verify();
+  assert.deepEqual(selection.problems, []);
+  assert.equal(selection.gates.length, 1, 'one job runs check-all, on the domains the caller hands it');
+  const names = gatesFor(DOMAINS).map((g) => g.name);
+  assert.equal(new Set(names).size, names.length);
+  assert.deepEqual([...names].sort(), GATES.map((g) => g.name).sort());
+});
+
+test('every domain is selected by some caller of verify.yml, and develop and main select all of them', () => {
+  const workflows = workflowTexts(repoRoot);
+  const { callers, problems } = callerSelections(workflows);
+  assert.deepEqual(problems, []);
+  assert.deepEqual(callers.map((one) => one.file).sort(),
+    ['.github/workflows/develop.yml', '.github/workflows/main.yml', '.github/workflows/pr.yml']);
+  const selected = new Set<string>();
+  for (const caller of callers) {
+    if (caller.domains === '${{ needs.changes.outputs.domains }}') {
+      const changes = jobBlocks(workflows.find((one) => one.file === caller.file)?.text ?? '').get('changes') ?? '';
+      assert.match(changes, /^ {6}domains: \$\{\{ steps\.layers\.outputs\.domains \}\}$/m);
+      assert.match(changes, /bun scripts\/ci\/arena\/changed-layers\.ts >> "\$GITHUB_OUTPUT"/);
+      for (const one of domainsOf(Object.fromEntries(LAYERS.map((layer) => [layer, true])))) selected.add(one);
+      continue;
     }
+    const list = caller.domains.split(',');
+    assert.deepEqual([...list].sort(), [...DOMAINS].sort(),
+      `${caller.file} verifies a whole branch, so it selects every domain`);
+    for (const one of list) selected.add(one);
   }
-  assert.deepEqual([...seen.keys()].sort(), GATES.map((g) => g.name).sort());
+  assert.deepEqual([...selected].sort(), [...DOMAINS].sort());
+});
+
+test('each suite runs in one job of verify.yml, and that job runs when the domain owning the suite is selected', () => {
+  const { suites } = verify();
+  assert.deepEqual([...suites.keys()].sort(), Object.keys(SUITES).sort());
+  for (const [suite, { job, domain }] of suites) {
+    assert.equal(domain, SUITE_DOMAINS[suite], `${suite} runs in ${job}, which ${domain ?? 'every run'} selects`);
+  }
 });
 
 test('a domain that does not exist is refused rather than answered with an empty run', () => {
@@ -157,7 +187,7 @@ test('a domain that does not exist is refused rather than answered with an empty
   assert.throws(() => gatesFor([]), /selected no gate/);
 });
 
-test('the arena domain is where the cross-layer gates are, which is why the core job carries it', () => {
+test('the arena domain is where the cross-layer gates are, which is why every caller of verify.yml selects it', () => {
   const arena = gatesFor(['arena']).map((g) => g.name);
   for (const name of ['check:api', 'check:behaviour', 'check:compliance', 'check:structure',
     'check:dimensions', 'check:layer-independence', 'check:focus-trap', 'check:parts', 'check:pixel-parity',
