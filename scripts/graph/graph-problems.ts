@@ -14,10 +14,11 @@ import { join } from 'node:path';
 import { existsSync } from 'node:fs';
 import { repoRoot } from '../lib/arena/repo-root.ts';
 import { universe } from './inputs.ts';
-import { reachesNoDirectory, resolveSpecs, unreachedSpecs } from './pathspecs.ts';
-import { cyclePath, duplicateWriters, selfFeeds, subscriptionProblems, unknownFeeds } from './graph.ts';
+import { isExclusion, normalizeSpec, reachesNoDirectory, resolveSpecs, unreachedSpecs } from './pathspecs.ts';
+import { cyclePath, duplicateWriters, selfFeeds, subscriptionProblems, unknownFeeds, upstreamOf } from './graph.ts';
 import type { GraphNode } from './graph.ts';
-import { ALIASES, NOT_YET_SUBSCRIBED, allNodes, collectedScripts, neverSubscribesReason } from './nodes.ts';
+import { ALIASES, NOT_YET_SUBSCRIBED, allNodes, collectedScripts, isBuildStep, neverSubscribesReason } from './nodes.ts';
+import { POOLS } from './pools.ts';
 import { handoffProblems, trackedPaths, workflowTexts } from './handoff.ts';
 
 export function remembering<T>(answer: (specs: string[]) => T) {
@@ -144,9 +145,72 @@ export function vacuousProblems(nodes: GraphNode[], scripts: string[]) {
   return [];
 }
 
-export async function graphProblems(base = repoRoot) {
+export function poolProblems(nodes: GraphNode[], declaredIn: Map<string, string>) {
+  const problems: string[] = [];
+  for (const node of nodes) {
+    if (node.pool === undefined && node.cost === undefined) continue;
+    if (!isBuildStep(declaredIn, node, true)) {
+      problems.push(`${node.name} declares a pool or a cost, and no build invocation runs it: check-all reads a `
+        + "gate's pool from GATES and the suites' emit from testStep(), so this one would be read by nothing");
+      continue;
+    }
+    if (node.pool === undefined) {
+      problems.push(`${node.name} declares a cost and no pool; only a heavy step is started by its cost`);
+      continue;
+    }
+    if (!(POOLS as readonly string[]).includes(node.pool)) {
+      problems.push(`${node.name} declares pool "${node.pool}", which is none of ${POOLS.join(', ')}; a light step declares none`);
+    }
+    if (typeof node.cost !== 'number' || !Number.isFinite(node.cost) || node.cost <= 0) {
+      problems.push(`${node.name} declares pool "${node.pool}" and no cost in seconds above zero, so the scheduler `
+        + 'cannot start it longest first');
+    }
+  }
+  return problems;
+}
+
+export const PROBE_EXTENSIONS = ['ts', 'tsx', 'js', 'jsx', 'mjs', 'json', 'map', 'd.ts', 'html', 'css', 'md', 'txt'];
+
+export function probesOf(spec: string) {
+  const segments = normalizeSpec(spec.replace(/^!/, '')).split('/');
+  let shapes: string[][] = [[]];
+  for (const segment of segments) {
+    if (segment === '**') shapes = [...shapes.map((one) => [...one, 'probe']), ...shapes];
+    else shapes = shapes.map((one) => [...one, segment.replace(/\*/g, 'probe')]);
+  }
+  return [...new Set(shapes.map((one) => one.join('/')))]
+    .flatMap((base) => [base, ...PROBE_EXTENSIONS.map((ext) => `${base}/probe.${ext}`)]);
+}
+
+export function peerReadProblems(nodes: GraphNode[], declaredIn: Map<string, string>, paths: string[]) {
+  const build = nodes.filter((node) => isBuildStep(declaredIn, node, true));
+  const upstream = new Map(build.map((node) => [node.name, upstreamOf(nodes, node.name)]));
+  const problems: string[] = [];
+  let pairs = 0;
+  for (const writer of build) {
+    const probes = writer.writes.filter((spec) => !isExclusion(spec)).flatMap(probesOf);
+    const written = [...new Set([...resolveSpecs(writer.writes, paths), ...resolveSpecs(writer.writes, probes)])];
+    for (const reader of build) {
+      if (reader === writer || upstream.get(reader.name)?.has(writer.name) || upstream.get(writer.name)?.has(reader.name)) continue;
+      pairs += 1;
+      const named = reader.reads.filter((spec) => !isExclusion(spec)).flatMap(probesOf);
+      const reached = resolveSpecs(reader.reads, [...written, ...resolveSpecs(writer.writes, named)]);
+      if (reached.length > 0) {
+        problems.push(`${reader.name} reads ${reached[0]}, which ${writer.name} writes, and neither waits for the other, `
+          + 'so run-build can run them side by side and the read can meet a file half written; list '
+          + `${reader.name} in ${writer.name}'s feeds or exclude the path from its reads`);
+      }
+    }
+  }
+  return { problems, pairs };
+}
+
+export async function graphProblems(
+  base = repoRoot,
+  collect: (root: string) => Promise<{ nodes: GraphNode[]; declaredIn: Map<string, string> }> = allNodes,
+) {
   const scripts = collectedScripts(base);
-  const { nodes, declaredIn } = await allNodes(base);
+  const { nodes, declaredIn } = await collect(base);
   const vacuous = vacuousProblems(nodes, scripts);
   if (vacuous.length > 0) return { problems: vacuous, notes: [], nodes, edges: 0 };
 
@@ -170,6 +234,8 @@ export async function graphProblems(base = repoRoot) {
     ...outsideBuildProblems(nodes),
     ...emptySpecProblems(nodes, paths, resolve, unreached),
     ...handoffProblems(nodes, workflowTexts(base), trackedPaths(base)),
+    ...poolProblems(nodes, declaredIn),
+    ...peerReadProblems(nodes, declaredIn, paths).problems,
   ];
 
   return {

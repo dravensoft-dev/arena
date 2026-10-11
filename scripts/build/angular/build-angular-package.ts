@@ -54,6 +54,8 @@ export const node = {
   ],
   releaseOnly: 'ng-packagr costs more than a development loop should pay for an artefact only a release '
     + 'ships, so bun run build leaves it out and bun run build:packages runs it',
+  pool: 'compiler' as const,
+  cost: 16.5,
 };
 
 export function manifest(root = repoRoot) {

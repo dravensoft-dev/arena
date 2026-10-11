@@ -15,21 +15,13 @@ import { isMainModule } from '../utils/main-module.ts';
 import { repoRoot } from '../lib/arena/repo-root.ts';
 import { byName, needsOf, topoOrder, transitiveFeeds, upstreamOf } from './graph.ts';
 import type { GraphNode } from './graph.ts';
-import { allNodes } from './nodes.ts';
+import { BUILT_BY, allNodes, isBuildStep } from './nodes.ts';
 import { stampAll, universe } from './inputs.ts';
 import { fingerprintOne } from './fingerprint.ts';
 import { forget, readFiles, readState, recordGreen, writeFiles, writeState } from './state.ts';
 import { decide, shortFingerprint } from './plan.ts';
 
-export const BUILT_BY = ['scripts/build/', 'scripts/generate/'];
-
-export const isBuildStep = (
-  declaredIn: Map<string, string>,
-  node: { name: string; releaseOnly?: string; runsBeforeSuites?: string },
-  assemble = false,
-) => !node.runsBeforeSuites
-  && (assemble || !node.releaseOnly)
-  && BUILT_BY.some((phase) => (declaredIn.get(node.name) ?? '').startsWith(phase));
+export { BUILT_BY, isBuildStep };
 
 export function selectSteps(
   nodes: GraphNode[],

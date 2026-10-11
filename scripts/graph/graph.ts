@@ -4,6 +4,8 @@
  * needsOf(). Ties in the order are broken by the position a node was collected at, so the sequence
  * a run prints is stable rather than whatever the queue happened to hold. */
 
+import type { Pool } from './pools.ts';
+
 export type GraphNode = {
   name: string;
   reads: string[];
@@ -11,6 +13,8 @@ export type GraphNode = {
   feeds: string[];
   releaseOnly?: string;
   runsBeforeSuites?: string;
+  pool?: Pool | undefined;
+  cost?: number | undefined;
 };
 
 export type Resolve = (specs: string[]) => string[];

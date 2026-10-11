@@ -38,6 +38,8 @@ export const node = {
     'check:playgrounds',
     'build:site',
   ],
+  pool: 'compiler' as const,
+  cost: 11.9,
 };
 
 export const ENTRY_SUFFIXES = ['.demo.entry.generated.js', '.sink.entry.generated.js'];
