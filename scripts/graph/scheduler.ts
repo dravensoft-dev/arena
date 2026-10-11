@@ -1,13 +1,13 @@
 /* Runs steps side by side within pools sized from the machine, for the runners that sweep the
  * tree. A step names in `after` the steps it waits for, each listed before it, and starts once they
  * have FINISHED whatever their outcome; a runner that blocks on a failure says so in its own step.
- * Light steps share the cores; browser and compiler steps also share one heavy budget sized from
- * free memory, because each peaks near a gigabyte or above, and the browser is capped lower. With
- * one slot a ready step starts in the order given, which replays the serial run; with more, a step
- * that declares its cost starts first, longest first, because the heavy pool is what a run waits
- * on. A step that throws is a FAIL and its slot comes back; a list that cannot finish is refused.
- * An abort starts nothing further, and a step still running ABORT_GRACE after one is a FAIL and is
- * left. A finished hook that throws ends the run with a sentence once nothing runs. */
+ * Light steps share the cores; browser and compiler steps share one heavy budget of free memory,
+ * the measured compiler peak plus a margin, and the browser is capped lower by BROWSER_CAP. With
+ * one slot a ready step starts in the order given; with more, a step that declares its cost starts
+ * first, longest first. A step that throws is a FAIL and its slot comes back; a list that cannot
+ * finish is refused. An abort starts nothing further, and a step still running ABORT_GRACE after
+ * one is a FAIL and is left. A finished hook that throws ends the run with a sentence once nothing
+ * runs. */
 
 import { availableParallelism, freemem } from 'node:os';
 import { deadline, type Deadline } from '../lib/arena/deadline.ts';
@@ -26,7 +26,7 @@ export type Hooks = {
 };
 
 export const GIB = 1024 ** 3;
-export const HEAVY_PEAK = 1.6 * GIB;
+export const HEAVY_PEAK = 1.1 * GIB;
 export const HEADROOM = GIB;
 export const BROWSER_CAP = 2;
 

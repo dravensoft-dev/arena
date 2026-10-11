@@ -220,7 +220,9 @@ test('the slots follow the cores and the free memory, and --jobs caps every pool
   const rows: [number | null, number, number, Slots][] = [
     [null, 8, 16 * GIB, { total: 8, heavy: 8, browser: 2 }],
     [null, 4, 7.4 * GIB, { total: 4, heavy: 4, browser: 2 }],
-    [null, 8, 3.5 * GIB, { total: 8, heavy: 1, browser: 1 }],
+    [null, 8, 2.5 * GIB, { total: 8, heavy: 1, browser: 1 }],
+    [null, 8, 3.1 * GIB, { total: 8, heavy: 1, browser: 1 }],
+    [null, 8, 3.2 * GIB, { total: 8, heavy: 2, browser: 2 }],
     [null, 8, 0.5 * GIB, { total: 8, heavy: 1, browser: 1 }],
     [1, 8, 16 * GIB, { total: 1, heavy: 1, browser: 1 }],
     [3, 8, 16 * GIB, { total: 3, heavy: 3, browser: 2 }],
@@ -229,7 +231,7 @@ test('the slots follow the cores and the free memory, and --jobs caps every pool
   for (const [jobs, cores, free, slots] of rows) {
     assert.deepEqual(slotsFor(jobs, cores, free), slots, `jobs ${jobs}, ${cores} cores, ${free / GIB} GiB free`);
   }
-  assert.equal(rows.length, 7);
+  assert.equal(rows.length, 9);
 });
 
 test('--jobs takes a whole number of at least one and refuses every other shape with a sentence', () => {
@@ -278,7 +280,7 @@ test('the slots sentence names what bounded each figure and the order the steps 
       + 'that many) and 2 a browser (capped at 2), the heavy ones longest first'],
     [1, 8, 16 * GIB, 'up to 1 step(s) at once (--jobs=1), 1 of them a browser or a compiler (the free memory allows '
       + 'that many) and 1 a browser (the heavy limit), one at a time in the order listed'],
-    [64, 8, 3.5 * GIB, 'up to 8 step(s) at once (--jobs=64 capped at the 8 cores), 1 of them a browser or a compiler '
+    [64, 8, 2.5 * GIB, 'up to 8 step(s) at once (--jobs=64 capped at the 8 cores), 1 of them a browser or a compiler '
       + '(bounded by the free memory) and 1 a browser (the heavy limit), the heavy ones longest first'],
   ];
   for (const [jobs, cores, free, line] of rows) assert.equal(describeSlots(jobs, cores, free), line);

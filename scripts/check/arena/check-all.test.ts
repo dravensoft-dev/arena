@@ -349,7 +349,7 @@ test('the slots line names what bounded each figure, so a flag the cores capped 
   const rows: [number | null, number, number, string][] = [
     [null, 8, 16 * GIB, `up to 8 step(s) at once (the 8 cores), 8 of them a browser or a compiler (the free memory allows that many) ${capped}, the heavy ones longest first`],
     [64, 8, 16 * GIB, `up to 8 step(s) at once (--jobs=64 capped at the 8 cores), 8 of them a browser or a compiler (the free memory allows that many) ${capped}, the heavy ones longest first`],
-    [3, 8, 3.5 * GIB, 'up to 3 step(s) at once (--jobs=3), 1 of them a browser or a compiler (bounded by the free memory) and 1 a browser (the heavy limit), the heavy ones longest first'],
+    [3, 8, 2.5 * GIB, 'up to 3 step(s) at once (--jobs=3), 1 of them a browser or a compiler (bounded by the free memory) and 1 a browser (the heavy limit), the heavy ones longest first'],
   ];
   for (const [jobs, cores, free, line] of rows) {
     assert.equal(slotsLine(jobs, cores, free), `check-all: ${line}`);
