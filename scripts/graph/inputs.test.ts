@@ -3,7 +3,9 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, rmSync, writeFileSync, utimesSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
-import { digestOf, stampAll, stampOf, universe, SKIPPED_DIRECTORIES } from './inputs.ts';
+import { walkFiles, type WalkOptions } from '../utils/walk-files.ts';
+import { relPosix } from '../utils/posix-path.ts';
+import { digestOf, restamp, sha256, stampAll, stampOf, universe, SKIPPED_DIRECTORIES } from './inputs.ts';
 
 const withTree = (build: (dir: string) => void, run: (dir: string) => void) => {
   const dir = mkdtempSync(join(tmpdir(), 'arena-inputs-'));
@@ -104,5 +106,68 @@ test('a path that vanished between the walk and the stat leaves the universe rat
     assert.deepEqual([...stamps.keys()], ['a.txt']);
     assert.equal(digestOf(['a.txt', 'gone.txt'], stamps).length, 64,
       'a path with no stamp still occupies a row, so a file that leaves changes the digest');
+  });
+});
+
+test('restamp walks only under what the specs name, follows what the step wrote and deleted, and leaves every other stamp unchanged', () => {
+  withTree((dir) => {
+    mkdirSync(join(dir, 'out', 'a'), { recursive: true });
+    mkdirSync(join(dir, 'other'), { recursive: true });
+    writeFileSync(join(dir, 'out', 'a', 'old.js'), 'old');
+    writeFileSync(join(dir, 'out', 'a', 'keep.txt'), 'keep');
+    writeFileSync(join(dir, 'other', 'x.js'), 'x');
+    writeFileSync(join(dir, 'ROOT.md'), 'root');
+  }, (dir) => {
+    const paths = universe(dir);
+    const stamps = stampAll(dir, paths);
+    const other = stamps.get('other/x.js');
+    const keep = stamps.get('out/a/keep.txt');
+    assert.ok(other && keep);
+    rmSync(join(dir, 'out', 'a', 'old.js'));
+    writeFileSync(join(dir, 'out', 'a', 'new.js'), 'new');
+    writeFileSync(join(dir, 'ROOT.md'), 'rewritten');
+    writeFileSync(join(dir, 'other', 'late.js'), 'late');
+    const walked: string[] = [];
+    const walk = (at: string, options: WalkOptions) => { walked.push(relPosix(dir, at)); return walkFiles(at, options); };
+    const next = restamp(dir, ['out/a/**/*.js', 'ROOT.md', 'gone/**'], paths, stamps, walk);
+    assert.deepEqual(walked, ['out/a'], 'a file spec is statted, a missing directory is skipped, and nothing else is walked');
+    assert.deepEqual([...next].sort(), ['ROOT.md', 'other/x.js', 'out/a/keep.txt', 'out/a/new.js']);
+    assert.equal(stamps.has('out/a/old.js'), false, 'a file the step deleted keeps no stamp');
+    assert.equal(stamps.get('out/a/new.js')?.hash, sha256('new'));
+    assert.equal(stamps.get('ROOT.md')?.hash, sha256('rewritten'));
+    assert.equal(stamps.get('other/x.js'), other, 'a stamp outside the specs is the same object');
+    assert.equal(stamps.get('out/a/keep.txt'), keep, 'a file under a walked directory that no spec reaches is not re-stamped');
+    assert.equal(stamps.has('other/late.js'), false, 'a file a step beside it wrote is that step\'s to stamp');
+  });
+});
+
+test('restamp honours an exclusion and skips the trees the universe skips', () => {
+  withTree((dir) => {
+    mkdirSync(join(dir, 'dist', 'node_modules'), { recursive: true });
+    writeFileSync(join(dir, 'dist', 'index.js'), 'i');
+    writeFileSync(join(dir, 'dist', 'index.js.map'), 'm');
+    writeFileSync(join(dir, 'dist', 'node_modules', 'dep.js'), 'd');
+  }, (dir) => {
+    assert.ok(SKIPPED_DIRECTORIES.has('node_modules'));
+    const stamps = new Map();
+    const next = restamp(dir, ['dist/**', '!dist/**/*.map'], [], stamps);
+    assert.deepEqual([...next].sort(), ['dist/index.js']);
+    assert.deepEqual([...stamps.keys()], ['dist/index.js']);
+  });
+});
+
+test('restamp over specs that reach nothing on disk drops what they reached and walks nothing', () => {
+  withTree((dir) => {
+    mkdirSync(join(dir, 'out'), { recursive: true });
+    writeFileSync(join(dir, 'out', 'a.js'), 'a');
+  }, (dir) => {
+    const paths = universe(dir);
+    const stamps = stampAll(dir, paths);
+    rmSync(join(dir, 'out'), { recursive: true, force: true });
+    const walked: string[] = [];
+    const walk = (at: string, options: WalkOptions) => { walked.push(at); return walkFiles(at, options); };
+    assert.deepEqual(restamp(dir, ['out/**'], paths, stamps, walk), []);
+    assert.deepEqual(walked, []);
+    assert.equal(stamps.size, 0);
   });
 });
