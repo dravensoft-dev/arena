@@ -4,7 +4,7 @@
  * count of what it read rather than the pairs, because the gates with the widest subjects resolve
  * thousands of paths and a copy per node turns a cache into a database. Only a green run writes an
  * entry, and every other outcome deletes it: a SKIP recorded as green is a gate that stops running
- * for good. run-build writes after each node, so a crash keeps the greens before it; check-all
+ * for good. run-build writes as each step ends, so a crash keeps the greens before it; check-all
  * writes once, at the end. A file is replaced whole, through a rename. Both files carry the
  * machine too, and a mismatch is discarded as an older version is: one tree is reachable by two
  * operating systems, where the schema agrees and the answer does not. */
