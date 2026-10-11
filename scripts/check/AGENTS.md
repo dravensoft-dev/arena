@@ -110,11 +110,13 @@ from a process and the fourth comes from the graph.
 **Every selected gate and every suite step is a step of one scheduler**,
 `scripts/graph/scheduler.ts:schedule`, so a sweep costs roughly what its heaviest pool holds divided
 by that pool's slots, rather than its sum. Light steps share the cores. A gate that drives a browser
-or a compiler declares it beside its `GATES` entry as `pool: 'browser'` or `pool: 'compiler'`, and
-those share one budget sized from free memory, because each peaks near a gigabyte or above; the
-browser is capped lower. A gate with no `pool` is light, and `check-all.test.ts` holds every gate
-measured heavy to its declaration, because a gate that is wrong about it costs memory rather than an
-answer and nothing else would notice.
+or a compiler declares it beside its `GATES` entry as `pool: 'browser'` or `pool: 'compiler'`, with
+its `cost` in seconds, and those share one budget sized from free memory, because each peaks near a
+gigabyte or above; the browser is capped lower, and whenever more than one slot is open the steps
+with a cost start first, longest first, because the heavy pool is what a sweep waits on. A gate with
+no `pool` is light, and `check-all.test.ts` holds every gate measured heavy to its declaration, its
+cost included, because a gate that is wrong about it costs memory rather than an answer and nothing
+else would notice.
 
 **Each step prints as one block when it ends**, headed `> <name>`, so two steps never interleave.
 The summary lists the steps in the order `GATES` and `testStep()` give, each with what it took,

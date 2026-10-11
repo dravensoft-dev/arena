@@ -98,9 +98,9 @@ the tail of stdout has drained, and `spawnSync` reports that short read as a who
 runs and lands in CI, where it has `check:script-types` name files as unreached by globs that
 reach them. A gate that parses what it captured is the dangerous case, because a
 truncated read there is a wrong answer rather than a failure. A runner that only relays a child's
-output reads none of it, so inheriting stdio is safe there; `check-all` captures through a file of
-its own, with `childOutputAsync`, because its steps run side by side and a shared terminal would
-interleave them.
+output reads none of it, so inheriting stdio is safe there; `check-all` and `run-build` capture
+through a file of their own, with `childOutputAsync`, because their steps run side by side and a
+shared terminal would interleave them.
 
 **No script assumes one operating system, and `check:portability` holds it.** Every rule is a
 ban with a named owner, so the question is never whether a construct is correct but where it

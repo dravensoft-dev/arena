@@ -61,9 +61,11 @@ bun run build
 each declares in its own `node`, so `generate:tokens` runs before `build:tailwind` because the
 Tailwind preset reads the token CSS and the edge says so, rather than because a chain in
 `package.json` happens to list it first. Ties fall in the order the scripts are collected, so the
-sequence is stable. Read the order off a run, which prints every step and why it ran; there is no
-second copy of it to go stale. `scripts/graph/AGENTS.md` carries how a step declares itself, and
-`check:graph` refuses a step whose declaration and edges disagree.
+order is stable. A step starts once every step it reads from has ended, beside any other that is
+ready, and prints as one block when it ends, with why it ran; the summary lists the steps in the
+derived order, each with what it took, and there is no second copy of it to go stale.
+`scripts/graph/AGENTS.md` carries how a step declares itself, and `check:graph` refuses a step whose
+declaration and edges disagree.
 
 **Until it has run once, part of the tree does not exist.** These are git-ignored, so a fresh
 clone has none of them:
@@ -123,6 +125,12 @@ emit cost more than a development loop should pay for an artefact only a release
 the packages, still keeping what has not moved. `bun run build:release` is
 `--assemble --force --assert-full`: every step run, and a run that kept anything fails on its own.
 Every workflow that verifies uses the last one.
+
+**`--jobs=<n>` caps every pool at `n`, and `--jobs=1` runs one step at a time in the derived
+order**, which is how a failure that shows only beside another step is told from one that shows
+alone. Without it the build takes the slots the machine allows, the compiling steps sharing the
+heavy slots, longest first, and prints what bounded them. An interrupt ends every running step,
+starts none of the rest, names them in the tail and exits 130.
 
 **`--target=<step>` replaces the selection of any of them with that step and every step it reads
 from**, transitively, release-only steps included with or without `--assemble`, and it repeats;
