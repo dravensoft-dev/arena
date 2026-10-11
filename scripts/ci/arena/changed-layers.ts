@@ -3,10 +3,12 @@
  * and because two of its entries are not obvious: a Tailwind edit routes to BOTH other
  * layers. Angular reads a generated manifest from it and ngc fails without one; React
  * compiles modules emitted into its own tree from it, and those are gitignored, so a
- * manifest edit changes what React builds while nothing tracked under it moves. */
+ * manifest edit changes what React builds while nothing tracked under it moves. The domains line
+ * is what verify.yml selects by: every domain that is no layer, and each layer the diff reaches. */
 
 import { isMainModule } from '../../utils/main-module.ts';
 import { LAYERS } from '../../lib/arena/layers.ts';
+import { DOMAINS } from '../../lib/arena/domains.ts';
 
 export const SHARED = {
   'contracts/': 'the three contract levels every layer answers to',
@@ -43,11 +45,15 @@ export function layersChanged(paths: string[]) {
   return changed;
 }
 
+export function domainsOf(changed: Record<string, boolean>, domains = DOMAINS, layers = LAYERS) {
+  return domains.filter((domain) => !layers.includes(domain) || changed[domain] === true);
+}
+
 export function renderOutputs(changed: Record<string, boolean>) {
-  return Object.keys(LAYER_INPUTS)
-    .sort()
-    .map((layer) => `${layer}=${changed[layer] ? 'true' : 'false'}`)
-    .join('\n');
+  return [
+    ...Object.keys(LAYER_INPUTS).sort().map((layer) => `${layer}=${changed[layer] ? 'true' : 'false'}`),
+    `domains=${domainsOf(changed).join(',')}`,
+  ].join('\n');
 }
 
 export function unroutedLayers(inputs: Record<string, unknown> = LAYER_INPUTS, layers = LAYERS) {

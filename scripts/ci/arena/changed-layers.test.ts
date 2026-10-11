@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { LAYER_INPUTS, SHARED, layersChanged, renderOutputs, unroutedLayers } from './changed-layers.ts';
+import { LAYER_INPUTS, SHARED, domainsOf, layersChanged, renderOutputs, unroutedLayers } from './changed-layers.ts';
 import { LAYERS } from '../../lib/arena/layers.ts';
+import { DOMAINS } from '../../lib/arena/domains.ts';
 
 test('a change confined to one layer routes to that layer alone', () => {
   assert.deepEqual(
@@ -54,8 +55,25 @@ test('every layer is routed, so a new one cannot land with no entry', () => {
 test('the output is the shape a workflow step appends to GITHUB_OUTPUT', () => {
   assert.equal(
     renderOutputs(layersChanged(['frameworks/react/a.tsx'])),
-    'angular=false\nreact=true\ntailwind=false',
+    'angular=false\nreact=true\ntailwind=false\ndomains=core,react,arena',
   );
+});
+
+test('the domains verify.yml runs are every domain that is no layer, and each layer the diff reaches', () => {
+  assert.deepEqual(domainsOf(layersChanged([])), ['core', 'arena'],
+    'core and arena run on every change, which is why the gates job always has something to do');
+  assert.deepEqual(domainsOf(layersChanged(['frameworks/angular/a.ts'])), ['core', 'angular', 'arena']);
+  assert.deepEqual(domainsOf(layersChanged(['frameworks/tailwind/a.css'])), DOMAINS,
+    'a Tailwind edit reaches every layer, so it selects every domain');
+  assert.deepEqual(domainsOf(layersChanged(['scripts/check/arena/check-api.ts'])), DOMAINS);
+});
+
+test('a domain no layer names is never dropped, and a layer is selected only by a diff that reaches it', () => {
+  assert.deepEqual(domainsOf({ react: true }, ['core', 'react', 'extra'], ['react', 'angular']), ['core', 'react', 'extra']);
+  assert.deepEqual(domainsOf({ react: false }, ['core', 'react'], ['react']), ['core']);
+  for (const layer of LAYERS) {
+    assert.ok(DOMAINS.includes(layer), `${layer} is a layer and no domain, so no diff could select its gates`);
+  }
 });
 
 test('every entry carries a reason, because a routing rule with none cannot be judged stale', () => {
