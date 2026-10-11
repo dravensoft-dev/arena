@@ -6,8 +6,8 @@
  * suites as well, a native path compared to a posix literal being the same defect wherever it
  * sits. Matches go through the lexer check:docs uses, so a construct in a comment or a string is
  * described rather than performed, bar the two whose construct IS a string and say so. It also
- * holds two workflows to one rule each: develop.yml's OS matrix equals the declared list, and
- * pr-gate's needs equal every other job in pr.yml, since a job it misses gates nothing. */
+ * holds the workflows: develop.yml's matrix is the declared list, pr-gate waits for every other
+ * job in pr.yml, one workflow names a browser, and a job layout it cannot read is a problem. */
 
 import { readFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
@@ -272,13 +272,18 @@ export function matrixLegs(text: string) {
   return legs;
 }
 
+const JOBS_LINE = /^jobs:[ \t]*(?:#.*)?$/m;
+const JOB_HEAD = /^ {2}([A-Za-z0-9_-]+):[ \t]*(?:#.*)?$/;
+
 export function jobBlocks(text: string) {
   const blocks = new Map<string, string>();
-  const start = text.search(/^jobs:[ \t]*$/m);
+  const start = text.search(JOBS_LINE);
   if (start === -1) return blocks;
 
-  const body = text.slice(start);
-  const heads = [...body.matchAll(/^ {2}([A-Za-z0-9_-]+):[ \t]*$/gm)];
+  const rest = text.slice(start);
+  const end = rest.search(/\n(?=[^\s#])/);
+  const body = end === -1 ? rest : rest.slice(0, end);
+  const heads = [...body.matchAll(new RegExp(JOB_HEAD.source, 'gm'))];
   heads.forEach((head, i) => {
     const from = head.index ?? 0;
     const to = i + 1 < heads.length ? heads[i + 1]?.index ?? body.length : body.length;
@@ -287,15 +292,52 @@ export function jobBlocks(text: string) {
   return blocks;
 }
 
-export function declaredNeeds(block: string) {
-  const inline = /^ {4}needs:[ \t]*\[([^\]]*)\][ \t]*$/m.exec(block);
-  if (inline) return (inline[1] ?? '').split(',').map((one) => one.trim()).filter(Boolean);
-
-  const listed = /^ {4}needs:[ \t]*\n((?: {6}- .+\n)+)/m.exec(block);
-  if (listed) {
-    return [...(listed[1] ?? '').matchAll(/^ {6}- (.+)$/gm)].map((one) => (one[1] ?? '').trim());
+export function jobShapeProblems(file: string, text: string) {
+  const lines = text.split('\n');
+  const at = lines.findIndex((line) => JOBS_LINE.test(line));
+  if (at === -1) {
+    return [`${file} has no top-level jobs: line this gate can read, so not one of its jobs is checked`];
   }
-  return [];
+  const problems = [];
+  let heads = 0;
+  for (let i = at + 1; i < lines.length; i += 1) {
+    const line = lines[i] ?? '';
+    if (line.trim() === '' || line.trim().startsWith('#')) continue;
+    const indent = line.length - line.trimStart().length;
+    if (indent === 0) break;
+    if (indent >= 4 && heads > 0) continue;
+    if (indent === 2 && JOB_HEAD.test(line)) { heads += 1; continue; }
+    problems.push(`${file}:${i + 1}: ${JSON.stringify(line.trim())} sits where a job key goes, in a shape this `
+      + 'gate cannot read; a job is a plain key two spaces in, alone on its line, or its steps go unchecked');
+  }
+  if (heads === 0) problems.push(`${file} declares no job this gate can read, so nothing in it is checked`);
+  return problems;
+}
+
+export function declaredNeeds(block: string): string[] | null {
+  const lines = block.split('\n');
+  const at = lines.findIndex((one) => /^ {4}needs:/.test(one));
+  if (at === -1) return [];
+  const value = (lines[at] ?? '').replace(/^ {4}needs:[ \t]*/, '').replace(/[ \t]*#.*$/, '').trim();
+  const NAME = /^[A-Za-z0-9_-]+$/;
+
+  const inline = /^\[([^\]]*)\]$/.exec(value);
+  if (inline) {
+    const names = (inline[1] ?? '').split(',').map((one) => one.trim()).filter(Boolean);
+    return names.every((one) => NAME.test(one)) ? names : null;
+  }
+  if (NAME.test(value)) return [value];
+  if (value !== '') return null;
+
+  const names = [];
+  for (const line of lines.slice(at + 1)) {
+    if (line.trim() === '' || line.trim().startsWith('#')) continue;
+    if (line.length - line.trimStart().length <= 4) break;
+    const item = /^ {6}- ([^#]*?)[ \t]*(?:#.*)?$/.exec(line)?.[1];
+    if (item === undefined || !NAME.test(item)) return null;
+    names.push(item);
+  }
+  return names.length > 0 ? names : null;
 }
 
 export function needsProblems(text: string, job = REQUIRED_JOB) {
@@ -305,7 +347,12 @@ export function needsProblems(text: string, job = REQUIRED_JOB) {
     return [`${WORKFLOWS}/${PR_WORKFLOW} declares no ${job}, and it is the one required check`];
   }
 
-  const named = new Set(declaredNeeds(gate));
+  const declared = declaredNeeds(gate);
+  if (declared === null) {
+    return [`${job}'s needs is in a shape this gate cannot read, so it cannot say whether every other job `
+      + 'is named; write it as [a, b], as one name, or as a list of - name lines'];
+  }
+  const named = new Set(declared);
   const missing = [...blocks.keys()].filter((one) => one !== job && !named.has(one));
   const unknown = [...named].filter((one) => !blocks.has(one));
 
@@ -330,7 +377,7 @@ export function gateProblems(base = root, job = REQUIRED_JOB) {
   } catch {
     return [`${WORKFLOWS}/${PR_WORKFLOW} is missing, so nothing guards a merge request`];
   }
-  return needsProblems(text, job);
+  return [...jobShapeProblems(`${WORKFLOWS}/${PR_WORKFLOW}`, text), ...needsProblems(text, job)];
 }
 
 export function matrixProblems(base = root, supported = SUPPORTED_OS) {
@@ -366,20 +413,75 @@ export function matrixProblems(base = root, supported = SUPPORTED_OS) {
   return problems;
 }
 
-export function browserPathProblems(base = root) {
-  const dir = join(base, WORKFLOWS);
-  const naming = walkFiles(dir)
-    .filter((file) => file.endsWith('.yml'))
-    .filter((file) => /^\s*CHROME_PATH:/m.test(readFileSync(file, 'utf8')))
-    .map((file) => relPosix(base, file));
+export const BROWSER_INPUT = 'chrome-path';
 
-  if (naming.length === 1) return [];
-  if (naming.length === 0) {
-    return ['no workflow names CHROME_PATH, so nothing exercises the terminal-override branch'];
+const CONDUIT = /^\s*CHROME_PATH:[ \t]*\$\{\{[ \t]*inputs\.chrome-path[ \t]*\}\}[ \t]*$/;
+const NAMED_ENV = /^\s*CHROME_PATH:/;
+const PASSED = /^\s*chrome-path:[ \t]*(.*?)[ \t]*$/;
+
+const MENTION = /chrome[-_]path/i;
+const NOT_CODE = /^\s*(?:#|(?:-\s+)?(?:name|description):)/;
+
+const clean = (raw: string) => raw.replace(/[ \t]*#.*$/, '').replace(/^(['"])(.*)\1$/, '$2').trim();
+const passedValue = (line: string) => clean(PASSED.exec(line)?.[1] ?? '');
+
+function declaresDefault(lines: string[]) {
+  return lines.some((line, at) => {
+    const key = /^(\s*)chrome-path:[ \t]*(?:#.*)?$/.exec(line);
+    if (!key) return false;
+    for (const next of lines.slice(at + 1)) {
+      if (next.trim() === '') continue;
+      if (next.length - next.trimStart().length <= (key[1] ?? '').length) return false;
+      const value = /^\s*default:[ \t]*(.*)$/.exec(next)?.[1];
+      if (value !== undefined && clean(value) !== '') return true;
+    }
+    return false;
+  });
+}
+
+export function browserNamingProblems(workflows: { file: string; text: string }[]) {
+  const naming = [];
+  const conduits = [];
+  const problems = [];
+  for (const { file, text } of workflows) {
+    const lines = text.split('\n');
+    if (lines.some((line) => CONDUIT.test(line))) conduits.push(file);
+    const named = lines.some((line) => NAMED_ENV.test(line) && !CONDUIT.test(line))
+      || lines.some((line) => passedValue(line) !== '') || declaresDefault(lines);
+    if (named) naming.push(file);
+    lines.forEach((line, at) => {
+      if (!MENTION.test(line) || NOT_CODE.test(line) || CONDUIT.test(line)) return;
+      if (NAMED_ENV.test(line) || PASSED.test(line)) return;
+      problems.push(`${file}:${at + 1}: ${JSON.stringify(line.trim())} names the browser in a shape this gate `
+        + 'cannot read; write CHROME_PATH or chrome-path as a plain key, or the line goes unchecked');
+    });
   }
-  return [`${naming.join(', ')} all name CHROME_PATH. Exporting it everywhere is what made the `
-    + 'candidate list unreachable, so exactly one workflow names a browser and the rest prove '
-    + 'discovery finds one.'];
+
+  if (naming.length === 0) {
+    problems.push(`no workflow names a browser, through CHROME_PATH or a ${BROWSER_INPUT} input, so nothing `
+      + 'exercises the terminal-override branch');
+  }
+  if (naming.length > 1) {
+    problems.push(`${naming.join(', ')} all name a browser. Exporting it everywhere is what made the `
+      + 'candidate list unreachable, so exactly one workflow names a browser and the rest prove '
+      + 'discovery finds one.');
+  }
+  const passing = workflows.filter(({ text }) => text.split('\n').some((line) => passedValue(line) !== ''));
+  if (passing.length > 0 && conduits.length === 0) {
+    problems.push(`${passing.map((one) => one.file).join(', ')} pass ${BROWSER_INPUT} and no workflow hands it on as `
+      + `CHROME_PATH: \${{ inputs.${BROWSER_INPUT} }}, so the browser it names reaches no gate`);
+  }
+  return problems;
+}
+
+export function browserWorkflows(base = root) {
+  return walkFiles(join(base, WORKFLOWS))
+    .filter((file) => file.endsWith('.yml'))
+    .map((file) => ({ file: relPosix(base, file), text: readFileSync(file, 'utf8') }));
+}
+
+export function browserPathProblems(base = root) {
+  return browserNamingProblems(browserWorkflows(base));
 }
 
 export function setupProblems(base = root, declared = HOST_BINARIES) {
