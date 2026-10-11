@@ -1,22 +1,21 @@
 /* Runs steps side by side within pools sized from the machine, for the runners that sweep the
- * tree. A step names in `after` the steps it waits for, each listed before it, and starts once
- * they have FINISHED whatever their outcome, which is the serial rule: a later step runs after an
- * earlier one fails. Light steps share the cores; browser and compiler steps also share one heavy
- * budget sized from free memory, because each peaks near a gigabyte or above, and the browser is
- * capped lower. A ready step starts in the order given, so one slot replays the serial run. A step
- * that throws is a FAIL and its slot comes back in a finally; a list that cannot finish is refused
- * with a sentence rather than left to hang. An abort starts nothing further; ending what runs is
- * the caller's, which owns the children, and a step still running ABORT_GRACE after the abort is a
- * FAIL and is left. A finished hook that throws ends the run with a sentence once nothing runs. */
+ * tree. A step names in `after` the steps it waits for, each listed before it, and starts once they
+ * have FINISHED whatever their outcome; a runner that blocks on a failure says so in its own step.
+ * Light steps share the cores; browser and compiler steps also share one heavy budget sized from
+ * free memory, because each peaks near a gigabyte or above, and the browser is capped lower. With
+ * one slot a ready step starts in the order given, which replays the serial run; with more, a step
+ * that declares its cost starts first, longest first, because the heavy pool is what a run waits
+ * on. A step that throws is a FAIL and its slot comes back; a list that cannot finish is refused.
+ * An abort starts nothing further, and a step still running ABORT_GRACE after one is a FAIL and is
+ * left. A finished hook that throws ends the run with a sentence once nothing runs. */
 
 import { availableParallelism, freemem } from 'node:os';
 import { deadline, type Deadline } from '../lib/arena/deadline.ts';
+import { POOLS, type Pool } from './pools.ts';
 
-export const POOLS = ['browser', 'compiler'] as const;
-
-export type Pool = (typeof POOLS)[number];
+export { POOLS, type Pool };
 export type Outcome = { status: 'pass' | 'fail' | 'skip'; note?: string | undefined };
-export type Step = { name: string; pool?: Pool | undefined; after?: string[] | undefined; run: () => Promise<Outcome> };
+export type Step = { name: string; pool?: Pool | undefined; cost?: number | undefined; after?: string[] | undefined; run: () => Promise<Outcome> };
 export type Finished = Outcome & { name: string; ms: number };
 export type Slots = { total: number; heavy: number; browser: number };
 export type Hooks = {
@@ -51,6 +50,17 @@ export function parseJobs(value: string, runner: string) {
   return Number(value);
 }
 
+export function describeSlots(jobs: number | null, cores: number, free: number) {
+  const slots = slotsFor(jobs, cores, free);
+  let total = `the ${cores} cores`;
+  if (jobs !== null) total = slots.total === jobs ? `--jobs=${jobs}` : `--jobs=${jobs} capped at the ${cores} cores`;
+  const heavy = slots.heavy < slots.total ? 'bounded by the free memory' : 'the free memory allows that many';
+  const browser = slots.browser < slots.heavy ? `capped at ${BROWSER_CAP}` : 'the heavy limit';
+  const order = slots.total > 1 ? 'the heavy ones longest first' : 'one at a time in the order listed';
+  return `up to ${slots.total} step(s) at once (${total}), ${slots.heavy} of them a browser or a compiler `
+    + `(${heavy}) and ${slots.browser} a browser (${browser}), ${order}`;
+}
+
 export function scheduleProblems(steps: Step[], slots: Slots) {
   const problems: string[] = [];
   for (const key of ['total', 'heavy', 'browser'] as const) {
@@ -69,6 +79,14 @@ export function scheduleProblems(steps: Step[], slots: Slots) {
       if (!listed.has(before)) {
         problems.push(`${step.name} waits for ${before}, which is not listed before it, so one slot `
           + 'could not run the list in order');
+      }
+    }
+    if (step.cost !== undefined) {
+      if (step.pool === undefined) {
+        problems.push(`${step.name} declares a cost and no pool; only a heavy step is started by its cost`);
+      }
+      if (typeof step.cost !== 'number' || !Number.isFinite(step.cost) || step.cost <= 0) {
+        problems.push(`${step.name} declares cost ${step.cost}, and a cost is the seconds a step takes, above zero`);
       }
     }
     listed.add(step.name);
@@ -154,14 +172,13 @@ export async function schedule(steps: Step[], slots: Slots, hooks: Hooks = {}) {
   try {
     while (pending.length > 0 || running > 0) {
       if (!hooks.signal?.aborted && hookError === undefined) {
-        let index = 0;
-        while (index < pending.length) {
-          const step = pending[index];
-          if (step && (step.after ?? []).every((name) => done.has(name)) && fits(step)) {
-            pending.splice(index, 1);
+        const candidates = slots.total > 1
+          ? [...pending].sort((a, b) => (b.cost ?? 0) - (a.cost ?? 0))
+          : [...pending];
+        for (const step of candidates) {
+          if ((step.after ?? []).every((name) => done.has(name)) && fits(step)) {
+            pending.splice(pending.indexOf(step), 1);
             start(step);
-          } else {
-            index += 1;
           }
         }
       }

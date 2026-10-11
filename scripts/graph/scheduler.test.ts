@@ -8,7 +8,8 @@ import assert from 'node:assert/strict';
 import { deadline } from '../lib/arena/deadline.ts';
 import { TERM_GRACE } from '../lib/arena/child-output.ts';
 import {
-  ABORT_GRACE, GIB, parseJobs, schedule, scheduleProblems, slotsFor, type Outcome, type Pool, type Slots, type Step,
+  ABORT_GRACE, GIB, describeSlots, parseJobs, schedule, scheduleProblems, slotsFor,
+  type Outcome, type Pool, type Slots, type Step,
 } from './scheduler.ts';
 
 const tick = () => new Promise<void>((resolve) => { setImmediate(resolve); });
@@ -18,7 +19,7 @@ function recorder() {
   const live = { total: 0, heavy: 0, browser: 0 };
   const peak = { total: 0, heavy: 0, browser: 0 };
   let calls = 0;
-  const step = (name: string, over: { pool?: Pool; after?: string[] } = {}, outcome: Outcome = { status: 'pass' }): Step => ({
+  const step = (name: string, over: { pool?: Pool; after?: string[]; cost?: number } = {}, outcome: Outcome = { status: 'pass' }): Step => ({
     name,
     ...over,
     run: async () => {
@@ -140,12 +141,15 @@ test('a list that cannot run is refused before any step starts', async () => {
   cases.push([[r.step('a', { after: ['b'] }), r.step('b')], WIDE, /a waits for b, which is not listed before it/]);
   cases.push([[r.step('a', { after: ['a'] })], WIDE, /a waits for a, which is not listed before it/]);
   cases.push([[{ ...r.step('a'), pool: 'gpu' as Pool }], WIDE, /a declares pool "gpu", which is none of browser, compiler/]);
+  cases.push([[{ ...r.step('a'), cost: 4 }], WIDE, /a declares a cost and no pool/]);
+  cases.push([[{ ...r.step('a', { pool: 'compiler' }), cost: 0 }], WIDE, /a declares cost 0, and a cost is the seconds a step takes, above zero/]);
+  cases.push([[{ ...r.step('a', { pool: 'compiler' }), cost: Number.NaN }], WIDE, /a declares cost NaN/]);
   cases.push([[r.step('a')], { total: 0, heavy: 1, browser: 1 }, /total slots are 0/]);
   cases.push([[r.step('a')], { total: 2, heavy: 1.5, browser: 1 }, /heavy slots are 1.5/]);
   for (const [steps, slots, problem] of cases) {
     await assert.rejects(schedule(steps, slots), problem);
   }
-  assert.equal(cases.length, 7);
+  assert.equal(cases.length, 10);
   assert.equal(r.calls(), 0, 'a refused list ran a step');
   assert.deepEqual(scheduleProblems(mixed(recorder().step), WIDE), []);
 });
@@ -237,4 +241,46 @@ test('--jobs takes a whole number of at least one and refuses every other shape 
       new RegExp(`check-all: --jobs=${value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')} is not a whole number of at least 1 written without a leading zero`));
   }
   assert.equal(refused.length, 8);
+});
+
+test('with more than one slot the heavy steps start longest first, ahead of the light ones, which keep their order', async () => {
+  const r = recorder();
+  const steps = [
+    r.step('light-a'),
+    r.step('short', { pool: 'compiler', cost: 5 }),
+    r.step('light-b'),
+    r.step('long', { pool: 'compiler', cost: 30 }),
+    r.step('middle', { pool: 'browser', cost: 10 }),
+    r.step('light-c'),
+  ];
+  await schedule(steps, { total: 2, heavy: 1, browser: 1 });
+  const starts = r.events.filter((event) => event.startsWith('start ')).map((event) => event.slice('start '.length));
+  assert.equal(starts.length, steps.length);
+  assert.equal(starts[0], 'long', 'the longest heavy step is the first to start');
+  assert.deepEqual(starts.filter((name) => !name.startsWith('light-')), ['long', 'middle', 'short']);
+  assert.deepEqual(starts.filter((name) => name.startsWith('light-')), ['light-a', 'light-b', 'light-c']);
+});
+
+test('one slot keeps the listed order whatever the costs say, so --jobs=1 stays the serial run', async () => {
+  const r = recorder();
+  const steps = [
+    r.step('light-a'),
+    r.step('short', { pool: 'compiler', cost: 5 }),
+    r.step('long', { pool: 'compiler', cost: 30 }),
+  ];
+  await schedule(steps, { total: 1, heavy: 1, browser: 1 });
+  assert.deepEqual(r.events, steps.flatMap((one) => [`start ${one.name}`, `end ${one.name}`]));
+});
+
+test('the slots sentence names what bounded each figure and the order the steps start in', () => {
+  const rows: [number | null, number, number, string][] = [
+    [null, 8, 16 * GIB, 'up to 8 step(s) at once (the 8 cores), 8 of them a browser or a compiler (the free memory allows '
+      + 'that many) and 2 a browser (capped at 2), the heavy ones longest first'],
+    [1, 8, 16 * GIB, 'up to 1 step(s) at once (--jobs=1), 1 of them a browser or a compiler (the free memory allows '
+      + 'that many) and 1 a browser (the heavy limit), one at a time in the order listed'],
+    [64, 8, 3.5 * GIB, 'up to 8 step(s) at once (--jobs=64 capped at the 8 cores), 1 of them a browser or a compiler '
+      + '(bounded by the free memory) and 1 a browser (the heavy limit), the heavy ones longest first'],
+  ];
+  for (const [jobs, cores, free, line] of rows) assert.equal(describeSlots(jobs, cores, free), line);
+  assert.equal(rows.length, 3);
 });
