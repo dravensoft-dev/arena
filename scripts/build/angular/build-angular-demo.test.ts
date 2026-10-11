@@ -63,7 +63,7 @@ function layer(files: Record<string, string>) {
   return { repo, verdict, record };
 }
 
-test('a bundle over an emit that was never made is refused with the command that makes it', () => {
+test('a bundle over an emit that does not exist is refused with the command that makes it', () => {
   const { repo, verdict } = layer({ 'layer/a.html': '<p>one</p>', 'layer/a.ts': 'export const a = 1;' });
   try {
     const message = verdict() ?? '';
