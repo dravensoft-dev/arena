@@ -288,21 +288,20 @@ export const ROUTES: Route[] = [
         ],
       },
     ],
-    budget: 29_500,
+    budget: 30_600,
     reason:
-      'the route declared as a tree, and the reason that shape exists: a reader answers a question '
-      + 'and walks one way, so the route is charged its worst branch and never the sum. Handed a '
-      + 'document stating the palette and the type, a reader reads the tree and goes on; choosing a '
-      + 'measured register instead, they read the tree, the catalogue\'s index and one entry, and that '
-      + 'last stop is a glob so the charge is the largest entry rather than the first. The tree '
-      + 'carries the decisions that reach an install rather than a screen, whether the product has to '
-      + 'be found, what it is assembled on and what the code around Arena imports, so its last node '
-      + 'derives the dependency list from answers instead of asking about dependencies. A description '
-      + 'is matched against the index, generated from the one line every entry carries and the only '
-      + 'listing a reader served by the site or the server can walk; it grows a row per entry and '
-      + 'keeps the last stop at a single entry. The alternative to reading it is an agent inferring a '
-      + 'palette from a screenshot, which costs nothing here and costs the project every screen. The '
-      + 'fourth node names where an entry is fetched without a clone.',
+      'the route declared as a tree, charged its worst branch and never the sum, because a reader '
+      + 'answers a question and walks one way. Handed a document stating the palette and the type, a '
+      + 'reader reads the tree and goes on; choosing a measured register, they read the tree, the '
+      + 'catalogue\'s index and one entry, and that last stop is a glob so the charge is the largest '
+      + 'entry. The tree carries the decisions that reach an install rather than a screen: whether the '
+      + 'product has to be found, what it is assembled on and what the code around Arena imports, so '
+      + 'its last node derives the dependency list from answers. The index is generated from the one '
+      + 'line every entry carries, grows a row per entry and keeps the last stop at a single entry. '
+      + 'The tree names where an entry and the identity template are fetched without a clone, and '
+      + 'says an entry\'s config is a starting file. The alternative to reading it is an agent '
+      + 'inferring a palette from a screenshot, which costs nothing here and costs the project every '
+      + 'screen.',
   },
   {
     name: 'contributor-component',

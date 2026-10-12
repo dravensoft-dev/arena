@@ -413,9 +413,11 @@ export function renderCatalogueIndex(base = root) {
     '# The catalogue of measured registers',
     '',
     'Each row is one style plugin measured on a real product. Match a short description of the app '
-      + 'against the second column, open only the entry it fits, and copy that entry\'s three files '
-      + 'into `design/<entry>/` of your project. Node 4 of '
-      + '[`cold-start.md`](../../skills/design/references/cold-start.md) is where this choice is made.',
+      + 'against the second column and open only the entry it fits. Copy that entry\'s two style plugin '
+      + 'files into `design/<entry>/` of your project, where they become yours as they are. '
+      + '`arena.config.json` is a starting file for the root of your project. With no config there, copy it '
+      + 'and replace the palette and the fonts; with one already there, take only its `stylePlugins` entry. '
+      + 'Node 4 of [`cold-start.md`](../../skills/design/references/cold-start.md) is where this choice is made.',
     '',
     '| Entry | Take this entry when | Files to copy |',
     '|---|---|---|',

@@ -87,8 +87,11 @@ it, do not remember it.
 answered for shape, air and depth, and what it leaves open. An entry chosen silently is the same
 failure as a screenshot read silently, with a better result and the same missing consent.
 
-**An entry is copied rather than cited.** The entry's `plugin.tokens.json` and `plugin.css` become
-your project's own under `design/<name>/`, and node 11 is where they land.
+**An entry is copied rather than cited.** An entry has three files: `plugin.tokens.json`, `plugin.css` and
+`arena.config.json`. The first two become your project's own under `design/<name>/` as they are, and
+node 11 is where they land. The config is a starting file for the root of your project. With no
+`arena.config.json` there, copy it and replace the palette and the fonts. With one already there,
+take only its `stylePlugins` entry.
 
 **The catalogue is on the site and in the repository, not the package.** Each entry's files sit
 beside its `ENTRY.md`.
@@ -100,12 +103,19 @@ beside its `ENTRY.md`.
 
 ## 5. Write the identity document, and stop
 
-Whatever route reached this node, the output is the same. The output is a page stating the palette in both polarities, the three faces, the character, the
-air, the media shape and the page shape, with the reason beside each. [`arena-from-scratch/identity.html`](../../../arena-from-scratch/identity.html) in the Arena repository is the template, and
-[`identity.example.html`](../../../arena-from-scratch/identity.example.html) beside it is one worked answer to read first; no package carries either.
+Whatever route reached this node, the output is the same. The output is a page stating the palette
+in both polarities, the three faces, the character, the air, the media shape and the page shape,
+with the reason beside each.
+[`arena-from-scratch/identity.html`](../../../arena-from-scratch/identity.html) in a clone of the
+Arena repository is the template, and
+[`identity.example.html`](../../../arena-from-scratch/identity.example.html) beside it is one worked
+answer to read first. Without a clone, fetch the template at
+`https://arena.dravensoft.org/arena-from-scratch/identity.html` and the worked answer at
+`https://arena.dravensoft.org/arena-from-scratch/identity.example.html`, or call `arena_read` on
+`arena://identity/identity.html` and on `arena://identity/identity.example.html`.
 
 The output is a page rather than a list, because a palette described in prose is a palette nobody
-can approve. Serve it over HTTP, show it to the user, and change what they change.
+can approve. Serve it over HTTP, so the web fonts it names load. Show it to the user, and change what they change.
 
 **Then stop.** The next node writes files, and files written against an unapproved appearance are
 the ones that get rewritten.
@@ -263,6 +273,11 @@ Then, in this order, because each file is read by the next.
 - Run `arena build`, which writes the stylesheet no package can carry and the icon sheet for
   the glyphs your screens draw. Import what it wrote.
 - Then the first screen, through the per-screen route in [`../SKILL.md`](../SKILL.md).
+
+**A catalogue entry from node 4 answers part of this list.** The entry's `plugin.tokens.json` and
+`plugin.css` are the second and third bullets, copied as they are. The entry's `arena.config.json`
+is the starting file of the first bullet. With no config in the project, copy it and replace the
+palette and the fonts. With one already there, take only its `stylePlugins` entry.
 
 The identity document from node 5 is what each of these is checked against, and it stays in the
 project. The next agent to open the project starts at node 2 with the good answer instead of at

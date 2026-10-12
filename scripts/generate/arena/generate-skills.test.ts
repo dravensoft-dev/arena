@@ -7,7 +7,7 @@ import { repoRoot } from '../../lib/arena/repo-root.ts';
 import {
   renderIndex, renderLayerIndex, renderTarget, renderRow, renderLayerRow, renderPatterns,
   memberList, escapeCell, promptPath, layersFor, layerTarget, categoryTarget,
-  renderCategoryIndex, layerCategories, skillTargets, INDEX_TARGET, CONSUMER_LAYERS,
+  renderCatalogueIndex, renderCategoryIndex, layerCategories, skillTargets, INDEX_TARGET, CONSUMER_LAYERS,
 } from './generate-skills.ts';
 
 test('a required member is starred and an optional one is not', () => {
@@ -162,4 +162,15 @@ test('no index is an entry point, so every one names the router above it', () =>
 test('a target nothing emits is an error rather than an empty page', () => {
   assert.throws(() => renderTarget('frameworks/tailwind/INDEX.md'), /nothing emits/);
   assert.equal(layerTarget('react'), 'frameworks/react/INDEX.md');
+});
+
+test('the catalogue index sends the two style plugin files to design/<entry>/ and the config to the project root', () => {
+  const text = renderCatalogueIndex(repoRoot);
+  assert.match(text, /Copy that entry's two style plugin files into `design\/<entry>\/` of your project/);
+  assert.match(text, /`arena\.config\.json` is a starting file for the root of your project/);
+  assert.ok(!text.includes('three files'), 'the config is not one of the files that goes under design/<entry>/');
+  for (const name of ['booking', 'inbox']) {
+    const config = readJson(join(repoRoot, 'plugin-style-store/catalogue', name, 'arena.config.json')) as { stylePlugins: string[] };
+    assert.deepEqual(config.stylePlugins, [`./design/${name}`], `${name}'s config reaches the plugin by a path from the project root`);
+  }
 });
