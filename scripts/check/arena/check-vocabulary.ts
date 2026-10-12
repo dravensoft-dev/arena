@@ -167,6 +167,7 @@ export const NAMED_BUT_NOT_HERE = new Map([
     + 'because it is written by the build rather than by a person'],
   ['tsconfig.lib.json', 'the same staging directory and the same reason'],
   ['index.html', THE_CONSUMER_WRITES],
+  ['angular.json', THE_CONSUMER_WRITES],
   ['tsconfig.json', THE_CONSUMER_WRITES],
   ['next-env.d.ts', 'a file the reader\'s framework generates in their own project, named because '
     + 'the declaration it already carries is what saves them writing one'],

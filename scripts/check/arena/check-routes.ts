@@ -51,15 +51,15 @@ export const ENTRIES: Entry[] = [
   {
     name: 'consumer',
     router: 'skills/design/SKILL.md',
-    budget: 19_850,
+    budget: 20_100,
     reason:
       'the page every consumer route opens with, declared once rather than as the first stop of '
       + 'each route, because a router charged to every route opening with it is argued once per route '
-      + 'and never once for its reader. What a route pays past it is its own, so the two move '
-      + 'independently and each is argued where it is spent. A question earns a row here only when it '
+      + 'and never once for its reader. What a route pays past it is its own, and each is argued '
+      + 'where it is spent. A question earns a row here only when it '
       + 'is asked before a builder knows which situation they are in: whether a component exists, how '
       + 'much of Arena a project takes, what it installs Arena with, where the appearance comes from, '
-      + 'whether anybody outside the product has to find it, and where a defect goes once it is '
+      + 'whether anybody outside the product has to find it, how a page is assembled, and where a defect goes once it is '
       + 'proved to be Arena\'s. Everything asked after that belongs to the node that asks it. The '
       + 'rules list is emitted from one declaration, so each rule names the audit tag that reads the '
       + 'reader\'s own sources, or says why none does, and the prose holds the register check:register reads. What moves this '
@@ -255,7 +255,7 @@ export const ROUTES: Route[] = [
       + 'column it sits in and how much air goes between two components',
     entry: 'consumer',
     stops: ['skills/design/references/page.md', 'skills/design/references/style.md'],
-    budget: 23_250,
+    budget: 23_600,
     reason:
       'paid per element a builder draws themselves, which every screen has. What it buys is the '
       + 'half of a page that is never a component: which colour role each thing a builder draws takes '
@@ -264,13 +264,13 @@ export const ROUTES: Route[] = [
       + 'custom properties; the row as the horizontal half of those steps rather than a wrapping '
       + 'line; what to wrap when the element being laid out is a component; the block air the band '
       + 'leaves; the gutter as a ceiling; and which frame the viewport shows, through the theme '
-      + 'sheet\'s variants, and where a value no step names is set. The style reference also holds the '
-      + 'layout container, the width a page column takes and the sizing section for each layer. It '
+      + 'sheet\'s variants, where a value no step names is set, and the rule that paints the floor with '
+      + 'the place each layer puts it. The style reference also holds the '
+      + 'layout container, the page column\'s width and the sizing section for each layer. It '
       + 'names each layer\'s breakpoint helper and what the quiet ink level is for. The number is what '
       + 'the stops measure, and it grows when Arena ships a piece for somebody else\'s markup rather '
       + 'than when these pages argue again for one they already name. The style page prints the '
-      + 'default plugin\'s layout answers, and its density section sends a reader to the token table '
-      + 'for each class\'s values.',
+      + 'default plugin\'s layout answers and sends density values to the token table.',
   },
   {
     name: 'consumer-coldstart',

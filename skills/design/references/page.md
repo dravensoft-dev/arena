@@ -12,11 +12,23 @@ how wide the content column gets, and how much space goes between one component 
 ## The floor, and Arena does not paint it
 
 **`--fill-page` is the floor of the page**, and it is yours to apply. Put it on the element that
-owns the whole viewport. A page with no floor shows the browser's own canvas below the first
+owns the whole viewport.
+
+```css
+body {
+  background: var(--fill-page);
+  font-family: var(--font-body);
+  color: var(--ink-body);
+}
+```
+
+In React it goes in the stylesheet your entry imports after Arena's sheets. In Angular it goes in the global stylesheet `angular.json` lists under `styles`. `css/reset.css`, which `arena.css` imports first, already sets the root line height and `box-sizing`.
+
+A page with no floor shows the browser's own canvas below the first
 screenful. That canvas is white under a dark palette, and it is the most common way a correctly
 built Arena screen looks broken.
 
-**`--font-body` is the body face, and the document does not take it.** Components read their faces through roles and your markup does not. Put `font-family: var(--font-body)` on the floor's element, and your copy is in the face `arena.config.json` names.
+**`--font-body` is the body face, and the document does not take it.** Components read their faces through roles and your markup does not. The `font-family` line in the rule above puts your copy in the face `arena.config.json` names.
 
 **What Arena does declare is `color-scheme`, from the palette's polarity.** Scrollbars, native
 controls and autofill point the way the palette does, so a palette states whether it is dark or
@@ -33,13 +45,14 @@ resolves to a palette colour and follows the palette instead.
 `css/tailwind-theme.css` right after `tailwindcss`, and `bg-base-100` or `p-4` on your own
 element resolves to the token a component reads. Tailwind's own defaults stop resolving at all.
 
-**A page's frame is chosen by the viewport, and a component by its own box.** Mark a wide
-screen's rail `max-md:hidden` and a phone's drawer `md:hidden`: CSS is right at the first paint, a
-server's included. `display: none` keeps the hidden frame out of the accessibility tree, so
-both may carry one navigation name. Both are instantiated, so branch a heavy frame on your
-layer's viewport helper instead, right at the first client render and wide in a server's HTML.
-The `md:hidden` pair also chooses a side nav or a bottom nav, and an app bar's `nav` slot or its phone toggle.
-Arena's components narrow before the client's first paint and are wide in a server's HTML.
+**A page's frame is chosen by the viewport, and a component by its own box.** Wrap a wide screen's
+rail in an element of your own marked `max-md:hidden`, and a phone's drawer in one marked
+`md:hidden`. CSS is right at the first paint, a server's included. `display: none` keeps the hidden
+frame out of the accessibility tree, so both may carry one navigation name. Both are instantiated,
+so branch a heavy frame on your layer's viewport helper instead, right at the first client render
+and wide in a server's HTML. The `md:hidden` pair also chooses a side nav or a bottom nav, and an
+app bar's `nav` slot or its phone toggle. Arena's components narrow before the client's first paint
+and are wide in a server's HTML.
 
 **The colour roles below are what a page of yours reaches for**; the kernel has more, each for a surface Arena draws.
 Each role's full description is one entry in

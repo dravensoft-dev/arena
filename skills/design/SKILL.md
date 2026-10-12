@@ -174,9 +174,10 @@ source text cannot show, is `arena://rules` on the MCP server.
 | Where is each style decision made, and which of them are mine? | [`references/style.md`](./references/style.md): the five places, and the two you write in |
 | What exactly does this member take? | the members table in that same prompt |
 | Why does this member exist at all? | `contracts/api/components/<Name>.json` |
-| What else is exported: density by breakpoint, a focus trap, toast and confirmation queues, router predicates, tabular figures, hidden labels, the categorical ramp and tone colours for my own chart? How do I size a layout or a panel? | [exports](./references/exports.md), then [page](./references/page.md) for a frame. Switching palettes is [theme](./references/theme.md) and Arena's words are [locale](./references/locale.md) |
+| What else is exported: density by breakpoint, a focus trap, toast and confirmation queues, router predicates, tabular figures, hidden labels, the categorical ramp and tone colours for my own chart? How do I size a layout or a panel? | [exports](./references/exports.md), then [shell](./references/shell.md) for a frame. Switching palettes is [theme](./references/theme.md) and Arena's words are [locale](./references/locale.md) |
 | What do I paint my page and my own markup with? | [`references/page.md`](./references/page.md): the floor, the colour roles, and why a role follows the skin where an alias follows the palette. **Arena paints no page of yours** |
 | How much air goes between two components, and what column does the page sit in? | [`references/style.md`](./references/style.md): the four classes the column is made of, and the stack and row steps as classes and as tokens. That page also draws the cut between air you place and air the kernel answers |
+| How do I assemble a page: skip link, landmarks, side nav beside content? | [shell](./references/shell.md): the skeleton in each layer, which landmark each piece is, how wide the rail is and how the title follows the route |
 | What does Arena ship at all, and how much of it do I have to take? | [`references/surface.md`](./references/surface.md): every part in one table with the document that owns it, and three steps a project can stop at |
 | Where does Arena stop? | the last section of [`references/surface.md`](./references/surface.md), which is a list of decisions rather than gaps waiting to close |
 | What is the value of a token? | the DTCG JSON for its group in `contracts/design/` (`ls contracts/design/*.json`), which is the machine-readable form and is cheaper than the specification below. Two files hold what DTCG cannot: `contracts/design/colors.css` and `contracts/design/environment.css`, both of which [`references/page.md`](./references/page.md) reads for you. The values of spacing, radius, border, shadow, motion, layer and breakpoint are tabled in [`references/tokens.md`](./references/tokens.md) |
@@ -206,8 +207,7 @@ bind every line of it, and the one broken most often is the second.
 **How a screen is composed is yours, and the silence is deliberate, and it is about the shape
 rather than about the inventory.** Arena ships the pieces and no shape they must make: a console
 and a reading view are different pages before they are different components. Start from what the
-application is, and take the pieces from [`references/page.md`](./references/page.md), which is
-the inventory half and holds every one of them.
+application is, and take the frame from [`references/shell.md`](./references/shell.md) and the pieces from [`references/page.md`](./references/page.md), which holds every one of them.
 
 Arena keeps the questions and every answer is a style plugin. The reasoning under the appearance
 decision above is
