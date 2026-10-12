@@ -4,14 +4,17 @@
  * so a branch switch or a touch re-reads once and invalidates nothing. A file rewritten to the same
  * size AND the same mtime is read as unchanged, which is the one blind spot and takes a deliberate
  * mtime restore to reach; --force is what answers it. The walk is not git's file list, so an
- * artifact git ignores is fingerprinted like any other file and needs no rule of its own. */
+ * artifact git ignores is fingerprinted like any other file and needs no rule of its own. restamp
+ * re-reads what one step's writes reach, under the directories they name, so a runner keeps the
+ * record current as each step ends without walking the tree under the steps still running. */
 
 import { createHash } from 'node:crypto';
 import { readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
-import { walkFiles } from '../utils/walk-files.ts';
+import { walkFiles, type WalkOptions } from '../utils/walk-files.ts';
 import { relPosix } from '../utils/posix-path.ts';
 import { withForeignTrees } from '../lib/arena/foreign-trees.ts';
+import { globFreePrefix, normalizeSpec, partition, resolveSpecs } from './pathspecs.ts';
 
 export type Stamp = { size: number; mtimeMs: number; hash: string };
 
@@ -40,6 +43,48 @@ export function stampAll(root: string, paths: string[], previous: Map<string, St
     }
   }
   return stamps;
+}
+
+const GLOB = /[*?]/;
+
+export function restamp(
+  root: string,
+  specs: string[],
+  paths: string[],
+  stamps: Map<string, Stamp>,
+  walk: (dir: string, options: WalkOptions) => string[] = walkFiles,
+) {
+  const found = new Set<string>();
+  for (const spec of partition(specs).included) {
+    const normal = normalizeSpec(spec);
+    const at = GLOB.test(normal) ? globFreePrefix(spec) : normal;
+    let directory;
+    try {
+      directory = statSync(join(root, at)).isDirectory();
+    } catch {
+      continue;
+    }
+    if (!directory) {
+      found.add(at);
+      continue;
+    }
+    for (const full of walk(join(root, at), { skip: (name) => SKIPPED_DIRECTORIES.has(name) })) {
+      found.add(relPosix(root, full));
+    }
+  }
+  const reached = new Set(resolveSpecs(specs, paths));
+  const kept: string[] = [];
+  for (const path of resolveSpecs(specs, found)) {
+    try {
+      stamps.set(path, stampOf(join(root, path), stamps.get(path)));
+      kept.push(path);
+    } catch {
+      stamps.delete(path);
+    }
+  }
+  const landed = new Set(kept);
+  for (const path of reached) if (!landed.has(path)) stamps.delete(path);
+  return [...paths.filter((path) => !reached.has(path)), ...kept];
 }
 
 export function digestOf(paths: string[], stamps: Map<string, Stamp>) {

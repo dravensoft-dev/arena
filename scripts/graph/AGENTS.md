@@ -7,17 +7,20 @@ judging.
 
 | module | answers |
 | --- | --- |
-| `graph.ts` | the algebra over the declared set, and nothing about where it came from: `needsOf`, `topoOrder`, `cyclePath`, `duplicateWriters`, `subscriptionProblems`, `unknownFeeds`, `selfFeeds`. Resolution is handed in, so it holds no table and imports no script. |
-| `nodes.ts` | the set itself: `collectedScripts(root)` walks the three phases and `allNodes(root)` imports each and keeps what exports a node. `NEVER_SUBSCRIBES` and `NOT_YET_SUBSCRIBED` say what is out. |
+| `graph.ts` | the algebra over the declared set, and nothing about where it came from: `needsOf`, `upstreamOf`, `topoOrder`, `cyclePath`, `duplicateWriters`, `subscriptionProblems`, `unknownFeeds`, `selfFeeds`. Resolution is handed in, so it holds no table and imports no script. |
+| `nodes.ts` | the set itself: `collectedScripts(root)` walks the phases and `allNodes(root)` imports each and keeps what exports a node. `NEVER_SUBSCRIBES` and `NOT_YET_SUBSCRIBED` say what is out. `isBuildStep(declaredIn, node, assemble)` says whether a build invocation runs a node, from the phase that declared it and the node's own `releaseOnly`. |
 | `pathspecs.ts` | what a declared spec reaches: `matchesSpec(spec, path)` and `resolveSpecs(specs, universe)` against a path list, plus `unreachedSpecs(specs, universe)` and `reachesNoDirectory(spec, universe)`, which is how a typo is told from a spec written ahead of the tree. |
-| `inputs.ts` | what a file is, as a fingerprint: `universe(root)` walks the tree once, `stampOf(path, previous)` filters on the stat and arbitrates on the hash, and `digestOf(paths, stamps)` folds a list into one value. |
+| `inputs.ts` | what a file is, as a fingerprint: `universe(root)` walks the tree once, `stampOf(path, previous)` filters on the stat and arbitrates on the hash, `digestOf(paths, stamps)` folds a list into one value, and `restamp(root, specs, paths, stamps)` re-reads what one step's writes reach, under the directories they name, when that step ends. |
 | `script-closure.ts` | every module under `scripts/` a script reaches: `relativeSpecifiers(source)` and `scriptClosure(entry, root)`. |
 | `fingerprint.ts` | what a node is worth comparing: `fingerprintOne(node, measure)` and `fingerprintNodes(...)` over the whole set, in dependency order. |
-| `state.ts` | what the last green run left behind, under `.cache/`: `readFiles`, `writeFiles`, `readState`, `writeState`, `recordGreen`, `forget`. It records the machine as well as the version, and discards on either. |
+| `state.ts` | what the last green run left behind, under `.cache/`: `readFiles`, `writeFiles`, `readState`, `writeState`, `recordGreen`, `forget`. It records the machine as well as the version, and discards on either. A file is replaced whole, through a rename (`scripts/utils/write-atomic.ts:writeAtomic`). |
 | `plan.ts` | whether a node runs and the sentence saying why: `decide(node, current, previous, onDisk)`. |
-| `run-build.ts` | the build, in the order the graph derives. |
+| `run-build.ts` | the build, in the order the graph derives and on `scheduler.ts:schedule`: `selectSteps(nodes, declaredIn, options)` decides which steps, `--target=<step>` selects that step's upstream closure instead, and `runGraph` runs them side by side, each step once every step it reads from has ended. `--jobs=<n>` caps every pool, as in `check-all`. |
+| `scheduler.ts` | steps side by side within pools sized from the machine: `schedule(steps, slots, hooks)` starts a step once every step in its `after` has finished, `slotsFor(jobs)` sizes the light, heavy and browser slots, `parseJobs` reads `--jobs=<n>`, `interruptOn()` turns SIGINT and SIGTERM into an abort, and a step still running `ABORT_GRACE` after one is a FAIL and is left. `describeSlots` says what bounded each pool and the order steps start in: with one slot the listed order, with more the steps that declare a `cost` first, longest first. `check-all` and `run-build` run on it. |
+| `pools.ts` | `POOLS` and `Pool`, the pools a heavy step can name, kept apart from the scheduler so a declaration is typed and judged without importing the deadlines the scheduler carries. |
+| `step-block.ts` | `stepBlock(runner, step, output, outcome)`, the block a runner prints for a step when it ends: the reason it ran, its `> <name>` header, its whole output and its outcome's note, so steps that run side by side never interleave. |
 | `graph-problems.ts` | everything `check:graph` asserts, so the gate under `check/arena/` is a print and an exit. |
-| `handoff.ts` | what a workflow building in one job and gating in another has to carry between them: `handoffProblems(nodes, text, tracked)` against the cache path lists of `pr.yml`, plus `cachePathLists`, `sampleOf` and `trackedPaths`. |
+| `handoff.ts` | what a build hands to a job or a run that did not make it: `BUILD_HANDOFF_PATHS`, and `handoffProblems(nodes, workflows, tracked)`, which holds every `arena-build-` cache or artifact step in every workflow to that list, an `UPLOAD` among them to `include-hidden-files: true`, and that list to every artifact a clone lacks, plus `handoffSteps`, `workflowTexts`, `sampleOf` and `trackedPaths`. |
 | `fs-trace.ts`, `trace-preload.ts` | what a run actually opens: the preload wraps the read entry points before the script's own imports run. |
 | `audit.ts` | `auditProblems(node, script)`, which compares a traced run against the declaration. `UNTRACEABLE` names what spawns a process the tracer cannot enter. |
 | `gate-plan.ts` | what `check-all.ts` asks the graph, kept out of the runner so that file stays the single authority for how the suite is invoked. |
@@ -29,7 +32,7 @@ export const node = {
   name: 'generate:tokens',
   reads:  SOURCES.map((source) => `contracts/design/${source}`),
   writes: [...CSS_TARGETS, ...SCRIPT_TARGETS, BREAKPOINT_TARGET],
-  feeds:  ['build:tailwind', 'build:angular-demo'],
+  feeds:  ['build:tailwind', 'build:angular-tests'],
 };
 ```
 
@@ -45,6 +48,20 @@ gains an entry. It is also why `allNodes()` imports rather than reading the text
 nothing else does. A `feeds` entry no artifact carries fails as well: an edge nobody maintains is
 the same defect read backwards.
 
+**A build step never reads what a step that can run beside it writes.** `run-build` starts any
+step whose upstreams have ended, so steps that neither feed the other run side by side, and a
+read of the other's output would meet a file half written. `check:graph` holds it through
+`graph-problems.ts:peerReadProblems`, over the files on disk and over a probe for every file a
+`writes` spec could create or a `reads` spec names, so the answer is the same on a built tree
+and on a checkout where nothing ran. The fix is the edge in `feeds`, or an exclusion in the
+reader's `reads`.
+
+**A build step that compiles declares `pool: 'compiler'` and its `cost`** in seconds, in its own
+`node`, because each peaks near a gigabyte: the scheduler gives those steps the heavy slots sized
+from free memory and starts the longest first. `graph-problems.ts:poolProblems` refuses a pool
+that is no pool, a cost without a pool or a pool without a cost, and either one on a node no
+build invocation runs, where nothing would read it.
+
 **`writes` meeting a node's own `reads` is the shape, not a defect.** `generate:member-docs` writes
 each contracted member's description into the component that declares it, and
 `generate:prompt-api` writes the `@api` region into the prompt it reads.
@@ -58,27 +75,28 @@ directory with no matching file yet is reported and allowed. A `writes` names wh
 CREATES, so a tree without it is the step not having run, and it is only ever reported. Judging it
 would make this gate answer one way where the step ran and another where it did not, which is
 exactly what an unbuilt CI checkout is: `build:angular-tests` writes `frameworks/angular/build/test/`,
-no build invocation runs it, and the gate must not care.
+which a clone does not hold until the step has run, and the gate must not care.
 
-**An artifact no clone checks out has to be carried to the job that gates it.** `Arena PR` builds
-in one job and gates in four, so an output absent from a checkout reaches them only through
-`actions/cache`, and a gate handed a tree without it judges an absence rather than an artifact.
-`handoff.ts` asks the tracked list which outputs those are and holds `pr.yml`'s cache paths to
-them. It reads neither the tree nor the cache: a spec is compared as a path it would reach, so
-the answer is the same on a machine that has built and on the unbuilt checkout where the hand-off
-is the only thing standing between a gate and nothing at all. A `runsBeforeSuites` step is out of
-it, since the job reading that output runs the step itself and no cache entry could carry it.
+**An artifact no clone checks out has to be carried to whatever reads it.** `verify.yml` builds in
+one job and gates in others, for every caller, and the publish workflows and the site take the build
+`Arena main` made, so an output absent from a checkout reaches them only through a cache or an
+artifact, and a gate handed a tree without it judges an absence rather than an artifact.
+`handoff.ts` asks the tracked list which outputs those are and holds `BUILD_HANDOFF_PATHS` to
+them, then holds every `arena-build-` step in every workflow to that one list, in order, because
+`actions/cache` derives an entry's version from its path list and a restore naming another list
+misses on the right key. An `arena-build-` upload must also set `include-hidden-files: true`,
+because the Angular package's `.npmignore` and the emit's stamp open with a dot and the action
+leaves such files out otherwise. It reads neither the tree nor the cache: a spec is compared as a
+path it would reach, so the answer is the same on a machine that has built and on the unbuilt
+checkout where the hand-off is the only thing standing between a gate and nothing at all.
 
-**A step no build invocation should run says so, and says why.** Two fields do it, because there
-are two reasons. `releaseOnly` is cost: ng-packagr and the declaration emit are not worth a
-development loop, and `--assemble` puts those steps back, which is how `build:packages` and
-`build:release` differ from `build`. `runsBeforeSuites` is ownership: `bun run test` runs the Angular
-emit immediately before the suites that read it, so no build invocation should, `--assemble`
-included. Both carry a reason and `check:graph` refuses one that is a label. The
-phase a script sits in says what it IS, and only the node can say that building it on every
-iteration is not worth the wait: `build:react-package` and `build:angular-package` write a `dist/`
-only a release publishes. `check:graph` refuses a `releaseOnly` that is a label rather than a reason,
-the same way it refuses one in `NEVER_SUBSCRIBES`.
+**A step a development loop should not pay for says so, and says why.** `releaseOnly` is cost:
+ng-packagr and the declaration emit are not worth a development loop, and `--assemble` puts those
+steps back, which is how `build:packages` and `build:release` differ from `build`. The phase a
+script sits in says what it IS, and only the node can say that building it on every iteration is
+not worth the wait: `build:react-package` and `build:angular-package` write a `dist/` only a
+release publishes. `check:graph` refuses a `releaseOnly` that is a label rather than a reason, the
+same way it refuses one in `NEVER_SUBSCRIBES`.
 
 ## `check:graph --audit` answers what `check:graph` cannot
 
@@ -122,9 +140,10 @@ in neither list has to be a decision nobody made rather than a default: the next
 ## A failure stops its dependents and nothing else
 
 `graph.ts:transitiveFeeds(nodes, name)` is what decides. The failed step is FAIL, everything
-downstream of it is BLOCKED with the upstream named, and the rest of the run proceeds. This is the
-one place the graph pays for itself twice: it knows which steps are downstream, so it does not have
-to choose between stopping everything and running steps that cannot succeed.
+downstream of it is BLOCKED with the upstream named, and the rest of the run proceeds: a step
+running beside the failure runs to its end, and a step that is ready starts. This is the one place
+the graph pays for itself twice: it knows which steps are downstream, so it does not have to choose
+between stopping everything and running steps that cannot succeed.
 
 **A gate never stops another gate, and `check:graph` keeps that true rather than hoping for it: a
 node named `check:` that declares `writes` fails.** The rest follows. Only an artifact can carry an
@@ -133,11 +152,13 @@ sweep reporting every problem in one pass is a property of the shape instead of 
 
 ## The fingerprint recorded is measured after the step, never the one that decided it
 
-`generate:member-docs` writes each contracted member's description into the component that
-declares it, and `generate:prompt-api` writes the `@api` region into the prompt it reads. Their
-`writes` meet their `reads`, so a value measured before the step is stale the instant it succeeds
-and the node would never be kept. The value measured after is the converged one, and the next run
-recomputes exactly it.
+`generate:member-docs` writes each contracted member's description into the component that declares
+it, and `generate:prompt-api` writes the `@api` region into the prompt it reads. Their `writes` meet
+their `reads`, so a value measured before the step is stale the instant it succeeds and the node
+would never be kept. The value measured after is the converged one, and the next run recomputes
+exactly it. It is measured as the step ends, over what that step's own writes reach
+(`inputs.ts:restamp`), rather than over a walk of the tree, because other steps are still writing
+beside it and what they write is theirs to measure.
 
 The rule is applied to every node, not to those two. For a node whose writes miss its reads, before
 and after are the same value and nothing changes. It works because those generators converge, which
@@ -147,10 +168,13 @@ answer kept.
 
 ## Only a green run writes an entry
 
-Every other outcome deletes it. A SKIP recorded as green is a node that never runs again, and a node
-with no entry cannot be kept, so a machine that cannot run a step is honest about it for ever rather
-than once. The entry is written after each node, so a run that stops halfway keeps the greens before
-the failure.
+Every other outcome deletes it. A SKIP recorded as green is a node that stops running for good,
+and a node with no entry cannot be kept, so a machine that cannot run a step is honest about it
+for ever rather than once. `run-build` writes the state as each step ends, from the scheduler's
+`finished` hook, which handles one step at a time, so a build that stops halfway keeps every
+green before the stop and two steps ending together both land; `check-all` records each gate as
+it finishes and writes once, at the end. Either way a file is replaced whole, through a rename, so a
+reader never meets half of one.
 
 ## `.cache/` belongs to one machine and one operating system
 

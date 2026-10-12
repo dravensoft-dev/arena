@@ -31,7 +31,7 @@ export function candidates(root = repoRoot) {
     .map((path) => relPosix(root, path));
 }
 
-function main() {
+async function main() {
   const empty = zeroProjectProblems(PROJECTS.length);
   for (const problem of empty) console.error(`check-react-types: ${problem}`);
   if (empty.length) process.exit(1);
@@ -39,13 +39,13 @@ function main() {
   for (const { project, reaches } of PROJECTS) {
     let verdict;
     try {
-      verdict = verdictFor(project, candidates());
+      verdict = await verdictFor(project, candidates());
     } catch (err) {
       console.error(`check-react-types: ${(err as Error).message}`);
       process.exit(1);
     }
     if (verdict.status !== 0) {
-      console.error(`check-react-types: ${project} does not typecheck — it reaches ${reaches}\n`);
+      console.error(`check-react-types: ${project} does not typecheck -- it reaches ${reaches}\n`);
       console.error(verdict.output.trim());
       process.exit(1);
     }
@@ -53,4 +53,4 @@ function main() {
   console.log(`check-react-types: ${PROJECTS.length} project(s) typecheck under strict`);
 }
 
-if (isMainModule(import.meta.url)) main();
+if (isMainModule(import.meta.url)) await main();

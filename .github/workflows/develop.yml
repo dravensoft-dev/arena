@@ -1,9 +1,9 @@
 name: Arena develop
 
-# The name is deliberately not "Arena main": that string is what both publish workflows listen
-# for, and a develop run must never be the event that asks whether there is anything to publish.
-# Their branches filter would refuse it anyway, so this is the second lock rather than the only
-# one, and it is the one that reads here.
+# The name is deliberately not "Arena main": that string is what the publish workflows, the site
+# and the release notes listen for, and a develop run must never be the event that asks whether
+# there is anything to publish. Their branches filter would refuse it anyway, so this is the
+# second lock rather than the only one, and it is the one that reads here.
 
 on:
   push:
@@ -22,28 +22,9 @@ env:
 jobs:
   verify:
     name: build and test everything
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
-          fetch-tags: true
-      - uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: ${{ env.BUN_VERSION }}
-      - run: bun install --frozen-lockfile
-
-      - name: build and assemble, every step run
-        run: bun run build:release
-
-      - name: the build is idempotent, so a tracked file it rewrote is a generator out of step
-        run: git diff --exit-code
-
-      - name: every gate
-        run: bun scripts/check/arena/check-all.ts --no-tests
-
-      - name: the whole suite, counted per domain
-        run: bun run ci:summarize
+    uses: ./.github/workflows/verify.yml
+    with:
+      domains: core,react,angular,tailwind,arena
 
   # Whether the tooling still runs on a machine that is not the one it was written on. One job
   # with a matrix of its own, and deliberately not this whole workflow run three times over: five
@@ -111,8 +92,10 @@ jobs:
       - name: a browser, and CHROME_PATH is deliberately not exported
         uses: browser-actions/setup-chrome@v1
 
-      - name: build every step
-        run: bun run build
+      # Assembled, because check:consumer judges a package and never builds one, and check:graph
+      # reads the package steps' writes on disk: a plain build leaves both with no dist/ to read.
+      - name: build every step and assemble the packages
+        run: bun run build:packages
 
       - name: byte-identical to what the Linux tree committed
         run: git diff --exit-code

@@ -28,7 +28,7 @@ contributor found each by hitting it.
 | a Chromium-family browser | `bun run check:focus-trap` | the one gate that measures a real render drives Chrome, Chromium or Edge over CDP. Discovery is keyed by platform, so an install in the usual place needs no configuration; `CHROME_PATH` names one anywhere else and is **terminal**, so pointing it at nothing reports that rather than falling back. |
 | the network, once | `bun scripts/generate/core/fetch-fonts.ts` | only to rebuild the webfonts. Their outputs are tracked precisely because a clone cannot reproduce them, so a normal build never needs it. |
 
-**On macOS** that is the whole list, and nothing here is Linux-shaped any more.
+**On macOS** that is the whole list: nothing here is Linux-shaped.
 
 **On Windows the supported path is WSL2, and the clone belongs in the Linux filesystem.** A tree
 under `/mnt/c` costs a coarser mtime through the 9p layer, which widens the build cache's one
@@ -46,7 +46,7 @@ injected, which is why they can be covered from a Linux runner at all. What only
 confirms is the whole of it running together, and that is the one thing the leg buys. Which
 platforms gate lives where `DOUBTS.md` says such a claim belongs, in a reason-carrying map a gate
 holds rather than in prose: `../ci/arena/supported-os.ts` carries a `blocking` flag per platform
-with its reason, and `check:portability` fails if the matrix in `pr.yml` and that list disagree
+with its reason, and `check:portability` fails if the matrix in `develop.yml` and that list disagree
 about either the names or the flags. **A `blocking: false` leg reports and does not gate**, which
 is the single place a platform stops gating and the reason the gate holds no clause of its own.
 
@@ -61,9 +61,11 @@ bun run build
 each declares in its own `node`, so `generate:tokens` runs before `build:tailwind` because the
 Tailwind preset reads the token CSS and the edge says so, rather than because a chain in
 `package.json` happens to list it first. Ties fall in the order the scripts are collected, so the
-sequence is stable. Read the order off a run, which prints every step and why it ran; there is no
-second copy of it to go stale. `scripts/graph/AGENTS.md` carries how a step declares itself, and
-`check:graph` refuses a step whose declaration and edges disagree.
+order is stable. A step starts once every step it reads from has ended, beside any other that is
+ready, and prints as one block when it ends, with why it ran; the summary lists the steps in the
+derived order, each with what it took, and there is no second copy of it to go stale.
+`scripts/graph/AGENTS.md` carries how a step declares itself, and `check:graph` refuses a step whose
+declaration and edges disagree.
 
 **Until it has run once, part of the tree does not exist.** These are git-ignored, so a fresh
 clone has none of them:
@@ -108,9 +110,9 @@ The blocking is transitive. `generate:tokens` does not feed `build:demos` direct
 through `build:tailwind`, and a single hop would let a step compile against tokens that were never
 written. A blocked step records nothing: it did not run, so there is no green to write down.
 
-**`bun run build:release` is the full run**, and it is what every workflow uses. It passes
-`--force --assert-full`: every step runs, and a run that kept anything fails on its own. That is
-not belt and braces. The step after the build in each workflow proves it idempotent with
+**`bun run build:release` is the full run**, and it is what every workflow that verifies uses. It
+passes `--force --assert-full`: every step runs, and a run that kept anything fails on its own.
+That is not belt and braces. The step after the build in each workflow proves it idempotent with
 `git diff --exit-code`, and a build that skipped everything satisfies that by doing nothing, which
 is the one way this whole arrangement could turn a real failure green.
 
@@ -118,28 +120,37 @@ is the one way this whole arrangement could turn a real failure green.
 each says so in its own node through `releaseOnly`, with the reason: ng-packagr and the declaration
 emit cost more than a development loop should pay for an artefact only a release ships.
 
-**`--assemble` is what includes them**, so there are three ways to run this graph and each says what
-it is for. `bun run build` is the loop: thirteen steps, keeping what has not moved.
-`bun run build:packages` is the same plus the two packages, still keeping what has not moved.
-`bun run build:release` is `--assemble --force --assert-full`: fifteen steps, every one of them run,
-and a run that kept anything fails on its own. Every workflow uses the last one, and none of them
-assembles in a second step any more.
+**`--assemble` is what includes them**, so each way to run this graph says what it is for.
+`bun run build` is the loop, keeping what has not moved. `bun run build:packages` is the same plus
+the packages, still keeping what has not moved. `bun run build:release` is
+`--assemble --force --assert-full`: every step run, and a run that kept anything fails on its own.
+Every workflow that verifies uses the last one.
 
-`build:angular-tests` is deliberately **not** part of any of the three, and its node says so through
-`runsBeforeSuites` rather than `releaseOnly`: the reason is not cost, it is that `bun run test` and
-`check-all`'s `testStep()` run it immediately before the suites that read the emit, so staleness
-there is prevented by ordering. `--assemble` leaves it out too, since a release ships no test
-surface.
+**`--jobs=<n>` caps every pool at `n`, and `--jobs=1` runs one step at a time in the derived
+order**, which is how a failure that shows only beside another step is told from one that shows
+alone. Without it the build takes the slots the machine allows, the compiling steps sharing the
+heavy slots, longest first, and prints what bounded them. An interrupt ends every running step,
+starts none of the rest, names them in the tail and exits 130. A step that spawns a compiler runs it
+through `scripts/lib/arena/spawn-forwarding.ts:spawnForwarding`, which sends the interrupt on to the
+compiler, so no compiler outlives the run that ended its step.
 
-**It is in the graph even so, and it feeds nobody.** It was given a node on the claim that
-`check:generated` and `check:icons` sweep `frameworks/` and reach the emit. They do not: both walks
-skip any directory named `build`, so neither has ever opened a file under
-`frameworks/angular/build/test/`. The two `feeds` entries only ever held because the gates' broad
-`frameworks/**` overlapped the emit path on a machine where a previous `bun run test` had left it on
-disk, and on a CI checkout, where it has not, they failed. Both gates now exclude
-`frameworks/angular/build/**`, which is what their walks were already doing. What the node is worth
-is its `reads` and `writes` being written down where every other step's are; its own mtime stamp is
-what decides whether `bun run test` recompiles, and that has not changed.
+**`--target=<step>` replaces the selection of any of them with that step and every step it reads
+from**, transitively, release-only steps included with or without `--assemble`, and it repeats;
+`--force` and `--assert-full` keep their meaning. It is how a publish workflow that missed its
+cache builds its own package and no other: `--target=build:angular-package` never assembles React.
+A step whose output a gate reads is named beside it, as the mcp publish names the generators of the
+pages `check:mcp` holds. A name that is not a build step is refused, because a gate judges rather
+than builds.
+`scripts/graph/run-build.ts:selectSteps(nodes, declaredIn, options)` decides the list.
+
+`build:angular-tests` is a build step like the others. It runs in `bun run build`, in the compiler
+pool, and feeds `build:angular-demo`, which bundles the page entries from
+`frameworks/angular/build/test/` and spawns no compiler, so `--target=build:angular-demo` builds the
+emit first and `--target=build:angular-tests` builds its own upstream and nothing downstream. Its
+output travels in `BUILD_HANDOFF_PATHS` with every other artifact. The emit reads neither the
+package in `dist/` nor the layer's Markdown pages, so `build:angular-package` is not in the closure
+of `build:site`. The step skips itself by a stamp of each input's size, mtime and content hash, which
+is what lets `bun run build`, `bun run test` and `bun run check` share one compile per input change.
 
 ## The five domains
 
@@ -147,7 +158,7 @@ A script's domain is decided by what it **touches**, never by what it is about.
 
 | domain | what a build there compiles |
 | --- | --- |
-| [`angular/`](./angular/AGENTS.md) | the AOT emits: demo bundles, the package and the test surface |
+| [`angular/`](./angular/AGENTS.md) | the layer's one emit, the demo bundles over it and the package |
 | [`arena/`](./arena/AGENTS.md) | the `intro/` page bundles, which are what let those pages read `scripts/lib/` |
 | [`react/`](./react/AGENTS.md) | JSX to JS, the barrel, the package, and the CommonJS→ESM vendor bundle |
 | [`tailwind/`](./tailwind/AGENTS.md) | the utility layer and the manifest modules |

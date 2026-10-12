@@ -6,7 +6,7 @@
  * surely as `frameworks/tailwind/` and no token would see it. Detection is textual as well,
  * because the coupling this gate exists to kill was almost entirely prose: an import graph was
  * already clean while 88 sentences made one layer normative for another. A token is matched
- * case-sensitively so a gate or script name (check:angular, test:react, build:tailwind) is
+ * case-sensitively so a gate or script name (check:cdk, test:react, build:tailwind) is
  * not mistaken for a citation of the layer itself. */
 
 import { readFileSync } from 'node:fs';

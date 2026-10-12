@@ -35,7 +35,7 @@ export function unreachedProblems(onDisk: string[], included: string[], root = r
     .map((rel: string) => `${rel} is on disk and the project's globs do not reach it`);
 }
 
-function main() {
+async function main() {
   const empty = zeroProjectProblems(PROJECTS.length);
   for (const problem of empty) console.error(`check-script-types: ${problem}`);
   if (empty.length) process.exit(1);
@@ -44,7 +44,7 @@ function main() {
     const onDisk = sourcesUnder(join(repoRoot, 'scripts'));
     let verdict;
     try {
-      verdict = verdictFor(project, onDisk.map((path) => relPosix(repoRoot, path)));
+      verdict = await verdictFor(project, onDisk.map((path) => relPosix(repoRoot, path)));
     } catch (err) {
       console.error(`check-script-types: ${(err as Error).message}`);
       process.exit(1);
@@ -66,4 +66,4 @@ function main() {
   console.log(`check-script-types: ${PROJECTS.length} project(s) typecheck, reaching every source under scripts/`);
 }
 
-if (isMainModule(import.meta.url)) main();
+if (isMainModule(import.meta.url)) await main();

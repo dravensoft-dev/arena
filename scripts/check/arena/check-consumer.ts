@@ -5,7 +5,8 @@
  * dist is symlinked into a fixture's node_modules, and the bin walks up from bin/ to that link,
  * which IS the package. Beside the sheets it checks what each subcommand leaves behind: the
  * read-only ones change no byte, init and clean touch only what they name, and the exit codes hold.
- * A dist/ already there is left alone; only a missing one is built. */
+ * A missing dist/ stops it through cannotRun: a gate that built what it judges would race every
+ * gate running beside it. */
 
 import { spawnSync } from 'node:child_process';
 import {
@@ -16,6 +17,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { readJson, readIfExists } from '../../utils/read-file.ts';
+import { arenaEnv, cannotRun } from '../../lib/arena/arena-scripts-vars.ts';
 import { hostBinary } from '../../lib/arena/host-binary.ts';
 import { linkDir } from '../../lib/arena/platform.ts';
 import { isForeignTree } from '../../lib/arena/foreign-trees.ts';
@@ -119,15 +121,17 @@ export function assembled(layer: string, base = root) {
   return existsSync(join(distDir(layer, base), 'package.json'));
 }
 
-export function assemble(base = root) {
+export function unassembled(base = root) {
   const missing = PACKAGES.filter(({ layer }) => !assembled(layer, base)).map(({ layer }) => layer);
-  if (missing.length === 0) return { built: false, missing };
-  const run = spawnSync(process.execPath, ['run', 'build:packages'], { cwd: base, encoding: 'utf8' });
-  if (run.status !== 0) {
-    throw new Error(`check-consumer: ${missing.join(' and ')} is not assembled and build:packages failed:\n`
-      + `${run.stderr ?? ''}`);
-  }
-  return { built: true, missing };
+  if (missing.length === 0) return null;
+  return `${missing.join(' and ')} is not assembled, so there is no package to install; run bun run `
+    + 'build:packages first. A gate that built what it judges would rewrite dist/ under every gate '
+    + 'running beside it';
+}
+
+export function refuseUnassembled(base = root, env = arenaEnv()) {
+  const reason = unassembled(base);
+  if (reason) cannotRun('check:consumer', reason, env);
 }
 
 export type CliRun = {
@@ -640,7 +644,6 @@ export function documented(page: string) {
 
 export function collect(base = root) {
   const problems = [];
-  const { built } = assemble(base);
   const dirs = [];
   const { lists, names: list } = documented(readFileSync(join(base, ...CONFIG_REFERENCE.split('/')), 'utf8'));
   try {
@@ -692,11 +695,12 @@ export function collect(base = root) {
   } finally {
     for (const dir of dirs) rmSync(dir, { recursive: true, force: true });
   }
-  return { problems, built };
+  return { problems };
 }
 
 function main() {
-  const { problems, built } = collect();
+  refuseUnassembled();
+  const { problems } = collect();
   if (problems.length > 0) {
     console.error(`check-consumer: ${problems.length} problem(s)\n`);
     for (const one of problems) console.error(`  ${one}`);
@@ -706,8 +710,7 @@ function main() {
     + `a consumer's sources name, close a named list over what its components draw, `
     + `scope a style plugin of the project's own, emit a block carrying `
     + `its own polarity for each of three palettes, and every subcommand leaves the tree and the exit code `
-    + `it promises`
-    + `${built ? ', after assembling what was missing' : ''}`);
+    + `it promises`);
 }
 
 if (isMainModule(import.meta.url)) main();

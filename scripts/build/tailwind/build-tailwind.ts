@@ -91,12 +91,10 @@ export const node = {
     ...CONSUMING_LAYERS.map((layer) => `frameworks/${layer}/ArenaStyles.generated.ts`),
   ],
   feeds: [
-    'build:angular-demo',
     'build:angular-package',
     'build:angular-tests',
     'build:demos',
     'build:react-package',
-    'check:angular',
     'check:api',
     'check:appearance',
     'check:parts',

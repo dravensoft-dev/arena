@@ -75,7 +75,12 @@ the type `complete` chooses and identically at the type `default` chooses.
 
 **`ALLOWED` in the gate is still empty, and the emptiness is still the claim.** A second appearance
 is more to look at rather than a reason to look less closely, so a scoped page that differs is a
-defect in a layer and not a page owed a relief.
+defect in a layer and not a page owed a relief. An entry would be declared per sink, bounded on the
+pixel count and on the channel delta, and carrying the measurement behind it, so a wider move is
+never absorbed by a narrow allowance; one the run does not spend is stale and reported, the shape
+`SIZE_ALLOWANCE` has in `scripts/check/arena/check-docs.ts`. The gate removes motion and drops focus
+before the shutter, because what moves and what holds focus are asked with better instruments than a
+photograph: `check:focus-trap` and the motion roles.
 
 The order and grouping are an arrangement's own, and one built for an appearance shows it doing
 its work on a layout that argues for it: `default` groups by the category a component is registered

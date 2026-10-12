@@ -160,3 +160,14 @@ test('a trap that never claimed focus on open is reported even when containment 
   assert.equal(problems.length, 1);
   assert.match(problems[0] ?? '', /did not start inside the panel/);
 });
+
+test('a panel never seen after the network changed says the host changed, and a plain expiry keeps its sentence', () => {
+  const changed = [{ url: 'http://127.0.0.1:1/entry.js', errorText: 'net::ERR_NETWORK_CHANGED' }];
+  const problems = walkProblems('Palette:react', { panel: false, expired: true, waitedMs: PANEL_HELD.ms, changed });
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /host's network changed while the page loaded/);
+  assert.match(problems[0] ?? '', /entry\.js/);
+
+  const plain = walkProblems('Palette:react', { panel: false, expired: true, waitedMs: PANEL_HELD.ms, changed: [] });
+  assert.match(plain[0] ?? '', /was not seen within/);
+});

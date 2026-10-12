@@ -16,6 +16,7 @@ export type CdpMessage = {
   error?: { code: number; message: string };
   result?: unknown;
   method?: string;
+  sessionId?: string;
   params?: unknown;
 };
 
@@ -23,7 +24,7 @@ export type CdpSend = Pick<Cdp, 'send'>;
 
 export type Cdp = {
   send(method: string, params?: unknown, sessionId?: string): Promise<any>;
-  on(handler: (message: CdpMessage) => void): void;
+  on(handler: (message: CdpMessage) => void): () => void;
   close(): void;
 };
 
@@ -103,7 +104,13 @@ export function connect(wsUrl: string): Promise<Cdp> {
           socket.send(JSON.stringify(frame));
           return result;
         },
-        on(handler: (message: CdpMessage) => void) { listeners.push(handler); },
+        on(handler: (message: CdpMessage) => void) {
+          listeners.push(handler);
+          return () => {
+            const at = listeners.indexOf(handler);
+            if (at >= 0) listeners.splice(at, 1);
+          };
+        },
         close() { socket.close(); },
       });
     });

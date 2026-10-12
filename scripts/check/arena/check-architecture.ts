@@ -81,8 +81,10 @@ export const SKIPPED_TREES = ['dist', 'build', 'vendor', 'kitchen-sink', 'demos'
 
 const SKIPPED = [...SKIPPED_TREES.map((one) => `/${one}/`), '.generated.'];
 
+const EMIT = 'frameworks/angular/build';
+
 export const skipsFor = (layer: string) => SKIPPED_TREES
-  .filter((tree) => existsSync(join(root, 'frameworks', layer, tree)))
+  .filter((tree) => `frameworks/${layer}/${tree}` === EMIT || existsSync(join(root, 'frameworks', layer, tree)))
   .map((tree) => `!frameworks/${layer}/${tree}/**`);
 
 export const node = {

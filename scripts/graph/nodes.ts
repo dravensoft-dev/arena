@@ -88,6 +88,15 @@ export const NEVER_SUBSCRIBES = new Map([
 export const neverSubscribesReason = (path: string) =>
   [...NEVER_SUBSCRIBES].find(([spec]) => matchesSpec(spec, path))?.[1] ?? null;
 
+export const BUILT_BY = ['scripts/build/', 'scripts/generate/'];
+
+export const isBuildStep = (
+  declaredIn: Map<string, string>,
+  node: { name: string; releaseOnly?: string },
+  assemble = false,
+) => (assemble || !node.releaseOnly)
+  && BUILT_BY.some((phase) => (declaredIn.get(node.name) ?? '').startsWith(phase));
+
 export const NOT_YET_SUBSCRIBED = new Set<string>([]);
 
 export function collectedScripts(root = repoRoot) {

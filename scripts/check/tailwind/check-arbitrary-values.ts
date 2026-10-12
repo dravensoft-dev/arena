@@ -28,6 +28,7 @@ export const node = {
   reads: [
     ...EXTENSIONS.map((ext) => `frameworks/**/*${ext}`),
     '!frameworks/**/*.manifest.generated.ts',
+    '!frameworks/angular/build/**',
   ],
   writes: [],
   feeds: [],

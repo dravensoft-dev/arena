@@ -26,6 +26,7 @@ import {
 } from '../../lib/arena/page-errors.ts';
 import { PAGE_FILE } from '../../lib/arena/kitchen-sink-page.ts';
 import { SINK_LAYERS } from '../../generate/arena/generate-kitchen-sink.ts';
+import { loadInFreshTab, networkChangedProblem, type Lost } from '../../lib/arena/page-load.ts';
 import { PAINTED, loaded, readyExpression, sinksIn, pagePath, STILL } from './check-pixel-parity.ts';
 
 export const node = {
@@ -246,43 +247,52 @@ export function zeroMeasuredProblems(count: number, scopes: number) {
   return problems;
 }
 
+export function unmeasuredProblem(what: string,
+  outcome: { painted: Painted; silence?: Silence; threw?: string; changed: Lost[] }) {
+  if (outcome.threw !== undefined) return threwProblem(what, outcome.threw, outcome.silence);
+  if (!outcome.painted.ready && outcome.changed.length > 0) return networkChangedProblem(what, outcome.changed);
+  return paintedProblem(what, PAINTED, outcome.painted,
+    'so this density was measured against nothing', outcome.silence);
+}
+
 const skip: (reason: string) => never = (reason) => cannotRun('check-target-size', reason);
 
 async function measure(cdp: Cdp, url: string, scope: Scope) {
-  const { targetId } = await cdp.send('Target.createTarget', { url: 'about:blank' });
-  try {
-    const { sessionId } = await cdp.send('Target.attachToTarget', { targetId, flatten: true });
-    await cdp.send('Emulation.setDeviceMetricsOverride', PHONE, sessionId);
-    await cdp.send('Page.enable', {}, sessionId);
-    await cdp.send('Page.addScriptToEvaluateOnNewDocument', { source: COLLECT }, sessionId);
-    const settled = loaded(cdp, sessionId);
-    await withTimeout(cdp.send('Page.navigate', { url }, sessionId), NAVIGATE.ms,
-      `${url}: navigate timed out after ${NAVIGATE.ms}ms, which is that size because ${NAVIGATE.why}`);
-    await withTimeout(settled, LOADED.ms,
-      `${url}: the load event never fired, within ${LOADED.ms}ms, which is that size because ${LOADED.why}`);
-    const ev = (expression: string) => evaluate(cdp, expression, sessionId);
+  const { result, changed } = await loadInFreshTab(cdp,
+    (sessionId) => measureIn(cdp, sessionId, url, scope),
+    (one) => !one.painted.ready && one.threw === undefined);
+  return { ...result, changed };
+}
 
-    let painted: Painted = { ready: false, waitedMs: 0 };
-    let rows: Measured[] = [];
-    let threw: string | undefined;
-    try {
-      painted = await ev(readyExpression(PAINTED));
-      if (painted.ready) {
-        await ev(STILL);
-        rows = await ev(measureExpression(INTERACTIVE, scope.klass)) ?? [];
-      }
-    } catch (error) {
-      if (!(error instanceof PageThrew)) throw error;
-      threw = error.message;
+async function measureIn(cdp: Cdp, sessionId: string, url: string, scope: Scope) {
+  await cdp.send('Emulation.setDeviceMetricsOverride', PHONE, sessionId);
+  await cdp.send('Page.enable', {}, sessionId);
+  await cdp.send('Page.addScriptToEvaluateOnNewDocument', { source: COLLECT }, sessionId);
+  const settled = loaded(cdp, sessionId);
+  await withTimeout(cdp.send('Page.navigate', { url }, sessionId), NAVIGATE.ms,
+    `${url}: navigate timed out after ${NAVIGATE.ms}ms, which is that size because ${NAVIGATE.why}`);
+  await withTimeout(settled, LOADED.ms,
+    `${url}: the load event never fired, within ${LOADED.ms}ms, which is that size because ${LOADED.why}`);
+  const ev = (expression: string) => evaluate(cdp, expression, sessionId);
+
+  let painted: Painted = { ready: false, waitedMs: 0 };
+  let rows: Measured[] = [];
+  let threw: string | undefined;
+  try {
+    painted = await ev(readyExpression(PAINTED));
+    if (painted.ready) {
+      await ev(STILL);
+      rows = await ev(measureExpression(INTERACTIVE, scope.klass)) ?? [];
     }
-    const silence = await ev(REPORT).catch((error: unknown) => {
-      if (error instanceof PageThrew) return undefined;
-      throw error;
-    }) as Silence | undefined;
-    return { rows, painted, silence, threw };
-  } finally {
-    await cdp.send('Target.closeTarget', { targetId });
+  } catch (error) {
+    if (!(error instanceof PageThrew)) throw error;
+    threw = error.message;
   }
+  const silence = await ev(REPORT).catch((error: unknown) => {
+    if (error instanceof PageThrew) return undefined;
+    throw error;
+  }) as Silence | undefined;
+  return { rows, painted, silence, threw };
 }
 
 async function main() {
@@ -305,11 +315,9 @@ async function main() {
         for (const scope of SCOPES) {
           const url = `http://127.0.0.1:${server.port}/${pagePath(layer, sink)}`;
           const what = `${sink} ${scope.name}/${layer}: the page`;
-          const { rows, painted, silence, threw } = await measure(cdp, url, scope);
-          if (threw !== undefined) { problems.push(threwProblem(what, threw, silence)); continue; }
-          const unpainted = paintedProblem(what, PAINTED, painted,
-            'so this density was measured against nothing', silence);
-          if (unpainted !== null) { problems.push(unpainted); continue; }
+          const { rows, painted, silence, threw, changed } = await measure(cdp, url, scope);
+          const unmeasured = unmeasuredProblem(what, { painted, silence, threw, changed });
+          if (unmeasured !== null) { problems.push(unmeasured); continue; }
           for (const row of rows) measured.push({ ...row, layer, scope: scope.name });
         }
       }

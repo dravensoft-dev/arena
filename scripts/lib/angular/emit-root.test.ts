@@ -34,16 +34,9 @@ test('the test surface emits where bun is pointed, so a rootDir edit cannot empt
   );
 });
 
-test('the demo pages compile into the tree the bundler collects entries from', () => {
-  assert.equal(
-    angularEmitRoot(join(repoRoot, 'frameworks', 'angular', 'tsconfig.demo.json')),
-    join(repoRoot, 'frameworks', 'angular', 'build', 'demo', 'tsc'),
-  );
-});
-
 test('an option is read from the config that declares it, however far up the extends chain it sits', () => {
   const layer = join(repoRoot, 'frameworks', 'angular');
-  assert.equal(declaredOption(join(layer, 'tsconfig.demo.json'), 'outDir').value, './build/demo/tsc');
-  assert.equal(declaredOption(join(layer, 'tsconfig.demo.json'), 'rootDir').value, '.');
-  assert.equal(declaredOption(join(layer, 'tsconfig.demo.json'), 'rootDir').dir, layer);
+  assert.equal(declaredOption(join(layer, 'tsconfig.test.json'), 'outDir').value, './build/test');
+  assert.equal(declaredOption(join(layer, 'tsconfig.test.json'), 'rootDir').value, '.');
+  assert.equal(declaredOption(join(layer, 'tsconfig.test.json'), 'rootDir').dir, layer);
 });

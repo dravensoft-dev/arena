@@ -1,24 +1,25 @@
 /* Everything check:graph asserts, so the gate itself is a print and an exit. Three authorities are
- * joined: the scripts, which declare, package.json, which says what is invocable, and pr.yml,
- * which says what one job hands another. A `reads` reaching no file is a typo or a spec written
- * ahead of the tree, and the directory tells them apart: no directory fails, one holding no match
- * yet is reported and allowed, since refusing it would let a declaration describe only today's
- * tree. A `writes` gets neither test: it names what the node CREATES, so a tree without it is the
- * step not having run, and a gate judging the shape must not answer one way where a step ran and
- * another where it did not. It is reported even so, so a typo has a witness once a full build has
- * left it unreached. Nothing here is cached: a gate judging the shape cannot read it from a
- * fingerprint of the last shape. One spec list is asked once, resolving being this gate's cost. */
+ * joined: the scripts, which declare, package.json, which says what is invocable, and the workflows,
+ * which say what one job or run hands another. A `reads` reaching no file is a typo or a spec
+ * written ahead of the tree, and the directory tells them apart: no directory fails, one holding no
+ * match yet is reported and allowed, because refusing it would let a declaration describe only the
+ * tree as it stands. A `writes` gets neither test: it names what the node CREATES, so a tree without
+ * it is the step not having run, and a gate judging the shape must not answer one way where a step
+ * ran and another where it did not. It is reported even so, so a typo has a witness once a full
+ * build has left it unreached. Nothing here is cached: a gate judging the shape cannot read it from
+ * a fingerprint of the last shape. One spec list is asked once, resolving being this gate's cost. */
 
 import { readJson } from '../utils/read-file.ts';
 import { join } from 'node:path';
 import { existsSync } from 'node:fs';
 import { repoRoot } from '../lib/arena/repo-root.ts';
 import { universe } from './inputs.ts';
-import { reachesNoDirectory, resolveSpecs, unreachedSpecs } from './pathspecs.ts';
-import { cyclePath, duplicateWriters, selfFeeds, subscriptionProblems, unknownFeeds } from './graph.ts';
+import { isExclusion, normalizeSpec, reachesNoDirectory, resolveSpecs, unreachedSpecs } from './pathspecs.ts';
+import { cyclePath, duplicateWriters, selfFeeds, subscriptionProblems, unknownFeeds, upstreamOf } from './graph.ts';
 import type { GraphNode } from './graph.ts';
-import { ALIASES, NOT_YET_SUBSCRIBED, allNodes, collectedScripts, neverSubscribesReason } from './nodes.ts';
-import { handoffProblems, trackedPaths, workflowText } from './handoff.ts';
+import { ALIASES, NOT_YET_SUBSCRIBED, allNodes, collectedScripts, isBuildStep, neverSubscribesReason } from './nodes.ts';
+import { POOLS } from './pools.ts';
+import { handoffProblems, trackedPaths, workflowTexts } from './handoff.ts';
 
 export function remembering<T>(answer: (specs: string[]) => T) {
   const said = new Map<string, T>();
@@ -111,11 +112,11 @@ export function unreachedSpecNotes(
   unreached: (specs: string[]) => string[] = (specs) => unreachedSpecs(specs, paths),
 ) {
   return nodes.flatMap((node) => [
-    ...unreached(node.reads)
+    ...unreached(node.reads.filter((spec) => !isExclusion(spec)))
       .filter((spec) => !reachesNoDirectory(spec, paths))
       .map((spec) => `${node.name} names ${spec}, which matches no file today; its directory is `
         + 'there, so this reads as an extension the node compiles and the tree does not hold yet'),
-    ...unreached(node.writes)
+    ...unreached(node.writes.filter((spec) => !isExclusion(spec)))
       .map((spec) => `${node.name} writes ${spec}, and nothing here matches it; what a step emits `
         + 'is on disk once that step has run, so this is either the tree before the run or a typo, '
         + 'and only a full build tells them apart'),
@@ -132,8 +133,7 @@ export function writingGateProblems(nodes: GraphNode[]) {
 
 export function outsideBuildProblems(nodes: GraphNode[]) {
   return nodes
-    .filter((node) => [node.releaseOnly, node.runsBeforeSuites]
-      .some((reason) => reason !== undefined && reason.length < 40))
+    .filter((node) => node.releaseOnly !== undefined && node.releaseOnly.length < 40)
     .map((node) => `${node.name} is outside bun run build and the record does not say why; a step `
       + 'a development loop skips is a decision, and a decision without its reason is worthless');
 }
@@ -144,9 +144,72 @@ export function vacuousProblems(nodes: GraphNode[], scripts: string[]) {
   return [];
 }
 
-export async function graphProblems(base = repoRoot) {
+export function poolProblems(nodes: GraphNode[], declaredIn: Map<string, string>) {
+  const problems: string[] = [];
+  for (const node of nodes) {
+    if (node.pool === undefined && node.cost === undefined) continue;
+    if (!isBuildStep(declaredIn, node, true)) {
+      problems.push(`${node.name} declares a pool or a cost, and no build invocation runs it: check-all reads a `
+        + "gate's pool from GATES and the suites' emit from testStep(), so this one would be read by nothing");
+      continue;
+    }
+    if (node.pool === undefined) {
+      problems.push(`${node.name} declares a cost and no pool; only a heavy step is started by its cost`);
+      continue;
+    }
+    if (!(POOLS as readonly string[]).includes(node.pool)) {
+      problems.push(`${node.name} declares pool "${node.pool}", which is none of ${POOLS.join(', ')}; a light step declares none`);
+    }
+    if (typeof node.cost !== 'number' || !Number.isFinite(node.cost) || node.cost <= 0) {
+      problems.push(`${node.name} declares pool "${node.pool}" and no cost in seconds above zero, so the scheduler `
+        + 'cannot start it longest first');
+    }
+  }
+  return problems;
+}
+
+export const PROBE_EXTENSIONS = ['ts', 'tsx', 'js', 'jsx', 'mjs', 'json', 'map', 'd.ts', 'html', 'css', 'md', 'txt'];
+
+export function probesOf(spec: string) {
+  const segments = normalizeSpec(spec.replace(/^!/, '')).split('/');
+  let shapes: string[][] = [[]];
+  for (const segment of segments) {
+    if (segment === '**') shapes = [...shapes.map((one) => [...one, 'probe']), ...shapes];
+    else shapes = shapes.map((one) => [...one, segment.replace(/\*/g, 'probe')]);
+  }
+  return [...new Set(shapes.map((one) => one.join('/')))]
+    .flatMap((base) => [base, ...PROBE_EXTENSIONS.map((ext) => `${base}/probe.${ext}`)]);
+}
+
+export function peerReadProblems(nodes: GraphNode[], declaredIn: Map<string, string>, paths: string[]) {
+  const build = nodes.filter((node) => isBuildStep(declaredIn, node, true));
+  const upstream = new Map(build.map((node) => [node.name, upstreamOf(nodes, node.name)]));
+  const problems: string[] = [];
+  let pairs = 0;
+  for (const writer of build) {
+    const probes = writer.writes.filter((spec) => !isExclusion(spec)).flatMap(probesOf);
+    const written = [...new Set([...resolveSpecs(writer.writes, paths), ...resolveSpecs(writer.writes, probes)])];
+    for (const reader of build) {
+      if (reader === writer || upstream.get(reader.name)?.has(writer.name) || upstream.get(writer.name)?.has(reader.name)) continue;
+      pairs += 1;
+      const named = reader.reads.filter((spec) => !isExclusion(spec)).flatMap(probesOf);
+      const reached = resolveSpecs(reader.reads, [...written, ...resolveSpecs(writer.writes, named)]);
+      if (reached.length > 0) {
+        problems.push(`${reader.name} reads ${reached[0]}, which ${writer.name} writes, and neither waits for the other, `
+          + 'so run-build can run them side by side and the read can meet a file half written; list '
+          + `${reader.name} in ${writer.name}'s feeds or exclude the path from its reads`);
+      }
+    }
+  }
+  return { problems, pairs };
+}
+
+export async function graphProblems(
+  base = repoRoot,
+  collect: (root: string) => Promise<{ nodes: GraphNode[]; declaredIn: Map<string, string> }> = allNodes,
+) {
   const scripts = collectedScripts(base);
-  const { nodes, declaredIn } = await allNodes(base);
+  const { nodes, declaredIn } = await collect(base);
   const vacuous = vacuousProblems(nodes, scripts);
   if (vacuous.length > 0) return { problems: vacuous, notes: [], nodes, edges: 0 };
 
@@ -169,7 +232,9 @@ export async function graphProblems(base = repoRoot) {
     ...writingGateProblems(nodes),
     ...outsideBuildProblems(nodes),
     ...emptySpecProblems(nodes, paths, resolve, unreached),
-    ...handoffProblems(nodes, workflowText(base), trackedPaths(base)),
+    ...handoffProblems(nodes, workflowTexts(base), trackedPaths(base)),
+    ...poolProblems(nodes, declaredIn),
+    ...peerReadProblems(nodes, declaredIn, paths).problems,
   ];
 
   return {

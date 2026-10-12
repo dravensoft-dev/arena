@@ -1,8 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync, readdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
+import { repoRoot } from '../../lib/arena/repo-root.ts';
 import {
   INSTALL, bareSpecifiers, entryScripts, jobProblems, workflowScriptProblems,
 } from './check-workflow-scripts.ts';
@@ -94,9 +95,39 @@ test('installing in one job says nothing about another', () => {
   }
 });
 
+test('a job that calls a workflow runs no script of its own, and its layout is read like any other', () => {
+  const base = tree({ 'scripts/entry.ts': "import 'typescript';\n" });
+  try {
+    const text = ['jobs:', '  verify:', '    uses: ./.github/workflows/verify.yml', '    with:',
+      '      domains: core,arena', '  route:', '    steps:', '      - run: bun scripts/entry.ts', ''].join('\n');
+    const { problems, checked } = jobProblems('w.yml', text, {}, base);
+    assert.equal(checked, 1, 'the route job is the one that runs a script');
+    assert.equal(problems.length, 1);
+    assert.match(problems[0]!, /job route runs scripts\/entry\.ts/);
+  } finally {
+    rmSync(base, { recursive: true, force: true });
+  }
+});
+
+test('a job layout the gate cannot read is a problem, so a script in it is never passed unseen', () => {
+  const base = tree({ 'scripts/entry.ts': "import 'typescript';\n" });
+  try {
+    const deep = ['jobs:', '    route:', '      steps:', '        - run: bun scripts/entry.ts', ''].join('\n');
+    const { problems, checked } = jobProblems('w.yml', deep, {}, base);
+    assert.equal(checked, 0);
+    assert.ok(problems.length >= 1);
+    assert.match(problems.join('\n'), /w\.yml:2: "route:" sits where a job key goes/);
+    assert.match(jobProblems('w.yml', 'name: x\non: push\n', {}, base).problems.join('\n'), /has no top-level jobs: line/);
+  } finally {
+    rmSync(base, { recursive: true, force: true });
+  }
+});
+
 test('this repository holds to the rule, and the gate reaches its workflows to say so', () => {
   const { problems, scanned, checked } = workflowScriptProblems();
   assert.deepEqual(problems, []);
+  const listed = readdirSync(join(repoRoot, '.github/workflows')).filter((file) => file.endsWith('.yml'));
   assert.ok(scanned > 0, 'the gate found no workflow, so it proved nothing');
+  assert.equal(scanned, listed.length, 'the gate scanned a different set of workflows than the directory holds');
   assert.ok(checked > 0, 'no job here runs a script without installing, so the rule is unproven');
 });

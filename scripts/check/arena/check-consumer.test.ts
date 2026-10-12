@@ -5,16 +5,19 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { CLI_BINS } from '../../lib/arena/package-assembly.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import {
-  importedSheets, unknownSymbolProblems, listProblems, closedListProblems, iconProblems, assembled, documented, CONFIG_REFERENCE,
+  importedSheets, unknownSymbolProblems, listProblems, closedListProblems, iconProblems, assembled, unassembled, documented, CONFIG_REFERENCE,
   palettesProblems, SOURCES, UNKNOWN, FILL, GLYPH, THIRD_PALETTE, CLI, snapshot, treeChanges, exitProblem, binProblems,
 } from './check-consumer.ts';
 import type { CliRun } from './check-consumer.ts';
+import { distDir } from './check-packages.ts';
 
 const ok: CliRun = { status: 0, stdout: '', stderr: '', theme: null, icons: null, plugin: null };
 
@@ -191,4 +194,39 @@ test('a list naming arena-table alone imports the pagination and select the tabl
   const refused = closedListProblems('angular', { ...ok, status: 1, stderr: 'nope' });
   assert.equal(refused.length, 1);
   assert.match(refused[0] ?? '', /^angular: .* exited 1/);
+});
+
+test('an unassembled package names both packages it lacks and the step that assembles them', () => {
+  const reason = unassembled('/nowhere-at-all') ?? '';
+  assert.match(reason, /react and angular is not assembled/);
+  assert.match(reason, /run bun run build:packages first/);
+});
+
+const refusal = (base: string, strict: string) => spawnSync(process.execPath, ['-e', [
+  `const { refuseUnassembled } = await import(${JSON.stringify(pathToFileURL(join(root, 'scripts', 'check', 'arena', 'check-consumer.ts')).href)});`,
+  `refuseUnassembled(${JSON.stringify(base)}, { ARENA_CHECK_STRICT: ${JSON.stringify(strict)} });`,
+  "console.log('went on');",
+].join('\n')], { encoding: 'utf8' });
+
+test('a missing dist/ stops the gate before it runs anything: a SKIP, which a strict run turns into a failure', () => {
+  const soft = refusal('/nowhere-at-all', '0');
+  assert.equal(soft.status, 2, soft.stderr);
+  assert.match(soft.stderr, /check:consumer: SKIPPED/);
+  assert.match(soft.stderr, /bun run build:packages first/);
+  assert.doesNotMatch(soft.stdout, /went on/);
+  const strict = refusal('/nowhere-at-all', '1');
+  assert.equal(strict.status, 1, strict.stderr);
+  assert.match(strict.stderr, /FAILED \(strict\)/);
+  const base = mkdtempSync(join(tmpdir(), 'check-consumer-assembled-'));
+  try {
+    for (const layer of ['react', 'angular']) {
+      mkdirSync(distDir(layer, base), { recursive: true });
+      writeFileSync(join(distDir(layer, base), 'package.json'), '{}\n');
+    }
+    const assembled = refusal(base, '1');
+    assert.equal(assembled.status, 0, assembled.stderr);
+    assert.match(assembled.stdout, /went on/, 'two assembled packages are the case that lets the gate go on');
+  } finally {
+    rmSync(base, { recursive: true, force: true });
+  }
 });

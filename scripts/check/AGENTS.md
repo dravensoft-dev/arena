@@ -55,8 +55,8 @@ A gate that declares a node in `scripts/graph/` is kept when nothing it reads ha
 last **passing** run, and the summary says so at what fingerprint:
 
 ```
-  CACHED  check:dtcg  (1c289ae16237, unchanged since the previous run)
-  PASS    check:text-contrast
+  CACHED  check:dtcg  (1c289ae16237, unchanged from the previous run)
+  PASS  check:text-contrast  0.8 s
 
 check-all: all 5 step(s) passed, 2 ran, 3 came from the cache
 ```
@@ -65,7 +65,7 @@ check-all: all 5 step(s) passed, 2 ran, 3 came from the cache
 line has to make that impossible to misread.
 
 **Only a pass records.** A failure and a SKIP both delete the entry, so a gate that failed runs
-again next time, and a gate that could not run here is honest about it for ever rather than once.
+on the next sweep, and a gate that could not run here is honest about it for ever rather than once.
 That is what keeps the cache from turning exit 2 into a permanent green.
 
 **A gate that declares no node runs every time, and that is a property of this cache rather than a
@@ -104,6 +104,32 @@ first**: that is a second cache, `lib/arena/artifact-cache.ts`, holding what a g
 recompute where the graph holds what decides whether it runs. Trust nothing reaches both. `stepStatus` is untouched by any of
 this: it maps a child's exit code, and a kept gate spawns no child, so three of the four labels come
 from a process and the fourth comes from the graph.
+
+## The sweep runs side by side, and `--jobs=1` is the serial one
+
+**Every selected gate and every suite step is a step of one scheduler**,
+`scripts/graph/scheduler.ts:schedule`, so a sweep costs roughly what its heaviest pool holds divided
+by that pool's slots, rather than its sum. Light steps share the cores. A gate that drives a browser
+or a compiler declares it beside its `GATES` entry as `pool: 'browser'` or `pool: 'compiler'`, with
+its `cost` in seconds, and those share one budget sized from free memory, because each peaks near a
+gigabyte or above; the browser is capped lower, and whenever more than one slot is open the steps
+with a cost start first, longest first, because the heavy pool is what a sweep waits on. A gate with
+no `pool` is light, and `check-all.test.ts` holds every gate measured heavy to its declaration, its
+cost included, because a gate that is wrong about it costs memory rather than an answer and nothing
+else would notice.
+
+**Each step prints as one block when it ends**, headed `> <name>`, so two steps never interleave.
+The summary lists the steps in the order `GATES` and `testStep()` give, each with what it took,
+and its tail and exit status keep their meaning: a FAIL exits 1, a SKIP makes the run INCOMPLETE,
+and `--release` reports a gate that failed although the graph would have kept it.
+
+**`--jobs=<n>` caps every pool at `n`, and `--jobs=1` runs one step at a time in that order**,
+which is how a failure that shows only beside another step is told from one that shows alone. An
+interrupt ends every running step, starts none of the rest, names them in the tail and exits 130. A
+child that ignores SIGTERM for `scripts/lib/arena/child-output.ts:TERM_GRACE` is killed with SIGKILL
+on that one pid and its step is a FAIL saying so, and a step still running
+`scripts/graph/scheduler.ts:ABORT_GRACE` after the interrupt is a FAIL and is left, so no interrupt
+waits for ever.
 
 ## A gate judges and does not emit
 
@@ -186,7 +212,7 @@ nowhere runs in no job and is worth nothing, so the directory is not the authori
 | --- | --- | --- |
 | [`arena/`](./arena/AGENTS.md) | 56 | two or more layers at once, or the repository root |
 | [`tailwind/`](./tailwind/AGENTS.md) | 9 | the shared Tailwind layer |
-| [`angular/`](./angular/AGENTS.md) | 6 | the Angular layer |
+| [`angular/`](./angular/AGENTS.md) | 5 | the Angular layer |
 | [`core/`](./core/AGENTS.md) | 14 | `contracts/` and `assets/` only |
 | [`react/`](./react/AGENTS.md) | 5 | the React layer |
 

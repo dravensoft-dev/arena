@@ -7,13 +7,13 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   CLONE_ROOT_BUDGET, MATRIX_WORKFLOW, MAX_PATH, PR_WORKFLOW, REQUIRED_JOB, RULES, SUITE_RULES,
-  WORKFLOWS, checkoutProblems, declaredNeeds, gateProblems, inScope, inSuiteScope, jobBlocks,
-  matrixLegs, matrixProblems, needsProblems, portabilityProblems, setupProblems, staleOwners,
-  trackedPaths, violations,
+  WORKFLOWS, browserNamingProblems, browserPathProblems, browserWorkflows, checkoutProblems, declaredNeeds, gateProblems,
+  inScope, inSuiteScope, jobBlocks, jobShapeProblems, matrixLegs, matrixProblems, needsProblems,
+  portabilityProblems, setupProblems, staleOwners, trackedPaths, violations,
 } from './check-portability.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { join } from 'node:path';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 
 const PLANTED: Record<string, string> = {
   'platform-branch': 'const win = process.platform === "win32";\n',
@@ -236,7 +236,7 @@ test('the real pr.yml holds, and the matrix is deliberately not a name it waits 
   assert.deepEqual(gateProblems(), []);
   const gate = jobBlocks(readFileSync(join(repoRoot, WORKFLOWS, PR_WORKFLOW), 'utf8'))
     .get(REQUIRED_JOB) ?? '';
-  assert.ok(!declaredNeeds(gate).includes('portable'),
+  assert.ok(!(declaredNeeds(gate) ?? []).includes('portable'),
     'needs cannot cross workflows, so a matrix in develop.yml is one pr-gate cannot read, and a '
     + 'name here for a job that is not in this file would make the gate wait for nothing');
   assert.ok(matrixLegs(readFileSync(join(repoRoot, WORKFLOWS, MATRIX_WORKFLOW), 'utf8')).size > 0,
@@ -252,3 +252,142 @@ test('a matrix that disagrees with the declaration fails, whichever way it disag
   assert.match(matrixProblems(repoRoot, absent).join('\n'), /the matrix does not run it/);
 });
 
+
+const CALLER = `name: Arena PR
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+  verify:
+    needs: [changes]
+    uses: ./.github/workflows/verify.yml
+    with:
+      domains: \${{ needs.changes.outputs.domains }}
+  pr-gate:
+    needs: [changes, verify]
+    runs-on: ubuntu-latest
+`;
+
+test('a job that calls a workflow has uses: and no steps:, and it is a job like any other', () => {
+  assert.deepEqual([...jobBlocks(CALLER).keys()], ['changes', 'verify', 'pr-gate']);
+  assert.deepEqual(jobShapeProblems('pr.yml', CALLER), []);
+  assert.deepEqual(needsProblems(CALLER), []);
+  assert.match(needsProblems(CALLER.replace('[changes, verify]', '[changes]')).join('\n'), /does not name verify/);
+});
+
+test('a top-level key after jobs: is no job, the bound jobShapeProblems stops at as well', () => {
+  const after = `${CALLER}\nconcurrency:\n  group: x\non:\n  workflow_dispatch:\n`;
+  assert.deepEqual([...jobBlocks(after).keys()], ['changes', 'verify', 'pr-gate']);
+  assert.deepEqual(jobShapeProblems('pr.yml', after), []);
+});
+
+test('needs is read as one name and with a comment after it, and a shape it cannot read is refused', () => {
+  assert.deepEqual(declaredNeeds('  pr-gate:\n    needs: changes\n'), ['changes']);
+  assert.deepEqual(declaredNeeds('  pr-gate:\n    needs: [a, b] # both\n'), ['a', 'b']);
+  assert.deepEqual(declaredNeeds('  pr-gate:\n    needs: # both\n      - a\n      - b\n'), ['a', 'b']);
+  for (const shape of ['    needs: >-\n      a\n', '    needs: [a, b\n', '    needs: *all\n', '    needs:\n        - a\n']) {
+    assert.equal(declaredNeeds(`  pr-gate:\n${shape}`), null, shape);
+  }
+  assert.deepEqual(declaredNeeds('  pr-gate:\n    needs:\n      - changes\n      - verify # the call\n    runs-on: x\n'), ['changes', 'verify']);
+  assert.deepEqual(declaredNeeds('  pr-gate:\n    needs:\n      - a # first\n      # between\n      - b\n'), ['a', 'b']);
+  for (const shape of ['    needs: [\'a\', b]\n', '    needs:\n      - a\n      - "b"\n', '    needs:\n      - a\n        - b\n', '    needs:\n      - a b\n']) {
+    assert.equal(declaredNeeds(`  pr-gate:\n${shape}`), null, shape);
+  }
+  const problems = needsProblems(CALLER.replace('needs: [changes, verify]', 'needs: >-\n      changes'));
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /pr-gate's needs is in a shape this gate cannot read/);
+});
+
+test('a job layout the gate cannot read is a problem naming the line, and never a job it skipped', () => {
+  const shapes: Record<string, [string, RegExp]> = {
+    'a job four spaces in': [CALLER.replace('  changes:\n', '    changes:\n'), /no job this gate can read|sits where a job key goes/],
+    'a quoted job key': [CALLER.replace('  changes:', '  "changes":'), /:8: "\\"changes\\":" sits where a job key goes/],
+    'a job as a flow mapping': [CALLER.replace('  pr-gate:\n    needs: [changes, verify]\n    runs-on: ubuntu-latest\n',
+      '  pr-gate: { runs-on: ubuntu-latest }\n'), /"pr-gate: \{ runs-on: ubuntu-latest \}" sits where a job key goes/],
+    'a key one space in': [CALLER.replace('  verify:', ' verify:'), /" verify:"|"verify:" sits where a job key goes/],
+    'no jobs line': [CALLER.replace('jobs:', 'job:'), /has no top-level jobs: line/],
+    'jobs with nothing in it': ['name: x\njobs:\n', /declares no job this gate can read/],
+  };
+  for (const [name, [text, pattern]] of Object.entries(shapes)) {
+    const problems = jobShapeProblems('pr.yml', text);
+    assert.ok(problems.length >= 1, name);
+    assert.match(problems.join('\n'), pattern, name);
+  }
+  assert.deepEqual(jobShapeProblems('pr.yml', CALLER.replace('jobs:', 'jobs: # the graph')), [],
+    'a comment after jobs: is still the jobs line');
+});
+
+const realWorkflows = () => readdirSync(join(repoRoot, WORKFLOWS)).filter((file) => file.endsWith('.yml')).sort();
+
+test('the real pr.yml reads whole, and so does every workflow the gate opens', () => {
+  const files = realWorkflows();
+  assert.ok(files.length > 1);
+  for (const file of files) {
+    const text = readFileSync(join(repoRoot, WORKFLOWS, file), 'utf8');
+    assert.deepEqual(jobShapeProblems(file, text), [], file);
+    assert.ok(jobBlocks(text).size > 0, `${file} reads as no job at all`);
+  }
+});
+
+const named = (file: string, line: string) => ({ file, text: `name: x\nenv:\n${line}\njobs:\n  a:\n    runs-on: x\n` });
+
+test('exactly one workflow names a browser, by its own CHROME_PATH or by the chrome-path it passes', () => {
+  assert.deepEqual(browserNamingProblems([named('main.yml', '  CHROME_PATH: /usr/bin/google-chrome'), named('pr.yml', '')]), []);
+  assert.deepEqual(browserNamingProblems([
+    named('main.yml', '      chrome-path: /usr/bin/google-chrome'),
+    named('verify.yml', '  CHROME_PATH: ${{ inputs.chrome-path }}'),
+    named('pr.yml', ''),
+  ]), [], 'the workflow that hands the input on as CHROME_PATH names no browser of its own');
+  assert.match(browserNamingProblems([named('pr.yml', '')]).join('\n'), /no workflow names a browser/);
+  assert.match(browserNamingProblems([named('verify.yml', '  CHROME_PATH: ${{ inputs.chrome-path }}')]).join('\n'),
+    /no workflow names a browser/);
+  assert.match(browserNamingProblems([
+    named('main.yml', '      chrome-path: /usr/bin/google-chrome'),
+    named('pages.yml', '  CHROME_PATH: /usr/bin/chromium'),
+    named('verify.yml', '  CHROME_PATH: ${{ inputs.chrome-path }}'),
+  ]).join('\n'), /main\.yml, pages\.yml all name a browser/);
+});
+
+test('an empty chrome-path names nothing, and one passed with no workflow handing it on reaches no gate', () => {
+  for (const empty of ["      chrome-path: ''", '      chrome-path:', '      chrome-path: # none']) {
+    assert.match(browserNamingProblems([named('pr.yml', empty), named('verify.yml', '  CHROME_PATH: ${{ inputs.chrome-path }}')])
+      .join('\n'), /no workflow names a browser/, empty);
+  }
+  const lost = browserNamingProblems([named('main.yml', '      chrome-path: /usr/bin/google-chrome')]);
+  assert.equal(lost.length, 1);
+  assert.match(lost[0] ?? '', /main\.yml pass chrome-path and no workflow hands it on as CHROME_PATH/);
+});
+
+test('a browser named by an input default, or in a shape the gate cannot read, is not a skipped line', () => {
+  const conduit = named('verify.yml', '  CHROME_PATH: ${{ inputs.chrome-path }}');
+  const declared = (value: string) => ({
+    file: 'verify.yml',
+    text: `name: x\non:\n  workflow_call:\n    inputs:\n      chrome-path:\n        type: string\n        default: ${value}\n`
+      + 'env:\n  CHROME_PATH: ${{ inputs.chrome-path }}\njobs:\n  a:\n    runs-on: x\n',
+  });
+  const main = named('main.yml', '      chrome-path: /usr/bin/google-chrome');
+  assert.deepEqual(browserNamingProblems([main, declared("''"), named('pr.yml', '')]), []);
+  assert.match(browserNamingProblems([main, declared('/usr/bin/chromium')]).join('\n'), /main\.yml, verify\.yml all name a browser/);
+  assert.match(browserNamingProblems([declared('"/usr/bin/chromium"'), main]).join('\n'), /all name a browser/);
+  const shapes: Record<string, string> = {
+    'a flow with:': '    with: { chrome-path: /usr/bin/google-chrome }',
+    'a quoted input key': '      "chrome-path": /usr/bin/google-chrome',
+    'a quoted env key': '  "CHROME_PATH": /usr/bin/google-chrome',
+    'a use in an expression': '    if: inputs.chrome-path != \'\'',
+  };
+  for (const [name, line] of Object.entries(shapes)) {
+    assert.match(browserNamingProblems([named('main.yml', '      chrome-path: /usr/bin/google-chrome'), conduit, named('pr.yml', line)])
+      .join('\n'), /pr\.yml:3: .* names the browser in a shape this gate cannot read/, name);
+  }
+  assert.deepEqual(browserNamingProblems([named('main.yml', '      chrome-path: /usr/bin/google-chrome'), conduit,
+    named('pr.yml', '  # CHROME_PATH is not exported here\n      - name: a browser, and CHROME_PATH is deliberately not exported')]), []);
+});
+
+test('the real workflows name one browser between them, and the gate read every one of them', () => {
+  assert.deepEqual(browserPathProblems(), []);
+  assert.deepEqual(browserWorkflows().map((one) => one.file.split('/').pop()).sort(), realWorkflows());
+});

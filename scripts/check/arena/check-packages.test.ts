@@ -16,10 +16,18 @@ import {
   payloadProblems, CARRIED_BY_PACKAGE, iconManifestProblems, entryPointProblems, COMPILED_BY_CONSUMER, cssListProblems, CSS_HOMES, directiveProblems, themeSheetProblems, themeCompileProblems, unlayeredTokenProblems
 } from './check-packages.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
+import { budgetFor, deadline, type Deadline } from '../../lib/arena/deadline.ts';
+import { TERM_GRACE } from '../../lib/arena/child-output.ts';
 import { referenceText } from '../../lib/arena/consumer-references.ts';
 
 const [REACT_PACKAGE, ANGULAR_PACKAGE] = PACKAGES;
 if (!REACT_PACKAGE || !ANGULAR_PACKAGE) throw new Error('PACKAGES no longer declares both layers');
+
+const REPOSITORY: Deadline = deadline('check-packages:repository', 20_000,
+  'collect() reads the real repository and compiles the theme sheet twice, 3.1 s alone and over '
+  + '7 s with every core busy, and the bound only ends a hang');
+
+const BUDGET = budgetFor(REPOSITORY, TERM_GRACE);
 
 const generated = ':root{--color-primary:#b52a20;--color-base-100:#141010;}';
 
@@ -236,7 +244,7 @@ test('the two packages are named, and each dist sits under its own layer', () =>
   assert.equal(distDir('react', '/x'), join('/x', 'frameworks', 'react', 'dist'));
 });
 
-test('the repository passes its own equivalence claim, over more than nothing', () => {
+test('the repository passes its own equivalence claim, over more than nothing', { timeout: BUDGET }, () => {
   const { problems, compared } = collect(root);
   assert.deepEqual(problems, []);
   assert.ok(compared > 0, `${GENERATED_PALETTE} yielded no declaration to compare`);

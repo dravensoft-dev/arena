@@ -1,20 +1,20 @@
-/* Spawning tsc over a tsconfig, for the two gates that do it: check:react-types over
+/* Spawning tsc over a tsconfig, for the gates that do it: check:react-types over
  * the React layer and check:script-types over the tooling itself. It sits in lib/
  * because a gate importing another domain's gate would make the domain grid a lie,
  * and lib/ is the one direction always allowed. Placed in arena/ by the vocabulary
- * rule: tsc and tsconfig belong to no single layer. check:angular keeps its own
- * runner, sharing the shape and none of the code, because ngc emits into a temporary
- * tree rather than checking in place. `projectFiles()` is here so a gate can prove its
- * project matched something: a tsconfig whose globs match nothing compiles nothing and
- * reports clean, which is the one way a typecheck gate passes over an unread tree. tsc
- * is read through `childOutput()` and never a pipe, for the reason stated there. */
+ * rule: tsc and tsconfig belong to no single layer. ngc is another compiler, and the Angular
+ * layer's verdict is the emit of build:angular-tests (check-all.ts:ANGULAR_EMIT). One spawn
+ * answers both questions a gate asks: `--listFiles` prints the files the program read after
+ * the diagnostics, so a gate can prove its project matched something without building twice,
+ * and a line the listing cannot place is an error. tsc runs through spawnForwarding, so an
+ * interrupt of the gate ends it too, and its output is read from a file. */
 
 import { existsSync } from 'node:fs';
-import { join } from 'node:path';
+import { isAbsolute, join } from 'node:path';
 import { relPosix } from '../../utils/posix-path.ts';
 import { repoRoot } from './repo-root.ts';
-import { childOutput } from './child-output.ts';
-import { cachedReading } from './artifact-cache.ts';
+import { endIfInterrupted, spawnForwarding } from './spawn-forwarding.ts';
+import { cachedReadingAsync } from './artifact-cache.ts';
 import { deadline, type Deadline } from './deadline.ts';
 
 export const TSC_SPAWN: Deadline = deadline('typecheck:spawn', 30_000,
@@ -31,39 +31,52 @@ export function tscBin(root = repoRoot) {
   return bin;
 }
 
-function runTsc(args: string[], root: string) {
-  const r = childOutput(process.execPath, [tscBin(root), ...args]);
+async function runTsc(args: string[], root: string) {
+  const r = await spawnForwarding(process.execPath, [tscBin(root), ...args], { capture: true });
+  endIfInterrupted('typecheck', r);
   if (r.error) throw new Error(`tsc failed to spawn: ${r.error.message || r.error}`);
-  return { status: r.status, output: r.output };
+  if (r.signal) throw new Error(`tsc ended on ${r.signal}, which nothing here sent\n${r.output.trim()}`);
+  return { status: r.status ?? 1, output: r.output };
 }
 
-export function typecheck(opts: TypecheckOptions = {}) {
-  const root = opts.root ?? repoRoot;
-  if (!opts.project) throw new Error('typecheck: no project given, and checking nothing reports nothing wrong');
-  return runTsc(['--noEmit', '-p', join(root, opts.project)], root);
+export const LISTED = /\.(d\.[cm]?ts|[cm]?[jt]sx?|json)$/;
+
+export function splitListing(output: string, project: string) {
+  const lines = output.split('\n').map((line) => line.replace(/\r$/, ''));
+  while (lines.length > 0 && lines[lines.length - 1]?.trim() === '') lines.pop();
+  const first = lines.findIndex((line) => isAbsolute(line) && LISTED.test(line));
+  if (first === -1) {
+    throw new Error(`tsc could not read ${project}: it listed no file it read\n${output.trim()}`);
+  }
+  const files = lines.slice(first);
+  const stray = files.find((line) => !isAbsolute(line) || !LISTED.test(line));
+  if (stray !== undefined) {
+    throw new Error(`tsc printed ${JSON.stringify(stray)} among the files it read for ${project}, which is `
+      + 'neither a file nor a diagnostic printed before them, so the listing cannot be read');
+  }
+  return { files, diagnostics: lines.slice(0, first).join('\n') };
 }
 
-export function projectFiles(opts: TypecheckOptions = {}) {
+export async function compileListing(opts: TypecheckOptions = {}) {
   const root = opts.root ?? repoRoot;
-  if (!opts.project) throw new Error('projectFiles: no project given, and checking nothing reports nothing wrong');
-  const { status, output } = runTsc(['-p', join(root, opts.project), '--listFilesOnly'], root);
-  if (status !== 0) throw new Error(`tsc could not read ${opts.project}:\n${output.trim()}`);
-  return output.split('\n').map((line) => line.trim()).filter(Boolean);
+  if (!opts.project) throw new Error('compileListing: no project given, and checking nothing reports nothing wrong');
+  const { status, output } = await runTsc(['--noEmit', '--listFiles', '--pretty', 'false', '-p', join(root, opts.project)], root);
+  return { status, ...splitListing(output, opts.project) };
 }
 
 export type Verdict = { reach: string[]; status: number; output: string };
 
-export function verdictFor(project: string, candidates: string[], root = repoRoot): Verdict {
+export async function verdictFor(project: string, candidates: string[], root = repoRoot): Promise<Verdict> {
   if (candidates.length === 0) {
     throw new Error(`verdictFor: ${project} was handed 0 candidate(s). The reach an entry carries `
       + 'covers what the compiler read LAST time, so the candidates are the only thing that notices '
       + 'a file arriving; with none, a new source would join the project and the held verdict would '
       + 'answer for a tree it never saw');
   }
-  return cachedReading<Verdict>(`typecheck-${project}`, [project, ...candidates], () => {
-    const reach = projectFiles({ project, root }).map((path) => relPosix(root, path));
-    const { status, output } = typecheck({ project, root });
-    return { value: { reach, status, output }, read: reach, keep: status === 0 };
+  return cachedReadingAsync<Verdict>(`typecheck-${project}`, [project, ...candidates], async () => {
+    const { status, files, diagnostics } = await compileListing({ project, root });
+    const reach = files.map((path) => relPosix(root, path));
+    return { value: { reach, status, output: diagnostics }, read: reach, keep: status === 0 };
   }, root);
 }
 

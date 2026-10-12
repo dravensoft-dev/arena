@@ -368,20 +368,19 @@ export const ROUTES: Route[] = [
       + 'the domain the gate lands in',
     entry: 'contributor',
     stops: ['scripts/AGENTS.md', 'scripts/check/AGENTS.md', 'scripts/check/*/AGENTS.md'],
-    budget: 89_300,
+    budget: 93_900,
     reason:
       'the route a contributor takes most often after the component one, and the one whose last '
-      + 'stop grows every time a gate lands, since each gate has a row in its domain\'s table. The '
+      + 'stop grows every time a gate lands, because each gate has a row in its domain\'s table. The '
       + 'headroom is a few rows wide on purpose: a budget a single new row breaks reports the row '
       + 'rather than the growth it is there to report. A row states the claim and the failure the '
       + 'gate exists for, and the rest of its argument belongs to the gate\'s own reason strings, '
       + 'which its paired suite asserts by name; check:docs caps a table cell, so a row cannot '
       + 'become the page. Before writing a row, measure the median and the '
       + 'longest row of the domain table, because the row that breaks a budget is the long one and '
-      + 'the median is what says how often that happens. The families and neutrality rows of the '
-      + 'arena domain table state what the gates refuse: axis lists, keyed families and an '
-      + 'enum of option values, and the classes row names the vocabulary page as a second home for an '
-      + 'option of a component family, and the appearance and neutrality rows name the chart alias and the description alias guards, and the parts, role-token and families rows what each refuses, the mark hue among them. The geometry gates each carry a row.',
+      + 'the median is what says how often that happens. The rows of the arena domain table '
+      + 'state what their gates refuse, and the check page carries its section on the sweep running '
+      + 'side by side, its pools and --jobs.',
   },
   {
     name: 'contributor-tailwind',
@@ -423,7 +422,7 @@ export const ROUTES: Route[] = [
       + 'package is, and what CI does with the tag once it exists',
     entry: 'contributor',
     stops: ['versioning_steps.md', 'frameworks/PACKAGING.md', '.github/workflows/AGENTS.md'],
-    budget: 69_600,
+    budget: 72_900,
     reason:
       'the least frequent route on the branch and the most expensive one to get wrong, because '
       + 'every one of its failures publishes nothing and errors nowhere. The sequence is the first '
@@ -435,7 +434,10 @@ export const ROUTES: Route[] = [
       + 'never reads; each package has a publisher of its own, one of them npm for the attestation '
       + 'Bun cannot give; a first publish needs a trusted publisher configured by hand; and the '
       + 'corpus and the components travel apart, so both are installed to check them. Each is this '
-      + 'route\'s failure mode: nothing errors, and nobody is told.',
+      + 'route\'s failure mode: nothing errors, and nobody is told. The page also says which target a '
+      + 'publish that misses its cache builds; check:consumer refuses an unassembled package '
+      + 'rather than building one; pull requests, develop and main verify through one reusable '
+      + 'workflow, and which suites read them.',
   },
 ];
 

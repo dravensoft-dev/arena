@@ -1,22 +1,26 @@
-/* The emit is skipped when no input has moved since the last one, because `bun run test` and
- * `bun run check` both run this first and the compile costs around 17 seconds against suites that
- * cost around 12. Freshness is a stamp this script writes after a successful emit, never the
- * outputs' own times: `ngc` is incremental and does not rewrite a file it did not change, so the
- * oldest output stays as old as the last time that one file changed. An equal timestamp rebuilds.
- * The stamp also records which inputs it compiled, because deleting a source bumps no surviving
- * file's time and a compared timestamp alone would skip. `--force` compiles unconditionally. */
+/* One ngc program over the whole Angular layer, its suites and every page entry, under
+ * strictTemplates: its exit is the layer's type verdict, its tree is what the suites run and what
+ * build:angular-demo bundles, so the layer is compiled once rather than once per reader. The emit
+ * is skipped when no input differs from the last one, because `bun run build`, `bun run test` and
+ * `bun run check` all run it. Freshness is a stamp this script writes after a successful emit,
+ * never the outputs' own times: `ngc` is incremental and does not rewrite a file it did not
+ * change. The stamp records each compiled input's path, size, mtime and sha256. An input whose
+ * size and mtime match is unchanged unread; one whose time moved is hashed, and only other
+ * content is stale, so a rewrite of the same bytes costs no compile. The package in dist/ is no
+ * input: ngc never reads it. An added or deleted input is stale too. `--force` compiles. */
 
-import { spawnSync } from 'node:child_process';
 import { join, relative } from 'node:path';
-import { existsSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { existsSync, rmSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { isMainModule } from '../../utils/main-module.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { relPosix } from '../../utils/posix-path.ts';
 import { readJson } from '../../utils/read-file.ts';
-import { ngcBin } from '../../check/angular/check-angular.ts';
+import { ngcBin } from '../../lib/angular/ngc-bin.ts';
 import { angularEmitRoot } from '../../lib/angular/emit-root.ts';
+import { stampOf, type Stamp } from '../../graph/inputs.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
+import { endIfInterrupted, spawnForwarding } from '../../lib/arena/spawn-forwarding.ts';
 
 const PROJECT = 'frameworks/angular/tsconfig.test.json';
 const OUT_DIR = join(repoRoot, 'frameworks', 'angular', 'build', 'test');
@@ -37,14 +41,14 @@ export const LAYER = 'frameworks/angular';
 export const node = {
   name: 'build:angular-tests',
   reads: [
-    `${LAYER}/**/*.ts`, `${LAYER}/**/*.json`, '!frameworks/angular/build/**',
+    `${LAYER}/**/*.ts`, `${LAYER}/**/*.json`, '!frameworks/angular/build/**', '!frameworks/angular/dist/**',
+    '!frameworks/angular/*.md/**',
     'package.json', 'bun.lock',
   ],
   writes: [`${LAYER}/build/test/**`],
-  feeds: [],
-  runsBeforeSuites: 'bun run test and check-all\'s testStep() run it immediately before the suites '
-    + 'that read the emit, so staleness there is prevented by ordering rather than by a gate. A '
-    + 'build that emitted it would be emitting a tree no build step reads',
+  feeds: ['build:angular-demo'],
+  pool: 'compiler' as const,
+  cost: 21.2,
 };
 
 function pruneOrphans(dir: string) {
@@ -90,51 +94,87 @@ export function missingEmitProblems(sourceTests: string[], emittedTests: string[
   return problems;
 }
 
-function collectInputs() {
-  const out = walkFiles(LAYER_ROOT, { skip: (_name, path) => path === EMITTED })
-    .filter((full) => full.endsWith('.ts') || full.endsWith('.json'))
-    .map(stamp);
-  for (const path of EXTERNAL_INPUTS) if (existsSync(path)) out.push(stamp(path));
+export type Recorded = Record<string, Stamp>;
+
+export function collectInputs(
+  repo = repoRoot, layer = LAYER_ROOT, skipDirs = [join(layer, 'build'), join(layer, 'dist')],
+  external = EXTERNAL_INPUTS,
+) {
+  const out = walkFiles(layer, { skip: (_name, path) => skipDirs.includes(path) })
+    .filter((full) => full.endsWith('.ts') || full.endsWith('.json'));
+  for (const path of external) if (existsSync(path)) out.push(path);
+  return out.map((full) => relPosix(repo, full));
+}
+
+export function emitStaleness(
+  repo = repoRoot, layer = LAYER_ROOT, stampFile = STAMP, skipDirs?: string[], external = EXTERNAL_INPUTS,
+) {
+  return stalenessReason(repo, collectInputs(repo, layer, skipDirs, external), readStamp(stampFile));
+}
+
+export function recordInputs(repo: string, paths: string[], previous: Recorded = {}) {
+  const out: Recorded = {};
+  for (const path of paths) out[path] = stampOf(join(repo, path), previous[path]);
   return out;
 }
 
-function stamp(path: string) {
-  return { path: relPosix(repoRoot, path), mtimeMs: statSync(path).mtimeMs };
-}
+const isStamp = (one: any): one is Stamp => one !== null && typeof one === 'object'
+  && typeof one.size === 'number' && typeof one.mtimeMs === 'number' && typeof one.hash === 'string';
 
-function readStamp() {
-  if (!existsSync(STAMP)) return null;
+export function readStamp(file = STAMP): { inputs: Recorded } | { problem: string } | null {
+  if (!existsSync(file)) return null;
+  let parsed;
   try {
-    return { mtimeMs: statSync(STAMP).mtimeMs, paths: readJson(STAMP).paths };
-  } catch {
-    return null;
+    parsed = readJson(file);
+  } catch (err) {
+    return { problem: `the emit stamp cannot be read (${(err as Error).message})` };
   }
+  const inputs = parsed?.inputs;
+  if (inputs === null || typeof inputs !== 'object' || !Object.values(inputs).every(isStamp)) {
+    return { problem: 'the emit stamp is in a shape that holds no content hashes, so nothing is known about what was compiled' };
+  }
+  return { inputs };
 }
 
 export function stalenessReason(
-  inputs: { path: string; mtimeMs: number }[],
-  stamped: { paths?: string[]; mtimeMs: number } | null,
+  repo: string,
+  paths: string[],
+  stamped: { inputs: Recorded } | { problem: string } | null,
 ) {
   if (stamped === null) return 'no emit stamp is present, so nothing is known about what was compiled';
-  if (inputs.length === 0) return 'no input was found to compare the emit against';
-  const compiled = new Set(stamped.paths ?? []);
-  const added = inputs.find((one: { path: string }) => !compiled.has(one.path));
-  if (added) return `${added.path} was not compiled into the last emit`;
-  if (compiled.size !== inputs.length) {
-    const present = new Set(inputs.map((one: { path: string }) => one.path));
-    return `${[...compiled].find((path) => !present.has(path))} is gone since the last emit`;
+  if ('problem' in stamped) return stamped.problem;
+  if (paths.length === 0) return 'no input is found to compare the emit against';
+  const compiled = stamped.inputs;
+  const added = paths.find((path) => !(path in compiled));
+  if (added) return `${added} is not among the inputs the last emit compiled`;
+  if (Object.keys(compiled).length !== paths.length) {
+    const present = new Set(paths);
+    return `${Object.keys(compiled).find((path) => !present.has(path))} is among the inputs the last emit compiled and is not on disk`;
   }
-  const newestInput = inputs.reduce((a, b) => (b.mtimeMs > a.mtimeMs ? b : a));
-  if (newestInput.mtimeMs >= stamped.mtimeMs) return `${newestInput.path} is not older than the last emit`;
+  for (const path of paths) {
+    let current;
+    try {
+      current = stampOf(join(repo, path), compiled[path]);
+    } catch (err) {
+      return `${path} cannot be read (${(err as Error).message})`;
+    }
+    if (current.hash !== compiled[path]!.hash) return `${path} holds other content than the last emit compiled`;
+  }
   return null;
 }
 
-function main() {
+export async function compileTests(bin: string, project: string, cwd: string) {
+  const r = await spawnForwarding(process.execPath, [bin, '-p', project], { cwd });
+  endIfInterrupted('build-angular-tests', r);
+  return r;
+}
+
+async function main() {
   if (!process.argv.includes('--force')) {
-    const reason = stalenessReason(collectInputs(), readStamp());
+    const reason = emitStaleness();
     if (reason === null) {
       console.log(
-        'build-angular-tests: no input has moved since the last emit, so ngc is not run. '
+        'build-angular-tests: no input differs from what the last emit compiled, so ngc is not run. '
         + 'Compile anyway with --force.',
       );
       verifyEmit();
@@ -143,6 +183,7 @@ function main() {
     console.log(`build-angular-tests: compiling, because ${reason}`);
   }
 
+  const inputs = recordInputs(repoRoot, collectInputs());
   let bin;
   try {
     bin = ngcBin(repoRoot);
@@ -150,18 +191,22 @@ function main() {
     console.error(`build-angular-tests: ${(err as Error).message}`);
     process.exit(1);
   }
-  const r = spawnSync(process.execPath, [bin, '-p', join(repoRoot, PROJECT)], { stdio: 'inherit', cwd: repoRoot });
+  const r = await compileTests(bin, join(repoRoot, PROJECT), repoRoot);
   if (r.error) {
     console.error(`build-angular-tests: ngc failed to spawn: ${r.error.message || r.error}`);
     process.exit(1);
   }
+  if (r.signal) {
+    console.error(`build-angular-tests: ngc ended on ${r.signal}, which this step did not send, so the Angular layer is not compiled`);
+    process.exit(1);
+  }
   if (r.status !== 0) {
-    console.error('\nbuild-angular-tests: the Angular test surface does not compile, so its suites cannot run');
+    console.error('\nbuild-angular-tests: the Angular layer does not compile under strictTemplates, so its suites cannot run and its demo pages cannot be built');
     process.exit(r.status ?? 1);
   }
-  console.log('build-angular-tests: the Angular test surface compiled to frameworks/angular/build/test');
+  console.log('build-angular-tests: the Angular layer compiled to frameworks/angular/build/test');
   verifyEmit();
-  writeFileSync(STAMP, JSON.stringify({ at: new Date().toISOString(), paths: collectInputs().map((one) => one.path) }));
+  writeFileSync(STAMP, JSON.stringify({ at: new Date().toISOString(), inputs }));
 }
 
 function verifyEmit() {
@@ -185,4 +230,4 @@ function verifyEmit() {
   }
 }
 
-if (isMainModule(import.meta.url)) main();
+if (isMainModule(import.meta.url)) await main();

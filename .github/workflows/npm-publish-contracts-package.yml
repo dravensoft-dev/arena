@@ -164,13 +164,15 @@ jobs:
             frameworks/angular/dist
             frameworks/angular/build
             dist/contracts
+            dist/mcp
+            dist/site
           key: arena-build-${{ runner.os }}-${{ github.event.workflow_run.head_sha || github.sha }}
 
       # A miss is expected rather than exceptional: a cache is evicted after seven days
       # unread, and a hand dispatch can ask about a commit whose run is long past.
-      - name: assemble the package, if that cache was not there
+      - name: build this package and every step it reads from, if that cache is not there
         if: steps.build.outputs.cache-hit != 'true'
-        run: bun run build:release
+        run: bun scripts/graph/run-build.ts --force --assert-full --target=build:contracts-package
 
       # The payload is the tree's own contract set byte for byte, and the manifest leans on no
       # npm semantics. Both are the tarball's whole claim, so both are asked before it is packed.

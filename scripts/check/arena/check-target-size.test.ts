@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   INTERACTIVE, PHONE, SCOPES, UNSIZED, measureExpression, staleUnsizedProblems, undersized,
-  zeroMeasuredProblems, ARGUED, arguedProblems, dimensionAt,
+  zeroMeasuredProblems, unmeasuredProblem, ARGUED, arguedProblems, dimensionAt,
 } from './check-target-size.ts';
 
 const at = (over: Partial<Parameters<typeof undersized>[0][number]> = {}) => ({
@@ -109,4 +109,21 @@ test('dimensionAt reads a px dimension and refuses anything else', () => {
   assert.equal(dimensionAt(json, 'dz.b'), null, 'a rem is not the unit the floor is compared in');
   assert.equal(dimensionAt(json, 'dz.missing'), null);
   assert.equal(dimensionAt(json, 'nope.a'), null);
+});
+
+test('a density that never painted after the network changed says the host changed, and a throw keeps its sentence', () => {
+  const changed = [{ url: 'http://127.0.0.1:1/entry.js', errorText: 'net::ERR_NETWORK_CHANGED' }];
+  const silence = { readyState: 'complete', elements: 3, errors: [], scripts: [] };
+  const lost = unmeasuredProblem('default compact/react: the page',
+    { painted: { ready: false, waitedMs: 40_000 }, silence, changed });
+  assert.match(lost ?? '', /host's network changed while the page loaded/);
+
+  const threw = unmeasuredProblem('default compact/react: the page',
+    { painted: { ready: false, waitedMs: 3 }, silence, changed, threw: 'TypeError: x' });
+  assert.match(threw ?? '', /threw while the gate was reading it/);
+
+  const plain = unmeasuredProblem('default compact/react: the page',
+    { painted: { ready: false, waitedMs: 40_000 }, silence, changed: [] });
+  assert.match(plain ?? '', /never signalled that it had painted, within/);
+  assert.equal(unmeasuredProblem('x', { painted: { ready: true, waitedMs: 1 }, silence, changed: [] }), null);
 });

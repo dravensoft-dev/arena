@@ -83,7 +83,7 @@ render, the card is a plain surface.
 - Don't nest a card inside a card. The surface scale has three steps and a card is
   one of them; a card on a card reads as a mistake rather than as depth.
 
-**By hand, in a real browser** (`bun run build:angular-demo && bun run demos`, then
+**By hand, in a real browser** (`bun run demos`, then
 `frameworks/angular/components/display/arena-card/ArenaCard.demo.generated.html`):
 - An interactive card takes the hover surface, and one Tab reaches it and shows the focus ring.
   Enter and Space both open it, and Space does not scroll the page underneath.

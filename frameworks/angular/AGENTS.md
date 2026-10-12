@@ -336,14 +336,14 @@ overlay in a real browser, which is where a z-index that stacks wrongly is visib
 
 ## Verifying the layer
 
-`bun run check:angular` compiles every primitive with `ngc` under `strictTemplates`
-(`tsconfig.check.json`), and it reaches a primitive **through the barrel**, so a
-primitive missing from its own `index.ts`, its category's, `components/index.ts` or the
-layer's `index.ts` is not typechecked, and no adopter can import it from the layer root
-either. `test/Barrels.test.ts` walks that chain and fails on a gap; what a barrel
-deliberately withholds is named in its `PRIVATE`/`ROOT_PRIVATE` maps with a reason each,
-under the same bidirectional staleness rule the other records carry. Each manifest-backed
-primitive also has a static specimen at
+`bun run build:angular-tests` compiles the whole layer with `ngc` under `strictTemplates`, in one
+program over every primitive, suite and page entry (`tsconfig.test.json`, which extends
+`tsconfig.check.json`), and its exit is the layer's type verdict. A primitive missing from its own
+`index.ts`, its category's, `components/index.ts` or the layer's `index.ts` still compiles, and no
+adopter can import it from the layer root. `test/Barrels.test.ts` walks that chain and fails on a
+gap; what a barrel deliberately withholds is named in its `PRIVATE`/`ROOT_PRIVATE` maps with a
+reason each, under the same bidirectional staleness rule the other records carry. Each
+manifest-backed primitive also has a static specimen at
 `frameworks/tailwind/components/<category>/<component-kebab>/<Component>.card.html`,
 which renders the real markup
 with the real recipe and no Angular executed. A specimen therefore proves the *recipe*,
@@ -358,10 +358,9 @@ observable in happy-dom. It is generated from the component's API contract and i
 `frameworks/demos/` fixture into this layer and into every other, so the page for a component
 differs from another layer's by one path segment and takes the same query string. That is what
 makes a difference between two pages a difference in the component.
-`bun run demos` builds the pages and serves them; the build is `bun run build:angular-demo`,
-two steps because neither tool does the other's job: `ngc -p tsconfig.demo.json` compiles the
-templates AOT, and `Bun.build` bundles that output for a browser, one shared Angular chunk
-across every page. An entry imports `@angular/compiler` because `@angular/*` ships partially
+`bun run demos` builds the pages and serves them; `bun run build:angular-demo` bundles the page
+entries the one `ngc` program compiled into `build/test/` with `Bun.build`, one shared Angular
+chunk across every page. An entry imports `@angular/compiler` because `@angular/*` ships partially
 compiled and its injectables need the JIT fallback; without it the page throws before mounting.
 
 The bundle is git-ignored build output, which is why **no Angular page declares `@dsCard`**:
@@ -467,7 +466,7 @@ error anywhere in the test surface, a template diagnostic in an inline `template
 included, fails the *build* step, and no test in that run executes at all. Staleness is prevented
 by the build always running ahead of the tests that read it, and `build-angular-tests.ts` prunes
 output whose source is gone, because `ngc` does not. **The compile itself is skipped when no input
-has moved since the last one**, which is what keeps a step that costs around seventeen seconds
+differs from what the last one compiled**, which is what keeps a step that costs around seventeen seconds
 ahead of suites that cost around twelve; `--force` compiles anyway, and the rule it decides by is
 its own document's.
 

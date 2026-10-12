@@ -1,10 +1,19 @@
+/* Covers the staging and the manifest of build-angular-package.ts, and the .npmignore it rewrites
+ * so the nested package.json lines follow SECONDARY_ENTRY_POINTS whatever order ng-packagr
+ * found them in, and that an interrupt of the step ends the ng-packagr it spawned. */
+
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
 import { join, posix } from 'node:path';
+import { platform } from '../../lib/arena/platform.ts';
+import { budgetFor } from '../../lib/arena/deadline.ts';
+import { TERM_GRACE } from '../../lib/arena/child-output.ts';
+import { PROBE_ENDED, PROBE_SPAWNED, assertCompilerEnded, probeInterrupt } from '../../lib/arena/forwarding-probe.ts';
 import {
   manifest, ngPackageConfig, libTsconfig, withAssets, ngPackagrBin, annotatePure,
   NAME, RUNTIME_DEPENDENCIES, STAGING, LAYER, VARIANTS, SECONDARY_ENTRY_POINTS, rewriteEntryImports,
+  normalNpmignore,
 } from './build-angular-package.ts';
 import { version, collectFiles, CLI_BINS } from '../../lib/arena/package-assembly.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
@@ -106,4 +115,53 @@ test('a secondary entry point reaches its primary by the package name, never by 
     + "import { ArenaInput } from '@dravensoft/arena-angular';\n"
     + "import { ArenaSwitchControl } from './ArenaSwitchControl';\n");
   assert.deepEqual(SECONDARY_ENTRY_POINTS, ['metadata', 'forms']);
+});
+
+const HEADER = "# Nested package.json's are only needed for development.";
+const METADATA_FIRST = `${HEADER}\nmetadata/package.json\nforms/package.json`;
+
+test('the nested manifests are listed in the order the entry points are declared', () => {
+  const rows = [
+    { found: `${HEADER}\nforms/package.json\nmetadata/package.json`, out: METADATA_FIRST },
+    { found: METADATA_FIRST, out: METADATA_FIRST },
+  ];
+  let walked = 0;
+  for (const { found, out } of rows) {
+    assert.equal(normalNpmignore(found), out);
+    walked += 1;
+  }
+  assert.equal(walked, 2);
+  assert.equal(METADATA_FIRST, [HEADER, ...SECONDARY_ENTRY_POINTS.map((e) => `${e}/package.json`)].join('\n'));
+});
+
+test('a set of lines that differs from the entry points is refused with a sentence naming what differs', () => {
+  const rows = [
+    { found: `${HEADER}\nmetadata/package.json`, names: 'forms/package.json' },
+    { found: `${METADATA_FIRST}\nrouter/package.json`, names: 'router/package.json' },
+    { found: 'metadata/package.json\nforms/package.json', names: 'header' },
+    { found: `${METADATA_FIRST}\nmetadata/package.json`, names: 'repeated lines ["metadata/package.json"]' },
+    { found: `${METADATA_FIRST}\n`, names: 'extra lines [""]' },
+  ];
+  let walked = 0;
+  for (const { found, names } of rows) {
+    assert.throws(() => normalNpmignore(found), (error: Error) => {
+      assert.match(error.message, /^build-angular-package: /);
+      assert.ok(error.message.includes(names), error.message);
+      return true;
+    });
+    walked += 1;
+  }
+  assert.equal(walked, rows.length);
+  assert.equal(rows.length, 5);
+});
+
+test('an interrupt of the package step ends the ng-packagr it spawned and prints what it wrote', {
+  timeout: budgetFor(PROBE_SPAWNED, PROBE_ENDED, TERM_GRACE),
+  skip: platform === 'win32' ? 'a signal sent to a process is a POSIX idea' : false,
+}, async () => {
+  const probed = await probeInterrupt({
+    module: join(import.meta.dirname, 'build-angular-package.ts'),
+    body: 'await step.runNgPackagr(stub, root);',
+  });
+  assertCompilerEnded(probed, true);
 });

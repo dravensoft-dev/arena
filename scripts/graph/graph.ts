@@ -4,13 +4,16 @@
  * needsOf(). Ties in the order are broken by the position a node was collected at, so the sequence
  * a run prints is stable rather than whatever the queue happened to hold. */
 
+import type { Pool } from './pools.ts';
+
 export type GraphNode = {
   name: string;
   reads: string[];
   writes: string[];
   feeds: string[];
   releaseOnly?: string;
-  runsBeforeSuites?: string;
+  pool?: Pool | undefined;
+  cost?: number | undefined;
 };
 
 export type Resolve = (specs: string[]) => string[];
@@ -99,6 +102,20 @@ export function transitiveFeeds(nodes: GraphNode[], from: string) {
       if (reached.has(fed) || !known.has(fed)) continue;
       reached.add(fed);
       walk(fed);
+    }
+  };
+  walk(from);
+  return reached;
+}
+
+export function upstreamOf(nodes: GraphNode[], from: string) {
+  const needs = needsOf(nodes);
+  const reached = new Set<string>();
+  const walk = (name: string) => {
+    for (const need of needs.get(name) ?? []) {
+      if (reached.has(need)) continue;
+      reached.add(need);
+      walk(need);
     }
   };
   walk(from);

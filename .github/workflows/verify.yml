@@ -1,0 +1,225 @@
+name: Arena verify
+
+# Called by Arena PR, Arena develop and Arena main, and never run on its own. A called workflow
+# takes none of its caller's env, so what a caller decides arrives as an input: the domains to
+# verify, and the browser only Arena main names.
+
+on:
+  workflow_call:
+    inputs:
+      domains:
+        description: the check-all domains to verify, comma-separated; the suites follow them
+        type: string
+        required: true
+      chrome-path:
+        description: the browser the gates use; empty leaves them to find one on the candidate list
+        type: string
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+
+env:
+  BUN_VERSION: 1.3.14
+  # An empty value is no value to findChromium, so a caller that names no browser proves discovery.
+  CHROME_PATH: ${{ inputs.chrome-path }}
+
+jobs:
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+      - uses: actions/cache@v6
+        with:
+          path: ~/.bun/install/cache
+          key: bun-cache-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+          restore-keys: bun-cache-${{ runner.os }}-
+      - run: bun install --frozen-lockfile
+
+      - name: build and assemble, every step run
+        run: bun run build:release
+
+      - name: the build is idempotent, so a tracked file it rewrote is a generator out of step
+        run: git diff --exit-code
+
+      # The Angular package's .npmignore and the emit's stamp open with a dot, and upload-artifact
+      # leaves such files out unless told otherwise. overwrite lets a re-run of every job replace
+      # the first attempt's build rather than fail on its name.
+      - name: the build this run hands to its gates and suites
+        uses: actions/upload-artifact@v7
+        with:
+          name: arena-build-${{ github.run_id }}
+          path: |
+            frameworks/**/*.generated.*
+            frameworks/react/dist
+            frameworks/angular/dist
+            frameworks/angular/build
+            dist/contracts
+            dist/mcp
+            dist/site
+          include-hidden-files: true
+          if-no-files-found: error
+          overwrite: true
+          retention-days: 1
+
+  gates:
+    name: gates
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+      - uses: actions/cache@v6
+        with:
+          path: ~/.bun/install/cache
+          key: bun-cache-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+          restore-keys: bun-cache-${{ runner.os }}-
+      - run: bun install --frozen-lockfile
+      - name: the build this run made
+        uses: actions/download-artifact@v8
+        with:
+          name: arena-build-${{ github.run_id }}
+
+      - name: every gate of the selected domains, side by side
+        env:
+          DOMAINS: ${{ inputs.domains }}
+        run: bun scripts/check/arena/check-all.ts --no-tests --domain="$DOMAINS"
+
+  suites-scripts:
+    name: suites under scripts/
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+      - uses: actions/cache@v6
+        with:
+          path: ~/.bun/install/cache
+          key: bun-cache-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+          restore-keys: bun-cache-${{ runner.os }}-
+      - run: bun install --frozen-lockfile
+      - name: the build this run made
+        uses: actions/download-artifact@v8
+        with:
+          name: arena-build-${{ github.run_id }}
+
+      - name: suites under scripts/
+        run: bun run ci:summarize --suite=scripts
+
+      - name: the report the summary joins
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: junit-scripts
+          path: .cache/junit/scripts.xml
+          include-hidden-files: true
+          if-no-files-found: error
+          overwrite: true
+          retention-days: 1
+
+  suites-react:
+    name: suites react
+    needs: [build]
+    if: contains(format(',{0},', inputs.domains), ',react,')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+      - uses: actions/cache@v6
+        with:
+          path: ~/.bun/install/cache
+          key: bun-cache-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+          restore-keys: bun-cache-${{ runner.os }}-
+      - run: bun install --frozen-lockfile
+      - name: the build this run made
+        uses: actions/download-artifact@v8
+        with:
+          name: arena-build-${{ github.run_id }}
+
+      - name: suites with no DOM
+        run: bun run ci:summarize --suite=react
+
+      - name: DOM suites, in a process of their own
+        if: ${{ !cancelled() }}
+        run: bun run ci:summarize --suite=react-dom
+
+      - name: the reports the summary joins
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: junit-react
+          path: |
+            .cache/junit/react.xml
+            .cache/junit/react-dom.xml
+          include-hidden-files: true
+          if-no-files-found: error
+          overwrite: true
+          retention-days: 1
+
+  suites-angular:
+    name: suites angular
+    needs: [build]
+    if: contains(format(',{0},', inputs.domains), ',angular,')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+      - uses: actions/cache@v6
+        with:
+          path: ~/.bun/install/cache
+          key: bun-cache-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+          restore-keys: bun-cache-${{ runner.os }}-
+      - run: bun install --frozen-lockfile
+      - name: the build this run made
+        uses: actions/download-artifact@v8
+        with:
+          name: arena-build-${{ github.run_id }}
+
+      - name: the emit, which the restored stamp answers, then the suites off it
+        run: bun run ci:summarize --suite=angular
+
+      - name: the report the summary joins
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: junit-angular
+          path: .cache/junit/angular.xml
+          include-hidden-files: true
+          if-no-files-found: error
+          overwrite: true
+          retention-days: 1
+
+  summarize:
+    name: summarize
+    needs: [suites-scripts, suites-react, suites-angular]
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    env:
+      DOMAINS: ${{ inputs.domains }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+      - name: every report the suite jobs wrote
+        uses: actions/download-artifact@v8
+        with:
+          pattern: junit-*
+          path: .cache/junit
+          merge-multiple: true
+
+      - name: the whole suite, counted per domain
+        run: bun run ci:summarize --join --domains="$DOMAINS"

@@ -82,7 +82,6 @@
     "check:script-reach": "bun scripts/check/arena/check-script-reach.ts",
     "check:intro": "bun scripts/check/arena/check-intro-generated.ts",
     "check:vendor": "bun scripts/check/react/check-vendor-generated.ts",
-    "check:angular": "bun scripts/check/angular/check-angular.ts",
     "check:angular-demos": "bun scripts/check/angular/check-angular-demos.ts",
     "check:assertions": "bun scripts/check/angular/check-assertions.ts",
     "check:cdk": "bun scripts/check/angular/check-cdk.ts",

@@ -1,20 +1,20 @@
-/* Two steps, because neither tool does the other's job: ngc compiles the templates
- * AOT into ESM that still carries bare @angular/* specifiers and extensionless
- * relative imports, and Bun.build resolves both into something a browser loads.
- * `splitting` keeps the Angular runtime in one shared chunk across every page. */
+/* Bundles the page entries build:angular-tests compiled. ngc emits ESM that still carries bare
+ * @angular/* specifiers and extensionless relative imports, and Bun.build resolves both into
+ * something a browser loads. `splitting` keeps the Angular runtime in one shared chunk across
+ * every page. The compile is not this step's: the layer is compiled once, into build/test, and
+ * read from there by the suites and by this bundle alike. */
 
-import { spawnSync } from 'node:child_process';
-import { basename, join, relative } from 'node:path';
+import { basename, join } from 'node:path';
 import { existsSync, rmSync } from 'node:fs';
 import { isMainModule } from '../../utils/main-module.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { relPosix } from '../../utils/posix-path.ts';
-import { ngcBin } from '../../check/angular/check-angular.ts';
 import { angularEmitRoot } from '../../lib/angular/emit-root.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
-const PROJECT = 'frameworks/angular/tsconfig.demo.json';
+import { emitStaleness } from './build-angular-tests.ts';
+
+const PROJECT = 'frameworks/angular/tsconfig.test.json';
 const OUT_DIR = join(repoRoot, 'frameworks', 'angular', 'build', 'demo');
-const TSC_DIR = join(OUT_DIR, 'tsc');
 const JS_DIR = join(OUT_DIR, 'js');
 const LAYER_ROOT = join(repoRoot, 'frameworks', 'angular');
 const EMIT_DIR = angularEmitRoot(join(repoRoot, PROJECT));
@@ -25,9 +25,9 @@ export const LAYER = 'frameworks/angular';
 export const node = {
   name: 'build:angular-demo',
   reads: [
-    `${LAYER}/components/**/*.ts`, `${LAYER}/components/**/*.html`,
-    `${LAYER}/playground/**/*.ts`, `${LAYER}/kitchen-sink/**/*.ts`,
-    `${LAYER}/*.ts`, `${LAYER}/tsconfig*.json`, 'package.json', 'bun.lock',
+    `${LAYER}/build/test/**`, `${LAYER}/components/**/*.entry.generated.ts`,
+    `${LAYER}/kitchen-sink/**/*.entry.generated.ts`, 'scripts/build/angular/build-angular-tests.ts',
+    'package.json', 'bun.lock',
   ],
   writes: [`${LAYER}/build/demo/**`],
   feeds: [
@@ -43,24 +43,6 @@ export const node = {
 export const ENTRY_SUFFIXES = ['.demo.entry.generated.js', '.sink.entry.generated.js'];
 
 export const isEntry = (name: string, ext = '.js') => ENTRY_SUFFIXES.some((s) => name.endsWith(s.replace('.js', ext)));
-
-function pruneOrphans(dir: string) {
-  const pruned: string[] = [];
-  if (!existsSync(dir)) return pruned;
-  for (const full of walkFiles(dir)) {
-    const rel = relPosix(EMIT_DIR, full);
-    let srcRel;
-    if (rel.endsWith('.js.map')) srcRel = rel.slice(0, -'.js.map'.length) + '.ts';
-    else if (rel.endsWith('.d.ts')) srcRel = rel.slice(0, -'.d.ts'.length) + '.ts';
-    else if (rel.endsWith('.js')) srcRel = rel.slice(0, -'.js'.length) + '.ts';
-    else continue;
-    if (srcRel.startsWith('..') || !existsSync(join(LAYER_ROOT, srcRel))) {
-      rmSync(full);
-      pruned.push(relPosix(repoRoot, full));
-    }
-  }
-  return pruned;
-}
 
 export function collectEntries(dir: string) {
   if (!existsSync(dir)) return [];
@@ -78,6 +60,13 @@ export function unbundledProblems(entryNames: string[], landed: string[], dir: s
       + `What did land: ${landed.length === 0 ? 'nothing at all' : landed.slice(0, 5).join(', ')}`);
 }
 
+export function staleEmitMessage(reason: string | null) {
+  if (reason === null) return null;
+  return `build-angular-demo: the emit in frameworks/angular/build/test is out of date, because ${reason}. `
+    + 'This step bundles that emit and compiles nothing, so run bun run build, or bun run '
+    + 'build:angular-tests, first';
+}
+
 export function missingEntryProblems(sourceEntries: string[], emittedEntries: string[], emitDir = relPosix(repoRoot, EMIT_DIR)) {
   const emitted = new Set(emittedEntries.map((f: string) => f.slice(0, -'.js'.length)));
   const problems = [];
@@ -86,7 +75,7 @@ export function missingEntryProblems(sourceEntries: string[], emittedEntries: st
     if (!emitted.has(stem)) {
       problems.push(
         `${src} has no corresponding emit in ${emitDir} -- `
-        + `ngc never compiled it (check tsconfig.demo.json's "include"), so its page loads nothing`,
+        + `ngc never compiled it (check tsconfig.test.json's "include"), so its page loads nothing`,
       );
     }
   }
@@ -109,26 +98,11 @@ async function main() {
     process.exit(2);
   }
 
-  let bin;
-  try {
-    bin = ngcBin(repoRoot);
-  } catch (err) {
-    console.error(`build-angular-demo: ${(err as Error).message}`);
+  const stale = staleEmitMessage(emitStaleness());
+  if (stale !== null) {
+    console.error(`\n${stale}\n`);
     process.exit(1);
   }
-
-  const r = spawnSync(process.execPath, [bin, '-p', join(repoRoot, PROJECT)], { stdio: 'inherit', cwd: repoRoot });
-  if (r.error) {
-    console.error(`build-angular-demo: ngc failed to spawn: ${r.error.message || r.error}`);
-    process.exit(1);
-  }
-  if (r.status !== 0) {
-    console.error('\nbuild-angular-demo: the Angular layer does not compile, so its demo pages cannot be built');
-    process.exit(r.status ?? 1);
-  }
-
-  const pruned = pruneOrphans(TSC_DIR);
-  if (pruned.length > 0) console.log(`build-angular-demo: pruned ${pruned.length} orphaned output file(s)`);
 
   const emitProblems = missingEntryProblems(
     collectSourceEntries(LAYER_ROOT),

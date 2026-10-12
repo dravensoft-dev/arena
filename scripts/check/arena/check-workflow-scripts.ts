@@ -6,8 +6,8 @@
  * path, and two packages were republished from a diff of the whole tree. Either half satisfies it:
  * install first, or import nothing outside node: and this tree. It reads a JOB rather than a
  * workflow, since installing in one says nothing about another, follows `bun run` through
- * package.json so a name cannot hide a path, and takes specifiers off the parse: a regular
- * expression whose source is an import statement fools every scan short of one. */
+ * package.json so a name cannot hide a path, and takes specifiers off the parse: a regex whose
+ * source is an import fools every scan short of one. A job layout it cannot read is a problem. */
 
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -20,7 +20,7 @@ import {
   isImportDeclaration, isStringLiteral, type Node,
 } from 'typescript';
 import { scriptClosure } from '../../graph/script-closure.ts';
-import { jobBlocks } from './check-portability.ts';
+import { jobBlocks, jobShapeProblems } from './check-portability.ts';
 import { isPathSpecifier } from '../../utils/module-graph.ts';
 
 export const node = {
@@ -86,7 +86,7 @@ export function workflowFiles(base = root) {
 }
 
 export function jobProblems(workflow: string, text: string, scripts: Record<string, string>, base = root) {
-  const problems: string[] = [];
+  const problems: string[] = [...jobShapeProblems(workflow, text)];
   let checked = 0;
 
   for (const [job, block] of jobBlocks(text)) {
