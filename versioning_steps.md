@@ -66,8 +66,9 @@ That runs all of them and also reports any gate that failed while the graph woul
 which is a defect in what that gate declares rather than in the gate. A release is the one run
 where a wrong declaration has to surface, because it is the run nothing downstream re-checks.
 
-`dist/` is git-ignored and no other build touches it, so it holds whatever was last built there,
-which after any component work is not what the tree says. `check:packages` reads both the version
+`dist/` is git-ignored and `bun run build:release` is not the only build that writes it, because
+`bun run build:packages` assembles into it too. It holds the output of the last build run there, which after
+any component work is not what the tree says. `check:packages` reads both the version
 stamp and whether every component `Components.json` declares is in the emitted type declarations, so a
 skipped rebuild reports itself rather than shipping. It compares the manifest it just assembled
 against `plugin.json`, which is why the bump is step 1: run in the other order and this gate fails on the

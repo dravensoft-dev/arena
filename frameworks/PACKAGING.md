@@ -108,7 +108,7 @@ before it eliminates it, so a router named anywhere in the primary graph is a ro
 adopter has to have installed, whether or not they call the thing that needs it. So the coupling
 is opt-in at the import site, and an adopter pays for it by asking for it.
 
-**That claim is held at both ends now, and the two halves fail at different times.** The grep above
+**That claim is held at both ends, and the two halves fail at different times.** The grep above
 re-derives it against the assembled package, which is what a released tarball actually promises;
 `check:architecture` holds it against the sources, failing an import of either peer from outside
 its entry point or from the root's import closure, and failing an optional declaration being
@@ -316,7 +316,7 @@ name is not the API" above before treating a manifest edit as a break.
 
 ## What `check:packages` holds
 
-**That the two palette emitters agree.** There are now two things that turn a palette into
+**That the two palette emitters agree.** There are two things that turn a palette into
 CSS: Style Dictionary, which serves this repository, and `arena build`, which serves a
 consumer who has no repository. The gate builds a config out of Arena's own skin, runs the
 CLI over it, and asserts every `--color-*` declaration matches
@@ -346,7 +346,7 @@ git tag -a vX.Y.Z -m "Arena vX.Y.Z"
 git push origin main --follow-tags
 ```
 
-`--follow-tags` matters here for a second reason now: the workflow runs `check-release.ts`
+`--follow-tags` matters here for a second reason: the workflow runs `check-release.ts`
 before it publishes anything, and that gate refuses a version whose tag does not exist and
 does not serve it. A version bump pushed without its tag is rejected loudly rather than
 published quietly.

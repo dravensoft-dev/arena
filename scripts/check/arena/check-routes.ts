@@ -255,7 +255,7 @@ export const ROUTES: Route[] = [
       + 'column it sits in and how much air goes between two components',
     entry: 'consumer',
     stops: ['skills/design/references/page.md', 'skills/design/references/style.md'],
-    budget: 23_600,
+    budget: 23_700,
     reason:
       'paid per element a builder draws themselves, which every screen has. What it buys is the '
       + 'half of a page that is never a component: which colour role each thing a builder draws takes '
@@ -288,7 +288,7 @@ export const ROUTES: Route[] = [
         ],
       },
     ],
-    budget: 30_600,
+    budget: 30_700,
     reason:
       'the route declared as a tree, charged its worst branch and never the sum, because a reader '
       + 'answers a question and walks one way. Handed a document stating the palette and the type, a '
@@ -369,7 +369,7 @@ export const ROUTES: Route[] = [
       + 'the domain the gate lands in',
     entry: 'contributor',
     stops: ['scripts/AGENTS.md', 'scripts/check/AGENTS.md', 'scripts/check/*/AGENTS.md'],
-    budget: 93_900,
+    budget: 94_000,
     reason:
       'the route a contributor takes most often after the component one, and the one whose last '
       + 'stop grows every time a gate lands, because each gate has a row in its domain\'s table. The '
@@ -423,22 +423,20 @@ export const ROUTES: Route[] = [
       + 'package is, and what CI does with the tag once it exists',
     entry: 'contributor',
     stops: ['versioning_steps.md', 'frameworks/PACKAGING.md', '.github/workflows/AGENTS.md'],
-    budget: 72_900,
+    budget: 74_600,
     reason:
       'the least frequent route on the branch and the most expensive one to get wrong, because '
-      + 'every one of its failures publishes nothing and errors nowhere. The sequence is the first '
-      + 'stop because it is what a reader needs first; the other two are where it sends them. It '
-      + 'carries each precondition this route reaches nowhere else: main takes no push, so the tag '
-      + 'rides develop and the release lands as a merge; the operating system matrix runs on develop, '
-      + 'so the merge request opens on a green develop; the tag exists before Arena main finishes or '
-      + 'the release page needs a hand dispatch; server.json is a version surface check-release.ts '
-      + 'never reads; each package has a publisher of its own, one of them npm for the attestation '
-      + 'Bun cannot give; a first publish needs a trusted publisher configured by hand; and the '
-      + 'corpus and the components travel apart, so both are installed to check them. Each is this '
-      + 'route\'s failure mode: nothing errors, and nobody is told. The page also says which target a '
-      + 'publish that misses its cache builds; check:consumer refuses an unassembled package '
-      + 'rather than building one; pull requests, develop and main verify through one reusable '
-      + 'workflow, and which suites read them.',
+      + 'each of its failures publishes nothing and errors nowhere. The sequence is the first stop '
+      + 'because a reader needs it first, and the other two are where it sends them. The route '
+      + 'carries every precondition no other route reaches: main takes no push, so the tag rides '
+      + 'develop and the release lands as a merge; the operating system matrix runs on develop, so '
+      + 'the merge request opens on a green develop; the tag exists before Arena main finishes; '
+      + 'server.json is a version surface the release check never reads; each package has a '
+      + 'publisher of its own, and a first publish needs one configured by hand; the corpus and '
+      + 'the components travel apart. The workflow page states how pull requests, develop and main '
+      + 'verify through one reusable workflow, what each of its jobs runs and how long it may run, '
+      + 'and which target a publish that misses its cache builds. Each of these fails in silence, '
+      + 'which is what the budget is there to keep visible.',
   },
 ];
 
