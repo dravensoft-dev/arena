@@ -29,6 +29,7 @@ jobs:
   build:
     name: build
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
       - uses: oven-sh/setup-bun@v2
@@ -71,6 +72,7 @@ jobs:
     name: gates
     needs: [build]
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
       - uses: oven-sh/setup-bun@v2
@@ -96,6 +98,7 @@ jobs:
     name: suites under scripts/
     needs: [build]
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
       - uses: oven-sh/setup-bun@v2
@@ -131,6 +134,7 @@ jobs:
     needs: [build]
     if: contains(format(',{0},', inputs.domains), ',react,')
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
       - uses: oven-sh/setup-bun@v2
@@ -172,6 +176,7 @@ jobs:
     needs: [build]
     if: contains(format(',{0},', inputs.domains), ',angular,')
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
       - uses: oven-sh/setup-bun@v2
@@ -207,6 +212,7 @@ jobs:
     needs: [suites-scripts, suites-react, suites-angular]
     if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     env:
       DOMAINS: ${{ inputs.domains }}
     steps:

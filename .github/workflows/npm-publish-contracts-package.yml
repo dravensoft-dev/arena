@@ -28,6 +28,7 @@ jobs:
     name: is there anything to publish
     if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     outputs:
       publish: ${{ steps.decide.outputs.publish }}
       version: ${{ steps.decide.outputs.version }}
@@ -128,6 +129,7 @@ jobs:
     needs: [guard]
     if: needs.guard.outputs.publish == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     permissions:
       contents: read
       id-token: write

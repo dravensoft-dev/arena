@@ -44,6 +44,7 @@ jobs:
   portable:
     name: portability ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
     # A leg whose platform is not yet blocking reports and does not gate. The flag lives in
     # scripts/ci/arena/supported-os.ts with its reason, and check:portability holds this equal
     # to it, so a leg cannot quietly stop counting and a supported one cannot quietly stop

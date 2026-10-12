@@ -38,6 +38,7 @@ jobs:
     name: describe the tag
     if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       # The whole history, and every tag: the page is the commit log between this tag and the
       # one below it in version order, and a shallow clone has neither.

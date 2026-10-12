@@ -25,6 +25,7 @@ jobs:
     name: the build the workflows after this one restore
     needs: [verify]
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - name: the build verify made and every gate and suite passed over
         uses: actions/download-artifact@v8

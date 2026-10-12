@@ -6,10 +6,10 @@
  * suites as well, a native path compared to a posix literal being the same defect wherever it
  * sits. Matches go through the lexer check:docs uses, so a construct in a comment or a string is
  * described rather than performed, bar the two whose construct IS a string and say so. It also
- * holds the workflows: develop.yml's matrix is the declared list, pr-gate waits for every other
- * job in pr.yml, one workflow names a browser, and a job layout it cannot read is a problem. */
+ * holds the workflows: develop.yml's matrix, pr-gate waiting for every other job in pr.yml, one
+ * workflow naming a browser, a time limit on every job, and no job layout it cannot read. */
 
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { basename, join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
@@ -199,27 +199,27 @@ export const RULES: Rule[] = [
   },
 ];
 
-export function inScope(path: string) {
-  const rel = relPosix(root, path);
+export function inScope(path: string, base = root) {
+  const rel = relPosix(base, path);
   if (!rel.startsWith('scripts/')) return false;
   const name = basename(rel);
   return isScript(name) && !isSuite(name);
 }
 
 export function scriptFiles(base = root) {
-  return walkFiles(join(base, 'scripts')).filter(inScope);
+  return walkFiles(join(base, 'scripts')).filter((path) => inScope(path, base));
 }
 
 export const SUITE_RULES = RULES.filter((rule) => rule.reaches === 'suites as well');
 
-export function inSuiteScope(path: string) {
-  const rel = relPosix(root, path);
+export function inSuiteScope(path: string, base = root) {
+  const rel = relPosix(base, path);
   if (!rel.startsWith('scripts/')) return false;
   return isSuite(basename(rel));
 }
 
 export function suiteFiles(base = root) {
-  return walkFiles(join(base, 'scripts')).filter(inSuiteScope);
+  return walkFiles(join(base, 'scripts')).filter((path) => inSuiteScope(path, base));
 }
 
 export function commentRanges(source: string): [number, number][] {
@@ -312,6 +312,55 @@ export function jobShapeProblems(file: string, text: string) {
   }
   if (heads === 0) problems.push(`${file} declares no job this gate can read, so nothing in it is checked`);
   return problems;
+}
+
+export const TIMEOUT_MAX_MINUTES = 360;
+
+export function timeoutProblems(file: string, text: string) {
+  return [...jobShapeProblems(file, text), ...jobLimitProblems(file, text)];
+}
+
+export function jobLimitProblems(file: string, text: string) {
+  const problems: string[] = [];
+  for (const [job, block] of jobBlocks(text)) {
+    const lines = block.split('\n');
+    if (lines.some((line) => /^ {4}uses:/.test(line))) {
+      if (lines.some((line) => /^ {4}runs-on:/.test(line))) {
+        problems.push(`${file}: job ${job} has both uses: and runs-on:, which GitHub refuses, and this reader `
+          + 'cannot say which time limit applies');
+      }
+      continue;
+    }
+    if (!lines.some((line) => /^ {4}runs-on:/.test(line))) {
+      problems.push(`${file}: job ${job} is a job this reader cannot classify, because it has neither `
+        + 'a uses: that calls a reusable workflow nor a runs-on: that runs steps, so its time limit is unchecked');
+      continue;
+    }
+    const at = lines.findIndex((line) => /^ {4}timeout-minutes:/.test(line));
+    if (at === -1) {
+      problems.push(`${file}: job ${job} does not declare timeout-minutes, so a step that hangs holds `
+        + 'a runner for six hours before GitHub ends it');
+      continue;
+    }
+    if (lines.filter((line) => /^ {4}timeout-minutes:/.test(line)).length > 1) {
+      problems.push(`${file}: job ${job} declares timeout-minutes more than once, and this reader cannot say `
+        + 'which figure a hung step is held to');
+      continue;
+    }
+    const value = (lines[at] ?? '').replace(/^ {4}timeout-minutes:[ \t]*/, '').replace(/[ \t]*#.*$/, '').trim();
+    const minutes = /^\d+$/.test(value) ? Number(value) : 0;
+    if (minutes < 1 || minutes > TIMEOUT_MAX_MINUTES) {
+      problems.push(`${file}: job ${job} sets timeout-minutes to ${JSON.stringify(value)}, and it has to be a `
+        + `literal number of minutes from 1 to ${TIMEOUT_MAX_MINUTES}, because an expression or an out-of-range `
+        + 'figure leaves a hung step holding a runner for up to six hours');
+    }
+  }
+  return problems;
+}
+
+export function workflowFiles(base = root) {
+  if (!existsSync(join(base, WORKFLOWS))) return [];
+  return walkFiles(join(base, WORKFLOWS)).filter((file) => /\.ya?ml$/.test(file));
 }
 
 export function declaredNeeds(block: string): string[] | null {
@@ -475,8 +524,7 @@ export function browserNamingProblems(workflows: { file: string; text: string }[
 }
 
 export function browserWorkflows(base = root) {
-  return walkFiles(join(base, WORKFLOWS))
-    .filter((file) => file.endsWith('.yml'))
+  return workflowFiles(base)
     .map((file) => ({ file: relPosix(base, file), text: readFileSync(file, 'utf8') }));
 }
 
@@ -568,6 +616,18 @@ export function portabilityProblems(base = root) {
   problems.push(...matrixProblems(base));
   problems.push(...gateProblems(base));
   problems.push(...browserPathProblems(base));
+  const workflows = workflowFiles(base);
+  if (workflows.length === 0) {
+    problems.push(`${WORKFLOWS} holds no .yml or .yaml workflow this gate can read, so not one job's time limit is checked`);
+  }
+  let jobs = 0;
+  for (const file of workflows) {
+    const rel = relPosix(base, file);
+    const text = readFileSync(file, 'utf8');
+    if (rel !== `${WORKFLOWS}/${PR_WORKFLOW}`) problems.push(...jobShapeProblems(rel, text));
+    problems.push(...jobLimitProblems(rel, text));
+    jobs += jobBlocks(text).size;
+  }
   problems.push(...setupProblems(base));
   problems.push(...checkoutProblems(tracked));
 
@@ -579,11 +639,13 @@ export function portabilityProblems(base = root) {
     rules: RULES.length,
     tracked: tracked.length,
     longest,
+    workflows: workflows.length,
+    jobs,
   };
 }
 
-function main() {
-  const { problems, scanned, covered, rules, tracked, longest } = portabilityProblems();
+export function main(base = root) {
+  const { problems, scanned, covered, rules, tracked, longest, workflows, jobs } = portabilityProblems(base);
 
   if (scanned === 0) {
     console.error('check-portability: scanned 0 script(s); the tree moved under this gate');
@@ -599,10 +661,11 @@ function main() {
   console.log(`check-portability: ${scanned} script(s) hold to ${rules} rule(s) and ${covered} `
     + `suite(s) to the ${SUITE_RULES.length} that read one, every exception `
     + `names a module that is there, ${SETUP_DOCUMENT} names every host prerequisite, `
+    + `${workflows} workflow(s) and their ${jobs} job(s) were read for a time limit, `
     + `${MATRIX_WORKFLOW} runs exactly ${SUPPORTED_OS_NAMES.length} declared operating `
     + `system(s), ${REQUIRED_JOB} waits for every other job in ${PR_WORKFLOW}, and ${tracked} `
     + `tracked path(s) are ones a Windows checkout can hold, the longest at ${longest} of the `
     + `${MAX_PATH - CLONE_ROOT_BUDGET} left after a clone root`);
 }
 
-if (isMainModule(import.meta.url)) main();
+if (isMainModule(import.meta.url)) main(process.argv[2]);
