@@ -5,14 +5,15 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { EventEmitter } from 'node:events';
 import { chmodSync, existsSync, mkdirSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, join, win32 } from 'node:path';
-import { execFileSync, spawnSync } from 'node:child_process';
+import { execFileSync, spawn, spawnSync } from 'node:child_process';
 import {
-  DARWIN_APPS, DEVTOOLS, GRACE, LINUX_CANDIDATES, PROFILE_PREFIX, REAP, WINDOWS_APPS, browserFlags,
+  DARWIN_APPS, DEVTOOLS, GRACE, LINUX_CANDIDATES, PROFILE_PREFIX, REAP, SIGNALS, WINDOWS_APPS, browserFlags,
   candidates, findChromium, launchChromium, observerFor, orphanProfiles, ownerOf, processesNaming,
-  profileNeedle, running, sweepOrphans,
+  profileNeedle, reapOnSignal, running, sweepOrphans,
 } from './chromium.ts';
 import { budgetFor, deadline, type Deadline } from './deadline.ts';
 import { waitFor } from './wait-for.ts';
@@ -28,7 +29,11 @@ const OBSERVE: Deadline = deadline('chromium:observe', 30_000,
   + 'there. A case that asks it and declares no bound of its own inherits the runner default, '
   + 'which is a number nobody in this tree chose and which the Windows leg exceeded.');
 
-const BUDGET_MS = budgetFor(DEVTOOLS, GRACE, REAP, SETTLE, OBSERVE);
+const ENDED: Deadline = deadline('chromium:ended', 10_000,
+  'the span a child process has to start, launch a stand-in browser, hear SIGTERM and exit by it '
+  + 'before the wait is a hang rather than a slow start under a loaded runner');
+
+const BUDGET_MS = budgetFor(DEVTOOLS, GRACE, REAP, SETTLE, OBSERVE, ENDED);
 import { createDispatcher } from './cdp.ts';
 import { platform, type Platform } from './platform.ts';
 import { hostBinary } from './host-binary.ts';
@@ -458,3 +463,91 @@ test('a profile whose holders cannot be looked up is kept rather than removed', 
     + 'directory that is no longer there, which is worse than leaving the directory');
   rmSync(at, { recursive: true, force: true });
 });
+
+test('a signal reaps once, removes its listeners and ends by that signal', () => {
+  const target = new EventEmitter();
+  const reaped: number[] = [];
+  const ended: string[] = [];
+  reapOnSignal(() => reaped.push(1), (s) => ended.push(s), target);
+  target.emit('SIGTERM');
+  assert.deepEqual(reaped, [1]);
+  assert.deepEqual(ended, ['SIGTERM']);
+  for (const name of SIGNALS) assert.equal(target.listenerCount(name), 0, name);
+});
+
+test('dispose before any signal leaves no listener and reaps nothing', () => {
+  const target = new EventEmitter();
+  const reaped: number[] = [];
+  const dispose = reapOnSignal(() => reaped.push(1), () => {}, target);
+  dispose();
+  target.emit('SIGINT');
+  assert.deepEqual(reaped, []);
+  for (const name of SIGNALS) assert.equal(target.listenerCount(name), 0, name);
+});
+
+test('two registrations on one target are both reaped by one signal, which ends the process once', () => {
+  const target = new EventEmitter();
+  const reaped: string[] = [];
+  const ended: string[] = [];
+  reapOnSignal(() => reaped.push('a'), (s) => ended.push(s), target);
+  reapOnSignal(() => reaped.push('b'), (s) => ended.push(s), target);
+  target.emit('SIGINT');
+  assert.deepEqual(reaped.sort(), ['a', 'b']);
+  assert.deepEqual(ended, ['SIGINT']);
+  for (const name of SIGNALS) assert.equal(target.listenerCount(name), 0, name);
+});
+
+test('a reap that throws neither skips the reaps after it nor the end of the process', () => {
+  const target = new EventEmitter();
+  const reaped: string[] = [];
+  const ended: string[] = [];
+  reapOnSignal(() => { throw new Error('taskkill failed'); }, (s) => ended.push(s), target);
+  reapOnSignal(() => reaped.push('b'), (s) => ended.push(s), target);
+  assert.throws(() => target.emit('SIGTERM'), /taskkill failed/);
+  assert.deepEqual(reaped, ['b']);
+  assert.deepEqual(ended, ['SIGTERM']);
+});
+
+test('a gate that is sent SIGTERM reaps the browser group and the profile before it ends by it',
+  { timeout: BUDGET_MS, skip: NEEDS_A_SIGNAL }, async () => {
+    const root = mkdtempSync(join(tmpdir(), 'arena-signal-root-'));
+    try {
+      const exe = join(root, 'stand-in.sh');
+      writeFileSync(exe,
+        '#!/bin/sh\n'
+        + "sh -c 'sleep 60; :' \"$@\" &\n"
+        + 'echo "DevTools listening on ws://127.0.0.1:1/devtools/browser/x" >&2\n'
+        + 'wait\n');
+      chmodSync(exe, 0o755);
+      const chromiumModule = join(import.meta.dirname, 'chromium.ts');
+      const script = join(root, 'gate.ts');
+      writeFileSync(script,
+        `import { launchChromium } from ${JSON.stringify(chromiumModule)};\n`
+        + `await launchChromium(${JSON.stringify(exe)});\n`
+        + "console.log('ready');\n"
+        + 'await new Promise(() => {});\n');
+
+      const child = spawn(process.execPath, [script], {
+        env: { ...process.env, TMPDIR: root }, stdio: ['ignore', 'pipe', 'inherit'],
+      });
+      let out = '';
+      child.stdout.on('data', (chunk) => { out += String(chunk); });
+      let ended: { status: number | null; signal: NodeJS.Signals | null } | undefined;
+      child.once('exit', (status, signal) => { ended = { status, signal }; });
+
+      const ready = await waitFor(() => out.includes('ready'), ENDED);
+      assert.ok(ready.seen, 'the child never reported a launched browser');
+      const profile = join(root, readdirSync(root).find((n) => n.startsWith(PROFILE_PREFIX)) ?? '');
+      assert.ok(pidsNaming(profile).length > 1, 'the group has to hold a descendant naming the profile');
+
+      child.kill('SIGTERM');
+      const gone = await waitFor(() => ended !== undefined, ENDED);
+      assert.ok(gone.seen, 'the child did not end after SIGTERM');
+      assert.ok(ended?.signal === 'SIGTERM' || ended?.status === 143, JSON.stringify(ended));
+      const swept = await waitFor(() => pidsNaming(profile).length === 0, SETTLE);
+      assert.ok(swept.seen, 'a process still names the profile after the gate ended');
+      assert.equal(existsSync(profile), false, 'the profile directory outlived the gate');
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });

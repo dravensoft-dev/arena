@@ -6,13 +6,13 @@
  * drawn against a grey ramp, because subpixel antialiasing answers about the panel rather than
  * about Arena. Teardown reaps the GROUP whatever the parent did, then waits for it to empty
  * before removing the profile, since a polite exit leaves a zygote and a directory one writes to
- * fails with EBUSY. The tree is detached, so a run killed before teardown leaks it and the
- * inotify instance it holds: a profile carries its launcher's pid and a launch reaps the gone. */
+ * fails with EBUSY. SIGTERM or SIGINT reaps the detached group and the profile at once; SIGKILL
+ * leaves a profile carrying its launcher's pid, which the next launch reaps. */
 
 import { execFileSync, spawn, spawnSync } from 'node:child_process';
 import { existsSync, mkdtempSync, readdirSync, rmSync } from 'node:fs';
 import { basename } from 'node:path';
-import { tmpdir } from 'node:os';
+import { constants, tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { arenaEnv, cannotRun } from './arena-scripts-vars.ts';
 import { hostBinary } from './host-binary.ts';
@@ -234,6 +234,54 @@ export function sweepOrphans(at = tmpdir(), on: Platform = platform) {
   return reaped;
 }
 
+export const SIGNALS = ['SIGTERM', 'SIGINT'] as const;
+
+type Signal = (typeof SIGNALS)[number];
+type SignalTarget = {
+  on(name: string, listener: () => void): unknown;
+  removeListener(name: string, listener: () => void): unknown;
+};
+type Registration = { reap: () => void; dispose: () => void; live: () => boolean };
+
+const registrations = new WeakMap<SignalTarget, Set<Registration>>();
+
+const endBySignal = (signal: Signal) => {
+  process.kill(process.pid, signal);
+  process.exit(128 + constants.signals[signal]);
+};
+
+export function reapOnSignal(
+  reap: () => void, end: (signal: Signal) => void = endBySignal, target: SignalTarget = process,
+): () => void {
+  const live = registrations.get(target) ?? new Set<Registration>();
+  registrations.set(target, live);
+  const listening = SIGNALS.map((name) => [name, () => {
+    if (!registration.live()) return;
+    let failure: { error: unknown } | undefined;
+    const all = [...live];
+    for (const one of all) one.dispose();
+    try {
+      for (const one of all) {
+        try { one.reap(); } catch (error) { failure ??= { error }; }
+      }
+    } finally {
+      end(name);
+    }
+    if (failure) throw failure.error;
+  }] as const);
+  const registration: Registration = {
+    reap,
+    live: () => live.has(registration),
+    dispose: () => {
+      live.delete(registration);
+      for (const [name, listener] of listening) target.removeListener(name, listener);
+    },
+  };
+  live.add(registration);
+  for (const [name, listener] of listening) target.on(name, listener);
+  return registration.dispose;
+}
+
 export async function launchChromium(exePath: string, on: Platform = platform): Promise<{ wsUrl: string; kill: () => Promise<void> }> {
   sweepOrphans(tmpdir(), on);
   const profile = mkdtempSync(join(tmpdir(), `${PROFILE_PREFIX}${process.pid}-`));
@@ -273,7 +321,13 @@ export async function launchChromium(exePath: string, on: Platform = platform): 
     new Promise<void>((done) => { setTimeout(done, ms).unref?.(); }),
   ]);
 
+  const unlisten = reapOnSignal(() => {
+    reapGroup();
+    try { rmSync(profile, { recursive: true, force: true }); } catch {  }
+  });
+
   const kill = async () => {
+    unlisten();
     if (!exited) {
       try { child.kill(); } catch {  }
       await settledWithin(GRACE.ms);
