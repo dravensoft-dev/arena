@@ -123,6 +123,16 @@ The summary lists the steps in the order `GATES` and `testStep()` give, each wit
 and its tail and exit status keep their meaning: a FAIL exits 1, a SKIP makes the run INCOMPLETE,
 and `--release` reports a gate that failed although the graph would have kept it.
 
+**Every bun suite runs with the test-case deadline**, `scripts/check/arena/check-all.ts:TEST_CASE`:
+each `SUITES` entry's args end with `--timeout=<TEST_CASE.ms>`, so a case that hangs ends and one
+that only runs slow beside heavy steps is not cut at the runner's default. No `SUITES` entry states
+a deadline of its own, and a case that declares a budget keeps it.
+
+**The heavy pool's size comes from free memory and the browser's from a cap.**
+`scripts/graph/scheduler.ts:slotsFor` divides free memory less `HEADROOM` by `HEAVY_PEAK`, capped by
+the cores and by `--jobs`, and `BROWSER_CAP` bounds the browser slots further; the run prints what
+bounded them. [`../graph/AGENTS.md`](../graph/AGENTS.md) carries the scheduler.
+
 **`--jobs=<n>` caps every pool at `n`, and `--jobs=1` runs one step at a time in that order**,
 which is how a failure that shows only beside another step is told from one that shows alone. An
 interrupt ends every running step, starts none of the rest, names them in the tail and exits 130. A
@@ -149,9 +159,9 @@ it**: `check:focus-trap` and `check:pixel-parity` drive a headless browser, `che
 **The repository declares itself strict, so that is not the default here**: a gate that cannot
 run **fails**. The soft skip is what an environment has to ask for, by exporting
 `ARENA_CHECK_STRICT` as anything other than `1`. **`cannotRun` is the one spelling of that
-decision**, and it is one because the skippable gates had each spelled it their own way: one read
-`skipExitCode()`, one *threw* where the browser was missing, and one exited `2` outright, so on
-this repository's own declared settings some failed where others skipped. A rule spelled once per
+decision**, because a decision each gate spells for itself goes different ways: a gate reading
+`skipExitCode()`, one *throwing* where the browser is missing and one exiting `2` outright fail
+where another skips on this repository's own declared settings. A rule spelled once per
 gate is a rule that holds for some of them. Note that `check-all` exits 0 on a run that
 only skips, so a skip is loud in the summary and quiet in the exit status, which is the second
 reason strict is the declared value rather than the opt-in one.
@@ -166,7 +176,7 @@ decides nothing about whether the gate passes:
 
 | variable | what it decides |
 | --- | --- |
-| `CHROME_PATH` | The browser `check:focus-trap` drives. **Recognised and never declared**, for the reason `CI` is: a declared value here is not an override but a claim that a person named a browser, and `findChromium` treats that claim as terminal. It was declared as `/usr/bin/chromium` once, and because `arenaEnv()` lays the declared values under the real environment, every machine carried it. That made `CANDIDATES.find(exists)` **unreachable**, so the candidate list behind it never ran and its two macOS entries were dead from the day they were written. |
+| `CHROME_PATH` | The browser `check:focus-trap` drives. **Recognised and never declared**, for the reason `CI` is: a declared value here is not an override but a claim that a person named a browser, and `findChromium` treats that claim as terminal. `arenaEnv()` lays the declared values under the real environment, so a declared path would reach every machine and make `CANDIDATES.find(exists)` **unreachable**: the candidate list behind it, its two macOS entries included, would never run. |
 | `ARENA_CHECK_STRICT` | Whether a missing dependency fails or skips. Compared against the exact string `1`. |
 | `CI` | The same, compared against the exact string `true`. Recognised and never declared: claiming it would tell the scripts they run on a runner. Note that a runner setting `CI=1` rather than `CI=true` buys nothing here. |
 | `PORT` | The port `bun run demos` serves on. The gates' own server binds an ephemeral port and ignores it. |
@@ -221,10 +231,17 @@ nowhere runs in no job and is worth nothing, so the directory is not the authori
 
 The domain is also what a narrowed run selects on. `check-all.ts` takes `--domain=core,arena`
 and `--no-tests`, and `gatesFor()` refuses a name outside `DOMAINS` and a selection matching no
-gate, because a run of nothing reports nothing wrong with everything. CI is its only caller,
-and its four jobs partition this table: `core` takes `core/` and `arena/`, since every
-cross-layer gate is a question no single layer can answer. That partition is asserted too, so
-a gate cannot join `GATES` and then run in no job.
+gate, because a run of nothing reports nothing wrong with everything. CI is its only caller:
+the `gates` job of `verify.yml` runs every gate of the domains its caller selects, and a pull
+request always selects `core` and `arena`, because every cross-layer gate is a question no single
+layer can answer. `check-all.test.ts` asserts through `scripts/ci/arena/verify-workflow.ts` that one
+job runs the gates and that some caller selects every domain, so a gate cannot join `GATES` and
+then run in no job. [`../../.github/workflows/AGENTS.md`](../../.github/workflows/AGENTS.md) has the
+callers.
+
+**The Angular emit is that layer's type verdict**, so `check-all` runs it whenever the `angular`
+domain is selected, `--no-tests` included: `typeSteps(domains)` returns `ANGULAR_EMIT` for any
+selection naming the domain, and the suite of that layer then reads its output.
 
 ## Adding a gate
 

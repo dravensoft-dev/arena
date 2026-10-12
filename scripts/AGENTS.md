@@ -195,8 +195,8 @@ first reason above. `check:generated` scans no `.md` at all, and `check:skills` 
 freshness and their tracking instead.
 
 So **a fresh clone runs `bun run build` first**, and until it has, part of the tree does not
-exist. [`build/AGENTS.md`](./build/AGENTS.md) is the first-compile document and names what
-notices each missing piece.
+exist. [`build/AGENTS.md`](./build/AGENTS.md) is the first-compile document, names what
+notices each missing piece and says which gates need the packages assembled too.
 
 ## Adding a gate
 
@@ -219,7 +219,9 @@ over a tree it never opened, and the SKIP protocol.
 ## Running them
 
 `bun run check` runs every gate plus the test suite, without stopping at the first failure, so
-one sweep reports every problem rather than the first.
+one sweep reports every problem rather than the first. A scheduler runs the steps side by side,
+`--jobs=<n>` caps it, and `--jobs=1` is the serial run;
+[`check/AGENTS.md`](./check/AGENTS.md) has the section on the sweep running side by side.
 
 **When it is expected: once, when a plan's implementation is finished, and not before every
 commit.** The individual gates are cheap and stay available per commit, `check:dimensions` after
@@ -236,7 +238,10 @@ each one's dependency in [`check/AGENTS.md`](./check/AGENTS.md), which also has 
 every environment variable the scripts read; all of them are declared in
 `lib/arena/arena-scripts-vars.ts`, and a real one wins over the declared value.
 
-**CI narrows that run by domain, never by gate name.** `check-all.ts` takes `--domain=` and
-`--no-tests`, four jobs partition `GATES`, and `check-all.test.ts` asserts the partition, so a
-gate cannot join `GATES` and then run in no job.
-[`../.github/workflows/AGENTS.md`](../.github/workflows/AGENTS.md) has the four workflows.
+**CI narrows that run by domain, never by gate name.** `check-all.ts` takes `--domain=`,
+`--no-tests`, `--force`, `--release` and `--jobs=`. One `gates` job in `verify.yml` runs every gate
+of the domains its caller selects, and `check-all.test.ts` asserts through
+`ci/arena/verify-workflow.ts` that one job runs the gates, that some caller selects every domain
+and that each suite runs in one job gated by its domain. A gate cannot join `GATES` and then run in
+no job.
+[`../.github/workflows/AGENTS.md`](../.github/workflows/AGENTS.md) has the workflows and their callers.

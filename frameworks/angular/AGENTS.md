@@ -466,8 +466,9 @@ error anywhere in the test surface, a template diagnostic in an inline `template
 included, fails the *build* step, and no test in that run executes at all. Staleness is prevented
 by the build always running ahead of the tests that read it, and `build-angular-tests.ts` prunes
 output whose source is gone, because `ngc` does not. **The compile itself is skipped when no input
-differs from what the last one compiled**, which is what keeps a step that costs around seventeen seconds
-ahead of suites that cost around twelve; `--force` compiles anyway, and the rule it decides by is
+differs from what the last one compiled**, which is what keeps the emit, a step
+with a `cost` of its own in `scripts/check/arena/check-all.ts:ANGULAR_EMIT`, from recompiling ahead of
+every suite that reads it; `--force` compiles anyway, and the rule it decides by is
 its own document's.
 
 **A green compile is a claim about TYPES, and never about behaviour.**
