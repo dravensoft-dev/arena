@@ -1,5 +1,7 @@
 # The chart family
 
+> **Building a screen with a chart?** This page is for whoever changes a chart. Read [exports.md](../skills/design/references/exports.md) instead.
+
 > **For whoever changes a chart.** This page sits at the `frameworks/` root, beside
 > [`AGENTS.md`](./AGENTS.md), for the reason that page gives for sitting there: a fact about the
 > layers belongs to none of them, and a copy per layer is a copy that can disagree. Every rule

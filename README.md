@@ -36,7 +36,10 @@ style plugin the project writes, and the appearance Arena installs with is one
 such plugin rather than a floor under them. Palettes and fonts sit in an
 `arena.config.json`, which the `arena` command each package ships turns
 into the one stylesheet a package cannot carry: **Arena carries the language and
-never the skin**, and none of its own colours reach your build.
+never the skin**, and none of its own colours reach your build. A project that
+starts from an existing look takes a row of
+[`plugin-style-store/catalogue/INDEX.md`](./plugin-style-store/catalogue/INDEX.md): the catalogue
+lists style plugins measured on real products, one row each.
 
 **Metadata for a product that has to be found, which most products do not.** The
 Angular layer writes the document `<head>` from the routes it is handed, at
@@ -188,17 +191,16 @@ component ships under both names and the two documents are not interchangeable.
   package consumer names their own three families in `arena.config.json`, where
   `src` is either a stylesheet URL or a binary they host.
 - **Icons are [Phosphor Icons](https://phosphoricons.com) (MIT)**, and are not
-  bundled. **Install the official package by default**, either
-  `@phosphor-icons/web` (webfont) or `@phosphor-icons/react`, for full weight and
-  tree-shaking flexibility. The CDN is a prototype-only convenience, not the
+  bundled. Install `@phosphor-icons/web`: every component takes a Phosphor class
+  string, and that webfont draws it. The CDN is a prototype-only convenience, not the
   default. See [Iconography](./contracts/design/AGENTS.md#iconography).
 
 ## Which version am I getting
 
 The two packages and the plugin do not always carry the same number, because a
 package publishes only when something it ships changed.
-[`.github/workflows/AGENTS.md`](./.github/workflows/AGENTS.md) explains what
-that means for an upgrade.
+[`skills/design/references/versioning.md`](./skills/design/references/versioning.md#how-do-i-upgrade)
+explains what that means for an upgrade.
 
 ## Latest project artifacts
 - **Repo/Claude Code plugin**: 12.1.1
