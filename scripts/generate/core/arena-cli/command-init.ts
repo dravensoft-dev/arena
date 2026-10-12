@@ -10,10 +10,16 @@ import { under, voice } from './io.ts';
 import type { Io } from './io.ts';
 import { strictNames } from './reports.ts';
 
-const LAYER_SCRIPTS: Record<string, string[]> = {
+export const LAYER_SCRIPTS: Record<string, string[]> = {
   '@dravensoft/arena-react': ['prebuild', 'predev'],
   '@dravensoft/arena-angular': ['prebuild', 'prestart'],
 };
+
+export const wiredScripts = (layer: string[], suffix = ''): [string, string][] => [
+  ...layer.map((script): [string, string] => [script, `arena build${suffix}`]),
+  ['arena:check', `arena check --strict=components,glyph,markers${suffix}`],
+  ['arena:audit', `arena audit --strict=${strictNames('audit').join(',')}${suffix}`],
+];
 
 const message = (error: unknown) => (error instanceof Error ? error.message : String(error));
 
@@ -83,11 +89,7 @@ export function run(argv: string[], io: Io): number {
 
   const quoted = /^[\w./@:+,=-]+$/.test(typedConfig) ? typedConfig : `"${typedConfig}"`;
   const suffix = typedConfig === DEFAULT_CONFIG ? '' : ` --config ${quoted}`;
-  const wanted: [string, string][] = [
-    ...layer.map((script): [string, string] => [script, `arena build${suffix}`]),
-    ['arena:check', `arena check --strict=components,glyph,markers${suffix}`],
-    ['arena:audit', `arena audit --strict=${strictNames('audit').join(',')}${suffix}`],
-  ];
+  const wanted = wiredScripts(layer, suffix);
 
   const scripts = (pkg.scripts ?? {}) as Record<string, string>;
   const added: string[] = [];

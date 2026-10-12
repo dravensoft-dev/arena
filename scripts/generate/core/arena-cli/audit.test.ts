@@ -6,7 +6,7 @@ import { repoRoot } from '../../../lib/arena/repo-root.ts';
 import {
   auditText, auditFindings, findings, lineFindings, isLegalBracket, scanText, scanFile, markerAllowlist,
   paintedParts, sourceScope, outlineGap, kebabTag, HEADING_RUNGS, OWN_CLASS_ATTRIBUTE,
-  LINKABLE_TAGS, statedRung, fillsWithDanger, namesAnAlias, RULE_TAGS,
+  LINKABLE_TAGS, statedRung, fillsWithDanger, namesAnAlias, RULE_TAGS, RULE_DESCRIPTIONS,
   UNMODELLED_UNITS, styleIdentifiers, styleObjectLines, unknownInputs,
   ownClassFindings, RAW_COLOUR_MESSAGE, RAW_HEX_MESSAGE, GRADIENT_MESSAGE, primaryMessage, DANGER_FILL_MESSAGE, type VocabularyIndex,
 } from './audit.ts';
@@ -893,4 +893,15 @@ test('an arena-audit allow on the line exempts it', () => {
 
 test('without an index of inputs nothing is reported', () => {
   assert.doesNotMatch(rules('<arena-button variant="x">Go</arena-button>', 'src/app.html'), /unknown-input/);
+});
+
+test('every audit tag carries one description, in the register of a present-tense builder page, and nothing else does', () => {
+  assert.deepEqual(Object.keys(RULE_DESCRIPTIONS).sort(), [...RULE_TAGS].sort());
+  const banned = /\b(?:since|now|no longer|today|used to|anymore|previously|formerly|newly|recently|became|was|were|once|replaced|raised|lowered)\b|v?12\.|\u2014/i;
+  for (const [tag, text] of Object.entries(RULE_DESCRIPTIONS)) {
+    assert.ok(text.trim().length > 0, tag);
+    assert.ok(text.endsWith('.') && text.split('. ').length === 1, `${tag} is one sentence`);
+    assert.doesNotMatch(text, banned, tag);
+    assert.ok(text.split(/\s+/).length <= 30, `${tag} runs past 30 words`);
+  }
 });

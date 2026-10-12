@@ -5,7 +5,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync, mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
+import { readFileSync, mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
@@ -19,6 +19,10 @@ import { NPM_PAGES } from '../../lib/arena/npm-questions.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { packageSheetName, sheetFamilies } from '../../lib/tailwind/vocabulary.ts';
 import { MAX_WORDS, plain, words } from '../../check/arena/check-register.ts';
+import { RULE_TAGS, RULE_DESCRIPTIONS } from '../core/arena-cli/audit.ts';
+import { run } from '../core/arena-cli/command-init.ts';
+import { captureIo, hostRoot } from '../core/arena-cli/cli-fixtures.ts';
+import { RULES } from '../../lib/arena/language-rules.ts';
 
 const SHARED = ['repository', 'skin', 'defaults', 'sheets', 'toast', 'layout', 'queues'];
 
@@ -299,4 +303,39 @@ test('the typography region tables every font, weight, size, leading and trackin
   const rowOf = (name: string) => rows.find((row) => row.startsWith(`| \`--${name}\` |`))!.split('|').map((cell) => cell.trim());
   assert.equal(rowOf('fw-bold')[3], '`font-bold`');
   assert.equal(rowOf('lh-root')[3], 'none');
+});
+
+const CLI_PAGE = 'skills/design/references/cli.md';
+
+test('the audit region has one row per tag in RULE_TAGS order, with the rules that tag holds and what fires it', () => {
+  assert.ok(regionsOf(CLI_PAGE).includes('audit'), 'the command reference carries the audit region');
+  const rows = renderRegion('audit', repoRoot, CLI_PAGE).split('\n').filter((line) => /^\| `/.test(line));
+  assert.deepEqual(rows.map((row) => row.split(' | ')[0]), RULE_TAGS.map((tag) => `| \`${tag}\``));
+  RULE_TAGS.forEach((tag, at) => {
+    const cells = rows[at]!.split(' | ');
+    const held = RULES.filter((rule) => rule.held === tag).map((rule) => rule.short);
+    assert.equal(cells[1], held.length ? held.join(' ') : 'none of the language rules', tag);
+    assert.equal(cells[2], `${RULE_DESCRIPTIONS[tag]} |`, tag);
+  });
+  assert.deepEqual(RULES.filter((rule) => rule.held === 'raw-value').length, 2, 'two rules hold raw-value');
+  assert.ok(rows[RULE_TAGS.indexOf('raw-value')]!.includes('Tokens are the only styling layer.')
+    && rows[RULE_TAGS.indexOf('raw-value')]!.includes('No gradients, on any surface.'));
+});
+
+test('each fenced arena:audit script is what arena init writes for that layer', () => {
+  for (const [key, name] of [['scriptsReact', '@dravensoft/arena-react'], ['scriptsAngular', '@dravensoft/arena-angular']] as const) {
+    assert.ok(regionsOf(CLI_PAGE).includes(key), `${CLI_PAGE} carries ${key}`);
+    const cwd = mkdtempSync(join(tmpdir(), 'arena-cli-fence-'));
+    try {
+      writeFileSync(join(cwd, 'package.json'), '{}\n');
+      const { io } = captureIo(cwd, { arena: hostRoot(name, '1.0.0', { 'arena.config.example.json': '{}\n' }) });
+      assert.equal(run([], io), 0);
+      const written = JSON.parse(readFileSync(join(cwd, 'package.json'), 'utf8')).scripts;
+      const fence = renderRegion(key, repoRoot, CLI_PAGE);
+      const body = fence.slice(fence.indexOf('```json') + 7, fence.lastIndexOf('```'));
+      assert.deepEqual(JSON.parse(body).scripts, written, key);
+    } finally {
+      rmSync(cwd, { recursive: true, force: true });
+    }
+  }
 });

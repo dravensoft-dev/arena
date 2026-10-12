@@ -84,17 +84,17 @@ test('every kind --strict holds is named on the line that names its command, and
   }
 });
 
-test('every rule --strict can name is on the rules row of its kind, and kind:rule is said', () => {
+test('every rule --strict can name has a row in the tag table its kind row links, and kind:rule is said', () => {
   const source = page();
   assert.ok(source.includes('`<kind>:<rule>`'), 'the page never says how a rule is named');
+  const rows = source.split('\n');
   for (const [kind, rules] of Object.entries(RULES_BY_KIND)) {
-    const line = source.split('\n').find((one) => one.startsWith(`| \`${kind}\` |`));
+    const line = rows.find((one) => one.startsWith(`| \`${kind}\` |`));
     assert.ok(line, `the rules table has no row for ${kind}`);
-    for (const rule of rules ?? []) assert.ok(line.includes(`\`${rule}\``), `the ${kind} row does not name ${rule}`);
-    const cells = line.split('|').slice(2).join('|');
-    for (const [, named] of cells.matchAll(/`([^`]+)`/g)) {
-      assert.ok((rules ?? []).includes(named ?? ''), `the ${kind} row names ${named}, which ${kind} does not have`);
-    }
+    assert.ok(line.includes('(#what-does-each-audit-tag-report)'), `the ${kind} row links no table of its rules`);
+    assert.ok(rows.includes('## What does each audit tag report?'), 'the table sits under the heading the row links');
+    assert.ok((rules ?? []).length > 0, `${kind} names no rule, so this checked nothing`);
+    for (const rule of rules ?? []) assert.ok(rows.some((one) => one.startsWith(`| \`${rule}\` |`)), `no tag row names ${rule}`);
   }
 });
 

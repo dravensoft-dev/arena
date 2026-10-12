@@ -14,6 +14,20 @@ import { join } from 'node:path';
 export const RULE_TAGS = ['compat-alias', 'danger-fill', 'emoji', 'icon-element',
   'one-primary', 'outline-gap', 'own-class', 'raw-value', 'router-link', 'stale-allowance', 'unknown-input'] as const;
 
+export const RULE_DESCRIPTIONS: Record<(typeof RULE_TAGS)[number], string> = {
+  'compat-alias': 'A stylesheet in a style plugin directory reads one of Arena\'s compatibility aliases through `var()`, which names a step of the ramp instead of a role.',
+  'danger-fill': 'A background declaration outside a style plugin directory reads a danger token not mixed with transparent, which fills a surface where Arena draws danger as an outline.',
+  emoji: 'A line of a source holds an emoji character.',
+  'icon-element': 'An `icon` or `iconRight` attribute is given an element in braces, where Arena takes a Phosphor class-name string.',
+  'one-primary': 'A second action in one view, or in one modal, takes the primary emphasis by class or by leaving a primary-default component without one.',
+  'outline-gap': 'A source draws Arena headings at two levels with a level missing between them, such as an h1 and an h3 with no h2.',
+  'own-class': 'A component carries a class outside its vocabulary or a computed one, or a stylesheet targets an `arena-` class anywhere or a `data-arena-part` hook outside a style plugin.',
+  'raw-value': 'A style holds a hex, colour or bare pixel length, or a gradient outside a style plugin unless `gradientMark` is set, or a class holds a non-token bracket value.',
+  'router-link': 'A link of your own, such as `a`, `Link` or `routerLink`, directly wraps an Arena card, side nav item, bottom nav item or table cell.',
+  'stale-allowance': 'An `arena-audit allow` marker sits on a line with nothing to exempt.',
+  'unknown-input': 'A static attribute on an `arena-` element in an Angular template names no input or output of that component.',
+};
+
 export const UNMODELLED_UNITS = ['%', 'ch', 'fr', 'vh', 'vw', 'vmin', 'vmax', 'deg'];
 
 export const ALLOW_MARKER = /arena-audit allow\b/;

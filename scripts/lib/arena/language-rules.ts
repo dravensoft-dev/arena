@@ -21,7 +21,7 @@ export const RULES: LanguageRule[] = [
     short: 'Tokens are the only styling layer.',
     body: 'A raw colour is a bug, as is a bare `16px`. A hex, a channel triple in `rgb()` or '
       + '`oklch()`, and a colour\'s own name are one defect written three ways. Read a value '
-      + 'through its custom property, as `var(--color-primary)` or `var(--sp-4)`. Derive one with '
+      + 'through its custom property, as `var(--ink-body)` or `var(--sp-4)`. Derive one with '
       + '`calc()` or `clamp()`, or mix one with `color-mix()`, over a token.',
     held: 'raw-value',
     unheld: null,
@@ -188,10 +188,13 @@ export function wrapped(text: string, indent = '  ', at = WRAP_AT) {
   return lines.join('\n');
 }
 
-export const REPORTED_MARK = '**`arena audit` reports this one.**';
+export function reportedMark(rule: LanguageRule) {
+  if (rule.held === null) throw new Error(`language-rules: ${rule.id} is held by no tag, so it has no mark to render`);
+  return `**\`arena audit\` reports this one, as \`${rule.held}\`.**`;
+}
 
 export function renderBullet(rule: LanguageRule) {
-  const said = [`- **${rule.short}**`, rule.body, rule.held === null ? '' : REPORTED_MARK];
+  const said = [`- **${rule.short}**`, rule.body, rule.held === null ? '' : reportedMark(rule)];
   return wrapped(said.filter((part) => part !== '').join(' '));
 }
 

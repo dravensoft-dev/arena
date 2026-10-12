@@ -51,7 +51,7 @@ export const ENTRIES: Entry[] = [
   {
     name: 'consumer',
     router: 'skills/design/SKILL.md',
-    budget: 19_700,
+    budget: 19_850,
     reason:
       'the page every consumer route opens with, declared once rather than as the first stop of '
       + 'each route, because a router charged to every route opening with it is argued once per route '
@@ -61,8 +61,8 @@ export const ENTRIES: Entry[] = [
       + 'much of Arena a project takes, what it installs Arena with, where the appearance comes from, '
       + 'whether anybody outside the product has to find it, and where a defect goes once it is '
       + 'proved to be Arena\'s. Everything asked after that belongs to the node that asks it. The '
-      + 'rules list is emitted from one declaration, so each rule says whether a gate reads the '
-      + 'reader\'s own sources, and the prose holds the register check:register reads. What moves this '
+      + 'rules list is emitted from one declaration, so each rule names the audit tag that reads the '
+      + 'reader\'s own sources, or says why none does, and the prose holds the register check:register reads. What moves this '
       + 'number is a new question, or a helper a reader cannot ask for by name, which the export row '
       + 'lists. The vocabulary families name which style decision reaches which '
       + 'component owner and answer the route\'s questions about appearance sources at the decision layer.',
@@ -124,7 +124,7 @@ export const ROUTES: Route[] = [
       'skills/design/references/config.md',
       'skills/design/references/cli.md',
     ],
-    budget: 31_100,
+    budget: 33_750,
     reason:
       'paid once per project rather than per screen, so it carries what the build route may not: '
       + 'the install, the config file and the command, each as its own reference. The package '
@@ -132,7 +132,8 @@ export const ROUTES: Route[] = [
       + 'is a thing nobody imports: an export, a stylesheet, a class, a config key. The config block '
       + 'is copied whole and the install reference gives the evidence behind each package manager it '
       + 'names. The command reference quotes whole the scripts `arena init` writes and names every '
-      + 'audit rule, unknown-input among them, in the rule table and in both scripts, and says how to '
+      + 'audit tag, unknown-input among them, in a table giving the rule each reports and what fires it, '
+      + 'in both scripts, and says how to '
       + 'mark a line whose attribute a directive of the project reads. It also states '
       + 'what the contrast kind reports, the axis and solid badge reports included. The config '
       + 'reference lists the names the build refuses, the note a defaulted role prints and the roles '

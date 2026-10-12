@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {
   collect, heldProblems, shapeProblems, zeroScanProblems, emitProblems, ID,
 } from './check-rules.ts';
-import { RULES, type LanguageRule } from '../../lib/arena/language-rules.ts';
+import { RULES, reportedMark, type LanguageRule } from '../../lib/arena/language-rules.ts';
 import { RULE_TAGS } from '../../generate/core/arena-cli/audit.ts';
 import { TARGETS, MARKED, CONTEXT7 } from '../../generate/arena/generate-rules.ts';
 
@@ -94,4 +94,12 @@ test('the rules say a class of the vocabulary is the only thing on a component, 
   assert.doesNotMatch(appearance.body, /reported/);
   const ids = RULES.map((one) => one.id);
   assert.equal(ids.indexOf('appearance-is-a-class'), ids.indexOf('own-class') + 1);
+});
+
+test('the mark names the tag that holds the rule, and a rule no tag holds has none to render', () => {
+  const tokens = RULES.find((one) => one.id === 'tokens-only');
+  assert.ok(tokens, 'tokens-only is declared');
+  assert.equal(reportedMark(tokens), '**`arena audit` reports this one, as `raw-value`.**');
+  for (const one of RULES.filter((held) => held.held !== null)) assert.ok(reportedMark(one).includes(`\`${one.held}\``), one.id);
+  assert.throws(() => reportedMark(rule()), /held by no tag/);
 });
