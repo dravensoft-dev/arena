@@ -150,6 +150,7 @@ test('verify.yml runs the gates of the domains its caller selects in one job, so
   const selection = verify();
   assert.deepEqual(selection.problems, []);
   assert.equal(selection.gates.length, 1, 'one job runs check-all, on the domains the caller hands it');
+  assert.deepEqual(selection.audits, ['audit']);
   const names = gatesFor(DOMAINS).map((g) => g.name);
   assert.equal(new Set(names).size, names.length);
   assert.deepEqual([...names].sort(), GATES.map((g) => g.name).sort());

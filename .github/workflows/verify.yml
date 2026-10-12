@@ -94,6 +94,32 @@ jobs:
           DOMAINS: ${{ inputs.domains }}
         run: bun scripts/check/arena/check-all.ts --no-tests --domain="$DOMAINS"
 
+  audit:
+    name: audit
+    needs: [build]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+      - uses: actions/cache@v6
+        with:
+          path: ~/.bun/install/cache
+          key: bun-cache-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+          restore-keys: bun-cache-${{ runner.os }}-
+      - run: bun install --frozen-lockfile
+      - name: the build this run made
+        uses: actions/download-artifact@v8
+        with:
+          name: arena-build-${{ github.run_id }}
+
+      - name: every traced node opens only what it declares
+        run: bun scripts/check/arena/check-graph.ts --audit
+      - name: the audit rewrote nothing tracked
+        run: git diff --exit-code
+
   suites-scripts:
     name: suites under scripts/
     needs: [build]
