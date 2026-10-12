@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ARENA_TOAST_DISMISS } from './components/feedback/arena-toast/ArenaToast.tsx';
-import { arenaToastDelay, type ArenaToastNotice } from './ToastClock.ts';
-
-export type { ArenaToastNotice };
+import type { ArenaToastNotice } from './Api.generated.ts';
+import { arenaToastDelay } from './ToastClock.ts';
 
 export interface ArenaToastEntry extends ArenaToastNotice {
   id: number;

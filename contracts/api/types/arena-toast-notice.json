@@ -1,0 +1,13 @@
+{
+  "name": "ArenaToastNotice",
+  "kind": "object",
+  "description": "A notice raised from code rather than from a template, drawn by the ArenaToast the consumer renders in the host. Every field means what the toast's member of the same name means. How long the notice stays follows from its tone, its action and persist: a danger notice or a persisting one has no timer, an actionable one stays longer than a plain one.",
+  "fields": {
+    "title": { "form": "primitive", "type": "string", "description": "The bold lead line." },
+    "message": { "form": "primitive", "type": "string", "description": "The body." },
+    "tone": { "form": "enum", "type": "ArenaToastTone", "default": "neutral", "description": "The side bar's colour: neutral reports no outcome, success and danger report one. A danger notice persists." },
+    "actionLabel": { "form": "primitive", "type": "string", "description": "The label of the single inline action. Absent, or blank, renders no action and the notice takes the plain interval." },
+    "persist": { "form": "primitive", "type": "boolean", "default": false, "description": "Disables the auto-dismiss and shows the Pinned marker. A danger notice persists whatever this says." },
+    "dismissible": { "form": "primitive", "type": "boolean", "default": false, "description": "Whether the × is shown." }
+  }
+}
