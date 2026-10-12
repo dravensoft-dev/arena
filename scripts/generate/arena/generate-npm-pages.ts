@@ -15,6 +15,7 @@ import { CSS_CHAIN, tokenCatalogue } from '../../lib/arena/package-assembly.ts';
 import { NPM_PAGES, renderQuestions } from '../../lib/arena/npm-questions.ts';
 import { ARENA_EXT, RESERVED } from '../core/arena-cli/style-plugin-rules.ts';
 import { readJson } from '../../utils/read-file.ts';
+import { fieldEntries } from '../../lib/arena/contract-shapes.ts';
 import { readPlugin, resolvedPlugin, PLUGIN_TOKENS } from '../core/arena-cli/theme-css.ts';
 import { CSS_TARGETS } from './generate-tokens.ts';
 import { HUES_FILE } from '../../lib/tailwind/hue-sheet.ts';
@@ -52,6 +53,22 @@ export function defaultsStatement(base = root) {
   return `${defaultedSentence(roles, unansweredCount(base))} A minor release may add a role that carries Arena's default. Your root plugin may then leave that role silent, and the role takes the default. The command notes it, as \`N role(s) your root style plugin leaves unanswered take Arena's default: …\`. Your package's \`arena.tokens.json\` writes a role's default beside its type.`;
 }
 
+export const TOAST_NOTICE_CONTRACT = 'contracts/api/types/arena-toast-notice.json';
+export const CONFIRM_REQUEST_CONTRACT = 'contracts/api/types/arena-confirm-request.json';
+
+const cell = (text: string) => text.replace(/\|/g, '\\|');
+
+export function fieldTable(base: string, typeFile: string) {
+  const contract = readJson(join(base, typeFile)) as { fields?: unknown };
+  const rows = fieldEntries(contract.fields).map(([name, field]) => {
+    if (field.type === undefined || field.description === undefined)
+      throw new Error(`generate-npm-pages: ${typeFile} field ${name} carries no ${field.type === undefined ? 'type' : 'description'}`);
+    const fallback = field.default === undefined ? 'none' : `\`${cell(String(field.default))}\``;
+    return `| \`${name}\` | \`${cell(field.type)}\` | ${field.required ? 'yes' : 'no'} | ${fallback} | ${cell(field.description)} |`;
+  });
+  return ['| field | type | required | default | what it means |', '| --- | --- | --- | --- | --- |', ...rows].join('\n');
+}
+
 export const DEFAULT_PLUGIN_DIR = 'plugin-style-store/default';
 export const LAYOUT_ROLES = ['container-max', 'gutter', 'measure-prose'] as const;
 
@@ -73,6 +90,7 @@ export const REGION_TARGETS: Record<string, string[]> = {
   sheets: ['skills/design/references/stylesheets.md'],
   locale: ['skills/design/references/locale.md'],
   toast: ['skills/design/references/exports.md'],
+  queues: ['skills/design/references/exports.md'],
   questions: NPM_PAGES,
   layout: ['skills/design/references/style.md'],
 };
@@ -81,7 +99,7 @@ export const TARGETS = [...new Set(Object.values(REGION_TARGETS).flat())];
 
 export const node = {
   name: 'generate:npm-pages',
-  reads: [...TARGETS, `${DEFAULT_PLUGIN_DIR}/${PLUGIN_TOKENS}`, '.claude-plugin/plugin.json', 'scripts/generate/core/arena-cli/style-plugin-rules.ts', LOCALE_CONTRACT, ROLE_CONTRACT, BEHAVIOUR_CONTRACT, ...CSS_TARGETS],
+  reads: [...TARGETS, `${DEFAULT_PLUGIN_DIR}/${PLUGIN_TOKENS}`, '.claude-plugin/plugin.json', 'scripts/generate/core/arena-cli/style-plugin-rules.ts', LOCALE_CONTRACT, ROLE_CONTRACT, BEHAVIOUR_CONTRACT, TOAST_NOTICE_CONTRACT, CONFIRM_REQUEST_CONTRACT, ...CSS_TARGETS],
   writes: TARGETS,
   feeds: [
     'build:angular-package',
@@ -144,6 +162,14 @@ The package is the code. The server, the plugin and the repository are the langu
     const { standard, actionable } = toastIntervals(base);
     return `**A notice leaves on one of three branches.** The default interval is ${standard}. The interval for a notice carrying an \`actionLabel\` is ${actionable}, because that notice asks the reader to decide and not only to read. A notice raised with \`persist\`, or with \`tone: 'danger'\`, has no timer at all and stays until it is dismissed. A \`danger\` notice ignores a \`persist\` of false.`;
   },
+
+  queues: (base = root) => `**\`raise(notice)\` takes an \`ArenaToastNotice\`.** Every field is optional.
+
+${fieldTable(base, TOAST_NOTICE_CONTRACT)}
+
+**\`ask(request)\` takes an \`ArenaConfirmRequest\`.** Only \`title\` is required.
+
+${fieldTable(base, CONFIRM_REQUEST_CONTRACT)}`,
 
   sheets: (base = root) => {
     const families = sheetFamilies(base).map((one) => one.family).sort().map((family) => `\`${packageSheetName(family)}\``);
@@ -270,7 +296,6 @@ you import it beside the other two. The sheet declares the cascade layer order i
     const contract = readJson(join(base, LOCALE_CONTRACT)) as {
       fields: Record<string, { default: string; description: string }>;
     };
-    const cell = (text: string) => text.replace(/\|/g, '\\|');
     const rows = Object.entries(contract.fields)
       .map(([name, field]) => `| \`${name}\` | \`${cell(field.default)}\` | ${cell(field.description)} |`);
     return ['Every field is optional in what you provide, and one you leave out keeps the default below.', '',

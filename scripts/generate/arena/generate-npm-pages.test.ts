@@ -20,7 +20,7 @@ import { readJson } from '../../utils/read-file.ts';
 import { packageSheetName, sheetFamilies } from '../../lib/tailwind/vocabulary.ts';
 import { MAX_WORDS, plain, words } from '../../check/arena/check-register.ts';
 
-const SHARED = ['repository', 'skin', 'defaults', 'sheets', 'toast', 'layout'];
+const SHARED = ['repository', 'skin', 'defaults', 'sheets', 'toast', 'layout', 'queues'];
 
 test('a region shared by several pages names no layer, because it is written into each at once', () => {
   const tokens = Object.entries(LAYER_TOKENS)
@@ -186,6 +186,30 @@ test('the toast region writes the intervals the behaviour contract holds, and no
   const region = renderRegion('toast', base);
   assert.match(region, /default interval is 111 ms\. The interval for a notice carrying an `actionLabel` is 222 ms/);
   assert.match(region, /`persist`, or with `tone: 'danger'`, has no timer/);
+});
+
+test('the queues region tables each field of a notice and of a confirmation request, in contract order', () => {
+  const exportsPage = 'skills/design/references/exports.md';
+  assert.ok(regionsOf(exportsPage).includes('queues'), 'the exports page carries the queues region');
+  const region = renderRegion('queues', repoRoot, exportsPage);
+  for (const [lead, file] of [['ArenaToastNotice', 'arena-toast-notice'], ['ArenaConfirmRequest', 'arena-confirm-request']]) {
+    const fields = Object.entries((readJson(join(repoRoot, `contracts/api/types/${file}.json`)) as {
+      fields: Record<string, { required?: boolean; default?: unknown }>;
+    }).fields);
+    assert.ok(fields.length > 0, `${lead} declares fields`);
+    const rows = region.split('\n').filter((line) => fields.some(([name]) => line.startsWith(`| \`${name}\` |`)));
+    const own = lead === 'ArenaToastNotice' ? rows.slice(0, fields.length) : rows.slice(-fields.length);
+    assert.deepEqual(own.map((line) => line.split(' | ')[0]), fields.map(([name]) => `| \`${name}\``), `${lead} rows follow contract order`);
+    fields.forEach(([, field], at) => {
+      const cells = own[at]!.split(' | ');
+      assert.equal(cells[2], field.required ? 'yes' : 'no');
+      if (field.default === undefined) assert.equal(cells[3], 'none');
+      else assert.equal(cells[3], `\`${String(field.default)}\``);
+    });
+  }
+  assert.ok(region.includes('`raise(notice)`') && region.includes('`ask(request)`'), 'each table is led by the method that takes it');
+  assert.equal(region.split('\n').filter((line) => / \| yes \| /.test(line)).length, 1, 'only one field in either table is required');
+  assert.match(region, /\| `title` \| `string` \| yes \|/);
 });
 
 test('the tokens region tables every value of its nine groups that no role answers, and no role at all', () => {
