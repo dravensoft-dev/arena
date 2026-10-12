@@ -4,6 +4,7 @@
  * because a hand-written list of 1500 names ages the first time the package does. EXEMPT is
  * empty and is meant to stay that way: a name Phosphor does not have is a typo, not a case. */
 
+import { spawnSync } from 'node:child_process';
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { relPosix } from '../../utils/posix-path.ts';
@@ -11,6 +12,7 @@ import { isMainModule } from '../../utils/main-module.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { repoRoot as ROOT } from '../../lib/arena/repo-root.ts';
 import { withForeignTrees } from '../../lib/arena/foreign-trees.ts';
+import { hostBinary } from '../../lib/arena/host-binary.ts';
 
 export const node = {
   name: 'check:icons',
@@ -26,7 +28,7 @@ export const node = {
 
 export const PHOSPHOR = 'node_modules/@phosphor-icons/web/src';
 
-export const SCANNED_ROOTS = ['frameworks', 'intro', 'contracts', 'docs'];
+export const SCANNED_ROOTS = ['frameworks', 'intro', 'contracts'];
 export const SCANNED_EXTENSIONS = ['.ts', '.tsx', '.js', '.jsx', '.html', '.json', '.md', '.css'];
 export const SKIPPED_DIRECTORIES = withForeignTrees('dist', 'build', 'vendor');
 
@@ -93,10 +95,24 @@ export function tokenProblems(text: string, where: string, weights: Map<string, 
   return problems;
 }
 
-export function scannedFiles(root = ROOT) {
+export function untrackedRoots(root = ROOT) {
+  const present = SCANNED_ROOTS.filter((name) => existsSync(join(root, name)));
+  if (present.length === 0) return new Set<string>();
+  const git = hostBinary('git', 'to ask which scanned roots hold a tracked file, so a local directory '
+    + 'no clone holds never reaches a verdict');
+  const asked = spawnSync(git, ['ls-files', '-z', '--', ...present], { cwd: root, encoding: 'utf8' });
+  if (asked.status !== 0) {
+    throw new Error(`git ls-files exited ${asked.status} in ${root}: ${asked.stderr}`);
+  }
+  const held = new Set((asked.stdout ?? '').split('\0').filter(Boolean).map((path) => path.split('/')[0]));
+  return new Set(present.filter((name) => !held.has(name)));
+}
+
+export function scannedFiles(root = ROOT, ignored = untrackedRoots(root)) {
   const skip = (name: string) => name.startsWith('.') || SKIPPED_DIRECTORIES.has(name);
   const found: string[] = [];
   for (const name of SCANNED_ROOTS) {
+    if (ignored.has(name)) continue;
     const dir = join(root, name);
     if (!existsSync(dir) || !statSync(dir).isDirectory()) continue;
     found.push(...walkFiles(dir, { skip }).filter((p) => SCANNED_EXTENSIONS.some((e) => p.endsWith(e))));

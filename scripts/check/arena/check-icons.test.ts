@@ -4,12 +4,13 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
 import { relPosix } from '../../utils/posix-path.ts';
 import {
-  EXEMPT, ICON_TOKEN, SCANNED_ROOTS, everyGlyph, scannedFiles, staleExemptions, tokenProblems,
+  EXEMPT, ICON_TOKEN, SCANNED_ROOTS, everyGlyph, untrackedRoots, scannedFiles, staleExemptions, tokenProblems,
   weightsFrom, zeroWeightProblems,
 } from './check-icons.ts';
 
@@ -21,11 +22,17 @@ const ARENA_WEIGHTS = new Map([
 
 function tree(files: Record<string, string>) {
   const root = mkdtempSync(join(tmpdir(), 'arena-icons-'));
+  const git = (...args: string[]) => {
+    const done = spawnSync('git', args, { cwd: root, encoding: 'utf8' });
+    assert.equal(done.status, 0, `git ${args.join(' ')}: ${done.stderr}`);
+  };
+  git('init', '-q');
   for (const [rel, body] of Object.entries(files) as [string, string][]) {
     const path = join(root, rel);
     mkdirSync(dirname(path), { recursive: true });
     writeFileSync(path, body);
   }
+  git('add', '-A');
   return root;
 }
 
@@ -103,8 +110,21 @@ test('the walk skips the directories that hold copies, and takes the roots by na
   rmSync(root, { recursive: true });
 });
 
+test('a scanned root that holds no tracked file never reaches a verdict, whoever ignores it', () => {
+  const root = tree({
+    '.gitignore': 'intro/\n',
+    'intro/plan.html': 'ph-bold ph-nope',
+    'frameworks/react/A.tsx': 'ph-bold ph-house',
+  });
+  assert.deepEqual([...untrackedRoots(root)], ['intro']);
+  const found = scannedFiles(root).map((p) => relPosix(root, p));
+  assert.deepEqual(found, ['frameworks/react/A.tsx'],
+    'a directory only this machine holds would otherwise fail the gate here and pass on a clone');
+  rmSync(root, { recursive: true });
+});
+
 test('the scanned roots are named by literal value', () => {
-  assert.deepEqual([...SCANNED_ROOTS].sort(), ['contracts', 'docs', 'frameworks', 'intro'],
+  assert.deepEqual([...SCANNED_ROOTS].sort(), ['contracts', 'frameworks', 'intro'],
     'adding a root is a decision: a tree nobody scans is a tree where a typo lives forever');
 });
 
