@@ -92,8 +92,10 @@ jobs:
       - name: a browser, and CHROME_PATH is deliberately not exported
         uses: browser-actions/setup-chrome@v1
 
-      - name: build every step
-        run: bun run build
+      # Assembled, because check:consumer judges a package and never builds one, and check:graph
+      # reads the package steps' writes on disk: a plain build leaves both with no dist/ to read.
+      - name: build every step and assemble the packages
+        run: bun run build:packages
 
       - name: byte-identical to what the Linux tree committed
         run: git diff --exit-code

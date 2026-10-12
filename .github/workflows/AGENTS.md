@@ -170,8 +170,9 @@ tested. `Arena PR` runs on pull requests into `develop` as well as into `main`, 
 the head at that moment; a merge commit resolved afterwards, and a push straight to the branch, are
 verified by this workflow and by nothing else.
 
-**`portable` is the operating system matrix**, one leg per platform on its own `bun run build`, and
-this is where the question is asked. `check:portability` holds the legs equal to
+**`portable` is the operating system matrix**, one leg per platform on its own
+`bun run build:packages`, and this is where the question is asked. A leg assembles the packages:
+`check:consumer` judges one, never builds it. `check:portability` holds the legs equal to
 [`../../scripts/ci/arena/supported-os.ts`](../../scripts/ci/arena/supported-os.ts) and reads this
 file to do it. A merge request from `develop` to `main` is opened on a green `develop`, so a
 platform this matrix reddens is one that never reaches the branch the packages publish from.
