@@ -24,6 +24,7 @@ import {
   type Finished, type Outcome, type Pool, type Slots, type Step,
 } from '../../graph/scheduler.ts';
 import { stepBlock } from '../../graph/step-block.ts';
+import { deadline, type Deadline } from '../../lib/arena/deadline.ts';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const checkRoot = join(here, '..');
@@ -167,11 +168,17 @@ export function parseCheckArgs(argv: string[]) {
 
 export const ANGULAR_EMIT: TestStep = { name: 'build (ngc emit of the Angular layer)', args: ['run', 'build:angular-tests'], pool: 'compiler', cost: 21.2 };
 
+export const TEST_CASE: Deadline = deadline('check-all:test-case', 30_000,
+  'bun ends a case after five seconds, and under two or three heavy slots a different case of the '
+  + 'scripts suite runs past that each sweep while it passes alone in well under one; thirty seconds '
+  + 'holds a loaded host and still ends a case that hangs');
+const cased = (args: string[]) => [...args, `--timeout=${TEST_CASE.ms}`];
+
 export const SUITES: Record<string, { emit: boolean; args: string[] }> = {
-  scripts: { emit: false, args: ['test', 'scripts'] },
-  react: { emit: false, args: ['test', 'frameworks/react', '--path-ignore-patterns=**/*.dom.test.*'] },
-  'react-dom': { emit: false, args: ['test', '--preload', './frameworks/react/test/Preload.js', '.dom.test.'] },
-  angular: { emit: true, args: ['test', 'frameworks/angular/build/test'] },
+  scripts: { emit: false, args: cased(['test', 'scripts']) },
+  react: { emit: false, args: cased(['test', 'frameworks/react', '--path-ignore-patterns=**/*.dom.test.*']) },
+  'react-dom': { emit: false, args: cased(['test', '--preload', './frameworks/react/test/Preload.js', '.dom.test.']) },
+  angular: { emit: true, args: cased(['test', 'frameworks/angular/build/test']) },
 };
 
 const suiteArgs = (name: string) => {
