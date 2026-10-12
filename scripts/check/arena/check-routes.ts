@@ -254,12 +254,12 @@ export const ROUTES: Route[] = [
       + 'column it sits in and how much air goes between two components',
     entry: 'consumer',
     stops: ['skills/design/references/page.md', 'skills/design/references/style.md'],
-    budget: 23_000,
+    budget: 23_250,
     reason:
       'paid per element a builder draws themselves, which every screen has. What it buys is the '
       + 'half of a page that is never a component: which colour role each thing a builder draws takes '
-      + 'and which level holds it back, since under the default style plugin a bare muted ink paints '
-      + 'a caption at body strength and no gate reports it; the three rhythm steps as classes and as '
+      + 'and which level holds it back, because a bare muted ink paints a caption at body strength '
+      + 'under the default style plugin; the three rhythm steps as classes and as '
       + 'custom properties; the row as the horizontal half of those steps rather than a wrapping '
       + 'line; what to wrap when the element being laid out is a component; the block air the band '
       + 'leaves; the gutter as a ceiling; and which frame the viewport shows, through the theme '
@@ -267,8 +267,9 @@ export const ROUTES: Route[] = [
       + 'layout container, the width a page column takes and the sizing section for each layer. It '
       + 'names each layer\'s breakpoint helper and what the quiet ink level is for. The number is what '
       + 'the stops measure, and it grows when Arena ships a piece for somebody else\'s markup rather '
-      + 'than when these pages argue again for one they already name. The page links the step before '
-      + 'it and the token table, and the style page prints the default plugin\'s layout answers.',
+      + 'than when these pages argue again for one they already name. The style page prints the '
+      + 'default plugin\'s layout answers, and its density section sends a reader to the token table '
+      + 'for each class\'s values.',
   },
   {
     name: 'consumer-coldstart',

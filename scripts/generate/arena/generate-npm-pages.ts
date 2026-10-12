@@ -69,6 +69,40 @@ export function fieldTable(base: string, typeFile: string) {
   return ['| field | type | required | default | what it means |', '| --- | --- | --- | --- | --- |', ...rows].join('\n');
 }
 
+export function requiredLead(base: string, typeFile: string) {
+  const contract = readJson(join(base, typeFile)) as { fields?: unknown };
+  const required = fieldEntries(contract.fields).filter(([, field]) => field.required).map(([name]) => `\`${name}\``);
+  if (required.length === 0) return 'Every field is optional.';
+  if (required.length === 1) return `Only ${required[0]} is required.`;
+  return `${required.slice(0, -1).join(', ')} and ${required.at(-1)} are required.`;
+}
+
+export const DENSITY_CONTRACTS = { compact: 'contracts/design/density.compact.json', comfortable: 'contracts/design/density.comfortable.json' };
+export const THEME_SHEET = 'frameworks/tailwind/Theme.css';
+const TYPE_GROUPS = ['font', 'fw', 'fs', 'lh', 'ls'];
+
+function utilitiesOf(base: string, pattern: RegExp, render: (kind: string, name: string) => string, keysOf = (match: RegExpExecArray) => [match[3]!]) {
+  const found = new Map<string, string[]>();
+  for (const line of readFileSync(join(base, THEME_SHEET), 'utf8').split('\n')) {
+    const match = pattern.exec(line);
+    if (!match) continue;
+    const utility = `\`${render(match[1]!, match[2]!)}\``;
+    for (const key of keysOf(match)) found.set(key, [...(found.get(key) ?? []), utility]);
+  }
+  return found;
+}
+
+export function densityValues(base: string, file: string) {
+  const dz = (readJson(join(base, file)) as { dz: Record<string, { $value: unknown }> }).dz;
+  const text = (key: string, value: unknown) => {
+    if (typeof value === 'string' || typeof value === 'number') return String(value);
+    const one = value as { value?: unknown; unit?: unknown } | null;
+    if (typeof one?.value === 'number' && typeof one.unit === 'string') return `${one.value}${one.unit}`;
+    throw new Error(`generate-npm-pages: ${file} dz.${key} has a $value that is neither a string, a number nor { value, unit }`);
+  };
+  return (key: string) => dz[key] === undefined ? undefined : text(key, dz[key].$value);
+}
+
 export const DEFAULT_PLUGIN_DIR = 'plugin-style-store/default';
 export const LAYOUT_ROLES = ['container-max', 'gutter', 'measure-prose'] as const;
 
@@ -86,6 +120,8 @@ export const REGION_TARGETS: Record<string, string[]> = {
   repository: ['frameworks/react/PACKAGE.md', 'frameworks/angular/PACKAGE.md'],
   skin: ['skills/design/references/config.md'],
   tokens: ['skills/design/references/tokens.md'],
+  density: ['skills/design/references/tokens.md'],
+  typography: ['skills/design/references/tokens.md'],
   defaults: ['skills/design/references/style-kernel.md'],
   sheets: ['skills/design/references/stylesheets.md'],
   locale: ['skills/design/references/locale.md'],
@@ -99,7 +135,7 @@ export const TARGETS = [...new Set(Object.values(REGION_TARGETS).flat())];
 
 export const node = {
   name: 'generate:npm-pages',
-  reads: [...TARGETS, `${DEFAULT_PLUGIN_DIR}/${PLUGIN_TOKENS}`, '.claude-plugin/plugin.json', 'scripts/generate/core/arena-cli/style-plugin-rules.ts', LOCALE_CONTRACT, ROLE_CONTRACT, BEHAVIOUR_CONTRACT, TOAST_NOTICE_CONTRACT, CONFIRM_REQUEST_CONTRACT, ...CSS_TARGETS],
+  reads: [...TARGETS, `${DEFAULT_PLUGIN_DIR}/${PLUGIN_TOKENS}`, '.claude-plugin/plugin.json', 'scripts/generate/core/arena-cli/style-plugin-rules.ts', LOCALE_CONTRACT, ROLE_CONTRACT, BEHAVIOUR_CONTRACT, ...Object.values(DENSITY_CONTRACTS), THEME_SHEET, TOAST_NOTICE_CONTRACT, CONFIRM_REQUEST_CONTRACT, ...CSS_TARGETS],
   writes: TARGETS,
   feeds: [
     'build:angular-package',
@@ -158,16 +194,44 @@ The package is the code. The server, the plugin and the repository are the langu
     return ['| custom property | value |', '| --- | --- |', ...rows].join('\n');
   },
 
+  density: (base = root) => {
+    const { tokens } = tokenCatalogue(base);
+    const compact = densityValues(base, DENSITY_CONTRACTS.compact);
+    const comfortable = densityValues(base, DENSITY_CONTRACTS.comfortable);
+    const utilities = utilitiesOf(base, /^\s*--(spacing|text|leading)-([a-z0-9-]+):\s*([^;]*var\(--dz-[^;]*);/,
+      (kind, name) => kind === 'spacing' ? `*-${name}` : `${kind}-${name}`,
+      (match) => [...match[3]!.matchAll(/var\(--dz-([a-z0-9-]+)\)/g)].map((one) => one[1]!));
+    const shown = (value: string | undefined) => value === undefined ? 'base' : `\`${cell(value)}\``;
+    const rows = Object.entries(tokens).filter(([name]) => name.startsWith('dz-')).map(([name, value]) => {
+      const key = name.slice(3);
+      const reads = utilities.get(key)?.join(', ') ?? 'none';
+      return `| \`--${name}\` | \`${value}\` | ${shown(compact(key))} | ${shown(comfortable(key))} | ${reads} |`;
+    });
+    return ['`*-` stands for any spacing utility, such as `h-` or `py-`.', '',
+      '| custom property | base | .arena-compact | .arena-comfortable | Tailwind |', '| --- | --- | --- | --- | --- |', ...rows].join('\n');
+  },
+
+  typography: (base = root) => {
+    const { tokens } = tokenCatalogue(base);
+    const roles = new Set(Object.keys(readJson(join(base, ROLE_CONTRACT)) as Record<string, unknown>));
+    const utilities = utilitiesOf(base, /^\s*--(font-weight|font|text|leading|tracking)-([a-z0-9-]+):\s*var\(--((?:font|fw|fs|lh|ls)-[a-z0-9-]+)\)/,
+      (kind, name) => kind === 'font-weight' ? `font-${name}` : `${kind}-${name}`);
+    const rows = TYPE_GROUPS.flatMap((group) => Object.entries(tokens)
+      .filter(([name]) => !roles.has(name) && (name === group || name.startsWith(`${group}-`)))
+      .map(([name, value]) => `| \`--${name}\` | \`${value}\` | ${utilities.get(name)?.join(', ') ?? 'none'} |`));
+    return ['| custom property | value | Tailwind |', '| --- | --- | --- |', ...rows].join('\n');
+  },
+
   toast: (base = root) => {
     const { standard, actionable } = toastIntervals(base);
     return `**A notice leaves on one of three branches.** The default interval is ${standard}. The interval for a notice carrying an \`actionLabel\` is ${actionable}, because that notice asks the reader to decide and not only to read. A notice raised with \`persist\`, or with \`tone: 'danger'\`, has no timer at all and stays until it is dismissed. A \`danger\` notice ignores a \`persist\` of false.`;
   },
 
-  queues: (base = root) => `**\`raise(notice)\` takes an \`ArenaToastNotice\`.** Every field is optional.
+  queues: (base = root) => `**\`raise(notice)\` takes an \`ArenaToastNotice\`.** ${requiredLead(base, TOAST_NOTICE_CONTRACT)}
 
 ${fieldTable(base, TOAST_NOTICE_CONTRACT)}
 
-**\`ask(request)\` takes an \`ArenaConfirmRequest\`.** Only \`title\` is required.
+**\`ask(request)\` takes an \`ArenaConfirmRequest\`.** ${requiredLead(base, CONFIRM_REQUEST_CONTRACT)}
 
 ${fieldTable(base, CONFIRM_REQUEST_CONTRACT)}`,
 

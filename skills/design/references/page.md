@@ -107,7 +107,7 @@ way. Otherwise a reader learns that green is sometimes a category.
 
 **`--sp-*` is the spacing scale**, and everything the rhythm classes do not cover reads it. A bare length is a bug, and this scale makes it unnecessary. [`contracts/design/Scales.md`](../../../contracts/design/Scales.md) says what each step is for.
 
-**Every other group reads the same way.** [`tokens.md`](./tokens.md) tables the steps above and the radius, border, shadow, motion, layer and breakpoint values. Your package's `arena.tokens.json` lists every value, nested under `tokens` beside `roles`, with the type and density groups. The file's keys drop the leading `--`, so `sp-4` there is `--sp-4` here. A media query takes no `var()`, so a frame uses the `md:` variants or the breakpoint helper, `useArenaViewportBelow` in React and `arenaViewportBelow` in Angular, in [`exports.md`](./exports.md).
+**Every other group reads the same way.** [`tokens.md`](./tokens.md) tables the steps above and the radius, border, shadow, motion, layer, breakpoint, density and type scale values. Your package's `arena.tokens.json` lists every value, nested under `tokens` beside `roles`, with the type and density groups. The file's keys drop the leading `--`, so `sp-4` there is `--sp-4` here. A media query takes no `var()`, so a frame uses the `md:` variants or the breakpoint helper, `useArenaViewportBelow` in React and `arenaViewportBelow` in Angular, in [`exports.md`](./exports.md).
 
 **`--pad-safe-top`, `--pad-safe-right`, `--pad-safe-bottom` and `--pad-safe-left`** compose the
 device's own insets with that scale, in

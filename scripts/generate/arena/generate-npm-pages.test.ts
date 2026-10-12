@@ -12,7 +12,7 @@ import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { LAYER_TOKENS, FORBIDDEN } from '../../check/arena/check-layer-independence.ts';
 import {
   TARGETS, openLine, closeLine, renderRegion, applyRegion, renderTarget, regionsOf,
-  ROLE_CONTRACT, BEHAVIOUR_CONTRACT, toastIntervals, defaultedRoles, defaultedSentence, defaultsStatement, unansweredCount,
+  ROLE_CONTRACT, BEHAVIOUR_CONTRACT, densityValues, requiredLead, toastIntervals, defaultedRoles, defaultedSentence, defaultsStatement, unansweredCount,
 } from './generate-npm-pages.ts';
 import { tokenCatalogue } from '../../lib/arena/package-assembly.ts';
 import { NPM_PAGES } from '../../lib/arena/npm-questions.ts';
@@ -44,7 +44,7 @@ test('each target carries exactly the regions mapped to it', () => {
   assert.deepEqual(regionsOf('frameworks/react/PACKAGE.md'), ['repository', 'questions']);
   assert.deepEqual(regionsOf('skills/design/references/config.md'), ['skin']);
   assert.deepEqual(regionsOf('skills/design/references/stylesheets.md'), ['sheets']);
-  assert.deepEqual(regionsOf('skills/design/references/tokens.md'), ['tokens']);
+  assert.deepEqual(regionsOf('skills/design/references/tokens.md'), ['tokens', 'density', 'typography']);
   assert.deepEqual(regionsOf('skills/design/references/style-kernel.md'), ['defaults']);
   assert.deepEqual(regionsOf('skills/design/references/style.md'), ['layout']);
   assert.deepEqual(regionsOf('mcp/NPM.md'), ['questions']);
@@ -192,24 +192,61 @@ test('the queues region tables each field of a notice and of a confirmation requ
   const exportsPage = 'skills/design/references/exports.md';
   assert.ok(regionsOf(exportsPage).includes('queues'), 'the exports page carries the queues region');
   const region = renderRegion('queues', repoRoot, exportsPage);
-  for (const [lead, file] of [['ArenaToastNotice', 'arena-toast-notice'], ['ArenaConfirmRequest', 'arena-confirm-request']]) {
+  const [noticeHalf = '', requestHalf = ''] = region.split('**`ask(request)` takes an `ArenaConfirmRequest`.**');
+  assert.ok(noticeHalf?.includes('**`raise(notice)` takes an `ArenaToastNotice`.**') && requestHalf !== '', 'each table is led by the method that takes it');
+  for (const [half, file] of [[noticeHalf, 'arena-toast-notice'], [requestHalf, 'arena-confirm-request']] as const) {
     const fields = Object.entries((readJson(join(repoRoot, `contracts/api/types/${file}.json`)) as {
       fields: Record<string, { required?: boolean; default?: unknown }>;
     }).fields);
-    assert.ok(fields.length > 0, `${lead} declares fields`);
-    const rows = region.split('\n').filter((line) => fields.some(([name]) => line.startsWith(`| \`${name}\` |`)));
-    const own = lead === 'ArenaToastNotice' ? rows.slice(0, fields.length) : rows.slice(-fields.length);
-    assert.deepEqual(own.map((line) => line.split(' | ')[0]), fields.map(([name]) => `| \`${name}\``), `${lead} rows follow contract order`);
+    assert.ok(fields.length > 0, `${file} declares fields`);
+    const own = half.split('\n').filter((line) => line.startsWith('| `'));
+    assert.deepEqual(own.map((line) => line.split(' | ')[0]), fields.map(([name]) => `| \`${name}\``), `${file} rows follow contract order`);
     fields.forEach(([, field], at) => {
       const cells = own[at]!.split(' | ');
       assert.equal(cells[2], field.required ? 'yes' : 'no');
       if (field.default === undefined) assert.equal(cells[3], 'none');
       else assert.equal(cells[3], `\`${String(field.default)}\``);
     });
+    assert.equal(own.filter((line) => / \| yes \| /.test(line)).length, fields.filter(([, field]) => field.required).length, `${file} marks exactly its required fields`);
   }
-  assert.ok(region.includes('`raise(notice)`') && region.includes('`ask(request)`'), 'each table is led by the method that takes it');
-  assert.equal(region.split('\n').filter((line) => / \| yes \| /.test(line)).length, 1, 'only one field in either table is required');
   assert.match(region, /\| `title` \| `string` \| yes \|/);
+  assert.match(noticeHalf, /ArenaToastNotice`\.\*\* Every field is optional\./);
+  assert.match(requestHalf, /^ Only `title` is required\./);
+});
+
+test('the lead of a queues table is read off the required flags of its contract', () => {
+  const base = mkdtempSync(join(tmpdir(), 'arena-lead-'));
+  try {
+    const write = (fields: Record<string, { required?: boolean }>) => {
+      mkdirSync(join(base, 'contracts/api/types'), { recursive: true });
+      writeFileSync(join(base, 'contracts/api/types/t.json'), JSON.stringify({ fields }));
+    };
+    const file = 'contracts/api/types/t.json';
+    write({ a: {}, b: {} });
+    assert.equal(requiredLead(base, file), 'Every field is optional.');
+    write({ a: { required: true }, b: {} });
+    assert.equal(requiredLead(base, file), 'Only `a` is required.');
+    write({ a: { required: true }, b: { required: true }, c: {} });
+    assert.equal(requiredLead(base, file), '`a` and `b` are required.');
+  } finally {
+    rmSync(base, { recursive: true, force: true });
+  }
+});
+
+test('a density value of a shape the table cannot show is refused, naming the file and the key', () => {
+  const base = mkdtempSync(join(tmpdir(), 'arena-density-'));
+  try {
+    const file = 'contracts/design/density.compact.json';
+    mkdirSync(join(base, 'contracts/design'), { recursive: true });
+    writeFileSync(join(base, file), JSON.stringify({ dz: {
+      a: { $value: { value: 2, unit: 'px' } }, b: { $value: 3 }, c: { $value: '{dz.a}' }, d: { $value: { amount: 2 } },
+    } }));
+    const read = densityValues(base, file);
+    assert.deepEqual(['a', 'b', 'c', 'zz'].map(read), ['2px', '3', '{dz.a}', undefined]);
+    assert.throws(() => read('d'), /density\.compact\.json dz\.d has a \$value that is neither/);
+  } finally {
+    rmSync(base, { recursive: true, force: true });
+  }
 });
 
 test('the tokens region tables every value of its nine groups that no role answers, and no role at all', () => {
@@ -225,4 +262,41 @@ test('the tokens region tables every value of its nine groups that no role answe
   for (const role of roles) assert.ok(!region.includes(`| \`--${role}\` |`), `--${role} is a role a style plugin answers`);
   assert.ok(roles.has('r-surface') && region.includes('--r-xs'), 'the scale stays and the role goes');
   assert.ok(!region.includes('--fs-'), 'a group outside the nine is not tabled');
+});
+
+const unreadButRead = (rows: string[], theme: string) => rows.map((row) => row.split('|').map((cell) => cell.trim()))
+  .filter((cells) => cells[5] === 'none' && theme.includes(`var(${cells[1]!.replace(/`/g, '')})`)).map((cells) => cells[1]!);
+
+test('the density region tables every --dz property once, with the value each class gives it and the utility that reads it', () => {
+  const { tokens } = tokenCatalogue(repoRoot);
+  const compact = (readJson(join(repoRoot, 'contracts/design/density.compact.json')) as { dz: Record<string, { $value: { value: number; unit: string } }> }).dz;
+  const rows = renderRegion('density').split('\n').filter((line) => line.startsWith('| `--dz-'));
+  const names = Object.keys(tokens).filter((name) => name.startsWith('dz-'));
+  assert.ok(names.length > 0, 'the catalogue holds the dz group');
+  assert.deepEqual(rows.map((row) => row.split('|')[1]!.trim()), names.map((name) => `\`--${name}\``));
+  const rowOf = (name: string) => rows.find((row) => row.startsWith(`| \`--${name}\` |`))!.split('|').map((cell) => cell.trim());
+  const ctl = rowOf('dz-ctl-h');
+  assert.equal(ctl[3], `\`${compact['ctl-h']!.$value.value}${compact['ctl-h']!.$value.unit}\``);
+  assert.equal(ctl[5], '`*-ctl-h`');
+  assert.equal(rowOf('dz-text-lg')[4], 'base');
+  assert.equal(rowOf('dz-row-scale-x')[5], '`*-row-x`, `*-nav-row-x`, `*-row-floating-x`');
+  const theme = readFileSync(join(repoRoot, 'frameworks/tailwind/Theme.css'), 'utf8');
+  assert.deepEqual(unreadButRead(rows, theme), []);
+  const planted = '| `--dz-planted` | `1px` | base | base | none |';
+  assert.deepEqual(unreadButRead([...rows, planted], `${theme}\n  --spacing-planted: var(--dz-planted);`), ['`--dz-planted`']);
+  assert.match(renderRegion('density'), /`\*-` stands for any spacing utility, such as `h-` or `py-`\./);
+});
+
+test('the typography region tables every font, weight, size, leading and tracking token no role answers', () => {
+  const { tokens } = tokenCatalogue(repoRoot);
+  const roles = new Set(Object.keys(readJson(join(repoRoot, ROLE_CONTRACT)) as Record<string, unknown>));
+  const region = renderRegion('typography');
+  const rows = region.split('\n').filter((line) => line.startsWith('| `--'));
+  const names = ['font', 'fw', 'fs', 'lh', 'ls'].flatMap((group) => Object.keys(tokens)
+    .filter((name) => !roles.has(name) && (name === group || name.startsWith(`${group}-`))));
+  assert.ok(names.length > 0, 'the catalogue holds the type groups');
+  assert.deepEqual(rows.map((row) => row.split('|')[1]!.trim()), names.map((name) => `\`--${name}\``));
+  const rowOf = (name: string) => rows.find((row) => row.startsWith(`| \`--${name}\` |`))!.split('|').map((cell) => cell.trim());
+  assert.equal(rowOf('fw-bold')[3], '`font-bold`');
+  assert.equal(rowOf('lh-root')[3], 'none');
 });
