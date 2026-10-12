@@ -8,7 +8,7 @@ import { join, basename, extname, relative } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { readJson } from '../../utils/read-file.ts';
-import { buildScriptModules, collectScriptTokens, SCRIPT_TARGETS } from '../../generate/arena/generate-tokens.ts';
+import { buildScriptModules, collectScriptTokens, SCRIPT_TARGETS, SOURCES } from '../../generate/arena/generate-tokens.ts';
 import { parseDecls } from '../../lib/arena/css-decls.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { emittedTree } from '../../lib/arena/layers.ts';
@@ -20,7 +20,7 @@ import { withForeignTrees } from '../../lib/arena/foreign-trees.ts';
 export const node = {
   name: 'check:script-tokens',
   reads: [
-    'contracts/design/**', 'contracts/design-generated/**', 'contracts/api/types',
+    'contracts/design/**', 'contracts/design-generated/**', 'contracts/api/types', ...SOURCES,
     'frameworks/react/**', 'frameworks/angular/**',
     '!frameworks/angular/build/**', '!frameworks/react/dist/**', '!frameworks/angular/dist/**',
   ],

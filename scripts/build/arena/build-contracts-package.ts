@@ -76,6 +76,7 @@ export const node = {
     'contracts/NPM.md',
     '.claude-plugin/plugin.json',
     'LICENSE',
+    'frameworks/Components.json',
   ],
   writes: [`${DIST}/**`],
   feeds: ['check:community', 'check:contracts-package'],

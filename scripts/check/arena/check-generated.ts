@@ -19,7 +19,7 @@ export const node = {
   name: 'check:generated',
   reads: [
     '.gitignore', 'frameworks/**', 'contracts/design/**', 'contracts/design-generated/**',
-    'intro/**', 'assets/fonts/**',
+    'intro/**', 'assets/fonts/**', 'plugin-style-store/**',
     '!frameworks/react/dist/**', '!frameworks/angular/dist/**', '!frameworks/angular/build/**',
   ],
   writes: [],

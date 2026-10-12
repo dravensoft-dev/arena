@@ -56,7 +56,7 @@ export const node = {
     'check:catalogue',
     'build:angular-package',
     'build:react-package',
-    'build:mcp-package',
+    'build:mcp-package', 'check:mcp',
     'check:appearance',
     'check:parts',
     'check:arbitrary',
@@ -77,7 +77,7 @@ export const node = {
     'check:skills',
     'check:states',
     'build:site',
-    'check:register'],
+    'check:register', 'check:site'],
 };
 
 const GENERATED = '<!-- GENERATED from the contracts by bun run generate:skills.'

@@ -13,7 +13,7 @@ import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { readJson } from '../../utils/read-file.ts';
-import { buildApiModules } from '../../generate/arena/generate-api-types.ts';
+import { buildApiModules, LOCALE_TARGETS } from '../../generate/arena/generate-api-types.ts';
 import { PREFIX } from './check-structure.ts';
 import {
   reactSurface, angularSurface, reactImplementation, angularImplementation, defaultProblems,
@@ -40,6 +40,7 @@ export const node = {
     'frameworks/react/components/**/*.tsx', 'frameworks/angular/components/**/*.ts',
     'frameworks/tailwind/components/**/*.manifest.json',
     'frameworks/react/Api.generated.ts', 'frameworks/angular/Api.generated.ts',
+    ...LOCALE_TARGETS, 'frameworks/tailwind/Hues.json',
   ],
   writes: [],
   feeds: [],

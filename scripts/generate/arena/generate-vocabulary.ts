@@ -22,7 +22,7 @@ export const node = {
   name: 'generate:vocabulary',
   reads: [`${VOCABULARY_DIR}/**`, 'frameworks/tailwind/components/**/*.manifest.json'],
   writes: [VOCABULARY_TARGET],
-  feeds: ['check:families', 'check:classes', 'check:community', 'check:generated', 'check:icons', 'check:arbitrary', 'build:mcp-package', 'build:site'],
+  feeds: ['check:families', 'check:classes', 'check:community', 'check:generated', 'check:icons', 'check:arbitrary', 'check:register', 'check:skills', 'check:support', 'build:mcp-package', 'check:mcp', 'build:site', 'check:site'],
 };
 
 const PROMPT_LAYERS = [['React', 'react'], ['Angular', 'angular']] as const;

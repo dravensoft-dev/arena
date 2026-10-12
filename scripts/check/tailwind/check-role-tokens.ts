@@ -19,7 +19,7 @@ import { MANIFESTS } from '../../build/tailwind/build-tailwind.ts';
 
 export const node = {
   name: 'check:roles',
-  reads: [MANIFESTS],
+  reads: [MANIFESTS, 'contracts/design/roles.json'],
   writes: [],
   feeds: [],
 };

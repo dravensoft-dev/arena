@@ -32,7 +32,7 @@ export const node = {
     'check:families',
     'build:angular-package',
     'build:react-package',
-    'build:mcp-package',
+    'build:mcp-package', 'check:mcp',
     'check:appearance',
     'check:parts',
     'check:arbitrary',
@@ -54,7 +54,7 @@ export const node = {
     'check:skills',
     'check:states',
     'build:site',
-    'check:register'],
+    'check:register', 'check:site'],
 };
 
 export const CONSUMER_DATA = 'Record<string, unknown>';

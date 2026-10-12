@@ -20,11 +20,13 @@ import {
   DOMAIN, SITE_DIR, LAYERS, BENCHES_DIR, pages, benchPages, indexedDirectories, missingPlaygrounds,
   missingModules, modules, url, directoryUrl,
 } from '../../lib/arena/site-pages.ts';
+import { MARKERS_FILE } from '../../lib/arena/component-map.ts';
+import { node as siteBuildNode } from '../../build/arena/build-site.ts';
 import { LLMS_INDEX, ROUTER, layerFile, prompts, summary } from '../../lib/arena/llms-index.ts';
 
 export const node = {
   name: 'check:site',
-  reads: [`${SITE_DIR}/**`],
+  reads: [`${SITE_DIR}/**`, ...siteBuildNode.reads, MARKERS_FILE],
   writes: [],
   feeds: [],
 };

@@ -4,15 +4,15 @@ import { isMainModule } from '../../utils/main-module.ts';
 import { arenaTokens } from '../../lib/core/arena-tokens.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { MANIFESTS, PRESET } from '../../build/tailwind/build-tailwind.ts';
-import { readHues } from '../../lib/tailwind/hue-sheet.ts';
-import { readFamilies } from '../../lib/tailwind/vocabulary.ts';
+import { readHues, HUES_FILE } from '../../lib/tailwind/hue-sheet.ts';
+import { readFamilies, VOCABULARY_DIR, FAMILY_SUFFIX } from '../../lib/tailwind/vocabulary.ts';
 import type { Family } from '../../lib/tailwind/vocabulary.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { ROOT_PLUGIN } from '../core/check-style-plugin.ts';
 
 export const node = {
   name: 'check:coverage',
-  reads: [...PRESET, MANIFESTS],
+  reads: [...PRESET, MANIFESTS, HUES_FILE, ROOT_PLUGIN, `${VOCABULARY_DIR}/**/*${FAMILY_SUFFIX}`],
   writes: [],
   feeds: [],
 };

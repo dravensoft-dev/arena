@@ -37,6 +37,7 @@ export const node = {
     'check:target-size',
     'check:playgrounds',
     'build:site',
+    'check:site',
   ],
 };
 

@@ -23,6 +23,7 @@ export const node = {
     'contracts/api/components',
     'frameworks/react/kitchen-sink/**', 'frameworks/angular/kitchen-sink/**',
     'frameworks/angular/ProjectionMarkers.ts', 'frameworks/tailwind/components/**/*.manifest.json',
+    'frameworks/angular/components/**/*.ts', '!frameworks/angular/components/**/*.generated.*',
   ],
   writes: [],
   feeds: [],

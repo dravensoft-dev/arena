@@ -56,6 +56,7 @@ export const node = {
     'check:script-tokens',
     'check:skills',
     'build:site',
+    'check:site',
   ],
 };
 

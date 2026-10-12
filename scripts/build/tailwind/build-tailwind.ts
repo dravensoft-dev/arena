@@ -95,7 +95,7 @@ export const node = {
     'build:angular-tests',
     'build:demos',
     'build:react-package',
-    'check:api',
+    'check:api', 'check:style-plugin-coverage',
     'check:appearance',
     'check:parts',
     'check:arbitrary',
@@ -123,6 +123,7 @@ export const node = {
     'check:tailwind-generated',
     'check:text-contrast',
     'build:site',
+    'check:site',
   ],
 };
 

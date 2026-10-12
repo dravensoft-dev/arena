@@ -16,6 +16,7 @@ import { readJson } from '../../utils/read-file.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import {
   DIST, SOURCE, ENTRY, BIN, NAME, REGISTRY_NAME, RUNTIME_DEPENDENCIES, manifest, sources,
+  node as mcpPackageNode,
 } from '../../build/arena/build-mcp-package.ts';
 import { loadVocabulary } from '../../generate/core/arena-cli/audit.ts';
 import {
@@ -49,6 +50,8 @@ export const node = {
       `frameworks/${layer}/components/**/*.demo.generated.html`,
       `frameworks/${layer}/kitchen-sink/**/${PAGE_FILE}`,
     ]),
+    ...mcpPackageNode.reads, 'contracts/design/*.md', 'contracts/design/*.css', 'intro/styles.css',
+    'frameworks/angular/theme/arena-cdk.css',
   ],
   writes: [],
   feeds: [],

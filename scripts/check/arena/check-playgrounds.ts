@@ -17,13 +17,14 @@ import { relPosix } from '../../utils/posix-path.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { LAYERS } from '../../lib/arena/layers.ts';
 import { playgroundModel, SUBJECT } from '../../lib/arena/playground-model.ts';
-import { buildPlaygrounds } from '../../generate/arena/generate-playgrounds.ts';
+import { buildPlaygrounds, PLAYGROUND_LAYERS } from '../../generate/arena/generate-playgrounds.ts';
 import { memberEntries, fieldEntries } from '../../lib/arena/contract-shapes.ts';
 import type { ComponentContract, MemberSpec, TypeContract } from '../../lib/arena/contract-shapes.ts';
 import type { Fixture, FixtureChild } from '../../lib/arena/playground-model.ts';
 import { captured } from '../../utils/captures.ts';
 import { withForeignTrees } from '../../lib/arena/foreign-trees.ts';
-import { answerOf, readFamilies } from '../../lib/tailwind/vocabulary.ts';
+import { answerOf, readFamilies, VOCABULARY_DIR, FAMILY_SUFFIX } from '../../lib/tailwind/vocabulary.ts';
+import { MARKERS_FILE } from '../../lib/arena/component-map.ts';
 import type { Family } from '../../lib/tailwind/vocabulary.ts';
 import { manifestFor } from '../../lib/tailwind/manifest-surfaces.ts';
 import { manifestPath } from '../../lib/arena/kitchen-sink-model.ts';
@@ -35,7 +36,10 @@ export const node = {
     'contracts/api', 'frameworks/demos/**', 'frameworks/Components.json',
     'frameworks/react/components/**', 'frameworks/angular/components/**',
     'frameworks/tailwind/components/**', 'frameworks/tailwind/consume/**',
-    'frameworks/angular/build/demo/**',
+    'frameworks/angular/build/demo/**', MARKERS_FILE,
+    ...PLAYGROUND_LAYERS.map((layer) => `frameworks/${layer}/playground/PlaygroundCodec.generated.ts`),
+    ...LAYERS.map((layer) => `frameworks/${layer}/AGENTS.md`),
+    `${VOCABULARY_DIR}/**/*${FAMILY_SUFFIX}`,
   ],
   writes: [],
   feeds: [],

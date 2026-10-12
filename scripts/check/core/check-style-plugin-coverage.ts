@@ -28,7 +28,8 @@ export const COMPLETE_CSS = 'plugin-style-store/complete/plugin.css';
 export const node = {
   name: 'check:style-plugin-coverage',
   reads: [ROLES, ROOT_PLUGIN, COMPLETE, COMPLETE_CSS, 'frameworks/tailwind/components/**',
-    ...CSS_TARGETS],
+    ...CSS_TARGETS, 'frameworks/Components.json',
+    'frameworks/tailwind/consume/components/**/*.styles.generated.css'],
   writes: [],
   feeds: [],
 };

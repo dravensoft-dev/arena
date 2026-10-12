@@ -15,7 +15,9 @@ import { isMainModule } from '../../utils/main-module.ts';
 import { unfenced } from '../../lib/arena/markdown-prose.ts';
 import { FRONTMATTER } from '../../lib/arena/llms-index.ts';
 import { REGION_OPENS, REGION_CLOSES, documents } from './check-duplication.ts';
-import { isConsumerDocument, BRANCH_SWITCH } from './check-docs.ts';
+import {
+  isConsumerDocument, BRANCH_SWITCH, CONSUMER_VOCABULARY, CONSUMER_CATALOGUE, CONSUMER_INDEX,
+} from './check-docs.ts';
 import { matchesSpec } from '../../graph/pathspecs.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 
@@ -53,6 +55,7 @@ export const node = {
   reads: [
     'skills/**/*.md', 'frameworks/**/INDEX.md', 'frameworks/**/PACKAGE.md',
     'frameworks/**/*.prompt.md', 'plugin-style-store/catalogue/*/ENTRY.md',
+    CONSUMER_VOCABULARY, `${CONSUMER_CATALOGUE}${CONSUMER_INDEX}`,
     '!frameworks/angular/build/**', '!frameworks/react/dist/**', '!frameworks/angular/dist/**',
   ],
   writes: [],

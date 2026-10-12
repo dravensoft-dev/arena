@@ -49,6 +49,7 @@ export const node = {
     'check:skills',
     'check:vendor',
     'build:site',
+    'check:site',
   ],
 };
 

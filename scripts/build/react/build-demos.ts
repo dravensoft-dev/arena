@@ -58,6 +58,7 @@ export const node = {
     'check:skills',
     'check:states',
     'build:site',
+    'check:site',
   ],
 };
 

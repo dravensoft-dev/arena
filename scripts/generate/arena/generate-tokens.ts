@@ -161,6 +161,7 @@ export const node = {
     'check:token-collisions',
     'check:tokens',
     'build:site',
+    'check:site',
   ],
 };
 

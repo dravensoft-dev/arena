@@ -21,12 +21,14 @@ import { blindFallbacks, repeatedSupports } from '../../lib/tailwind/supports-bl
 import { PREFLIGHT, PRELUDE, sheetPath } from '../../build/tailwind/build-tailwind.ts';
 import { CONSUME, MANIFESTS } from '../../build/tailwind/build-tailwind.ts';
 
+export const ANIMATIONS = 'frameworks/tailwind/Animations.css';
+
 export const node = {
   name: 'check:component-css',
   reads: [
     MANIFESTS, `${CONSUME}/**/*.css`, `${VOCABULARY_DIR}/**`, 'frameworks/tailwind/components/**/*.card.html',
     'contracts/design/environment.css', 'contracts/design/colors.css',
-    'contracts/design-generated/*.generated.css',
+    'contracts/design-generated/*.generated.css', ANIMATIONS,
   ],
   writes: [],
   feeds: [],
@@ -146,8 +148,6 @@ export function sheetProblems(manifests: Manifests, base = root) {
   problems.push(...staleThemeNamedProblems(readNames));
   return problems;
 }
-
-export const ANIMATIONS = 'frameworks/tailwind/Animations.css';
 
 export function keyframeDepths(css: string) {
   const found = [];

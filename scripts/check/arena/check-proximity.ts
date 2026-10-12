@@ -31,7 +31,8 @@ import type { ComponentManifest } from '../../lib/tailwind/manifest-shapes.ts';
 export const node = {
   name: 'check:proximity',
   reads: ['scripts/check/arena/proximity-cases.json', `${VOCABULARY_SHEETS}/**`, 'frameworks/tailwind/consume/**',
-    'frameworks/tailwind/components/**/*.manifest.json', 'intro/styles.css', 'contracts/design-generated/**', 'contracts/design/*.css'],
+    'frameworks/tailwind/components/**/*.manifest.json', 'intro/styles.css', 'contracts/design-generated/**', 'contracts/design/*.css',
+    'plugin-style-store/complete/plugin.css', 'assets/fonts/*.woff2'],
   writes: [],
   feeds: [],
 };
@@ -191,7 +192,7 @@ export async function driveTab(cdp: Pick<Cdp, 'send' | 'on'>, plan: Plan) {
   await withRecorder(cdp, sessionId, async (tab) => {
     await cdp.send('Network.enable', {}, sessionId);
     await cdp.send('Emulation.setDeviceMetricsOverride', VIEWPORT, sessionId);
-    const origin = `http://127.0.0.1:${plan.port}/package.json`;
+    const origin = `http://127.0.0.1:${plan.port}/intro/styles.css`;
     const settled = loadFired(cdp, sessionId);
     await withTimeout(cdp.send('Page.navigate', { url: origin }, sessionId), NAVIGATE.ms,
       `${origin}: navigate timed out after ${NAVIGATE.ms}ms, which is that size because ${NAVIGATE.why}`);

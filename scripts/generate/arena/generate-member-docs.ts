@@ -25,7 +25,7 @@ export const node = {
   reads: ['contracts/api/components', 'frameworks/Components.json', ...COMPONENT_SOURCES],
   writes: COMPONENT_SOURCES,
   feeds: [
-    'check:families',
+    'check:families', 'check:kitchen-sink', 'check:contracts-neutrality',
     'check:architecture',
     'build:angular-package',
     'build:angular-tests',
@@ -59,6 +59,7 @@ export const node = {
     'check:measured-box',
     'generate:playgrounds',
     'build:site',
+    'check:site',
   ],
 };
 

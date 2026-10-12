@@ -10,20 +10,10 @@ import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { expectedCarried } from './check-contracts-package.ts';
-import { axesOf, readFamilies } from '../../lib/tailwind/vocabulary.ts';
+import { axesOf, readFamilies, VOCABULARY_DIR, FAMILY_SUFFIX } from '../../lib/tailwind/vocabulary.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { COMPAT_ALIASES } from '../../generate/core/arena-cli/audit.ts';
 import type { ContractCandidate, TypeContract } from '../../lib/arena/contract-shapes.ts';
-
-export const node = {
-  name: 'check:contracts-neutrality',
-  reads: [
-    'contracts/design/*.json', 'contracts/api/components/*.json', 'contracts/api/types/*.json',
-    'contracts/behaviour/*.json',
-  ],
-  writes: [],
-  feeds: [],
-};
 
 export const PROSE_KEYS = new Set(['description', '$description', 'reason', 'why']);
 
@@ -240,6 +230,17 @@ export const COMPUTED = new Map<string, { reads: string; why: string }>([
     why: 'the render adds the dot element only when it is set',
   }],
 ]);
+
+export const node = {
+  name: 'check:contracts-neutrality',
+  reads: [
+    'contracts/design/*.json', 'contracts/api/components/*.json', 'contracts/api/types/*.json',
+    'contracts/behaviour/*.json', `${VOCABULARY_DIR}/**/*${FAMILY_SUFFIX}`,
+    ...new Set([...COMPUTED.values()].map(({ reads }) => reads.split(':')[0] as string)),
+  ],
+  writes: [],
+  feeds: [],
+};
 
 export const NOT_GEOMETRY = new Map<string, string>([
   [at('ArenaInput', 'min'), 'the lower bound of the value a number or date input accepts, which the browser validates'],
