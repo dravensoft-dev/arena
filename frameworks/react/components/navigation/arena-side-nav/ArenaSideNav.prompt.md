@@ -107,8 +107,11 @@ Compute the active id yourself. Whatever bridges your router to a signal or to s
 yours in either design; what is left is one comparison:
 
 ```tsx
-const active = DESTINATIONS.find((d) => pathname.startsWith(d.href))?.id;
+const isAt = (href: string) => href === '/' ? pathname === '/' : pathname === href || pathname.startsWith(`${href}/`);
+const active = DESTINATIONS.find((d) => isAt(d.href))?.id;
 ```
+
+A Home at `/` compared with `startsWith` is active on every route.
 
 ### The active row is filled, and you pass one string
 
@@ -122,7 +125,7 @@ and a class that matches no glyph is not an error. Nothing on your side catches 
 so check a name against the `@phosphor-icons/web` you installed if a wrong one would be
 expensive.
 
-**As a rail.** `collapsed` narrows the list to an icon rail and leaves the frame around it to you: the drawer, the button that collapses it and the page column are yours. Every item needs an `icon` while collapsed, and one without is refused. Each label stays the item's accessible name and shows as a tooltip on hover and on focus. A badge becomes a dot, and its count joins the name. Section labels are hidden but still name their groups, and a collapsible lays its items out in the rail with no trigger of its own. Which of the two is on screen is the viewport's question: mark the rail `max-md:hidden` and the drawer `md:hidden` with the theme sheet's variants, or branch on `useArenaViewportBelow('md')`.
+**As a rail.** `collapsed` narrows the list to an icon rail and leaves the frame around it to you: the drawer, the button that collapses it and the page column are yours. Every item needs an `icon` while collapsed, and one without is refused. Each label stays the item's accessible name and shows as a tooltip on hover and on focus. A badge becomes a dot, and its count joins the name. Section labels are hidden but still name their groups, and a collapsible lays its items out in the rail with no trigger of its own. Which of the two is on screen is the viewport's question. Put `max-md:hidden` on an element of your own around the rail and `md:hidden` on one around the drawer, or branch on `useArenaViewportBelow('md')`.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

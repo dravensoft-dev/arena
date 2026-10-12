@@ -108,14 +108,14 @@ export const useToasts = () => {
 
 export function Shell({ children }: { children: ReactNode }) {
   const queue = useArenaToasts();
-  const undo = (id: number) => queue.dismiss(id);
+  const undo = (id: number) => { restore(id); queue.dismiss(id); };
   return (
     <ToastContext.Provider value={queue}>
       {children}
       <ArenaToastHost>
         {queue.toasts.map((t) => (
           <ArenaToast key={t.id} tone={t.tone} title={t.title} message={t.message}
-            actionLabel={t.actionLabel} persist={t.persist} dismissible
+            actionLabel={t.actionLabel} persist={t.persist} dismissible={t.dismissible}
             onAction={() => undo(t.id)} onClose={() => queue.dismiss(t.id)} />
         ))}
       </ArenaToastHost>
@@ -129,7 +129,7 @@ function SaveButton() {
 }
 ```
 
-A notice is data: it carries the action's label and never its handler, so `undo` is yours, keyed by the id `raise` returned. Give the confirmation queue a second context in the same way.
+A notice is data: it carries the action's label and never its handler, so `restore` is yours, keyed by the id `raise` returned, and the notice closes after it. Give the confirmation queue a second context in the same way.
 
 ## How do I trap focus in an overlay of my own in React?
 
@@ -213,7 +213,7 @@ import { ArenaToast, ArenaToastHost, ArenaToastQueue } from '@dravensoft/arena-a
     <arena-toast-host class="arena-placement-bottom-end">
       @for (notice of toasts.toasts(); track notice.id) {
         <arena-toast [title]="notice.title" [message]="notice.message" [tone]="notice.tone"
-          [actionLabel]="notice.actionLabel" [persist]="notice.persist" dismissible
+          [actionLabel]="notice.actionLabel" [persist]="notice.persist" [dismissible]="notice.dismissible"
           (action)="retry(notice.id)" (close)="toasts.dismiss(notice.id)" />
       }
     </arena-toast-host>`,
@@ -279,6 +279,10 @@ export class Lightbox {
 
 The transition focuses the first focusable element on open, or the panel itself when there is none, and gives focus back to the invoker on close. Escape is yours to wire, as above. [`media-register.md`](./media-register.md) says what the overlay itself draws.
 
+## Is there a roving-focus helper?
+
+No layer exports one. In Angular use the key managers of `@angular/cdk/a11y`, a peer the package already requires: [`install.md`](./install.md#what-comes-down-with-the-angular-package) says why. In React write the keys yourself, as the behaviour contract of the pattern names them. The React package carries them as `contracts/behaviour/<pattern>.json`, and [`contracts.md`](./contracts.md) says how to read one.
+
 ## How do I hide a label or align figures in markup of my own?
 
 The classes `arena-num` and `arena-sr-only` arrive with Arena's stylesheet, `arena.css`, through `css/vocabulary/num.css` and `css/vocabulary/sr-only.css`. [`style.md`](./style.md) says what each does.
@@ -318,6 +322,20 @@ protected readonly toneColor = arenaToneColor;
 //           <span [style.background]="catSurface(2).fill" [style.border]="'var(--bw-surface) solid ' + catSurface(2).border">Deploy</span>
 //           <b [style.color]="toneColor('danger')">Failed</b>
 ```
+
+## How do I colour a chart library of my own?
+
+An SVG or DOM library takes the strings the helpers above return as they are, because `var(--color-cat-1)` resolves where the element is painted. A canvas library cannot paint a `var()`. Resolve the custom property to a colour first.
+
+```ts
+const read = (slot: number) =>
+  getComputedStyle(document.documentElement).getPropertyValue(`--color-cat-${slot}`).trim();
+const colours = [1, 2, 3].map(read);
+```
+
+The colours change with the palette, so resolve them again when the palette changes. In React `useArenaTheme()` re-renders its component with the new name, and an effect keyed on that name redraws the canvas. In Angular `ArenaThemeService.theme` is a signal, and an `afterRenderEffect` that reads it redraws once the new palette is applied to the document. [`theme.md`](./theme.md) covers both.
+
+Arena ships no sequential or diverging ramp. The scale of a heatmap is the project's own decision.
 
 ## How do I route an activation of my own?
 
@@ -365,6 +383,8 @@ protected openOnEnter(event: Event, row: HTMLElement, id: string) {
   if (isArenaOwnActivation(event.target, row)) this.open(id);
 }
 ```
+
+With React Router, the navigate is `useNavigate()` and the path is `useLocation().pathname`. With the Next.js App Router, they are `useRouter().push` and `usePathname()`. Allowed, untested: no Arena test exercises either router.
 
 An active id comes from the router. The `ArenaSideNav` prompt has that bridge: [React](../../../frameworks/react/components/navigation/arena-side-nav/ArenaSideNav.prompt.md) and [Angular](../../../frameworks/angular/components/navigation/arena-side-nav/ArenaSideNav.prompt.md).
 

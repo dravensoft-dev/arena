@@ -124,14 +124,14 @@ export const ROUTES: Route[] = [
       'skills/design/references/config.md',
       'skills/design/references/cli.md',
     ],
-    budget: 33_750,
+    budget: 34_500,
     reason:
       'paid once per project rather than per screen, so it carries what the build route may not: '
       + 'the install, the config file and the command, each as its own reference. The package '
       + 'carries none of the language, so a thing the package ships and these references never name '
       + 'is a thing nobody imports: an export, a stylesheet, a class, a config key. The config block '
       + 'is copied whole and the install reference gives the evidence behind each package manager it '
-      + 'names. The command reference quotes whole the scripts `arena init` writes and names every '
+      + 'names, and the one entry sheet of a Tailwind v4 project in its import order. The command reference quotes whole the scripts `arena init` writes and names every '
       + 'audit tag, unknown-input among them, in a table giving the rule each reports and what fires it, '
       + 'in both scripts, and says how to '
       + 'mark a line whose attribute a directive of the project reads. It also states '

@@ -85,8 +85,14 @@ readonly url = toSignal(
   { initialValue: this.router.url },
 );
 
-readonly active = computed(() => DESTINATIONS.find((d) => this.url().startsWith(d.href))?.id);
+readonly active = computed(() => {
+  const url = this.url().split(/[?#]/)[0];
+  const isAt = (href: string) => href === '/' ? url === '/' : url === href || url.startsWith(`${href}/`);
+  return DESTINATIONS.find((d) => isAt(d.href))?.id;
+});
 ```
+
+A Home at `/` compared with `startsWith` is active on every route.
 
 **Read `router.url` through the bridge and never in the template.** Reading the property directly appears to work. Swapping the routed component marks the shell dirty as a side effect of how `RouterOutlet` works. A zoneless `OnPush` shell then re-renders anyway.
 The appearance stops the moment a navigation reuses the component it is already showing, which is what a tab change or a parameter change does. Nothing reports it, and the rail simply keeps the previous destination lit.
@@ -107,7 +113,7 @@ and a class that matches no glyph is not an error. Nothing on your side catches 
 so check a name against the `@phosphor-icons/web` you installed if a wrong one would be
 expensive.
 
-**As a rail.** `collapsed` narrows the list to an icon rail and leaves the frame around it to you: the drawer, the button that collapses it and the page column are yours. Every item needs an `icon` while collapsed, and one without is refused. Each label stays the item's accessible name and shows as a tooltip on hover and on focus. A badge becomes a dot, and its count joins the name. Section labels are hidden but still name their groups, and a collapsible lays its items out in the rail with no trigger of its own. Which of the two is on screen is the viewport's question: mark the rail `max-md:hidden` and the drawer `md:hidden` with the theme sheet's variants, or branch on `arenaViewportBelow('md')`.
+**As a rail.** `collapsed` narrows the list to an icon rail and leaves the frame around it to you: the drawer, the button that collapses it and the page column are yours. Every item needs an `icon` while collapsed, and one without is refused. Each label stays the item's accessible name and shows as a tooltip on hover and on focus. A badge becomes a dot, and its count joins the name. Section labels are hidden but still name their groups, and a collapsible lays its items out in the rail with no trigger of its own. Which of the two is on screen is the viewport's question. Put `max-md:hidden` on an element of your own around the rail and `md:hidden` on one around the drawer, or branch on `arenaViewportBelow('md')`.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

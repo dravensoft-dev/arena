@@ -28,7 +28,7 @@ The package declares `engines: { node: ">=22" }`, the oldest line Node still sup
 
 ## What comes down with the React package?
 
-The required peers are `react`, `react-dom` and `@phosphor-icons/web`. The first two are already in the project,. The third is the icon font, and a project that has not installed it gets it from the command above.
+The required peers are `react`, `react-dom` and `@phosphor-icons/web`. The first two are already in the project. The third is the icon font, and a project that has not installed it gets it from the command above.
 
 Arena's icons are Phosphor class names that a component renders. No SVG is bundled. The font is installed beside the package and never inside it.
 
@@ -52,7 +52,7 @@ The stylesheet that turns those classes into glyphs is the sheet `arena build` w
 
 ## How do I import the stylesheets in React?
 
-Run `arena build` first. The command writes two files, and a third when a style plugin of yours carries CSS. Import them last, in your entry file.
+Run `arena build` first. The command writes two files, and a third when a style plugin of yours carries CSS. Import them after every Arena sheet and before your own rules, in your entry file.
 
 ```js
 import './icons.generated.css';
@@ -64,7 +64,7 @@ The import happens in JavaScript. A bundler resolves each specifier as a stylesh
 
 ## How do I import the stylesheets in Angular?
 
-Import the generated files from `src/styles.css`, and import them last.
+Import the generated files from `src/styles.css`. Import them after every Arena sheet and before your own rules.
 
 ```css
 @import './icons.generated.css';
@@ -75,6 +75,21 @@ Import the generated files from `src/styles.css`, and import them last.
 The CDK overlay sheet comes with them. `arena.css` imports `css/arena-cdk.css` itself, and a `stylesheet` block carries it too.
 
 That sheet re-bases the CDK overlay onto Arena's `--z-*` scale. Without it a dialog's menu paints behind the dialog. Write the import yourself only under `--no-import`, which leaves the package import out of `arena.generated.css`. Import the generated sheet as well, because it alone holds the colours: `arena.css` by itself paints with no colour.
+
+## How do I combine the sheets with Tailwind v4?
+
+A project that compiles markup of its own with `tailwindcss` v4 keeps one entry sheet. The order is Tailwind first, then Arena's theme, then the generated sheets, then your rules. Swap `react` for `angular` in the Angular package's path.
+
+```css
+@import 'tailwindcss';
+@import '@dravensoft/arena-react/css/tailwind-theme.css';
+@import './icons.generated.css';
+@import './arena.generated.css';
+@import './plugin.generated.css';   /* only when a style plugin of yours carries CSS */
+/* your own rules from here */
+```
+
+[`stylesheets.md`](./stylesheets.md) says what `tailwind-theme.css` holds and why a key of yours sits below it.
 
 ## Why does TypeScript report TS2307 on a stylesheet import in React?
 

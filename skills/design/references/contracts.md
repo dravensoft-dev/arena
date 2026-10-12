@@ -4,6 +4,14 @@ What does `@dravensoft/arena-contracts` hold? How do I read a design value, a co
 
 If you build a screen with Arena on the web, this is not the package you want. `@dravensoft/arena-react` and `@dravensoft/arena-angular` carry the components and the compiled stylesheet. Install the contracts package when you write the layer itself.
 
+## How do I install it?
+
+```bash
+npm i -D @dravensoft/arena-contracts        # or: bun add -d / pnpm add -D / yarn add -D
+```
+
+Pin an exact version, as the last section says.
+
 ## What arrives
 
 ```
@@ -57,7 +65,13 @@ A target decides some things for itself, because a value and a unit cannot say t
 
 ## How do I read a component contract?
 
-An API contract states the members a component presents, under neutral names. The contract says nothing about the syntax a platform binds them with. A slot is a slot whether the platform spells it as a child, a projection or a builder.
+An API contract states the members a component presents, under neutral names. [`MemberForms.md`](../../../contracts/api/MemberForms.md#contract-format) says how a file is laid out. The contract says nothing about the syntax a platform binds them with. A slot is a slot whether the platform spells it as a child, a projection or a builder.
+
+```js
+import button from '@dravensoft/arena-contracts/contracts/api/components/ArenaButton.json' with { type: 'json' };
+
+console.log(Object.keys(button));
+```
 
 A behaviour contract states what a kind of component must **do**. Such a contract names the role the component carries, the keys it answers, where focus goes and what dismisses it. Each contract cites the source it was adopted from, mostly the [WAI-ARIA Authoring Practices Guide](https://www.w3.org/WAI/ARIA/apg/patterns/). A pattern that requires a role names that role in an `element` field beside the prose. A target applies the role without parsing a sentence.
 

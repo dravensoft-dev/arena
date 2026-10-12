@@ -97,7 +97,19 @@ Wrap the tree in `ArenaLocaleProvider`.
 </ArenaLocaleProvider>
 ```
 
-A tree with no provider reads `ARENA_DEFAULT_LOCALE`. `useArenaLocale` reads what a subtree was given. `arenaMergeLocale` is the merge the provider applies. The provider renders on a server and switches language on re-render.
+A tree with no provider reads `ARENA_DEFAULT_LOCALE`. A nested `ArenaLocaleProvider` starts again from `ARENA_DEFAULT_LOCALE`, so the nearest provider wins whole. Repeat in the inner `value` whatever the subtree still needs from the outer one.
+
+```tsx
+const spanish = { locale: 'es-ES', calendarToday: 'Hoy', paginationNext: 'Siguiente' };
+
+<ArenaLocaleProvider value={spanish}>
+  <ArenaLocaleProvider value={{ ...spanish, paginationNext: 'Avanzar' }}>
+    <Wizard />
+  </ArenaLocaleProvider>
+</ArenaLocaleProvider>
+```
+
+`useArenaLocale` reads the value the nearest provider holds. `arenaMergeLocale` is the merge the provider applies. The provider renders on a server and switches language on re-render.
 
 ## How do I set the locale in Angular?
 
@@ -109,4 +121,6 @@ bootstrapApplication(App, {
 });
 ```
 
-Inject `ARENA_LOCALE` to read what a subtree was given. `arenaMergeLocale` is the merge the provider applies. The value is fixed for the life of its injector, as `LOCALE_ID` is. Switching language means re-creating the subtree.
+Inject `ARENA_LOCALE` to read the value the injector holds. `arenaMergeLocale` is the merge the provider applies. The value is fixed for the life of its injector, as `LOCALE_ID` is. Switching language means re-creating the subtree.
+
+`provideArenaLocale` in a component's `providers` does the same: it merges onto the default, never onto the value of the injector above it.

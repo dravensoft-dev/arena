@@ -17,7 +17,7 @@ installed, `--layer react` or `--layer angular` names the half you want.
 
 ## How do I point my editor at the server?
 
-The configuration file differs per editor and the command does not.
+The configuration file differs per editor and the command does not. Every client takes the shape below, and VS Code names the top key `servers`.
 
 ```json
 {
@@ -26,6 +26,15 @@ The configuration file differs per editor and the command does not.
   }
 }
 ```
+
+| client | where the entry goes | evidence |
+| --- | --- | --- |
+| Claude Code | `claude mcp add arena -- npx -y @dravensoft/arena-mcp`, or `<project>/.mcp.json` under `mcpServers` | allowed, untested |
+| Claude Desktop | `claude_desktop_config.json` under `mcpServers` | allowed, untested |
+| Cursor | `.cursor/mcp.json` under `mcpServers` | allowed, untested |
+| VS Code | `.vscode/mcp.json` under `servers` | allowed, untested |
+
+No test starts one of these clients. A row says "works" only when a test has exercised that client against the server.
 
 ## What do `--layer` and `--payload` do?
 
