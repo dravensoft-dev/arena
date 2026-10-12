@@ -17,7 +17,7 @@ import { reset, write, copy, repositoryBase } from '../../lib/arena/package-asse
 import { walkFiles } from '../../utils/walk-files.ts';
 import { relPosix } from '../../utils/posix-path.ts';
 import {
-  DOMAIN, SITE_DIR, LAYERS, COPIED, SINK_PAGE, BENCHES_DIR,
+  DOMAIN, SITE_DIR, LAYERS, COPIED, COPIED_FILES, SINK_PAGE, BENCHES_DIR,
   entryPoints, sinkNames, components, pages, indexedDirectories, phosphorFiles,
   playgroundsOnDisk, playgroundSections, modules, titleOf, url, directoryUrl, REPOSITORY,
   benches, benchPairs, phosphorDrops,
@@ -36,7 +36,7 @@ export const node = {
   reads: [
     'skills/design/SKILL.md', 'skills/design/references/*.md', 'frameworks/**/INDEX.md', 'frameworks/VOCABULARY.md', 'frameworks/**/*.prompt.md',
     '!frameworks/*/build/package/**', '!frameworks/*/dist/**',
-    'intro/**', 'contracts/behaviour/**', 'contracts/design/**', 'contracts/design-generated/**', 'assets/**',
+    'intro/**', 'arena-from-scratch/identity*.html', 'contracts/behaviour/**', 'contracts/design/**', 'contracts/design-generated/**', 'assets/**',
     'plugin-style-store/**/plugin.css', 'plugin-style-store/catalogue/*/plugin.tokens.json',
     'frameworks/tailwind/consume/**', 'frameworks/react/vendor/**',
     'frameworks/*/kitchen-sink/**', 'frameworks/*/components/**',
@@ -303,6 +303,8 @@ export async function buildSite(base = repoRoot, out = join(base, SITE_DIR)) {
   for (const tree of COPIED) {
     if (existsSync(join(base, tree))) written.push(...copyAll(join(base, tree), out, tree));
   }
+
+  for (const rel of COPIED_FILES) written.push(copy(join(base, rel), out, rel));
 
   const bench = benchesDirectory();
   if (bench !== null) written.push(...copyAll(bench, out, BENCHES_DIR, phosphorDrops));

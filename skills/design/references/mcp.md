@@ -60,6 +60,8 @@ The values travel too. Every JSON file of `contracts/design/` is one group at `a
 
 The style plugins Arena renders and the catalogue are served too, at the path they have under `plugin-style-store/`. `arena://style/default/plugin.tokens.json` is the default plugin, and `arena://style/complete/` holds the second worked answer, `plugin.tokens.json` and `plugin.css`. `arena://style/catalogue/INDEX.md` is the catalogue's index, and the links in it are `arena://style/catalogue/<entry>/ENTRY.md` and each file you copy beside it, `plugin.tokens.json`, `plugin.css` and `arena.config.json`. Call `arena_read` with one of these URIs, and `arena_find` with the name of a register to reach its entry. JSON and CSS arrive as text with their own mime type.
 
+The identity template and its worked answer are served as `arena://identity/identity.html` and `arena://identity/identity.example.html`. Both arrive as HTML with the `text/html` mime type, and a copy of the first is where a project without an appearance writes its identity document.
+
 Read the router first. The router carries the rules of the language and routes every other question. The route past it is one component at a time, and never a corpus read whole.
 
 ## What does arena_check read?

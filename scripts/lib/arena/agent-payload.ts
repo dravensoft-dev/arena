@@ -25,6 +25,8 @@ export const TOKENS = 'contracts/design/*.json';
 export const BEHAVIOUR = 'contracts/behaviour/*.json';
 
 export const STYLE_STORE = 'plugin-style-store';
+export const IDENTITY_DIR = 'arena-from-scratch';
+export const IDENTITY_PAGES = [`${IDENTITY_DIR}/identity.html`, `${IDENTITY_DIR}/identity.example.html`];
 
 export const CARRIED_SHARED = [
   `${REFERENCE_DIR}/*.md`,
@@ -37,6 +39,7 @@ export const CARRIED_SHARED = [
   `${STYLE_STORE}/complete/*`,
   `${STYLE_STORE}/catalogue/INDEX.md`,
   `${STYLE_STORE}/catalogue/*/*`,
+  ...IDENTITY_PAGES,
 ];
 
 export function carriedSpecs(layer: string) {
@@ -70,7 +73,7 @@ export function inPayload(path: string, layer: string) {
 
 export const SERVED_BY_SITE = [
   'skills/', 'frameworks/', 'contracts/behaviour/', 'contracts/design/', 'intro/', 'assets/',
-  'plugin-style-store/', 'contracts/design-generated/',
+  'plugin-style-store/', 'contracts/design-generated/', ...IDENTITY_PAGES,
 ];
 
 export const SERVED_BY_REPOSITORY = [
@@ -138,6 +141,7 @@ export function rewriteTarget(path: string, from: string, layer: string, bases: 
 
 export const REPO_ROOTS = [
   'skills/', 'frameworks/', 'contracts/', 'intro/', 'assets/', 'plugin-style-store/', 'scripts/',
+  `${IDENTITY_DIR}/`,
 ];
 
 export function isRepoPath(text: string) {

@@ -61,7 +61,7 @@ export const node = {
     'frameworks/*/components/**/*.prompt.md',
     'frameworks/*/components/**/*.behaviour.json',
     'plugin-style-store/default/*', 'plugin-style-store/complete/*', 'plugin-style-store/catalogue/INDEX.md',
-    'plugin-style-store/catalogue/*/*',
+    'plugin-style-store/catalogue/*/*', 'arena-from-scratch/identity*.html',
     'frameworks/tailwind/vocabulary/**', 'frameworks/tailwind/components/**/*.json',
   ],
   writes: [`${DIST}/**`],

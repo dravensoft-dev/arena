@@ -6,7 +6,7 @@ import { join } from 'node:path';
 import {
   entries, catalogue, search, nameOf, categoryOf, words, textOf, withUris, relIndex,
   ROUTER_URI, SUPPORT_URI, ROLES_URI, LAYER_INDEX_URI, CATALOGUE_URI, VOCABULARY_URI, SCHEME,
-  extractFamilies, STYLE_PREFIX,
+  extractFamilies, STYLE_PREFIX, IDENTITY_PREFIX,
 } from './catalogue.ts';
 import type { Manifest } from './payload.ts';
 
@@ -329,5 +329,24 @@ test('an entry is found by the name of its directory, not by the file name every
     const { entries: found } = catalogue(dir, MANIFEST);
     const top = search(dir, found, 'booking')[0];
     assert.equal(top?.entry.uri, `${STYLE_PREFIX}catalogue/booking/ENTRY.md`);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('the identity template and its worked answer are served as html resources', () => {
+  const dir = payload({
+    'arena-from-scratch/identity.html': '<!doctype html><title>Identity document</title>',
+    'arena-from-scratch/identity.example.html': '<!doctype html><title>Identity document, filled in</title>',
+    'arena-from-scratch/AGENTS.md': '# contributor page\n',
+  });
+  try {
+    const found = new Map(entries(dir, MANIFEST).map((one) => [one.uri, one.mime]));
+    assert.equal(found.get(`${IDENTITY_PREFIX}identity.html`), 'text/html');
+    assert.equal(found.get(`${IDENTITY_PREFIX}identity.example.html`), 'text/html');
+    assert.equal(found.has(`${IDENTITY_PREFIX}AGENTS.md`), false);
+    const { byUri, byRel } = catalogue(dir, MANIFEST);
+    const page = byUri.get(`${IDENTITY_PREFIX}identity.html`);
+    assert.ok(page);
+    assert.equal(textOf(dir, page, byRel), '<!doctype html><title>Identity document</title>');
+    assert.equal(search(dir, [...byUri.values()], 'identity')[0]?.entry.uri.startsWith(IDENTITY_PREFIX), true);
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });

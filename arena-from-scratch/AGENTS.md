@@ -14,8 +14,9 @@ reference is what sends a reader here, and that reference is the page that expla
 
 A palette described in prose is a palette nobody can approve. The template draws every swatch, sets
 both specimen faces and shows the radius ladder, so the decision being approved is the one on
-screen rather than the one in the sentence. That is also why the pages must be served over HTTP: a
-page opened from `file://` loads no stylesheet, and every swatch on it is blank.
+screen rather than the one in the sentence. A local stylesheet loads whether the page is
+opened as a file or served over HTTP, and only the web fonts it names need HTTP, so a page shown to
+a user is served.
 
 ## What keeps it honest
 
@@ -34,11 +35,16 @@ dark theme's ink over the light theme's paper.
 
 ## Keeping it in step with intro/
 
-The template links [`../intro/styles.css`](../intro/styles.css) when the work happens in this
-repository, which is the same sheet [`../intro/AGENTS.md`](../intro/AGENTS.md) governs, and a
-project that has already run the build points it at its own generated stylesheet instead. That one
-line is the only thing in either page a reader is meant to edit by hand, and it is commented where
-it sits.
+Both pages link the hosted sheet, `https://arena.dravensoft.org/intro/styles.css`, which is the
+sheet [`../intro/AGENTS.md`](../intro/AGENTS.md) governs. It renders the page from a local file and
+over HTTP alike, and a project that has run the build may point the link at its own generated
+stylesheet instead. That one line is the only thing in either page a reader is meant to edit by
+hand, and it is commented where it sits.
+
+The site publishes both pages at `https://arena.dravensoft.org/arena-from-scratch/` and the MCP
+serves them as `arena://identity/identity.html` and `arena://identity/identity.example.html`, so
+a builder with no clone fetches the template from either. `AGENTS.md` here is neither published
+nor carried.
 
 **The specimen shape is `intro/guidelines/`'s and the pages are not specimens.** A guideline card is
 a small standalone page the site renders into a gallery under the `@dsCard` header it carries; these

@@ -20,11 +20,12 @@ import {
 import { loadVocabulary } from '../../generate/core/arena-cli/audit.ts';
 import {
   catalogue, textOf, MARKDOWN_LINK, ADDRESSED, STYLE_PREFIX, STYLE_DIR,
+  IDENTITY_PREFIX, IDENTITY_DIR,
 } from '../../generate/core/arena-mcp/catalogue.ts';
 import { manifestIn, bundledPayload } from '../../generate/core/arena-mcp/payload.ts';
 import { servedDocs, writtenPages } from '../../lib/arena/llms-index.ts';
 import { PAGE_FILE } from '../../lib/arena/kitchen-sink-page.ts';
-import { LINK, INLINE, isRepoPath, inPayload } from '../../lib/arena/agent-payload.ts';
+import { LINK, INLINE, isRepoPath, inPayload, IDENTITY_PAGES } from '../../lib/arena/agent-payload.ts';
 import { LAYERS as BUILT_LAYERS } from '../../build/arena/build-mcp-package.ts';
 
 export const REGISTRY_FILE = 'server.json';
@@ -304,15 +305,26 @@ export function catalogueProblems(dir: string, base = root) {
 
 export const DEFAULT_PLUGIN = `${STYLE_DIR}/default/plugin.tokens.json`;
 
+function servedUris(dir: string, layer: string, what: string, problems: string[]) {
+  const payload = bundledPayload(layer, dir);
+  if (payload === null) {
+    problems.push(`${NAME}: the ${layer} layer has no corpus, so ${what} it is specified to serve cannot be read`);
+    return null;
+  }
+  const found = manifestIn(payload);
+  if (found === null) {
+    problems.push(`${NAME}: the ${layer} corpus at ${payload} carries no manifest, so ${what} it is specified to serve cannot be read`);
+    return null;
+  }
+  return new Set(catalogue(payload, found).entries.map((one) => one.uri));
+}
+
 export function styleStoreProblems(dir: string, base = root) {
   const wanted = walkFiles(join(base, STYLE_DIR)).map((file) => relPosix(base, file));
-  const problems = [];
+  const problems: string[] = [];
   for (const layer of BUILT_LAYERS) {
-    const payload = bundledPayload(layer, dir);
-    if (payload === null) continue;
-    const found = manifestIn(payload);
-    if (found === null) continue;
-    const served = new Set(catalogue(payload, found).entries.map((one) => one.uri));
+    const served = servedUris(dir, layer, 'the style store', problems);
+    if (served === null) continue;
     const expected = wanted.filter((rel) => inPayload(rel, layer));
     if (!expected.includes(DEFAULT_PLUGIN)) {
       problems.push(`${NAME}: ${DEFAULT_PLUGIN} is not among the files the corpus is specified to carry`);
@@ -332,6 +344,27 @@ export function styleStoreProblems(dir: string, base = root) {
   return problems;
 }
 
+export function identityProblems(dir: string, base = root) {
+  const problems: string[] = [];
+  for (const layer of BUILT_LAYERS) {
+    const served = servedUris(dir, layer, 'the identity template', problems);
+    if (served === null) continue;
+    const expected = IDENTITY_PAGES.filter((rel) => existsSync(join(base, rel)));
+    if (expected.length !== IDENTITY_PAGES.length) {
+      problems.push(`${NAME}: the tree declares ${IDENTITY_PAGES.join(' and ')} and carries `
+        + `${expected.length === 0 ? 'neither' : 'only some'}, so the corpus has no identity template to serve`);
+    }
+    for (const rel of expected) {
+      const uri = `${IDENTITY_PREFIX}${relPosix(IDENTITY_DIR, rel)}`;
+      if (served.has(uri)) continue;
+      problems.push(`${NAME}: the ${layer} corpus does not serve ${uri} for ${rel}. The identity `
+        + 'template is what an agent with no clone fills in before its first screen, and a page '
+        + 'missing here is one it has to write from nothing');
+    }
+  }
+  return problems;
+}
+
 export function collect(base = root) {
   const dir = assembled(base);
   const problems = [...dependencyProblems(base), ...registryProblems(base)];
@@ -340,7 +373,7 @@ export function collect(base = root) {
     problems: [
       ...problems, ...binProblems(dir), ...flatProblems(dir), ...corpusProblems(dir),
       ...vocabularyProblems(dir), ...servedLinkProblems(dir), ...catalogueProblems(dir, base),
-      ...styleStoreProblems(dir, base),
+      ...styleStoreProblems(dir, base), ...identityProblems(dir, base),
     ],
     assembled: true,
   };

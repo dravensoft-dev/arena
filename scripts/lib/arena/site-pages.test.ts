@@ -5,7 +5,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { repoRoot } from './repo-root.ts';
@@ -14,6 +14,7 @@ import {
   playgroundsOnDisk, missingPlaygrounds, playgroundSections, sinkPages, pages, indexedDirectories,
   modules, missingModules, titleOf, url, directoryUrl,
   BENCHES_DIR, BENCHES_MANIFEST, benchPairs, benchPages, benchDirectories, phosphorDrops, treePages,
+  COPIED_FILES,
 } from './site-pages.ts';
 
 function benchOut(products: string[]) {
@@ -220,4 +221,24 @@ test('the Phosphor drop is the site\'s own trade, read off the name and never th
   assert.equal(phosphorDrops('Phosphor.json'), false,
     'a React half hashes these at the top level and an Angular one under media/, so the rule reads '
     + 'the name; it reads the four font formats and leaves everything else where it is');
+});
+
+test('the identity template and its worked answer are pages the site declares, and no other file beside them', () => {
+  assert.deepEqual(COPIED_FILES, [
+    'arena-from-scratch/identity.html', 'arena-from-scratch/identity.example.html',
+  ]);
+  const base = mkdtempSync(join(tmpdir(), 'arena-identity-'));
+  try {
+    mkdirSync(join(base, 'arena-from-scratch'), { recursive: true });
+    for (const rel of [...COPIED_FILES, 'arena-from-scratch/AGENTS.md']) writeFileSync(join(base, rel), 'x');
+    const declared = treePages(base);
+    for (const rel of COPIED_FILES) assert.ok(declared.includes(rel), `${rel} is declared`);
+    assert.equal(declared.includes('arena-from-scratch/AGENTS.md'), false);
+  } finally {
+    rmSync(base, { recursive: true, force: true });
+  }
+});
+
+test('the tree carries each page the site declares from arena-from-scratch', () => {
+  for (const rel of COPIED_FILES) assert.ok(existsSync(join(repoRoot, rel)), `${rel} exists`);
 });

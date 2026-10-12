@@ -30,7 +30,7 @@ test('the payload carries the references, the neutral index, the roles and the p
 });
 
 test('a spec list names the shared files plus the layer tree, and nothing else', () => {
-  assert.equal(carriedSpecs('react').length, 13);
+  assert.equal(carriedSpecs('react').length, 15);
   assert.ok(carriedSpecs('react').every((spec) => !spec.includes('angular')));
 });
 
@@ -135,4 +135,14 @@ test('the default style plugin and the catalogue travel in both layers, and what
   }
   assert.equal(inPayload('plugin-style-store/catalogue/AGENTS.md', 'react'), false);
   assert.equal(inPayload('plugin-style-store/AGENTS.md', 'react'), false);
+});
+
+test('the identity template and its worked answer travel in both layers and its contributor page stays', () => {
+  for (const layer of ['react', 'angular']) {
+    assert.ok(inPayload('arena-from-scratch/identity.html', layer));
+    assert.ok(inPayload('arena-from-scratch/identity.example.html', layer));
+    assert.equal(inPayload('arena-from-scratch/AGENTS.md', layer), false);
+  }
+  assert.equal(servedBy('arena-from-scratch/identity.html'), 'site');
+  assert.equal(servedBy('arena-from-scratch/AGENTS.md'), 'repository');
 });

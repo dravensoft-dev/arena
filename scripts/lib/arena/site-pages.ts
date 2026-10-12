@@ -16,6 +16,7 @@ import { pageModules, importSpecifiers } from '../../utils/module-graph.ts';
 import { byCodeUnit, byKey } from '../../utils/compare.ts';
 import { memoBy } from '../../utils/memo.ts';
 import { repoRoot as root } from './repo-root.ts';
+import { IDENTITY_PAGES } from './agent-payload.ts';
 import { componentMap } from './component-map.ts';
 import { PHOSPHOR_WEIGHTS } from './playground-page.ts';
 import { kebab, pascal } from '../../utils/case.ts';
@@ -45,6 +46,8 @@ export const COPIED = [
   'frameworks/react/vendor',
   'frameworks/angular/build/demo',
 ];
+
+export const COPIED_FILES = IDENTITY_PAGES;
 
 export type Entry = { label: string; path: string; public: boolean };
 
@@ -141,6 +144,7 @@ export function treePages(base = root) {
   return [
     'intro/Arena - Overview.html',
     'intro/Dravensoft Identity.dc.html',
+    ...COPIED_FILES,
     ...guidelinePages(base),
     ...sinkPages(base),
     ...playgrounds.sort(),

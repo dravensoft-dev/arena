@@ -39,9 +39,21 @@ export const STYLE_MIME: Record<string, string> = {
   '.md': 'text/markdown', '.json': 'application/json', '.css': 'text/css',
 };
 
-export function styleMime(rel: string) {
+export const IDENTITY_DIR = 'arena-from-scratch';
+export const IDENTITY_PREFIX = `${SCHEME}://identity/`;
+export const IDENTITY_MIME: Record<string, string> = { '.html': 'text/html' };
+
+function mimeIn(table: Record<string, string>, rel: string) {
   const dot = rel.lastIndexOf('.');
-  return dot === -1 ? undefined : STYLE_MIME[rel.slice(dot)];
+  return dot === -1 ? undefined : table[rel.slice(dot)];
+}
+
+export function styleMime(rel: string) {
+  return mimeIn(STYLE_MIME, rel);
+}
+
+export function identityMime(rel: string) {
+  return mimeIn(IDENTITY_MIME, rel);
 }
 
 const jsonIn = (rel: string, dir: string) => dirPosix(rel) === dir && rel.endsWith('.json');
@@ -131,6 +143,15 @@ export function entries(payload: string, manifest: Manifest): Entry[] {
       }
       continue;
     }
+    if (rel.startsWith(`${IDENTITY_DIR}/`)) {
+      const under = relPosix(IDENTITY_DIR, rel);
+      const mime = identityMime(rel);
+      if (mime !== undefined) {
+        found.push({ uri: `${IDENTITY_PREFIX}${under}`, rel, mime,
+          title: `Identity document: ${under}` });
+      }
+      continue;
+    }
     if (jsonIn(rel, TOKENS_DIR) && rel !== ROLES) {
       found.push({ uri: `${TOKENS_PREFIX}${jsonName(rel)}`, rel, mime: 'application/json',
         title: `Tokens: ${jsonName(rel)}` });
@@ -211,8 +232,9 @@ export function words(text: string) {
 }
 
 export function nameFor(entry: Entry) {
-  if (!entry.uri.startsWith(STYLE_PREFIX)) return nameOf(entry.rel);
-  return entry.uri.slice(STYLE_PREFIX.length).replace(/\.[a-z]+$/, '').replace(/\//g, ' ');
+  const prefix = [STYLE_PREFIX, IDENTITY_PREFIX].find((one) => entry.uri.startsWith(one));
+  if (prefix === undefined) return nameOf(entry.rel);
+  return entry.uri.slice(prefix.length).replace(/\.[a-z]+$/, '').replace(/\//g, ' ');
 }
 
 export function score(entry: Entry, wanted: Set<string>, summary: string) {
