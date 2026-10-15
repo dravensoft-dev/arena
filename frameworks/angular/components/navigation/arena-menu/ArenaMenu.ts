@@ -110,6 +110,10 @@ export class ArenaMenu {
     this.select.emit(item);
   }
 
+  protected ngAfterViewInit(): void {
+    this.describeTrigger(false);
+  }
+
   private trigger(): HTMLElement | null {
     const found = this.host.nativeElement.querySelector<HTMLElement>(TRIGGER_SELECTOR);
     if (found) return found;

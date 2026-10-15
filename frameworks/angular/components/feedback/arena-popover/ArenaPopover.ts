@@ -91,6 +91,10 @@ export class ArenaPopover {
     inject(DestroyRef).onDestroy(() => this.detachTrigger?.());
   }
 
+  protected ngAfterViewInit(): void {
+    this.describeTrigger(false);
+  }
+
   private trigger(): HTMLElement | null {
     const found = this.host.nativeElement.querySelector<HTMLElement>(TRIGGER_SELECTOR);
     if (found) return found;

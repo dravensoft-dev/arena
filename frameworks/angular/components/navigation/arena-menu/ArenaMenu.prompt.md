@@ -63,6 +63,8 @@ moves focus to the first enabled row. Tab from the last row closes the menu and 
 and a header are not rows at all and render no `menuitem`; a disabled row renders one and reports
 nothing.
 
+**The server render carries the popup state.** Arena writes `aria-haspopup="menu"` and `aria-expanded="false"` onto the trigger's focusable element before the page is interactive.
+
 **Do / Don't**
 - **Do** mark exactly one element with `trigger`, and one that is or contains a focusable
   control. Arena has nothing to hang the menu on otherwise.

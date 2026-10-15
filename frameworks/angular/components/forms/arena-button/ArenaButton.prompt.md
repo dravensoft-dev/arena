@@ -48,6 +48,8 @@ signal I/O. The host stays bare and unstyled, and Arena's own styling lands on a
 - `Enter`: activate.
 <!-- @keys end -->
 
+**Arena's popover and menu write the popup state onto the inner `<button>`.** ARIA written on `<arena-button>` itself names nothing, since the host draws no box.
+
 **Do / Don't**
 - Use `destructive` for a destructive action, at every emphasis: transparent background, border and text in
   `--error`. The outline is the danger convention. The only filled danger surface in Arena is `ArenaConfirmDialog`'s final confirmation.

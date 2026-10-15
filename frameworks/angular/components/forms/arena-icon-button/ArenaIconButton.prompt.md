@@ -47,6 +47,8 @@ name in every state regardless. Standalone, `OnPush`, signal I/O. The host stays
 - `Enter`: activate.
 <!-- @keys end -->
 
+**Arena's popover and menu write the popup state onto the inner `<button>`.** ARIA written on `<arena-icon-button>` itself names nothing, since the host draws no box.
+
 **Do / Don't**
 - `label` is **required and is the accessible name**, not a decoration. The member is the `aria-label` in every state, the visible text under `showLabel`, and the `title` when there is none. An icon
   button without it announces nothing at all, which is why this input has no default.

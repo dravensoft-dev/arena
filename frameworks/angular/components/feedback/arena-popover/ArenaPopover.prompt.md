@@ -45,6 +45,8 @@ Arena popover, a small panel a trigger opens, holding content of the consumer's 
 
 **The content is constructed while the panel is closed.** The content is projected once, into a template the overlay attaches. A component inside it is built when the popover is, and keeps its state across openings. Don't put cost in a popover's content. A server render draws the trigger alone.
 
+**The server render carries the popup state.** Before the page is interactive, the focusable element inside `trigger` carries `aria-haspopup="dialog"` and `aria-expanded="false"`.
+
 **Do / Don't**
 - The trigger must have an accessible name, and `label` names the panel: "Filters", not "Popover".
 - **The trigger must be a control, not a picture of one.** Project an `arena-button`, an `arena-icon-button`, or your own element carrying a button role and a tabindex; Arena reports anything else once at runtime.
