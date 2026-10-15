@@ -5,6 +5,7 @@ export * from './arena-combobox';
 export * from './arena-fieldset';
 export * from './arena-icon-button';
 export * from './arena-input';
+export * from './arena-multi-select';
 export * from './arena-radio';
 export * from './arena-radio-group';
 export * from './arena-select';

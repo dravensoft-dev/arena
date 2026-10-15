@@ -23,6 +23,7 @@ import { ArenaOnboarding } from '../components/feedback/arena-onboarding/ArenaOn
 import { ArenaSegmentedControl } from '../components/navigation/arena-segmented-control/ArenaSegmentedControl';
 import { ArenaSelect } from '../components/forms/arena-select/ArenaSelect';
 import { ArenaCombobox } from '../components/forms/arena-combobox/ArenaCombobox';
+import { ArenaMultiSelect } from '../components/forms/arena-multi-select/ArenaMultiSelect';
 import { ArenaTable } from '../components/display/arena-table/ArenaTable';
 import type {
   ArenaActivityItem, ArenaBulkAction, ArenaCommand, ArenaCrumb, ArenaMenuItem, ArenaOnboardingStep, ArenaSegmentOption, ArenaSelectOption,
@@ -39,7 +40,7 @@ const SLOTS: readonly number[] = Object.freeze([1, 2]);
   standalone: true,
   imports: [
     ArenaActivityFeed, ArenaBarChart, ArenaBreadcrumbs, ArenaBulkActionBar, ArenaCheckboxGroup, ArenaCombobox, ArenaCommandPalette, ArenaDoughnutChart, ArenaLineChart,
-    ArenaMenu, ArenaOnboarding, ArenaSegmentedControl, ArenaSelect, ArenaTable,
+    ArenaMenu, ArenaMultiSelect, ArenaOnboarding, ArenaSegmentedControl, ArenaSelect, ArenaTable,
   ],
   template: `
     <arena-activity-feed label="Activity" [items]="items" />
@@ -49,6 +50,7 @@ const SLOTS: readonly number[] = Object.freeze([1, 2]);
     <arena-combobox label="Region" [options]="selectOptions" />
     <arena-command-palette [open]="false" [commands]="commands" />
     <arena-menu [items]="menuItems" />
+    <arena-multi-select label="Days" [options]="selectOptions" [value]="labels" />
     <arena-onboarding [open]="false" [steps]="steps" />
     <arena-segmented-control ariaLabel="View" [options]="segments" />
     <arena-select [options]="selectOptions" />
@@ -81,7 +83,7 @@ test('every array input binds data the consumer holds as readonly, and nothing w
   const host = fixture.nativeElement as HTMLElement;
   for (const selector of [
     'arena-activity-feed', 'arena-breadcrumbs', 'arena-bulk-action-bar', 'arena-checkbox-group', 'arena-combobox', 'arena-command-palette',
-    'arena-menu', 'arena-onboarding', 'arena-segmented-control', 'arena-select', 'arena-table',
+    'arena-menu', 'arena-multi-select', 'arena-onboarding', 'arena-segmented-control', 'arena-select', 'arena-table',
     'arena-bar-chart', 'arena-doughnut-chart', 'arena-line-chart',
   ]) {
     assert.ok(host.querySelector(selector), `${selector} did not render, so its binding proves nothing`);

@@ -129,6 +129,7 @@ export const COVERED = {
   'ArenaBulkActionBar:angular': 'ArenaBulkActionBar.toolbar.test.ts',
   'ArenaCommandPalette:angular': 'ArenaCommandPalette.combobox.test.ts',
   'ArenaCombobox:angular': 'ArenaCombobox.compliance.test.ts',
+  'ArenaMultiSelect:angular': 'ArenaMultiSelect.combobox.test.ts',
   'ArenaButton:angular': 'ArenaButton.compliance.test.ts',
   'ArenaConfirmDialog:angular': 'ArenaConfirmDialog.compliance.test.ts',
   'ArenaDialog:angular': 'ArenaDialog.compliance.test.ts',

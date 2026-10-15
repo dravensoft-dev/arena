@@ -75,7 +75,7 @@ test('every component indexes its members as Angular binds them and every projec
 
 test('a control indexes the attributes its forms directive selects on, read from the directive', () => {
   const directives = directiveAttributes();
-  for (const tag of ['arena-input', 'arena-textarea', 'arena-select', 'arena-checkbox', 'arena-checkbox-group', 'arena-combobox', 'arena-radio-group', 'arena-switch'])
+  for (const tag of ['arena-input', 'arena-textarea', 'arena-select', 'arena-checkbox', 'arena-checkbox-group', 'arena-combobox', 'arena-multi-select', 'arena-radio-group', 'arena-switch'])
     assert.deepEqual(directives[tag], ['formControl', 'formControlName', 'ngModel'], tag);
   const inputs = vocabularyIndex().inputs ?? {};
   assert.ok(inputs['arena-input']?.includes('formControlName'));

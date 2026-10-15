@@ -62,6 +62,8 @@ export const ANCHORED: Anchored[] = [
   { name: 'ArenaTooltip:angular', page: `${ANGULAR}/feedback/arena-tooltip/ArenaTooltip.demo.generated.html`, trigger: '.pg-stage button', panel: '[role="tooltip"]', open: 'focus', prefer: 'above' },
   { name: 'ArenaCombobox:react', page: `${REACT}/forms/arena-combobox/ArenaCombobox.demo.generated.html`, trigger: '[role="combobox"]', panel: '[role="listbox"]', open: 'click', prefer: 'below', rows: '[role="option"]' },
   { name: 'ArenaCombobox:angular', page: `${ANGULAR}/forms/arena-combobox/ArenaCombobox.demo.generated.html`, trigger: '[role="combobox"]', panel: '[role="listbox"]', open: 'click', prefer: 'below', rows: '[role="option"]' },
+  { name: 'ArenaMultiSelect:react', page: `${REACT}/forms/arena-multi-select/ArenaMultiSelect.demo.generated.html`, trigger: '[role="combobox"]', panel: '[role="listbox"]', open: 'click', prefer: 'below', rows: '[role="option"]' },
+  { name: 'ArenaMultiSelect:angular', page: `${ANGULAR}/forms/arena-multi-select/ArenaMultiSelect.demo.generated.html`, trigger: '[role="combobox"]', panel: '[role="listbox"]', open: 'click', prefer: 'below', rows: '[role="option"]' },
 ];
 
 export type Reading = {

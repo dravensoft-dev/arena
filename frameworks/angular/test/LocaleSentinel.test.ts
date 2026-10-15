@@ -34,6 +34,7 @@ import { ArenaSwitch } from '../components/forms/arena-switch/ArenaSwitch';
 import { ArenaBulkActionBar } from '../components/navigation/arena-bulk-action-bar/ArenaBulkActionBar';
 import { ArenaCommandPalette } from '../components/navigation/arena-command-palette/ArenaCommandPalette';
 import { ArenaCombobox } from '../components/forms/arena-combobox/ArenaCombobox';
+import { ArenaMultiSelect } from '../components/forms/arena-multi-select/ArenaMultiSelect';
 import { disposeOverlays } from './Overlays';
 import { ArenaOnboarding } from '../components/feedback/arena-onboarding/ArenaOnboarding';
 import { ArenaConfirmDialog } from '../components/feedback/arena-confirm-dialog/ArenaConfirmDialog';
@@ -172,6 +173,23 @@ class ComboboxLoadingHost {}
 @Component({ standalone: true, imports: [ArenaCombobox], template: `<arena-combobox label="Region" placeholder="Search regions" [options]="[{ value: 'eu-west', label: 'Europe West' }]" />` })
 class ComboboxCountHost {}
 
+@Component({ standalone: true, imports: [ArenaMultiSelect], template: `<arena-multi-select label="Regions" placeholder="Search regions" [options]="[]" />` })
+class MultiSelectEmptyHost {}
+
+@Component({ standalone: true, imports: [ArenaMultiSelect], template: `<arena-multi-select label="Regions" placeholder="Search regions" [options]="[]" [loading]="true" />` })
+class MultiSelectLoadingHost {}
+
+@Component({ standalone: true, imports: [ArenaMultiSelect], template: `<arena-multi-select label="Regions" placeholder="Search regions" [options]="[{ value: 'eu-west', label: 'Europe West' }]" />` })
+class MultiSelectCountHost {}
+
+@Component({
+  standalone: true,
+  imports: [ArenaMultiSelect],
+  template: `<arena-multi-select label="Regions" [options]="[{ value: 'eu-north', label: 'Europe North' }, { value: 'eu-west', label: 'Europe West' }]"
+                                 [value]="['eu-west']" [max]="1" [maxVisible]="0" [clearable]="true" />`,
+})
+class MultiSelectCapHost {}
+
 @Component({
   standalone: true,
   imports: [ArenaOnboarding],
@@ -236,6 +254,7 @@ const CASES: Record<string, Case> = {
   ArenaSwitch: { hosts: [SwitchHost], consumer: ['Auto deploy'] },
   ArenaBulkActionBar: { hosts: [BulkHost], consumer: ['Archive'] },
   ArenaCombobox: { hosts: [ComboboxEmptyHost, ComboboxLoadingHost, ComboboxCountHost], consumer: ['Region', 'Search regions', 'Europe West', 'Eur'] },
+  ArenaMultiSelect: { hosts: [MultiSelectEmptyHost, MultiSelectLoadingHost, MultiSelectCountHost, MultiSelectCapHost], consumer: ['Regions', 'Search regions', 'Europe West', 'Europe North', 'Eur'] },
   ArenaCommandPalette: { hosts: [PaletteHost], consumer: ['Deploy', 'zzz'] },
   ArenaOnboarding: { hosts: [OnboardingHost], consumer: ['One', 'Two', 'Three'] },
   ArenaConfirmDialog: { hosts: [ConfirmHost], consumer: ['Delete project', 'atlas', 'Gone for good'] },
@@ -328,10 +347,15 @@ async function wordsOf(host: Type<unknown>, name: string, allowed: string[]): Pr
     await fixture.whenStable();
     fixture.detectChanges();
     const root = fixture.nativeElement as HTMLElement;
-    if (name === 'ArenaCombobox') {
+    if (name === 'ArenaCombobox' || name === 'ArenaMultiSelect') {
       const input = root.querySelector<HTMLInputElement>('[role="combobox"]');
       if (input) { input.focus(); input.value = 'Eur'; input.dispatchEvent(new Event('input', { bubbles: true })); }
       fixture.detectChanges();
+      const cursor = root.ownerDocument.getElementById(input?.getAttribute('aria-activedescendant') ?? '');
+      if (input && cursor?.getAttribute('aria-disabled') === 'true') {
+        input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true }));
+        fixture.detectChanges();
+      }
       const pane = root.ownerDocument.querySelector<HTMLElement>('.cdk-overlay-container');
       return [...strayWords(root, allowed), ...(pane ? strayWords(pane, allowed) : [])];
     }
