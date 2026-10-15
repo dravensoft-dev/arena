@@ -28,6 +28,7 @@ import { ArenaSpinner } from '../components/feedback/arena-spinner/ArenaSpinner.
 import { ArenaSwitch } from '../components/forms/arena-switch/ArenaSwitch.tsx';
 import { ArenaBulkActionBar } from '../components/navigation/arena-bulk-action-bar/ArenaBulkActionBar.tsx';
 import { ArenaCommandPalette } from '../components/navigation/arena-command-palette/ArenaCommandPalette.tsx';
+import { ArenaCombobox } from '../components/forms/arena-combobox/ArenaCombobox.tsx';
 import { ArenaOnboarding } from '../components/feedback/arena-onboarding/ArenaOnboarding.tsx';
 import { ArenaConfirmDialog } from '../components/feedback/arena-confirm-dialog/ArenaConfirmDialog.tsx';
 import { ArenaErrorState } from '../components/feedback/arena-error-state/ArenaErrorState.tsx';
@@ -135,6 +136,14 @@ const CASES: Record<string, Case> = {
   ArenaSpinner: { renders: [() => <ArenaSpinner />], consumer: [] },
   ArenaSwitch: { renders: [() => <ArenaSwitch label="Auto deploy" confirm />], consumer: ['Auto deploy'] },
   ArenaBulkActionBar: { renders: [() => <ArenaBulkActionBar count={3} actions={[{ id: 'archive', label: 'Archive' }]} />], consumer: ['Archive'] },
+  ArenaCombobox: {
+    renders: [
+      () => <ArenaCombobox label="Region" placeholder="Search regions" options={[]} />,
+      () => <ArenaCombobox label="Region" placeholder="Search regions" options={[]} loading />,
+      () => <ArenaCombobox label="Region" placeholder="Search regions" options={[{ value: 'eu-west', label: 'Europe West' }]} />,
+    ],
+    consumer: ['Region', 'Search regions', 'Europe West', 'Eur'],
+  },
   ArenaCommandPalette: { renders: [() => <ArenaCommandPalette open commands={[{ id: 'deploy', label: 'Deploy' }]} />], consumer: ['Deploy', 'zzz'] },
   ArenaOnboarding: {
     renders: [
@@ -235,6 +244,15 @@ for (const [name, one] of Object.entries(CASES)) {
     const locale = sentinelLocale();
     const run = () => one.renders.flatMap((render) => {
       const host = mount(<ArenaLocaleProvider value={locale}>{render()}</ArenaLocaleProvider>);
+      if (name === 'ArenaCombobox') {
+        const input = host.querySelector<HTMLInputElement>('[role="combobox"]');
+        act(() => {
+          if (!input) return;
+          input.focus();
+          Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set?.call(input, 'Eur');
+          input.dispatchEvent(new Event('input', { bubbles: true }));
+        });
+      }
       if (name === 'ArenaCommandPalette') {
         const input = host.ownerDocument.querySelector('input');
         act(() => {

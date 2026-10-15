@@ -39,6 +39,7 @@ export const COVERED = {
   'ArenaMenu:react': 'ArenaMenu.dom.test.tsx',
   'ArenaBulkActionBar:react': 'ArenaBulkActionBar.toolbar.dom.test.tsx',
   'ArenaCommandPalette:react': 'ArenaCommandPalette.combobox.dom.test.tsx',
+  'ArenaCombobox:react': 'ArenaCombobox.combobox.dom.test.tsx',
   'ArenaSkeleton:react': 'PlacementAndBranches.dom.test.tsx',
   'ArenaSideNavCollapsible:react': 'ArenaSideNav.disclosure.dom.test.tsx',
   'ArenaTabs:react': 'ArenaTabs.dom.test.tsx',
