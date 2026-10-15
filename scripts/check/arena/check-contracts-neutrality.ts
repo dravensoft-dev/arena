@@ -198,8 +198,8 @@ export const COMPUTED = new Map<string, { reads: string; why: string }>([
     why: 'the render draws a different tree for a ring: an SVG track and arc whose offset is the percentage',
   }],
   [at('ArenaMenu', 'align'), {
-    reads: 'frameworks/angular/components/navigation/arena-menu/ArenaMenu.ts:attach()',
-    why: 'the render positions the panel from it, choosing the connected positions that line the panel up with that edge of the trigger',
+    reads: 'frameworks/react/components/navigation/arena-menu/ArenaMenu.tsx:ArenaMenu(props)',
+    why: 'the render places the panel from it, lining the panel up with that edge of the trigger before it is shown',
   }],
   [at('ArenaPopover', 'align'), {
     reads: 'frameworks/react/components/feedback/arena-popover/ArenaPopover.tsx:ArenaPopover(props)',
