@@ -6,7 +6,7 @@ import { useTestEnvironment } from './TestbedEnv';
 useTestEnvironment();
 
 import '@angular/compiler';
-import test from 'node:test';
+import test, { after, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -32,6 +32,14 @@ import { ArenaCalendar } from '../components/display/arena-calendar/ArenaCalenda
 import { ArenaTag } from '../components/display/arena-tag/ArenaTag';
 import { ArenaFooter } from '../ProjectionMarkers';
 import { LIB } from './Compliance';
+
+const root = document.documentElement;
+before(() => {
+  root.style.setProperty('--bp-md', '768px');
+});
+after(() => {
+  root.style.removeProperty('--bp-md');
+});
 
 const proximity = await import(pathToFileURL(join(LIB, 'arena', 'proximity.ts')).href);
 

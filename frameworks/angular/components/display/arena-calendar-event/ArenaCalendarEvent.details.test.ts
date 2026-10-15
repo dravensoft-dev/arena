@@ -1,7 +1,7 @@
 import { useTestEnvironment } from '../../../test/TestbedEnv';
 useTestEnvironment();
 
-import test from 'node:test';
+import test, { after, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -9,6 +9,14 @@ import { ArenaCalendar } from '../arena-calendar/ArenaCalendar';
 import { ArenaCalendarEvent } from './ArenaCalendarEvent';
 import { arenaVisibleDetails } from '../arena-calendar/CalendarInternals';
 import { calendarHourH } from '../../../Tokens.generated';
+
+const root = document.documentElement;
+before(() => {
+  root.style.setProperty('--bp-md', '768px');
+});
+after(() => {
+  root.style.removeProperty('--bp-md');
+});
 
 const DETAILS = ['Ada, Grace', '8 of 12 seats', 'Room 4'];
 

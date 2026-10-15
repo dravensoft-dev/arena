@@ -12,7 +12,7 @@
 import { useTestEnvironment } from './TestbedEnv';
 useTestEnvironment();
 
-import test from 'node:test';
+import test, { after, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
@@ -27,6 +27,14 @@ import { ArenaTableRow } from '../components/display/arena-table-row/ArenaTableR
 import { ArenaTab } from '../components/navigation/arena-tab/ArenaTab';
 import { ArenaTabs } from '../components/navigation/arena-tabs/ArenaTabs';
 import { ANGULAR_COMPONENTS } from './Compliance';
+
+const root = document.documentElement;
+before(() => {
+  root.style.setProperty('--bp-md', '768px');
+});
+after(() => {
+  root.style.removeProperty('--bp-md');
+});
 
 interface Growable {
   fill(): void;

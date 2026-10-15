@@ -1,5 +1,5 @@
 import '@angular/compiler';
-import test from 'node:test';
+import test, { after, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { assertNoNode } from './NodeAssert';
 import { readFileSync, readdirSync } from 'node:fs';
@@ -46,6 +46,14 @@ import { ArenaUnauthCard } from '../components/display/arena-unauth-card/ArenaUn
 import { arenaUnauthCardStyles } from '../components/display/arena-unauth-card/ArenaUnauthCard.variants';
 
 useTestEnvironment();
+
+const root = document.documentElement;
+before(() => {
+  root.style.setProperty('--bp-sm', '480px');
+});
+after(() => {
+  root.style.removeProperty('--bp-sm');
+});
 
 @Component({
   standalone: true,
@@ -710,60 +718,42 @@ test('arena-error-state: retryLabel draws a real retry button carrying the manif
   fixture.destroy();
 });
 
-const BP_SM = '480px';
-
 test('arena-page-head: the root recipe classes land on the host element itself', async () => {
-  document.documentElement.style.setProperty('--bp-sm', BP_SM);
-  try {
-    const fixture = createPageHeadWithoutActionsFixture();
-    fixture.detectChanges();
-    await fixture.whenStable();
-    const host = fixture.nativeElement.querySelector('arena-page-head') as HTMLElement;
-    for (const cls of arenaPageHeadStyles().root().split(/\s+/))
-      assert.ok(host.classList.contains(cls), `host is missing root class "${cls}"`);
-    assert.ok(host.classList.contains('consumer-class'), `host lost the consumer's static class: "${host.className}"`);
-  } finally {
-    document.documentElement.style.removeProperty('--bp-sm');
-  }
+  const fixture = createPageHeadWithoutActionsFixture();
+  fixture.detectChanges();
+  await fixture.whenStable();
+  const host = fixture.nativeElement.querySelector('arena-page-head') as HTMLElement;
+  for (const cls of arenaPageHeadStyles().root().split(/\s+/))
+    assert.ok(host.classList.contains(cls), `host is missing root class "${cls}"`);
+  assert.ok(host.classList.contains('consumer-class'), `host lost the consumer's static class: "${host.className}"`);
 });
 
 test('arena-page-head: an unmeasured width renders the WIDE layout, so the narrow branch never flashes on first paint', async () => {
-  document.documentElement.style.setProperty('--bp-sm', BP_SM);
-  try {
-    const fixture = createPageHeadWithoutActionsFixture();
-    fixture.detectChanges();
-    await fixture.whenStable();
-    const host = fixture.nativeElement.querySelector('arena-page-head') as HTMLElement;
-    assert.equal(host.hasAttribute('data-arena-narrow'), false,
-      'an unmeasured page head must render as a row, and the narrow branch must not render before anything has been measured');
-    assert.equal(host.hasAttribute('data-arena-align'), false,
-      'the align is a class an adopter writes, so the head writes no attribute for it');
-  } finally {
-    document.documentElement.style.removeProperty('--bp-sm');
-  }
+  const fixture = createPageHeadWithoutActionsFixture();
+  fixture.detectChanges();
+  await fixture.whenStable();
+  const host = fixture.nativeElement.querySelector('arena-page-head') as HTMLElement;
+  assert.equal(host.hasAttribute('data-arena-narrow'), false,
+    'an unmeasured page head must render as a row, and the narrow branch must not render before anything has been measured');
+  assert.equal(host.hasAttribute('data-arena-align'), false,
+    'the align is a class an adopter writes, so the head writes no attribute for it');
 });
 
 test('arena-page-head: the actions wrapper is absent from the DOM when no [actions] content is projected', async () => {
-  document.documentElement.style.setProperty('--bp-sm', BP_SM);
-  try {
-    const fixture = createPageHeadWithoutActionsFixture();
-    fixture.detectChanges();
-    await fixture.whenStable();
-    const host = fixture.nativeElement.querySelector('arena-page-head') as HTMLElement;
-    assertNoNode(host.querySelector('button'), 'no actions were projected, so no action markup should exist at all');
-    const actionsClass = arenaPageHeadStyles().actions().split(/\s+/)[0];
-    assertNoNode(
-      host.querySelector(`:scope > .${actionsClass}`),
-      'the actions wrapper div must not render when the actions slot is empty',
-    );
-    assert.equal(host.children.length, 1, 'a page head with no actions renders the titles block and nothing else');
-  } finally {
-    document.documentElement.style.removeProperty('--bp-sm');
-  }
+  const fixture = createPageHeadWithoutActionsFixture();
+  fixture.detectChanges();
+  await fixture.whenStable();
+  const host = fixture.nativeElement.querySelector('arena-page-head') as HTMLElement;
+  assertNoNode(host.querySelector('button'), 'no actions were projected, so no action markup should exist at all');
+  const actionsClass = arenaPageHeadStyles().actions().split(/\s+/)[0];
+  assertNoNode(
+    host.querySelector(`:scope > .${actionsClass}`),
+    'the actions wrapper div must not render when the actions slot is empty',
+  );
+  assert.equal(host.children.length, 1, 'a page head with no actions renders the titles block and nothing else');
 });
 
 test('arena-page-head: a platform with no ResizeObserver still renders, on the wide layout', async () => {
-  document.documentElement.style.setProperty('--bp-sm', BP_SM);
   const globals = globalThis as { ResizeObserver?: typeof ResizeObserver };
   const saved = globals.ResizeObserver;
   delete globals.ResizeObserver;
@@ -776,7 +766,6 @@ test('arena-page-head: a platform with no ResizeObserver still renders, on the w
       'with no ResizeObserver the width stays null, which is the wide layout');
   } finally {
     globals.ResizeObserver = saved;
-    document.documentElement.style.removeProperty('--bp-sm');
   }
 });
 

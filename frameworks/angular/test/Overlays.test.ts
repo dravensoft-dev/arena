@@ -12,7 +12,7 @@ import { disposeOverlays, disposeStrays } from './Overlays';
   selector: 'overlays-popover-host',
   standalone: true,
   imports: [ArenaPopover],
-  template: `<arena-popover label="Notes" [open]="true"><p>Nothing to press.</p></arena-popover>`,
+  template: `<arena-popover label="Notes" [open]="true"><button trigger type="button">Notes</button><p>Nothing to press.</p></arena-popover>`,
 })
 class PopoverHost {}
 

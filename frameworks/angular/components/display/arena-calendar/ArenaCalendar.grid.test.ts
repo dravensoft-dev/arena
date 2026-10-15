@@ -11,7 +11,7 @@
 import { useTestEnvironment } from '../../../test/TestbedEnv';
 useTestEnvironment();
 
-import test from 'node:test';
+import test, { after, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { join } from 'node:path';
 import { Component } from '@angular/core';
@@ -20,6 +20,14 @@ import { assertSameNode } from '../../../test/NodeAssert';
 import { assertPattern, ANGULAR_COMPONENTS } from '../../../test/Compliance';
 import { ArenaCalendar } from './ArenaCalendar';
 import { ArenaCalendarEvent } from '../arena-calendar-event/ArenaCalendarEvent';
+
+const root = document.documentElement;
+before(() => {
+  root.style.setProperty('--bp-md', '768px');
+});
+after(() => {
+  root.style.removeProperty('--bp-md');
+});
 
 const BINDING = join(ANGULAR_COMPONENTS, 'display/arena-calendar/ArenaCalendar.behaviour.json');
 

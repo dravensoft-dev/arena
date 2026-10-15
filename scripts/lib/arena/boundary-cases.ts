@@ -68,7 +68,9 @@ export function slotMembers(contract: Contract): string[] {
     .map(([name]) => name);
 }
 
-const probe = (slot: string): FixtureNode => ({ element: 'i', attrs: { [PROBE]: slot } });
+const probe = (slot: string): FixtureNode => (slot === 'trigger'
+  ? { element: 'button', attrs: { [PROBE]: slot, type: 'button' } }
+  : { element: 'i', attrs: { [PROBE]: slot } });
 
 export function boundaryCases(root = repoRoot): BoundaryCase[] {
   const contracts = loadContracts(root) as Map<string, Contract>;

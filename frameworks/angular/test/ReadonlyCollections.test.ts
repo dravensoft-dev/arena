@@ -4,7 +4,7 @@
  * fails: ngc compiles it under strictTemplates, so the binding below is the assertion. */
 
 import '@angular/compiler';
-import test from 'node:test';
+import test, { after, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -32,6 +32,16 @@ import type {
 
 useTestEnvironment();
 
+const root = document.documentElement;
+before(() => {
+  root.style.setProperty('--bp-md', '768px');
+  root.style.setProperty('--bp-sm', '480px');
+});
+after(() => {
+  root.style.removeProperty('--bp-md');
+  root.style.removeProperty('--bp-sm');
+});
+
 const LABELS: readonly string[] = Object.freeze(['Mon', 'Tue']);
 const VALUES: readonly number[] = Object.freeze([1, 2]);
 const SLOTS: readonly number[] = Object.freeze([1, 2]);
@@ -49,7 +59,7 @@ const SLOTS: readonly number[] = Object.freeze([1, 2]);
     <arena-checkbox-group ariaLabel="Days" [value]="labels" />
     <arena-combobox label="Region" [options]="selectOptions" />
     <arena-command-palette [open]="false" [commands]="commands" />
-    <arena-menu [items]="menuItems" />
+    <arena-menu [items]="menuItems"><button trigger type="button">Actions</button></arena-menu>
     <arena-multi-select label="Days" [options]="selectOptions" [value]="labels" />
     <arena-onboarding [open]="false" [steps]="steps" />
     <arena-segmented-control ariaLabel="View" [options]="segments" />

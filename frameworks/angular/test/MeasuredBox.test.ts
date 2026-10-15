@@ -6,7 +6,7 @@
 import { useTestEnvironment } from './TestbedEnv';
 useTestEnvironment();
 
-import test from 'node:test';
+import test, { after, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -19,6 +19,16 @@ import { ArenaCalendar } from '../components/display/arena-calendar/ArenaCalenda
 import { ArenaDialog } from '../components/feedback/arena-dialog/ArenaDialog';
 import { ArenaBulkActionBar } from '../components/navigation/arena-bulk-action-bar/ArenaBulkActionBar';
 import { ArenaPageHead } from '../components/navigation/arena-page-head/ArenaPageHead';
+
+const root = document.documentElement;
+before(() => {
+  root.style.setProperty('--bp-md', '768px');
+  root.style.setProperty('--bp-sm', '480px');
+});
+after(() => {
+  root.style.removeProperty('--bp-md');
+  root.style.removeProperty('--bp-sm');
+});
 
 type Measured = { slot: string | null; decides: readonly string[]; why: string };
 const { MEASURED } = await import(pathToFileURL(join(CHECKS, 'arena', 'check-measured-box.ts')).href) as

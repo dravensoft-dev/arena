@@ -8,6 +8,14 @@ import { ArenaControlBinding } from '../../../ControlBinding';
 import { disposeOverlays } from '../../../test/Overlays';
 import { ArenaCombobox } from './ArenaCombobox';
 
+function warnings(run: () => void): string[] {
+  const saved = console.warn;
+  const heard: string[] = [];
+  console.warn = (message: string) => { heard.push(message); };
+  try { run(); } finally { console.warn = saved; }
+  return heard;
+}
+
 function render() {
   const fixture = TestBed.createComponent(ArenaCombobox);
   fixture.componentRef.setInput('label', 'Plan');
@@ -21,10 +29,14 @@ function render() {
 test('while bound, the control draws the binding\'s value and ignores its own', () => {
   const { fixture, binding, el } = render();
   try {
-    fixture.componentRef.setInput('value', 'basic');
-    binding.bound.set(true);
-    binding.value.set('pro');
-    fixture.detectChanges();
+    const heard = warnings(() => {
+      fixture.componentRef.setInput('value', 'basic');
+      binding.bound.set(true);
+      binding.value.set('pro');
+      fixture.detectChanges();
+    });
+    assert.equal(heard.length, 1);
+    assert.match(heard[0] ?? '', /ArenaCombobox: `value` is bound while a form directive binds the same control/);
     assert.equal(el.value, 'Pro');
   } finally { fixture.destroy(); }
 });

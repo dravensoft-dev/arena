@@ -7,14 +7,21 @@
 import { useTestEnvironment } from '../../../test/TestbedEnv';
 useTestEnvironment();
 
-import test from 'node:test';
+import test, { after, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { Component } from '@angular/core';
 import { TestBed, type ComponentFixture } from '@angular/core/testing';
 import type { ArenaBulkAction, ArenaBulkActionBarLayout } from '../../../Api.generated';
 import { ArenaBulkActionBar } from './ArenaBulkActionBar';
 
-const BP_SM = '480px';
+const root = document.documentElement;
+before(() => {
+  root.style.setProperty('--bp-sm', '480px');
+});
+after(() => {
+  root.style.removeProperty('--bp-sm');
+});
+
 const NARROW_WIDTH = 390;
 
 const ACTIONS: ArenaBulkAction[] = [
@@ -72,7 +79,6 @@ function labels(fixture: ComponentFixture<BarHost>): string[] {
 }
 
 test('the narrow shape stacks and reorders NOTHING, so focus order still matches reading order', async () => {
-  document.documentElement.style.setProperty('--bp-sm', BP_SM);
   const restore = stubResize(NARROW_WIDTH);
   let narrow: ComponentFixture<BarHost> | null = null;
   let wide: ComponentFixture<BarHost> | null = null;
@@ -91,12 +97,10 @@ test('the narrow shape stacks and reorders NOTHING, so focus order still matches
   } finally {
     narrow?.destroy();
     wide?.destroy();
-    document.documentElement.style.removeProperty('--bp-sm');
   }
 });
 
 test('layout="inline" keeps the one row at every width', async () => {
-  document.documentElement.style.setProperty('--bp-sm', BP_SM);
   const restore = stubResize(NARROW_WIDTH);
   let fixture: ComponentFixture<BarHost> | null = null;
   try {
@@ -106,7 +110,6 @@ test('layout="inline" keeps the one row at every width', async () => {
   } finally {
     fixture?.destroy();
     restore();
-    document.documentElement.style.removeProperty('--bp-sm');
   }
 });
 

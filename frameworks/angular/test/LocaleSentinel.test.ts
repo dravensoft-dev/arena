@@ -7,7 +7,7 @@
 import { useTestEnvironment } from './TestbedEnv';
 useTestEnvironment();
 
-import test from 'node:test';
+import test, { after, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -48,6 +48,16 @@ import { ArenaPyramidChart } from '../components/charts/arena-pyramid-chart/Aren
 import { ArenaDoughnutChart } from '../components/charts/arena-doughnut-chart/ArenaDoughnutChart';
 import { ArenaRadarChart } from '../components/charts/arena-radar-chart/ArenaRadarChart';
 import { ArenaScatterChart } from '../components/charts/arena-scatter-chart/ArenaScatterChart';
+
+const root = document.documentElement;
+before(() => {
+  root.style.setProperty('--bp-md', '768px');
+  root.style.setProperty('--bp-sm', '480px');
+});
+after(() => {
+  root.style.removeProperty('--bp-md');
+  root.style.removeProperty('--bp-sm');
+});
 
 export function sentinelLocale(base: ArenaLocale = ARENA_DEFAULT_LOCALE): ArenaLocale {
   const out: Record<string, string> = {};
@@ -382,13 +392,11 @@ for (const [name, one] of Object.entries(CASES)) {
   test(`${name} draws no word the locale does not answer`, async () => {
     const allowed = [...one.consumer, ...(one.accept?.() ?? [])];
     const restore = one.narrow ? stubResize(320) : () => {};
-    if (one.narrow) document.documentElement.style.setProperty('--bp-md', '768px');
     const found: string[] = [];
     try {
       for (const host of one.hosts) found.push(...(await wordsOf(host, name, allowed)));
     } finally {
       restore();
-      if (one.narrow) document.documentElement.style.removeProperty('--bp-md');
     }
     assert.deepEqual(found, [], `${name} still draws: ${found.join(' | ')}`);
   });

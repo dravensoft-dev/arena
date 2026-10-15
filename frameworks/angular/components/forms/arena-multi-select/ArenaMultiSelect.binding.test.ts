@@ -8,6 +8,14 @@ import { ArenaControlBinding } from '../../../ControlBinding';
 import { disposeOverlays } from '../../../test/Overlays';
 import { ArenaMultiSelect } from './ArenaMultiSelect';
 
+function warnings(run: () => void): string[] {
+  const saved = console.warn;
+  const heard: string[] = [];
+  console.warn = (message: string) => { heard.push(message); };
+  try { run(); } finally { console.warn = saved; }
+  return heard;
+}
+
 function render() {
   const fixture = TestBed.createComponent(ArenaMultiSelect);
   fixture.componentRef.setInput('label', 'Regions');
@@ -21,10 +29,14 @@ function render() {
 test('while bound, the control draws the binding\'s set and ignores its own', () => {
   const { fixture, binding, host } = render();
   try {
-    fixture.componentRef.setInput('value', ['eu']);
-    binding.bound.set(true);
-    binding.value.set(['us']);
-    fixture.detectChanges();
+    const heard = warnings(() => {
+      fixture.componentRef.setInput('value', ['eu']);
+      binding.bound.set(true);
+      binding.value.set(['us']);
+      fixture.detectChanges();
+    });
+    assert.equal(heard.length, 1);
+    assert.match(heard[0] ?? '', /ArenaMultiSelect: `value` is bound while a form directive binds the same control/);
     assert.deepEqual(Array.from(host.querySelectorAll('arena-tag [data-arena-boundary]')).map((one) => one.textContent?.trim()), ['Americas']);
   } finally { fixture.destroy(); }
 });

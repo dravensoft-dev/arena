@@ -7,7 +7,7 @@ import { useTestEnvironment } from './TestbedEnv';
 useTestEnvironment();
 
 import '@angular/compiler';
-import test from 'node:test';
+import test, { after, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -27,6 +27,16 @@ import { ArenaMenu } from '../components/navigation/arena-menu/ArenaMenu';
 import { ArenaTooltip } from '../components/feedback/arena-tooltip/ArenaTooltip';
 import { ArenaCombobox } from '../components/forms/arena-combobox/ArenaCombobox';
 import { ArenaButton } from '../components/forms/arena-button/ArenaButton';
+
+const root = document.documentElement;
+before(() => {
+  root.style.setProperty('--bp-md', '768px');
+  root.style.setProperty('--bp-sm', '480px');
+});
+after(() => {
+  root.style.removeProperty('--bp-md');
+  root.style.removeProperty('--bp-sm');
+});
 
 const cases = await import(pathToFileURL(join(LIB, 'arena', 'boundary-cases.ts')).href);
 const playgrounds = await import(pathToFileURL(join(REPO, 'scripts', 'generate', 'arena', 'generate-playgrounds.ts')).href);
