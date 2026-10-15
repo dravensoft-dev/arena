@@ -1,10 +1,13 @@
 import { ensureDom } from '../../../test/TestbedEnv';
 ensureDom();
 
-import test from 'node:test';
+import test, { beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { assertNotSameNode, assertSameNode } from '../../../test/NodeAssert';
+import { disposeStrays } from '../../../test/Overlays';
 import { type FocusTrapState, arenaHandleOpenTransition, arenaTrapTabKey } from '../../../FocusTrap';
+
+beforeEach(() => disposeStrays(document));
 
 function buildPalettePanel(rowCount: number): { panel: HTMLElement; input: HTMLElement; rows: HTMLElement[] } {
   const panel = document.createElement('div');
