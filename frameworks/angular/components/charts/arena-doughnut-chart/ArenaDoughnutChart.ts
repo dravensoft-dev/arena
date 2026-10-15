@@ -144,9 +144,8 @@ export class ArenaDoughnutChart {
     const only = this.only();
     const values = only.values;
 
-    const colors = arenaSeriesColors(
-      { ...only, colorIds: only.colorIds ?? values.map((_, index) => index + 1) }, values.length, 1,
-    );
+    const coloured = only.tone ? only : { ...only, colorIds: only.colorIds ?? values.map((_, index) => index + 1) };
+    const colors = arenaSeriesColors(coloured, values.length, 1);
     const write = this.write();
     const centreX = this.centreX();
     const centreY = this.centreY();
@@ -154,7 +153,7 @@ export class ArenaDoughnutChart {
     return arenaDoughnutSlices(values).map((slice) => ({
       ...slice,
       color: colors[slice.index],
-      swatch: arenaDoughnutChartStyles(arenaSwatchChoice({ ...only, colorIds: only.colorIds ?? values.map((_, at) => at + 1) }, 1, slice.index)).$data.legendSwatch(),
+      swatch: arenaDoughnutChartStyles(arenaSwatchChoice(coloured, 1, slice.index)).$data.legendSwatch(),
       label: this.labels()[slice.index] ?? '',
       formatted: write(values[slice.index]),
       path: slice.to > slice.from ? arenaArcPath(centreX, centreY, outer, inner, slice.from, slice.to) : '',

@@ -13,6 +13,7 @@ import assert from 'node:assert/strict';
 import { Component } from '@angular/core';
 import { TestBed, type ComponentFixture } from '@angular/core/testing';
 import type { ArenaChartLegendLayout, ArenaSeries } from '../../../Api.generated';
+import { forgetArenaWarnings } from '../../../WarnOnce';
 import { ArenaDoughnutChart } from './ArenaDoughnutChart';
 
 const LABELS = ['Retail', 'Wholesale', 'Consignment', 'Export'];
@@ -162,12 +163,21 @@ test('a legend swatch carries its slice identity as an attribute and no inline c
 });
 
 test('a toned series renders a toned swatch for every slice', async () => {
-  const fixture = await render({ series: [{ label: 'Revenue by channel', values: VALUES, tone: 'success' }] });
+  forgetArenaWarnings();
+  const warnings: string[] = [];
+  const savedWarn = console.warn;
+  console.warn = (message: string) => { warnings.push(message); };
   try {
-    const swatches = [...host(fixture).querySelectorAll<HTMLElement>('[role="group"] > button > span:first-child')];
-    for (const one of swatches) {
-      assert.equal(one.getAttribute('data-arena-tone'), 'success');
-      assert.equal(one.getAttribute('data-arena-color-id'), null);
-    }
-  } finally { fixture.destroy(); }
+    const fixture = await render({ series: [{ label: 'Revenue by channel', values: VALUES, tone: 'success' }] });
+    try {
+      const swatches = [...host(fixture).querySelectorAll<HTMLElement>('[role="group"] > button > span:first-child')];
+      assert.equal(swatches.length, VALUES.length);
+      for (const one of swatches) {
+        assert.equal(one.getAttribute('data-arena-tone'), 'success');
+        assert.equal(one.getAttribute('data-arena-color-id'), null);
+      }
+      assert.ok(!warnings.some((line) => /mutually exclusive/.test(line)),
+        'the component synthesizes no colour ids for a toned series, so nothing is said about the pair');
+    } finally { fixture.destroy(); }
+  } finally { console.warn = savedWarn; }
 });
