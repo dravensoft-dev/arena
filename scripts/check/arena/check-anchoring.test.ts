@@ -6,6 +6,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { ANCHORED, MOUNTED, OPENED, anchoringProblems, confineExpression, readExpression, smallestRow, type Anchored } from './check-anchoring.ts';
+import { SCOPES } from './check-target-size.ts';
 
 const below: Anchored = { name: 'X:react', page: 'p.html', trigger: '[aria-haspopup]', panel: '[role="dialog"]', open: 'click', prefer: 'below' };
 const above: Anchored = { ...below, name: 'Y:react', open: 'focus', prefer: 'above' };
@@ -47,9 +48,11 @@ test('a list whose smallest row is under a scope\'s floor fails in that scope al
   const placed = { mounted: true, opened: true, painted: true, inside: true, side: 'above' as const };
   assert.deepEqual(anchoringProblems(list, { ...placed, rows: [
     { scope: 'base', floor: 24, count: 3, smallest: 37 }, { scope: 'comfortable', floor: 44, count: 3, smallest: 48 },
+    { scope: 'compact', floor: 24, count: 3, smallest: 26 },
   ] }), []);
   const short = anchoringProblems(list, { ...placed, rows: [
     { scope: 'base', floor: 24, count: 3, smallest: 37 }, { scope: 'comfortable', floor: 44, count: 3, smallest: 40 },
+    { scope: 'compact', floor: 24, count: 3, smallest: 26 },
   ] });
   assert.equal(short.length, 1);
   assert.match(short[0] ?? '', /is 40px tall in the comfortable scope, and the floor there is 44px/);
@@ -60,15 +63,29 @@ test('a list measured with no rows, or in one scope only, fails rather than pass
   const placed = { mounted: true, opened: true, painted: true, inside: true, side: 'above' as const };
   assert.match(anchoringProblems(list, { ...placed, rows: [
     { scope: 'base', floor: 24, count: 0, smallest: 0 }, { scope: 'comfortable', floor: 44, count: 2, smallest: 48 },
+    { scope: 'compact', floor: 24, count: 2, smallest: 26 },
   ] })[0] ?? '', /drew no \[role="option"\] in the base scope/);
-  assert.match(anchoringProblems(list, { ...placed, rows: [{ scope: 'base', floor: 24, count: 2, smallest: 37 }] })[0] ?? '',
-    /fewer than two density scopes/);
+  const names = SCOPES.map((s) => s.name).join(', ');
+  const fewer = anchoringProblems(list, { ...placed, rows: SCOPES.slice(0, SCOPES.length - 1)
+    .map((s) => ({ scope: s.name, floor: s.floor, count: 2, smallest: 48 })) });
+  assert.equal(fewer.length, 1);
+  assert.ok(fewer[0]?.includes(`(${names})`));
+});
+
+test('a compact row of 23px fails in compact alone', () => {
+  const list: Anchored = { ...below, name: 'Z:react', rows: '[role="option"]' };
+  const placed = { mounted: true, opened: true, painted: true, inside: true, side: 'above' as const };
+  const problems = anchoringProblems(list, { ...placed, rows: SCOPES.map((s) =>
+    ({ scope: s.name, floor: s.floor, count: 2, smallest: s.name === 'compact' ? 23 : 48 })) });
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /is 23px tall in the compact scope, and the floor there is 24px/);
 });
 
 test('the read measures the rows in every scope the target-size gate declares, and a case with no rows measures none', () => {
   const list: Anchored = { ...below, name: 'Z:react', rows: '[role="option"]' };
   assert.match(readExpression(list), /"scope":"base","klass":"","floor":24/);
   assert.match(readExpression(list), /"scope":"comfortable","klass":"arena-comfortable","floor":44/);
+  assert.match(readExpression(list), /"scope":"compact","klass":"arena-compact","floor":24/);
   assert.match(readExpression(below), /const rows = "" \?/);
 });
 
@@ -77,6 +94,7 @@ test('a row exactly at the floor passes, and one a hair under it fails', () => {
   const placed = { mounted: true, opened: true, painted: true, inside: true, side: 'above' as const };
   const at = (smallest: number) => anchoringProblems(list, { ...placed, rows: [
     { scope: 'base', floor: 24, count: 3, smallest: 24 }, { scope: 'comfortable', floor: 44, count: 3, smallest },
+    { scope: 'compact', floor: 24, count: 3, smallest: 24 },
   ] });
   assert.deepEqual(at(44), []);
   assert.equal(at(43.99).length, 1);
@@ -107,7 +125,7 @@ test('the read runs: the smallest row per scope, and each scope class put back',
   };
   const read = new Function('document', 'innerWidth', 'innerHeight', `return ${readExpression(list)}`)(fake, 1000, 760);
   assert.deepEqual(read.rows.map((row: { scope: string; smallest: number }) => [row.scope, row.smallest]),
-    [['base', 26], ['comfortable', 44]]);
+    [['base', 26], ['comfortable', 44], ['compact', 26]]);
   assert.deepEqual([...classes], [], 'neither scope class is left on the body');
 });
 

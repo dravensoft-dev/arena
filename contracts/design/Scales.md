@@ -94,11 +94,11 @@ how much fits on a screen; comfortable has nothing to buy with the same trade, s
 goes to 48px, `--dz-ctl-h-sm` to 44px, `--dz-ctl-h-lg` to 56px, `--dz-row-py` to 16px,
 `--dz-row-px` to 20px and `--dz-stack` to 16px, while every step above stays where it is.
 
-48px is the number that matters: it clears the 44px WCAG 2.5.8 asks at its enhanced level, which
-the 40px base does not. This is the whole reason target size is density's axis and never a design
-style plugin's, since how large a control is answers who is pointing at it rather than what register the
-product speaks in. The two density classes are mutually exclusive with each other, because both
-set the same keys, and compose with a theme and with a style plugin, because those set others.
+48px is the number that matters: it clears WCAG 2.5.5's 44px target, which the 40px base does not.
+This is the whole reason target size is density's axis and never a design style plugin's, since how
+large a control is answers who is pointing at it rather than what register the product speaks in.
+The two density classes are mutually exclusive with each other, because both set the same keys, and
+compose with a theme and with a style plugin, because those set others.
 
 `--dz-text-lg` and `--dz-text-2xs` do not shrink in the compact scope. A readout is the content of its chart, so it keeps its size at any density. For `--dz-text-2xs`, −1px would land it at 9px, which the system treats as illegible drift and snaps away from everywhere else, so reintroducing it as a systemic compact value would undo that call one layer down. Every other step follows the `−1px` precedent `--dz-text` itself sets (14→13).
 

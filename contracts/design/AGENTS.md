@@ -36,15 +36,15 @@ the shape each value arrives in.
 - **Typography:** Archivo (display/headlines, 800–900), Familjen Grotesk (body, 400–600), Spline Sans Mono (data, labels, code). Negative tracking on display (`-0.02em`), wide tracking on mono labels (`0.22em`).
 - **Target size is density's axis, and comfortable is the density a thumb requires.** `--dz-ctl-h`
   reads 40px at the base, 48px in `.arena-comfortable` and 32px in `.arena-compact`, and every rung
-  of the comfortable ladder clears the 44 points WCAG 2.5.8 asks at its enhanced level and Apple
-  asks for a tappable area. **The base clears 2.5.8's minimum alone, and compact clears neither, so
-  compact is not offerable to a thumb**: it is the expert density, chosen by whoever knows their
+  of the comfortable ladder clears the 44 by 44 pixels WCAG 2.5.5 asks at Level AAA and Apple asks
+  for a tappable area. **The base and compact clear 2.5.8's 24px, and only comfortable clears 2.5.5,
+  so compact is not offered to a thumb**: it is the expert density, chosen by whoever knows their
   reader is pointing with a mouse. A target that is not offerable is a statement about who the
   product is for and not a licence to make one smaller. `check:target-size` measures it in a real
-  browser at a phone viewport, over the page that already renders every component, in both scopes,
-  and what it measures is the box that activates rather than the box that is painted: a dense
-  control answers a thumb through a hit area that extends past its own edge, which is why a switch's
-  pill stays 22px tall and its target does not.
+  browser at a phone viewport, over the page that already renders every component, in the three
+  density scopes, and what it measures is the box that activates rather than the box that is
+  painted: a dense control answers a thumb through a hit area that extends past its own edge, which
+  is why a switch's pill stays 22px tall and its target does not.
 
 - **Spacing, and the difference between a length and a rhythm:** the 4px grid (`sp`) is the repertoire of lengths a value may take, and it decides nothing on its own. What separates two components is `rhythm`, named steps aliased off that grid: `--rhythm-group` (12px) inside one group of related things, `--rhythm-component` (16px) between two peers, `--rhythm-section` (24px) between two sections of a page. **No Arena component draws this itself**, because every component is an inner box with no outer margin, so the family exists for the reason `--z-nav` and `--layout-bar` do: the space between components is part of the system, and the alternative is every consumer picking a number. What a package ships for it are the `stack` and `row` families, listed on [the vocabulary page](../../frameworks/VOCABULARY.md). It is not density. `.arena-compact` re-densifies `dz` and leaves `rhythm` alone, which is why `--rhythm-group` and `--dz-stack` can share a length and not a meaning. The rhythm step table, and what each one is for, is [`Scales.md`](./Scales.md), which carries no `sp` section because a repertoire of lengths is a list rather than a set of jobs: the grid itself is authored in `spacing.json` beside it.
 

@@ -53,7 +53,7 @@ Every design value is a DTCG token. A dimension is `{ "value": 16, "unit": "px" 
 ```json
 {
   "$value": { "value": 48, "unit": "px" },
-  "$description": "48px clears WCAG 2.5.8's enhanced 44px target, which the 40px base does not"
+  "$description": "48px clears WCAG 2.5.5's 44px target, which the 40px base does not"
 }
 ```
 

@@ -47,7 +47,7 @@ const MEASURED_HEAVY = new Map([
 
 const MEASURED_COST = new Map([
   ['check:pixel-parity', 34], ['check:script-types', 13.5], ['check:react-types', 12.7],
-  ['check:target-size', 11.9], ['check:proximity', 10.2], ['check:focus-trap', 4.1], ['check:anchoring', 3.7],
+  ['check:target-size', 20.3], ['check:proximity', 10.2], ['check:focus-trap', 4.1], ['check:anchoring', 6.3],
 ]);
 
 const TEST_COST = new Map([

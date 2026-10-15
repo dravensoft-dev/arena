@@ -171,8 +171,8 @@ export function anchoringProblems(kase: Anchored, reading: Reading) {
         + `${row.scope} scope, and the floor there is ${row.floor}px`);
     }
   }
-  if (kase.rows !== undefined && (reading.rows?.length ?? 0) < 2) {
-    problems.push(`${kase.name}: its rows were measured in fewer than two density scopes, and the comfortable one is the point`);
+  if (kase.rows !== undefined && (reading.rows?.length ?? 0) < SCOPES.length) {
+    problems.push(`${kase.name}: its rows were measured in fewer density scopes than SCOPES declares (${SCOPES.map((s) => s.name).join(', ')})`);
   }
   return problems;
 }
