@@ -207,13 +207,15 @@ reads take the border box with no transform, so a padding or transform a branch 
 never reaches the number. A chart measures an element of its own template,
 so a consumer class on its host cannot move its plot. So a branch may restyle the padding and border of the measured element and nothing else of its outer box, as `check:measured-box` holds.
 
-**One component exposes a method, and it is the only one.** `arena-input` has `focus()` and
-`select()`, because none of the nine contract forms is imperative and returning focus after each
-completed transaction is what lets a till chain sales without the mouse; `autoFocus` fires once
-at mount and answers a different question. `IMPERATIVE_HANDLES` in
+**A component exposes a method only where `IMPERATIVE_HANDLES` names it.** None of the nine
+contract forms is imperative. `arena-input` has `focus()` and `select()`, because returning focus
+after each completed transaction is what lets a till chain sales without the mouse; `autoFocus`
+fires once at mount and answers a different question. `arena-file-input` has `files()` and
+`clear()`, because a `File` is a platform type no member or payload may carry, and a host that
+uploads without a form still reads the files and empties the field. `IMPERATIVE_HANDLES` in
 `scripts/lib/arena/api-surface.ts` is what lets `check:api` read a public method on a component
-class at all, it names these two and no others with a reason each, and any other public method
-still fails the gate as an undeclared surface.
+class at all, it names each method with a reason, and any other public method still fails the
+gate as an undeclared surface.
 
 A primitive defines no styling of its own. Its appearance is authored one layer over, as
 `frameworks/tailwind/components/<category>/<component-kebab>/<Component>.manifest.json`, and

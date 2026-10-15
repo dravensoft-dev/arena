@@ -1,6 +1,6 @@
 # What each package exports besides the components
 
-Which helpers, hooks, services and constants does the React or Angular package export besides components? Which ones carry a compatibility promise? How do I raise a toast or a confirmation from code, trap focus in an overlay of my own, route my own anchor, or change density below a breakpoint? Which Angular marker directives must I import? How do I bind Angular reactive forms? Read this before you write a second copy of something a package already exports.
+Which helpers, hooks, services and constants does the React or Angular package export besides components? Which ones carry a compatibility promise? How do I raise a toast or a confirmation from code, trap focus in an overlay of my own, route my own anchor, or change density below a breakpoint? Which Angular marker directives must I import? How do I bind Angular reactive forms? How do I take the files a file input holds? Read this before you write a second copy of something a package already exports.
 
 A name on this page may be leaned on. A symbol you found by autocomplete may not. [`media-register.md`](./media-register.md) says when the markup is yours and which of these exports to reach for.
 
@@ -441,7 +441,7 @@ import { ARENA_FORM_CONTROLS } from '@dravensoft/arena-angular/forms';
 })
 ```
 
-`formControl`, `formControlName` and `ngModel` work on `arena-input`, `arena-textarea`, `arena-select`, `arena-combobox`, `arena-multi-select`, `arena-checkbox`, `arena-checkbox-group`, `arena-radio-group` and `arena-switch`. Each directive is also exported alone: `ArenaInputControl`, `ArenaTextareaControl`, `ArenaSelectControl`, `ArenaComboboxControl`, `ArenaMultiSelectControl`, `ArenaCheckboxControl`, `ArenaCheckboxGroupControl`, `ArenaRadioGroupControl` and `ArenaSwitchControl`.
+`formControl`, `formControlName` and `ngModel` work on `arena-input`, `arena-textarea`, `arena-select`, `arena-combobox`, `arena-multi-select`, `arena-checkbox`, `arena-checkbox-group`, `arena-radio-group`, `arena-switch` and `arena-file-input`. Each directive is also exported alone: `ArenaInputControl`, `ArenaTextareaControl`, `ArenaSelectControl`, `ArenaComboboxControl`, `ArenaMultiSelectControl`, `ArenaCheckboxControl`, `ArenaCheckboxGroupControl`, `ArenaRadioGroupControl`, `ArenaSwitchControl` and `ArenaFileInputControl`.
 
 What a control carries as its value:
 
@@ -450,6 +450,7 @@ What a control carries as its value:
 - The select, the combobox and the radio group carry a `string`, the chosen option's value. A value no option holds draws an empty combobox field and a radio group with no radio checked. A `null` draws the empty field, the placeholder or no radio checked.
 - The checkbox group carries a `string[]`, the ticked values in the order they were ticked. A `null` draws no box ticked.
 - The multi-select carries a `string[]`, the chosen values in the order they were chosen, and never the event object. A `null` draws no chip.
+- The file input carries a `File[]`, the files it holds. `setValue(null)`, `setValue([])` and `reset()` clear it. A value holding files is ignored with a warning, because a file selection cannot be set from outside.
 
 `disable()` disables the control. Leaving the control marks it touched.
 
@@ -458,3 +459,47 @@ What a control carries as its value:
 A switch with `confirm` reports nothing when pressed. Confirm first, then call `setValue`.
 
 **Arena never turns a validator's error into words.** Copy is yours. Pass `error` from your own messages, as the example does.
+
+## How do I take the files a file input holds?
+
+`ArenaFileInput` reports names, sizes and types in its events, never a `File`. Inside a `<form>`, give the field a `name`. A native submission and `new FormData(form)` then carry exactly the files shown. Code that uploads without a form reads the files through two methods, `files()` and `clear()`.
+
+In React the methods are on a forwarded ref, typed by `ArenaFileInputHandle`, which is imported beside the component.
+
+```tsx
+import { useRef } from 'react';
+import { ArenaFileInput, type ArenaFileInputHandle } from '@dravensoft/arena-react';
+
+const attachments = useRef<ArenaFileInputHandle>(null);
+
+async function upload() {
+  for (const file of attachments.current?.files() ?? []) await send(file);
+  attachments.current?.clear();
+}
+
+<ArenaFileInput ref={attachments} label="Attachments" multiple droppable />
+```
+
+In Angular the methods are on the component class, reached through a `viewChild`.
+
+```ts
+import { Component, inject, viewChild } from '@angular/core';
+import { ArenaFileInput } from '@dravensoft/arena-angular';
+import { UploadService } from './upload.service';
+
+@Component({
+  imports: [ArenaFileInput],
+  template: `<arena-file-input label="Attachments" multiple droppable />`,
+})
+export class Attachments {
+  private readonly field = viewChild.required(ArenaFileInput);
+  private readonly uploads = inject(UploadService);
+
+  async upload(): Promise<void> {
+    for (const file of this.field().files()) await this.uploads.send(file);
+    this.field().clear();
+  }
+}
+```
+
+`files()` returns the `File` objects held when you call it. `clear()` empties the field and fires no event, because the call is yours. A reset of the containing form empties the field without an event too. In a reactive form, the reset of a form directive (`FormGroupDirective` or `NgForm`) also clears the model. A native reset of a plain `<form>` holding a lone `formControl` empties the field only. Call `reset()` on the control there.

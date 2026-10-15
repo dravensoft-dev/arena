@@ -147,6 +147,19 @@ element its manifest declares `floating`, as the tooltip's bubble, the toast sta
 do. A context class written above the trigger stops there, which is what lets a toolbar's
 `arena-size-sm` reach its buttons and leave the dialog they open alone.
 
+## A method a caller needs at a moment of its own choosing is a handle on a forwarded ref
+
+**None of the nine contract forms is imperative, so a component that needs a method forwards a ref
+carrying it.** `ArenaInput` forwards `focus()` and `select()`, because returning focus after each
+completed transaction is what lets a till chain sales without the mouse, and `autoFocus` fires once
+at mount. `ArenaFileInput` forwards `files()` and `clear()`, because a `File` is a platform type no
+member or payload may carry, and a host that uploads without a form still reads the files and
+empties the field. The handle's interface is exported beside the component as `<Name>Handle`, and
+`check:api` never reads it, since it reads a component through `<Name>Props` alone
+(`scripts/lib/arena/api-surface.ts:reactSurface(source, interfaceName)`). **`IMPERATIVE_HANDLES` in
+that file is the record of every handle**, each method with its reason and the list asserted by
+literal value in its suite, so a method is named there before a ref forwards it here.
+
 ## Every animation answers `prefers-reduced-motion`
 
 The answer depends on what the motion means:

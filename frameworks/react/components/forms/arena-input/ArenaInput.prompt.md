@@ -74,7 +74,7 @@ Use the native types. Arena deliberately ships **no `DatePicker` and no `TimePic
 <ArenaInput label="Cutover" type="datetime-local" error="Pick a date in the future" />
 ```
 
-`type` is the `ArenaInputType` enum: `text`, `email`, `password`, `search`, `tel`, `url`, `number`, `date`, `time`, `datetime-local`. `checkbox` and `radio` are not among them: those are `ArenaCheckbox` and `ArenaRadio`, their own components.
+`type` is the `ArenaInputType` enum: `text`, `email`, `password`, `search`, `tel`, `url`, `number`, `date`, `time`, `datetime-local`. `checkbox` and `radio` are not among them: those are `ArenaCheckbox` and `ArenaRadio`, their own components. `file` is not among them: that is `ArenaFileInput`, because a chosen file is a platform object and no member or event of this component can carry one.
 
 **Do**
 - Use `type="date"` / `"time"` / `"datetime-local"`. Label, focus ring, error and valid states all work on them.
