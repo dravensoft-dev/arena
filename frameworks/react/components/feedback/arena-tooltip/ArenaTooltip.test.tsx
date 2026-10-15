@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { renderToStaticMarkup } from 'react-dom/server';
 import React from 'react';
 import { ArenaTooltip } from './ArenaTooltip.tsx';
+import { ArenaButton } from '../../forms/arena-button/ArenaButton.tsx';
 
 test('the trigger renders -- children are the projected element, not the bubble', () => {
   const html = renderToStaticMarkup(<ArenaTooltip label="Details"><button type="button">Hover</button></ArenaTooltip>);
@@ -46,4 +47,11 @@ test('a child that cannot carry aria-describedby throws rather than describing n
     () => renderToStaticMarkup(<ArenaTooltip label="Copy">Copy</ArenaTooltip>),
     /ArenaTooltip: `children` must be a single element/,
   );
+});
+
+test('a closed tooltip around an ArenaButton keeps the description the consumer gave it', () => {
+  const html = renderToStaticMarkup(
+    <ArenaTooltip label="Details"><ArenaButton aria-describedby="hint">Hover</ArenaButton></ArenaTooltip>,
+  );
+  assert.match(html.match(/<button\b[^>]*>/)?.[0] ?? '', /aria-describedby="hint"/);
 });

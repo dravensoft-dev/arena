@@ -1,6 +1,6 @@
-/* The one filled danger surface in Arena, and it once reached npm unrendered: the dialog
- * handed ArenaButton a `style`, and ArenaButton forwards nothing, so `destructive` changed no markup
- * here at all. The dialog now draws that action itself. */
+/* The one filled danger surface in Arena. The dialog draws the destructive action itself, because
+ * ArenaButton forwards nothing but the four trigger attributes and a `style` handed to it would
+ * change no markup. */
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import React from 'react';

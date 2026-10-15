@@ -45,6 +45,8 @@ const [open, setOpen] = useState(false);
 
 **A server render draws the trigger alone.** The panel is placed by script, so it mounts once the page has hydrated, even when `open` starts true.
 
+**The server render carries the popup state.** An `ArenaButton` or `ArenaIconButton` trigger renders `aria-haspopup` and `aria-expanded` before hydration.
+
 **Do / Don't**
 - The trigger must have an accessible name, and `label` names the panel: "Filters", not "Popover".
 - **The trigger must be a control, not a picture of one.** Pass an `ArenaButton`, an `ArenaIconButton`, or your own element carrying a button role and a tabindex; Arena reports anything else once at runtime.

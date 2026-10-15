@@ -44,6 +44,15 @@ export interface ArenaIconButtonProps {
 
   /** The button was activated, by pointer or by keyboard. */
   onClick?: () => void;
+
+  /** Written by Arena's popover and menu when this button is their trigger: what it opens. */
+  'aria-haspopup'?: React.AriaAttributes['aria-haspopup'];
+  /** Written by Arena's popover and menu when this button is their trigger: whether that is open. */
+  'aria-expanded'?: boolean;
+  /** Written by Arena's popover while its panel exists: the panel's id. */
+  'aria-controls'?: string;
+  /** Written by Arena's tooltip around this button: the bubble's id, after any the consumer gave. */
+  'aria-describedby'?: string;
 }
 
 
@@ -52,6 +61,7 @@ const arenaIconButtonStyles = arenaStyles(manifest);
 export function ArenaIconButton({ className, 
   icon, label, pressed, showLabel = false, disabled = false,
   type = 'button', name, value, autoFocus = false, form, onClick, tabStop = true,
+  'aria-haspopup': ariaHasPopup, 'aria-expanded': ariaExpanded, 'aria-controls': ariaControls, 'aria-describedby': ariaDescribedBy,
 }: ArenaIconButtonProps) {
   if (!icon) throw new Error('ArenaIconButton: `icon` is required');
   if (!label) throw new Error('ArenaIconButton: `label` is required');
@@ -60,6 +70,7 @@ export function ArenaIconButton({ className,
     <button type={type} name={name} value={value} autoFocus={autoFocus} form={form} onClick={onClick}
 
       tabIndex={tabStop ? undefined : -1}
+      aria-haspopup={ariaHasPopup} aria-expanded={ariaExpanded} aria-controls={ariaControls} aria-describedby={ariaDescribedBy}
       aria-label={label} aria-pressed={pressed} title={showLabel ? undefined : label} disabled={disabled}
       className={arenaClassName('ArenaIconButton', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
       <i className={icon} aria-hidden="true" />

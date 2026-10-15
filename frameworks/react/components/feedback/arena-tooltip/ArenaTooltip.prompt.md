@@ -62,8 +62,7 @@ focus, but the description never reaches anyone.
 
 **How `aria-describedby` reaches the trigger, and the one shape it still cannot.** The attribute is written twice on purpose. `cloneElement` puts it in the server-rendered HTML before hydration, and an effect writes it onto the **resolved node** afterwards. The effect is what covers a child
 that accepts the prop and drops it, invisible to a clone, and perfectly visible in the DOM.
-Arena's own components forward the props they *declare* and drop the rest, so every suite
-assertion using a raw `<button>` proved a case the demo pages did not have. Two failing shapes now throw outright: a bare string, and a **fragment**. The fragment is the trap, because `React.isValidElement` is true for one. The clone succeeded and the attribute reached nothing at all, in silence.
+Arena's own components drop every prop they do not declare. `ArenaButton` and `ArenaIconButton` declare four ARIA props for Arena's composers, `aria-describedby` among them. A tooltip around either button reaches the `<button>` by clone and by effect, like a raw `<button>`. Two failing shapes throw outright: a bare string and a **fragment**. The fragment is the trap, because `React.isValidElement` is true for one. A clone of a fragment succeeds and the attribute reaches nothing, in silence.
 **Unpromised:** a child rendering no DOM node of its own at the wrapper's first position, or one
 that re-parents its content, is outside what an effect reading `firstElementChild` can reach.
 

@@ -48,6 +48,8 @@ Icon-only button for toolbars and rows. Always pass `label` (accessible name in 
 - Pass `icon` as a Phosphor class name: `icon="ph-bold ph-plus"`. Arena draws the `<i>` and hides it; `label` is what a screen reader announces.
 - Don't pass an element as the icon. A single icon is a class name in Arena, which keeps the glyph inside Arena's own iconography and inside the markup Arena is answerable for.
 
+**Four ARIA props pass through, for Arena's popover, menu and tooltip.** `aria-haspopup`, `aria-expanded`, `aria-controls` and `aria-describedby` reach the `<button>`. Every other `aria-*` prop is dropped.
+
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
 **The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.

@@ -51,6 +51,8 @@ The `arena-emphasis-*` classes pick primary, secondary or ghost, and `destructiv
 - Keyboard focus draws Arena's own gold ring at every emphasis, including `arena-emphasis-ghost`, whose border is transparent, and the ring draws over any hover shadow. The treatment comes from the manifest, so nothing you write turns it on and no `className` of yours is how to change it.
 - Don't pass an element as `icon` or `iconRight`. A single icon is a class name in Arena, which keeps the glyph inside Arena's own iconography and inside the markup Arena is answerable for.
 
+**Four ARIA props pass through, for Arena's popover, menu and tooltip.** `aria-haspopup`, `aria-expanded`, `aria-controls` and `aria-describedby` reach the `<button>`. Every other `aria-*` prop is dropped.
+
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
 **The rules of the language hold in the code you write from this page.** An Arena component takes a class of the vocabulary and no other, so put no `className` of your own on it. Read every value through its token, never a raw colour and never a bare `16px`. Never wrap it in your router's own link. `arena audit` reports these three in your sources. The rest are in [`../../../../../skills/design/SKILL.md`](../../../../../skills/design/SKILL.md), which marks the ones it reports.

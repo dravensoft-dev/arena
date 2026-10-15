@@ -7,6 +7,8 @@ import assert from 'node:assert/strict';
 import { renderToStaticMarkup } from 'react-dom/server';
 import React from 'react';
 import { ArenaPopover } from './ArenaPopover.tsx';
+import { ArenaButton } from '../../forms/arena-button/ArenaButton.tsx';
+import { ArenaIconButton } from '../../forms/arena-icon-button/ArenaIconButton.tsx';
 
 const one = (open: boolean) => (
   <ArenaPopover label="Filters" open={open} trigger={<button type="button">Filters</button>}>
@@ -65,3 +67,16 @@ test('a component trigger that forwards its props draws the popup state on its b
   assert.match(button, /aria-expanded="false"/);
   assert.doesNotMatch(html, /aria-controls/);
 });
+
+for (const [name, trigger] of [
+  ['ArenaButton', <ArenaButton>Filters</ArenaButton>],
+  ['ArenaIconButton', <ArenaIconButton icon="ph-funnel" label="Filters" />],
+] as const) {
+  test(`a closed popover's ${name} trigger carries the popup state in a server render, and points at no panel`, () => {
+    const html = renderToStaticMarkup(<ArenaPopover label="Filters" trigger={trigger}>Body</ArenaPopover>);
+    const button = html.match(/<button\b[^>]*>/)?.[0] ?? '';
+    assert.match(button, /aria-haspopup="dialog"/);
+    assert.match(button, /aria-expanded="false"/);
+    assert.doesNotMatch(button, /aria-controls/);
+  });
+}

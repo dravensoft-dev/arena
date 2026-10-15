@@ -109,3 +109,15 @@ test('the disabled look is selected by the native attribute, so nothing is recom
   assert.match(html, /arena-icon-button__root/);
   assert.match(html, /\bdisabled=""/);
 });
+
+test('ArenaIconButton forwards the four trigger attributes and keeps the accessible name of its label', () => {
+  const html = renderToStaticMarkup(
+    <ArenaIconButton icon="ph-bold ph-plus" label="New" aria-haspopup="menu" aria-expanded={false} aria-controls="p" aria-describedby="d" aria-label="x" />,
+  );
+  assert.match(html, /aria-haspopup="menu"/);
+  assert.match(html, /aria-expanded="false"/);
+  assert.match(html, /aria-controls="p"/);
+  assert.match(html, /aria-describedby="d"/);
+  assert.match(html, /aria-label="New"/);
+  assert.doesNotMatch(html, /aria-label="x"/);
+});

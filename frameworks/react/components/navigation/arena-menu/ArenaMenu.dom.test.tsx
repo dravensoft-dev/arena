@@ -1,8 +1,6 @@
-/* `DropsProps` below is the load-bearing fixture: Arena's own components forward
- * the props they DECLARE and drop the rest, since the API contract flattened
- * their {...rest} spreads, so `onClick` arrives and aria-haspopup does not.
- * That is the DEFAULT usage on the demo page, where the trigger is <ArenaButton>,
- * and every other assertion here uses a raw <button> -- the one shape a
+/* `DropsProps` below is the load-bearing fixture: it stands for a consumer's own component
+ * that drops the props, so `onClick` arrives and aria-haspopup does not.
+ * Every other assertion here uses a raw <button> -- the one shape a
  * cloneElement injection reaches. It fails without the DOM guarantee. */
 import test, { afterEach } from 'node:test';
 import assert from 'node:assert/strict';

@@ -61,3 +61,14 @@ test('tabStop is not forwarded to the DOM as an unknown attribute', () => {
   const html = renderToStaticMarkup(<ArenaButton tabStop={false}>Save</ArenaButton>);
   assert.doesNotMatch(html, /tabstop/i, 'the tabStop prop leaked into the markup');
 });
+
+test('ArenaButton forwards the four trigger attributes and drops every other ARIA prop', () => {
+  const html = renderToStaticMarkup(
+    <ArenaButton aria-haspopup="menu" aria-expanded={false} aria-controls="p" aria-describedby="d" aria-label="x" aria-pressed>Go</ArenaButton>,
+  );
+  assert.match(html, /aria-haspopup="menu"/);
+  assert.match(html, /aria-expanded="false"/);
+  assert.match(html, /aria-controls="p"/);
+  assert.match(html, /aria-describedby="d"/);
+  assert.doesNotMatch(html, /aria-label|aria-pressed/);
+});

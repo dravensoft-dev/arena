@@ -47,6 +47,15 @@ export interface ArenaButtonProps {
 
   /** The button was activated, by pointer or by keyboard. */
   onClick?: () => void;
+
+  /** Written by Arena's popover and menu when this button is their trigger: what it opens. */
+  'aria-haspopup'?: React.AriaAttributes['aria-haspopup'];
+  /** Written by Arena's popover and menu when this button is their trigger: whether that is open. */
+  'aria-expanded'?: boolean;
+  /** Written by Arena's popover while its panel exists: the panel's id. */
+  'aria-controls'?: string;
+  /** Written by Arena's tooltip around this button: the bubble's id, after any the consumer gave. */
+  'aria-describedby'?: string;
 }
 
 
@@ -56,6 +65,7 @@ export function ArenaButton({ className,
   children, destructive = false, icon, iconRight,
   disabled = false, loading = false,
   type = 'button', name, value, autoFocus = false, form, onClick, tabStop = true,
+  'aria-haspopup': ariaHasPopup, 'aria-expanded': ariaExpanded, 'aria-controls': ariaControls, 'aria-describedby': ariaDescribedBy,
 }: ArenaButtonProps) {
   const styles = arenaButtonStyles({ destructive });
 
@@ -70,6 +80,7 @@ export function ArenaButton({ className,
       onClick={onClick}
       tabIndex={tabStop ? undefined : -1}
       disabled={disabled || loading}
+      aria-haspopup={ariaHasPopup} aria-expanded={ariaExpanded} aria-controls={ariaControls} aria-describedby={ariaDescribedBy}
     >
       {loading
         ? <span className={styles.spinner()} data-arena-part={manifest.parts.spinner} {...styles.$data.spinner()} aria-hidden="true" />
