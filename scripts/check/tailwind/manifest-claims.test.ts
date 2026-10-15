@@ -72,6 +72,7 @@ const HUES = {
   ArenaToast: { tone: { success: 'success', danger: 'danger' } },
   ArenaButton: { destructive: { true: 'danger' } },
   ArenaInput: { state: { error: 'danger', valid: 'success' } },
+  ArenaCombobox: { state: { error: 'danger', valid: 'success' } },
   ArenaSelect: { state: { error: 'danger', valid: 'success' } },
   ArenaTextarea: { state: { error: 'danger' }, near: { true: 'warning' } },
   ArenaBulkActionBar: { destructive: { true: 'danger' } },
@@ -102,6 +103,7 @@ test('every status value maps to its own hue, and a neutral or editorial value t
 
 const ALWAYS_HUES = {
   ArenaErrorState: { root: 'danger', icon: 'danger' },
+  ArenaCombobox: { error: 'danger' },
   ArenaFieldset: { error: 'danger' },
   ArenaInput: { error: 'danger' },
   ArenaSelect: { error: 'danger' },
@@ -437,6 +439,18 @@ export const CLAIMS = {
     })),
     { slot: 'group', has: ['flex', 'flex-col', 'gap-items'], why: 'the group is a column, and it is a display utility because the host binds it' },
   ],
+  ArenaCombobox: [
+    { slot: 'root', has: ['flex', 'flex-col'], why: 'a host-bound root is never the UA-default inline box' },
+    { slot: 'error', has: [INK], hasNot: ['text-error'], why: 'the field error message reads the ink of the danger hue always gives its slot, so a plugin moving the danger ink moves the message with the ring' },
+    { chosen: { state: 'neutral' }, slot: 'field', has: ['focus-within:border-secondary'], why: 'focus stays in the input, so the field rings on focus-within, and neutral rings only then' },
+    { chosen: { state: 'error' }, slot: 'statusIcon', has: [INK], why: 'error and valid ring at rest and say which they are, with a glyph as the second channel' },
+    { slot: 'field', has: ['min-h-ctl-h'], hasNot: ['h-ctl-h'], why: 'the field is a floor and never a fixed height, so a row of chips can wrap inside it' },
+    { slot: 'caret', has: ['pointer-events-none'], why: 'the caret is decoration and must not swallow the press meant for the field' },
+    { slot: 'announcement', has: ['sr-only'], why: 'the count is spoken and never seen' },
+    { slot: 'panel', has: ['z-dropdown', 'max-h-80', 'overflow-auto'], hasNot: ['absolute', 'fixed', 'relative'], why: 'the panel scrolls its own rows and leaves its position to the layer' },
+    { slot: 'option', has: ['min-h-row-min', 'px-row-floating-x', 'py-row-floating-y'], why: 'a row of a floating list spends the floating row roles, and its floor reads the density' },
+    { chosen: { active: true }, slot: 'option', has: ['bg-primary/14'], why: 'the cursor row is washed, and a chosen row carries a glyph, so neither is told by colour alone' },
+  ],
   ArenaFieldset: [
     { slot: 'root', has: ['block', 'border-0', 'p-0', 'm-0', 'min-w-0'], why: 'a fieldset is a plain grouping, so the platform border, padding and minimum width are taken away and the root keeps a display utility of its own' },
     { slot: 'body', has: ['flex', 'flex-col', 'gap-items'], why: 'the fields of a set are spaced by the role named for them, and the legend sits outside that column' },
@@ -663,6 +677,7 @@ test('every slot that takes a placeholder colours it, rather than inheriting pre
     ['ArenaInput', 'input'],
     ['ArenaTextarea', 'field'],
     ['ArenaCommandPalette', 'input'],
+    ['ArenaCombobox', 'input'],
   ] as const) {
     assert.ok(resolve(component, {}, slot).includes(wanted),
       `${component}.${slot} takes a placeholder and colours none, so Tailwind's preflight paints `

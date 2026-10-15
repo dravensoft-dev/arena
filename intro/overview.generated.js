@@ -19,7 +19,6 @@ var RESERVED = new Map([
   ["gauge-chart", "ArenaGaugeChart, one value against banded thresholds (spec 18)"],
   ["filter-bar", "ArenaFilterBar, the filters applied to a collection (spec 19)"],
   ["funnel-chart", "ArenaFunnelChart, the stages a count narrows through (spec 20)"],
-  ["combobox", "ArenaCombobox, a text input that filters a list of options (spec 22)"],
   ["split-button", "ArenaSplitButton, an action with a menu of alternatives (spec 24)"],
   ["tree-view", "ArenaTreeView, a hierarchy that expands and collapses (spec 25)"],
   ["heatmap-chart", "ArenaHeatmapChart, values on a grid of two categories (spec 26)"],

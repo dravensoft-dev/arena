@@ -49,6 +49,7 @@
     "ArenaButton",
     "ArenaCheckbox",
     "ArenaCheckboxGroup",
+    "ArenaCombobox",
     "ArenaFieldset",
     "ArenaIconButton",
     "ArenaInput",

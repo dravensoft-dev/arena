@@ -55,6 +55,9 @@ Every field is optional in what you provide, and one you leave out keeps the def
 | `commandPaletteList` | `Commands` | Names the list of commands. |
 | `commandPaletteEscape` | `ESC` | The key hint beside the search field. |
 | `commandPaletteEmpty` | `No results for "{query}".` | What the list shows when nothing matches. {query} is what was typed. |
+| `comboboxEmpty` | `No results for "{query}".` | What a combobox's list shows when no option matches. {query} is what was typed. |
+| `comboboxLoading` | `Loading results…` | What a combobox's list shows while its options are fetched. |
+| `comboboxCount` | `Options available: {count}.` | Announced politely after the text changes, since focus stays in the field. {count} is how many options the list holds; the count stands last, so one sentence serves every number. |
 | `onboardingBack` | `Back` | The button that returns to the previous step. |
 | `onboardingSkip` | `Skip` | The button that leaves the tour. |
 | `onboardingNext` | `Next` | The button that moves to the next step. |

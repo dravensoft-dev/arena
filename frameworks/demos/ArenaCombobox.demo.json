@@ -1,0 +1,22 @@
+{
+  "component": "ArenaCombobox",
+  "seed": {
+    "label": "Region",
+    "placeholder": "Search regions",
+    "value": "europe-west",
+    "options": [
+      { "value": "europe-west", "label": "Europe West" },
+      { "value": "europe-north", "label": "Europe North" },
+      { "value": "europe-south", "label": "Europe South" },
+      { "value": "us-east", "label": "US East" },
+      { "value": "us-west", "label": "US West" },
+      { "value": "asia-south", "label": "Asia South" },
+      { "value": "asia-east", "label": "Asia East" },
+      { "value": "australia-east", "label": "Australia East" }
+    ]
+  },
+  "bind": {
+    "change": "value"
+  },
+  "note": "Controlled: typing filters the list, and the value knob is the option chosen, never the text."
+}
