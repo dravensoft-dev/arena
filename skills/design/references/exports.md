@@ -441,13 +441,14 @@ import { ARENA_FORM_CONTROLS } from '@dravensoft/arena-angular/forms';
 })
 ```
 
-`formControl`, `formControlName` and `ngModel` work on `arena-input`, `arena-textarea`, `arena-select`, `arena-checkbox`, `arena-radio-group` and `arena-switch`. Each directive is also exported alone: `ArenaInputControl`, `ArenaTextareaControl`, `ArenaSelectControl`, `ArenaCheckboxControl`, `ArenaRadioGroupControl` and `ArenaSwitchControl`.
+`formControl`, `formControlName` and `ngModel` work on `arena-input`, `arena-textarea`, `arena-select`, `arena-checkbox`, `arena-checkbox-group`, `arena-radio-group` and `arena-switch`. Each directive is also exported alone: `ArenaInputControl`, `ArenaTextareaControl`, `ArenaSelectControl`, `ArenaCheckboxControl`, `ArenaCheckboxGroupControl`, `ArenaRadioGroupControl` and `ArenaSwitchControl`.
 
 What a control carries as its value:
 
 - The input carries a `string`, or a `number` when its `type` is `number`. An emptied number field reports `null`.
 - The checkbox and the switch carry a `boolean`.
 - The select and the radio group carry a `string`.
+- The checkbox group carries a `string[]`, the ticked values in the order they were ticked. A `null` draws no box ticked.
 
 `disable()` disables the control. Leaving the control marks it touched.
 

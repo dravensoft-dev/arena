@@ -97,10 +97,11 @@ to rewrite it.
 
 | written as | means |
 | --- | --- |
-| `"change": "value"` | write the event's payload into the `value` knob. The payload's type and the knob's must agree. |
+| `"change": "value"` | write the event's whole payload into the `value` knob. The payload's type and the knob's must agree. |
 | `"pageChange": "page.index"` | write it into one field of an object knob. |
 | `"close": { "open": false }` | patch one or more knobs with literals. Use this for an event carrying no payload. |
-| `"next": { "index": { "$delta": 1 } }` | step a number knob. The only directive, and it is refused on anything but a number. |
+| `"next": { "index": { "$delta": 1 } }` | step a number knob. Refused on anything but a number. |
+| `"change": { "value": { "$field": "values" } }` | write one field of the event's payload into a knob. The payload is a declared object, the field is one it declares, and the knob has the field's shape: the same form, and the same item for an array. A payload without the field leaves the knob as it is. Use it where the payload and the knob differ by one wrapper, as an `ArenaValueSet` and the array it carries do. |
 
 **Bind is authored, never inferred.** A rule like "an event named `<x>Change` writes `<x>`" is
 right most of the time and wrong exactly where a component is interesting: `ArenaSwitch` reports

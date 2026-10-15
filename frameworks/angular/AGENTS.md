@@ -534,6 +534,7 @@ They fall into **four** groups, each with its own reason. The **SVG charts** are
 (`display: contents`) and draw their frame as an inner slot, so there is no `root` slot to bind. The **form controls** each need their own
 `<button>`, `<input>` or `<label>`. Some **keep a specific semantic or structural element**: a
 real `<ul>` for a feed, a `<div role="tablist">` whose panels are siblings outside it, a real
+`<fieldset>` because the platform's `disabled` cascade exists on no other element, and a real
 `<nav>` for a navigation landmark, since the `navigation` pattern offers `role="navigation"` only
 for when a `<nav>` cannot be used. The fourth group has a reason unlike the other three:
 **a component that owns an output named after a DOM event it must be able to refuse needs an inner
@@ -624,9 +625,10 @@ grep -rhoE 'readonly (blur|cancel|change|click|close|focus|input|select|submit|t
 ```
 
 Every one of them carries the same double-fire risk, and only the `click` ones are measured.
-`change` is the widest family, and `ArenaCheckbox.compliance.test.ts` and
-`ArenaRadioGroup.compliance.test.ts` assert their consumer hears it exactly once, which is half
-the pair above; the rest of that family asserts nothing about it.
+`change` is the widest family, and `ArenaCheckbox.compliance.test.ts`,
+`ArenaCheckboxGroup.compliance.test.ts` and `ArenaRadioGroup.compliance.test.ts` assert their
+consumer hears it exactly once, which is half the pair above; the rest of that family asserts
+nothing about it.
 
 ## Two roots, two projections, one template
 
