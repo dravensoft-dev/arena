@@ -4,7 +4,9 @@
  * panel prefers to open toward, clips it with overflow: hidden and gives it a transform, opens the
  * panel from its own trigger, and reads three facts. The panel is painted at its centre, so no
  * ancestor clipped it; it lies inside the viewport; and it opened on the far side of its trigger,
- * so it flipped. A wait is for a condition with a declared deadline, never a span. */
+ * so it flipped. A case naming its rows also measures the smallest one against the floor of each
+ * density scope check:target-size declares, with the panel open, since no sink draws a list open.
+ * A wait is for a condition with a declared deadline, never a span. */
 
 import { withTimeout } from '../../utils/with-timeout.ts';
 import { deadline, type Deadline } from '../../lib/arena/deadline.ts';
@@ -17,6 +19,7 @@ import { cannotRun } from '../../lib/arena/arena-scripts-vars.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { threwProblem } from '../../lib/arena/page-errors.ts';
 import { loadInFreshTab, networkChangedProblem, type Lost } from '../../lib/arena/page-load.ts';
+import { SCOPES, type Scope } from './check-target-size.ts';
 
 export const node = {
   name: 'check:anchoring',
@@ -43,7 +46,9 @@ export const OPENED: Deadline = deadline('anchoring:opened', 5_000,
 
 export type Edge = 'below' | 'above';
 
-export type Anchored = { name: string; page: string; trigger: string; panel: string; open: 'click' | 'focus'; prefer: Edge };
+export type Anchored = { name: string; page: string; trigger: string; panel: string; open: 'click' | 'focus'; prefer: Edge; rows?: string };
+
+export type RowReading = { scope: string; floor: number; count: number; smallest: number };
 
 const REACT = 'frameworks/react/components';
 const ANGULAR = 'frameworks/angular/components';
@@ -55,6 +60,8 @@ export const ANCHORED: Anchored[] = [
   { name: 'ArenaMenu:angular', page: `${ANGULAR}/navigation/arena-menu/ArenaMenu.demo.generated.html`, trigger: '[aria-haspopup="menu"]', panel: '[role="menu"]', open: 'click', prefer: 'below' },
   { name: 'ArenaTooltip:react', page: `${REACT}/feedback/arena-tooltip/ArenaTooltip.demo.generated.html`, trigger: '.pg-stage button', panel: '[role="tooltip"]', open: 'focus', prefer: 'above' },
   { name: 'ArenaTooltip:angular', page: `${ANGULAR}/feedback/arena-tooltip/ArenaTooltip.demo.generated.html`, trigger: '.pg-stage button', panel: '[role="tooltip"]', open: 'focus', prefer: 'above' },
+  { name: 'ArenaCombobox:react', page: `${REACT}/forms/arena-combobox/ArenaCombobox.demo.generated.html`, trigger: '[role="combobox"]', panel: '[role="listbox"]', open: 'click', prefer: 'below', rows: '[role="option"]' },
+  { name: 'ArenaCombobox:angular', page: `${ANGULAR}/forms/arena-combobox/ArenaCombobox.demo.generated.html`, trigger: '[role="combobox"]', panel: '[role="listbox"]', open: 'click', prefer: 'below', rows: '[role="option"]' },
 ];
 
 export type Reading = {
@@ -65,6 +72,7 @@ export type Reading = {
   painted?: boolean;
   inside?: boolean;
   side?: Edge | 'overlapping';
+  rows?: RowReading[];
 };
 
 export function waitExpression(selector: string, bound: Deadline) {
@@ -99,8 +107,25 @@ export function openExpression(kase: Anchored) {
   return `(() => { const trigger = document.querySelector(${JSON.stringify(kase.trigger)}); ${act}; return true; })()`;
 }
 
-export function readExpression(kase: Anchored) {
+export function smallestRow(heights: number[]) {
+  return heights.length ? Math.min(...heights) : 0;
+}
+
+export function readExpression(kase: Anchored, scopes: Scope[] = SCOPES) {
+  const measured = scopes.map((scope) => ({ scope: scope.name, klass: scope.klass, floor: scope.floor }));
   return `(() => {
+    const smallestRow = ${smallestRow.toString()};
+    const rowsIn = (one) => {
+      const body = document.body;
+      for (const other of ['arena-comfortable', 'arena-compact']) body.classList.remove(other);
+      if (one.klass) body.classList.add(one.klass);
+      const heights = ${JSON.stringify(kase.rows ?? '')}
+        ? Array.from(document.querySelectorAll(${JSON.stringify(kase.rows ?? '')})).map((row) => row.getBoundingClientRect().height)
+        : [];
+      if (one.klass) body.classList.remove(one.klass);
+      return { scope: one.scope, floor: one.floor, count: heights.length, smallest: smallestRow(heights) };
+    };
+    const rows = ${JSON.stringify(kase.rows ?? '')} ? ${JSON.stringify(measured)}.map(rowsIn) : undefined;
     const trigger = document.querySelector(${JSON.stringify(kase.trigger)});
     const panel = document.querySelector(${JSON.stringify(kase.panel)});
     const t = trigger.getBoundingClientRect();
@@ -108,7 +133,7 @@ export function readExpression(kase: Anchored) {
     const hit = document.elementFromPoint(p.left + p.width / 2, p.top + p.height / 2);
     const inside = p.left >= 0 && p.top >= 0 && p.right <= innerWidth && p.bottom <= innerHeight;
     const side = p.top >= t.bottom ? 'below' : p.bottom <= t.top ? 'above' : 'overlapping';
-    return { painted: Boolean(hit && panel.contains(hit)), inside, side };
+    return { painted: Boolean(hit && panel.contains(hit)), inside, side, rows };
   })()`;
 }
 
@@ -135,6 +160,17 @@ export function anchoringProblems(kase: Anchored, reading: Reading) {
   if (reading.side !== away) {
     problems.push(`${kase.name}: the trigger sits at the ${kase.prefer === 'below' ? 'bottom' : 'top'} edge and `
       + `the panel opened ${reading.side} it rather than flipping ${away}`);
+  }
+  for (const row of kase.rows === undefined ? [] : reading.rows ?? []) {
+    if (row.count === 0) {
+      problems.push(`${kase.name}: the open panel drew no ${kase.rows} in the ${row.scope} scope, so its row floor was measured against nothing`);
+    } else if (row.smallest < row.floor) {
+      problems.push(`${kase.name}: the smallest ${kase.rows} is ${Math.round(row.smallest * 100) / 100}px tall in the `
+        + `${row.scope} scope, and the floor there is ${row.floor}px`);
+    }
+  }
+  if (kase.rows !== undefined && (reading.rows?.length ?? 0) < 2) {
+    problems.push(`${kase.name}: its rows were measured in fewer than two density scopes, and the comfortable one is the point`);
   }
   return problems;
 }
@@ -186,8 +222,10 @@ async function main() {
     for (const p of problems) console.error(`  ${p}`);
     process.exit(1);
   }
+  const measured = ANCHORED.filter((kase) => kase.rows !== undefined).length;
   console.log(`check-anchoring: ${ANCHORED.length} panel(s) opened from a trigger pinned to a clipped, `
-    + 'transformed edge, and each painted whole, inside the viewport, on the far side of its trigger');
+    + 'transformed edge, and each painted whole, inside the viewport, on the far side of its trigger; '
+    + `the rows of ${measured} clear the floor of every density scope`);
 }
 
 if (isMainModule(import.meta.url)) await main();
