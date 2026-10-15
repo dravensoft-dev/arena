@@ -311,6 +311,10 @@ export function bindProblems(name: string, contract: Pick<ComponentContract, 'ap
     for (const [member, value] of Object.entries(target)) {
       const knob = api[member];
       if (!knob) { problems.push(`${name}.bind.${event}: patches ${member}, which the contract does not declare`); continue; }
+      if (value !== null && typeof value === 'object' && '$field' in value) {
+        problems.push(...fieldProblems(`${name}.bind.${event}`, event, spec, member, knob, value, types));
+        continue;
+      }
       if (value !== null && typeof value === 'object' && '$delta' in value) {
         if (knob.form !== 'primitive' || knob.type !== 'number')
           problems.push(`${name}.bind.${event}: $delta steps a number and ${member} is ${knob.form}<${knob.type ?? ''}>`);
@@ -322,6 +326,22 @@ export function bindProblems(name: string, contract: Pick<ComponentContract, 'ap
     }
   }
   return problems;
+}
+
+const shapeOf = (spec: MemberSpec) => (spec.form === 'array' ? `array<${spec.of ?? ''}>` : `${spec.form}<${spec.type ?? ''}>`);
+
+export function fieldProblems(where: string, event: string, eventSpec: MemberSpec, member: string,
+  knob: MemberSpec, directive: Record<string, unknown>, types: Types): string[] {
+  const field = directive.$field;
+  if (Object.keys(directive).length !== 1) return [`${where}: ${member} holds a $field directive and nothing else`];
+  if (typeof field !== 'string') return [`${where}: $field holds the name of a payload field and this holds ${typeof field}`];
+  if (!eventSpec.payload) return [`${where}: ${event} carries no payload, so $field has nothing to read`];
+  const payload = types.get(eventSpec.payload);
+  if (payload?.kind !== 'object') return [`${where}: $field reads a field of an object and ${event} carries ${eventSpec.payload}`];
+  const held = (payload.fields ?? {})[field];
+  if (!held) return [`${where}: ${eventSpec.payload} declares no field called ${field}`];
+  const same = held.form === knob.form && (held.form === 'array' ? held.of === knob.of : held.type === knob.type);
+  return same ? [] : [`${where}: $field ${field} is ${shapeOf(held)} and ${member} is ${shapeOf(knob)}`];
 }
 
 export function hostProblems(name: string, fixture: Pick<Fixture, 'host'> & { component?: string },

@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  coverageProblems, shapeProblems, seedProblems, slotProblems, bindProblems, hostProblems,
+  coverageProblems, shapeProblems, seedProblems, slotProblems, bindProblems, fieldProblems, hostProblems,
   valueProblems, objectProblems, nodeProblems, fixtureProblems, citationProblems,
   loadContracts, loadFixtures, loadTypes, citingFiles, basenameIndex, emissionProblems,
   pagePaths, classProblems,
@@ -19,6 +19,11 @@ const types = new Map<string, TypeContract>([
       column: { form: 'primitive', type: 'number', required: true, description: 'The column.' },
       direction: { form: 'enum', type: 'ArenaSortDirection', required: true, description: 'The direction.' },
     },
+  }],
+  ['ArenaTagSet', {
+    name: 'ArenaTagSet',
+    kind: 'object',
+    fields: { values: { form: 'array', of: 'string', required: true, description: 'The tags.' } },
   }],
   ['ArenaTableColumn', {
     name: 'ArenaTableColumn',
@@ -39,7 +44,10 @@ const widget: ComponentContract = {
     sort: { form: 'object', type: 'ArenaTableSort', description: 'The sort.' },
     content: { form: 'slot', description: 'The body.' },
     mark: { form: 'slot', required: true, description: 'The mark.' },
+    tags: { form: 'array', of: 'string', description: 'The tags.' },
     sortChange: { form: 'event', payload: 'ArenaTableSort', description: 'Sorted.' },
+    tagsChange: { form: 'event', payload: 'ArenaTagSet', description: 'Retagged.' },
+    countChange: { form: 'event', payload: 'number', description: 'Counted.' },
     close: { form: 'event', description: 'Closed.' },
   },
 };
@@ -184,6 +192,26 @@ test('a patch is type-checked against the member it writes', () => {
 test('$delta steps a number and is refused on anything else', () => {
   assert.deepEqual(bindProblems('Widget', widget, { bind: { close: { index: { $delta: 1 } } } }, types), []);
   assert.match(bindProblems('Widget', widget, { bind: { close: { tone: { $delta: 1 } } } }, types)[0] ?? '', /\$delta steps a number/);
+});
+
+test('$field copies a payload field into a knob of the same shape and is refused otherwise', () => {
+  const bind = (target: unknown, event = 'tagsChange') => bindProblems('Widget', widget, { bind: { [event]: target } }, types);
+  assert.deepEqual(bind({ tags: { $field: 'values' } }), []);
+  assert.deepEqual(bind({ tags: { $field: 'values' }, index: { $delta: 1 } }), [], 'it composes with a step in one patch');
+  assert.match(bind({ tags: { $field: 'nope' } })[0] ?? '', /ArenaTagSet declares no field called nope/);
+  assert.match(bind({ tags: { $field: 'values' } }, 'close')[0] ?? '', /close carries no payload/);
+  assert.match(bind({ tags: { $field: 'values' } }, 'countChange')[0] ?? '', /reads a field of an object and countChange carries number/);
+  assert.match(bind({ index: { $field: 'values' } })[0] ?? '', /\$field values is array<string> and index is primitive<number>/);
+  assert.match(bind({ tags: { $field: 'values', $delta: 1 } })[0] ?? '', /holds a \$field directive and nothing else/);
+  assert.match(bind({ tags: { $field: 3 } })[0] ?? '', /holds the name of a payload field and this holds number/);
+  assert.match(bind({ label: { $field: 'column' } }, 'sortChange')[0] ?? '', /\$field column is primitive<number> and label is primitive<string>/);
+});
+
+test('$field compares the array item and not only the form', () => {
+  const numbers = { form: 'array', of: 'number', description: 'Numbers.' } as const;
+  const tagsChange = { form: 'event', payload: 'ArenaTagSet', description: 'Retagged.' } as const;
+  assert.match(fieldProblems('W', 'tagsChange', tagsChange, 'n', numbers, { $field: 'values' }, types)[0] ?? '',
+    /array<string> and n is array<number>/);
 });
 
 test('the citation check fires on a page name no file carries, which a bare filename is how prose rots', () => {

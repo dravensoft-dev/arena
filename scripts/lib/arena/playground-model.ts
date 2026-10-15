@@ -45,7 +45,7 @@ export type Knob = Control & {
 export type PlaygroundEvent = {
   name: string;
   payload: string | null;
-  bind: string | null;
+  bind: string | Record<string, unknown> | null;
   doc: string;
 };
 
