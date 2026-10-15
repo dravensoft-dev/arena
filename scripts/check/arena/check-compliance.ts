@@ -73,6 +73,7 @@ export const COVERED = {
   'ArenaTextarea:react': 'TextboxStates.dom.test.tsx',
   'ArenaRadioGroup:react': 'RadioGroupPattern.dom.test.tsx',
   'ArenaRadio:react': 'RadioGroupPattern.dom.test.tsx',
+  'ArenaCheckboxGroup:react': 'CheckboxGroupPattern.dom.test.tsx',
   'ArenaBreadcrumbs:react': 'NavigationLandmarks.dom.test.tsx',
   'ArenaAppLogo:react': 'InertComponents.dom.test.tsx',
   'ArenaAvatar:react': 'InertComponents.dom.test.tsx',

@@ -13,6 +13,7 @@ import { ArenaSideNav } from '../components/navigation/arena-side-nav/ArenaSideN
 import { ArenaSideNavItem } from '../components/navigation/arena-side-nav-item/ArenaSideNavItem.tsx';
 import { ArenaSideNavSection } from '../components/navigation/arena-side-nav-section/ArenaSideNavSection.tsx';
 import { ArenaRadioGroup } from '../components/forms/arena-radio-group/ArenaRadioGroup.tsx';
+import { ArenaCheckboxGroup } from '../components/forms/arena-checkbox-group/ArenaCheckboxGroup.tsx';
 import { ArenaBreadcrumbs } from '../components/navigation/arena-breadcrumbs/ArenaBreadcrumbs.tsx';
 import { ArenaActivityFeed } from '../components/display/arena-activity-feed/ArenaActivityFeed.tsx';
 import { ArenaPeopleList } from '../components/display/arena-people-list/ArenaPeopleList.tsx';
@@ -38,6 +39,7 @@ const WITH_A_BLANK_NAME = new Map([
   ['ArenaSideNav', () => <ArenaSideNav ariaLabel={BLANK}><ArenaSideNavItem id="a" label="Alpha" /></ArenaSideNav>],
   ['ArenaSideNavSection', () => <ArenaSideNavSection label={BLANK}><ArenaSideNavItem id="a" label="Alpha" /></ArenaSideNavSection>],
   ['ArenaRadioGroup', () => <ArenaRadioGroup ariaLabel={BLANK} value="a" />],
+  ['ArenaCheckboxGroup', () => <ArenaCheckboxGroup ariaLabel={BLANK} />],
   ['ArenaBreadcrumbs', () => <ArenaBreadcrumbs ariaLabel={BLANK} items={[{ label: 'Home' }]} />],
   ['ArenaActivityFeed', () => <ArenaActivityFeed label={BLANK} items={[]} />],
   ['ArenaPeopleList', () => <ArenaPeopleList label={BLANK}><ArenaPersonRow name="Ada" /></ArenaPeopleList>],

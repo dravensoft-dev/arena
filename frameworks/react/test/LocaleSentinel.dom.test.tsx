@@ -180,6 +180,7 @@ const NO_WORDS: Record<string, string> = {
   ArenaCard: DRAWS_MEMBERS,
   ArenaChartCard: DRAWS_MEMBERS,
   ArenaCheckbox: DRAWS_MEMBERS,
+  ArenaCheckboxGroup: DRAWS_MEMBERS,
   ArenaDialog: DRAWS_MEMBERS,
   ArenaEmptyState: DRAWS_MEMBERS,
   ArenaFieldset: DRAWS_MEMBERS,
