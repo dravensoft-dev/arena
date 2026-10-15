@@ -306,6 +306,9 @@ export const CLAIMS = {
       chosen: { tone }, slot: 'root', has: ['rounded-marker', 'text-ctl-xs'],
       why: 'every tone keeps the shared marker base and its control font size, which an unregistered suffix would lose to the tone colour',
     })),
+    { slot: 'close', has: ['relative', "before:content-['']", 'before:absolute', 'before:w-ctl-h-sm', 'before:h-ctl-h-sm'], hasNot: ['min-h-ctl-h-sm', 'min-w-ctl-h-sm'],
+      why: 'the remove control answers a thumb through a hit area centred on the glyph, so the chip keeps its own height' },
+    { slot: 'closeLabel', has: ['sr-only'], why: 'the remove word is read and never seen' },
   ],
   ArenaUnauthCard: [
     { slot: 'root', has: ['block', 'shadow-surface-deep', 'max-w-[calc(var(--sp-1)*95+var(--sp-1)*18+var(--bw-surface)*2)]'], why: 'the width is the derivation and never the literal it computes to' },

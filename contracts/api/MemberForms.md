@@ -278,17 +278,19 @@ consumer's hands, and taken with it the only path to an external `<label>`, an
 `ArenaTextarea` declare it; the generated value stays the fallback, so the member is `id?: string` and
 never required. A component that generates no id has no such gap and adds no such member.
 
-`tabStop` is a member on `ArenaButton` and `ArenaIconButton` because the rule's own justification, that a
-consumer writes it on the host directly, does not reach either. Neither has a host a consumer
-writes on: both render their own `<button>` inside a host that is `display: contents`, in both
-layers, so a `tabindex` written on `<arena-button>` reaches a node that lays nothing out and
-takes no focus. The member is how a consumer holds one out of the tab order at all.
-And for a component whose focusable element is a **descendant**
-of its host rather than the host itself, the justification fails even where a host exists:
-`tabindex="-1"` written on `<arena-icon-button>` would land on the custom element, not on the
-`<button>` inside it, and the button would stay exactly as reachable as before. That makes
-**`tabStop`** a member for exactly these two components, and confirms that `tabIndex` itself
-stays off the list above for everyone, these two included, whose member is `tabStop` and never
+`tabStop` is a member on `ArenaButton`, `ArenaIconButton` and `ArenaTag` because the rule's own
+justification, that a consumer writes it on the host directly, does not reach any of them. The
+two buttons have no host a consumer writes on: both render their own `<button>` inside a host
+that is `display: contents`, in both layers, so a `tabindex` written on `<arena-button>` reaches a
+node that lays nothing out and takes no focus. The member is how a consumer holds one out of the
+tab order at all. And for a component whose focusable element is a **descendant** of its host
+rather than the host itself, the justification fails even where a host exists: `tabindex="-1"`
+written on `<arena-icon-button>` would land on the custom element, not on the `<button>` inside
+it, and the button would stay exactly as reachable as before. `ArenaTag` is that case with a real
+host: the host is the chip, and the focusable element is the remove `<button>` inside it, which a
+composite holding chips under one tab stop has to take out of the tab order. That makes
+**`tabStop`** a member for exactly these three components, and confirms that `tabIndex` itself
+stays off the list above for everyone, these three included, whose member is `tabStop` and never
 the attribute. Everywhere else a component's root is its own focusable element and the host
 escape genuinely applies. The member is a boolean rather than a raw `tabIndex?: number`: `-1` is the
 only value the problem needs, and a numeric member would legalise a positive tab order, which

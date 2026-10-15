@@ -19,7 +19,7 @@
     "toastPinnedHint": { "form": "primitive", "type": "string", "required": true, "default": "Does not auto-dismiss", "description": "The title on the pinned mark." },
     "sheetClose": { "form": "primitive", "type": "string", "required": true, "default": "Close", "description": "Names a dismissible sheet's close button." },
     "alertDismiss": { "form": "primitive", "type": "string", "required": true, "default": "Dismiss", "description": "Names a dismissible alert's close button." },
-    "tagRemove": { "form": "primitive", "type": "string", "required": true, "default": "Remove", "description": "Names a removable tag's remove button." },
+    "tagRemove": { "form": "primitive", "type": "string", "required": true, "default": "Remove", "description": "Names a removable tag's remove button, read before the tag's own text, so each button says which tag it removes." },
     "skeletonLabel": { "form": "primitive", "type": "string", "required": true, "default": "Loading", "description": "Names a skeleton's status region." },
     "spinnerLabel": { "form": "primitive", "type": "string", "required": true, "default": "Loading", "description": "Names a spinner when its own label is absent." },
     "switchConfirmHint": { "form": "primitive", "type": "string", "required": true, "default": "Requires confirmation", "description": "The title on the guard glyph of a switch that asks before it changes." },

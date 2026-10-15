@@ -1704,6 +1704,10 @@
   outline: var(--bw-marker) dotted var(--edge-marker);
   outline-offset: var(--sp-1);
 }
+.arena-complete [data-arena-part="tag.close-label"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
 .arena-complete [data-arena-part="tag.dot"] {
   opacity: 0.72;
   transform: rotate(-4deg);

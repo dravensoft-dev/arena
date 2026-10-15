@@ -40,7 +40,7 @@ Every field is optional in what you provide, and one you leave out keeps the def
 | `toastPinnedHint` | `Does not auto-dismiss` | The title on the pinned mark. |
 | `sheetClose` | `Close` | Names a dismissible sheet's close button. |
 | `alertDismiss` | `Dismiss` | Names a dismissible alert's close button. |
-| `tagRemove` | `Remove` | Names a removable tag's remove button. |
+| `tagRemove` | `Remove` | Names a removable tag's remove button, read before the tag's own text, so each button says which tag it removes. |
 | `skeletonLabel` | `Loading` | Names a skeleton's status region. |
 | `spinnerLabel` | `Loading` | Names a spinner when its own label is absent. |
 | `switchConfirmHint` | `Requires confirmation` | The title on the guard glyph of a switch that asks before it changes. |
