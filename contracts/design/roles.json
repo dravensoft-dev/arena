@@ -309,11 +309,11 @@
   },
   "pad-row-floating-x": {
     "$type": "dimension",
-    "$description": "The room on the sides of a row in a floating list, read by the items and headers of ArenaMenu. Density scales it by the row factor, the way it scales pad-row-x."
+    "$description": "The room on the sides of a row in a floating list, read by the items and headers of ArenaMenu and by the rows of ArenaCombobox and ArenaMultiSelect. Density scales it by the row factor, the way it scales pad-row-x."
   },
   "pad-row-floating-y": {
     "$type": "dimension",
-    "$description": "The room above and below a row in a floating list, read by the items of ArenaMenu. Density scales it by the row factor."
+    "$description": "The room above and below a row in a floating list, read by the items of ArenaMenu and by the rows of ArenaCombobox and ArenaMultiSelect. Density scales it by the row factor."
   },
   "pad-nav-row-x": {
     "$type": "dimension",
@@ -361,7 +361,7 @@
   },
   "gap-row-floating": {
     "$type": "dimension",
-    "$description": "The gap between the icon, the label and the shortcut of a row in a floating list, read by ArenaMenu."
+    "$description": "The gap between the parts of a row in a floating list, such as an icon, a label and a shortcut, read by ArenaMenu, ArenaCombobox and ArenaMultiSelect."
   },
   "gap-actions": {
     "$type": "dimension",

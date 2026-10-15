@@ -441,14 +441,15 @@ import { ARENA_FORM_CONTROLS } from '@dravensoft/arena-angular/forms';
 })
 ```
 
-`formControl`, `formControlName` and `ngModel` work on `arena-input`, `arena-textarea`, `arena-select`, `arena-checkbox`, `arena-checkbox-group`, `arena-radio-group` and `arena-switch`. Each directive is also exported alone: `ArenaInputControl`, `ArenaTextareaControl`, `ArenaSelectControl`, `ArenaCheckboxControl`, `ArenaCheckboxGroupControl`, `ArenaRadioGroupControl` and `ArenaSwitchControl`.
+`formControl`, `formControlName` and `ngModel` work on `arena-input`, `arena-textarea`, `arena-select`, `arena-combobox`, `arena-multi-select`, `arena-checkbox`, `arena-checkbox-group`, `arena-radio-group` and `arena-switch`. Each directive is also exported alone: `ArenaInputControl`, `ArenaTextareaControl`, `ArenaSelectControl`, `ArenaComboboxControl`, `ArenaMultiSelectControl`, `ArenaCheckboxControl`, `ArenaCheckboxGroupControl`, `ArenaRadioGroupControl` and `ArenaSwitchControl`.
 
 What a control carries as its value:
 
 - The input carries a `string`, or a `number` when its `type` is `number`. An emptied number field reports `null`.
 - The checkbox and the switch carry a `boolean`.
-- The select and the radio group carry a `string`.
+- The select, the combobox and the radio group carry a `string`, the chosen option's value. A value no option holds draws an empty combobox field and a radio group with no radio checked. A `null` draws the empty field, the placeholder or no radio checked.
 - The checkbox group carries a `string[]`, the ticked values in the order they were ticked. A `null` draws no box ticked.
+- The multi-select carries a `string[]`, the chosen values in the order they were chosen, and never the event object. A `null` draws no chip.
 
 `disable()` disables the control. Leaving the control marks it touched.
 
