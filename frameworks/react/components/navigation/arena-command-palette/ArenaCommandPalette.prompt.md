@@ -68,6 +68,9 @@ The palette is named after Cmd/Ctrl+K and binds nothing, which is why the exampl
 the key in the host. A global key binding belongs to the application. The application has to know which other surface owns the key, whether a dialog is already up, and whether the reader is typing in a field. A component that took the key would fight the host for it and win by accident of
 mount order.
 
+**Do / Don't**
+- Don't use the palette to choose a form value. A field the user searches is `ArenaCombobox`, which holds a value, a label and an error.
+
 **Words.** `commandPaletteDialog` names the dialog and `commandPaletteList` the list; `commandPaletteEscape` is the key hint. The field shows `placeholder`, or the locale's `commandPalettePlaceholder` when it is absent, and that text names it; `commandPaletteSearch` names it only when the placeholder is empty. `commandPaletteEmpty` is the empty line, with what was typed in `{query}`.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->

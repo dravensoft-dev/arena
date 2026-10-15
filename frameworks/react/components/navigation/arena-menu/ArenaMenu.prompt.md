@@ -53,7 +53,7 @@ saying "no entries right now" and renders.
 - The trigger must have an accessible name (use `ArenaIconButton label`).
 - **The trigger must be a control, not a picture of one.** An `ArenaAvatar`, a `<span>` or anything else that takes no focus receives the handlers and answers no key. The menu opens on a pointer, and a reader on a keyboard never reaches it. Arena reports that once at runtime; pass an `ArenaIconButton`, an `ArenaButton`, or your own element carrying a button role and a tabindex.
 - Destructive actions go last and are marked `destructive`.
-- To choose a value from a form, use `ArenaSelect`, not an ArenaMenu.
+- To choose a value from a form, use `ArenaSelect`, not an ArenaMenu. A long list the user searches is `ArenaCombobox`.
 - Don't reach for a per-entry callback -- there is none. Read `onSelect`'s item.
 
 To fill a row, put `className="arena-fill"` on the menu or on a container above it. The trigger is not a boundary, so the class reaches the control inside and both take the row. On the control alone it fills the menu's own box, which fits the control.

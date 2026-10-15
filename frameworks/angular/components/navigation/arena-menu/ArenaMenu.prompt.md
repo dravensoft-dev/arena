@@ -79,6 +79,8 @@ nothing.
   hangs inward instead of off the page. The CDK will flip it above the trigger near the bottom of
   the viewport on its own.
 - **Don't** use `shortcut` expecting Arena to bind the key. The member is display only, and the contract says so. The host binds it or nothing does.
+- **Don't** use it to choose a form value. A short list is `arena-select`, and a long one the user
+  searches is `arena-combobox`.
 - **Don't** put a form, a submenu or anything focusable beyond the rows into `items`. `ArenaMenuItem`
   is three shapes and none of them projects content; a menu that needs more is a dialog.
 

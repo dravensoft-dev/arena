@@ -62,8 +62,8 @@ for.
 none. The placeholder is disabled once a real choice is made, which is what keeps "nothing chosen yet" distinguishable from "the first choice".
 
 **Do / Don't**
-- Use it for a short, known set of choices. Past roughly a dozen, reach for a searchable
-  control instead of a dropdown the user has to scroll.
+- Use it for a short, known set of choices. Past roughly a dozen, reach for `ArenaCombobox`,
+  which the user searches instead of scrolling.
 - Give `value` a stable identity and `label` the human wording, so the label can be
   translated without moving what the form submits.
 - Pass `label` when the field needs a visible name; the control renders none otherwise.

@@ -77,9 +77,9 @@ pointing at the control's own generated id. The member is optional in the contra
   control, never on `<arena-select>`.
 - **There is no `multiple`, and that is a decision rather than an omission.** A multi-selection is a *set* of values and `change` carries one `string`. The member could only ever have set an attribute whose result the event could not report. A native multi-select is a list box shown
   open, a different control from the styled dropdown this is.
-- **Don't** put more than a handful of options in it. A long or searchable list is
-  `arena-command-palette`'s job, and a set of three or four mutually exclusive choices already
-  visible on the page is `arena-segmented-control`'s.
+- **Don't** put more than a handful of options in it. A long list a user searches for a form value
+  is `arena-combobox`'s job. A set of three or four mutually exclusive choices already visible on
+  the page is `arena-segmented-control`'s. Running an action is `arena-command-palette`'s.
 
 **By hand, in real Chromium**: the popup is the browser's and happy-dom has none, so nothing
 below is provable by a suite. Run `bun run demos` and open `/frameworks/angular/components/forms/arena-select/ArenaSelect.demo.generated.html`: - The popup opens on click and on Space, walks with the arrow keys and type-ahead, and commits on Enter. All of that is the platform's and none of it is Arena's.

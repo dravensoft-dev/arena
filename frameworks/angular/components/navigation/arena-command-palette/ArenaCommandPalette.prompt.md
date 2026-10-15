@@ -48,6 +48,8 @@ command also closes the palette. The search field is an ARIA 1.2 combobox wired 
   component does not assume it for you.
 - Don't put destructive actions in the palette without a confirmation behind them. A
   palette entry is one Enter away from running.
+- Don't use the palette to choose a form value. A field the user searches is `arena-combobox`,
+  which holds a value, a label and an error.
 - Don't make the palette the only way to reach something. The palette is an accelerator, not navigation.
 - Don't express a condition as an attribute string. `open` carries the
   `booleanAttribute` transform, so a bare `open` and `[open]="true"` both
