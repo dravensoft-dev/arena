@@ -66,6 +66,11 @@ const ROOT_PRIVATE = new Map([
    'the factory that composes a component\'s own class names, emitted per layer so nothing '
    + 'imports across one. A consumer has no '
    + 'reason to call it: they render a component, not a recipe.'],
+  ['AnchoredOverlay.ts',
+   'the overlay wiring a menu, a tooltip and a popover share: it attaches a panel through the CDK, '
+   + 'keeps the stack Escape and an outside press consult, and moves focus where a component asks. '
+   + 'A consumer renders one of those components and never attaches a panel, and it is typechecked '
+   + 'through its own suite and the components that construct it.'],
   ['AnchoredPanel.ts',
    'the rules every anchored panel follows: which side it opens on, where it lines up, which panel '
    + 'of the stack Escape reaches, what counts as a press inside and where Tab leaves. A consumer '
