@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useId, useState } from 'react';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaSegmentedControl.classes.generated.ts';
 
@@ -41,7 +41,7 @@ export function ArenaSegmentedControl({ className,
   if (options == null) throw new Error('ArenaSegmentedControl: `options` is required');
   if (!ariaLabel) throw new Error('ArenaSegmentedControl: `ariaLabel` is required');
   const [internal, setInternal] = useState(defaultValue ?? (options[0] && options[0].value));
-  const [autoName] = useState(() => 'sc-' + Math.random().toString(36).slice(2, 7));
+  const autoName = `sc-${useId().replace(/:/g, '')}`;
 
   const selected = value ?? internal;
   const gname = name || autoName;

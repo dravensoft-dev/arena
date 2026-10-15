@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useId } from 'react';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from '../arena-radio/ArenaRadio.classes.generated.ts';
 import type { ArenaRadioGroupClass } from '../../../Vocabulary.generated.ts';
@@ -32,7 +32,8 @@ const arenaRadioStyles = arenaStyles(manifest);
 
 export function ArenaRadioGroup({ className, value, onChange, name, ariaLabel, children, disabled = false }: ArenaRadioGroupProps) {
   if (!ariaLabel?.trim()) throw new Error('ArenaRadioGroup: `ariaLabel` is required');
-  const gname = name || 'rg-' + Math.random().toString(36).slice(2, 7);
+  const generated = `rg-${useId().replace(/:/g, '')}`;
+  const gname = name || generated;
   const items = React.Children.map(children, (child) =>
     React.isValidElement(child)
       ? React.cloneElement(child, { name: gname, checked: child.props.value === value, onSelect: onChange, disabled: disabled || Boolean(child.props.disabled) })
