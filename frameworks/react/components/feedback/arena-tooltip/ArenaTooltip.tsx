@@ -1,5 +1,6 @@
 import React, { useEffect, useId, useRef, useState } from 'react';
-import { delayOpen, delayClose } from '../../../Tokens.generated.js';
+import { delayOpen, delayClose, sp2 } from '../../../Tokens.generated.js';
+import { ARENA_PANEL_POPOVER, useArenaAnchoredPanel } from '../../../UseAnchoredPanel.ts';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaTooltip.classes.generated.ts';
 import { arenaAccessibleText, arenaTooltipRedundant } from './TooltipName.ts';
@@ -46,15 +47,15 @@ export function ArenaTooltip({ className, children, label }: ArenaTooltipProps) 
   const now = (next: boolean) => { clear(); reveal(next); };
   useEffect(() => () => clear(), []);
 
-  useEffect(() => {
-    if (!show || typeof document === 'undefined') return undefined;
-    const onEscape = (e: KeyboardEvent) => { if (e.key === 'Escape') now(false); };
-    document.addEventListener('keydown', onEscape);
-    return () => document.removeEventListener('keydown', onEscape);
-  }, [show]);
+  const bubbleRef = useRef<HTMLSpanElement | null>(null);
+  const present = useArenaAnchoredPanel({
+    open: show, anchor: wrapRef, panel: bubbleRef, align: 'center', prefer: 'above', offset: sp2,
+    trigger: () => (wrapRef.current?.firstElementChild instanceof HTMLElement ? wrapRef.current.firstElementChild : null),
+    onDismiss: () => now(false),
+  });
 
   const own = children.props['aria-describedby'];
-  const describedBy = show ? [own, bubbleId].filter(Boolean).join(' ') : own;
+  const describedBy = present ? [own, bubbleId].filter(Boolean).join(' ') : own;
   const described = React.cloneElement(children, { 'aria-describedby': describedBy });
 
   useEffect(() => {
@@ -71,8 +72,8 @@ export function ArenaTooltip({ className, children, label }: ArenaTooltipProps) 
       onFocus={() => now(true)}
       onBlur={() => now(false)}>
       {described}
-      {show && (
-        <span role="tooltip" id={bubbleId} className={styles.bubble()} data-arena-part={manifest.parts.bubble} {...styles.$data.bubble()} data-arena-surface="floating">
+      {present && (
+        <span ref={bubbleRef} role="tooltip" id={bubbleId} className={styles.bubble()} data-arena-part={manifest.parts.bubble} {...styles.$data.bubble()} data-arena-surface="floating" {...ARENA_PANEL_POPOVER}>
           {quiet ? <span aria-hidden="true">{label}</span> : label}
         </span>
       )}
