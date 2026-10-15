@@ -96,6 +96,17 @@ test('an omitted name is generated, still shared, and never collides with a seco
   }
 });
 
+test('a blank name is generated like an omitted one, because a radio named "" belongs to no group', () => {
+  const { fixture, radios } = render({ name: '' });
+  try {
+    const names = new Set(radios.map((r) => r.getAttribute('name')));
+    assert.equal(names.size, 1);
+    assert.notEqual([...names][0], '');
+  } finally {
+    fixture.destroy();
+  }
+});
+
 test('exactly one option is checked, and it is the one matching the group value', () => {
   const { fixture, radios } = render();
   try {

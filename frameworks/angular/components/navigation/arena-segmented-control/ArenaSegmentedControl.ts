@@ -49,7 +49,7 @@ export class ArenaSegmentedControl {
   private readonly fallbackName = inject(ArenaIdGenerator).next('arena-segmented-control');
   private readonly chosen = signal<string | undefined>(undefined);
 
-  protected readonly groupName = computed(() => this.name() ?? this.fallbackName);
+  protected readonly groupName = computed(() => this.name() || this.fallbackName);
 
   protected readonly selected = computed(() => this.value()
     ?? this.chosen()

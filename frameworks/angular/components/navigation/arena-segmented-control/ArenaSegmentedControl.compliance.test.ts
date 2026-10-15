@@ -86,6 +86,17 @@ test('one native radio per option, one shared name, and no authored tabindex', (
   }
 });
 
+test('a blank name is generated like an omitted one, because a radio named "" belongs to no group', () => {
+  const { fixture, radios } = render({ name: '' });
+  try {
+    const names = new Set(radios.map((r) => r.getAttribute('name')));
+    assert.equal(names.size, 1);
+    assert.notEqual([...names][0], '');
+  } finally {
+    fixture.destroy();
+  }
+});
+
 test('exactly one segment is checked, and it is the one matching value', () => {
   const { fixture, radios } = render();
   try {

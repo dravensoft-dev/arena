@@ -57,7 +57,7 @@ export class ArenaRadioGroup {
   });
 
   constructor() {
-    this.state.groupName = computed(() => this.name() ?? this.fallbackName);
+    this.state.groupName = computed(() => this.name() || this.fallbackName);
     this.state.selected = computed(() => (this.binding.bound() ? (this.binding.value() as string | undefined) : this.value() ?? this.chosen()));
     this.state.disabled = this.off;
     this.state.choose = (value: string) => {
