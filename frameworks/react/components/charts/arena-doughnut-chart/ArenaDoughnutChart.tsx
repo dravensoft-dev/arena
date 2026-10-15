@@ -67,7 +67,7 @@ export function ArenaDoughnutChart({ className,
   const values = only.values;
   const n = values.length;
   const fmt = arenaValueWriter({ prefix: valuePrefix, suffix: valueSuffix, format: valueFormat });
-  const tonedSeries = { ...only, colorIds: only.colorIds ?? Array.from({ length: n }, (_, i) => i + 1) };
+  const tonedSeries = only.tone ? only : { ...only, colorIds: only.colorIds ?? Array.from({ length: n }, (_, i) => i + 1) };
   const colors = arenaSeriesColors(tonedSeries, n, 1);
 
   const stacked = arenaLegendStacked(legendLayout, width);
