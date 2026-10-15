@@ -53,6 +53,7 @@
     "ArenaFieldset",
     "ArenaIconButton",
     "ArenaInput",
+    "ArenaMultiSelect",
     "ArenaRadio",
     "ArenaRadioGroup",
     "ArenaSelect",

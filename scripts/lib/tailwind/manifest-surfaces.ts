@@ -54,6 +54,13 @@ export const MANIFEST_COVERS = new Map([
       + 'set against it, so the size the list hands down reaches the face, the name and the figure '
       + 'through one recipe rather than through two that could disagree about a step.',
   }],
+  ['ArenaCombobox', {
+    covers: ['ArenaCombobox', 'ArenaMultiSelect'],
+    reason: 'One manifest draws the field and the list for both controls: the field, its rows and its '
+      + 'panel are one surface whether the value is one option or a set, and a second manifest would '
+      + 'paint it twice and give a style plugin two sets of parts for one look. The chips, the count '
+      + 'and the clear control are the slots only ArenaMultiSelect draws.',
+  }],
   ['ArenaRadio', {
     covers: ['ArenaRadio', 'ArenaRadioGroup'],
     reason: 'One manifest draws the whole group -- the frame around the options is ArenaRadioGroup\'s '

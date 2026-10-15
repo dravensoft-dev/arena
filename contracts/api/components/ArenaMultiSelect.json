@@ -1,0 +1,114 @@
+{
+  "component": "ArenaMultiSelect",
+  "description": "A text field that filters a list of options as the user types and holds a set of chosen values, drawn as chips inside the field. The field is one tab stop: the arrow keys move a cursor over the rows and between the chips, and the list stays open across presses on rows. The validation vocabulary is ArenaCombobox's. A cap and a collapsed count keep a long set in bounds.",
+  "affordances": [
+    "focus"
+  ],
+  "api": {
+    "label": {
+      "form": "primitive",
+      "type": "string",
+      "required": true,
+      "description": "The control's accessible name. Required, and guarded at runtime after trimming: a field with no name is announced as an unlabelled edit field."
+    },
+    "showLabel": {
+      "form": "primitive",
+      "type": "boolean",
+      "default": true,
+      "description": "Whether the label is drawn above the field. False keeps the name for assistive technology and draws nothing, for a filter row with no room for a label."
+    },
+    "placeholder": {
+      "form": "primitive",
+      "type": "string",
+      "description": "Shown in the empty field while no value is chosen. A hint about what to type, never an option."
+    },
+    "options": {
+      "form": "array",
+      "of": "ArenaSelectOption",
+      "default": [],
+      "description": "The choices, in the order the list draws them."
+    },
+    "value": {
+      "form": "array",
+      "of": "string",
+      "default": [],
+      "description": "The chosen values, in the order they were chosen. A value that neither the options nor an earlier choice holds is kept and drawn as its own text."
+    },
+    "max": {
+      "form": "primitive",
+      "type": "number",
+      "description": "The most values that can be chosen. Absent, there is no limit. Once it is reached, every row not chosen is unavailable and choosing one is announced as blocked; removing a value stays possible."
+    },
+    "maxVisible": {
+      "form": "primitive",
+      "type": "number",
+      "description": "How many chosen values are drawn as chips before the rest collapse into a count. Absent, every chip is drawn and the field wraps. The collapsed values stay readable in the open list, where they are the chosen rows."
+    },
+    "clearable": {
+      "form": "primitive",
+      "type": "boolean",
+      "default": false,
+      "description": "Whether a control that empties the whole selection is drawn while a value is chosen. A declared boolean rather than a reading of whether change is listened to; false by default because a field one press can empty is a choice the consumer makes."
+    },
+    "loading": {
+      "form": "primitive",
+      "type": "boolean",
+      "default": false,
+      "description": "Options are being fetched. The list reports itself busy and draws a status line in place of the empty one. Declared, never inferred from the options."
+    },
+    "filter": {
+      "form": "enum",
+      "type": "ArenaComboboxFilter",
+      "default": "local",
+      "description": "Who narrows the options by the typed text: the control itself, or the host, which listens to search and passes the options it found. A declared member rather than a reading of whether search is listened to."
+    },
+    "disabled": {
+      "form": "primitive",
+      "type": "boolean",
+      "default": false,
+      "description": "Blocks the control and dims it, chips included."
+    },
+    "required": {
+      "form": "primitive",
+      "type": "boolean",
+      "default": false,
+      "description": "At least one value must be chosen for the form to be complete. The field reports itself required to assistive technology."
+    },
+    "hint": {
+      "form": "primitive",
+      "type": "string",
+      "description": "A line of help under the field."
+    },
+    "error": {
+      "form": "primitive",
+      "type": "string",
+      "description": "Controlled error message, and the whole validation surface: every value is an option's or one the consumer supplied, so there is nothing for a validator to parse."
+    },
+    "valid": {
+      "form": "primitive",
+      "type": "boolean",
+      "default": false,
+      "description": "Forces the valid state, drawn with a check glyph at the field's end."
+    },
+    "icon": {
+      "form": "primitive",
+      "type": "string",
+      "description": "Phosphor class name drawn at the field's start."
+    },
+    "name": {
+      "form": "primitive",
+      "type": "string",
+      "description": "Submitted with the form. Each chosen value is submitted under it as a hidden input, so a form posts a repeated field; nothing is drawn without a name."
+    },
+    "change": {
+      "form": "event",
+      "payload": "ArenaValueSet",
+      "description": "The chosen set changed, by a row, a chip or the clear control; carries the whole new set, never a difference."
+    },
+    "search": {
+      "form": "event",
+      "payload": "string",
+      "description": "The text the list is filtered by changed; carries the new text, empty after a pick, Escape or a blur. The hook a remote search listens to."
+    }
+  }
+}

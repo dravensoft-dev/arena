@@ -1,14 +1,16 @@
-<!-- @dsCard group="Tailwind" viewport="700x420" name="ArenaCombobox" subtitle="The field and its open list, rendered from ArenaCombobox.manifest.json" -->
+<!-- @dsCard group="Tailwind" viewport="700x560" name="ArenaCombobox" subtitle="The field, its open list and the chips of a multi-select, rendered from ArenaCombobox.manifest.json" -->
 <!doctype html><html><head><meta charset="utf-8">
 <link rel="stylesheet" href="../../../../../intro/styles.css">
 <link rel="stylesheet" href="../../../consume/Preflight.generated.css">
 <link rel="stylesheet" href="../../../consume/components/forms/arena-combobox/ArenaCombobox.styles.generated.css">
+<link rel="stylesheet" href="../../../consume/components/display/arena-tag/ArenaTag.styles.generated.css">
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
 import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
 
 const manifest = await (await fetch('./ArenaCombobox.manifest.json')).json();
+const tagManifest = await (await fetch('../../display/arena-tag/ArenaTag.manifest.json')).json();
 
 /* The list is drawn open and in flow, a step under its field: a component places its panel by script
    in the top layer, and a specimen that had to type into the field would show nothing in a screenshot. */
@@ -38,11 +40,38 @@ function combobox({ label, text, rows, chosen, active }) {
   return el('div', {}, root, panel);
 }
 
+function multiSelect({ label, chips, hidden }) {
+  const c = arenaClassesFor(manifest);
+  const d = arenaSlotDataFor(manifest);
+  const t = arenaClassesFor(tagManifest);
+  const td = arenaSlotDataFor(tagManifest);
+  const root = el('div', { class: c.root, ...d.root });
+  root.style.width = '300px';
+  root.append(el('label', { class: c.label, ...d.label, text: label }));
+  const row = el('div', { class: c.chips, ...d.chips });
+  chips.forEach((chip, index) => {
+    const textId = `chip-${index}`;
+    row.append(el('span', { class: t.root, ...td.root, 'data-arena-boundary': '' },
+      el('span', { class: t.dot, ...td.dot, 'aria-hidden': 'true' }), el('span', { id: textId, 'data-arena-boundary': '', text: chip }),
+      el('button', { type: 'button', id: `${textId}-remove`, class: t.close, ...td.close, tabindex: '-1', 'aria-labelledby': `${textId}-remove ${textId}` },
+        el('i', { class: 'ph-bold ph-x', 'aria-hidden': 'true' }), el('span', { class: t.closeLabel, ...td.closeLabel, text: 'Remove' }))));
+  });
+  if (hidden) row.append(el('span', { class: c.more, ...d.more, role: 'img', 'aria-label': `${hidden} more selected`, text: `+${hidden}` }));
+  row.append(el('input', { class: c.input, ...d.input, role: 'combobox', 'aria-label': label }));
+  root.append(el('div', { class: c.field, ...d.field }, row,
+    el('button', { type: 'button', class: c.clear, ...d.clear, tabindex: '-1', 'aria-label': 'Clear selection' }, el('i', { class: 'ph-bold ph-x-circle', 'aria-hidden': 'true' })),
+    el('i', { class: `ph-bold ph-caret-down ${c.caret}`, ...d.caret, 'aria-hidden': 'true' })));
+  return root;
+}
+
 mountSpecimen({ sections: [
   section('Closed, with a value chosen', [combobox({ label: 'Region', text: 'Europe West' })]),
   section('Open: the cursor row and the chosen row', [
     combobox({ label: 'Region', text: 'Eu', rows: ['Europe West', 'Europe North', 'Europe South'], chosen: 'Europe West', active: 1 }),
     combobox({ label: 'Region', text: 'Mars', rows: [] }),
+  ]),
+  section('A multi-select: chips in the field, a collapsed count and the clear control', [
+    multiSelect({ label: 'Regions', chips: ['Europe West', 'US East'], hidden: 1 }),
   ]),
 ]});
 </script></body></html>

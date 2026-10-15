@@ -49,6 +49,13 @@ Every field is optional in what you provide, and one you leave out keeps the def
 | `bulkActionBarClearLabel` | `Clear selection` | Names the button that clears the selection. |
 | `bulkActionBarCount` | `{count} {noun} selected` | The selection count. {count} is drawn in bold; {noun} is the bar's noun. |
 | `bulkActionBarNoun` | `items` | What is counted, plural, when the bar's own noun is absent. |
+| `multiSelectEmpty` | `No results for "{query}".` | What a multi-select's list shows when no option matches. {query} is what was typed. |
+| `multiSelectLoading` | `Loading results…` | What a multi-select's list shows while its options are fetched. |
+| `multiSelectCount` | `Options available: {count}.` | Announced politely after the text changes, since focus stays in the field. {count} is how many options the list holds; the count stands last, so one sentence serves every number. |
+| `multiSelectClear` | `Clear selection` | Names the control that empties the whole selection. |
+| `multiSelectMore` | `+{count}` | The marker drawn in place of the chips past maxVisible. {count} is how many are collapsed. |
+| `multiSelectMoreLabel` | `{count} more selected` | Names the collapsed count for assistive technology. {count} is how many are collapsed. |
+| `multiSelectMax` | `Maximum of {max} selected.` | Announced politely when a choice is blocked because the cap is reached. {max} is the cap. |
 | `commandPaletteDialog` | `Command palette` | Names the command palette's dialog. |
 | `commandPaletteSearch` | `Search commands` | Names the search field when no placeholder names it. |
 | `commandPalettePlaceholder` | `Search for an action or project…` | The search field's placeholder when the palette's own is absent. |

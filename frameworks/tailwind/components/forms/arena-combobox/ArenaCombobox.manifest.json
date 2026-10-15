@@ -5,15 +5,18 @@
     "label": "font-face-label text-ctl-xs tracking-label-role case-label text-ink-muted/(--level-ink-muted)",
     "field": "flex items-center gap-control min-h-ctl-h px-control-x bg-field border-[length:var(--bw-field)] rounded-field transition-[border-color,box-shadow] duration-[var(--dur-hover)] ease-hover",
     "icon": "inline-flex text-ink-muted/(--level-ink-muted) text-[length:var(--icon-md)]",
+    "chips": "flex flex-1 flex-wrap items-center gap-inline py-1 min-w-0",
+    "more": "inline-flex items-center rounded-marker border-[length:var(--bw-marker)] border-edge-marker px-marker-x py-marker-y text-ctl-xs font-semibold text-ink-muted/(--level-ink-muted)",
     "input": "flex-1 min-w-0 bg-transparent border-none outline-none text-ink-body placeholder:text-ink-muted/(--level-ink-muted) font-body text-ctl",
     "statusIcon": "text-[length:var(--icon-md)]",
+    "clear": "inline-flex items-center justify-center min-h-ctl-h-sm min-w-ctl-h-sm bg-transparent border-none cursor-pointer text-ink-muted/(--level-ink-muted) text-[length:var(--icon-sm)]",
     "caret": "inline-flex pointer-events-none text-ink-muted/(--level-ink-muted) text-[length:var(--icon-sm)]",
     "hint": "font-body text-ctl-sm text-ink-muted/(--level-ink-muted)",
     "error": "font-body text-ctl-sm text-[color:var(--arena-hue-ink)]",
     "announcement": "sr-only",
     "panel": "grow z-dropdown max-h-80 overflow-auto p-1.5 bg-surface-floating border-[length:var(--bw-surface)] border-edge-surface-floating rounded-surface-floating shadow-surface-floating",
     "list": "flex flex-col",
-    "option": "flex items-center gap-row-floating w-full min-h-row-min text-left px-row-floating-x py-row-floating-y rounded-control cursor-pointer font-body text-md",
+    "option": "flex items-center gap-row-floating w-full min-h-row-min text-left px-row-floating-x py-row-floating-y rounded-control font-body text-md",
     "optionLabel": "flex-1",
     "optionMark": "inline-flex text-[length:var(--icon-sm)]",
     "empty": "px-row-floating-x py-row-floating-y font-body text-md text-ink-muted/(--level-ink-muted)",
@@ -24,8 +27,11 @@
     "label": "none",
     "field": "field",
     "icon": "none",
+    "chips": "none",
+    "more": "marker",
     "input": "none",
     "statusIcon": "none",
+    "clear": "none",
     "caret": "none",
     "hint": "none",
     "error": "none",
@@ -44,7 +50,8 @@
   "internal": {
     "state": "error when error is given, valid when valid holds",
     "active": "the row the keyboard cursor is on",
-    "selected": "the row whose value is chosen"
+    "selected": "the row whose value is chosen",
+    "blocked": "a row that cannot be chosen because the cap is reached"
   },
   "variants": {
     "state": {
@@ -82,13 +89,22 @@
       "false": {
         "optionLabel": "font-medium"
       }
+    },
+    "blocked": {
+      "true": {
+        "option": "opacity-60 cursor-not-allowed"
+      },
+      "false": {
+        "option": "cursor-pointer"
+      }
     }
   },
   "defaultVariants": {
     "state": "neutral",
     "disabled": false,
     "active": false,
-    "selected": false
+    "selected": false,
+    "blocked": false
   },
   "hues": {
     "always": {

@@ -453,6 +453,9 @@ export const CLAIMS = {
     { slot: 'panel', has: ['z-dropdown', 'max-h-80', 'overflow-auto'], hasNot: ['absolute', 'fixed', 'relative'], why: 'the panel scrolls its own rows and leaves its position to the layer' },
     { slot: 'option', has: ['min-h-row-min', 'px-row-floating-x', 'py-row-floating-y'], why: 'a row of a floating list spends the floating row roles, and its floor reads the density' },
     { chosen: { active: true }, slot: 'option', has: ['bg-primary/14'], why: 'the cursor row is washed, and a chosen row carries a glyph, so neither is told by colour alone' },
+    { chosen: { blocked: true }, slot: 'option', has: ['opacity-60', 'cursor-not-allowed'], hasNot: ['cursor-pointer'], why: 'a row the cap blocks dims and refuses the pointer, and only an available row offers it' },
+    { slot: 'clear', has: ['min-h-ctl-h-sm', 'min-w-ctl-h-sm'], why: 'the clear control is a small control box, which clears the floor of every density' },
+    { slot: 'chips', has: ['flex-wrap', 'gap-inline', 'py-1'], why: 'chips wrap inside the field, keep the gap between siblings on one line and leave air above and below so a second row never touches the border' },
   ],
   ArenaFieldset: [
     { slot: 'root', has: ['block', 'border-0', 'p-0', 'm-0', 'min-w-0'], why: 'a fieldset is a plain grouping, so the platform border, padding and minimum width are taken away and the root keeps a display utility of its own' },
