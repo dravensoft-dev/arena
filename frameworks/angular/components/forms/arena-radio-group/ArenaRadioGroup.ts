@@ -30,7 +30,7 @@ export class ArenaRadioGroup {
   readonly ariaLabel = input.required<string>();
   /** The selected option's value. */
   readonly value = input<string>();
-  /** Shared name for the underlying radios; generated when omitted. */
+  /** Shared name for the underlying radios; generated when omitted or blank. */
   readonly name = input<string>();
   /** Whether the whole group is unavailable. Every radio it holds is disabled whatever its own disabled says, and the group reflects aria-disabled. */
   readonly disabled = input(false, { transform: booleanAttribute });

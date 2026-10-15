@@ -36,7 +36,7 @@ export class ArenaCheckboxGroup {
   readonly ariaLabel = input.required<string>();
   /** The ticked boxes' values, in the order they were ticked. A value that matches no box is kept rather than dropped. */
   readonly value = input<readonly string[], readonly string[] | undefined>([], { transform: (value) => value ?? [] });
-  /** Shared form name for the underlying checkboxes, so a form submits every ticked value under one key; generated when omitted. */
+  /** Shared form name for the underlying checkboxes, so a form submits every ticked value under one key; generated when omitted or blank. */
   readonly name = input<string>();
   /** Whether the whole group is unavailable. Every box it holds is disabled whatever its own disabled says, and the group reflects aria-disabled. */
   readonly disabled = input(false, { transform: booleanAttribute });

@@ -18,7 +18,7 @@ export interface ArenaCheckboxGroupProps {
   /** The ticked boxes' values, in the order they were ticked. A value that matches no box is kept rather than dropped. */
   value?: readonly string[];
 
-  /** Shared form name for the underlying checkboxes, so a form submits every ticked value under one key; generated when omitted. */
+  /** Shared form name for the underlying checkboxes, so a form submits every ticked value under one key; generated when omitted or blank. */
   name?: string;
 
   /** Whether the whole group is unavailable. Every box it holds is disabled whatever its own disabled says, and the group reflects aria-disabled. */

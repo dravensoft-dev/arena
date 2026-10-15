@@ -17,7 +17,7 @@ export interface ArenaRadioGroupProps {
   /** The selected option's value. */
   value?: string;
 
-  /** Shared name for the underlying radios; generated when omitted. */
+  /** Shared name for the underlying radios; generated when omitted or blank. */
   name?: string;
 
   /** A different option was chosen; carries its value. */

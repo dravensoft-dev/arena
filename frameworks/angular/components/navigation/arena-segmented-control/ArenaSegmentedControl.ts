@@ -41,7 +41,7 @@ export class ArenaSegmentedControl {
   readonly defaultValue = input<string>();
   /** Names what is being filtered: "Time range", not "Filter". A radio group with no accessible name is announced unlabelled. */
   readonly ariaLabel = input.required<string>();
-  /** Shared name for the underlying radios; generated when omitted. */
+  /** Shared name for the underlying radios; generated when omitted or blank. */
   readonly name = input<string>();
   /** A different option was chosen; carries its value. */
   readonly change = output<string>();

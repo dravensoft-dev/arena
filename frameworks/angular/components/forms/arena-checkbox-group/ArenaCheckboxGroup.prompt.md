@@ -19,7 +19,7 @@ Arena checkbox group, a set of independent choices reported as one value. Standa
 | `ariaLabel*` | primitive | `string` |  | Names the group: what the choices are about, not that they are choices. Required, and guarded at runtime: a group with no accessible name is announced unlabelled, and each box's own label says what that box is, never what the set is for. "Notify me about", not "Options". Distinct from `name`, which is the boxes' shared form name and never reaches a screen reader. |
 | `content` | slot |  |  | The Checkboxes, each with a `value`: the set holds that value while the box is ticked. The group owns each box's ticked state, and how the two are wired is not this contract's business. |
 | `value` | array | `readonly string[]` | `[]` | The ticked boxes' values, in the order they were ticked. A value that matches no box is kept rather than dropped. |
-| `name` | primitive | `string` |  | Shared form name for the underlying checkboxes, so a form submits every ticked value under one key; generated when omitted. |
+| `name` | primitive | `string` |  | Shared form name for the underlying checkboxes, so a form submits every ticked value under one key; generated when omitted or blank. |
 | `disabled` | primitive | `boolean` | `false` | Whether the whole group is unavailable. Every box it holds is disabled whatever its own disabled says, and the group reflects aria-disabled. |
 | `change` | event | `ArenaValueSet` |  | A box was ticked or unticked; carries the whole set after the change. |
 

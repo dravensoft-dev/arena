@@ -24,7 +24,7 @@ export interface ArenaSegmentedControlProps {
   /** Names what is being filtered: "Time range", not "Filter". A radio group with no accessible name is announced unlabelled. */
   ariaLabel: string;
 
-  /** Shared name for the underlying radios; generated when omitted. */
+  /** Shared name for the underlying radios; generated when omitted or blank. */
   name?: string;
 
   /** A different option was chosen; carries its value. */
