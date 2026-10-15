@@ -63,7 +63,26 @@ export function zeroContractProblems({ contracts, types }: { contracts: number; 
 
 export { bindingName };
 
-export function docProblems(contract: ContractCandidate, docs: Map<string, string>, layer: string) {
+export const TRIGGER_ARIA = new Map<string, { names: readonly string[]; why: string }>(
+  ['ArenaButton', 'ArenaIconButton'].map((component) => [component, {
+    names: ['aria-haspopup', 'aria-expanded', 'aria-controls', 'aria-describedby'],
+    why: 'Arena\'s composers write a trigger\'s popup state and description onto it by clone (ArenaPopover, '
+      + 'ArenaMenu, ArenaTooltip), and a server render draws only what the button forwards. ARIA is no member '
+      + '(contracts/api/MemberForms.md), so the contract stays as it is and this names the four the '
+      + 'implementation forwards.',
+  }]),
+);
+
+export function staleTriggerProblems(allowed: Set<string>, trigger = TRIGGER_ARIA) {
+  return [...trigger.entries()].flatMap(([component, { names }]) => names
+    .filter((name) => !allowed.has(`${component}.${name}`))
+    .map((name) => `TRIGGER_ARIA names ${component}.${name}, and the React surface declares no such prop. `
+      + 'A stale allowance reads as a decision somebody made about code that is there.'));
+}
+
+export function docProblems(
+  contract: ContractCandidate, docs: Map<string, string>, layer: string, trigger = TRIGGER_ARIA,
+) {
   const problems = [];
   const where = `${layer}/${contract.component}`;
   const wanted = new Map();
@@ -94,6 +113,7 @@ export function docProblems(contract: ContractCandidate, docs: Map<string, strin
 
   for (const bound of docs.keys()) {
     if (wanted.has(bound)) continue;
+    if (layer === 'react' && trigger.get(contract.component ?? '')?.names.includes(bound)) continue;
     problems.push(
       `${where}.${bound}: carries a /** */ doc and is no contracted member. Only a contract-derived doc is `
       + 'allowed here, because only that one is held equal to something',
@@ -275,6 +295,7 @@ export function vocabularyMemberProblems(
 
 export function compareSurface(
   contract: ContractCandidate, members: SurfaceMember[], layer: string, types = new Map(),
+  trigger = TRIGGER_ARIA, allowed = new Set<string>(),
 ) {
   const problems = [];
   const where = `${layer}/${contract.component}`;
@@ -303,6 +324,10 @@ export function compareSurface(
       problems.push(`${where}.${m.name}: declared twice in this layer's own surface -- a slot mentioned in a doc comment as well as the real template is the known case`);
     } else {
       rawSeen.add(m.name);
+    }
+    if (layer === 'react' && trigger.get(contract.component ?? '')?.names.includes(m.name) && !expected.has(m.name)) {
+      allowed.add(`${contract.component}.${m.name}`);
+      continue;
     }
     if (m.form === 'platform') {
       problems.push(`${where}.${m.name}: "${m.type}" is a platform type and none of the nine forms — R4`);
@@ -679,6 +704,7 @@ function main() {
   const angularLayer = angularImplementations();
   problems.push(...angularLayer.problems);
   const derivedSeen = new Set<string>();
+  const triggerSeen = new Set<string>();
   let layersChecked = 0;
 
   for (const file of files) {
@@ -711,7 +737,7 @@ function main() {
       }
       problems.push(...vocabularyMemberProblems(contract.component, surface.members, layer, contractNames));
       const members = surface.members.filter((m: SurfaceMember) => m.name !== VOCABULARY_MEMBER);
-      problems.push(...compareSurface(contract, members, layer, typesByName));
+      problems.push(...compareSurface(contract, members, layer, typesByName, TRIGGER_ARIA, triggerSeen));
       problems.push(...docProblems(contract, surface.docs ?? new Map(), layer));
       if (layer === 'react') problems.push(...reactImplementationProblems(contract, path, derivedSeen));
       else problems.push(...angularImplementationProblems(contract, path, derivedSeen));
@@ -719,6 +745,7 @@ function main() {
   }
 
   problems.push(...staleDerivedProblems(derivedSeen));
+  problems.push(...staleTriggerProblems(triggerSeen));
 
   const manifests = layerManifests();
   const contractsByName = new Map<string, ContractCandidate>(files.map((f) => {

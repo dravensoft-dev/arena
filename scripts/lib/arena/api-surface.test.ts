@@ -573,3 +573,16 @@ test('angularImplementation answers the defaults a class declares and skips what
   const { defaults } = angularImplementation(source, 'X');
   assert.deepEqual([...defaults], [['gap', "'md'"], ['lines', '3']]);
 });
+
+test('a quoted member is read by its name, with its doc', () => {
+  const src = "export interface XProps {\n  /** Shown. */\n  label?: string;\n  /** Written by a composer. */\n  'aria-expanded'?: boolean;\n}";
+  const { members, docs } = reactSurface(src, 'XProps');
+  assert.deepEqual(members.map((m) => m.name), ['label', 'aria-expanded']);
+  assert.equal(docs.get('aria-expanded'), 'Written by a composer.');
+  assert.equal(docs.get('label'), 'Shown.');
+});
+
+test('a quoted destructuring entry is read by its key', () => {
+  const impl = reactImplementation("function X({ label, 'aria-expanded': ariaExpanded }: XProps) { return null; }", 'X');
+  assert.ok(impl.defaults.has('aria-expanded'));
+});

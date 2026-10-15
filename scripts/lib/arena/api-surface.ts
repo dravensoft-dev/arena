@@ -249,8 +249,8 @@ export function normaliseDoc(text: string) {
 
 export function memberDocs(body: string) {
   const docs = new Map();
-  const re = /\/\*\*([\s\S]*?)\*\/\s*(?:readonly\s+|protected\s+|public\s+)*([A-Za-z_$][\w$]*)/g;
-  for (const match of body.matchAll(re)) docs.set(captured(match, 2), normaliseDoc(captured(match)));
+  const re = /\/\*\*([\s\S]*?)\*\/\s*(?:readonly\s+|protected\s+|public\s+)*(?:([A-Za-z_$][\w$]*)|'([^']*)'|"([^"]*)")/g;
+  for (const match of body.matchAll(re)) docs.set(match[2] ?? match[3] ?? match[4] ?? '', normaliseDoc(captured(match)));
   return docs;
 }
 
@@ -281,6 +281,8 @@ export function reactImplementation(source: string, componentName: string) {
     const entry = raw.trim();
     if (!entry) continue;
     if (entry.startsWith('...')) { rest = entry.slice(3).trim(); continue; }
+    const quoted = /^(?:'([^']*)'|"([^"]*)")\s*:\s*[A-Za-z_$][\w$]*(?:\s*=\s*([\s\S]+))?$/.exec(entry);
+    if (quoted) { defaults.set(quoted[1] ?? quoted[2] ?? '', quoted[3]?.trim() ?? null); continue; }
     const named = /^([A-Za-z_$][\w$]*)\s*=\s*([\s\S]+)$/.exec(entry);
     if (named) { defaults.set(captured(named), captured(named, 2).trim()); continue; }
     if (/^[A-Za-z_$][\w$]*$/.test(entry)) { defaults.set(entry, null); continue; }
@@ -322,9 +324,9 @@ function interfaceMembers(body: string) {
   for (const raw of splitTopLevel(stripComments(body), ';', { brackets: '(){}[]' })) {
     const text = raw.trim();
     if (!text) continue;
-    const m = /^([A-Za-z_$][\w$]*)(\?)?\s*:\s*([\s\S]+)$/.exec(text);
+    const m = /^(?:([A-Za-z_$][\w$]*)|'([^']*)'|"([^"]*)")(\?)?\s*:\s*([\s\S]+)$/.exec(text);
     if (!m) throw new UnrecognisedShape(`unreadable interface member: ${text}`);
-    members.push({ name: captured(m), required: !m[2], ...classify(captured(m, 3)) });
+    members.push({ name: m[1] ?? m[2] ?? m[3] ?? '', required: !m[4], ...classify(captured(m, 5)) });
   }
   return members;
 }

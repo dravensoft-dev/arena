@@ -7,6 +7,7 @@ import {
   bindingName, validateTypes, validateContract, compareSurface, docProblems,
   resolveAngularImplementations, resolveReactImplementations, zeroContractProblems,
   angularImplementationProblems, implementationDefaultProblems, staleDerivedProblems, DERIVED_DEFAULT, leakProblems,
+  staleTriggerProblems,
 } from './check-api.ts';
 import { pascal } from '../../utils/case.ts';
 import { buildApiModules } from '../../generate/arena/generate-api-types.ts';
@@ -976,4 +977,45 @@ test('validateTypes reports an object field whose description leaks a path or a 
 test('validateTypes reports a type whose description leaks a path', () => {
   const problems = validateTypes([{ name: 'ArenaX', kind: 'enum', values: [1], description: 'See contracts/design/x.' }]);
   assert.equal(problems.length, 1);
+});
+
+const BUTTON = { component: 'ArenaButton', api: { content: { form: 'slot' } } };
+const trigger = new Map([['ArenaButton', { names: ['aria-haspopup'], why: 'test' }]]);
+
+test('a trigger attribute the allowance names passes in the React layer', () => {
+  const allowed = new Set<string>();
+  const members = [{ name: 'children', required: false, form: 'slot' }, { name: 'aria-haspopup', required: false, form: 'primitive', type: 'string' }];
+  assert.deepEqual(compareSurface(BUTTON, members, 'react', new Map(), trigger, allowed), []);
+  assert.deepEqual(staleTriggerProblems(allowed, trigger), []);
+});
+
+test('an ARIA name the allowance does not hold is still undeclared', () => {
+  const members = [{ name: 'children', required: false, form: 'slot' }, { name: 'aria-label', required: false, form: 'primitive', type: 'string' }];
+  assert.match(compareSurface(BUTTON, members, 'react', new Map(), trigger).join('\n'), /aria-label: declared, but the contract does not name it/);
+});
+
+test('an allowance naming a prop the React surface does not declare is stale', () => {
+  assert.match(staleTriggerProblems(new Set(), trigger).join('\n'), /ArenaButton\.aria-haspopup/);
+});
+
+test('the allowance is the React layer\'s alone', () => {
+  const members = [{ name: 'aria-haspopup', required: false, form: 'primitive', type: 'string' }];
+  assert.match(compareSurface(BUTTON, members, 'angular', new Map(), trigger).join('\n'), /declared, but the contract does not name it/);
+});
+
+test('a contract that names a trigger attribute reads it as a member, and the allowance is reported unneeded', () => {
+  const adopted = { component: 'ArenaButton', api: { content: { form: 'slot' }, 'aria-haspopup': { form: 'primitive', type: 'string' } } };
+  const allowed = new Set<string>();
+  const members = [{ name: 'children', required: false, form: 'slot' }, { name: 'aria-haspopup', required: false, form: 'primitive', type: 'string' }];
+  assert.deepEqual(compareSurface(adopted, members, 'react', new Map(), trigger, allowed), []);
+  assert.deepEqual([...allowed], []);
+  assert.match(staleTriggerProblems(allowed, trigger).join('\n'), /ArenaButton\.aria-haspopup/);
+  const wrong = [{ name: 'children', required: false, form: 'slot' }, { name: 'aria-haspopup', required: false, form: 'slot' }];
+  assert.match(compareSurface(adopted, wrong, 'react', new Map(), trigger, allowed).join('\n'), /declared as slot, contract says primitive/);
+});
+
+test('docProblems skips a doc on an allowed trigger name', () => {
+  const docs = new Map([['aria-haspopup', 'Written by a composer.']]);
+  assert.deepEqual(docProblems(BUTTON, docs, 'react', trigger), []);
+  assert.match(docProblems(BUTTON, docs, 'angular', trigger).join('\n'), /no contracted member/);
 });
