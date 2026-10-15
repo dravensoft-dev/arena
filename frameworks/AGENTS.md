@@ -297,6 +297,7 @@ each layer's knob model to the other's. It opens none of them.
 | a component's measured box is the same in every branch its width selects | `check:measured-box`, `MEASURED` |
 | an inline component declares its own width on every branch | `check:intrinsic-width`, `EXEMPT` empty |
 | a modal traps Tab in a real browser | `check:focus-trap` |
+| a hidden native control refused by the browser hands focus to the trigger it lies under | `check:focus-trap`, `HANDOFFS` |
 | **a manifest's colors, sizes or slot structure still match its contract** | **nothing. Read both when either moves** |
 | the emitted pages match a fresh run, and each layer's knob model matches the other's | `check:playgrounds`, over source |
 | **that any page mounts and draws** | **nothing. Open it** |
