@@ -31,6 +31,7 @@ import { ArenaTag } from '../components/display/arena-tag/ArenaTag';
 import { ArenaSkeleton } from '../components/display/arena-skeleton/ArenaSkeleton';
 import { ArenaSpinner } from '../components/feedback/arena-spinner/ArenaSpinner';
 import { ArenaSwitch } from '../components/forms/arena-switch/ArenaSwitch';
+import { ArenaFileInput } from '../components/forms/arena-file-input/ArenaFileInput';
 import { ArenaBulkActionBar } from '../components/navigation/arena-bulk-action-bar/ArenaBulkActionBar';
 import { ArenaCommandPalette } from '../components/navigation/arena-command-palette/ArenaCommandPalette';
 import { ArenaCombobox } from '../components/forms/arena-combobox/ArenaCombobox';
@@ -59,7 +60,7 @@ export function sentinelLocale(base: ArenaLocale = ARENA_DEFAULT_LOCALE): ArenaL
 }
 
 const SENTINEL = /⟦\w+⟧/g;
-const NEUTRAL = /^[\d\s.,:;%+\-/()‒-―↑↓▾−·…"'?!]*$/;
+const NEUTRAL = /^[\d\s.,:;%+\-/()‒-―↑↓▾−·…"'?!*]*$/;
 const NAMED = ['aria-label', 'aria-roledescription', 'title'];
 
 export function strayWords(host: Element, allowed: readonly string[]): string[] {
@@ -157,6 +158,10 @@ class SpinnerHost {}
 
 @Component({ standalone: true, imports: [ArenaSwitch], template: `<arena-switch label="Auto deploy" [confirm]="true" />` })
 class SwitchHost {}
+@Component({ standalone: true, imports: [ArenaFileInput], template: `<arena-file-input label="Passport scan" />` })
+class FileInputHost {}
+@Component({ standalone: true, imports: [ArenaFileInput], template: `<arena-file-input label="Passport scan" droppable multiple required />` })
+class FileInputDropHost {}
 
 @Component({ standalone: true, imports: [ArenaBulkActionBar], template: `<arena-bulk-action-bar [count]="3" [actions]="[{ id: 'archive', label: 'Archive' }]" />` })
 class BulkHost {}
@@ -252,6 +257,7 @@ const CASES: Record<string, Case> = {
   ArenaSkeleton: { hosts: [SkeletonHost], consumer: [] },
   ArenaSpinner: { hosts: [SpinnerHost], consumer: [] },
   ArenaSwitch: { hosts: [SwitchHost], consumer: ['Auto deploy'] },
+  ArenaFileInput: { hosts: [FileInputHost, FileInputDropHost], consumer: ['Passport scan'] },
   ArenaBulkActionBar: { hosts: [BulkHost], consumer: ['Archive'] },
   ArenaCombobox: { hosts: [ComboboxEmptyHost, ComboboxLoadingHost, ComboboxCountHost], consumer: ['Region', 'Search regions', 'Europe West', 'Eur'] },
   ArenaMultiSelect: { hosts: [MultiSelectEmptyHost, MultiSelectLoadingHost, MultiSelectCountHost, MultiSelectCapHost], consumer: ['Regions', 'Search regions', 'Europe West', 'Europe North', 'Eur'] },

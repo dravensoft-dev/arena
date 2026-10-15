@@ -37,6 +37,11 @@ const PRIVATE = new Map([
    'the filter, the cursor, the set and the chip arithmetic `arena-combobox` and `arena-multi-select` '
    + 'share; the combobox re-exports `arenaFilterOptions`, which is the one name in it a consumer '
    + 'may call, and the rest is each component\'s own behaviour and not a member of its API.'],
+  ['forms/arena-file-input/FileRules.ts',
+   'the rules that decide which files a file input holds, how a size is written and what it announces, '
+   + 'authored once for both layers and compared by check:shared-arithmetic; `arena-file-input` runs '
+   + 'them on every pick and drop, and a consumer reads the result through its events and its two '
+   + 'methods, never by calling them.'],
   ['navigation/arena-pagination/PaginationWindow.ts',
    'the same shape one category over, and the standing precedent for it: `arenaPageWindow` decides '
    + 'which page numbers elide, which is `arena-pagination`\'s own arithmetic and not a member '

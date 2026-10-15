@@ -3,6 +3,7 @@ export * from './arena-checkbox';
 export * from './arena-checkbox-group';
 export * from './arena-combobox';
 export * from './arena-fieldset';
+export * from './arena-file-input';
 export * from './arena-icon-button';
 export * from './arena-input';
 export * from './arena-multi-select';
