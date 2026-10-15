@@ -33,6 +33,10 @@ const PRIVATE = new Map([
    + 'reads event times through it and `arena-calendar-event` reads its two fit thresholds. A '
    + 'consumer drives the view through `anchorDate` and `view`, never by computing a week '
    + 'boundary. It is typechecked through the components that import it.'],
+  ['forms/arena-combobox/ComboboxRules.ts',
+   'the filter, the cursor, the set and the chip arithmetic `arena-combobox` and `arena-multi-select` '
+   + 'share; the combobox re-exports `arenaFilterOptions`, which is the one name in it a consumer '
+   + 'may call, and the rest is each component\'s own behaviour and not a member of its API.'],
   ['navigation/arena-pagination/PaginationWindow.ts',
    'the same shape one category over, and the standing precedent for it: `arenaPageWindow` decides '
    + 'which page numbers elide, which is `arena-pagination`\'s own arithmetic and not a member '
