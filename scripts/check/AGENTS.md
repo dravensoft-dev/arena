@@ -151,7 +151,7 @@ thing this runner promises.
 ## Exit 2 means SKIP, and a skip is never green
 
 **A gate needing a runtime dependency plain node does not have declares it rather than assuming
-it**: `check:focus-trap` and `check:pixel-parity` drive a headless browser, `check:vendor` and
+it**: `check:focus-trap`, `check:anchoring`, `check:target-size`, `check:pixel-parity` and `check:proximity` drive a headless browser, `check:vendor` and
 `check:intro` need `Bun.build`, `check:demos` needs `Bun.Transpiler`. Derive the set with
 `grep -rl 'cannotRun\|skipExitCode' scripts/check/*/check-*.ts` rather than reading a count. Where the dependency is missing the gate exits **2**, `check-all` marks it
 `SKIP`, and the whole run reports **INCOMPLETE** rather than passing.
@@ -176,7 +176,7 @@ decides nothing about whether the gate passes:
 
 | variable | what it decides |
 | --- | --- |
-| `CHROME_PATH` | The browser `check:focus-trap` drives. **Recognised and never declared**, for the reason `CI` is: a declared value here is not an override but a claim that a person named a browser, and `findChromium` treats that claim as terminal. `arenaEnv()` lays the declared values under the real environment, so a declared path would reach every machine and make `CANDIDATES.find(exists)` **unreachable**: the candidate list behind it, its two macOS entries included, would never run. |
+| `CHROME_PATH` | The browser every browser gate (`check:focus-trap` and the four after it in `check-all`) drives. **Recognised and never declared**, for the reason `CI` is: a declared value here is not an override but a claim that a person named a browser, and `findChromium` treats that claim as terminal. `arenaEnv()` lays the declared values under the real environment, so a declared path would reach every machine and make `CANDIDATES.find(exists)` **unreachable**: the candidate list behind it, its two macOS entries included, would never run. |
 | `ARENA_CHECK_STRICT` | Whether a missing dependency fails or skips. Compared against the exact string `1`. |
 | `CI` | The same, compared against the exact string `true`. Recognised and never declared: claiming it would tell the scripts they run on a runner. Note that a runner setting `CI=1` rather than `CI=true` buys nothing here. |
 | `PORT` | The port `bun run demos` serves on. The gates' own server binds an ephemeral port and ignores it. |
@@ -220,7 +220,7 @@ nowhere runs in no job and is worth nothing, so the directory is not the authori
 
 | domain | gates | |
 | --- | --- | --- |
-| [`arena/`](./arena/AGENTS.md) | 56 | two or more layers at once, or the repository root |
+| [`arena/`](./arena/AGENTS.md) | 57 | two or more layers at once, or the repository root |
 | [`tailwind/`](./tailwind/AGENTS.md) | 9 | the shared Tailwind layer |
 | [`angular/`](./angular/AGENTS.md) | 5 | the Angular layer |
 | [`core/`](./core/AGENTS.md) | 14 | `contracts/` and `assets/` only |

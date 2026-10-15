@@ -144,6 +144,7 @@
     "check:site": "bun scripts/check/arena/check-site.ts",
     "check:icons": "bun scripts/check/arena/check-icons.ts",
     "check:focus-trap": "bun scripts/check/arena/check-focus-trap.ts",
+    "check:anchoring": "bun scripts/check/arena/check-anchoring.ts",
     "check:shared-arithmetic": "bun scripts/check/arena/check-shared-arithmetic.ts",
     "check:packages": "bun scripts/check/arena/check-packages.ts",
     "check:consumer": "bun scripts/check/arena/check-consumer.ts",

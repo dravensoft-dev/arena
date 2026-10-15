@@ -40,6 +40,7 @@ export const node = {
   feeds: [
     'check:families',
     'build:react-package',
+    'check:anchoring',
     'check:appearance',
     'check:parts',
     'check:kitchen-sink',

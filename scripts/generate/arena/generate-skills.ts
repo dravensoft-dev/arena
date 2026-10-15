@@ -67,6 +67,7 @@ export const node = {
     'check:dimensions',
     'check:duplicate-constants',
     'check:focus-trap',
+    'check:anchoring',
     'check:generated',
     'check:icons',
     'check:layer-independence',

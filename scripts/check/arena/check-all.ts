@@ -113,6 +113,7 @@ export const GATES: Gate[] = [
   { name: 'check:script-types', file: 'arena/check-script-types.ts', pool: 'compiler', cost: 13.5 },
   { name: 'check:script-reach', file: 'arena/check-script-reach.ts' },
   { name: 'check:focus-trap', file: 'arena/check-focus-trap.ts', pool: 'browser', cost: 4.1 },
+  { name: 'check:anchoring', file: 'arena/check-anchoring.ts', pool: 'browser', cost: 3.7 },
   { name: 'check:target-size', file: 'arena/check-target-size.ts', pool: 'browser', cost: 11.9 },
   { name: 'check:pixel-parity', file: 'arena/check-pixel-parity.ts', pool: 'browser', cost: 34 },
   { name: 'check:proximity', file: 'arena/check-proximity.ts', pool: 'browser', cost: 10.2 },

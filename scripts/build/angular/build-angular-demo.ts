@@ -33,6 +33,7 @@ export const node = {
   feeds: [
     'check:angular-demos',
     'check:focus-trap',
+    'check:anchoring',
     'check:pixel-parity',
     'check:target-size',
     'check:playgrounds',

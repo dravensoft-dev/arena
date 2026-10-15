@@ -110,6 +110,7 @@ export const node = {
     'check:duplicate-constants',
     'check:families',
     'check:focus-trap',
+    'check:anchoring',
     'check:generated',
     'check:icons',
     'check:layer-independence',
