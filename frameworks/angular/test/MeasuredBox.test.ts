@@ -28,7 +28,7 @@ const { kebab } = await import(pathToFileURL(join(UTILS, 'case.ts')).href) as { 
 @Component({ standalone: true, imports: [ArenaTable], template: `<arena-table label="Orders" [columns]="[{ header: 'Order' }]" />` })
 class TableHost {}
 
-@Component({ standalone: true, imports: [ArenaCalendar], template: '<arena-calendar />' })
+@Component({ selector: 'measured-box-calendar-host', standalone: true, imports: [ArenaCalendar], template: '<arena-calendar />' })
 class CalendarHost {}
 
 @Component({ standalone: true, imports: [ArenaDialog], template: '<arena-dialog [open]="true" title="Rename" />' })

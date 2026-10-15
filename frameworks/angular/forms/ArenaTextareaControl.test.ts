@@ -10,6 +10,7 @@ import { ArenaTextarea } from '../components/forms/arena-textarea/ArenaTextarea'
 import { ArenaTextareaControl } from './ArenaTextareaControl';
 
 @Component({
+  selector: 'forms-arena-textarea-control-host',
   standalone: true,
   imports: [ReactiveFormsModule, ArenaTextarea, ArenaTextareaControl],
   template: `<arena-textarea label="Notes" [formControl]="control" />`,

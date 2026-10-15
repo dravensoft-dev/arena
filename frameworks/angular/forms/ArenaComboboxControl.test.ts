@@ -11,6 +11,7 @@ import { disposeOverlays } from '../test/Overlays';
 import { ArenaComboboxControl } from './ArenaComboboxControl';
 
 @Component({
+  selector: 'forms-arena-combobox-control-host',
   standalone: true,
   imports: [ReactiveFormsModule, ArenaCombobox, ArenaComboboxControl],
   template: `<arena-combobox label="Plan" [options]="options" [formControl]="control" />`,

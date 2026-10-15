@@ -17,6 +17,7 @@ import { assertPattern, isFocusable, ANGULAR_COMPONENTS } from '../../../test/Co
 const BINDING = join(ANGULAR_COMPONENTS, 'layout/arena-scroller-item/ArenaScrollerItem.behaviour.json');
 
 @Component({
+  selector: 'arena-scroller-item-compliance-item-host',
   standalone: true,
   imports: [ArenaScrollerItem],
   template: `<arena-scroller-item><span>One</span></arena-scroller-item>`,

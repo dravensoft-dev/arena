@@ -18,6 +18,7 @@ import { assertPattern, isFocusable, ANGULAR_COMPONENTS } from '../../../test/Co
 const BINDING = join(ANGULAR_COMPONENTS, 'layout/arena-main/ArenaMain.behaviour.json');
 
 @Component({
+  selector: 'arena-main-compliance-main-host',
   standalone: true,
   imports: [ArenaMain],
   template: '<arena-main><p>Everything the page is for.</p></arena-main>',

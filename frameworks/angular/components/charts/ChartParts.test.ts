@@ -21,22 +21,22 @@ const LABELS = ['Mon', 'Tue', 'Wed'];
 const SERIES = [{ label: 'Left', values: [3, 5, 4] }, { label: 'Right', values: [4, 2, 6] }];
 const POINTS = [{ label: 'Runs', x: [1, 2, 3], y: [3, 4, 2] }, { label: 'Fails', x: [1, 2, 3], y: [1, 2, 1] }];
 
-@Component({ standalone: true, imports: [ArenaBarChart], template: '<arena-bar-chart label="Deploys" [labels]="labels" [series]="series" />' })
+@Component({ selector: 'chart-parts-bar-host', standalone: true, imports: [ArenaBarChart], template: '<arena-bar-chart label="Deploys" [labels]="labels" [series]="series" />' })
 class BarHost { labels = LABELS; series = SERIES; }
 
-@Component({ standalone: true, imports: [ArenaDoughnutChart], template: '<arena-doughnut-chart label="Deploys" [labels]="labels" [series]="series" />' })
+@Component({ selector: 'chart-parts-doughnut-host', standalone: true, imports: [ArenaDoughnutChart], template: '<arena-doughnut-chart label="Deploys" [labels]="labels" [series]="series" />' })
 class DoughnutHost { labels = LABELS; series = [SERIES[0]]; }
 
-@Component({ standalone: true, imports: [ArenaHorizontalBarChart], template: '<arena-horizontal-bar-chart label="Deploys" [labels]="labels" [series]="series" />' })
+@Component({ selector: 'chart-parts-horizontal-bar-host', standalone: true, imports: [ArenaHorizontalBarChart], template: '<arena-horizontal-bar-chart label="Deploys" [labels]="labels" [series]="series" />' })
 class HorizontalBarHost { labels = LABELS; series = SERIES; }
 
-@Component({ standalone: true, imports: [ArenaLineChart], template: '<arena-line-chart label="Deploys" [labels]="labels" [series]="series" />' })
+@Component({ selector: 'chart-parts-line-host', standalone: true, imports: [ArenaLineChart], template: '<arena-line-chart label="Deploys" [labels]="labels" [series]="series" />' })
 class LineHost { labels = LABELS; series = SERIES; }
 
-@Component({ standalone: true, imports: [ArenaPyramidChart], template: '<arena-pyramid-chart label="Deploys" [labels]="labels" [series]="series" />' })
+@Component({ selector: 'chart-parts-pyramid-host', standalone: true, imports: [ArenaPyramidChart], template: '<arena-pyramid-chart label="Deploys" [labels]="labels" [series]="series" />' })
 class PyramidHost { labels = LABELS; series = SERIES; }
 
-@Component({ standalone: true, imports: [ArenaRadarChart], template: '<arena-radar-chart label="Deploys" [labels]="labels" [series]="series" />' })
+@Component({ selector: 'chart-parts-radar-host', standalone: true, imports: [ArenaRadarChart], template: '<arena-radar-chart label="Deploys" [labels]="labels" [series]="series" />' })
 class RadarHost { labels = LABELS; series = SERIES; }
 
 @Component({ standalone: true, imports: [ArenaScatterChart], template: '<arena-scatter-chart label="Runs" xLabel="Hour" yLabel="Count" [series]="series" />' })

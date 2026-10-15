@@ -10,6 +10,7 @@ import { ArenaCheckbox } from '../components/forms/arena-checkbox/ArenaCheckbox'
 import { ArenaCheckboxControl } from './ArenaCheckboxControl';
 
 @Component({
+  selector: 'forms-arena-checkbox-control-host',
   standalone: true,
   imports: [ReactiveFormsModule, ArenaCheckbox, ArenaCheckboxControl],
   template: `<arena-checkbox label="Agree" [formControl]="control" />`,

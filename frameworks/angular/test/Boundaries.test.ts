@@ -38,7 +38,7 @@ const tags = angular.componentTags(playgrounds.loadAngularSources(REPO, places))
 const markers = angular.markerNames(readFileSync(join(REPO, angular.MARKERS_SOURCE), 'utf8'));
 const registry = ArenaNg as unknown as Record<string, Type<unknown>>;
 
-function host(node: unknown): Type<unknown> {
+function host(node: unknown, label: string): Type<unknown> {
   const fields = angular.collectFields(node, contracts, [], 'f');
   const imports = new Set<string>();
   const template = angular.renderNode(node, places, fields, markers, tags, 0, imports);
@@ -50,7 +50,7 @@ function host(node: unknown): Type<unknown> {
   class Host {}
   for (const field of fields as { name: string; value: unknown }[])
     (Host.prototype as Record<string, unknown>)[field.name] = field.value;
-  return Component({ standalone: true, imports: resolved, template })(Host) as Type<unknown>;
+  return Component({ selector: `boundaries-${label.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}-host`, standalone: true, imports: resolved, template })(Host) as Type<unknown>;
 }
 
 const all = cases.boundaryCases(REPO);
@@ -62,7 +62,7 @@ test('the sweep found slots to measure', () => {
 
 for (const kase of all) {
   test(`${kase.label}: every slot it projects is a boundary or declared transparent`, () => {
-    const fixture = TestBed.createComponent(host(kase.node));
+    const fixture = TestBed.createComponent(host(kase.node, kase.label));
     try {
       fixture.detectChanges();
       if (kase.press) {

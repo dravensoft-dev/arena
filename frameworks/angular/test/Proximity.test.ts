@@ -117,6 +117,7 @@ test('every case has an Angular template, and every template a case', () => {
 for (const kase of cases) {
   test(`${kase.name}: Angular renders the tree the gate measures`, () => {
     const Host = Component({
+      selector: `proximity-${kase.name}-host`,
       standalone: true,
       imports: [ArenaButton, ArenaTooltip, ArenaMenu, ArenaPopover, ArenaCard, ArenaIconButton, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaFooter, ArenaBadge, ArenaTag, ArenaSheet, ArenaGrid, ArenaScroller, ArenaScrollerItem, ArenaSkeleton, ArenaCalendar],
       template: BARE.has(kase.name) ? TEMPLATES[kase.name] : `<div class="${kase.container}">${TEMPLATES[kase.name]}</div>`,

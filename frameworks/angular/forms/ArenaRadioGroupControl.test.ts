@@ -11,6 +11,7 @@ import { ArenaRadio } from '../components/forms/arena-radio/ArenaRadio';
 import { ArenaRadioGroupControl } from './ArenaRadioGroupControl';
 
 @Component({
+  selector: 'forms-arena-radio-group-control-host',
   standalone: true,
   imports: [ReactiveFormsModule, ArenaRadioGroup, ArenaRadioGroupControl, ArenaRadio],
   template: `<arena-radio-group ariaLabel="Plan" [formControl]="control"><arena-radio value="basic" label="Basic" /><arena-radio value="pro" label="Pro" /></arena-radio-group>`,

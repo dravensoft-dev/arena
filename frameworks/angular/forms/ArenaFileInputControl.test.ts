@@ -15,6 +15,7 @@ import { forgetArenaWarnings } from '../WarnOnce';
 import { ArenaFileInputControl } from './ArenaFileInputControl';
 
 @Component({
+  selector: 'forms-arena-file-input-control-host',
   standalone: true,
   imports: [ReactiveFormsModule, ArenaFileInput, ArenaFileInputControl],
   template: `<arena-file-input label="Attachments" multiple [formControl]="control" (change)="changes.push($event)" />`,
@@ -25,6 +26,7 @@ class Host {
 }
 
 @Component({
+  selector: 'forms-arena-file-input-control-group-host',
   standalone: true,
   imports: [ReactiveFormsModule, ArenaFileInput, ArenaFileInputControl],
   template: `<form [formGroup]="group"><arena-file-input label="Attachments" multiple formControlName="files" /></form>`,

@@ -153,7 +153,7 @@ class TagHost {}
 @Component({ standalone: true, imports: [ArenaSkeleton], template: `<arena-skeleton /><arena-skeleton [lines]="2" />` })
 class SkeletonHost {}
 
-@Component({ standalone: true, imports: [ArenaSpinner], template: `<arena-spinner />` })
+@Component({ selector: 'locale-sentinel-spinner-host', standalone: true, imports: [ArenaSpinner], template: `<arena-spinner />` })
 class SpinnerHost {}
 
 @Component({ standalone: true, imports: [ArenaSwitch], template: `<arena-switch label="Auto deploy" [confirm]="true" />` })
@@ -218,10 +218,10 @@ class AvatarHost {}
 @Component({ standalone: true, imports: [ArenaLineChart], template: `<arena-line-chart label="Latency" [labels]="['Mon', 'Tue']" [series]="[{ label: 'p95', values: [1, 2] }]" />` })
 class LineHost {}
 
-@Component({ standalone: true, imports: [ArenaBarChart], template: `<arena-bar-chart label="Builds" [labels]="['Mon', 'Tue']" [series]="[{ label: 'ok', values: [1, 2] }]" />` })
+@Component({ selector: 'locale-sentinel-bar-host', standalone: true, imports: [ArenaBarChart], template: `<arena-bar-chart label="Builds" [labels]="['Mon', 'Tue']" [series]="[{ label: 'ok', values: [1, 2] }]" />` })
 class BarHost {}
 
-@Component({ standalone: true, imports: [ArenaHorizontalBarChart], template: `<arena-horizontal-bar-chart label="Builds" [labels]="['Mon', 'Tue']" [series]="[{ label: 'ok', values: [1, 2] }]" />` })
+@Component({ selector: 'locale-sentinel-horizontal-bar-host', standalone: true, imports: [ArenaHorizontalBarChart], template: `<arena-horizontal-bar-chart label="Builds" [labels]="['Mon', 'Tue']" [series]="[{ label: 'ok', values: [1, 2] }]" />` })
 class HorizontalBarHost {}
 
 @Component({

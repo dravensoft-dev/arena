@@ -256,9 +256,11 @@ test('reset returns every knob to what the fixture and the contract said', () =>
 
 test('the stage carries the model\'s vars as its style, and a model without any leaves it bare', () => {
   const vars = { '--arena-column-status-align': 'right', '--arena-column-status-width': '8rem' };
+  let owned = 0;
   const draw = (shown: KnobModel) => {
-    @Component({ standalone: true, imports: [Playground], template: '<demo-playground [play]="play">x</demo-playground>' })
-    class Own { play = new PlaygroundStore(shown); }
+    const Own = Component({ selector: `playground-own-${owned++}`, standalone: true, imports: [Playground], template: '<demo-playground [play]="play">x</demo-playground>' })(
+      class { play = new PlaygroundStore(shown); },
+    );
     const fixture = TestBed.createComponent(Own);
     fixture.detectChanges();
     return fixture;

@@ -11,6 +11,7 @@ import { ArenaCheckbox } from '../components/forms/arena-checkbox/ArenaCheckbox'
 import { ArenaCheckboxGroupControl } from './ArenaCheckboxGroupControl';
 
 @Component({
+  selector: 'forms-arena-checkbox-group-control-host',
   standalone: true,
   imports: [ReactiveFormsModule, ArenaCheckboxGroup, ArenaCheckboxGroupControl, ArenaCheckbox],
   template: `<arena-checkbox-group ariaLabel="Notify me about" [formControl]="control"><arena-checkbox value="deploys" label="Deploys" /><arena-checkbox value="incidents" label="Incidents" /></arena-checkbox-group>`,

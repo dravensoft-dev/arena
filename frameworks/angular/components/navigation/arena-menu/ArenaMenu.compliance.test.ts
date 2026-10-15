@@ -41,6 +41,7 @@ class MenuHost {
 }
 
 @Component({
+  selector: 'arena-menu-compliance-wrapped-trigger-host',
   standalone: true,
   imports: [ArenaButton, ArenaMenu],
   template: `<arena-menu [items]="items"><arena-button trigger>More actions</arena-button></arena-menu>`,

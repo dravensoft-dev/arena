@@ -11,6 +11,7 @@ import { disposeOverlays } from '../test/Overlays';
 import { ArenaMultiSelectControl } from './ArenaMultiSelectControl';
 
 @Component({
+  selector: 'forms-arena-multi-select-control-host',
   standalone: true,
   imports: [ReactiveFormsModule, ArenaMultiSelect, ArenaMultiSelectControl],
   template: `<arena-multi-select label="Regions" [options]="options" [formControl]="control" />`,

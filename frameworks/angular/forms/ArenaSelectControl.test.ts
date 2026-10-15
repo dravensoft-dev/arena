@@ -10,6 +10,7 @@ import { ArenaSelect } from '../components/forms/arena-select/ArenaSelect';
 import { ArenaSelectControl } from './ArenaSelectControl';
 
 @Component({
+  selector: 'forms-arena-select-control-host',
   standalone: true,
   imports: [ReactiveFormsModule, ArenaSelect, ArenaSelectControl],
   template: `<arena-select label="Plan" [options]="options" [formControl]="control" />`,
