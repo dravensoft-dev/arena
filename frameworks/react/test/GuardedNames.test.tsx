@@ -25,6 +25,7 @@ import { ArenaScroller } from '../components/layout/arena-scroller/ArenaScroller
 import { ArenaSection } from '../components/layout/arena-section/ArenaSection.tsx';
 import { ArenaFieldset } from '../components/forms/arena-fieldset/ArenaFieldset.tsx';
 import { ArenaCombobox } from '../components/forms/arena-combobox/ArenaCombobox.tsx';
+import { ArenaMultiSelect } from '../components/forms/arena-multi-select/ArenaMultiSelect.tsx';
 import { ArenaSkipLink } from '../components/layout/arena-skip-link/ArenaSkipLink.tsx';
 import { ArenaHero } from '../components/layout/arena-hero/ArenaHero.tsx';
 import { ArenaPagination } from '../components/navigation/arena-pagination/ArenaPagination.tsx';
@@ -42,6 +43,7 @@ const WITH_A_BLANK_NAME = new Map([
   ['ArenaRadioGroup', () => <ArenaRadioGroup ariaLabel={BLANK} value="a" />],
   ['ArenaCheckboxGroup', () => <ArenaCheckboxGroup ariaLabel={BLANK} />],
   ['ArenaCombobox', () => <ArenaCombobox label={BLANK} options={[]} />],
+  ['ArenaMultiSelect', () => <ArenaMultiSelect label={BLANK} options={[]} />],
   ['ArenaBreadcrumbs', () => <ArenaBreadcrumbs ariaLabel={BLANK} items={[{ label: 'Home' }]} />],
   ['ArenaActivityFeed', () => <ArenaActivityFeed label={BLANK} items={[]} />],
   ['ArenaPeopleList', () => <ArenaPeopleList label={BLANK}><ArenaPersonRow name="Ada" /></ArenaPeopleList>],

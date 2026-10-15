@@ -29,6 +29,7 @@ import { ArenaSwitch } from '../components/forms/arena-switch/ArenaSwitch.tsx';
 import { ArenaBulkActionBar } from '../components/navigation/arena-bulk-action-bar/ArenaBulkActionBar.tsx';
 import { ArenaCommandPalette } from '../components/navigation/arena-command-palette/ArenaCommandPalette.tsx';
 import { ArenaCombobox } from '../components/forms/arena-combobox/ArenaCombobox.tsx';
+import { ArenaMultiSelect } from '../components/forms/arena-multi-select/ArenaMultiSelect.tsx';
 import { ArenaOnboarding } from '../components/feedback/arena-onboarding/ArenaOnboarding.tsx';
 import { ArenaConfirmDialog } from '../components/feedback/arena-confirm-dialog/ArenaConfirmDialog.tsx';
 import { ArenaErrorState } from '../components/feedback/arena-error-state/ArenaErrorState.tsx';
@@ -144,6 +145,18 @@ const CASES: Record<string, Case> = {
     ],
     consumer: ['Region', 'Search regions', 'Europe West', 'Eur'],
   },
+  ArenaMultiSelect: {
+    renders: [
+      () => <ArenaMultiSelect label="Regions" placeholder="Search regions" options={[]} />,
+      () => <ArenaMultiSelect label="Regions" placeholder="Search regions" options={[]} loading />,
+      () => <ArenaMultiSelect label="Regions" placeholder="Search regions" options={[{ value: 'eu-west', label: 'Europe West' }]} />,
+      () => (
+        <ArenaMultiSelect label="Regions" options={[{ value: 'eu-north', label: 'Europe North' }, { value: 'eu-west', label: 'Europe West' }]}
+          value={['eu-west']} max={1} maxVisible={0} clearable />
+      ),
+    ],
+    consumer: ['Regions', 'Search regions', 'Europe West', 'Europe North', 'Eur'],
+  },
   ArenaCommandPalette: { renders: [() => <ArenaCommandPalette open commands={[{ id: 'deploy', label: 'Deploy' }]} />], consumer: ['Deploy', 'zzz'] },
   ArenaOnboarding: {
     renders: [
@@ -244,7 +257,7 @@ for (const [name, one] of Object.entries(CASES)) {
     const locale = sentinelLocale();
     const run = () => one.renders.flatMap((render) => {
       const host = mount(<ArenaLocaleProvider value={locale}>{render()}</ArenaLocaleProvider>);
-      if (name === 'ArenaCombobox') {
+      if (name === 'ArenaCombobox' || name === 'ArenaMultiSelect') {
         const input = host.querySelector<HTMLInputElement>('[role="combobox"]');
         act(() => {
           if (!input) return;
@@ -252,6 +265,10 @@ for (const [name, one] of Object.entries(CASES)) {
           Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set?.call(input, 'Eur');
           input.dispatchEvent(new Event('input', { bubbles: true }));
         });
+        const cursor = host.ownerDocument.getElementById(input?.getAttribute('aria-activedescendant') ?? '');
+        if (input && cursor?.getAttribute('aria-disabled') === 'true') {
+          act(() => { input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true })); });
+        }
       }
       if (name === 'ArenaCommandPalette') {
         const input = host.ownerDocument.querySelector('input');
