@@ -13,6 +13,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { REACT_COMPONENTS } from './AssertPattern.tsx';
 import { ArenaTooltip } from '../components/feedback/arena-tooltip/ArenaTooltip.tsx';
 import { ArenaMenu } from '../components/navigation/arena-menu/ArenaMenu.tsx';
+import { ArenaPopover } from '../components/feedback/arena-popover/ArenaPopover.tsx';
 import { ArenaAppLogo } from '../components/brand/arena-app-logo/ArenaAppLogo.tsx';
 import { ArenaSideNavSection } from '../components/navigation/arena-side-nav-section/ArenaSideNavSection.tsx';
 import { ArenaScroller } from '../components/layout/arena-scroller/ArenaScroller.tsx';
@@ -27,6 +28,8 @@ const WITHOUT_THE_SLOT = new Map([
   ['ArenaTooltip', () => <ArenaTooltip label="Retry the build" />],
   // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
   ['ArenaMenu', () => <ArenaMenu items={[]} />],
+  // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
+  ['ArenaPopover', () => <ArenaPopover label="Filters" trigger={<button type="button">Filters</button>} />],
   // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
   ['ArenaAppLogo', () => <ArenaAppLogo name="Dravensoft" />],
   // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts

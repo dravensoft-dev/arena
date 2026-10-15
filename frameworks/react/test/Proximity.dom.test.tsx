@@ -6,7 +6,7 @@ import test, { afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import React from 'react';
 import { mount, cleanup } from './Harness.tsx';
-import { ArenaButton, ArenaIconButton, ArenaTooltip, ArenaMenu, ArenaCard, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaBadge, ArenaTag, ArenaSheet, ArenaGrid, ArenaScroller, ArenaScrollerItem, ArenaSkeleton, ArenaCalendar } from '../Index.generated.ts';
+import { ArenaButton, ArenaIconButton, ArenaTooltip, ArenaMenu, ArenaPopover, ArenaCard, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaBadge, ArenaTag, ArenaSheet, ArenaGrid, ArenaScroller, ArenaScrollerItem, ArenaSkeleton, ArenaCalendar } from '../Index.generated.ts';
 import { readProximity, normalize, vocabularyClasses } from '../../../scripts/lib/arena/proximity.ts';
 
 afterEach(cleanup);
@@ -20,6 +20,7 @@ const COMPOSITIONS: Record<string, () => React.ReactElement> = {
   'nearer-fit-beats-ancestor-fill': () => <ArenaButton className="arena-fit">Save</ArenaButton>,
   'class-on-tooltip-reaches-its-trigger': () => <ArenaTooltip className="arena-fill" label="Copy"><ArenaButton>Save</ArenaButton></ArenaTooltip>,
   'class-on-menu-reaches-its-trigger': () => <ArenaMenu className="arena-fill" items={[]} trigger={<ArenaButton>Save</ArenaButton>} />,
+  'class-on-popover-reaches-its-trigger': () => <ArenaPopover className="arena-fill" label="Filters" trigger={<ArenaButton>Save</ArenaButton>}><p>Only failing builds.</p></ArenaPopover>,
   'ancestor-reaches-through-the-transparent-trigger': () => <ArenaTooltip label="Copy"><ArenaButton>Save</ArenaButton></ArenaTooltip>,
   'class-on-trigger-alone-fills-the-wrapper-box': () => <ArenaTooltip label="Copy"><ArenaButton className="arena-fill">Save</ArenaButton></ArenaTooltip>,
   'box-class-stops-at-a-boundary': () => <ArenaCard><ArenaButton>Save</ArenaButton></ArenaCard>,

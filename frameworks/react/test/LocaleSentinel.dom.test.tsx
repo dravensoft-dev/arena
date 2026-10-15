@@ -193,6 +193,7 @@ const NO_WORDS: Record<string, string> = {
   ArenaPageHead: DRAWS_MEMBERS,
   ArenaPeopleList: DRAWS_MEMBERS,
   ArenaPersonRow: DRAWS_MEMBERS,
+  ArenaPopover: DRAWS_MEMBERS,
   ArenaProgressBar: DRAWS_MEMBERS,
   ArenaRadio: DRAWS_MEMBERS,
   ArenaRadioGroup: DRAWS_MEMBERS,

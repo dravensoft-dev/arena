@@ -1,0 +1,19 @@
+{
+  "component": "ArenaPopover",
+  "description": "A small non-modal panel a trigger opens, holding content of the consumer's own: a filter form with its Apply button, a pair of dates, a paragraph that explains a figure. The page behind it stays usable, nothing is trapped, and the panel escapes a clipping ancestor. A popover is not a menu of actions and not a hover description.",
+  "affordances": [],
+  "api": {
+    "trigger": { "form": "slot", "required": true,
+                 "description": "The control that opens the panel. The consumer draws it -- a secondary ArenaButton, an ArenaIconButton -- so it is a slot, and it carries its own accessible name. The slot holds one element that takes focus." },
+    "content": { "form": "slot", "required": true,
+                 "description": "What the panel holds: a short form, a pair of fields, a paragraph. The content fills the panel and never replaces it: the surface, its padding and its edge are Arena's." },
+    "label": { "form": "primitive", "type": "string", "required": true,
+               "description": "Names the panel for assistive technology: what it holds, not that it is a panel. Required, and guarded at runtime: a dialog with no accessible name is announced unlabelled, and the trigger's own name says what opens it, never what the panel is for. \"Filters\", not \"Popover\"." },
+    "open": { "form": "primitive", "type": "boolean", "default": false,
+              "description": "Whether the panel is shown. The consumer owns it: the component asks to change it through openChange and never changes it by itself, so content inside the panel can close it, an Apply button included." },
+    "align": { "form": "enum", "type": "ArenaMenuAlign", "default": "start",
+               "description": "Which edge of the trigger the panel lines up with." },
+    "openChange": { "form": "event", "payload": "boolean",
+                    "description": "The panel asks to be shown or hidden, carrying the state it asks for: the trigger was pressed, Escape was pressed while it was the topmost panel, a press landed outside it, or Tab left it. The panel moves only when open does." }
+  }
+}

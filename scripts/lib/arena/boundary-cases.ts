@@ -34,6 +34,8 @@ export const SEPARATE = new Map<string, Separate>([
     why: 'the empty sentence draws only when no row is written, so it is measured in a case without the rows' }],
   ['ArenaCalendarEvent.actions', { members: { actionsEnabled: true }, press: '[data-arena-part$="kebab-wrap"] button',
     why: 'the actions sit in a panel the chip opens from its own action button, drawn only when actionsEnabled is on' }],
+  ['ArenaPopover.content', { members: { open: true },
+    why: 'the content draws in a panel the trigger opens, and the fixture seeds it closed so the kitchen sinks show the trigger alone' }],
 ]);
 
 export type BoundaryCase = {

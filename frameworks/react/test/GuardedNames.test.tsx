@@ -27,6 +27,7 @@ import { ArenaHero } from '../components/layout/arena-hero/ArenaHero.tsx';
 import { ArenaPagination } from '../components/navigation/arena-pagination/ArenaPagination.tsx';
 import { ArenaBottomNav } from '../components/navigation/arena-bottom-nav/ArenaBottomNav.tsx';
 import { ArenaSheet } from '../components/feedback/arena-sheet/ArenaSheet.tsx';
+import { ArenaPopover } from '../components/feedback/arena-popover/ArenaPopover.tsx';
 
 interface MemberSpec { form?: string; type?: string; required?: boolean; description?: string }
 const CONTRACTS = join(REACT_COMPONENTS, '../../../contracts/api/components');
@@ -47,6 +48,7 @@ const WITH_A_BLANK_NAME = new Map([
   ['ArenaSection', () => <ArenaSection title={BLANK}><span>One</span></ArenaSection>],
   ['ArenaHero', () => <ArenaHero title={BLANK} />],
   ['ArenaPagination', () => <ArenaPagination ariaLabel={BLANK} page={1} pageCount={3} />],
+  ['ArenaPopover', () => <ArenaPopover label={BLANK} trigger={<button type="button">Filters</button>}><p>Only failing builds.</p></ArenaPopover>],
   ['ArenaSheet', () => <ArenaSheet open title={BLANK}>Two line items.</ArenaSheet>],
   ['ArenaBottomNav', () => <ArenaBottomNav ariaLabel={BLANK} />],
   ['ArenaSkipLink', () => <ArenaSkipLink label={BLANK} />],

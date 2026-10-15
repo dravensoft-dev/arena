@@ -54,7 +54,7 @@ test('a reserved name is never a class the tree ships, so a component that lands
 });
 
 test('every reserved name is kebab, is no polarity, and carries a reason naming its spec and no version', () => {
-  assert.equal(RESERVED.size, 24);
+  assert.equal(RESERVED.size, 23);
   for (const [name, reason] of RESERVED) {
     assert.match(name, KEBAB, name);
     assert.ok(!POLARITIES.includes(name), `${name} is a polarity, and a palette may always take its own`);
@@ -64,22 +64,22 @@ test('every reserved name is kebab, is no polarity, and carries a reason naming 
 });
 
 test('a reserved name is refused as a style plugin, naming the component that holds it', () => {
-  assert.deepEqual(nameProblems('popover', POLARITIES, 'stylePlugins[1]'), [
-    'stylePlugins[1]: "popover" is held for ArenaPopover, an anchored panel (spec 21), which Arena is going to '
-    + 'ship as the class .arena-popover. A build naming it would fail on the release that ships that class, so '
-    + 'the name is refused while renaming costs nothing.',
+  assert.deepEqual(nameProblems('tree-view', POLARITIES, 'stylePlugins[1]'), [
+    'stylePlugins[1]: "tree-view" is held for ArenaTreeView, a hierarchy that expands and collapses (spec 25), which '
+    + 'Arena is going to ship as the class .arena-tree-view. A build naming it would fail on the release that ships '
+    + 'that class, so the name is refused while renaming costs nothing.',
   ]);
   assert.equal(nameProblems('sticky-head', POLARITIES, 'at').length, 1);
-  assert.equal(nameProblems('popover', POLARITIES, 'at', ['popover']).length, 1,
+  assert.equal(nameProblems('tree-view', POLARITIES, 'at', ['tree-view']).length, 1,
     'a name both shipped and held reports once, as shipped');
-  assert.match(nameProblems('popover', POLARITIES, 'at', ['popover'])[0] ?? '', /already a class this package ships/);
+  assert.match(nameProblems('tree-view', POLARITIES, 'at', ['tree-view'])[0] ?? '', /already a class this package ships/);
 });
 
 test('a polarity, a near miss and an odd spelling are not reserved', () => {
-  for (const name of ['light', 'dark', 'popovers', 'my-popover', 'sticky', 'checkbox-group', 'multi-select',
+  for (const name of ['light', 'dark', 'tree-views', 'my-tree-view', 'sticky', 'checkbox-group', 'multi-select',
     'accordion-item', 'brand', 'constructor', '__proto__'])
     assert.deepEqual(reservedProblems(name, 'at'), [], name);
-  const odd = nameProblems('Popover', POLARITIES, 'at');
+  const odd = nameProblems('TreeView', POLARITIES, 'at');
   assert.equal(odd.length, 1);
   assert.match(odd[0] ?? '', /not kebab-case/);
 });

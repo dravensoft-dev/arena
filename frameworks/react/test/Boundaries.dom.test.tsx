@@ -10,6 +10,7 @@ import React from 'react';
 import { element } from './FixtureRender.tsx';
 import {
   ArenaDialog, ArenaConfirmDialog, ArenaSheet, ArenaOnboarding, ArenaCommandPalette, ArenaToastHost, ArenaMenu, ArenaTooltip, ArenaButton,
+  ArenaPopover,
 } from '../Index.generated.ts';
 import {
   boundaryCases, readSites, siteProblems, staleTransparentProblems,

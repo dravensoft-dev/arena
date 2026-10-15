@@ -201,6 +201,10 @@ export const COMPUTED = new Map<string, { reads: string; why: string }>([
     reads: 'frameworks/angular/components/navigation/arena-menu/ArenaMenu.ts:attach()',
     why: 'the render positions the panel from it, choosing the connected positions that line the panel up with that edge of the trigger',
   }],
+  [at('ArenaPopover', 'align'), {
+    reads: 'frameworks/react/components/feedback/arena-popover/ArenaPopover.tsx:ArenaPopover(props)',
+    why: 'the render places the panel from it, lining the panel up with that edge of the trigger before it is shown',
+  }],
   [at('ArenaTextarea', 'rows'), {
     reads: 'frameworks/react/components/forms/arena-textarea/ArenaTextarea.tsx:ArenaTextarea(props)',
     why: 'the native control lays its initial height out from it, and that height is the floor the field grows from',

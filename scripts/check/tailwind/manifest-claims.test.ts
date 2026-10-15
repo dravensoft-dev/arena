@@ -468,6 +468,11 @@ export const CLAIMS = {
     { chosen: { anchored: true }, slot: 'root', hasNot: ['relative'], why: 'nothing is positioned against the host once the panel has left it' },
     { chosen: { anchored: false }, slot: 'panel', has: ['absolute', 'top-full', 'left-0', 'mt-1.5'], why: 'in flow, the panel positions itself against the host, which is the shape the specimen renders' },
   ],
+  ArenaPopover: [
+    { slot: 'root', has: ['inline-flex', 'w-[var(--arena-fill-width,fit-content)]'], why: 'a host-bound root is never the UA-default inline box, and the fill channel sizes the wrapper as it does the trigger' },
+    { slot: 'panel', has: ['w-max', 'max-w-[92vw]', 'z-dropdown', 'text-ink-body/(--level-ink-body)'], hasNot: ['absolute', 'fixed', 'relative'],
+      why: 'the panel takes its content\'s width up to the viewport bound, writes its own ink over the platform default a top-layer panel starts from, and leaves its position to the layer' },
+  ],
   ArenaPageHead: [
     ...[true, false].map((narrow) => ({ chosen: { narrow }, slot: 'actions', has: ['flex-wrap'],
       why: 'three buttons at 390px overflow the page without it, and the row wraps its own children at every width' })),

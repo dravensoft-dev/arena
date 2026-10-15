@@ -165,12 +165,12 @@ test('--watch hands over to watchBuild (6c)', async () => {
   assert.equal(await done, 0);
 });
 
-test('a style plugin directory named popover stops the build naming the reservation, and brand builds', async () => {
+test('a style plugin directory named tree-view stops the build naming the reservation, and brand builds', async () => {
   const { web } = phosphor();
-  const held = withPlugin('.x { color: red }\n', 'popover');
+  const held = withPlugin('.x { color: red }\n', 'tree-view');
   const refused = captureIo(held, environment(web));
   assert.equal(await run(flags(held), refused.io), 1);
-  assert.ok(refused.err.some((line) => line.startsWith('arena build: stylePlugins[1]: "popover" is held for ArenaPopover')),
+  assert.ok(refused.err.some((line) => line.startsWith('arena build: stylePlugins[1]: "tree-view" is held for ArenaTreeView')),
     refused.err.join('\n'));
   assert.ok(!existsSync(join(held, 'src', THEME_SHEET)));
 
@@ -178,13 +178,13 @@ test('a style plugin directory named popover stops the build naming the reservat
   assert.equal(await run(flags(free), captureIo(free, environment(web)).io), 0);
 });
 
-test('a palette named popover stops the build naming the reservation, and brand builds', async () => {
+test('a palette named tree-view stops the build naming the reservation, and brand builds', async () => {
   const { web } = phosphor();
   const second = (name: string) => ({ ...readable, palettes: [...readable.palettes, { ...readable.palettes[0], name, default: false }] });
-  const held = project(second('popover'));
+  const held = project(second('tree-view'));
   const refused = captureIo(held, environment(web));
   assert.equal(await run(flags(held), refused.io), 1);
-  assert.ok(refused.err.some((line) => line.startsWith('arena build: palettes[1].name: "popover" is held for ArenaPopover')),
+  assert.ok(refused.err.some((line) => line.startsWith('arena build: palettes[1].name: "tree-view" is held for ArenaTreeView')),
     refused.err.join('\n'));
 
   const free = project(second('brand'));

@@ -153,13 +153,13 @@ test('a palette named after a class the package ships is refused, and its own po
 test('a palette named after a class Arena is going to ship is refused, with or without a package', () => {
   const c = config({ palettes: [
     { name: 'light', default: true, polarity: 'light', colors: colors() },
-    { name: 'popover', polarity: 'dark', colors: colors() },
+    { name: 'tree-view', polarity: 'dark', colors: colors() },
     { name: 'brand', polarity: 'dark', colors: colors() },
   ] });
   for (const sheets of [withScopes(['light', 'stat-card']), undefined]) {
     const problems = configProblems(c, sheets);
     assert.equal(problems.length, 1);
-    assert.match(problems[0] ?? '', /^palettes\[1\]\.name: "popover" is held for ArenaPopover, an anchored panel \(spec 21\)/);
+    assert.match(problems[0] ?? '', /^palettes\[1\]\.name: "tree-view" is held for ArenaTreeView, a hierarchy that expands and collapses \(spec 25\)/);
   }
 });
 
