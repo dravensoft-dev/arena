@@ -56,9 +56,15 @@ export const MANIFEST_COVERS = new Map([
   }],
   ['ArenaRadio', {
     covers: ['ArenaRadio', 'ArenaRadioGroup'],
-    reason: 'One manifest draws the whole group -- the fieldset and the legend naming it are '
-      + 'ArenaRadioGroup\'s and every control in it is ArenaRadio\'s. The group carries no manifest of its '
-      + 'own because it has no surface of its own: it IS the frame around a set of radios.',
+    reason: 'One manifest draws the whole group -- the frame around the options is ArenaRadioGroup\'s '
+      + 'and every option in it is ArenaRadio\'s. The group carries no manifest of its own because it has '
+      + 'no surface of its own: it IS the frame around a set of radios.',
+  }],
+  ['ArenaCheckbox', {
+    covers: ['ArenaCheckbox', 'ArenaCheckboxGroup'],
+    reason: 'One manifest draws the whole set -- the frame around the boxes is ArenaCheckboxGroup\'s and '
+      + 'every box in it is ArenaCheckbox\'s. The group carries no manifest of its own because it has no '
+      + 'surface of its own: it IS the frame around a set of checkboxes.',
   }],
   ['ArenaConfirmDialog', {
     covers: ['ArenaConfirmDialog', 'ArenaButton'],

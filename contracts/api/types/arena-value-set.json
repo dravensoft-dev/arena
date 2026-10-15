@@ -1,0 +1,13 @@
+{
+  "name": "ArenaValueSet",
+  "kind": "object",
+  "description": "A set of chosen values, carried by an event that reports a choice of many. An object holds the array, because an event's payload is a declared type or a primitive and never an array. A named set also says what the event carries.",
+  "fields": {
+    "values": {
+      "form": "array",
+      "of": "string",
+      "required": true,
+      "description": "The chosen values, each once, in the order they were chosen: a newly chosen value is appended and an unchosen one removed. A value matching nothing the component draws is kept."
+    }
+  }
+}

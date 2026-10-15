@@ -99,6 +99,7 @@ test('a manifest covers its own contract unless MANIFEST_COVERS says it draws a 
   assert.deepEqual(coveredContracts('ArenaTable'), ['ArenaTable', 'ArenaTableRow', 'ArenaTableCell']);
   assert.deepEqual(coveredContracts('ArenaConfirmDialog'), ['ArenaConfirmDialog', 'ArenaButton']);
   assert.deepEqual(coveredContracts('ArenaRadio'), ['ArenaRadio', 'ArenaRadioGroup']);
+  assert.deepEqual(coveredContracts('ArenaCheckbox'), ['ArenaCheckbox', 'ArenaCheckboxGroup']);
   for (const [, { reason }] of MANIFEST_COVERS) assert.ok(reason.length > 40, 'every entry states why');
 });
 

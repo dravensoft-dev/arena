@@ -12,7 +12,7 @@ import {
 
 test('MANIFEST_COVERS names the manifests that draw more than their own component', () => {
   assert.deepEqual([...MANIFEST_COVERS.keys()].sort(), [
-    'ArenaBoard', 'ArenaBottomNav', 'ArenaCalendar', 'ArenaConfirmDialog', 'ArenaErrorState', 'ArenaPeopleList', 'ArenaRadio', 'ArenaSideNav', 'ArenaTable', 'ArenaTabs',
+    'ArenaBoard', 'ArenaBottomNav', 'ArenaCalendar', 'ArenaCheckbox', 'ArenaConfirmDialog', 'ArenaErrorState', 'ArenaPeopleList', 'ArenaRadio', 'ArenaSideNav', 'ArenaTable', 'ArenaTabs',
   ]);
 });
 
@@ -28,6 +28,8 @@ test('every entry in either map carries a reason, because a reason is the whole 
 test('a component with no manifest of its own resolves to the one that draws its surface', () => {
   assert.equal(hasOwnManifest('ArenaRadioGroup'), false);
   assert.equal(manifestFor('ArenaRadioGroup'), 'ArenaRadio');
+  assert.equal(hasOwnManifest('ArenaCheckboxGroup'), false);
+  assert.equal(manifestFor('ArenaCheckboxGroup'), 'ArenaCheckbox');
   assert.equal(manifestFor('ArenaCalendarEvent'), 'ArenaCalendar');
   assert.equal(manifestFor('ArenaTableCell'), 'ArenaTable');
   assert.equal(manifestFor('ArenaSideNavCollapsible'), 'ArenaSideNav');
@@ -48,8 +50,8 @@ test('every component in scope resolves to a manifest, so no name is left with n
 });
 
 test('the scope is every component but the ones that draw by hand', () => {
-  assert.equal(everyComponent().length, 75);
-  assert.equal(inScope().length, 68);
+  assert.equal(everyComponent().length, 76);
+  assert.equal(inScope().length, 69);
   assert.equal(inScope().some((n) => HAND_DRAWN.has(n)), false);
 });
 
@@ -64,10 +66,12 @@ test('a hand-drawn component may also own a manifest, for the slots it does not 
 test('coveredContracts answers with the component itself where no manifest names it', () => {
   assert.deepEqual(coveredContracts('ArenaBadge'), ['ArenaBadge']);
   assert.deepEqual(coveredContracts('ArenaRadio'), ['ArenaRadio', 'ArenaRadioGroup']);
+  assert.deepEqual(coveredContracts('ArenaCheckbox'), ['ArenaCheckbox', 'ArenaCheckboxGroup']);
 });
 
 test('categoryOf reads Components.json rather than the tree', () => {
   assert.equal(categoryOf('ArenaRadioGroup'), 'forms');
+  assert.equal(categoryOf('ArenaCheckboxGroup'), 'forms');
   assert.equal(categoryOf('ArenaSideNavItem'), 'navigation');
   assert.equal(categoryOf('Nonesuch'), null);
 });

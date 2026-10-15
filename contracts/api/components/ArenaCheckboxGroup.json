@@ -1,0 +1,16 @@
+{
+  "component": "ArenaCheckboxGroup",
+  "description": "A set of independent choices reported as one value. Governs which of its checkboxes are ticked, names the set, gives every box one form name, and disables them together. A visible name and a message about the set come from a fieldset around it.",
+  "affordances": [],
+  "api": {
+    "ariaLabel": { "form": "primitive", "type": "string", "required": true,
+                   "description": "Names the group: what the choices are about, not that they are choices. Required, and guarded at runtime: a group with no accessible name is announced unlabelled, and each box's own label says what that box is, never what the set is for. \"Notify me about\", not \"Options\". Distinct from `name`, which is the boxes' shared form name and never reaches a screen reader." },
+    "content": { "form": "slot", "description": "The Checkboxes, each with a `value`: the set holds that value while the box is ticked. The group owns each box's ticked state, and how the two are wired is not this contract's business." },
+    "value": { "form": "array", "of": "string", "default": [],
+               "description": "The ticked boxes' values, in the order they were ticked. A value that matches no box is kept rather than dropped." },
+    "name": { "form": "primitive", "type": "string", "description": "Shared form name for the underlying checkboxes, so a form submits every ticked value under one key; generated when omitted." },
+    "disabled": { "form": "primitive", "type": "boolean", "default": false,
+                  "description": "Whether the whole group is unavailable. Every box it holds is disabled whatever its own disabled says, and the group reflects aria-disabled." },
+    "change": { "form": "event", "payload": "ArenaValueSet", "description": "A box was ticked or unticked; carries the whole set after the change." }
+  }
+}

@@ -6,7 +6,7 @@
 
 ![The same Angular component under three style plugins, with the contracts that decide what it is](https://arena.dravensoft.org/hero.png)
 
-Arena is Dravensoft's design system. This package is its Angular layer: 75 components, standalone
+Arena is Dravensoft's design system. This package is its Angular layer: 76 components, standalone
 and `OnPush`, with signal inputs and outputs, styled by a shared Tailwind recipe per
 component, and shipped in Angular Package Format.
 
