@@ -72,7 +72,8 @@ export class ArenaSection {
   private projected(): ChildNode[] {
     const element = this.body().nativeElement;
     return [...element.childNodes].filter(
-      (node) => node.nodeType !== node.TEXT_NODE || (node.textContent ?? '').trim() !== '',
+      (node) => node.nodeType === node.ELEMENT_NODE
+        || (node.nodeType === node.TEXT_NODE && (node.textContent ?? '').trim() !== ''),
     );
   }
 }
