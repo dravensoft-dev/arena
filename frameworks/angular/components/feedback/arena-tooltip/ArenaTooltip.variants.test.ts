@@ -1,10 +1,18 @@
-/* The anchored axis is why this manifest has variants at all: the same bubble is positioned by
- * the wrapper in the Tailwind specimen and by a CDK overlay pane in the Angular component, and
- * only the second one must not carry the wrapper-relative classes. */
+/* The bubble is placed by the overlay, so its stylesheet carries the bubble's appearance and
+ * nothing that positions it: a wrapper-relative rule left in the sheet would pull the bubble out
+ * of the pane that places it. */
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { REPO } from '../../../test/Compliance';
 import { arenaTooltipStyles } from './ArenaTooltip.variants';
 
-const POSITIONING = ['absolute', 'bottom-full', 'left-1/2', '-translate-x-1/2', '-translate-y-2'];
-
+test('the sheet positions neither the bubble nor the root, and no variant group touches them', () => {
+  const css = readFileSync(join(REPO, 'frameworks/tailwind/consume/components/feedback/arena-tooltip/ArenaTooltip.styles.generated.css'), 'utf8');
+  assert.doesNotMatch(css, /data-arena-anchored/);
+  assert.doesNotMatch(css, /\.arena-tooltip__(?:bubble|root)[^{]*\{[^}]*(?:^|[\s;])(?:position|left|right|top|bottom|inset|margin-top|transform|translate):/m);
+  assert.deepEqual(arenaTooltipStyles().$data.bubble(), {});
+  assert.deepEqual(arenaTooltipStyles().$data.root(), {});
+});

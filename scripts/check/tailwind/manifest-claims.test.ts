@@ -405,11 +405,10 @@ export const CLAIMS = {
     { slot: 'root', has: ['flex', 'z-toast'], why: 'the root sits on --z-toast, the one slot above every other overlay' },
   ],
   ArenaTooltip: [
-    ...[true, false].map((anchored) => ({ chosen: { anchored }, slot: 'bubble',
-      has: ['arena-fade', 'z-tooltip', 'whitespace-nowrap', 'rounded-control', 'shadow-surface-floating', 'bg-base-content', 'text-base-100', 'font-mono', 'text-ctl-xs'],
-      why: 'the appearance is identical in both models and only the position moves' })),
-    { chosen: { anchored: false }, slot: 'root', has: ['relative', 'inline-flex'], why: 'in flow the bubble is positioned against a relative root' },
-    { chosen: { anchored: true }, slot: 'root', has: ['inline-flex'], hasNot: ['relative'], why: 'anchored, the overlay pane owns the position and every wrapper-relative utility is gone' },
+    { slot: 'bubble', has: ['arena-fade', 'z-tooltip', 'whitespace-nowrap', 'rounded-control', 'shadow-surface-floating', 'bg-base-content', 'text-base-100', 'font-mono', 'text-ctl-xs'],
+      hasNot: ['absolute', 'bottom-full', 'left-1/2', '-translate-x-1/2', '-translate-y-2'],
+      why: 'the bubble is the inverted overlay and nothing in the manifest positions it: each layer places it over its trigger' },
+    { slot: 'root', has: ['inline-flex'], hasNot: ['relative'], why: 'the bubble leaves the wrapper when it is shown, so nothing is positioned against the root' },
   ],
   ArenaButton: [
     { chosen: { destructive: true }, slot: 'root', has: [EDGE, INK, STRONG], hasNot: ['bg-error', 'bg-error-fill'], why: 'destructive is outline: border and text in the danger hue, and its fill channel is closed to transparent, so its only error fill is a hover wash' },
@@ -464,9 +463,10 @@ export const CLAIMS = {
   ArenaMenu: [
     { chosen: { destructive: true, disabled: false }, slot: 'item', has: [INK, 'hover:bg-hover'], hasNot: ['text-error'], why: HUE_WHY },
     { slot: 'root', has: ['inline-flex'], why: 'a host-bound root is never the UA-default inline box' },
-    { chosen: { anchored: true }, slot: 'panel', hasNot: ['absolute', 'top-full', 'left-0', 'mt-1.5'], why: 'anchored, the CDK positions the pane, so every in-flow positioning class is gone' },
-    { chosen: { anchored: true }, slot: 'root', hasNot: ['relative'], why: 'nothing is positioned against the host once the panel has left it' },
-    { chosen: { anchored: false }, slot: 'panel', has: ['absolute', 'top-full', 'left-0', 'mt-1.5'], why: 'in flow, the panel positions itself against the host, which is the shape the specimen renders' },
+    { slot: 'panel', hasNot: ['absolute', 'top-full', 'left-0', 'mt-1.5', 'left-auto', 'right-0'],
+      why: 'each layer places the panel and lines it up with the trigger, so no positioning class is left for either edge' },
+    { slot: 'root', hasNot: ['relative'], why: 'nothing is positioned against the host once the panel has left it' },
+    { slot: 'panel', has: ['text-ink-body/(--level-ink-body)'], why: 'the panel writes its own ink over the platform default a top-layer panel starts from, and its rows inherit it' },
   ],
   ArenaPopover: [
     { slot: 'root', has: ['inline-flex', 'w-[var(--arena-fill-width,fit-content)]'], why: 'a host-bound root is never the UA-default inline box, and the fill channel sizes the wrapper as it does the trigger' },

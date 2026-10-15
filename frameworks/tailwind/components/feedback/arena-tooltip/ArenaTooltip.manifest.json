@@ -16,20 +16,5 @@
   },
   "floating": {
     "bubble": "a tooltip floats over the page, so the region holding its trigger does not decide its contents"
-  },
-  "internal": {
-    "anchored": "the bubble is positioned by the layer's overlay rather than by CSS"
-  },
-  "variants": {
-    "anchored": {
-      "false": {
-        "root": "relative",
-        "bubble": "absolute bottom-full left-1/2 -translate-x-1/2 -translate-y-2"
-      },
-      "true": {}
-    }
-  },
-  "defaultVariants": {
-    "anchored": false
   }
 }

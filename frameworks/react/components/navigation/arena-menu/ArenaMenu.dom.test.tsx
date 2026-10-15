@@ -188,16 +188,11 @@ test('a row takes one of three branches of the item recipe, and hover is a modif
 
 const SHEET = new URL('../../../../tailwind/consume/components/navigation/arena-menu/ArenaMenu.styles.generated.css', import.meta.url);
 
-test('an end-aligned panel carries its alignment and the sheet gives it left: auto after the in-flow left: 0', () => {
-  const root = mount(<ArenaMenu align="end" trigger={<button type="button">Open</button>} items={[{ label: 'Rename' }]} />);
-  assert.equal(open(root).getAttribute('data-arena-align'), 'end');
-  const start = mount(<ArenaMenu trigger={<button type="button">Open</button>} items={[{ label: 'Rename' }]} />);
-  assert.equal(open(start).getAttribute('data-arena-align'), 'start');
+test('the sheet positions the panel at neither edge, because the layer places it', () => {
   const css = readFileSync(SHEET, 'utf8');
-  const inFlow = css.indexOf('.arena-menu__panel:where(:not([data-arena-anchored]))');
-  const end = css.indexOf('.arena-menu__panel:where([data-arena-align="end"])');
-  assert.ok(inFlow !== -1 && end > inFlow, 'the anchored-false left rule would take precedence over the alignment rule');
-  assert.match(css.slice(end, css.indexOf('}', end)), /left: auto/);
+  assert.doesNotMatch(css, /data-arena-anchored|data-arena-align/, 'the sheet still carries a rule that positions the panel in flow');
+  assert.doesNotMatch(css, /\.arena-menu__panel[^{]*\{[^}]*(?:^|[\s;])(?:position|left|right|top|bottom|inset|margin-top|transform|translate):/m,
+    'a panel rule positions the panel, which the layer does by script');
 });
 
 test('the open panel is a manual popover, shown and placed by script', () => {

@@ -30,7 +30,6 @@ export function isArenaActivatable(item: ArenaMenuItem): boolean {
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'styles().root()',
-    '[attr.data-arena-anchored]': "styles().$data.root()['data-arena-anchored'] ?? null",
     '[attr.data-arena-part]': 'parts.root',
     '[attr.align]': 'null',
   },
@@ -73,7 +72,7 @@ export class ArenaMenu {
   /** An entry was activated; carries the whole item. A disabled entry reports nothing, and a divider or a header cannot be activated at all. */
   readonly select = output<ArenaMenuItem>();
 
-  protected readonly styles = computed(() => arenaMenuStyles({ anchored: true, align: this.align() }));
+  protected readonly styles = computed(() => arenaMenuStyles());
 
   private readonly panel = viewChild.required<TemplateRef<unknown>>('panel');
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
@@ -102,7 +101,7 @@ export class ArenaMenu {
   }
 
   protected rowStyles(item: ArenaMenuItem) {
-    return arenaMenuStyles({ anchored: true, disabled: !!item.disabled, destructive: !!item.destructive });
+    return arenaMenuStyles({ disabled: !!item.disabled, destructive: !!item.destructive });
   }
 
   protected run(item: ArenaMenuItem): void {

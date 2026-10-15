@@ -30,7 +30,6 @@ export function arenaStripDescribedBy(current: string | null, bubbleId: string):
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'styles().root()',
-    '[attr.data-arena-anchored]': "styles().$data.root()['data-arena-anchored'] ?? null",
     '[attr.data-arena-part]': 'parts.root',
     '(pointerenter)': 'scheduleOpen()',
     '(pointerleave)': 'scheduleClose()',
@@ -51,7 +50,7 @@ export class ArenaTooltip {
   readonly label = input.required<string>();
 
   protected readonly bubbleId = inject(ArenaIdGenerator).next('arena-tooltip');
-  protected readonly styles = computed(() => arenaTooltipStyles({ anchored: true }));
+  protected readonly styles = computed(() => arenaTooltipStyles());
   protected readonly quiet = signal(false);
 
   private readonly bubble = viewChild.required<TemplateRef<unknown>>('bubble');

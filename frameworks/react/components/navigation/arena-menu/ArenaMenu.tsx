@@ -89,7 +89,7 @@ export function ArenaMenu({ className, trigger, items, align = 'start', onSelect
     },
   });
 
-  const styles = arenaMenuStyles({ align });
+  const styles = arenaMenuStyles();
 
   return (
     <div ref={ref} className={arenaClassName('ArenaMenu', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>

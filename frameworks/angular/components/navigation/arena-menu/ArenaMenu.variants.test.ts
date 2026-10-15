@@ -11,14 +11,6 @@ function tokens(classString: string): string[] {
   return classString.split(/\s+/).filter(Boolean);
 }
 
-test('the surface, the ink and the row metrics do not vary with anchoring -- only the position does', () => {
-  const anchored = arenaMenuStyles({ anchored: true });
-  const inFlow = arenaMenuStyles({ anchored: false });
-  for (const slot of ['item', 'icon', 'label', 'shortcut', 'divider', 'header'] as const) {
-    assert.equal(JSON.stringify(anchored.$data[slot]()), JSON.stringify(inFlow.$data[slot]()), `${slot} must not vary with anchored`);
-  }
-});
-
 test('the item carries disabled and destructive as two attributes, and an item that is both carries both', () => {
   const plain = JSON.stringify(arenaMenuStyles({ disabled: false, destructive: false }).$data.item());
   const destructive = JSON.stringify(arenaMenuStyles({ disabled: false, destructive: true }).$data.item());
@@ -28,9 +20,8 @@ test('the item carries disabled and destructive as two attributes, and an item t
     { 'data-arena-disabled': '', 'data-arena-destructive': '' });
 });
 
-test('align end moves the panel and nothing else', () => {
-  assert.notEqual(JSON.stringify(arenaMenuStyles({ align: 'end' }).$data.panel()), JSON.stringify(arenaMenuStyles({ align: 'start' }).$data.panel()));
-  assert.equal(JSON.stringify(arenaMenuStyles({ align: 'end' }).$data.item()), JSON.stringify(arenaMenuStyles({ align: 'start' }).$data.item()));
+test('the panel carries no variant group, because the overlay places it', () => {
+  assert.deepEqual(arenaMenuStyles().$data.panel(), {});
 });
 
 test('a divider and a header are not activatable; everything else is', () => {
@@ -55,12 +46,8 @@ test('both alignments offer a flip below the trigger, and the gap is derived fro
   assert.equal(ARENA_MENU_POSITIONS.end[0].originX, 'end');
 });
 
-test('an end-aligned panel carries its alignment, and the sheet gives it left: auto after the in-flow left: 0', () => {
-  assert.equal(arenaMenuStyles({ anchored: true, align: 'end' }).$data.panel()['data-arena-align'], 'end');
-  assert.equal(arenaMenuStyles({ anchored: true, align: 'start' }).$data.panel()['data-arena-align'], 'start');
+test('the sheet positions the panel at neither edge, because the overlay places it', () => {
   const css = readFileSync(join(REPO, 'frameworks/tailwind/consume/components/navigation/arena-menu/ArenaMenu.styles.generated.css'), 'utf8');
-  const inFlow = css.indexOf('.arena-menu__panel:where(:not([data-arena-anchored]))');
-  const end = css.indexOf('.arena-menu__panel:where([data-arena-align="end"])');
-  assert.ok(inFlow !== -1 && end > inFlow);
-  assert.match(css.slice(end, css.indexOf('}', end)), /left: auto/);
+  assert.doesNotMatch(css, /data-arena-anchored|data-arena-align/);
+  assert.doesNotMatch(css, /\.arena-menu__panel[^{]*\{[^}]*(?:^|[\s;])(?:position|left|right|top|bottom|inset|margin-top|transform|translate):/m);
 });

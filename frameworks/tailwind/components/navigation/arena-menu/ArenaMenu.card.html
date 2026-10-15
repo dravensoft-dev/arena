@@ -21,11 +21,10 @@ const ITEMS = [
   { label: 'Delete', icon: 'ph-bold ph-trash', destructive: true },
 ];
 
-/* Rendered open and un-pinned: the panel is `absolute`, and a specimen that had
-   to hover a trigger would show nothing in a screenshot. */
+/* Rendered open and in flow: a component places its panel by script, and a specimen that had
+   to press a trigger would show nothing in a screenshot. */
 function menu() {
   const panel = el('div', { class: c.panel, ...d.panel, role: 'menu' });
-  panel.style.position = 'static';
   for (const item of ITEMS) {
     if (item.divider) { panel.append(el('div', { class: c.divider, ...d.divider })); continue; }
     if (item.header) { panel.append(el('div', { class: c.header, ...d.header, text: item.header })); continue; }

@@ -57,10 +57,9 @@ test('a trigger that cannot carry attributes throws rather than silently losing 
   );
 });
 
-test('an item selects the disabled and destructive groups, and align end the panel group', async () => {
+test('an item selects the disabled and destructive groups, and the panel carries no group at all', async () => {
   const { arenaMenuStyles } = await import('../../../ArenaStyles.generated.ts').then(async (m) => ({ arenaMenuStyles: m.arenaStyles((await import('./ArenaMenu.classes.generated.ts')).default) }));
-  assert.equal(arenaMenuStyles({ align: 'end' }).$data.panel()['data-arena-align'], 'end');
-  assert.equal(arenaMenuStyles().$data.panel()['data-arena-align'], 'start');
+  assert.deepEqual(arenaMenuStyles().$data.panel(), {}, 'the panel is placed by the layer, so no variant group touches it');
   assert.deepEqual(arenaMenuStyles({ disabled: true }).$data.item(), { 'data-arena-disabled': '' });
   assert.deepEqual(arenaMenuStyles({ destructive: true }).$data.item(), { 'data-arena-destructive': '' });
 });

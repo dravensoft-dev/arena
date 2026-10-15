@@ -205,7 +205,6 @@ export const SCALE_USES = new Map<string, string>([
   ['ArenaMenu:divider:my-1', 'the rule between groups of menu items: 4px above and below of separation inside the component, which no role answers'],
   ['ArenaMenu:header:pb-[calc(var(--sp-1)*var(--dz-row-scale-y))]', 'the header over a group of menu items, under its text, a row at 4px before density scales it, where pad-row-y answers 10px: air this slot spends at its own size, which no kind role asks, so a plugin cannot move it'],
   ['ArenaMenu:header:pt-[calc(var(--sp-1)*2*var(--dz-row-scale-y))]', 'the header over a group of menu items, above its text, a row at 8px before density scales it, where pad-row-y answers 10px: air this slot spends at its own size, which no kind role asks, so a plugin cannot move it'],
-  ['ArenaMenu:panel:mt-1.5', 'the panel of a menu that JS does not anchor, at 6px under its trigger: it sizes the offset that detaches the panel from its trigger, not the room around content, so it is this slot\'s own length'],
   ['ArenaMenu:panel:p-1.5', 'the panel of a menu, around its items, at 6px on every side, where pad-floating-x answers 24px and pad-floating-y 16px: air this slot spends at its own size, which no kind role asks, so a plugin cannot move it'],
   ['ArenaOnboarding:body:mt-2', 'the body of a coachmark, under its title: 8px of separation inside the component, which no role answers'],
   ['ArenaOnboarding:dots:gap-1.5', 'the step dots of a coachmark, between one dot and the next: 6px of gap inside the component, which no role answers'],
