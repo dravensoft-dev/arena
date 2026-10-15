@@ -66,6 +66,11 @@ const ROOT_PRIVATE = new Map([
    'the factory that composes a component\'s own class names, emitted per layer so nothing '
    + 'imports across one. A consumer has no '
    + 'reason to call it: they render a component, not a recipe.'],
+  ['AnchoredPanel.ts',
+   'the rules every anchored panel follows: which side it opens on, where it lines up, which panel '
+   + 'of the stack Escape reaches, what counts as a press inside and where Tab leaves. A consumer '
+   + 'opens a menu, a tooltip or a popover and never places one, and it is typechecked through the '
+   + 'suite beside it.'],
   ['ArenaIds.ts',
    'the generator behind the ids a component uses to point one of its own elements at another, '
    + 'through aria-controls or aria-labelledby. None of those ids is a member, by the convention '

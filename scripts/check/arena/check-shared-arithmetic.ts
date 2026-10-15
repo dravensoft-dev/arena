@@ -30,6 +30,7 @@ export const PAIRED = [
   'ArenaLocale.ts',
   'DataVisuals.ts',
   'StructuredData.ts',
+  'AnchoredPanel.ts',
   'components/charts/ChartScales.ts',
   'components/charts/ChartMarks.ts',
   'components/charts/ChartAxis.ts',
