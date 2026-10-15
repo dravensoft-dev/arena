@@ -19,6 +19,7 @@ import { ArenaSideNavSection } from '../components/navigation/arena-side-nav-sec
 import { ArenaScroller } from '../components/layout/arena-scroller/ArenaScroller.tsx';
 import { ArenaBoard } from '../components/layout/arena-board/ArenaBoard.tsx';
 import { ArenaSection } from '../components/layout/arena-section/ArenaSection.tsx';
+import { ArenaFieldset } from '../components/forms/arena-fieldset/ArenaFieldset.tsx';
 
 interface MemberSpec { form?: string; type?: string; required?: boolean; description?: string }
 const CONTRACTS = join(REACT_COMPONENTS, '../../../contracts/api/components');
@@ -39,6 +40,8 @@ const WITHOUT_THE_SLOT = new Map([
   ['ArenaBoard', () => <ArenaBoard label="Sprint 32 tasks by status">{null}</ArenaBoard>],
   // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
   ['ArenaSection', () => <ArenaSection title="Landed recently" />],
+  // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
+  ['ArenaFieldset', () => <ArenaFieldset legend="Notifications" />],
 ]);
 
 export function requiredSlots(dir: string, read = readFileSync, list = readdirSync) {

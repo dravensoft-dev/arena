@@ -182,6 +182,7 @@ const NO_WORDS: Record<string, string> = {
   ArenaCheckbox: DRAWS_MEMBERS,
   ArenaDialog: DRAWS_MEMBERS,
   ArenaEmptyState: DRAWS_MEMBERS,
+  ArenaFieldset: DRAWS_MEMBERS,
   ArenaFigure: DRAWS_MEMBERS,
   ArenaGrid: DRAWS_MEMBERS,
   ArenaHero: DRAWS_MEMBERS,

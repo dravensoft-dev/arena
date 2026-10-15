@@ -69,6 +69,7 @@ export const COVERED = {
   'ArenaTable:react': 'ArenaTable.cases.dom.test.tsx',
   'ArenaTableRow:react': 'ArenaTableRow.cases.dom.test.tsx',
   'ArenaInput:react': 'TextboxStates.dom.test.tsx',
+  'ArenaFieldset:react': 'ArenaFieldset.dom.test.tsx',
   'ArenaTextarea:react': 'TextboxStates.dom.test.tsx',
   'ArenaRadioGroup:react': 'RadioGroupPattern.dom.test.tsx',
   'ArenaRadio:react': 'RadioGroupPattern.dom.test.tsx',
