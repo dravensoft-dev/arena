@@ -20,7 +20,8 @@
       "title": "Controls",
       "items": [
         "ArenaButton", "ArenaIconButton", "ArenaInput", "ArenaTextarea", "ArenaSelect", "ArenaCombobox", "ArenaMultiSelect",
-        "ArenaCheckbox", "ArenaCheckboxGroup", "ArenaSwitch", "ArenaRadioGroup", "ArenaRadio", "ArenaFieldset", "ArenaSegmentedControl"
+        "ArenaCheckbox", "ArenaCheckboxGroup", "ArenaSwitch", "ArenaRadioGroup", "ArenaRadio", "ArenaFieldset", "ArenaSegmentedControl",
+        "ArenaFileInput"
       ]
     },
     {

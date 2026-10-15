@@ -51,6 +51,7 @@
     "ArenaCheckboxGroup",
     "ArenaCombobox",
     "ArenaFieldset",
+    "ArenaFileInput",
     "ArenaIconButton",
     "ArenaInput",
     "ArenaMultiSelect",

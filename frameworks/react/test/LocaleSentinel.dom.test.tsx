@@ -26,6 +26,7 @@ import { ArenaTag } from '../components/display/arena-tag/ArenaTag.tsx';
 import { ArenaSkeleton } from '../components/display/arena-skeleton/ArenaSkeleton.tsx';
 import { ArenaSpinner } from '../components/feedback/arena-spinner/ArenaSpinner.tsx';
 import { ArenaSwitch } from '../components/forms/arena-switch/ArenaSwitch.tsx';
+import { ArenaFileInput } from '../components/forms/arena-file-input/ArenaFileInput.tsx';
 import { ArenaBulkActionBar } from '../components/navigation/arena-bulk-action-bar/ArenaBulkActionBar.tsx';
 import { ArenaCommandPalette } from '../components/navigation/arena-command-palette/ArenaCommandPalette.tsx';
 import { ArenaCombobox } from '../components/forms/arena-combobox/ArenaCombobox.tsx';
@@ -55,7 +56,7 @@ export function sentinelLocale(base: ArenaLocale = ARENA_DEFAULT_LOCALE): ArenaL
 }
 
 const SENTINEL = /⟦\w+⟧/g;
-const NEUTRAL = /^[\d\s.,:;%+\-/()‒-―↑↓▾−·…"'?!]*$/;
+const NEUTRAL = /^[\d\s.,:;%+\-/()‒-―↑↓▾−·…"'?!*]*$/;
 const NAMED = ['aria-label', 'aria-roledescription', 'title'];
 
 export function strayWords(host: Element, allowed: readonly string[]): string[] {
@@ -136,6 +137,7 @@ const CASES: Record<string, Case> = {
   ArenaSkeleton: { renders: [() => <ArenaSkeleton />, () => <ArenaSkeleton lines={2} />], consumer: [] },
   ArenaSpinner: { renders: [() => <ArenaSpinner />], consumer: [] },
   ArenaSwitch: { renders: [() => <ArenaSwitch label="Auto deploy" confirm />], consumer: ['Auto deploy'] },
+  ArenaFileInput: { renders: [() => <ArenaFileInput label="Passport scan" />, () => <ArenaFileInput label="Passport scan" droppable multiple required />], consumer: ['Passport scan'] },
   ArenaBulkActionBar: { renders: [() => <ArenaBulkActionBar count={3} actions={[{ id: 'archive', label: 'Archive' }]} />], consumer: ['Archive'] },
   ArenaCombobox: {
     renders: [

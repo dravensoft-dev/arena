@@ -64,6 +64,7 @@ export const COVERED = {
   'ArenaCheckbox:react': 'FormControlPatterns.dom.test.tsx',
   'ArenaSelect:react': 'FormControlPatterns.dom.test.tsx',
   'ArenaSwitch:react': 'FormControlPatterns.dom.test.tsx',
+  'ArenaFileInput:react': 'FileInputPattern.dom.test.tsx',
   'ArenaSegmentedControl:react': 'ArenaSegmentedControl.radiogroup.dom.test.tsx',
   'ArenaSideNav:react': 'NavigationLandmarks.dom.test.tsx',
   'ArenaErrorState:react': 'AlertTones.dom.test.tsx',

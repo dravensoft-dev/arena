@@ -12,6 +12,7 @@ import { REACT_COMPONENTS } from './AssertPattern.tsx';
 import { ArenaSideNav } from '../components/navigation/arena-side-nav/ArenaSideNav.tsx';
 import { ArenaSideNavItem } from '../components/navigation/arena-side-nav-item/ArenaSideNavItem.tsx';
 import { ArenaSideNavSection } from '../components/navigation/arena-side-nav-section/ArenaSideNavSection.tsx';
+import { ArenaFileInput } from '../components/forms/arena-file-input/ArenaFileInput.tsx';
 import { ArenaRadioGroup } from '../components/forms/arena-radio-group/ArenaRadioGroup.tsx';
 import { ArenaCheckboxGroup } from '../components/forms/arena-checkbox-group/ArenaCheckboxGroup.tsx';
 import { ArenaBreadcrumbs } from '../components/navigation/arena-breadcrumbs/ArenaBreadcrumbs.tsx';
@@ -60,6 +61,7 @@ const WITH_A_BLANK_NAME = new Map([
   ['ArenaSheet', () => <ArenaSheet open title={BLANK}>Two line items.</ArenaSheet>],
   ['ArenaBottomNav', () => <ArenaBottomNav ariaLabel={BLANK} />],
   ['ArenaSkipLink', () => <ArenaSkipLink label={BLANK} />],
+  ['ArenaFileInput', () => <ArenaFileInput label={BLANK} />],
 ]);
 
 export function guardedNames(dir: string, read = readFileSync, list = readdirSync) {
