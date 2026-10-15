@@ -1,0 +1,10 @@
+{
+  "name": "dialog-nonmodal",
+  "source": "https://www.w3.org/TR/wai-aria-1.2/#dialog",
+  "description": "A window over the page that leaves the page usable behind it: a panel a trigger opens, holding content and controls of its own. APG has no non-modal dialog page -- confirmed against the pattern index, not assumed -- so ARIA 1.2's role reference is the pattern's source instead, as status and textbox already do. What the role reference requires is the role and an accessible name, and this pattern requires that and nothing more. It is not dialog-modal with requirements removed: aria-modal, a focus trap and inert content behind are what make a dialog modal, and none of them belongs here. How a component binding it takes focus, gives it back and answers Escape is that component's own decision, proved by its suites and stated in its prompt.",
+  "element": "dialog",
+  "requires": {
+    "roles.element": "dialog",
+    "roles.label": "aria-labelledby or aria-label"
+  }
+}
