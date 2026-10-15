@@ -6,13 +6,14 @@
  * cloneElement injection reaches. It fails without the DOM guarantee. */
 import test, { afterEach } from 'node:test';
 import assert from 'node:assert/strict';
-import React from 'react';
+import React, { useState } from 'react';
 import { join } from 'node:path';
 import { readFileSync } from 'node:fs';
 import { mount, cleanup, act } from '../../../test/Harness.tsx';
 import { assertPattern, REACT_COMPONENTS } from '../../../test/AssertPattern.tsx';
 import { isFocusable } from '../../../../../scripts/lib/core/behaviour-compliance.ts';
 import { ArenaMenu } from './ArenaMenu.tsx';
+import { ArenaPopover } from '../../feedback/arena-popover/ArenaPopover.tsx';
 
 afterEach(cleanup);
 
@@ -197,4 +198,59 @@ test('an end-aligned panel carries its alignment and the sheet gives it left: au
   const end = css.indexOf('.arena-menu__panel:where([data-arena-align="end"])');
   assert.ok(inFlow !== -1 && end > inFlow, 'the anchored-false left rule would take precedence over the alignment rule');
   assert.match(css.slice(end, css.indexOf('}', end)), /left: auto/);
+});
+
+test('the open panel is a manual popover, shown and placed by script', () => {
+  const root = mount(<ArenaMenu trigger={<button type="button">Open</button>} items={[{ label: 'Rename' }]} />);
+  const panel = open(root);
+  assert.equal(panel.getAttribute('popover'), 'manual');
+  assert.equal(panel.style.position, 'fixed', 'the panel was left in flow, where an overflow: hidden ancestor clips it');
+});
+
+test('Tab from the last row closes the menu and returns focus to the trigger', () => {
+  const root = mount(<ArenaMenu trigger={<button type="button">Open</button>} items={[{ label: 'Rename' }, { label: 'Archive' }]} />);
+  const rows = [...open(root).querySelectorAll<HTMLElement>('[role="menuitem"]')];
+  rows[1]!.focus();
+  assert.equal(press(rows[1]!, 'Tab').defaultPrevented, true);
+  assert.equal(root.querySelector('[role="menu"]'), null);
+  assert.equal(document.activeElement, root.querySelector('button'));
+});
+
+test('a menu inside a popover closes alone on Escape, and the popover stays', () => {
+  function Host() {
+    const [shown, setShown] = useState(false);
+    return (
+      <ArenaPopover label="Filters" open={shown} onOpenChange={setShown} trigger={<button type="button">Filters</button>}>
+        <ArenaMenu trigger={<button type="button">More</button>} items={[{ label: 'Reset' }]} />
+      </ArenaPopover>
+    );
+  }
+  const root = mount(<Host />);
+  act(() => { root.querySelector<HTMLElement>('button')!.click(); });
+  const dialog = () => document.querySelector('[role="dialog"]');
+  const more = dialog()!.querySelector<HTMLElement>('button')!;
+  act(() => { more.click(); });
+  press(document.querySelector<HTMLElement>('[role="menuitem"]')!, 'Escape');
+  assert.equal(document.querySelector('[role="menu"]'), null, 'Escape did not close the menu');
+  assert.ok(dialog(), 'Escape closed the popover under the menu as well');
+  assert.equal(document.activeElement, more, 'closing the menu did not return focus to its own trigger');
+  press(more, 'Escape');
+  assert.equal(dialog(), null, 'the second Escape did not reach the popover');
+});
+
+test('a press inside a menu opened from a popover is inside the popover too', () => {
+  function Host() {
+    const [shown, setShown] = useState(false);
+    return (
+      <ArenaPopover label="Filters" open={shown} onOpenChange={setShown} trigger={<button type="button">Filters</button>}>
+        <ArenaMenu trigger={<button type="button">More</button>} items={[{ label: 'Reset' }]} />
+      </ArenaPopover>
+    );
+  }
+  const root = mount(<Host />);
+  act(() => { root.querySelector<HTMLElement>('button')!.click(); });
+  act(() => { document.querySelector('[role="dialog"]')!.querySelector<HTMLElement>('button')!.click(); });
+  act(() => { document.querySelector('[role="menuitem"]')!.dispatchEvent(new MouseEvent('mousedown', { bubbles: true })); });
+  assert.ok(document.querySelector('[role="dialog"]'), 'a press on a row of the nested menu closed the popover');
+  assert.ok(document.querySelector('[role="menu"]'), 'a press on a row of the nested menu closed the menu');
 });

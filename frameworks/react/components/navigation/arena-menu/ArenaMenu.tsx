@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { arenaWarnOnce } from '../../../WarnOnce.ts';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaMenu.classes.generated.ts';
+import { sp1 } from '../../../Tokens.generated.js';
+import { ARENA_PANEL_POPOVER, useArenaAnchoredPanel } from '../../../UseAnchoredPanel.ts';
 
 import type { ArenaMenuItem, ArenaMenuAlign } from '../../../Api.generated';
 import type { ArenaMenuClass } from '../../../Vocabulary.generated.ts';
@@ -53,23 +55,12 @@ export function ArenaMenu({ className, trigger, items, align = 'start', onSelect
     if (restoreFocus && el) el.focus();
   };
 
-  useEffect(() => {
-    if (!open) return;
-    const onDoc = (e: MouseEvent) => {
-      if (ref.current && e.target instanceof Node && !ref.current.contains(e.target)) setOpen(false);
-    };
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') close(true); };
-    document.addEventListener('mousedown', onDoc);
-    document.addEventListener('keydown', onKey);
-    return () => { document.removeEventListener('mousedown', onDoc); document.removeEventListener('keydown', onKey); };
-  }, [open]);
-
-  useEffect(() => {
-    if (!open) return;
-    const first = panelRef.current
-      ?.querySelector<HTMLElement>('[role="menuitem"]:not([disabled])');
-    if (first) first.focus();
-  }, [open]);
+  const present = useArenaAnchoredPanel({
+    open, align, anchor: ref, panel: panelRef, trigger: triggerEl, offset: sp1 * 1.5,
+    focusOnOpen: (panel) => panel.querySelector<HTMLElement>('[role="menuitem"]:not([disabled])'),
+    restoreFocus: true, tabOut: true,
+    onDismiss: () => setOpen(false),
+  });
 
   const run = (it: ArenaMenuItem) => { if (it.disabled) return; close(true); onSelect && onSelect(it); };
 
@@ -85,12 +76,12 @@ export function ArenaMenu({ className, trigger, items, align = 'start', onSelect
       );
     }
     el.setAttribute('aria-haspopup', 'menu');
-    el.setAttribute('aria-expanded', String(open));
-  }, [open]);
+    el.setAttribute('aria-expanded', String(present));
+  }, [present]);
 
   const decoratedTrigger = React.cloneElement(trigger, {
     'aria-haspopup': 'menu',
-    'aria-expanded': open,
+    'aria-expanded': present,
     onClick: (e: React.MouseEvent) => {
       const own = (trigger.props as { onClick?: (event: React.MouseEvent) => void }).onClick;
       if (own) own(e);
@@ -103,10 +94,10 @@ export function ArenaMenu({ className, trigger, items, align = 'start', onSelect
   return (
     <div ref={ref} className={arenaClassName('ArenaMenu', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
       {decoratedTrigger}
-      {open && (
+      {present && (
         <div role="menu" ref={panelRef}
           className={styles.panel()}
-          data-arena-part={manifest.parts.panel} {...styles.$data.panel()} data-arena-surface="floating">
+          data-arena-part={manifest.parts.panel} {...styles.$data.panel()} data-arena-surface="floating" {...ARENA_PANEL_POPOVER}>
           {items.map((it, i) => {
             if (it.divider) return <div key={i} className={styles.divider()} data-arena-part={manifest.parts.divider} {...styles.$data.divider()} />;
             if (it.header) return <div key={i} className={styles.header()} data-arena-part={manifest.parts.header} {...styles.$data.header()}>{it.header}</div>;
