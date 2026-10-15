@@ -32,7 +32,7 @@
       "items": [
         "ArenaAlert", "ArenaProgressBar", "ArenaSpinner", "ArenaEmptyState", "ArenaErrorState",
         "ArenaTooltip", "ArenaToast", "ArenaToastHost", "ArenaDialog", "ArenaConfirmDialog",
-        "ArenaSheet", "ArenaOnboarding"
+        "ArenaSheet", "ArenaOnboarding", "ArenaPopover"
       ]
     },
     {

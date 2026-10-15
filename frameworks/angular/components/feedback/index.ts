@@ -4,6 +4,7 @@ export * from './arena-dialog';
 export * from './arena-empty-state';
 export * from './arena-error-state';
 export * from './arena-onboarding';
+export * from './arena-popover';
 export * from './arena-progress-bar';
 export * from './arena-sheet';
 export * from './arena-spinner';

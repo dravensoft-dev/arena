@@ -120,6 +120,7 @@ export const COVERED = {
   'ArenaSkeleton:angular': 'AngularPatternCoverage.test.ts',
   'ArenaErrorState:angular': 'AngularPatternCoverage.test.ts',
   'ArenaOnboarding:angular': 'AngularPatternCoverage.test.ts',
+  'ArenaPopover:angular': 'ArenaPopover.compliance.test.ts',
   'ArenaBreadcrumbs:angular': 'ArenaBreadcrumbs.compliance.test.ts',
   'ArenaBulkActionBar:angular': 'ArenaBulkActionBar.toolbar.test.ts',
   'ArenaCommandPalette:angular': 'ArenaCommandPalette.combobox.test.ts',

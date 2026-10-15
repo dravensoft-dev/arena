@@ -35,7 +35,8 @@
       "title": "Overlays",
       "items": [
         "ArenaDialog", "ArenaConfirmDialog", "ArenaSheet", "ArenaMenu", "ArenaCommandPalette",
-        "ArenaTooltip", "ArenaToast", "ArenaToastHost", "ArenaOnboarding", "ArenaBulkActionBar"
+        "ArenaTooltip", "ArenaToast", "ArenaToastHost", "ArenaOnboarding", "ArenaBulkActionBar",
+        "ArenaPopover"
       ]
     },
     {

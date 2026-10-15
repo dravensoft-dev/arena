@@ -1,7 +1,8 @@
 /* The Angular half of the boundary sweep: the same derived cases, rendered through the template
  * the playground generator writes for a fixture node, compiled at runtime with every component
  * and projection marker it names. The rule each case is held to is read from the shared module
- * every layer's suite applies. */
+ * every layer's suite applies. Sites are read from the whole document, because a slot projected
+ * into an overlay lands in a pane on the body and not inside the fixture. */
 import { useTestEnvironment } from './TestbedEnv';
 useTestEnvironment();
 
@@ -15,6 +16,7 @@ import { Component, type Type } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import * as ArenaNg from '../index';
 import { LIB, REPO } from './Compliance';
+import { disposeOverlays } from './Overlays';
 import { ArenaDialog } from '../components/feedback/arena-dialog/ArenaDialog';
 import { ArenaConfirmDialog } from '../components/feedback/arena-confirm-dialog/ArenaConfirmDialog';
 import { ArenaSheet } from '../components/feedback/arena-sheet/ArenaSheet';
@@ -66,11 +68,12 @@ for (const kase of all) {
         (fixture.nativeElement.querySelector(kase.press) as HTMLElement | null)?.click();
         fixture.detectChanges();
       }
-      const { problems, spent: used } = cases.siteProblems(kase, cases.readSites(fixture.nativeElement, kase), 'angular');
+      const { problems, spent: used } = cases.siteProblems(kase, cases.readSites(fixture.nativeElement.ownerDocument.body, kase), 'angular');
       for (const key of used) spent.add(key);
       assert.deepEqual(problems, []);
     } finally {
       fixture.destroy();
+      disposeOverlays();
     }
   });
 }
