@@ -22,6 +22,7 @@ import { ArenaMenu } from '../components/navigation/arena-menu/ArenaMenu';
 import { ArenaOnboarding } from '../components/feedback/arena-onboarding/ArenaOnboarding';
 import { ArenaSegmentedControl } from '../components/navigation/arena-segmented-control/ArenaSegmentedControl';
 import { ArenaSelect } from '../components/forms/arena-select/ArenaSelect';
+import { ArenaCombobox } from '../components/forms/arena-combobox/ArenaCombobox';
 import { ArenaTable } from '../components/display/arena-table/ArenaTable';
 import type {
   ArenaActivityItem, ArenaBulkAction, ArenaCommand, ArenaCrumb, ArenaMenuItem, ArenaOnboardingStep, ArenaSegmentOption, ArenaSelectOption,
@@ -37,7 +38,7 @@ const SLOTS: readonly number[] = Object.freeze([1, 2]);
 @Component({
   standalone: true,
   imports: [
-    ArenaActivityFeed, ArenaBarChart, ArenaBreadcrumbs, ArenaBulkActionBar, ArenaCheckboxGroup, ArenaCommandPalette, ArenaDoughnutChart, ArenaLineChart,
+    ArenaActivityFeed, ArenaBarChart, ArenaBreadcrumbs, ArenaBulkActionBar, ArenaCheckboxGroup, ArenaCombobox, ArenaCommandPalette, ArenaDoughnutChart, ArenaLineChart,
     ArenaMenu, ArenaOnboarding, ArenaSegmentedControl, ArenaSelect, ArenaTable,
   ],
   template: `
@@ -45,6 +46,7 @@ const SLOTS: readonly number[] = Object.freeze([1, 2]);
     <arena-breadcrumbs ariaLabel="Trail" [items]="crumbs" />
     <arena-bulk-action-bar [count]="0" [actions]="actions" />
     <arena-checkbox-group ariaLabel="Days" [value]="labels" />
+    <arena-combobox label="Region" [options]="selectOptions" />
     <arena-command-palette [open]="false" [commands]="commands" />
     <arena-menu [items]="menuItems" />
     <arena-onboarding [open]="false" [steps]="steps" />
@@ -78,7 +80,7 @@ test('every array input binds data the consumer holds as readonly, and nothing w
 
   const host = fixture.nativeElement as HTMLElement;
   for (const selector of [
-    'arena-activity-feed', 'arena-breadcrumbs', 'arena-bulk-action-bar', 'arena-checkbox-group', 'arena-command-palette',
+    'arena-activity-feed', 'arena-breadcrumbs', 'arena-bulk-action-bar', 'arena-checkbox-group', 'arena-combobox', 'arena-command-palette',
     'arena-menu', 'arena-onboarding', 'arena-segmented-control', 'arena-select', 'arena-table',
     'arena-bar-chart', 'arena-doughnut-chart', 'arena-line-chart',
   ]) {

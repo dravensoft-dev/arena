@@ -33,6 +33,8 @@ import { ArenaSpinner } from '../components/feedback/arena-spinner/ArenaSpinner'
 import { ArenaSwitch } from '../components/forms/arena-switch/ArenaSwitch';
 import { ArenaBulkActionBar } from '../components/navigation/arena-bulk-action-bar/ArenaBulkActionBar';
 import { ArenaCommandPalette } from '../components/navigation/arena-command-palette/ArenaCommandPalette';
+import { ArenaCombobox } from '../components/forms/arena-combobox/ArenaCombobox';
+import { disposeOverlays } from './Overlays';
 import { ArenaOnboarding } from '../components/feedback/arena-onboarding/ArenaOnboarding';
 import { ArenaConfirmDialog } from '../components/feedback/arena-confirm-dialog/ArenaConfirmDialog';
 import { ArenaErrorState } from '../components/feedback/arena-error-state/ArenaErrorState';
@@ -161,6 +163,15 @@ class BulkHost {}
 @Component({ standalone: true, imports: [ArenaCommandPalette], template: `<arena-command-palette [open]="true" [commands]="[{ id: 'deploy', label: 'Deploy' }]" />` })
 class PaletteHost {}
 
+@Component({ standalone: true, imports: [ArenaCombobox], template: `<arena-combobox label="Region" placeholder="Search regions" [options]="[]" />` })
+class ComboboxEmptyHost {}
+
+@Component({ standalone: true, imports: [ArenaCombobox], template: `<arena-combobox label="Region" placeholder="Search regions" [options]="[]" [loading]="true" />` })
+class ComboboxLoadingHost {}
+
+@Component({ standalone: true, imports: [ArenaCombobox], template: `<arena-combobox label="Region" placeholder="Search regions" [options]="[{ value: 'eu-west', label: 'Europe West' }]" />` })
+class ComboboxCountHost {}
+
 @Component({
   standalone: true,
   imports: [ArenaOnboarding],
@@ -224,6 +235,7 @@ const CASES: Record<string, Case> = {
   ArenaSpinner: { hosts: [SpinnerHost], consumer: [] },
   ArenaSwitch: { hosts: [SwitchHost], consumer: ['Auto deploy'] },
   ArenaBulkActionBar: { hosts: [BulkHost], consumer: ['Archive'] },
+  ArenaCombobox: { hosts: [ComboboxEmptyHost, ComboboxLoadingHost, ComboboxCountHost], consumer: ['Region', 'Search regions', 'Europe West', 'Eur'] },
   ArenaCommandPalette: { hosts: [PaletteHost], consumer: ['Deploy', 'zzz'] },
   ArenaOnboarding: { hosts: [OnboardingHost], consumer: ['One', 'Two', 'Three'] },
   ArenaConfirmDialog: { hosts: [ConfirmHost], consumer: ['Delete project', 'atlas', 'Gone for good'] },
@@ -316,6 +328,13 @@ async function wordsOf(host: Type<unknown>, name: string, allowed: string[]): Pr
     await fixture.whenStable();
     fixture.detectChanges();
     const root = fixture.nativeElement as HTMLElement;
+    if (name === 'ArenaCombobox') {
+      const input = root.querySelector<HTMLInputElement>('[role="combobox"]');
+      if (input) { input.focus(); input.value = 'Eur'; input.dispatchEvent(new Event('input', { bubbles: true })); }
+      fixture.detectChanges();
+      const pane = root.ownerDocument.querySelector<HTMLElement>('.cdk-overlay-container');
+      return [...strayWords(root, allowed), ...(pane ? strayWords(pane, allowed) : [])];
+    }
     if (name === 'ArenaCommandPalette') {
       const input = root.querySelector('input');
       if (input) { input.value = 'zzz'; input.dispatchEvent(new Event('input', { bubbles: true })); }
@@ -324,6 +343,7 @@ async function wordsOf(host: Type<unknown>, name: string, allowed: string[]): Pr
     return strayWords(root, allowed);
   } finally {
     fixture.destroy();
+    disposeOverlays();
     TestBed.resetTestingModule();
   }
 }

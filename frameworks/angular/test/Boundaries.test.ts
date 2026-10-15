@@ -25,6 +25,7 @@ import { ArenaCommandPalette } from '../components/navigation/arena-command-pale
 import { ArenaToastHost } from '../components/feedback/arena-toast-host/ArenaToastHost';
 import { ArenaMenu } from '../components/navigation/arena-menu/ArenaMenu';
 import { ArenaTooltip } from '../components/feedback/arena-tooltip/ArenaTooltip';
+import { ArenaCombobox } from '../components/forms/arena-combobox/ArenaCombobox';
 import { ArenaButton } from '../components/forms/arena-button/ArenaButton';
 
 const cases = await import(pathToFileURL(join(LIB, 'arena', 'boundary-cases.ts')).href);
@@ -85,12 +86,13 @@ test('every transparent slot is one a render projected into', () => {
 const FLOATING: Record<string, string> = {
   'arena-dialog': 'scrim', 'arena-confirm-dialog': 'root', 'arena-sheet': 'root', 'arena-onboarding': 'root',
   'arena-command-palette': 'root', 'arena-toast-host': 'root', 'arena-menu': 'panel', 'arena-tooltip': 'bubble',
+  'arena-combobox': 'panel',
 };
 
 test('every floating slot of a T9 component carries data-arena-surface="floating"', () => {
   @Component({
     standalone: true,
-    imports: [ArenaDialog, ArenaConfirmDialog, ArenaSheet, ArenaOnboarding, ArenaCommandPalette, ArenaToastHost, ArenaMenu, ArenaTooltip, ArenaButton],
+    imports: [ArenaDialog, ArenaConfirmDialog, ArenaSheet, ArenaOnboarding, ArenaCommandPalette, ArenaToastHost, ArenaMenu, ArenaTooltip, ArenaButton, ArenaCombobox],
     template: `
       <arena-dialog [open]="true" title="T" label="L"><p>x</p></arena-dialog>
       <arena-confirm-dialog [open]="true" title="T" />
@@ -100,6 +102,7 @@ test('every floating slot of a T9 component carries data-arena-surface="floating
       <arena-toast-host />
       <arena-menu [items]="[]"><arena-button trigger>Open</arena-button></arena-menu>
       <arena-tooltip label="Copy"><arena-button>Copy</arena-button></arena-tooltip>
+      <arena-combobox label="Region" [options]="[{ value: 'eu', label: 'Europe' }]" />
     `,
   })
   class Surfaces {}
@@ -109,6 +112,7 @@ test('every floating slot of a T9 component carries data-arena-surface="floating
     const root = fixture.nativeElement as Element;
     (root.querySelector('arena-menu button') as HTMLElement).click();
     root.querySelector('arena-tooltip button')?.dispatchEvent(new FocusEvent('focusin', { bubbles: true }));
+    root.querySelector('arena-combobox [role="combobox"]')?.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
     fixture.detectChanges();
     for (const [tag, slot] of Object.entries(FLOATING)) {
       const component = root.querySelector(tag) as HTMLElement | null;
