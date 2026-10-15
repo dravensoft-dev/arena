@@ -108,3 +108,20 @@ test('a component with a prompt in a layer links to it, and a table cell too lon
   assert.ok(row && !row.includes('.prompt.md'), 'the size row is too long for links');
   for (const line of page.split('\n')) assert.ok(line.length < 2000, line.slice(0, 80));
 });
+
+test('a row whose answerers outrun a sentence names them alone and sends the options to the section', () => {
+  const base = mkdtempSync(join(tmpdir(), 'vocabulary-long-'));
+  const dir = join(base, 'frameworks/tailwind/components/forms/arena-probe');
+  mkdirSync(dir, { recursive: true });
+  mkdirSync(join(base, 'frameworks/tailwind/vocabulary/arena-size'), { recursive: true });
+  const options = ['xs', 'sm', 'md', 'lg', 'xl', '2xl'].map((one) => `arena-size-${one}`);
+  writeFileSync(join(base, 'frameworks/tailwind/vocabulary/arena-size/Size.family.json'), JSON.stringify({ family: 'size', reach: 'context', description: 'd',
+    default: 'arena-size-md', variants: Object.fromEntries(options.map((one, at) => [one, `[--arena-size-h:${at + 1}px]`])) }));
+  for (const [at, name] of ['ArenaOne', 'ArenaTwo', 'ArenaThree', 'ArenaFour', 'ArenaFive', 'ArenaSix'].entries())
+    writeFileSync(join(dir, `${name}.manifest.json`), JSON.stringify({ component: name, slots: { root: 'x-[var(--arena-size-h,2px)]' },
+      answers: [{ family: 'size', options: [0, 1, 2].map((step) => options[(at + step) % 6]!), default: options[at]! }] }));
+  const row = renderVocabulary(base).split('\n').find((line) => line.startsWith('| [`size`]')) ?? '';
+  assert.match(row, /\| ArenaFive, ArenaFour, ArenaOne, ArenaSix, ArenaThree, ArenaTwo; \[the options each answers\]\(#size\) \|$/);
+  const section = renderVocabulary(base).split('\n## size\n')[1] ?? '';
+  assert.match(section, /ArenaFive \(`arena-size-2xl`, `arena-size-xl`, `arena-size-xs`; default `arena-size-xl`\)/);
+});

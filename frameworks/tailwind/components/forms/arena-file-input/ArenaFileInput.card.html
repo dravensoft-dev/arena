@@ -1,0 +1,75 @@
+<!-- @dsCard group="Tailwind" viewport="760x560" name="ArenaFileInput" subtitle="Trigger, drop zone, held files and refusals, rendered from ArenaFileInput.manifest.json" -->
+<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../../../../intro/styles.css">
+<link rel="stylesheet" href="../../../consume/Preflight.generated.css">
+<link rel="stylesheet" href="../../../consume/components/forms/arena-file-input/ArenaFileInput.styles.generated.css">
+<link rel="stylesheet" href="../../../consume/components/display/arena-tag/ArenaTag.styles.generated.css">
+<link rel="stylesheet" href="../../../Specimen.css">
+</head><body><div id="root"></div>
+<script type="module">
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
+
+const manifest = await (await fetch('./ArenaFileInput.manifest.json')).json();
+const tag = await (await fetch('../../display/arena-tag/ArenaTag.manifest.json')).json();
+
+let chips = 0;
+let fields = 0;
+function chip(name, tone) {
+  const t = arenaClassesFor(tag, { tone, disabled: 'false' });
+  const td = arenaSlotDataFor(tag, { tone, disabled: 'false' });
+  const textId = `file-chip-${chips++}`;
+  return el('span', { class: t.root, ...td.root, 'data-arena-boundary': '' },
+    el('span', { class: t.dot, ...td.dot, 'aria-hidden': 'true' }),
+    el('span', { id: textId, 'data-arena-boundary': '', text: name }),
+    el('button', { type: 'button', id: `${textId}-remove`, class: t.close, ...td.close, 'aria-labelledby': `${textId}-remove ${textId}` },
+      el('i', { class: 'ph-bold ph-x', 'aria-hidden': 'true' }), el('span', { class: t.closeLabel, ...td.closeLabel, text: 'Remove' })));
+}
+
+function fileInput({ label, droppable, dragging, error, hint, required, disabled, held = [], refused = [], multiple }) {
+  const chosen = { droppable: String(Boolean(droppable)), dragging: String(Boolean(dragging)), state: error ? 'error' : 'neutral', disabled: String(Boolean(disabled)) };
+  const c = arenaClassesFor(manifest, chosen);
+  const d = arenaSlotDataFor(manifest, chosen);
+  const root = el('div', { class: c.root, ...d.root });
+  root.style.width = '320px';
+  const id = `file-input-${fields++}`;
+  const name = el('label', { id: `${id}-label`, for: id, class: c.label, ...d.label, text: label });
+  if (required) name.append(el('span', { class: c.required, ...d.required, 'aria-hidden': 'true', text: '*' }));
+  root.append(name);
+  if (required) root.append(el('span', { id: `${id}-required`, class: c.requiredLabel, ...d.requiredLabel, text: 'required' }));
+  const named = [`${id}-label`, ...(required ? [`${id}-required`] : []), `${id}-text`].join(' ');
+  const zone = el('div', { class: c.zone, ...d.zone },
+    el('button', { type: 'button', id, class: c.trigger, ...d.trigger, disabled: disabled || undefined,
+      'aria-labelledby': named, 'aria-describedby': error || hint ? `${id}-note` : undefined },
+      el('i', { class: `${c.icon} ph-bold ph-upload-simple`, 'aria-hidden': 'true' }),
+      el('span', { id: `${id}-text`, text: multiple ? 'Choose files' : 'Choose file' })));
+  if (droppable) zone.append(el('span', { class: c.prompt, ...d.prompt, text: 'or drop here' }));
+  zone.append(el('input', { type: 'file', class: c.input, ...d.input, tabindex: '-1', 'aria-hidden': 'true' }));
+  root.append(zone);
+  if (held.length) {
+    root.append(el('ul', { class: c.files, ...d.files }, ...held.map(([file, size]) =>
+      el('li', { class: c.file, ...d.file }, chip(file, 'neutral'), el('span', { class: c.size, ...d.size, text: size })))));
+  }
+  if (refused.length) {
+    root.append(el('ul', { class: c.rejected, ...d.rejected }, ...refused.map((line) =>
+      el('li', { class: c.rejection, ...d.rejection, text: line }))));
+  }
+  root.append(el('span', { class: c.status, ...d.status, role: 'status', text: held.length ? `${held.length} selected` : 'No file chosen' }));
+  if (error) root.append(el('span', { id: `${id}-note`, class: c.error, ...d.error, text: error }));
+  else if (hint) root.append(el('span', { id: `${id}-note`, class: c.hint, ...d.hint, text: hint }));
+  return root;
+}
+
+mountSpecimen({ sections: [
+  section('A trigger, and a drop zone', [
+    fileInput({ label: 'Passport scan', required: true, hint: 'PDF or an image, up to 5 MB.' }),
+    fileInput({ label: 'Attach a document', droppable: true, multiple: true, hint: 'PDF or an image, up to 5 MB.' }),
+    fileInput({ label: 'Attach a document', droppable: true, dragging: true, multiple: true }),
+  ]),
+  section('Held, refused, in error and disabled', [
+    fileInput({ label: 'Attach a document', droppable: true, multiple: true, held: [['passport.pdf', '1.2 MB'], ['photo.png', '840 kB']], refused: ['setup.exe is not an accepted type'] }),
+    fileInput({ label: 'Attach a document', droppable: true, multiple: true, error: 'Attach at most two files.' }),
+    fileInput({ label: 'Passport scan', disabled: true, hint: 'Locked while the review runs.' }),
+  ]),
+  section('Hover, press and focus are DOM states, not variants: point at or tab to a trigger above', []),
+]});
+</script></body></html>

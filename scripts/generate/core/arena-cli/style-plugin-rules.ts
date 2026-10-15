@@ -38,7 +38,6 @@ export const RESERVED = new Map<string, string>([
   ['timeline', 'ArenaTimeline, milestones in order (spec 12)'],
   ['number-field', 'ArenaNumberField, a formatted number input (spec 13)'],
   ['pin-input', 'ArenaPinInput, a code entered one character per cell (spec 14)'],
-  ['file-input', 'ArenaFileInput, a file picker with a drop zone (spec 15)'],
   ['slider', 'ArenaSlider, a number chosen inside a range (spec 16)'],
   ['sparkline', 'ArenaSparkline, a small inline trend chart (spec 17)'],
   ['gauge-chart', 'ArenaGaugeChart, one value against banded thresholds (spec 18)'],

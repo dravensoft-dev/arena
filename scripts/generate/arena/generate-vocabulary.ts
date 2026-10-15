@@ -2,10 +2,10 @@
  * component or on markup: one row per family with its reach, options, public property and the components that
  * answer it, then one section per family carrying its description, which is the argument for it.
  * Components that answer the same options, or have the same default, are named once, so a family
- * most components answer in part stays inside the sentence length the register holds.
- * A component links to its prompt in each layer that ships one, as two short links, because the page
- * is layer-neutral and a prompt is not; a table cell too long for the links names the components
- * alone and its section carries them.
+ * most components answer in part stays inside the sentence length the register holds. A component
+ * links to its prompt in each layer that ships one; a table cell too long for the links names the
+ * components alone, one longer than the register's sentence drops their options too, and the
+ * family's section carries what the cell left out.
  * Every other consumer page points here rather than restating a family, and check:families holds
  * the page to a fresh emit. */
 
@@ -15,6 +15,7 @@ import { isMainModule } from '../../utils/main-module.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { layerManifests } from '../../lib/tailwind/tailwind-compile.ts';
 import { VOCABULARY_DIR, answerOf, axesOf, readFamilies, targetOf, type Family } from '../../lib/tailwind/vocabulary.ts';
+import { MAX_WORDS, plain, words } from '../../check/arena/check-register.ts';
 
 export const VOCABULARY_TARGET = 'frameworks/VOCABULARY.md';
 
@@ -82,7 +83,11 @@ export function renderVocabulary(root = repoRoot) {
   };
   const cell = (family: Family) => {
     const withLinks = answering(family).join(', ');
-    return withLinks.length <= CELL_LIMIT && spoken(withLinks) <= CELL_WORDS ? withLinks : answering(family, (name) => name).join(', ');
+    if (withLinks.length <= CELL_LIMIT && spoken(withLinks) <= CELL_WORDS) return withLinks;
+    const named = answering(family, (name) => name).join(', ');
+    if (words(plain(named)).length <= MAX_WORDS) return named;
+    const names = manifests.filter((one) => answerOf(one, family)).map((one) => one.component).sort();
+    return `${names.join(', ')}; [the options each answers](#${family.family})`;
   };
   const answeredBy = (family: Family) => {
     const groups = answering(family);
