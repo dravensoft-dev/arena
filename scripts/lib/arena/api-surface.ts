@@ -333,9 +333,16 @@ export const IMPERATIVE_HANDLES = new Map([
   ['ArenaInput.focus', 'None of the nine contract forms is imperative, and returning focus to a field '
     + 'after the transaction it belongs to is settled is a gesture no declarative member expresses: '
     + 'autoFocus fires once at mount, and the caller needs it again on every completion. It is a '
-    + 'method on the class rather than a member, in both layers, and each layer README says so.'],
+    + 'method on the class rather than a member, in both layers, and each layer\'s AGENTS.md says so.'],
   ['ArenaInput.select', 'The same handle, for the case that follows it: focusing a field holding a value '
     + 'the caller expects to be replaced is one keystroke short of useful without it.'],
+  ['ArenaFileInput.files', 'A File is a platform type, so no member and no payload may carry it. The files '
+    + 'reach a host that submits a form through `name`; a host that uploads without a form reads them '
+    + 'here. It is a method because the answer is a snapshot the caller asks for at a moment of their '
+    + 'own choosing, which none of the nine forms expresses.'],
+  ['ArenaFileInput.clear', 'After an upload completes the selection must be emptied, and no controlled '
+    + 'value can say so, because a file selection cannot be set from outside: the platform forbids it. '
+    + 'It fires nothing, since the caller asked.'],
 ]);
 
 export function classMembers(source: string, className: string) {

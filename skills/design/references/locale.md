@@ -24,7 +24,7 @@ Every field is optional in what you provide, and one you leave out keeps the def
 
 | field | English default | what it names |
 | --- | --- | --- |
-| `locale` | `en-GB` | A BCP 47 tag. Every date Arena formats uses it; hour labels keep a 24-hour clock whatever it says. |
+| `locale` | `en-GB` | A BCP 47 tag. Every date and every file size Arena formats uses it; hour labels keep a 24-hour clock whatever it says. |
 | `calendarToday` | `Today` | The calendar button that returns to the current period. |
 | `calendarPrevious` | `Previous` | Names the calendar button that moves back one period. |
 | `calendarNext` | `Next` | Names the calendar button that moves forward one period. |
@@ -44,6 +44,15 @@ Every field is optional in what you provide, and one you leave out keeps the def
 | `skeletonLabel` | `Loading` | Names a skeleton's status region. |
 | `spinnerLabel` | `Loading` | Names a spinner when its own label is absent. |
 | `switchConfirmHint` | `Requires confirmation` | The title on the guard glyph of a switch that asks before it changes. |
+| `fileInputChoose` | `Choose file` | The text of a file input's trigger when it takes one file. |
+| `fileInputChooseMultiple` | `Choose files` | The text of a file input's trigger when `multiple` lets it take more than one. |
+| `fileInputDrop` | `or drop here` | The line beside a file input's trigger when its zone takes a drop. |
+| `fileInputNone` | `No file chosen` | What a file input announces when it holds no file. |
+| `fileInputCount` | `{count} selected` | What a file input announces when it holds files. {count} is how many. |
+| `fileInputTooLarge` | `{name} is larger than {size}` | A file input's refusal of a file over its size limit. {name} is the file's name; {size} is the limit, a number and a unit symbol. |
+| `fileInputWrongType` | `{name} is not an accepted type` | A file input's refusal of a file its accept list does not match. {name} is the file's name. |
+| `fileInputSurplus` | `{name} was not added` | A file input's refusal of a file past the one a single-file input holds. {name} is the file's name. |
+| `fileInputRequired` | `required` | Read in a required file input's trigger name, between the label and the trigger's text, and never seen. |
 | `bulkActionBarLabel` | `Actions on the selection` | Names the bulk action toolbar. |
 | `bulkActionBarClear` | `Clear` | The text of the button that clears the selection. |
 | `bulkActionBarClearLabel` | `Clear selection` | Names the button that clears the selection. |
