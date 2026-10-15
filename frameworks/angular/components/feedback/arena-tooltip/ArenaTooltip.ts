@@ -1,23 +1,17 @@
 import {
-  ChangeDetectionStrategy, Component, DOCUMENT, DestroyRef, ElementRef, Injector, TemplateRef,
-  ViewContainerRef, computed, inject, input, signal, viewChild,
+  ChangeDetectionStrategy, Component, DestroyRef, ElementRef, TemplateRef, computed, inject, input,
+  signal, viewChild,
 } from '@angular/core';
-import {
-  type ConnectedPosition, type OverlayRef, createFlexibleConnectedPositionStrategy,
-  createOverlayRef, createRepositionScrollStrategy,
-} from '@angular/cdk/overlay';
-import { TemplatePortal } from '@angular/cdk/portal';
+import type { ConnectedPosition } from '@angular/cdk/overlay';
 import { delayClose, delayOpen, sp2 } from '../../../Tokens.generated';
+import { ArenaAnchoredOverlay, arenaConnectedPositions } from '../../../AnchoredOverlay';
 import { arenaTooltipStyles } from './ArenaTooltip.variants';
 import manifest from './ArenaTooltip.classes.generated';
 import { ArenaIdGenerator } from '../../../ArenaIds';
 import { arenaAccessibleText, arenaTooltipRedundant } from './TooltipName';
 import { ArenaSlotAttributes } from '../../../SlotData';
 
-export const ARENA_TOOLTIP_POSITIONS: ConnectedPosition[] = [
-  { originX: 'center', originY: 'top', overlayX: 'center', overlayY: 'bottom', offsetY: -sp2 },
-  { originX: 'center', originY: 'bottom', overlayX: 'center', overlayY: 'top', offsetY: sp2 },
-];
+export const ARENA_TOOLTIP_POSITIONS: ConnectedPosition[] = arenaConnectedPositions('center', 'above', sp2);
 
 export function arenaJoinDescribedBy(own: string | null, bubbleId: string): string {
   return own ? `${own} ${bubbleId}` : bubbleId;
@@ -62,13 +56,16 @@ export class ArenaTooltip {
 
   private readonly bubble = viewChild.required<TemplateRef<unknown>>('bubble');
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
-  private readonly injector = inject(Injector);
-  private readonly viewContainer = inject(ViewContainerRef);
-  private readonly doc = inject(DOCUMENT);
 
-  private ref: OverlayRef | null = null;
   private timer: ReturnType<typeof setTimeout> | null = null;
-  private detachEscape: (() => void) | null = null;
+
+  private readonly overlay = new ArenaAnchoredOverlay({
+    anchor: () => this.host.nativeElement,
+    trigger: () => this.trigger(),
+    panel: () => this.bubble(),
+    positions: () => ARENA_TOOLTIP_POSITIONS,
+    onDismiss: () => this.closeNow(),
+  });
 
   constructor() {
     inject(DestroyRef).onDestroy(() => this.closeNow());
@@ -108,27 +105,17 @@ export class ArenaTooltip {
   }
 
   private attach(): void {
-    if (this.ref) return;
+    if (this.overlay.isOpen()) return;
     const trigger = this.trigger();
     this.quiet.set(trigger ? arenaTooltipRedundant(arenaAccessibleText(trigger), this.label()) : false);
-    const ref = createOverlayRef(this.injector, {
-      positionStrategy: createFlexibleConnectedPositionStrategy(this.injector, this.host)
-        .withPositions(ARENA_TOOLTIP_POSITIONS)
-        .withPush(false),
-      scrollStrategy: createRepositionScrollStrategy(this.injector),
-    });
-    ref.attach(new TemplatePortal(this.bubble(), this.viewContainer));
-    this.ref = ref;
+    this.overlay.open();
     this.describeTrigger();
-    this.listenForEscape();
   }
 
   private detach(): void {
-    this.detachEscape?.();
-    this.detachEscape = null;
+    if (!this.overlay.isOpen()) return;
     this.undescribeTrigger();
-    this.ref?.dispose();
-    this.ref = null;
+    this.overlay.close();
   }
 
   private trigger(): HTMLElement | null {
@@ -149,13 +136,5 @@ export class ArenaTooltip {
     const rest = arenaStripDescribedBy(trigger.getAttribute('aria-describedby'), this.bubbleId);
     if (rest) trigger.setAttribute('aria-describedby', rest);
     else trigger.removeAttribute('aria-describedby');
-  }
-
-  private listenForEscape(): void {
-    const onKeydown = (event: Event): void => {
-      if (event instanceof KeyboardEvent && event.key === 'Escape') this.closeNow();
-    };
-    this.doc.addEventListener('keydown', onKeydown);
-    this.detachEscape = () => this.doc.removeEventListener('keydown', onKeydown);
   }
 }
