@@ -156,6 +156,7 @@ export const COVERED = {
   'ArenaTextarea:angular': 'ArenaTextarea.compliance.test.ts',
   'ArenaRadioGroup:angular': 'ArenaRadioGroup.compliance.test.ts',
   'ArenaRadio:angular': 'ArenaRadioGroup.compliance.test.ts',
+  'ArenaCheckboxGroup:angular': 'ArenaCheckboxGroup.compliance.test.ts',
   'ArenaSegmentedControl:angular': 'ArenaSegmentedControl.compliance.test.ts',
   'ArenaTabs:angular': 'ArenaTabs.compliance.test.ts',
   'ArenaTab:angular': 'ArenaTabs.compliance.test.ts',

@@ -804,6 +804,7 @@ const HOST_SLOT: Record<string, { manifest?: string; slot: string }> = {
   'arena-people-list': { slot: 'root' },
   'arena-person-row': { manifest: 'ArenaPeopleList.manifest.json', slot: 'row' },
   'arena-radio-group': { manifest: 'ArenaRadio.manifest.json', slot: 'group' },
+  'arena-checkbox-group': { manifest: 'ArenaCheckbox.manifest.json', slot: 'group' },
   'arena-side-nav-collapsible': { manifest: 'ArenaSideNav.manifest.json', slot: 'section' },
   'arena-side-nav-item': { manifest: 'ArenaSideNav.manifest.json', slot: 'item' },
   'arena-side-nav-section': { manifest: 'ArenaSideNav.manifest.json', slot: 'section' },

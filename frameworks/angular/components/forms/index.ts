@@ -1,5 +1,6 @@
 export * from './arena-button';
 export * from './arena-checkbox';
+export * from './arena-checkbox-group';
 export * from './arena-fieldset';
 export * from './arena-icon-button';
 export * from './arena-input';
