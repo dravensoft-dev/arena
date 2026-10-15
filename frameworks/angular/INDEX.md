@@ -26,8 +26,8 @@ A screen built from this tree alone breaks the rest where nothing will report it
 | `charts` | `ArenaBarChart` `ArenaChartCard` `ArenaDoughnutChart` `ArenaHorizontalBarChart` `ArenaLineChart` `ArenaPyramidChart` `ArenaRadarChart` `ArenaScatterChart` | [`components/charts/INDEX.md`](./components/charts/INDEX.md) |
 | `display` | `ArenaActivityFeed` `ArenaAvatar` `ArenaBadge` `ArenaCalendar` `ArenaCalendarEvent` `ArenaCard` `ArenaKeyValue` `ArenaPeopleList` `ArenaPersonRow` `ArenaSkeleton` `ArenaStatCard` `ArenaTable` `ArenaTableCell` `ArenaTableRow` `ArenaTag` `ArenaUnauthCard` | [`components/display/INDEX.md`](./components/display/INDEX.md) |
 | `feedback` | `ArenaAlert` `ArenaConfirmDialog` `ArenaDialog` `ArenaEmptyState` `ArenaErrorState` `ArenaOnboarding` `ArenaPopover` `ArenaProgressBar` `ArenaSheet` `ArenaSpinner` `ArenaToast` `ArenaToastHost` `ArenaTooltip` | [`components/feedback/INDEX.md`](./components/feedback/INDEX.md) |
-| `forms` | `ArenaButton` `ArenaCheckbox` `ArenaIconButton` `ArenaInput` `ArenaRadio` `ArenaRadioGroup` `ArenaSelect` `ArenaSwitch` `ArenaTextarea` | [`components/forms/INDEX.md`](./components/forms/INDEX.md) |
+| `forms` | `ArenaButton` `ArenaCheckbox` `ArenaFieldset` `ArenaIconButton` `ArenaInput` `ArenaRadio` `ArenaRadioGroup` `ArenaSelect` `ArenaSwitch` `ArenaTextarea` | [`components/forms/INDEX.md`](./components/forms/INDEX.md) |
 | `layout` | `ArenaBoard` `ArenaBoardColumn` `ArenaFigure` `ArenaGrid` `ArenaHero` `ArenaMain` `ArenaScroller` `ArenaScrollerItem` `ArenaSection` `ArenaSiteFooter` `ArenaSkipLink` | [`components/layout/INDEX.md`](./components/layout/INDEX.md) |
 | `navigation` | `ArenaAppBar` `ArenaBottomNav` `ArenaBottomNavItem` `ArenaBreadcrumbs` `ArenaBulkActionBar` `ArenaCommandPalette` `ArenaMenu` `ArenaPageHead` `ArenaPagination` `ArenaSegmentedControl` `ArenaSideNav` `ArenaSideNavCollapsible` `ArenaSideNavItem` `ArenaSideNavSection` `ArenaTab` `ArenaTabs` | [`components/navigation/INDEX.md`](./components/navigation/INDEX.md) |
 
-74 components across 7 categories in this layer.
+75 components across 7 categories in this layer.

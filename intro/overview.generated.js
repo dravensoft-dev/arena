@@ -5,7 +5,6 @@
 var RESERVED = new Map([
   ["divider", "ArenaDivider, a rule between two regions (spec 01)"],
   ["kbd", "ArenaKbd, a key or a key combination (spec 02)"],
-  ["fieldset", "ArenaFieldset, a labelled group of form controls (spec 03)"],
   ["link", "ArenaLink, an inline link (spec 04)"],
   ["copy-button", "ArenaCopyButton, a button that copies a value (spec 05)"],
   ["meter", "ArenaMeter, a value inside a known range (spec 06)"],

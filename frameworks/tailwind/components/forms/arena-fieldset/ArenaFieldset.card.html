@@ -1,0 +1,51 @@
+<!-- @dsCard group="Tailwind" viewport="760x430" name="ArenaFieldset" subtitle="Legend, fields and the line that belongs to the set, rendered from ArenaFieldset.manifest.json" -->
+<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../../../../intro/styles.css">
+<link rel="stylesheet" href="../../../consume/Preflight.generated.css">
+<link rel="stylesheet" href="../../../consume/components/forms/arena-fieldset/ArenaFieldset.styles.generated.css">
+<link rel="stylesheet" href="../../../Specimen.css">
+</head><body><div id="root"></div>
+<script type="module">
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
+
+const manifest = await (await fetch('./ArenaFieldset.manifest.json')).json();
+
+function field(text) {
+  return el('div', {
+    class: 'bg-base-300 border-[length:var(--bw)] border-neutral rounded-sm px-3 py-2.5 '
+      + 'font-mono text-ctl-sm text-base-content/82',
+    text,
+  });
+}
+
+function fieldset({ legend, hint, error, disabled }) {
+  const state = error ? 'error' : 'neutral';
+  const c = arenaClassesFor(manifest, { state, disabled: String(Boolean(disabled)) });
+  const d = arenaSlotDataFor(manifest, { state, disabled: String(Boolean(disabled)) });
+  const root = el('fieldset', { class: c.root, ...d.root, disabled: disabled || undefined });
+  root.style.width = '260px';
+  root.append(el('legend', { class: c.legend, ...d.legend, text: legend }));
+  const body = el('div', { class: c.body, ...d.body });
+  body.append(field('A field'), field('Another field'));
+  const stack = el('div', { class: c.stack, ...d.stack });
+  stack.append(body);
+  if (error) {
+    const line = el('span', { class: c.error, ...d.error });
+    line.append(el('i', { class: `${c.statusIcon} ph-fill ph-warning-circle`, ...d.statusIcon, 'aria-hidden': 'true' }), error);
+    stack.append(line);
+  } else if (hint) stack.append(el('span', { class: c.hint, ...d.hint, text: hint }));
+  root.append(stack);
+  return root;
+}
+
+mountSpecimen({ sections: [
+  section('Hint, error, disabled', [
+    fieldset({ legend: 'Notifications', hint: 'We write at most once a day.' }),
+    fieldset({ legend: 'Notifications', error: 'Choose at least one.' }),
+    fieldset({ legend: 'Notifications', hint: 'Set by your workspace.', disabled: true }),
+  ]),
+  section('A long legend wraps over the fields', [
+    fieldset({ legend: 'Where the invoice for this workspace is sent every month' }),
+  ]),
+]});
+</script></body></html>

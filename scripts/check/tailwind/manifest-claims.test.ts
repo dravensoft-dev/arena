@@ -102,6 +102,7 @@ test('every status value maps to its own hue, and a neutral or editorial value t
 
 const ALWAYS_HUES = {
   ArenaErrorState: { root: 'danger', icon: 'danger' },
+  ArenaFieldset: { error: 'danger' },
   ArenaInput: { error: 'danger' },
   ArenaSelect: { error: 'danger' },
   ArenaTextarea: { error: 'danger' },
@@ -434,6 +435,13 @@ export const CLAIMS = {
       chosen: { checked }, slot: 'box', has: ['size-5', 'rounded-control-sm', 'inline-flex'],
       why: 'the box keeps its geometry through the merge, in both states',
     })),
+  ],
+  ArenaFieldset: [
+    { slot: 'root', has: ['block', 'border-0', 'p-0', 'm-0', 'min-w-0'], why: 'a fieldset is a plain grouping, so the platform border, padding and minimum width are taken away and the root keeps a display utility of its own' },
+    { slot: 'body', has: ['flex', 'flex-col', 'gap-items'], why: 'the fields of a set are spaced by the role named for them, and the legend sits outside that column' },
+    { slot: 'error', has: [INK], hasNot: ['text-error'], why: 'the set error reads the ink of the danger hue always gives its slot, the same as a field error' },
+    { chosen: { state: 'error' }, slot: 'statusIcon', has: [INK], why: 'the glyph is the second channel of the set error, in the danger ink' },
+    { chosen: { disabled: true }, slot: 'root', has: ['opacity-50'], why: 'a disabled set dims as a whole, as a disabled field does' },
   ],
   ArenaIconButton: [
     { chosen: { pressed: false }, slot: 'root', has: ['hover:bg-[color:var(--arena-emphasis-fill-hover,var(--emphasis-ghost-fill-hover))]'],

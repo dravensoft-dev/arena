@@ -1,0 +1,51 @@
+{
+  "component": "ArenaFieldset",
+  "slots": {
+    "root": "block border-0 p-0 m-0 min-w-0",
+    "legend": "p-0 mb-1.5 font-face-label text-ctl-xs tracking-label-role case-label text-ink-muted/(--level-ink-muted)",
+    "stack": "flex flex-col gap-1.5",
+    "body": "flex flex-col gap-items",
+    "hint": "font-body text-ctl-sm text-ink-muted/(--level-ink-muted)",
+    "error": "inline-flex items-center gap-inline font-body text-ctl-sm text-[color:var(--arena-hue-ink)]",
+    "statusIcon": "text-[length:var(--icon-md)]"
+  },
+  "kind": {
+    "root": "none",
+    "legend": "none",
+    "stack": "none",
+    "body": "none",
+    "hint": "none",
+    "error": "none",
+    "statusIcon": "none"
+  },
+  "internal": {
+    "state": "error when an error shows, from error"
+  },
+  "variants": {
+    "state": {
+      "neutral": {},
+      "error": {
+        "statusIcon": "text-[color:var(--arena-hue-ink)]"
+      }
+    },
+    "disabled": {
+      "true": {
+        "root": "opacity-50"
+      },
+      "false": {}
+    }
+  },
+  "defaultVariants": {
+    "state": "neutral",
+    "disabled": false
+  },
+  "hues": {
+    "always": {
+      "error": "danger"
+    },
+    "state": {
+      "neutral": null,
+      "error": "danger"
+    }
+  }
+}

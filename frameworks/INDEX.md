@@ -89,6 +89,7 @@ will report it.
 |---|---|---|---|---|
 | `ArenaButton` | Action button. One primary per view; danger stays outline. | `content` `destructive` `icon` `iconRight` `loading` `disabled` `type` `name` `value` `autoFocus` `form` `tabStop` `click` | button | angular, react |
 | `ArenaCheckbox` | A single checkbox. Checked shows a crimson fill with a check. | `checked` `label` `disabled` `required` `name` `value` `change` | checkbox | angular, react |
+| `ArenaFieldset` | A named set of related fields. A legend says what the set is, the fields sit under it, and one line of help or one error belongs to the set. Disabling it disables every native control inside it. A bordered group of fields is a card, not a fieldset. | `legend*` `content*` `hint` `error` `disabled` | (undeclared) | angular, react |
 | `ArenaIconButton` | Icon-only button. Carries an accessible name in every state, not only on hover. | `icon*` `label*` `showLabel` `pressed` `disabled` `type` `name` `value` `autoFocus` `form` `tabStop` `click` | button | angular, react |
 | `ArenaInput` | Text field with validation. Focus is a gold ring, error crimson, and valid green with a check. The four states are ordered and the order is normative: error, then focus, then valid, then neutral. An errored field stays crimson while it has focus, because the validation signal must not disappear at the moment the user acts on it. | `label` `id` `hint` `error` `valid` `required` `validate` `validateOn` `type` `icon` `prefix` `value` `disabled` `readOnly` `placeholder` `name` `autoComplete` `min` `max` `step` `maxLength` `pattern` `change` `blur` | textbox | angular, react |
 | `ArenaRadio` | One option inside an ArenaRadioGroup. Selected shows a crimson dot inside the ring. | `value*` `label` `hint` `disabled` | radiogroup | angular, react |
@@ -134,4 +135,4 @@ will report it.
 | `ArenaTab` | One tab in an ArenaTabs strip, and the panel it shows. ArenaTab draws the button; its content fills the tabpanel ArenaTabs renders beside the tablist. | `value*` `label*` `content` | none | angular, react |
 | `ArenaTabs` | A row of tabs and the one panel they switch between. Write one `ArenaTab` per view; ArenaTabs renders the tablist, the panel, and the keyboard. | `content` `value` `defaultValue` `change` | tabs | angular, react |
 
-74 components across 7 categories.
+75 components across 7 categories.

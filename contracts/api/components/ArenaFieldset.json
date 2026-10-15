@@ -1,0 +1,17 @@
+{
+  "component": "ArenaFieldset",
+  "description": "A named set of related fields. A legend says what the set is, the fields sit under it, and one line of help or one error belongs to the set. Disabling it disables every native control inside it. A bordered group of fields is a card, not a fieldset.",
+  "affordances": [],
+  "api": {
+    "legend": { "form": "primitive", "type": "string", "required": true,
+                "description": "Names the set, on screen and to assistive technology, which announces it on entering the set. Required, and guarded at runtime after trimming: a set with no name announces only that a group began. Say what the set is (\"Billing address\"), not that it is a group. Plain text." },
+    "content": { "form": "slot", "required": true,
+                 "description": "The fields. Required, and guarded at runtime: a fieldset renders a legend naming a set, so a childless one names nothing. The guard counts as the render path does: a false conditional is no child." },
+    "hint": { "form": "primitive", "type": "string",
+              "description": "A line of help for the whole set, under the fields, and part of the set's description." },
+    "error": { "form": "primitive", "type": "string",
+               "description": "A message about the set rather than about one field (\"Choose at least one\"), under the fields with a warning glyph. Wins over `hint`, and is part of the set's description while it shows." },
+    "disabled": { "form": "primitive", "type": "boolean", "default": false,
+                  "description": "Whether the whole set is unavailable. Every native control inside it is disabled by the platform, and the set dims. A control that only reflects an unavailable state, and stays focusable, does not inherit it." }
+  }
+}

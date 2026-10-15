@@ -197,6 +197,8 @@ export const SCALE_USES = new Map<string, string>([
   ['ArenaErrorState:root:px-8', 'an error state, the panel standing in for content that failed to load, at 32px on its sides, where pad-status-x answers 16px: air this slot spends at its own size, which no kind role asks, so a plugin cannot move it'],
   ['ArenaErrorState:root:py-14', 'an error state, the panel standing in for content that failed to load, at 56px above and below, where pad-status-y answers 14px: air this slot spends at its own size, which no kind role asks, so a plugin cannot move it'],
   ['ArenaErrorState:root:rounded-surface', 'an error state, the panel standing in for content that failed to load, whose corner is rounded-surface rather than the status tier'],
+  ['ArenaFieldset:legend:mb-1.5', 'a fieldset, under its legend: 6px of separation inside the component, the step ArenaInput:root:gap-1.5 takes under its label, which no role answers'],
+  ['ArenaFieldset:stack:gap-1.5', 'a fieldset, between its fields and the line of help or error under them: 6px of gap inside the component, the step ArenaInput:root:gap-1.5 takes above its hint, which no role answers'],
   ['ArenaIconButton:root:pl-3', 'an icon button showing its label, at 12px before its glyph: it sizes the glyph inset, not the room around content, so it is this slot\'s own length'],
   ['ArenaIconButton:root:pr-3.5', 'an icon button showing its label, at 14px after its label, where pad-control-x answers 12px: air this slot spends at its own size, which no kind role asks, so a plugin cannot move it'],
   ['ArenaInput:required:ml-1', 'the required mark after an input\'s label: 4px of separation inside the component, which no role answers'],

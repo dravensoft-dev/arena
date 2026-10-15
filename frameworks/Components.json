@@ -48,6 +48,7 @@
   "forms": [
     "ArenaButton",
     "ArenaCheckbox",
+    "ArenaFieldset",
     "ArenaIconButton",
     "ArenaInput",
     "ArenaRadio",
