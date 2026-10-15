@@ -294,8 +294,11 @@ a modal centres in flow and a toast is a card the host places, and neither goes 
 A styled **native** control does not either: `arena-select` is a real `<select>`, so the popup,
 its keyboard and its type-ahead are the user agent's.
 
-**`ArenaTooltip` and `ArenaMenu` pass `anchored: true` to their recipe**, because the CDK overlay
-positions them and the recipe has to say so.
+**An anchored panel is attached through `AnchoredOverlay.ts:ArenaAnchoredOverlay`**, which a component
+constructs in its own injection context. It attaches the panel's template to a CDK pane placed by
+the connected positions `arenaConnectedPositions(align, prefer, offset)` returns, pushed inside the
+viewport, and keeps the stack Escape and an outside press consult. Focus on open, focus restore
+and Tab-out are options it takes. `ArenaMenu`, `ArenaTooltip` and `ArenaPopover` stand on it.
 
 **A style binding may interpolate the name of the property it reads.** The table's cells bind
 `[style.--arena-column-width]` to `var(--arena-column-<key>-width)`, or to `initial` when the
@@ -330,7 +333,7 @@ so a bridge that has stopped being a bridge cannot pass by having nothing left t
 
 **What the gate does not cover** is whether an override's *value* is the right one for the
 class it lands on: the gate reads names and selectors, never paint, so only a real render
-catches that. `ArenaTooltip.demo.generated.html` and `ArenaMenu.demo.generated.html` are that render: both open a real CDK
+catches that. `ArenaTooltip.demo.generated.html`, `ArenaMenu.demo.generated.html` and `ArenaPopover.demo.generated.html` are that render: each opens a real CDK
 overlay in a real browser, which is where a z-index that stacks wrongly is visible at all.
 `check:cdk` fails the moment the bridge and the installed package disagree.
 

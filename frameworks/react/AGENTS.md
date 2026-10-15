@@ -94,8 +94,13 @@ keeps a `useState` to paint one.
 valid key, a card layout included. The value is a `var(--…)` with no literal operand, so it is not a
 computation the gate lists.
 
-**`ArenaTooltip` and `ArenaMenu` leave `anchored` unset and position themselves in CSS**, since
-nothing in this layer positions a surface from script.
+**An anchored panel is a manual `popover`, placed by script.** `UseAnchoredPanel.ts:useArenaAnchoredPanel(options)`
+shows the panel in the top layer, so no `overflow: hidden` or transformed ancestor clips it, and
+writes its `left` and `top` from `AnchoredPanel.ts:arenaPlacePanel(anchor, panel, viewport, align, offset, prefer)`
+on open, on scroll and on resize. The same hook keeps the stack Escape and an outside press
+consult, and moves focus where its options ask. `ArenaMenu`, `ArenaTooltip` and `ArenaPopover`
+stand on it, and the panel mounts only once the page has hydrated, so a server render draws the
+trigger alone. `ArenaOnboarding` places its coachmark from script too, by its own clamp, and it does not stand on the hook, as the calendar event's actions panel does not: that panel stays an in-flow surface on `--z-dropdown`.
 
 **A variant key the manifest does not declare resolves to no classes at all**, rather than
 falling back through a lookup table's `|| TONES.neutral`, which paints a value nobody asked for. Where a member can carry a value the

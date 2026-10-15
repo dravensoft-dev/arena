@@ -67,8 +67,7 @@ assertion using a raw `<button>` proved a case the demo pages did not have. Two 
 **Unpromised:** a child rendering no DOM node of its own at the wrapper's first position, or one
 that re-parents its content, is outside what an effect reading `firstElementChild` can reach.
 
-**The bubble is in flow, so an ancestor with `overflow: hidden` clips it** and it cannot leave a
-scroll container. Nothing in `contracts/behaviour/tooltip.json` requires it to escape one, so this is a bounded capability limit rather than a defect. Fixing it means a portal or a popover, which is a new capability. Place a tooltip where its trigger is not inside a clipping ancestor.
+**The bubble opens in the top layer**, over its trigger, so an `overflow: hidden` or transformed ancestor does not clip it. The bubble flips below its trigger near the top of the window and follows the trigger on scroll. Escape closes the topmost open panel, so a tooltip inside a popover or a dialog closes alone.
 
 **When the label repeats the name.** A trigger whose accessible name already says the label, such as an icon button named by that word, still references the tooltip. The bubble draws the same text and contributes no description, so a screen reader does not announce the word twice.
 

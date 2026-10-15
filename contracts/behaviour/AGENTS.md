@@ -30,9 +30,9 @@ pattern is added (`ls *.json | wc -l` for the total, run from this
 directory, and `grep -l 'apg/' *.json | wc -l` for the APG-derived share; note
 `navigation` cites an APG *practices* page rather than a *patterns* one, so a
 grep on `apg/patterns` alone undercounts by one). The exceptions are not a fixed
-list and must not be written as one: `progressbar`, `status` and `textbox` cite
-the ARIA 1.2 role reference instead, because APG has no pattern page for any of
-those roles; `figure-with-data-table` cites WCAG because APG has no chart
+list and must not be written as one: `progressbar`, `status`, `textbox` and
+`dialog-nonmodal` cite the ARIA 1.2 role reference instead, because APG has no
+pattern page for any of those; `figure-with-data-table` cites WCAG because APG has no chart
 pattern; `none` and `absent` cite nothing, because there is nothing to adopt
 from when the claim is that no pattern applies. See below for why those two are
 two patterns and not one.

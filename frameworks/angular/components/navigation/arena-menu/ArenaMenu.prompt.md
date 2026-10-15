@@ -57,7 +57,7 @@ on it would reach nobody. The menu also stops its own native click, so the activ
 Enter and Space are intercepted on the trigger and `preventDefault()`ed, so the platform does not
 also synthesize a click and open the menu twice. Escape closes and returns focus to the trigger;
 a pointer press outside the host **and** outside the pane closes without moving focus. Opening
-moves focus to the first enabled row.
+moves focus to the first enabled row. Tab from the last row closes the menu and returns focus to the trigger, as Escape does. Escape closes the topmost open panel, so a menu inside a popover or a dialog closes alone.
 
 `select` carries the **whole item**, not a key, since `ArenaMenuItem` deliberately has no `id`. A divider
 and a header are not rows at all and render no `menuitem`; a disabled row renders one and reports
