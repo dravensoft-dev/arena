@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useId } from 'react';
 
 import type { ArenaCatSlot, ArenaTagTone } from '../../../Api.generated';
 import { arenaCatIndex } from '../../../DataVisuals.ts';
@@ -19,8 +19,10 @@ export interface ArenaTagProps {
   colorId?: ArenaCatSlot;
   /** Whether the dismiss × is shown. Every layer gates the × on this member and never on whether anything listens for `onRemove`, because Arena never derives what it draws from what a consumer listens for. Removability is a declared input, not something inferred from the event. */
   removable?: boolean;
-  /** Whether removal is unavailable while the tag stays visible: a filter a consumer's permissions lock, not a tag that is merely inert. It reflects through `aria-disabled` rather than the native `disabled` attribute, so the × keeps its place in the tab order and a screen-reader user is told the action is unavailable instead of never finding it. With `removable` false there is no × and nothing to disable. */
+  /** Whether removal is unavailable while the tag stays visible: a filter a consumer's permissions lock, not a tag that is merely inert. The × carries `aria-disabled` rather than the native `disabled` attribute. A screen-reader user finds it where `tabStop` puts it and is told the action is unavailable. With `removable` false there is no × and nothing to disable. */
   disabled?: boolean;
+  /** Whether the remove button is reached from the page's Tab sequence. Set false when the tag lives inside a composite that manages its own focus (a field holding its chosen values as chips, with one tab stop and arrow keys between them), where reaching it by Tab would be a second way in. Arena writes tabindex="-1" and the button stays programmatically focusable; a positive tab order is not expressible and never should be. With `removable` false there is no button and nothing to hold out. */
+  tabStop?: boolean;
   /** The dismiss × was activated. Never emitted while `disabled`. */
   onRemove?: () => void;
 }
@@ -28,16 +30,18 @@ export interface ArenaTagProps {
 
 const arenaTagStyles = arenaStyles(manifest);
 
-export function ArenaTag({ className, children, tone = 'neutral', colorId, removable = false, disabled = false, onRemove }: ArenaTagProps) {
+export function ArenaTag({ className, children, tone = 'neutral', colorId, removable = false, disabled = false, tabStop = true, onRemove }: ArenaTagProps) {
   const locale = useArenaLocale();
+  const textId = `tag-${useId().replace(/:/g, '')}`;
+  const closeId = `${textId}-remove`;
   const styles = arenaTagStyles({ tone: colorId === undefined ? tone : undefined, colorId: colorId === undefined ? undefined : String(arenaCatIndex(colorId)), disabled });
   return (
     <span className={arenaClassName('ArenaTag', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()} data-arena-boundary="">
       <span aria-hidden="true" className={styles.dot()} data-arena-part={manifest.parts.dot} {...styles.$data.dot()} />
-      {children}
-      {removable && <button type="button" className={styles.close()} data-arena-part={manifest.parts.close} {...styles.$data.close()} aria-label={locale.tagRemove}
-        aria-disabled={disabled ? 'true' : undefined}
-        onClick={disabled ? undefined : onRemove}><i className="ph-bold ph-x" aria-hidden="true" /></button>}
+      <span id={textId} data-arena-boundary="">{children}</span>
+      {removable && <button type="button" id={closeId} className={styles.close()} data-arena-part={manifest.parts.close} {...styles.$data.close()}
+        aria-labelledby={`${closeId} ${textId}`} aria-disabled={disabled ? 'true' : undefined} tabIndex={tabStop ? undefined : -1}
+        onClick={disabled ? undefined : onRemove}><i className="ph-bold ph-x" aria-hidden="true" /><span className={styles.closeLabel()} data-arena-part={manifest.parts.closeLabel} {...styles.$data.closeLabel()}>{locale.tagRemove}</span></button>}
     </span>
   );
 }
