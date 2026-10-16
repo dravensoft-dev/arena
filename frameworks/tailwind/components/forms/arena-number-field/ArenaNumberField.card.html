@@ -1,0 +1,53 @@
+<!-- @dsCard group="Tailwind" viewport="760x493" name="ArenaNumberField" subtitle="Steppers, affixes and states, rendered from ArenaNumberField.manifest.json" -->
+<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../../../../intro/styles.css">
+<link rel="stylesheet" href="../../../consume/Preflight.generated.css">
+<link rel="stylesheet" href="../../../consume/components/forms/arena-number-field/ArenaNumberField.styles.generated.css">
+<link rel="stylesheet" href="../../../consume/hues/forms/arena-number-field/ArenaNumberField.hues.generated.css">
+<link rel="stylesheet" href="../../../Specimen.css">
+</head><body><div id="root"></div>
+<script type="module">
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
+
+const manifest = await (await fetch('./ArenaNumberField.manifest.json')).json();
+
+function field({ label, value, hint, error, state = 'neutral', required, prefix, suffix, steppers = true, atMin, atMax, readOnly, disabled }) {
+  const v = { state, steppers: String(steppers), readOnly: String(Boolean(readOnly)), disabled: String(Boolean(disabled)) };
+  const c = arenaClassesFor(manifest, v);
+  const d = arenaSlotDataFor(manifest, v);
+  const root = el('div', { class: c.root, ...d.root });
+  root.style.width = '220px';
+  const id = 'tw-nf-' + label.replace(/\s+/g, '-').toLowerCase();
+  const tag = el('label', { class: c.label, ...d.label, for: id }, label);
+  if (required) tag.append(el('span', { class: c.required, ...d.required, 'aria-hidden': 'true', text: '*' }));
+  root.append(tag);
+  const box = el('div', { class: c.field, ...d.field });
+  const stepper = (glyph, name, off) => el('button', { type: 'button', tabindex: '-1', class: c.stepper, ...d.stepper, 'aria-label': name, disabled: off || disabled || readOnly || undefined },
+    el('i', { class: `ph-bold ${glyph}`, 'aria-hidden': 'true' }));
+  if (steppers) box.append(stepper('ph-minus', 'Decrease', atMin));
+  if (prefix) box.append(el('span', { class: c.prefix, ...d.prefix, text: prefix }));
+  box.append(el('input', { class: c.input, ...d.input, id, role: 'spinbutton', inputmode: 'decimal', value, readonly: readOnly || undefined, disabled: disabled || undefined }));
+  if (suffix) box.append(el('span', { class: c.suffix, ...d.suffix, text: suffix }));
+  if (state === 'error') box.append(el('i', { class: `${c.statusIcon} ph-fill ph-warning-circle`, ...d.statusIcon, 'aria-hidden': 'true' }));
+  if (state === 'valid') box.append(el('i', { class: `${c.statusIcon} ph-fill ph-check-circle`, ...d.statusIcon, 'aria-hidden': 'true' }));
+  if (steppers) box.append(stepper('ph-plus', 'Increase', atMax));
+  root.append(box);
+  if (error) root.append(el('span', { class: c.error, ...d.error, text: error }));
+  else if (hint) root.append(el('span', { class: c.hint, ...d.hint, text: hint }));
+  return root;
+}
+
+mountSpecimen({ sections: [
+  section('Steppers at the two ends, the one at a bound disabled', [
+    field({ label: 'Replicas', value: '3', hint: 'Between 1 and 20.' }),
+    field({ label: 'Minimum', value: '1', atMin: true, required: true }),
+    field({ label: 'Budget', value: '48,200', prefix: '$', suffix: 'USD' }),
+  ]),
+  section('States, without steppers, read-only and disabled', [
+    field({ label: 'Weight', value: '500', suffix: 'kg', state: 'error', error: 'At most 100 kg.' }),
+    field({ label: 'Weight', value: '72.5', suffix: 'kg', state: 'valid', steppers: false }),
+    field({ label: 'Quota', value: '12', readOnly: true, hint: 'Set by the plan.' }),
+    field({ label: 'Quota', value: '12', disabled: true }),
+  ]),
+]});
+</script></body></html>

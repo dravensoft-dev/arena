@@ -528,7 +528,8 @@ test('a non-literal default is not compared, because the gate reads source and d
 
 test('IMPERATIVE_HANDLES names each allowed method by literal value, with a reason', () => {
   assert.deepEqual([...IMPERATIVE_HANDLES.keys()].sort(),
-    ['ArenaFileInput.clear', 'ArenaFileInput.files', 'ArenaInput.focus', 'ArenaInput.select'],
+    ['ArenaFileInput.clear', 'ArenaFileInput.files', 'ArenaInput.focus', 'ArenaInput.select', 'ArenaNumberField.focus',
+      'ArenaNumberField.select'],
     'a public method on a component class is an undeclared surface unless it is one of these, '
     + 'and widening the set is a decision rather than an oversight');
   for (const [name, reason] of IMPERATIVE_HANDLES) {

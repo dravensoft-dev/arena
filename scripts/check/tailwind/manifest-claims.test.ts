@@ -72,6 +72,7 @@ const HUES = {
   ArenaToast: { tone: { success: 'success', danger: 'danger' } },
   ArenaButton: { destructive: { true: 'danger' } },
   ArenaInput: { state: { error: 'danger', valid: 'success' } },
+  ArenaNumberField: { state: { error: 'danger', valid: 'success' } },
   ArenaCombobox: { state: { error: 'danger', valid: 'success' } },
   ArenaFileInput: { state: { error: 'danger' } },
   ArenaSelect: { state: { error: 'danger', valid: 'success' } },
@@ -110,6 +111,7 @@ const ALWAYS_HUES = {
   ArenaCombobox: { error: 'danger' },
   ArenaFieldset: { error: 'danger' },
   ArenaInput: { error: 'danger' },
+  ArenaNumberField: { error: 'danger' },
   ArenaFileInput: { error: 'danger', rejection: 'danger' },
   ArenaSelect: { error: 'danger' },
   ArenaTextarea: { error: 'danger' },
@@ -723,6 +725,7 @@ test('every slot that takes a placeholder colours it, rather than inheriting pre
   const wanted = 'placeholder:text-ink-muted/(--level-ink-muted)';
   for (const [component, slot] of [
     ['ArenaInput', 'input'],
+    ['ArenaNumberField', 'input'],
     ['ArenaTextarea', 'field'],
     ['ArenaCommandPalette', 'input'],
     ['ArenaCombobox', 'input'],

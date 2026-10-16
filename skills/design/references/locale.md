@@ -87,6 +87,8 @@ Every field is optional in what you provide, and one you leave out keeps the def
 | `stepperError` | `Error` | Spoken after the position word of a stepper step that needs attention. |
 | `timelineCurrent` | `Current` | Spoken before the title of the timeline milestone the timeline stands at. |
 | `timelineUpcoming` | `Upcoming` | Spoken before the title of a timeline milestone that lies ahead. A complete milestone is silent. |
+| `numberFieldDecrease` | `Decrease` | Names the number field's decrease stepper button. |
+| `numberFieldIncrease` | `Increase` | Names the number field's increase stepper button. |
 | `onboardingBack` | `Back` | The button that returns to the previous step. |
 | `onboardingSkip` | `Skip` | The button that leaves the tour. |
 | `onboardingNext` | `Next` | The button that moves to the next step. |

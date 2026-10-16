@@ -345,6 +345,12 @@ export const IMPERATIVE_HANDLES = new Map([
   ['ArenaFileInput.clear', 'After an upload completes the selection must be emptied, and no controlled '
     + 'value can say so, because a file selection cannot be set from outside: the platform forbids it. '
     + 'It fires nothing, since the caller asked.'],
+  ['ArenaNumberField.focus', 'The reason ArenaInput.focus carries, for the field beside it: returning focus '
+    + 'to a number after the step of a wizard it belongs to is settled is a gesture no declarative member '
+    + 'expresses, and autoFocus fires once at mount. A method on the class in both layers, and each '
+    + 'layer\'s AGENTS.md says so.'],
+  ['ArenaNumberField.select', 'The same handle, for the case that follows it: a number the caller expects '
+    + 'to be replaced is selected so the next keystroke replaces it.'],
 ]);
 
 export function classMembers(source: string, className: string) {
