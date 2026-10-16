@@ -13,5 +13,6 @@ export * from './arena-side-nav';
 export * from './arena-side-nav-collapsible';
 export * from './arena-side-nav-item';
 export * from './arena-side-nav-section';
+export * from './arena-stepper';
 export * from './arena-tab';
 export * from './arena-tabs';

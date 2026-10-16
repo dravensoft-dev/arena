@@ -175,6 +175,7 @@ export const COVERED = {
   'ArenaTab:angular': 'ArenaTabs.compliance.test.ts',
   'ArenaAccordionItem:angular': 'ArenaAccordion.compliance.test.ts',
   'ArenaPagination:angular': 'ArenaPagination.compliance.test.ts',
+  'ArenaStepper:angular': 'ArenaStepper.compliance.test.ts',
   'ArenaProgressBar:angular': 'ArenaProgressBar.compliance.test.ts',
   'ArenaMeter:angular': 'ArenaMeter.compliance.test.ts',
   'ArenaSpinner:angular': 'ArenaSpinner.compliance.test.ts',

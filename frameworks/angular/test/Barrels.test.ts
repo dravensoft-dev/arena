@@ -50,6 +50,10 @@ const PRIVATE = new Map([
    'the range, the clamp, the share and the standing `arena-meter` derives from its thresholds, authored once '
    + 'for both layers and compared by check:shared-arithmetic; a consumer reads the standing the meter draws '
    + 'and says, never by calling them.'],
+  ['navigation/arena-stepper/StepperState.ts',
+   'the rule that derives each step\'s state and reach from the index, kept apart so both layers hold one '
+   + 'copy check:shared-arithmetic can compare; an adopter reads a step\'s state from the list, never calls '
+   + 'it, and it is typechecked through the stepper that imports it.'],
   ['navigation/arena-pagination/PaginationWindow.ts',
    'the same shape one category over, and the standing precedent for it: `arenaPageWindow` decides '
    + 'which page numbers elide, which is `arena-pagination`\'s own arithmetic and not a member '

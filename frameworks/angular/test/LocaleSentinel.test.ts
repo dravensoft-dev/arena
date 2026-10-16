@@ -31,6 +31,7 @@ import { ArenaTag } from '../components/display/arena-tag/ArenaTag';
 import { ArenaLink } from '../components/navigation/arena-link/ArenaLink';
 import { ArenaCopyButton } from '../components/forms/arena-copy-button/ArenaCopyButton';
 import { ArenaMeter } from '../components/feedback/arena-meter/ArenaMeter';
+import { ArenaStepper } from '../components/navigation/arena-stepper/ArenaStepper';
 import { ArenaSkeleton } from '../components/display/arena-skeleton/ArenaSkeleton';
 import { ArenaSpinner } from '../components/feedback/arena-spinner/ArenaSpinner';
 import { ArenaSwitch } from '../components/forms/arena-switch/ArenaSwitch';
@@ -182,6 +183,16 @@ class CopyButtonHost {}
 })
 class MeterHost {}
 
+@Component({
+  selector: 'locale-sentinel-stepper-host',
+  standalone: true,
+  imports: [ArenaStepper],
+  template: `@for (index of [1, 9]; track index) {
+    <arena-stepper ariaLabel="Checkout" [index]="index" interactive [steps]="[{ label: 'Account' }, { label: 'Shipping', description: 'Two addresses' }, { label: 'Payment', error: true }]" />
+  }`,
+})
+class StepperHost {}
+
 @Component({ selector: 'locale-sentinel-spinner-host', standalone: true, imports: [ArenaSpinner], template: `<arena-spinner />` })
 class SpinnerHost {}
 
@@ -285,6 +296,7 @@ const CASES: Record<string, Case> = {
   ArenaTag: { hosts: [TagHost], consumer: ['Beta'] },
   ArenaLink: { hosts: [LinkHost], consumer: ['Release notes'] },
   ArenaSkeleton: { hosts: [SkeletonHost], consumer: [] },
+  ArenaStepper: { hosts: [StepperHost], consumer: ['Checkout', 'Account', 'Shipping', 'Two addresses', 'Payment'] },
   ArenaMeter: { hosts: [MeterHost], consumer: ['Storage used', '30 of 100 GB', '72 of 100 GB', '91 of 100 GB'] },
   ArenaSpinner: { hosts: [SpinnerHost], consumer: [] },
   ArenaSwitch: { hosts: [SwitchHost], consumer: ['Auto deploy'] },
