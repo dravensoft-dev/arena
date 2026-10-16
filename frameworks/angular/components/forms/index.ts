@@ -12,5 +12,6 @@ export * from './arena-number-field';
 export * from './arena-radio';
 export * from './arena-radio-group';
 export * from './arena-select';
+export * from './arena-slider';
 export * from './arena-switch';
 export * from './arena-textarea';
