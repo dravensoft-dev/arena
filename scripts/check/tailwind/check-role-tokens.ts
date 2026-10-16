@@ -97,7 +97,7 @@ export const SCALE_USES = new Map<string, string>([
   ['ArenaTextarea:field:leading-body', 'the leading of text a user TYPES, which follows the control the caret sits in rather than the prose a page sets. Moving it with a reading style plugin would reflow a form field under somebody mid-sentence'],
   ['ArenaOnboarding:panel:p-5', 'a coachmark, which is pinned to its anchor and sized in JS against the viewport, at 20px on every side, where pad-floating-x answers 24px and pad-floating-y 16px: air this slot spends at its own size, which no kind role asks, so a plugin cannot move it'],
 
-  ['ArenaActivityFeed:time:font-mono', 'a timestamp, read as a figure. This entry and the twenty-three under it are the mono face standing for FIGURES or CODE rather than for a register: a column of digits aligns by digit and a string read character by character has to be monospaced whatever the page sounds like, so a style plugin that sets its labels in the display face has said nothing about any of them. It is the half .arena-num ships for a figure a consumer draws themselves'],
+  ['ArenaActivityFeed:time:font-mono', 'a timestamp, read as a figure. This entry and the twenty-four under it are the mono face standing for FIGURES or CODE rather than for a register: a column of digits aligns by digit and a string read character by character has to be monospaced whatever the page sounds like, so a style plugin that sets its labels in the display face has said nothing about any of them. It is the half .arena-num ships for a figure a consumer draws themselves'],
   ['ArenaCalendar:dayNumber:font-mono', 'a day of the month, read as a figure'],
   ['ArenaCalendar:time:font-mono', 'a clock time, read as a figure'],
   ['ArenaTable:td:font-mono', 'the mono column of a table, which is what the face is for'],
@@ -111,6 +111,7 @@ export const SCALE_USES = new Map<string, string>([
   ['ArenaTextarea:counter:font-mono', 'a character count that must not jitter as it counts'],
   ['ArenaBulkActionBar:count:font-mono', 'a selection count that must not jitter as it counts'],
   ['ArenaPagination:page:font-mono', 'a page number, and the row of them has to align'],
+  ['ArenaStepper:marker:font-mono', 'a step number inside its marker, read as a figure, and every marker holds its digit at one width'],
   ['ArenaPagination:ellipsis:font-mono', 'the gap between two page numbers, which sits on their grid'],
   ['ArenaBottomNav:badge:font-mono', 'a count on a badge'],
   ['ArenaSideNav:badge:font-mono', 'the same count in the side navigation'],

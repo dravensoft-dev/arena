@@ -81,6 +81,10 @@ Every field is optional in what you provide, and one you leave out keeps the def
 | `meterOptimum` | `Good` | The standing a meter draws and says when its value lies in the region holding its optimum. |
 | `meterFair` | `Fair` | The standing a meter draws and says when its value lies in a region beside the one holding its optimum. |
 | `meterPoor` | `Poor` | The standing a meter draws and says when its value lies in the region opposite the one holding its optimum. |
+| `stepperComplete` | `Completed` | Spoken before the label of a stepper step that lies behind the current one. |
+| `stepperCurrent` | `Current step` | Spoken before the label of the stepper step the process stands at. |
+| `stepperUpcoming` | `Upcoming` | Spoken before the label of a stepper step that lies ahead of the current one. |
+| `stepperError` | `Error` | Spoken after the position word of a stepper step that needs attention. |
 | `onboardingBack` | `Back` | The button that returns to the previous step. |
 | `onboardingSkip` | `Skip` | The button that leaves the tour. |
 | `onboardingNext` | `Next` | The button that moves to the next step. |

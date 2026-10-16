@@ -54,7 +54,7 @@ test('a reserved name is never a class the tree ships, so a component that lands
 });
 
 test('every reserved name is kebab, is no polarity, and carries a reason naming its spec and no version', () => {
-  assert.equal(RESERVED.size, 14);
+  assert.equal(RESERVED.size, 13);
   for (const [name, reason] of RESERVED) {
     assert.match(name, KEBAB, name);
     assert.ok(!POLARITIES.includes(name), `${name} is a polarity, and a palette may always take its own`);

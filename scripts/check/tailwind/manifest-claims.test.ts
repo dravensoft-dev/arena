@@ -78,6 +78,7 @@ const HUES = {
   ArenaTextarea: { state: { error: 'danger' }, near: { true: 'warning' } },
   ArenaBulkActionBar: { destructive: { true: 'danger' } },
   ArenaMenu: { destructive: { true: 'danger' } },
+  ArenaStepper: { error: { true: 'danger' } },
 } as Record<string, Record<string, Record<string, string>>>;
 
 test('every status value maps to its own hue, and a neutral or editorial value to none', () => {
@@ -97,7 +98,7 @@ test('every status value maps to its own hue, and a neutral or editorial value t
     ['ArenaAlert', 'tone', ['neutral']], ['ArenaBadge', 'tone', ['neutral']],
     ['ArenaToast', 'tone', ['neutral']], ['ArenaAvatar', 'status', ['none', 'offline']],
     ['ArenaConfirmDialog', 'destructive', ['false']], ['ArenaTextarea', 'near', ['false']], ['ArenaTag', 'tone', ['neutral']],
-    ['ArenaFileInput', 'state', ['neutral']],
+    ['ArenaFileInput', 'state', ['neutral']], ['ArenaStepper', 'error', ['false']],
   ] as [string, string, string[]][])
     for (const value of values)
       assert.equal(manifests.get(component)?.hues?.[group]?.[value], null, `${component}.hues.${group}.${value} is not mapped to no hue`);
@@ -654,6 +655,11 @@ const READS: [component: string, slot: string, question: string, reads: string[]
   ['ArenaDivider', 'root', 'orientation.direction', ['[flex-direction:var(--arena-orientation-direction,row)]'], { labelled: 'true' }],
   ['ArenaDivider', 'root', 'orientation.rule-w', ['w-[var(--arena-orientation-rule-w,100%)]', 'h-[var(--arena-orientation-rule-h,var(--bw-separator))]'], { labelled: 'false' }],
   ['ArenaDivider', 'rule', 'orientation.rule-w', ['w-[var(--arena-orientation-rule-w,100%)]', 'h-[var(--arena-orientation-rule-h,var(--bw-separator))]'], { labelled: 'true' }],
+  ['ArenaStepper', 'root', 'orientation.direction', ['[flex-direction:var(--arena-orientation-direction,row)]']],
+  ['ArenaStepper', 'rail', 'orientation.direction', ['[flex-direction:var(--arena-orientation-direction,row)]']],
+  ['ArenaStepper', 'rail', 'orientation.rule-w', ['basis-[var(--arena-orientation-rule-w,100%)]']],
+  ['ArenaStepper', 'text', 'orientation.rule-w', ['basis-[var(--arena-orientation-rule-w,100%)]']],
+  ['ArenaStepper', 'connector', 'orientation.rule-w', ['w-[var(--arena-orientation-rule-w,100%)]', 'h-[var(--arena-orientation-rule-h,var(--bw-separator))]']],
   ['ArenaSwitch', 'track', 'orientation.track-w', ['w-[var(--arena-orientation-track-w,var(--arena-size-switch-long,var(--size-md-switch-long)))]', 'h-[var(--arena-orientation-track-h,var(--arena-size-switch-short,var(--size-md-switch-short)))]']],
   ['ArenaButton', 'root', 'emphasis.fill', ['bg-[color:var(--arena-emphasis-fill,var(--emphasis-primary-fill))]']],
   ['ArenaIconButton', 'root', 'emphasis.fill', ['bg-[color:var(--arena-emphasis-fill,transparent)]']],
