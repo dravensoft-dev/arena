@@ -63,6 +63,7 @@
     "ArenaRadio",
     "ArenaRadioGroup",
     "ArenaSelect",
+    "ArenaSlider",
     "ArenaSwitch",
     "ArenaTextarea"
   ],

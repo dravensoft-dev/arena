@@ -10,6 +10,7 @@ import { renderVocabulary, VOCABULARY_TARGET } from './generate-vocabulary.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { layerManifests } from '../../lib/tailwind/tailwind-compile.ts';
 import { answerOf, axesOf, readFamilies, targetOf } from '../../lib/tailwind/vocabulary.ts';
+import { MAX_WORDS, plain, words } from '../../check/arena/check-register.ts';
 
 test('every family is a row and a section, with its options, its default, its reach and who answers it', () => {
   const page = renderVocabulary();
@@ -63,6 +64,28 @@ test('a component answering a subset of a family, or with a default of its own, 
   assert.match(section, /ArenaSubset and ArenaTwin \(`arena-size-md`, `arena-size-sm`\)/);
   assert.match(section, /ArenaWhole[,.]/);
   assert.doesNotMatch(section, /ArenaWhole \(/);
+});
+
+test('a group of answerers too long for one sentence is cut into lines the register holds, each naming its options', () => {
+  const base = mkdtempSync(join(tmpdir(), 'vocabulary-long-group-'));
+  const dir = join(base, 'frameworks/tailwind/components/forms/arena-probe');
+  mkdirSync(dir, { recursive: true });
+  mkdirSync(join(base, 'frameworks/tailwind/vocabulary/arena-size'), { recursive: true });
+  writeFileSync(join(base, 'frameworks/tailwind/vocabulary/arena-size/Size.family.json'), JSON.stringify({ family: 'size', reach: 'context', description: 'd',
+    default: 'arena-size-md', variants: { 'arena-size-sm': '[--arena-size-h:1px]', 'arena-size-md': '[--arena-size-h:2px]', 'arena-size-lg': '[--arena-size-h:3px]', 'arena-size-xl': '[--arena-size-h:4px]' } }));
+  const names = Array.from({ length: 40 }, (_, i) => `ArenaProbe${String.fromCharCode(65 + (i % 26))}${i}`);
+  for (const name of names) {
+    writeFileSync(join(dir, `${name}.manifest.json`), JSON.stringify({ component: name,
+      answers: [{ family: 'size', options: ['arena-size-sm', 'arena-size-md', 'arena-size-lg'], default: 'arena-size-md' }], slots: { root: 'x-[var(--arena-size-h,2px)]' } }));
+  }
+  const section = renderVocabulary(base).split('\n## size\n')[1] ?? '';
+  const rows = section.split('\n').filter((line) => line.startsWith('  - '));
+  assert.ok(rows.length > 1, 'forty answerers stayed on one line');
+  for (const row of rows) {
+    assert.match(row, /\(`arena-size-lg`, `arena-size-md`, `arena-size-sm`\)\.$/);
+    assert.ok(words(plain(row)).length < MAX_WORDS, `a line of ${words(plain(row)).length} words: ${row}`);
+  }
+  assert.equal(rows.join(' ').match(/ArenaProbe/g)?.length, 40);
 });
 
 const KEYED = { family: 'column', reach: 'box', target: 'keyed', keyed: 'key', description: 'd', variants: {},

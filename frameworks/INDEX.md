@@ -104,6 +104,7 @@ will report it.
 | `ArenaRadio` | One option inside an ArenaRadioGroup. Selected shows a crimson dot inside the ring. | `value*` `label` `hint` `disabled` | radiogroup | angular, react |
 | `ArenaRadioGroup` | Single-selection group. Governs the value and distributes it to its child Radios. | `ariaLabel*` `content` `value` `name` `disabled` `change` | radiogroup | angular, react |
 | `ArenaSelect` | Styled native dropdown selector, with the same validation vocabulary ArenaInput carries. The four states are ordered and the order is the same normative one: error, then focus, then valid, then neutral. An errored control stays crimson while it has focus, because the validation signal must not disappear at the moment the user acts on it. A form that mixes ArenaInput and ArenaSelect is a form whose fields must report a failure the same way, or it gets validated by hand or not at all. | `label` `placeholder` `options` `value` `disabled` `required` `hint` `error` `valid` `icon` `name` `change` | select | angular, react |
+| `ArenaSlider` | A number chosen inside a range by moving a thumb along a track, or a span chosen with two thumbs. A thumb answers the pointer, touch and the keyboard, and a painted fill shows how far along it stands. Across or down, one value or two, it always carries a name and a readout. | `label*` `showLabel` `hint` `range` `value` `valueEnd` `min` `max` `step` `orientation` `valueFormat` `valuePrefix` `valueSuffix` `showValue` `disabled` `name` `change` `commit` `changeEnd` `commitEnd` | slider (react) | angular, react |
 | `ArenaSwitch` | A controlled on/off switch showing an icon per state. `confirm` gates a high-impact change through an ArenaConfirmDialog before it applies. | `state` `iconOn` `iconOff` `label*` `disabled` `confirm` `funcOn` `funcOff` `requestChange` | switch | angular, react |
 | `ArenaTextarea` | Multi-line text field with validation and an optional counter. | `label` `id` `hint` `error` `required` `counter` `autoResize` `value` `disabled` `readOnly` `placeholder` `name` `maxLength` `rows` `change` | textbox | angular, react |
 
@@ -149,4 +150,4 @@ will report it.
 | `ArenaTab` | One tab in an ArenaTabs strip, and the panel it shows. ArenaTab draws the button; its content fills the tabpanel ArenaTabs renders beside the tablist. | `value*` `label*` `content` | none | angular, react |
 | `ArenaTabs` | A row of tabs and the one panel they switch between. Write one `ArenaTab` per view; ArenaTabs renders the tablist, the panel, and the keyboard. | `content` `value` `defaultValue` `change` | tabs | angular, react |
 
-89 components across 7 categories.
+90 components across 7 categories.

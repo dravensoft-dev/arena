@@ -22,7 +22,7 @@
       "items": [
         "ArenaButton", "ArenaIconButton", "ArenaCopyButton", "ArenaInput", "ArenaTextarea", "ArenaSelect", "ArenaCombobox", "ArenaMultiSelect",
         "ArenaCheckbox", "ArenaCheckboxGroup", "ArenaSwitch", "ArenaRadioGroup", "ArenaRadio", "ArenaFieldset", "ArenaSegmentedControl",
-        "ArenaFileInput", "ArenaNumberField"
+        "ArenaFileInput", "ArenaNumberField", "ArenaSlider"
       ]
     },
     {

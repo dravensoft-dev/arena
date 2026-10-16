@@ -93,7 +93,7 @@ test('a COMPUTED entry fails when its function body does not read the member', (
 
 test('the real COMPUTED holds', () => {
   assert.deepEqual(computedProblems(), []);
-  assert.equal(COMPUTED.size, 15);
+  assert.equal(COMPUTED.size, 16);
 });
 
 const probeContracts = new Map<string, ContractCandidate>([

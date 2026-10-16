@@ -1,13 +1,12 @@
-/* Writes frameworks/VOCABULARY.md, the one page listing every class an adopter writes on a
- * component or on markup: one row per family with its reach, options, public property and the components that
+/* Writes frameworks/VOCABULARY.md, the one page listing every class an adopter writes on a component
+ * or on markup: one row per family with its reach, options, public property and the components that
  * answer it, then one section per family carrying its description, which is the argument for it.
- * Components that answer the same options, or have the same default, are named once, so a family
- * most components answer in part stays inside the sentence length the register holds. A component
- * links to its prompt in each layer that ships one; a table cell too long for the links names the
- * components alone, one longer than the register's sentence drops their options too, and the
- * family's section carries what the cell left out.
- * Every other consumer page points here rather than restating a family, and check:families holds
- * the page to a fresh emit. */
+ * Components that answer the same options, or have the same default, are named once, and a group
+ * whose line would reach the register's sentence length, list marker counted, is cut into lines that
+ * do not. A component links to its prompt in each layer that ships one; a table cell too long for the
+ * links names the components alone, one longer than the register's sentence drops their options too,
+ * and the family's section carries what the cell left out. Every other consumer page points here
+ * rather than restating a family, and check:families holds the page to a fresh emit. */
 
 import { existsSync, readdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -78,7 +77,16 @@ export function renderVocabulary(root = repoRoot) {
       groups.set(notes, [...(groups.get(notes) ?? []), link(one.component)]);
     }
     const joined = (names: string[]) => (names.length > 1 ? `${names.slice(0, -1).join(', ')} and ${names.at(-1)}` : names[0]!);
-    return [...groups].flatMap(([notes, names]) => (notes === '' ? names.sort() : [`${joined(names.sort())} (${notes})`]))
+    const lines = (names: string[], notes: string) => {
+      const out: string[][] = [];
+      for (const name of names) {
+        const last = out.at(-1);
+        if (last && words(plain(`${joined([...last, name])} (${notes})`)).length < MAX_WORDS) last.push(name);
+        else out.push([name]);
+      }
+      return out.map((chunk) => `${joined(chunk)} (${notes})`);
+    };
+    return [...groups].flatMap(([notes, names]) => (notes === '' ? names.sort() : lines(names.sort(), notes)))
       .sort();
   };
   const cell = (family: Family) => {

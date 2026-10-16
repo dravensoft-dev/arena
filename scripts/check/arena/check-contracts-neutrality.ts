@@ -229,6 +229,10 @@ export const COMPUTED = new Map<string, { reads: string; why: string }>([
     reads: 'frameworks/react/components/feedback/arena-dialog/ArenaDialog.tsx:DialogFrame(props)',
     why: 'the render compares the measured container with the breakpoint it names and fills the viewport below it',
   }],
+  [at('ArenaSlider', 'orientation'), {
+    reads: 'frameworks/react/components/forms/arena-slider/ArenaSlider.tsx:ArenaSlider(props)',
+    why: 'the render writes aria-orientation on each thumb and reads a pointer along the axis it names, so the member changes what the slider says and does',
+  }],
   [at('ArenaBadge', 'dot'), {
     reads: 'frameworks/react/components/display/arena-badge/ArenaBadge.tsx:ArenaBadge(props)',
     why: 'the render adds the dot element only when it is set',
