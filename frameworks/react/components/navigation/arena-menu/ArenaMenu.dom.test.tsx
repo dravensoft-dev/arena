@@ -247,3 +247,11 @@ test('a press inside a menu opened from a popover is inside the popover too', ()
   assert.ok(document.querySelector('[role="dialog"]'), 'a press on a row of the nested menu closed the popover');
   assert.ok(document.querySelector('[role="menu"]'), 'a press on a row of the nested menu closed the menu');
 });
+
+test('a shortcut hint is a kbd, so a reader meets keyboard input rather than loose text', () => {
+  const root = mount(<ArenaMenu trigger={<button type="button">Open</button>} items={[{ label: 'Duplicate', shortcut: '⌘D' }]} />);
+  const panel = open(root);
+  const hint = panel.querySelector<HTMLElement>('[data-arena-part="menu.shortcut"]')!;
+  assert.equal(hint.tagName, 'KBD', 'the hint is printed as a span, the same fact the palette and ArenaKbd print as a kbd');
+  assert.equal(hint.textContent, '⌘D', 'the string is printed as given, never split into keys');
+});

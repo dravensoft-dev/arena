@@ -118,7 +118,7 @@ function MenuRow({ item, onRun }: { item: ArenaMenuItem; onRun: () => void }) {
       className={styles.item()} data-arena-part={manifest.parts.item} {...styles.$data.item()}>
       {item.icon && <i className={`${item.icon} ${styles.icon()}`} data-arena-part={manifest.parts.icon} {...styles.$data.icon()} aria-hidden="true" />}
       <span className={styles.label()} data-arena-part={manifest.parts.label} {...styles.$data.label()}>{item.label}</span>
-      {item.shortcut && <span className={styles.shortcut()} data-arena-part={manifest.parts.shortcut} {...styles.$data.shortcut()}>{item.shortcut}</span>}
+      {item.shortcut && <kbd className={styles.shortcut()} data-arena-part={manifest.parts.shortcut} {...styles.$data.shortcut()}>{item.shortcut}</kbd>}
     </button>
   );
 }

@@ -117,7 +117,7 @@ export function ArenaCommandPalette({ className, open, commands, placeholder, ma
             aria-controls={listboxId} aria-label={hint || locale.commandPaletteSearch}
             aria-activedescendant={i >= 0 && i < filtered.length ? optionId(i) : undefined}
             className={styles.input()} data-arena-part={manifest.parts.input} {...styles.$data.input()} />
-          <span className={styles.esc()} data-arena-part={manifest.parts.esc} {...styles.$data.esc()}>{locale.commandPaletteEscape}</span>
+          <kbd className={styles.esc()} data-arena-part={manifest.parts.esc} {...styles.$data.esc()}>{locale.commandPaletteEscape}</kbd>
         </div>
         <div ref={listRef} id={listboxId} role="listbox" aria-label={locale.commandPaletteList} className={styles.list()} data-arena-part={manifest.parts.list} {...styles.$data.list()}>
           {filtered.length === 0 && <div className={styles.empty()} data-arena-part={manifest.parts.empty} {...styles.$data.empty()}>{arenaPhrase(locale.commandPaletteEmpty, { query: q })}</div>}
@@ -152,7 +152,7 @@ export function ArenaCommandPalette({ className, open, commands, placeholder, ma
                     {c.icon && <span className={styles.rowIcon()} data-arena-part={manifest.parts.rowIcon} {...styles.$data.rowIcon()}><i className={c.icon} aria-hidden="true" /></span>}
                     <span className={rowStyles.rowLabel()}
                       data-arena-part={manifest.parts.rowLabel} {...rowStyles.$data.rowLabel()}>{c.label}</span>
-                    {c.shortcut && <span className={styles.shortcut()} data-arena-part={manifest.parts.shortcut} {...styles.$data.shortcut()}>{c.shortcut}</span>}
+                    {c.shortcut && <kbd className={styles.shortcut()} data-arena-part={manifest.parts.shortcut} {...styles.$data.shortcut()}>{c.shortcut}</kbd>}
                   </>
                 );
                 return c.route

@@ -44,7 +44,7 @@
       "title": "Signals",
       "items": [
         "ArenaAlert", "ArenaBadge", "ArenaTag", "ArenaProgressBar", "ArenaSpinner",
-        "ArenaEmptyState", "ArenaErrorState"
+        "ArenaEmptyState", "ArenaErrorState", "ArenaKbd"
       ]
     },
     {
