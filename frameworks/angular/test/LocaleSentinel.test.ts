@@ -314,6 +314,7 @@ const NO_WORDS: Record<string, string> = {
   ArenaHero: DRAWS_MEMBERS,
   ArenaIconButton: DRAWS_MEMBERS,
   ArenaInput: DRAWS_MEMBERS,
+  ArenaKbd: DRAWS_MEMBERS,
   ArenaKeyValue: DRAWS_MEMBERS,
   ArenaMain: DRAWS_MEMBERS,
   ArenaMenu: DRAWS_MEMBERS,

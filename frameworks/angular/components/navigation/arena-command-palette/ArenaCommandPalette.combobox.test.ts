@@ -88,3 +88,16 @@ test('Enter closes before it runs, so a host that only listens to run is not lef
     fixture.destroy();
   }
 });
+
+test('the escape cap and every shortcut are kbd elements, printed as given', () => {
+  const { fixture, host } = render();
+  try {
+    const esc = host.querySelector<HTMLElement>('[data-arena-part="command-palette.esc"]')!;
+    assert.equal(esc.tagName, 'KBD', 'the escape cap is a span, so the one cap Arena already drew is not keyboard input to a reader');
+    const shortcut = host.querySelector<HTMLElement>('[data-arena-part="command-palette.shortcut"]')!;
+    assert.equal(shortcut.tagName, 'KBD');
+    assert.equal(shortcut.textContent, '⌘D', 'the string is printed whole, as the type field holds it');
+  } finally {
+    fixture.destroy();
+  }
+});

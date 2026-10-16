@@ -278,3 +278,17 @@ test('a menu inside a popover closes alone on Escape, and a press on its row sta
     disposeOverlays();
   }
 });
+
+test('a shortcut hint is a kbd, so a reader meets keyboard input rather than loose text', () => {
+  const { fixture, trigger } = render();
+  try {
+    press(trigger, 'Enter');
+    fixture.detectChanges();
+    const hint = panel()!.querySelector<HTMLElement>('[data-arena-part="menu.shortcut"]')!;
+    assert.equal(hint.tagName, 'KBD', 'the hint is printed as a span, the same fact the palette and arena-kbd print as a kbd');
+    assert.equal(hint.textContent, 'P', 'the string is printed as given, never split into keys');
+  } finally {
+    fixture.destroy();
+    disposeOverlays();
+  }
+});

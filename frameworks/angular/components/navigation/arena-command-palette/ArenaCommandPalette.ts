@@ -107,7 +107,7 @@ export function arenaActiveOptionId(uid: string, active: number, rowCount: numbe
                  [attr.aria-controls]="listboxId" [attr.aria-activedescendant]="activeId()"
                  [attr.aria-label]="hint() || locale.commandPaletteSearch"
                  (input)="onQuery($event)" (keydown)="onKey($event)" />
-          <span [class]="styles().esc()" [attr.data-arena-part]="parts.esc">{{ locale.commandPaletteEscape }}</span>
+          <kbd [class]="styles().esc()" [attr.data-arena-part]="parts.esc">{{ locale.commandPaletteEscape }}</kbd>
         </div>
         <div #list [class]="styles().list()" [attr.data-arena-part]="parts.list" [id]="listboxId" role="listbox" [attr.aria-label]="locale.commandPaletteList">
           @for (group of groups(); track group.name ?? '') {
@@ -131,7 +131,7 @@ export function arenaActiveOptionId(uid: string, active: number, rowCount: numbe
                 <span [class]="rowStyles(i).rowLabel()" [arenaSlotData]="rowStyles(i).$data.rowLabel()"
                       [attr.data-arena-part]="parts.rowLabel">{{ command.label }}</span>
                 @if (command.shortcut; as shortcut) {
-                  <span [class]="styles().shortcut()" [attr.data-arena-part]="parts.shortcut">{{ shortcut }}</span>
+                  <kbd [class]="styles().shortcut()" [attr.data-arena-part]="parts.shortcut">{{ shortcut }}</kbd>
                 }
               </a>
             } @else {
@@ -145,7 +145,7 @@ export function arenaActiveOptionId(uid: string, active: number, rowCount: numbe
               <span [class]="rowStyles(i).rowLabel()" [arenaSlotData]="rowStyles(i).$data.rowLabel()"
                       [attr.data-arena-part]="parts.rowLabel">{{ command.label }}</span>
               @if (command.shortcut; as shortcut) {
-                <span [class]="styles().shortcut()" [attr.data-arena-part]="parts.shortcut">{{ shortcut }}</span>
+                <kbd [class]="styles().shortcut()" [attr.data-arena-part]="parts.shortcut">{{ shortcut }}</kbd>
               }
             </button>
             }

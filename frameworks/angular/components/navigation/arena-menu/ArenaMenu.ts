@@ -50,7 +50,7 @@ export function isArenaActivatable(item: ArenaMenuItem): boolean {
               }
               <span [class]="styles().label()" [attr.data-arena-part]="parts.label">{{ item.label }}</span>
               @if (item.shortcut; as keys) {
-                <span [class]="styles().shortcut()" [attr.data-arena-part]="parts.shortcut">{{ keys }}</span>
+                <kbd [class]="styles().shortcut()" [attr.data-arena-part]="parts.shortcut">{{ keys }}</kbd>
               }
             </button>
           }
