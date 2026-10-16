@@ -65,6 +65,7 @@ A number chosen inside a range by moving a thumb, or a span chosen with two thum
 - **Snapping.** Each number snaps to `step`, counted from `min`. When `step` does not divide the range, the top is the highest step under `max`.
 - **Holding its own number.** With no `[value]` the slider starts at `min` and keeps each move, and a range's end starts at the top. A `[value]` above `[valueEnd]` is drawn at the end, and no output fires.
 - **The readout.** `valueFormat`, `valuePrefix` and `valueSuffix` write the readout and the reading of each thumb. A format with no `locale` follows the `ArenaLocale` locale. A range reads as one span through the locale's own pattern.
+- **Reactive forms.** With `ArenaSliderControl` from `@dravensoft/arena-angular/forms`, `formControl`, `formControlName` and `ngModel` bind the slider. The control's value is a number, or a `[start, end]` array for a range. A `null` puts each thumb back at its own bound. `disable()` disables every thumb, and leaving a thumb marks the control touched.
 - **What a form submits.** `name` rides on a hidden input holding the number. A range posts two values under that one name, the start first.
 - **One primary accent per view.** The fill takes the primary accent by default, as a ticked box does. Set `arena-accent-plain` on the container of a settings panel that holds several sliders.
 - **Why no range input.** `arena-input` has no `range` type. A native range cannot paint its filled part without a gradient, so this component stands in for it.
