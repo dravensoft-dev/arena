@@ -1,0 +1,43 @@
+{
+  "component": "ArenaFilterBar",
+  "seed": {
+    "label": "Deployment filters",
+    "applied": [
+      { "id": "region", "label": "Region: Europe West" },
+      { "id": "status", "label": "Status: Failed" }
+    ]
+  },
+  "slots": {
+    "content": [
+      {
+        "component": "ArenaSelect",
+        "members": {
+          "label": "Region",
+          "value": "eu-west",
+          "options": [
+            { "value": "eu-west", "label": "Europe West" },
+            { "value": "us-east", "label": "US East" }
+          ]
+        }
+      },
+      {
+        "component": "ArenaSegmentedControl",
+        "members": {
+          "ariaLabel": "Status",
+          "value": "failed",
+          "options": [
+            { "value": "all", "label": "Any status" },
+            { "value": "failed", "label": "Failed" },
+            { "value": "passed", "label": "Passed" }
+          ]
+        }
+      }
+    ]
+  },
+  "bind": {
+    "clear": {
+      "applied": []
+    }
+  },
+  "note": "Clear all empties applied. A removal carries one filter, which no knob edit expresses, so the page logs remove and keeps the chips."
+}

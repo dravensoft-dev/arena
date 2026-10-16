@@ -1,0 +1,11 @@
+{
+  "name": "ArenaAppliedFilter",
+  "kind": "object",
+  "description": "One filter in effect, drawn by an ArenaFilterBar as a removable chip. The host writes the label already formatted, such as \"Region: Europe West\"; the bar formats nothing.",
+  "fields": {
+    "id": { "form": "primitive", "type": "string", "required": true,
+            "description": "A stable identity for the filter, so a host can switch on it rather than on the label." },
+    "label": { "form": "primitive", "type": "string", "required": true,
+               "description": "The chip's text, read after the remove word by the chip's remove button." }
+  }
+}

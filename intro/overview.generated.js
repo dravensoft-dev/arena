@@ -5,7 +5,6 @@
 var RESERVED = new Map([
   ["sparkline", "ArenaSparkline, a small inline trend chart (spec 17)"],
   ["gauge-chart", "ArenaGaugeChart, one value against banded thresholds (spec 18)"],
-  ["filter-bar", "ArenaFilterBar, the filters applied to a collection (spec 19)"],
   ["funnel-chart", "ArenaFunnelChart, the stages a count narrows through (spec 20)"],
   ["split-button", "ArenaSplitButton, an action with a menu of alternatives (spec 24)"],
   ["tree-view", "ArenaTreeView, a hierarchy that expands and collapses (spec 25)"],

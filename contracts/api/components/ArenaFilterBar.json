@@ -1,0 +1,19 @@
+{
+  "component": "ArenaFilterBar",
+  "description": "A labelled row of filter controls above what they narrow, with the filters in effect as removable chips and a Clear all control. The bar holds no filter state: the host passes the controls, writes `applied` and answers each removal. Removing a chip keeps focus in the bar. The bar stacks by its own width, never by the viewport's, and stacking reorders nothing.",
+  "affordances": ["focus", "hover"],
+  "api": {
+    "label": { "form": "primitive", "type": "string", "required": true,
+               "description": "Names the group of filters, such as \"Deployment filters\", never \"Filters\". Required, and guarded at runtime after trimming: a group with no name announces only that a group began." },
+    "content": { "form": "slot", "required": true,
+                 "description": "The filter controls, in order: selects, inputs, segmented controls, comboboxes. Fills the bar's control row and never replaces the bar. Required, and guarded at runtime: a bar with no control filters nothing." },
+    "applied": { "form": "array", "of": "ArenaAppliedFilter", "default": [],
+                 "description": "The filters in effect, drawn as chips in a list after the controls. An empty list draws no chip row." },
+    "clearable": { "form": "primitive", "type": "boolean", "default": true,
+                   "description": "Whether Clear all is drawn while `applied` holds a filter. Every layer gates on this member and never on whether anything listens for `clear`." },
+    "remove": { "form": "event", "payload": "ArenaAppliedFilter",
+                "description": "A chip's remove button was activated; carries the whole filter. Once the host drops it from `applied`, focus moves to the chip now in its place, else the last chip, else the first control. A control the person has moved to since keeps focus." },
+    "clear": { "form": "event",
+               "description": "Clear all was activated. Once the host empties `applied`, focus moves to the first control." }
+  }
+}
