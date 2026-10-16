@@ -224,7 +224,7 @@ export const BEHAVIOURAL = new Set([
 
   'states.disabled', 'states.required', 'states.readonly',
   'states.multiselectable', 'states.busy', 'states.posinset',
-  'states.valuenow', 'states.valuemin', 'states.valuemax', 'states.valuetext',
+  'states.valuenow', 'states.valuemin', 'states.valuemax', 'states.valuetext', 'states.orientation',
 ]);
 
 export function evaluate(
