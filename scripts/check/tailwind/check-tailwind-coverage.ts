@@ -111,6 +111,7 @@ export const EXCLUDED = new Map([
   ['delay-close', 'script-readable: a setTimeout argument for pointer intent, never a utility'],
   ['dismiss-default', 'script-readable: the host runs the toast clock in JS, never a utility'],
   ['dismiss-actionable', 'script-readable: the host runs the toast clock in JS, never a utility'],
+  ['dismiss-confirmation', 'script-readable: a copy button runs its confirmation clock in JS, never a utility'],
   ['limit-pagination-siblings', 'script-readable: an array bound, and the elision threshold derives from it in JS'],
 ]);
 

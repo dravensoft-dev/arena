@@ -204,9 +204,10 @@ Two more `$type: duration` families, deliberately not part of `dur` or `loop` ab
 | `--delay-close` | 120ms | grace period after the pointer leaves, so travelling between a trigger and its own tooltip does not dismiss it |
 | `--dismiss-default` | 4200ms | how long an `ArenaToast` that only has to be read stays before it auto-dismisses |
 | `--dismiss-actionable` | 7000ms | how long an `ArenaToast` carrying a button stays, per WCAG 2.2.1: it asks the reader to *decide*, not only to read |
+| `--dismiss-confirmation` | 2000ms | how long `ArenaCopyButton` shows its check or its warning before the copy glyph returns |
 
-`delay` applies to the **pointer only**: a keyboard focus must reveal its tooltip immediately, and routing that path through `--delay-open` would make an already-hard-to-reach control also feel broken. `dismiss` is run by the *host*, never by `ArenaToast` itself. `ArenaToast` renders and exposes `persist`, which overrides both values and never auto-dismisses, and which is mandatory in critical/error states so they are not missed (see the danger convention in [`AGENTS.md`](./AGENTS.md) beside this file).
+`delay` applies to the **pointer only**: a keyboard focus must reveal its tooltip immediately, and routing that path through `--delay-open` would make an already-hard-to-reach control also feel broken. A toast's `dismiss` is run by the *host*, never by `ArenaToast` itself, while `ArenaCopyButton` runs `--dismiss-confirmation` on a clock of its own and clears it when it unmounts. `ArenaToast` renders and exposes `persist`, which overrides both toast values and never auto-dismisses, and which is mandatory in critical/error states so they are not missed (see the danger convention in [`AGENTS.md`](./AGENTS.md) beside this file).
 
-**Script-readable, not Tailwind-exposed**: both families' consumers are `setTimeout` arguments in JavaScript, not CSS properties, so neither carries a utility class. They reach React as `delayOpen`/`delayClose`/`dismissDefault`/`dismissActionable` (`frameworks/react/Tokens.generated.js`) and are named in `check:coverage`'s `EXCLUDED` map for that reason rather than reaching a utility.
+**Script-readable, not Tailwind-exposed**: both families' consumers are `setTimeout` arguments in JavaScript, not CSS properties, so neither carries a utility class. They reach React as `delayOpen`/`delayClose`/`dismissDefault`/`dismissActionable`/`dismissConfirmation` (`frameworks/react/Tokens.generated.js`) and are named in `check:coverage`'s `EXCLUDED` map for that reason rather than reaching a utility.
 
 

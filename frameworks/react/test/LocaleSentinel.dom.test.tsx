@@ -43,6 +43,7 @@ import { ArenaDoughnutChart } from '../components/charts/arena-doughnut-chart/Ar
 import { ArenaRadarChart } from '../components/charts/arena-radar-chart/ArenaRadarChart.tsx';
 import { ArenaScatterChart } from '../components/charts/arena-scatter-chart/ArenaScatterChart.tsx';
 import { ArenaLink } from '../components/navigation/arena-link/ArenaLink.tsx';
+import { ArenaCopyButton } from '../components/forms/arena-copy-button/ArenaCopyButton.tsx';
 
 afterEach(() => cleanup());
 
@@ -141,6 +142,7 @@ const CASES: Record<string, Case> = {
   ArenaSwitch: { renders: [() => <ArenaSwitch label="Auto deploy" confirm />], consumer: ['Auto deploy'] },
   ArenaFileInput: { renders: [() => <ArenaFileInput label="Passport scan" />, () => <ArenaFileInput label="Passport scan" droppable multiple required />], consumer: ['Passport scan'] },
   ArenaBulkActionBar: { renders: [() => <ArenaBulkActionBar count={3} actions={[{ id: 'archive', label: 'Archive' }]} />], consumer: ['Archive'] },
+  ArenaCopyButton: { renders: [() => <ArenaCopyButton text="bun add @dravensoft/arena-react" />], consumer: [] },
   ArenaCombobox: {
     renders: [
       () => <ArenaCombobox label="Region" placeholder="Search regions" options={[]} />,
@@ -292,3 +294,24 @@ for (const [name, one] of Object.entries(CASES)) {
     assert.deepEqual(found, [], `${name} still draws: ${found.join(' | ')}`);
   });
 }
+
+test('ArenaCopyButton says its confirmation and its failure in the locale', async () => {
+  const realClipboard = Object.getOwnPropertyDescriptor(navigator, 'clipboard');
+  const found: string[] = [];
+  try {
+    for (const [writeText, word] of [[async () => {}, '⟦copyButtonCopied⟧'], [null, '⟦copyButtonFailed⟧']] as const) {
+      Object.defineProperty(navigator, 'clipboard', { configurable: true, value: writeText ? { writeText } : undefined });
+      const host = mount(<ArenaLocaleProvider value={sentinelLocale()}><ArenaCopyButton text="bun add @dravensoft/arena-react" /></ArenaLocaleProvider>);
+      const button = host.querySelector('button');
+      await act(async () => { button?.click(); });
+      const region = host.querySelector('[role="status"]');
+      assert.equal(region?.textContent, word, 'the press said nothing, so this case reached no word');
+      found.push(...strayWords(host.ownerDocument.body, []));
+      cleanup();
+    }
+  } finally {
+    if (realClipboard) Object.defineProperty(navigator, 'clipboard', realClipboard);
+    else delete (navigator as { clipboard?: unknown }).clipboard;
+  }
+  assert.deepEqual(found, [], `ArenaCopyButton still draws: ${found.join(' | ')}`);
+});

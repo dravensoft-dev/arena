@@ -238,8 +238,9 @@
 
   /*
      Automatic permanence: how long a transient notice remains before it
-     withdraws itself. The HOST owns dismissal, not ArenaToast: ArenaToast renders and exposes
-     persist, the host runs the clock.
+     withdraws itself. The HOST owns a toast's dismissal, not ArenaToast: ArenaToast renders and
+     exposes persist, the host runs the clock. A confirmation drawn in place is withdrawn by the
+     component that drew it, which runs its own clock.
    */
   /*
      A toast that only has to be read. This is the value the Delivery Console
@@ -253,6 +254,12 @@
      critical states.
    */
   --dismiss-actionable:7000ms;
+  /*
+     A confirmation drawn in place of a control's own glyph, such as a copy button's
+     check. Long enough to see the glyph and hear one word, and short enough that the
+     control is back at rest before the reader reaches for it again.
+   */
+  --dismiss-confirmation:2000ms;
 
   /*
      Quantity bounds: system-wide invariants about how much is shown. Not
