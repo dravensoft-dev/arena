@@ -281,6 +281,15 @@ test('evaluate resolves the role-named-by-key requirements, single and array', (
   assert.equal(evaluate(el('div'), 'roles.item', '', 'radiogroup'), false);
 });
 
+test('a header is decided by its heading role, native or explicit, and a styled div is not one', () => {
+  for (const tag of ['h2', 'h3', 'h6']) {
+    assert.equal(evaluate(el(tag), 'roles.heading', '', 'accordion'), true, tag);
+  }
+  assert.equal(evaluate(el('div', { role: 'heading', 'aria-level': '3' }), 'roles.heading', '', 'accordion'), true);
+  assert.equal(evaluate(el('div'), 'roles.heading', '', 'accordion'), false);
+  assert.equal(evaluate(el('button'), 'roles.heading', '', 'accordion'), false, 'the trigger is not its own heading');
+});
+
 test('evaluate credits native checked-ness for states.checked', () => {
 
   assert.equal(evaluate(el('input', { type: 'checkbox' }), 'states.checked', '', 'checkbox'), true);

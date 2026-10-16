@@ -1,0 +1,16 @@
+{
+  "name": "accordion",
+  "source": "https://www.w3.org/WAI/ARIA/apg/patterns/accordion/",
+  "description": "A vertical stack of sections, each a heading holding a button that shows and hides the panel below it. What separates it from disclosure is the relationship between siblings: the headers belong to one set, so a single-expansion accordion closes the others when one opens, and the page outline lists every section through its heading. Every header stays in the Tab sequence; there is no roving tab stop. APG lists Enter, Space, Tab and Shift+Tab and no arrow key, Home or End, so this pattern requires none of them: a component that moves focus between headers with them proves that in its own suites.",
+  "element": "button",
+  "requires": {
+    "roles.element": "button (a native button element), the header's trigger",
+    "roles.label": "text content, aria-labelledby, or aria-label on the button",
+    "roles.heading": "a heading element with a level whose only content is the button",
+    "roles.expanded": "aria-expanded on the button -- true while its panel is shown, false while it is hidden",
+    "roles.controls": "aria-controls on each button, naming the id of its own panel",
+    "keyboard.Enter": "activates the button and toggles its panel",
+    "keyboard.Space": "activates the button and toggles its panel",
+    "states.disabled": "aria-disabled set to true on the button of a shown panel the accordion does not let collapse"
+  }
+}

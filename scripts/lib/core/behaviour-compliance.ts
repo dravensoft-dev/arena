@@ -76,7 +76,7 @@ export const elementRoles = memoBy(
   },
 );
 
-export const LABEL_ACCEPTS_TEXT = new Set(['button', 'checkbox', 'disclosure', 'switch']);
+export const LABEL_ACCEPTS_TEXT = new Set(['accordion', 'button', 'checkbox', 'disclosure', 'switch']);
 
 export function roleOf(el: GenericElement, resolveId?: IdResolver) {
   const explicit = el.getAttribute('role');
@@ -192,6 +192,7 @@ const ROLE_NAMED_BY_KEY: Record<string, string | string[]> = {
   'roles.group': ['group', 'radiogroup'],
   'roles.item': ['radio', 'menuitem', 'option'],
   'roles.graphic': 'img',
+  'roles.heading': 'heading',
 };
 
 export const DECIDABLE = new Set([
@@ -304,6 +305,8 @@ export function evaluate(
 }
 
 export const QUANTIFIED = new Map([
+  ['accordion:roles.controls',
+    'each header button references its own panel, and every panel mounts whether shown or not, so a header whose panel id drifted is unmet however correct the first header is -- the idiom tabs:roles.controls states.'],
   ['feed:roles.article',
     'one article per unit of content, so a feed whose third row lost its role is unmet however correct the first row is. Decidable per element through ROLE_NAMED_BY_KEY, and quantified over elements the component renders itself -- which is what separates it from the two entries in NOT_QUANTIFIED below.'],
   ['listbox:states.selected',
