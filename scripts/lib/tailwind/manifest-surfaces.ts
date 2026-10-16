@@ -26,6 +26,11 @@ export const MANIFEST_COVERS = new Map([
     reason: 'The tablist and its tab buttons are ArenaTabs\'; the panel is ArenaTab\'s. The roving stop that '
       + 'carries the focus ring sits on a tab, which is the member ArenaTab contracts.',
   }],
+  ['ArenaAccordion', {
+    covers: ['ArenaAccordion', 'ArenaAccordionItem'],
+    reason: 'The stack is ArenaAccordion\'s; each heading, its button and the panel it shows are '
+      + 'ArenaAccordionItem\'s. The item has no surface of its own: it IS a section of the stack.',
+  }],
   ['ArenaBottomNav', {
     covers: ['ArenaBottomNav', 'ArenaBottomNavItem'],
     reason: 'One manifest draws the whole bar -- the fixed row is ArenaBottomNav\'s and the equal '

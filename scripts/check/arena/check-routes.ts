@@ -96,7 +96,7 @@ export const ROUTES: Route[] = [
       'frameworks/*/components/*/INDEX.md',
       'frameworks/*/components/**/*.prompt.md',
     ],
-    budget: 35_400,
+    budget: 35_900,
     reason:
       'the route every build takes, and the only one paid per screen rather than per project. The '
       + 'layer-neutral index is deliberately not a stop: it answers whether a component exists at '
@@ -110,7 +110,7 @@ export const ROUTES: Route[] = [
       + 'is arithmetic no member description can carry. The number is what the stops measure with '
       + 'room for one component to grow, and the ceiling a new consumer rule is argued against. Each '
       + 'prompt names its vocabulary families and their properties, and the layer directory links '
-      + 'the install references. The category index grows by a row per component a category gains.',
+      + 'the install references. A category index grows by a row per component it gains, two for a compound family.',
   },
   {
     name: 'consumer-install',

@@ -12,7 +12,7 @@ import {
 
 test('MANIFEST_COVERS names the manifests that draw more than their own component', () => {
   assert.deepEqual([...MANIFEST_COVERS.keys()].sort(), [
-    'ArenaBoard', 'ArenaBottomNav', 'ArenaCalendar', 'ArenaCheckbox', 'ArenaCombobox', 'ArenaConfirmDialog', 'ArenaErrorState', 'ArenaPeopleList', 'ArenaRadio', 'ArenaSideNav', 'ArenaTable', 'ArenaTabs',
+    'ArenaAccordion', 'ArenaBoard', 'ArenaBottomNav', 'ArenaCalendar', 'ArenaCheckbox', 'ArenaCombobox', 'ArenaConfirmDialog', 'ArenaErrorState', 'ArenaPeopleList', 'ArenaRadio', 'ArenaSideNav', 'ArenaTable', 'ArenaTabs',
   ]);
 });
 
@@ -52,8 +52,8 @@ test('every component in scope resolves to a manifest, so no name is left with n
 });
 
 test('the scope is every component but the ones that draw by hand', () => {
-  assert.equal(everyComponent().length, 84);
-  assert.equal(inScope().length, 77);
+  assert.equal(everyComponent().length, 86);
+  assert.equal(inScope().length, 79);
   assert.equal(inScope().some((n) => HAND_DRAWN.has(n)), false);
 });
 

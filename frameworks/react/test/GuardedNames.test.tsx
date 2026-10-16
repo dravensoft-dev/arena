@@ -28,6 +28,7 @@ import { ArenaFieldset } from '../components/forms/arena-fieldset/ArenaFieldset.
 import { ArenaCombobox } from '../components/forms/arena-combobox/ArenaCombobox.tsx';
 import { ArenaMultiSelect } from '../components/forms/arena-multi-select/ArenaMultiSelect.tsx';
 import { ArenaSkipLink } from '../components/layout/arena-skip-link/ArenaSkipLink.tsx';
+import { ArenaAccordionItem } from '../components/layout/arena-accordion-item/ArenaAccordionItem.tsx';
 import { ArenaLink } from '../components/navigation/arena-link/ArenaLink.tsx';
 import { ArenaMeter } from '../components/feedback/arena-meter/ArenaMeter.tsx';
 import { ArenaHero } from '../components/layout/arena-hero/ArenaHero.tsx';
@@ -66,6 +67,7 @@ const WITH_A_BLANK_NAME = new Map([
   ['ArenaFileInput', () => <ArenaFileInput label={BLANK} />],
   ['ArenaLink', () => <ArenaLink href={BLANK}>Release notes</ArenaLink>],
   ['ArenaMeter', () => <ArenaMeter label={BLANK} value={1} />],
+  ['ArenaAccordionItem', () => <ArenaAccordionItem value={BLANK} label={BLANK} />],
 ]);
 
 export function guardedNames(dir: string, read = readFileSync, list = readdirSync) {

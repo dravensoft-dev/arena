@@ -7,6 +7,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { renderToStaticMarkup } from 'react-dom/server';
 import React from 'react';
+import { ArenaAccordion } from './components/layout/arena-accordion/ArenaAccordion.tsx';
 import { ArenaActivityFeed } from './components/display/arena-activity-feed/ArenaActivityFeed.tsx';
 import { ArenaBarChart } from './components/charts/arena-bar-chart/ArenaBarChart.tsx';
 import { ArenaBreadcrumbs } from './components/navigation/arena-breadcrumbs/ArenaBreadcrumbs.tsx';
@@ -32,6 +33,7 @@ const COLUMNS: readonly ArenaTableColumn[] = Object.freeze([{ header: 'Build' }]
 
 test('every collection prop takes data the consumer holds as readonly, and nothing writes to it', () => {
   const markup = [
+    renderToStaticMarkup(<ArenaAccordion multiple defaultValues={LABELS} values={LABELS} />),
     renderToStaticMarkup(<ArenaActivityFeed label="Activity" items={ITEMS} />),
     renderToStaticMarkup(<ArenaBreadcrumbs ariaLabel="Trail" items={CRUMBS} />),
     renderToStaticMarkup(<ArenaBulkActionBar count={1} actions={ACTIONS} />),

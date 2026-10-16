@@ -109,6 +109,8 @@ will report it.
 
 | Component | What it is | Takes | Behaviour | Layers |
 |---|---|---|---|---|
+| `ArenaAccordion` | A stack of sections under headings, each heading a button that shows and hides the panel below it. Write one `ArenaAccordionItem` per section; ArenaAccordion owns which panels are open, the heading level and the keys between headers. `multiple` decides the mode and which pair of members is read. | `content` `multiple` `collapsible` `headingLevel` `value` `defaultValue` `change` `values` `defaultValues` `valuesChange` | accordion (react) | angular, react |
+| `ArenaAccordionItem` | One section of an ArenaAccordion: its header and the panel the header shows and hides. ArenaAccordionItem draws the heading, the button and the panel; the accordion it sits in decides whether the panel is open. | `value*` `label*` `content` | none (react) | angular, react |
 | `ArenaBoard` | The frame of a board: columns side by side, as wide as the room allows and never narrower than one column's minimum, scrolling sideways when they no longer fit. The frame is one tab stop carrying a group role and a name, which is what a scrolling region needs to be reachable by keyboard at all. ArenaBoard draws no card and moves nothing. What a column holds is the consumer's, and reordering is theirs too. | `label*` `content*` | scrollable-region | angular, react |
 | `ArenaBoardColumn` | One column of an ArenaBoard. The column is a named head with a count and a control. Under the head sits a stack of whatever the consumer puts in it, and a footer for the one action that adds to it. The cards are the consumer's own, because a card on a board carries that product's fields and nothing general is left once they are removed. | `title*` `headingLevel` `count` `summary` `colorId` `action` `content` `footer` | none | angular, react |
 | `ArenaDivider` | A rule between two regions, drawn with the separator's own edge and width. Absent a label it is one <hr>, which a reader meets as a separator. With a label it is two decorative rules and the word between them, kept as text. The class arena-orientation-vertical stands it across the line it sits in. A vertical rule stretches to the height of a flex row, such as an arena-row, and is still announced as a separator. The divider owns no spacing: the stack or the row it sits in decides the air on either side. | `label` | none | angular, react |
@@ -144,4 +146,4 @@ will report it.
 | `ArenaTab` | One tab in an ArenaTabs strip, and the panel it shows. ArenaTab draws the button; its content fills the tabpanel ArenaTabs renders beside the tablist. | `value*` `label*` `content` | none | angular, react |
 | `ArenaTabs` | A row of tabs and the one panel they switch between. Write one `ArenaTab` per view; ArenaTabs renders the tablist, the panel, and the keyboard. | `content` `value` `defaultValue` `change` | tabs | angular, react |
 
-84 components across 7 categories.
+86 components across 7 categories.
