@@ -45,6 +45,7 @@ import { ArenaScatterChart } from '../components/charts/arena-scatter-chart/Aren
 import { ArenaLink } from '../components/navigation/arena-link/ArenaLink.tsx';
 import { ArenaCopyButton } from '../components/forms/arena-copy-button/ArenaCopyButton.tsx';
 import { ArenaMeter } from '../components/feedback/arena-meter/ArenaMeter.tsx';
+import { ArenaStepper } from '../components/navigation/arena-stepper/ArenaStepper.tsx';
 
 afterEach(() => cleanup());
 
@@ -141,6 +142,12 @@ const CASES: Record<string, Case> = {
   ArenaMeter: {
     renders: [30, 72, 91].map((value) => () => <ArenaMeter label="Storage used" value={value} valueText={`${value} of 100 GB`} low={50} high={80} optimum={0} />),
     consumer: ['Storage used', '30 of 100 GB', '72 of 100 GB', '91 of 100 GB'],
+  },
+  ArenaStepper: {
+    renders: [1, 9].map((index) => () => (
+      <ArenaStepper ariaLabel="Checkout" index={index} interactive steps={[{ label: 'Account' }, { label: 'Shipping', description: 'Two addresses' }, { label: 'Payment', error: true }]} />
+    )),
+    consumer: ['Checkout', 'Account', 'Shipping', 'Two addresses', 'Payment'],
   },
   ArenaSkeleton: { renders: [() => <ArenaSkeleton />, () => <ArenaSkeleton lines={2} />], consumer: [] },
   ArenaSpinner: { renders: [() => <ArenaSpinner />], consumer: [] },

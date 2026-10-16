@@ -22,7 +22,7 @@
       "title": "Navigation",
       "items": [
         "ArenaPageHead", "ArenaAppBar", "ArenaBreadcrumbs", "ArenaLink", "ArenaTabs", "ArenaTab", "ArenaSegmentedControl",
-        "ArenaPagination", "ArenaMenu", "ArenaBulkActionBar", "ArenaSideNav", "ArenaSideNavSection",
+        "ArenaPagination", "ArenaStepper", "ArenaMenu", "ArenaBulkActionBar", "ArenaSideNav", "ArenaSideNavSection",
         "ArenaSideNavItem", "ArenaSideNavCollapsible", "ArenaBottomNav", "ArenaBottomNavItem",
         "ArenaCommandPalette"
       ]

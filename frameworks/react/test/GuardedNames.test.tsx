@@ -33,6 +33,7 @@ import { ArenaLink } from '../components/navigation/arena-link/ArenaLink.tsx';
 import { ArenaMeter } from '../components/feedback/arena-meter/ArenaMeter.tsx';
 import { ArenaHero } from '../components/layout/arena-hero/ArenaHero.tsx';
 import { ArenaPagination } from '../components/navigation/arena-pagination/ArenaPagination.tsx';
+import { ArenaStepper } from '../components/navigation/arena-stepper/ArenaStepper.tsx';
 import { ArenaBottomNav } from '../components/navigation/arena-bottom-nav/ArenaBottomNav.tsx';
 import { ArenaSheet } from '../components/feedback/arena-sheet/ArenaSheet.tsx';
 import { ArenaPopover } from '../components/feedback/arena-popover/ArenaPopover.tsx';
@@ -68,6 +69,7 @@ const WITH_A_BLANK_NAME = new Map([
   ['ArenaLink', () => <ArenaLink href={BLANK}>Release notes</ArenaLink>],
   ['ArenaMeter', () => <ArenaMeter label={BLANK} value={1} />],
   ['ArenaAccordionItem', () => <ArenaAccordionItem value={BLANK} label={BLANK} />],
+  ['ArenaStepper', () => <ArenaStepper ariaLabel={BLANK} steps={[]} />],
 ]);
 
 export function guardedNames(dir: string, read = readFileSync, list = readdirSync) {

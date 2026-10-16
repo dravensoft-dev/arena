@@ -110,6 +110,7 @@ export const COVERED = {
   'ArenaAccordionItem:react': 'ArenaAccordion.dom.test.tsx',
   'ArenaTableCell:react': 'ArenaTable.cases.dom.test.tsx',
   'ArenaPagination:react': 'NavigationLandmarks.dom.test.tsx',
+  'ArenaStepper:react': 'ArenaStepper.dom.test.tsx',
   'ArenaAlert:angular': 'ArenaAlert.roleTones.test.ts',
   'ArenaBadge:angular': 'ArenaBadge.compliance.test.ts',
   'ArenaCard:angular': 'ArenaCard.compliance.test.ts',
