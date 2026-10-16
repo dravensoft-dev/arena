@@ -1,0 +1,21 @@
+{
+  "name": "ArenaTimelineItem",
+  "kind": "object",
+  "description": "One milestone of an ArenaTimeline: a stage one thing passes through. Whether it is complete, current or upcoming is not a field: the timeline derives it from its `index`. Arena draws every field, and a consumer places no markup inside a row.",
+  "fields": {
+    "id": { "form": "primitive", "type": "string",
+            "description": "A stable identity for the row, so a list that changes does not re-key by position." },
+    "title": { "form": "primitive", "type": "string", "required": true,
+               "description": "The milestone, in the heading ink." },
+    "description": { "form": "primitive", "type": "string",
+                     "description": "One or two sentences under the title, in the body ink." },
+    "time": { "form": "primitive", "type": "string",
+              "description": "When, preformatted, in the muted mono ink. ArenaTimeline never formats." },
+    "dateTime": { "form": "primitive", "type": "string",
+                  "description": "The same moment as an ISO 8601 string. Present, Arena wraps the time's text in a real <time datetime>; with no `time`, nothing is drawn. Two fields, because `time` may be 3 min ago, which no parser resolves to a date." },
+    "tone": { "form": "enum", "type": "ArenaTone", "default": "neutral",
+              "description": "The milestone's meaning, which is not its progress: a complete milestone can be danger. A toned dot carries the tone's glyph, so the tone is never colour alone; neutral draws a plain dot. Tone is not spoken: the title says what happened." },
+    "icon": { "form": "primitive", "type": "string",
+              "description": "A Phosphor class name drawn in the dot in place of the tone's glyph." }
+  }
+}

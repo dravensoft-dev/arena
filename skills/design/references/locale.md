@@ -85,6 +85,8 @@ Every field is optional in what you provide, and one you leave out keeps the def
 | `stepperCurrent` | `Current step` | Spoken before the label of the stepper step the process stands at. |
 | `stepperUpcoming` | `Upcoming` | Spoken before the label of a stepper step that lies ahead of the current one. |
 | `stepperError` | `Error` | Spoken after the position word of a stepper step that needs attention. |
+| `timelineCurrent` | `Current` | Spoken before the title of the timeline milestone the timeline stands at. |
+| `timelineUpcoming` | `Upcoming` | Spoken before the title of a timeline milestone that lies ahead. A complete milestone is silent. |
 | `onboardingBack` | `Back` | The button that returns to the previous step. |
 | `onboardingSkip` | `Skip` | The button that leaves the tour. |
 | `onboardingNext` | `Next` | The button that moves to the next step. |

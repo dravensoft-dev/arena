@@ -28,7 +28,6 @@ export const MAX_PROSE_MEASURE = 90;
 export const DANGER_FLOOR = 'hue-danger-fill-strong';
 
 export const RESERVED = new Map<string, string>([
-  ['timeline', 'ArenaTimeline, milestones in order (spec 12)'],
   ['number-field', 'ArenaNumberField, a formatted number input (spec 13)'],
   ['pin-input', 'ArenaPinInput, a code entered one character per cell (spec 14)'],
   ['slider', 'ArenaSlider, a number chosen inside a range (spec 16)'],

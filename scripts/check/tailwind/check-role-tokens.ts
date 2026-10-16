@@ -97,7 +97,7 @@ export const SCALE_USES = new Map<string, string>([
   ['ArenaTextarea:field:leading-body', 'the leading of text a user TYPES, which follows the control the caret sits in rather than the prose a page sets. Moving it with a reading style plugin would reflow a form field under somebody mid-sentence'],
   ['ArenaOnboarding:panel:p-5', 'a coachmark, which is pinned to its anchor and sized in JS against the viewport, at 20px on every side, where pad-floating-x answers 24px and pad-floating-y 16px: air this slot spends at its own size, which no kind role asks, so a plugin cannot move it'],
 
-  ['ArenaActivityFeed:time:font-mono', 'a timestamp, read as a figure. This entry and the twenty-four under it are the mono face standing for FIGURES or CODE rather than for a register: a column of digits aligns by digit and a string read character by character has to be monospaced whatever the page sounds like, so a style plugin that sets its labels in the display face has said nothing about any of them. It is the half .arena-num ships for a figure a consumer draws themselves'],
+  ['ArenaActivityFeed:time:font-mono', 'a timestamp, read as a figure. This entry and the twenty-five under it are the mono face standing for FIGURES or CODE rather than for a register: a column of digits aligns by digit and a string read character by character has to be monospaced whatever the page sounds like, so a style plugin that sets its labels in the display face has said nothing about any of them. It is the half .arena-num ships for a figure a consumer draws themselves'],
   ['ArenaCalendar:dayNumber:font-mono', 'a day of the month, read as a figure'],
   ['ArenaCalendar:time:font-mono', 'a clock time, read as a figure'],
   ['ArenaTable:td:font-mono', 'the mono column of a table, which is what the face is for'],
@@ -120,6 +120,7 @@ export const SCALE_USES = new Map<string, string>([
   ['ArenaFileInput:size:font-mono', 'a byte count beside each held file, a figure that must not jitter as the list changes'],
   ['ArenaInput:prefix:font-mono', 'a unit or a currency sitting on the field\'s own baseline grid'],
   ['ArenaTooltip:bubble:font-mono', 'a tooltip carries a shortcut or a value often enough that the bubble is set in mono outright'],
+  ['ArenaTimeline:time:font-mono', 'a milestone\'s time, read as a figure like the feed\'s timestamp, so a column of them aligns by digit'],
   ['ArenaActivityFeed:target:font-mono', 'the object an activity happened to, which is an identifier rather than a name'],
   ['ArenaKeyValue:value:font-mono', 'a figure in a summary, and a column of them has to align by digit or it jitters as the basket changes. It is the same claim .arena-num ships for a figure a consumer draws themselves, made once here for the figures this component draws'],
 
