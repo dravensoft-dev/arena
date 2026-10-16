@@ -786,6 +786,7 @@ function findManifestFile(componentsDir: string, filename: string): string | und
 const OWN_HOST = new Set(['arena-bar-chart', 'arena-line-chart', 'arena-doughnut-chart', 'arena-horizontal-bar-chart', 'arena-pyramid-chart', 'arena-radar-chart', 'arena-scatter-chart']);
 
 const HOST_SLOT: Record<string, { manifest?: string; slot: string }> = {
+  'arena-accordion-item': { manifest: 'ArenaAccordion.manifest.json', slot: 'item' },
   'arena-bottom-nav-item': { manifest: 'ArenaBottomNav.manifest.json', slot: 'item' },
   'arena-calendar-event': { manifest: 'ArenaCalendar.manifest.json', slot: 'chip' },
   'arena-dialog': { slot: 'scrim' },

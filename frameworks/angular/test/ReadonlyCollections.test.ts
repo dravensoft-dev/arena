@@ -10,6 +10,7 @@ import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { useTestEnvironment } from './TestbedEnv';
 import type { ArenaSeries } from '../Api.generated';
+import { ArenaAccordion } from '../components/layout/arena-accordion/ArenaAccordion';
 import { ArenaActivityFeed } from '../components/display/arena-activity-feed/ArenaActivityFeed';
 import { ArenaBarChart } from '../components/charts/arena-bar-chart/ArenaBarChart';
 import { ArenaBreadcrumbs } from '../components/navigation/arena-breadcrumbs/ArenaBreadcrumbs';
@@ -49,10 +50,11 @@ const SLOTS: readonly number[] = Object.freeze([1, 2]);
 @Component({
   standalone: true,
   imports: [
-    ArenaActivityFeed, ArenaBarChart, ArenaBreadcrumbs, ArenaBulkActionBar, ArenaCheckboxGroup, ArenaCombobox, ArenaCommandPalette, ArenaDoughnutChart, ArenaLineChart,
+    ArenaAccordion, ArenaActivityFeed, ArenaBarChart, ArenaBreadcrumbs, ArenaBulkActionBar, ArenaCheckboxGroup, ArenaCombobox, ArenaCommandPalette, ArenaDoughnutChart, ArenaLineChart,
     ArenaMenu, ArenaMultiSelect, ArenaOnboarding, ArenaSegmentedControl, ArenaSelect, ArenaTable,
   ],
   template: `
+    <arena-accordion multiple [values]="labels" [defaultValues]="labels" />
     <arena-activity-feed label="Activity" [items]="items" />
     <arena-breadcrumbs ariaLabel="Trail" [items]="crumbs" />
     <arena-bulk-action-bar [count]="0" [actions]="actions" />
@@ -92,7 +94,7 @@ test('every array input binds data the consumer holds as readonly, and nothing w
 
   const host = fixture.nativeElement as HTMLElement;
   for (const selector of [
-    'arena-activity-feed', 'arena-breadcrumbs', 'arena-bulk-action-bar', 'arena-checkbox-group', 'arena-combobox', 'arena-command-palette',
+    'arena-accordion', 'arena-activity-feed', 'arena-breadcrumbs', 'arena-bulk-action-bar', 'arena-checkbox-group', 'arena-combobox', 'arena-command-palette',
     'arena-menu', 'arena-multi-select', 'arena-onboarding', 'arena-segmented-control', 'arena-select', 'arena-table',
     'arena-bar-chart', 'arena-doughnut-chart', 'arena-line-chart',
   ]) {

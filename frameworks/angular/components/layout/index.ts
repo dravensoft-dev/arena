@@ -1,3 +1,5 @@
+export * from './arena-accordion';
+export * from './arena-accordion-item';
 export * from './arena-board';
 export * from './arena-board-column';
 export * from './arena-divider';

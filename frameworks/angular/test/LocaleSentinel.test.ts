@@ -313,6 +313,8 @@ const DRAWN_BY_TOAST = 'the words it shows are ArenaToast\'s, which has its own 
 
 const NO_WORDS: Record<string, string> = {
   ArenaCalendarEvent: DRAWN_BY_A_CASE,
+  ArenaAccordion: DRAWS_MEMBERS,
+  ArenaAccordionItem: DRAWS_MEMBERS,
   ArenaActivityFeed: DRAWS_MEMBERS,
   ArenaAppBar: DRAWS_MEMBERS,
   ArenaAppLogo: DRAWS_MEMBERS,
