@@ -12,7 +12,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 export const RULE_TAGS = ['compat-alias', 'danger-fill', 'emoji', 'icon-element',
-  'one-primary', 'outline-gap', 'own-class', 'raw-value', 'router-link', 'stale-allowance', 'unknown-input'] as const;
+  'one-primary', 'outline-gap', 'own-class', 'raw-value', 'router-link', 'stale-allowance', 'unknown-input', 'wrapped-link'] as const;
 
 export const RULE_DESCRIPTIONS: Record<(typeof RULE_TAGS)[number], string> = {
   'compat-alias': 'A stylesheet in a style plugin directory reads one of Arena\'s compatibility aliases through `var()`, which names a step of the ramp instead of a role.',
@@ -26,6 +26,7 @@ export const RULE_DESCRIPTIONS: Record<(typeof RULE_TAGS)[number], string> = {
   'router-link': 'A link of your own, such as `a`, `Link` or `routerLink`, directly wraps an Arena card, side nav item, bottom nav item or table cell.',
   'stale-allowance': 'An `arena-audit allow` marker sits on a line with nothing to exempt.',
   'unknown-input': 'A static attribute on an `arena-` element in an Angular template names no input or output of that component.',
+  'wrapped-link': 'A link of your own, such as `a`, `Link` or `routerLink`, directly wraps an Arena link, which is already an anchor.',
 };
 
 export const UNMODELLED_UNITS = ['%', 'ch', 'fr', 'vh', 'vw', 'vmin', 'vmax', 'deg'];
@@ -459,6 +460,10 @@ export const ROUTER_LINK_MESSAGE = 'an Arena component wrapped in a link of your
   + 'an anchor inside an anchor and in Angular does not bind at all. Pass the href to the '
   + 'component and route from the event it reports';
 
+export const WRAPPED_LINK_MESSAGE = 'an ArenaLink wrapped in a link of your own, which nests an anchor inside '
+  + 'an anchor, and in Angular the outer link swallows the click. ArenaLink is already the anchor: pass the href to '
+  + 'it and route from its navigate event';
+
 export const UNKNOWN_INPUT_MESSAGE = (name: string, tag: string) => `an attribute ${name} that ${tag} takes as no input `
   + 'or output, so no Arena component reads it. Write the class or input the component reads instead, or mark the '
   + 'line arena-audit allow when a directive of your own reads it';
@@ -612,6 +617,8 @@ export const LINKABLE_TAGS = new Set([
   'arena-bottom-nav-item', 'arena-card', 'arena-side-nav-item', 'arena-table-cell',
 ]);
 
+export const WRAPPED_LINK_TAGS = new Set(['arena-link']);
+
 export function outlineGap(drawn: number[]): [number, number] | null {
   const rungs = [...new Set(drawn)].sort((a, b) => a - b);
   for (let i = 1; i < rungs.length; i += 1) {
@@ -753,6 +760,8 @@ export function structuralFindings(text: string, vocabulary: VocabularyIndex | n
     const wrapped = /^<(Arena[A-Za-z0-9]*|arena-[a-z0-9-]+)\b/.exec(inside)?.[1];
     if (wrapped !== undefined && LINKABLE_TAGS.has(kebabTag(wrapped)))
       found.push(at(lineAt(text, start), 'router-link', ROUTER_LINK_MESSAGE));
+    if (wrapped !== undefined && WRAPPED_LINK_TAGS.has(kebabTag(wrapped)))
+      found.push(at(lineAt(text, start), 'wrapped-link', WRAPPED_LINK_MESSAGE));
   }
   const gap = outlineGap(rungs);
   if (gap) found.push(at(firstRung, 'outline-gap', outlineMessage(gap[0], gap[1])));

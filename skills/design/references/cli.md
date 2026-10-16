@@ -79,6 +79,7 @@ The middle column is the rule of [the rules section of `SKILL.md`](../SKILL.md) 
 | `router-link` | Never wrap an Arena component in your router's own link. | A link of your own, such as `a`, `Link` or `routerLink`, directly wraps an Arena card, side nav item, bottom nav item or table cell. |
 | `stale-allowance` | none of the language rules | An `arena-audit allow` marker sits on a line with nothing to exempt. |
 | `unknown-input` | none of the language rules | A static attribute on an `arena-` element in an Angular template names no input or output of that component. |
+| `wrapped-link` | none of the language rules | A link of your own, such as `a`, `Link` or `routerLink`, directly wraps an Arena link, which is already an anchor. |
 
 <!-- @shared audit end -->
 
@@ -98,7 +99,7 @@ Run `arena init` once. In a project on `@dravensoft/arena-react` it adds these s
     "prebuild": "arena build",
     "predev": "arena build",
     "arena:check": "arena check --strict=components,glyph,markers",
-    "arena:audit": "arena audit --strict=audit:compat-alias,audit:danger-fill,audit:emoji,audit:icon-element,audit:one-primary,audit:outline-gap,audit:own-class,audit:raw-value,audit:router-link,audit:stale-allowance,audit:unknown-input,restated"
+    "arena:audit": "arena audit --strict=audit:compat-alias,audit:danger-fill,audit:emoji,audit:icon-element,audit:one-primary,audit:outline-gap,audit:own-class,audit:raw-value,audit:router-link,audit:stale-allowance,audit:unknown-input,audit:wrapped-link,restated"
   }
 }
 ```
@@ -119,7 +120,7 @@ The same, on `@dravensoft/arena-angular`, with `prestart` in place of `predev`.
     "prebuild": "arena build",
     "prestart": "arena build",
     "arena:check": "arena check --strict=components,glyph,markers",
-    "arena:audit": "arena audit --strict=audit:compat-alias,audit:danger-fill,audit:emoji,audit:icon-element,audit:one-primary,audit:outline-gap,audit:own-class,audit:raw-value,audit:router-link,audit:stale-allowance,audit:unknown-input,restated"
+    "arena:audit": "arena audit --strict=audit:compat-alias,audit:danger-fill,audit:emoji,audit:icon-element,audit:one-primary,audit:outline-gap,audit:own-class,audit:raw-value,audit:router-link,audit:stale-allowance,audit:unknown-input,audit:wrapped-link,restated"
   }
 }
 ```

@@ -91,8 +91,10 @@ export const RULES: LanguageRule[] = [
     id: 'router-link',
     short: 'Never wrap an Arena component in your router\'s own link.',
     body: 'That nests an anchor inside an anchor, and in Angular it does not bind at all. Pass the '
-      + 'href to the component and route from the event it reports. The members that take one: '
-      + '`ArenaCard.href`, `ArenaCommand.route`, `ArenaCrumb.href` and `ArenaSideNavItem.href`.',
+      + 'href to the component and route from the event it reports. An `ArenaLink` inside a link of your own is reported as '
+      + '`wrapped-link`. The members that take an href: '
+      + '`ArenaCard.href`, `ArenaCommand.route`, `ArenaCrumb.href`, `ArenaLink.href` and '
+      + '`ArenaSideNavItem.href`.',
     held: 'router-link',
     unheld: null,
   },

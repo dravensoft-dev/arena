@@ -6,7 +6,7 @@ import { repoRoot } from '../../../lib/arena/repo-root.ts';
 import {
   auditText, auditFindings, findings, lineFindings, isLegalBracket, scanText, scanFile, markerAllowlist,
   paintedParts, sourceScope, outlineGap, kebabTag, HEADING_RUNGS, OWN_CLASS_ATTRIBUTE,
-  LINKABLE_TAGS, statedRung, fillsWithDanger, namesAnAlias, RULE_TAGS, RULE_DESCRIPTIONS,
+  LINKABLE_TAGS, WRAPPED_LINK_TAGS, statedRung, fillsWithDanger, namesAnAlias, RULE_TAGS, RULE_DESCRIPTIONS,
   UNMODELLED_UNITS, styleIdentifiers, styleObjectLines, unknownInputs,
   ownClassFindings, RAW_COLOUR_MESSAGE, RAW_HEX_MESSAGE, GRADIENT_MESSAGE, primaryMessage, DANGER_FILL_MESSAGE, type VocabularyIndex,
 } from './audit.ts';
@@ -37,6 +37,14 @@ test('an Arena component inside a link of your own is reported, which Angular wo
   assert.match(rules('<a href="/x"><arena-card></arena-card></a>', 'src/a.html'), /router-link/);
   assert.match(rules('<a routerLink="/x"><arena-card></arena-card></a>', 'src/a.html'), /router-link/);
   assert.equal(rules('<ArenaCard href="/x">c</ArenaCard>'), '');
+});
+
+test('an ArenaLink inside a link of your own is a rule of its own, so a project holding router-link is not newly held', () => {
+  const react = auditText('src/a.tsx', '<Link to="/notes"><ArenaLink href="/notes">notes</ArenaLink></Link>').join('\n');
+  assert.match(react, /wrapped-link/);
+  assert.doesNotMatch(react, /router-link/, 'the link joined what router-link reads, which holds a project that never named it');
+  assert.match(auditText('src/a.html', '<a routerLink="/notes"><arena-link href="/notes">notes</arena-link></a>').join('\n'), /wrapped-link/);
+  assert.doesNotMatch(auditText('src/a.tsx', '<p>Read <ArenaLink href="/notes">notes</ArenaLink>.</p>').join('\n'), /wrapped-link/);
 });
 
 test('a raw value is reported where it styles something, and not where it is only a string', () => {
@@ -386,7 +394,7 @@ test('the components a link may wrap are the ones whose contract takes an href, 
   for (const file of readdirSync(dir)) {
     if (!file.endsWith('.json')) continue;
     const contract = JSON.parse(readFileSync(join(dir, file), 'utf8'));
-    if (contract.api?.href !== undefined) declared.add(kebabTag(contract.component));
+    if (contract.api?.href !== undefined && !WRAPPED_LINK_TAGS.has(kebabTag(contract.component))) declared.add(kebabTag(contract.component));
   }
 
   assert.ok(declared.size > 0, 'no contract declares an href, so this checked nothing');
