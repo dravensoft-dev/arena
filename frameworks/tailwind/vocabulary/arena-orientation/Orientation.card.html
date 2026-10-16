@@ -4,6 +4,7 @@
 <link rel="stylesheet" href="../../consume/Preflight.generated.css">
 <link rel="stylesheet" href="../../consume/components/forms/arena-switch/ArenaSwitch.styles.generated.css">
 <link rel="stylesheet" href="../../consume/components/brand/arena-app-logo/ArenaAppLogo.styles.generated.css">
+<link rel="stylesheet" href="../../consume/components/layout/arena-divider/ArenaDivider.styles.generated.css">
 <link rel="stylesheet" href="../../consume/vocabulary/Size.generated.css">
 <link rel="stylesheet" href="../../consume/vocabulary/Orientation.generated.css">
 <link rel="stylesheet" href="../../Specimen.css">
@@ -13,6 +14,7 @@ import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '.
 
 const switchManifest = await (await fetch('../../components/forms/arena-switch/ArenaSwitch.manifest.json')).json();
 const logo = await (await fetch('../../components/brand/arena-app-logo/ArenaAppLogo.manifest.json')).json();
+const divider = await (await fetch('../../components/layout/arena-divider/ArenaDivider.manifest.json')).json();
 
 function toggle(label, cls) {
   const c = arenaClassesFor(switchManifest, { state: 'true' });
@@ -30,12 +32,21 @@ function mark(cls) {
     el('span', { class: c.name, ...d.name }, 'Draven', el('span', { class: c.dim, ...d.dim, text: 'soft' })));
 }
 
+function rule(cls) {
+  const c = arenaClassesFor(divider, { labelled: false });
+  const d = arenaSlotDataFor(divider, { labelled: false });
+  const hr = el('hr', { class: `${c.root} ${cls}`, ...d.root });
+  if (cls === 'arena-orientation-horizontal') return el('span', { style: { display: 'block', width: '120px' } }, hr);
+  return el('span', { style: { display: 'flex', alignItems: 'center', gap: '8px', height: '40px' } },
+    el('span', { text: 'A' }), hr, el('span', { text: 'B' }));
+}
+
 mountSpecimen({ sections: [
   section('arena-orientation-horizontal, the default: along the line', [
-    toggle('Horizontal', 'arena-orientation-horizontal'), mark('arena-orientation-horizontal'),
+    toggle('Horizontal', 'arena-orientation-horizontal'), mark('arena-orientation-horizontal'), rule('arena-orientation-horizontal'),
   ], { gap: 'loose' }),
   section('arena-orientation-vertical: across it, operated the same way', [
-    toggle('Vertical', 'arena-orientation-vertical'), mark('arena-orientation-vertical'),
+    toggle('Vertical', 'arena-orientation-vertical'), mark('arena-orientation-vertical'), rule('arena-orientation-vertical'),
   ], { gap: 'loose' }),
 ]});
 </script></body></html>
