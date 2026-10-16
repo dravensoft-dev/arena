@@ -5,7 +5,7 @@
   "api": {
     "label": { "form": "primitive", "type": "string", "description": "Field label; the counter and error sit under the field." },
     "id": { "form": "primitive", "type": "string",
-            "description": "The control's id, and what the label's `for` points at. Generated from `label` when omitted, as `ta-` followed by the label with each run of whitespace replaced by a single hyphen and the whole lowercased: the derivation ArenaInput.id states, under this component's own prefix." },
+            "description": "The control's id, and what the label's `for` points at. Generated from `label` when omitted, as `ta-` followed by the label with each run of whitespace replaced by a single hyphen and the whole lowercased: the derivation ArenaInput.id states, under this component's own prefix. The hint or the error takes it followed by `-note`." },
     "hint": { "form": "primitive", "type": "string", "description": "A line of help under the field." },
     "error": { "form": "primitive", "type": "string", "description": "Error message; turns the border crimson and shows below." },
     "required": { "form": "primitive", "type": "boolean", "default": false, "description": "Marks the label and the control required." },

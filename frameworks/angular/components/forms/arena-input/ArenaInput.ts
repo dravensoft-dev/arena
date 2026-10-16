@@ -41,7 +41,7 @@ export function arenaInputIdFor(id: string | undefined, label: string | undefine
       }
       <input #control [class]="styles().input()" [arenaSlotData]="styles().$data.input()" [attr.data-arena-part]="parts.input" [attr.id]="controlId()" [attr.type]="type()"
              [value]="drawn() ?? ''" [disabled]="off()" [readOnly]="readOnly()"
-             [required]="required()" [attr.aria-invalid]="hasError()"
+             [required]="required()" [attr.aria-invalid]="hasError()" [attr.aria-describedby]="noteId()"
              [attr.placeholder]="placeholder()" [attr.name]="name()"
              [attr.autocomplete]="autoComplete()" [attr.min]="min()" [attr.max]="max()"
              [attr.step]="step()" [attr.maxlength]="maxLength()" [attr.pattern]="pattern()"
@@ -53,9 +53,9 @@ export function arenaInputIdFor(id: string | undefined, label: string | undefine
       }
     </div>
     @if (shownError(); as message) {
-      <span [class]="styles().error()" [attr.data-arena-part]="parts.error">{{ message }}</span>
+      <span [attr.id]="noteId()" [class]="styles().error()" [attr.data-arena-part]="parts.error">{{ message }}</span>
     } @else if (hint(); as text) {
-      <span [class]="styles().hint()" [attr.data-arena-part]="parts.hint">{{ text }}</span>
+      <span [attr.id]="noteId()" [class]="styles().hint()" [attr.data-arena-part]="parts.hint">{{ text }}</span>
     }
   `,
 })
@@ -70,7 +70,7 @@ export class ArenaInput {
 
   /** Field label above the control. */
   readonly label = input<string>();
-  /** The control's id, and what the label's `for` points at. Generated from `label` when omitted, as `in-` followed by the label with each run of whitespace replaced by a single hyphen and the whole lowercased. The derivation is normative, and the prefix differs per component on purpose: the same markup must get the same id in every layer, and an ArenaInput and an ArenaTextarea sharing a label must not collide. */
+  /** The control's id, and what the label's `for` points at. Generated from `label` when omitted, as `in-` followed by the label with each run of whitespace replaced by a single hyphen and the whole lowercased. The derivation is normative, and the prefix differs per component on purpose: the same markup must get the same id in every layer, and an ArenaInput and an ArenaTextarea sharing a label must not collide. The hint or the error takes it followed by `-note`. */
   readonly id = input<string>();
   /** A line of help under the field. */
   readonly hint = input<string>();
@@ -127,6 +127,10 @@ export class ArenaInput {
   private readonly touched = signal(false);
 
   protected readonly controlId = computed(() => arenaInputIdFor(this.id(), this.label()));
+  protected readonly noteId = computed(() => {
+    const control = this.controlId();
+    return control && (this.shownError() || this.hint()) ? `${control}-note` : null;
+  });
 
   protected readonly shownError = computed(() => {
     const controlled = this.error();

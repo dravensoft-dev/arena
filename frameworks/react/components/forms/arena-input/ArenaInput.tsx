@@ -13,7 +13,7 @@ export interface ArenaInputProps {
   /** Field label above the control. */
   label?: string;
 
-  /** The control's id, and what the label's `for` points at. Generated from `label` when omitted, as `in-` followed by the label with each run of whitespace replaced by a single hyphen and the whole lowercased. The derivation is normative, and the prefix differs per component on purpose: the same markup must get the same id in every layer, and an ArenaInput and an ArenaTextarea sharing a label must not collide. */
+  /** The control's id, and what the label's `for` points at. Generated from `label` when omitted, as `in-` followed by the label with each run of whitespace replaced by a single hyphen and the whole lowercased. The derivation is normative, and the prefix differs per component on purpose: the same markup must get the same id in every layer, and an ArenaInput and an ArenaTextarea sharing a label must not collide. The hint or the error takes it followed by `-note`. */
   id?: string;
 
   /** A line of help under the field. */
@@ -108,6 +108,7 @@ export const ArenaInput = forwardRef<ArenaInputHandle, ArenaInputProps>(function
   const inputId = id || (label ? 'in-' + label.replace(/\s+/g, '-').toLowerCase() : undefined);
 
   const shownError = error != null ? error : (touched ? localErr : null);
+  const noteId = inputId && (shownError || hint) ? `${inputId}-note` : undefined;
   const isValid = !shownError && (valid || (touched && validate && localErr === null));
 
   const runValidate = (v: string) => { if (validate) setLocalErr(validate(v) || null); };
@@ -131,15 +132,15 @@ export const ArenaInput = forwardRef<ArenaInputHandle, ArenaInputProps>(function
         {icon && <i className={`${icon} ${styles.icon()}`} data-arena-part={manifest.parts.icon} {...styles.$data.icon()} aria-hidden="true" />}
         {prefix && <span className={styles.prefix()} data-arena-part={manifest.parts.prefix} {...styles.$data.prefix()}>{prefix}</span>}
         <input ref={control} id={inputId} type={type} value={value} disabled={disabled} readOnly={readOnly}
-          required={required} aria-invalid={!!shownError} className={styles.input()} data-arena-part={manifest.parts.input} {...styles.$data.input()}
+          required={required} aria-invalid={!!shownError} aria-describedby={noteId} className={styles.input()} data-arena-part={manifest.parts.input} {...styles.$data.input()}
           placeholder={placeholder} name={name} autoComplete={autoComplete}
           min={min} max={max} step={step} maxLength={maxLength} pattern={pattern}
           onBlur={handleBlur} onChange={handleChange} />
         {shownError && <i className={`ph-fill ph-warning-circle ${styles.statusIcon()}`} data-arena-part={manifest.parts.statusIcon} {...styles.$data.statusIcon()} aria-hidden="true" />}
         {isValid && <i className={`ph-fill ph-check-circle ${styles.statusIcon()}`} data-arena-part={manifest.parts.statusIcon} {...styles.$data.statusIcon()} aria-hidden="true" />}
       </div>
-      {shownError ? <span className={styles.error()} data-arena-part={manifest.parts.error} {...styles.$data.error()}>{shownError}</span>
-        : hint && <span className={styles.hint()} data-arena-part={manifest.parts.hint} {...styles.$data.hint()}>{hint}</span>}
+      {shownError ? <span id={noteId} className={styles.error()} data-arena-part={manifest.parts.error} {...styles.$data.error()}>{shownError}</span>
+        : hint && <span id={noteId} className={styles.hint()} data-arena-part={manifest.parts.hint} {...styles.$data.hint()}>{hint}</span>}
     </div>
   );
 });

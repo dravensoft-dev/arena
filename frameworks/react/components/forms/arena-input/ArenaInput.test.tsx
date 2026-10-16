@@ -130,3 +130,21 @@ test('readOnly is a group on the field and the input', () => {
   assert.match(on, /data-arena-part="input.input"[^>]*\bdata-arena-read-only=""/);
   assert.doesNotMatch(renderToStaticMarkup(<ArenaInput label="Slug" />), /read-only-true/);
 });
+
+test('a hint is named by the field and carries the id followed by -note', () => {
+  const html = renderToStaticMarkup(<ArenaInput label="Slug" hint="Lowercase only." />);
+  assert.match(html, /<input[^>]*aria-describedby="in-slug-note"/);
+  assert.match(html, /<span id="in-slug-note"[^>]*>Lowercase only\.<\/span>/);
+});
+
+test('an error replaces the hint under the same note id', () => {
+  const html = renderToStaticMarkup(<ArenaInput label="Slug" hint="Lowercase only." error="Taken." />);
+  assert.match(html, /<input[^>]*aria-describedby="in-slug-note"/);
+  assert.match(html, /<span id="in-slug-note"[^>]*>Taken\.<\/span>/);
+  assert.doesNotMatch(html, /Lowercase only/);
+});
+
+test('a note takes the id the consumer gives, and a field with neither carries no aria-describedby', () => {
+  assert.match(renderToStaticMarkup(<ArenaInput id="slug" hint="Help." />), /aria-describedby="slug-note"/);
+  assert.doesNotMatch(renderToStaticMarkup(<ArenaInput label="Slug" />), /aria-describedby/);
+});

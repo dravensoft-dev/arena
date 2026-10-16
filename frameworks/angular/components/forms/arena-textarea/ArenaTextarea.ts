@@ -44,13 +44,13 @@ export function arenaBorderBoxSlack(element: HTMLElement): number {
     <textarea #control [class]="styles().field()" [arenaSlotData]="styles().$data.field()" [attr.data-arena-part]="parts.field" [attr.id]="controlId()" [attr.rows]="rows()"
               [attr.maxlength]="maxLength()" [disabled]="off()" [required]="required()"
               [readOnly]="readOnly()" [attr.placeholder]="placeholder()" [attr.name]="name()"
-              [attr.aria-invalid]="hasError()" [value]="drawn() ?? ''"
+              [attr.aria-invalid]="hasError()" [attr.aria-describedby]="noteId()" [value]="drawn() ?? ''"
               (input)="onInput($event)" (change)="onNativeChange($event)"></textarea>
     <div [class]="styles().foot()" [attr.data-arena-part]="parts.foot">
       @if (shownError(); as message) {
-        <span [class]="styles().error()" [attr.data-arena-part]="parts.error">{{ message }}</span>
+        <span [attr.id]="noteId()" [class]="styles().error()" [attr.data-arena-part]="parts.error">{{ message }}</span>
       } @else if (hint(); as text) {
-        <span [class]="styles().hint()" [attr.data-arena-part]="parts.hint">{{ text }}</span>
+        <span [attr.id]="noteId()" [class]="styles().hint()" [attr.data-arena-part]="parts.hint">{{ text }}</span>
       } @else {
         <span></span>
       }
@@ -71,7 +71,7 @@ export class ArenaTextarea {
 
   /** Field label; the counter and error sit under the field. */
   readonly label = input<string>();
-  /** The control's id, and what the label's `for` points at. Generated from `label` when omitted, as `ta-` followed by the label with each run of whitespace replaced by a single hyphen and the whole lowercased: the derivation ArenaInput.id states, under this component's own prefix. */
+  /** The control's id, and what the label's `for` points at. Generated from `label` when omitted, as `ta-` followed by the label with each run of whitespace replaced by a single hyphen and the whole lowercased: the derivation ArenaInput.id states, under this component's own prefix. The hint or the error takes it followed by `-note`. */
   readonly id = input<string>();
   /** A line of help under the field. */
   readonly hint = input<string>();
@@ -102,6 +102,10 @@ export class ArenaTextarea {
 
   protected readonly controlId = computed(() => arenaTextareaIdFor(this.id(), this.label()));
   protected readonly shownError = computed(() => this.error() ?? null);
+  protected readonly noteId = computed(() => {
+    const control = this.controlId();
+    return control && (this.shownError() || this.hint()) ? `${control}-note` : null;
+  });
   protected readonly hasError = computed(() => Boolean(this.shownError()));
 
   protected readonly length = computed(() => (this.drawn() ?? '').length);
