@@ -5,7 +5,7 @@ import { join } from 'node:path';
 import {
   selector, hook, componentTags, typeExpr, importPath, markerNames, collectFields, escapeText,
   renderSubject, renderTree,
-  knobsInterface, angularEntry, angularPage, renderNode, slotBlock, attributeText, MARKERS_SOURCE,
+  knobsInterface, angularEntry, angularPage, renderNode, slotBlock, attributeText, MARKERS_SOURCE, validatorTable,
 } from './playground-angular.ts';
 import { repoRoot as root } from '../arena/repo-root.ts';
 import { placeOf } from '../arena/playground-model.ts';
@@ -253,4 +253,12 @@ test('a class on the subject and on a node is written as class on the tag', () =
   const node = renderNode({ component: 'ArenaBadge', class: 'arena-fill' }, places, [], new Map(), tags, 0, new Set());
   assert.match(node, /class="arena-fill"/);
   assert.doesNotMatch(renderSubject(model, places, [], new Map(), tags, 0, new Set()), /class=/);
+});
+
+test('the named validators follow the type a function input reads, so a number never meets a text check', () => {
+  assert.equal(validatorTable({ knobs: [] }), '');
+  assert.match(validatorTable({ knobs: [knob({ form: 'functionInput', params: { value: 'string' } })] }), /nonEmpty/);
+  const numeric = validatorTable({ knobs: [knob({ form: 'functionInput', params: { value: 'number' } })] });
+  assert.match(numeric, /\(value: number\) => string/);
+  assert.doesNotMatch(numeric, /nonEmpty|trim/);
 });

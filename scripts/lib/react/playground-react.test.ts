@@ -126,6 +126,13 @@ test('the validator table appears only for a contract that declares a function i
   assert.match(validatorTable({ knobs: [knob({ form: 'functionInput' })] }), /nonEmpty/);
 });
 
+test('a function input over a number gets a table typed for a number, with no validator that reads text', () => {
+  const table = validatorTable({ knobs: [knob({ form: 'functionInput', params: { value: 'number' } })] });
+  assert.match(table, /\(value: number\) => string/);
+  assert.doesNotMatch(table, /nonEmpty|trim/);
+  assert.match(validatorTable({ knobs: [knob({ form: 'functionInput', params: { value: 'string' } })] }), /nonEmpty/);
+});
+
 test('the entry mounts once and carries the model as a literal', () => {
   const out = reactEntry(model, places, '/* banner */\n');
   assert.ok(out.startsWith('/* banner */\n'));

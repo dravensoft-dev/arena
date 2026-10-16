@@ -178,7 +178,8 @@ export function controlFor(spec: MemberSpec, types: Types, nodes?: FixtureChild[
   }
   if (spec.form === 'object') return { control: 'fields', codec: 'json', fields: objectFields(typeOf(types, spec.type), types) };
   if (spec.form === 'functionInput') {
-    return { control: 'select', codec: 'raw', options: ['none', 'nonEmpty', 'alwaysInvalid'], params: spec.params, returns: spec.returns };
+    const options = spec.params?.value === 'number' ? ['none', 'alwaysInvalid'] : ['none', 'nonEmpty', 'alwaysInvalid'];
+    return { control: 'select', codec: 'raw', options, params: spec.params, returns: spec.returns };
   }
   if (spec.form === 'slot') {
     return isTextNodes(nodes) ? { control: 'slotText', codec: 'raw' } : { control: 'slotPresence', codec: 'flag' };

@@ -27,6 +27,16 @@ function validatorFor(name: string | undefined): ((value: string) => string) | u
 }
 `;
 
+export const NUMBER_VALIDATOR_TABLE = `
+const VALIDATORS: Record<string, (value: number) => string> = {
+  alwaysInvalid: () => 'Never valid, on purpose.',
+};
+
+function validatorFor(name: string | undefined): ((value: number) => string) | undefined {
+  return name === undefined ? undefined : VALIDATORS[name];
+}
+`;
+
 export function typeExpr(knob: Knob) {
   if (knob.form === 'slot') return knob.control === 'slotText' ? 'string' : 'boolean';
   if (knob.form === 'array') return `${knob.type}[]`;
@@ -199,7 +209,9 @@ export function knobsInterface(model: { knobs: Knob[] }) {
 }
 
 export function validatorTable(model: { knobs: Knob[] }) {
-  return model.knobs.some((knob) => knob.form === 'functionInput') ? VALIDATOR_TABLE : '';
+  const knob = model.knobs.find((one) => one.form === 'functionInput');
+  if (!knob) return '';
+  return knob.params?.value === 'number' ? NUMBER_VALIDATOR_TABLE : VALIDATOR_TABLE;
 }
 
 export function reactEntry(model: PlaygroundModel, places: Places, banner: string) {
