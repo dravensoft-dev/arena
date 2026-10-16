@@ -44,6 +44,7 @@ export const EXCLUDED = new Map([
     + 'utilities naming a value, which is the shape of a scale rather than of a role. Reached through '
     + '.case-eyebrow in frameworks/tailwind/Case.css, hand-authored for exactly that reason'],
   ['tt-label', 'the same, through .case-label'],
+  ['tt-key', 'the same, through .case-key'],
   ['case-none', 'a word only the kernel default of tt-key names, so a root plugin silent on the role follows '
     + 'it; a cap reaches it through .case-key, and no slot names a transform outright'],
   ['fit-media', 'v4 has no object-fit namespace, and its object-cover/object-contain and the rest are '

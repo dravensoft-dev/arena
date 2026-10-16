@@ -81,6 +81,10 @@
     "$type": "fontFamily",
     "$value": "{font.display}"
   },
+  "ff-key": {
+    "$type": "fontFamily",
+    "$value": "{font.display}"
+  },
   "fw-eyebrow": {
     "$type": "fontWeight",
     "$value": "{fw.bold}"
@@ -94,6 +98,10 @@
     "$value": "none"
   },
   "tt-label": {
+    "$type": "keyword",
+    "$value": "capitalize"
+  },
+  "tt-key": {
     "$type": "keyword",
     "$value": "capitalize"
   },
@@ -350,6 +358,10 @@
     "$type": "dimension",
     "$value": "{sp.2}"
   },
+  "pad-key-y": {
+    "$type": "dimension",
+    "$value": "{sp.2}"
+  },
   "pad-row-x": {
     "$type": "dimension",
     "$value": "{sp.4}"
@@ -470,6 +482,10 @@
     "$value": "{color.neutral-content}"
   },
   "ink-action": {
+    "$type": "color",
+    "$value": "{color.neutral-content}"
+  },
+  "ink-key": {
     "$type": "color",
     "$value": "{color.neutral-content}"
   },

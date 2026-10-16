@@ -647,6 +647,25 @@ test('a root plugin silent on a role with a kernel default is total, and without
   ]);
 });
 
+test('a keyword or a half step default names a token the package emits, and a silent root plugin draws its value', () => {
+  const sheets = {
+    ...SHEETS_FULL,
+    catalogue: {
+      tokens: { ...SHEETS_FULL.catalogue.tokens, 'case-none': 'none', 'sp-0-5': '2px' },
+      roles: {
+        ...SHEETS_FULL.catalogue.roles,
+        'tt-key': { type: 'keyword', default: '{case.none}' },
+        'pad-key-y': { type: 'dimension', default: '{sp.0-5}' },
+      },
+    },
+  };
+  const { plugins, defaulted } = rootWithDefaults([total()], sheets.catalogue);
+  assert.deepEqual(defaulted, ['pad-key-y', 'tt-key']);
+  const css = themeCss(listed(['console']), { sheets, importHeader: false, plugins });
+  assert.match(css, /:root\{[^}]*--tt-key:none;/);
+  assert.match(css, /:root\{[^}]*--pad-key-y:2px;/);
+});
+
 test('a default resolves through the root plugin\'s own answer and is restated under every palette', () => {
   const { plugins, defaulted } = rootWithDefaults([total()], DEFAULTED.catalogue);
   assert.deepEqual(defaulted, ['ink-link', 'r-popover']);

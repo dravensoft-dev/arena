@@ -18,10 +18,12 @@
   --ff-heading:var(--font-display);
   --ff-eyebrow:var(--font-mono);
   --ff-label:var(--font-mono);
+  --ff-key:var(--font-mono);
   --fw-eyebrow:400;
   --fw-control:600;
   --tt-eyebrow:uppercase;
   --tt-label:uppercase;
+  --tt-key:none;
   --track-eyebrow:0.22em;
   --track-label:0.14em;
   --track-trail:0.04em;
@@ -65,6 +67,7 @@
   --pad-status-y:14px;
   --pad-marker-x:6px;
   --pad-marker-y:4px;
+  --pad-key-y:2px;
   --pad-row-x:12px;
   --pad-row-y:10px;
   --pad-row-indent:12px;
@@ -92,6 +95,7 @@
   --ink-muted:var(--color-base-content);
   --ink-figure:var(--color-base-content);
   --ink-action:var(--color-base-content);
+  --ink-key:var(--color-base-content);
   --edge-surface:var(--color-base-300);
   --edge-surface-floating:var(--color-neutral);
   --edge-control-quiet:var(--color-base-300);
@@ -269,6 +273,7 @@
   --ink-muted:var(--color-base-content);
   --ink-figure:var(--color-base-content);
   --ink-action:var(--color-base-content);
+  --ink-key:var(--color-base-content);
   --edge-surface:var(--color-base-300);
   --edge-surface-floating:var(--color-neutral);
   --edge-control-quiet:var(--color-base-300);

@@ -155,9 +155,9 @@ test('the skin region names which roles carry a default, so an empty set reads a
   assert.equal(unansweredCount(base), 2);
   write({ 'r-surface': { $type: 'dimension' }, 'gap-row': { $type: 'dimension', $extensions: { 'com.dravensoft.arena': { default: '{sp.3}' } } } });
   assert.deepEqual(defaultedRoles(base), ['gap-row']);
-  assert.match(defaultedSentence(['gap-row'], 1), /The roles carrying a default are `gap-row`, and your root style plugin answers the other 1/);
+  assert.match(defaultedSentence(['gap-row'], 1), /^The 1 roles carrying a default are `gap-row`\. Your root plugin answers the other 1\.$/);
   assert.equal(unansweredCount(base), 1);
-  assert.match(defaultsStatement(base), /^The roles carrying a default are `gap-row`/);
+  assert.match(defaultsStatement(base), /^The 1 roles carrying a default are `gap-row`\. Your root plugin answers the other \d+\./);
   assert.ok(renderRegion('skin').includes(defaultsStatement()),
     'the region on the page says what roles.json carries');
 });

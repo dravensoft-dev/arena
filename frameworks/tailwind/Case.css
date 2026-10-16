@@ -6,7 +6,7 @@
  * is the same shape as a scale: a manifest that writes `uppercase` has said an answer, and only
  * a question can be answered differently by one voice than by another.
  *
- * These two are the questions. `@utility` and not a plain class, because a manifest reaches them
+ * These three are the questions. `@utility` and not a plain class, because a manifest reaches them
  * through the same compilation as every other utility and a bare class is not applicable: the
  * build fails with "Cannot apply unknown utility class", which is the right failure and worth
  * knowing about before writing the third one.
@@ -22,4 +22,8 @@
 
 @utility case-label {
   text-transform: var(--tt-label);
+}
+
+@utility case-key {
+  text-transform: var(--tt-key);
 }

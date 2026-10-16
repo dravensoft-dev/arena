@@ -82,6 +82,15 @@
     "$type": "fontFamily",
     "$description": "Which face the LABEL register takes: a field's label, a column header, a section\nlabel, a group header, a badge, a keyboard cap. Born in the mono face, and that is a measurement\nrather than a guess: every slot in this register is set in mono and in capitals, without one\nexception across the whole system.\n\nSplit from ff-eyebrow although the two are the same face today, and the split IS the point. The\nlabel register is a console's register and reads as the machine talking; an eyebrow is the line\nabove a title and reads as the page talking. A style plugin for a shop takes the eyebrow out of that\nregister and leaves its column headers exactly where they are, which is not expressible while\none role answers for both."
   },
+  "ff-key": {
+    "$type": "fontFamily",
+    "$description": "Which face a KEY takes: an ArenaKbd cap, the escape cap beside a command palette's search, and the shortcut a menu row or a palette row prints at its trailing edge. Born in the mono face, the face every one of them is set in, and defaulting to it, so a project whose root plugin is silent on this role keeps its keys exactly as they were.\n\nSplit from ff-label because a key is spelled as it is pressed rather than read as a label: a plugin that sets its labels in the body face can keep its keys in mono, and one that dresses its labels up leaves a key the face of a keyboard.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "default": "{font.mono}"
+      }
+    }
+  },
   "fw-eyebrow": {
     "$type": "fontWeight",
     "$description": "The weight of an eyebrow. Born at fw.regular because no eyebrow slot declares a\nweight at all and every one of them therefore inherits 400: the role is born at what they already\ncompute to, not at what would look better.\n\nSeparate from fw-control, which weights the text a user presses. An eyebrow is read and not\npressed, and a style plugin that sets its eyebrows in the display face usually wants them lighter at the\nsame moment it wants them larger."
@@ -115,6 +124,21 @@
           "lowercase",
           "capitalize"
         ]
+      }
+    }
+  },
+  "tt-key": {
+    "$type": "keyword",
+    "$description": "Whether a key is set in capitals. Born at none, because a key shows its own spelling: Esc, Ctrl and the command glyph are written the way the keyboard prints them, and the capitals the label register takes would rewrite them. Read by an ArenaKbd cap and the escape cap; a trailing shortcut prints its string as written and reads no transform.\n\nIts kernel default is the keyword token case.none, so a root plugin silent on the role draws its caps as written.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "values": [
+          "none",
+          "uppercase",
+          "lowercase",
+          "capitalize"
+        ],
+        "default": "{case.none}"
       }
     }
   },
@@ -295,6 +319,15 @@
     "$type": "dimension",
     "$description": "The room a marker gives the label it encloses down. Split from pad-marker-x because a style plugin widens a marker without making it taller."
   },
+  "pad-key-y": {
+    "$type": "dimension",
+    "$description": "The room a key cap gives its label down: an ArenaKbd cap and the escape cap. Born at 2px, the half step under the grid, so the cap reads as a key on the line rather than as a chip, and defaulting to sp.0-5.\n\nSplit from pad-marker-y because a cap sits inside running text and help lines where a tag sits in a row of chips: a plugin that opens its markers up leaves its caps the height of the line.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "default": "{sp.0-5}"
+      }
+    }
+  },
   "pad-row-x": {
     "$type": "dimension",
     "$description": "The room a row in a list, menu, feed, side nav, tab list or palette gives its content across. The theme multiplies it by the row factor density sets, which is why a row re-densifies and a control's air does not. It is cut from pad-control-x because a row is one of many in a column and a control stands alone."
@@ -430,6 +463,15 @@
     "$extensions": {
       "com.dravensoft.arena": {
         "default": "{color.base-content}"
+      }
+    }
+  },
+  "ink-key": {
+    "$type": "color",
+    "$description": "The colour of a key: an ArenaKbd cap, the escape cap and a trailing shortcut. Born at base-content and held back at the muted level, the ink every one of them is drawn in, and defaulting to ink-muted.\n\nSplit from ink-muted because a key is an instruction rather than a caption: a plugin that greys its captions further leaves its keys legible, and one that inks its keys in an accent owes the 4.5:1 every ink owes, which check:text-contrast measures at the muted level.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "default": "{ink-muted}"
       }
     }
   },

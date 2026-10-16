@@ -151,7 +151,7 @@ describes. A plugin answers each role once and every slot of the kind follows.
 | `floating` | `pad-floating-x`, `pad-floating-y`, `pad-floating-edge-x` | the kind-free rhythm, `gap-actions` | `rounded-surface-floating` |
 | `control` | `pad-control-x`, `pad-control-y`, `pad-control-text-y` | `gap-control` | `rounded-control`, `rounded-control-sm` |
 | `field` | `pad-control-x`, `pad-control-y`, `pad-control-text-y` | `gap-control` | `rounded-field` |
-| `marker` | `pad-marker-x`, `pad-marker-y` | `gap-marker` | `rounded-marker` |
+| `marker` | `pad-marker-x`, `pad-marker-y`, and `pad-key-y` on a key cap | `gap-marker` | `rounded-marker` |
 | `status` | `pad-status-x`, `pad-status-y` | the kind-free rhythm | `rounded-surface-floating` |
 | `row` | `pad-row-x`, `pad-row-y`, `pad-nav-row-x`, `pad-nav-row-y`, `pad-row-indent`, `pad-row-floating-x`, `pad-row-floating-y`, and the table's `--dz-row-px` and `--dz-row-py` | `gap-row`, `gap-row-floating` | `rounded-control` |
 | `band` | `pad-band-y`, and `pad-band-x` inside the band's ceiling of 7% of its width | the kind-free rhythm | the kind-free shapes only |

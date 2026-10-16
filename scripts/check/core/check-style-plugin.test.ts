@@ -299,6 +299,15 @@ test('the default plugin answers a role with a kernel default the way the defaul
     /--ink-link is "\{color\.base-200\}" and its kernel default \{ink-eyebrow\} comes to "\{color\.secondary\}"/);
 });
 
+test('a keyword default that names an emitted keyword token is held to that token\'s word', () => {
+  const kernel = { 'tt-key': { $extensions: { 'com.dravensoft.arena': { default: '{case.none}' } } } };
+  const words = new Map([['case-none', 'none']]);
+  assert.deepEqual(defaultAnswerProblems(kernel, { 'tt-key': { $type: 'keyword', $value: 'none' } }, words), []);
+  const problems = defaultAnswerProblems(kernel, { 'tt-key': { $type: 'keyword', $value: 'uppercase' } }, words);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /--tt-key is "uppercase" and its kernel default \{case\.none\} comes to "none"/);
+});
+
 test('a light answer is held too, and a role the default plugin is silent on is totality\'s to report', () => {
   const lit = answering({ light: { 'ink-eyebrow': { $type: 'color', $value: '{color.base-200}' } } });
   assert.equal(defaultAnswerProblems(KERNEL, lit).length, 1);

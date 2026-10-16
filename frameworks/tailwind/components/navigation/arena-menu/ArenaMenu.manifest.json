@@ -12,7 +12,7 @@
     "item": "flex items-center gap-row-floating w-full min-h-row-min text-left px-row-floating-x py-row-floating-y border-none rounded-control bg-transparent font-body text-md shadow-control-rest active:scale-[var(--press-scale)] motion-reduce:active:scale-100",
     "icon": "inline-flex text-[length:var(--icon-md)]",
     "label": "flex-1",
-    "shortcut": "font-mono text-ctl-xs text-ink-muted/(--level-ink-muted)",
+    "shortcut": "font-face-key text-ctl-xs text-ink-key/(--level-ink-muted)",
     "divider": "h-px my-1 bg-edge-separator",
     "header": "font-face-label text-label tracking-label-role case-label text-ink-muted/(--level-ink-muted) px-row-floating-x pt-[calc(var(--sp-1)*2*var(--dz-row-scale-y))] pb-[calc(var(--sp-1)*var(--dz-row-scale-y))]"
   },

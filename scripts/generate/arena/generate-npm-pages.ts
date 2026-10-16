@@ -48,7 +48,7 @@ export function toastIntervals(base = root) {
 export function defaultedSentence(roles: string[], total = 0) {
   if (roles.length === 0)
     return `No role in this package carries a default, so your root style plugin answers every one of the ${total} roles and the command refuses a root plugin silent on any.`;
-  return `The roles carrying a default are ${roles.map((role) => `\`${role}\``).join(', ')}, and your root style plugin answers the other ${total}.`;
+  return `The ${roles.length} roles carrying a default are ${roles.map((role) => `\`${role}\``).join(', ')}. Your root plugin answers the other ${total}.`;
 }
 
 export function defaultsStatement(base = root) {
