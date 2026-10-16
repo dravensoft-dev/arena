@@ -8,6 +8,7 @@ export * from './arena-file-input';
 export * from './arena-icon-button';
 export * from './arena-input';
 export * from './arena-multi-select';
+export * from './arena-number-field';
 export * from './arena-radio';
 export * from './arena-radio-group';
 export * from './arena-select';

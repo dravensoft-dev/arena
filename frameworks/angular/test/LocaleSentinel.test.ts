@@ -37,6 +37,7 @@ import { ArenaSkeleton } from '../components/display/arena-skeleton/ArenaSkeleto
 import { ArenaSpinner } from '../components/feedback/arena-spinner/ArenaSpinner';
 import { ArenaSwitch } from '../components/forms/arena-switch/ArenaSwitch';
 import { ArenaFileInput } from '../components/forms/arena-file-input/ArenaFileInput';
+import { ArenaNumberField } from '../components/forms/arena-number-field/ArenaNumberField';
 import { ArenaBulkActionBar } from '../components/navigation/arena-bulk-action-bar/ArenaBulkActionBar';
 import { ArenaCommandPalette } from '../components/navigation/arena-command-palette/ArenaCommandPalette';
 import { ArenaCombobox } from '../components/forms/arena-combobox/ArenaCombobox';
@@ -211,6 +212,10 @@ class SwitchHost {}
 class FileInputHost {}
 @Component({ standalone: true, imports: [ArenaFileInput], template: `<arena-file-input label="Passport scan" droppable multiple required />` })
 class FileInputDropHost {}
+@Component({ selector: 'locale-sentinel-number-field-host', standalone: true, imports: [ArenaNumberField], template: `<arena-number-field label="Replicas" [value]="3" [min]="1" [max]="20" hint="Between 1 and 20." />` })
+class NumberFieldHost {}
+@Component({ selector: 'locale-sentinel-number-field-affix-host', standalone: true, imports: [ArenaNumberField], template: `<arena-number-field label="Weight" prefix="~" suffix="kg" required />` })
+class NumberFieldAffixHost {}
 
 @Component({ standalone: true, imports: [ArenaBulkActionBar], template: `<arena-bulk-action-bar [count]="3" [actions]="[{ id: 'archive', label: 'Archive' }]" />` })
 class BulkHost {}
@@ -311,6 +316,7 @@ const CASES: Record<string, Case> = {
   ArenaSpinner: { hosts: [SpinnerHost], consumer: [] },
   ArenaSwitch: { hosts: [SwitchHost], consumer: ['Auto deploy'] },
   ArenaFileInput: { hosts: [FileInputHost, FileInputDropHost], consumer: ['Passport scan'] },
+  ArenaNumberField: { hosts: [NumberFieldHost, NumberFieldAffixHost], consumer: ['Replicas', 'Between 1 and 20.', 'Weight', '~', 'kg'] },
   ArenaBulkActionBar: { hosts: [BulkHost], consumer: ['Archive'] },
   ArenaCopyButton: { hosts: [CopyButtonHost], consumer: [] },
   ArenaCombobox: { hosts: [ComboboxEmptyHost, ComboboxLoadingHost, ComboboxCountHost], consumer: ['Region', 'Search regions', 'Europe West', 'Eur'] },
