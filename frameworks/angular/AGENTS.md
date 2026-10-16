@@ -538,7 +538,9 @@ They fall into **four** groups, each with its own reason. The **SVG charts** are
 real `<ul>` for a feed, a `<div role="tablist">` whose panels are siblings outside it, a real
 `<fieldset>` because the platform's `disabled` cascade exists on no other element, and a real
 `<nav>` for a navigation landmark, since the `navigation` pattern offers `role="navigation"` only
-for when a `<nav>` cannot be used. The fourth group has a reason unlike the other three:
+for when a `<nav>` cannot be used. The element itself is the meaning for `arena-divider`, whose
+`<hr>` a reader meets as a separator, `arena-kbd`, whose `<kbd>` is keyboard input, and `arena-link`,
+whose `<a href>` is the focusable link. The fourth group has a reason unlike the other three:
 **a component that owns an output named after a DOM event it must be able to refuse needs an inner
 element to stop the event at.** An Angular output named after a native DOM event is
 delivered twice, once as the output and once as the bubbled DOM event Angular also listens for
