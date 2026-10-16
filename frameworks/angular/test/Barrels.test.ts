@@ -42,6 +42,10 @@ const PRIVATE = new Map([
    + 'authored once for both layers and compared by check:shared-arithmetic; `arena-file-input` runs '
    + 'them on every pick and drop, and a consumer reads the result through its events and its two '
    + 'methods, never by calling them.'],
+  ['navigation/arena-link/LinkRules.ts',
+   'the attributes an anchor writes for the members `arena-link` takes, the target, the merged rel and '
+   + 'whether a primary click is a router\'s, authored once for both layers and compared by '
+   + 'check:shared-arithmetic; a consumer reads the result on the anchor, never by calling them.'],
   ['navigation/arena-pagination/PaginationWindow.ts',
    'the same shape one category over, and the standing precedent for it: `arenaPageWindow` decides '
    + 'which page numbers elide, which is `arena-pagination`\'s own arithmetic and not a member '

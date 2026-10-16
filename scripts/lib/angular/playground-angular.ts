@@ -179,6 +179,9 @@ export function renderNode(node: FixtureNode, places: Places, fields: FieldRef[]
     }
   }
   if (children.length === 0) return `${pad}<${open}${attrs}></${tag}>`;
+  const only = (slots.content ?? [])[0] as FixtureNode | undefined;
+  if (children.length === 1 && Object.keys(slots).length === 1 && typeof only === 'object' && typeof only.text === 'string' && !only.element)
+    return `${pad}<${open}${attrs}>${escapeText(only.text)}</${tag}>`;
   return `${pad}<${open}${attrs}>\n${children.join('\n')}\n${pad}</${tag}>`;
 }
 
@@ -199,7 +202,7 @@ export function slotBlock(knob: Knob, places: Places, fields: FieldRef[],
   markers: Markers, tags: Tags, depth: number, imports: Set<string>, marked: string) {
   const pad = '  '.repeat(depth);
   if (knob.control === 'slotText') {
-    const body = marked ? `<span${marked}>{{ k().${knob.member} }}</span>` : `{{ k().${knob.member} }}`;
+    const body = marked ? `<span${marked}>{{ k().${knob.member} }}</span>` : `<ng-container>{{ k().${knob.member} }}</ng-container>`;
     return `${pad}@if (k().${knob.member} !== undefined) {\n${pad}  ${body}\n${pad}}`;
   }
   const nodes = ((knob.nodes ?? []) as FixtureNode[])

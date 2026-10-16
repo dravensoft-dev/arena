@@ -44,6 +44,7 @@ export const PAIRED = [
   'components/display/arena-calendar/CalendarInternals.ts',
   'components/navigation/arena-pagination/PaginationWindow.ts',
   'components/forms/arena-file-input/FileRules.ts',
+  'components/navigation/arena-link/LinkRules.ts',
 ];
 
 export const DIVERGENT = new Map([

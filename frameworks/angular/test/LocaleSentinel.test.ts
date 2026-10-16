@@ -28,6 +28,7 @@ import { ArenaToast } from '../components/feedback/arena-toast/ArenaToast';
 import { ArenaSheet } from '../components/feedback/arena-sheet/ArenaSheet';
 import { ArenaAlert } from '../components/feedback/arena-alert/ArenaAlert';
 import { ArenaTag } from '../components/display/arena-tag/ArenaTag';
+import { ArenaLink } from '../components/navigation/arena-link/ArenaLink';
 import { ArenaSkeleton } from '../components/display/arena-skeleton/ArenaSkeleton';
 import { ArenaSpinner } from '../components/feedback/arena-spinner/ArenaSpinner';
 import { ArenaSwitch } from '../components/forms/arena-switch/ArenaSwitch';
@@ -160,6 +161,9 @@ class AlertHost {}
 @Component({ standalone: true, imports: [ArenaTag], template: `<arena-tag [removable]="true">Beta</arena-tag>` })
 class TagHost {}
 
+@Component({ selector: 'locale-sentinel-link-host', standalone: true, imports: [ArenaLink], template: `<arena-link href="/notes" [external]="true">Release notes</arena-link>` })
+class LinkHost {}
+
 @Component({ standalone: true, imports: [ArenaSkeleton], template: `<arena-skeleton /><arena-skeleton [lines]="2" />` })
 class SkeletonHost {}
 
@@ -264,6 +268,7 @@ const CASES: Record<string, Case> = {
   ArenaSheet: { hosts: [SheetHost], consumer: ['Filters', 'Body'] },
   ArenaAlert: { hosts: [AlertHost], consumer: ['Heads up', 'Body'] },
   ArenaTag: { hosts: [TagHost], consumer: ['Beta'] },
+  ArenaLink: { hosts: [LinkHost], consumer: ['Release notes'] },
   ArenaSkeleton: { hosts: [SkeletonHost], consumer: [] },
   ArenaSpinner: { hosts: [SpinnerHost], consumer: [] },
   ArenaSwitch: { hosts: [SwitchHost], consumer: ['Auto deploy'] },

@@ -163,6 +163,14 @@ test('a host wraps the subject where the placeholder marks', () => {
   assert.match(out, /<\/arena-table>$/);
 });
 
+test('a component holding one text node draws it flush, so an inline component underlines no space around its words', () => {
+  const node = renderNode({ component: 'ArenaBadge', slots: { content: [{ text: 'Live' }] } }, places, [], new Map(), new Map(), 0, new Set());
+  assert.match(node, /^<arena-badge[^>]*>Live<\/arena-badge>$/);
+  const text = renderSubject(model, places, [], new Map(), new Map(), 0, new Set());
+  assert.match(text, /<ng-container>\{\{ k\(\)\.content \}\}<\/ng-container>/,
+    'a text knob bare on its own line is projected with the spaces around it, which an inline anchor underlines');
+});
+
 test('a host element holds the subject among its children, with the text around it kept as written', () => {
   const hosted = { ...model, host: { element: 'p', children: [{ text: 'Read ' }, '$subject' as const, { text: ' first.' }] } };
   const out = renderTree(hosted, places, [], new Map(), new Map(), 0, new Set());
