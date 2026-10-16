@@ -441,7 +441,7 @@ import { ARENA_FORM_CONTROLS } from '@dravensoft/arena-angular/forms';
 })
 ```
 
-`formControl`, `formControlName` and `ngModel` work on `arena-input`, `arena-textarea`, `arena-select`, `arena-combobox`, `arena-multi-select`, `arena-checkbox`, `arena-checkbox-group`, `arena-radio-group`, `arena-switch` and `arena-file-input`. Each directive is also exported alone: `ArenaInputControl`, `ArenaTextareaControl`, `ArenaSelectControl`, `ArenaComboboxControl`, `ArenaMultiSelectControl`, `ArenaCheckboxControl`, `ArenaCheckboxGroupControl`, `ArenaRadioGroupControl`, `ArenaSwitchControl` and `ArenaFileInputControl`.
+`formControl`, `formControlName` and `ngModel` work on `arena-input`, `arena-textarea`, `arena-select`, `arena-combobox`, `arena-multi-select`, `arena-checkbox`, `arena-checkbox-group`, `arena-radio-group`, `arena-switch`, `arena-file-input` and `arena-number-field`. Each directive is also exported alone: `ArenaInputControl`, `ArenaTextareaControl`, `ArenaSelectControl`, `ArenaComboboxControl`, `ArenaMultiSelectControl`, `ArenaCheckboxControl`, `ArenaCheckboxGroupControl`, `ArenaRadioGroupControl`, `ArenaSwitchControl`, `ArenaFileInputControl` and `ArenaNumberFieldControl`.
 
 What a control carries as its value:
 
@@ -450,6 +450,7 @@ What a control carries as its value:
 - The select, the combobox and the radio group carry a `string`, the chosen option's value. A value no option holds draws an empty combobox field and a radio group with no radio checked. A `null` draws the empty field, the placeholder or no radio checked.
 - The checkbox group carries a `string[]`, the ticked values in the order they were ticked. A `null` draws no box ticked.
 - The multi-select carries a `string[]`, the chosen values in the order they were chosen, and never the event object. A `null` draws no chip.
+- The number field carries a `number`, and `null` once it is emptied. A `null`, an empty string or `NaN` draws the empty field.
 - The file input carries a `File[]`, the files it holds. `setValue(null)`, `setValue([])` and `reset()` clear it. A value holding files is ignored with a warning, because a file selection cannot be set from outside.
 
 `disable()` disables the control. Leaving the control marks it touched.
