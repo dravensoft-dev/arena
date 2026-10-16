@@ -30,7 +30,7 @@
     {
       "title": "Feedback",
       "items": [
-        "ArenaAlert", "ArenaProgressBar", "ArenaSpinner", "ArenaEmptyState", "ArenaErrorState",
+        "ArenaAlert", "ArenaProgressBar", "ArenaMeter", "ArenaSpinner", "ArenaEmptyState", "ArenaErrorState",
         "ArenaTooltip", "ArenaToast", "ArenaToastHost", "ArenaDialog", "ArenaConfirmDialog",
         "ArenaSheet", "ArenaOnboarding", "ArenaPopover"
       ]

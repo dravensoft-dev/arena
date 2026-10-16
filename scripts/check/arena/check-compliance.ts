@@ -48,6 +48,7 @@ export const COVERED = {
   'ArenaAlert:react': 'AlertTones.dom.test.tsx',
   'ArenaToast:react': 'AlertTones.dom.test.tsx',
   'ArenaProgressBar:react': 'ArenaProgressBar.dom.test.tsx',
+  'ArenaMeter:react': 'ArenaMeter.dom.test.tsx',
   'ArenaSpinner:react': 'ArenaSpinner.dom.test.tsx',
   'ArenaTag:react': 'TagAndChipCases.dom.test.tsx',
   'ArenaCalendarEvent:react': 'TagAndChipCases.dom.test.tsx',

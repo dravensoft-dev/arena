@@ -44,6 +44,7 @@ import { ArenaRadarChart } from '../components/charts/arena-radar-chart/ArenaRad
 import { ArenaScatterChart } from '../components/charts/arena-scatter-chart/ArenaScatterChart.tsx';
 import { ArenaLink } from '../components/navigation/arena-link/ArenaLink.tsx';
 import { ArenaCopyButton } from '../components/forms/arena-copy-button/ArenaCopyButton.tsx';
+import { ArenaMeter } from '../components/feedback/arena-meter/ArenaMeter.tsx';
 
 afterEach(() => cleanup());
 
@@ -137,6 +138,10 @@ const CASES: Record<string, Case> = {
   ArenaAlert: { renders: [() => <ArenaAlert tone="info" title="Heads up" dismissible>Body</ArenaAlert>], consumer: ['Heads up', 'Body'] },
   ArenaTag: { renders: [() => <ArenaTag removable>Beta</ArenaTag>], consumer: ['Beta'] },
   ArenaLink: { renders: [() => <ArenaLink href="/notes" external>Release notes</ArenaLink>], consumer: ['Release notes'] },
+  ArenaMeter: {
+    renders: [30, 72, 91].map((value) => () => <ArenaMeter label="Storage used" value={value} valueText={`${value} of 100 GB`} low={50} high={80} optimum={0} />),
+    consumer: ['Storage used', '30 of 100 GB', '72 of 100 GB', '91 of 100 GB'],
+  },
   ArenaSkeleton: { renders: [() => <ArenaSkeleton />, () => <ArenaSkeleton lines={2} />], consumer: [] },
   ArenaSpinner: { renders: [() => <ArenaSpinner />], consumer: [] },
   ArenaSwitch: { renders: [() => <ArenaSwitch label="Auto deploy" confirm />], consumer: ['Auto deploy'] },

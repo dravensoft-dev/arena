@@ -14,7 +14,7 @@
     "low": { "form": "primitive", "type": "number",
              "description": "The top of the low region, clamped into the range. Absent, it is min. A value equal to it is in the region above it." },
     "high": { "form": "primitive", "type": "number",
-              "description": "The bottom of the high region, clamped into the range and never below low. Absent, it is max. A value equal to it is in the high region." },
+              "description": "The bottom of the high region, clamped into the range and never below low. Absent, it is max. A value equal to it is in the high region, except at max, where no high region opens and the value stays in the middle." },
     "optimum": { "form": "primitive", "type": "number",
                  "description": "Where the best reading sits, which decides which region is good. Absent, it is the midpoint. With none of low, high and optimum given, no standing is derived and the fill paints the accent." },
     "showLabel": { "form": "primitive", "type": "boolean", "default": true,

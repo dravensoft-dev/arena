@@ -75,6 +75,7 @@ will report it.
 | `ArenaDialog` | Modal dialog over a blurred scrim. Takes the whole interaction until dismissed. | `open*` `title*` `eyebrow` `content` `footer` `fillBelow` `close` | dialog-modal | angular, react |
 | `ArenaEmptyState` | A placeholder for an empty collection: an icon, a title, a message, and an optional action. | `icon` `title*` `headingLevel` `message` `action` | none | angular, react |
 | `ArenaErrorState` | Section/screen-level failure, with recovery and an optional diagnostic code. | `icon` `title` `headingLevel` `message` `code` `retryLabel` `retry` `secondaryAction` | alert | angular, react |
+| `ArenaMeter` | A measurement inside a known range: disk used, a quota, a score against a target. A bar that does not move as a task proceeds, so it announces nothing. Thresholds derive a standing, drawn as a word and a hue. | `label*` `value*` `min` `max` `low` `high` `optimum` `showLabel` `valueText` | meter (react) | angular, react |
 | `ArenaOnboarding` | Guided coachmark tour (H10): presents features within the product with progress dots, Skip and Next. Controlled: the host owns index and answers the four events. | `open*` `steps*` `index` `anchor` `next` `back` `skip` `done` | dialog-modal | angular, react |
 | `ArenaPopover` | A small non-modal panel a trigger opens, holding content of the consumer's own: a filter form with its Apply button, a pair of dates, a paragraph that explains a figure. The page behind it stays usable, nothing is trapped, and the panel escapes a clipping ancestor. A popover is not a menu of actions and not a hover description. | `trigger*` `content*` `label*` `open` `align` `openChange` | dialog-nonmodal | angular, react |
 | `ArenaProgressBar` | Determinate progress by default; indeterminate for a wait with no percentage. A bar along a row, or a ring with the figure inside it. | `content` `progressPercentage` `indeterminate` `tone` `label*` `showLabel` `showPercentage` `shape` | progressbar | angular, react |
@@ -143,4 +144,4 @@ will report it.
 | `ArenaTab` | One tab in an ArenaTabs strip, and the panel it shows. ArenaTab draws the button; its content fills the tabpanel ArenaTabs renders beside the tablist. | `value*` `label*` `content` | none | angular, react |
 | `ArenaTabs` | A row of tabs and the one panel they switch between. Write one `ArenaTab` per view; ArenaTabs renders the tablist, the panel, and the keyboard. | `content` `value` `defaultValue` `change` | tabs | angular, react |
 
-83 components across 7 categories.
+84 components across 7 categories.

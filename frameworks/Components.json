@@ -37,6 +37,7 @@
     "ArenaDialog",
     "ArenaEmptyState",
     "ArenaErrorState",
+    "ArenaMeter",
     "ArenaOnboarding",
     "ArenaPopover",
     "ArenaProgressBar",
