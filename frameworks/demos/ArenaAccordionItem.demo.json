@@ -1,0 +1,29 @@
+{
+  "component": "ArenaAccordionItem",
+  "seed": {
+    "value": "overview",
+    "label": "What ships in this build"
+  },
+  "slots": {
+    "content": [
+      { "text": "Build 4821 carries the new checkout flow and two fixes to billing." }
+    ]
+  },
+  "host": {
+    "component": "ArenaAccordion",
+    "members": {
+      "value": "overview"
+    },
+    "slots": {
+      "content": [
+        "$subject",
+        {
+          "component": "ArenaAccordionItem",
+          "members": { "value": "rollout", "label": "How the rollout runs" },
+          "slots": { "content": [{ "text": "One region an hour, starting with the smallest." }] }
+        }
+      ]
+    }
+  },
+  "note": "An item owns its header and its panel; the accordion owns which panels are open."
+}

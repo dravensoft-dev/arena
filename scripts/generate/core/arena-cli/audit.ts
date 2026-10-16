@@ -490,6 +490,7 @@ export const HEADING_RUNGS: Record<string, number> = {
   'arena-page-head': 1,
   'arena-section': 2,
   'arena-unauth-card': 2,
+  'arena-accordion': 3,
   'arena-board-column': 3,
   'arena-card': 3,
   'arena-empty-state': 3,

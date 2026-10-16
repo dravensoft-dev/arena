@@ -1,0 +1,30 @@
+{
+  "component": "ArenaAccordion",
+  "seed": {
+    "value": "overview"
+  },
+  "slots": {
+    "content": [
+      {
+        "component": "ArenaAccordionItem",
+        "members": { "value": "overview", "label": "What ships in this build" },
+        "slots": { "content": [{ "text": "Build 4821 carries the new checkout flow and two fixes to billing." }] }
+      },
+      {
+        "component": "ArenaAccordionItem",
+        "members": { "value": "rollout", "label": "How the rollout runs" },
+        "slots": { "content": [{ "text": "One region an hour, starting with the smallest, with a hold after each." }] }
+      },
+      {
+        "component": "ArenaAccordionItem",
+        "members": { "value": "rollback", "label": "When it rolls back" },
+        "slots": { "content": [{ "text": "Any region whose error rate doubles rolls back on its own." }] }
+      }
+    ]
+  },
+  "bind": {
+    "valueChange": "value",
+    "valuesChange": { "values": { "$field": "values" } }
+  },
+  "note": "Turn multiple on and the accordion reads values instead of value, so several sections stay open at once."
+}
