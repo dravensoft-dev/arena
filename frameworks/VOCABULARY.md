@@ -272,7 +272,7 @@ The window a page fills, so a short page's footer sits at the bottom rather than
 
 ## size
 
-How big a control, a meter, a face or a mark is drawn. The region a component sits in answers it as much as the component does, so it crosses components. Written on a toolbar, it reaches every button in it, and a nearer class answers it again. An option a component does not have leaves that component at the nearest option it does answer.
+How big a control, a bar, a face or a mark is drawn. The region a component sits in answers it as much as the component does, so it crosses components. Written on a toolbar, it reaches every button in it, and a nearer class answers it again. An option a component does not have leaves that component at the nearest option it does answer.
 
 - **Options:** `arena-size-2xl`, `arena-size-lg`, `arena-size-md` (default), `arena-size-sm`, `arena-size-xl`, `arena-size-xs`.
 - **Reach:** context: it reaches every component inside, until a nearer class answers it again.

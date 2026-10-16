@@ -1,7 +1,7 @@
 {
   "family": "size",
   "reach": "context",
-  "description": "How big a control, a meter, a face or a mark is drawn. The region a component sits in answers it as much as the component does, so it crosses components. Written on a toolbar, it reaches every button in it, and a nearer class answers it again. An option a component does not have leaves that component at the nearest option it does answer.",
+  "description": "How big a control, a bar, a face or a mark is drawn. The region a component sits in answers it as much as the component does, so it crosses components. Written on a toolbar, it reaches every button in it, and a nearer class answers it again. An option a component does not have leaves that component at the nearest option it does answer.",
   "default": "arena-size-md",
   "variants": {
     "arena-size-xs": "[--arena-size-avatar:var(--size-xs-avatar)]",

@@ -853,27 +853,27 @@
   },
   "size-sm-meter": {
     "$type": "dimension",
-    "$description": "The weight of a meter: a bar's thickness and a ring's band at arena-size-sm, read by ArenaProgressBar. An option of a family is a question by construction, so the plugin answers it."
+    "$description": "The weight of a bar: a progress bar's or a meter's track and a progress ring's band at arena-size-sm, read by ArenaProgressBar and ArenaMeter. An option of a family is a question by construction, so the plugin answers it."
   },
   "size-md-meter": {
     "$type": "dimension",
-    "$description": "The weight of a meter: a bar's thickness and a ring's band at arena-size-md, read by ArenaProgressBar. An option of a family is a question by construction, so the plugin answers it."
+    "$description": "The weight of a bar: a progress bar's or a meter's track and a progress ring's band at arena-size-md, read by ArenaProgressBar and ArenaMeter. An option of a family is a question by construction, so the plugin answers it."
   },
   "size-lg-meter": {
     "$type": "dimension",
-    "$description": "The weight of a meter: a bar's thickness and a ring's band at arena-size-lg, read by ArenaProgressBar. An option of a family is a question by construction, so the plugin answers it."
+    "$description": "The weight of a bar: a progress bar's or a meter's track and a progress ring's band at arena-size-lg, read by ArenaProgressBar and ArenaMeter. An option of a family is a question by construction, so the plugin answers it."
   },
   "size-sm-ring": {
     "$type": "dimension",
-    "$description": "The diameter of a radial meter at arena-size-sm, read by ArenaProgressBar. An option of a family is a question by construction, so the plugin answers it."
+    "$description": "The diameter of a progress ring at arena-size-sm, read by ArenaProgressBar. An option of a family is a question by construction, so the plugin answers it."
   },
   "size-md-ring": {
     "$type": "dimension",
-    "$description": "The diameter of a radial meter at arena-size-md, read by ArenaProgressBar. An option of a family is a question by construction, so the plugin answers it."
+    "$description": "The diameter of a progress ring at arena-size-md, read by ArenaProgressBar. An option of a family is a question by construction, so the plugin answers it."
   },
   "size-lg-ring": {
     "$type": "dimension",
-    "$description": "The diameter of a radial meter at arena-size-lg, read by ArenaProgressBar. An option of a family is a question by construction, so the plugin answers it."
+    "$description": "The diameter of a progress ring at arena-size-lg, read by ArenaProgressBar. An option of a family is a question by construction, so the plugin answers it."
   },
   "size-xs-avatar": {
     "$type": "dimension",
@@ -1124,19 +1124,19 @@
   },
   "accent-plain-ink": {
     "$type": "color",
-    "$description": "The ink of a figure, a meter, an activity dot or a spinner at arena-accent-plain, read by ArenaStatCard. An option of a family is a question by construction, so the plugin answers it."
+    "$description": "The ink of a figure, a bar, an activity dot or a spinner at arena-accent-plain, read by ArenaStatCard. An option of a family is a question by construction, so the plugin answers it."
   },
   "accent-primary-ink": {
     "$type": "color",
-    "$description": "The ink of a figure, a meter, an activity dot or a spinner at arena-accent-primary, read by ArenaStatCard, ArenaProgressBar, ArenaActivityFeed, ArenaSpinner. An option of a family is a question by construction, so the plugin answers it."
+    "$description": "The ink of a figure, a bar, an activity dot or a spinner at arena-accent-primary, read by ArenaStatCard, ArenaProgressBar, ArenaMeter, ArenaActivityFeed, ArenaSpinner. An option of a family is a question by construction, so the plugin answers it."
   },
   "accent-gold-ink": {
     "$type": "color",
-    "$description": "The ink of a figure, a meter, an activity dot or a spinner at arena-accent-gold, read by ArenaStatCard, ArenaProgressBar, ArenaActivityFeed, ArenaSpinner. An option of a family is a question by construction, so the plugin answers it."
+    "$description": "The ink of a figure, a bar, an activity dot or a spinner at arena-accent-gold, read by ArenaStatCard, ArenaProgressBar, ArenaMeter, ArenaActivityFeed, ArenaSpinner. An option of a family is a question by construction, so the plugin answers it."
   },
   "accent-muted-ink": {
     "$type": "color",
-    "$description": "The ink of a figure, a meter, an activity dot or a spinner at arena-accent-muted, read by ArenaSpinner. An option of a family is a question by construction, so the plugin answers it."
+    "$description": "The ink of a figure, a bar, an activity dot or a spinner at arena-accent-muted, read by ArenaSpinner. An option of a family is a question by construction, so the plugin answers it."
   },
   "accent-plain-quiet-ink": {
     "$type": "color",
