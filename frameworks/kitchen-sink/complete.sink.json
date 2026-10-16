@@ -27,7 +27,7 @@
     {
       "title": "Wayfinding",
       "items": [
-        "ArenaAppLogo", "ArenaPageHead", "ArenaAppBar", "ArenaBreadcrumbs", "ArenaTabs", "ArenaTab",
+        "ArenaAppLogo", "ArenaPageHead", "ArenaAppBar", "ArenaBreadcrumbs", "ArenaLink", "ArenaTabs", "ArenaTab",
         "ArenaPagination", "ArenaSideNav", "ArenaSideNavSection", "ArenaSideNavItem",
         "ArenaSideNavCollapsible", "ArenaBottomNav", "ArenaBottomNavItem"
       ]

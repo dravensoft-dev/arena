@@ -40,6 +40,7 @@ in `imports` as well. A component cannot tell an un-imported marker from an unfi
 | `ArenaBreadcrumbs` | A trail of ancestor locations ending at the current one. An explicit return path for hierarchies deeper than tabs. | `ariaLabel*` `items*` `separator` `origin` `navigate` | [`ArenaBreadcrumbs.prompt.md`](./arena-breadcrumbs/ArenaBreadcrumbs.prompt.md) |
 | `ArenaBulkActionBar` | Appears when rows are selected and operates on the selection as a set. Renders nothing at a count of zero. | `count*` `noun` `actions*` `run` `layout` `clearable` `clear` | [`ArenaBulkActionBar.prompt.md`](./arena-bulk-action-bar/ArenaBulkActionBar.prompt.md) |
 | `ArenaCommandPalette` | Power-user accelerator (Cmd/Ctrl+K): search and run actions without a mouse. Controlled: the host owns whether it is open. | `open*` `commands*` `placeholder` `maxResults` `close` `run` | [`ArenaCommandPalette.prompt.md`](./arena-command-palette/ArenaCommandPalette.prompt.md) |
+| `ArenaLink` | A link set in running text, such as a sentence in an empty state or a help line. The link is a real <a href>, underlined at all times. A plain primary click is reported through navigate for a router, and every other activation stays the browser's. | `content*` `href*` `external` `download` `rel` `target` `navigate` | [`ArenaLink.prompt.md`](./arena-link/ArenaLink.prompt.md) |
 | `ArenaMenu` | Dropdown menu of actions on a trigger -- overflow, more actions, context. | `trigger*` `items*` `align` `select` | [`ArenaMenu.prompt.md`](./arena-menu/ArenaMenu.prompt.md) |
 | `ArenaPageHead` | A page heading: a required title, an optional subtitle, and an optional actions slot. | `title*` `headingLevel` `subtitle` `actions` | [`ArenaPageHead.prompt.md`](./arena-page-head/ArenaPageHead.prompt.md) |
 | `ArenaPagination` | Page selector for a paged list. Renders a windowed range, never every page. | `page*` `pageCount*` `ariaLabel*` `change` | [`ArenaPagination.prompt.md`](./arena-pagination/ArenaPagination.prompt.md) |
@@ -51,4 +52,4 @@ in `imports` as well. A component cannot tell an un-imported marker from an unfi
 | `ArenaTab` | One tab in an ArenaTabs strip, and the panel it shows. ArenaTab draws the button; its content fills the tabpanel ArenaTabs renders beside the tablist. | `value*` `label*` `content` | [`ArenaTab.prompt.md`](./arena-tab/ArenaTab.prompt.md) |
 | `ArenaTabs` | A row of tabs and the one panel they switch between. Write one `ArenaTab` per view; ArenaTabs renders the tablist, the panel, and the keyboard. | `content` `value` `defaultValue` `change` | [`ArenaTabs.prompt.md`](./arena-tabs/ArenaTabs.prompt.md) |
 
-16 navigation components in this layer.
+17 navigation components in this layer.

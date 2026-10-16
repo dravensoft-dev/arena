@@ -38,6 +38,7 @@ event is an `on`-prefixed handler. An icon is a Phosphor class-name string, neve
 | `ArenaBreadcrumbs` | A trail of ancestor locations ending at the current one. An explicit return path for hierarchies deeper than tabs. | `ariaLabel*` `items*` `separator` `origin` `onNavigate` | [`ArenaBreadcrumbs.prompt.md`](./arena-breadcrumbs/ArenaBreadcrumbs.prompt.md) |
 | `ArenaBulkActionBar` | Appears when rows are selected and operates on the selection as a set. Renders nothing at a count of zero. | `count*` `noun` `actions*` `onRun` `layout` `clearable` `onClear` | [`ArenaBulkActionBar.prompt.md`](./arena-bulk-action-bar/ArenaBulkActionBar.prompt.md) |
 | `ArenaCommandPalette` | Power-user accelerator (Cmd/Ctrl+K): search and run actions without a mouse. Controlled: the host owns whether it is open. | `open*` `commands*` `placeholder` `maxResults` `onClose` `onRun` | [`ArenaCommandPalette.prompt.md`](./arena-command-palette/ArenaCommandPalette.prompt.md) |
+| `ArenaLink` | A link set in running text, such as a sentence in an empty state or a help line. The link is a real <a href>, underlined at all times. A plain primary click is reported through navigate for a router, and every other activation stays the browser's. | `children*` `href*` `external` `download` `rel` `target` `onNavigate` | [`ArenaLink.prompt.md`](./arena-link/ArenaLink.prompt.md) |
 | `ArenaMenu` | Dropdown menu of actions on a trigger -- overflow, more actions, context. | `trigger*` `items*` `align` `onSelect` | [`ArenaMenu.prompt.md`](./arena-menu/ArenaMenu.prompt.md) |
 | `ArenaPageHead` | A page heading: a required title, an optional subtitle, and an optional actions slot. | `title*` `headingLevel` `subtitle` `actions` | [`ArenaPageHead.prompt.md`](./arena-page-head/ArenaPageHead.prompt.md) |
 | `ArenaPagination` | Page selector for a paged list. Renders a windowed range, never every page. | `page*` `pageCount*` `ariaLabel*` `onChange` | [`ArenaPagination.prompt.md`](./arena-pagination/ArenaPagination.prompt.md) |
@@ -49,4 +50,4 @@ event is an `on`-prefixed handler. An icon is a Phosphor class-name string, neve
 | `ArenaTab` | One tab in an ArenaTabs strip, and the panel it shows. ArenaTab draws the button; its content fills the tabpanel ArenaTabs renders beside the tablist. | `value*` `label*` `children` | [`ArenaTab.prompt.md`](./arena-tab/ArenaTab.prompt.md) |
 | `ArenaTabs` | A row of tabs and the one panel they switch between. Write one `ArenaTab` per view; ArenaTabs renders the tablist, the panel, and the keyboard. | `children` `value` `defaultValue` `onChange` | [`ArenaTabs.prompt.md`](./arena-tabs/ArenaTabs.prompt.md) |
 
-16 navigation components in this layer.
+17 navigation components in this layer.

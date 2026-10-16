@@ -87,6 +87,10 @@ export const UNSIZED = new Map<string, string>([
     + 'container hands the grid inside a padded surface is under 280. Removing this entry means '
     + 'deciding that the month scrolls sideways below that width rather than shrinking, which is a '
     + 'decision about the calendar and not about the floor'],
+  ['prose-inline', 'an anchor inside a paragraph or an .arena-prose block is the inline target WCAG 2.5.8 exempts: '
+    + 'its box is the line of text it sits in, and a floor on it would set the line height of the prose. The '
+    + 'exemption is blanket, so any a[href] under p or .arena-prose goes unmeasured in all three scopes, Arena\'s own '
+    + 'included, and the sinks hold ArenaLink inside a paragraph so the entry stays measured'],
 ]);
 
 export type Argued = { file: string; token: string; floor: number; why: string };

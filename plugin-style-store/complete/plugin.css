@@ -1188,6 +1188,13 @@
   text-wrap: balance;
 }
 
+.arena-complete [data-arena-part="link"] {
+  text-decoration-style: wavy;
+  text-underline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="link.external"] {
+  letter-spacing: var(--track-label);
+}
 .arena-complete [data-arena-part="main"] {
   border-radius: var(--r-media);
   outline: var(--bw-surface) dashed var(--edge-surface);

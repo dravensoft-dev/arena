@@ -1,6 +1,6 @@
 {
   "component": "ArenaLink",
-  "description": "A link in running text: a sentence in an empty state, a help line, a card body. It is a real <a href>, drawn in the link ink with an underline that is always on, so a reader tells it from the prose by more than colour. It carries the settled anchor convention of ArenaCard.href and ArenaTableCell.href: a primary click with no modifier is cancelled and reported through navigate, so a router owns it, and every other activation stays the browser's. A whole card is ArenaCard.href, and a crumb is ArenaBreadcrumbs; this is the link a sentence holds.",
+  "description": "A link set in running text, such as a sentence in an empty state or a help line. The link is a real <a href>, underlined at all times. A plain primary click is reported through navigate for a router, and every other activation stays the browser's.",
   "affordances": ["focus", "hover"],
   "api": {
     "content": { "form": "slot", "required": true,

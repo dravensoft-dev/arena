@@ -20,6 +20,7 @@ import { ArenaScroller } from '../components/layout/arena-scroller/ArenaScroller
 import { ArenaBoard } from '../components/layout/arena-board/ArenaBoard.tsx';
 import { ArenaSection } from '../components/layout/arena-section/ArenaSection.tsx';
 import { ArenaFieldset } from '../components/forms/arena-fieldset/ArenaFieldset.tsx';
+import { ArenaLink } from '../components/navigation/arena-link/ArenaLink.tsx';
 
 interface MemberSpec { form?: string; type?: string; required?: boolean; description?: string }
 const CONTRACTS = join(REACT_COMPONENTS, '../../../contracts/api/components');
@@ -42,6 +43,7 @@ const WITHOUT_THE_SLOT = new Map([
   ['ArenaSection', () => <ArenaSection title="Landed recently" />],
   // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
   ['ArenaFieldset', () => <ArenaFieldset legend="Notifications" />],
+  ['ArenaLink', () => <ArenaLink href="/notes" />],
 ]);
 
 export function requiredSlots(dir: string, read = readFileSync, list = readdirSync) {

@@ -63,11 +63,23 @@ test('the page script measures only what carries an Arena part, and unions a pse
   assert.match(expression, /classList\.remove/);
 });
 
-test('the one exception on the record is a geometry rather than a control that was left small', () => {
-  assert.equal(UNSIZED.size, 1);
+test('the two exceptions on the record are a geometry and the inline link, never a control left small', () => {
+  assert.equal(UNSIZED.size, 2);
+  const inline = UNSIZED.get('prose-inline') ?? '';
+  assert.match(inline, /WCAG 2\.5\.8/, 'the inline exception cites the criterion that grants it');
+  assert.match(inline, /line height/, 'and the constraint a floor would break');
   const why = UNSIZED.get('calendar.cell') ?? '';
   assert.match(why, /seventh of the width/);
   assert.match(why, /308px/, 'the reason carries the measurement that produced it');
+});
+
+test('an inline link in prose is excused only while the entry is on the record, and the entry is stale with none measured', () => {
+  const link = at({ exempt: 'prose-inline', part: 'link', tag: 'a', width: 96, height: 18 });
+  assert.deepEqual(undersized([link], SCOPES, new Map([['prose-inline', 'r']])), []);
+  assert.equal(undersized([link], SCOPES, new Map()).length, 1, 'the exemption the sweep computes is honoured only through UNSIZED');
+  assert.deepEqual(staleUnsizedProblems([link], new Map([['prose-inline', 'r']])), []);
+  assert.equal(staleUnsizedProblems([at({ part: 'x.y' })], new Map([['prose-inline', 'r']])).length, 1,
+    'an entry nothing measures is a stale excuse');
 });
 
 const tied = (over = {}) => new Map(

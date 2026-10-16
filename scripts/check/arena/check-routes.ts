@@ -97,7 +97,7 @@ export const ROUTES: Route[] = [
       'frameworks/*/components/*/INDEX.md',
       'frameworks/*/components/**/*.prompt.md',
     ],
-    budget: 34_900,
+    budget: 35_400,
     reason:
       'the route every build takes, and the only one paid per screen rather than per project. The '
       + 'layer-neutral index is deliberately not a stop: it answers whether a component exists at '
@@ -109,10 +109,9 @@ export const ROUTES: Route[] = [
       + 'keeping that page short rather than for leaving a member out: a paged table has to say how '
       + 'big its list is and where the page starts in it, and the header row taking the first index '
       + 'is arithmetic no member description can carry. The number is what the stops measure with '
-      + 'room for one component to grow, and it is the ceiling a new rule on the consumer branch is '
-      + 'argued against. Each prompt names its vocabulary families and their properties, and the '
-      + 'layer directory links the install references. A description names a parent\'s event in the '
-      + 'layer\'s own spelling.',
+      + 'room for one component to grow, and the ceiling a new consumer rule is argued against. Each '
+      + 'prompt names its vocabulary families and their properties, and the layer directory links '
+      + 'the install references. The category index grows by a row per component a category gains.',
   },
   {
     name: 'consumer-install',
@@ -370,7 +369,7 @@ export const ROUTES: Route[] = [
       + 'the domain the gate lands in',
     entry: 'contributor',
     stops: ['scripts/AGENTS.md', 'scripts/check/AGENTS.md', 'scripts/check/*/AGENTS.md'],
-    budget: 95_200,
+    budget: 95_300,
     reason:
       'the route a contributor takes most often after the component one, and the one whose last '
       + 'stop grows every time a gate lands, because each gate has a row in its domain\'s table. The '
@@ -383,7 +382,8 @@ export const ROUTES: Route[] = [
       + 'the median is what says how often that happens. The rows of the arena domain table '
       + 'state what their gates refuse, and the check page carries its section on the sweep running '
       + 'side by side, its pools and --jobs. The focus-trap row names both questions that gate puts '
-      + 'to a real browser, the trap and the handoff of a refused hidden control.',
+      + 'to a real browser, the trap and the handoff of a refused hidden control. The target-size row names '
+      + 'its two exceptions.',
   },
   {
     name: 'contributor-tailwind',
