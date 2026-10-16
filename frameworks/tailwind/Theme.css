@@ -294,6 +294,7 @@
   --spacing-marker-x: var(--pad-marker-x);
   --spacing-marker-y: var(--pad-marker-y);
   --spacing-key-y: var(--pad-key-y);
+  --spacing-timeline-dot: var(--timeline-dot);
   --spacing-marker: var(--gap-marker);
   --spacing-row-x: calc(var(--pad-row-x) * var(--dz-row-scale-x));
   --spacing-row-y: calc(var(--pad-row-y) * var(--dz-row-scale-y));

@@ -271,6 +271,15 @@
     "$type": "dimension",
     "$description": "The width of the panel of ArenaDialog at arena-dialog-width-lg, read by ArenaDialog. An option of a family is a question by construction, so the plugin answers it."
   },
+  "timeline-dot": {
+    "$type": "dimension",
+    "$description": "The diameter of an ArenaTimeline milestone's dot, which holds the glyph that says the milestone's tone. Born at 20px, the smallest circle a 16px glyph sits in with air around it, and defaulting to sp.5.\n\nA role rather than a fixed step, because a plugin that opens its rows up or sets its glyphs larger moves the dot with them, and the connector joins the dots' centres at whatever size they take.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "default": "{sp.5}"
+      }
+    }
+  },
   "container-max": {
     "$type": "dimension",
     "$description": "The widest the page's content column gets. Promoted here from spacing.json, where\nit sat among the scales without being one: nothing else steps off it and no second use shares it,\nso it was already a role wearing a scale's file.\n\nIt keeps its name, so --container-max and Tailwind's max-w-page are untouched by the move; what\nchanges is that a style plugin may now re-answer it. A style plugin for reading wants a narrower page than\na style plugin for a dashboard, and that was unreachable before.\n\nEmitted into effects.generated.css beside the other roles rather than into spacing.generated.css,\nbecause arena-tokens.ts reads a fixed list of four generated files and the roles all live in one\nof them."

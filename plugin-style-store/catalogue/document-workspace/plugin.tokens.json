@@ -298,6 +298,10 @@
       "unit": "px"
     }
   },
+  "timeline-dot": {
+    "$type": "dimension",
+    "$value": "{sp.5}"
+  },
   "container-max": {
     "$type": "dimension",
     "$value": {
