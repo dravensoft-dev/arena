@@ -40,6 +40,7 @@ export const PAIRED = [
   'components/charts/ChartSeries.ts',
   'components/charts/ChartPointer.ts',
   'components/charts/ChartPolar.ts',
+  'components/forms/NumberRules.ts',
   'components/feedback/arena-tooltip/TooltipName.ts',
   'components/forms/arena-combobox/ComboboxRules.ts',
   'components/display/arena-calendar/CalendarInternals.ts',

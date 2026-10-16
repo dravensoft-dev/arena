@@ -85,9 +85,9 @@ export function arenaValueWriter({ prefix, suffix, format }: ArenaValueWriterOpt
   try {
     intl = new Intl.NumberFormat(format.locale, options);
   } catch {
-    arenaWarnOnce(`chart: valueFormat.locale "${format.locale}" is not a tag Intl accepts, so every number`
-      + ' the chart writes falls back to the raw JavaScript one. A tick, a tooltip and the accessible'
-      + ' table all read differently from the table beside them until it is a BCP-47 tag.');
+    arenaWarnOnce(`number format: the locale "${format.locale}" is not a tag Intl accepts, so every number`
+      + ' written with it falls back to the raw JavaScript one. A chart\'s ticks, a field\'s value and a'
+      + ' readout all read differently from the text beside them until it is a BCP-47 tag.');
   }
   return (value) => `${head}${intl ? intl.format(value) : value}${tail}`;
 }
