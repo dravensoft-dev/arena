@@ -1,5 +1,6 @@
 export * from './arena-board';
 export * from './arena-board-column';
+export * from './arena-divider';
 export * from './arena-figure';
 export * from './arena-grid';
 export * from './arena-hero';
