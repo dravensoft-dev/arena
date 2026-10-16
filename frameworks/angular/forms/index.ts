@@ -5,6 +5,7 @@ import { ArenaFileInputControl } from './ArenaFileInputControl';
 import { ArenaInputControl } from './ArenaInputControl';
 import { ArenaMultiSelectControl } from './ArenaMultiSelectControl';
 import { ArenaNumberFieldControl } from './ArenaNumberFieldControl';
+import { ArenaPinInputControl } from './ArenaPinInputControl';
 import { ArenaRadioGroupControl } from './ArenaRadioGroupControl';
 import { ArenaSelectControl } from './ArenaSelectControl';
 import { ArenaSliderControl } from './ArenaSliderControl';
@@ -13,12 +14,13 @@ import { ArenaTextareaControl } from './ArenaTextareaControl';
 
 export {
   ArenaCheckboxControl, ArenaCheckboxGroupControl, ArenaComboboxControl, ArenaFileInputControl, ArenaInputControl,
-  ArenaMultiSelectControl, ArenaNumberFieldControl, ArenaRadioGroupControl, ArenaSelectControl, ArenaSliderControl,
-  ArenaSwitchControl, ArenaTextareaControl,
+  ArenaMultiSelectControl, ArenaNumberFieldControl, ArenaPinInputControl, ArenaRadioGroupControl, ArenaSelectControl,
+  ArenaSliderControl, ArenaSwitchControl, ArenaTextareaControl,
 };
 
 export const ARENA_FORM_CONTROLS = [
   ArenaInputControl, ArenaTextareaControl, ArenaSelectControl,
   ArenaCheckboxControl, ArenaRadioGroupControl, ArenaSwitchControl, ArenaCheckboxGroupControl,
   ArenaComboboxControl, ArenaMultiSelectControl, ArenaFileInputControl, ArenaNumberFieldControl, ArenaSliderControl,
+  ArenaPinInputControl,
 ] as const;

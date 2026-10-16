@@ -51,14 +51,15 @@ A code typed one character per cell, such as a verification code from a text mes
 - **Names.** The group takes its name from `label`, and a blank `label` throws. Each cell is named by its position through the locale's `pinInputCell` word. A hint or an error describes every cell.
 - **The group role.** The cells bind the `textbox` pattern. The wrapper's `group` role and name are asserted by the component's own suite.
 - **`(change)` belongs to the component.** Each cell's native `change` stops inside the component, so a listener on the host hears the code and never an `Event`.
-- **`(blur)` means the group.** Focus moving between cells emits nothing. Focus leaving the last cell for anything outside emits the code once.
+- **`(blur)` means the group.** Focus moving between cells emits nothing. Focus leaving the group for anything outside emits the code once.
+- **Reactive forms.** With `ArenaPinInputControl` from `@dravensoft/arena-angular/forms`, `formControl`, `formControlName` and `ngModel` bind the code. The control's value is the code as a string, and a `null` empties every cell. `disable()` disables every cell. Leaving the group marks the control touched, and a move between cells does not.
 - **Taking focus.** `focus()` is a method on the class and focuses the first cell. Reach it through a `viewChild` of `ArenaPinInput`, never by querying a cell, and call it after emptying `[value]` for a wrong code.
 
 **Do / Don't**
 - Name the code in `label` by what it unlocks, such as "Verification code".
 - Pass `autoComplete="off"` for a PIN that no text message sends.
 - Don't check, resend or expire the code here. `(complete)` reports, and the host decides.
-- Don't empty `[value]` on every keystroke of an error. Empty it once, then call `focus()`.
+- Don't empty `[value]` on each keystroke. Empty it once when the code is wrong, then call `focus()`.
 
 **By hand.** A text message autofill on iOS and on Android fills every cell. The number pad shows for `numeric`. Tab crosses the whole group in one press. Only the focused cell carries the gold ring. Six cells fit a 390px screen.
 
