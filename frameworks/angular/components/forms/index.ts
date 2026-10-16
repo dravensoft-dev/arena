@@ -2,6 +2,7 @@ export * from './arena-button';
 export * from './arena-checkbox';
 export * from './arena-checkbox-group';
 export * from './arena-combobox';
+export * from './arena-copy-button';
 export * from './arena-fieldset';
 export * from './arena-file-input';
 export * from './arena-icon-button';

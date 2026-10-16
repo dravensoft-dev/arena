@@ -157,6 +157,7 @@ export const COVERED = {
   'ArenaIconButton:angular': 'ArenaIconButton.compliance.test.ts',
   'ArenaCheckbox:angular': 'ArenaCheckbox.compliance.test.ts',
   'ArenaFileInput:angular': 'ArenaFileInput.compliance.test.ts',
+  'ArenaCopyButton:angular': 'ArenaCopyButton.compliance.test.ts',
   'ArenaSwitch:angular': 'ArenaSwitch.compliance.test.ts',
   'ArenaInput:angular': 'ArenaInput.compliance.test.ts',
   'ArenaFieldset:angular': 'ArenaFieldset.compliance.test.ts',

@@ -29,6 +29,7 @@ import { ArenaSheet } from '../components/feedback/arena-sheet/ArenaSheet';
 import { ArenaAlert } from '../components/feedback/arena-alert/ArenaAlert';
 import { ArenaTag } from '../components/display/arena-tag/ArenaTag';
 import { ArenaLink } from '../components/navigation/arena-link/ArenaLink';
+import { ArenaCopyButton } from '../components/forms/arena-copy-button/ArenaCopyButton';
 import { ArenaSkeleton } from '../components/display/arena-skeleton/ArenaSkeleton';
 import { ArenaSpinner } from '../components/feedback/arena-spinner/ArenaSpinner';
 import { ArenaSwitch } from '../components/forms/arena-switch/ArenaSwitch';
@@ -167,6 +168,9 @@ class LinkHost {}
 @Component({ standalone: true, imports: [ArenaSkeleton], template: `<arena-skeleton /><arena-skeleton [lines]="2" />` })
 class SkeletonHost {}
 
+@Component({ selector: 'locale-sentinel-copy-button-host', standalone: true, imports: [ArenaCopyButton], template: `<arena-copy-button text="bun add @dravensoft/arena-angular" />` })
+class CopyButtonHost {}
+
 @Component({ selector: 'locale-sentinel-spinner-host', standalone: true, imports: [ArenaSpinner], template: `<arena-spinner />` })
 class SpinnerHost {}
 
@@ -274,6 +278,7 @@ const CASES: Record<string, Case> = {
   ArenaSwitch: { hosts: [SwitchHost], consumer: ['Auto deploy'] },
   ArenaFileInput: { hosts: [FileInputHost, FileInputDropHost], consumer: ['Passport scan'] },
   ArenaBulkActionBar: { hosts: [BulkHost], consumer: ['Archive'] },
+  ArenaCopyButton: { hosts: [CopyButtonHost], consumer: [] },
   ArenaCombobox: { hosts: [ComboboxEmptyHost, ComboboxLoadingHost, ComboboxCountHost], consumer: ['Region', 'Search regions', 'Europe West', 'Eur'] },
   ArenaMultiSelect: { hosts: [MultiSelectEmptyHost, MultiSelectLoadingHost, MultiSelectCountHost, MultiSelectCapHost], consumer: ['Regions', 'Search regions', 'Europe West', 'Europe North', 'Eur'] },
   ArenaCommandPalette: { hosts: [PaletteHost], consumer: ['Deploy', 'zzz'] },
@@ -381,6 +386,24 @@ async function wordsOf(host: Type<unknown>, name: string, allowed: string[]): Pr
       }
       const pane = root.ownerDocument.querySelector<HTMLElement>('.cdk-overlay-container');
       return [...strayWords(root, allowed), ...(pane ? strayWords(pane, allowed) : [])];
+    }
+    if (name === 'ArenaCopyButton') {
+      const realClipboard = Object.getOwnPropertyDescriptor(navigator, 'clipboard');
+      const found: string[] = [...strayWords(root, allowed)];
+      try {
+        for (const [writeText, word] of [[async () => {}, '⟦copyButtonCopied⟧'], [null, '⟦copyButtonFailed⟧']] as const) {
+          Object.defineProperty(navigator, 'clipboard', { configurable: true, value: writeText ? { writeText } : undefined });
+          root.querySelector('button')?.click();
+          for (let i = 0; i < 3; i += 1) await Promise.resolve();
+          fixture.detectChanges();
+          assert.equal(root.querySelector('[role="status"]')?.textContent, word, 'the press said nothing, so this case reached no word');
+          found.push(...strayWords(root, allowed));
+        }
+      } finally {
+        if (realClipboard) Object.defineProperty(navigator, 'clipboard', realClipboard);
+        else delete (navigator as { clipboard?: unknown }).clipboard;
+      }
+      return found;
     }
     if (name === 'ArenaCommandPalette') {
       const input = root.querySelector('input');
