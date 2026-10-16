@@ -537,7 +537,8 @@ grep -Lr "'\[class\]':" --include='[A-Z]*.ts' frameworks/angular/components/*/*/
 They fall into **four** groups, each with its own reason. The **SVG charts** are boxless
 (`display: contents`) and draw their frame as an inner slot, so there is no `root` slot to bind. The **form controls** each need their own
 `<button>`, `<input>` or `<label>`. Some **keep a specific semantic or structural element**: a
-real `<ul>` for a feed, a `<div role="tablist">` whose panels are siblings outside it, a real
+real `<ul>` for a feed, a real `<ol>` for the steps of a stepper and the milestones of a
+timeline, a `<div role="tablist">` whose panels are siblings outside it, a real
 `<fieldset>` because the platform's `disabled` cascade exists on no other element, and a real
 `<nav>` for a navigation landmark, since the `navigation` pattern offers `role="navigation"` only
 for when a `<nav>` cannot be used. The element itself is the meaning for `arena-divider`, whose
