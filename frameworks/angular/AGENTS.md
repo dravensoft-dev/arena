@@ -170,7 +170,9 @@ between; `test/Barrels.test.ts` carries the reason in `ROOT_PRIVATE`. `DataVisua
 axis domain) sits at the layer root beside them, and the rule puts it there in both layers now:
 its consumers are every chart **and** `arena-calendar-event`, which reads `arenaCatIndex` for a
 chip's `colorId`. The name matches the placement: a module a schedule grid consumes is
-not "chart internals". The geometry that only the charts read went the other way, down to
+not "chart internals". `Thresholds.ts` (a region keeps its lower edge, read by
+`arena-meter`) sits at the root because a banded chart scale asks the same question and no chart
+imports from `feedback/`; `test/Barrels.test.ts` names it in `ROOT_PRIVATE`. The geometry that only the charts read went the other way, down to
 `components/charts/`, and `frameworks/AGENTS.md` records why.
 
 `kitchen-sink/<arrangement>/` is emitted, never written: one page per arrangement holding

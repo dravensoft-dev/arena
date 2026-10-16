@@ -188,7 +188,9 @@ consumers, and a compound family counts as its parent rather than as the categor
 layer root holds the generated modules plus the shared internals, which
 `ls *.ts *.tsx | grep -v generated` lists. `UseDialogModal.ts` is the one whose placement needs
 explaining: its three component consumers are all in `feedback/`, so the rule would put it
-there, and its suite counts as a consumer too.
+there, and its suite counts as a consumer too. `Thresholds.ts` is the other: `ArenaMeter` is its one
+consumer, so the rule would put it in `feedback/arena-meter/`. A banded chart scale asks the same
+question, that a region keeps its lower edge, and no chart imports from `feedback/`.
 
 `playground/` sits beside them and is the one directory here that is **not** part of the
 package: `tsconfig.dist.json` excludes it and no barrel exports it. It holds the harness every
