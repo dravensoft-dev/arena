@@ -29,6 +29,7 @@ import { ArenaSwitch } from '../components/forms/arena-switch/ArenaSwitch.tsx';
 import { ArenaFileInput } from '../components/forms/arena-file-input/ArenaFileInput.tsx';
 import { ArenaNumberField } from '../components/forms/arena-number-field/ArenaNumberField.tsx';
 import { ArenaPinInput } from '../components/forms/arena-pin-input/ArenaPinInput.tsx';
+import { ArenaFilterBar } from '../components/navigation/arena-filter-bar/ArenaFilterBar.tsx';
 import { ArenaSlider } from '../components/forms/arena-slider/ArenaSlider.tsx';
 import { ArenaBulkActionBar } from '../components/navigation/arena-bulk-action-bar/ArenaBulkActionBar.tsx';
 import { ArenaCommandPalette } from '../components/navigation/arena-command-palette/ArenaCommandPalette.tsx';
@@ -172,6 +173,14 @@ const CASES: Record<string, Case> = {
   ArenaPinInput: {
     renders: [() => <ArenaPinInput label="Verification code" hint="Sent to your phone." required />, () => <ArenaPinInput label="Device PIN" length={4} masked error="Wrong PIN." />],
     consumer: ['Verification code', 'Sent to your phone.', 'Device PIN', 'Wrong PIN.'],
+  },
+  ArenaFilterBar: {
+    renders: [
+      () => <ArenaFilterBar label="Deployment filters" applied={[{ id: 'region', label: 'Region: Europe West' }]}><select aria-label="Region" /></ArenaFilterBar>,
+      () => <ArenaFilterBar label="Deployment filters" applied={[{ id: 'region', label: 'Region: Europe West' }]} clearable={false}><select aria-label="Region" /></ArenaFilterBar>,
+    ],
+    consumer: ['Deployment filters', 'Region: Europe West', 'Region'],
+    narrow: true,
   },
   ArenaBulkActionBar: { renders: [() => <ArenaBulkActionBar count={3} actions={[{ id: 'archive', label: 'Archive' }]} />], consumer: ['Archive'] },
   ArenaCopyButton: { renders: [() => <ArenaCopyButton text="bun add @dravensoft/arena-react" />], consumer: [] },

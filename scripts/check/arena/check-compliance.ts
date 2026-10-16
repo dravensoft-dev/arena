@@ -70,6 +70,7 @@ export const COVERED = {
   'ArenaFileInput:react': 'FileInputPattern.dom.test.tsx',
   'ArenaNumberField:react': 'NumberFieldPattern.dom.test.tsx',
   'ArenaPinInput:react': 'PinInputPattern.dom.test.tsx',
+  'ArenaFilterBar:react': 'ArenaFilterBar.dom.test.tsx',
   'ArenaSlider:react': 'SliderPattern.dom.test.tsx',
   'ArenaCopyButton:react': 'ArenaCopyButton.dom.test.tsx',
   'ArenaSegmentedControl:react': 'ArenaSegmentedControl.radiogroup.dom.test.tsx',

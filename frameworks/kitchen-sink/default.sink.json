@@ -24,7 +24,7 @@
         "ArenaPageHead", "ArenaAppBar", "ArenaBreadcrumbs", "ArenaLink", "ArenaTabs", "ArenaTab", "ArenaSegmentedControl",
         "ArenaPagination", "ArenaStepper", "ArenaMenu", "ArenaBulkActionBar", "ArenaSideNav", "ArenaSideNavSection",
         "ArenaSideNavItem", "ArenaSideNavCollapsible", "ArenaBottomNav", "ArenaBottomNavItem",
-        "ArenaCommandPalette"
+        "ArenaCommandPalette", "ArenaFilterBar"
       ]
     },
     {

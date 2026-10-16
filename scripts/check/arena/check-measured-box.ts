@@ -39,6 +39,8 @@ export const MEASURED = new Map<string, Measured>([
     why: 'the root is the box the table fills, and below --bp-md it draws cards instead of the grid' }],
   ['ArenaBulkActionBar', { slot: 'root', decides: ['narrow'],
     why: 'the root is the bar, and below --bp-sm, when layout is auto, it stacks its actions' }],
+  ['ArenaFilterBar', { slot: 'root', decides: ['narrow'],
+    why: 'the root is the bar, and below --bp-sm it stacks its controls, its chips and Clear all into one column' }],
   ['ArenaPageHead', { slot: 'root', decides: ['narrow'],
     why: 'the root holds the titles and the actions, and below --bp-sm it stacks them' }],
   ['ArenaCalendar', { slot: 'root', decides: [],
@@ -54,7 +56,7 @@ export const MEASURED = new Map<string, Measured>([
   ['ArenaScatterChart', { slot: null, decides: [], why: CHART }],
 ]);
 
-const CALLS = /\b(?:useArenaContainerWidth|arenaContainerWidth)\s*\(/;
+const CALLS = /\b(?:useArenaContainerWidth|arenaContainerWidth)\s*(?:<[^()]*>)?\s*\(/;
 
 export const LAYERS = [
   { dir: 'frameworks/react/components', extension: '.tsx' },

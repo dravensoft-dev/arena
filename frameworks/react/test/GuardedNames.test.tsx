@@ -15,6 +15,7 @@ import { ArenaSideNavSection } from '../components/navigation/arena-side-nav-sec
 import { ArenaFileInput } from '../components/forms/arena-file-input/ArenaFileInput.tsx';
 import { ArenaNumberField } from '../components/forms/arena-number-field/ArenaNumberField.tsx';
 import { ArenaPinInput } from '../components/forms/arena-pin-input/ArenaPinInput.tsx';
+import { ArenaFilterBar } from '../components/navigation/arena-filter-bar/ArenaFilterBar.tsx';
 import { ArenaSlider } from '../components/forms/arena-slider/ArenaSlider.tsx';
 import { ArenaRadioGroup } from '../components/forms/arena-radio-group/ArenaRadioGroup.tsx';
 import { ArenaCheckboxGroup } from '../components/forms/arena-checkbox-group/ArenaCheckboxGroup.tsx';
@@ -73,6 +74,7 @@ const WITH_A_BLANK_NAME = new Map([
   ['ArenaNumberField', () => <ArenaNumberField label={BLANK} />],
   ['ArenaSlider', () => <ArenaSlider label={BLANK} />],
   ['ArenaPinInput', () => <ArenaPinInput label={BLANK} />],
+  ['ArenaFilterBar', () => <ArenaFilterBar label={BLANK}><select aria-label="Region" /></ArenaFilterBar>],
   ['ArenaLink', () => <ArenaLink href={BLANK}>Release notes</ArenaLink>],
   ['ArenaMeter', () => <ArenaMeter label={BLANK} value={1} />],
   ['ArenaAccordionItem', () => <ArenaAccordionItem value={BLANK} label={BLANK} />],

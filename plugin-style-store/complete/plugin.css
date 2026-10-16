@@ -1094,6 +1094,28 @@
   outline-offset: var(--sp-1);
 }
 
+.arena-complete [data-arena-part="filter-bar"] {
+  border-radius: var(--r-media);
+  outline: var(--bw-surface) dashed var(--edge-surface);
+  outline-offset: calc(var(--sp-1) * -1);
+}
+.arena-complete [data-arena-part="filter-bar.applied"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="filter-bar.chip"] {
+  opacity: 0.72;
+  transform: rotate(-4deg);
+}
+.arena-complete [data-arena-part="filter-bar.clear"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="filter-bar.controls"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+
 .arena-complete [data-arena-part="grid"] {
   border-radius: var(--r-media);
   outline: var(--bw-surface) dashed var(--edge-surface);

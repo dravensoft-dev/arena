@@ -30,7 +30,7 @@
       "items": [
         "ArenaAppLogo", "ArenaPageHead", "ArenaAppBar", "ArenaBreadcrumbs", "ArenaLink", "ArenaTabs", "ArenaTab",
         "ArenaPagination", "ArenaStepper", "ArenaSideNav", "ArenaSideNavSection", "ArenaSideNavItem",
-        "ArenaSideNavCollapsible", "ArenaBottomNav", "ArenaBottomNavItem"
+        "ArenaSideNavCollapsible", "ArenaBottomNav", "ArenaBottomNavItem", "ArenaFilterBar"
       ]
     },
     {

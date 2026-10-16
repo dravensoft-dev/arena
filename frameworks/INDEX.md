@@ -138,6 +138,7 @@ will report it.
 | `ArenaBreadcrumbs` | A trail of ancestor locations ending at the current one. An explicit return path for hierarchies deeper than tabs. | `ariaLabel*` `items*` `separator` `origin` `navigate` | navigation | angular, react |
 | `ArenaBulkActionBar` | Appears when rows are selected and operates on the selection as a set. Renders nothing at a count of zero. | `count*` `noun` `actions*` `run` `layout` `clearable` `clear` | toolbar | angular, react |
 | `ArenaCommandPalette` | Power-user accelerator (Cmd/Ctrl+K): search and run actions without a mouse. Controlled: the host owns whether it is open. | `open*` `commands*` `placeholder` `maxResults` `close` `run` | combobox | angular, react |
+| `ArenaFilterBar` | A labelled row of filter controls above what they narrow, with the filters in effect as removable chips and a Clear all control. The bar holds no filter state: the host passes the controls, writes `applied` and answers each removal. Removing a chip keeps focus in the bar. The bar stacks by its own width, never by the viewport's, and stacking reorders nothing. | `label*` `content*` `applied` `clearable` `remove` `clear` | group (react) | angular, react |
 | `ArenaLink` | A link set in running text, such as a sentence in an empty state or a help line. The link is a real <a href>, underlined at all times. A plain primary click is reported through navigate for a router, and every other activation stays the browser's. | `content*` `href*` `external` `download` `rel` `target` `navigate` | none | angular, react |
 | `ArenaMenu` | Dropdown menu of actions on a trigger -- overflow, more actions, context. | `trigger*` `items*` `align` `select` | menu-button | angular, react |
 | `ArenaPageHead` | A page heading: a required title, an optional subtitle, and an optional actions slot. | `title*` `headingLevel` `subtitle` `actions` | none | angular, react |
@@ -151,4 +152,4 @@ will report it.
 | `ArenaTab` | One tab in an ArenaTabs strip, and the panel it shows. ArenaTab draws the button; its content fills the tabpanel ArenaTabs renders beside the tablist. | `value*` `label*` `content` | none | angular, react |
 | `ArenaTabs` | A row of tabs and the one panel they switch between. Write one `ArenaTab` per view; ArenaTabs renders the tablist, the panel, and the keyboard. | `content` `value` `defaultValue` `change` | tabs | angular, react |
 
-91 components across 7 categories.
+92 components across 7 categories.
