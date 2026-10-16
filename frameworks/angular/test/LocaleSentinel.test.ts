@@ -38,6 +38,7 @@ import { ArenaSpinner } from '../components/feedback/arena-spinner/ArenaSpinner'
 import { ArenaSwitch } from '../components/forms/arena-switch/ArenaSwitch';
 import { ArenaFileInput } from '../components/forms/arena-file-input/ArenaFileInput';
 import { ArenaNumberField } from '../components/forms/arena-number-field/ArenaNumberField';
+import { ArenaPinInput } from '../components/forms/arena-pin-input/ArenaPinInput';
 import { ArenaSlider } from '../components/forms/arena-slider/ArenaSlider';
 import { ArenaBulkActionBar } from '../components/navigation/arena-bulk-action-bar/ArenaBulkActionBar';
 import { ArenaCommandPalette } from '../components/navigation/arena-command-palette/ArenaCommandPalette';
@@ -217,6 +218,10 @@ class FileInputDropHost {}
 class NumberFieldHost {}
 @Component({ selector: 'locale-sentinel-number-field-affix-host', standalone: true, imports: [ArenaNumberField], template: `<arena-number-field label="Weight" prefix="~" suffix="kg" required />` })
 class NumberFieldAffixHost {}
+@Component({ selector: 'locale-sentinel-pin-input-host', standalone: true, imports: [ArenaPinInput], template: `<arena-pin-input label="Verification code" hint="Sent to your phone." required />` })
+class PinInputHost {}
+@Component({ selector: 'locale-sentinel-pin-input-masked-host', standalone: true, imports: [ArenaPinInput], template: `<arena-pin-input label="Device PIN" [length]="4" masked error="Wrong PIN." />` })
+class PinInputMaskedHost {}
 @Component({ selector: 'locale-sentinel-slider-host', standalone: true, imports: [ArenaSlider], template: `<arena-slider label="Volume" [value]="40" valueSuffix="%" hint="Applies to every output." />` })
 class SliderHost {}
 @Component({ selector: 'locale-sentinel-slider-range-host', standalone: true, imports: [ArenaSlider], template: `<arena-slider label="Price" range [value]="20" [valueEnd]="75" valuePrefix="~" [showLabel]="false" />` })
@@ -322,6 +327,7 @@ const CASES: Record<string, Case> = {
   ArenaSwitch: { hosts: [SwitchHost], consumer: ['Auto deploy'] },
   ArenaFileInput: { hosts: [FileInputHost, FileInputDropHost], consumer: ['Passport scan'] },
   ArenaNumberField: { hosts: [NumberFieldHost, NumberFieldAffixHost], consumer: ['Replicas', 'Between 1 and 20.', 'Weight', '~', 'kg'] },
+  ArenaPinInput: { hosts: [PinInputHost, PinInputMaskedHost], consumer: ['Verification code', 'Sent to your phone.', 'Device PIN', 'Wrong PIN.'] },
   ArenaSlider: { hosts: [SliderHost, SliderRangeHost], consumer: ['Volume', 'Applies to every output.', 'Price', '~'] },
   ArenaBulkActionBar: { hosts: [BulkHost], consumer: ['Archive'] },
   ArenaCopyButton: { hosts: [CopyButtonHost], consumer: [] },

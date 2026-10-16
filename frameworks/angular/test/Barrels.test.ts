@@ -42,6 +42,11 @@ const PRIVATE = new Map([
    + 'authored once for both layers and compared by check:shared-arithmetic; `arena-file-input` runs '
    + 'them on every pick and drop, and a consumer reads the result through its events and its two '
    + 'methods, never by calling them.'],
+  ['forms/arena-pin-input/PinRules.ts',
+   'the rules that edit a pin input\'s code, the filter, the insert, Backspace and Delete, the moves '
+   + 'and the tab stop, authored once for both layers and compared by check:shared-arithmetic; '
+   + '`arena-pin-input` runs them on every key, input and paste, and a consumer reads the code through '
+   + 'its outputs, never by calling them.'],
   ['navigation/arena-link/LinkRules.ts',
    'the attributes an anchor writes for the members `arena-link` takes, the target, the merged rel and '
    + 'whether a primary click is a router\'s, authored once for both layers and compared by '
