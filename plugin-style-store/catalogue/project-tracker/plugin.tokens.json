@@ -459,6 +459,10 @@
     "$type": "color",
     "$value": "{color.base-content}"
   },
+  "ink-link": {
+    "$type": "color",
+    "$value": "{color.base-content}"
+  },
   "edge-surface": {
     "$type": "color",
     "$value": "{color.base-300}"

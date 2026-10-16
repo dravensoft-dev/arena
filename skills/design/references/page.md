@@ -74,6 +74,7 @@ Each role's full description is one entry in
 | a figure a reader compares: a price, a total, a column of numbers of yours | `--ink-figure` |
 | an action set as text rather than drawn as a button: an undo, a retry | `--ink-action` |
 | a key a reader presses, spelled in a cap or at a row's edge | `--ink-key` |
+| a link in running text, underlined however it is coloured | `--ink-link` |
 | the line enclosing a surface, and the default ground line | `--edge-surface` |
 | the line around a floating surface | `--edge-surface-floating` |
 | the line around a control, a quiet control, a field, a marker | `--edge-control`, `--edge-control-quiet`, `--edge-field`, `--edge-marker` |

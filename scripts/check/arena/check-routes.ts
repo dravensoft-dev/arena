@@ -255,7 +255,7 @@ export const ROUTES: Route[] = [
       + 'column it sits in and how much air goes between two components',
     entry: 'consumer',
     stops: ['skills/design/references/page.md', 'skills/design/references/style.md'],
-    budget: 23_700,
+    budget: 23_800,
     reason:
       'paid per element a builder draws themselves, which every screen has. What it buys is the '
       + 'half of a page that is never a component: which colour role each thing a builder draws takes '
@@ -268,9 +268,10 @@ export const ROUTES: Route[] = [
       + 'the place each layer puts it. The style reference also holds the '
       + 'layout container, the page column\'s width and the sizing section for each layer. It '
       + 'names each layer\'s breakpoint helper and what the quiet ink level is for. The number is what '
-      + 'the stops measure, and it grows when Arena ships a piece for somebody else\'s markup rather '
-      + 'than when these pages argue again for one they already name. The style page prints the '
-      + 'default plugin\'s layout answers and sends density values to the token table.',
+      + 'the stops measure, and it grows when Arena ships a piece for somebody else\'s markup. '
+      + 'The style page prints the '
+      + 'default plugin\'s layout answers and sends density values to the token table. The ink table '
+      + 'grows per text role.',
   },
   {
     name: 'consumer-coldstart',

@@ -475,6 +475,15 @@
       }
     }
   },
+  "ink-link": {
+    "$type": "color",
+    "$description": "The colour of a link set in running text: an ArenaLink in a sentence, a help line, a card body. Born at base-content, the ink every palette already holds to 4.5:1 on its surfaces, and defaulting to ink-body, so a link reads as the prose it sits in and the permanent underline is the cue that it is one.\n\nA role rather than ink-body itself, because a plugin that colours its links is making a decision about prose and not about every word: a document tool tints its links, a console leaves them in the body ink. A plugin that raises an accent to it owes the 4.5:1 every ink owes, measured at the body level.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "default": "{ink-body}"
+      }
+    }
+  },
   "edge-surface": {
     "$type": "color",
     "$description": "The colour of the line that encloses a surface. Standing to bw-surface exactly as\nfill-surface stands to it: one says how thick the enclosure is, this says what colour it is, and\na style plugin needs both because a hairline in the page's own ramp and a hairline in neutral are two\ndifferent statements about how hard the region is.\n\nBorn at base-300, which thirty-four slots name outright. It was dropped once with the stroke\nroles for want of a style plugin that asked, and those thirty-four uses are the measurement of what not\nhaving it cost."

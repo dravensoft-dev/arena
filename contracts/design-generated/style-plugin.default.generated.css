@@ -96,6 +96,7 @@
   --ink-figure:var(--color-base-content);
   --ink-action:var(--color-base-content);
   --ink-key:var(--color-base-content);
+  --ink-link:var(--color-base-content);
   --edge-surface:var(--color-base-300);
   --edge-surface-floating:var(--color-neutral);
   --edge-control-quiet:var(--color-base-300);
@@ -274,6 +275,7 @@
   --ink-figure:var(--color-base-content);
   --ink-action:var(--color-base-content);
   --ink-key:var(--color-base-content);
+  --ink-link:var(--color-base-content);
   --edge-surface:var(--color-base-300);
   --edge-surface-floating:var(--color-neutral);
   --edge-control-quiet:var(--color-base-300);

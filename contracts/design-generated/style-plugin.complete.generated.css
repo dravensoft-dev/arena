@@ -96,6 +96,7 @@
   --ink-figure:var(--color-neutral-content);
   --ink-action:var(--color-neutral-content);
   --ink-key:var(--color-neutral-content);
+  --ink-link:var(--color-neutral-content);
   --edge-surface:var(--color-primary);
   --edge-surface-floating:var(--color-secondary);
   --edge-control-quiet:var(--color-neutral);
@@ -274,6 +275,7 @@
   --ink-figure:var(--color-neutral-content);
   --ink-action:var(--color-neutral-content);
   --ink-key:var(--color-neutral-content);
+  --ink-link:var(--color-neutral-content);
   --edge-surface:var(--color-primary);
   --edge-surface-floating:var(--color-secondary);
   --edge-control-quiet:var(--color-neutral);

@@ -72,6 +72,7 @@
   --color-ink-figure: var(--ink-figure);
   --color-ink-action: var(--ink-action);
   --color-ink-key: var(--ink-key);
+  --color-ink-link: var(--ink-link);
 
   /* Edge ROLES. v4 has no border-color namespace: a border colour is a --color-* key read by
      border-<key>, which is why these sit here rather than beside the bw roles they pair with. */
