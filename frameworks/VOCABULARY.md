@@ -22,7 +22,7 @@
 | [`layout`](#layout) | box | `arena-layout-bleed`, `arena-layout-split` (default), `arena-layout-stacked` |  | ArenaHero ([React](./react/components/layout/arena-hero/ArenaHero.prompt.md), [Angular](./angular/components/layout/arena-hero/ArenaHero.prompt.md)) |
 | [`mark`](#mark) | box | `arena-mark-soft` (default), `arena-mark-solid` |  | ArenaBadge ([React](./react/components/display/arena-badge/ArenaBadge.prompt.md), [Angular](./angular/components/display/arena-badge/ArenaBadge.prompt.md)) |
 | [`num`](#num) | box | `arena-num` |  | markup you write |
-| [`orientation`](#orientation) | box | `arena-orientation-horizontal` (default), `arena-orientation-vertical` |  | ArenaAppLogo ([React](./react/components/brand/arena-app-logo/ArenaAppLogo.prompt.md), [Angular](./angular/components/brand/arena-app-logo/ArenaAppLogo.prompt.md)), ArenaDivider, ArenaSwitch ([React](./react/components/forms/arena-switch/ArenaSwitch.prompt.md), [Angular](./angular/components/forms/arena-switch/ArenaSwitch.prompt.md)) |
+| [`orientation`](#orientation) | box | `arena-orientation-horizontal` (default), `arena-orientation-vertical` |  | ArenaAppLogo ([React](./react/components/brand/arena-app-logo/ArenaAppLogo.prompt.md), [Angular](./angular/components/brand/arena-app-logo/ArenaAppLogo.prompt.md)), ArenaDivider ([React](./react/components/layout/arena-divider/ArenaDivider.prompt.md)), ArenaSwitch ([React](./react/components/forms/arena-switch/ArenaSwitch.prompt.md), [Angular](./angular/components/forms/arena-switch/ArenaSwitch.prompt.md)) |
 | [`placement`](#placement) | box | `arena-placement-bottom` (default), `arena-placement-bottom-end`, `arena-placement-bottom-start`, `arena-placement-end`, `arena-placement-start`, `arena-placement-top-end`, `arena-placement-top-start` |  | ArenaSheet ([React](./react/components/feedback/arena-sheet/ArenaSheet.prompt.md), [Angular](./angular/components/feedback/arena-sheet/ArenaSheet.prompt.md)) (`arena-placement-bottom`, `arena-placement-end`, `arena-placement-start`), ArenaToastHost ([React](./react/components/feedback/arena-toast-host/ArenaToastHost.prompt.md), [Angular](./angular/components/feedback/arena-toast-host/ArenaToastHost.prompt.md)) (`arena-placement-bottom-end`, `arena-placement-bottom-start`, `arena-placement-top-end`, `arena-placement-top-start`; default `arena-placement-bottom-end`) |
 | [`prose`](#prose) | box | `arena-prose` |  | markup you write |
 | [`ratio`](#ratio) | box | `arena-ratio-media` (default), `arena-ratio-portrait`, `arena-ratio-square`, `arena-ratio-video`, `arena-ratio-wide` | `--arena-ratio` | ArenaFigure ([React](./react/components/layout/arena-figure/ArenaFigure.prompt.md), [Angular](./angular/components/layout/arena-figure/ArenaFigure.prompt.md)) |
@@ -202,7 +202,7 @@ Whether a component lies along the line it sits in or stands across it. Orientat
 - **Reach:** box: it reaches the nearest component, and stops at the content that component projects.
 - **Answered by:**
   - ArenaAppLogo ([React](./react/components/brand/arena-app-logo/ArenaAppLogo.prompt.md), [Angular](./angular/components/brand/arena-app-logo/ArenaAppLogo.prompt.md)).
-  - ArenaDivider.
+  - ArenaDivider ([React](./react/components/layout/arena-divider/ArenaDivider.prompt.md)).
   - ArenaSwitch ([React](./react/components/forms/arena-switch/ArenaSwitch.prompt.md), [Angular](./angular/components/forms/arena-switch/ArenaSwitch.prompt.md)).
 
 ## placement

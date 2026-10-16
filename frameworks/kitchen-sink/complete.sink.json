@@ -6,7 +6,7 @@
       "title": "Ground",
       "items": [
         "ArenaMain", "ArenaSkipLink", "ArenaSection", "ArenaHero", "ArenaGrid", "ArenaBoard",
-        "ArenaBoardColumn", "ArenaScroller", "ArenaScrollerItem", "ArenaSiteFooter"
+        "ArenaBoardColumn", "ArenaScroller", "ArenaScrollerItem", "ArenaSiteFooter", "ArenaDivider"
       ]
     },
     {
