@@ -348,7 +348,7 @@ export const ROUTES: Route[] = [
       + 'and the shape a token is authored in',
     entry: 'contributor',
     stops: ['contracts/AGENTS.md', 'contracts/design/AGENTS.md', 'contracts/design/TokenTypes.md'],
-    budget: 70_100,
+    budget: 70_600,
     reason:
       'the normative half of the tree, where a stop is read for what a value means rather than for '
       + 'how to write one, so it is bounded by what a person can hold rather than by what an agent '
@@ -360,7 +360,8 @@ export const ROUTES: Route[] = [
       + 'and never down, target size as the axis density answers, and what DTCG deliberately does not '
       + 'model. The route moves when the level describes something bigger, never when it describes '
       + 'the same thing at more length. It states the frame shapes and the roles a kind answers, and '
-      + 'names the filled status mark beside the presence dot.',
+      + 'names the filled status mark beside the presence dot. The type map names the keyword tokens a '
+      + 'role may default to and the half spacing step.',
   },
   {
     name: 'contributor-gate',

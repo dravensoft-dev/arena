@@ -14,6 +14,7 @@
   --sp-16:64px;
   --sp-20:80px;
   --sp-24:96px;
+  --sp-0-5:2px; /* Half a step, the air a key cap gives its label down. It is the one step under the grid, kept so the cap reads as a key rather than a chip, and pad-key-y names it as its kernel default. */
 
   /*
      Page rhythm: the air BETWEEN two components, which Arena itself never

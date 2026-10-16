@@ -22,6 +22,8 @@ export const EXCLUDED = new Map([
   ['pad-band-x', 'read inside the band\'s min()'],
   ['pad-row-indent', 'only the side nav\'s arbitrary inset reads it'],
   ['sp-0', 'p-0 compiles to a literal 0px in v4 regardless of the theme'],
+  ['sp-0-5', 'the half step under the grid, which only the kernel default of pad-key-y names; a cap reaches it '
+    + 'through py-key-y, and a utility of its own would offer the step to every slot as spacing'],
   ['lh-root', 'the floor every element inherits, set once on html in contracts/design/reset.css and '
     + 'never picked per element. A leading-root utility would invite a component to restate the '
     + 'inherited value, which is the one thing that makes a floor stop being one; the three roles '
@@ -42,6 +44,8 @@ export const EXCLUDED = new Map([
     + 'utilities naming a value, which is the shape of a scale rather than of a role. Reached through '
     + '.case-eyebrow in frameworks/tailwind/Case.css, hand-authored for exactly that reason'],
   ['tt-label', 'the same, through .case-label'],
+  ['case-none', 'a word only the kernel default of tt-key names, so a root plugin silent on the role follows '
+    + 'it; a cap reaches it through .case-key, and no slot names a transform outright'],
   ['fit-media', 'v4 has no object-fit namespace, and its object-cover/object-contain and the rest are '
     + 'static utilities naming a value, which is the shape of a scale rather than of a role. Reached '
     + 'through .fit-media in frameworks/tailwind/Media.css, hand-authored for exactly that reason'],

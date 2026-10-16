@@ -4,6 +4,10 @@
     "$extensions": { "com.dravensoft.arena": { "userScale": "fixed" } },
     "$description": "4px base grid",
     "0": { "$value": { "value": 0, "unit": "px" } },
+    "0-5": {
+      "$value": { "value": 2, "unit": "px" },
+      "$description": "Half a step, the air a key cap gives its label down. It is the one step under the grid, kept so the cap reads as a key rather than a chip, and pad-key-y names it as its kernel default."
+    },
     "1": {
       "$value": { "value": 4, "unit": "px" },
       "$description": "Script-readable: ArenaMenu's gap from its trigger is one and a half of this, and that gap is the offset a CDK overlay position strategy computes in JS, so no stylesheet can hold it.",

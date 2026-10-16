@@ -34,9 +34,9 @@ with no `$value` is not a DTCG token, so it leaves `check:dtcg` by name and
 for a keyword, and no value. That is the statement rather than a side effect. It holds the one
 answer a role may carry as well: `$extensions["com.dravensoft.arena"].default` is a `{…}` alias to
 a role or to a token the package emits, of the role's own `$type`, and
-`scripts/check/core/check-role-contract.ts:defaultProblems(roles, emitted)` fails a literal, an
-alias naming nothing, a type that disagrees, a keyword whose target can take a word outside its
-set, and a chain that leads back to itself. **The question belongs to the kernel and the answer
+`scripts/check/core/check-role-contract.ts:defaultProblems(roles, emitted, words)` fails a literal,
+an alias naming nothing, a type that disagrees, a keyword whose target can take a word outside its
+set, a keyword token whose word the role refuses, and a chain that leads back to itself. **The question belongs to the kernel and the answer
 never does.**
 
 The scales stay, and they stay with values, because a manifest never names one. They reach a page

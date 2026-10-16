@@ -18,8 +18,9 @@ values; do not re-derive them.
 | Font weights (`fw-*`) | `typography.json` | `fontWeight` | numeric 400-900 |
 | Font sizes (`fs-*`) | `typography.json` | `dimension` | px; `fs.mega` (150px) and `fs.hero` (96px) extend the scale above `display` (64px), extrapolating its accelerating ratio; `fs.hero` has no consumer today by design, so do not delete it as dead API |
 | Line heights (`lh-*`) | `typography.json` | `number` | unitless |
+| Text transforms (`case-*`) | `typography.json` | `keyword` | one word each, emitted as a custom property (`--case-none:none`) so a keyword role can alias it as its kernel default, as `tt-key` aliases `{case.none}`. The group declares its set once, the four words `text-transform` takes here |
 | Letter spacing (`ls-*`) | `typography.json` | `number` | `em` is not a DTCG dimension unit, so tracking is a unitless `number` (a font-size multiplier) with an `$extensions.com.dravensoft.arena.cssUnit: "em"` render hint |
-| Spacing scale (`sp-0..24`) | `spacing.json` | `dimension` | px; `sp-0` renders as `0px` |
+| Spacing scale (`sp-0..24`, and `sp-0-5`) | `spacing.json` | `dimension` | px; `sp-0` renders as `0px`. `sp-0-5` is the half step under the grid (2px), earned by a key cap's vertical air and named by the kernel default of `pad-key-y` |
 | Page rhythm (`rhythm-group/component/section`) | `spacing.json` | `dimension` | px, and the one group authored entirely as **aliases**: each `$value` is `{sp.N}` rather than a length, so a rhythm step cannot drift off the 4px grid. Style Dictionary resolves an alias at generation, so the emitted line is a literal (`--rhythm-group:12px`) exactly as `chart.json`'s `{sp.4}` emits `--chart-legend-gap:16px`; the alias binds the source and not the runtime. Deliberately outside `dz`, so `density.compact.json` does not override it |
 | `container-max`, `gutter` | `spacing.json` | `dimension` | px |
 | Breakpoints (`bp-sm/md/lg`) | `spacing.json` | `dimension` | px; read by JS via `getComputedStyle`, never a media query |

@@ -37,6 +37,7 @@ The table lists the scales and leaves out every role, such as `--r-surface` or `
 | `--sp-16` | `64px` |
 | `--sp-20` | `80px` |
 | `--sp-24` | `96px` |
+| `--sp-0-5` | `2px` |
 | `--r-xs` | `4px` |
 | `--r-sm` | `6px` |
 | `--r-md` | `10px` |
