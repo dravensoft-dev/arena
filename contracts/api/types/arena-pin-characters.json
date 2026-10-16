@@ -1,0 +1,6 @@
+{
+  "name": "ArenaPinCharacters",
+  "kind": "enum",
+  "description": "Which characters a pin input's cells accept, and which keypad a phone shows for them. `numeric` takes the digits 0 to 9 and asks for the number pad; `alphanumeric` takes the Latin letters and digits, as typed, and asks for the full keyboard. A character outside the set is refused before it reaches a cell, so the code a pin input reports never holds one. It is a member rather than a class because it changes what the cells accept, not how they are drawn.",
+  "values": ["numeric", "alphanumeric"]
+}

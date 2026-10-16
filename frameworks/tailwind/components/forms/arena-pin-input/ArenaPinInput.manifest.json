@@ -1,0 +1,61 @@
+{
+  "component": "ArenaPinInput",
+  "slots": {
+    "root": "flex flex-col gap-1.5",
+    "label": "font-face-label text-ctl-xs tracking-label-role case-label text-ink-muted/(--level-ink-muted)",
+    "required": "text-primary ml-1",
+    "group": "flex items-center gap-inline",
+    "cell": "size-ctl-h min-w-0 shrink p-0 text-center bg-field border-[length:var(--bw-field)] rounded-field outline-none text-ink-body font-mono tabular-nums text-ctl transition-[border-color,box-shadow] duration-[var(--dur-hover)] ease-hover",
+    "statusIcon": "shrink-0 text-[length:var(--icon-md)]",
+    "hint": "font-body text-ctl-sm text-ink-muted/(--level-ink-muted)",
+    "error": "font-body text-ctl-sm text-[color:var(--arena-hue-ink)]"
+  },
+  "kind": {
+    "root": "none",
+    "label": "none",
+    "required": "none",
+    "group": "none",
+    "cell": "field",
+    "statusIcon": "none",
+    "hint": "none",
+    "error": "none"
+  },
+  "internal": {
+    "state": "error when an error shows, valid when valid holds, from error and valid"
+  },
+  "variants": {
+    "state": {
+      "neutral": {
+        "cell": "border-edge-field focus:border-secondary focus:ring-[length:var(--focus-width)] focus:ring-secondary/16"
+      },
+      "error": {
+        "cell": "border-[color:var(--arena-hue-edge)] ring-[length:var(--focus-width)] ring-[color:var(--arena-hue-fill-soft)]",
+        "statusIcon": "text-[color:var(--arena-hue-ink)]"
+      },
+      "valid": {
+        "cell": "border-[color:var(--arena-hue-edge)] ring-[length:var(--focus-width)] ring-[color:var(--arena-hue-fill-soft)] focus:border-secondary focus:ring-[length:var(--focus-width)] focus:ring-secondary/16",
+        "statusIcon": "text-[color:var(--arena-hue-ink)]"
+      }
+    },
+    "disabled": {
+      "true": {
+        "root": "opacity-50"
+      },
+      "false": {}
+    }
+  },
+  "defaultVariants": {
+    "state": "neutral",
+    "disabled": false
+  },
+  "hues": {
+    "always": {
+      "error": "danger"
+    },
+    "state": {
+      "neutral": null,
+      "error": "danger",
+      "valid": "success"
+    }
+  }
+}

@@ -351,6 +351,10 @@ export const IMPERATIVE_HANDLES = new Map([
     + 'layer\'s AGENTS.md says so.'],
   ['ArenaNumberField.select', 'The same handle, for the case that follows it: a number the caller expects '
     + 'to be replaced is selected so the next keystroke replaces it.'],
+  ['ArenaPinInput.focus', 'The reason ArenaInput.focus carries, restated for a code: after a wrong code the '
+    + 'host empties value and needs the first cell focused again, a gesture autoFocus, which fires once at mount, '
+    + 'cannot express and no declarative member does. A method on the class in both layers, and each layer\'s '
+    + 'AGENTS.md says so.'],
 ]);
 
 export function classMembers(source: string, className: string) {

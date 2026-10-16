@@ -1,0 +1,50 @@
+<!-- @dsCard group="Tailwind" viewport="760x420" name="ArenaPinInput" subtitle="Cells, masking and states, rendered from ArenaPinInput.manifest.json" -->
+<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../../../../intro/styles.css">
+<link rel="stylesheet" href="../../../consume/Preflight.generated.css">
+<link rel="stylesheet" href="../../../consume/components/forms/arena-pin-input/ArenaPinInput.styles.generated.css">
+<link rel="stylesheet" href="../../../consume/hues/forms/arena-pin-input/ArenaPinInput.hues.generated.css">
+<link rel="stylesheet" href="../../../Specimen.css">
+</head><body><div id="root"></div>
+<script type="module">
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
+
+const manifest = await (await fetch('./ArenaPinInput.manifest.json')).json();
+
+function pin({ label, code = '', length = 6, hint, error, state = 'neutral', required, masked, disabled }) {
+  const v = { state, disabled: String(Boolean(disabled)) };
+  const c = arenaClassesFor(manifest, v);
+  const d = arenaSlotDataFor(manifest, v);
+  const root = el('div', { class: c.root, ...d.root });
+  root.style.width = '320px';
+  const id = 'tw-pin-' + label.replace(/\s+/g, '-').toLowerCase();
+  const name = el('span', { id, class: c.label, ...d.label }, label);
+  if (required) name.append(el('span', { class: c.required, ...d.required, 'aria-hidden': 'true', text: '*' }));
+  root.append(name);
+  const group = el('div', { role: 'group', 'aria-labelledby': id, class: c.group, ...d.group });
+  for (let i = 0; i < length; i += 1) {
+    group.append(el('input', { class: c.cell, ...d.cell, type: masked ? 'password' : 'text', inputmode: 'numeric',
+      value: code[i] ?? '', tabindex: i === Math.min(code.length, length - 1) ? '0' : '-1',
+      'aria-label': `Character ${i + 1} of ${length}`, disabled: disabled || undefined }));
+  }
+  if (state === 'error') group.append(el('i', { class: `${c.statusIcon} ph-fill ph-warning-circle`, ...d.statusIcon, 'aria-hidden': 'true' }));
+  if (state === 'valid') group.append(el('i', { class: `${c.statusIcon} ph-fill ph-check-circle`, ...d.statusIcon, 'aria-hidden': 'true' }));
+  root.append(group);
+  if (error) root.append(el('span', { class: c.error, ...d.error, text: error }));
+  else if (hint) root.append(el('span', { class: c.hint, ...d.hint, text: hint }));
+  return root;
+}
+
+mountSpecimen({ sections: [
+  section('Six cells, partly typed and full', [
+    pin({ label: 'Verification code', code: '482', hint: 'Sent to your phone.', required: true }),
+    pin({ label: 'Verification code', code: '482913' }),
+  ]),
+  section('States, a masked PIN and disabled', [
+    pin({ label: 'Verification code', code: '482910', state: 'error', error: 'That code does not match.' }),
+    pin({ label: 'Verification code', code: '482913', state: 'valid' }),
+    pin({ label: 'Device PIN', code: '27', length: 4, masked: true }),
+    pin({ label: 'Verification code', disabled: true }),
+  ]),
+]});
+</script></body></html>

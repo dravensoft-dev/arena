@@ -92,6 +92,7 @@ Every field is optional in what you provide, and one you leave out keeps the def
 | `sliderStart` | `Minimum` | Joins a range slider's label to name the thumb at the start of the span. |
 | `sliderEnd` | `Maximum` | Joins a range slider's label to name the thumb at the end of the span. |
 | `sliderRange` | `{start} – {end}` | The readout of a range slider. {start} and {end} are the two values, each written with the prefix, the suffix and the format. |
+| `pinInputCell` | `Character {index} of {total}` | Names each cell of a pin input. {index} is the cell's position from 1 and {total} is how many cells the code has. |
 | `onboardingBack` | `Back` | The button that returns to the previous step. |
 | `onboardingSkip` | `Skip` | The button that leaves the tour. |
 | `onboardingNext` | `Next` | The button that moves to the next step. |

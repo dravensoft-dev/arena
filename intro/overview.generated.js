@@ -3,7 +3,6 @@
  * has to be servable on its own. See build-intro.ts for why the tag needs it tracked. */
 // scripts/generate/core/arena-cli/style-plugin-rules.ts
 var RESERVED = new Map([
-  ["pin-input", "ArenaPinInput, a code entered one character per cell (spec 14)"],
   ["sparkline", "ArenaSparkline, a small inline trend chart (spec 17)"],
   ["gauge-chart", "ArenaGaugeChart, one value against banded thresholds (spec 18)"],
   ["filter-bar", "ArenaFilterBar, the filters applied to a collection (spec 19)"],

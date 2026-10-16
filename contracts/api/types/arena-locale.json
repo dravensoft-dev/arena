@@ -71,6 +71,7 @@
     "sliderStart": { "form": "primitive", "type": "string", "required": true, "default": "Minimum", "description": "Joins a range slider's label to name the thumb at the start of the span." },
     "sliderEnd": { "form": "primitive", "type": "string", "required": true, "default": "Maximum", "description": "Joins a range slider's label to name the thumb at the end of the span." },
     "sliderRange": { "form": "primitive", "type": "string", "required": true, "default": "{start} – {end}", "description": "The readout of a range slider. {start} and {end} are the two values, each written with the prefix, the suffix and the format." },
+    "pinInputCell": { "form": "primitive", "type": "string", "required": true, "default": "Character {index} of {total}", "description": "Names each cell of a pin input. {index} is the cell's position from 1 and {total} is how many cells the code has." },
     "onboardingBack": { "form": "primitive", "type": "string", "required": true, "default": "Back", "description": "The button that returns to the previous step." },
     "onboardingSkip": { "form": "primitive", "type": "string", "required": true, "default": "Skip", "description": "The button that leaves the tour." },
     "onboardingNext": { "form": "primitive", "type": "string", "required": true, "default": "Next", "description": "The button that moves to the next step." },
