@@ -79,12 +79,13 @@ Those keys are the whole schema, and another fails the gate; a `vars` key that d
 
 ## A node
 
-Three shapes, and the recursion is what lets one rule cover both slot content and a host:
+Four shapes, and the recursion is what lets one rule cover both slot content and a host:
 
 | shape | what it is |
 | --- | --- |
 | `"$subject"` | where the component under test goes. Legal inside `host` and nowhere else, exactly once. |
 | `{ "text": "…", "element": "span", "attrs": {} }` | literal content. `element` and `attrs` are optional; with neither, the text is projected bare. |
+| `{ "element": "p", "attrs": {}, "children": [ … ] }` | an element holding a list of nodes, recursive like a slot. It carries text or children, never both: text beside a component is a text node among the children. A host places the subject inside one this way, as the link in a paragraph. |
 | `{ "component": "ArenaBadge", "members": {}, "class": "arena-fill", "slots": {} }` | a real Arena component, its members literal, an optional `class` of vocabulary options it answers, and its own slots recursive. |
 
 A slot holding exactly one text node becomes an **editable** knob, so the page can change the

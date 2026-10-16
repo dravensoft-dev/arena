@@ -8,7 +8,7 @@
 
 import { playgroundPage, sheetLinks } from '../arena/playground-page.ts';
 import { kebab } from '../../utils/case.ts';
-import { placeOf, SUBJECT } from '../arena/playground-model.ts';
+import { childLists, placeOf, SUBJECT } from '../arena/playground-model.ts';
 import { captured } from '../../utils/captures.ts';
 import type { MemberSpec } from '../arena/contract-shapes.ts';
 import type { FixtureNode, Knob, Place, Places, PlaygroundEvent, PlaygroundModel }
@@ -114,6 +114,7 @@ export function attributeText(value: unknown) {
 export function collectFields(node: FixtureNode | string | null, contracts: Map<string, any>,
   into: Field[], prefix: string): Field[] {
   if (node === '$subject' || node === null || typeof node !== 'object') return into;
+  if (Array.isArray(node.children)) for (const one of node.children) collectFields(one, contracts, into, prefix);
   if (typeof node.component === 'string') {
     const api = contracts.get(node.component)?.api ?? {};
     for (const [member, value] of Object.entries(node.members ?? {}) as [string, any][]) {
@@ -153,6 +154,11 @@ export function renderNode(node: FixtureNode, places: Places, fields: FieldRef[]
     const tag = node.element ?? 'span';
     const attrs = Object.entries(node.attrs ?? {}).map(([name, value]) => ` ${name}="${String(value)}"`).join('');
     if (VOID_ELEMENTS.has(tag)) return `${pad}<${tag}${attrs} />`;
+    if (Array.isArray(node.children) && node.children.length > 0) {
+      const inner = (node.children as FixtureNode[]).filter((one) => one !== null)
+        .map((one) => renderNode(one, places, fields, markers, tags, depth + 1, imports)).join('\n');
+      return `${pad}<${tag}${attrs}>\n${inner}\n${pad}</${tag}>`;
+    }
     if (node.text === undefined) return `${pad}<${tag}${attrs}></${tag}>`;
     return `${pad}<${tag}${attrs}>${escapeText(node.text)}</${tag}>`;
   }
@@ -237,7 +243,7 @@ export function renderSubject(model: PlaygroundModel, places: Places,
 export function holdsSubject(node: FixtureNode | string | null): boolean {
   if (node === '$subject') return true;
   if (node === null || typeof node !== 'object') return false;
-  return (Object.values(node.slots ?? {}) as any[][]).some((list) => list.some((one) => holdsSubject(one)));
+  return childLists(node).some((list) => list.some((one) => holdsSubject(one)));
 }
 
 export function renderTree(model: PlaygroundModel, places: Places, fields: FieldRef[],
@@ -247,6 +253,14 @@ export function renderTree(model: PlaygroundModel, places: Places, fields: Field
     const pad = '  '.repeat(level);
     if (node === '$subject') return renderSubject(model, places, fields, markers, tags, level, imports);
     if (!holdsSubject(node)) return renderNode(node, places, fields, markers, tags, level, imports);
+    if (typeof node.component !== 'string') {
+      const tag = node.element ?? 'span';
+      const attrs = Object.entries(node.attrs ?? {}).map(([name, value]) => ` ${name}="${String(value)}"`).join('');
+      const inner = ((node.children ?? []) as (FixtureNode | typeof SUBJECT | null)[])
+        .filter((one): one is FixtureNode | typeof SUBJECT => one !== null)
+        .map((one) => wrap(one, level + 1)).join('\n');
+      return `${pad}<${tag}${attrs}>\n${inner}\n${pad}</${tag}>`;
+    }
     const place = placeOf(places, node.component);
     const tag = selector(place.name, tags);
     const open = `${tag}${hook(place.name, tags)}`;

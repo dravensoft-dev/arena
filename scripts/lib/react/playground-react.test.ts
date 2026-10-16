@@ -113,6 +113,14 @@ test('a host wraps the subject where the placeholder marks, and nowhere else', (
   assert.match(out, /<\/ArenaTable>$/);
 });
 
+test('a host element holds the subject among its children, with the text around it kept as written', () => {
+  const hosted = { ...model, host: { element: 'p', children: [{ text: 'Read ' }, '$subject' as const, { text: ' first.' }] } };
+  const out = renderTree(hosted, places, 0);
+  assert.match(out, /^<p>\n {2}\{"Read "\}\n {2}<ArenaCard[\s\S]*<\/ArenaCard>\n {2}\{" first\."\}\n<\/p>$/);
+  assert.match(renderNode({ element: 'p', children: [{ text: 'a' }, { component: 'ArenaBadge' }] }, places, 0),
+    /^<p>\n {2}\{"a"\}\n {2}<ArenaBadge \/>\n<\/p>$/);
+});
+
 test('the validator table appears only for a contract that declares a function input', () => {
   assert.equal(validatorTable(model), '');
   assert.match(validatorTable({ knobs: [knob({ form: 'functionInput' })] }), /nonEmpty/);

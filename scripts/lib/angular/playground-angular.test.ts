@@ -163,6 +163,16 @@ test('a host wraps the subject where the placeholder marks', () => {
   assert.match(out, /<\/arena-table>$/);
 });
 
+test('a host element holds the subject among its children, with the text around it kept as written', () => {
+  const hosted = { ...model, host: { element: 'p', children: [{ text: 'Read ' }, '$subject' as const, { text: ' first.' }] } };
+  const out = renderTree(hosted, places, [], new Map(), new Map(), 0, new Set());
+  assert.match(out, /^<p>\n {2}Read \n {2}<arena-card[\s\S]*<\/arena-card>\n {2} first\.\n<\/p>$/);
+  const fields = collectFields({ element: 'p', children: [{ component: 'ArenaBadge', members: { tone: 'success' } }] } as any, contracts, [], 'host');
+  assert.equal(fields.length, 0, 'a string member is written as a static attribute and needs no field');
+  assert.match(renderNode({ element: 'p', children: [{ text: 'a' }, { component: 'ArenaBadge' }] }, places, [], new Map(), new Map(), 0, new Set()),
+    /^<p>\n {2}a\n {2}<arena-badge[^>]*><\/arena-badge>\n<\/p>$/);
+});
+
 test('a required member is not optional in the interface', () => {
   assert.match(knobsInterface(model), /^ {2}title: string;$/m);
   assert.match(knobsInterface(model), /^ {2}content\?: string;$/m);

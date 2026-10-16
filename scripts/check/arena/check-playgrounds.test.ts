@@ -169,6 +169,27 @@ test('a host node is checked like any other node', () => {
   );
 });
 
+test('an element node holds children, the subject among them, and a list of nodes is all it holds', () => {
+  const paragraph = { element: 'p', children: [{ text: 'Read ' }, '$subject' as const, { text: ' first.' }] };
+  assert.deepEqual(hostProblems('Widget', { host: paragraph }, contracts, types), []);
+  assert.match(nodeProblems('w', paragraph, contracts, types, { allowSubject: false })[0] ?? '',
+    /^w\.children\[1\]: "\$subject" marks where the component under test goes and belongs in a host/);
+  assert.match(nodeProblems('w', { element: 'p', children: 'Read' } as any, contracts, types, {})[0] ?? '',
+    /^w\.children: an element holds a list of nodes and this is string/);
+  assert.match(nodeProblems('w', { element: 'p', text: 'Read', children: [] } as any, contracts, types, {})[0] ?? '',
+    /^w: a node carries text or children, never both/);
+  assert.match(nodeProblems('w', { element: 'p', children: [{ component: 'ArenaBadge', members: { tone: 'gold' } }] }, contracts, types, {})[0] ?? '',
+    /^w\.children\[0\]\.tone: .*is not one of ArenaTone's/);
+  assert.match(nodeProblems('w', { element: 'p', slots: {} } as any, contracts, types, {})[0] ?? '',
+    /^w: an element node carries element, attrs and text or children, never slots/);
+});
+
+test('a host counts the placeholder inside an element\'s children', () => {
+  const nested = { component: 'ArenaBadge', slots: { content: [{ element: 'p', children: ['$subject' as const, '$subject' as const] }] } };
+  const two = fixtureProblems('Widget', widget, { ...ok, host: nested }, contracts, types);
+  assert.match(two[0] ?? '', /holding 2 "\$subject" placeholders/);
+});
+
 test('a bind naming something that is not an event fails', () => {
   assert.match(bindProblems('Widget', widget, { bind: { label: 'tone' } }, types)[0] ?? '', /declares no event called label/);
 });

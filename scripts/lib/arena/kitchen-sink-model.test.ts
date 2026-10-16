@@ -52,6 +52,16 @@ test('the subject replaces its marker wherever the host tree puts it', () => {
     { component: 'ArenaTable', slots: { content: [subject] } });
 });
 
+test('the subject replaces its marker inside an element\'s children, and the walks reach a component there', () => {
+  const host = { element: 'p', attrs: { class: 'lede' }, children: [{ text: 'Read ' }, '$subject' as const] };
+  const subject = { component: 'ArenaLink', members: { href: '../../../../../frameworks/x' } };
+  const hosted = substitute(host, subject);
+  assert.deepEqual(hosted, { element: 'p', attrs: { class: 'lede' }, children: [{ text: 'Read ' }, subject] });
+  assert.deepEqual([...componentsIn(hosted)], ['ArenaLink']);
+  const rebased = rebaseNode(hosted, '../../../../../', '../../../../') as any;
+  assert.equal(rebased.children[1].members.href, '../../../../frameworks/x');
+});
+
 test('a fixture with no host becomes the component itself, seed and slots carried across', () => {
   const node = instanceNode({
     component: 'ArenaCard',

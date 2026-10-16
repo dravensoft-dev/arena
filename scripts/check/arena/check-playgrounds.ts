@@ -219,12 +219,19 @@ export function nodeProblems(where: string, node: FixtureChild, contracts: Contr
     return [`${where}: a node is "${SUBJECT}", a text node or a component node, and this is ${Array.isArray(node) ? 'an array' : typeof node}`];
 
   if (typeof node.text === 'string') {
+    if ('children' in node)
+      return [`${where}: a node carries text or children, never both, because a text node is a leaf and an element holding children spells its text as text nodes among them`];
     const unknown = Object.keys(node).filter((k) => !['text', 'element', 'attrs'].includes(k));
     return unknown.map((k) => `${where}: a text node carries text, element and attrs, never ${k}`);
   }
   if (typeof node.element === 'string') {
-    const unknown = Object.keys(node).filter((k) => !['element', 'attrs', 'text'].includes(k));
-    return unknown.map((k) => `${where}: an element node carries element, attrs and text, never ${k}`);
+    const unknown = Object.keys(node).filter((k) => !['element', 'attrs', 'text', 'children'].includes(k));
+    const problems = unknown.map((k) => `${where}: an element node carries element, attrs and text or children, never ${k}`);
+    if ('children' in node) {
+      if (!Array.isArray(node.children)) return [...problems, `${where}.children: an element holds a list of nodes and this is ${typeof node.children}`];
+      problems.push(...listProblems(`${where}.children`, node.children, contracts, types, { allowSubject, source }));
+    }
+    return problems;
   }
   if (typeof node.component !== 'string')
     return [`${where}: a node names neither text, element nor component`];

@@ -12,7 +12,7 @@ import { join } from 'node:path';
 import { kebab } from '../../utils/case.ts';
 import { repoRoot } from './repo-root.ts';
 import { categoryOf, manifestFor } from '../tailwind/manifest-surfaces.ts';
-import { SUBJECT } from './playground-model.ts';
+import { SUBJECT, childLists } from './playground-model.ts';
 import type { Fixture, FixtureChild, FixtureNode, Place, Places } from './playground-model.ts';
 import type { ManifestClassSource } from '../tailwind/manifest-shapes.ts';
 
@@ -76,11 +76,13 @@ export function substitute(node: FixtureChild, subject: FixtureNode): FixtureChi
   if (node === SUBJECT) return subject;
   if (node === null || typeof node !== 'object') return node;
   const slots = Object.entries(node.slots ?? {}) as [string, FixtureChild[]][];
-  if (slots.length === 0) return node;
-  return {
-    ...node,
-    slots: Object.fromEntries(slots.map(([slot, list]) => [slot, list.map((one) => substitute(one, subject))])),
-  };
+  const children = Array.isArray(node.children) ? node.children : null;
+  if (slots.length === 0 && children === null) return node;
+  const out: FixtureNode = { ...node };
+  if (slots.length > 0)
+    out.slots = Object.fromEntries(slots.map(([slot, list]) => [slot, list.map((one) => substitute(one, subject))]));
+  if (children !== null) out.children = children.map((one) => substitute(one, subject));
+  return out;
 }
 
 export function instanceNode(fixture: Fixture): FixtureNode {
@@ -121,13 +123,14 @@ export function rebaseNode(node: FixtureChild, from: string, to: string): Fixtur
       slots.map(([slot, list]) => [slot, list.map((one) => rebaseNode(one, from, to))]),
     );
   }
+  if (Array.isArray(node.children)) mapped.children = node.children.map((one) => rebaseNode(one, from, to));
   return mapped;
 }
 
 export function componentsIn(node: FixtureChild, into = new Set<string>()) {
   if (node === null || node === SUBJECT || typeof node !== 'object') return into;
   if (typeof node.component === 'string') into.add(node.component);
-  for (const list of Object.values(node.slots ?? {}) as FixtureChild[][])
+  for (const list of childLists(node))
     for (const one of list) componentsIn(one, into);
   return into;
 }
