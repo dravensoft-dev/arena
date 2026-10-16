@@ -48,6 +48,7 @@ export const PAIRED = [
   'components/navigation/arena-link/LinkRules.ts',
   'components/feedback/arena-meter/MeterStanding.ts',
   'components/navigation/arena-stepper/StepperState.ts',
+  'components/display/arena-timeline/TimelineGlyphs.ts',
 ];
 
 export const DIVERGENT = new Map([

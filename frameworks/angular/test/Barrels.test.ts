@@ -50,6 +50,11 @@ const PRIVATE = new Map([
    'the range, the clamp, the share and the standing `arena-meter` derives from its thresholds, authored once '
    + 'for both layers and compared by check:shared-arithmetic; a consumer reads the standing the meter draws '
    + 'and says, never by calling them.'],
+  ['display/arena-timeline/TimelineGlyphs.ts',
+   'the glyph each tone draws in a milestone\'s dot and the state a milestone takes from the index, kept '
+   + 'apart so both layers hold one copy '
+   + 'check:shared-arithmetic can compare; an adopter passes a tone or an icon, never calls it, and it is '
+   + 'typechecked through the timeline that imports it.'],
   ['navigation/arena-stepper/StepperState.ts',
    'the rule that derives each step\'s state and reach from the index, kept apart so both layers hold one '
    + 'copy check:shared-arithmetic can compare; an adopter reads a step\'s state from the list, never calls '

@@ -32,6 +32,7 @@ import { ArenaLink } from '../components/navigation/arena-link/ArenaLink';
 import { ArenaCopyButton } from '../components/forms/arena-copy-button/ArenaCopyButton';
 import { ArenaMeter } from '../components/feedback/arena-meter/ArenaMeter';
 import { ArenaStepper } from '../components/navigation/arena-stepper/ArenaStepper';
+import { ArenaTimeline } from '../components/display/arena-timeline/ArenaTimeline';
 import { ArenaSkeleton } from '../components/display/arena-skeleton/ArenaSkeleton';
 import { ArenaSpinner } from '../components/feedback/arena-spinner/ArenaSpinner';
 import { ArenaSwitch } from '../components/forms/arena-switch/ArenaSwitch';
@@ -193,6 +194,14 @@ class MeterHost {}
 })
 class StepperHost {}
 
+@Component({
+  selector: 'locale-sentinel-timeline-host',
+  standalone: true,
+  imports: [ArenaTimeline],
+  template: `<arena-timeline label="Order 4821" [index]="1" [items]="[{ title: 'Placed', time: 'Mar 3' }, { title: 'Shipped', tone: 'info' }, { title: 'Delivered' }]" />`,
+})
+class TimelineHost {}
+
 @Component({ selector: 'locale-sentinel-spinner-host', standalone: true, imports: [ArenaSpinner], template: `<arena-spinner />` })
 class SpinnerHost {}
 
@@ -296,6 +305,7 @@ const CASES: Record<string, Case> = {
   ArenaTag: { hosts: [TagHost], consumer: ['Beta'] },
   ArenaLink: { hosts: [LinkHost], consumer: ['Release notes'] },
   ArenaSkeleton: { hosts: [SkeletonHost], consumer: [] },
+  ArenaTimeline: { hosts: [TimelineHost], consumer: ['Order 4821', 'Placed', 'Mar 3', 'Shipped', 'Delivered'] },
   ArenaStepper: { hosts: [StepperHost], consumer: ['Checkout', 'Account', 'Shipping', 'Two addresses', 'Payment'] },
   ArenaMeter: { hosts: [MeterHost], consumer: ['Storage used', '30 of 100 GB', '72 of 100 GB', '91 of 100 GB'] },
   ArenaSpinner: { hosts: [SpinnerHost], consumer: [] },

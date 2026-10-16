@@ -27,9 +27,10 @@ import { ArenaCombobox } from '../components/forms/arena-combobox/ArenaCombobox'
 import { ArenaMultiSelect } from '../components/forms/arena-multi-select/ArenaMultiSelect';
 import { ArenaStepper } from '../components/navigation/arena-stepper/ArenaStepper';
 import { ArenaTable } from '../components/display/arena-table/ArenaTable';
+import { ArenaTimeline } from '../components/display/arena-timeline/ArenaTimeline';
 import type {
   ArenaActivityItem, ArenaBulkAction, ArenaCommand, ArenaCrumb, ArenaMenuItem, ArenaOnboardingStep, ArenaSegmentOption, ArenaSelectOption,
-  ArenaStepperStep, ArenaTableColumn,
+  ArenaStepperStep, ArenaTableColumn, ArenaTimelineItem,
 } from '../Api.generated';
 
 useTestEnvironment();
@@ -52,7 +53,7 @@ const SLOTS: readonly number[] = Object.freeze([1, 2]);
   standalone: true,
   imports: [
     ArenaAccordion, ArenaActivityFeed, ArenaBarChart, ArenaBreadcrumbs, ArenaBulkActionBar, ArenaCheckboxGroup, ArenaCombobox, ArenaCommandPalette, ArenaDoughnutChart, ArenaLineChart,
-    ArenaMenu, ArenaMultiSelect, ArenaOnboarding, ArenaSegmentedControl, ArenaSelect, ArenaStepper, ArenaTable,
+    ArenaMenu, ArenaMultiSelect, ArenaOnboarding, ArenaSegmentedControl, ArenaSelect, ArenaStepper, ArenaTable, ArenaTimeline,
   ],
   template: `
     <arena-accordion multiple [values]="labels" [defaultValues]="labels" />
@@ -69,6 +70,7 @@ const SLOTS: readonly number[] = Object.freeze([1, 2]);
     <arena-select [options]="selectOptions" />
     <arena-stepper ariaLabel="Checkout" [steps]="stepperSteps" [index]="1" interactive />
     <arena-table label="Deployments" [columns]="columns" />
+    <arena-timeline label="Order 4821" [items]="milestones" [index]="1" />
     <arena-bar-chart label="Deploys" [labels]="labels" [series]="series" />
     <arena-doughnut-chart label="Traffic" [labels]="labels" [series]="series" />
     <arena-line-chart label="Latency" [labels]="labels" [series]="series" />
@@ -84,6 +86,7 @@ class FrozenDataHost {
   readonly segments: readonly ArenaSegmentOption[] = Object.freeze([{ value: 'grid', label: 'Grid' }]);
   readonly selectOptions: readonly ArenaSelectOption[] = Object.freeze([{ value: 'a', label: 'A' }]);
   readonly stepperSteps: readonly ArenaStepperStep[] = Object.freeze([{ label: 'Account' }, { label: 'Review' }]);
+  readonly milestones: readonly ArenaTimelineItem[] = Object.freeze([{ title: 'Placed' }, { title: 'Shipped' }]);
   readonly columns: readonly ArenaTableColumn[] = Object.freeze([{ header: 'Build' }]);
   readonly labels = LABELS;
   readonly values = VALUES;
@@ -98,7 +101,7 @@ test('every array input binds data the consumer holds as readonly, and nothing w
   const host = fixture.nativeElement as HTMLElement;
   for (const selector of [
     'arena-accordion', 'arena-activity-feed', 'arena-breadcrumbs', 'arena-bulk-action-bar', 'arena-checkbox-group', 'arena-combobox', 'arena-command-palette',
-    'arena-menu', 'arena-multi-select', 'arena-onboarding', 'arena-segmented-control', 'arena-select', 'arena-stepper', 'arena-table',
+    'arena-menu', 'arena-multi-select', 'arena-onboarding', 'arena-segmented-control', 'arena-select', 'arena-stepper', 'arena-table', 'arena-timeline',
     'arena-bar-chart', 'arena-doughnut-chart', 'arena-line-chart',
   ]) {
     assert.ok(host.querySelector(selector), `${selector} did not render, so its binding proves nothing`);

@@ -126,6 +126,7 @@ export const COVERED = {
   'ArenaRadarChart:angular': 'ChartDataTable.test.ts',
   'ArenaScatterChart:angular': 'ChartDataTable.test.ts',
   'ArenaActivityFeed:angular': 'ArenaActivityFeed.cases.test.ts',
+  'ArenaTimeline:angular': 'ArenaTimeline.compliance.test.ts',
   'ArenaDoughnutChart:angular': 'ChartDataTable.test.ts',
   'ArenaLineChart:angular': 'ChartDataTable.test.ts',
   'ArenaSkeleton:angular': 'AngularPatternCoverage.test.ts',

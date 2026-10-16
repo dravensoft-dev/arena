@@ -14,4 +14,5 @@ export * from './arena-table';
 export * from './arena-table-cell';
 export * from './arena-table-row';
 export * from './arena-tag';
+export * from './arena-timeline';
 export * from './arena-unauth-card';
