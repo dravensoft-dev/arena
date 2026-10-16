@@ -75,6 +75,9 @@ Every field is optional in what you provide, and one you leave out keeps the def
 | `comboboxLoading` | `Loading results…` | What a combobox's list shows while its options are fetched. |
 | `comboboxCount` | `Options available: {count}.` | Announced politely after the text changes, since focus stays in the field. {count} is how many options the list holds; the count stands last, so one sentence serves every number. |
 | `linkExternal` | `(opens in a new tab)` | Said after the text of an external ArenaLink and never drawn, so a reader knows the link opens another tab before following it. |
+| `copyButtonLabel` | `Copy` | Names a copy button when its own label is absent. |
+| `copyButtonCopied` | `Copied` | Announced once in place when a copy button wrote its text to the clipboard. The button keeps its name. |
+| `copyButtonFailed` | `Could not copy` | Announced once in place when the clipboard refused a copy button's text or the page has none. |
 | `onboardingBack` | `Back` | The button that returns to the previous step. |
 | `onboardingSkip` | `Skip` | The button that leaves the tour. |
 | `onboardingNext` | `Next` | The button that moves to the next step. |

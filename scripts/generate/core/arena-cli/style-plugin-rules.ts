@@ -28,7 +28,6 @@ export const MAX_PROSE_MEASURE = 90;
 export const DANGER_FLOOR = 'hue-danger-fill-strong';
 
 export const RESERVED = new Map<string, string>([
-  ['copy-button', 'ArenaCopyButton, a button that copies a value (spec 05)'],
   ['meter', 'ArenaMeter, a value inside a known range (spec 06)'],
   ['accordion', 'ArenaAccordion, a stack of disclosure sections (spec 10)'],
   ['stepper', 'ArenaStepper, the steps of a process and where it stands (spec 11)'],
