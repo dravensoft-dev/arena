@@ -60,6 +60,7 @@
     "ArenaInput",
     "ArenaMultiSelect",
     "ArenaNumberField",
+    "ArenaPinInput",
     "ArenaRadio",
     "ArenaRadioGroup",
     "ArenaSelect",

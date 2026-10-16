@@ -1,6 +1,6 @@
 {
   "component": "ArenaPinInput",
-  "description": "A short code entered one character per cell, such as a one-time code sent by text message. The cells are real text fields in a labelled group with one tab stop: a typed character fills its cell and moves on, Backspace walks back, the arrow keys move between cells, and a pasted or autofilled code spreads across them. The code is one string, submitted once under `name`. Focus is a gold ring on the cell that holds it, error crimson on every cell, valid green with a check after the cells, in the order ArenaInput states.",
+  "description": "A short code entered one character per cell, such as a one-time code sent by text message. The cells are real text fields in a labelled group with one tab stop. A typed character fills its cell and moves on, Backspace walks back, and a pasted or autofilled code spreads across the cells. The code is one string, submitted once under `name`. Focus is a gold ring on one cell, error crimson on every cell and valid green with a check, in the order ArenaInput states.",
   "affordances": ["focus", "hover"],
   "api": {
     "label": { "form": "primitive", "type": "string", "required": true,

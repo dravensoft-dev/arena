@@ -7,7 +7,7 @@
       "title": "Forms",
       "items": [
         "ArenaButton", "ArenaIconButton", "ArenaCopyButton", "ArenaInput", "ArenaTextarea", "ArenaSelect", "ArenaCombobox", "ArenaMultiSelect",
-        "ArenaCheckbox", "ArenaCheckboxGroup", "ArenaSwitch", "ArenaRadioGroup", "ArenaRadio", "ArenaFieldset", "ArenaFileInput", "ArenaNumberField", "ArenaSlider"
+        "ArenaCheckbox", "ArenaCheckboxGroup", "ArenaSwitch", "ArenaRadioGroup", "ArenaRadio", "ArenaFieldset", "ArenaFileInput", "ArenaNumberField", "ArenaSlider", "ArenaPinInput"
       ]
     },
     {
