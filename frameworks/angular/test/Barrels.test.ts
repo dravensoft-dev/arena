@@ -89,6 +89,10 @@ const ROOT_PRIVATE = new Map([
    + 'of the stack Escape reaches, what counts as a press inside and where Tab leaves. A consumer '
    + 'opens a menu, a tooltip or a popover and never places one, and it is typechecked through the '
    + 'suite beside it.'],
+  ['Thresholds.ts',
+   'the one rule every component that reads a value against thresholds shares: a region holds its lower '
+   + 'edge, authored once for both layers and compared by check:shared-arithmetic. A consumer reads the '
+   + 'standing a component draws and never counts edges, and it is typechecked through the suite beside it.'],
   ['ArenaIds.ts',
    'the generator behind the ids a component uses to point one of its own elements at another, '
    + 'through aria-controls or aria-labelledby. None of those ids is a member, by the convention '

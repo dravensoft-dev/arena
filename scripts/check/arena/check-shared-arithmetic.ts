@@ -31,6 +31,7 @@ export const PAIRED = [
   'DataVisuals.ts',
   'StructuredData.ts',
   'AnchoredPanel.ts',
+  'Thresholds.ts',
   'components/charts/ChartScales.ts',
   'components/charts/ChartMarks.ts',
   'components/charts/ChartAxis.ts',

@@ -79,6 +79,7 @@ export const UNTRACKED = {
   'frameworks/react/UseDialogModal.generated.js': 'the same, for the modal focus helper.',
   'frameworks/react/AnchoredPanel.generated.js': 'the same, for the rules every anchored panel follows.',
   'frameworks/react/UseAnchoredPanel.generated.js': 'the same, for the hook that places an anchored panel and dismisses it.',
+  'frameworks/react/Thresholds.generated.js': 'the same, for the rule that a region keeps its lower edge.',
   'frameworks/react/VocabularyClass.generated.js': 'the same, for the filter that keeps a className to its vocabulary.',
   'frameworks/react/Vocabulary.generated.js': 'the same, for the vocabulary each component takes.',
   'frameworks/react/components/**/*.manifest.generated.ts':
