@@ -174,7 +174,7 @@ export const ArenaFileInput = forwardRef<ArenaFileInputHandle, ArenaFileInputPro
           onInvalid={() => trigger.current?.focus()} onFocus={() => trigger.current?.focus()} />
       </div>
       {shown.files.length > 0 && (
-        <ul className={styles.files()} data-arena-part={manifest.parts.files} {...styles.$data.files()}>
+        <ul role="list" className={styles.files()} data-arena-part={manifest.parts.files} {...styles.$data.files()}>
           {shown.files.map((file, index) => (
             <li key={`${file.name}:${file.size}:${file.lastModified}`} className={styles.file()} data-arena-part={manifest.parts.file} {...styles.$data.file()}>
               <ArenaTag removable disabled={disabled} onRemove={() => remove(index)}>{file.name}</ArenaTag>
@@ -184,7 +184,7 @@ export const ArenaFileInput = forwardRef<ArenaFileInputHandle, ArenaFileInputPro
         </ul>
       )}
       {lines.length > 0 && (
-        <ul className={styles.rejected()} data-arena-part={manifest.parts.rejected} {...styles.$data.rejected()}>
+        <ul role="list" className={styles.rejected()} data-arena-part={manifest.parts.rejected} {...styles.$data.rejected()}>
           {lines.map((line, index) => <li key={index} className={styles.rejection()} data-arena-part={manifest.parts.rejection} {...styles.$data.rejection()}>{line}</li>)}
         </ul>
       )}

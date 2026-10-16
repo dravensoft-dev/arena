@@ -46,11 +46,11 @@ function fileInput({ label, droppable, dragging, error, hint, required, disabled
   zone.append(el('input', { type: 'file', class: c.input, ...d.input, tabindex: '-1', 'aria-hidden': 'true' }));
   root.append(zone);
   if (held.length) {
-    root.append(el('ul', { class: c.files, ...d.files }, ...held.map(([file, size]) =>
+    root.append(el('ul', { role: 'list', class: c.files, ...d.files }, ...held.map(([file, size]) =>
       el('li', { class: c.file, ...d.file }, chip(file, 'neutral'), el('span', { class: c.size, ...d.size, text: size })))));
   }
   if (refused.length) {
-    root.append(el('ul', { class: c.rejected, ...d.rejected }, ...refused.map((line) =>
+    root.append(el('ul', { role: 'list', class: c.rejected, ...d.rejected }, ...refused.map((line) =>
       el('li', { class: c.rejection, ...d.rejection, text: line }))));
   }
   root.append(el('span', { class: c.status, ...d.status, role: 'status', text: held.length ? `${held.length} selected` : 'No file chosen' }));

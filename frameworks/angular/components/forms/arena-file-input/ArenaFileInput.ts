@@ -58,7 +58,7 @@ const NOTHING: Shown = { files: [], rejection: null };
              (change)="onNativeChange($event)" (invalid)="focusTrigger()" (focus)="focusTrigger()" />
     </div>
     @if (shown().files.length > 0) {
-      <ul [class]="styles().files()" [attr.data-arena-part]="parts.files">
+      <ul role="list" [class]="styles().files()" [attr.data-arena-part]="parts.files">
         @for (file of shown().files; track keyOf(file); let index = $index) {
           <li [class]="styles().file()" [attr.data-arena-part]="parts.file">
             <arena-tag removable [disabled]="off()" (remove)="remove(index)">{{ file.name }}</arena-tag>
@@ -68,7 +68,7 @@ const NOTHING: Shown = { files: [], rejection: null };
       </ul>
     }
     @if (lines().length > 0) {
-      <ul [class]="styles().rejected()" [attr.data-arena-part]="parts.rejected">
+      <ul role="list" [class]="styles().rejected()" [attr.data-arena-part]="parts.rejected">
         @for (line of lines(); track $index) {
           <li [class]="styles().rejection()" [attr.data-arena-part]="parts.rejection">{{ line }}</li>
         }

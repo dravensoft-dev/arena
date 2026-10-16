@@ -58,6 +58,22 @@ test('a pick is held, shown as a chip with its size, written back to the input a
   assert.equal(view.root.querySelector('[role="status"]')?.textContent, '1 selected');
 });
 
+test('the held files sit in a list that keeps its role where the list style is none', () => {
+  const view = render();
+  view.pick(pdf('passport.pdf'));
+  const list = view.root.querySelector('[data-arena-part="file-input.files"]');
+  assert.equal(list?.tagName, 'UL');
+  assert.equal(list?.getAttribute('role'), 'list');
+});
+
+test('the rejected files sit in a list that keeps its role where the list style is none', () => {
+  const view = render({ accept: '.pdf' });
+  view.pick(png('photo.png'));
+  const list = view.root.querySelector('[data-arena-part="file-input.rejected"]');
+  assert.equal(list?.tagName, 'UL');
+  assert.equal(list?.getAttribute('role'), 'list');
+});
+
 test('with multiple a second pick appends, and a file already held is held once', () => {
   const view = render({ multiple: true });
   view.pick(pdf('a.pdf'));
