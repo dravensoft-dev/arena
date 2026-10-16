@@ -34,6 +34,7 @@ import { ArenaMeter } from '../components/feedback/arena-meter/ArenaMeter.tsx';
 import { ArenaHero } from '../components/layout/arena-hero/ArenaHero.tsx';
 import { ArenaPagination } from '../components/navigation/arena-pagination/ArenaPagination.tsx';
 import { ArenaStepper } from '../components/navigation/arena-stepper/ArenaStepper.tsx';
+import { ArenaTimeline } from '../components/display/arena-timeline/ArenaTimeline.tsx';
 import { ArenaBottomNav } from '../components/navigation/arena-bottom-nav/ArenaBottomNav.tsx';
 import { ArenaSheet } from '../components/feedback/arena-sheet/ArenaSheet.tsx';
 import { ArenaPopover } from '../components/feedback/arena-popover/ArenaPopover.tsx';
@@ -70,6 +71,7 @@ const WITH_A_BLANK_NAME = new Map([
   ['ArenaMeter', () => <ArenaMeter label={BLANK} value={1} />],
   ['ArenaAccordionItem', () => <ArenaAccordionItem value={BLANK} label={BLANK} />],
   ['ArenaStepper', () => <ArenaStepper ariaLabel={BLANK} steps={[]} />],
+  ['ArenaTimeline', () => <ArenaTimeline label={BLANK} items={[]} />],
 ]);
 
 export function guardedNames(dir: string, read = readFileSync, list = readdirSync) {

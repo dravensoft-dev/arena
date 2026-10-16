@@ -64,6 +64,7 @@ will report it.
 | `ArenaTableCell` | One cell of an ArenaTableRow. The cell draws the cell box, which is the padding, the alignment and the mono or gold treatment its column asks for. In card mode the cell draws the label and value pair or the full-width block instead. The cell shows whatever the consumer put in it. The cell's column config, its layout and its place in the grid's keyboard order come from ArenaTable and ArenaTableRow, and are members of no contract. | `content` `href` `navigate` | none | angular, react |
 | `ArenaTableRow` | One row of an ArenaTable. The consumer writes one per row and one ArenaTableCell inside it per cell. Where the row sits, the columns its cells are set against and how the keyboard reaches them are ArenaTable's rather than this component's, and are members of no contract. The shape and the reason are an ArenaRadioGroup and its Radios sharing which one is checked. | `content` `interactive` `disabled` `click` | button, none | angular, react |
 | `ArenaTag` | A pill for filters, technologies and statuses. A tone for what state a thing is in or a ramp slot for which thing it is, and an optional dismiss. | `content` `tone` `colorId` `removable` `disabled` `tabStop` `remove` | button, none | angular, react |
+| `ArenaTimeline` | The stages one thing moves through, in order and joined by a line: an order shipped, a release train, a case history. A row is a milestone with a title, a time and a meaning; it is not an event someone performed, which is ArenaActivityFeed. Nothing in it is operated. | `label*` `items*` `index` | none (react) | angular, react |
 | `ArenaUnauthCard` | The panel a signed-out screen needs: sign in, check your inbox, this link expired, a two-factor code. The card knows nothing about credentials on purpose, and the fields are composed inside it. | `brand` `eyebrow` `title` `headingLevel` `content` `footer` | none | angular, react |
 
 ## feedback
@@ -147,4 +148,4 @@ will report it.
 | `ArenaTab` | One tab in an ArenaTabs strip, and the panel it shows. ArenaTab draws the button; its content fills the tabpanel ArenaTabs renders beside the tablist. | `value*` `label*` `content` | none | angular, react |
 | `ArenaTabs` | A row of tabs and the one panel they switch between. Write one `ArenaTab` per view; ArenaTabs renders the tablist, the panel, and the keyboard. | `content` `value` `defaultValue` `change` | tabs | angular, react |
 
-87 components across 7 categories.
+88 components across 7 categories.

@@ -51,7 +51,7 @@
     {
       "title": "Data",
       "items": [
-        "ArenaTable", "ArenaTableRow", "ArenaTableCell", "ArenaActivityFeed", "ArenaCalendar",
+        "ArenaTable", "ArenaTableRow", "ArenaTableCell", "ArenaActivityFeed", "ArenaTimeline", "ArenaCalendar",
         "ArenaCalendarEvent", "ArenaAvatar", "ArenaPeopleList", "ArenaPersonRow",
         "ArenaLineChart", "ArenaBarChart", "ArenaHorizontalBarChart", "ArenaDoughnutChart",
         "ArenaRadarChart", "ArenaScatterChart", "ArenaPyramidChart"

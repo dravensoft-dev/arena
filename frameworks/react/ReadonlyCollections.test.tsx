@@ -18,8 +18,9 @@ import { ArenaSegmentedControl } from './components/navigation/arena-segmented-c
 import { ArenaSelect } from './components/forms/arena-select/ArenaSelect.tsx';
 import { ArenaStepper } from './components/navigation/arena-stepper/ArenaStepper.tsx';
 import { ArenaTable } from './components/display/arena-table/ArenaTable.tsx';
+import { ArenaTimeline } from './components/display/arena-timeline/ArenaTimeline.tsx';
 import type {
-  ArenaActivityItem, ArenaBulkAction, ArenaCrumb, ArenaSegmentOption, ArenaSelectOption, ArenaStepperStep, ArenaTableColumn,
+  ArenaActivityItem, ArenaBulkAction, ArenaCrumb, ArenaSegmentOption, ArenaSelectOption, ArenaStepperStep, ArenaTableColumn, ArenaTimelineItem,
 } from './Api.generated.ts';
 
 const LABELS: readonly string[] = Object.freeze(['Mon', 'Tue']);
@@ -31,6 +32,7 @@ const ACTIONS: readonly ArenaBulkAction[] = Object.freeze([{ id: 'archive', labe
 const SEGMENTS: readonly ArenaSegmentOption[] = Object.freeze([{ value: 'grid', label: 'Grid' }]);
 const OPTIONS: readonly ArenaSelectOption[] = Object.freeze([{ value: 'a', label: 'A' }]);
 const STEPS: readonly ArenaStepperStep[] = Object.freeze([{ label: 'Account' }, { label: 'Review' }]);
+const MILESTONES: readonly ArenaTimelineItem[] = Object.freeze([{ title: 'Placed' }, { title: 'Shipped' }]);
 const COLUMNS: readonly ArenaTableColumn[] = Object.freeze([{ header: 'Build' }]);
 
 test('every collection prop takes data the consumer holds as readonly, and nothing writes to it', () => {
@@ -42,6 +44,7 @@ test('every collection prop takes data the consumer holds as readonly, and nothi
     renderToStaticMarkup(<ArenaSegmentedControl ariaLabel="View" options={SEGMENTS} value="grid" onChange={() => {}} />),
     renderToStaticMarkup(<ArenaSelect options={OPTIONS} />),
     renderToStaticMarkup(<ArenaStepper ariaLabel="Checkout" steps={STEPS} index={1} interactive />),
+    renderToStaticMarkup(<ArenaTimeline label="Order 4821" items={MILESTONES} index={1} />),
     renderToStaticMarkup(<ArenaTable label="Deployments" columns={COLUMNS} />),
     renderToStaticMarkup(<ArenaBarChart label="Deploys" labels={LABELS} series={[{ label: 'Deploys', values: VALUES, colorIds: SLOTS }]} />),
     renderToStaticMarkup(<ArenaDoughnutChart label="Traffic" labels={LABELS} series={[{ label: 'Traffic', values: VALUES, colorIds: SLOTS }]} />),

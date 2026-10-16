@@ -46,6 +46,7 @@ import { ArenaLink } from '../components/navigation/arena-link/ArenaLink.tsx';
 import { ArenaCopyButton } from '../components/forms/arena-copy-button/ArenaCopyButton.tsx';
 import { ArenaMeter } from '../components/feedback/arena-meter/ArenaMeter.tsx';
 import { ArenaStepper } from '../components/navigation/arena-stepper/ArenaStepper.tsx';
+import { ArenaTimeline } from '../components/display/arena-timeline/ArenaTimeline.tsx';
 
 afterEach(() => cleanup());
 
@@ -148,6 +149,10 @@ const CASES: Record<string, Case> = {
       <ArenaStepper ariaLabel="Checkout" index={index} interactive steps={[{ label: 'Account' }, { label: 'Shipping', description: 'Two addresses' }, { label: 'Payment', error: true }]} />
     )),
     consumer: ['Checkout', 'Account', 'Shipping', 'Two addresses', 'Payment'],
+  },
+  ArenaTimeline: {
+    renders: [() => <ArenaTimeline label="Order 4821" index={1} items={[{ title: 'Placed', time: 'Mar 3' }, { title: 'Shipped', tone: 'info' }, { title: 'Delivered' }]} />],
+    consumer: ['Order 4821', 'Placed', 'Mar 3', 'Shipped', 'Delivered'],
   },
   ArenaSkeleton: { renders: [() => <ArenaSkeleton />, () => <ArenaSkeleton lines={2} />], consumer: [] },
   ArenaSpinner: { renders: [() => <ArenaSpinner />], consumer: [] },

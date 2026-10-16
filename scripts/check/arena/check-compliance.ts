@@ -54,6 +54,7 @@ export const COVERED = {
   'ArenaTag:react': 'TagAndChipCases.dom.test.tsx',
   'ArenaCalendarEvent:react': 'TagAndChipCases.dom.test.tsx',
   'ArenaActivityFeed:react': 'ArenaActivityFeed.cases.dom.test.tsx',
+  'ArenaTimeline:react': 'ArenaTimeline.dom.test.tsx',
   'ArenaBarChart:react': 'ChartFigures.dom.test.tsx',
   'ArenaHorizontalBarChart:react': 'ChartFigures.dom.test.tsx',
   'ArenaPyramidChart:react': 'ChartFigures.dom.test.tsx',
