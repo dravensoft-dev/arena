@@ -30,6 +30,7 @@ import { ArenaAlert } from '../components/feedback/arena-alert/ArenaAlert';
 import { ArenaTag } from '../components/display/arena-tag/ArenaTag';
 import { ArenaLink } from '../components/navigation/arena-link/ArenaLink';
 import { ArenaCopyButton } from '../components/forms/arena-copy-button/ArenaCopyButton';
+import { ArenaMeter } from '../components/feedback/arena-meter/ArenaMeter';
 import { ArenaSkeleton } from '../components/display/arena-skeleton/ArenaSkeleton';
 import { ArenaSpinner } from '../components/feedback/arena-spinner/ArenaSpinner';
 import { ArenaSwitch } from '../components/forms/arena-switch/ArenaSwitch';
@@ -171,6 +172,16 @@ class SkeletonHost {}
 @Component({ selector: 'locale-sentinel-copy-button-host', standalone: true, imports: [ArenaCopyButton], template: `<arena-copy-button text="bun add @dravensoft/arena-angular" />` })
 class CopyButtonHost {}
 
+@Component({
+  selector: 'locale-sentinel-meter-host',
+  standalone: true,
+  imports: [ArenaMeter],
+  template: `@for (value of [30, 72, 91]; track value) {
+    <arena-meter label="Storage used" [value]="value" [valueText]="value + ' of 100 GB'" [low]="50" [high]="80" [optimum]="0" />
+  }`,
+})
+class MeterHost {}
+
 @Component({ selector: 'locale-sentinel-spinner-host', standalone: true, imports: [ArenaSpinner], template: `<arena-spinner />` })
 class SpinnerHost {}
 
@@ -274,6 +285,7 @@ const CASES: Record<string, Case> = {
   ArenaTag: { hosts: [TagHost], consumer: ['Beta'] },
   ArenaLink: { hosts: [LinkHost], consumer: ['Release notes'] },
   ArenaSkeleton: { hosts: [SkeletonHost], consumer: [] },
+  ArenaMeter: { hosts: [MeterHost], consumer: ['Storage used', '30 of 100 GB', '72 of 100 GB', '91 of 100 GB'] },
   ArenaSpinner: { hosts: [SpinnerHost], consumer: [] },
   ArenaSwitch: { hosts: [SwitchHost], consumer: ['Auto deploy'] },
   ArenaFileInput: { hosts: [FileInputHost, FileInputDropHost], consumer: ['Passport scan'] },

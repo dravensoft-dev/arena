@@ -46,6 +46,7 @@ export const PAIRED = [
   'components/navigation/arena-pagination/PaginationWindow.ts',
   'components/forms/arena-file-input/FileRules.ts',
   'components/navigation/arena-link/LinkRules.ts',
+  'components/feedback/arena-meter/MeterStanding.ts',
 ];
 
 export const DIVERGENT = new Map([

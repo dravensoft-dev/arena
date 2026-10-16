@@ -88,6 +88,8 @@ export const COMPUTED: ReadonlyMap<string, string> = new Map([
    'the panel sits below the anchor and clamps against the viewport height in `frameworks/angular/components/feedback/arena-onboarding/ArenaOnboarding.ts:position()`'],
   ['frameworks/angular/components/feedback/arena-onboarding/ArenaOnboarding.ts:left',
    'the panel aligns to the anchor and clamps against the viewport width in `frameworks/angular/components/feedback/arena-onboarding/ArenaOnboarding.ts:position()`'],
+  ['frameworks/angular/components/feedback/arena-meter/ArenaMeter.ts:width',
+   'the fill is as wide as the clamped share of the range, computed by `frameworks/angular/components/feedback/arena-meter/MeterStanding.ts:arenaMeterShare(value, range)`'],
   ['frameworks/angular/components/feedback/arena-progress-bar/ArenaProgressBar.ts:width',
    'the fill is as wide as the clamped progress, computed by `frameworks/angular/components/feedback/arena-progress-bar/ArenaProgressBar.ts:percentage()`'],
   ['frameworks/react/components/display/arena-calendar/ArenaCalendar.tsx:height',

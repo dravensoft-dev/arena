@@ -46,6 +46,10 @@ const PRIVATE = new Map([
    'the attributes an anchor writes for the members `arena-link` takes, the target, the merged rel and '
    + 'whether a primary click is a router\'s, authored once for both layers and compared by '
    + 'check:shared-arithmetic; a consumer reads the result on the anchor, never by calling them.'],
+  ['feedback/arena-meter/MeterStanding.ts',
+   'the range, the clamp, the share and the standing `arena-meter` derives from its thresholds, authored once '
+   + 'for both layers and compared by check:shared-arithmetic; a consumer reads the standing the meter draws '
+   + 'and says, never by calling them.'],
   ['navigation/arena-pagination/PaginationWindow.ts',
    'the same shape one category over, and the standing precedent for it: `arenaPageWindow` decides '
    + 'which page numbers elide, which is `arena-pagination`\'s own arithmetic and not a member '
