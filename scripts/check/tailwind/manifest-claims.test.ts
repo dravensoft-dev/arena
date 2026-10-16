@@ -771,3 +771,16 @@ test('a filling dialog panel is 100% wide after its family width rule at no lowe
   const swapped = '.arena-dialog__panel:where([data-arena-fill]) {\n width: 100%;\n}\n.arena-dialog__panel {\n width: var(--arena-dialog-width-size,x);\n}';
   assert.equal(fillOutranksFamilyWidth(swapped), false, 'a fill rule before the family rule must fail the check');
 });
+
+test('a key cap is drawn one way wherever it appears, so a plugin answers every cap through the key roles', () => {
+  const cap = resolve('ArenaKbd', {}, 'key');
+  assert.deepEqual(resolve('ArenaCommandPalette', {}, 'esc'), cap,
+    'the escape cap and an ArenaKbd cap drifted apart, so a plugin moving the key register moves one of them');
+  for (const role of ['font-face-key', 'case-key', 'text-ink-key/', 'py-key-y'])
+    assert.ok(cap.some((one) => one.startsWith(role)), `the cap reads no ${role}, so a plugin cannot reach that part of it`);
+  for (const [component, slot] of [['ArenaMenu', 'shortcut'], ['ArenaCommandPalette', 'shortcut'], ['ArenaKbd', 'separator']] as const) {
+    const bare = resolve(component, {}, slot);
+    assert.ok(bare.includes('font-face-key') && bare.some((one) => one.startsWith('text-ink-key/')),
+      `${component}.${slot} prints a key outside the key register, in a face or an ink no key role answers`);
+  }
+});

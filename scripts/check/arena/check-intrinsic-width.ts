@@ -38,6 +38,7 @@ export const OWN_WIDTH = new Map<string, string>([
   ['ArenaAvatar', 'a portrait sized by its own avatar step, square by construction'],
   ['ArenaBadge', 'a marker whose width is its content; a full-width badge reads as a banner'],
   ['ArenaTag', 'a marker whose width is its content; a full-width tag reads as a banner'],
+  ['ArenaKbd', 'a run of key caps whose width is the keys; a full-width combination reads as a field'],
   ['ArenaSpinner', 'a glyph, whose box is the glyph'],
   ['ArenaCheckbox', 'a tick and its label; stretching it widens the pressable area to the whole row'],
   ['ArenaRadio', 'a dot and its label; stretching it widens the pressable area to the whole row'],

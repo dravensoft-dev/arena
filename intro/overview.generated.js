@@ -3,7 +3,6 @@
  * has to be servable on its own. See build-intro.ts for why the tag needs it tracked. */
 // scripts/generate/core/arena-cli/style-plugin-rules.ts
 var RESERVED = new Map([
-  ["kbd", "ArenaKbd, a key or a key combination (spec 02)"],
   ["link", "ArenaLink, an inline link (spec 04)"],
   ["copy-button", "ArenaCopyButton, a button that copies a value (spec 05)"],
   ["meter", "ArenaMeter, a value inside a known range (spec 06)"],

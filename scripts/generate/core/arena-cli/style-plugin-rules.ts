@@ -28,7 +28,6 @@ export const MAX_PROSE_MEASURE = 90;
 export const DANGER_FLOOR = 'hue-danger-fill-strong';
 
 export const RESERVED = new Map<string, string>([
-  ['kbd', 'ArenaKbd, a key or a key combination (spec 02)'],
   ['link', 'ArenaLink, an inline link (spec 04)'],
   ['copy-button', 'ArenaCopyButton, a button that copies a value (spec 05)'],
   ['meter', 'ArenaMeter, a value inside a known range (spec 06)'],

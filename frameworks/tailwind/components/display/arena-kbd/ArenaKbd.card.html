@@ -1,0 +1,29 @@
+<!-- @dsCard group="Tailwind" viewport="760x220" name="ArenaKbd" subtitle="One key, a combination and glued caps, rendered from ArenaKbd.manifest.json" -->
+<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../../../../intro/styles.css">
+<link rel="stylesheet" href="../../../consume/Preflight.generated.css">
+<link rel="stylesheet" href="../../../consume/components/display/arena-kbd/ArenaKbd.styles.generated.css">
+<link rel="stylesheet" href="../../../Specimen.css">
+</head><body><div id="root"></div>
+<script type="module">
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
+
+const manifest = await (await fetch('./ArenaKbd.manifest.json')).json();
+const c = arenaClassesFor(manifest, {});
+const d = arenaSlotDataFor(manifest, {});
+
+function kbd(keys, separator = '+') {
+  const root = el('kbd', { class: c.root, ...d.root });
+  keys.forEach((key, i) => {
+    if (i > 0 && separator) root.append(el('span', { class: c.separator, ...d.separator, 'aria-hidden': 'true', text: separator }));
+    root.append(el('kbd', { class: c.key, ...d.key, text: key }));
+  });
+  return root;
+}
+
+mountSpecimen({ sections: [
+  section('One key', [kbd(['Esc'])]),
+  section('A combination, in the order pressed', [kbd(['Ctrl', 'Shift', 'P']), kbd(['⌘', 'K'])]),
+  section('Glued, with an empty separator', [kbd(['⌘', '⇧', 'P'], '')]),
+]});
+</script></body></html>

@@ -1,0 +1,13 @@
+{
+  "component": "ArenaKbd",
+  "description": "A key, or a combination of keys, named in running text: help, an empty state, a tooltip. The combination is one <kbd> holding one <kbd> per key, which is how HTML spells a key as it appears on a keyboard. The cap is drawn in the key register the escape cap of ArenaCommandPalette draws in, so a plugin answers every cap at once. A key is text: a symbol such as the command glyph is a character in keys, never an icon. ArenaKbd binds no key; a shortcut stays the host's.",
+  "affordances": [],
+  "api": {
+    "keys": { "form": "array", "of": "string", "required": true,
+              "description": "One entry per key, in the order pressed, each spelled as the keyboard prints it: \"Ctrl\", \"K\", the command glyph. Required, and guarded at runtime after trimming: an empty list, or an entry with nothing on it, is a cap with no key, so the component throws." },
+    "separator": { "form": "primitive", "type": "string", "default": "+",
+                   "description": "Drawn between caps, never before the first. An empty string glues the caps together, as a Mac shortcut is printed. Arena draws it in its own aria-hidden span." },
+    "label": { "form": "primitive", "type": "string",
+               "description": "What a reader hears instead of the caps, for a combination whose glyphs a screen reader reads badly, such as the command glyph. Present and not blank, the caps are hidden from assistive technology and the label is the one spoken text. Arena maps no glyph to a word, so a cap holding a symbol wants one." }
+  }
+}
