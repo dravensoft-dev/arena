@@ -78,6 +78,9 @@ Every field is optional in what you provide, and one you leave out keeps the def
 | `copyButtonLabel` | `Copy` | Names a copy button when its own label is absent. |
 | `copyButtonCopied` | `Copied` | Announced once in place when a copy button wrote its text to the clipboard. The button keeps its name. |
 | `copyButtonFailed` | `Could not copy` | Announced once in place when the clipboard refused a copy button's text or the page has none. |
+| `meterOptimum` | `Good` | The standing a meter draws and says when its value lies in the region holding its optimum. |
+| `meterFair` | `Fair` | The standing a meter draws and says when its value lies in a region beside the one holding its optimum. |
+| `meterPoor` | `Poor` | The standing a meter draws and says when its value lies in the region opposite the one holding its optimum. |
 | `onboardingBack` | `Back` | The button that returns to the previous step. |
 | `onboardingSkip` | `Skip` | The button that leaves the tour. |
 | `onboardingNext` | `Next` | The button that moves to the next step. |
