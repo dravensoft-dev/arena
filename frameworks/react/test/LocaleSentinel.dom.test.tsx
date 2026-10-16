@@ -27,6 +27,7 @@ import { ArenaSkeleton } from '../components/display/arena-skeleton/ArenaSkeleto
 import { ArenaSpinner } from '../components/feedback/arena-spinner/ArenaSpinner.tsx';
 import { ArenaSwitch } from '../components/forms/arena-switch/ArenaSwitch.tsx';
 import { ArenaFileInput } from '../components/forms/arena-file-input/ArenaFileInput.tsx';
+import { ArenaNumberField } from '../components/forms/arena-number-field/ArenaNumberField.tsx';
 import { ArenaBulkActionBar } from '../components/navigation/arena-bulk-action-bar/ArenaBulkActionBar.tsx';
 import { ArenaCommandPalette } from '../components/navigation/arena-command-palette/ArenaCommandPalette.tsx';
 import { ArenaCombobox } from '../components/forms/arena-combobox/ArenaCombobox.tsx';
@@ -158,6 +159,10 @@ const CASES: Record<string, Case> = {
   ArenaSpinner: { renders: [() => <ArenaSpinner />], consumer: [] },
   ArenaSwitch: { renders: [() => <ArenaSwitch label="Auto deploy" confirm />], consumer: ['Auto deploy'] },
   ArenaFileInput: { renders: [() => <ArenaFileInput label="Passport scan" />, () => <ArenaFileInput label="Passport scan" droppable multiple required />], consumer: ['Passport scan'] },
+  ArenaNumberField: {
+    renders: [() => <ArenaNumberField label="Replicas" value={3} min={1} max={20} hint="Between 1 and 20." />, () => <ArenaNumberField label="Weight" prefix="~" suffix="kg" required />],
+    consumer: ['Replicas', 'Between 1 and 20.', 'Weight', '~', 'kg'],
+  },
   ArenaBulkActionBar: { renders: [() => <ArenaBulkActionBar count={3} actions={[{ id: 'archive', label: 'Archive' }]} />], consumer: ['Archive'] },
   ArenaCopyButton: { renders: [() => <ArenaCopyButton text="bun add @dravensoft/arena-react" />], consumer: [] },
   ArenaCombobox: {

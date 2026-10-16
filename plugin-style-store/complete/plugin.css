@@ -1301,6 +1301,51 @@
   text-wrap: balance;
 }
 
+.arena-complete [data-arena-part="number-field"] {
+  border-radius: var(--r-media);
+  outline: var(--bw-surface) dashed var(--edge-surface);
+  outline-offset: calc(var(--sp-1) * -1);
+}
+.arena-complete [data-arena-part="number-field.error"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="number-field.field"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="number-field.hint"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="number-field.input"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="number-field.label"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+.arena-complete [data-arena-part="number-field.prefix"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="number-field.required"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="number-field.status-icon"] {
+  opacity: 0.72;
+  transform: rotate(-4deg);
+}
+.arena-complete [data-arena-part="number-field.stepper"] {
+  border-radius: var(--r-surface-floating);
+}
+.arena-complete [data-arena-part="number-field.suffix"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+
 .arena-complete [data-arena-part="onboarding"] {
   border-radius: var(--r-media);
   outline: var(--bw-surface) dashed var(--edge-surface);
