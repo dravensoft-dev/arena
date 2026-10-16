@@ -1,0 +1,18 @@
+{
+  "name": "spinbutton",
+  "source": "https://www.w3.org/WAI/ARIA/apg/patterns/spinbutton/",
+  "description": "An input that holds one number inside a range and changes it by a step: a text field a person can type into and move up and down from the keyboard. What separates it from a slider is the text: the value is read and written as characters, so the field is the one focusable part. APG states Up Arrow and Down Arrow as the core keys, Home and End only for a bound the spinbutton has, and Page Up and Page Down as optional, so the optional keys are not requirements here. A component that answers them, or keeps its increase and decrease buttons out of the Tab sequence, proves that in its own suites.",
+  "element": "spinbutton",
+  "requires": {
+    "roles.element": "spinbutton, written as an explicit role on the text field",
+    "roles.label": "an accessible name from a label element, aria-labelledby or aria-label",
+    "keyboard.ArrowUp": "increases the value by one step",
+    "keyboard.ArrowDown": "decreases the value by one step",
+    "keyboard.Home": "sets the value to its minimum, only when the spinbutton has a minimum",
+    "keyboard.End": "sets the value to its maximum, only when the spinbutton has a maximum",
+    "states.valuenow": "aria-valuenow set to the current value when the field holds one, and absent when it is empty",
+    "states.valuemin": "aria-valuemin set when the spinbutton has a minimum, and absent when it has none",
+    "states.valuemax": "aria-valuemax set when the spinbutton has a maximum, and absent when it has none",
+    "states.valuetext": "aria-valuetext set when the number alone is not what a reader should hear, as a grouped, formatted, prefixed or suffixed value is, and absent when the field is empty"
+  }
+}

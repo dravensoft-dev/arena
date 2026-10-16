@@ -361,7 +361,7 @@ test('evaluate returns null for a requirement no single element can decide', () 
 test('evaluate treats the conditional states as behavioural, not as presence', () => {
 
   assert.equal(evaluate(el('button', {}, 'Save'), 'states.disabled', '', 'button'), null);
-  for (const key of ['states.required', 'states.readonly', 'states.multiselectable', 'states.busy', 'states.posinset']) {
+  for (const key of ['states.required', 'states.readonly', 'states.multiselectable', 'states.busy', 'states.posinset', 'states.valuetext']) {
     assert.equal(evaluate(el('div'), key, '', 'textbox'), null, key);
   }
 });
