@@ -308,19 +308,18 @@ export const ROUTES: Route[] = [
       + 'layer that binds it',
     entry: 'contributor',
     stops: ['frameworks/AGENTS.md', 'frameworks/*/AGENTS.md'],
-    budget: 76_300,
+    budget: 76_500,
     reason:
       'the most-walked contributor route and the one carrying the most reasoning per stop, paid by '
       + 'whoever changes Arena rather than by a consumer. It carries no category\'s own tour: the '
       + 'chart family has frameworks/CHARTS.md. What it carries is what every component meets: the ordered '
-      + 'steps a new component takes, including the barrel chain an Angular primitive needs to be '
-      + 'compiled at all and the suites it owes; the architecture envelope, since a module-scope read '
-      + 'of a browser global throws during a server render with a stack naming the import rather than '
-      + 'the component; when a primitive is an attribute on a native element; and the Angular default '
+      + 'steps a new component takes, including the barrel chain an Angular primitive needs and the '
+      + 'suites it owes; the architecture envelope, since a module-scope read of a browser global '
+      + 'throws during a server render; when a primitive is an attribute on a native element; and the Angular default '
       + 'written twice, as the initial value and as the fallback, a pair no gate holds. The roof '
       + 'carries what binds both layers and each layer carries its own envelope and peer, which is '
       + 'the split that keeps the pair from going stale in one of them. The roof states the '
-      + 'attribute the layers build from different values and what a browser proves about focus; each layer, the binding that interpolates a property name and why a root module has one consumer. The Tailwind page names the :scope part selector a family\'s block writes and why a bundler needs it.',
+      + 'attribute the layers build from different values and what a browser proves about focus; each layer, the binding that interpolates a property name and why a root module has one consumer, and every method a component exposes. The Tailwind page names the :scope part selector a family\'s block writes and why a bundler needs it.',
   },
   {
     name: 'contributor-authoring',

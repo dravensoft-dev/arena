@@ -212,7 +212,8 @@ so a consumer class on its host cannot move its plot. So a branch may restyle th
 **A component exposes a method only where `IMPERATIVE_HANDLES` names it.** None of the nine
 contract forms is imperative. `arena-input` has `focus()` and `select()`, because returning focus
 after each completed transaction is what lets a till chain sales without the mouse; `autoFocus`
-fires once at mount and answers a different question. `arena-file-input` has `files()` and
+fires once at mount and answers a different question. `arena-number-field` has the same two, for
+the same reason, because a wizard returns focus to a number after each step. `arena-file-input` has `files()` and
 `clear()`, because a `File` is a platform type no member or payload may carry, and a host that
 uploads without a form still reads the files and empties the field. `IMPERATIVE_HANDLES` in
 `scripts/lib/arena/api-surface.ts` is what lets `check:api` read a public method on a component

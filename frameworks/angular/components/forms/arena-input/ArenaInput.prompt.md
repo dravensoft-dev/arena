@@ -98,7 +98,9 @@ Return the message, or the empty string when the value is good.
 - `type` is the `ArenaInputType` enum. `checkbox` and `radio` are not among them: those are
   `<arena-checkbox>` and `ArenaRadio`, their own components. `file` is not among them: that is
   `<arena-file-input>`, because a chosen file is a platform object and no input or output of this
-  component can carry one.
+  component can carry one. `range` is not among them: that is `<arena-slider>`. `number` stays a
+  type here: it keeps the browser's spinner and a string value, and `<arena-number-field>` is a
+  number Arena owns.
 - Don't reach for `change` to run an expensive query. The output fires per keystroke by design. Debounce in the consumer, where the interval is a decision about that query rather than about the field.
 
 **By hand, in real Chromium**: none of these is provable in happy-dom. Run `bun run demos` and

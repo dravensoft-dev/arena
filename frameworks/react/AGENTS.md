@@ -152,7 +152,8 @@ do. A context class written above the trigger stops there, which is what lets a 
 **None of the nine contract forms is imperative, so a component that needs a method forwards a ref
 carrying it.** `ArenaInput` forwards `focus()` and `select()`, because returning focus after each
 completed transaction is what lets a till chain sales without the mouse, and `autoFocus` fires once
-at mount. `ArenaFileInput` forwards `files()` and `clear()`, because a `File` is a platform type no
+at mount. `ArenaNumberField` forwards the same two for the same reason, since a wizard returns
+focus to a number after each step. `ArenaFileInput` forwards `files()` and `clear()`, because a `File` is a platform type no
 member or payload may carry, and a host that uploads without a form still reads the files and
 empties the field. The handle's interface is exported beside the component as `<Name>Handle`, and
 `check:api` never reads it, since it reads a component through `<Name>Props` alone
