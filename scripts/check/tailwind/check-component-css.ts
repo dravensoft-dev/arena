@@ -53,6 +53,13 @@ export const EXTERNAL_PROPERTIES = new Map([
     + 'depth, in both layers, while the nav is expanded, because a row insets itself by the indent role times its '
     + 'depth and a class string cannot name the depth. It is a component\'s own channel to what it holds, and '
     + 'its var() fallback of zero is the unindented row'],
+  ['arena-slider-at', 'written by ArenaSlider onto each thumb as the fraction of the range the thumb stands at, 0 to 1, '
+    + 'in both layers, because the thumb is placed along the track by that fraction and a class string cannot name a '
+    + 'number a person is dragging. Its var() fallback of zero is the minimum'],
+  ['arena-slider-from', 'written by ArenaSlider onto its track as the fraction the start thumb of a range stands at, in '
+    + 'both layers, so the painted span begins under that thumb. Zero, its fallback, is a single slider\'s own start'],
+  ['arena-slider-to', 'written by ArenaSlider onto its track as the fraction the thumb, or the end thumb of a range, '
+    + 'stands at, in both layers, so the painted fill ends under that thumb. Its fallback of zero is an empty fill'],
 ]);
 
 export function selectorsIn(css: string) {

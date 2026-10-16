@@ -167,14 +167,14 @@ test('a palette and a style plugin both named for a reserved class each report t
   const c = config({
     palettes: [
       { name: 'light', default: true, polarity: 'light', colors: colors() },
-      { name: 'slider', polarity: 'dark', colors: colors() },
+      { name: 'sparkline', polarity: 'dark', colors: colors() },
     ],
-    stylePlugins: ['default', './plugins/slider'],
+    stylePlugins: ['default', './plugins/sparkline'],
   });
   const problems = configProblems(c, withScopes(['light']));
-  assert.ok(problems.some((line) => line.startsWith('palettes[1].name: "slider" is held for ArenaSlider')), problems.join('\n'));
-  assert.ok(problems.some((line) => line.startsWith('stylePlugins[1]: "slider" is held for ArenaSlider')), problems.join('\n'));
-  assert.ok(problems.some((line) => line.startsWith('stylePlugins[1]: "slider" is also the name of a palette')), problems.join('\n'));
+  assert.ok(problems.some((line) => line.startsWith('palettes[1].name: "sparkline" is held for ArenaSparkline, a small inline trend chart')), problems.join('\n'));
+  assert.ok(problems.some((line) => line.startsWith('stylePlugins[1]: "sparkline" is held for ArenaSparkline, a small inline trend chart')), problems.join('\n'));
+  assert.ok(problems.some((line) => line.startsWith('stylePlugins[1]: "sparkline" is also the name of a palette')), problems.join('\n'));
 });
 
 test('a palette claiming a polarity scope it does not answer to is refused', () => {

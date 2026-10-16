@@ -862,15 +862,15 @@
   },
   "size-sm-meter": {
     "$type": "dimension",
-    "$description": "The weight of a bar: a progress bar's or a meter's track and a progress ring's band at arena-size-sm, read by ArenaProgressBar and ArenaMeter. An option of a family is a question by construction, so the plugin answers it."
+    "$description": "The weight of a bar: a progress bar's, a meter's or a slider's track and a progress ring's band at arena-size-sm, read by ArenaProgressBar, ArenaMeter and ArenaSlider. An option of a family is a question by construction, so the plugin answers it."
   },
   "size-md-meter": {
     "$type": "dimension",
-    "$description": "The weight of a bar: a progress bar's or a meter's track and a progress ring's band at arena-size-md, read by ArenaProgressBar and ArenaMeter. An option of a family is a question by construction, so the plugin answers it."
+    "$description": "The weight of a bar: a progress bar's, a meter's or a slider's track and a progress ring's band at arena-size-md, read by ArenaProgressBar, ArenaMeter and ArenaSlider. An option of a family is a question by construction, so the plugin answers it."
   },
   "size-lg-meter": {
     "$type": "dimension",
-    "$description": "The weight of a bar: a progress bar's or a meter's track and a progress ring's band at arena-size-lg, read by ArenaProgressBar and ArenaMeter. An option of a family is a question by construction, so the plugin answers it."
+    "$description": "The weight of a bar: a progress bar's, a meter's or a slider's track and a progress ring's band at arena-size-lg, read by ArenaProgressBar, ArenaMeter and ArenaSlider. An option of a family is a question by construction, so the plugin answers it."
   },
   "size-sm-ring": {
     "$type": "dimension",

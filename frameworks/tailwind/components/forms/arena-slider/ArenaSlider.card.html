@@ -1,0 +1,53 @@
+<!-- @dsCard group="Tailwind" viewport="760x560" name="ArenaSlider" subtitle="One thumb and two, across and down, rendered from ArenaSlider.manifest.json" -->
+<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../../../../intro/styles.css">
+<link rel="stylesheet" href="../../../consume/Preflight.generated.css">
+<link rel="stylesheet" href="../../../consume/components/forms/arena-slider/ArenaSlider.styles.generated.css">
+<link rel="stylesheet" href="../../../consume/vocabulary/Size.generated.css">
+<link rel="stylesheet" href="../../../consume/vocabulary/Accent.generated.css">
+<link rel="stylesheet" href="../../../Specimen.css">
+</head><body><div id="root"></div>
+<script type="module">
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
+
+const manifest = await (await fetch('./ArenaSlider.manifest.json')).json();
+
+function slider({ label, from, to, readout, orientation = 'horizontal', range = false, disabled = false, klass = '' }) {
+  const v = { orientation, range: String(range), disabled: String(disabled) };
+  const c = arenaClassesFor(manifest, v);
+  const d = arenaSlotDataFor(manifest, v);
+  const root = el('div', { class: `${c.root} ${klass}`.trim(), ...d.root });
+  root.style.width = orientation === 'vertical' ? '160px' : '280px';
+  if (orientation === 'vertical') root.style.height = '240px';
+  const head = el('div', { class: c.head, ...d.head });
+  head.append(el('span', { class: c.label, ...d.label, text: label }), el('span', { class: c.value, ...d.value, text: readout }));
+  const track = el('div', { class: c.track, ...d.track });
+  track.style.setProperty('--arena-slider-from', String(range ? from : 0));
+  track.style.setProperty('--arena-slider-to', String(to));
+  track.append(el('span', { class: c.rail, ...d.rail }), el('span', { class: c.fill, ...d.fill }));
+  for (const at of range ? [from, to] : [to]) {
+    const thumb = el('span', { class: c.thumb, ...d.thumb, role: 'slider', tabindex: disabled ? '-1' : '0', 'aria-label': label });
+    thumb.style.setProperty('--arena-slider-at', String(at));
+    track.append(thumb);
+  }
+  root.append(head, track);
+  return root;
+}
+
+mountSpecimen({ sections: [
+  section('One thumb at the start, the middle and the end, in the primary and the plain accent', [
+    slider({ label: 'Volume', to: 0, readout: '0%' }),
+    slider({ label: 'Volume', to: 0.4, readout: '40%' }),
+    slider({ label: 'Volume', to: 1, readout: '100%', klass: 'arena-accent-plain' }),
+  ]),
+  section('Two thumbs choose a span; a disabled slider dims', [
+    slider({ label: 'Price', from: 0.2, to: 0.75, readout: '$20 – $75', range: true }),
+    slider({ label: 'Price', from: 0.5, to: 0.5, readout: '$50 – $50', range: true, klass: 'arena-size-lg' }),
+    slider({ label: 'Volume', to: 0.6, readout: '60%', disabled: true }),
+  ]),
+  section('Down, the minimum at the bottom', [
+    slider({ label: 'Gain', to: 0.3, readout: '30', orientation: 'vertical' }),
+    slider({ label: 'Band', from: 0.25, to: 0.8, readout: '25 – 80', orientation: 'vertical', range: true }),
+  ]),
+]});
+</script></body></html>

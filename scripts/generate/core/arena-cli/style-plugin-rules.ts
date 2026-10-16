@@ -29,7 +29,6 @@ export const DANGER_FLOOR = 'hue-danger-fill-strong';
 
 export const RESERVED = new Map<string, string>([
   ['pin-input', 'ArenaPinInput, a code entered one character per cell (spec 14)'],
-  ['slider', 'ArenaSlider, a number chosen inside a range (spec 16)'],
   ['sparkline', 'ArenaSparkline, a small inline trend chart (spec 17)'],
   ['gauge-chart', 'ArenaGaugeChart, one value against banded thresholds (spec 18)'],
   ['filter-bar', 'ArenaFilterBar, the filters applied to a collection (spec 19)'],

@@ -89,6 +89,9 @@ Every field is optional in what you provide, and one you leave out keeps the def
 | `timelineUpcoming` | `Upcoming` | Spoken before the title of a timeline milestone that lies ahead. A complete milestone is silent. |
 | `numberFieldDecrease` | `Decrease` | Names the number field's decrease stepper button. |
 | `numberFieldIncrease` | `Increase` | Names the number field's increase stepper button. |
+| `sliderStart` | `Minimum` | Joins a range slider's label to name the thumb at the start of the span. |
+| `sliderEnd` | `Maximum` | Joins a range slider's label to name the thumb at the end of the span. |
+| `sliderRange` | `{start} – {end}` | The readout of a range slider. {start} and {end} are the two values, each written with the prefix, the suffix and the format. |
 | `onboardingBack` | `Back` | The button that returns to the previous step. |
 | `onboardingSkip` | `Skip` | The button that leaves the tour. |
 | `onboardingNext` | `Next` | The button that moves to the next step. |
