@@ -51,6 +51,10 @@ const PRIVATE = new Map([
    'the attributes an anchor writes for the members `arena-link` takes, the target, the merged rel and '
    + 'whether a primary click is a router\'s, authored once for both layers and compared by '
    + 'check:shared-arithmetic; a consumer reads the result on the anchor, never by calling them.'],
+  ['navigation/arena-filter-bar/FilterBarFocus.ts',
+   'where a filter bar sends focus once the host answers a removal, and the first tab stop among its '
+   + 'controls, authored once for both layers and compared by check:shared-arithmetic; `arena-filter-bar` '
+   + 'runs it after each change of its applied list, and a consumer sees where focus lands, never calls it.'],
   ['feedback/arena-meter/MeterStanding.ts',
    'the range, the clamp, the share and the standing `arena-meter` derives from its thresholds, authored once '
    + 'for both layers and compared by check:shared-arithmetic; a consumer reads the standing the meter draws '

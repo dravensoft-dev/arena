@@ -4,6 +4,7 @@ export * from './arena-bottom-nav-item';
 export * from './arena-breadcrumbs';
 export * from './arena-bulk-action-bar';
 export * from './arena-command-palette';
+export * from './arena-filter-bar';
 export * from './arena-link';
 export * from './arena-menu';
 export * from './arena-page-head';

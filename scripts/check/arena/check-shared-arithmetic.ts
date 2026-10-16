@@ -48,6 +48,7 @@ export const PAIRED = [
   'components/forms/arena-file-input/FileRules.ts',
   'components/forms/arena-pin-input/PinRules.ts',
   'components/navigation/arena-link/LinkRules.ts',
+  'components/navigation/arena-filter-bar/FilterBarFocus.ts',
   'components/feedback/arena-meter/MeterStanding.ts',
   'components/navigation/arena-stepper/StepperState.ts',
   'components/display/arena-timeline/TimelineGlyphs.ts',

@@ -18,6 +18,7 @@ import { ArenaTable } from '../components/display/arena-table/ArenaTable';
 import { ArenaCalendar } from '../components/display/arena-calendar/ArenaCalendar';
 import { ArenaDialog } from '../components/feedback/arena-dialog/ArenaDialog';
 import { ArenaBulkActionBar } from '../components/navigation/arena-bulk-action-bar/ArenaBulkActionBar';
+import { ArenaFilterBar } from '../components/navigation/arena-filter-bar/ArenaFilterBar';
 import { ArenaPageHead } from '../components/navigation/arena-page-head/ArenaPageHead';
 
 const root = document.documentElement;
@@ -50,9 +51,12 @@ class BarHost { actions = [{ id: 'archive', label: 'Archive' }]; }
 @Component({ standalone: true, imports: [ArenaPageHead], template: '<arena-page-head title="Orders" />' })
 class HeadHost {}
 
+@Component({ selector: 'measured-box-filter-bar-host', standalone: true, imports: [ArenaFilterBar], template: '<arena-filter-bar label="Order filters"><select aria-label="Status"></select></arena-filter-bar>' })
+class FilterBarHost {}
+
 const MOUNTS: Record<string, Type<unknown>> = {
   ArenaTable: TableHost, ArenaCalendar: CalendarHost, ArenaDialog: DialogHost,
-  ArenaBulkActionBar: BarHost, ArenaPageHead: HeadHost,
+  ArenaBulkActionBar: BarHost, ArenaPageHead: HeadHost, ArenaFilterBar: FilterBarHost,
 };
 
 const slotClass = (name: string, slot: string) => `arena-${kebab(name.replace(/^Arena/, ''))}__${kebab(slot)}`;
