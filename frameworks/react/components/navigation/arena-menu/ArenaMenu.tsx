@@ -1,9 +1,10 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useContext } from 'react';
 import { arenaWarnOnce } from '../../../WarnOnce.ts';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaMenu.classes.generated.ts';
 import { sp1 } from '../../../Tokens.generated.js';
 import { ARENA_PANEL_POPOVER, useArenaAnchoredPanel } from '../../../UseAnchoredPanel.ts';
+import { ArenaMenuAnchor } from './MenuAnchor.ts';
 
 import type { ArenaMenuItem, ArenaMenuAlign } from '../../../Api.generated';
 import type { ArenaMenuClass } from '../../../Vocabulary.generated.ts';
@@ -46,6 +47,7 @@ export function ArenaMenu({ className, trigger, items, align = 'start', onSelect
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement | null>(null);
   const panelRef = useRef<HTMLDivElement | null>(null);
+  const composed = useContext(ArenaMenuAnchor);
 
   const triggerEl = (): HTMLElement | null =>
     (ref.current?.firstElementChild instanceof HTMLElement ? ref.current.firstElementChild : null);
@@ -56,9 +58,9 @@ export function ArenaMenu({ className, trigger, items, align = 'start', onSelect
   };
 
   const present = useArenaAnchoredPanel({
-    open, align, anchor: ref, panel: panelRef, trigger: triggerEl, offset: sp1 * 1.5,
+    open, align, anchor: composed ?? ref, panel: panelRef, trigger: triggerEl, offset: sp1 * 1.5,
     focusOnOpen: (panel) => panel.querySelector<HTMLElement>('[role="menuitem"]:not([disabled])'),
-    restoreFocus: true, tabOut: true,
+    restoreFocus: true, tabOut: true, anchorPressDismisses: composed !== null,
     onDismiss: () => setOpen(false),
   });
 

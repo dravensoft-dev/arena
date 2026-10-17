@@ -22,6 +22,7 @@ export interface ArenaAnchoredPanelOptions {
   focusOnOpen?: (panel: HTMLElement) => HTMLElement | null;
   restoreFocus?: boolean;
   tabOut?: boolean;
+  anchorPressDismisses?: boolean;
 }
 
 interface StackEntry {
@@ -89,7 +90,8 @@ export function useArenaAnchoredPanel(options: ArenaAnchoredPanelOptions): boole
     const onPress = (event: MouseEvent) => {
       if (!(event.target instanceof Node)) return;
       const above = arenaPanelsAbove(live(), entry).map((one) => one.panel);
-      const regions = [latest.current.anchor.current, latest.current.trigger(), panel, ...above];
+      const anchor = latest.current.anchorPressDismisses ? null : latest.current.anchor.current;
+      const regions = [anchor, latest.current.trigger(), panel, ...above];
       if (!arenaPressInside(event.target, regions)) dismiss('outside');
     };
     const onTab = (event: KeyboardEvent) => {
