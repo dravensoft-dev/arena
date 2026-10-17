@@ -5,7 +5,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { ANCHORED, MOUNTED, OPENED, anchoringProblems, confineExpression, readExpression, smallestRow, type Anchored } from './check-anchoring.ts';
+import { ANCHORED, MOUNTED, OPENED, anchoringProblems, caseUrl, confineExpression, readExpression, smallestRow, type Anchored } from './check-anchoring.ts';
 import { SCOPES } from './check-target-size.ts';
 
 const below: Anchored = { name: 'X:react', page: 'p.html', trigger: '[aria-haspopup]', panel: '[role="dialog"]', open: 'click', prefer: 'below' };
@@ -133,4 +133,57 @@ test('the stage is pinned to the edge the panel prefers, so the panel has to fli
   assert.match(confineExpression(below), /bottom: '8px'/);
   assert.match(confineExpression(above), /top: '8px'/);
   assert.match(confineExpression(below), /overflow: 'hidden', transform: 'translateZ\(0\)'/);
+});
+
+const aligned: Anchored = { ...below, name: 'W:react', edge: { anchor: '[data-whole]', align: 'start' }, seed: 'align=start' };
+const placedWhole = { mounted: true, opened: true, painted: true, inside: true, side: 'above' as const };
+
+function readEdge(kase: Anchored, panelLeft: number) {
+  const panel = { getBoundingClientRect: () => ({ left: panelLeft, right: panelLeft + 200, top: 0, bottom: 80, width: 200, height: 80 }), contains: () => true };
+  const boxes: Record<string, { left: number; right: number }> = { '[data-whole]': { left: 16, right: 157 }, '[data-caret]': { left: 117, right: 157 } };
+  const fake = {
+    querySelector: (selector: string) => (selector === kase.panel ? panel
+      : { getBoundingClientRect: () => ({ ...(boxes[selector] ?? { left: 117, right: 157 }), top: 100, bottom: 140 }) }),
+    querySelectorAll: () => [],
+    elementFromPoint: () => panel,
+    body: { classList: { add() {}, remove() {} } },
+  };
+  return new Function('document', 'innerWidth', 'innerHeight', `return ${readExpression(kase)}`)(fake, 1000, 760).edge;
+}
+
+test('a panel whose aligned edge sits on the named anchor\'s passes, and one a pixel or more off fails', () => {
+  assert.deepEqual(anchoringProblems(aligned, { ...placedWhole, edge: { wanted: 16, actual: 16.5 } }), []);
+  const off = anchoringProblems(aligned, { ...placedWhole, edge: { wanted: 16, actual: 117 } });
+  assert.equal(off.length, 1);
+  assert.match(off[0] ?? '', /starts at 117px, and its start edge measured from \[data-whole\] puts it at 16px/);
+});
+
+test('a panel placed against the caret instead of the whole control fails at start', () => {
+  assert.deepEqual(anchoringProblems(aligned, { ...placedWhole, edge: readEdge(aligned, 16) }), []);
+  const onCaret = anchoringProblems(aligned, { ...placedWhole, edge: readEdge(aligned, 117) });
+  assert.equal(onCaret.length, 1, 'a panel lined up with the caret passed as lined up with the whole control');
+});
+
+test('a case naming an edge with no anchor to measure from fails rather than passing over nothing', () => {
+  assert.match(anchoringProblems(aligned, placedWhole)[0] ?? '', /no \[data-whole\] was found/);
+});
+
+test('the read measures the aligned edge from the named anchor, the clamp to the viewport included', () => {
+  assert.deepEqual(readEdge(aligned, 7), { wanted: 16, actual: 7 });
+  assert.deepEqual(readEdge({ ...aligned, edge: { anchor: '[data-whole]', align: 'end' } }, 7), { wanted: 0, actual: 7 });
+  assert.deepEqual(readEdge({ ...aligned, edge: { anchor: '[data-caret]', align: 'start' } }, 7), { wanted: 117, actual: 7 });
+});
+
+test('a seeded case opens its page with the seed as the query, and an unseeded one with none', () => {
+  assert.equal(caseUrl('http://h', aligned), 'http://h/p.html?align=start');
+  assert.equal(caseUrl('http://h', below), 'http://h/p.html');
+});
+
+test('the split\'s panel is measured from the start edge of the whole split, in both layers, seeded there', () => {
+  const split = ANCHORED.filter((kase) => kase.name.startsWith('ArenaSplitButton:'));
+  assert.equal(split.length, 2);
+  for (const kase of split) {
+    assert.deepEqual(kase.edge, { anchor: '[data-arena-part="split-button"]', align: 'start' }, kase.name);
+    assert.equal(kase.seed, 'align=start', `${kase.name} measures start without seeding it, so the demo's end is what opens`);
+  }
 });

@@ -172,6 +172,7 @@ export const COVERED = {
   'ArenaPinInput:angular': 'ArenaPinInput.compliance.test.ts',
   'ArenaFilterBar:angular': 'ArenaFilterBar.compliance.test.ts',
   'ArenaSlider:angular': 'ArenaSlider.compliance.test.ts',
+  'ArenaSplitButton:angular': 'ArenaSplitButton.compliance.test.ts',
   'ArenaCopyButton:angular': 'ArenaCopyButton.compliance.test.ts',
   'ArenaSwitch:angular': 'ArenaSwitch.compliance.test.ts',
   'ArenaInput:angular': 'ArenaInput.compliance.test.ts',

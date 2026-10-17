@@ -4,9 +4,10 @@
  * panel prefers to open toward, clips it with overflow: hidden and gives it a transform, opens the
  * panel from its own trigger, and reads three facts. The panel is painted at its centre, so no
  * ancestor clipped it; it lies inside the viewport; and it opened on the far side of its trigger,
- * so it flipped. A case naming its rows also measures the smallest one against the floor of each
- * density scope check:target-size declares, with the panel open, since no sink draws a list open.
- * A wait is for a condition with a declared deadline, never a span. */
+ * so it flipped. A case naming an edge seeds its align and puts the panel's aligned edge on the
+ * named anchor's. A case naming rows measures the smallest against each density floor
+ * check:target-size declares, the panel open, since no sink draws a list open. A wait is for a
+ * condition with a declared deadline, never a span. */
 
 import { withTimeout } from '../../utils/with-timeout.ts';
 import { deadline, type Deadline } from '../../lib/arena/deadline.ts';
@@ -46,7 +47,11 @@ export const OPENED: Deadline = deadline('anchoring:opened', 5_000,
 
 export type Edge = 'below' | 'above';
 
-export type Anchored = { name: string; page: string; trigger: string; panel: string; open: 'click' | 'focus'; prefer: Edge; rows?: string };
+export type Aligned = { anchor: string; align: 'start' | 'end' };
+
+export type Anchored = { name: string; page: string; trigger: string; panel: string; open: 'click' | 'focus'; prefer: Edge; rows?: string; edge?: Aligned; seed?: string };
+
+export type EdgeReading = { wanted: number; actual: number };
 
 export type RowReading = { scope: string; floor: number; count: number; smallest: number };
 
@@ -64,6 +69,8 @@ export const ANCHORED: Anchored[] = [
   { name: 'ArenaCombobox:angular', page: `${ANGULAR}/forms/arena-combobox/ArenaCombobox.demo.generated.html`, trigger: '[role="combobox"]', panel: '[role="listbox"]', open: 'click', prefer: 'below', rows: '[role="option"]' },
   { name: 'ArenaMultiSelect:react', page: `${REACT}/forms/arena-multi-select/ArenaMultiSelect.demo.generated.html`, trigger: '[role="combobox"]', panel: '[role="listbox"]', open: 'click', prefer: 'below', rows: '[role="option"]' },
   { name: 'ArenaMultiSelect:angular', page: `${ANGULAR}/forms/arena-multi-select/ArenaMultiSelect.demo.generated.html`, trigger: '[role="combobox"]', panel: '[role="listbox"]', open: 'click', prefer: 'below', rows: '[role="option"]' },
+  { name: 'ArenaSplitButton:react', page: `${REACT}/forms/arena-split-button/ArenaSplitButton.demo.generated.html`, trigger: '[aria-haspopup="menu"]', panel: '[role="menu"]', open: 'click', prefer: 'below', edge: { anchor: '[data-arena-part="split-button"]', align: 'start' }, seed: 'align=start' },
+  { name: 'ArenaSplitButton:angular', page: `${ANGULAR}/forms/arena-split-button/ArenaSplitButton.demo.generated.html`, trigger: '[aria-haspopup="menu"]', panel: '[role="menu"]', open: 'click', prefer: 'below', edge: { anchor: '[data-arena-part="split-button"]', align: 'start' }, seed: 'align=start' },
 ];
 
 export type Reading = {
@@ -75,7 +82,12 @@ export type Reading = {
   inside?: boolean;
   side?: Edge | 'overlapping';
   rows?: RowReading[];
+  edge?: EdgeReading;
 };
+
+export function caseUrl(origin: string, kase: Anchored) {
+  return `${origin}/${kase.page}${kase.seed === undefined ? '' : `?${kase.seed}`}`;
+}
 
 export function waitExpression(selector: string, bound: Deadline) {
   return `new Promise((resolve) => {
@@ -135,7 +147,14 @@ export function readExpression(kase: Anchored, scopes: Scope[] = SCOPES) {
     const hit = document.elementFromPoint(p.left + p.width / 2, p.top + p.height / 2);
     const inside = p.left >= 0 && p.top >= 0 && p.right <= innerWidth && p.bottom <= innerHeight;
     const side = p.top >= t.bottom ? 'below' : p.bottom <= t.top ? 'above' : 'overlapping';
-    return { painted: Boolean(hit && panel.contains(hit)), inside, side, rows };
+    const aligned = ${JSON.stringify(kase.edge ?? null)};
+    const anchor = aligned && document.querySelector(aligned.anchor);
+    const a = anchor && anchor.getBoundingClientRect();
+    const edge = a ? {
+      wanted: Math.max(0, Math.min(aligned.align === 'start' ? a.left : a.right - p.width, innerWidth - p.width)),
+      actual: p.left,
+    } : undefined;
+    return { painted: Boolean(hit && panel.contains(hit)), inside, side, rows, edge };
   })()`;
 }
 
@@ -162,6 +181,15 @@ export function anchoringProblems(kase: Anchored, reading: Reading) {
   if (reading.side !== away) {
     problems.push(`${kase.name}: the trigger sits at the ${kase.prefer === 'below' ? 'bottom' : 'top'} edge and `
       + `the panel opened ${reading.side} it rather than flipping ${away}`);
+  }
+  if (kase.edge !== undefined) {
+    const { anchor, align } = kase.edge;
+    if (reading.edge === undefined) {
+      problems.push(`${kase.name}: no ${anchor} was found to measure the panel's ${align} edge from`);
+    } else if (Math.abs(reading.edge.actual - reading.edge.wanted) > 1) {
+      problems.push(`${kase.name}: the panel starts at ${Math.round(reading.edge.actual)}px, and its ${align} edge measured `
+        + `from ${anchor} puts it at ${Math.round(reading.edge.wanted)}px`);
+    }
   }
   for (const row of kase.rows === undefined ? [] : reading.rows ?? []) {
     if (row.count === 0) {
@@ -213,7 +241,7 @@ async function main() {
   const problems: string[] = [];
   try {
     for (const kase of ANCHORED) {
-      problems.push(...anchoringProblems(kase, await readCase(cdp, `http://127.0.0.1:${server.port}/${kase.page}`, kase)));
+      problems.push(...anchoringProblems(kase, await readCase(cdp, caseUrl(`http://127.0.0.1:${server.port}`, kase), kase)));
     }
   } finally {
     await chrome.kill?.();
@@ -227,6 +255,7 @@ async function main() {
   const measured = ANCHORED.filter((kase) => kase.rows !== undefined).length;
   console.log(`check-anchoring: ${ANCHORED.length} panel(s) opened from a trigger pinned to a clipped, `
     + 'transformed edge, and each painted whole, inside the viewport, on the far side of its trigger; '
+    + `${ANCHORED.filter((kase) => kase.edge !== undefined).length} lined up with the edge they name; `
     + `the rows of ${measured} clear the floor of every density scope`);
 }
 

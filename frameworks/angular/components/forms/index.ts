@@ -14,5 +14,6 @@ export * from './arena-radio';
 export * from './arena-radio-group';
 export * from './arena-select';
 export * from './arena-slider';
+export * from './arena-split-button';
 export * from './arena-switch';
 export * from './arena-textarea';
