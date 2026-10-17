@@ -39,7 +39,7 @@
       "title": "Charts",
       "items": [
         "ArenaChartCard", "ArenaLineChart", "ArenaBarChart", "ArenaHorizontalBarChart",
-        "ArenaDoughnutChart", "ArenaRadarChart", "ArenaScatterChart", "ArenaPyramidChart", "ArenaSparkline", "ArenaGaugeChart"
+        "ArenaDoughnutChart", "ArenaRadarChart", "ArenaScatterChart", "ArenaPyramidChart", "ArenaSparkline", "ArenaGaugeChart", "ArenaFunnelChart"
       ]
     },
     { "title": "Layout", "items": ["ArenaMain", "ArenaSkipLink", "ArenaGrid", "ArenaBoard", "ArenaBoardColumn", "ArenaSiteFooter", "ArenaFigure", "ArenaHero", "ArenaScroller", "ArenaScrollerItem", "ArenaSection", "ArenaDivider", "ArenaAccordion", "ArenaAccordionItem"] }

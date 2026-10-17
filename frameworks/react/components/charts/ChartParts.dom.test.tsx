@@ -14,6 +14,7 @@ import { ArenaRadarChart } from './arena-radar-chart/ArenaRadarChart.tsx';
 import { ArenaScatterChart } from './arena-scatter-chart/ArenaScatterChart.tsx';
 import { ArenaSparkline } from './arena-sparkline/ArenaSparkline.tsx';
 import { ArenaGaugeChart } from './arena-gauge-chart/ArenaGaugeChart.tsx';
+import { ArenaFunnelChart } from './arena-funnel-chart/ArenaFunnelChart.tsx';
 
 if (!globalThis.document) {
   throw new Error('A .dom.test. suite needs its DOM installed before react-dom is evaluated; run it with the React preload.');
@@ -107,6 +108,7 @@ const FRAME_CHARTS: [string, string, () => React.ReactElement][] = [
   ['ArenaDoughnutChart', 'doughnut-chart', () => <ArenaDoughnutChart labels={LABELS} series={[{ label: 'North', values: [12, 30, 7] }]} label="Deliveries" />],
   ['ArenaSparkline', 'sparkline', () => <ArenaSparkline labels={LABELS} series={[{ label: 'North', values: [12, 30, 7] }]} label="Deliveries" />],
   ['ArenaGaugeChart', 'gauge-chart', () => <ArenaGaugeChart value={72} label="CPU load" />],
+  ['ArenaFunnelChart', 'funnel-chart', () => <ArenaFunnelChart labels={LABELS} series={[{ label: 'North', values: [12, 30, 7] }]} label="Deliveries" />],
 ];
 
 for (const [name, part, render] of FRAME_CHARTS) {
@@ -135,4 +137,20 @@ test('ArenaSparkline draws its tooltip from the manifest once the cursor lands, 
   assert.equal(tooltip.style.background, '', 'the tooltip carries no inline background');
   assert.ok(root.querySelector('[data-arena-part="sparkline.tooltip-label"]'), 'the label part is drawn');
   assert.ok(root.querySelector('[data-arena-part="sparkline.tooltip-value"]'), 'the value part is drawn');
+});
+
+test('ArenaFunnelChart draws its tooltip from the manifest once the cursor lands, and no legend at all', () => {
+  const root = mount(<ArenaFunnelChart labels={LABELS} series={[{ label: 'North', values: [12, 30, 7] }]} label="Deliveries" />);
+  assert.equal(root.querySelector('[data-arena-part^="funnel-chart.legend"]'), null, 'one series is named by label, so no legend is drawn');
+  const region = root.querySelector<HTMLElement>('[role="group"]')!;
+  act(() => {
+    region.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true, cancelable: true }));
+  });
+  const tooltip = root.querySelector<HTMLElement>('[data-arena-part="funnel-chart.tooltip"]');
+  assert.ok(tooltip, 'ArenaFunnelChart draws no tooltip part');
+  assert.ok(tooltip.className.split(' ').includes('arena-funnel-chart__tooltip'), 'the tooltip carries its generated class');
+  assert.equal(tooltip.style.padding, '', 'the tooltip carries no inline padding');
+  assert.equal(tooltip.style.background, '', 'the tooltip carries no inline background');
+  assert.ok(root.querySelector('[data-arena-part="funnel-chart.tooltip-label"]'), 'the label part is drawn');
+  assert.ok(root.querySelector('[data-arena-part="funnel-chart.tooltip-value"]'), 'the value part is drawn');
 });

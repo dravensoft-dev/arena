@@ -1,6 +1,6 @@
 {
   "component": "ArenaFunnelChart",
-  "description": "One ordered series narrowing stage by stage, each stage a centred bar whose width is its value from zero, joined to the next by a tinted connector that shows the loss. The conversion between stages is written by the chart. Dependency-free SVG with a visually-hidden table of the same numbers.",
+  "description": "One ordered series narrowing stage by stage. Each stage is a centred bar whose width is its value from zero, joined to the next by a tinted connector that shows the loss. The conversion between stages is written by the chart. Dependency-free SVG with a visually-hidden table of the same numbers.",
   "affordances": [
     "hover",
     "press"

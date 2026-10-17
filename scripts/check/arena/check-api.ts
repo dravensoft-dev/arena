@@ -474,6 +474,7 @@ export const DERIVED_DEFAULT = new Map<string, string>([
   ['ArenaScatterChart.height', THE_PLOT_HEIGHT_IS_A_TOKEN],
   ['ArenaSparkline.height', THE_SPARKLINE_HEIGHT_IS_A_TOKEN],
   ['ArenaGaugeChart.height', THE_GAUGE_HEIGHT_IS_A_TOKEN],
+  ['ArenaFunnelChart.height', THE_PLOT_HEIGHT_IS_A_TOKEN],
 ]);
 
 export function implementationDefaultProblems(

@@ -847,9 +847,9 @@ test('a DERIVED_DEFAULT entry no layer reaches fails as stale', () => {
   assert.match(problems[0] ?? '', /DERIVED_DEFAULT names ArenaGhost\.height/);
 });
 
-test('DERIVED_DEFAULT is the eight chart heights, and each entry carries the reason as a value', () => {
+test('DERIVED_DEFAULT is the nine chart heights, and each entry carries the reason as a value', () => {
   assert.deepEqual([...DERIVED_DEFAULT.keys()].sort(), [
-    'ArenaBarChart.height', 'ArenaGaugeChart.height', 'ArenaHorizontalBarChart.height', 'ArenaLineChart.height',
+    'ArenaBarChart.height', 'ArenaFunnelChart.height', 'ArenaGaugeChart.height', 'ArenaHorizontalBarChart.height', 'ArenaLineChart.height',
     'ArenaPyramidChart.height', 'ArenaRadarChart.height', 'ArenaScatterChart.height', 'ArenaSparkline.height',
   ]);
   for (const [key, why] of DERIVED_DEFAULT) {

@@ -23,11 +23,11 @@ A screen built from this tree alone breaks the rest where nothing will report it
 | Category | The components it holds | Index |
 |---|---|---|
 | `brand` | `ArenaAppLogo` | [`components/brand/INDEX.md`](./components/brand/INDEX.md) |
-| `charts` | `ArenaBarChart` `ArenaChartCard` `ArenaDoughnutChart` `ArenaGaugeChart` `ArenaHorizontalBarChart` `ArenaLineChart` `ArenaPyramidChart` `ArenaRadarChart` `ArenaScatterChart` `ArenaSparkline` | [`components/charts/INDEX.md`](./components/charts/INDEX.md) |
+| `charts` | `ArenaBarChart` `ArenaChartCard` `ArenaDoughnutChart` `ArenaFunnelChart` `ArenaGaugeChart` `ArenaHorizontalBarChart` `ArenaLineChart` `ArenaPyramidChart` `ArenaRadarChart` `ArenaScatterChart` `ArenaSparkline` | [`components/charts/INDEX.md`](./components/charts/INDEX.md) |
 | `display` | `ArenaActivityFeed` `ArenaAvatar` `ArenaBadge` `ArenaCalendar` `ArenaCalendarEvent` `ArenaCard` `ArenaKbd` `ArenaKeyValue` `ArenaPeopleList` `ArenaPersonRow` `ArenaSkeleton` `ArenaStatCard` `ArenaTable` `ArenaTableCell` `ArenaTableRow` `ArenaTag` `ArenaTimeline` `ArenaUnauthCard` | [`components/display/INDEX.md`](./components/display/INDEX.md) |
 | `feedback` | `ArenaAlert` `ArenaConfirmDialog` `ArenaDialog` `ArenaEmptyState` `ArenaErrorState` `ArenaMeter` `ArenaOnboarding` `ArenaPopover` `ArenaProgressBar` `ArenaSheet` `ArenaSpinner` `ArenaToast` `ArenaToastHost` `ArenaTooltip` | [`components/feedback/INDEX.md`](./components/feedback/INDEX.md) |
 | `forms` | `ArenaButton` `ArenaCheckbox` `ArenaCheckboxGroup` `ArenaCombobox` `ArenaCopyButton` `ArenaFieldset` `ArenaFileInput` `ArenaIconButton` `ArenaInput` `ArenaMultiSelect` `ArenaNumberField` `ArenaPinInput` `ArenaRadio` `ArenaRadioGroup` `ArenaSelect` `ArenaSlider` `ArenaSplitButton` `ArenaSwitch` `ArenaTextarea` | [`components/forms/INDEX.md`](./components/forms/INDEX.md) |
 | `layout` | `ArenaAccordion` `ArenaAccordionItem` `ArenaBoard` `ArenaBoardColumn` `ArenaDivider` `ArenaFigure` `ArenaGrid` `ArenaHero` `ArenaMain` `ArenaScroller` `ArenaScrollerItem` `ArenaSection` `ArenaSiteFooter` `ArenaSkipLink` | [`components/layout/INDEX.md`](./components/layout/INDEX.md) |
 | `navigation` | `ArenaAppBar` `ArenaBottomNav` `ArenaBottomNavItem` `ArenaBreadcrumbs` `ArenaBulkActionBar` `ArenaCommandPalette` `ArenaFilterBar` `ArenaLink` `ArenaMenu` `ArenaPageHead` `ArenaPagination` `ArenaSegmentedControl` `ArenaSideNav` `ArenaSideNavCollapsible` `ArenaSideNavItem` `ArenaSideNavSection` `ArenaStepper` `ArenaTab` `ArenaTabs` | [`components/navigation/INDEX.md`](./components/navigation/INDEX.md) |
 
-95 components across 7 categories in this layer.
+96 components across 7 categories in this layer.

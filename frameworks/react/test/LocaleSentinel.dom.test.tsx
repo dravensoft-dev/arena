@@ -45,6 +45,7 @@ import { ArenaHorizontalBarChart } from '../components/charts/arena-horizontal-b
 import { ArenaPyramidChart } from '../components/charts/arena-pyramid-chart/ArenaPyramidChart.tsx';
 import { ArenaSparkline } from '../components/charts/arena-sparkline/ArenaSparkline.tsx';
 import { ArenaGaugeChart } from '../components/charts/arena-gauge-chart/ArenaGaugeChart.tsx';
+import { ArenaFunnelChart } from '../components/charts/arena-funnel-chart/ArenaFunnelChart.tsx';
 import { ArenaDoughnutChart } from '../components/charts/arena-doughnut-chart/ArenaDoughnutChart.tsx';
 import { ArenaRadarChart } from '../components/charts/arena-radar-chart/ArenaRadarChart.tsx';
 import { ArenaScatterChart } from '../components/charts/arena-scatter-chart/ArenaScatterChart.tsx';
@@ -234,6 +235,7 @@ const CASES: Record<string, Case> = {
     renders: [() => <ArenaGaugeChart label="CPU load" value={72} bands={[{ from: 0, tone: 'success', label: 'Healthy' }, { from: 60, tone: 'warning', label: 'Elevated' }]} />],
     consumer: ['CPU load', 'Healthy', 'Elevated'],
   },
+  ArenaFunnelChart: { renders: [() => <ArenaFunnelChart label="Trial conversion" labels={['Visits', 'Sign-ups']} series={[{ label: 'Accounts', values: [100, 40] }]} />], consumer: ['Trial conversion', 'Visits', 'Sign-ups', 'Accounts'] },
   ArenaScatterChart: { renders: [() => <ArenaScatterChart label="Load" xLabel="Requests" yLabel="Latency" series={[{ label: 'Staging', x: [1, 2], y: [3, 4] }]} />], consumer: ['Load', 'Requests', 'Latency', 'Staging'] },
 };
 

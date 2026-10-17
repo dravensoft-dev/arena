@@ -181,7 +181,7 @@ and with nothing else.
 rather than a gap.** `ArenaBarChart` overflows sideways when the points stop fitting, and sideways
 is a direction a page does not use. Down is the direction a page already scrolls, so a rail there
 would nest one scroller inside another and eat the gesture a reader was making to leave.
-`ArenaHorizontalBarChart` and `ArenaPyramidChart` take the room through `height` instead, which on
+`ArenaHorizontalBarChart`, `ArenaPyramidChart` and `ArenaFunnelChart` take the room through `height` instead, which on
 that axis is what the data grows along. `chart.pad-category` is its own token rather than a wider
 `chart.pad-left` because the two gutters hold different things, and sizing every chart's value
 gutter for the longest category name anybody might write would spend it on every vertical chart in
@@ -280,6 +280,24 @@ and takes no tab stop, because the value, both ends and every band edge are draw
 all in the table. The radius derives from `--chart-gauge-height` and the width through
 `arenaGaugeRadii(width, height)`, so the band ring, the track, the edge numbers and the centre
 reading move together.
+
+**A funnel's mark carries one number, and the loss between two stages is a different mark.** A stage
+is a rectangle centred on the plot whose width is `arenaFunnelWidth(scale, value)`, proportional to
+its value from zero and never from the smallest value, because a funnel compares widths. The classic
+trapezoid per stage is refused: its top says one number and its bottom another, and the last stage
+has no next. The loss is `arenaFunnelConnector(cx, a, b)`, a trapezoid in the line chart's area tint
+with no edge, drawn first so the stages sit over it, and it joins the bottom of one mark to the top of
+the next. A stage larger than its predecessor widens the connector and reads above 100%, a negative
+stage draws no width and is written as passed, and a missing stage draws no mark and breaks the
+connector on either side, so the picture and the table never disagree. Every stage owns one step of
+the plot's height, `arenaFunnelBands(count, start, span)` gives the mark two thirds of it and the
+connector the rest, and that 2:1 rhythm is the one inline ratio, as the doughnut's hole is. The
+conversion is Arena's: `arenaFunnelConversions(values)` returns each stage's ratio to the previous
+stage and to the first, `null` where the denominator is not above zero or not finite, and
+`arenaPercentWriter(format)` writes it with the locale of `valueFormat` and at most one fraction digit
+whatever the counts keep. No text lies over a mark: the names run down the left gutter and the counts
+and the conversions down a right gutter that `arenaTextGutter(texts)` sizes from the widest string,
+measured and never read from the DOM.
 
 **`ArenaPlotBox` spells its size `w` and `h` rather than `width` and `height`**, because
 `check-dimension-literals.ts` reads a property named `width` as a CSS dimension and follows the

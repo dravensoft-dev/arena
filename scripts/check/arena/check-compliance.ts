@@ -60,6 +60,7 @@ export const COVERED = {
   'ArenaPyramidChart:react': 'ChartFigures.dom.test.tsx',
   'ArenaSparkline:react': 'ChartFigures.dom.test.tsx',
   'ArenaGaugeChart:react': 'ChartFigures.dom.test.tsx',
+  'ArenaFunnelChart:react': 'ChartFigures.dom.test.tsx',
   'ArenaRadarChart:react': 'ChartFigures.dom.test.tsx',
   'ArenaScatterChart:react': 'ChartFigures.dom.test.tsx',
   'ArenaDoughnutChart:react': 'ChartFigures.dom.test.tsx',

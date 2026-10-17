@@ -20,6 +20,7 @@ import { ArenaRadarChart } from './arena-radar-chart/ArenaRadarChart.tsx';
 import { ArenaScatterChart } from './arena-scatter-chart/ArenaScatterChart.tsx';
 import { ArenaSparkline } from './arena-sparkline/ArenaSparkline.tsx';
 import { ArenaGaugeChart } from './arena-gauge-chart/ArenaGaugeChart.tsx';
+import { ArenaFunnelChart } from './arena-funnel-chart/ArenaFunnelChart.tsx';
 import { ArenaTable } from '../display/arena-table/ArenaTable.tsx';
 import { ArenaTableRow } from '../display/arena-table-row/ArenaTableRow.tsx';
 import { ArenaTableCell } from '../display/arena-table-cell/ArenaTableCell.tsx';
@@ -61,6 +62,7 @@ const CURSOR_KEYS = ['focus.roving', 'keyboard.ArrowLeft', 'keyboard.ArrowRight'
 const ACROSS: Record<string, [string, string]> = {
   ArenaHorizontalBarChart: ['ArrowDown', 'ArrowUp'],
   ArenaPyramidChart: ['ArrowDown', 'ArrowUp'],
+  ArenaFunnelChart: ['ArrowDown', 'ArrowUp'],
 };
 
 function unusedPair(axis: [string, string]): string[] {
@@ -537,4 +539,69 @@ test('ArenaGaugeChart meets figure-with-data-table, with every cursor requiremen
     subjects: { default: graphic },
     behavioural: { 'alternative.table': true, ...Object.fromEntries(CURSOR_KEYS.map((key) => [key, false])) },
   });
+});
+
+test('ArenaFunnelChart matches its binding, whose cursor walks stages and reads both conversions', () => {
+  const root = mount(<ArenaFunnelChart labels={LABELS} label={CHART} series={[{ label: SERIES, values: VALUES }]} />);
+  const graphic = root.querySelector<HTMLElement>('[role="img"]');
+  assert.ok(graphic, 'a chart with no role="img" is a decoration, not a figure');
+  assert.equal(graphic.getAttribute('aria-label'), `${CHART} — funnel chart`, 'the name is the locale word around label');
+
+  const table = root.querySelector<HTMLElement>('table');
+  assert.ok(table, 'the numbers must be in a real table');
+  const head = [...table.querySelectorAll<HTMLElement>('thead th')].map((c) => (c.textContent ?? '').trim());
+  assert.deepEqual(head, ['Category', SERIES, 'Of previous stage', 'Of first stage'],
+    'the stage column, the series under its own name, then the two conversions');
+
+  const region = root.querySelector<HTMLElement>('[role="group"]')!;
+  press(region, 'ArrowDown');
+  assert.deepEqual([...root.querySelectorAll('[data-arena-part="funnel-chart.tooltip-value"]')].map((l) => l.textContent),
+    ['12', 'Of first stage: 100%'], 'the first stage reads its count and only the total, because nothing precedes it');
+  press(region, 'ArrowDown');
+  assert.deepEqual([...root.querySelectorAll('[data-arena-part="funnel-chart.tooltip-value"]')].map((l) => l.textContent),
+    ['30', 'Of previous stage: 250%', 'Of first stage: 250%'], 'a later stage reads its count and both conversions');
+  press(region, 'Escape');
+  assert.equal(reading(root), null, 'Escape clears the cursor');
+  press(region, 'ArrowRight');
+  assert.equal(reading(root), null, 'the horizontal pair is idle and moves nothing');
+
+  assertPattern({
+    root,
+    bindingPath: join(REACT_COMPONENTS, 'charts/arena-funnel-chart/ArenaFunnelChart.behaviour.json'),
+    subjects: { default: graphic },
+    behavioural: { 'alternative.table': true, ...cursorVerdicts(root, 'ArenaFunnelChart') },
+  });
+});
+
+function funnelReads(values: number[], showConversion: boolean): Array<{ name: string; lines: string[] }> {
+  const root = mount(
+    <ArenaFunnelChart label={CHART} labels={values.map((_, i) => `S${i + 1}`)} showConversion={showConversion}
+      series={[{ label: SERIES, values }]} />,
+  );
+  const region = root.querySelector<HTMLElement>('[role="group"]')!;
+  return values.map(() => {
+    press(region, 'ArrowDown');
+    return {
+      name: (root.querySelector('[data-arena-part="funnel-chart.tooltip-label"]')?.textContent ?? '').trim(),
+      lines: [...root.querySelectorAll('[data-arena-part="funnel-chart.tooltip-value"]')].map((l) => (l.textContent ?? '').trim()),
+    };
+  });
+}
+
+test('ArenaFunnelChart omits the tooltip lines it has no number for, and the conversions when they are off', () => {
+  assert.deepEqual(funnelReads([100, Number.NaN, 25], true), [
+    { name: 'S1', lines: ['100', 'Of first stage: 100%'] },
+    { name: 'S2', lines: [] },
+    { name: 'S3', lines: ['25', 'Of first stage: 25%'] },
+  ], 'a missing stage reads its name alone, and a stage after it has no previous stage to compare');
+  assert.deepEqual(funnelReads([0, 5], true), [
+    { name: 'S1', lines: ['0'] },
+    { name: 'S2', lines: ['5'] },
+  ], 'a first stage of 0 gives no ratio, so no conversion line is written');
+  assert.deepEqual(funnelReads([100, Number.NaN, 25], false), [
+    { name: 'S1', lines: ['100'] }, { name: 'S2', lines: [] }, { name: 'S3', lines: ['25'] },
+  ], 'with the conversion off the tooltip reads the count only');
+  assert.deepEqual(funnelReads([0, 5], false), [
+    { name: 'S1', lines: ['0'] }, { name: 'S2', lines: ['5'] },
+  ]);
 });
