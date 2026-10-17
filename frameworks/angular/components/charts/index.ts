@@ -8,3 +8,4 @@ export * from './arena-radar-chart';
 export * from './arena-scatter-chart';
 export * from './arena-sparkline';
 export * from './arena-gauge-chart';
+export * from './arena-funnel-chart';

@@ -19,6 +19,8 @@ import { ArenaRadarChart } from './arena-radar-chart/ArenaRadarChart';
 import { ArenaScatterChart } from './arena-scatter-chart/ArenaScatterChart';
 import { ArenaSparkline } from './arena-sparkline/ArenaSparkline';
 import { ArenaGaugeChart } from './arena-gauge-chart/ArenaGaugeChart';
+import { ArenaFunnelChart } from './arena-funnel-chart/ArenaFunnelChart';
+import { arenaTextGutter } from './ChartAxis';
 import { arenaGaugePoint, arenaGaugeRadii } from './ChartPolar';
 import { ArenaTable } from '../display/arena-table/ArenaTable';
 import { ArenaTableRow } from '../display/arena-table-row/ArenaTableRow';
@@ -1013,4 +1015,329 @@ test('arena-gauge-chart adds no tab stop, no keyboard region and no pointer surf
     assertNoNode(host.querySelector('[role="group"]'), 'no keyboard region');
     assertNoNode(host.querySelector('rect'), 'no pointer surface');
   });
+});
+
+const FUNNEL = 'Trial conversion';
+const STAGES = ['Visits', 'Sign-ups', 'Activated', 'Subscribed', 'Retained'];
+const COUNTS = [12480, 3120, 1904, 702, 518];
+
+function renderFunnel(inputs: Record<string, unknown> = {}) {
+  const fixture = TestBed.createComponent(ArenaFunnelChart);
+  fixture.componentRef.setInput('label', FUNNEL);
+  fixture.componentRef.setInput('labels', STAGES);
+  fixture.componentRef.setInput('series', [{ label: 'Accounts', values: COUNTS }]);
+  fixture.componentRef.setInput('valueFormat', { grouping: true });
+  for (const [name, value] of Object.entries(inputs)) fixture.componentRef.setInput(name, value);
+  fixture.detectChanges();
+  return fixture;
+}
+
+function renderValues(values: number[], inputs: Record<string, unknown> = {}) {
+  return renderFunnel({
+    labels: values.map((_, i) => `S${i + 1}`), series: [{ label: 'Accounts', values }], valueFormat: undefined, ...inputs,
+  });
+}
+
+function onFunnel(fixture: ReturnType<typeof renderFunnel>, check: (host: Element) => void): void {
+  try {
+    check(fixture.nativeElement as Element);
+  } finally {
+    fixture.destroy();
+  }
+}
+
+const funnelMarks = (host: Element) => [...host.querySelectorAll('svg rect[rx]')].map((rect) => ({
+  x: Number(rect.getAttribute('x')), y: Number(rect.getAttribute('y')),
+  width: Number(rect.getAttribute('width')), height: Number(rect.getAttribute('height')),
+  fill: rect.getAttribute('fill') ?? '',
+}));
+const funnelConnectors = (host: Element) => [...host.querySelectorAll('svg path')]
+  .map((path) => ({ d: path.getAttribute('d') ?? '', fill: path.getAttribute('fill') ?? '' }));
+const funnelTexts = (host: Element) => [...host.querySelectorAll('svg text')].map((text) => ({
+  x: Number(text.getAttribute('x')), anchor: text.getAttribute('text-anchor') ?? '', text: (text.textContent ?? '').trim(),
+}));
+const funnelTable = (host: Element) => ({
+  head: [...host.querySelectorAll('thead th')].map((c) => (c.textContent ?? '').trim()),
+  rows: [...host.querySelectorAll('tbody tr')]
+    .map((row) => [...row.querySelectorAll('th, td')].map((c) => (c.textContent ?? '').trim())),
+});
+const funnelGutter = (host: Element) => funnelTexts(host).filter((t) => t.anchor !== 'end').map((t) => t.text).sort();
+const funnelCells = (host: Element) => funnelTable(host).rows.flatMap((row) => [row[1], row[2]]).filter((cell) => cell !== '').sort();
+const funnelLines = (host: Element) => [...host.querySelectorAll('[data-arena-part="funnel-chart.tooltip-value"]')]
+  .map((line) => (line.textContent ?? '').trim());
+
+test('arena-funnel-chart matches its binding, and its cursor walks stages and reads both conversions', () => {
+  const fixture = TestBed.createComponent(ArenaFunnelChart);
+  fixture.componentRef.setInput('labels', LABELS);
+  fixture.componentRef.setInput('series', [{ label: SERIES, values: VALUES }]);
+  fixture.componentRef.setInput('label', CHART);
+  fixture.detectChanges();
+  try {
+    const host = fixture.nativeElement as Element;
+    const graphic = host.querySelector('[role="img"]');
+    assert.notEqual(graphic, null, 'a chart with no role="img" is a decoration, not a figure');
+    assert.equal(graphic!.getAttribute('aria-label'), `${CHART} — funnel chart`, 'the name is the locale word around label');
+    assert.deepEqual(funnelTable(host).head, ['Category', SERIES, 'Of previous stage', 'Of first stage'],
+      'the stage column, the series under its own name, then the two conversions');
+
+    const region = host.querySelector('[role="group"]') as HTMLElement;
+    press(fixture, region, 'ArrowDown');
+    assert.deepEqual(funnelLines(host), ['12', 'Of first stage: 100%'],
+      'the first stage reads its count and only the total, because nothing precedes it');
+    press(fixture, region, 'ArrowDown');
+    assert.deepEqual(funnelLines(host), ['30', 'Of previous stage: 250%', 'Of first stage: 250%'],
+      'a later stage reads its count and both conversions');
+    press(fixture, region, 'Escape');
+    assert.equal(reading(host), null, 'Escape clears the cursor');
+    press(fixture, region, 'ArrowRight');
+    assert.equal(reading(host), null, 'the horizontal pair is idle and moves nothing');
+
+    assertPattern({
+      root: host,
+      bindingPath: join(ANGULAR_COMPONENTS, 'charts/arena-funnel-chart/ArenaFunnelChart.behaviour.json'),
+      subjects: { default: graphic },
+      behavioural: { 'alternative.table': true, ...cursorVerdicts(fixture, host, 'down') },
+    });
+  } finally {
+    fixture.destroy();
+  }
+});
+
+function funnelReads(values: number[], showConversion: boolean): Array<{ name: string; lines: string[] }> {
+  const fixture = renderValues(values, { showConversion });
+  try {
+    const host = fixture.nativeElement as Element;
+    const region = host.querySelector('[role="group"]') as HTMLElement;
+    return values.map(() => {
+      press(fixture, region, 'ArrowDown');
+      return {
+        name: (host.querySelector('[data-arena-part="funnel-chart.tooltip-label"]')?.textContent ?? '').trim(),
+        lines: funnelLines(host),
+      };
+    });
+  } finally {
+    fixture.destroy();
+  }
+}
+
+test('arena-funnel-chart omits the tooltip lines it has no number for, and the conversions when they are off', () => {
+  assert.deepEqual(funnelReads([100, Number.NaN, 25], true), [
+    { name: 'S1', lines: ['100', 'Of first stage: 100%'] },
+    { name: 'S2', lines: [] },
+    { name: 'S3', lines: ['25', 'Of first stage: 25%'] },
+  ], 'a missing stage reads its name alone, and a stage after it has no previous stage to compare');
+  assert.deepEqual(funnelReads([0, 5], true), [
+    { name: 'S1', lines: ['0'] },
+    { name: 'S2', lines: ['5'] },
+  ], 'a first stage of 0 gives no ratio, so no conversion line is written');
+  assert.deepEqual(funnelReads([100, Number.NaN, 25], false), [
+    { name: 'S1', lines: ['100'] }, { name: 'S2', lines: [] }, { name: 'S3', lines: ['25'] },
+  ], 'with the conversion off the tooltip reads the count only');
+  assert.deepEqual(funnelReads([0, 5], false), [
+    { name: 'S1', lines: ['0'] }, { name: 'S2', lines: ['5'] },
+  ]);
+});
+
+test('arena-funnel-chart is a named figure whose table holds the counts and both conversions', () => {
+  onFunnel(renderFunnel(), (host) => {
+    assert.equal(host.querySelector('svg')!.getAttribute('aria-label'), 'Trial conversion — funnel chart');
+    assert.equal((host.querySelector('caption')?.textContent ?? '').trim(), 'Trial conversion — funnel chart');
+    const { head, rows } = funnelTable(host);
+    assert.deepEqual(head, ['Category', 'Accounts', 'Of previous stage', 'Of first stage']);
+    assert.equal(rows.length, 5);
+    assert.equal(rows[0]![2], '', 'the first stage has no stage before it, so its step cell is empty');
+    assert.deepEqual(rows[0], ['Visits', '12,480', '', '100%']);
+    assert.equal(rows[1]![3], '25%');
+  });
+});
+
+test('arena-funnel-chart without the conversion is two columns and draws no connector', () => {
+  onFunnel(renderFunnel({ showConversion: false }), (host) => {
+    const { head, rows } = funnelTable(host);
+    assert.deepEqual(head, ['Category', 'Accounts']);
+    assert.ok(rows.every((row) => row.length === 2));
+    assert.equal(funnelConnectors(host).length, 0, 'no connector is drawn');
+    assert.ok(!funnelTexts(host).some((t) => t.text.endsWith('%')), 'no conversion is written');
+  });
+});
+
+test('arena-funnel-chart draws a width proportional to the value from zero', () => {
+  onFunnel(renderFunnel(), (host) => {
+    const [first, second] = funnelMarks(host);
+    assert.ok(Math.abs(second!.width / first!.width - 3120 / 12480) < 1e-6);
+  });
+});
+
+test('arena-funnel-chart gives a mark twice the height of the gap between two marks', () => {
+  onFunnel(renderFunnel(), (host) => {
+    const [first, second] = funnelMarks(host);
+    const gap = second!.y - (first!.y + first!.height);
+    assert.ok(Math.abs(first!.height - 2 * gap) < 1e-6, `a mark of ${first!.height} over a gap of ${gap}`);
+  });
+});
+
+test('arena-funnel-chart centres every mark on one axis', () => {
+  onFunnel(renderFunnel(), (host) => {
+    const centres = funnelMarks(host).map((m) => m.x + m.width / 2);
+    assert.ok(centres.every((c) => Math.abs(c - centres[0]!) < 1e-6));
+  });
+});
+
+test('arena-funnel-chart draws a stage larger than its predecessor as it is and writes its ratio above 100%', () => {
+  onFunnel(renderValues([100, 150]), (host) => {
+    const [first, second] = funnelMarks(host);
+    assert.ok(second!.width > first!.width, 'the second mark is wider and nothing is clamped');
+    const [connector] = funnelConnectors(host);
+    const [, lowerRight, lowerLeft] = [...connector!.d.matchAll(/L([\d.]+),/g)].map((m) => Number(m[1]));
+    assert.ok(lowerRight! > first!.x + first!.width, 'the connector widens towards the larger stage');
+    assert.ok(lowerLeft! < first!.x, 'both lower corners lie outside the narrower mark');
+    assert.equal(funnelTable(host).rows[1]![2], '150%');
+    assert.ok(funnelTexts(host).some((t) => t.text === '150%'), 'the drawing writes what the table writes');
+  });
+});
+
+test('arena-funnel-chart draws a zero stage with no width and leaves the next step empty', () => {
+  onFunnel(renderValues([100, 0, 50]), (host) => {
+    assert.equal(funnelMarks(host)[1]!.width, 0);
+    const rows = funnelTable(host).rows;
+    assert.equal(rows[1]![2], '0%', 'a zero over a positive count is 0%');
+    assert.equal(rows[2]![2], '', 'a ratio over a zero is the empty cell and never 0%');
+    assert.deepEqual(funnelGutter(host), ['0', '0%', '100', '50'], 'the drawing writes one 0% and no step under the zero stage');
+    assert.deepEqual(funnelGutter(host), funnelCells(host), 'the gutter holds exactly the non-empty count and step cells');
+  });
+});
+
+test('arena-funnel-chart draws a negative stage with no width and writes it as passed', () => {
+  onFunnel(renderValues([100, -5]), (host) => {
+    assert.equal(funnelMarks(host)[1]!.width, 0);
+    assert.equal(funnelTable(host).rows[1]![1], '-5');
+    assert.deepEqual(funnelGutter(host), ['-5', '-5%', '100'], 'the drawing writes the count and the step as passed');
+    assert.deepEqual(funnelGutter(host), funnelCells(host), 'the gutter holds exactly the non-empty count and step cells');
+  });
+});
+
+test('arena-funnel-chart draws no mark for a missing stage and no connector touching it', () => {
+  onFunnel(renderFunnel({ labels: ['A', 'B', 'C'], series: [{ label: 'Accounts', values: [100, 50] }], valueFormat: undefined }), (host) => {
+    assert.equal(funnelMarks(host).length, 2, 'no third mark');
+    assert.equal(funnelConnectors(host).length, 1, 'only the connector between the two stages that exist');
+    assert.deepEqual(funnelTable(host).rows[2], ['C', '', '', '']);
+    assert.deepEqual(funnelGutter(host), ['100', '50', '50%'], 'no count is written for the missing stage');
+    assert.deepEqual(funnelGutter(host), funnelCells(host), 'the gutter holds exactly the non-empty count and step cells');
+  });
+  onFunnel(renderValues([100, Number.NaN, 25]), (host) => {
+    assert.equal(funnelMarks(host).length, 2, 'a NaN draws no mark');
+    assert.equal(funnelConnectors(host).length, 0, 'and breaks the connector on either side');
+    assert.deepEqual(funnelTable(host).rows[1], ['S2', '', '', '']);
+    assert.deepEqual(funnelGutter(host), ['100', '25'], 'no count and no step is written for the missing stage or beside it');
+    assert.deepEqual(funnelGutter(host), funnelCells(host), 'the gutter holds exactly the non-empty count and step cells');
+  });
+});
+
+test('arena-funnel-chart draws a stage a hundredth of the first wider than nothing', () => {
+  onFunnel(renderValues([10000, 100]), (host) => {
+    assert.ok(funnelMarks(host)[1]!.width > 0);
+  });
+});
+
+test('arena-funnel-chart puts no text inside a mark, whatever its anchor', () => {
+  onFunnel(renderFunnel(), (host) => {
+    const drawn = funnelMarks(host);
+    const left = Math.min(...drawn.map((m) => m.x));
+    const right = Math.max(...drawn.map((m) => m.x + m.width));
+    for (const { x, anchor, text } of funnelTexts(host)) {
+      if (anchor === 'end') assert.ok(x <= left, `the name ${text} ends at ${x}, left of the marks at ${left}`);
+      else assert.ok(x >= right, `${text} starts at ${x}, right of the marks at ${right}`);
+    }
+  });
+});
+
+test('arena-funnel-chart widens its right gutter with the widest text and never draws a mark into it', () => {
+  const edge = (host: Element) => { const m = funnelMarks(host)[0]!; return m.x + m.width; };
+  const start = (host: Element) => funnelTexts(host).find((t) => t.anchor === 'start')!.x;
+  const narrow = renderFunnel({ series: [{ label: 'Accounts', values: [9, 8, 7, 6, 5] }], valueFormat: undefined });
+  const wide = renderFunnel({ series: [{ label: 'Accounts', values: [9000000, 8, 7, 6, 5] }], valueFormat: undefined });
+  try {
+    const narrowHost = narrow.nativeElement as Element;
+    const wideHost = wide.nativeElement as Element;
+    assert.ok(edge(wideHost) < edge(narrowHost), 'a wider text takes room from the plot');
+    assert.ok(edge(wideHost) <= start(wideHost), 'the marks stop before the gutter');
+    assert.equal(arenaTextGutter(['9000000']) > arenaTextGutter(['9']), true);
+  } finally {
+    narrow.destroy();
+    wide.destroy();
+  }
+});
+
+test('arena-funnel-chart writes a conversion with one fraction digit whatever the counts keep', () => {
+  onFunnel(renderValues([1000, 624], { valueFormat: { locale: 'en-US', fractionDigits: 0 } }), (host) => {
+    assert.equal(funnelTable(host).rows[1]![2], '62.4%');
+    assert.ok(funnelTexts(host).some((t) => t.text === '62.4%'));
+  });
+});
+
+test('arena-funnel-chart paints every mark one hue by default, and tone paints the whole series', () => {
+  onFunnel(renderFunnel(), (host) => {
+    assert.ok(funnelMarks(host).every((m) => m.fill === 'var(--color-cat-1)'));
+  });
+  onFunnel(renderFunnel({ series: [{ label: 'Accounts', values: COUNTS, tone: 'danger' }] }), (host) => {
+    assert.ok(funnelMarks(host).every((m) => m.fill === 'var(--danger)'));
+  });
+});
+
+test('arena-funnel-chart paints a stage by its colour id when colorIds is given', () => {
+  onFunnel(renderFunnel({ series: [{ label: 'Accounts', values: COUNTS, colorIds: [3, 4, 5, 6, 7] }] }), (host) => {
+    assert.deepEqual(funnelMarks(host).map((m) => m.fill), [3, 4, 5, 6, 7].map((id) => `var(--color-cat-${id})`));
+  });
+});
+
+test('arena-funnel-chart tints each connector with the colour of the stage above it', () => {
+  onFunnel(renderFunnel({ series: [{ label: 'Accounts', values: COUNTS, colorIds: [3, 4, 5, 6, 7] }] }), (host) => {
+    const fills = funnelConnectors(host).map((c) => c.fill);
+    assert.equal(fills.length, 4);
+    assert.match(fills[0] as string, /var\(--color-cat-3\)/);
+    assert.match(fills[3] as string, /var\(--color-cat-6\)/);
+  });
+});
+
+test('arena-funnel-chart warns once of a second series and ignores it', () => {
+  forgetArenaWarnings();
+  const two = [{ label: 'A', values: COUNTS }, { label: 'B', values: [1, 2, 3, 4, 5] }];
+  const fixtures: ReturnType<typeof renderFunnel>[] = [];
+  try {
+    const warnings = captureWarnings(() => {
+      fixtures.push(renderFunnel({ series: two }), renderFunnel({ series: two }));
+    });
+    const { head } = funnelTable(fixtures[0]!.nativeElement as Element);
+    assert.deepEqual(head, ['Category', 'A', 'Of previous stage', 'Of first stage']);
+    assert.equal(warnings.length, 1);
+    assert.match(warnings[0] as string, /ArenaFunnelChart: reads one series and was given 2/);
+  } finally {
+    for (const fixture of fixtures) fixture.destroy();
+  }
+});
+
+test('arena-funnel-chart REFUSES to render without a label, labels or series', () => {
+  for (const missing of ['label', 'labels', 'series']) {
+    const fixture = TestBed.createComponent(ArenaFunnelChart);
+    for (const [name, value] of [['label', FUNNEL], ['labels', STAGES], ['series', [{ label: 'Accounts', values: COUNTS }]]] as const) {
+      if (name !== missing) fixture.componentRef.setInput(name, value);
+    }
+    try {
+      assert.throws(() => fixture.detectChanges(), /NG0950/, `${missing} is input.required, so Angular refuses the render`);
+    } finally {
+      fixture.destroy();
+    }
+  }
+});
+
+test('arena-funnel-chart REFUSES an empty label, since the accessible name would be the type alone', () => {
+  const fixture = TestBed.createComponent(ArenaFunnelChart);
+  fixture.componentRef.setInput('label', '');
+  fixture.componentRef.setInput('labels', STAGES);
+  fixture.componentRef.setInput('series', [{ label: 'Accounts', values: COUNTS }]);
+  try {
+    assert.throws(() => fixture.detectChanges(), /ArenaFunnelChart: `label` is required/);
+  } finally {
+    fixture.destroy();
+  }
 });

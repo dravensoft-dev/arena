@@ -18,6 +18,7 @@ import { ArenaRadarChart } from './arena-radar-chart/ArenaRadarChart';
 import { ArenaScatterChart } from './arena-scatter-chart/ArenaScatterChart';
 import { ArenaSparkline } from './arena-sparkline/ArenaSparkline';
 import { ArenaGaugeChart } from './arena-gauge-chart/ArenaGaugeChart';
+import { ArenaFunnelChart } from './arena-funnel-chart/ArenaFunnelChart';
 import { assertNoNode } from '../../test/NodeAssert';
 
 const LABELS = ['Mon', 'Tue', 'Wed'];
@@ -53,6 +54,9 @@ class SparklineLiveHost { labels = LABELS; series = [SERIES[0]]; }
 
 @Component({ selector: 'chart-parts-gauge-host', standalone: true, imports: [ArenaGaugeChart], template: '<arena-gauge-chart label="CPU load" [value]="72" />' })
 class GaugeHost {}
+
+@Component({ selector: 'chart-parts-funnel-host', standalone: true, imports: [ArenaFunnelChart], template: '<arena-funnel-chart label="Deploys" [labels]="labels" [series]="series" />' })
+class FunnelHost { labels = LABELS; series = [SERIES[0]]; }
 
 const CHARTS: Array<[string, string, Type<unknown>]> = [
   ['bar-chart', 'Arena bar', BarHost], ['horizontal-bar-chart', 'Arena horizontal bar', HorizontalBarHost],
@@ -104,6 +108,7 @@ const FRAME_CHARTS: Array<[string, string, Type<unknown>]> = [
   ['doughnut-chart', 'doughnut-chart', DoughnutHost],
   ['sparkline', 'sparkline', SparklineHost],
   ['gauge-chart', 'gauge-chart', GaugeHost],
+  ['funnel-chart', 'funnel-chart', FunnelHost],
 ];
 
 for (const [name, part, host] of FRAME_CHARTS) {
@@ -140,6 +145,28 @@ test('sparkline draws its tooltip from the manifest once the cursor lands, and n
     assert.equal(tooltip.style.background, '', 'the tooltip still sets its background inline');
     assert.ok(root.querySelector('[data-arena-part="sparkline.tooltip-label"]'), 'the label part is drawn');
     assert.ok(root.querySelector('[data-arena-part="sparkline.tooltip-value"]'), 'the value part is drawn');
+  } finally {
+    fixture.destroy();
+  }
+});
+
+test('funnel-chart draws its tooltip from the manifest once the cursor lands, and no legend at all', () => {
+  const fixture = TestBed.createComponent(FunnelHost);
+  try {
+    fixture.autoDetectChanges();
+    TestBed.tick();
+    const root = fixture.nativeElement as HTMLElement;
+    assertNoNode(root.querySelector('[data-arena-part^="funnel-chart.legend"]'), 'one series is named by label, so no legend is drawn');
+    root.querySelector('[role="group"][tabindex]')!.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
+    fixture.detectChanges();
+    TestBed.tick();
+    const tooltip = root.querySelector<HTMLElement>('[data-arena-part="funnel-chart.tooltip"]');
+    assert.ok(tooltip, 'no tooltip carries the part funnel-chart.tooltip after the cursor moved');
+    assert.ok(tooltip.className.split(' ').includes('arena-funnel-chart__tooltip'), 'the tooltip carries its generated class');
+    assert.equal(tooltip.style.padding, '', 'the tooltip still sets its padding inline');
+    assert.equal(tooltip.style.background, '', 'the tooltip still sets its background inline');
+    assert.ok(root.querySelector('[data-arena-part="funnel-chart.tooltip-label"]'), 'the label part is drawn');
+    assert.ok(root.querySelector('[data-arena-part="funnel-chart.tooltip-value"]'), 'the value part is drawn');
   } finally {
     fixture.destroy();
   }
