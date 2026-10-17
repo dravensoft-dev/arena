@@ -1,7 +1,7 @@
 {
   "color": {
     "$type": "color",
-    "$description": "Arena: Dravensoft skin (palette), dark theme.\nThis is the source you swap to re-skin Arena. It holds only skin values:\nthe daisyUI --color-* set per theme and the categorical chart ramp.\nEverything else (the Arena aliases, the muted-text derivations) lives in\ncontracts/design/colors.css and follows automatically.\nAfter changing anything here, rebuild and re-run: bun scripts/check/core/check-ramp.ts",
+    "$description": "Arena: Dravensoft skin (palette), dark theme.\nThis is the source you swap to re-skin Arena. It holds only skin values:\nthe daisyUI --color-* set per theme, the categorical chart ramp and the heat ladder.\nEverything else (the Arena aliases, the muted-text derivations) lives in\ncontracts/design/colors.css and follows automatically.\nAfter changing anything here, rebuild and re-run: bun scripts/check/core/check-ramp.ts",
     "base-100": { "$value": { "colorSpace": "srgb", "components": [0.0784, 0.0627, 0.0627], "hex": "#141010" }, "$description": "main background" },
     "base-200": { "$value": { "colorSpace": "srgb", "components": [0.1137, 0.0902, 0.0824], "hex": "#1d1715" }, "$description": "elevated surface / card" },
     "base-300": { "$value": { "colorSpace": "srgb", "components": [0.1412, 0.1098, 0.098], "hex": "#241c19" }, "$description": "panel / border" },
@@ -29,6 +29,11 @@
     "cat-5": { "$value": { "colorSpace": "srgb", "components": [0, 0.6392, 0.7529], "hex": "#00a3c0" }, "$description": "cyan    216°" },
     "cat-6": { "$value": { "colorSpace": "srgb", "components": [0.5333, 0.302, 0.6627], "hex": "#884da9" }, "$description": "purple  312°" },
     "cat-7": { "$value": { "colorSpace": "srgb", "components": [0, 0.6627, 0.6039], "hex": "#00a99a" }, "$description": "teal    184°" },
-    "cat-8": { "$value": { "colorSpace": "srgb", "components": [0.5961, 0.2745, 0.5922], "hex": "#984697" }, "$description": "orchid  328°" }
+    "cat-8": { "$value": { "colorSpace": "srgb", "components": [0.5961, 0.2745, 0.5922], "hex": "#984697" }, "$description": "orchid  328°" },
+    "heat-1": { "$value": { "colorSpace": "srgb", "components": [0.3333, 0.2824, 0.5569], "hex": "#55488e" }, "$description": "Step 1 of the heat ladder, the lowest of five. A heat step carries magnitude only: never identity, never meaning.\nOPTIONAL: a palette that pins none of heat-1 to heat-5 has all five derived from cat-4, base-200\nand base-content (arena-cli/oklab.ts:heatLadder); a palette pins all five or none.\nThis skin pins a ladder of its own, tuned by hand, and check:ramp holds the values a browser is served." },
+    "heat-2": { "$value": { "colorSpace": "srgb", "components": [0.4275, 0.3647, 0.7412], "hex": "#6d5dbd" }, "$description": "Step 2 of the heat ladder. Magnitude only, never identity, never meaning. OPTIONAL, like heat-1." },
+    "heat-3": { "$value": { "colorSpace": "srgb", "components": [0.5373, 0.498, 0.7882], "hex": "#897fc9" }, "$description": "Step 3 of the heat ladder. Magnitude only, never identity, never meaning. OPTIONAL, like heat-1." },
+    "heat-4": { "$value": { "colorSpace": "srgb", "components": [0.6549, 0.6275, 0.8275], "hex": "#a7a0d3" }, "$description": "Step 4 of the heat ladder. Magnitude only, never identity, never meaning. OPTIONAL, like heat-1." },
+    "heat-5": { "$value": { "colorSpace": "srgb", "components": [0.7765, 0.7569, 0.8627], "hex": "#c6c1dc" }, "$description": "Step 5 of the heat ladder. Magnitude only, never identity, never meaning. OPTIONAL, like heat-1." }
   }
 }

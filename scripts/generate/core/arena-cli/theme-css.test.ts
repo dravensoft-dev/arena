@@ -5,7 +5,8 @@ import {
   pluginName, pluginValue, readPlugin, weightReports, rootWithDefaults, resolvedPlugin,
   type CheckedStylesheet, type CheckedSheets,
 } from './theme-css.ts';
-import { PALETTE_KEYS } from './palette-keys.ts';
+import { PALETTE_KEYS, heatKeys } from './palette-keys.ts';
+import { heatLadder } from './oklab.ts';
 import { parseDecls } from '../../../lib/arena/css-decls.ts';
 
 const colors = (overrides: Record<string, string> = {}): Record<string, string> => {
@@ -88,6 +89,37 @@ test('a palette may split the primary fill from the primary ink, and the content
   const [report] = paletteReports(config({ palettes: [{ name: 'night', default: true, polarity: 'dark', colors: split }] }));
   assert.ok(!report?.messages.some((m) => m.message.includes('primary-content on')),
     'white on #7f56d9 clears 4.5:1; white on #9e77ed would not, and nothing sets it there');
+});
+
+const withoutHeat = (one: Record<string, string>) => {
+  for (const key of heatKeys()) delete one[key];
+  return one;
+};
+
+test('a palette that pins no heat step gets all five derived from its slot, surface and ink', () => {
+  const own = withoutHeat(colors({ 'cat-4': '#6a59bc', 'base-200': '#1d1715', 'base-content': '#f3ede5' }));
+  const c = config({ palettes: [{ name: 'dark', default: true, polarity: 'dark', colors: own }] });
+  assert.deepEqual(configProblems(c), []);
+  const root = parseDecls(themeCss(c)).get(':root');
+  assert.deepEqual(heatKeys().map((k) => root.get(`color-${k}`)),
+    heatLadder('#6a59bc', '#1d1715', '#f3ede5', 'dark'),
+    'a heatmap cell compiles to a role born at var(--color-heat-N), which no fallback stands behind');
+});
+
+test('a palette that pins all five heat steps keeps them', () => {
+  const pinned = ['#111111', '#222222', '#333333', '#444444', '#555555'];
+  const own = colors(Object.fromEntries(heatKeys().map((k, i) => [k, pinned[i]!])));
+  const root = parseDecls(themeCss(config({ palettes: [{ name: 'dark', default: true, polarity: 'dark', colors: own }] })))
+    .get(':root');
+  assert.deepEqual(heatKeys().map((k) => root.get(`color-${k}`)), pinned);
+});
+
+test('a palette that pins two heat steps is a problem, because a ladder half pinned is half derived', () => {
+  const own = withoutHeat(colors());
+  own['heat-1'] = '#111111';
+  own['heat-2'] = '#222222';
+  const c = config({ palettes: [{ name: 'dark', default: true, polarity: 'dark', colors: own }] });
+  assert.deepEqual(configProblems(c), ['palettes[0].colors: pins heat-1 to heat-5 together or none']);
 });
 
 test('a key Arena does not have is a problem, not a passthrough', () => {

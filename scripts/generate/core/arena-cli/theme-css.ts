@@ -11,14 +11,14 @@
 
 import {
   PALETTE_KEYS, POLARITIES, pickerInvert, FONT_ROLES, GENERIC_FAMILIES, SOURCE_FORMATS,
-  FILL_PAIRS, SURFACE_PAIRS, TEXT_MIN, catKeys, requiredKeys,
+  FILL_PAIRS, SURFACE_PAIRS, TEXT_MIN, catKeys, heatKeys, requiredKeys,
 } from './palette-keys.ts';
 import { validate, contrast } from './validate-palette.mjs';
 import {
   FS_STEP, RHYTHM_STEP, floorProblems, nameProblems, reservedProblems, scopeOn, totalityProblems, withDefaults,
 } from './style-plugin-rules.ts';
 import { serialize } from './serialize-token.ts';
-import { errorFill } from './oklab.ts';
+import { errorFill, heatLadder } from './oklab.ts';
 import { axisReports, derivedLevels, emphasisReports, levelReports, onInkReports, raisedReports, washReports } from './levels.ts';
 import type { Level, Wash } from './levels.ts';
 import { report } from './reports.ts';
@@ -132,6 +132,11 @@ function paletteProblems(
 
   for (const key of requiredKeys()) {
     if (!(key in palette.colors)) problems.push(`${at}.colors: missing ${key}`);
+  }
+  const colors = palette.colors;
+  const pinned = heatKeys().filter((k) => k in colors).length;
+  if (pinned > 0 && pinned < heatKeys().length) {
+    problems.push(`${at}.colors: pins heat-1 to heat-${heatKeys().length} together or none`);
   }
   for (const [key, value] of Object.entries(palette.colors)) {
     if (!PALETTE_KEYS.includes(key)) {
@@ -484,7 +489,7 @@ export function paletteReports(
   const out = [];
   for (const palette of config.palettes) {
     const mode = palette.polarity;
-    const colors = derivedColours(palette.colors);
+    const colors = derivedColours(palette.colors, mode);
     const roles = root
       ? resolvedPlugin(root, catalogue, mode)
       : new Map<string, string>(Object.entries(catalogue?.tokens ?? {}));
@@ -621,18 +626,24 @@ function block(selector: string, declarations: string[]) {
   return [`${selector}{`, ...declarations.map((d) => `  ${d}`), '}'].join('\n');
 }
 
-export function derivedColours(colors: Record<string, string>) {
+export function derivedColours(colors: Record<string, string>, polarity: string) {
   const { error, primary } = colors;
   const content = colors['error-content'];
   const out: Record<string, string> = colors['error-fill'] === undefined && error !== undefined && content !== undefined
     ? { ...colors, 'error-fill': errorFill(error, content) }
     : { ...colors };
   if (out['primary-fill'] === undefined && primary !== undefined) out['primary-fill'] = primary;
+  const slot = colors['cat-4'];
+  const surface = colors['base-200'];
+  const ink = colors['base-content'];
+  if (heatKeys().every((k) => colors[k] === undefined) && slot && surface && ink) {
+    heatLadder(slot, surface, ink, polarity).forEach((hex, i) => { out[`heat-${i + 1}`] = hex; });
+  }
   return out;
 }
 
 function colourDeclarations(palette: CheckedPalette) {
-  const colors = derivedColours(palette.colors);
+  const colors = derivedColours(palette.colors, palette.polarity);
   return PALETTE_KEYS
     .flatMap((key) => {
       const value = colors[key];
@@ -707,7 +718,7 @@ export function themeCss(config: CheckedConfig, options: ThemeOptions = {}) {
     const roles = root
       ? resolvedPlugin(root, catalogue, palette.polarity)
       : new Map<string, string>(Object.entries(catalogue?.tokens ?? {}));
-    return [...derivedLevels(sheets?.levels ?? [], roles, derivedColours(palette.colors))]
+    return [...derivedLevels(sheets?.levels ?? [], roles, derivedColours(palette.colors, palette.polarity))]
       .flatMap(([name, one]) => (one.percent === null ? [] : [`--${name}:${one.percent}%;`]));
   };
 

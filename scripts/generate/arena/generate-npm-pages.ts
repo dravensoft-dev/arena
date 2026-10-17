@@ -45,10 +45,22 @@ export function toastIntervals(base = root) {
   return { standard: ms('default'), actionable: ms('actionable') };
 }
 
+export function roleRuns(roles: string[]) {
+  const out: string[] = [];
+  for (let i = 0; i < roles.length; i += 1) {
+    const [, stem, first] = /^(.*-)(\d+)$/.exec(roles[i]!) ?? [];
+    let j = i;
+    while (stem !== undefined && roles[j + 1] === `${stem}${Number(first) + (j + 1 - i)}`) j += 1;
+    out.push(j - i >= 2 ? `\`${roles[i]}\` to \`${roles[j]}\`` : `\`${roles[i]}\``);
+    if (j - i >= 2) i = j;
+  }
+  return out;
+}
+
 export function defaultedSentence(roles: string[], total = 0) {
   if (roles.length === 0)
     return `No role in this package carries a default, so your root style plugin answers every one of the ${total} roles and the command refuses a root plugin silent on any.`;
-  return `The ${roles.length} roles carrying a default are ${roles.map((role) => `\`${role}\``).join(', ')}. Your root plugin answers the other ${total}.`;
+  return `The ${roles.length} roles carrying a default are ${roleRuns(roles).join(', ')}. Your root plugin answers the other ${total}.`;
 }
 
 export function defaultsStatement(base = root) {
@@ -354,9 +366,10 @@ What each part means:
   \`<html>\` to switch skin. The command refuses a palette or style plugin named after a class Arena
   ships or is going to ship, naming the component a future class belongs to. The names held for a class Arena is going to ship are ${reserved}. A palette may still take its own polarity's name, \`dark\` or \`light\`, and a style plugin may not. A palette name is kebab-case, and a name declared twice is refused.
 - **\`polarity\`** is \`dark\` or \`light\`. The polarity decides the native date picker's colour, and it is what a first visit matches \`prefers-color-scheme\` against.
-- **\`colors\`** takes every key above, each a six-digit hex such as \`#141010\`. \`error-fill\` and \`primary-fill\` are the two optional ones. Leave
+- **\`colors\`** takes every key above, each a six-digit hex such as \`#141010\`. \`error-fill\`, \`primary-fill\` and the heat steps are optional. Leave
   \`error-fill\` out and Arena darkens \`error\` in oklab for the single filled danger surface it has. Leave \`primary-fill\` out and every ground \`primary-content\` sits on, a filled button, a checked box, a current page, fills with \`primary\`. Declare it when the accent you tuned to read as ink on your page cannot also carry \`primary-content\`. A violet light enough to read on a dark page is too light to carry white. Name a deeper violet here and keep the light one as \`primary\`.
 - **\`cat-1\`** through **\`cat-8\`** are the chart ramp. The order of the slots is their identity, so slot 3 is always slot 3. The slots are never used to mean anything, only to tell series apart.
+- **\`heat-1\`** through **\`heat-5\`** are a heatmap's ladder. Pin all five or none: left out, they are derived from \`cat-4\`, \`base-200\` and \`base-content\`.
 - **\`fonts\`** fills the three families Arena reads. \`src\` takes either a stylesheet URL, as
   above, or a font binary you host yourself, which becomes an \`@font-face\`:
   \`{ "family": "Archivo", "src": "/fonts/archivo.woff2", "weight": "400 900" }\`.

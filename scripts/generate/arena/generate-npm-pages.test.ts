@@ -12,7 +12,7 @@ import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { LAYER_TOKENS, FORBIDDEN } from '../../check/arena/check-layer-independence.ts';
 import {
   TARGETS, openLine, closeLine, renderRegion, applyRegion, renderTarget, regionsOf,
-  ROLE_CONTRACT, BEHAVIOUR_CONTRACT, densityValues, requiredLead, toastIntervals, defaultedRoles, defaultedSentence, defaultsStatement, unansweredCount,
+  ROLE_CONTRACT, BEHAVIOUR_CONTRACT, densityValues, requiredLead, toastIntervals, defaultedRoles, defaultedSentence, defaultsStatement, roleRuns, unansweredCount,
 } from './generate-npm-pages.ts';
 import { tokenCatalogue } from '../../lib/arena/package-assembly.ts';
 import { NPM_PAGES } from '../../lib/arena/npm-questions.ts';
@@ -160,6 +160,12 @@ test('the skin region names which roles carry a default, so an empty set reads a
   assert.match(defaultsStatement(base), /^The 1 roles carrying a default are `gap-row`\. Your root plugin answers the other \d+\./);
   assert.ok(renderRegion('skin').includes(defaultsStatement()),
     'the region on the page says what roles.json carries');
+});
+
+test('a numbered run of three or more roles is written as its two ends, and a shorter run is spelt out', () => {
+  assert.deepEqual(roleRuns(['ff-key', 'heat-step-1', 'heat-step-2', 'heat-step-3', 'ink-link']),
+    ['`ff-key`', '`heat-step-1` to `heat-step-3`', '`ink-link`']);
+  assert.deepEqual(roleRuns(['pad-1', 'pad-2', 'pad-4']), ['`pad-1`', '`pad-2`', '`pad-4`']);
 });
 
 test('the defaults statement leads with the fact and cites the roles the roles-without-default list gives', () => {

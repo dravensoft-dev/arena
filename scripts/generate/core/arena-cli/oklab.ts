@@ -1,13 +1,16 @@
-/* The colour arithmetic both readers of a palette need, in the tree the packages ship,
- * because a package carries no scripts/ and the gate that holds Arena's own skin has to
- * compute the same number as the command that holds a consumer's. It lives here rather
- * than in validate-palette.mjs, which is vendored verbatim from the dataviz skill and is
- * re-vendored rather than patched. errorFill answers the one derivation a palette may
- * leave to Arena: --color-error-fill, the only filled danger surface, absent from a
- * config that pins nothing. It moves error AWAY from error-content rather than always
- * toward black, because "darker" only helps a palette whose filled danger carries white,
- * which is what both Arena themes do and what a dark palette naming the page as its
- * error-content does not. FILL_FALLBACK_KEEP is how much of the colour it keeps. */
+/* The colour arithmetic both readers of a palette need, in the tree the packages ship, because
+ * a package carries no scripts/ and the gate holding Arena's skin must compute the command's
+ * number. It is not in validate-palette.mjs, which is vendored and re-vendored rather than patched.
+ * errorFill derives --color-error-fill for a config that pins none. It moves error AWAY from
+ * error-content rather than toward black, because "darker" only helps a palette whose filled
+ * danger carries white, and a dark palette naming its page as error-content does not.
+ * FILL_FALLBACK_KEEP is how much of the colour it keeps. heatLadder derives the five heat steps
+ * of a palette that pins none, from the surface through the slot toward the ink, as the slot alone
+ * caps the top step. Each step solves for a lightness, step 1 at HEAT_FLOOR, equal gaps up to
+ * HEAT_REACH of the ink, because fixed stops crowd a light slot. A cramped ink still comes out ordered. */
+
+import { contrast } from './validate-palette.mjs';
+import { ARENA_HEAT_STEPS } from './palette-keys.ts';
 
 export type Triple = [number, number, number];
 
@@ -69,3 +72,38 @@ export const errorFill = (error: string, content: string) =>
   (toOklab(content)[0] >= toOklab(error)[0]
     ? darkenOklab(error, FILL_FALLBACK_KEEP)
     : lightenOklab(error, FILL_FALLBACK_KEEP));
+
+export const HEAT_FLOOR = 2.1;
+
+export const HEAT_REACH = 0.85;
+
+const mixOklab = (hex: string, keep: number, over: string) => {
+  const one = toOklab(hex);
+  const two = toOklab(over);
+  return oklabToHex([0, 1, 2].map((i) => one[i]! * keep + two[i]! * (1 - keep)) as Triple);
+};
+
+const bisect = (from: number, reached: (t: number) => boolean) => {
+  let [lo, hi] = [from, 2];
+  for (let i = 0; i < 40; i++) {
+    const mid = (lo + hi) / 2;
+    if (reached(mid)) hi = mid;
+    else lo = mid;
+  }
+  return hi;
+};
+
+export function heatLadder(slot: string, surface: string, ink: string, _polarity: string): string[] {
+  const at = (t: number) => (t <= 1 ? mixOklab(slot, t, surface) : mixOklab(slot, 2 - t, ink));
+  const lightness = (t: number) => toOklab(at(t))[0];
+  const toward = Math.sign(toOklab(ink)[0] - toOklab(surface)[0]);
+  const first = bisect(0, (t) => contrast(at(t), surface) >= HEAT_FLOOR);
+  const low = lightness(first);
+  const high = low + (toOklab(ink)[0] - low) * HEAT_REACH;
+  const stops = [first];
+  for (let step = 1; step < ARENA_HEAT_STEPS; step++) {
+    const target = low + ((high - low) * step) / (ARENA_HEAT_STEPS - 1);
+    stops.push(bisect(stops[step - 1]!, (t) => toward * (lightness(t) - target) >= 0));
+  }
+  return stops.map(at);
+}

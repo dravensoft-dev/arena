@@ -525,6 +525,51 @@
     "$type": "color",
     "$description": "Which colour the axis lines, the zero line and the crosshair of a chart are drawn in, read by the line, bar, horizontal bar, scatter, radar and pyramid charts, by the crosshair of an interactive sparkline and by the band-edge ticks of a gauge, and not by the doughnut, which has no axis. It is heavier than edge-separator, which draws the grid rules behind the marks."
   },
+  "heat-step-1": {
+    "$type": "color",
+    "$description": "The fill of a heatmap cell, and of its legend swatch, whose value falls in step 1 of five equal bins. More is more contrast with the surface, in both themes. The steps are read by magnitude only, so a plugin that answers them keeps their order and the 0.06 OKLab L gap check:ramp holds on Arena's own answer. Born at the palette's heat-1.\n\nA missing cell is drawn with no fill, so step 1 must stay visibly apart from the surface: the 2:1 floor check:ramp holds on the lightest end.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "default": "{color.heat-1}"
+      }
+    }
+  },
+  "heat-step-2": {
+    "$type": "color",
+    "$description": "The fill of a heatmap cell, and of its legend swatch, whose value falls in step 2 of five equal bins. More is more contrast with the surface, in both themes. The steps are read by magnitude only, so a plugin that answers them keeps their order and the 0.06 OKLab L gap check:ramp holds on Arena's own answer. Born at the palette's heat-2.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "default": "{color.heat-2}"
+      }
+    }
+  },
+  "heat-step-3": {
+    "$type": "color",
+    "$description": "The fill of a heatmap cell, and of its legend swatch, whose value falls in step 3 of five equal bins. More is more contrast with the surface, in both themes. The steps are read by magnitude only, so a plugin that answers them keeps their order and the 0.06 OKLab L gap check:ramp holds on Arena's own answer. Born at the palette's heat-3.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "default": "{color.heat-3}"
+      }
+    }
+  },
+  "heat-step-4": {
+    "$type": "color",
+    "$description": "The fill of a heatmap cell, and of its legend swatch, whose value falls in step 4 of five equal bins. More is more contrast with the surface, in both themes. The steps are read by magnitude only, so a plugin that answers them keeps their order and the 0.06 OKLab L gap check:ramp holds on Arena's own answer. Born at the palette's heat-4.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "default": "{color.heat-4}"
+      }
+    }
+  },
+  "heat-step-5": {
+    "$type": "color",
+    "$description": "The fill of a heatmap cell, and of its legend swatch, whose value falls in step 5 of five equal bins. More is more contrast with the surface, in both themes. The steps are read by magnitude only, so a plugin that answers them keeps their order and the 0.06 OKLab L gap check:ramp holds on Arena's own answer. Born at the palette's heat-5.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "default": "{color.heat-5}"
+      }
+    }
+  },
   "bw-surface": {
     "$type": "dimension",
     "$description": "The border that encloses a surface, and therefore Arena's default grouping\nsignal. This is the single most consequential role in the tier: a hairline says 'these things\nare one region' by drawing the region, which is cheap in pixels and correct for dense data.\nAn style plugin that sets it to 0px has to make elevation and air carry the grouping instead,\nand WCAG 1.4.11 stops being satisfied by the border, which is why removing it is gated rather\nthan merely allowed."

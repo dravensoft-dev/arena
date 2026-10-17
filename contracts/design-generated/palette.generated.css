@@ -3,7 +3,7 @@
   /*
      Arena: Dravensoft skin (palette), dark theme.
      This is the source you swap to re-skin Arena. It holds only skin values:
-     the daisyUI --color-* set per theme and the categorical chart ramp.
+     the daisyUI --color-* set per theme, the categorical chart ramp and the heat ladder.
      Everything else (the Arena aliases, the muted-text derivations) lives in
      contracts/design/colors.css and follows automatically.
      After changing anything here, rebuild and re-run: bun scripts/check/core/check-ramp.ts
@@ -65,6 +65,17 @@
   --color-cat-6:#884da9; /* purple  312° */
   --color-cat-7:#00a99a; /* teal    184° */
   --color-cat-8:#984697; /* orchid  328° */
+  /*
+     Step 1 of the heat ladder, the lowest of five. A heat step carries magnitude only: never identity, never meaning.
+     OPTIONAL: a palette that pins none of heat-1 to heat-5 has all five derived from cat-4, base-200
+     and base-content (arena-cli/oklab.ts:heatLadder); a palette pins all five or none.
+     This skin pins a ladder of its own, tuned by hand, and check:ramp holds the values a browser is served.
+   */
+  --color-heat-1:#55488e;
+  --color-heat-2:#6d5dbd; /* Step 2 of the heat ladder. Magnitude only, never identity, never meaning. OPTIONAL, like heat-1. */
+  --color-heat-3:#897fc9; /* Step 3 of the heat ladder. Magnitude only, never identity, never meaning. OPTIONAL, like heat-1. */
+  --color-heat-4:#a7a0d3; /* Step 4 of the heat ladder. Magnitude only, never identity, never meaning. OPTIONAL, like heat-1. */
+  --color-heat-5:#c6c1dc; /* Step 5 of the heat ladder. Magnitude only, never identity, never meaning. OPTIONAL, like heat-1. */
 }
 .arena-light{
   /* Light theme: warm inverse of the dark base. */
@@ -117,4 +128,15 @@
   --color-cat-6:#6e328d; /* purple  312° */
   --color-cat-7:#009487; /* teal    184° */
   --color-cat-8:#7c2b7b; /* orchid  328° */
+  /*
+     Step 1 of the heat ladder, the lowest of five. A heat step carries magnitude only: never identity, never meaning.
+     OPTIONAL: a palette that pins none of heat-1 to heat-5 has all five derived from cat-4, base-200
+     and base-content (arena-cli/oklab.ts:heatLadder); a palette pins all five or none.
+     This skin pins a ladder of its own, tuned by hand, and check:ramp holds the values a browser is served.
+   */
+  --color-heat-1:#9e99ca;
+  --color-heat-2:#7e75ba; /* Step 2 of the heat ladder. Magnitude only, never identity, never meaning. OPTIONAL, like heat-1. */
+  --color-heat-3:#6051a8; /* Step 3 of the heat ladder. Magnitude only, never identity, never meaning. OPTIONAL, like heat-1. */
+  --color-heat-4:#44377f; /* Step 4 of the heat ladder. Magnitude only, never identity, never meaning. OPTIONAL, like heat-1. */
+  --color-heat-5:#29263f; /* Step 5 of the heat ladder. Magnitude only, never identity, never meaning. OPTIONAL, like heat-1. */
 }

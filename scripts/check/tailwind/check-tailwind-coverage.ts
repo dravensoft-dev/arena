@@ -18,6 +18,10 @@ export const node = {
 };
 import { captured } from '../../utils/captures.ts';
 
+const HEAT_STEP_REASON = 'read inline by the heatmap\'s SVG and legend swatch, never through a utility';
+const HEAT_KEY_REASON = 'the default a heat-step role is born at, so it reaches a page through that role, read inline by the '
+  + 'heatmap\'s SVG and legend swatch, never through a utility';
+
 export const EXCLUDED = new Map([
   ['pad-band-x', 'read inside the band\'s min()'],
   ['pad-row-indent', 'only the side nav\'s arbitrary inset reads it'],
@@ -115,6 +119,16 @@ export const EXCLUDED = new Map([
   ['dismiss-actionable', 'script-readable: the host runs the toast clock in JS, never a utility'],
   ['dismiss-confirmation', 'script-readable: a copy button runs its confirmation clock in JS, never a utility'],
   ['limit-pagination-siblings', 'script-readable: an array bound, and the elision threshold derives from it in JS'],
+  ['heat-step-1', HEAT_STEP_REASON],
+  ['heat-step-2', HEAT_STEP_REASON],
+  ['heat-step-3', HEAT_STEP_REASON],
+  ['heat-step-4', HEAT_STEP_REASON],
+  ['heat-step-5', HEAT_STEP_REASON],
+  ['color-heat-1', HEAT_KEY_REASON],
+  ['color-heat-2', HEAT_KEY_REASON],
+  ['color-heat-3', HEAT_KEY_REASON],
+  ['color-heat-4', HEAT_KEY_REASON],
+  ['color-heat-5', HEAT_KEY_REASON],
 ]);
 
 for (const [hue, channels] of readHues()) {
