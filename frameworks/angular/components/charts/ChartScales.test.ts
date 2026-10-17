@@ -7,7 +7,7 @@ import {
   arenaNiceStep, arenaNiceDomain, arenaDomainTicks, arenaRadiusScale, arenaRadiusAt,
   arenaBandScale, arenaBandStart, arenaBandMark, arenaBandCenter, arenaBandSubBand,
   arenaPointScale, arenaPointAt, arenaNearestPointIndex, arenaDoughnutSlices,
-  arenaGaugeFraction,
+  arenaGaugeFraction, arenaFunnelBands, arenaFunnelWidth,
 } from './ChartScales';
 import { arenaPlotBox } from './ChartAxis';
 
@@ -495,4 +495,34 @@ test('a gauge fraction of a non-number or of a scale with no length is zero, the
   for (const value of [Number.NaN, Infinity, -Infinity]) assert.equal(arenaGaugeFraction(value, 0, 100), 0, String(value));
   assert.equal(arenaGaugeFraction(50, 100, 100), 0, 'max equal to min');
   assert.equal(arenaGaugeFraction(50, 100, 0), 0, 'max below min');
+});
+
+test('a funnel mark takes two thirds of its step', () => {
+  for (const count of [1, 3, 5, 9]) {
+    const bands = arenaFunnelBands(count, 8, 300);
+    assert.equal(bands.count, count);
+    assert.ok(Math.abs(bands.band - (bands.step * 2) / 3) < 1e-9, `at ${count} stages`);
+    assert.ok(Math.abs(bands.band - 2 * (bands.step - bands.band)) < 1e-9, 'the mark is twice the gap');
+  }
+});
+
+test('a funnel width is proportional through zero, so a doubled value doubles it', () => {
+  const scale = arenaLinearScale(0, 400, 0, 500);
+  assert.equal(arenaFunnelWidth(scale, 0), 0);
+  assert.ok(Math.abs(arenaFunnelWidth(scale, 400) - 500) < 1e-9, 'the largest value fills the box');
+  assert.ok(Math.abs(arenaFunnelWidth(scale, 200) * 2 - arenaFunnelWidth(scale, 400)) < 1e-9);
+  assert.ok(Math.abs(arenaFunnelWidth(scale, 4) - 5) < 1e-9, 'a hundredth is not rounded to nothing');
+});
+
+test('a negative or non-finite value has width zero', () => {
+  const scale = arenaLinearScale(0, 400, 0, 500);
+  assert.equal(arenaFunnelWidth(scale, -30), 0);
+  assert.equal(arenaFunnelWidth(scale, Number.NaN), 0);
+  assert.equal(arenaFunnelWidth(scale, Number.POSITIVE_INFINITY), 0);
+});
+
+test('an all-zero funnel draws every width zero', () => {
+  const scale = arenaLinearScale(0, 0, 0, 500);
+  assert.equal(arenaFunnelWidth(scale, 0), 0);
+  assert.equal(arenaFunnelWidth(scale, 7), 0, 'a zero span has no width to give');
 });

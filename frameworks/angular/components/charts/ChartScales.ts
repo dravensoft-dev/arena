@@ -124,6 +124,15 @@ export function arenaBandSubBand(
   };
 }
 
+export function arenaFunnelBands(count: number, start: number, span: number): ArenaBandScale {
+  return arenaBandScale(count, start, span, span / Math.max(1, count) / 3);
+}
+
+export function arenaFunnelWidth(scale: ArenaLinearScale, value: number): number {
+  if (!Number.isFinite(value)) return 0;
+  return Math.max(0, arenaScaleValue(scale, value) - scale.from);
+}
+
 export function arenaPointScale(count: number, start: number, span: number): ArenaPointScale {
   return { start, span, step: count <= 1 ? 0 : span / (count - 1), count };
 }

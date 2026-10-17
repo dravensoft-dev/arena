@@ -106,6 +106,21 @@ export function arenaPlotBoxH(width: number, height: number): ArenaPlotBox {
   };
 }
 
+export function arenaTextGutter(texts: readonly string[]): number {
+  let widest = 0;
+  for (const text of texts) if (text.length > widest) widest = text.length;
+  return Math.max(ARENA_PAD.l, Math.ceil(widest * chartTickChar) + chartLabelGap);
+}
+
+export function arenaFunnelBox(width: number, height: number, gutter: number): ArenaPlotBox {
+  return {
+    x: chartPadCategory,
+    y: ARENA_PAD.t,
+    w: Math.max(1, width - chartPadCategory - gutter - ARENA_PAD.r),
+    h: Math.max(1, height - ARENA_PAD.t * 2),
+  };
+}
+
 export function arenaAxisTicksX(
   scale: ArenaLinearScale, values: readonly number[], write: (value: number) => string,
 ): ArenaAxisTickX[] {

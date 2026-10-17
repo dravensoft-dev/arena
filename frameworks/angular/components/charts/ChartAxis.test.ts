@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { ARENA_CHART_HEIGHT, ARENA_PAD, arenaValueWriter } from '../../DataVisuals';
-import { arenaPlotBox, arenaSparkBox, arenaTooltipShift, arenaSparkTooltipTop, arenaAxisTicks, arenaAxisModel, arenaTickLabelX, arenaCategoryLabelY, arenaDoughnutRadii, arenaValueGutter } from './ChartAxis';
+import { arenaPlotBox, arenaSparkBox, arenaTooltipShift, arenaSparkTooltipTop, arenaAxisTicks, arenaAxisModel, arenaTickLabelX, arenaCategoryLabelY, arenaDoughnutRadii, arenaValueGutter, arenaTextGutter, arenaFunnelBox } from './ChartAxis';
 import { arenaLinearScale, arenaNiceDomain, arenaDomainTicks } from './ChartScales';
-import { chartTickChar, chartLabelGap, chartPointR, chartPointRHover, chartSparklineHeight } from '../../Tokens.generated';
+import { chartTickChar, chartLabelGap, chartPadCategory, chartPointR, chartPointRHover, chartSparklineHeight } from '../../Tokens.generated';
 
 test('the tick label ends one label gap left of the plot, inside the left pad', () => {
   assert.equal(arenaTickLabelX(), ARENA_PAD.l - 8);
@@ -205,3 +205,23 @@ test('the hole is the shape and never a caller-supplied ratio, so only the two s
   }
 });
 
+test('the text gutter is floored at the left pad and grows with the widest text', () => {
+  assert.equal(arenaTextGutter([]), ARENA_PAD.l);
+  assert.equal(arenaTextGutter(['1']), ARENA_PAD.l, 'a short text keeps the pad');
+  const wide = arenaTextGutter(['12,480', '1,234,567,890,123']);
+  assert.equal(wide, Math.ceil(17 * chartTickChar) + chartLabelGap);
+  assert.ok(wide > ARENA_PAD.l);
+  assert.equal(arenaTextGutter(['12,480', '1,234,567,890,123']), arenaTextGutter(['1,234,567,890,123']), 'the widest decides, not the count');
+  assert.ok(arenaTextGutter(['x'.repeat(30)]) > arenaTextGutter(['x'.repeat(20)]));
+});
+
+test('the funnel box leaves the category gutter on the left and the measured gutter and right pad on the right', () => {
+  const box = arenaFunnelBox(600, 280, 60);
+  assert.equal(box.x, chartPadCategory);
+  assert.equal(box.y, ARENA_PAD.t);
+  assert.equal(box.x + box.w + 60 + ARENA_PAD.r, 600, 'the box and its gutters add to the width');
+  assert.equal(box.h, 280 - ARENA_PAD.t * 2, 'no axis below the plot');
+  assert.ok(arenaFunnelBox(600, 280, 120).w < box.w, 'a wider gutter takes from the box');
+  assert.equal(arenaFunnelBox(10, 5, 400).w, 1, 'never below one pixel');
+  assert.equal(arenaFunnelBox(10, 5, 400).h, 1);
+});

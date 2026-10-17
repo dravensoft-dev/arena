@@ -9,6 +9,7 @@ import {
   arenaPointCount, arenaPointSeriesDomain, arenaPointSeriesColor, arenaPointTable,
   arenaPointSized, arenaPointSizeRange, arenaSwatchChoice, arenaSparkDomain,
   arenaGaugeBands, arenaGaugeBand, arenaGaugeTicks, arenaGaugeColor, arenaGaugeTable,
+  arenaFunnelConversions, arenaFunnelMax, arenaFunnelTable,
 } from './ChartSeries';
 import type { ArenaGaugeBand, ArenaPointSeries, ArenaSeries } from '../../Api.generated';
 import type { ArenaSeriesTone } from '../../Api.generated';
@@ -564,4 +565,69 @@ test('the gauge table holds the whole scale: the value, both ends and every band
 test('a non-number leaves the value cell empty rather than writing a zero', () => {
   const table = arenaGaugeTable(WORDS, Number.NaN, 0, 100, [], String);
   assert.deepEqual(table.rows.map((row) => [row.header, ...row.cells]), [['Value', ''], ['Minimum', '0'], ['Maximum', '100']]);
+});
+
+const FUNNEL_WORDS = { stage: 'Stage', step: 'Of previous stage', total: 'Of first stage' };
+const percent = (ratio: number) => `${Math.round(ratio * 1000) / 10}%`;
+
+test('a conversion is the share of the previous stage and of the first, and the first stage has no previous', () => {
+  const [first, second, third] = arenaFunnelConversions([200, 100, 25]);
+  assert.deepEqual(first, { step: null, total: 1 });
+  assert.deepEqual(second, { step: 0.5, total: 0.5 });
+  assert.deepEqual(third, { step: 0.25, total: 0.125 });
+  assert.deepEqual(arenaFunnelConversions([]), [], 'no stage, no conversion');
+});
+
+test('a zero, negative, missing or non-finite denominator gives no ratio rather than a zero', () => {
+  assert.deepEqual(arenaFunnelConversions([0, 5]), [{ step: null, total: null }, { step: null, total: null }]);
+  assert.deepEqual(arenaFunnelConversions([-4, 5]), [{ step: null, total: null }, { step: null, total: null }]);
+  assert.deepEqual(arenaFunnelConversions([Number.NaN, 5])[1], { step: null, total: null });
+  assert.deepEqual(arenaFunnelConversions([100, Number.POSITIVE_INFINITY, 50])[2], { step: null, total: 0.5 }, 'an infinite predecessor is no denominator');
+  assert.deepEqual(arenaFunnelConversions([100, 0, 50])[2], { step: null, total: 0.5 }, 'a zero predecessor leaves the step empty and the total whole');
+});
+
+test('a non-finite numerator gives no ratio, and a stage that is zero gives zero percent', () => {
+  assert.deepEqual(arenaFunnelConversions([100, Number.NaN])[1], { step: null, total: null });
+  assert.deepEqual(arenaFunnelConversions([100, 0])[1], { step: 0, total: 0 });
+});
+
+test('a stage above its predecessor gives a ratio above one, uncorrected', () => {
+  const [, second] = arenaFunnelConversions([100, 150]);
+  assert.equal(second?.step, 1.5);
+  assert.equal(second?.total, 1.5);
+});
+
+test('a negative stage over a positive denominator gives a negative ratio, as passed', () => {
+  assert.equal(arenaFunnelConversions([100, -5])[1]?.step, -0.05);
+});
+
+test('the funnel max is the largest finite value floored at zero', () => {
+  assert.equal(arenaFunnelMax([3, 9, 4]), 9);
+  assert.equal(arenaFunnelMax([3, Number.NaN, Number.POSITIVE_INFINITY, 4]), 4, 'a non-finite value never sets the scale');
+  assert.equal(arenaFunnelMax([-3, -9]), 0);
+  assert.equal(arenaFunnelMax([]), 0);
+});
+
+test('the funnel table has the conversion columns only when asked, one row per stage and the first step cell empty', () => {
+  const one = series({ label: 'Accounts', values: [200, 100, 25] });
+  const full = arenaFunnelTable(FUNNEL_WORDS, one, ['Visits', 'Sign-ups', 'Active'], write, percent, true);
+  assert.deepEqual(full.columns, ['Stage', 'Accounts', 'Of previous stage', 'Of first stage']);
+  assert.deepEqual(full.rows.map((row) => [row.header, ...row.cells]), [
+    ['Visits', '200 ms', '', '100%'],
+    ['Sign-ups', '100 ms', '50%', '50%'],
+    ['Active', '25 ms', '25%', '12.5%'],
+  ]);
+  const bare = arenaFunnelTable(FUNNEL_WORDS, one, ['Visits', 'Sign-ups', 'Active'], write, percent, false);
+  assert.deepEqual(bare.columns, ['Stage', 'Accounts']);
+  assert.ok(bare.rows.every((row) => row.cells.length === 1), 'no conversion cell');
+});
+
+test('the funnel table writes a negative stage as passed and leaves a missing or non-finite one empty', () => {
+  const table = arenaFunnelTable(FUNNEL_WORDS, series({ label: 'A', values: [100, -5, Number.NaN] }), ['a', 'b', 'c', 'd'], write, percent, true);
+  assert.equal(table.rows.length, 4, 'the longer of the labels and the values');
+  assert.deepEqual(table.rows[1]?.cells, ['-5 ms', '-5%', '-5%']);
+  assert.deepEqual(table.rows[2]?.cells, ['', '', '']);
+  assert.deepEqual(table.rows[3]?.cells, ['', '', ''], 'a label with no value is an empty row');
+  const longer = arenaFunnelTable(FUNNEL_WORDS, series({ label: 'A', values: [4, 2, 1] }), ['a'], write, percent, true);
+  assert.deepEqual(longer.rows.map((row) => row.header), ['a', '', ''], 'a value with no label has an empty header');
 });

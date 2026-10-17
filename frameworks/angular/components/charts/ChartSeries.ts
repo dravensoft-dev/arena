@@ -165,6 +165,54 @@ export function arenaGaugeTable(
   };
 }
 
+export interface ArenaFunnelConversion {
+  step: number | null;
+  total: number | null;
+}
+
+export interface ArenaFunnelWords {
+  stage: string;
+  step: string;
+  total: string;
+}
+
+function arenaFunnelRatio(numerator: number, denominator: number | undefined): number | null {
+  if (!Number.isFinite(numerator) || denominator === undefined || !Number.isFinite(denominator) || !(denominator > 0)) {
+    return null;
+  }
+  return numerator / denominator;
+}
+
+export function arenaFunnelConversions(values: readonly number[]): ArenaFunnelConversion[] {
+  return values.map((value, index) => ({
+    step: index === 0 ? null : arenaFunnelRatio(value, values[index - 1]),
+    total: arenaFunnelRatio(value, values[0]),
+  }));
+}
+
+export function arenaFunnelMax(values: readonly number[]): number {
+  return values.reduce((widest, value) => (Number.isFinite(value) && value > widest ? value : widest), 0);
+}
+
+export function arenaFunnelTable(
+  words: ArenaFunnelWords, series: ArenaSeries, labels: readonly string[],
+  write: (value: number) => string, percent: (ratio: number) => string, conversion: boolean,
+): ArenaChartTable {
+  const conversions = arenaFunnelConversions(series.values);
+  const ratio = (value: number | null | undefined): string => (value === null || value === undefined ? '' : percent(value));
+  return {
+    columns: conversion ? [words.stage, series.label, words.step, words.total] : [words.stage, series.label],
+    rows: Array.from({ length: Math.max(labels.length, series.values.length) }, (_, index) => {
+      const value = series.values[index];
+      const cell = value !== undefined && Number.isFinite(value) ? write(value) : '';
+      return {
+        header: labels[index] ?? '',
+        cells: conversion ? [cell, ratio(conversions[index]?.step), ratio(conversions[index]?.total)] : [cell],
+      };
+    }),
+  };
+}
+
 export function arenaStackSegments(series: readonly ArenaSeries[], index: number): ArenaStackSegment[] {
   const segments: ArenaStackSegment[] = [];
   let up = 0;

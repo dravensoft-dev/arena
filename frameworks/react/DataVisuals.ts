@@ -62,6 +62,10 @@ export function arenaToneColor(tone: ArenaTone): string {
   return TONE_VARS[tone];
 }
 
+const INVALID_LOCALE = (locale: string | undefined): string => `number format: the locale "${locale}" is not a tag Intl accepts,`
+  + ' so every number written with it falls back to the raw JavaScript one. A chart\'s ticks, a field\'s value and a'
+  + ' readout all read differently from the text beside them until it is a BCP-47 tag.';
+
 export interface ArenaValueWriterOptions {
   prefix?: string;
   suffix?: string;
@@ -85,11 +89,21 @@ export function arenaValueWriter({ prefix, suffix, format }: ArenaValueWriterOpt
   try {
     intl = new Intl.NumberFormat(format.locale, options);
   } catch {
-    arenaWarnOnce(`number format: the locale "${format.locale}" is not a tag Intl accepts, so every number`
-      + ' written with it falls back to the raw JavaScript one. A chart\'s ticks, a field\'s value and a'
-      + ' readout all read differently from the text beside them until it is a BCP-47 tag.');
+    arenaWarnOnce(INVALID_LOCALE(format.locale));
   }
   return (value) => `${head}${intl ? intl.format(value) : value}${tail}`;
+}
+
+export function arenaPercentWriter(format?: ArenaNumberFormat): (ratio: number) => string {
+  const raw = (ratio: number): string => `${Math.round(ratio * 1000) / 10}%`;
+  if (!format) return raw;
+  try {
+    const intl = new Intl.NumberFormat(format.locale, { style: 'percent', maximumFractionDigits: 1 });
+    return (ratio) => intl.format(ratio);
+  } catch {
+    arenaWarnOnce(INVALID_LOCALE(format.locale));
+    return raw;
+  }
 }
 
 export function arenaPlotWidth(available: number, count: number, minPointSpacing: number | undefined): number {
