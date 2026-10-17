@@ -2,11 +2,12 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { ARENA_CAT_SLOTS } from '../../DataVisuals';
 import { forgetArenaWarnings } from '../../WarnOnce';
+import { arenaLinearScale, arenaScaleValue } from './ChartScales';
 import {
   arenaChartTable, arenaOneSeries, arenaSeriesColors, arenaSeriesDomain, arenaSeriesPointCount,
   arenaStackSegments, arenaStackDomain, arenaMirrorDomain, arenaTwoSeries,
   arenaPointCount, arenaPointSeriesDomain, arenaPointSeriesColor, arenaPointTable,
-  arenaPointSized, arenaPointSizeRange, arenaSwatchChoice,
+  arenaPointSized, arenaPointSizeRange, arenaSwatchChoice, arenaSparkDomain,
 } from './ChartSeries';
 import type { ArenaPointSeries, ArenaSeries } from '../../Api.generated';
 import type { ArenaSeriesTone } from '../../Api.generated';
@@ -119,6 +120,44 @@ test('the domain reaches below zero when any series does', () => {
   assert.ok(domain.min <= -40, `the axis stopped at ${domain.min}`);
 });
 
+test('a spark domain is the data\'s own range, so 120 to 180 fills the box instead of a strip at its top', () => {
+  assert.deepEqual(arenaSparkDomain([150, 120, 180, 160]), { min: 120, max: 180, step: 60 });
+  const zeroBased = arenaSeriesDomain([series({ values: [150, 120, 180, 160] })]);
+  assert.equal(zeroBased.min, 0, 'the axis-bearing charts keep zero, which is why the sparkline has its own domain');
+});
+
+test('a flat spark series is drawn on the middle of the box, never on an edge', () => {
+  for (const value of [0, 42, -7]) {
+    const domain = arenaSparkDomain([value, value, value]);
+    const scale = arenaLinearScale(domain.min, domain.max, 20, 0);
+    assert.equal(arenaScaleValue(scale, value), 10, `a flat run of ${value}`);
+  }
+});
+
+test('one point is a flat series, drawn on the middle', () => {
+  const domain = arenaSparkDomain([9]);
+  assert.equal(arenaScaleValue(arenaLinearScale(domain.min, domain.max, 20, 0), 9), 10);
+});
+
+test('a spark domain below zero is the data\'s range there too, and zero is not pulled in', () => {
+  assert.deepEqual(arenaSparkDomain([-30, -10, -20]), { min: -30, max: -10, step: 20 });
+  assert.deepEqual(arenaSparkDomain([-5, 5]), { min: -5, max: 5, step: 10 });
+});
+
+test('a missing number is not a zero: a gap or a non-number leaves the range the numbers give', () => {
+  const sparse = [120, 180];
+  sparse[3] = 150;
+  assert.deepEqual(arenaSparkDomain(sparse), { min: 120, max: 180, step: 60 });
+  assert.deepEqual(arenaSparkDomain([120, Number.NaN, 180, Number.POSITIVE_INFINITY]), { min: 120, max: 180, step: 60 });
+});
+
+test('a spark series with no number at all still yields a domain the scale can draw on', () => {
+  for (const values of [[], [Number.NaN]]) {
+    const domain = arenaSparkDomain(values);
+    assert.ok(domain.max > domain.min, `the span was ${domain.max - domain.min}`);
+  }
+});
+
 test('arenaOneSeries takes the first and warns about the rest, rather than drawing a sunburst', () => {
 
   forgetArenaWarnings();
@@ -128,6 +167,17 @@ test('arenaOneSeries takes the first and warns about the rest, rather than drawi
   });
   assert.equal(warnings.length, 1);
   assert.match(warnings[0] as string, /sunburst/);
+  forgetArenaWarnings();
+});
+
+test('arenaOneSeries warns with the reason its chart gives, so a sparkline never speaks of a ring', () => {
+  forgetArenaWarnings();
+  const warnings = captureWarnings(() => {
+    arenaOneSeries([series({ label: 'A' }), series({ label: 'B' })], 'ArenaSparkline', 'A sparkline has no legend to tell two lines apart');
+  });
+  assert.equal(warnings.length, 1);
+  assert.match(warnings[0] as string, /^\[arena\] ArenaSparkline: reads one series and was given 2\. A sparkline has no legend to tell two lines apart; the rest are ignored\.$/);
+  assert.doesNotMatch(warnings[0] as string, /sunburst/);
   forgetArenaWarnings();
 });
 

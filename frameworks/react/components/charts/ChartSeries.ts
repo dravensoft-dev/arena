@@ -63,9 +63,24 @@ export function arenaSeriesDomain(series: readonly ArenaSeries[], count = 4): Ar
   return arenaNiceDomain(min, max, count);
 }
 
-export function arenaOneSeries(series: readonly ArenaSeries[], chart: string): ArenaSeries {
+export function arenaSparkDomain(values: readonly number[]): ArenaDomain {
+  let min = Infinity;
+  let max = -Infinity;
+  for (const value of values) {
+    if (!Number.isFinite(value)) continue;
+    if (value < min) min = value;
+    if (value > max) max = value;
+  }
+  if (min > max) return { min: -1, max: 1, step: 1 };
+  if (min === max) return { min: min - 1, max: max + 1, step: 1 };
+  return { min, max, step: max - min };
+}
+
+export function arenaOneSeries(
+  series: readonly ArenaSeries[], chart: string, why = 'A ring of two series is a sunburst, which is a different chart',
+): ArenaSeries {
   if (series.length > 1) {
-    arenaWarnOnce(`${chart}: reads one series and was given ${series.length}. A ring of two series is a sunburst, which is a different chart; the rest are ignored.`);
+    arenaWarnOnce(`${chart}: reads one series and was given ${series.length}. ${why}; the rest are ignored.`);
   }
   return series[0] ?? { label: '', values: [] };
 }

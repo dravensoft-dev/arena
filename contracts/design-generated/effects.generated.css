@@ -105,6 +105,14 @@
      respond to .arena-compact. It never did.
    */
   --chart-height:280px; /* Plot height before padding. */
+  /*
+     A sparkline's plot height. A CONSEQUENCE of the compact row, not a chosen dimension:
+     the line box of a compact table row is 21.8px, rounded down to the whole pixel, so a
+     sparkline in a cell leaves the row the height its text gives it at every density.
+     Measured on an ArenaTable row at base, compact and comfortable, where a 32px plot
+     grows each row by about 10px. If the row's type step moves, revisit it.
+   */
+  --chart-sparkline-height:20px;
   --chart-pad-top:8px; /* The plot's top padding, one step of the base grid. */
   --chart-pad-right:8px; /* The plot's right padding, one step of the base grid. */
   /*

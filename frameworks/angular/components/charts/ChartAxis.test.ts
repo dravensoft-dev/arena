@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { ARENA_CHART_HEIGHT, ARENA_PAD, arenaValueWriter } from '../../DataVisuals';
-import { arenaPlotBox, arenaAxisTicks, arenaAxisModel, arenaTickLabelX, arenaCategoryLabelY, arenaDoughnutRadii, arenaValueGutter } from './ChartAxis';
+import { arenaPlotBox, arenaSparkBox, arenaTooltipShift, arenaSparkTooltipTop, arenaAxisTicks, arenaAxisModel, arenaTickLabelX, arenaCategoryLabelY, arenaDoughnutRadii, arenaValueGutter } from './ChartAxis';
 import { arenaLinearScale, arenaNiceDomain, arenaDomainTicks } from './ChartScales';
-import { chartTickChar, chartLabelGap } from '../../Tokens.generated';
+import { chartTickChar, chartLabelGap, chartPointR, chartPointRHover, chartSparklineHeight } from '../../Tokens.generated';
 
 test('the tick label ends one label gap left of the plot, inside the left pad', () => {
   assert.equal(arenaTickLabelX(), ARENA_PAD.l - 8);
@@ -60,6 +60,61 @@ test('the plot box floors at 1px on both axes, so an unmeasured container still 
     assert.ok(arenaPlotBox(width, 280).w >= 1, `width ${width}`);
   for (const height of [0, ARENA_PAD.t + ARENA_PAD.b, -100])
     assert.ok(arenaPlotBox(600, height).h >= 1, `height ${height}`);
+});
+
+test('the spark box insets the point radius on every side, so the end dot is never cut at an edge', () => {
+  const box = arenaSparkBox(200, chartSparklineHeight);
+  assert.equal(box.x, chartPointR);
+  assert.equal(box.y, chartPointR);
+  assert.equal(box.x + box.w, 200 - chartPointR, 'the last point sits one radius in from the right edge');
+  assert.equal(box.y + box.h, chartSparklineHeight - chartPointR, 'the lowest value sits one radius above the floor');
+});
+
+test('the spark box draws no gutter and no label row, because a sparkline has no axis to hold', () => {
+  const spark = arenaSparkBox(200, chartSparklineHeight);
+  const plot = arenaPlotBox(200, chartSparklineHeight);
+  assert.ok(spark.w > plot.w, 'the value gutter is not reserved');
+  assert.ok(spark.h > 1 && plot.h === 1, 'the label row would leave the line no room at all');
+});
+
+test('the enlarged dot overhangs the spark box by the hover delta alone', () => {
+  assert.equal(chartPointRHover - chartPointR, 1, 'the cursor dot leaves the box by one pixel, into the overflow the plot draws visible');
+});
+
+test('the spark box floors at 1px on both axes, so an unmeasured cell still lays out', () => {
+  for (const width of [0, chartPointR * 2, -100]) assert.ok(arenaSparkBox(width, chartSparklineHeight).w >= 1, `width ${width}`);
+  for (const height of [0, chartPointR * 2, -100]) assert.ok(arenaSparkBox(200, height).h >= 1, `height ${height}`);
+});
+
+test('the tooltip shift is 0 on the first point of the spark box and 1 on the last, so the readout slides with the point', () => {
+  const box = arenaSparkBox(200, chartSparklineHeight);
+  assert.equal(arenaTooltipShift(box.x, box), 0, 'on the first point the readout starts at the point');
+  assert.equal(arenaTooltipShift(box.x + box.w, box), 1, 'on the last point the readout ends at the point');
+  assert.equal(arenaTooltipShift(box.x + box.w / 2, box), 0.5, 'in the middle the readout is centred');
+});
+
+test('a readout no wider than the spark box stays inside the frame at every point', () => {
+  const box = arenaSparkBox(200, chartSparklineHeight);
+  for (const readout of [0, 46, 70, box.w]) {
+    for (let i = 0; i <= 10; i++) {
+      const x = box.x + (box.w * i) / 10;
+      const left = x - arenaTooltipShift(x, box) * readout;
+      assert.ok(left >= 0 && left + readout <= 200, `readout ${readout} at x ${x} spans ${left}..${left + readout}`);
+    }
+  }
+});
+
+test('the tooltip shift clamps to 0..1 outside the spark box', () => {
+  const box = arenaSparkBox(200, chartSparklineHeight);
+  assert.equal(arenaTooltipShift(-50, box), 0);
+  assert.equal(arenaTooltipShift(400, box), 1);
+});
+
+test('the spark tooltip stands on the point measured from the middle of the frame, where the plot is centred', () => {
+  assert.equal(arenaSparkTooltipTop(4, chartSparklineHeight), 'calc(50% + -6px - var(--chart-tooltip-offset))',
+    'the ceiling of a 20px plot is 6px above the middle of whatever region holds it');
+  assert.equal(arenaSparkTooltipTop(chartSparklineHeight / 2, chartSparklineHeight), 'calc(50% + 0px - var(--chart-tooltip-offset))',
+    'the middle of the plot is the middle of the frame');
 });
 
 test('an axis tick carries its value, its position on the scale and the written label', () => {

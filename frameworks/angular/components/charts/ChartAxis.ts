@@ -1,5 +1,5 @@
 import { ARENA_PAD } from '../../DataVisuals';
-import { chartLabelGap, chartRingInset, chartPadCategory, chartTickChar } from '../../Tokens.generated';
+import { chartLabelGap, chartRingInset, chartPadCategory, chartPointR, chartTickChar } from '../../Tokens.generated';
 import type { ArenaChartShape } from '../../Api.generated';
 import type { ArenaDomain, ArenaLinearScale } from './ChartScales';
 import { arenaScaleValue, arenaScaleZero, arenaDomainTicks } from './ChartScales';
@@ -49,6 +49,23 @@ export function arenaPlotBox(width: number, height: number, gutter: number = ARE
     w: Math.max(1, width - gutter - ARENA_PAD.r),
     h: Math.max(1, height - ARENA_PAD.t - ARENA_PAD.b),
   };
+}
+
+export function arenaSparkBox(width: number, height: number): ArenaPlotBox {
+  return {
+    x: chartPointR,
+    y: chartPointR,
+    w: Math.max(1, width - chartPointR * 2),
+    h: Math.max(1, height - chartPointR * 2),
+  };
+}
+
+export function arenaTooltipShift(x: number, box: ArenaPlotBox): number {
+  return Math.min(1, Math.max(0, (x - box.x) / box.w));
+}
+
+export function arenaSparkTooltipTop(y: number, plot: number): string {
+  return `calc(50% + ${y - plot / 2}px - var(--chart-tooltip-offset))`;
 }
 
 export function arenaAxisTicks(
