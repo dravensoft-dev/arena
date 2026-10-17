@@ -157,6 +157,7 @@
     "test:react": "bun scripts/ci/arena/run-suite.ts react",
     "test:react-dom": "bun scripts/ci/arena/run-suite.ts react-dom",
     "test:angular": "bun scripts/ci/arena/run-suite.ts angular",
+    "test:angular-jit": "bun scripts/ci/arena/run-suite.ts angular-jit",
     "test": "bun scripts/ci/arena/run-suite.ts all"
   }
 }

@@ -27,7 +27,7 @@ const unasserted: string[] = [];
 let listening = false;
 
 function definingSite(): string {
-  return (new Error().stack ?? '').split('\n').find((line) => /\.test\.js/.test(line))?.trim() ?? 'at an unknown site';
+  return (new Error().stack ?? '').split('\n').find((line) => /\.test\.[jt]s/.test(line))?.trim() ?? 'at an unknown site';
 }
 
 function listen(): void {

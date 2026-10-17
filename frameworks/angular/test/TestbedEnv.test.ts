@@ -3,7 +3,7 @@ useTestEnvironment();
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { Component } from '@angular/core';
+import { Component, reflectComponentType } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 @Component({ selector: 'testbed-env-load-twin', standalone: true, template: '<p>load</p>' })
@@ -14,11 +14,12 @@ export class LoadTwinB {}
 
 const twin = () => Component({ selector: 'testbed-env-twin', standalone: true, template: '<p>twin</p>' })(class {});
 
-test('two decorated hosts that hash alike collide when the file loads, and the first case reads the record', () => {
+test('two decorated hosts that hash alike collide once both are defined, and the first case reads the record', () => {
+  assert.ok(reflectComponentType(LoadTwinA) && reflectComponentType(LoadTwinB));
   const found = takeComponentIdCollisions();
   assert.equal(found.length, 1);
   assert.match(found[0] ?? '', /^NG0912/);
-  assert.match(found[0] ?? '', /TestbedEnv\.test\.js/);
+  assert.match(found[0] ?? '', /TestbedEnv\.test\.[jt]s/);
 });
 
 test('two components that hash alike are recorded as a collision, and nothing is printed', () => {
@@ -27,7 +28,7 @@ test('two components that hash alike are recorded as a collision, and nothing is
   const found = takeComponentIdCollisions();
   assert.equal(found.length, 1);
   assert.match(found[0] ?? '', /^NG0912/);
-  assert.match(found[0] ?? '', /TestbedEnv\.test\.js/);
+  assert.match(found[0] ?? '', /TestbedEnv\.test\.[jt]s/);
 });
 
 test('a component with a selector of its own collides with nothing', () => {
@@ -39,7 +40,7 @@ test('an Arena warning no test captured is recorded, not printed', () => {
   console.warn('[arena] probe: a warning nothing asserted');
   const found = takeUnassertedWarnings();
   assert.equal(found.length, 1);
-  assert.match(found[0] ?? '', /^\[arena\] probe: a warning nothing asserted, printed .*TestbedEnv\.test\.js/);
+  assert.match(found[0] ?? '', /^\[arena\] probe: a warning nothing asserted, printed .*TestbedEnv\.test\.[jt]s/);
 });
 
 test('a warning a test captures for itself never reaches the guard', () => {

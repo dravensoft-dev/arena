@@ -367,7 +367,7 @@ export const ROUTES: Route[] = [
       + 'the domain the gate lands in',
     entry: 'contributor',
     stops: ['scripts/AGENTS.md', 'scripts/check/AGENTS.md', 'scripts/check/*/AGENTS.md'],
-    budget: 95_300,
+    budget: 96_000,
     reason:
       'the route a contributor takes most often after the component one, and the one whose last '
       + 'stop grows every time a gate lands, because each gate has a row in its domain\'s table. The '
@@ -381,7 +381,8 @@ export const ROUTES: Route[] = [
       + 'state what their gates refuse, and the check page carries its section on the sweep running '
       + 'side by side, its pools and --jobs. The focus-trap row names both questions that gate puts '
       + 'to a real browser, the trap and the handoff of a refused hidden control. The target-size row names '
-      + 'its two exceptions.',
+      + 'its two exceptions. The scripts page names the two Angular runs, the emitted verdict and '
+      + 'the JIT loop a task runs.',
   },
   {
     name: 'contributor-tailwind',

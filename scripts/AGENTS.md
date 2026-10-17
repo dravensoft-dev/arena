@@ -231,6 +231,13 @@ per-commit toll. Stating that is what lets a gate be expensive enough to be wort
 opens two real pages per component per arrangement in Chromium and compares them pixel for pixel, which
 no repository can afford once per commit.
 
+**The Angular suites have two runs, and the emitted one is the verdict.** `bun run test:angular`
+compiles the layer with `ngc` and runs the emitted tree, which is what `bun run check` and CI run.
+`bun run test:angular-jit` runs the same suites from source through
+`lib/angular/jit-preload.ts`, with no emit, for a task's loop and a mutation. It checks no template
+type, and a component is defined when it is first used rather than when its class loads, so a task
+ends on the emitted run.
+
 **Some gates are not runtime-portable**, needing a headless browser, `Bun.build` or
 `Bun.Transpiler`. Where the dependency is missing the gate exits 2 and is reported `SKIP`,
 **except that the repository declares itself strict**, so it fails instead. Count them and read

@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { ANGULAR_EMIT, SUITES, suiteSteps, testStep } from '../../check/arena/check-all.ts';
+import { ANGULAR_EMIT, JIT_SUITES, SUITES, suiteSteps, testStep } from '../../check/arena/check-all.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 
 const manifest = () => JSON.parse(readFileSync(join(repoRoot, 'package.json'), 'utf8'));
@@ -55,4 +55,20 @@ test('no suite argument carries a quote, since it is the thing that had drifted'
       assert.ok(!/['"]/.test(arg), `${name} passes ${arg}, and spawnSync has no shell to strip it`);
     }
   }
+});
+
+test('the JIT run reads the layer sources through its preload and no emit, and is no suite a gate or CI runs', () => {
+  const [step, ...more] = suiteSteps('angular-jit');
+  assert.deepEqual(more, [], 'the JIT run is one step');
+  assert.notDeepEqual(step, ANGULAR_EMIT, 'the JIT run exists so a task pays for no ngc emit');
+  const args = step?.args ?? [];
+  const preload = args[args.indexOf('--preload') + 1] ?? '';
+  assert.ok(existsSync(join(repoRoot, preload)), `the preload ${preload} is not there`);
+  assert.ok(args.includes('frameworks/angular') && !args.includes('frameworks/angular/build/test'),
+    'the JIT run reads the sources, never the emitted tree');
+  for (const name of Object.keys(JIT_SUITES)) {
+    assert.ok(!(name in SUITES), `${name} would reach verify.yml and check-all, where the emitted tree is the verdict`);
+  }
+  assert.ok(!testStep({ isBun: true, testFiles: [] }).some((s) => s.args.includes(preload)),
+    'bun run check runs the emitted suite, never the JIT one');
 });

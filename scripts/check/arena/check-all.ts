@@ -182,6 +182,11 @@ export const SUITES: Record<string, { emit: boolean; args: string[] }> = {
   angular: { emit: true, args: cased(['test', 'frameworks/angular/build/test']) },
 };
 
+export const JIT_SUITES: Record<string, { args: string[] }> = {
+  'angular-jit': { args: cased(['test', '--preload', './scripts/lib/angular/jit-preload.ts', 'frameworks/angular',
+    '--path-ignore-patterns=frameworks/angular/build/**', '--path-ignore-patterns=frameworks/angular/dist/**']) },
+};
+
 const suiteArgs = (name: string) => {
   const suite = SUITES[name];
   if (!suite) throw new Error(`check-all: SUITES holds no suite called "${name}"`);
@@ -206,9 +211,11 @@ export function typeSteps(domains: string[]): TestStep[] {
 
 export function suiteSteps(name: string) {
   if (name === 'all') return testStep({ isBun: true, testFiles: [] });
+  const jit = JIT_SUITES[name];
+  if (jit) return [{ name: `test (${name})`, args: jit.args }];
   const suite = SUITES[name];
   if (!suite) {
-    throw new Error(`run-suite: no suite called "${name}"; it takes all, ${Object.keys(SUITES).join(', ')}`);
+    throw new Error(`run-suite: no suite called "${name}"; it takes all, ${[...Object.keys(SUITES), ...Object.keys(JIT_SUITES)].join(', ')}`);
   }
   return [...(suite.emit ? [ANGULAR_EMIT] : []), { name: `test (${name})`, args: suite.args }];
 }
