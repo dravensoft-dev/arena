@@ -17,6 +17,7 @@ import { ArenaPyramidChart } from './arena-pyramid-chart/ArenaPyramidChart';
 import { ArenaRadarChart } from './arena-radar-chart/ArenaRadarChart';
 import { ArenaScatterChart } from './arena-scatter-chart/ArenaScatterChart';
 import { ArenaSparkline } from './arena-sparkline/ArenaSparkline';
+import { ArenaGaugeChart } from './arena-gauge-chart/ArenaGaugeChart';
 import { assertNoNode } from '../../test/NodeAssert';
 
 const LABELS = ['Mon', 'Tue', 'Wed'];
@@ -49,6 +50,9 @@ class SparklineHost { labels = LABELS; series = [SERIES[0]]; }
 
 @Component({ selector: 'chart-parts-sparkline-live-host', standalone: true, imports: [ArenaSparkline], template: '<arena-sparkline label="Deploys" [labels]="labels" [series]="series" interactive />' })
 class SparklineLiveHost { labels = LABELS; series = [SERIES[0]]; }
+
+@Component({ selector: 'chart-parts-gauge-host', standalone: true, imports: [ArenaGaugeChart], template: '<arena-gauge-chart label="CPU load" [value]="72" />' })
+class GaugeHost {}
 
 const CHARTS: Array<[string, string, Type<unknown>]> = [
   ['bar-chart', 'Arena bar', BarHost], ['horizontal-bar-chart', 'Arena horizontal bar', HorizontalBarHost],
@@ -99,6 +103,7 @@ const FRAME_CHARTS: Array<[string, string, Type<unknown>]> = [
   ...CHARTS.map(([part, , host]) => [part, part, host] as [string, string, Type<unknown>]),
   ['doughnut-chart', 'doughnut-chart', DoughnutHost],
   ['sparkline', 'sparkline', SparklineHost],
+  ['gauge-chart', 'gauge-chart', GaugeHost],
 ];
 
 for (const [name, part, host] of FRAME_CHARTS) {

@@ -18,13 +18,16 @@ import { ArenaPyramidChart } from './arena-pyramid-chart/ArenaPyramidChart';
 import { ArenaRadarChart } from './arena-radar-chart/ArenaRadarChart';
 import { ArenaScatterChart } from './arena-scatter-chart/ArenaScatterChart';
 import { ArenaSparkline } from './arena-sparkline/ArenaSparkline';
+import { ArenaGaugeChart } from './arena-gauge-chart/ArenaGaugeChart';
+import { arenaGaugePoint, arenaGaugeRadii } from './ChartPolar';
 import { ArenaTable } from '../display/arena-table/ArenaTable';
 import { ArenaTableRow } from '../display/arena-table-row/ArenaTableRow';
 import { ArenaTableCell } from '../display/arena-table-cell/ArenaTableCell';
 import { assertPattern, assertPatternCases, ANGULAR_COMPONENTS } from '../../test/Compliance';
 import { assertNoNode } from '../../test/NodeAssert';
 import { forgetArenaWarnings } from '../../WarnOnce';
-import { chartSparklineHeight } from '../../Tokens.generated';
+import { chartGaugeHeight, chartSparklineHeight } from '../../Tokens.generated';
+import type { ArenaGaugeBand } from '../../Api.generated';
 const BINDING = join(ANGULAR_COMPONENTS, 'charts/arena-bar-chart/ArenaBarChart.behaviour.json');
 
 const LABELS = ['Alpha', 'Beta', 'Gamma'];
@@ -585,7 +588,7 @@ function renderMarks(inputs: Record<string, unknown> = {}) {
   return fixture;
 }
 
-function captureSparkWarnings(body: () => void): string[] {
+function captureWarnings(body: () => void): string[] {
   const captured: string[] = [];
   const original = console.warn;
   console.warn = (...args: unknown[]) => { captured.push(args.map(String).join(' ')); };
@@ -691,7 +694,7 @@ test('arena-sparkline draws the first series and warns about a second, rather th
   forgetArenaWarnings();
   let fixture: ReturnType<typeof renderMarks> | undefined;
   try {
-    const warnings = captureSparkWarnings(() => {
+    const warnings = captureWarnings(() => {
       fixture = renderMarks({ series: [...MARK_SERIES, { label: 'p50', values: [1, 2, 3] }] });
     });
     assert.equal(warnings.length, 1);
@@ -718,4 +721,296 @@ test('arena-sparkline drops a label with no value at its index, and writes an em
     surplus.destroy();
     short.destroy();
   }
+});
+
+const GAUGE = 'CPU load';
+
+const GAUGE_BANDS: ArenaGaugeBand[] = [
+  { from: 0, tone: 'success', label: 'Healthy' },
+  { from: 60, tone: 'warning', label: 'Elevated' },
+  { from: 85, tone: 'danger', label: 'Critical' },
+];
+
+function renderGauge(inputs: Record<string, unknown> = {}) {
+  const fixture = TestBed.createComponent(ArenaGaugeChart);
+  fixture.componentRef.setInput('label', GAUGE);
+  fixture.componentRef.setInput('value', 72);
+  fixture.componentRef.setInput('bands', GAUGE_BANDS);
+  for (const [name, value] of Object.entries(inputs)) fixture.componentRef.setInput(name, value);
+  fixture.detectChanges();
+  return fixture;
+}
+
+const gaugePaths = (host: Element) => [...host.querySelectorAll('svg path')]
+  .map((path) => ({ d: path.getAttribute('d') ?? '', fill: path.getAttribute('fill') ?? '' }));
+const gaugeTexts = (host: Element) => [...host.querySelectorAll('svg text')].map((text) => (text.textContent ?? '').trim());
+const gaugeRows = (host: Element) => [...host.querySelectorAll('tbody tr')]
+  .map((row) => [...row.querySelectorAll('th, td')].map((cell) => (cell.textContent ?? '').trim()));
+const gaugeReading = (host: Element) => [...host.querySelectorAll('svg text')]
+  .find((text) => text.getAttribute('fill') === 'var(--ink-heading)')!;
+const gaugeTrack = (host: Element) => gaugePaths(host).find((path) => path.fill === 'var(--fill-track)')!;
+const gaugeArc = (host: Element, fill: string) => gaugePaths(host).find((path) => path.fill === fill);
+const gaugeFrame = (host: Element) => host.querySelector<HTMLElement>('[data-arena-part="gauge-chart.frame"]')!;
+
+function onGauge(inputs: Record<string, unknown>, check: (host: Element) => void): void {
+  const fixture = renderGauge(inputs);
+  try {
+    check(fixture.nativeElement as Element);
+  } finally {
+    fixture.destroy();
+  }
+}
+
+test('arena-gauge-chart meets figure-with-data-table, with every cursor requirement excepted', () => {
+  const fixture = renderGauge({ valueSuffix: ' %' });
+  try {
+    const host = fixture.nativeElement as Element;
+    const graphic = host.querySelector('[role="img"]');
+    assert.notEqual(graphic, null, 'a gauge with no role="img" is a decoration, not a figure');
+    assert.equal(graphic!.getAttribute('aria-label'), `${GAUGE} — gauge`, 'the name is the locale word around label');
+    const table = host.querySelector('table') as HTMLTableElement;
+    assert.equal((table.querySelector('caption')?.textContent ?? '').trim(), `${GAUGE} — gauge`, 'the caption is the same name');
+    const head = [...table.querySelectorAll('thead th')].map((c) => (c.textContent ?? '').trim());
+    assert.deepEqual(head, ['Measure', 'Value']);
+    assert.deepEqual(gaugeRows(host), [
+      ['Value', '72 %'], ['Minimum', '0 %'], ['Maximum', '100 %'],
+      ['Healthy', '0 % – 60 %'], ['Elevated', '60 % – 85 %'], ['Critical', '85 % – 100 %'],
+    ], 'the table is the whole scale and not only the reading');
+    assert.equal(host.querySelectorAll('[tabindex]').length, 0, 'the gauge is no tab stop at all');
+    assertNoNode(host.querySelector('[role="group"]'), 'with no keyboard there is no region to name');
+    press(fixture, host.querySelector('svg')!.parentElement!, 'ArrowRight');
+    assert.equal(reading(host), null, 'a key reaches nothing, so no cursor and no tooltip appear');
+
+    assertPattern({
+      root: host,
+      bindingPath: join(ANGULAR_COMPONENTS, 'charts/arena-gauge-chart/ArenaGaugeChart.behaviour.json'),
+      subjects: { default: graphic! },
+      behavioural: { 'alternative.table': true, ...Object.fromEntries(CURSOR_KEYS.map((key) => [key, false])) },
+    });
+  } finally {
+    fixture.destroy();
+  }
+});
+
+test('arena-gauge-chart is the gauge height token tall by default, and the height input overrides it', () => {
+  const fixture = renderGauge();
+  try {
+    const host = fixture.nativeElement as Element;
+    assert.equal(chartGaugeHeight, 200);
+    assert.equal(gaugeFrame(host).style.height, `${chartGaugeHeight}px`);
+    fixture.componentRef.setInput('height', 140);
+    fixture.detectChanges();
+    assert.equal(gaugeFrame(host).style.height, '140px');
+    fixture.componentRef.setInput('height', undefined);
+    fixture.detectChanges();
+    assert.equal(gaugeFrame(host).style.height, `${chartGaugeHeight}px`, 'an explicit undefined falls back to the token');
+  } finally {
+    fixture.destroy();
+  }
+});
+
+test('arena-gauge-chart writes the reading in the centre and the word of its band under it', () => {
+  onGauge({ valueSuffix: ' %' }, (host) => {
+    const written = gaugeTexts(host);
+    assert.ok(written.includes('72 %'));
+    assert.ok(written.includes('Elevated'));
+    assert.equal(written.filter((t) => t === 'Healthy' || t === 'Critical').length, 0, 'only the band the value is in is named');
+    assert.equal(gaugeReading(host).getAttribute('dominant-baseline'), null, 'with a word under it the number is not centred on the middle');
+  });
+});
+
+test('arena-gauge-chart clamps the drawing above the scale and never the words', () => {
+  onGauge({ value: 130, valueSuffix: ' %' }, (host) => {
+    assert.equal(gaugeArc(host, 'var(--danger)')?.d, gaugeTrack(host).d, 'the arc ends where the track ends');
+    assert.ok(gaugeTexts(host).includes('130 %'));
+    assert.deepEqual(gaugeRows(host)[0], ['Value', '130 %']);
+  });
+});
+
+test('arena-gauge-chart draws no arc below the scale, and still says the number it was given', () => {
+  onGauge({ value: -20, valueSuffix: ' %' }, (host) => {
+    assert.equal(gaugePaths(host).length, GAUGE_BANDS.length + 1, 'the band ring and the track only');
+    assert.ok(gaugeTexts(host).includes('-20 %'));
+    assert.ok(!gaugeTexts(host).includes('Healthy'), 'a value below the first band is in no band');
+  });
+});
+
+test('arena-gauge-chart draws the empty track for a value that is not a number, with no reading and an empty cell', () => {
+  onGauge({ value: Number.NaN }, (host) => {
+    assert.equal(gaugePaths(host).length, GAUGE_BANDS.length + 1);
+    assert.deepEqual(gaugeTexts(host), ['0', '60', '85', '100'], 'the scale is written and the reading is not');
+    assert.deepEqual(gaugeRows(host)[0], ['Value', '']);
+  });
+});
+
+test('arena-gauge-chart warns once for a scale with no length and draws only the track, with no tick', () => {
+  forgetArenaWarnings();
+  let fixture: ReturnType<typeof renderGauge> | undefined;
+  try {
+    const warnings = captureWarnings(() => { fixture = renderGauge({ value: 5, min: 0, max: 0 }); });
+    assert.equal(warnings.length, 1);
+    assert.match(warnings[0]!, /ArenaGaugeChart: `max` \(0\) is not greater than `min` \(0\)/);
+    const host = fixture!.nativeElement as Element;
+    assert.equal(gaugePaths(host).length, 1);
+    assert.equal(gaugePaths(host)[0]?.fill, 'var(--fill-track)');
+    assertNoNode(host.querySelector('line'), 'no tick is drawn on a scale with no length');
+    assert.deepEqual(gaugeTexts(host), ['5', 'Healthy'], 'no tick text, only the reading and the band the lookup finds');
+  } finally {
+    fixture?.destroy();
+    forgetArenaWarnings();
+  }
+});
+
+test('arena-gauge-chart reads bands given out of order as sorted, and warns', () => {
+  forgetArenaWarnings();
+  let fixture: ReturnType<typeof renderGauge> | undefined;
+  try {
+    const warnings = captureWarnings(() => {
+      fixture = renderGauge({ bands: [GAUGE_BANDS[2]!, GAUGE_BANDS[0]!, GAUGE_BANDS[1]!] });
+    });
+    assert.equal(warnings.length, 1);
+    assert.match(warnings[0]!, /ArenaGaugeChart: reads its bands in ascending order of `from`/);
+    const host = fixture!.nativeElement as Element;
+    assert.deepEqual(gaugeRows(host).slice(3).map((r) => r[0]), ['Healthy', 'Elevated', 'Critical']);
+    assert.ok(gaugeTexts(host).includes('Elevated'));
+  } finally {
+    fixture?.destroy();
+    forgetArenaWarnings();
+  }
+});
+
+test('arena-gauge-chart without bands draws one arc in an identity colour, no band and no word', () => {
+  onGauge({ bands: undefined }, (host) => {
+    assert.equal(gaugePaths(host).length, 2, 'the track and the arc');
+    assert.ok(gaugeArc(host, 'var(--color-cat-1)'));
+    assert.deepEqual(gaugeTexts(host), ['0', '100', '72']);
+    assert.equal(gaugeReading(host).getAttribute('dominant-baseline'), 'middle', 'the number alone sits on the middle of the dial');
+  });
+  onGauge({ bands: undefined, colorId: 3 }, (host) => {
+    assert.ok(gaugeArc(host, 'var(--color-cat-3)'));
+  });
+});
+
+test('arena-gauge-chart a band wholly outside the scale draws no segment of the ring', () => {
+  const bands = [{ from: 0, tone: 'success', label: 'Healthy' }, { from: 140, tone: 'danger', label: 'Critical' }];
+  onGauge({ bands, value: 50 }, (host) => {
+    assert.equal(gaugePaths(host).filter((path) => path.fill === 'var(--fill-track)').length, 1);
+    assert.equal(gaugePaths(host).length, 3, 'one ring segment, the track and the arc');
+    assert.deepEqual(gaugeRows(host).slice(3).map((r) => r[0]), ['Healthy', 'Critical'], 'the table still lists both bands');
+  });
+});
+
+test('arena-gauge-chart ignores colorId beside bands, with a warning', () => {
+  forgetArenaWarnings();
+  let fixture: ReturnType<typeof renderGauge> | undefined;
+  try {
+    const warnings = captureWarnings(() => { fixture = renderGauge({ colorId: 3 }); });
+    assert.equal(warnings.length, 1);
+    assert.match(warnings[0]!, /ArenaGaugeChart: `colorId` is ignored while `bands` is given/);
+    const host = fixture!.nativeElement as Element;
+    assert.ok(gaugeArc(host, 'var(--warning)'));
+    assert.equal(gaugeArc(host, 'var(--color-cat-3)'), undefined);
+  } finally {
+    fixture?.destroy();
+    forgetArenaWarnings();
+  }
+});
+
+test('arena-gauge-chart ignores colorId beside bands with a warning, even when the value draws no arc', () => {
+  for (const value of [-20, Number.NaN]) {
+    forgetArenaWarnings();
+    let fixture: ReturnType<typeof renderGauge> | undefined;
+    try {
+      const warnings = captureWarnings(() => { fixture = renderGauge({ colorId: 3, value }); });
+      assert.equal(warnings.length, 1, `value ${value}`);
+      assert.match(warnings[0]!, /ArenaGaugeChart: `colorId` is ignored while `bands` is given/);
+    } finally {
+      fixture?.destroy();
+      forgetArenaWarnings();
+    }
+  }
+});
+
+test('arena-gauge-chart takes the identity slot and no word for a value below the first band', () => {
+  onGauge({ value: 5, bands: [{ from: 10, tone: 'success', label: 'Healthy' }, ...GAUGE_BANDS.slice(1)] }, (host) => {
+    assert.ok(gaugeArc(host, 'var(--color-cat-1)'));
+    assert.ok(!gaugeTexts(host).includes('Healthy'));
+  });
+});
+
+test('arena-gauge-chart paints the arc in the tone of the band the value is in', () => {
+  onGauge({ value: 72 }, (host) => assert.ok(gaugeArc(host, 'var(--warning)')));
+  onGauge({ value: 90 }, (host) => assert.ok(gaugeArc(host, 'var(--danger)')));
+  onGauge({ value: 60 }, (host) => assert.ok(gaugeArc(host, 'var(--warning)'), 'a band includes its lower edge'));
+});
+
+test('arena-gauge-chart sweeps from the 7:30 point to the 4:30 point, whatever the numbers are', () => {
+  onGauge({}, (host) => {
+    const { d } = gaugeTrack(host);
+    const { cy, track } = arenaGaugeRadii(600, chartGaugeHeight);
+    const start = arenaGaugePoint(300, cy, track.outer, 0);
+    const end = arenaGaugePoint(300, cy, track.outer, 1);
+    const [, x0, y0] = /^M([-\d.e]+),([-\d.e]+)/.exec(d) ?? [];
+    const [, x1, y1] = /A[^ ]+ 0 \d 1 ([-\d.e]+),([-\d.e]+)/.exec(d) ?? [];
+    const near = (a: string | undefined, b: number) => Math.abs(Number(a) - b) < 1e-9;
+    assert.ok(near(x0, start.x) && near(y0, start.y), 'the arc starts at the lower left');
+    assert.ok(near(x1, end.x) && near(y1, end.y), 'the arc ends at the lower right');
+    assert.ok(start.x < 300 && start.y > cy, 'the start is below the centre and left of it');
+    assert.ok(end.x > 300 && end.y > cy, 'the end is below the centre and right of it');
+    assert.ok(Math.abs(start.y - end.y) < 1e-9 && Math.abs(300 - start.x - (end.x - 300)) < 1e-9, 'the two ends mirror about the vertical');
+  });
+});
+
+test('arena-gauge-chart writes both ends and every band edge once, in mono, as text', () => {
+  onGauge({}, (host) => {
+    const ticks = [...host.querySelectorAll('svg text')]
+      .filter((text) => text.getAttribute('font-family') === 'var(--font-mono)' && (text as HTMLElement).style.fontSize === 'var(--dz-text-2xs)')
+      .map((text) => (text.textContent ?? '').trim());
+    assert.deepEqual(ticks, ['0', '60', '85', '100']);
+    assert.equal(host.querySelectorAll('line').length, 4);
+  });
+  onGauge({ bands: [{ from: 0, tone: 'success', label: 'Healthy' }, ...GAUGE_BANDS.slice(1)] }, (host) => {
+    assert.equal(gaugeTexts(host).filter((t) => t === '0').length, 1, 'a band that starts at the minimum does not write it twice');
+  });
+});
+
+test('arena-gauge-chart throws without a label or with an empty one, and for a band without its word', () => {
+  const missing = TestBed.createComponent(ArenaGaugeChart);
+  try {
+    assert.throws(() => missing.detectChanges(), /NG0950/);
+  } finally {
+    missing.destroy();
+  }
+  const unnamed = TestBed.createComponent(ArenaGaugeChart);
+  unnamed.componentRef.setInput('label', '');
+  unnamed.componentRef.setInput('value', 1);
+  try {
+    assert.throws(() => unnamed.detectChanges(), /ArenaGaugeChart: `label` is required/);
+  } finally {
+    unnamed.destroy();
+  }
+  const wordless = TestBed.createComponent(ArenaGaugeChart);
+  wordless.componentRef.setInput('label', GAUGE);
+  wordless.componentRef.setInput('value', 1);
+  wordless.componentRef.setInput('bands', [{ from: 0, tone: 'success', label: '' }]);
+  try {
+    assert.throws(() => wordless.detectChanges(), /ArenaGaugeChart: every band needs a `label`/);
+  } finally {
+    wordless.destroy();
+  }
+});
+
+test('arena-gauge-chart adds no tab stop, no keyboard region and no pointer surface', () => {
+  const fixture = renderGauge();
+  try {
+    const listeners = fixture.debugElement.queryAll(() => true).flatMap((node) => node.listeners);
+    assert.equal(listeners.length, 0, 'the gauge registers no event listener');
+  } finally {
+    fixture.destroy();
+  }
+  onGauge({}, (host) => {
+    assertNoNode(host.querySelector('[tabindex]'), 'no tab stop');
+    assertNoNode(host.querySelector('[role="group"]'), 'no keyboard region');
+    assertNoNode(host.querySelector('rect'), 'no pointer surface');
+  });
 });

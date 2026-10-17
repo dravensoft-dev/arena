@@ -50,6 +50,7 @@ Arena meter, a static measurement inside a known range: disk used, a quota, a sc
 - **Don't** use it for a job that finishes. An upload is `arena-progress-bar`, announced as progress.
 - **Don't** expect a `tone` input. Colour follows the thresholds, so the number and its hue always agree.
 - **Don't** ask for a radial drawing. A ring is a chart of its own, and this meter is a bar.
+- **Don't** use it for a scale with labelled bands in a chart tile. Reach for `arena-gauge-chart`, which writes both ends and every band on its dial.
 - **Don't** animate the fill or make it focusable. A reading a person drags is a slider.
 
 **By hand, in real Chromium**: run `bun run demos` and open

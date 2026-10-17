@@ -1,0 +1,38 @@
+{
+  "component": "ArenaGaugeChart",
+  "pattern": "figure-with-data-table",
+  "exceptions": [
+    {
+      "requirement": "focus.roving",
+      "reason": "A single value has no ordered sequence for a data cursor to walk, and the gauge takes no tab stop. Every number it draws, the value, both ends and every band edge, is drawn as text and is in the hidden table, so no number is reachable by pointer alone, which is the reason the pattern asks for a cursor (WCAG 2.1.1)."
+    },
+    {
+      "requirement": "keyboard.ArrowLeft",
+      "reason": "A single value has no ordered sequence for a data cursor to walk, and the gauge takes no tab stop. Every number it draws, the value, both ends and every band edge, is drawn as text and is in the hidden table, so no number is reachable by pointer alone, which is the reason the pattern asks for a cursor (WCAG 2.1.1)."
+    },
+    {
+      "requirement": "keyboard.ArrowRight",
+      "reason": "A single value has no ordered sequence for a data cursor to walk, and the gauge takes no tab stop. Every number it draws, the value, both ends and every band edge, is drawn as text and is in the hidden table, so no number is reachable by pointer alone, which is the reason the pattern asks for a cursor (WCAG 2.1.1)."
+    },
+    {
+      "requirement": "keyboard.ArrowUp",
+      "reason": "A single value has no ordered sequence for a data cursor to walk, and the gauge takes no tab stop. Every number it draws, the value, both ends and every band edge, is drawn as text and is in the hidden table, so no number is reachable by pointer alone, which is the reason the pattern asks for a cursor (WCAG 2.1.1)."
+    },
+    {
+      "requirement": "keyboard.ArrowDown",
+      "reason": "A single value has no ordered sequence for a data cursor to walk, and the gauge takes no tab stop. Every number it draws, the value, both ends and every band edge, is drawn as text and is in the hidden table, so no number is reachable by pointer alone, which is the reason the pattern asks for a cursor (WCAG 2.1.1)."
+    },
+    {
+      "requirement": "keyboard.Home",
+      "reason": "A single value has no ordered sequence for a data cursor to walk, and the gauge takes no tab stop. Every number it draws, the value, both ends and every band edge, is drawn as text and is in the hidden table, so no number is reachable by pointer alone, which is the reason the pattern asks for a cursor (WCAG 2.1.1)."
+    },
+    {
+      "requirement": "keyboard.End",
+      "reason": "A single value has no ordered sequence for a data cursor to walk, and the gauge takes no tab stop. Every number it draws, the value, both ends and every band edge, is drawn as text and is in the hidden table, so no number is reachable by pointer alone, which is the reason the pattern asks for a cursor (WCAG 2.1.1)."
+    },
+    {
+      "requirement": "keyboard.Escape",
+      "reason": "A single value has no ordered sequence for a data cursor to walk, and the gauge takes no tab stop. Every number it draws, the value, both ends and every band edge, is drawn as text and is in the hidden table, so no number is reachable by pointer alone, which is the reason the pattern asks for a cursor (WCAG 2.1.1)."
+    }
+  ]
+}

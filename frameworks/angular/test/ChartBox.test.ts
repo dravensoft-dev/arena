@@ -19,6 +19,7 @@ import { ArenaPyramidChart } from '../components/charts/arena-pyramid-chart/Aren
 import { ArenaRadarChart } from '../components/charts/arena-radar-chart/ArenaRadarChart';
 import { ArenaScatterChart } from '../components/charts/arena-scatter-chart/ArenaScatterChart';
 import { ArenaSparkline } from '../components/charts/arena-sparkline/ArenaSparkline';
+import { ArenaGaugeChart } from '../components/charts/arena-gauge-chart/ArenaGaugeChart';
 
 const LABELS = ['Mon', 'Tue', 'Wed'];
 const ONE = [{ label: 'Deploys', values: [3, 5, 4] }];
@@ -49,11 +50,15 @@ class ScatterHost { series = POINTS; }
 @Component({ selector: 'chart-box-sparkline', standalone: true, imports: [ArenaSparkline], template: '<arena-sparkline label="Deploys" [labels]="labels" [series]="series" />' })
 class SparklineHost { labels = LABELS; series = ONE; }
 
+@Component({ selector: 'chart-box-gauge', standalone: true, imports: [ArenaGaugeChart], template: '<arena-gauge-chart label="CPU load" [value]="72" />' })
+class GaugeHost {}
+
 const CHARTS: Array<[string, Type<unknown>]> = [
   ['arena-bar-chart', BarHost], ['arena-doughnut-chart', DoughnutHost],
   ['arena-horizontal-bar-chart', HorizontalBarHost], ['arena-line-chart', LineHost],
   ['arena-pyramid-chart', PyramidHost], ['arena-radar-chart', RadarHost], ['arena-scatter-chart', ScatterHost],
   ['arena-sparkline', SparklineHost],
+  ['arena-gauge-chart', GaugeHost],
 ];
 
 for (const [selector, host] of CHARTS) {

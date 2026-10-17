@@ -154,6 +154,8 @@ export const COMPUTED: ReadonlyMap<string, string> = new Map([
    "the tooltip's anchor, projected from the point under the cursor by `frameworks/angular/components/charts/ChartTooltip.ts:arenaTooltipAnchor(x, y)`"],
   ['frameworks/angular/components/charts/arena-sparkline/ArenaSparkline.ts:top',
    "the tooltip's top, measured from the middle of the frame, where the plot is centred, by `frameworks/angular/components/charts/ChartAxis.ts:arenaSparkTooltipTop(y, plot)`"],
+  ['frameworks/angular/components/charts/arena-gauge-chart/ArenaGaugeChart.ts:height',
+   "the frame is as tall as `frameworks/angular/components/charts/arena-gauge-chart/ArenaGaugeChart.ts:height`, the --chart-gauge-height token when the input is absent, and the dial's radii are derived from the same number by `frameworks/angular/components/charts/ChartPolar.ts:arenaGaugeRadii(width, height)`"],
   ['frameworks/react/components/charts/arena-scatter-chart/ArenaScatterChart.tsx:height',
    "the legend strip, as tall as `frameworks/react/components/charts/ChartLegend.ts:arenaLegendStrip(height, seriesCount, sizeKey)` computes, and the size key, as tall as the same function's size key height"],
 ]);

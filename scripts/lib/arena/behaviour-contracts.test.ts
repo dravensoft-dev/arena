@@ -218,7 +218,7 @@ test('the React inventory finds every component, no category and no loose file',
 
 test('the Angular inventory finds every component, no category and no bare module', () => {
   const found = angularPrimitives('.');
-  assert.equal(found.length, 94);
+  assert.equal(found.length, 95);
   assert.ok(found.includes('arena-tag'));
   assert.ok(found.includes('arena-bar-chart'));
   assert.ok(found.includes('arena-button'));
