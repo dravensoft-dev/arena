@@ -284,9 +284,9 @@ test('an emission of nothing is a failure rather than a clean pass', () => {
 
 test('every component gets an emitted page in both layers, which is what a citation resolves against', () => {
   const pages = pagePaths(root);
-  assert.equal(pages.length, 186);
-  assert.equal(pages.filter((p) => p.startsWith('frameworks/react/')).length, 93);
-  assert.equal(pages.filter((p) => p.startsWith('frameworks/angular/')).length, 93);
+  assert.equal(pages.length, 188);
+  assert.equal(pages.filter((p) => p.startsWith('frameworks/react/')).length, 94);
+  assert.equal(pages.filter((p) => p.startsWith('frameworks/angular/')).length, 94);
 });
 
 test('a class on a component that answers its family passes, and one it does not answer fails', () => {

@@ -140,6 +140,8 @@ export const COMPUTED: ReadonlyMap<string, string> = new Map([
    "the tooltip's anchor, projected from the hovered datum by `frameworks/angular/components/charts/ChartTooltip.ts:arenaTooltipAnchor(x, y)`"],
   ['frameworks/react/components/charts/arena-radar-chart/ArenaRadarChart.tsx:height',
    'the legend strip, as tall as `frameworks/react/components/charts/ChartLegend.ts:arenaLegendStrip(height, seriesCount, sizeKey)` computes'],
+  ['frameworks/react/components/charts/arena-sparkline/ArenaSparkline.tsx:top',
+   "the tooltip's top, measured from the middle of the frame, where the plot is centred, by `frameworks/react/components/charts/ChartAxis.ts:arenaSparkTooltipTop(y, plot)`"],
   ['frameworks/angular/components/charts/arena-scatter-chart/ArenaScatterChart.ts:height',
    "the key covers the plot frame, as tall as the chart's `height` input, and the legend strip, as tall as `frameworks/angular/components/charts/ChartLegend.ts:arenaLegendStrip(height, seriesCount, sizeKey)` computes and the size key, as tall as the same function's size key height"],
   ['frameworks/angular/components/charts/arena-scatter-chart/ArenaScatterChart.ts:left',

@@ -54,7 +54,7 @@
         "ArenaTable", "ArenaTableRow", "ArenaTableCell", "ArenaActivityFeed", "ArenaTimeline", "ArenaCalendar",
         "ArenaCalendarEvent", "ArenaAvatar", "ArenaPeopleList", "ArenaPersonRow",
         "ArenaLineChart", "ArenaBarChart", "ArenaHorizontalBarChart", "ArenaDoughnutChart",
-        "ArenaRadarChart", "ArenaScatterChart", "ArenaPyramidChart"
+        "ArenaRadarChart", "ArenaScatterChart", "ArenaPyramidChart", "ArenaSparkline"
       ]
     }
   ]

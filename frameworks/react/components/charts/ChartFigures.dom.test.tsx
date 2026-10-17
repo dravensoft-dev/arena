@@ -10,7 +10,7 @@ import assert from 'node:assert/strict';
 import { join } from 'node:path';
 import React from 'react';
 import { mount, cleanup, act } from '../../test/Harness.tsx';
-import { assertPattern, REACT_COMPONENTS } from '../../test/AssertPattern.tsx';
+import { assertPattern, assertPatternCases, REACT_COMPONENTS } from '../../test/AssertPattern.tsx';
 import { ArenaBarChart } from './arena-bar-chart/ArenaBarChart.tsx';
 import { ArenaDoughnutChart } from './arena-doughnut-chart/ArenaDoughnutChart.tsx';
 import { ArenaLineChart } from './arena-line-chart/ArenaLineChart.tsx';
@@ -18,6 +18,10 @@ import { ArenaHorizontalBarChart } from './arena-horizontal-bar-chart/ArenaHoriz
 import { ArenaPyramidChart } from './arena-pyramid-chart/ArenaPyramidChart.tsx';
 import { ArenaRadarChart } from './arena-radar-chart/ArenaRadarChart.tsx';
 import { ArenaScatterChart } from './arena-scatter-chart/ArenaScatterChart.tsx';
+import { ArenaSparkline } from './arena-sparkline/ArenaSparkline.tsx';
+import { ArenaTable } from '../display/arena-table/ArenaTable.tsx';
+import { ArenaTableRow } from '../display/arena-table-row/ArenaTableRow.tsx';
+import { ArenaTableCell } from '../display/arena-table-cell/ArenaTableCell.tsx';
 import type { ArenaSeries } from '../../Api.generated';
 
 afterEach(cleanup);
@@ -376,4 +380,126 @@ test('the cursor walks the marks in the order the table lists them, so the two r
 
   press(region, 'Escape');
   assert.equal(reading(root), null);
+});
+
+const SPARK = 'Deliveries this week';
+
+function sparkFigure(root: HTMLElement) {
+  const graphic = root.querySelector<HTMLElement>('[role="img"]');
+  assert.ok(graphic, 'a sparkline with no role="img" is a decoration, not a figure');
+  assert.equal(graphic.getAttribute('aria-label'), `${SPARK} — sparkline`, 'the name is the locale word around label');
+  const table = root.querySelector<HTMLElement>('table');
+  assert.ok(table, 'the numbers must be in a real table');
+  assert.equal(table.querySelector('caption')?.textContent, `${SPARK} — sparkline`, 'the caption is the same name');
+  const head = [...table.querySelectorAll<HTMLElement>('thead th')].map((c) => (c.textContent ?? '').trim());
+  assert.deepEqual(head, ['Point', SERIES], 'the point column, then the series under its own name');
+  const rows = [...table.querySelectorAll<HTMLElement>('tbody tr')]
+    .map((r) => [...r.querySelectorAll('th, td')].map((c) => (c.textContent ?? '').trim()));
+  assert.deepEqual(rows, LABELS.map((l, i) => [l, String(VALUES[i])]), 'every point is a row, its label and its number');
+  return graphic;
+}
+
+test('ArenaSparkline meets both of its declared cases', () => {
+  assertPatternCases({
+    bindingPath: join(REACT_COMPONENTS, 'charts/arena-sparkline/ArenaSparkline.behaviour.json'),
+    cases: {
+      static: () => {
+        const root = mount(<ArenaSparkline labels={LABELS} label={SPARK} series={[{ label: SERIES, values: VALUES }]} />);
+        const graphic = sparkFigure(root);
+        assert.equal(root.querySelectorAll('[tabindex]').length, 0, 'the static case is no tab stop at all');
+        assert.equal(root.querySelector('[role="group"]'), null, 'with no keyboard there is no region to name');
+        press(root.querySelector('svg')!.parentElement as HTMLElement, 'ArrowRight');
+        assert.equal(reading(root), null, 'a key reaches nothing, so no cursor and no tooltip appear');
+        return { root, subjects: { default: graphic }, behavioural: { 'alternative.table': true, ...Object.fromEntries(CURSOR_KEYS.map((key) => [key, false])) } };
+      },
+      interactive: () => {
+        const root = mount(<ArenaSparkline labels={LABELS} label={SPARK} series={[{ label: SERIES, values: VALUES }]} interactive />);
+        const graphic = sparkFigure(root);
+        const region = root.querySelector<HTMLElement>('[role="group"]');
+        assert.equal(region?.getAttribute('aria-label'), `${SPARK} — sparkline`, 'the keyboard region carries the same name');
+        return { root, subjects: { default: graphic }, behavioural: { 'alternative.table': true, ...cursorVerdicts(root, 'ArenaSparkline') } };
+      },
+    },
+  });
+});
+
+test('ArenaSparkline draws the crosshair and the enlarged dot where the cursor is, and clears both on Escape', () => {
+  const root = mount(<ArenaSparkline labels={LABELS} label={SPARK} series={[{ label: SERIES, values: VALUES }]} interactive />);
+  const region = root.querySelector<HTMLElement>('[role="group"]')!;
+  const dashed = () => [...root.querySelectorAll('line')].filter((l) => l.getAttribute('stroke-dasharray'));
+  assert.equal(dashed().length, 0, 'at rest there is no crosshair');
+  const radii = () => [...root.querySelectorAll('circle')].map((c) => c.getAttribute('r')).sort();
+  assert.deepEqual(radii(), ['4'], 'at rest only the end dot is drawn');
+  press(region, 'Home');
+  assert.equal(dashed().length, 1, 'the cursor draws one crosshair');
+  assert.equal(dashed()[0]!.getAttribute('stroke'), 'var(--edge-axis)', 'the crosshair is drawn in edge-axis, as the line chart\'s');
+  assert.deepEqual(radii(), ['4', '5'], 'the end dot at rest and the cursor dot enlarged');
+  press(region, 'End');
+  assert.deepEqual(radii(), ['5'], 'on the last point the end dot is the cursor dot');
+  press(region, 'Escape');
+  assert.equal(dashed().length, 0, 'Escape clears the crosshair');
+  assert.deepEqual(radii(), ['4']);
+});
+
+test('the sparkline readout starts at the first point and ends at the last, so it never leaves the frame', () => {
+  const root = mount(<ArenaSparkline labels={LABELS} label={SPARK} series={[{ label: SERIES, values: VALUES }]} interactive />);
+  const region = root.querySelector<HTMLElement>('[role="group"]')!;
+  const shift = () => root.querySelector<HTMLElement>('[data-arena-part="sparkline.tooltip"]')!.style.getPropertyValue('--arena-sparkline-shift');
+  press(region, 'Home');
+  assert.equal(shift(), '0', 'on the first point the readout is start-aligned on the point');
+  press(region, 'End');
+  assert.equal(shift(), '1', 'on the last point the readout is end-aligned on the point');
+  press(region, 'ArrowLeft');
+  assert.ok(Number(shift()) > 0 && Number(shift()) < 1, 'between the ends the readout slides with the point');
+});
+
+test('an interactive sparkline is a keyboard region at least the smallest control height, with the plot centred in it', () => {
+  const live = mount(<ArenaSparkline labels={LABELS} label={SPARK} series={[{ label: SERIES, values: VALUES }]} interactive />);
+  const region = live.querySelector<HTMLElement>('[role="group"]')!;
+  assert.equal(region.style.minHeight, 'var(--dz-ctl-h-sm)', 'the region is never shorter than the density\'s smallest control');
+  assert.equal(region.style.display, 'flex');
+  assert.equal(region.style.alignItems, 'center', 'the plot sits on the middle of the region');
+  assert.equal(live.querySelector<HTMLElement>('[data-arena-part="sparkline.frame"]')!.style.height, '',
+    'the frame is as tall as the region it holds');
+  cleanup();
+  const still = mount(<ArenaSparkline labels={LABELS} label={SPARK} series={[{ label: SERIES, values: VALUES }]} />);
+  const plot = still.querySelector('svg')!.parentElement as HTMLElement;
+  assert.equal(plot.style.minHeight, '', 'the static plot keeps the height of its line');
+  assert.equal(plot.style.display, 'block');
+  assert.equal(still.querySelector<HTMLElement>('[data-arena-part="sparkline.frame"]')!.style.height, '20px');
+});
+
+test('a static sparkline answers no pointer, because it draws nothing a pointer could reveal', () => {
+  const root = mount(<ArenaSparkline labels={LABELS} label={SPARK} series={[{ label: SERIES, values: VALUES }]} />);
+  assert.equal(root.querySelector('rect'), null, 'no overlay listens for the pointer');
+  const svg = root.querySelector('svg')!;
+  act(() => {
+    svg.dispatchEvent(new window.MouseEvent('pointermove', { clientX: 10, bubbles: true }));
+  });
+  assert.equal(reading(root), null, 'a pointer over a static sparkline shows no tooltip');
+});
+
+const SPARK_COLUMNS = [{ header: 'Service' }, { header: 'Trend' }];
+
+function sparkTable(cell: (i: number) => React.ReactNode) {
+  return mount(
+    <ArenaTable label="Services" columns={SPARK_COLUMNS} responsive={false}>
+      {['checkout-api', 'billing-worker', 'search'].map((name, i) => (
+        <ArenaTableRow key={name}><ArenaTableCell>{name}</ArenaTableCell><ArenaTableCell>{cell(i)}</ArenaTableCell></ArenaTableRow>
+      ))}
+    </ArenaTable>,
+  );
+}
+
+test('a table with a column of static sparklines has the tab stops of the same table without them', () => {
+  const plain = sparkTable((i) => `${VALUES[i]}`);
+  const without = plain.querySelectorAll('[tabindex="0"]').length;
+  cleanup();
+  const sparked = sparkTable((i) => <ArenaSparkline labels={LABELS} label={`Trend ${i}`} series={[{ label: SERIES, values: VALUES }]} />);
+  assert.equal(sparked.querySelectorAll('svg[role="img"]').length, 3, 'every row draws its sparkline');
+  assert.equal(sparked.querySelectorAll('[tabindex="0"]').length, without, 'a static sparkline adds no stop to the grid');
+  cleanup();
+  const live = sparkTable((i) => <ArenaSparkline labels={LABELS} label={`Trend ${i}`} series={[{ label: SERIES, values: VALUES }]} interactive />);
+  assert.equal(live.querySelectorAll('[role="group"][tabindex="0"]').length, 3,
+    'an interactive sparkline is a control inside its cell and keeps a stop of its own, which is why the column default is static');
 });

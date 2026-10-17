@@ -154,15 +154,15 @@ test('THE OTHER HALF: React implementing an affordance its contract does not dec
 });
 
 test('the react half asks only the components that draw by hand, because the rest answer with their manifest', () => {
-  assert.deepEqual([...HAND_DRAWN.keys()].sort(), ['ArenaBarChart', 'ArenaDoughnutChart', 'ArenaHorizontalBarChart', 'ArenaLineChart', 'ArenaPyramidChart', 'ArenaRadarChart', 'ArenaScatterChart']);
-  assert.deepEqual(unaskedHandDrawn(['ArenaBarChart', 'ArenaDoughnutChart', 'ArenaHorizontalBarChart', 'ArenaLineChart', 'ArenaPyramidChart', 'ArenaRadarChart', 'ArenaScatterChart']), []);
+  assert.deepEqual([...HAND_DRAWN.keys()].sort(), ['ArenaBarChart', 'ArenaDoughnutChart', 'ArenaHorizontalBarChart', 'ArenaLineChart', 'ArenaPyramidChart', 'ArenaRadarChart', 'ArenaScatterChart', 'ArenaSparkline']);
+  assert.deepEqual(unaskedHandDrawn(['ArenaBarChart', 'ArenaDoughnutChart', 'ArenaHorizontalBarChart', 'ArenaLineChart', 'ArenaPyramidChart', 'ArenaRadarChart', 'ArenaScatterChart', 'ArenaSparkline']), []);
 });
 
 test('a hand-drawn component the react half never opened is a failure, not a clean pass', () => {
   const problems = unaskedHandDrawn(['ArenaBarChart', 'ArenaDoughnutChart']);
-  assert.equal(problems.length, 5);
+  assert.equal(problems.length, 6);
   assert.deepEqual(problems.map((p) => /HAND_DRAWN names (\w+)/.exec(p)?.[1]).sort(),
-    ['ArenaHorizontalBarChart', 'ArenaLineChart', 'ArenaPyramidChart', 'ArenaRadarChart', 'ArenaScatterChart']);
+    ['ArenaHorizontalBarChart', 'ArenaLineChart', 'ArenaPyramidChart', 'ArenaRadarChart', 'ArenaScatterChart', 'ArenaSparkline']);
   assert.match(problems[0] ?? '', /never opened/);
 });
 

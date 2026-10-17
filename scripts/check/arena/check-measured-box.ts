@@ -54,6 +54,7 @@ export const MEASURED = new Map<string, Measured>([
   ['ArenaPyramidChart', { slot: null, decides: [], why: CHART }],
   ['ArenaRadarChart', { slot: null, decides: [], why: CHART }],
   ['ArenaScatterChart', { slot: null, decides: [], why: CHART }],
+  ['ArenaSparkline', { slot: null, decides: [], why: CHART }],
 ]);
 
 const CALLS = /\b(?:useArenaContainerWidth|arenaContainerWidth)\s*(?:<[^()]*>)?\s*\(/;

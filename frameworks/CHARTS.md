@@ -10,7 +10,7 @@
 
 It is a page of its own rather than a section of the roof because a chart is one category of one
 kind of component, and the roof is read by whoever changes any component at all. What binds every
-layer is there; what binds the eight charts is here, and the route to it is one link.
+layer is there; what binds every chart is here, and the route to it is one link.
 
 `components/charts/` carries the worked example, and the rule that goes with it. Three modules
 sit there rather than inside a chart or at the layer root, because every chart reads them and
@@ -27,10 +27,12 @@ more" needs no minus sign and `arenaScaleZero(scale)` falls out of the same arit
 **A `role="img"` subtree is presentational, and that one fact splits the chart's keyboard story
 in two.** Nothing focusable inside the graphic reaches a screen reader however correct its ARIA,
 so the reader of a screen reader gets the hidden table, which is already there, and a sighted
-keyboard user gets a data cursor. **One tab stop for the whole plot, always**: the rail carries
-it whether it overflows or not, and the cursor moves inside the region rather than adding stops,
-which is what `focus.roving` means in `contracts/behaviour/figure-with-data-table.json`. Arrows
-clamp and never wrap, because an axis has ends and wrapping loses the reader's place.
+keyboard user gets a data cursor. **One tab stop for the whole plot, always, once the chart reads
+a cursor**: the rail carries it whether it overflows or not, and the cursor moves inside the
+region rather than adding stops, which is what `focus.roving` means in
+`contracts/behaviour/figure-with-data-table.json`. A static sparkline reads no cursor, so it has
+no stop, and the `static` case of its binding excepts every cursor requirement. Arrows clamp and
+never wrap, because an axis has ends and wrapping loses the reader's place.
 
 **Tap to read, drag to scroll.** `arenaPointerUpdates(pointerType, phase)` is the whole rule: a
 `pointerdown` always reads, and a `pointermove` reads for every pointer except touch, because a
@@ -242,6 +244,22 @@ count is the whole rule, which is why the charts that shipped before it draw the
 drew: `arenaLegendShows(count)` is the only place it is written. The strip comes OUT of the plot,
 so `--chart-height` stays the height of the whole component, the same trade the doughnut makes on
 the other axis when its legend column takes width from the ring.
+
+**A sparkline is scaled to the data's own range, because it has no axis to read a magnitude
+off.** `arenaSparkDomain(values)` spans the lowest value to the highest and puts a flat series on
+the middle, so the line shows direction and rhythm and the hidden table carries the numbers. Its
+step is the whole span and not a nice number: no tick is drawn, so no zero needs to land on one.
+`arenaSparkBox(width, height)` insets `chart.point-r` on every side instead of the pads, so the end
+dot and the stroke are never cut at an edge, and it returns `{ x, y, w, h }` for the reason
+`ArenaPlotBox` does. The binding has two cases, chosen by `interactive`. `static`, the default, is
+the figure and its table with no stop, no cursor and an inert pointer, because the common place of
+a sparkline is a table cell, where every stop is one more Tab press. `interactive` is the line
+chart's cursor, with two differences. The keyboard region is never shorter than `--dz-ctl-h-sm`,
+with the plot centred in it, because a 20px plot is under every density's target floor. The
+readout slides with the point, `arenaTooltipShift(x, box)` running from 0 on the first point to 1
+on the last, so it stays inside the frame where a centred readout overhangs it by half its width.
+One series is the whole member, so no legend is drawn, and a second warns through
+`arenaOneSeries` with the sparkline's own reason rather than the doughnut's.
 
 **`ArenaPlotBox` spells its size `w` and `h` rather than `width` and `height`**, because
 `check-dimension-literals.ts` reads a property named `width` as a CSS dimension and follows the

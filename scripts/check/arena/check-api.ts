@@ -455,6 +455,11 @@ const THE_PLOT_HEIGHT_IS_A_TOKEN = 'the plot height a chart renders at is --char
   + 'value a consumer observes is a token\'s, so a default written into the contract would be a '
   + 'second copy of it that goes stale the day contracts/design/chart.json moves and fails nothing.';
 
+const THE_SPARKLINE_HEIGHT_IS_A_TOKEN = 'the plot height a sparkline renders at is --chart-sparkline-height, '
+  + 'which both layers import from their generated Tokens module. The value a consumer observes is a '
+  + 'token\'s, so a default written into the contract would be a second copy of it that goes stale the '
+  + 'day contracts/design/chart.json moves and fails nothing.';
+
 export const DERIVED_DEFAULT = new Map<string, string>([
   ['ArenaBarChart.height', THE_PLOT_HEIGHT_IS_A_TOKEN],
   ['ArenaHorizontalBarChart.height', THE_PLOT_HEIGHT_IS_A_TOKEN],
@@ -462,6 +467,7 @@ export const DERIVED_DEFAULT = new Map<string, string>([
   ['ArenaPyramidChart.height', THE_PLOT_HEIGHT_IS_A_TOKEN],
   ['ArenaRadarChart.height', THE_PLOT_HEIGHT_IS_A_TOKEN],
   ['ArenaScatterChart.height', THE_PLOT_HEIGHT_IS_A_TOKEN],
+  ['ArenaSparkline.height', THE_SPARKLINE_HEIGHT_IS_A_TOKEN],
 ]);
 
 export function implementationDefaultProblems(

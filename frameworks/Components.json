@@ -10,7 +10,8 @@
     "ArenaLineChart",
     "ArenaPyramidChart",
     "ArenaRadarChart",
-    "ArenaScatterChart"
+    "ArenaScatterChart",
+    "ArenaSparkline"
   ],
   "display": [
     "ArenaActivityFeed",

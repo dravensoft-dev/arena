@@ -43,6 +43,7 @@ will report it.
 | `ArenaPyramidChart` | A population pyramid: two counts per band, mirrored about a shared centre line, with the band names down the left edge. Diverging from a centre is the whole point rather than an option. The two-series rule and the mirrored axis are the component for that reason, instead of a flag on a bar chart. Dependency-free SVG with a visually-hidden table of the same numbers. | `labels*` `series*` `label*` `valueSuffix` `valuePrefix` `valueFormat` `height` | figure-with-data-table | angular, react |
 | `ArenaRadarChart` | Several measures on one shape: an axis per label around a polar grid, one closed polygon per series. Reads a profile rather than a magnitude, which is what makes it a different chart from bars over the same numbers. Dependency-free SVG with a visually-hidden table of the same numbers. | `labels*` `series*` `label*` `fill` `valueSuffix` `valuePrefix` `valueFormat` `height` | figure-with-data-table | angular, react |
 | `ArenaScatterChart` | Two quantities against each other, one mark per pair, and a third as the mark's size when a series carries one. The first chart here whose horizontal axis carries a value rather than a position, which is why it takes a series of parallel measurements and names every axis it draws. Dependency-free SVG with a visually-hidden table of the same numbers. | `series*` `label*` `xLabel*` `yLabel*` `sizeLabel` `sizeLegend` `valueSuffix` `valuePrefix` `valueFormat` `height` | figure-with-data-table | angular, react |
+| `ArenaSparkline` | One series drawn as a word-sized line with no axis, no labels and no legend, for a table cell or the line beside a number. The scale is the data's own range, so it shows direction and rhythm, never magnitude, and a visually-hidden table carries every number. | `labels*` `series*` `label*` `area` `curve` `interactive` `valueSuffix` `valuePrefix` `valueFormat` `height` | figure-with-data-table (react) | angular, react |
 
 ## display
 
@@ -153,4 +154,4 @@ will report it.
 | `ArenaTab` | One tab in an ArenaTabs strip, and the panel it shows. ArenaTab draws the button; its content fills the tabpanel ArenaTabs renders beside the tablist. | `value*` `label*` `content` | none | angular, react |
 | `ArenaTabs` | A row of tabs and the one panel they switch between. Write one `ArenaTab` per view; ArenaTabs renders the tablist, the panel, and the keyboard. | `content` `value` `defaultValue` `change` | tabs | angular, react |
 
-93 components across 7 categories.
+94 components across 7 categories.

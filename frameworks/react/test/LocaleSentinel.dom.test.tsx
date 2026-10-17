@@ -43,6 +43,7 @@ import { ArenaLineChart } from '../components/charts/arena-line-chart/ArenaLineC
 import { ArenaBarChart } from '../components/charts/arena-bar-chart/ArenaBarChart.tsx';
 import { ArenaHorizontalBarChart } from '../components/charts/arena-horizontal-bar-chart/ArenaHorizontalBarChart.tsx';
 import { ArenaPyramidChart } from '../components/charts/arena-pyramid-chart/ArenaPyramidChart.tsx';
+import { ArenaSparkline } from '../components/charts/arena-sparkline/ArenaSparkline.tsx';
 import { ArenaDoughnutChart } from '../components/charts/arena-doughnut-chart/ArenaDoughnutChart.tsx';
 import { ArenaRadarChart } from '../components/charts/arena-radar-chart/ArenaRadarChart.tsx';
 import { ArenaScatterChart } from '../components/charts/arena-scatter-chart/ArenaScatterChart.tsx';
@@ -227,6 +228,7 @@ const CASES: Record<string, Case> = {
     consumer: ['Share', 'share', 'A', 'B'],
   },
   ArenaRadarChart: { renders: [() => <ArenaRadarChart label="Skills" labels={['Go', 'TS', 'SQL']} series={[{ label: 'Ada', values: [1, 2, 3] }]} />], consumer: ['Skills', 'Go', 'TS', 'SQL', 'Ada'] },
+  ArenaSparkline: { renders: [() => <ArenaSparkline label="Latency" labels={['Mon', 'Tue']} series={[{ label: 'p95', values: [1, 2] }]} />], consumer: ['Latency', 'Mon', 'Tue', 'p95'] },
   ArenaScatterChart: { renders: [() => <ArenaScatterChart label="Load" xLabel="Requests" yLabel="Latency" series={[{ label: 'Staging', x: [1, 2], y: [3, 4] }]} />], consumer: ['Load', 'Requests', 'Latency', 'Staging'] },
 };
 
