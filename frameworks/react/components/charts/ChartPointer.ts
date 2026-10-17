@@ -30,3 +30,27 @@ export function arenaPointerUpdates(pointerType: string, phase: string): boolean
 export function arenaPointerClears(pointerType: string): boolean {
   return pointerType !== 'touch';
 }
+
+export interface ArenaCell {
+  row: number;
+  col: number;
+}
+
+export function arenaCursorHandles2d(key: string): boolean {
+  return key === 'ArrowLeft' || key === 'ArrowRight' || key === 'ArrowUp' || key === 'ArrowDown'
+    || key === 'Home' || key === 'End' || key === 'Escape';
+}
+
+export function arenaCursorStep2d(current: ArenaCell | null, key: string, rows: number, cols: number): ArenaCell | null {
+  if (rows <= 0 || cols <= 0 || key === 'Escape') return null;
+  if (!arenaCursorHandles2d(key)) return current;
+  if (current === null) return { row: 0, col: key === 'End' ? cols - 1 : 0 };
+  const row = Math.max(0, Math.min(current.row, rows - 1));
+  const col = Math.max(0, Math.min(current.col, cols - 1));
+  if (key === 'Home') return { row, col: 0 };
+  if (key === 'End') return { row, col: cols - 1 };
+  if (key === 'ArrowRight') return { row, col: Math.min(cols - 1, col + 1) };
+  if (key === 'ArrowLeft') return { row, col: Math.max(0, col - 1) };
+  if (key === 'ArrowDown') return { row: Math.min(rows - 1, row + 1), col };
+  return { row: Math.max(0, row - 1), col };
+}

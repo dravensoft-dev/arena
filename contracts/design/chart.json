@@ -18,6 +18,11 @@
       "$description": "A gauge's dial height. A chosen dimension: a 270 degree dial with its end labels and its centre reading fits a tile at 200px, where chart.height would spend a whole one on a single number. The dial's radius is derived from it, so the band ring, the track and the centre reading move together when it does.",
       "$extensions": { "com.dravensoft.arena": { "script": true } }
     },
+    "heatmap-row-h": {
+      "$value": { "value": 28, "unit": "px" },
+      "$description": "A heatmap row's pitch. A CONSEQUENCE of the type scale, the way pad-bottom is: one line at --dz-text-xs with room above and below it, so a row name stays legible beside its cells. An absent height is computed from the row count times this pitch, plus the pads and the legend strip. If the type scale moves, revisit it; it will not fail loudly.",
+      "$extensions": { "com.dravensoft.arena": { "script": true } }
+    },
     "pad-top": {
       "$value": "{sp.2}",
       "$description": "The plot's top padding, one step of the base grid.",

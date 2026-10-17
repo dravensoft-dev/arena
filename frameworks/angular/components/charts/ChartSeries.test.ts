@@ -2,14 +2,14 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { ARENA_CAT_SLOTS } from '../../DataVisuals';
 import { forgetArenaWarnings } from '../../WarnOnce';
-import { arenaLinearScale, arenaScaleValue } from './ChartScales';
+import { arenaLinearScale, arenaScaleValue, arenaNiceStep } from './ChartScales';
 import {
   arenaChartTable, arenaOneSeries, arenaSeriesColors, arenaSeriesDomain, arenaSeriesPointCount,
   arenaStackSegments, arenaStackDomain, arenaMirrorDomain, arenaTwoSeries,
   arenaPointCount, arenaPointSeriesDomain, arenaPointSeriesColor, arenaPointTable,
   arenaPointSized, arenaPointSizeRange, arenaSwatchChoice, arenaSparkDomain,
   arenaGaugeBands, arenaGaugeBand, arenaGaugeTicks, arenaGaugeColor, arenaGaugeTable,
-  arenaFunnelConversions, arenaFunnelMax, arenaFunnelTable,
+  arenaFunnelConversions, arenaFunnelMax, arenaFunnelTable, arenaHeatDomain, arenaHeatmapTable,
 } from './ChartSeries';
 import type { ArenaGaugeBand, ArenaPointSeries, ArenaSeries } from '../../Api.generated';
 import type { ArenaSeriesTone } from '../../Api.generated';
@@ -630,4 +630,68 @@ test('the funnel table writes a negative stage as passed and leaves a missing or
   assert.deepEqual(table.rows[3]?.cells, ['', '', ''], 'a label with no value is an empty row');
   const longer = arenaFunnelTable(FUNNEL_WORDS, series({ label: 'A', values: [4, 2, 1] }), ['a'], write, percent, true);
   assert.deepEqual(longer.rows.map((row) => row.header), ['a', '', ''], 'a value with no label has an empty header');
+});
+
+test('the heat domain covers every value, holds exactly five steps and lands every edge on a multiple of the step', () => {
+  const samples = [[7], [1, 2, 3], [0.3, 0.9], [499, 12, 240], [1000000, 3], [-3, 8], [-250, -10], [0.004, 0.0071], [4.4, 99.9]];
+  for (const values of samples) {
+    const domain = arenaHeatDomain([series({ values })]);
+    const label = `values ${values.join(', ')}`;
+    assert.ok(domain.min <= Math.min(0, ...values) + 1e-9, `${label}: covers the minimum`);
+    assert.ok(domain.max >= Math.max(0, ...values) - 1e-9, `${label}: covers the maximum`);
+    assert.ok(Math.abs((domain.max - domain.min) / domain.step - 5) < 1e-6, `${label}: five steps`);
+    const edge = domain.min / domain.step;
+    assert.ok(Math.abs(edge - Math.round(edge)) < 1e-6, `${label}: the lower edge is a multiple of the step`);
+    assert.ok(domain.min <= 0 && domain.max >= 0, `${label}: zero is inside`);
+    assert.equal(arenaNiceStep(domain.step), domain.step, `${label}: the step is a nice step`);
+  }
+});
+
+test('the heat domain of a maximum of 7 is 0 to 10 in steps of 2, and of all zeros is 0 to 5', () => {
+  assert.deepEqual(arenaHeatDomain([series({ values: [7, 3] })]), { min: 0, max: 10, step: 2 });
+  assert.deepEqual(arenaHeatDomain([series({ values: [0, 0] })]), { min: 0, max: 5, step: 1 });
+  assert.deepEqual(arenaHeatDomain([]), { min: 0, max: 5, step: 1 });
+});
+
+test('the heat domain skips a non-finite value and reads every series', () => {
+  assert.deepEqual(arenaHeatDomain([series({ values: [Number.NaN, Number.POSITIVE_INFINITY, 3] })]), arenaHeatDomain([series({ values: [3] })]));
+  assert.deepEqual(arenaHeatDomain([series({ values: [1] }), series({ values: [7] })]), { min: 0, max: 10, step: 2 });
+});
+
+test('the heat table has the heading and one column per label, and one row per series headed by its label', () => {
+  const rows = [series({ label: 'Mon', values: [1, 2, 3] }), series({ label: 'Tue', values: [4, 5, 6] })];
+  const table = arenaHeatmapTable('Row', rows, ['a', 'b', 'c'], write);
+  assert.deepEqual(table.columns, ['Row', 'a', 'b', 'c']);
+  assert.deepEqual(table.rows.map((row) => [row.header, ...row.cells]), [['Mon', '1 ms', '2 ms', '3 ms'], ['Tue', '4 ms', '5 ms', '6 ms']]);
+});
+
+test('a short heat row and a non-finite value leave empty cells', () => {
+  const table = arenaHeatmapTable('Row', [series({ label: 'Mon', values: [1] }), series({ label: 'Tue', values: [Number.NaN, 2, Number.POSITIVE_INFINITY] })], ['a', 'b', 'c'], write);
+  assert.deepEqual(table.rows[0]?.cells, ['1 ms', '', '']);
+  assert.deepEqual(table.rows[1]?.cells, ['', '2 ms', '']);
+  assert.ok(table.rows.every((row) => row.cells.length === 3), 'every row is as wide as the columns');
+});
+
+test('a series longer than the labels adds a blank-headed column, and a label with no value stays a column', () => {
+  const longer = arenaHeatmapTable('Row', [series({ label: 'Mon', values: [1, 2, 3] })], ['a'], write);
+  assert.deepEqual(longer.columns, ['Row', 'a', '', '']);
+  assert.deepEqual(longer.rows[0]?.cells, ['1 ms', '2 ms', '3 ms']);
+  const wider = arenaHeatmapTable('Row', [series({ label: 'Mon', values: [1] })], ['a', 'b'], write);
+  assert.deepEqual(wider.columns, ['Row', 'a', 'b']);
+  assert.deepEqual(arenaHeatmapTable('Row', [], ['a'], write).rows, [], 'no series, no rows');
+});
+
+test('the heat table is the transpose of the chart table over the same data', () => {
+  const rows = [series({ label: 'Mon', values: [1, 2] }), series({ label: 'Tue', values: [3, 4] })];
+  const heat = arenaHeatmapTable('Row', rows, ['a', 'b'], write);
+  const flat = arenaChartTable('Row', rows, ['a', 'b'], write);
+  for (const [r, row] of heat.rows.entries()) {
+    for (const [c, cell] of row.cells.entries()) assert.equal(flat.rows[c]?.cells[r], cell);
+  }
+});
+
+test('the heat domain of decimal data has round edges', () => {
+  assert.deepEqual(arenaHeatDomain([series({ values: [-0.7] })]), { min: -0.8, max: 0.2, step: 0.2 });
+  assert.deepEqual(arenaHeatDomain([series({ values: [0.7, 0.1] })]), { min: 0, max: 1, step: 0.2 });
+  assert.deepEqual(arenaHeatDomain([series({ values: [0.3] })]), { min: 0, max: 0.5, step: 0.1 });
 });

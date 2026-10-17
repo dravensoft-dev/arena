@@ -1,5 +1,7 @@
 import { ARENA_PAD } from '../../DataVisuals.ts';
-import { chartLabelGap, chartRingInset, chartPadCategory, chartPointR, chartTickChar } from '../../Tokens.generated.js';
+import {
+  chartLabelGap, chartRingInset, chartPadCategory, chartPointR, chartTickChar, chartHeatmapRowH, chartLegendStrip,
+} from '../../Tokens.generated.js';
 import type { ArenaChartShape } from '../../Api.generated';
 import type { ArenaDomain, ArenaLinearScale } from './ChartScales.ts';
 import { arenaScaleValue, arenaScaleZero, arenaDomainTicks } from './ChartScales.ts';
@@ -119,6 +121,30 @@ export function arenaFunnelBox(width: number, height: number, gutter: number): A
     w: Math.max(1, width - chartPadCategory - gutter - ARENA_PAD.r),
     h: Math.max(1, height - ARENA_PAD.t * 2),
   };
+}
+
+export function arenaHeatmapHeight(rows: number): number {
+  return Math.max(1, rows) * chartHeatmapRowH + ARENA_PAD.t + ARENA_PAD.b + chartLegendStrip;
+}
+
+export function arenaHeatmapBox(width: number, plotH: number): ArenaPlotBox {
+  return {
+    x: chartPadCategory,
+    y: ARENA_PAD.t,
+    w: Math.max(1, width - chartPadCategory - ARENA_PAD.r),
+    h: Math.max(1, plotH - ARENA_PAD.t - ARENA_PAD.b),
+  };
+}
+
+export function arenaHeatmapWidth(available: number, cols: number, minCellWidth: number | undefined): number {
+  if (!minCellWidth || !(minCellWidth > 0)) return available;
+  return Math.max(available, chartPadCategory + ARENA_PAD.r + minCellWidth * cols);
+}
+
+export function arenaLabelStride(step: number, texts: readonly string[]): number {
+  let widest = 0;
+  for (const text of texts) if (text.length > widest) widest = text.length;
+  return Math.max(1, Math.ceil((Math.ceil(widest * chartTickChar) + chartLabelGap) / step));
 }
 
 export function arenaAxisTicksX(

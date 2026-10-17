@@ -225,6 +225,14 @@ async function catSlotCount() {
   return n;
 }
 
+async function heatStepCount() {
+  let n = 0;
+  for (const item of walk(await load('palette.dark.json'))) {
+    if (isTokenItem(item) && /^color-heat-\d+$/.test(item.token.name)) n += 1;
+  }
+  return n;
+}
+
 export async function buildScriptModules() {
   const tokens = await collectScriptTokens();
   const lines = [SCRIPT_HEADER, ''];
@@ -245,6 +253,10 @@ export async function buildScriptModules() {
     ' * contracts/design/palette.dark.json. Assigned in order and NEVER cycled -- a 9th',
     ' * series folds to "Other", small multiples, or direct labels. */',
     `export const catSlots = ${await catSlotCount()};`,
+    '',
+    '/* Derived, not authored: the number of --color-heat-* steps in',
+    ' * contracts/design/palette.dark.json, the bins a heatmap sorts its values into. */',
+    `export const heatSteps = ${await heatStepCount()};`,
   );
   const body = `${lines.join('\n')}\n`;
   return new Map(SCRIPT_TARGETS.map((path) => [path, body]));

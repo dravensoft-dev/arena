@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { ARENA_CHART_HEIGHT, ARENA_PAD, arenaValueWriter } from '../../DataVisuals';
-import { arenaPlotBox, arenaSparkBox, arenaTooltipShift, arenaSparkTooltipTop, arenaAxisTicks, arenaAxisModel, arenaTickLabelX, arenaCategoryLabelY, arenaDoughnutRadii, arenaValueGutter, arenaTextGutter, arenaFunnelBox } from './ChartAxis';
+import { arenaPlotBox, arenaSparkBox, arenaTooltipShift, arenaSparkTooltipTop, arenaAxisTicks, arenaAxisModel, arenaTickLabelX, arenaCategoryLabelY, arenaDoughnutRadii, arenaValueGutter, arenaTextGutter, arenaFunnelBox, arenaHeatmapHeight, arenaHeatmapBox, arenaHeatmapWidth, arenaLabelStride } from './ChartAxis';
 import { arenaLinearScale, arenaNiceDomain, arenaDomainTicks } from './ChartScales';
-import { chartTickChar, chartLabelGap, chartPadCategory, chartPointR, chartPointRHover, chartSparklineHeight } from '../../Tokens.generated';
+import { chartTickChar, chartLabelGap, chartPadCategory, chartHeatmapRowH, chartLegendStrip, chartPointR, chartPointRHover, chartSparklineHeight } from '../../Tokens.generated';
 
 test('the tick label ends one label gap left of the plot, inside the left pad', () => {
   assert.equal(arenaTickLabelX(), ARENA_PAD.l - 8);
@@ -224,4 +224,44 @@ test('the funnel box leaves the category gutter on the left and the measured gut
   assert.ok(arenaFunnelBox(600, 280, 120).w < box.w, 'a wider gutter takes from the box');
   assert.equal(arenaFunnelBox(10, 5, 400).w, 1, 'never below one pixel');
   assert.equal(arenaFunnelBox(10, 5, 400).h, 1);
+});
+
+test('a heatmap grows by one row pitch a row and is never shorter than one row', () => {
+  for (let rows = 1; rows < 12; rows += 1) assert.equal(arenaHeatmapHeight(rows + 1) - arenaHeatmapHeight(rows), chartHeatmapRowH);
+  assert.equal(arenaHeatmapHeight(0), arenaHeatmapHeight(1), 'no rows is one row of room');
+  assert.equal(arenaHeatmapHeight(3), 3 * chartHeatmapRowH + ARENA_PAD.t + ARENA_PAD.b + chartLegendStrip);
+});
+
+test('the heatmap box leaves the category gutter, the pads and nothing below the plot but the pad', () => {
+  const box = arenaHeatmapBox(600, 200);
+  assert.equal(box.x, chartPadCategory);
+  assert.equal(box.y, ARENA_PAD.t);
+  assert.equal(box.x + box.w + ARENA_PAD.r, 600);
+  assert.equal(box.y + box.h + ARENA_PAD.b, 200);
+  assert.equal(arenaHeatmapBox(10, 5).w, 1, 'never below one pixel');
+  assert.equal(arenaHeatmapBox(10, 5).h, 1);
+});
+
+test('the heatmap fills the available width without a cell minimum and is never narrower than the minimum asks', () => {
+  for (const minimum of [undefined, 0, -4, Number.NaN]) assert.equal(arenaHeatmapWidth(320, 24, minimum), 320);
+  assert.equal(arenaHeatmapWidth(320, 24, 40), chartPadCategory + ARENA_PAD.r + 40 * 24);
+  assert.equal(arenaHeatmapWidth(2000, 24, 40), 2000, 'room to spare is kept');
+  for (const cols of [3, 12, 24, 60]) assert.ok(arenaHeatmapWidth(300, cols, 30) >= 300);
+});
+
+test('the label stride is one while the step fits the widest label and grows as the step shrinks', () => {
+  const texts = ['00', '07', '23'];
+  const room = Math.ceil(2 * chartTickChar) + chartLabelGap;
+  assert.equal(arenaLabelStride(room, texts), 1);
+  assert.equal(arenaLabelStride(room * 4, texts), 1);
+  assert.equal(arenaLabelStride(room / 2, texts), 2);
+  let previous = 1;
+  for (let step = room; step > 0.5; step -= 0.5) {
+    const stride = arenaLabelStride(step, texts);
+    assert.ok(stride >= previous, `stride ${stride} after ${previous} at step ${step}`);
+    assert.ok(stride * step >= room, 'the labels drawn have the room the widest one needs');
+    previous = stride;
+  }
+  assert.equal(arenaLabelStride(10, []), 1, 'no text is never more than one');
+  assert.ok(arenaLabelStride(10, ['x'.repeat(12)]) > arenaLabelStride(10, ['xx']), 'the widest label decides');
 });

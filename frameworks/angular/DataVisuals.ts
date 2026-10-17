@@ -1,11 +1,13 @@
 import {
-  chartHeight, chartPadTop, chartPadRight, chartPadBottom, chartPadLeft, catSlots,
+  chartHeight, chartPadTop, chartPadRight, chartPadBottom, chartPadLeft, catSlots, heatSteps,
   tintArea, tintSoft, tintEdge,
 } from './Tokens.generated';
 import type { ArenaNumberFormat, ArenaSeriesTone, ArenaTone } from './Api.generated';
 import { arenaWarnOnce } from './WarnOnce';
 
 export const ARENA_CAT_SLOTS = catSlots;
+
+export const ARENA_HEAT_STEPS = heatSteps;
 
 export const ARENA_CHART_HEIGHT = chartHeight;
 
@@ -111,6 +113,10 @@ export function arenaPercentWriter(format?: ArenaNumberFormat): (ratio: number) 
     arenaWarnOnce(INVALID_LOCALE(format.locale));
     return raw;
   }
+}
+
+export function arenaHeatFill(step: number): string {
+  return `var(--heat-step-${step})`;
 }
 
 export function arenaPlotWidth(available: number, count: number, minPointSpacing: number | undefined): number {

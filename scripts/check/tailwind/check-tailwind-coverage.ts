@@ -84,6 +84,7 @@ export const EXCLUDED = new Map([
   ['chart-height', 'script-readable: JS computes SVG positions from it, never a utility'],
   ['chart-sparkline-height', 'script-readable: JS computes SVG positions from it, never a utility'],
   ['chart-gauge-height', 'script-readable: JS computes SVG positions from it, never a utility'],
+  ['chart-heatmap-row-h', 'script-readable: JS computes SVG positions from it, never a utility'],
   ['chart-pad-top', 'script-readable: JS computes SVG positions from it, never a utility'],
   ['chart-pad-right', 'script-readable: JS computes SVG positions from it, never a utility'],
   ['chart-pad-bottom', 'script-readable: JS computes SVG positions from it, never a utility'],

@@ -133,6 +133,17 @@ export function arenaFunnelWidth(scale: ArenaLinearScale, value: number): number
   return Math.max(0, arenaScaleValue(scale, value) - scale.from);
 }
 
+export function arenaHeatEdge(domain: Pick<ArenaDomain, 'min' | 'step'>, index: number): number {
+  return Number((domain.min + index * domain.step).toPrecision(12));
+}
+
+export function arenaHeatStep(domain: ArenaDomain, value: number, steps: number): number | null {
+  if (!Number.isFinite(value)) return null;
+  let step = 1;
+  while (step < steps && value >= arenaHeatEdge(domain, step)) step += 1;
+  return step;
+}
+
 export function arenaPointScale(count: number, start: number, span: number): ArenaPointScale {
   return { start, span, step: count <= 1 ? 0 : span / (count - 1), count };
 }

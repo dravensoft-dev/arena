@@ -7,9 +7,10 @@ import {
   arenaNiceStep, arenaNiceDomain, arenaDomainTicks, arenaRadiusScale, arenaRadiusAt,
   arenaBandScale, arenaBandStart, arenaBandMark, arenaBandCenter, arenaBandSubBand,
   arenaPointScale, arenaPointAt, arenaNearestPointIndex, arenaDoughnutSlices,
-  arenaGaugeFraction, arenaFunnelBands, arenaFunnelWidth,
+  arenaGaugeFraction, arenaFunnelBands, arenaFunnelWidth, arenaHeatEdge, arenaHeatStep,
 } from './ChartScales';
 import { arenaPlotBox } from './ChartAxis';
+import { arenaHeatDomain } from './ChartSeries';
 
 const IH = 244;
 const BASELINE = ARENA_PAD.t + IH;
@@ -525,4 +526,78 @@ test('an all-zero funnel draws every width zero', () => {
   const scale = arenaLinearScale(0, 0, 0, 500);
   assert.equal(arenaFunnelWidth(scale, 0), 0);
   assert.equal(arenaFunnelWidth(scale, 7), 0, 'a zero span has no width to give');
+});
+
+const HEAT_DOMAINS = [{ min: 0, max: 5, step: 1 }, { min: 0, max: 10, step: 2 }, { min: -10, max: 15, step: 5 }, { min: 0, max: 2500, step: 500 }];
+const DECIMAL_HEAT_DOMAINS = [
+  { min: 0, max: 1, step: 0.2 }, { min: 0, max: 0.5, step: 0.1 }, { min: -0.8, max: 0.2, step: 0.2 },
+  { min: 0, max: 0.05, step: 0.01 }, { min: 0, max: 17.5, step: 3.5 }, { min: 0, max: 0.7, step: 0.14 },
+];
+
+function heatSweep(domain: { min: number; max: number }): number[] {
+  const out: number[] = [];
+  for (let i = 0; i <= 200; i += 1) out.push(domain.min + ((domain.max - domain.min) * i) / 200);
+  return out;
+}
+
+test('a heat step never decreases as the value grows', () => {
+  for (const domain of HEAT_DOMAINS) {
+    let previous = 0;
+    for (const value of heatSweep(domain)) {
+      const step = arenaHeatStep(domain, value, 5) as number;
+      assert.ok(step >= previous, `step ${step} after ${previous} at ${value}`);
+      previous = step;
+    }
+  }
+});
+
+test('the five heat bins are equal in width and every step from one to five is used', () => {
+  for (const domain of HEAT_DOMAINS) {
+    const width = (domain.max - domain.min) / 5;
+    const seen = new Set<number>();
+    for (let bin = 0; bin < 5; bin += 1) {
+      const low = arenaHeatStep(domain, domain.min + bin * width + width * 0.01, 5);
+      const high = arenaHeatStep(domain, domain.min + (bin + 1) * width - width * 0.01, 5);
+      assert.equal(low, bin + 1, 'the inside of the bin near its lower edge');
+      assert.equal(high, bin + 1, 'the inside of the bin near its upper edge');
+      seen.add(low as number);
+    }
+    assert.equal(seen.size, 5);
+  }
+});
+
+test('a value on a bin edge belongs to the higher bin, the maximum to the top and the minimum to the first', () => {
+  for (const domain of HEAT_DOMAINS) {
+    const width = (domain.max - domain.min) / 5;
+    for (let bin = 1; bin < 5; bin += 1) assert.equal(arenaHeatStep(domain, domain.min + bin * width, 5), bin + 1);
+    assert.equal(arenaHeatStep(domain, domain.max, 5), 5);
+    assert.equal(arenaHeatStep(domain, domain.min, 5), 1);
+  }
+});
+
+test('a heat value outside the domain clamps to the end steps, and a non-finite one has no step', () => {
+  const domain = { min: 0, max: 10, step: 2 };
+  assert.equal(arenaHeatStep(domain, -50, 5), 1);
+  assert.equal(arenaHeatStep(domain, 50, 5), 5);
+  for (const value of [Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY]) assert.equal(arenaHeatStep(domain, value, 5), null);
+});
+
+test('a data set of one value puts every cell in one step', () => {
+  const domain = arenaHeatDomain([{ label: 'A', values: [7, 7, 7] }]);
+  assert.equal(new Set([7, 7, 7].map((value) => arenaHeatStep(domain, value, 5))).size, 1);
+});
+
+test('a value on a decimal bin edge lands in the higher step and every edge is a round number', () => {
+  for (const domain of DECIMAL_HEAT_DOMAINS) {
+    for (let bin = 0; bin <= 5; bin += 1) {
+      const edge = arenaHeatEdge(domain, bin);
+      assert.equal(edge, Number(edge.toPrecision(10)), `edge ${bin} of ${JSON.stringify(domain)} carries no float noise`);
+      assert.equal(arenaHeatStep(domain, edge, 5), Math.min(5, bin + 1), `edge ${bin} of ${JSON.stringify(domain)}`);
+    }
+    assert.equal(arenaHeatEdge(domain, 5), domain.max);
+  }
+  const wide = { min: 0, max: 1, step: 0.2 };
+  assert.equal(arenaHeatStep(wide, 0.6, 5), 4);
+  assert.equal(arenaHeatStep(wide, 0.6 - 1e-9, 5), 3);
+  assert.equal(arenaHeatEdge({ min: 0, step: 0.1 }, 3), 0.3);
 });

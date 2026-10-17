@@ -1,8 +1,8 @@
-import { arenaCatColor, arenaCatIndex, arenaToneColor } from '../../DataVisuals.ts';
+import { ARENA_HEAT_STEPS, arenaCatColor, arenaCatIndex, arenaToneColor } from '../../DataVisuals.ts';
 import { arenaWarnOnce } from '../../WarnOnce.ts';
 import { arenaPhrase } from '../../Phrase.ts';
 import { arenaRegionIndex } from '../../Thresholds.ts';
-import { arenaNiceDomain } from './ChartScales.ts';
+import { arenaHeatEdge, arenaNiceDomain, arenaNiceStep } from './ChartScales.ts';
 import type { ArenaDomain } from './ChartScales.ts';
 import type { ArenaGaugeBand, ArenaPointSeries, ArenaSeries, ArenaSeriesTone } from '../../Api.generated';
 
@@ -99,6 +99,41 @@ export function arenaChartTable(
     rows: Array.from({ length: points }, (_, index) => ({
       header: labels[index] ?? '',
       cells: series.map((one) => (index < one.values.length ? write(one.values[index] as number) : '')),
+    })),
+  };
+}
+
+export function arenaHeatDomain(series: readonly ArenaSeries[]): ArenaDomain {
+  let min = 0;
+  let max = 0;
+  for (const one of series) {
+    for (const value of one.values) {
+      if (!Number.isFinite(value)) continue;
+      if (value < min) min = value;
+      if (value > max) max = value;
+    }
+  }
+  let step = arenaNiceStep((max - min) / ARENA_HEAT_STEPS);
+  let lo = arenaHeatEdge({ min: 0, step }, Math.floor(Number((min / step).toPrecision(12))));
+  while (arenaHeatEdge({ min: lo, step }, ARENA_HEAT_STEPS) < max) {
+    step = arenaNiceStep(step * (1 + 1e-9));
+    lo = arenaHeatEdge({ min: 0, step }, Math.floor(Number((min / step).toPrecision(12))));
+  }
+  return { min: lo, max: arenaHeatEdge({ min: lo, step }, ARENA_HEAT_STEPS), step };
+}
+
+export function arenaHeatmapTable(
+  heading: string, series: readonly ArenaSeries[], labels: readonly string[], write: (value: number) => string,
+): ArenaChartTable {
+  const cols = Math.max(labels.length, arenaSeriesPointCount(series));
+  return {
+    columns: [heading, ...Array.from({ length: cols }, (_, index) => labels[index] ?? '')],
+    rows: series.map((one) => ({
+      header: one.label,
+      cells: Array.from({ length: cols }, (_, index) => {
+        const value = one.values[index];
+        return value !== undefined && Number.isFinite(value) ? write(value) : '';
+      }),
     })),
   };
 }

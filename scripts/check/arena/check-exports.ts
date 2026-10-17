@@ -56,6 +56,8 @@ export const INTERNAL = new Map<string, string>([
   ['arenaAreaFill', CHART_GEOMETRY],
   ['arenaValueWriter', CHART_GEOMETRY],
   ['arenaPercentWriter', CHART_GEOMETRY],
+  ['ARENA_HEAT_STEPS', CHART_GEOMETRY],
+  ['arenaHeatFill', CHART_GEOMETRY],
   ['ARENA_INTERACTIVE_DESCENDANT', 'the selector string behind the rule that a press starting on '
     + 'a control inside an activation target keeps to that control. The rule is what a consumer '
     + 'holds; this is how Arena finds the descendants, and a consumer matching on it by hand is '
