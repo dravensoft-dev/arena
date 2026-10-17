@@ -7,6 +7,7 @@ import {
   arenaNiceStep, arenaNiceDomain, arenaDomainTicks, arenaRadiusScale, arenaRadiusAt,
   arenaBandScale, arenaBandStart, arenaBandMark, arenaBandCenter, arenaBandSubBand,
   arenaPointScale, arenaPointAt, arenaNearestPointIndex, arenaDoughnutSlices,
+  arenaGaugeFraction,
 } from './ChartScales';
 import { arenaPlotBox } from './ChartAxis';
 
@@ -481,4 +482,17 @@ test('the ends of the range land exactly on the two tokens', () => {
   const scale = arenaRadiusScale(2, 40);
   assert.ok(Math.abs(arenaRadiusAt(scale, 2) - scale.rMin) < 1e-9);
   assert.ok(Math.abs(arenaRadiusAt(scale, 40) - scale.rMax) < 1e-9);
+});
+
+test('a gauge fraction places a value on its scale and clamps the drawing at both ends', () => {
+  assert.equal(arenaGaugeFraction(72, 0, 100), 0.72);
+  assert.equal(arenaGaugeFraction(130, 0, 100), 1, 'above max the arc is pinned at the end');
+  assert.equal(arenaGaugeFraction(-20, 0, 100), 0, 'below min the arc is pinned at the start');
+  assert.equal(arenaGaugeFraction(15, 10, 20), 0.5, 'the scale starts at min, not at zero');
+});
+
+test('a gauge fraction of a non-number or of a scale with no length is zero, the empty track', () => {
+  for (const value of [Number.NaN, Infinity, -Infinity]) assert.equal(arenaGaugeFraction(value, 0, 100), 0, String(value));
+  assert.equal(arenaGaugeFraction(50, 100, 100), 0, 'max equal to min');
+  assert.equal(arenaGaugeFraction(50, 100, 0), 0, 'max below min');
 });

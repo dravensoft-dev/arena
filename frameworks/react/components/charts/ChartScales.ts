@@ -55,6 +55,11 @@ export function arenaScaleInvert(scale: ArenaLinearScale, px: number): number {
   return scale.min + (scale.max - scale.min) * ((px - scale.from) / span);
 }
 
+export function arenaGaugeFraction(value: number, min: number, max: number): number {
+  if (!Number.isFinite(value) || !(max > min)) return 0;
+  return Math.min(1, Math.max(0, arenaScaleValue(arenaLinearScale(min, max, 0, 1), value)));
+}
+
 export function arenaScaleZero(scale: ArenaLinearScale): number {
   return arenaScaleValue(scale, 0);
 }

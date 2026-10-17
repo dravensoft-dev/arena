@@ -1,14 +1,17 @@
 /* The polar grid a radar draws on. It starts at 12 o'clock and runs clockwise, the same
  * way arenaDoughnutSlices does, so two radial charts on one page do not begin in
- * different places. What this suite cannot see is whether the axes are legible at the
- * count given: past eight or so the labels collide, and that is on the by-hand list. */
+ * different places. A gauge keeps that origin and direction and adds an offset: a
+ * scale has two ends, so its dial opens at the bottom, from 7:30 to 4:30 clockwise.
+ * What this suite cannot see is whether the axes are legible at the count given: past
+ * eight or so the labels collide, and that is on the by-hand list. */
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   arenaPolarAngle, arenaPolarPoint, arenaPolarIndex, arenaPolarAnchor, arenaRadarRings,
-  arenaRadarRadius, arenaRadarLabelRadius,
+  arenaRadarRadius, arenaRadarLabelRadius, arenaGaugeAngle, arenaGaugePoint, arenaGaugeAnchor, arenaGaugeRadii,
 } from './ChartPolar';
 import { arenaNiceDomain } from './ChartScales';
+import { chartPadLeft } from '../../Tokens.generated';
 
 test('the first axis stands at 12 o\'clock, where the ring already starts', () => {
   assert.equal(arenaPolarAngle(0, 5), -Math.PI / 2);
@@ -109,4 +112,43 @@ test('the grid leaves room for a label rather than reaching the edge of its box'
 
 test('the grid stays positive in a box too small to hold a label at all', () => {
   for (const size of [0, 1, 28, 56]) assert.ok(arenaRadarRadius(size, size) > 0, `at ${size}px`);
+});
+
+const near = (a: number, b: number) => Math.abs(a - b) < 1e-9;
+
+test('a gauge sweeps 270 degrees clockwise, from the 7:30 position to the 4:30 position', () => {
+  const start = arenaGaugePoint(100, 100, 40, 0);
+  const end = arenaGaugePoint(100, 100, 40, 1);
+  const top = arenaGaugePoint(100, 100, 40, 1 / 3);
+  assert.ok(near(arenaGaugeAngle(1) - arenaGaugeAngle(0), (Math.PI * 3) / 2), 'the sweep is three quarters of a turn');
+  assert.ok(start.x < 100 && start.y > 100 && near(100 - start.x, start.y - 100), `the minimum sits at 7:30, got ${start.x},${start.y}`);
+  assert.ok(end.x > 100 && end.y > 100 && near(end.x - 100, end.y - 100), `the maximum sits at 4:30, got ${end.x},${end.y}`);
+  assert.ok(near(start.y, end.y) && near(start.x + end.x, 200), 'the two ends mirror each other across the vertical');
+  assert.ok(top.x < 100 && top.y < 100, `a third of the way is past 9 o'clock and before 12, got ${top.x},${top.y}`);
+  assert.ok(near(arenaGaugePoint(100, 100, 40, 0.5).x, 100) && near(arenaGaugePoint(100, 100, 40, 0.5).y, 60),
+    'half the scale stands at 12 o\'clock');
+});
+
+test('a gauge keeps the polar origin, so its angle composes with the arc and point helpers', () => {
+  const turn = (angle: number) => ((angle % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+  assert.ok(near(turn(arenaGaugeAngle(0.5)), turn(arenaPolarAngle(0, 4))), 'the midpoint is the polar origin at 12 o\'clock');
+  assert.ok(near(arenaGaugeAngle(0), -Math.PI / 2 + (Math.PI * 5) / 4), 'the start is 225 degrees past 12 o\'clock');
+});
+
+test('a label beside the left half of the dial ends at its tick, one on the right starts there, the top one is centred', () => {
+  assert.equal(arenaGaugeAnchor(0), 'end');
+  assert.equal(arenaGaugeAnchor(0.5), 'middle');
+  assert.equal(arenaGaugeAnchor(1), 'start');
+});
+
+test('the dial fits its box: the band ring outside the track, and the open bottom inside the height', () => {
+  for (const [width, height] of [[600, 200], [240, 200], [390, 200], [600, 120]]) {
+    const { cy, band, track, label } = arenaGaugeRadii(width, height);
+    assert.ok(band.outer > band.inner && band.inner > track.outer && track.outer > track.inner && track.inner > 0,
+      `${width}x${height}: the rings nest from the band ring in, got ${JSON.stringify({ band, track })}`);
+    assert.ok(label > band.outer, `${width}x${height}: a tick label stands outside the band ring`);
+    assert.ok(cy - label >= 0, `${width}x${height}: the top label stays inside the box`);
+    assert.ok(cy + band.outer * Math.SQRT1_2 <= height, `${width}x${height}: the open bottom stays inside the box`);
+    assert.ok(width / 2 - band.outer >= chartPadLeft - 1e-9, `${width}x${height}: the dial leaves room beside it for the end labels`);
+  }
 });

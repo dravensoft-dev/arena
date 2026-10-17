@@ -8,8 +8,9 @@ import {
   arenaStackSegments, arenaStackDomain, arenaMirrorDomain, arenaTwoSeries,
   arenaPointCount, arenaPointSeriesDomain, arenaPointSeriesColor, arenaPointTable,
   arenaPointSized, arenaPointSizeRange, arenaSwatchChoice, arenaSparkDomain,
+  arenaGaugeBands, arenaGaugeBand, arenaGaugeTicks, arenaGaugeColor, arenaGaugeTable,
 } from './ChartSeries';
-import type { ArenaPointSeries, ArenaSeries } from '../../Api.generated';
+import type { ArenaGaugeBand, ArenaPointSeries, ArenaSeries } from '../../Api.generated';
 import type { ArenaSeriesTone } from '../../Api.generated';
 
 const write = (value: number) => `${value} ms`;
@@ -479,4 +480,88 @@ test('a swatch choice is the tone of a toned series and otherwise a clamped colo
   assert.deepEqual(arenaSwatchChoice(series({ colorIds: [5] }), 7, 1), { colorId: '2' });
   assert.deepEqual(arenaSwatchChoice(series({ colorIds: [5], colorId: 4 }), 7), { colorId: '5' }, 'colorIds wins, colorId is ignored');
   assert.deepEqual(arenaSwatchChoice(series({ colorId: 9 as never }), 1), { colorId: '8' });
+});
+
+const BANDS: ArenaGaugeBand[] = [
+  { from: 0, tone: 'success', label: 'Healthy' },
+  { from: 60, tone: 'warning', label: 'Elevated' },
+  { from: 85, tone: 'danger', label: 'Critical' },
+];
+const WORDS = { measure: 'Measure', value: 'Value', minimum: 'Minimum', maximum: 'Maximum', range: '{from} – {to}' };
+
+test('a band includes its own from edge and stops short of the next band\'s', () => {
+  assert.equal(arenaGaugeBand(BANDS, 0), 0);
+  assert.equal(arenaGaugeBand(BANDS, 59.9), 0);
+  assert.equal(arenaGaugeBand(BANDS, 60), 1, 'a value equal to from is in that band');
+  assert.equal(arenaGaugeBand(BANDS, 85), 2);
+  assert.equal(arenaGaugeBand(BANDS, 130), 2, 'the last band runs on past max, because the words do not clamp');
+});
+
+test('a value below the first band, or not a number, is in no band', () => {
+  assert.equal(arenaGaugeBand(BANDS.slice(1), 10), -1);
+  assert.equal(arenaGaugeBand(BANDS, Number.NaN), -1);
+  assert.equal(arenaGaugeBand([], 50), -1, 'no bands, no band');
+});
+
+test('unsorted bands are sorted ascending and warn, because their order is configuration', () => {
+  forgetArenaWarnings();
+  const shuffled = [BANDS[2], BANDS[0], BANDS[1]] as ArenaGaugeBand[];
+  let sorted: ArenaGaugeBand[] = [];
+  const warned = captureWarnings(() => { sorted = arenaGaugeBands(shuffled, 'ArenaGaugeChart'); });
+  assert.deepEqual(sorted.map((band) => band.from), [0, 60, 85]);
+  assert.equal(warned.length, 1);
+  assert.match(warned[0] as string, /ArenaGaugeChart: reads its bands in ascending order/);
+  forgetArenaWarnings();
+  assert.deepEqual(captureWarnings(() => arenaGaugeBands(BANDS, 'ArenaGaugeChart')), [], 'sorted bands say nothing');
+});
+
+test('the ticks are both ends and every band edge inside the scale, once each', () => {
+  assert.deepEqual(arenaGaugeTicks(BANDS, 0, 100, 'ArenaGaugeChart'), [0, 60, 85, 100], 'a band starting at min is not a second tick');
+  assert.deepEqual(arenaGaugeTicks([{ from: -10, tone: 'info', label: 'Low' }, { from: 140, tone: 'danger', label: 'Off' }], 0, 100, 'ArenaGaugeChart'),
+    [0, 100], 'an edge outside the scale draws no tick');
+  assert.deepEqual(arenaGaugeTicks([], 0, 100, 'ArenaGaugeChart'), [0, 100]);
+});
+
+test('a scale whose max is not above its min warns once and draws no tick', () => {
+  forgetArenaWarnings();
+  const warned = captureWarnings(() => {
+    assert.deepEqual(arenaGaugeTicks(BANDS, 100, 100, 'ArenaGaugeChart'), []);
+    assert.deepEqual(arenaGaugeTicks(BANDS, 100, 100, 'ArenaGaugeChart'), []);
+  });
+  assert.equal(warned.length, 1);
+  assert.match(warned[0] as string, /ArenaGaugeChart: `max` \(100\) is not greater than `min` \(100\)/);
+});
+
+test('the arc takes the hue of the band the value is in, and the identity slot without bands', () => {
+  assert.equal(arenaGaugeColor(BANDS, 2, undefined, 'ArenaGaugeChart'), 'var(--danger)');
+  assert.equal(arenaGaugeColor(BANDS, 0, undefined, 'ArenaGaugeChart'), 'var(--success)');
+  assert.equal(arenaGaugeColor(BANDS, -1, undefined, 'ArenaGaugeChart'), 'var(--color-cat-1)', 'below the first band is the identity default');
+  assert.equal(arenaGaugeColor([], -1, undefined, 'ArenaGaugeChart'), 'var(--color-cat-1)');
+  assert.equal(arenaGaugeColor([], -1, 3, 'ArenaGaugeChart'), 'var(--color-cat-3)');
+  assert.equal(arenaGaugeColor([], -1, 99, 'ArenaGaugeChart'), `var(--color-cat-${ARENA_CAT_SLOTS})`, 'clamped to the ramp');
+});
+
+test('a colorId beside bands is ignored and warns, because a chart carries identity or meaning', () => {
+  forgetArenaWarnings();
+  const warned = captureWarnings(() => assert.equal(arenaGaugeColor(BANDS, 1, 4, 'ArenaGaugeChart'), 'var(--warning)'));
+  assert.equal(warned.length, 1);
+  assert.match(warned[0] as string, /ArenaGaugeChart: `colorId` is ignored while `bands` is given/);
+});
+
+test('the gauge table holds the whole scale: the value, both ends and every band\'s range', () => {
+  const table = arenaGaugeTable(WORDS, 130, 0, 100, BANDS, (value) => `${value} %`);
+  assert.deepEqual(table.columns, ['Measure', 'Value']);
+  assert.deepEqual(table.rows.map((row) => [row.header, ...row.cells]), [
+    ['Value', '130 %'],
+    ['Minimum', '0 %'],
+    ['Maximum', '100 %'],
+    ['Healthy', '0 % – 60 %'],
+    ['Elevated', '60 % – 85 %'],
+    ['Critical', '85 % – 100 %'],
+  ], 'the words say what was passed, 130 and not 100');
+});
+
+test('a non-number leaves the value cell empty rather than writing a zero', () => {
+  const table = arenaGaugeTable(WORDS, Number.NaN, 0, 100, [], String);
+  assert.deepEqual(table.rows.map((row) => [row.header, ...row.cells]), [['Value', ''], ['Minimum', '0'], ['Maximum', '100']]);
 });

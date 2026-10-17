@@ -1,9 +1,11 @@
 import { arenaCatColor, arenaCatIndex, arenaToneColor } from '../../DataVisuals';
 import type { ArenaSelection } from '../../ArenaStyles.generated';
 import { arenaWarnOnce } from '../../WarnOnce';
+import { arenaPhrase } from '../../Phrase';
+import { arenaRegionIndex } from '../../Thresholds';
 import { arenaNiceDomain } from './ChartScales';
 import type { ArenaDomain } from './ChartScales';
-import type { ArenaPointSeries, ArenaSeries } from '../../Api.generated';
+import type { ArenaGaugeBand, ArenaPointSeries, ArenaSeries } from '../../Api.generated';
 
 export interface ArenaChartTableRow {
   header: string;
@@ -96,6 +98,70 @@ export function arenaChartTable(
       header: labels[index] ?? '',
       cells: series.map((one) => (index < one.values.length ? write(one.values[index] as number) : '')),
     })),
+  };
+}
+
+export interface ArenaGaugeWords {
+  measure: string;
+  value: string;
+  minimum: string;
+  maximum: string;
+  range: string;
+}
+
+export function arenaGaugeBands(bands: readonly ArenaGaugeBand[], chart: string): ArenaGaugeBand[] {
+  const sorted = [...bands].sort((a, b) => a.from - b.from);
+  if (sorted.some((band, index) => band !== bands[index])) {
+    arenaWarnOnce(`${chart}: reads its bands in ascending order of \`from\` and was given them out of order. `
+      + 'They are sorted before drawing; pass them sorted, because the order is configuration and not data.');
+  }
+  return sorted;
+}
+
+export function arenaGaugeBand(bands: readonly ArenaGaugeBand[], value: number): number {
+  if (!Number.isFinite(value)) return -1;
+  return arenaRegionIndex(value, bands.map((band) => band.from)) - 1;
+}
+
+export function arenaGaugeTicks(bands: readonly ArenaGaugeBand[], min: number, max: number, chart: string): number[] {
+  if (!(max > min)) {
+    arenaWarnOnce(`${chart}: \`max\` (${max}) is not greater than \`min\` (${min}), so the scale has no length. `
+      + 'The empty track is drawn and no value or band is placed on it.');
+    return [];
+  }
+  const ticks = [min];
+  for (const band of bands) if (band.from > min && band.from < max && !ticks.includes(band.from)) ticks.push(band.from);
+  ticks.push(max);
+  return ticks;
+}
+
+export function arenaGaugeColor(
+  bands: readonly ArenaGaugeBand[], index: number, colorId: number | undefined, chart: string,
+): string {
+  if (bands.length === 0) return arenaCatColor(colorId ?? 1);
+  if (colorId !== undefined) {
+    arenaWarnOnce(`${chart}: \`colorId\` is ignored while \`bands\` is given. A chart carries identity or meaning,`
+      + ' never both, and the bands are the meaning.');
+  }
+  const band = bands[index];
+  return band ? arenaToneColor(band.tone) : arenaCatColor(1);
+}
+
+export function arenaGaugeTable(
+  words: ArenaGaugeWords, value: number, min: number, max: number, bands: readonly ArenaGaugeBand[],
+  write: (value: number) => string,
+): ArenaChartTable {
+  return {
+    columns: [words.measure, words.value],
+    rows: [
+      { header: words.value, cells: [Number.isFinite(value) ? write(value) : ''] },
+      { header: words.minimum, cells: [write(min)] },
+      { header: words.maximum, cells: [write(max)] },
+      ...bands.map((band, index) => ({
+        header: band.label,
+        cells: [arenaPhrase(words.range, { from: write(band.from), to: write(bands[index + 1]?.from ?? max) })],
+      })),
+    ],
   };
 }
 
