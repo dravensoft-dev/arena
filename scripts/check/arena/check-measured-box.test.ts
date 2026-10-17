@@ -78,6 +78,12 @@ test('MEASURED names exactly the components that call a container helper, in eit
   assert.deepEqual([...callers().keys()].sort(), [...MEASURED.keys()].sort());
 });
 
+test('a component whose React call is generic is found in the React layer as well as the Angular one', () => {
+  const found = callers();
+  for (const name of ['ArenaFilterBar', 'ArenaBulkActionBar'])
+    assert.deepEqual([...(found.get(name) ?? [])].sort(), ['frameworks/angular/components', 'frameworks/react/components'], name);
+});
+
 test('the tree is clean', () => {
   const { problems, callers: count } = collect();
   assert.deepEqual(problems, []);
