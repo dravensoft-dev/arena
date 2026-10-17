@@ -60,6 +60,10 @@ export const EXTERNAL_PROPERTIES = new Map([
     + 'both layers, so the painted span begins under that thumb. Zero, its fallback, is a single slider\'s own start'],
   ['arena-slider-to', 'written by ArenaSlider onto its track as the fraction the thumb, or the end thumb of a range, '
     + 'stands at, in both layers, so the painted fill ends under that thumb. Its fallback of zero is an empty fill'],
+  ['arena-sparkline-shift', 'written by ArenaSparkline onto its tooltip as the fraction of the plot the cursor stands '
+    + 'at, 0 on the first point to 1 on the last, in both layers, so the readout slides with the point and stays inside '
+    + 'the frame, and a class string cannot name the point under the cursor. Its fallback of zero starts the readout at '
+    + 'its anchor'],
 ]);
 
 export function selectorsIn(css: string) {

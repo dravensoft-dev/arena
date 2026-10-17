@@ -1,0 +1,82 @@
+{
+  "component": "ArenaSparkline",
+  "seed": {
+    "labels": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+    "series": [
+      { "label": "Requests per minute", "values": [148, 132, 176, 161, 190, 122, 137] }
+    ],
+    "label": "checkout-api requests this week",
+    "valueFormat": { "grouping": true }
+  },
+  "host": {
+    "component": "ArenaGrid",
+    "class": "arena-grid-min-lg",
+    "slots": {
+      "content": [
+        {
+          "component": "ArenaTable",
+          "members": {
+            "label": "Requests this week",
+            "columns": [{ "header": "Service" }, { "header": "Trend" }],
+            "responsive": false
+          },
+          "slots": {
+            "content": [
+              {
+                "component": "ArenaTableRow",
+                "slots": {
+                  "content": [
+                    { "component": "ArenaTableCell", "slots": { "content": [{ "text": "checkout-api" }] } },
+                    { "component": "ArenaTableCell", "slots": { "content": ["$subject"] } }
+                  ]
+                }
+              },
+              {
+                "component": "ArenaTableRow",
+                "slots": {
+                  "content": [
+                    { "component": "ArenaTableCell", "slots": { "content": [{ "text": "billing-worker" }] } },
+                    {
+                      "component": "ArenaTableCell",
+                      "slots": {
+                        "content": [
+                          {
+                            "component": "ArenaSparkline",
+                            "members": {
+                              "labels": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+                              "series": [{ "label": "Requests per minute", "values": [61, 64, 58, 70, 66, 72, 69] }],
+                              "label": "billing-worker requests this week"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "component": "ArenaCard",
+          "members": { "title": "checkout-api latency today" },
+          "slots": {
+            "content": [
+              {
+                "component": "ArenaSparkline",
+                "members": {
+                  "labels": ["00:00", "04:00", "08:00", "12:00", "16:00", "20:00"],
+                  "series": [{ "label": "p95", "values": [212, 198, 264, 301, 287, 240] }],
+                  "label": "checkout-api p95 latency today",
+                  "valueSuffix": " ms",
+                  "interactive": true
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "note": "The default is the static case, shown in the place a sparkline lives: a table column, where it adds no tab stop. The card below the table sets interactive, for a standalone sparkline the keyboard can read: one tab stop, never shorter than the smallest control."
+}

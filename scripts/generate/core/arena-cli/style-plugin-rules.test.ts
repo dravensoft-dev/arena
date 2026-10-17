@@ -53,8 +53,11 @@ test('a reserved name is never a class the tree ships, so a component that lands
   assert.deepEqual(stale(new Map([...RESERVED, ['table', 'ArenaTable, a planted entry (spec 00)']]), shipped), ['table']);
 });
 
+test('the reservation holds six names, one per class Arena is going to ship', () => {
+  assert.equal(RESERVED.size, 6);
+});
+
 test('every reserved name is kebab, is no polarity, and carries a reason naming its spec and no version', () => {
-  assert.equal(RESERVED.size, 7);
   for (const [name, reason] of RESERVED) {
     assert.match(name, KEBAB, name);
     assert.ok(!POLARITIES.includes(name), `${name} is a polarity, and a palette may always take its own`);

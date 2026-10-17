@@ -119,6 +119,7 @@ Every field is optional in what you provide, and one you leave out keeps the def
 | `doughnutChartPieName` | `{label} — pie chart` | A doughnut chart's accessible name in its pie shape. {label} is the chart's label. |
 | `radarChartName` | `{label} — radar chart` | A radar chart's accessible name. {label} is the chart's label. |
 | `scatterChartName` | `{label} — scatter chart` | A scatter chart's accessible name. {label} is the chart's label. |
+| `sparklineChartName` | `{label} — sparkline` | A sparkline's accessible name. {label} is the sparkline's label. |
 | `chartTableCategory` | `Category` | The first heading of the data table a categorical chart writes. |
 | `chartTablePoint` | `Point` | The first heading of the data table a line chart writes. |
 | `chartTableAxis` | `Axis` | The first heading of the data table a radar chart writes. |

@@ -98,6 +98,7 @@
     "doughnutChartPieName": { "form": "primitive", "type": "string", "required": true, "default": "{label} — pie chart", "description": "A doughnut chart's accessible name in its pie shape. {label} is the chart's label." },
     "radarChartName": { "form": "primitive", "type": "string", "required": true, "default": "{label} — radar chart", "description": "A radar chart's accessible name. {label} is the chart's label." },
     "scatterChartName": { "form": "primitive", "type": "string", "required": true, "default": "{label} — scatter chart", "description": "A scatter chart's accessible name. {label} is the chart's label." },
+    "sparklineChartName": { "form": "primitive", "type": "string", "required": true, "default": "{label} — sparkline", "description": "A sparkline's accessible name. {label} is the sparkline's label." },
     "chartTableCategory": { "form": "primitive", "type": "string", "required": true, "default": "Category", "description": "The first heading of the data table a categorical chart writes." },
     "chartTablePoint": { "form": "primitive", "type": "string", "required": true, "default": "Point", "description": "The first heading of the data table a line chart writes." },
     "chartTableAxis": { "form": "primitive", "type": "string", "required": true, "default": "Axis", "description": "The first heading of the data table a radar chart writes." },
