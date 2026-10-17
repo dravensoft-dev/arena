@@ -113,6 +113,7 @@
      grows each row by about 10px. If the row's type step moves, revisit it.
    */
   --chart-sparkline-height:20px;
+  --chart-gauge-height:200px; /* A gauge's dial height. A chosen dimension: a 270 degree dial with its end labels and its centre reading fits a tile at 200px, where chart.height would spend a whole one on a single number. The dial's radius is derived from it, so the band ring, the track and the centre reading move together when it does. */
   --chart-pad-top:8px; /* The plot's top padding, one step of the base grid. */
   --chart-pad-right:8px; /* The plot's right padding, one step of the base grid. */
   /*

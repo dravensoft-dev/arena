@@ -52,6 +52,7 @@ A measurement inside a known range: disk used, a quota, a score against a target
 - Don't use it for a task that ends. An upload or a deploy is `ArenaProgressBar`, which announces as work under way.
 - Don't look for a `tone`. The standing comes from the thresholds, so a number and its colour cannot disagree.
 - Don't ask it for a ring. A radial reading is a chart of its own, and this bar stays linear.
+- Don't use it for a scale with labelled bands in a chart tile. Reach for `ArenaGaugeChart`, which writes both ends and every band on its dial.
 - Don't animate the fill or announce a change. A meter is a static reading.
 - Don't make it focusable. A value a reader drags is a slider, and this one is only read.
 

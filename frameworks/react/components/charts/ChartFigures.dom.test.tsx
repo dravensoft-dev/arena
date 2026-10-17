@@ -19,6 +19,7 @@ import { ArenaPyramidChart } from './arena-pyramid-chart/ArenaPyramidChart.tsx';
 import { ArenaRadarChart } from './arena-radar-chart/ArenaRadarChart.tsx';
 import { ArenaScatterChart } from './arena-scatter-chart/ArenaScatterChart.tsx';
 import { ArenaSparkline } from './arena-sparkline/ArenaSparkline.tsx';
+import { ArenaGaugeChart } from './arena-gauge-chart/ArenaGaugeChart.tsx';
 import { ArenaTable } from '../display/arena-table/ArenaTable.tsx';
 import { ArenaTableRow } from '../display/arena-table-row/ArenaTableRow.tsx';
 import { ArenaTableCell } from '../display/arena-table-cell/ArenaTableCell.tsx';
@@ -502,4 +503,38 @@ test('a table with a column of static sparklines has the tab stops of the same t
   const live = sparkTable((i) => <ArenaSparkline labels={LABELS} label={`Trend ${i}`} series={[{ label: SERIES, values: VALUES }]} interactive />);
   assert.equal(live.querySelectorAll('[role="group"][tabindex="0"]').length, 3,
     'an interactive sparkline is a control inside its cell and keeps a stop of its own, which is why the column default is static');
+});
+
+test('ArenaGaugeChart meets figure-with-data-table, with every cursor requirement excepted', () => {
+  const root = mount(<ArenaGaugeChart value={72} label="CPU load" valueSuffix=" %"
+    bands={[{ from: 0, tone: 'success', label: 'Healthy' }, { from: 60, tone: 'warning', label: 'Elevated' }, { from: 85, tone: 'danger', label: 'Critical' }]} />);
+  const graphic = root.querySelector<HTMLElement>('[role="img"]');
+  assert.ok(graphic, 'a gauge with no role="img" is a decoration, not a figure');
+  assert.equal(graphic.getAttribute('aria-label'), 'CPU load — gauge', 'the name is the locale word around label');
+  const table = root.querySelector<HTMLElement>('table');
+  assert.ok(table, 'the numbers must be in a real table');
+  assert.equal(table.querySelector('caption')?.textContent, 'CPU load — gauge', 'the caption is the same name');
+  const head = [...table.querySelectorAll<HTMLElement>('thead th')].map((c) => (c.textContent ?? '').trim());
+  assert.deepEqual(head, ['Measure', 'Value']);
+  const body = [...table.querySelectorAll<HTMLElement>('tbody tr')]
+    .map((r) => [...r.querySelectorAll('th, td')].map((c) => (c.textContent ?? '').trim()));
+  assert.deepEqual(body, [
+    ['Value', '72 %'], ['Minimum', '0 %'], ['Maximum', '100 %'],
+    ['Healthy', '0 % – 60 %'], ['Elevated', '60 % – 85 %'], ['Critical', '85 % – 100 %'],
+  ], 'the table is the whole scale and not only the reading');
+  assert.equal(root.querySelectorAll('[tabindex]').length, 0, 'the gauge is no tab stop at all');
+  assert.equal(root.querySelector('[role="group"]'), null, 'with no keyboard there is no region to name');
+  const handlers = [root, ...root.querySelectorAll('*')].flatMap((node) => Object.keys(node)
+    .filter((key) => key.startsWith('__reactProps$'))
+    .flatMap((key) => Object.keys((node as unknown as Record<string, object>)[key]!).filter((prop) => /^on[A-Z]/.test(prop))));
+  assert.deepEqual(handlers, [], 'the gauge carries no event handler at all');
+  press(root.querySelector('svg')!.parentElement as HTMLElement, 'ArrowRight');
+  assert.equal(reading(root), null, 'a key reaches nothing, so no cursor and no tooltip appear');
+
+  assertPattern({
+    root,
+    bindingPath: join(REACT_COMPONENTS, 'charts/arena-gauge-chart/ArenaGaugeChart.behaviour.json'),
+    subjects: { default: graphic },
+    behavioural: { 'alternative.table': true, ...Object.fromEntries(CURSOR_KEYS.map((key) => [key, false])) },
+  });
 });

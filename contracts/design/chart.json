@@ -13,6 +13,11 @@
       "$description": "A sparkline's plot height. A CONSEQUENCE of the compact row, not a chosen dimension:\nthe line box of a compact table row is 21.8px, rounded down to the whole pixel, so a\nsparkline in a cell leaves the row the height its text gives it at every density.\nMeasured on an ArenaTable row at base, compact and comfortable, where a 32px plot\ngrows each row by about 10px. If the row's type step moves, revisit it.",
       "$extensions": { "com.dravensoft.arena": { "script": true } }
     },
+    "gauge-height": {
+      "$value": { "value": 200, "unit": "px" },
+      "$description": "A gauge's dial height. A chosen dimension: a 270 degree dial with its end labels and its centre reading fits a tile at 200px, where chart.height would spend a whole one on a single number. The dial's radius is derived from it, so the band ring, the track and the centre reading move together when it does.",
+      "$extensions": { "com.dravensoft.arena": { "script": true } }
+    },
     "pad-top": {
       "$value": "{sp.2}",
       "$description": "The plot's top padding, one step of the base grid.",

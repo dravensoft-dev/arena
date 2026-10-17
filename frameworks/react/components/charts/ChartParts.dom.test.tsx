@@ -13,6 +13,7 @@ import { ArenaPyramidChart } from './arena-pyramid-chart/ArenaPyramidChart.tsx';
 import { ArenaRadarChart } from './arena-radar-chart/ArenaRadarChart.tsx';
 import { ArenaScatterChart } from './arena-scatter-chart/ArenaScatterChart.tsx';
 import { ArenaSparkline } from './arena-sparkline/ArenaSparkline.tsx';
+import { ArenaGaugeChart } from './arena-gauge-chart/ArenaGaugeChart.tsx';
 
 if (!globalThis.document) {
   throw new Error('A .dom.test. suite needs its DOM installed before react-dom is evaluated; run it with the React preload.');
@@ -105,6 +106,7 @@ const FRAME_CHARTS: [string, string, () => React.ReactElement][] = [
   ...SERIES_CHARTS,
   ['ArenaDoughnutChart', 'doughnut-chart', () => <ArenaDoughnutChart labels={LABELS} series={[{ label: 'North', values: [12, 30, 7] }]} label="Deliveries" />],
   ['ArenaSparkline', 'sparkline', () => <ArenaSparkline labels={LABELS} series={[{ label: 'North', values: [12, 30, 7] }]} label="Deliveries" />],
+  ['ArenaGaugeChart', 'gauge-chart', () => <ArenaGaugeChart value={72} label="CPU load" />],
 ];
 
 for (const [name, part, render] of FRAME_CHARTS) {

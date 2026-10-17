@@ -6,6 +6,7 @@
     "ArenaBarChart",
     "ArenaChartCard",
     "ArenaDoughnutChart",
+    "ArenaGaugeChart",
     "ArenaHorizontalBarChart",
     "ArenaLineChart",
     "ArenaPyramidChart",

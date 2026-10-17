@@ -1,6 +1,6 @@
 {
   "component": "ArenaGaugeChart",
-  "description": "One value against a scale, as a 270 degree dial opening at the bottom, with both ends of the scale and every band edge written on it and the reading in the centre. Colour is a band and a band has a word, so the arc never carries a status alone. A visually-hidden table lists the value, both ends and every band, and the chart takes no tab stop.",
+  "description": "One value against a scale, as a 270 degree dial opening at the bottom. Both ends of the scale and every band edge are written on it, and the reading is in the centre. Colour is a band and a band has a word, so the arc never carries a status alone. A visually-hidden table lists the value, both ends and every band, and the chart takes no tab stop.",
   "affordances": [],
   "api": {
     "value": {

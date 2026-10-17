@@ -30,9 +30,10 @@ so the reader of a screen reader gets the hidden table, which is already there, 
 keyboard user gets a data cursor. **One tab stop for the whole plot, always, once the chart reads
 a cursor**: the rail carries it whether it overflows or not, and the cursor moves inside the
 region rather than adding stops, which is what `focus.roving` means in
-`contracts/behaviour/figure-with-data-table.json`. A static sparkline reads no cursor, so it has
-no stop, and the `static` case of its binding excepts every cursor requirement. Arrows clamp and
-never wrap, because an axis has ends and wrapping loses the reader's place.
+`contracts/behaviour/figure-with-data-table.json`. A static sparkline and a gauge read no cursor,
+so neither has a stop, and the `static` case of the sparkline's binding and the gauge's whole
+binding except every cursor requirement. Arrows clamp and never wrap, because an axis has ends and
+wrapping loses the reader's place.
 
 **Tap to read, drag to scroll.** `arenaPointerUpdates(pointerType, phase)` is the whole rule: a
 `pointerdown` always reads, and a `pointermove` reads for every pointer except touch, because a
@@ -226,7 +227,8 @@ vertex of a full-value polygon, which is what a screenshot showed and no gate co
 anchor by the side they point to, `start` on the right half and `end` on the left, because a
 centred label on a horizontal axis reaches back over the shape it names. `ChartPolar.ts` starts at
 12 o'clock and runs clockwise, the same as `arenaDoughnutSlices`, so two radial charts on one page
-never begin in different places.
+never begin in different places. That rule is about charts whose marks are categories around a
+ring, and the gauge's dial is the recorded exception, because a scale has two ends.
 
 **A pyramid negates its first series when it DRAWS it and nowhere else.** Both sides carry counts,
 the accessible table reads the numbers that were passed, and the axis is written in magnitudes,
@@ -260,6 +262,24 @@ readout slides with the point, `arenaTooltipShift(x, box)` running from 0 on the
 on the last, so it stays inside the frame where a centred readout overhangs it by half its width.
 One series is the whole member, so no legend is drawn, and a second warns through
 `arenaOneSeries` with the sparkline's own reason rather than the doughnut's.
+
+**A gauge is a dial because a scale has two ends, and a ring has none.** Starting at 12 o'clock
+would put the minimum and the maximum on one point, so `arenaGaugeAngle(fraction)` keeps the
+origin and the direction of `arenaPolarAngle` and adds an offset: 270 degrees clockwise, opening
+at the bottom, from the 7:30 position to the 4:30 position. The start and the sweep are constants
+of `ChartPolar.ts`, like the doughnut's hole ratio, because a multiplier deriving one dimension
+from another stays inline. `arenaGaugeFraction(value, min, max)` clamps to 0 to 1 and is the
+drawing's only floor and ceiling: the centre reading and the table write the number that was
+passed, so 130 on a scale of 0 to 100 draws a full arc and says 130, and a value that is not
+finite draws the empty track and writes nothing. The band a value is in is
+`arenaGaugeBand(bands, value)`, a lookup over the threshold primitive of `Thresholds.ts`, so a
+band includes its lower edge exactly as a meter's region does, and the tone and the label are the
+only layer the gauge adds. The arc takes that band's tone colour, the identity colour of the
+first slot below the first band, or `colorId` when there are no bands. The gauge reads no cursor
+and takes no tab stop, because the value, both ends and every band edge are drawn as text and are
+all in the table. The radius derives from `--chart-gauge-height` and the width through
+`arenaGaugeRadii(width, height)`, so the band ring, the track, the edge numbers and the centre
+reading move together.
 
 **`ArenaPlotBox` spells its size `w` and `h` rather than `width` and `height`**, because
 `check-dimension-literals.ts` reads a property named `width` as a CSS dimension and follows the

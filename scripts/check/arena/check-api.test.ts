@@ -847,13 +847,13 @@ test('a DERIVED_DEFAULT entry no layer reaches fails as stale', () => {
   assert.match(problems[0] ?? '', /DERIVED_DEFAULT names ArenaGhost\.height/);
 });
 
-test('DERIVED_DEFAULT is the seven chart heights, and each entry carries the reason as a value', () => {
+test('DERIVED_DEFAULT is the eight chart heights, and each entry carries the reason as a value', () => {
   assert.deepEqual([...DERIVED_DEFAULT.keys()].sort(), [
-    'ArenaBarChart.height', 'ArenaHorizontalBarChart.height', 'ArenaLineChart.height',
+    'ArenaBarChart.height', 'ArenaGaugeChart.height', 'ArenaHorizontalBarChart.height', 'ArenaLineChart.height',
     'ArenaPyramidChart.height', 'ArenaRadarChart.height', 'ArenaScatterChart.height', 'ArenaSparkline.height',
   ]);
   for (const [key, why] of DERIVED_DEFAULT) {
-    const token = key === 'ArenaSparkline.height' ? '--chart-sparkline-height' : '--chart-height';
+    const token = key === 'ArenaSparkline.height' ? '--chart-sparkline-height' : key === 'ArenaGaugeChart.height' ? '--chart-gauge-height' : '--chart-height';
     assert.ok(why.includes(token), `${key}: the reason names the token the value comes from`);
     assert.ok(why.length > 80, `${key}: a reason short enough to be a label is not a reason`);
   }
