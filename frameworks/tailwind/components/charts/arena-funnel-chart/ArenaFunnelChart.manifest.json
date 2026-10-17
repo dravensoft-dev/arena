@@ -1,0 +1,15 @@
+{
+  "component": "ArenaFunnelChart",
+  "slots": {
+    "frame": "relative w-full",
+    "tooltip": "absolute -translate-x-1/2 -translate-y-full pointer-events-none whitespace-nowrap bg-surface-raised border-[length:var(--bw-surface)] border-edge-surface-floating rounded-control shadow-surface-floating px-2.5 py-1.5",
+    "tooltipLabel": "font-body text-ctl-xs text-ink-muted/(--level-ink-muted)",
+    "tooltipValue": "font-mono text-ctl-md text-ink-body"
+  },
+  "kind": {
+    "frame": "none",
+    "tooltip": "floating",
+    "tooltipLabel": "none",
+    "tooltipValue": "none"
+  }
+}

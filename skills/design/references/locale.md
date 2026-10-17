@@ -126,6 +126,9 @@ Every field is optional in what you provide, and one you leave out keeps the def
 | `gaugeTableMinimum` | `Minimum` | The name of the row of a gauge chart's table that holds the low end of the scale. |
 | `gaugeTableMaximum` | `Maximum` | The name of the row of a gauge chart's table that holds the high end of the scale. |
 | `gaugeTableRange` | `{from} – {to}` | A band's range in a gauge chart's table. {from} and {to} are its two ends, written by the chart's value writer. |
+| `funnelChartName` | `{label} — funnel chart` | A funnel chart's accessible name. {label} is the chart's label. |
+| `funnelConversionStep` | `Of previous stage` | The heading of a funnel chart's column, and the tooltip line, that holds each stage's share of the stage before it. |
+| `funnelConversionTotal` | `Of first stage` | The heading of a funnel chart's column, and the tooltip line, that holds each stage's share of the first stage. |
 | `chartTableCategory` | `Category` | The first heading of the data table a categorical chart writes. |
 | `chartTablePoint` | `Point` | The first heading of the data table a line chart writes. |
 | `chartTableAxis` | `Axis` | The first heading of the data table a radar chart writes. |

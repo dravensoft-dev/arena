@@ -28,7 +28,6 @@ export const MAX_PROSE_MEASURE = 90;
 export const DANGER_FLOOR = 'hue-danger-fill-strong';
 
 export const RESERVED = new Map<string, string>([
-  ['funnel-chart', 'ArenaFunnelChart, the stages a count narrows through (spec 20)'],
   ['tree-view', 'ArenaTreeView, a hierarchy that expands and collapses (spec 25)'],
   ['heatmap-chart', 'ArenaHeatmapChart, values on a grid of two categories (spec 26)'],
   ['sticky-head', 'the sticky family option that keeps a table head in view (spec 27)'],

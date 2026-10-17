@@ -1,0 +1,29 @@
+{
+  "component": "ArenaFunnelChart",
+  "seed": {
+    "label": "Trial conversion",
+    "labels": [
+      "Visits",
+      "Sign-ups",
+      "Activated",
+      "Subscribed",
+      "Retained"
+    ],
+    "series": [
+      {
+        "label": "Accounts",
+        "values": [
+          12480,
+          3120,
+          1904,
+          702,
+          518
+        ]
+      }
+    ],
+    "valueFormat": {
+      "grouping": true
+    }
+  },
+  "note": "Each stage is as wide as its count from zero, and the share of the stage before it is written by the chart, so the drawing and the table never disagree on rounding."
+}
