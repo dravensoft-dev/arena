@@ -22,6 +22,7 @@ import { ArenaSection } from '../components/layout/arena-section/ArenaSection.ts
 import { ArenaFieldset } from '../components/forms/arena-fieldset/ArenaFieldset.tsx';
 import { ArenaLink } from '../components/navigation/arena-link/ArenaLink.tsx';
 import { ArenaFilterBar } from '../components/navigation/arena-filter-bar/ArenaFilterBar.tsx';
+import { ArenaSplitButton } from '../components/forms/arena-split-button/ArenaSplitButton.tsx';
 
 interface MemberSpec { form?: string; type?: string; required?: boolean; description?: string }
 const CONTRACTS = join(REACT_COMPONENTS, '../../../contracts/api/components');
@@ -46,6 +47,7 @@ const WITHOUT_THE_SLOT = new Map([
   ['ArenaFieldset', () => <ArenaFieldset legend="Notifications" />],
   ['ArenaLink', () => <ArenaLink href="/notes" />],
   ['ArenaFilterBar', () => <ArenaFilterBar label="Deployment filters">{null}</ArenaFilterBar>],
+  ['ArenaSplitButton', () => <ArenaSplitButton label="Deployment" menuLabel="More deploy options" items={[]}>{null}</ArenaSplitButton>],
 ]);
 
 export function requiredSlots(dir: string, read = readFileSync, list = readdirSync) {

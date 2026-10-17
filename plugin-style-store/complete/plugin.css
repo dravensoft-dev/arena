@@ -1870,6 +1870,21 @@
   outline-offset: var(--sp-1);
 }
 
+.arena-complete [data-arena-part="split-button"] {
+  outline: var(--bw-surface) dashed var(--edge-surface);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="split-button.caret"] {
+  opacity: 0.92;
+}
+.arena-complete [data-arena-part="split-button.primary"] {
+  letter-spacing: var(--track-eyebrow);
+}
+.arena-complete [data-arena-part="split-button.spinner"] {
+  opacity: 0.72;
+  transform: rotate(-4deg);
+}
+
 .arena-complete [data-arena-part="stat-card"] {
   border-radius: var(--r-media);
   outline: var(--bw-surface) dashed var(--edge-surface);

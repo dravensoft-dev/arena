@@ -65,6 +65,7 @@
     "ArenaRadioGroup",
     "ArenaSelect",
     "ArenaSlider",
+    "ArenaSplitButton",
     "ArenaSwitch",
     "ArenaTextarea"
   ],

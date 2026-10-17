@@ -96,21 +96,20 @@ export const ROUTES: Route[] = [
       'frameworks/*/components/*/INDEX.md',
       'frameworks/*/components/**/*.prompt.md',
     ],
-    budget: 36_600,
+    budget: 37_200,
     reason:
       'the route every build takes, and the only one paid per screen rather than per project. The '
-      + 'layer-neutral index is deliberately not a stop: it answers whether a component exists at '
-      + 'all, which a builder who knows what they are reaching for never asks. The layer stop is a '
-      + 'directory naming every component under its category rather than one index describing all of '
-      + 'them, so a build is charged the one category it reaches into, and naming the components '
-      + 'there is what keeps the extra stop from costing a guess. The largest prompt this route '
-      + 'reaches is the table\'s, and every screen taking a table pays for it, which argues for '
-      + 'keeping that page short rather than for leaving a member out: a paged table has to say how '
-      + 'big its list is and where the page starts in it, and the header row taking the first index '
-      + 'is arithmetic no member description can carry. The number is what the stops measure with '
-      + 'room for one component to grow, and the ceiling a new consumer rule is argued against. Each '
-      + 'prompt names its vocabulary families and their properties, and the layer directory links '
-      + 'the install references. A category index grows by a row per component it gains, two for a compound family.',
+      + 'layer-neutral index is not a stop: it answers whether a component exists, which a builder who '
+      + 'knows what they reach for never asks. The layer stop names every component under its category, '
+      + 'so a build is charged the one category it reaches into and picks its component without a guess. '
+      + 'The largest prompt this route reaches is the table\'s, which every screen taking a table pays: a '
+      + 'paged table has to say how big its list is and where the page starts, and the header row taking '
+      + 'the first index is arithmetic no member description carries, so that page stays short rather '
+      + 'than losing a member. The widest category index is the forms one, and a form control lands there '
+      + 'as a row naming its members, so each one costs this route that row. The number is what the '
+      + 'stops measure with room for one more such row, and the ceiling a new consumer rule is argued '
+      + 'against. Each prompt names its vocabulary families and their properties, and the layer '
+      + 'directory links the install references.',
   },
   {
     name: 'consumer-install',

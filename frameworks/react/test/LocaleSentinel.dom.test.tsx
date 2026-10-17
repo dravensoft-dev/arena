@@ -283,6 +283,7 @@ const NO_WORDS: Record<string, string> = {
   ArenaSideNavSection: DRAWS_MEMBERS,
   ArenaSiteFooter: DRAWS_MEMBERS,
   ArenaSkipLink: DRAWS_MEMBERS,
+  ArenaSplitButton: DRAWS_MEMBERS,
   ArenaStatCard: DRAWS_MEMBERS,
   ArenaTab: DRAWS_MEMBERS,
   ArenaTableCell: DRAWS_MEMBERS,

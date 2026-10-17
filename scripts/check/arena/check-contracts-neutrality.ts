@@ -201,6 +201,10 @@ export const COMPUTED = new Map<string, { reads: string; why: string }>([
     reads: 'frameworks/react/components/navigation/arena-menu/ArenaMenu.tsx:ArenaMenu(props)',
     why: 'the render places the panel from it, lining the panel up with that edge of the trigger before it is shown',
   }],
+  [at('ArenaSplitButton', 'align'), {
+    reads: 'frameworks/react/components/forms/arena-split-button/ArenaSplitButton.tsx:ArenaSplitButton(props)',
+    why: 'the render hands it to the menu it composes, which lines the panel up with that edge of the whole split before it is shown',
+  }],
   [at('ArenaPopover', 'align'), {
     reads: 'frameworks/react/components/feedback/arena-popover/ArenaPopover.tsx:ArenaPopover(props)',
     why: 'the render places the panel from it, lining the panel up with that edge of the trigger before it is shown',
