@@ -25,6 +25,10 @@ const PRIVATE = new Map([
    'the token a person row provides to the avatar it draws, so the avatar binds its size channel to '
    + 'the list\'s face; an adopter never provides it, and it is typechecked through the avatar that '
    + 'injects it.'],
+  ['navigation/arena-menu/MenuAnchor.ts',
+   'the token a composer that draws a menu inside a wider control provides, so the panel lines up with '
+   + 'that control while the trigger stays the menu\'s own; an adopter never provides it, and it is '
+   + 'typechecked through the menu that injects it.'],
   ['feedback/arena-tooltip/TooltipName.ts',
    'the redundancy test the tooltip runs on its own trigger when it opens; nothing outside the '
    + 'component calls it, and it is typechecked through the tooltip that imports it.'],

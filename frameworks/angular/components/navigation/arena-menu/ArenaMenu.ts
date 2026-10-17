@@ -10,6 +10,7 @@ import { ArenaAnchoredOverlay, arenaConnectedPositions } from '../../../Anchored
 import { arenaMenuStyles } from './ArenaMenu.variants';
 import manifest from './ArenaMenu.classes.generated';
 import { ArenaSlotAttributes } from '../../../SlotData';
+import { ARENA_MENU_ANCHOR } from './MenuAnchor';
 
 const TRIGGER_SELECTOR =
   'button:not([tabindex="-1"]), a[href]:not([tabindex="-1"]), [role="button"]:not([tabindex="-1"]), [tabindex]:not([tabindex="-1"])';
@@ -77,11 +78,12 @@ export class ArenaMenu {
   private readonly panel = viewChild.required<TemplateRef<unknown>>('panel');
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly injector = inject(Injector);
+  private readonly composed = inject(ARENA_MENU_ANCHOR, { optional: true });
 
   private detachTrigger: (() => void) | null = null;
 
   private readonly overlay = new ArenaAnchoredOverlay({
-    anchor: () => this.host.nativeElement,
+    anchor: () => (this.composed ? this.composed() : this.host.nativeElement),
     trigger: () => this.trigger(),
     panel: () => this.panel(),
     positions: () => ARENA_MENU_POSITIONS[this.align()],
@@ -89,6 +91,7 @@ export class ArenaMenu {
     focusOnOpen: (panel) => panel.querySelector<HTMLElement>('[role="menuitem"]:not([disabled])'),
     restoreFocus: true,
     tabOut: true,
+    anchorPressDismisses: this.composed !== null,
   });
 
   constructor() {

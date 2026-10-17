@@ -26,6 +26,7 @@ export interface ArenaAnchoredOverlayOptions {
   focusOnOpen?: (panel: HTMLElement) => HTMLElement | null;
   restoreFocus?: boolean;
   tabOut?: boolean;
+  anchorPressDismisses?: boolean;
 }
 
 interface StackEntry {
@@ -125,7 +126,8 @@ export class ArenaAnchoredOverlay {
     const onPress = (event: Event): void => {
       if (!(event.target instanceof Node)) return;
       const above = arenaPanelsAbove(live(), entry).map((one) => one.panel);
-      const regions = [this.options.anchor(), this.options.trigger(), ref.overlayElement, ...above];
+      const anchor = this.options.anchorPressDismisses ? null : this.options.anchor();
+      const regions = [anchor, this.options.trigger(), ref.overlayElement, ...above];
       if (!arenaPressInside(event.target, regions)) dismiss('outside');
     };
     const onTab = (event: Event): void => {
