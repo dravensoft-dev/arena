@@ -1,0 +1,42 @@
+<!-- @dsCard group="Tailwind" viewport="760x400" name="ArenaSplitButton" subtitle="Emphasis (the arena-emphasis options), sizes (the arena-size options), the joint and states, rendered from ArenaSplitButton.manifest.json" -->
+<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../../../../intro/styles.css">
+<link rel="stylesheet" href="../../../consume/Preflight.generated.css">
+<link rel="stylesheet" href="../../../consume/components/forms/arena-split-button/ArenaSplitButton.styles.generated.css">
+<link rel="stylesheet" href="../../../consume/vocabulary/Size.generated.css">
+<link rel="stylesheet" href="../../../consume/vocabulary/Emphasis.generated.css">
+<link rel="stylesheet" href="../../../Specimen.css">
+</head><body><div id="root"></div>
+<script type="module">
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
+
+const manifest = await (await fetch('./ArenaSplitButton.manifest.json')).json();
+
+function split(label, opts = {}, { disabled = false, loading = false, open = false, cls = '' } = {}) {
+  const c = arenaClassesFor(manifest, opts);
+  const d = arenaSlotDataFor(manifest, opts);
+  const root = el('div', { role: 'group', 'aria-label': 'Deployment', class: `${c.root} ${cls}`.trim(), 'data-arena-part': 'split-button', ...d.root });
+  const primary = el('button', { class: c.primary, ...d.primary, type: 'button', disabled: (disabled || loading) || undefined });
+  if (loading) primary.append(el('span', { class: c.spinner, ...d.spinner, 'aria-hidden': 'true' }));
+  else primary.append(el('i', { class: 'ph-bold ph-rocket-launch', 'aria-hidden': 'true' }));
+  primary.append(label);
+  const caret = el('button', { class: c.caret, ...d.caret, type: 'button', 'aria-label': 'More deploy options',
+    'aria-haspopup': 'menu', 'aria-expanded': String(open), disabled: disabled || undefined },
+    el('i', { class: 'ph-bold ph-caret-down', 'aria-hidden': 'true' }));
+  root.append(primary, caret);
+  return root;
+}
+
+mountSpecimen({ sections: [
+  section('Emphasis: one joint line in the ink, whatever the edge', ['primary', 'secondary', 'ghost'].map((emphasis) =>
+    split('Deploy', {}, { cls: `arena-emphasis-${emphasis}` }))),
+  section('Destructive keeps the danger outline on both halves', ['primary', 'secondary', 'ghost'].map((emphasis) =>
+    split('Roll back', { destructive: true }, { cls: `arena-emphasis-${emphasis}` }))),
+  section('Sizes', ['sm', 'md', 'lg'].map((size) => split(`Deploy (${size})`, {}, { cls: `arena-size-${size}` }))),
+  section('States: the caret stays usable while the action runs', [
+    split('Open', {}, { open: true }),
+    split('Loading', {}, { loading: true }),
+    split('Disabled', {}, { disabled: true }),
+  ]),
+]});
+</script></body></html>

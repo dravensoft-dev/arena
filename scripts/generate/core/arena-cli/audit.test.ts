@@ -701,11 +701,11 @@ test('no-vocabulary: with no index nothing new is counted, so the check never fi
     'src/App.tsx', null), []);
 });
 
-test('the shipped vocabulary makes ArenaButton default to primary and no other component', () => {
+test('the shipped vocabulary makes ArenaButton and ArenaSplitButton default to primary and no other component', () => {
   const index = vocabularyIndex();
   const primary = Object.entries(index.defaults ?? {})
     .filter(([, families]) => families.emphasis === 'arena-emphasis-primary').map(([name]) => name);
-  assert.deepEqual(primary, ['ArenaButton']);
+  assert.deepEqual(primary, ['ArenaButton', 'ArenaSplitButton']);
 });
 
 test('Angular interpolation and attr.class in a class attribute are a computed class, not a bare button', () => {
