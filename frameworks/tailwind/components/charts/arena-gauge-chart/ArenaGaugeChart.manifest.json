@@ -1,0 +1,9 @@
+{
+  "component": "ArenaGaugeChart",
+  "slots": {
+    "frame": "relative w-full flex justify-center"
+  },
+  "kind": {
+    "frame": "none"
+  }
+}

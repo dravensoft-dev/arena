@@ -1,0 +1,14 @@
+{
+  "component": "ArenaGaugeChart",
+  "seed": {
+    "value": 72,
+    "label": "CPU load",
+    "valueSuffix": " %",
+    "bands": [
+      { "from": 0, "tone": "success", "label": "Healthy" },
+      { "from": 60, "tone": "warning", "label": "Elevated" },
+      { "from": 85, "tone": "danger", "label": "Critical" }
+    ]
+  },
+  "note": "Colour is a band and a band has a word: the label under the reading is what a reader who cannot tell the hues apart receives."
+}
