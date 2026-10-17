@@ -129,6 +129,7 @@ export const COVERED = {
   'ArenaBarChart:angular': 'ChartDataTable.test.ts',
   'ArenaHorizontalBarChart:angular': 'ChartDataTable.test.ts',
   'ArenaPyramidChart:angular': 'ChartDataTable.test.ts',
+  'ArenaSparkline:angular': 'ChartDataTable.test.ts',
   'ArenaRadarChart:angular': 'ChartDataTable.test.ts',
   'ArenaScatterChart:angular': 'ChartDataTable.test.ts',
   'ArenaActivityFeed:angular': 'ArenaActivityFeed.cases.test.ts',

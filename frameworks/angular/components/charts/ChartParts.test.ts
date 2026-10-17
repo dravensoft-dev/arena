@@ -16,6 +16,8 @@ import { ArenaLineChart } from './arena-line-chart/ArenaLineChart';
 import { ArenaPyramidChart } from './arena-pyramid-chart/ArenaPyramidChart';
 import { ArenaRadarChart } from './arena-radar-chart/ArenaRadarChart';
 import { ArenaScatterChart } from './arena-scatter-chart/ArenaScatterChart';
+import { ArenaSparkline } from './arena-sparkline/ArenaSparkline';
+import { assertNoNode } from '../../test/NodeAssert';
 
 const LABELS = ['Mon', 'Tue', 'Wed'];
 const SERIES = [{ label: 'Left', values: [3, 5, 4] }, { label: 'Right', values: [4, 2, 6] }];
@@ -41,6 +43,12 @@ class RadarHost { labels = LABELS; series = SERIES; }
 
 @Component({ standalone: true, imports: [ArenaScatterChart], template: '<arena-scatter-chart label="Runs" xLabel="Hour" yLabel="Count" [series]="series" />' })
 class ScatterHost { series = POINTS; }
+
+@Component({ selector: 'chart-parts-sparkline-host', standalone: true, imports: [ArenaSparkline], template: '<arena-sparkline label="Deploys" [labels]="labels" [series]="series" />' })
+class SparklineHost { labels = LABELS; series = [SERIES[0]]; }
+
+@Component({ selector: 'chart-parts-sparkline-live-host', standalone: true, imports: [ArenaSparkline], template: '<arena-sparkline label="Deploys" [labels]="labels" [series]="series" interactive />' })
+class SparklineLiveHost { labels = LABELS; series = [SERIES[0]]; }
 
 const CHARTS: Array<[string, string, Type<unknown>]> = [
   ['bar-chart', 'Arena bar', BarHost], ['horizontal-bar-chart', 'Arena horizontal bar', HorizontalBarHost],
@@ -90,6 +98,7 @@ test('doughnut-chart draws its legend row from the manifest', () => {
 const FRAME_CHARTS: Array<[string, string, Type<unknown>]> = [
   ...CHARTS.map(([part, , host]) => [part, part, host] as [string, string, Type<unknown>]),
   ['doughnut-chart', 'doughnut-chart', DoughnutHost],
+  ['sparkline', 'sparkline', SparklineHost],
 ];
 
 for (const [name, part, host] of FRAME_CHARTS) {
@@ -108,3 +117,25 @@ for (const [name, part, host] of FRAME_CHARTS) {
     }
   });
 }
+
+test('sparkline draws its tooltip from the manifest once the cursor lands, and no legend at all', () => {
+  const fixture = TestBed.createComponent(SparklineLiveHost);
+  try {
+    fixture.autoDetectChanges();
+    TestBed.tick();
+    const root = fixture.nativeElement as HTMLElement;
+    assertNoNode(root.querySelector('[data-arena-part^="sparkline.legend"]'), 'one series is named by label, so no legend is drawn');
+    root.querySelector('[role="group"][tabindex]')!.dispatchEvent(new KeyboardEvent('keydown', { key: 'End', bubbles: true }));
+    fixture.detectChanges();
+    TestBed.tick();
+    const tooltip = root.querySelector<HTMLElement>('[data-arena-part="sparkline.tooltip"]');
+    assert.ok(tooltip, 'no tooltip carries the part sparkline.tooltip after the cursor moved');
+    assert.ok(tooltip.className.split(' ').includes('arena-sparkline__tooltip'), 'the tooltip carries its generated class');
+    assert.equal(tooltip.style.padding, '', 'the tooltip still sets its padding inline');
+    assert.equal(tooltip.style.background, '', 'the tooltip still sets its background inline');
+    assert.ok(root.querySelector('[data-arena-part="sparkline.tooltip-label"]'), 'the label part is drawn');
+    assert.ok(root.querySelector('[data-arena-part="sparkline.tooltip-value"]'), 'the value part is drawn');
+  } finally {
+    fixture.destroy();
+  }
+});

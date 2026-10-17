@@ -54,6 +54,7 @@ import { ArenaLineChart } from '../components/charts/arena-line-chart/ArenaLineC
 import { ArenaBarChart } from '../components/charts/arena-bar-chart/ArenaBarChart';
 import { ArenaHorizontalBarChart } from '../components/charts/arena-horizontal-bar-chart/ArenaHorizontalBarChart';
 import { ArenaPyramidChart } from '../components/charts/arena-pyramid-chart/ArenaPyramidChart';
+import { ArenaSparkline } from '../components/charts/arena-sparkline/ArenaSparkline';
 import { ArenaDoughnutChart } from '../components/charts/arena-doughnut-chart/ArenaDoughnutChart';
 import { ArenaRadarChart } from '../components/charts/arena-radar-chart/ArenaRadarChart';
 import { ArenaScatterChart } from '../components/charts/arena-scatter-chart/ArenaScatterChart';
@@ -287,6 +288,9 @@ class AvatarHost {}
 @Component({ standalone: true, imports: [ArenaLineChart], template: `<arena-line-chart label="Latency" [labels]="['Mon', 'Tue']" [series]="[{ label: 'p95', values: [1, 2] }]" />` })
 class LineHost {}
 
+@Component({ selector: 'locale-sentinel-sparkline-host', standalone: true, imports: [ArenaSparkline], template: `<arena-sparkline label="Latency" [labels]="['Mon', 'Tue']" [series]="[{ label: 'p95', values: [1, 2] }]" />` })
+class SparklineHost {}
+
 @Component({ selector: 'locale-sentinel-bar-host', standalone: true, imports: [ArenaBarChart], template: `<arena-bar-chart label="Builds" [labels]="['Mon', 'Tue']" [series]="[{ label: 'ok', values: [1, 2] }]" />` })
 class BarHost {}
 
@@ -351,6 +355,7 @@ const CASES: Record<string, Case> = {
   ArenaDoughnutChart: { hosts: [DoughnutHost], consumer: ['Share', 'share', 'A', 'B'] },
   ArenaRadarChart: { hosts: [RadarHost], consumer: ['Skills', 'Go', 'TS', 'SQL', 'Ada'] },
   ArenaScatterChart: { hosts: [ScatterHost], consumer: ['Load', 'Requests', 'Latency', 'Staging'] },
+  ArenaSparkline: { hosts: [SparklineHost], consumer: ['Latency', 'Mon', 'Tue', 'p95'] },
 };
 
 const DRAWS_MEMBERS = 'every string it renders is a member, a slot or a datum the consumer supplies';
