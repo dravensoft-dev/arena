@@ -7,6 +7,12 @@ import { SilentObserver } from './LaidOut.ts';
 import { useArenaRowWindow } from '../UseArenaRowWindow.ts';
 import type { ArenaRowWindowOptions, ArenaRowWindowResult } from '../UseArenaRowWindow.ts';
 import { limitWindowInitial, limitWindowOverscan } from '../Tokens.generated.js';
+import {
+  arenaAnchoredScroll, arenaRowEstimate, arenaRowStarts, arenaWindowPad, arenaWindowRange, arenaWindowView,
+} from '../components/display/arena-table/TableWindow.ts';
+import {
+  newKept, TABLE_PARTS, watchRowBox, type RowWindowMath, type RowWindowParts, type RowWindowReading,
+} from '../RowWindowMeasure.ts';
 
 interface Scene {
   height: (record: number) => number;
@@ -431,4 +437,53 @@ test('turning enabled off releases the observer and the scroll listener', () => 
   });
   cleanup();
   assert.ok(SilentObserver.made.every((one) => one.disconnected), 'an observer outlived its component');
+});
+
+const HAND_MATH: RowWindowMath = {
+  estimate: arenaRowEstimate, starts: arenaRowStarts, range: arenaWindowRange, pad: arenaWindowPad,
+  view: arenaWindowView, anchored: arenaAnchoredScroll, initial: limitWindowInitial,
+};
+
+function handList(part: string, frame: string, rows: number): HTMLElement {
+  const outer = document.createElement('div');
+  const wrapper = document.createElement('div');
+  const list = document.createElement('div');
+  list.setAttribute('data-arena-part', frame);
+  list.setAttribute('data-role', 'table');
+  for (let i = 0; i < rows; i++) {
+    const row = document.createElement('div');
+    row.setAttribute('data-arena-part', part);
+    row.setAttribute('data-record', String(i));
+    list.append(row);
+  }
+  wrapper.append(list);
+  outer.append(wrapper);
+  document.body.append(outer);
+  return outer;
+}
+
+function readingsOf(view: Scene, parts: RowWindowParts, part: string, frame: string): RowWindowReading[] {
+  view.scrollTop = 0;
+  const outer = handList(part, frame, 20);
+  const seen: RowWindowReading[] = [];
+  const latestRows = { rows: 1000, rowHeight: undefined, overscan: limitWindowOverscan, first: 0 };
+  const watch = watchRowBox(outer, parts, HAND_MATH, latestRows, newKept(), (next) => seen.push(next));
+  view.scrollTop = 400;
+  outer.dispatchEvent(new Event('scroll'));
+  watch.stop();
+  outer.remove();
+  return seen;
+}
+
+test('a box measured with other part names is read the same way', () => {
+  const view = scene();
+  staged(view, () => {
+    const table = readingsOf(view, TABLE_PARTS, 'table.row', 'table');
+    const other = readingsOf(view, {
+      rows: '[data-arena-part="x.row"]', frame: '[data-arena-part="x"]', head: null, headRow: null,
+    }, 'x.row', 'x');
+    assert.equal(table.length, 2);
+    assert.ok(table[1]!.padTop > 0);
+    assert.deepEqual(other, table);
+  });
 });

@@ -6,7 +6,7 @@ import {
   arenaAnchoredScroll, arenaRowEstimate, arenaRowStarts, arenaWindowPad, arenaWindowRange, arenaWindowView,
 } from './components/display/arena-table/TableWindow.ts';
 import {
-  aimAt, finite, newKept, readBox,
+  aimAt, finite, newKept, TABLE_PARTS, watchRowBox,
   type RowWindowKept as Kept, type RowWindowLatest as Latest, type RowWindowMath, type RowWindowReading as Reading,
 } from './RowWindowMeasure.ts';
 
@@ -56,27 +56,9 @@ function watchBox<T extends HTMLElement>(on: boolean, latest: Latest, kept: Kept
   const hold = () => {
     release();
     if (!box || !enabled || typeof ResizeObserver === 'undefined') return;
-    const target = box;
-    const watched = new Set<Element>();
-    let wrapper: Element | null = null;
-    const observer = new ResizeObserver(() => run?.());
-    const sync = () => {
-      if (target.firstElementChild !== wrapper) {
-        if (wrapper) observer.unobserve(wrapper);
-        wrapper = target.firstElementChild;
-        if (wrapper) observer.observe(wrapper);
-      }
-      readBox(target, MATH, latest, kept, watched, observer, report);
-    };
-    observer.observe(target);
-    target.addEventListener('scroll', sync, { passive: true });
-    run = sync;
-    stop = () => {
-      target.removeEventListener('scroll', sync);
-      observer.disconnect();
-      watched.clear();
-    };
-    sync();
+    const watch = watchRowBox(box, TABLE_PARTS, MATH, latest, kept, report);
+    run = watch.run;
+    stop = watch.stop;
   };
   const ref = { current: null as T | null };
   Object.defineProperty(ref, 'current', {

@@ -41,7 +41,24 @@ export interface RowWindowMath {
   initial: number;
 }
 
-const ROWS = '[data-arena-part="table.row"], [data-arena-part="table.card"]';
+export interface RowWindowParts {
+  rows: string;
+  frame: string;
+  head: string | null;
+  headRow: string | null;
+}
+
+export interface RowWindowWatch {
+  run(): void;
+  stop(): void;
+}
+
+export const TABLE_PARTS: RowWindowParts = {
+  rows: '[data-arena-part="table.row"], [data-arena-part="table.card"]',
+  frame: '[data-arena-part="table"]',
+  head: '[data-arena-part="table.th"]',
+  headRow: '[data-arena-part="table.head-row"]',
+};
 
 export function finite(value: number | undefined): number {
   return typeof value === 'number' && Number.isFinite(value) ? value : 0;
@@ -61,11 +78,11 @@ export function newKept(): RowWindowKept {
   };
 }
 
-export function stickyHead(box: HTMLElement): number {
-  const th = box.querySelector('[data-arena-part="table.th"]');
+export function stickyHead(box: HTMLElement, parts: RowWindowParts): number {
+  const th = parts.head === null ? null : box.querySelector(parts.head);
   const view = box.ownerDocument.defaultView;
   if (!th || !view || view.getComputedStyle(th).position !== 'sticky') return 0;
-  const row = th.closest('[data-arena-part="table.head-row"]') ?? th;
+  const row = (parts.headRow === null ? null : th.closest(parts.headRow)) ?? th;
   return row.getBoundingClientRect().height;
 }
 
@@ -100,9 +117,9 @@ export function aimAt(kept: RowWindowKept, box: HTMLElement, aim: RowWindowAim):
   box.scrollTop = aimedTop(kept, box, aim);
 }
 
-export function readBox(box: HTMLElement, math: RowWindowMath, latest: RowWindowLatest, kept: RowWindowKept,
-  watched: Set<Element>, observer: ResizeObserver, report: (next: RowWindowReading) => void): void {
-  const mounted = Array.from(box.querySelectorAll(ROWS));
+export function readBox(box: HTMLElement, parts: RowWindowParts, math: RowWindowMath, latest: RowWindowLatest,
+  kept: RowWindowKept, watched: Set<Element>, observer: ResizeObserver, report: (next: RowWindowReading) => void): void {
+  const mounted = Array.from(box.querySelectorAll(parts.rows));
   for (const row of watched) {
     if (!mounted.includes(row)) { observer.unobserve(row); watched.delete(row); }
   }
@@ -121,9 +138,9 @@ export function readBox(box: HTMLElement, math: RowWindowMath, latest: RowWindow
       if (index < first || index >= first + mounted.length) { kept.extents.delete(index); kept.dirty = true; }
     }
   }
-  const table = mounted[0]?.closest('[data-arena-part="table"]');
-  if (mounted[0] && table) kept.lead = mounted[0].getBoundingClientRect().top - table.getBoundingClientRect().top;
-  kept.head = stickyHead(box);
+  const frame = mounted[0]?.closest(parts.frame);
+  if (mounted[0] && frame) kept.lead = mounted[0].getBoundingClientRect().top - frame.getBoundingClientRect().top;
+  kept.head = stickyHead(box, parts);
   if (kept.rows !== latest.rows || kept.rowHeight !== latest.rowHeight) {
     kept.rows = latest.rows;
     kept.rowHeight = latest.rowHeight;
@@ -151,4 +168,30 @@ export function readBox(box: HTMLElement, math: RowWindowMath, latest: RowWindow
     offset: win.offset, count: win.count, padTop: pad.top, padBottom: pad.bottom, head: kept.head,
     view: (kept.starts[kept.starts.length - 1] ?? 0) > 0 ? math.view(top, box.clientHeight - kept.lead, kept.starts) : 0,
   });
+}
+
+export function watchRowBox(box: HTMLElement, parts: RowWindowParts, math: RowWindowMath, latest: RowWindowLatest,
+  kept: RowWindowKept, report: (next: RowWindowReading) => void): RowWindowWatch {
+  const watched = new Set<Element>();
+  let wrapper: Element | null = null;
+  const observer = new ResizeObserver(() => run());
+  const run = () => {
+    if (box.firstElementChild !== wrapper) {
+      if (wrapper) observer.unobserve(wrapper);
+      wrapper = box.firstElementChild;
+      if (wrapper) observer.observe(wrapper);
+    }
+    readBox(box, parts, math, latest, kept, watched, observer, report);
+  };
+  observer.observe(box);
+  box.addEventListener('scroll', run, { passive: true });
+  run();
+  return {
+    run,
+    stop() {
+      box.removeEventListener('scroll', run);
+      observer.disconnect();
+      watched.clear();
+    },
+  };
 }
