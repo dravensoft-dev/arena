@@ -143,6 +143,7 @@ export const ATTRIBUTE_FOR: Record<string, string> = {
   'roles.activedescendant': 'aria-activedescendant',
   'roles.describedby': 'aria-describedby',
   'states.selected': 'aria-selected',
+  'states.level': 'aria-level',
 };
 
 export const IDREF_ATTRIBUTES = new Map([
@@ -193,6 +194,7 @@ const ROLE_NAMED_BY_KEY: Record<string, string | string[]> = {
   'roles.item': ['radio', 'menuitem', 'option'],
   'roles.graphic': 'img',
   'roles.heading': 'heading',
+  'roles.treeitem': 'treeitem',
 };
 
 export const DECIDABLE = new Set([
@@ -223,7 +225,7 @@ export const BEHAVIOURAL = new Set([
   'alternative.table', 'alternative.jsonLd',
 
   'states.disabled', 'states.required', 'states.readonly',
-  'states.multiselectable', 'states.busy', 'states.posinset',
+  'states.multiselectable', 'states.busy', 'states.posinset', 'states.setsize',
   'states.valuenow', 'states.valuemin', 'states.valuemax', 'states.valuetext', 'states.orientation',
 ]);
 
@@ -317,6 +319,12 @@ export const QUANTIFIED = new Map([
     'each tab references its own tabpanel; checking only the selected one is exactly the defect 8C6 shipped.'],
   ['tabs:states.selected',
     'true on the active tab and false on the rest -- the same quantification listbox states, written as "the rest".'],
+  ['tree:roles.treeitem',
+    'every node the tree draws is a treeitem, so a tree whose fourth row lost its role is unmet however correct the first row is -- the idiom feed:roles.article states, one requirement key over.'],
+  ['tree:states.level',
+    'aria-level is written on every node, 1 for a root, so a tree whose fourth row lost its level is unmet however correct the first row is -- the idiom feed:roles.article states, one requirement key over.'],
+  ['tree:states.selected',
+    'aria-selected is true on each selected node and false on the rest, so one node cannot answer for the tree -- verbatim the idiom listbox:states.selected states.'],
 ]);
 
 export const NOT_QUANTIFIED = new Map([
