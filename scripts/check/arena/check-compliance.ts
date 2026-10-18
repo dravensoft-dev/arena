@@ -44,6 +44,7 @@ export const COVERED = {
   'ArenaSkeleton:react': 'PlacementAndBranches.dom.test.tsx',
   'ArenaSideNavCollapsible:react': 'ArenaSideNav.disclosure.dom.test.tsx',
   'ArenaTabs:react': 'ArenaTabs.dom.test.tsx',
+  'ArenaTreeView:react': 'ArenaTreeView.tree.dom.test.tsx',
   'ArenaAccordion:react': 'ArenaAccordion.dom.test.tsx',
   'ArenaTooltip:react': 'ArenaTooltip.keyboard.dom.test.tsx',
   'ArenaAlert:react': 'AlertTones.dom.test.tsx',

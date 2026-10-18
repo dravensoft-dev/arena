@@ -96,21 +96,20 @@ export const ROUTES: Route[] = [
       'frameworks/*/components/*/INDEX.md',
       'frameworks/*/components/**/*.prompt.md',
     ],
-    budget: 43_230,
+    budget: 43_480,
     reason:
       'the route every build takes, and the only one paid per screen rather than per project. The '
       + 'layer-neutral index is not a stop: it answers whether a component exists, which a builder who '
       + 'knows what they reach for never asks. The layer stop names every component under its category, '
       + 'so a build pays the one category it reaches into and picks a component without a guess. '
       + 'The largest prompt this route reaches is the table\'s, which every screen taking a table pays: a '
-      + 'paged table has to say how big its list is and where the page starts, and the header row taking '
-      + 'the first index is arithmetic no member description carries, so that page stays short rather '
-      + 'than losing a member. The same page carries the windowing section, which every screen taking a '
-      + 'table pays. The widest category index is the forms one, and a form control lands there '
-      + 'as a row naming its members, so each one costs this route that row. The number is what the '
-      + 'stops measure with room for one more such row, and the ceiling a new rule is argued against. '
-      + 'Each prompt names its vocabulary families and their properties, and the layer '
-      + 'directory links the install references.',
+      + 'paged table says how big its list is and where the page starts, the header row takes the first '
+      + 'index, and the page carries the windowing section, arithmetic no member description carries. '
+      + 'The widest category index is the navigation one, since ArenaTreeView\'s row carries the whole '
+      + 'description of a tree whose open set the consumer owns, and each component costs this route its '
+      + 'row. The number is what the stops measure with room for one more such row, and the ceiling a new '
+      + 'rule is argued against. Each prompt names its vocabulary families and their properties, and the '
+      + 'layer directory links the install references.',
   },
   {
     name: 'consumer-install',

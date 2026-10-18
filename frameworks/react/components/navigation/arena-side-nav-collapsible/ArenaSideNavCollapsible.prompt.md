@@ -77,6 +77,7 @@ Two consequences worth holding on to:
   independent disclosure, so Tab moves through the triggers and the visible links in order
   and a collapsed region is skipped because it is hidden. If you genuinely need treeview
   semantics, this is not the component.
+  ArenaTreeView gives a hierarchy one tab stop, the arrow keys and `aria-level` on every node.
 - **Don't** drive `defaultExpanded` from state you update on every toggle. The member is a seed read once. Wire `onToggle` to your own store if you want the group's state to persist, and leave `defaultExpanded` as that store's initial value.
 - **Don't** leave `id` or `label` blank. Both are required and guarded. A blank `label` leaves the trigger with no accessible name. A blank `id` produces the id pair `-trigger` and `-region`, which every other blank-id collapsible on the page would share.
 - **Don't** wrap its children in a fragment or a component of your own. The component injects into the children it is handed, and `React.Children.toArray` does not see through a `<>...</>`. `ArenaSideNav` and `ArenaSideNavSection` carry the same limit.

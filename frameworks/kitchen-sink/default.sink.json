@@ -23,7 +23,7 @@
       "items": [
         "ArenaPageHead", "ArenaAppBar", "ArenaBreadcrumbs", "ArenaLink", "ArenaTabs", "ArenaTab", "ArenaSegmentedControl",
         "ArenaPagination", "ArenaStepper", "ArenaMenu", "ArenaBulkActionBar", "ArenaSideNav", "ArenaSideNavSection",
-        "ArenaSideNavItem", "ArenaSideNavCollapsible", "ArenaBottomNav", "ArenaBottomNavItem",
+        "ArenaSideNavItem", "ArenaSideNavCollapsible", "ArenaTreeView", "ArenaBottomNav", "ArenaBottomNavItem",
         "ArenaCommandPalette", "ArenaFilterBar"
       ]
     },

@@ -303,6 +303,7 @@ const NO_WORDS: Record<string, string> = {
   ArenaTextarea: DRAWS_MEMBERS,
   ArenaToastHost: DRAWN_BY_TOAST,
   ArenaTooltip: DRAWS_MEMBERS,
+  ArenaTreeView: DRAWS_MEMBERS,
   ArenaUnauthCard: DRAWS_MEMBERS,
 };
 

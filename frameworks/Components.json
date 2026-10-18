@@ -108,6 +108,7 @@
     "ArenaSideNavSection",
     "ArenaStepper",
     "ArenaTab",
-    "ArenaTabs"
+    "ArenaTabs",
+    "ArenaTreeView"
   ]
 }

@@ -2282,6 +2282,28 @@
   outline-offset: var(--sp-1);
 }
 
+.arena-complete [data-arena-part="tree-view"] {
+  border-radius: var(--r-media);
+  outline: var(--bw-surface) dashed var(--edge-surface);
+  outline-offset: calc(var(--sp-1) * -1);
+}
+.arena-complete [data-arena-part="tree-view.caret"] {
+  opacity: 0.72;
+  transform: rotate(-4deg);
+}
+.arena-complete [data-arena-part="tree-view.icon"] {
+  opacity: 0.72;
+  transform: rotate(-4deg);
+}
+.arena-complete [data-arena-part="tree-view.item"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
+.arena-complete [data-arena-part="tree-view.label"] {
+  letter-spacing: var(--track-eyebrow);
+  text-wrap: balance;
+}
+
 .arena-complete [data-arena-part="unauth-card"] {
   border-radius: var(--r-media);
   outline: var(--bw-surface) dashed var(--edge-surface);

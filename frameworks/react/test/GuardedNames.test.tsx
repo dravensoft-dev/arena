@@ -17,6 +17,7 @@ import { ArenaNumberField } from '../components/forms/arena-number-field/ArenaNu
 import { ArenaPinInput } from '../components/forms/arena-pin-input/ArenaPinInput.tsx';
 import { ArenaFilterBar } from '../components/navigation/arena-filter-bar/ArenaFilterBar.tsx';
 import { ArenaSplitButton } from '../components/forms/arena-split-button/ArenaSplitButton.tsx';
+import { ArenaTreeView } from '../components/navigation/arena-tree-view/ArenaTreeView.tsx';
 import { ArenaSlider } from '../components/forms/arena-slider/ArenaSlider.tsx';
 import { ArenaRadioGroup } from '../components/forms/arena-radio-group/ArenaRadioGroup.tsx';
 import { ArenaCheckboxGroup } from '../components/forms/arena-checkbox-group/ArenaCheckboxGroup.tsx';
@@ -82,6 +83,7 @@ const WITH_A_BLANK_NAME = new Map([
   ['ArenaStepper', () => <ArenaStepper ariaLabel={BLANK} steps={[]} />],
   ['ArenaTimeline', () => <ArenaTimeline label={BLANK} items={[]} />],
   ['ArenaSplitButton', () => <ArenaSplitButton label={BLANK} menuLabel={BLANK} items={[]}>Deploy</ArenaSplitButton>],
+  ['ArenaTreeView', () => <ArenaTreeView label={BLANK} nodes={[]} />],
 ]);
 
 export function guardedNames(dir: string, read = readFileSync, list = readdirSync) {
