@@ -1,0 +1,40 @@
+{
+  "component": "ArenaTreeView",
+  "slots": {
+    "root": "flex flex-col gap-1",
+    "item": "flex items-center gap-row min-h-ctl-h px-row-x py-row-y rounded-control cursor-pointer font-body text-ctl outline-none focus:shadow-[inset_0_0_0_var(--focus-width)_var(--focus-ring)] transition-[background] duration-[var(--dur-hover)] ease-hover ps-[calc(var(--pad-row-x)*var(--dz-row-scale-x)+var(--pad-row-indent)*var(--arena-tree-depth,0))]",
+    "caret": "inline-flex items-center justify-center size-ctl-h-sm -my-row-y shrink-0 text-[length:var(--icon-md)]",
+    "icon": "inline-flex shrink-0 text-[length:var(--icon-lg)]",
+    "label": "min-w-0 truncate"
+  },
+  "kind": {
+    "root": "none",
+    "item": "row",
+    "caret": "none",
+    "icon": "none",
+    "label": "none"
+  },
+  "internal": {
+    "selected": "the node's id is in the selection the consumer holds"
+  },
+  "variants": {
+    "selected": {
+      "true": {
+        "item": "bg-primary/14 text-ink-body/(--level-ink-body) font-control"
+      },
+      "false": {
+        "item": "bg-transparent text-ink-muted/(--level-ink-muted) font-medium hover:bg-hover"
+      }
+    },
+    "disabled": {
+      "true": {
+        "item": "cursor-not-allowed text-ink-muted/40"
+      },
+      "false": {}
+    }
+  },
+  "defaultVariants": {
+    "selected": false,
+    "disabled": false
+  }
+}

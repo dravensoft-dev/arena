@@ -1,0 +1,47 @@
+<!-- @dsCard group="Tailwind" viewport="420x300" name="ArenaTreeView" subtitle="A flat tree of rows indented by level, rendered from ArenaTreeView.manifest.json" -->
+<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../../../../intro/styles.css">
+<link rel="stylesheet" href="../../../consume/Preflight.generated.css">
+<link rel="stylesheet" href="../../../consume/components/navigation/arena-tree-view/ArenaTreeView.styles.generated.css">
+<link rel="stylesheet" href="../../../Specimen.css">
+</head><body><div id="root"></div>
+<script type="module">
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
+
+const manifest = await (await fetch('./ArenaTreeView.manifest.json')).json();
+const c = arenaClassesFor(manifest);
+const d = arenaSlotDataFor(manifest);
+
+/* One visible node. The level is the depth plus one, the three counts are the ones the
+   flat tree writes on every item, and the depth channel is the one inline property the
+   indent reads. A branch draws a caret glyph and a leaf a spacer of the same size. */
+function row({ label, icon, level, size, pos, open, selected, disabled }) {
+  const v = { selected: String(Boolean(selected)), disabled: String(Boolean(disabled)) };
+  const cv = arenaClassesFor(manifest, v);
+  const dv = arenaSlotDataFor(manifest, v);
+  const branch = open !== undefined;
+  return el('div', {
+    class: cv.item, ...dv.item, 'data-arena-part': 'tree-view.item', role: 'treeitem', tabindex: selected ? 0 : -1,
+    'aria-level': level, 'aria-setsize': size, 'aria-posinset': pos,
+    'aria-expanded': branch ? String(open) : undefined,
+    'aria-selected': String(Boolean(selected)),
+    'aria-disabled': disabled ? 'true' : undefined,
+    style: `--arena-tree-depth: ${level - 1}`,
+  },
+    el('span', { class: c.caret, ...d.caret, 'data-arena-part': 'tree-view.caret', 'aria-hidden': 'true' },
+      branch ? el('i', { class: `ph-bold ${open ? 'ph-caret-down' : 'ph-caret-right'}` }) : ''),
+    el('i', { class: `${c.icon} ph-bold ${icon}`, ...d.icon, 'data-arena-part': 'tree-view.icon', 'aria-hidden': 'true' }),
+    el('span', { class: c.label, ...d.label, 'data-arena-part': 'tree-view.label', text: label }));
+}
+
+mountSpecimen({ sections: [
+  section('Open, closed, disabled and selected, three levels in', [
+    el('div', { class: c.root, ...d.root, 'data-arena-part': 'tree-view', role: 'tree', 'aria-label': 'Project files' },
+      row({ label: 'Project', icon: 'ph-folder', level: 1, size: 1, pos: 1, open: true }),
+      row({ label: 'src', icon: 'ph-folder', level: 2, size: 2, pos: 1, open: true }),
+      row({ label: 'components', icon: 'ph-folder', level: 3, size: 2, pos: 1, open: false, disabled: true }),
+      row({ label: 'tokens', icon: 'ph-folder', level: 3, size: 2, pos: 2, open: false, selected: true }),
+      row({ label: 'docs', icon: 'ph-folder', level: 2, size: 2, pos: 2, open: false })),
+  ], { stack: true }),
+]});
+</script></body></html>

@@ -7,6 +7,7 @@ import { POLARITIES } from './palette-keys.ts';
 import { walkFiles } from '../../../utils/walk-files.ts';
 import { repoRoot } from '../../../lib/arena/repo-root.ts';
 import { readFamilies } from '../../../lib/tailwind/vocabulary.ts';
+import { whileHeld } from './cli-fixtures.ts';
 
 const reading = { 'lh-prose': '1.6', 'lh-heading': '1.15', 'measure-prose': '72ch' };
 
@@ -53,8 +54,10 @@ test('a reserved name is never a class the tree ships, so a component that lands
   assert.deepEqual(stale(new Map([...RESERVED, ['table', 'ArenaTable, a planted entry (spec 00)']]), shipped), ['table']);
 });
 
-test('the reservation holds one name, the class Arena is going to ship', () => {
-  assert.equal(RESERVED.size, 1);
+test('no class is held ahead, and a held entry is gone when the case that planted it ends', async () => {
+  assert.equal(RESERVED.size, 0);
+  await whileHeld('held-name', () => assert.equal(RESERVED.size, 1));
+  assert.equal(RESERVED.size, 0);
 });
 
 test('every reserved name is kebab, is no polarity, and carries a reason naming its spec and no version', () => {
@@ -66,16 +69,20 @@ test('every reserved name is kebab, is no polarity, and carries a reason naming 
   }
 });
 
-test('a reserved name is refused as a style plugin, naming the component that holds it', () => {
-  assert.deepEqual(nameProblems('tree-view', POLARITIES, 'stylePlugins[1]'), [
-    'stylePlugins[1]: "tree-view" is held for ArenaTreeView, a hierarchy that expands and collapses (spec 25), which '
-    + 'Arena is going to ship as the class .arena-tree-view. A build naming it would fail on the release that ships '
+test('a reserved name is refused as a style plugin, naming the component that holds it', () => whileHeld('held-name', () => {
+  assert.deepEqual(nameProblems('held-name', POLARITIES, 'stylePlugins[1]'), [
+    'stylePlugins[1]: "held-name" is held for ArenaHeld, a name held for one case (spec 00), which '
+    + 'Arena is going to ship as the class .arena-held-name. A build naming it would fail on the release that ships '
     + 'that class, so the name is refused while renaming costs nothing.',
   ]);
-  assert.equal(nameProblems('tree-view', POLARITIES, 'at').length, 1);
-  assert.equal(nameProblems('tree-view', POLARITIES, 'at', ['tree-view']).length, 1,
+  assert.equal(nameProblems('held-name', POLARITIES, 'at').length, 1);
+  assert.equal(nameProblems('held-name', POLARITIES, 'at', ['held-name']).length, 1,
     'a name both shipped and held reports once, as shipped');
-  assert.match(nameProblems('tree-view', POLARITIES, 'at', ['tree-view'])[0] ?? '', /already a class this package ships/);
+  assert.match(nameProblems('held-name', POLARITIES, 'at', ['held-name'])[0] ?? '', /already a class this package ships/);
+}));
+
+test('a name held by nobody is not refused', () => {
+  assert.deepEqual(nameProblems('tree-view', POLARITIES, 'at'), []);
 });
 
 test('a polarity, a near miss and an odd spelling are not reserved', () => {

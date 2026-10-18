@@ -2,9 +2,7 @@
  * A browser bundle: the page loads this, so what it imports out of scripts/ never
  * has to be servable on its own. See build-intro.ts for why the tag needs it tracked. */
 // scripts/generate/core/arena-cli/style-plugin-rules.ts
-var RESERVED = new Map([
-  ["tree-view", "ArenaTreeView, a hierarchy that expands and collapses (spec 25)"]
-]);
+var RESERVED = new Map;
 
 // scripts/lib/core/dtcg-shapes.ts
 function childEntries(node) {

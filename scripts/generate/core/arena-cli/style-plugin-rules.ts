@@ -27,9 +27,7 @@ export const MAX_PROSE_MEASURE = 90;
 
 export const DANGER_FLOOR = 'hue-danger-fill-strong';
 
-export const RESERVED = new Map<string, string>([
-  ['tree-view', 'ArenaTreeView, a hierarchy that expands and collapses (spec 25)'],
-]);
+export const RESERVED = new Map<string, string>();
 
 export const scopeOn = (className: string) => (selector: string) => (selector === ':root'
   ? className

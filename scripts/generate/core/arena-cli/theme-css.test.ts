@@ -8,6 +8,7 @@ import {
 import { PALETTE_KEYS, heatKeys } from './palette-keys.ts';
 import { heatLadder } from './oklab.ts';
 import { parseDecls } from '../../../lib/arena/css-decls.ts';
+import { whileHeld } from './cli-fixtures.ts';
 
 const colors = (overrides: Record<string, string> = {}): Record<string, string> => {
   const out: Record<string, string> = {};
@@ -182,32 +183,32 @@ test('a palette named after a class the package ships is refused, and its own po
   assert.match(problems[1] ?? '', /^palettes\[3\]\.name: "stat-card" is already a class this package ships/);
 });
 
-test('a palette named after a class Arena is going to ship is refused, with or without a package', () => {
+test('a palette named after a class Arena is going to ship is refused, with or without a package', () => whileHeld('held-name', () => {
   const c = config({ palettes: [
     { name: 'light', default: true, polarity: 'light', colors: colors() },
-    { name: 'tree-view', polarity: 'dark', colors: colors() },
+    { name: 'held-name', polarity: 'dark', colors: colors() },
     { name: 'brand', polarity: 'dark', colors: colors() },
   ] });
   for (const sheets of [withScopes(['light', 'stat-card']), undefined]) {
     const problems = configProblems(c, sheets);
     assert.equal(problems.length, 1);
-    assert.match(problems[0] ?? '', /^palettes\[1\]\.name: "tree-view" is held for ArenaTreeView, a hierarchy that expands and collapses \(spec 25\)/);
+    assert.match(problems[0] ?? '', /^palettes\[1\]\.name: "held-name" is held for ArenaHeld, a name held for one case \(spec 00\)/);
   }
-});
+}));
 
-test('a palette and a style plugin both named for a reserved class each report the reservation', () => {
+test('a palette and a style plugin both named for a reserved class each report the reservation', () => whileHeld('held-name', () => {
   const c = config({
     palettes: [
       { name: 'light', default: true, polarity: 'light', colors: colors() },
-      { name: 'tree-view', polarity: 'dark', colors: colors() },
+      { name: 'held-name', polarity: 'dark', colors: colors() },
     ],
-    stylePlugins: ['default', './plugins/tree-view'],
+    stylePlugins: ['default', './plugins/held-name'],
   });
   const problems = configProblems(c, withScopes(['light']));
-  assert.ok(problems.some((line) => line.startsWith('palettes[1].name: "tree-view" is held for ArenaTreeView, a hierarchy that expands and collapses')), problems.join('\n'));
-  assert.ok(problems.some((line) => line.startsWith('stylePlugins[1]: "tree-view" is held for ArenaTreeView, a hierarchy that expands and collapses')), problems.join('\n'));
-  assert.ok(problems.some((line) => line.startsWith('stylePlugins[1]: "tree-view" is also the name of a palette')), problems.join('\n'));
-});
+  assert.ok(problems.some((line) => line.startsWith('palettes[1].name: "held-name" is held for ArenaHeld, a name held for one case')), problems.join('\n'));
+  assert.ok(problems.some((line) => line.startsWith('stylePlugins[1]: "held-name" is held for ArenaHeld, a name held for one case')), problems.join('\n'));
+  assert.ok(problems.some((line) => line.startsWith('stylePlugins[1]: "held-name" is also the name of a palette')), problems.join('\n'));
+}));
 
 test('a palette claiming a polarity scope it does not answer to is refused', () => {
   const c = config({ palettes: [

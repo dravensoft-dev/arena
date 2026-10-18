@@ -7,6 +7,16 @@ import type { Options } from './args.ts';
 import type { ComponentMap } from './components.ts';
 import type { HostEnvironment } from './host.ts';
 import type { Io } from './io.ts';
+import { RESERVED } from './style-plugin-rules.ts';
+
+export async function whileHeld<T>(name: string, body: () => T | Promise<T>): Promise<T> {
+  RESERVED.set(name, 'ArenaHeld, a name held for one case (spec 00)');
+  try {
+    return await body();
+  } finally {
+    RESERVED.delete(name);
+  }
+}
 
 export const colors = (overrides: Record<string, string> = {}): Record<string, string> => {
   const out: Record<string, string> = {};

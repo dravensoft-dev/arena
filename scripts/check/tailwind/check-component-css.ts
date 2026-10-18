@@ -53,6 +53,9 @@ export const EXTERNAL_PROPERTIES = new Map([
     + 'depth, in both layers, while the nav is expanded, because a row insets itself by the indent role times its '
     + 'depth and a class string cannot name the depth. It is a component\'s own channel to what it holds, and '
     + 'its var() fallback of zero is the unindented row'],
+  ['arena-tree-depth', 'written by ArenaTreeView onto each item as a unitless count of the levels above it, in both '
+    + 'layers, because a row insets itself by the indent role times its depth and a class string cannot name the depth. '
+    + 'It is a component\'s own channel to what it holds, and its var() fallback of zero is the unindented row'],
   ['arena-slider-at', 'written by ArenaSlider onto each thumb as the fraction of the range the thumb stands at, 0 to 1, '
     + 'in both layers, because the thumb is placed along the track by that fraction and a class string cannot name a '
     + 'number a person is dragging. Its var() fallback of zero is the minimum'],

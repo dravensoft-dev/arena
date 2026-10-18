@@ -5,7 +5,7 @@ import { existsSync, mkdirSync, readFileSync, statSync, utimesSync, writeFileSyn
 import { join } from 'node:path';
 import { run, writeOutputs } from './command-build.ts';
 import { THEME_SHEET, ICONS_SHEET, PLUGIN_SHEET } from './sheets.ts';
-import { captureIo, phosphor, project, readable } from './cli-fixtures.ts';
+import { captureIo, phosphor, project, readable, whileHeld } from './cli-fixtures.ts';
 
 const CATALOGUED = {
   layers: ['css/reset.css'],
@@ -165,31 +165,31 @@ test('--watch hands over to watchBuild (6c)', async () => {
   assert.equal(await done, 0);
 });
 
-test('a style plugin directory named tree-view stops the build naming the reservation, and brand builds', async () => {
+test('a style plugin directory named for a held class stops the build naming the reservation, and brand builds', () => whileHeld('held-name', async () => {
   const { web } = phosphor();
-  const held = withPlugin('.x { color: red }\n', 'tree-view');
+  const held = withPlugin('.x { color: red }\n', 'held-name');
   const refused = captureIo(held, environment(web));
   assert.equal(await run(flags(held), refused.io), 1);
-  assert.ok(refused.err.some((line) => line.startsWith('arena build: stylePlugins[1]: "tree-view" is held for ArenaTreeView')),
+  assert.ok(refused.err.some((line) => line.startsWith('arena build: stylePlugins[1]: "held-name" is held for ArenaHeld')),
     refused.err.join('\n'));
   assert.ok(!existsSync(join(held, 'src', THEME_SHEET)));
 
   const free = withPlugin('.x { color: red }\n', 'brand');
   assert.equal(await run(flags(free), captureIo(free, environment(web)).io), 0);
-});
+}));
 
-test('a palette named tree-view stops the build naming the reservation, and brand builds', async () => {
+test('a palette named for a held class stops the build naming the reservation, and brand builds', () => whileHeld('held-name', async () => {
   const { web } = phosphor();
   const second = (name: string) => ({ ...readable, palettes: [...readable.palettes, { ...readable.palettes[0], name, default: false }] });
-  const held = project(second('tree-view'));
+  const held = project(second('held-name'));
   const refused = captureIo(held, environment(web));
   assert.equal(await run(flags(held), refused.io), 1);
-  assert.ok(refused.err.some((line) => line.startsWith('arena build: palettes[1].name: "tree-view" is held for ArenaTreeView')),
+  assert.ok(refused.err.some((line) => line.startsWith('arena build: palettes[1].name: "held-name" is held for ArenaHeld')),
     refused.err.join('\n'));
 
   const free = project(second('brand'));
   assert.equal(await run(flags(free), captureIo(free, environment(web)).io), 0);
-});
+}));
 
 test('a root plugin silent on a role with a kernel default builds and the build notes the role', async () => {
   const { web } = phosphor();

@@ -297,7 +297,9 @@ ${fieldTable(base, CONFIRM_REQUEST_CONTRACT)}`,
   },
 
   skin: (base = root) => {
-    const reserved = `\`${[...RESERVED.keys()].join(', ')}\``;
+    const reserved = RESERVED.size === 0
+      ? 'No name is held ahead for a class Arena is going to ship.'
+      : `The names held for a class Arena is going to ship are \`${[...RESERVED.keys()].join(', ')}\`.`;
     return `## Declare your skin
 
 **A palette is not an appearance.** Arena keeps its questions about shape, space, weight and depth, and the answers are a style plugin your project writes. The config below decides which colours a surface takes, and none of how round, how tight or how heavy the product is. That decision is paid
@@ -364,7 +366,7 @@ What each part means:
 - **\`palettes\`** is an array, so declare as many as you want. Exactly one is the \`default\` and
   reaches \`:root\`; every other one becomes a class, \`.arena-<name>\`, that you put on
   \`<html>\` to switch skin. The command refuses a palette or style plugin named after a class Arena
-  ships or is going to ship, naming the component a future class belongs to. The names held for a class Arena is going to ship are ${reserved}. A palette may still take its own polarity's name, \`dark\` or \`light\`, and a style plugin may not. A palette name is kebab-case, and a name declared twice is refused.
+  ships or is going to ship, naming the component a future class belongs to. ${reserved} A palette may still take its own polarity's name, \`dark\` or \`light\`, and a style plugin may not. A palette name is kebab-case, and a name declared twice is refused.
 - **\`polarity\`** is \`dark\` or \`light\`. The polarity decides the native date picker's colour, and it is what a first visit matches \`prefers-color-scheme\` against.
 - **\`colors\`** takes every key above, each a six-digit hex such as \`#141010\`. \`error-fill\`, \`primary-fill\` and the heat steps are optional. Leave
   \`error-fill\` out and Arena darkens \`error\` in oklab for the single filled danger surface it has. Leave \`primary-fill\` out and every ground \`primary-content\` sits on, a filled button, a checked box, a current page, fills with \`primary\`. Declare it when the accent you tuned to read as ink on your page cannot also carry \`primary-content\`. A violet light enough to read on a dark page is too light to carry white. Name a deeper violet here and keep the light one as \`primary\`.
