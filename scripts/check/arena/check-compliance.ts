@@ -126,6 +126,7 @@ export const COVERED = {
   'ArenaBadge:angular': 'ArenaBadge.compliance.test.ts',
   'ArenaCard:angular': 'ArenaCard.compliance.test.ts',
   'ArenaTable:angular': 'ArenaTable.cases.test.ts',
+  'ArenaTreeView:angular': 'ArenaTreeView.tree.test.ts',
   'ArenaTableRow:angular': 'ArenaTableRow.cases.test.ts',
   'ArenaCalendar:angular': 'ArenaCalendar.grid.test.ts',
   'ArenaCalendarEvent:angular': 'ArenaCalendarEvent.cases.test.ts',

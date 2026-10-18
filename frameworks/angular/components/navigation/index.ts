@@ -17,3 +17,4 @@ export * from './arena-side-nav-section';
 export * from './arena-stepper';
 export * from './arena-tab';
 export * from './arena-tabs';
+export * from './arena-tree-view';
