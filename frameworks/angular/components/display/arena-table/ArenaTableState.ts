@@ -22,6 +22,10 @@ export class ArenaTableState {
 
   readonly cursor = signal<GridCursor>({ row: 0, col: 0 });
 
+  pending: number | null = null;
+  arrival: number | null = null;
+  own = false;
+
   readonly lengths = computed(() => [
     this.columns().length,
     ...this.rows().map((row) => this.cellCount(row)),
@@ -71,6 +75,10 @@ export class ArenaTableState {
   }
 
   moveTo(row: number, col: number): void {
+    if (!this.own) {
+      this.pending = null;
+      this.arrival = null;
+    }
     if (this.isStop(row, col)) return;
     this.cursor.set({ row: row === 0 ? 0 : row + this.windowOffset(), col });
   }

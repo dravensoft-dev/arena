@@ -51,6 +51,11 @@
       "payload": "number",
       "description": "A page was chosen, carrying the new 1-based page. It also fires with 1 when the current page has gone PAST THE END, which is the only reset ArenaTable performs; a filter that leaves the page in range is silent, so returning the reader to page one on a change of criterion stays the consumer's, beside the criterion they hold."
     },
+    "rowRequest": {
+      "form": "event",
+      "payload": "number",
+      "description": "The keyboard asked for a row that is not in the projected window, carrying its 0-based index in the whole list, counted as `ArenaTableSlice.offset` counts. The consumer scrolls so that row is projected, and the table focuses it when it arrives. The event never fires for a row already projected, and never fires without `slice.view`."
+    },
     "pageControl": {
       "form": "enum",
       "type": "ArenaTablePageControl",

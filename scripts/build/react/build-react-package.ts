@@ -35,7 +35,7 @@ export const LAYER = 'frameworks/react';
 export const LAYER_NAME = 'react';
 
 export const ROOT_JS = ['Tokens.generated.js'];
-export const ROOT_TS = ['AnchorActivation.ts', 'DataVisuals.ts', 'UseArenaContainerWidth.ts', 'UseDialogModal.ts', 'AnchoredPanel.ts', 'UseAnchoredPanel.ts', 'UseArenaToasts.ts', 'UseArenaConfirm.ts', 'UseArenaRowWindow.ts', 'ToastClock.ts', 'StructuredData.ts', 'Theme.ts', 'WarnOnce.ts', 'VocabularyClass.ts', 'Vocabulary.generated.ts', 'Phrase.ts', 'Thresholds.ts', 'ArenaLocale.ts', 'LocaleDefaults.generated.ts', 'Api.generated.ts', 'ArenaStyles.generated.ts', 'Index.generated.ts'];
+export const ROOT_TS = ['AnchorActivation.ts', 'DataVisuals.ts', 'UseArenaContainerWidth.ts', 'UseDialogModal.ts', 'AnchoredPanel.ts', 'UseAnchoredPanel.ts', 'UseArenaToasts.ts', 'UseArenaConfirm.ts', 'UseArenaRowWindow.ts', 'RowWindowMeasure.ts', 'ToastClock.ts', 'StructuredData.ts', 'Theme.ts', 'WarnOnce.ts', 'VocabularyClass.ts', 'Vocabulary.generated.ts', 'Phrase.ts', 'Thresholds.ts', 'ArenaLocale.ts', 'LocaleDefaults.generated.ts', 'Api.generated.ts', 'ArenaStyles.generated.ts', 'Index.generated.ts'];
 export const DIST_PROJECT = 'frameworks/react/tsconfig.dist.json';
 
 export const node = {

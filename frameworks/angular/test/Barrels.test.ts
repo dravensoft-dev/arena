@@ -123,6 +123,11 @@ const ROOT_PRIVATE = new Map([
    'the one rule every component that reads a value against thresholds shares: a region holds its lower '
    + 'edge, authored once for both layers and compared by check:shared-arithmetic. A consumer reads the '
    + 'standing a component draws and never counts edges, and it is typechecked through the suite beside it.'],
+  ['RowWindowMeasure.ts',
+   'the rules a measured row window follows: what a row or a card extends, when readings of rows that left the '
+   + 'window are dropped, how a late measurement moves the scroll position and where a requested row is aimed. '
+   + 'Authored once and compared by check:shared-arithmetic. A consumer binds the window directive '
+   + 'and never measures a row, and it is typechecked through the suite of the directive that imports it.'],
   ['ArenaIds.ts',
    'the generator behind the ids a component uses to point one of its own elements at another, '
    + 'through aria-controls or aria-labelledby. None of those ids is a member, by the convention '

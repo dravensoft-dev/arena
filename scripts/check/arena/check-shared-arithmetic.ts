@@ -32,6 +32,7 @@ export const PAIRED = [
   'StructuredData.ts',
   'AnchoredPanel.ts',
   'Thresholds.ts',
+  'RowWindowMeasure.ts',
   'components/charts/ChartScales.ts',
   'components/charts/ChartMarks.ts',
   'components/charts/ChartAxis.ts',

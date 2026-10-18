@@ -14,6 +14,11 @@
       "type": "number",
       "required": true,
       "description": "How many rows of the whole list come before the first row projected here, counting from 0, so a window at the top of the list passes 0. `aria-rowindex` is 1-based and the header row takes 1, so ArenaTable does that arithmetic rather than the consumer: an offset that already counted from 1 is counted twice, and the reader is told a position one row past where they are."
+    },
+    "view": {
+      "form": "primitive",
+      "type": "number",
+      "description": "How many rows the viewport shows. Present, ArenaTable answers PageUp, PageDown, and Control plus Home and End, so a reader reaches any row of a long list. Absent, ArenaTable emits nothing and leaves PageUp and PageDown to the page, while Control plus Home and End act as Home and End within the row."
     }
   }
 }

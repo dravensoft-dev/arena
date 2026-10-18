@@ -4,102 +4,21 @@ import {
 import type { ArenaTableSlice } from './Api.generated';
 import { limitWindowInitial, limitWindowOverscan } from './Tokens.generated';
 import {
-  arenaAnchoredScroll, arenaRowEstimate, arenaRowStarts, arenaWindowPad, arenaWindowRange,
+  arenaAnchoredScroll, arenaRowEstimate, arenaRowStarts, arenaWindowPad, arenaWindowRange, arenaWindowView,
 } from './components/display/arena-table/TableWindow';
+import {
+  aimAt, finite, newKept, readBox,
+  type RowWindowKept as Kept, type RowWindowLatest as Latest, type RowWindowMath, type RowWindowReading as Reading,
+} from './RowWindowMeasure';
 
-interface Reading {
-  offset: number;
-  count: number;
-  padTop: number;
-  padBottom: number;
-  head: number;
-}
-
-const ROWS = '[data-arena-part="table.row"], [data-arena-part="table.card"]';
-
-const finite = (value: number | undefined): number => (typeof value === 'number' && Number.isFinite(value) ? value : 0);
+const MATH: RowWindowMath = {
+  estimate: arenaRowEstimate, starts: arenaRowStarts, range: arenaWindowRange, pad: arenaWindowPad,
+  view: arenaWindowView, anchored: arenaAnchoredScroll, initial: limitWindowInitial,
+};
 
 const same = (a: Reading | null, b: Reading | null) => a === b || (a !== null && b !== null && a.offset === b.offset
-  && a.count === b.count && a.padTop === b.padTop && a.padBottom === b.padBottom && a.head === b.head);
-
-function stickyHead(box: HTMLElement): number {
-  const th = box.querySelector('[data-arena-part="table.th"]');
-  const view = box.ownerDocument.defaultView;
-  if (!th || !view || view.getComputedStyle(th).position !== 'sticky') return 0;
-  const row = th.closest('[data-arena-part="table.head-row"]') ?? th;
-  return row.getBoundingClientRect().height;
-}
-
-function extentsOf(rows: readonly Element[]): number[] {
-  const rects = rows.map((row) => row.getBoundingClientRect());
-  return rects.map((rect, i) => {
-    const next = rects[i + 1];
-    const before = rects[i - 1];
-    const gap = next ? next.top - rect.bottom : before ? rect.top - before.bottom : 0;
-    return rect.height + Math.max(0, gap);
-  });
-}
-
-interface Latest {
-  rows: number;
-  rowHeight: number | undefined;
-  overscan: number;
-  first: number;
-}
-
-interface Kept {
-  extents: Map<number, number>;
-  starts: number[];
-  lead: number;
-  head: number;
-  dirty: boolean;
-  rows: number;
-  rowHeight: number | undefined;
-}
-
-function readBox(box: HTMLElement, latest: Latest, kept: Kept, watched: Set<Element>, observer: ResizeObserver,
-  report: (next: Reading) => void): void {
-  const mounted = Array.from(box.querySelectorAll(ROWS));
-  for (const row of watched) {
-    if (!mounted.includes(row)) { observer.unobserve(row); watched.delete(row); }
-  }
-  for (const row of mounted) {
-    if (!watched.has(row)) { observer.observe(row); watched.add(row); }
-  }
-  const first = latest.first;
-  let every = mounted.length > 0;
-  extentsOf(mounted).forEach((size, i) => {
-    const old = kept.extents.get(first + i);
-    if (old === undefined || Math.abs(old - size) < 0.5) every = false;
-    if (old === undefined || Math.abs(old - size) >= 0.5) { kept.extents.set(first + i, size); kept.dirty = true; }
-  });
-  if (every) {
-    for (const index of Array.from(kept.extents.keys())) {
-      if (index < first || index >= first + mounted.length) { kept.extents.delete(index); kept.dirty = true; }
-    }
-  }
-  const table = mounted[0]?.closest('[data-arena-part="table"]');
-  if (mounted[0] && table) kept.lead = mounted[0].getBoundingClientRect().top - table.getBoundingClientRect().top;
-  kept.head = stickyHead(box);
-  if (kept.rows !== latest.rows || kept.rowHeight !== latest.rowHeight) {
-    kept.rows = latest.rows;
-    kept.rowHeight = latest.rowHeight;
-    kept.dirty = true;
-  }
-  const before = kept.starts;
-  if (kept.dirty) {
-    kept.starts = arenaRowStarts(latest.rows, kept.extents, arenaRowEstimate(kept.extents.values(), latest.rowHeight));
-    kept.dirty = false;
-  }
-  let top = box.scrollTop;
-  if (before !== kept.starts && before.length === kept.starts.length) {
-    const anchored = arenaAnchoredScroll(top, before, kept.starts);
-    if (Math.abs(anchored - top) >= 0.5) { box.scrollTop = anchored; top = anchored; }
-  }
-  const win = arenaWindowRange(top, box.clientHeight - kept.lead, kept.starts, latest.overscan, limitWindowInitial);
-  const pad = arenaWindowPad(kept.starts, win);
-  report({ offset: win.offset, count: win.count, padTop: pad.top, padBottom: pad.bottom, head: kept.head });
-}
+  && a.count === b.count && a.padTop === b.padTop && a.padBottom === b.padBottom && a.head === b.head
+  && a.view === b.view);
 
 @Directive({
   selector: '[arenaRowWindow]',
@@ -134,20 +53,17 @@ export class ArenaRowWindow {
   readonly padTop = computed(() => this.measured()?.padTop ?? 0);
   readonly padBottom = computed(() => this.measured()?.padBottom ?? 0);
   protected readonly stuck = computed(() => this.measured()?.head ?? 0);
-  readonly slice = computed<ArenaTableSlice>(() => ({ total: finite(this.total()), offset: this.offset() }));
+  readonly slice = computed<ArenaTableSlice>(() => {
+    const view = this.measured()?.view || undefined;
+    const sits = { total: finite(this.total()), offset: this.offset() };
+    return view === undefined ? sits : { ...sits, view };
+  });
 
   private readonly latest: Latest = { rows: 0, rowHeight: undefined, overscan: limitWindowOverscan, first: 0 };
-  private readonly kept: Kept = {
-    extents: new Map<number, number>(),
-    starts: [0],
-    lead: 0,
-    head: 0,
-    dirty: true,
-    rows: -1,
-    rowHeight: undefined,
-  };
+  private readonly kept: Kept = newKept();
   private run: (() => void) | null = null;
   private stop: (() => void) | null = null;
+  private frame: number | null = null;
 
   constructor() {
     const destroyRef = inject(DestroyRef);
@@ -159,11 +75,24 @@ export class ArenaRowWindow {
       });
       this.reading();
       if (!on) { this.release(); return; }
-      if (this.run) this.run(); else this.hold();
+      if (!this.run) this.hold();
+      else if (this.kept.aim) this.later();
+      else this.run();
+    });
+  }
+
+  private later(): void {
+    const view = this.box.ownerDocument.defaultView;
+    if (this.frame !== null || !view) return;
+    this.frame = view.requestAnimationFrame(() => {
+      this.frame = null;
+      this.run?.();
     });
   }
 
   private release(): void {
+    if (this.frame !== null) this.box.ownerDocument.defaultView?.cancelAnimationFrame(this.frame);
+    this.frame = null;
     this.stop?.();
     this.stop = null;
     this.run = null;
@@ -181,7 +110,7 @@ export class ArenaRowWindow {
         wrapper = target.firstElementChild;
         if (wrapper) observer.observe(wrapper);
       }
-      readBox(target, this.latest, this.kept, watched, observer, (next) => this.reading.set(next));
+      readBox(target, MATH, this.latest, this.kept, watched, observer, (next) => this.reading.set(next));
     };
     observer.observe(target);
     target.addEventListener('scroll', sync, { passive: true });
@@ -195,18 +124,10 @@ export class ArenaRowWindow {
   }
 
   scrollToRow(index: number): void {
-    const state = this.kept;
-    const row = Math.min(Math.max(Math.floor(finite(index)), 0), Math.max(0, state.starts.length - 2));
-    this.box.scrollTop = (state.starts[row] ?? 0) + state.lead - state.head;
+    aimAt(this.kept, this.box, { row: index, near: false });
   }
 
   onRowRequest(index: number): void {
-    const state = this.kept;
-    const box = this.box;
-    const row = Math.min(Math.max(Math.floor(finite(index)), 0), Math.max(0, state.starts.length - 2));
-    const top = (state.starts[row] ?? 0) + state.lead;
-    const bottom = (state.starts[row + 1] ?? top) + state.lead;
-    if (top - state.head < box.scrollTop) box.scrollTop = top - state.head;
-    else if (bottom > box.scrollTop + box.clientHeight) box.scrollTop = bottom - box.clientHeight;
+    aimAt(this.kept, this.box, { row: index, near: true });
   }
 }

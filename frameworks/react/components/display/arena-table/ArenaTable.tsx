@@ -3,6 +3,7 @@ import type { CSSProperties } from 'react';
 import { arenaWarnOnce } from '../../../WarnOnce.ts';
 import { useArenaContainerWidth, arenaReadBreakpoint } from '../../../UseArenaContainerWidth.ts';
 import { arenaColumnKey } from './ColumnKey.ts';
+import { arenaWindowPageTarget } from './TableWindow.ts';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaTable.classes.generated.ts';
 
@@ -59,6 +60,9 @@ export interface ArenaTableProps {
 
   /** A page was chosen, carrying the new 1-based page. It also fires with 1 when the current page has gone PAST THE END, which is the only reset ArenaTable performs; a filter that leaves the page in range is silent, so returning the reader to page one on a change of criterion stays the consumer's, beside the criterion they hold. */
   onPageChange?: (page: number) => void;
+
+  /** The keyboard asked for a row that is not in the projected window, carrying its 0-based index in the whole list, counted as `ArenaTableSlice.offset` counts. The consumer scrolls so that row is projected, and the table focuses it when it arrives. The event never fires for a row already projected, and never fires without `slice.view`. */
+  onRowRequest?: (index: number) => void;
 }
 
 
@@ -83,7 +87,7 @@ const arenaTableStyles = arenaStyles(manifest);
 
 export function ArenaTable({ className, 
   columns, children, empty, responsive = true, label,
-  sort, sortControl = 'auto', onSortChange, page, slice, pageControl = 'auto', onPageChange,
+  sort, sortControl = 'auto', onSortChange, page, slice, pageControl = 'auto', onPageChange, onRowRequest,
 }: ArenaTableProps) {
   const locale = useArenaLocale();
   if (!label?.trim()) throw new Error('ArenaTable: `label` is required');
@@ -140,6 +144,15 @@ export function ArenaTable({ className,
     return React.isValidElement(row) ? React.Children.toArray(row.props.children).length : 0;
   };
 
+  const pending = useRef<number | null>(null);
+  const arrival = useRef<number | null>(null);
+  const own = useRef(false);
+  const focusOwn = (cell: HTMLElement) => {
+    own.current = true;
+    cell.focus();
+    own.current = false;
+  };
+
   const offset = slice ? slice.offset : 0;
   const curRow = cursor.row <= 0 ? 0 : Math.min(Math.max(cursor.row - offset, 1), Math.max(gridRows - 1, 0));
   const absolute = (row: number): number => (row === 0 ? 0 : row + offset);
@@ -153,8 +166,51 @@ export function ArenaTable({ className,
 
     if (active.tagName !== 'TD' && active.tagName !== 'TH') return;
     const cell = g.querySelector<HTMLElement>('td[tabindex="0"], th[tabindex="0"]');
-    if (cell && cell !== active) cell.focus();
+    if (cell && cell !== active) focusOwn(cell);
   }, [curRow, curCol]);
+
+  useEffect(() => {
+    const target = pending.current;
+    if (target === null || flat) return;
+    const at = target - offset;
+    if (at < 0 || at >= rowEls.length) return;
+    pending.current = null;
+    arrival.current = target + 1;
+    setCursor({ row: target + 1, col: curCol });
+  });
+
+  const lastOffset = useRef(offset);
+  useEffect(() => {
+    const settled = lastOffset.current === offset;
+    lastOffset.current = offset;
+    const row = arrival.current;
+    const g = gridRef.current;
+    if (row === null || !g || flat || cursor.row !== row) return;
+    const at = row - 1 - offset;
+    if (at < 0 || at >= rowEls.length) return;
+    const stop = g.querySelector<HTMLElement>('td[tabindex="0"], th[tabindex="0"]');
+    if (!stop) return;
+    const active = g.ownerDocument.activeElement;
+    if (active === stop) {
+      if (settled) arrival.current = null;
+      return;
+    }
+    if (active && active !== g.ownerDocument.body && !g.contains(active)) {
+      arrival.current = null;
+      return;
+    }
+    focusOwn(stop);
+  });
+
+  const pageTarget = (e: React.KeyboardEvent): number | null => {
+    const view = slice?.view;
+    if (view === undefined || e.altKey || e.metaKey || e.shiftKey || !extent) return null;
+    const key = e.key === 'PageUp' || e.key === 'PageDown'
+      ? (e.ctrlKey ? null : e.key)
+      : e.ctrlKey && (e.key === 'Home' || e.key === 'End') ? `Control${e.key}` as const : null;
+    if (key === null) return null;
+    return arenaWindowPageTarget(Math.max(0, absolute(curRow) - 1), key, view, extent.total);
+  };
 
   const onGridKeyDown = (e: React.KeyboardEvent) => {
     if (flat) return;
@@ -162,6 +218,21 @@ export function ArenaTable({ className,
     if (!(t instanceof Element)) return;
 
     if (t.tagName !== 'TD' && t.tagName !== 'TH') return;
+
+    const target = pageTarget(e);
+    if (target !== null) {
+      e.preventDefault();
+      if (target >= offset && target - offset < rowEls.length) {
+        pending.current = null;
+        arrival.current = null;
+        setCursor({ row: target + 1, col: curCol });
+      } else {
+        arrival.current = null;
+        pending.current = target;
+        onRowRequest?.(target);
+      }
+      return;
+    }
 
     let row = curRow;
     let col = curCol;
@@ -175,6 +246,8 @@ export function ArenaTable({ className,
     else if (e.key === 'Enter' || e.key === ' ') {
 
       e.preventDefault();
+      pending.current = null;
+      arrival.current = null;
       if (curRow === 0) { onHeaderActivate(curCol); return; }
       if (e.key === ' ') return;
       const rowEl = rowEls[curRow - 1];
@@ -185,6 +258,8 @@ export function ArenaTable({ className,
       return;
     } else return;
 
+    pending.current = null;
+    arrival.current = null;
     col = Math.min(col, Math.max((rowCells(row) || 1) - 1, 0));
 
     e.preventDefault();
@@ -193,6 +268,7 @@ export function ArenaTable({ className,
   };
 
   const onCellFocus = (ri: number, ci: number) => {
+    if (!own.current) { pending.current = null; arrival.current = null; }
     if (ri !== curRow || ci !== curCol) setCursor({ row: absolute(ri), col: ci });
   };
 

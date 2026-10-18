@@ -15,6 +15,7 @@ interface Scene {
   viewport: number;
   sticky: boolean;
   scrollTop: number;
+  clamp?: boolean;
 }
 
 function scene(over: Partial<Scene> = {}): Scene {
@@ -41,6 +42,13 @@ function rectOf(top: number, height: number): DOMRect {
 
 function recordsIn(): Element[] {
   return Array.from(document.querySelectorAll('[data-record]'));
+}
+
+function scrollRoom(view: Scene): number {
+  const wrapper = document.querySelector('[data-role="wrapper"]') as HTMLElement | null;
+  const pads = wrapper ? wrapper.style.paddingBlock.split(' ').reduce((total, side) => total + (Number.parseFloat(side) || 0), 0) : 0;
+  const rows = recordsIn().reduce((total, row) => total + view.height(Number(row.getAttribute('data-record'))) + view.gap, 0);
+  return Math.max(0, pads + view.head + rows - view.viewport);
 }
 
 function staged<T>(view: Scene, body: () => T): T {
@@ -71,7 +79,7 @@ function staged<T>(view: Scene, body: () => T): T {
   Object.defineProperty(proto, 'scrollTop', {
     configurable: true,
     get: () => view.scrollTop,
-    set: (next: number) => { view.scrollTop = next; },
+    set: (next: number) => { view.scrollTop = view.clamp ? Math.min(Math.max(0, next), scrollRoom(view)) : next; },
   });
   try {
     return body();
@@ -181,7 +189,7 @@ test('a measured box of 400 px over rows of 40 px windows by the arithmetic', ()
     assert.equal(latest!.count, 10 + limitWindowOverscan);
     assert.equal(latest!.padTop, 0);
     assert.equal(latest!.padBottom, (1000 - latest!.count) * 40);
-    assert.deepEqual(latest!.slice, { total: 1000, offset: 0 });
+    assert.deepEqual(latest!.slice, { total: 1000, offset: 0, view: Math.floor((400 - 36) / 40) });
     assert.deepEqual(mountedRecords().slice(0, 2), [0, 1]);
   });
   cleanup();
@@ -310,9 +318,9 @@ test('scrollToRow puts the row at the top edge, and under a sticky head it sits 
     latest!.scrollToRow(100);
     assert.equal(plain.scrollTop, 100 * 40 + plain.head);
     latest!.scrollToRow(-5);
-    assert.equal(plain.scrollTop, plain.head);
+    assert.equal(plain.scrollTop, 0);
     latest!.scrollToRow(99999);
-    assert.equal(plain.scrollTop, 999 * 40 + plain.head);
+    assert.equal(plain.scrollTop, 1000 * 40 + plain.head - plain.viewport, 'the last row ends flush with the bottom edge');
   });
   cleanup();
   const stuck = scene();
@@ -321,6 +329,23 @@ test('scrollToRow puts the row at the top edge, and under a sticky head it sits 
     assert.equal(latest!.style.scrollPaddingTop, stuck.head);
     latest!.scrollToRow(100);
     assert.equal(stuck.scrollTop, 100 * 40);
+  });
+  cleanup();
+});
+
+test('scrollToRow aimed past the range of the box settles, and a scroll up afterwards is not undone', () => {
+  const view = scene({ clamp: true });
+  staged(view, () => {
+    mount(<Probe options={{ total: 1000 }} />);
+    latest!.scrollToRow(999);
+    for (let i = 0; i < 4; i++) scrollTo(view, view.scrollTop);
+    const reached = view.scrollTop;
+    assert.ok(reached > 39000, `the box ends at ${reached}`);
+    for (let step = 1; step <= 5; step++) {
+      const target = reached - 100 * step;
+      scrollTo(view, target);
+      assert.equal(view.scrollTop, target, `step ${step} was pulled back to ${view.scrollTop}`);
+    }
   });
   cleanup();
 });
@@ -369,7 +394,8 @@ test('a list that shrinks never projects past its end', () => {
     assert.ok(latest!.offset > 100);
     act(() => { setOptions({ total: 5 }); });
     assert.ok(latest!.offset + latest!.count <= 5);
-    assert.deepEqual(latest!.slice, { total: 5, offset: latest!.offset });
+    assert.equal(latest!.slice.total, 5);
+    assert.equal(latest!.slice.offset, latest!.offset);
   });
   cleanup();
 });
@@ -381,6 +407,7 @@ test('enabled false projects the initial window and holds no observer or listene
     assert.equal(latest!.offset, 0);
     assert.equal(latest!.count, limitWindowInitial);
     assert.equal(latest!.padBottom, 0);
+    assert.deepEqual(latest!.slice, { total: 1000, offset: 0 });
     assert.equal(SilentObserver.made.length, 0);
     scrollTo(view, 4000);
     assert.equal(latest!.offset, 0);

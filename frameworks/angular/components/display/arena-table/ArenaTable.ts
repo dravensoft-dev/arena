@@ -1,5 +1,5 @@
 import {
-  ChangeDetectionStrategy, Component, ElementRef, afterRenderEffect, booleanAttribute, computed,
+  ChangeDetectionStrategy, Component, ElementRef, afterNextRender, afterRenderEffect, booleanAttribute, computed,
   contentChildren, effect, inject, input, Injector, output, runInInjectionContext, untracked,
 } from '@angular/core';
 import type {
@@ -13,6 +13,7 @@ import { ArenaSelect } from '../../forms/arena-select/ArenaSelect';
 import { ArenaTableRow } from '../arena-table-row/ArenaTableRow';
 import { ArenaTableState } from './ArenaTableState';
 import { arenaColumnKey } from './ColumnKey';
+import { arenaWindowPageTarget } from './TableWindow';
 import { arenaTableStyles } from './ArenaTable.variants';
 import manifest from './ArenaTable.classes.generated';
 import { ARENA_LOCALE } from '../../../ArenaLocale';
@@ -108,6 +109,8 @@ export class ArenaTable {
   readonly sortChange = output<ArenaTableSort>();
   /** A page was chosen, carrying the new 1-based page. It also fires with 1 when the current page has gone PAST THE END, which is the only reset ArenaTable performs; a filter that leaves the page in range is silent, so returning the reader to page one on a change of criterion stays the consumer's, beside the criterion they hold. */
   readonly pageChange = output<number>();
+  /** The keyboard asked for a row that is not in the projected window, carrying its 0-based index in the whole list, counted as `ArenaTableSlice.offset` counts. The consumer scrolls so that row is projected, and the table focuses it when it arrives. The event never fires for a row already projected, and never fires without `slice.view`. */
+  readonly rowRequest = output<number>();
 
   protected readonly state = inject(ArenaTableState);
 
@@ -262,16 +265,76 @@ export class ArenaTable {
     });
 
     afterRenderEffect(() => {
+      const offset = this.windowOffset();
+      const projected = this.rows().length;
+      const target = this.state.pending;
+      if (target === null || this.flat()) return;
+      if (target < offset || target - offset >= projected) return;
+      this.state.pending = null;
+      this.state.arrival = target + 1;
+      untracked(() => this.state.cursor.set({ row: target + 1, col: this.state.clamped().col }));
+      afterNextRender(() => this.arrive(), { injector: this.injector });
+    });
+
+    afterRenderEffect(() => {
       this.state.clamped();
+      this.windowOffset();
+      this.rows();
       if (this.flat()) return;
+      this.arrive();
       const grid = this.host.nativeElement.querySelector('table');
       if (!grid) return;
       const active = grid.ownerDocument.activeElement;
       if (!active || !grid.contains(active)) return;
       if (active.tagName !== 'TD' && active.tagName !== 'TH') return;
       const stop = grid.querySelector<HTMLElement>('td[tabindex="0"], th[tabindex="0"]');
-      if (stop && stop !== active) stop.focus();
+      if (stop && stop !== active) this.focusStop();
     });
+  }
+
+  private lastOffset = 0;
+
+  private arrive(): void {
+    const settled = this.lastOffset === this.windowOffset();
+    this.lastOffset = this.windowOffset();
+    const row = this.state.arrival;
+    const grid = this.host.nativeElement.querySelector('table');
+    if (row === null || !grid || this.flat() || untracked(() => this.state.cursor().row) !== row) return;
+    const at = row - 1 - this.windowOffset();
+    if (at < 0 || at >= this.rows().length) return;
+    const stop = grid.querySelector<HTMLElement>('td[tabindex="0"], th[tabindex="0"]');
+    if (!stop || stop.closest('tr')?.getAttribute('aria-rowindex') !== String(row + 1)) return;
+    const active = grid.ownerDocument.activeElement;
+    if (active === stop) {
+      if (settled) this.state.arrival = null;
+      return;
+    }
+    if (active && active !== grid.ownerDocument.body && !grid.contains(active)) {
+      this.state.arrival = null;
+      return;
+    }
+    this.focusStop();
+  }
+
+  private focusStop(): void {
+    const stop = this.host.nativeElement.querySelector<HTMLElement>('table td[tabindex="0"], table th[tabindex="0"]');
+    if (!stop) return;
+    this.state.own = true;
+    stop.focus();
+    this.state.own = false;
+  }
+
+  private pageTarget(event: KeyboardEvent, row: number): number | null {
+    const sits = this.slice();
+    const extent = this.extent();
+    if (sits?.view === undefined || extent === null) return null;
+    if (event.altKey || event.metaKey || event.shiftKey) return null;
+    const key = event.key === 'PageUp' || event.key === 'PageDown'
+      ? (event.ctrlKey ? null : event.key)
+      : event.ctrlKey && (event.key === 'Home' || event.key === 'End') ? (`Control${event.key}` as const) : null;
+    if (key === null) return null;
+    const absolute = row === 0 ? 0 : row + this.windowOffset();
+    return arenaWindowPageTarget(Math.max(0, absolute - 1), key, sits.view, extent.total);
   }
 
   protected moveTo(row: number, col: number): void {
@@ -287,13 +350,33 @@ export class ArenaTable {
     const at = this.state.clamped();
     let { row, col } = at;
 
+    const jump = this.pageTarget(event, at.row);
+    if (jump !== null) {
+      event.preventDefault();
+      const offset = this.windowOffset();
+      if (jump >= offset && jump - offset < this.rows().length) {
+        this.state.pending = null;
+        this.state.arrival = null;
+        this.state.cursor.set({ row: jump + 1, col });
+      } else {
+        this.state.arrival = null;
+        this.state.pending = jump;
+        this.rowRequest.emit(jump);
+      }
+      return;
+    }
+
     if (event.key === 'Enter' && at.row === 0) {
       event.preventDefault();
+      this.state.pending = null;
+      this.state.arrival = null;
       this.onHeader(at.col);
       return;
     }
     if (event.key === ' ' && at.row === 0) {
       event.preventDefault();
+      this.state.pending = null;
+      this.state.arrival = null;
       this.onHeader(at.col);
       return;
     }
@@ -305,10 +388,14 @@ export class ArenaTable {
     else if (event.key === 'End') col = Math.max((lengths[row] ?? 1) - 1, 0);
     else if (event.key === 'Enter') {
       event.preventDefault();
+      this.state.pending = null;
+      this.state.arrival = null;
       if (at.row > 0) this.state.activate(at.row);
       return;
     } else return;
 
+    this.state.pending = null;
+    this.state.arrival = null;
     col = Math.min(col, Math.max((lengths[row] ?? 1) - 1, 0));
     event.preventDefault();
     this.moveTo(row, col);

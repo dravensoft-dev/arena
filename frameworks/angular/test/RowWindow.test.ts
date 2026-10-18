@@ -15,6 +15,7 @@ interface Scene {
   head: number;
   viewport: number;
   scrollTop: number;
+  clamp?: boolean;
 }
 
 function scene(over: Partial<Scene> = {}): Scene {
@@ -43,7 +44,14 @@ function recordsIn(): Element[] {
   return Array.from(document.querySelectorAll('[data-record]'));
 }
 
-function staged<T>(view: Scene, body: () => T): T {
+function scrollRoom(view: Scene): number {
+  const wrapper = document.querySelector('[data-role="wrapper"]') as HTMLElement | null;
+  const pads = wrapper ? Number.parseFloat(wrapper.style.paddingTop || '0') + Number.parseFloat(wrapper.style.paddingBottom || '0') : 0;
+  const rows = recordsIn().reduce((total, row) => total + view.height(Number(row.getAttribute('data-record'))) + view.gap, 0);
+  return Math.max(0, pads + view.head + rows - view.viewport);
+}
+
+function stage(view: Scene): () => void {
   const savedRect = Element.prototype.getBoundingClientRect;
   const savedObserver = globalThis.ResizeObserver;
   const proto = Element.prototype as unknown as Record<string, unknown>;
@@ -71,15 +79,22 @@ function staged<T>(view: Scene, body: () => T): T {
   Object.defineProperty(proto, 'scrollTop', {
     configurable: true,
     get: () => view.scrollTop,
-    set: (next: number) => { view.scrollTop = next; },
+    set: (next: number) => { view.scrollTop = view.clamp ? Math.min(Math.max(0, next), scrollRoom(view)) : next; },
   });
-  try {
-    return body();
-  } finally {
+  return () => {
     Element.prototype.getBoundingClientRect = savedRect;
     globalThis.ResizeObserver = savedObserver;
     if (savedHeight) Object.defineProperty(html, 'clientHeight', savedHeight); else delete html['clientHeight'];
     if (savedTop) Object.defineProperty(proto, 'scrollTop', savedTop); else delete proto['scrollTop'];
+  };
+}
+
+function staged<T>(view: Scene, body: () => T): T {
+  const undo = stage(view);
+  try {
+    return body();
+  } finally {
+    undo();
   }
 }
 
@@ -188,7 +203,8 @@ test('the first render before afterNextRender projects the initial window with n
       fixture.componentInstance.options.set({ total, rowHeight: 40 });
       fixture.autoDetectChanges();
       assert.equal(fixture.componentInstance.seen[0], `0:${count}:0:0`);
-      assert.deepEqual(fixture.componentInstance.win().slice(), { total, offset: 0 });
+      assert.equal(fixture.componentInstance.win().slice().total, total);
+      assert.equal(fixture.componentInstance.win().slice().offset, 0);
       fixture.destroy();
     }
   });
@@ -212,7 +228,7 @@ test('a measured box of 400 px over rows of 40 px windows by the arithmetic', ()
       assert.equal(win.count(), 10 + limitWindowOverscan);
       assert.equal(win.padTop(), 0);
       assert.equal(win.padBottom(), (1000 - win.count()) * 40);
-      assert.deepEqual(win.slice(), { total: 1000, offset: 0 });
+      assert.deepEqual(win.slice(), { total: 1000, offset: 0, view: Math.floor((400 - 36) / 40) });
       assert.deepEqual(mountedRecords().slice(0, 2), [0, 1]);
     });
   });
@@ -328,9 +344,9 @@ test('scrollToRow puts the row at the top edge, and under a sticky head it sits 
       win.scrollToRow(100);
       assert.equal(plain.scrollTop, 100 * 40 + plain.head);
       win.scrollToRow(-5);
-      assert.equal(plain.scrollTop, plain.head);
+      assert.equal(plain.scrollTop, 0);
       win.scrollToRow(99999);
-      assert.equal(plain.scrollTop, 999 * 40 + plain.head);
+      assert.equal(plain.scrollTop, 1000 * 40 + plain.head - plain.viewport, 'the last row ends flush with the bottom edge');
     });
   });
   inside((stuck) => {
@@ -340,6 +356,22 @@ test('scrollToRow puts the row at the top edge, and under a sticky head it sits 
       assert.equal(stuck.scrollTop, 100 * 40);
     });
   });
+});
+
+test('scrollToRow aimed past the range of the box settles, and a scroll up afterwards is not undone', () => {
+  inside((view) => {
+    use({ total: 1000 }, {}, (win) => {
+      win.scrollToRow(999);
+      for (let i = 0; i < 4; i++) scrollTo(view, view.scrollTop);
+      const reached = view.scrollTop;
+      assert.ok(reached > 39000, `the box ends at ${reached}`);
+      for (let step = 1; step <= 5; step++) {
+        const target = reached - 100 * step;
+        scrollTo(view, target);
+        assert.equal(view.scrollTop, target, `step ${step} was pulled back to ${view.scrollTop}`);
+      }
+    });
+  }, { clamp: true });
 });
 
 test('onRowRequest scrolls only as far as the nearest edge needs', () => {
@@ -355,6 +387,33 @@ test('onRowRequest scrolls only as far as the nearest edge needs', () => {
       assert.equal(view.scrollTop, 10 * 40 + lead, 'a row above starts flush with the top edge');
     });
   });
+});
+
+test('a far request that needs more passes than one change detection allows still renders where it lands', async () => {
+  const TOTAL = 20000;
+  const view = scene({ height: (record) => 20 + Math.floor(record / 1000), clamp: true });
+  const undo = stage(view);
+  const fixture = mountProbe({ total: TOTAL });
+  try {
+    const win = fixture.componentInstance.win();
+    const bottom = () => win.padTop() + view.head + sum(view, win.offset(), TOTAL) - view.scrollTop;
+    const landed = () => mountedRecords().includes(TOTAL - 1) && Math.abs(bottom() - view.viewport) < 1;
+    win.onRowRequest(TOTAL - 1);
+    box().dispatchEvent(new Event('scroll'));
+    settle();
+    for (let pass = 0; pass < 80 && !landed(); pass++) {
+      await new Promise<void>((done) => { requestAnimationFrame(() => done()); });
+      settle();
+    }
+    assert.ok(landed(), `mounted from ${mountedRecords()[0]}, the last row ends ${bottom()} below the top`);
+    assert.equal(win.offset() + win.count(), TOTAL);
+    assert.equal(mountedRecords()[0], win.offset());
+    const [top, under] = wrapperPad().split(' ').map((side) => Number.parseFloat(side));
+    assert.ok(Math.abs(top! - win.padTop()) < 1e-3 && Math.abs(under! - win.padBottom()) < 1e-3, `${wrapperPad()} drawn`);
+  } finally {
+    fixture.destroy();
+    undo();
+  }
 });
 
 test('onRowRequest keeps a requested row clear of a sticky head', () => {
@@ -384,7 +443,8 @@ test('a list that shrinks never projects past its end', () => {
       fixture.componentInstance.options.set({ total: 5 });
       settle();
       assert.ok(win.offset() + win.count() <= 5);
-      assert.deepEqual(win.slice(), { total: 5, offset: win.offset() });
+      assert.equal(win.slice().total, 5);
+      assert.equal(win.slice().offset, win.offset());
     });
   });
 });
@@ -395,6 +455,7 @@ test('enabled false projects the initial window and holds no observer or listene
       assert.equal(win.offset(), 0);
       assert.equal(win.count(), limitWindowInitial);
       assert.equal(win.padBottom(), 0);
+      assert.deepEqual(win.slice(), { total: 1000, offset: 0 });
       assert.equal(SilentObserver.made.length, 0);
       scrollTo(view, 4000);
       assert.equal(win.offset(), 0);

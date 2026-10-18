@@ -418,16 +418,19 @@ const shown = records.slice(win.offset, win.offset + win.count);
 
 <div ref={win.ref} style={{ ...win.style, blockSize: '32rem', overflowY: 'auto' }}>
   <div style={{ paddingBlock: `${win.padTop}px ${win.padBottom}px` }}>
-    <ArenaTable label="Deployments" columns={columns} slice={win.slice} className="arena-sticky-head">
+    <ArenaTable label="Deployments" columns={columns} slice={win.slice}
+      onRowRequest={win.onRowRequest} className="arena-sticky-head">
       {shown.map(renderRow)}
     </ArenaTable>
   </div>
 </div>
 ```
 
-The hook reads the rows the table mounted and keeps each height by position in the list. A row that wraps costs what it measures, and a row not yet read costs the mean of the rest. The box scrolls on its own, so the table never owns a scrollbar.
+The hook reads the rows the table mounted and keeps each height by position in the list. A row that wraps costs its measured height. A row not yet read costs the mean of the rest. The box scrolls on its own, so the table never owns a scrollbar.
 
-Pass `slice` so the reader hears the true size of the list. `arena-sticky-head` keeps the header row in view, and the hook's `style` pads the scroll by the header's height. Call `scrollToRow(0)` when a new sort or filter changes the list.
+Pass `slice` so the reader hears the true size of the list. `arena-sticky-head` keeps the header row in view, and the hook's `style` pads the scroll by the header's height. Call `scrollToRow(0)` when a new sort or filter changes the list. Row 0 scrolls to the very top of the box, so the header row shows.
+
+The hook's `slice` turns PageUp, PageDown and Control plus Home and End on, and `onRowRequest` lets them leave the window. Bind the two together. The table asks for a row it does not project, and the box scrolls to it.
 
 ## How do I window a long table in Angular?
 
@@ -436,7 +439,8 @@ Give the table a box with a bounded block size, then put `arenaRowWindow` on the
 ```html
 <div arenaRowWindow #w="arenaRowWindow" [total]="records.length" style="block-size: 32rem; overflow-y: auto">
   <div [style.padding-top.px]="w.padTop()" [style.padding-bottom.px]="w.padBottom()">
-    <arena-table label="Deployments" [columns]="columns" [slice]="w.slice()" class="arena-sticky-head">
+    <arena-table label="Deployments" [columns]="columns" [slice]="w.slice()"
+                 (rowRequest)="w.onRowRequest($event)" class="arena-sticky-head">
       @for (record of records.slice(w.offset(), w.offset() + w.count()); track record.id) {
         <tr arena-table-row>...</tr>
       }
@@ -445,9 +449,11 @@ Give the table a box with a bounded block size, then put `arenaRowWindow` on the
 </div>
 ```
 
-The directive reads the rows the table mounted and keeps each height by position in the list. A row that wraps costs what it measures, and a row not yet read costs the mean of the rest. The box scrolls on its own, so the table never owns a scrollbar.
+The directive reads the rows the table mounted and keeps each height by position in the list. A row that wraps costs its measured height. A row not yet read costs the mean of the rest. The box scrolls on its own, so the table never owns a scrollbar.
 
-Bind `slice` so the reader hears the true size of the list. `arena-sticky-head` keeps the header row in view, and the directive pads the scroll by the header's height. Call `scrollToRow(0)` when a new sort or filter changes the list.
+Bind `slice` so the reader hears the true size of the list. `arena-sticky-head` keeps the header row in view, and the directive pads the scroll by the header's height. Call `scrollToRow(0)` when a new sort or filter changes the list. Row 0 scrolls to the very top of the box, so the header row shows.
+
+The directive's `slice` turns PageUp, PageDown and Control plus Home and End on, and `(rowRequest)` lets them leave the window. Bind the two together. The table asks for a row it does not project, and the box scrolls to it.
 
 ## Which Angular projection markers must I import?
 
