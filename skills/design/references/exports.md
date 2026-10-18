@@ -18,6 +18,7 @@ Every component is imported from the package root, and its types ship with it. T
 | `ArenaLocaleProvider`, `useArenaLocale`, `arenaMergeLocale`, `ARENA_DEFAULT_LOCALE` | Arena's own words, covered in [`locale.md`](./locale.md) |
 | `useArenaContainerWidth(target?)` | `[ref, width]`: attach the ref to the box and read its outer width, the border box with no transform applied. Subtract your own padding and border when you need the content width. For a component or a panel that has to fit the room it was given. **The hook measures when React attaches the ref, before the browser paints**, then a `ResizeObserver` follows the box. A phone's first frame is already narrow, as Arena's own components are. `width` is `null` in a server render and for a box that has never had a width, such as one first drawn in a hidden parent. A box hidden later keeps its last width. Render the wide branch while `width` is `null`, which is what a server's HTML carries. Pass a `useRef` as `target`; a sealed ref is measured after the paint |
 | `useArenaViewportBelow(name)` | a boolean over `not all and (min-width: N)`, where `name` is `'sm' \| 'md' \| 'lg'` and resolves the same `--bp-*` token Arena's own components branch on. For a page's own layout, such as swapping `arena-compact` for `arena-comfortable` below a breakpoint, and **never for a component**: that is wrong the first time somebody puts it in a narrow column. [How do I change density below a breakpoint?](#how-do-i-change-density-below-a-breakpoint) has it in use. Call `forgetArenaBreakpoints()` if your app swaps its stylesheet at runtime. **It answers in the first client render.** A server render answers `false` until the client takes over, so a frame a server renders takes the `md:` and `max-md:` variants instead |
+| `useArenaRowWindow(options)` | `{ ref, style, offset, count, padTop, padBottom, slice, scrollToRow, onRowRequest }`: attach `ref` and `style` to the box that scrolls a long table, and render only the `count` rows from `offset`. `total` is the length of the whole list. `rowHeight` is the estimate before the first reading, `overscan` is the rows kept beyond each edge, and `enabled` false projects the first rows with no padding. **The hook measures every mounted row after layout**, so rows may wrap and differ in height, and a table below `md` windows its cards the same way. A server render and the first client render project the same first rows, so the HTML agrees. `scrollToRow(index)` puts a row at the top edge and `onRowRequest(index)` scrolls only as far as the row needs. Neither moves focus. [How do I window a long table?](#how-do-i-window-a-long-table) has it in use |
 | `arenaCatColor(slot)`, `arenaCatIndex(slot)`, `arenaCatSurface(slot)`, `arenaCatTint(colour)`, `arenaCatSlotFor(key)`, `ARENA_CAT_SLOTS` | the chart ramp, for a legend or a chip you draw yourself. The ramp's order is its identity, so a slot means the same thing in every chart on the screen. `arenaCatIndex` clamps and rounds a number to the ramp's 1..8, the value `data-arena-color-id` carries. `arenaCatTint` is the soft surface an identity colour stands on, over whatever answers `fill-surface`; it takes a colour, not a slot, and fills `arenaCatSurface`, which returns `{ fill, border }`. `arenaCatSlotFor` hashes a key to a stable slot, so two keys may share one; give series their slots in order when they must differ |
 | `useArenaToasts()` | the notice queue: it holds their identity and their order, and runs the clock `ArenaToastHost` deliberately does not own. `raise(notice)` returns an id, `dismiss(id)` takes one away, `clear()` takes them all, and `toasts` is what you render into the host. The queue applies the dismissal rule in [How long does a raised toast stay?](#how-long-does-a-raised-toast-stay) |
 | `useArenaConfirm()` | the confirmation queue. `ask(request)` returns a promise of the answer, `current` is the one open request, an `ArenaConfirmEntry`, and `settle(id, answer)` resolves it and opens the next |
@@ -405,6 +406,27 @@ protected readonly narrow = arenaViewportBelow('md');
 ```
 
 The two classes are exclusive and reach every component inside the element, and [`VOCABULARY.md`](../../../frameworks/VOCABULARY.md) says what each one changes. The helper needs Arena's stylesheet loaded, because it reads the `--bp-*` threshold from it.
+
+## How do I window a long table?
+
+Give the table a box with a bounded block size, then hand the box the hook's `ref` and `style`. A wrapper inside the box takes its `padding-block` from `padTop` and `padBottom`, so the scrollbar keeps the height of the whole list.
+
+```tsx
+const win = useArenaRowWindow({ total: records.length });
+const shown = records.slice(win.offset, win.offset + win.count);
+
+<div ref={win.ref} style={{ ...win.style, blockSize: '32rem', overflowY: 'auto' }}>
+  <div style={{ paddingBlock: `${win.padTop}px ${win.padBottom}px` }}>
+    <ArenaTable label="Deployments" columns={columns} slice={win.slice} className="arena-sticky-head">
+      {shown.map(renderRow)}
+    </ArenaTable>
+  </div>
+</div>
+```
+
+The hook reads the rows the table mounted and keeps each height by position in the list. A row that wraps costs what it measures, and a row not yet read costs the mean of the rest. The box scrolls on its own, so the table never owns a scrollbar.
+
+Pass `slice` so the reader hears the true size of the list. `arena-sticky-head` keeps the header row in view, and the hook's `style` pads the scroll by the header's height. Call `scrollToRow(0)` when a new sort or filter changes the list.
 
 ## Which Angular projection markers must I import?
 
