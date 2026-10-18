@@ -143,3 +143,45 @@ export function arenaTreeStop(shape: ArenaTreeShape, visible: readonly string[],
   const chosen = new Set(selected);
   return visible.find((id) => chosen.has(id)) ?? visible[0];
 }
+
+export interface ArenaTreeCarryKept {
+  extents: Map<number, number>;
+  starts: number[];
+  lead: number;
+  rows: number;
+  dirty: boolean;
+  aim: { row: number; near: boolean } | null;
+}
+
+export interface ArenaTreeCarryMath {
+  estimate(measured: Iterable<number>, fallback: number | undefined): number;
+  starts(total: number, extents: ReadonlyMap<number, number>, estimate: number): number[];
+  range(scrollTop: number, viewport: number, starts: readonly number[], overscan: number, initial: number): { offset: number; count: number };
+}
+
+export function arenaTreeCarry(kept: ArenaTreeCarryKept, scrollTop: number, before: readonly string[], after: readonly string[],
+  math: ArenaTreeCarryMath): number | null {
+  const at = new Map(after.map((id, index): [string, number] => [id, index]));
+  const extents = new Map<number, number>();
+  for (const [index, size] of kept.extents) {
+    const moved = at.get(before[index] ?? '');
+    if (moved !== undefined) extents.set(moved, size);
+  }
+  const top = scrollTop - kept.lead;
+  const known = before.length > 0 && kept.starts.length === before.length + 1;
+  let row = known ? math.range(top, 0, kept.starts, 0, 0).offset : -1;
+  let delta = row >= 0 ? top - (kept.starts[row] ?? 0) : 0;
+  while (row >= 0 && !at.has(before[row] ?? '')) { row -= 1; delta = 0; }
+  const aimed = kept.aim ? at.get(before[kept.aim.row] ?? '') : undefined;
+  kept.aim = kept.aim && aimed !== undefined ? { row: aimed, near: kept.aim.near } : null;
+  kept.extents = extents;
+  if (extents.size === 0) {
+    kept.starts = [0];
+    kept.dirty = true;
+    return null;
+  }
+  kept.starts = math.starts(after.length, extents, math.estimate(extents.values(), undefined));
+  kept.rows = after.length;
+  kept.dirty = false;
+  return row >= 0 ? (kept.starts[at.get(before[row] ?? '') ?? 0] ?? 0) + kept.lead + delta : null;
+}

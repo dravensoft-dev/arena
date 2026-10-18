@@ -31,6 +31,7 @@ readonly selection = signal<ArenaTreeSelection>({ ids: [] });
 | `selection` | object | `ArenaTreeSelection` |  | Which nodes are selected. Controlled: the consumer holds the set and writes it back from `selectionChange`. Absent, no item carries `aria-selected`, and the tree reports `activate` only, as a navigation tree does. |
 | `selectionChange` | event | `ArenaTreeSelection` |  | The selection changed, carrying the whole new set. The event fires only when the set changes, and never when `selection` is absent. Write it back to `selection` in the handler. |
 | `multiple` | primitive | `boolean` | `false` | Whether more than one node can be selected. With it a press on a selected node unselects it, and the root carries `aria-multiselectable`. Without it a press replaces the selection. |
+| `windowed` | primitive | `boolean` | `false` | Whether the root scrolls inside the height its container gives it and draws only the rows near its viewport. The keyboard still reaches every visible node. Without it every visible node is drawn and the root does not scroll. |
 | `activate` | event | `string` |  | A node was activated by Enter or by a press on its row, carrying its `id`. A disabled node is never activated. The caret's press opens or closes a branch and does not activate. |
 
 <!-- @api end -->
@@ -101,6 +102,25 @@ A key held with Control, Meta or Alt goes to the page untouched.
 A `disabled` node stays focusable, so a keyboard user still finds it. The node is never selected or activated. The caret of a disabled node still opens it, because the children may be enabled.
 
 **The DOM is flat.** One `role="tree"` element holds the visible items in order. Each item carries `aria-level`, `aria-setsize` and `aria-posinset`. The three attributes carry the hierarchy, since the DOM is flat.
+
+## Long trees
+
+**Bind `windowed` when the tree can show thousands of nodes at once.** The root then scrolls on its own, and only the rows near its viewport are drawn.
+
+**Give the container a bounded height.** A windowed root grows up to the block size its container gives it and never past it. A container with no bounded height lets the root grow, and every row is drawn.
+
+```html
+<div style="block-size: 32rem">
+  <arena-tree-view label="Workspace" [nodes]="nodes" windowed
+                   [expanded]="expanded()" (expandedChange)="expanded.set($event)" />
+</div>
+```
+
+The first render, on the server too, draws the first visible nodes up to `--limit-window-initial`. Once a row is measured, the window follows the viewport and the scroll.
+
+The keyboard still reaches every visible node. An arrow, Home, End or a typed prefix whose node is not drawn scrolls the root there. The node takes focus once drawn.
+
+While the focused node is scrolled away, the nearest drawn node holds the one tab stop. Collapsing a branch above the viewport keeps the top row in place.
 
 ## Do / Don't
 

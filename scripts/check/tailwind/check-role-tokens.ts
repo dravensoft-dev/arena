@@ -286,6 +286,7 @@ export const SCALE_USES = new Map<string, string>([
   ['ArenaTooltip:bubble:py-1.5', 'a tooltip bubble, a short line of small mono text, at 6px above and below, where pad-floating-y answers 16px: air this slot spends at its own size, which no kind role asks, so a plugin cannot move it'],
   ['ArenaTooltip:bubble:rounded-control', 'a tooltip bubble, a short line of small mono text, whose corner is rounded-control rather than the floating tier'],
   ['ArenaTreeView:root:gap-1', 'a tree, between one row and the next: 4px of gap inside the component, which no role answers'],
+  ['ArenaTreeView:rows:gap-1', 'a windowed tree, between one drawn row and the next: 4px of gap inside the component, which no role answers'],
   ['ArenaUnauthCard:body:p-4', 'the body of the signed-out card, at 16px on every side, where pad-surface answers 20px: air this slot spends at its own size, which no kind role asks, so a plugin cannot move it'],
   ['ArenaUnauthCard:brand:mb-7', 'the brand at the top of the signed-out card, above its eyebrow: 28px of separation inside the component, which no role answers'],
   ['ArenaUnauthCard:eyebrow:mb-1.5', 'the eyebrow above the signed-out card\'s title: 6px of separation inside the component, which no role answers'],

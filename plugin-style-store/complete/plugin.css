@@ -2303,6 +2303,10 @@
   letter-spacing: var(--track-eyebrow);
   text-wrap: balance;
 }
+.arena-complete [data-arena-part="tree-view.rows"] {
+  outline: var(--bw-marker) dashed var(--edge-marker);
+  outline-offset: calc(var(--sp-1) * -1);
+}
 
 .arena-complete [data-arena-part="unauth-card"] {
   border-radius: var(--r-media);

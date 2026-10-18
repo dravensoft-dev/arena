@@ -1,10 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  arenaTreeBlankMessage, arenaTreeIsBranch, arenaTreeLevel, arenaTreeParent, arenaTreePosInSet, arenaTreeProblemMessage,
+  arenaTreeBlankMessage, arenaTreeCarry, arenaTreeIsBranch, arenaTreeLevel, arenaTreeParent, arenaTreePosInSet, arenaTreeProblemMessage,
   arenaTreeSetSize, arenaTreeShape, arenaTreeStep, arenaTreeStop, arenaTreeToggled, arenaTreeVisible,
 } from './TreeModel.ts';
 import type { ArenaTreeKey, ArenaTreeModelNode } from './TreeModel.ts';
+import { arenaRowEstimate, arenaRowStarts, arenaWindowRange } from '../display/arena-table/TableWindow.ts';
 
 function seeded(seed: number): () => number {
   let a = seed;
@@ -309,4 +310,30 @@ test('every problem reads as one sentence that names the tree and the node', () 
   }
   const distinct = new Set((['duplicate', 'orphan', 'cycle'] as const).map((kind) => arenaTreeProblemMessage({ kind, id: 'q' })));
   assert.equal(distinct.size, 3);
+});
+
+test('a carry keeps each measured row with its id and the row at the top in place', () => {
+  const math = { estimate: arenaRowEstimate, starts: arenaRowStarts, range: arenaWindowRange };
+  sweep((nodes, next) => {
+    const shape = drawn(nodes);
+    const before = arenaTreeVisible(shape, subset(nodes.map((n) => n.id), next));
+    const after = arenaTreeVisible(shape, subset(nodes.map((n) => n.id), next));
+    const height = (id: string) => 20 + (Number(id.slice(1)) % 7);
+    const extents = new Map(before.map((id, index): [number, number] => [index, height(id)]));
+    const starts = arenaRowStarts(before.length, extents, arenaRowEstimate(extents.values(), undefined));
+    const lead = Math.floor(next() * 30);
+    const kept = { extents, starts, lead, rows: before.length, dirty: false, aim: null };
+    const scrollTop = lead + next() * (starts[starts.length - 1] ?? 0);
+    const top = arenaTreeCarry(kept, scrollTop, before, after, math);
+    const left = new Set(before);
+    for (const [index, size] of kept.extents) assert.equal(size, height(after[index]!));
+    assert.equal(kept.extents.size, after.filter((id) => left.has(id)).length);
+    if (top === null) return;
+    const row = arenaWindowRange(scrollTop - lead, 0, starts, 0, 0).offset;
+    let held = row;
+    while (!after.includes(before[held]!)) held -= 1;
+    const landed = after.indexOf(before[held]!);
+    const offsetIn = held === row ? scrollTop - lead - starts[row]! : 0;
+    assert.ok(Math.abs(top - lead - kept.starts[landed]! - offsetIn) < 1e-6, `${before[held]} left the top`);
+  });
 });

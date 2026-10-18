@@ -45,6 +45,12 @@
       "default": false,
       "description": "Whether more than one node can be selected. With it a press on a selected node unselects it, and the root carries `aria-multiselectable`. Without it a press replaces the selection."
     },
+    "windowed": {
+      "form": "primitive",
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the root scrolls inside the height its container gives it and draws only the rows near its viewport. The keyboard still reaches every visible node. Without it every visible node is drawn and the root does not scroll."
+    },
     "activate": {
       "form": "event",
       "payload": "string",
