@@ -20,7 +20,9 @@ import { ArenaScatterChart } from './arena-scatter-chart/ArenaScatterChart';
 import { ArenaSparkline } from './arena-sparkline/ArenaSparkline';
 import { ArenaGaugeChart } from './arena-gauge-chart/ArenaGaugeChart';
 import { ArenaFunnelChart } from './arena-funnel-chart/ArenaFunnelChart';
-import { arenaTextGutter } from './ChartAxis';
+import { ArenaHeatmapChart } from './arena-heatmap-chart/ArenaHeatmapChart';
+import { arenaHeatmapHeight, arenaTextGutter } from './ChartAxis';
+import { ARENA_PAD } from '../../DataVisuals';
 import { arenaGaugePoint, arenaGaugeRadii } from './ChartPolar';
 import { ArenaTable } from '../display/arena-table/ArenaTable';
 import { ArenaTableRow } from '../display/arena-table-row/ArenaTableRow';
@@ -28,7 +30,7 @@ import { ArenaTableCell } from '../display/arena-table-cell/ArenaTableCell';
 import { assertPattern, assertPatternCases, ANGULAR_COMPONENTS } from '../../test/Compliance';
 import { assertNoNode } from '../../test/NodeAssert';
 import { forgetArenaWarnings } from '../../WarnOnce';
-import { chartGaugeHeight, chartSparklineHeight } from '../../Tokens.generated';
+import { chartGaugeHeight, chartHeatmapRowH, chartLegendStrip, chartPadCategory, chartSparklineHeight } from '../../Tokens.generated';
 import type { ArenaGaugeBand } from '../../Api.generated';
 const BINDING = join(ANGULAR_COMPONENTS, 'charts/arena-bar-chart/ArenaBarChart.behaviour.json');
 
@@ -1340,4 +1342,424 @@ test('arena-funnel-chart REFUSES an empty label, since the accessible name would
   } finally {
     fixture.destroy();
   }
+});
+
+const HEAT = 'Sign-ups by hour';
+const HOURS = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0'));
+const DAYS = ['Mon', 'Tue', 'Wed'];
+const ROWS = DAYS.map((label, d) => ({ label, values: HOURS.map((_, h) => (d + 1) * 10 * (h + 1)) }));
+const GRID = [0, 1, 2].map((row) => ({ label: `Row ${row}`, values: [0, 1, 2].map((col) => (row * 3 + col + 1) * 10) }));
+
+function renderHeat(inputs: Record<string, unknown> = {}) {
+  const fixture = TestBed.createComponent(ArenaHeatmapChart);
+  fixture.componentRef.setInput('label', HEAT);
+  fixture.componentRef.setInput('labels', HOURS);
+  fixture.componentRef.setInput('series', ROWS);
+  for (const [name, value] of Object.entries(inputs)) fixture.componentRef.setInput(name, value);
+  fixture.detectChanges();
+  return fixture;
+}
+
+function onHeat(fixture: ReturnType<typeof renderHeat>, check: (host: Element) => void): void {
+  try {
+    check(fixture.nativeElement as Element);
+  } finally {
+    fixture.destroy();
+  }
+}
+
+const heatCells = (host: Element) => [...host.querySelectorAll('svg rect[rx]')]
+  .filter((rect) => rect.getAttribute('fill') !== 'none' || rect.getAttribute('stroke') !== 'var(--ink-body)');
+const heatFills = (host: Element) => heatCells(host).map((rect) => rect.getAttribute('fill'));
+const heatTexts = (host: Element) => [...host.querySelectorAll('svg text')]
+  .map((text) => ({ anchor: text.getAttribute('text-anchor') ?? '', text: (text.textContent ?? '').trim() }));
+const heatTable = (host: Element) => ({
+  head: [...host.querySelectorAll('thead th')].map((c) => (c.textContent ?? '').trim()),
+  rows: [...host.querySelectorAll('tbody tr')]
+    .map((row) => [...row.querySelectorAll('th, td')].map((c) => (c.textContent ?? '').trim())),
+});
+const heatStep = (n: number) => `var(--heat-step-${n})`;
+
+function heatCell(host: Element): string | null {
+  const column = host.querySelector('[data-arena-part="heatmap-chart.tooltip-label"]');
+  const value = host.querySelector('[data-arena-part="heatmap-chart.tooltip-value"]');
+  if (!column || !value) return null;
+  return `${(value.textContent ?? '').split(':')[0]}/${(column.textContent ?? '').trim()}`;
+}
+
+function heatPress(fixture: { detectChanges: () => void }, region: Element, key: string): KeyboardEvent {
+  const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true });
+  region.dispatchEvent(event);
+  fixture.detectChanges();
+  return event;
+}
+
+test('arena-heatmap-chart matches its binding, whose cursor is a cell moved by all four arrows', () => {
+  const fixture = renderHeat({ labels: LABELS, series: GRID, label: CHART });
+  try {
+    const host = fixture.nativeElement as Element;
+    const graphic = host.querySelector('[role="img"]');
+    assert.notEqual(graphic, null, 'a chart with no role="img" is a decoration, not a figure');
+    assert.equal(graphic!.getAttribute('aria-label'), `${CHART} — heatmap`, 'the name is the locale word around label');
+    assert.deepEqual(heatTable(host).head, ['Row', ...LABELS], 'the row heading, then one column per label');
+    assert.deepEqual([...host.querySelectorAll('tbody th[scope="row"]')].map((c) => c.textContent), GRID.map((one) => one.label));
+
+    const region = host.querySelector('[role="group"]') as HTMLElement;
+    assert.equal(host.querySelectorAll('[tabindex="0"]').length, 1, 'one tab stop for the whole plot: the cursor moves inside it');
+    assert.equal(heatCell(host), null, 'a chart at rest reads nothing');
+
+    const walk: [string, string | null][] = [
+      ['ArrowRight', 'Row 0/Alpha'], ['ArrowRight', 'Row 0/Beta'], ['ArrowDown', 'Row 1/Beta'], ['ArrowLeft', 'Row 1/Alpha'],
+      ['ArrowLeft', 'Row 1/Alpha'], ['ArrowUp', 'Row 0/Alpha'], ['ArrowUp', 'Row 0/Alpha'], ['End', 'Row 0/Gamma'],
+      ['ArrowRight', 'Row 0/Gamma'], ['ArrowDown', 'Row 1/Gamma'], ['ArrowDown', 'Row 2/Gamma'], ['ArrowDown', 'Row 2/Gamma'],
+      ['Home', 'Row 2/Alpha'], ['End', 'Row 2/Gamma'], ['Escape', null],
+    ];
+    for (const [key, expected] of walk) {
+      const event = heatPress(fixture, region, key);
+      assert.equal(heatCell(host), expected, `${key} lands on ${expected}`);
+      assert.equal(event.defaultPrevented, true, `${key} is the plot's own while it has focus, so the page does not scroll`);
+    }
+    for (const [key, expected] of [['ArrowDown', 'Row 0/Alpha'], ['Escape', null], ['End', 'Row 0/Gamma'], ['Escape', null], ['Home', 'Row 0/Alpha'], ['Escape', null]] as const) {
+      heatPress(fixture, region, key);
+      assert.equal(heatCell(host), expected, `${key} from rest or after Escape`);
+    }
+
+    heatPress(fixture, region, 'ArrowRight');
+    for (const key of ['PageDown', 'PageUp', 'Tab']) {
+      assert.equal(heatPress(fixture, region, key).defaultPrevented, false, `${key} is not bound, so the page keeps it`);
+    }
+    assert.equal(heatCell(host), 'Row 0/Alpha', 'an unbound key moves nothing');
+
+    assertPattern({
+      root: host,
+      bindingPath: join(ANGULAR_COMPONENTS, 'charts/arena-heatmap-chart/ArenaHeatmapChart.behaviour.json'),
+      subjects: { default: graphic },
+      behavioural: {
+        'alternative.table': true,
+        ...Object.fromEntries(CURSOR_KEYS.map((key) => [key, !['keyboard.Home', 'keyboard.End'].includes(key)])),
+      },
+    });
+  } finally {
+    fixture.destroy();
+  }
+});
+
+test('arena-heatmap-chart outlines the cursor cell in the body ink, and only that one', () => {
+  const fixture = renderHeat({ labels: LABELS, series: GRID });
+  try {
+    const host = fixture.nativeElement as Element;
+    const outlined = () => [...host.querySelectorAll('svg rect')].filter((one) => one.getAttribute('stroke') === 'var(--ink-body)');
+    assert.equal(outlined().length, 0, 'at rest nothing is outlined');
+    const region = host.querySelector('[role="group"]') as HTMLElement;
+    heatPress(fixture, region, 'ArrowDown');
+    assert.equal(outlined().length, 1);
+    assert.equal(outlined()[0]!.getAttribute('fill'), 'none', 'the outline never covers the cell it marks');
+    heatPress(fixture, region, 'Escape');
+    assert.equal(outlined().length, 0);
+  } finally {
+    fixture.destroy();
+  }
+});
+
+test('arena-heatmap-chart reads the column label and the row with its number, and the row alone for a missing cell', () => {
+  const fixture = renderHeat({
+    labels: LABELS, valueFormat: { grouping: true },
+    series: [{ label: 'Full', values: [1200, 2, 3] }, { label: 'Short', values: [5] }, { label: 'Gap', values: [7, Number.NaN, 9] }],
+  });
+  try {
+    const host = fixture.nativeElement as Element;
+    const region = host.querySelector('[role="group"]') as HTMLElement;
+    const read = () => ({
+      label: (host.querySelector('[data-arena-part="heatmap-chart.tooltip-label"]')?.textContent ?? '').trim(),
+      lines: [...host.querySelectorAll('[data-arena-part="heatmap-chart.tooltip-value"]')].map((l) => (l.textContent ?? '').trim()),
+    });
+    heatPress(fixture, region, 'ArrowRight');
+    assert.deepEqual(read(), { label: 'Alpha', lines: ['Full: 1,200'] });
+    heatPress(fixture, region, 'ArrowDown');
+    assert.deepEqual(read(), { label: 'Alpha', lines: ['Short: 5'] });
+    heatPress(fixture, region, 'ArrowRight');
+    assert.deepEqual(read(), { label: 'Beta', lines: ['Short'] }, 'a short row has no number for this cell');
+    heatPress(fixture, region, 'ArrowDown');
+    assert.deepEqual(read(), { label: 'Beta', lines: ['Gap'] }, 'a NaN cell reads as a missing one');
+  } finally {
+    fixture.destroy();
+  }
+});
+
+test('arena-heatmap-chart hides its table in a wrapper, so a wide table never widens the page', () => {
+  onHeat(renderHeat(), (host) => {
+    const box = host.querySelector('table')!.parentElement as HTMLElement;
+    assert.equal(box.tagName, 'DIV');
+    assert.equal(box.style.position, 'absolute');
+    assert.equal(box.style.overflow, 'hidden');
+    assert.equal(box.style.width, '1px');
+  });
+});
+
+test('arena-heatmap-chart anchors the tooltip at the cell\'s place in the rail\'s visible span', () => {
+  const fixture = renderHeat({ labels: LABELS, series: GRID, minCellWidth: 400 });
+  try {
+    const host = fixture.nativeElement as Element;
+    const rail = host.querySelector('[role="group"]') as HTMLElement;
+    let scrolled = 900;
+    Object.defineProperty(rail, 'scrollLeft', { get: () => scrolled, set: () => {}, configurable: true });
+    Object.defineProperty(rail, 'clientWidth', { get: () => 300, configurable: true });
+    rail.dispatchEvent(new Event('scroll'));
+    fixture.detectChanges();
+    heatPress(fixture, rail, 'End');
+    const outline = host.querySelector('svg rect[stroke="var(--ink-body)"]') as Element;
+    const centre = Number(outline.getAttribute('x')) + Number(outline.getAttribute('width')) / 2;
+    const tip = () => parseFloat((host.querySelector('[data-arena-part="heatmap-chart.tooltip"]') as HTMLElement).style.left);
+    assert.equal(tip(), Math.min(Math.max(centre - 900, 0), 300), 'the readout sits over the cell as it is scrolled');
+    scrolled = 0;
+    rail.dispatchEvent(new Event('scroll'));
+    fixture.detectChanges();
+    assert.equal(tip(), 300, 'a cell scrolled past the right edge holds the readout at the edge');
+  } finally {
+    fixture.destroy();
+  }
+});
+
+test('arena-heatmap-chart holds the tooltip inside the rail after the container narrows', () => {
+  const saved = globalThis.ResizeObserver;
+  let report: ResizeObserverCallback = () => {};
+  globalThis.ResizeObserver = class {
+    constructor(callback: ResizeObserverCallback) { report = callback; }
+    observe(): void {}
+    unobserve(): void {}
+    disconnect(): void {}
+  } as unknown as typeof ResizeObserver;
+  const fixture = renderHeat({ labels: LABELS, series: GRID, minCellWidth: 400 });
+  try {
+    const host = fixture.nativeElement as Element;
+    const rail = host.querySelector('[role="group"]') as HTMLElement;
+    let visible = 300;
+    Object.defineProperty(rail, 'scrollLeft', { get: () => 0, set: () => {}, configurable: true });
+    Object.defineProperty(rail, 'clientWidth', { get: () => visible, configurable: true });
+    heatPress(fixture, rail, 'End');
+    const tip = () => parseFloat((host.querySelector('[data-arena-part="heatmap-chart.tooltip"]') as HTMLElement).style.left);
+    assert.equal(tip(), 300, 'a cell past the right edge holds the readout at the rail\'s edge');
+    visible = 200;
+    report([{ borderBoxSize: [{ inlineSize: 500 }], target: rail } as unknown as ResizeObserverEntry], {} as ResizeObserver);
+    fixture.detectChanges();
+    assert.equal(tip(), 200, 'the edge is the narrower rail\'s, with no scroll or key to refresh it');
+  } finally {
+    fixture.destroy();
+    globalThis.ResizeObserver = saved;
+  }
+});
+
+test('arena-heatmap-chart puts the cursor under the pointer, on the cell the two band scales place there', () => {
+  const fixture = renderHeat({ labels: LABELS, series: GRID });
+  try {
+    const host = fixture.nativeElement as Element;
+    const plot = host.querySelector('svg rect[fill="transparent"]') as SVGRectElement;
+    const x = Number(plot.getAttribute('x'));
+    const y = Number(plot.getAttribute('y'));
+    const w = Number(plot.getAttribute('width'));
+    const h = Number(plot.getAttribute('height'));
+    const move = (type: string, px: number, py: number, pointerType = 'mouse') => {
+      const event = new MouseEvent(type, { bubbles: true, clientX: px, clientY: py });
+      Object.defineProperty(event, 'pointerType', { value: pointerType });
+      plot.dispatchEvent(event);
+      fixture.detectChanges();
+    };
+    move('pointermove', x + w * 0.9, y + h * 0.1);
+    assert.equal(heatCell(host), 'Row 0/Gamma', 'right edge, top row');
+    move('pointermove', x + w * 0.1, y + h * 0.9);
+    assert.equal(heatCell(host), 'Row 2/Alpha', 'left edge, bottom row');
+    move('pointerleave', 0, 0);
+    assert.equal(heatCell(host), null, 'leaving the plot clears the cell, hover and cursor being one state');
+  } finally {
+    fixture.destroy();
+  }
+});
+
+test('arena-heatmap-chart is a named figure whose table has a column per label and a row per series', () => {
+  onHeat(renderHeat(), (host) => {
+    assert.equal(host.querySelector('svg')!.getAttribute('aria-label'), 'Sign-ups by hour — heatmap');
+    assert.equal(host.querySelector('svg')!.getAttribute('role'), 'img');
+    assert.equal((host.querySelector('caption')?.textContent ?? '').trim(), 'Sign-ups by hour — heatmap');
+    const { head, rows } = heatTable(host);
+    assert.deepEqual(head, ['Row', ...HOURS]);
+    assert.equal(rows.length, 3);
+    assert.deepEqual(rows.map((row) => row[0]), DAYS, 'each row is headed by its series, as a row header');
+    assert.equal(host.querySelectorAll('tbody th[scope="row"]').length, 3);
+    assert.equal(rows[0]!.length, 1 + HOURS.length);
+    assert.deepEqual(rows[1]!.slice(1, 4), ['20', '40', '60']);
+    assert.equal(heatCells(host).length, 72, 'one rect per cell');
+  });
+});
+
+test('arena-heatmap-chart leaves a short row as empty cells and outlined, unfilled rects', () => {
+  onHeat(renderHeat({ labels: ['a', 'b', 'c', 'd'], series: [{ label: 'Full', values: [1, 2, 3, 4] }, { label: 'Short', values: [4, 3] }] }), (host) => {
+    assert.deepEqual(heatTable(host).rows[1], ['Short', '4', '3', '', '']);
+    const drawn = heatCells(host);
+    const open = drawn.filter((rect) => rect.getAttribute('fill') === 'none');
+    assert.equal(open.length, 2, 'two cells have no value');
+    for (const rect of open) {
+      assert.equal(rect.getAttribute('stroke'), 'var(--edge-separator)');
+      assert.equal((rect as SVGElement).style.strokeWidth, 'var(--bw)');
+    }
+    assert.equal(drawn.filter((rect) => rect.getAttribute('fill') !== 'none').length, 6);
+  });
+});
+
+test('arena-heatmap-chart draws a NaN cell as an outline and never as the lowest step', () => {
+  onHeat(renderHeat({ labels: ['a', 'b', 'c'], series: [{ label: 'Row', values: [0, Number.NaN, 100] }] }), (host) => {
+    const drawn = heatCells(host);
+    assert.equal(drawn[1]!.getAttribute('fill'), 'none');
+    assert.equal(drawn[1]!.getAttribute('stroke'), 'var(--edge-separator)');
+    assert.equal(drawn.filter((rect) => rect.getAttribute('fill') === heatStep(1)).length, 1, 'only the real zero is step 1');
+    assert.deepEqual(heatTable(host).rows[0], ['Row', '0', '', '100']);
+  });
+});
+
+test('arena-heatmap-chart paints a 0-to-max ramp in steps 1 to 5, in order', () => {
+  onHeat(renderHeat({ labels: ['a', 'b', 'c', 'd', 'e'], series: [{ label: 'Row', values: [0, 25, 45, 65, 100] }] }), (host) => {
+    assert.deepEqual(heatFills(host), [1, 2, 3, 4, 5].map(heatStep));
+  });
+});
+
+test('arena-heatmap-chart puts a value on a bin edge in the higher bin and the maximum in the top one', () => {
+  onHeat(renderHeat({ labels: ['a', 'b', 'c', 'd'], series: [{ label: 'Row', values: [19, 20, 99, 100] }] }), (host) => {
+    assert.deepEqual(heatFills(host), [1, 2, 5, 5].map(heatStep));
+  });
+});
+
+test('arena-heatmap-chart puts a decimal value on an edge in the higher step and writes round legend edges', () => {
+  onHeat(renderHeat({ labels: ['a', 'b', 'c'], series: [{ label: 'Row', values: [0.1, 0.6, 0.7] }] }), (host) => {
+    assert.deepEqual(heatFills(host), [1, 4, 4].map(heatStep));
+    assert.deepEqual(
+      [...host.querySelectorAll('[data-arena-part="heatmap-chart.legend-label"]')].map((one) => (one.textContent ?? '').trim()),
+      ['0', '0.2', '0.4', '0.6', '0.8'],
+    );
+  });
+});
+
+test('arena-heatmap-chart keys its legend with five swatches and the lower edge of each step, written by the value writer', () => {
+  onHeat(renderHeat({ labels: ['a', 'b'], series: [{ label: 'Row', values: [0, 5000] }], valueFormat: { grouping: true }, valueSuffix: ' hits' }), (host) => {
+    const swatches = [...host.querySelectorAll<HTMLElement>('[data-arena-part="heatmap-chart.legend-swatch"]')];
+    assert.deepEqual(swatches.map((one) => one.style.background), [1, 2, 3, 4, 5].map(heatStep));
+    assert.deepEqual(
+      [...host.querySelectorAll('[data-arena-part="heatmap-chart.legend-label"]')].map((one) => (one.textContent ?? '').trim()),
+      ['0 hits', '1,000 hits', '2,000 hits', '3,000 hits', '4,000 hits'],
+    );
+    assert.equal(host.querySelector('[data-arena-part="heatmap-chart.legend"]')!.getAttribute('aria-hidden'), 'true');
+  });
+});
+
+test('arena-heatmap-chart computes its height from the row count and takes one that is passed', () => {
+  const frame = (host: Element) => Number.parseFloat((host.querySelector('[data-arena-part="heatmap-chart.frame"]') as HTMLElement).style.height);
+  const plot = (host: Element) => Number(host.querySelector('svg')!.getAttribute('height'));
+  const heights = (inputs: Record<string, unknown>) => {
+    const fixture = renderHeat(inputs);
+    try {
+      const host = fixture.nativeElement as Element;
+      return { frame: frame(host), plot: plot(host) };
+    } finally {
+      fixture.destroy();
+    }
+  };
+  const two = heights({ series: ROWS.slice(0, 2) });
+  const three = heights({});
+  assert.equal(two.frame, arenaHeatmapHeight(2));
+  assert.equal(three.frame - two.frame, chartHeatmapRowH, 'a row adds one pitch');
+  assert.equal(two.frame, 2 * chartHeatmapRowH + ARENA_PAD.t + ARENA_PAD.b + chartLegendStrip);
+  assert.equal(three.plot, three.frame - chartLegendStrip, 'the legend strip comes out of the height');
+  const room = three.frame + chartHeatmapRowH;
+  assert.deepEqual(heights({ height: room }), { frame: room, plot: room - chartLegendStrip });
+});
+
+test('arena-heatmap-chart overflows its rail only when a column cannot be narrower than minCellWidth', () => {
+  const width = (inputs: Record<string, unknown>) => {
+    const fixture = renderHeat(inputs);
+    try {
+      return (fixture.nativeElement as Element).querySelector('svg')!.getAttribute('width');
+    } finally {
+      fixture.destroy();
+    }
+  };
+  assert.equal(width({}), '100%', 'absent, the plot fits its container');
+  assert.equal(width({ minCellWidth: 10 }), '100%', 'a floor the container already meets changes nothing');
+  assert.equal(Number(width({ minCellWidth: 40 })), chartPadCategory + ARENA_PAD.r + 40 * HOURS.length);
+  onHeat(renderHeat({ minCellWidth: 40 }), (host) => {
+    assert.equal((host.querySelector('[role="group"]') as HTMLElement).style.overflowX, 'auto');
+  });
+});
+
+test('arena-heatmap-chart draws every nth column label when they would collide, and names every column in the table', () => {
+  const long = Array.from({ length: 24 }, (_, i) => `Hour ${String(i).padStart(2, '0')}`);
+  onHeat(renderHeat({ labels: long }), (host) => {
+    const drawn = heatTexts(host).filter((t) => t.anchor === 'middle');
+    assert.ok(drawn.length > 0 && drawn.length < long.length, `a stride drew ${drawn.length} of ${long.length}`);
+    assert.equal(drawn[0]!.text, 'Hour 00', 'the first column is always named');
+    assert.deepEqual(heatTable(host).head, ['Row', ...long], 'the table keeps every column');
+  });
+  onHeat(renderHeat(), (host) => {
+    assert.equal(heatTexts(host).filter((t) => t.anchor === 'middle').length, HOURS.length, 'two-character labels fit at this width');
+  });
+});
+
+test('arena-heatmap-chart names each row down the left gutter', () => {
+  onHeat(renderHeat(), (host) => {
+    assert.deepEqual(heatTexts(host).filter((t) => t.anchor === 'end').map((t) => t.text), DAYS);
+  });
+});
+
+test('arena-heatmap-chart warns once that identity and meaning are ignored, and paints the same fills', () => {
+  forgetArenaWarnings();
+  const small = { labels: ['a', 'b'] };
+  const marked = [
+    { label: 'Row', values: [1, 9], colorId: 3 }, { label: 'Two', values: [1, 9], tone: 'danger' },
+    { label: 'Three', values: [1, 9], colorIds: [1, 2] },
+  ];
+  const plain = renderHeat({ ...small, series: [{ label: 'Row', values: [1, 9] }] });
+  const fixtures: ReturnType<typeof renderHeat>[] = [];
+  try {
+    forgetArenaWarnings();
+    const warned = captureWarnings(() => {
+      fixtures.push(renderHeat({ ...small, series: marked }), renderHeat({ ...small, series: marked }));
+    });
+    assert.equal(warned.length, 1);
+    assert.match(warned[0] as string, /ArenaHeatmapChart: a series' colorId, colorIds and tone are ignored, because a cell's colour is its magnitude/);
+    const markedFills = heatFills(fixtures[0]!.nativeElement as Element).slice(0, 2);
+    const plainFills = heatFills(plain.nativeElement as Element);
+    assert.deepEqual(markedFills, plainFills);
+    forgetArenaWarnings();
+    assert.deepEqual(captureWarnings(() => { fixtures.push(renderHeat()); }), [], 'a plain series warns of nothing');
+  } finally {
+    plain.destroy();
+    for (const fixture of fixtures) fixture.destroy();
+  }
+});
+
+test('arena-heatmap-chart REFUSES to render without a label, labels or series', () => {
+  for (const missing of ['label', 'labels', 'series']) {
+    const fixture = TestBed.createComponent(ArenaHeatmapChart);
+    for (const [name, value] of [['label', HEAT], ['labels', HOURS], ['series', ROWS]] as const) {
+      if (name !== missing) fixture.componentRef.setInput(name, value);
+    }
+    try {
+      assert.throws(() => fixture.detectChanges(), /NG0950/, `${missing} is input.required, so Angular refuses the render`);
+    } finally {
+      fixture.destroy();
+    }
+  }
+  const fixture = TestBed.createComponent(ArenaHeatmapChart);
+  fixture.componentRef.setInput('label', '');
+  fixture.componentRef.setInput('labels', HOURS);
+  fixture.componentRef.setInput('series', ROWS);
+  try {
+    assert.throws(() => fixture.detectChanges(), /ArenaHeatmapChart: `label` is required/);
+  } finally {
+    fixture.destroy();
+  }
+});
+
+test('arena-heatmap-chart with no rows draws an empty grid and its legend without throwing', () => {
+  onHeat(renderHeat({ series: [], labels: [] }), (host) => {
+    assert.equal(heatCells(host).length, 0);
+    assert.equal(host.querySelectorAll('[data-arena-part="heatmap-chart.legend-swatch"]').length, 5);
+  });
 });

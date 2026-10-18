@@ -783,7 +783,7 @@ function findManifestFile(componentsDir: string, filename: string): string | und
   return paths.find((p) => basename(p) === filename);
 }
 
-const OWN_HOST = new Set(['arena-bar-chart', 'arena-line-chart', 'arena-doughnut-chart', 'arena-horizontal-bar-chart', 'arena-pyramid-chart', 'arena-radar-chart', 'arena-scatter-chart', 'arena-sparkline', 'arena-gauge-chart', 'arena-funnel-chart']);
+const OWN_HOST = new Set(['arena-bar-chart', 'arena-line-chart', 'arena-doughnut-chart', 'arena-horizontal-bar-chart', 'arena-pyramid-chart', 'arena-radar-chart', 'arena-scatter-chart', 'arena-sparkline', 'arena-gauge-chart', 'arena-funnel-chart', 'arena-heatmap-chart']);
 
 const HOST_SLOT: Record<string, { manifest?: string; slot: string }> = {
   'arena-accordion-item': { manifest: 'ArenaAccordion.manifest.json', slot: 'item' },

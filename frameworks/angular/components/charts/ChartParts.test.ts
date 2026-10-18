@@ -19,6 +19,7 @@ import { ArenaScatterChart } from './arena-scatter-chart/ArenaScatterChart';
 import { ArenaSparkline } from './arena-sparkline/ArenaSparkline';
 import { ArenaGaugeChart } from './arena-gauge-chart/ArenaGaugeChart';
 import { ArenaFunnelChart } from './arena-funnel-chart/ArenaFunnelChart';
+import { ArenaHeatmapChart } from './arena-heatmap-chart/ArenaHeatmapChart';
 import { assertNoNode } from '../../test/NodeAssert';
 
 const LABELS = ['Mon', 'Tue', 'Wed'];
@@ -58,10 +59,14 @@ class GaugeHost {}
 @Component({ selector: 'chart-parts-funnel-host', standalone: true, imports: [ArenaFunnelChart], template: '<arena-funnel-chart label="Deploys" [labels]="labels" [series]="series" />' })
 class FunnelHost { labels = LABELS; series = [SERIES[0]]; }
 
+@Component({ selector: 'chart-parts-heatmap-host', standalone: true, imports: [ArenaHeatmapChart], template: '<arena-heatmap-chart label="Deploys" [labels]="labels" [series]="series" />' })
+class HeatmapHost { labels = LABELS; series = SERIES; }
+
 const CHARTS: Array<[string, string, Type<unknown>]> = [
   ['bar-chart', 'Arena bar', BarHost], ['horizontal-bar-chart', 'Arena horizontal bar', HorizontalBarHost],
   ['line-chart', 'Arena line', LineHost], ['pyramid-chart', 'Arena pyramid', PyramidHost],
   ['radar-chart', 'Arena radar', RadarHost], ['scatter-chart', 'Arena scatter', ScatterHost],
+  ['heatmap-chart', 'Arena heatmap', HeatmapHost],
 ];
 
 for (const [name, , host] of CHARTS) {
@@ -167,6 +172,21 @@ test('funnel-chart draws its tooltip from the manifest once the cursor lands, an
     assert.equal(tooltip.style.background, '', 'the tooltip still sets its background inline');
     assert.ok(root.querySelector('[data-arena-part="funnel-chart.tooltip-label"]'), 'the label part is drawn');
     assert.ok(root.querySelector('[data-arena-part="funnel-chart.tooltip-value"]'), 'the value part is drawn');
+  } finally {
+    fixture.destroy();
+  }
+});
+
+test('heatmap-chart paints each legend swatch inline from the step it keys, the one colour the render computes', () => {
+  const fixture = TestBed.createComponent(HeatmapHost);
+  try {
+    fixture.detectChanges();
+    const swatches = [...(fixture.nativeElement as HTMLElement).querySelectorAll<HTMLElement>('[data-arena-part="heatmap-chart.legend-swatch"]')];
+    assert.deepEqual(swatches.map((one) => one.style.background), [1, 2, 3, 4, 5].map((n) => `var(--heat-step-${n})`));
+    for (const one of swatches) {
+      assert.equal(one.hasAttribute('data-arena-tone'), false, 'a step is not a state');
+      assert.equal(one.hasAttribute('data-arena-color-id'), false, 'a step is not an identity');
+    }
   } finally {
     fixture.destroy();
   }

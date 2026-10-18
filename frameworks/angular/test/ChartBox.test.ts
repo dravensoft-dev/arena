@@ -21,6 +21,7 @@ import { ArenaScatterChart } from '../components/charts/arena-scatter-chart/Aren
 import { ArenaSparkline } from '../components/charts/arena-sparkline/ArenaSparkline';
 import { ArenaGaugeChart } from '../components/charts/arena-gauge-chart/ArenaGaugeChart';
 import { ArenaFunnelChart } from '../components/charts/arena-funnel-chart/ArenaFunnelChart';
+import { ArenaHeatmapChart } from '../components/charts/arena-heatmap-chart/ArenaHeatmapChart';
 
 const LABELS = ['Mon', 'Tue', 'Wed'];
 const ONE = [{ label: 'Deploys', values: [3, 5, 4] }];
@@ -57,6 +58,9 @@ class GaugeHost {}
 @Component({ selector: 'chart-box-funnel', standalone: true, imports: [ArenaFunnelChart], template: '<arena-funnel-chart label="Deploys" [labels]="labels" [series]="series" />' })
 class FunnelHost { labels = LABELS; series = ONE; }
 
+@Component({ selector: 'chart-box-heatmap', standalone: true, imports: [ArenaHeatmapChart], template: '<arena-heatmap-chart label="Deploys" [labels]="labels" [series]="series" />' })
+class HeatmapHost { labels = LABELS; series = ONE; }
+
 const CHARTS: Array<[string, Type<unknown>]> = [
   ['arena-bar-chart', BarHost], ['arena-doughnut-chart', DoughnutHost],
   ['arena-horizontal-bar-chart', HorizontalBarHost], ['arena-line-chart', LineHost],
@@ -64,6 +68,7 @@ const CHARTS: Array<[string, Type<unknown>]> = [
   ['arena-sparkline', SparklineHost],
   ['arena-gauge-chart', GaugeHost],
   ['arena-funnel-chart', FunnelHost],
+  ['arena-heatmap-chart', HeatmapHost],
 ];
 
 for (const [selector, host] of CHARTS) {

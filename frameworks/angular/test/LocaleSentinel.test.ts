@@ -57,6 +57,7 @@ import { ArenaPyramidChart } from '../components/charts/arena-pyramid-chart/Aren
 import { ArenaSparkline } from '../components/charts/arena-sparkline/ArenaSparkline';
 import { ArenaGaugeChart } from '../components/charts/arena-gauge-chart/ArenaGaugeChart';
 import { ArenaFunnelChart } from '../components/charts/arena-funnel-chart/ArenaFunnelChart';
+import { ArenaHeatmapChart } from '../components/charts/arena-heatmap-chart/ArenaHeatmapChart';
 import { ArenaDoughnutChart } from '../components/charts/arena-doughnut-chart/ArenaDoughnutChart';
 import { ArenaRadarChart } from '../components/charts/arena-radar-chart/ArenaRadarChart';
 import { ArenaScatterChart } from '../components/charts/arena-scatter-chart/ArenaScatterChart';
@@ -299,6 +300,9 @@ class GaugeHost {}
 @Component({ selector: 'locale-sentinel-funnel-host', standalone: true, imports: [ArenaFunnelChart], template: `<arena-funnel-chart label="Trial conversion" [labels]="['Visits', 'Sign-ups']" [series]="[{ label: 'Accounts', values: [100, 40] }]" />` })
 class FunnelHost {}
 
+@Component({ selector: 'locale-sentinel-heatmap-host', standalone: true, imports: [ArenaHeatmapChart], template: `<arena-heatmap-chart label="Sign-ups by hour" [labels]="['00', '01']" [series]="[{ label: 'Mon', values: [4, 9] }]" />` })
+class HeatmapHost {}
+
 @Component({ selector: 'locale-sentinel-bar-host', standalone: true, imports: [ArenaBarChart], template: `<arena-bar-chart label="Builds" [labels]="['Mon', 'Tue']" [series]="[{ label: 'ok', values: [1, 2] }]" />` })
 class BarHost {}
 
@@ -366,6 +370,7 @@ const CASES: Record<string, Case> = {
   ArenaSparkline: { hosts: [SparklineHost], consumer: ['Latency', 'Mon', 'Tue', 'p95'] },
   ArenaGaugeChart: { hosts: [GaugeHost], consumer: ['CPU load', 'Healthy', 'Elevated'] },
   ArenaFunnelChart: { hosts: [FunnelHost], consumer: ['Trial conversion', 'Visits', 'Sign-ups', 'Accounts'] },
+  ArenaHeatmapChart: { hosts: [HeatmapHost], consumer: ['Sign-ups by hour', '00', '01', 'Mon'] },
 };
 
 const DRAWS_MEMBERS = 'every string it renders is a member, a slot or a datum the consumer supplies';
