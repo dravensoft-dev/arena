@@ -46,6 +46,7 @@ import { ArenaPyramidChart } from '../components/charts/arena-pyramid-chart/Aren
 import { ArenaSparkline } from '../components/charts/arena-sparkline/ArenaSparkline.tsx';
 import { ArenaGaugeChart } from '../components/charts/arena-gauge-chart/ArenaGaugeChart.tsx';
 import { ArenaFunnelChart } from '../components/charts/arena-funnel-chart/ArenaFunnelChart.tsx';
+import { ArenaHeatmapChart } from '../components/charts/arena-heatmap-chart/ArenaHeatmapChart.tsx';
 import { ArenaDoughnutChart } from '../components/charts/arena-doughnut-chart/ArenaDoughnutChart.tsx';
 import { ArenaRadarChart } from '../components/charts/arena-radar-chart/ArenaRadarChart.tsx';
 import { ArenaScatterChart } from '../components/charts/arena-scatter-chart/ArenaScatterChart.tsx';
@@ -236,6 +237,7 @@ const CASES: Record<string, Case> = {
     consumer: ['CPU load', 'Healthy', 'Elevated'],
   },
   ArenaFunnelChart: { renders: [() => <ArenaFunnelChart label="Trial conversion" labels={['Visits', 'Sign-ups']} series={[{ label: 'Accounts', values: [100, 40] }]} />], consumer: ['Trial conversion', 'Visits', 'Sign-ups', 'Accounts'] },
+  ArenaHeatmapChart: { renders: [() => <ArenaHeatmapChart label="Sign-ups by hour" labels={['00', '01']} series={[{ label: 'Mon', values: [4, 9] }]} />], consumer: ['Sign-ups by hour', '00', '01', 'Mon'] },
   ArenaScatterChart: { renders: [() => <ArenaScatterChart label="Load" xLabel="Requests" yLabel="Latency" series={[{ label: 'Staging', x: [1, 2], y: [3, 4] }]} />], consumer: ['Load', 'Requests', 'Latency', 'Staging'] },
 };
 

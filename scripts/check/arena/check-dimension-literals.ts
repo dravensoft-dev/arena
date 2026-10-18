@@ -124,6 +124,8 @@ export const COMPUTED: ReadonlyMap<string, string> = new Map([
    "the tooltip's anchor, projected from the hovered datum by `frameworks/angular/components/charts/ChartTooltip.ts:arenaTooltipAnchor(x, y)`"],
   ['frameworks/react/components/charts/arena-line-chart/ArenaLineChart.tsx:height',
    'the legend strip, as tall as `frameworks/react/components/charts/ChartLegend.ts:arenaLegendStrip(height, seriesCount, sizeKey)` computes'],
+  ['frameworks/react/components/charts/arena-heatmap-chart/ArenaHeatmapChart.tsx:height',
+   'the frame is as tall as `height` or, when it is absent, as `frameworks/react/components/charts/ChartAxis.ts:arenaHeatmapHeight(rows)` computes from the row count, and the legend strip is as tall as `frameworks/react/components/charts/ChartLegend.ts:arenaHeatLegendStrip(height)` computes'],
   ['frameworks/angular/components/charts/arena-pyramid-chart/ArenaPyramidChart.ts:height',
    "the key covers the plot frame, as tall as the chart's `height` input, and the legend strip, as tall as `frameworks/angular/components/charts/ChartLegend.ts:arenaLegendStrip(height, seriesCount, sizeKey)` computes"],
   ['frameworks/angular/components/charts/arena-pyramid-chart/ArenaPyramidChart.ts:left',

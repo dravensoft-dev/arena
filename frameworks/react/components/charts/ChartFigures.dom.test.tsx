@@ -21,6 +21,7 @@ import { ArenaScatterChart } from './arena-scatter-chart/ArenaScatterChart.tsx';
 import { ArenaSparkline } from './arena-sparkline/ArenaSparkline.tsx';
 import { ArenaGaugeChart } from './arena-gauge-chart/ArenaGaugeChart.tsx';
 import { ArenaFunnelChart } from './arena-funnel-chart/ArenaFunnelChart.tsx';
+import { ArenaHeatmapChart } from './arena-heatmap-chart/ArenaHeatmapChart.tsx';
 import { ArenaTable } from '../display/arena-table/ArenaTable.tsx';
 import { ArenaTableRow } from '../display/arena-table-row/ArenaTableRow.tsx';
 import { ArenaTableCell } from '../display/arena-table-cell/ArenaTableCell.tsx';
@@ -604,4 +605,170 @@ test('ArenaFunnelChart omits the tooltip lines it has no number for, and the con
   assert.deepEqual(funnelReads([0, 5], false), [
     { name: 'S1', lines: ['0'] }, { name: 'S2', lines: ['5'] },
   ]);
+});
+
+const GRID = [0, 1, 2].map((row) => ({ label: `Row ${row}`, values: [0, 1, 2].map((col) => (row * 3 + col + 1) * 10) }));
+
+function cellAt(root: HTMLElement): string | null {
+  const column = root.querySelector('[data-arena-part="heatmap-chart.tooltip-label"]');
+  const value = root.querySelector('[data-arena-part="heatmap-chart.tooltip-value"]');
+  if (!column || !value) return null;
+  return `${(value.textContent ?? '').split(':')[0]}/${(column.textContent ?? '').trim()}`;
+}
+
+function pressed(region: HTMLElement, key: string): KeyboardEvent {
+  const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true });
+  act(() => { region.dispatchEvent(event); });
+  return event;
+}
+
+test('ArenaHeatmapChart matches its binding, whose cursor is a cell moved by all four arrows', () => {
+  const root = mount(<ArenaHeatmapChart labels={LABELS} label={CHART} series={GRID} />);
+  const graphic = root.querySelector<HTMLElement>('[role="img"]');
+  assert.ok(graphic, 'a chart with no role="img" is a decoration, not a figure');
+  assert.equal(graphic.getAttribute('aria-label'), `${CHART} — heatmap`, 'the name is the locale word around label');
+  const head = [...root.querySelectorAll<HTMLElement>('table thead th')].map((c) => (c.textContent ?? '').trim());
+  assert.deepEqual(head, ['Row', ...LABELS], 'the row heading, then one column per label');
+  assert.deepEqual([...root.querySelectorAll<HTMLElement>('table tbody th[scope="row"]')].map((c) => c.textContent), GRID.map((one) => one.label));
+
+  const region = root.querySelector<HTMLElement>('[role="group"]')!;
+  assert.equal(root.querySelectorAll('[tabindex="0"]').length, 1, 'one tab stop for the whole plot: the cursor moves inside it');
+  assert.equal(cellAt(root), null, 'a chart at rest reads nothing');
+
+  const walk: [string, string | null][] = [
+    ['ArrowRight', 'Row 0/Alpha'], ['ArrowRight', 'Row 0/Beta'], ['ArrowDown', 'Row 1/Beta'], ['ArrowLeft', 'Row 1/Alpha'],
+    ['ArrowLeft', 'Row 1/Alpha'], ['ArrowUp', 'Row 0/Alpha'], ['ArrowUp', 'Row 0/Alpha'], ['End', 'Row 0/Gamma'],
+    ['ArrowRight', 'Row 0/Gamma'], ['ArrowDown', 'Row 1/Gamma'], ['ArrowDown', 'Row 2/Gamma'], ['ArrowDown', 'Row 2/Gamma'],
+    ['Home', 'Row 2/Alpha'], ['End', 'Row 2/Gamma'], ['Escape', null],
+  ];
+  for (const [key, expected] of walk) {
+    const event = pressed(region, key);
+    assert.equal(cellAt(root), expected, `${key} lands on ${expected}`);
+    assert.equal(event.defaultPrevented, true, `${key} is the plot's own while it has focus, so the page does not scroll`);
+  }
+  for (const [key, expected] of [['ArrowDown', 'Row 0/Alpha'], ['Escape', null], ['End', 'Row 0/Gamma'], ['Escape', null], ['Home', 'Row 0/Alpha'], ['Escape', null]] as const) {
+    pressed(region, key);
+    assert.equal(cellAt(root), expected, `${key} from rest or after Escape`);
+  }
+
+  pressed(region, 'ArrowRight');
+  for (const key of ['PageDown', 'PageUp', 'Tab']) {
+    assert.equal(pressed(region, key).defaultPrevented, false, `${key} is not bound, so the page keeps it`);
+  }
+  assert.equal(cellAt(root), 'Row 0/Alpha', 'an unbound key moves nothing');
+
+  assertPattern({
+    root,
+    bindingPath: join(REACT_COMPONENTS, 'charts/arena-heatmap-chart/ArenaHeatmapChart.behaviour.json'),
+    subjects: { default: graphic },
+    behavioural: {
+      'alternative.table': true,
+      ...Object.fromEntries(CURSOR_KEYS.map((key) => [key, !['keyboard.Home', 'keyboard.End'].includes(key)])),
+    },
+  });
+});
+
+test('ArenaHeatmapChart outlines the cursor cell in the body ink, and only that one', () => {
+  const root = mount(<ArenaHeatmapChart labels={LABELS} label={CHART} series={GRID} />);
+  const outlined = () => [...root.querySelectorAll('svg rect')].filter((one) => one.getAttribute('stroke') === 'var(--ink-body)');
+  assert.equal(outlined().length, 0, 'at rest nothing is outlined');
+  const region = root.querySelector<HTMLElement>('[role="group"]')!;
+  pressed(region, 'ArrowDown');
+  assert.equal(outlined().length, 1);
+  assert.equal(outlined()[0]!.getAttribute('fill'), 'none', 'the outline never covers the cell it marks');
+  pressed(region, 'Escape');
+  assert.equal(outlined().length, 0);
+});
+
+test('ArenaHeatmapChart reads the column label and the row with its number, and the row alone for a missing cell', () => {
+  const root = mount(
+    <ArenaHeatmapChart label={CHART} labels={LABELS} valueFormat={{ grouping: true }}
+      series={[{ label: 'Full', values: [1200, 2, 3] }, { label: 'Short', values: [5] }, { label: 'Gap', values: [7, Number.NaN, 9] }]} />,
+  );
+  const region = root.querySelector<HTMLElement>('[role="group"]')!;
+  const read = () => ({
+    label: (root.querySelector('[data-arena-part="heatmap-chart.tooltip-label"]')?.textContent ?? '').trim(),
+    lines: [...root.querySelectorAll('[data-arena-part="heatmap-chart.tooltip-value"]')].map((l) => (l.textContent ?? '').trim()),
+  });
+  pressed(region, 'ArrowRight');
+  assert.deepEqual(read(), { label: 'Alpha', lines: ['Full: 1,200'] });
+  pressed(region, 'ArrowDown');
+  assert.deepEqual(read(), { label: 'Alpha', lines: ['Short: 5'] });
+  pressed(region, 'ArrowRight');
+  assert.deepEqual(read(), { label: 'Beta', lines: ['Short'] }, 'a short row has no number for this cell');
+  pressed(region, 'ArrowDown');
+  assert.deepEqual(read(), { label: 'Beta', lines: ['Gap'] }, 'a NaN cell reads as a missing one');
+});
+
+test('ArenaHeatmapChart hides its table in a wrapper, so a wide table never widens the page', () => {
+  const root = mount(<ArenaHeatmapChart labels={LABELS} label={CHART} series={GRID} />);
+  const box = root.querySelector('table')!.parentElement!;
+  assert.equal(box.tagName, 'DIV');
+  assert.equal(box.style.position, 'absolute');
+  assert.equal(box.style.overflow, 'hidden');
+  assert.equal(box.style.width, '1px');
+});
+
+test('ArenaHeatmapChart anchors the tooltip at the cell\'s place in the rail\'s visible span', () => {
+  const root = mount(<ArenaHeatmapChart labels={LABELS} label={CHART} series={GRID} minCellWidth={400} />);
+  const rail = root.querySelector<HTMLElement>('[role="group"]')!;
+  let scrolled = 900;
+  Object.defineProperty(rail, 'scrollLeft', { get: () => scrolled, set: () => {}, configurable: true });
+  Object.defineProperty(rail, 'clientWidth', { get: () => 300, configurable: true });
+  act(() => { rail.dispatchEvent(new Event('scroll')); });
+  const region = root.querySelector<HTMLElement>('svg')!.parentElement!;
+  pressed(region, 'End');
+  const outline = root.querySelector('svg rect[stroke="var(--ink-body)"]')!;
+  const centre = Number(outline.getAttribute('x')) + Number(outline.getAttribute('width')) / 2;
+  const tip = () => parseFloat(root.querySelector<HTMLElement>('[data-arena-part="heatmap-chart.tooltip"]')!.style.left);
+  assert.equal(tip(), Math.min(Math.max(centre - 900, 0), 300), 'the readout sits over the cell as it is scrolled');
+  scrolled = 0;
+  act(() => { rail.dispatchEvent(new Event('scroll')); });
+  assert.equal(tip(), 300, 'a cell scrolled past the right edge holds the readout at the edge');
+});
+
+test('ArenaHeatmapChart holds the tooltip inside the rail after the container narrows', () => {
+  const saved = globalThis.ResizeObserver;
+  let report: ResizeObserverCallback = () => {};
+  globalThis.ResizeObserver = class {
+    constructor(callback: ResizeObserverCallback) { report = callback; }
+    observe(): void {}
+    unobserve(): void {}
+    disconnect(): void {}
+  } as unknown as typeof ResizeObserver;
+  try {
+    const root = mount(<ArenaHeatmapChart labels={LABELS} label={CHART} series={GRID} minCellWidth={400} />);
+    const rail = root.querySelector<HTMLElement>('[role="group"]')!;
+    let visible = 300;
+    Object.defineProperty(rail, 'scrollLeft', { get: () => 0, set: () => {}, configurable: true });
+    Object.defineProperty(rail, 'clientWidth', { get: () => visible, configurable: true });
+    pressed(root.querySelector<HTMLElement>('svg')!.parentElement!, 'End');
+    const tip = () => parseFloat(root.querySelector<HTMLElement>('[data-arena-part="heatmap-chart.tooltip"]')!.style.left);
+    assert.equal(tip(), 300, 'a cell past the right edge holds the readout at the rail\'s edge');
+    visible = 200;
+    act(() => { report([{ borderBoxSize: [{ inlineSize: 500 }], target: root } as unknown as ResizeObserverEntry], {} as ResizeObserver); });
+    assert.equal(tip(), 200, 'the edge is the narrower rail\'s, with no scroll or key to refresh it');
+  } finally {
+    globalThis.ResizeObserver = saved;
+  }
+});
+
+test('ArenaHeatmapChart puts the cursor under the pointer, on the cell the two band scales place there', () => {
+  const root = mount(<ArenaHeatmapChart label={CHART} labels={LABELS} series={GRID} />);
+  const plot = root.querySelector<SVGRectElement>('svg rect[fill="transparent"]')!;
+  const x = Number(plot.getAttribute('x'));
+  const y = Number(plot.getAttribute('y'));
+  const w = Number(plot.getAttribute('width'));
+  const h = Number(plot.getAttribute('height'));
+  const move = (type: string, px: number, py: number, pointerType = 'mouse') => act(() => {
+    const event = new MouseEvent(type, { bubbles: true, clientX: px, clientY: py });
+    Object.defineProperty(event, 'pointerType', { value: pointerType });
+    plot.dispatchEvent(event);
+  });
+  move('pointermove', x + w * 0.9, y + h * 0.1);
+  assert.equal(cellAt(root), 'Row 0/Gamma', 'right edge, top row');
+  move('pointermove', x + w * 0.1, y + h * 0.9);
+  assert.equal(cellAt(root), 'Row 2/Alpha', 'left edge, bottom row');
+  move('pointerout', 0, 0);
+  assert.equal(cellAt(root), null, 'leaving the plot clears the cell, hover and cursor being one state');
 });

@@ -182,7 +182,8 @@ rather than a gap.** `ArenaBarChart` overflows sideways when the points stop fit
 is a direction a page does not use. Down is the direction a page already scrolls, so a rail there
 would nest one scroller inside another and eat the gesture a reader was making to leave.
 `ArenaHorizontalBarChart`, `ArenaPyramidChart` and `ArenaFunnelChart` take the room through `height` instead, which on
-that axis is what the data grows along. `chart.pad-category` is its own token rather than a wider
+that axis is what the data grows along. `ArenaHeatmapChart` does both: its rows take `height`, and its
+columns scroll sideways in a rail when `minCellWidth` asks. `chart.pad-category` is its own token rather than a wider
 `chart.pad-left` because the two gutters hold different things, and sizing every chart's value
 gutter for the longest category name anybody might write would spend it on every vertical chart in
 the library.
@@ -298,6 +299,23 @@ stage and to the first, `null` where the denominator is not above zero or not fi
 whatever the counts keep. No text lies over a mark: the names run down the left gutter and the counts
 and the conversions down a right gutter that `arenaTextGutter(texts)` sizes from the widest string,
 measured and never read from the DOM.
+
+**A heatmap's cell carries magnitude by lightness alone, and the ladder is five colour roles.** The
+fill is `var(--heat-step-N)`, written by `arenaHeatFill(step)` for the plot and the legend swatch
+alike, and the five roles are born at the palette's optional `heat-1` to `heat-5` keys, which Arena pins
+and the `arena` command derives for a palette that pins none. More is more contrast with the surface in
+both themes, so the order survives grey-scale and colour vision deficiency, and `check:ramp` holds the
+gap between steps. The bins are equal over round edges: `arenaHeatDomain(series)` takes five steps of
+`arenaNiceStep` from the rounded minimum with zero included, `arenaHeatStep(domain, value, steps)` puts
+an edge value in the higher bin, and a quantile ladder is refused because it would give the top step
+the same share of cells whatever the data says. Missing is not low: a missing or non-finite cell draws
+no fill and a hairline in `edge-separator`, which is why step 1 must stay visibly apart from the
+surface. Two category axes need two band scales over the same box, and `arenaCursorStep2d(current, key,
+rows, cols)` walks the grid with the four arrows, clamping and never wrapping, so while the plot has
+focus the arrows are its own and Tab leaves. Column labels thin with `arenaLabelStride(step, texts)`,
+the least stride that gives the widest label room, and the table keeps every column. The table is the
+transpose of `arenaChartTable`: `arenaHeatmapTable` heads each row with its series. No text lies over
+a cell, because ink over five fills is five contrast pairs nothing would check.
 
 **`ArenaPlotBox` spells its size `w` and `h` rather than `width` and `height`**, because
 `check-dimension-literals.ts` reads a property named `width` as a CSS dimension and follows the

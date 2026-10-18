@@ -15,6 +15,7 @@ import { ArenaScatterChart } from './arena-scatter-chart/ArenaScatterChart.tsx';
 import { ArenaSparkline } from './arena-sparkline/ArenaSparkline.tsx';
 import { ArenaGaugeChart } from './arena-gauge-chart/ArenaGaugeChart.tsx';
 import { ArenaFunnelChart } from './arena-funnel-chart/ArenaFunnelChart.tsx';
+import { ArenaHeatmapChart } from './arena-heatmap-chart/ArenaHeatmapChart.tsx';
 
 if (!globalThis.document) {
   throw new Error('A .dom.test. suite needs its DOM installed before react-dom is evaluated; run it with the React preload.');
@@ -36,6 +37,7 @@ const SERIES_CHARTS: [string, string, () => React.ReactElement][] = [
   ['ArenaPyramidChart', 'pyramid-chart', () => <ArenaPyramidChart labels={LABELS} series={TWO} label="Deliveries" />],
   ['ArenaRadarChart', 'radar-chart', () => <ArenaRadarChart labels={LABELS} series={TWO} label="Deliveries" />],
   ['ArenaScatterChart', 'scatter-chart', () => <ArenaScatterChart series={CLOUD} label="Latency" xLabel="Requests" yLabel="p95" />],
+  ['ArenaHeatmapChart', 'heatmap-chart', () => <ArenaHeatmapChart labels={LABELS} series={TWO} label="Deliveries" />],
 ];
 
 for (const [name, part, render] of SERIES_CHARTS) {
@@ -153,4 +155,14 @@ test('ArenaFunnelChart draws its tooltip from the manifest once the cursor lands
   assert.equal(tooltip.style.background, '', 'the tooltip carries no inline background');
   assert.ok(root.querySelector('[data-arena-part="funnel-chart.tooltip-label"]'), 'the label part is drawn');
   assert.ok(root.querySelector('[data-arena-part="funnel-chart.tooltip-value"]'), 'the value part is drawn');
+});
+
+test('ArenaHeatmapChart paints each legend swatch inline from the step it keys, the one colour the render computes', () => {
+  const root = mount(<ArenaHeatmapChart labels={LABELS} series={TWO} label="Deliveries" />);
+  const swatches = [...root.querySelectorAll<HTMLElement>('[data-arena-part="heatmap-chart.legend-swatch"]')];
+  assert.deepEqual(swatches.map((one) => one.style.background), [1, 2, 3, 4, 5].map((n) => `var(--heat-step-${n})`));
+  for (const one of swatches) {
+    assert.equal(one.hasAttribute('data-arena-tone'), false, 'a step is not a state');
+    assert.equal(one.hasAttribute('data-arena-color-id'), false, 'a step is not an identity');
+  }
 });

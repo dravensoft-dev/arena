@@ -6,7 +6,7 @@
 
 ![The same React component under three style plugins, with the contracts that decide what it is](https://arena.dravensoft.org/hero.png)
 
-Arena is Dravensoft's design system. This package is its React layer: 96 components whose every
+Arena is Dravensoft's design system. This package is its React layer: 97 components whose every
 value traces to a design token, with one stylesheet to import and no theme provider to wrap
 your tree in.
 

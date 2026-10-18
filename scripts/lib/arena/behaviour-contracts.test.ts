@@ -198,7 +198,7 @@ test('an angular binding that names its counterpart is valid', () => {
 
 test('the React inventory finds every component, no category and no loose file', () => {
   const found = reactComponents('.');
-  assert.equal(found.length, 96);
+  assert.equal(found.length, 97);
   assert.ok(found.includes('ArenaDialog'));
   assert.ok(found.includes('ArenaCalendarEvent'));
   assert.ok(found.includes('ArenaTableRow'));
