@@ -1023,13 +1023,14 @@ test('arena-bar-chart: the numbers table is bound as a style object, not stringi
   await fixture.whenStable();
   const table = fixture.nativeElement.querySelector('arena-bar-chart table') as HTMLElement;
   assert.ok(table, 'the visually-hidden numbers table did not render');
+  const box = table.parentElement as HTMLElement;
 
-  assert.ok(!(table.getAttribute('style') ?? '').includes('[object Object]'),
-    `the style object was stringified: "${table.getAttribute('style')}"`);
-  assert.equal(table.style.position, 'absolute');
-  assert.equal(table.style.width, '1px');
-  assert.equal(table.style.height, '1px');
-  assert.equal(table.style.margin, '-1px');
+  assert.ok(!(box.getAttribute('style') ?? '').includes('[object Object]'),
+    `the style object was stringified: "${box.getAttribute('style')}"`);
+  assert.equal(box.style.position, 'absolute');
+  assert.equal(box.style.width, '1px');
+  assert.equal(box.style.height, '1px');
+  assert.equal(box.style.margin, '-1px');
 
 });
 
@@ -1074,13 +1075,14 @@ test('arena-line-chart: the numbers table is bound as a style object, not string
   await fixture.whenStable();
   const table = fixture.nativeElement.querySelector('arena-line-chart table') as HTMLElement;
   assert.ok(table, 'the visually-hidden numbers table did not render');
+  const box = table.parentElement as HTMLElement;
 
-  assert.ok(!(table.getAttribute('style') ?? '').includes('[object Object]'),
-    `the style object was stringified: "${table.getAttribute('style')}"`);
-  assert.equal(table.style.position, 'absolute');
-  assert.equal(table.style.width, '1px');
-  assert.equal(table.style.height, '1px');
-  assert.equal(table.style.margin, '-1px');
+  assert.ok(!(box.getAttribute('style') ?? '').includes('[object Object]'),
+    `the style object was stringified: "${box.getAttribute('style')}"`);
+  assert.equal(box.style.position, 'absolute');
+  assert.equal(box.style.width, '1px');
+  assert.equal(box.style.height, '1px');
+  assert.equal(box.style.margin, '-1px');
 
 });
 
@@ -1123,13 +1125,14 @@ test('arena-doughnut-chart: the numbers table is bound as a style object, not st
   await fixture.whenStable();
   const table = fixture.nativeElement.querySelector('arena-doughnut-chart table') as HTMLElement;
   assert.ok(table, 'the visually-hidden numbers table did not render');
+  const box = table.parentElement as HTMLElement;
 
-  assert.ok(!(table.getAttribute('style') ?? '').includes('[object Object]'),
-    `the style object was stringified: "${table.getAttribute('style')}"`);
-  assert.equal(table.style.position, 'absolute');
-  assert.equal(table.style.width, '1px');
-  assert.equal(table.style.height, '1px');
-  assert.equal(table.style.margin, '-1px');
+  assert.ok(!(box.getAttribute('style') ?? '').includes('[object Object]'),
+    `the style object was stringified: "${box.getAttribute('style')}"`);
+  assert.equal(box.style.position, 'absolute');
+  assert.equal(box.style.width, '1px');
+  assert.equal(box.style.height, '1px');
+  assert.equal(box.style.margin, '-1px');
 
 });
 

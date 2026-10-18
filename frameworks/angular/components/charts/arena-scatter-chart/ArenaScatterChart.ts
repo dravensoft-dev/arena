@@ -124,15 +124,17 @@ const MARK_STYLE = {
       </div>
     }
 
-    <table [style]="arenaSrOnly">
-      <caption>{{ name() }}</caption>
-      <thead><tr>@for (column of table().columns; track $index) { <th>{{ column }}</th> }</tr></thead>
-      <tbody>
-        @for (row of table().rows; track $index) {
-          <tr><th scope="row">{{ row.header }}</th>@for (cell of row.cells; track $index) { <td>{{ cell }}</td> }</tr>
-        }
-      </tbody>
-    </table>
+    <div [style]="arenaSrOnly">
+      <table>
+        <caption>{{ name() }}</caption>
+        <thead><tr>@for (column of table().columns; track $index) { <th>{{ column }}</th> }</tr></thead>
+        <tbody>
+          @for (row of table().rows; track $index) {
+            <tr><th scope="row">{{ row.header }}</th>@for (cell of row.cells; track $index) { <td>{{ cell }}</td> }</tr>
+          }
+        </tbody>
+      </table>
+    </div>
     </div>
   `,
 })

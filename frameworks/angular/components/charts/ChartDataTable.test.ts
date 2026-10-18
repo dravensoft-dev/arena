@@ -79,10 +79,11 @@ test('arena-bar-chart hides its data table visually without removing it from the
     assert.equal(table.getAttribute('aria-hidden'), null, 'the table must stay in the accessibility tree');
     assert.notEqual(table.style.display, 'none', 'display:none would remove it from the accessibility tree');
 
-    assert.equal(table.style.position, 'absolute');
-    assert.equal(table.style.width, '1px');
-    assert.equal(table.style.height, '1px');
-    assert.equal(table.style.overflow, 'hidden');
+    const box = table.parentElement as HTMLElement;
+    assert.equal(box.style.position, 'absolute');
+    assert.equal(box.style.width, '1px');
+    assert.equal(box.style.height, '1px');
+    assert.equal(box.style.overflow, 'hidden');
   } finally {
     fixture.destroy();
   }
@@ -251,7 +252,8 @@ function assertFigure(host: Element, tail: string, cursor: Record<string, boolea
   assert.deepEqual(pairs, LABELS.map((label, i) => [label, String(VALUES[i])]),
     'the table and the picture must not be able to disagree');
   assert.equal(table.getAttribute('aria-hidden'), null, 'the table must stay in the accessibility tree');
-  assert.equal(table.style.position, 'absolute', 'it is hidden by being taken out of flow, not by being removed');
+  assert.equal(table.parentElement?.style.position, 'absolute',
+    'it is hidden by its wrapper being taken out of flow, not by being removed');
 
   assertPattern({
     root: host,

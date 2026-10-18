@@ -185,7 +185,8 @@ for (const [name, Chart, tail, heading] of CHARTS) {
       'a hidden table is not an alternative -- it is no table at all');
     assert.equal(table.getAttribute('aria-hidden'), null, 'the table must stay in the accessibility tree');
     assert.notEqual(table.style.display, 'none', 'display:none removes it from the accessibility tree');
-    assert.equal(table.style.position, 'absolute', 'the table is hidden by being taken out of flow, not by being removed');
+    assert.equal(table.parentElement?.style.position, 'absolute',
+      'the table is hidden by its wrapper being taken out of flow, not by being removed');
 
     assertPattern({
       root,

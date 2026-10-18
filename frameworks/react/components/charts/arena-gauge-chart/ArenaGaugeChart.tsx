@@ -131,15 +131,17 @@ export function ArenaGaugeChart({ className,
         )}
       </svg>
 
-      <table style={arenaSrOnly}>
-        <caption>{name}</caption>
-        <thead><tr>{table.columns.map((column, i) => <th key={i}>{column}</th>)}</tr></thead>
-        <tbody>
-          {table.rows.map((row, i) => (
-            <tr key={i}><th scope="row">{row.header}</th>{row.cells.map((cell, j) => <td key={j}>{cell}</td>)}</tr>
-          ))}
-        </tbody>
-      </table>
+      <div style={arenaSrOnly}>
+        <table>
+          <caption>{name}</caption>
+          <thead><tr>{table.columns.map((column, i) => <th key={i}>{column}</th>)}</tr></thead>
+          <tbody>
+            {table.rows.map((row, i) => (
+              <tr key={i}><th scope="row">{row.header}</th>{row.cells.map((cell, j) => <td key={j}>{cell}</td>)}</tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
