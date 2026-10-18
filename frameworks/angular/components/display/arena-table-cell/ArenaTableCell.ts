@@ -120,7 +120,7 @@ export class ArenaTableCell {
 
   protected onFocus(): void {
     if (this.narrow()) return;
-    this.table.cursor.set({ row: this.row.index(), col: this.columnIndex() });
+    this.table.moveTo(this.row.index(), this.columnIndex());
   }
 
   protected onAnchorClick(event: MouseEvent): void {

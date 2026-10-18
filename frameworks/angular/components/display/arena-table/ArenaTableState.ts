@@ -18,6 +18,7 @@ export class ArenaTableState {
   narrow: Signal<boolean> = signal(false);
   rows: Signal<readonly object[]> = signal([]);
   extent: Signal<{ total: number; offset: number } | null> = signal(null);
+  windowOffset: Signal<number> = signal(0);
 
   readonly cursor = signal<GridCursor>({ row: 0, col: 0 });
 
@@ -29,7 +30,7 @@ export class ArenaTableState {
   readonly clamped = computed<GridCursor>(() => {
     const lengths = this.lengths();
     const { row, col } = this.cursor();
-    const at = Math.min(Math.max(row, 0), Math.max(lengths.length - 1, 0));
+    const at = row <= 0 ? 0 : Math.min(Math.max(row - this.windowOffset(), 1), Math.max(lengths.length - 1, 0));
     return { row: at, col: Math.min(Math.max(col, 0), Math.max((lengths[at] ?? 0) - 1, 0)) };
   });
 
@@ -67,6 +68,11 @@ export class ArenaTableState {
   isStop(row: number, col: number): boolean {
     const at = this.clamped();
     return at.row === row && at.col === col;
+  }
+
+  moveTo(row: number, col: number): void {
+    if (this.isStop(row, col)) return;
+    this.cursor.set({ row: row === 0 ? 0 : row + this.windowOffset(), col });
   }
 
   private cellCount(row: object): number {

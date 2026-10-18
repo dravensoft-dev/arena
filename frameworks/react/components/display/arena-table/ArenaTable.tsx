@@ -140,7 +140,9 @@ export function ArenaTable({ className,
     return React.isValidElement(row) ? React.Children.toArray(row.props.children).length : 0;
   };
 
-  const curRow = Math.min(Math.max(cursor.row, 0), Math.max(gridRows - 1, 0));
+  const offset = slice ? slice.offset : 0;
+  const curRow = cursor.row <= 0 ? 0 : Math.min(Math.max(cursor.row - offset, 1), Math.max(gridRows - 1, 0));
+  const absolute = (row: number): number => (row === 0 ? 0 : row + offset);
   const curCol = Math.min(Math.max(cursor.col, 0), Math.max(rowCells(curRow) - 1, 0));
 
   useEffect(() => {
@@ -163,7 +165,7 @@ export function ArenaTable({ className,
 
     let row = curRow;
     let col = curCol;
-    if (e.key === 'ArrowUp') row = Math.max(0, row - 1);
+    if (e.key === 'ArrowUp') row = row === 1 && offset > 0 ? 1 : Math.max(0, row - 1);
     else if (e.key === 'ArrowDown') row = Math.min(gridRows - 1, row + 1);
     else if (e.key === 'ArrowLeft') col = Math.max(0, col - 1);
     else if (e.key === 'ArrowRight') col = Math.min(Math.max((rowCells(row) || 1) - 1, 0), col + 1);
@@ -187,11 +189,11 @@ export function ArenaTable({ className,
 
     e.preventDefault();
 
-    if (row !== curRow || col !== curCol) setCursor({ row, col });
+    if (row !== curRow || col !== curCol) setCursor({ row: absolute(row), col });
   };
 
   const onCellFocus = (ri: number, ci: number) => {
-    if (ri !== curRow || ci !== curCol) setCursor({ row: ri, col: ci });
+    if (ri !== curRow || ci !== curCol) setCursor({ row: absolute(ri), col: ci });
   };
 
   const headerNav = (ci: number) => ({

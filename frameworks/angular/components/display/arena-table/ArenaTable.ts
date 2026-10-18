@@ -1,6 +1,6 @@
 import {
   ChangeDetectionStrategy, Component, ElementRef, afterRenderEffect, booleanAttribute, computed,
-  contentChildren, effect, inject, input, output, untracked,
+  contentChildren, effect, inject, input, Injector, output, runInInjectionContext, untracked,
 } from '@angular/core';
 import type {
   ArenaSelectOption, ArenaTableColumn, ArenaTablePage, ArenaTablePageControl, ArenaTableSlice,
@@ -113,13 +113,14 @@ export class ArenaTable {
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly measured = arenaContainerWidth();
-  private readonly medium = arenaReadBreakpoint('md');
+  private readonly injector = inject(Injector);
 
   protected readonly rows = contentChildren(ArenaTableRow);
 
   protected readonly narrow = computed(() => {
     const width = this.measured();
-    return this.responsive() && width !== null && width < this.medium;
+    return this.responsive() && width !== null
+      && width < runInInjectionContext(this.injector, () => arenaReadBreakpoint('md'));
   });
 
   protected readonly gridLabel = computed(() => {
@@ -153,6 +154,8 @@ export class ArenaTable {
     const paging = this.page();
     return paging ? { total: paging.total, offset: (paging.index - 1) * paging.size } : null;
   });
+
+  protected readonly windowOffset = computed(() => (this.extent() === null ? 0 : (this.slice()?.offset ?? 0)));
 
   protected readonly rowCount = computed(() => {
     const sits = this.extent();
@@ -236,6 +239,7 @@ export class ArenaTable {
     this.state.narrow = this.narrow;
     this.state.rows = this.rows;
     this.state.extent = this.extent;
+    this.state.windowOffset = this.windowOffset;
 
     effect(() => {
       const paging = this.page();
@@ -271,7 +275,7 @@ export class ArenaTable {
   }
 
   protected moveTo(row: number, col: number): void {
-    if (!this.state.isStop(row, col)) this.state.cursor.set({ row, col });
+    this.state.moveTo(row, col);
   }
 
   protected onKeydown(event: KeyboardEvent): void {
@@ -293,7 +297,7 @@ export class ArenaTable {
       this.onHeader(at.col);
       return;
     }
-    if (event.key === 'ArrowUp') row = Math.max(0, row - 1);
+    if (event.key === 'ArrowUp') row = row === 1 && this.windowOffset() > 0 ? 1 : Math.max(0, row - 1);
     else if (event.key === 'ArrowDown') row = Math.min(lengths.length - 1, row + 1);
     else if (event.key === 'ArrowLeft') col = Math.max(0, col - 1);
     else if (event.key === 'ArrowRight') col = Math.min(Math.max((lengths[row] ?? 1) - 1, 0), col + 1);
