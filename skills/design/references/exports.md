@@ -167,6 +167,7 @@ Every component is standalone, so import the ones a template uses. **A parent do
 | `arenaContainerWidth(target?)` | `Signal<number \| null>` over the host's box, or the `ElementRef` you pass: its outer width, the border box with no transform, so subtract your padding and border for the content width. For a component or panel that has to fit its room. **The box is read in the render hook of the tick that first draws it, before the paint**, then a `ResizeObserver` follows it. A phone's first frame is already narrow. The width is `null` in a server render and for a box that never had a width, such as one first drawn hidden. A box hidden later keeps its last width. Render the wide branch while it is `null`, as a server's HTML does |
 | `arenaViewportBelow(name)` | `Signal<boolean>` over `not all and (min-width: N)`, where `name` is `'sm' \| 'md' \| 'lg'` and resolves the same `--bp-*` token Arena's own components branch on. For a page's own layout, such as swapping `arena-compact` for `arena-comfortable` below a breakpoint, and **never for a component**: that is wrong the first time somebody puts it in a narrow column. [How do I change density below a breakpoint?](#how-do-i-change-density-below-a-breakpoint) has it in use. Call `forgetArenaBreakpoints()` if your app swaps its stylesheet at runtime. **It answers from construction**, so the first change detection draws the right frame. A server render answers `false` until the client takes over, so a frame a server renders takes the `md:` and `max-md:` variants instead |
 | `arenaCatColor(slot)`, `arenaCatIndex(slot)`, `arenaCatSurface(slot)`, `arenaCatTint(colour)`, `arenaCatSlotFor(key)`, `ARENA_CAT_SLOTS` | the chart ramp, for a legend or a chip you draw yourself. The ramp's order is its identity, so a slot means the same thing in every chart on the screen. `arenaCatIndex` clamps and rounds a number to the ramp's 1..8, the value `data-arena-color-id` carries. `arenaCatTint` is the soft surface an identity colour stands on, over whatever answers `fill-surface`; it takes a colour, not a slot, and fills `arenaCatSurface`, which returns `{ fill, border }`. `arenaCatSlotFor` hashes a key to a stable slot, so two keys may share one; give series their slots in order when they must differ |
+| `ArenaRowWindow` | the directive `arenaRowWindow` on the box that scrolls a long table, exported as `#w="arenaRowWindow"`. The directive offers `offset`, `count`, `padTop`, `padBottom` and `slice` as signals, and sets the box's `overflow-anchor` and `scroll-padding-top` itself. `total` is the length of the whole list. `rowHeight` is the estimate before the first reading, `overscan` is the rows kept beyond each edge, and `enabled` false projects the first rows with no padding. **The directive measures every mounted row after the render**, so rows may wrap and differ in height, and a table below `md` windows its cards the same way. The first render projects the first rows before anything is measured. `scrollToRow(index)` puts a row at the top edge and `onRowRequest(index)` scrolls only as far as the row needs. Neither moves focus. [How do I window a long table in Angular?](#how-do-i-window-a-long-table-in-angular) has it in use |
 | `ArenaToastQueue` | the notice queue, provided in root: it holds their identity and their order, and runs the clock `arena-toast-host` deliberately does not own. `raise(notice)` returns an id, `dismiss(id)` takes one away, `clear()` takes them all, and `toasts` is the signal you render into the host. The queue applies the dismissal rule in [How long does a raised toast stay?](#how-long-does-a-raised-toast-stay) |
 | `ArenaConfirmQueue` | the confirmation queue, provided in root. `ask(request)` returns a promise of the answer, `current` is the signal holding the one open request, an `ArenaConfirmEntry`, and `settle(id, answer)` resolves it and opens the next |
 | `arenaToastDelay(notice, dismiss)`, `ARENA_TOAST_DISMISS` | the dismissal rule of [How long does a raised toast stay?](#how-long-does-a-raised-toast-stay) on its own, for a queue of your own: the interval a notice runs on, or `null` when it must not be taken away. Pass `ARENA_TOAST_DISMISS` as `dismiss` |
@@ -427,6 +428,26 @@ const shown = records.slice(win.offset, win.offset + win.count);
 The hook reads the rows the table mounted and keeps each height by position in the list. A row that wraps costs what it measures, and a row not yet read costs the mean of the rest. The box scrolls on its own, so the table never owns a scrollbar.
 
 Pass `slice` so the reader hears the true size of the list. `arena-sticky-head` keeps the header row in view, and the hook's `style` pads the scroll by the header's height. Call `scrollToRow(0)` when a new sort or filter changes the list.
+
+## How do I window a long table in Angular?
+
+Give the table a box with a bounded block size, then put `arenaRowWindow` on the box. A wrapper inside the box takes its padding from `padTop()` and `padBottom()`, so the scrollbar keeps the height of the whole list.
+
+```html
+<div arenaRowWindow #w="arenaRowWindow" [total]="records.length" style="block-size: 32rem; overflow-y: auto">
+  <div [style.padding-top.px]="w.padTop()" [style.padding-bottom.px]="w.padBottom()">
+    <arena-table label="Deployments" [columns]="columns" [slice]="w.slice()" class="arena-sticky-head">
+      @for (record of records.slice(w.offset(), w.offset() + w.count()); track record.id) {
+        <tr arena-table-row>...</tr>
+      }
+    </arena-table>
+  </div>
+</div>
+```
+
+The directive reads the rows the table mounted and keeps each height by position in the list. A row that wraps costs what it measures, and a row not yet read costs the mean of the rest. The box scrolls on its own, so the table never owns a scrollbar.
+
+Bind `slice` so the reader hears the true size of the list. `arena-sticky-head` keeps the header row in view, and the directive pads the scroll by the header's height. Call `scrollToRow(0)` when a new sort or filter changes the list.
 
 ## Which Angular projection markers must I import?
 

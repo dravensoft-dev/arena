@@ -3,6 +3,7 @@ export * from './NavRow';
 export * from './Api.generated';
 export * from './components';
 export * from './ContainerSize';
+export * from './RowWindow';
 export * from './DataVisuals';
 export * from './StructuredData';
 export * from './FocusTrap';
