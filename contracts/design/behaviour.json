@@ -1,7 +1,7 @@
 {
   "delay": {
     "$type": "duration",
-    "$description": "Pointer intent: how long a pointer must rest on a target before a\ndeferred affordance appears, and how long it may leave before that affordance\nwithdraws. Deliberately not part of dur: dur measures how long a transition\ntakes once it has been decided, delay measures how long we wait before\ndeciding. These apply to the POINTER only. A keyboard focus must reveal its\ntooltip immediately: a delay there reads as an unresponsive control, and a\nfuture plan adding focus support must not route it through these.",
+    "$description": "Pointer intent: how long a pointer must rest on a target before a\ndeferred affordance appears, and how long it may leave before that affordance\nwithdraws. Deliberately not part of dur: dur measures how long a transition\ntakes once it has been decided, delay measures how long we wait before\ndeciding. These apply to the POINTER only, except typeahead, which times typed characters. A keyboard focus must reveal its\ntooltip immediately: a delay there reads as an unresponsive control, and a\nfuture plan adding focus support must not route it through these.",
     "open": {
       "$value": { "value": 400, "unit": "ms" },
       "$description": "Rest time before a tooltip appears. Long enough that crossing a toolbar reveals nothing.",
@@ -10,6 +10,11 @@
     "close": {
       "$value": { "value": 120, "unit": "ms" },
       "$description": "Grace period after the pointer leaves. Short, and much shorter than open:\nit exists so travelling between a trigger and its own tooltip does not dismiss it,\nnot to keep the tooltip around.",
+      "$extensions": { "com.dravensoft.arena": { "script": true } }
+    },
+    "typeahead": {
+      "$value": { "value": 500, "unit": "ms" },
+      "$description": "The window in which characters typed in succession accumulate into one prefix.\nLong enough to type a short word at an ordinary pace, and short enough that a\npause starts a new search.",
       "$extensions": { "com.dravensoft.arena": { "script": true } }
     }
   },

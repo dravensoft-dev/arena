@@ -234,7 +234,7 @@
      deferred affordance appears, and how long it may leave before that affordance
      withdraws. Deliberately not part of dur: dur measures how long a transition
      takes once it has been decided, delay measures how long we wait before
-     deciding. These apply to the POINTER only. A keyboard focus must reveal its
+     deciding. These apply to the POINTER only, except typeahead, which times typed characters. A keyboard focus must reveal its
      tooltip immediately: a delay there reads as an unresponsive control, and a
      future plan adding focus support must not route it through these.
    */
@@ -245,6 +245,12 @@
      not to keep the tooltip around.
    */
   --delay-close:120ms;
+  /*
+     The window in which characters typed in succession accumulate into one prefix.
+     Long enough to type a short word at an ordinary pace, and short enough that a
+     pause starts a new search.
+   */
+  --delay-typeahead:500ms;
 
   /*
      Automatic permanence: how long a transient notice remains before it

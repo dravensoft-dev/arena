@@ -116,6 +116,7 @@ export const EXCLUDED = new Map([
   ['onboarding-width', 'script-readable: compared against window.innerWidth by Math.min/Math.max. Rendered directly as var(--onboarding-width) in both layers — React inline, Angular via the shared manifest\'s w-[var(--onboarding-width)] — never through the @theme spacing scale this gate checks'],
   ['delay-open', 'script-readable: a setTimeout argument for pointer intent, never a utility'],
   ['delay-close', 'script-readable: a setTimeout argument for pointer intent, never a utility'],
+  ['delay-typeahead', 'script-readable: a setTimeout argument for typed characters, never a utility'],
   ['dismiss-default', 'script-readable: the host runs the toast clock in JS, never a utility'],
   ['dismiss-actionable', 'script-readable: the host runs the toast clock in JS, never a utility'],
   ['dismiss-confirmation', 'script-readable: a copy button runs its confirmation clock in JS, never a utility'],

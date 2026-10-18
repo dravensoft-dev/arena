@@ -123,6 +123,10 @@ const ROOT_PRIVATE = new Map([
    'the one rule every component that reads a value against thresholds shares: a region holds its lower '
    + 'edge, authored once for both layers and compared by check:shared-arithmetic. A consumer reads the '
    + 'standing a component draws and never counts edges, and it is typechecked through the suite beside it.'],
+  ['TypeAhead.ts',
+   'the rule that finds the next label starting with the typed prefix and the rule that grows the prefix, authored '
+   + 'once for both layers and compared by check:shared-arithmetic. A consumer types into a component that holds a '
+   + 'list and never matches a prefix, and it is typechecked through the suite beside it.'],
   ['RowWindowMeasure.ts',
    'the rules a measured row window follows: what a row or a card extends, when readings of rows that left the '
    + 'window are dropped, how a late measurement moves the scroll position and where a requested row is aimed. '
