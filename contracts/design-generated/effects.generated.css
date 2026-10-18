@@ -282,4 +282,16 @@
      authored: first + last + (2 * siblings + 1) + two ellipses.
    */
   --limit-pagination-siblings:1;
+  /*
+     How many rows a windowed list mounts beyond the viewport on each side, so a focus
+     move or a Tab press finds the next row already mounted. The mounted total is a
+     CONSEQUENCE: the rows the viewport meets + 2 * overscan.
+   */
+  --limit-window-overscan:6;
+  /*
+     How many rows a windowed list projects before any row is measured: the window a
+     server render and the first client render draw. Once a row is measured, the window
+     derives from the viewport and this number no longer applies.
+   */
+  --limit-window-initial:30;
 }

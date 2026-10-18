@@ -76,6 +76,10 @@ const PRIVATE = new Map([
    'the same shape one category over, and the standing precedent for it: `arenaPageWindow` decides '
    + 'which page numbers elide, which is `arena-pagination`\'s own arithmetic and not a member '
    + 'of its API.'],
+  ['display/arena-table/TableWindow.ts',
+   'the row starts, the window a scroll position meets and the page key targets of a long list, authored '
+   + 'once for both layers and compared by check:shared-arithmetic; `arena-table` takes the result through '
+   + '`slice` and a consumer never calls it.'],
 ]);
 
 const ROOT_PRIVATE = new Map([

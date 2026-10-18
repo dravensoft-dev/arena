@@ -45,6 +45,7 @@ export const PAIRED = [
   'components/forms/arena-combobox/ComboboxRules.ts',
   'components/display/arena-calendar/CalendarInternals.ts',
   'components/navigation/arena-pagination/PaginationWindow.ts',
+  'components/display/arena-table/TableWindow.ts',
   'components/forms/arena-file-input/FileRules.ts',
   'components/forms/arena-pin-input/PinRules.ts',
   'components/navigation/arena-link/LinkRules.ts',

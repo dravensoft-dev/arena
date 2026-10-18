@@ -39,6 +39,16 @@
       "$value": 1,
       "$description": "How many page numbers flank the current one before the list elides. The\nwindow's total width is a CONSEQUENCE and is derived at the point of use, never\nauthored: first + last + (2 * siblings + 1) + two ellipses.",
       "$extensions": { "com.dravensoft.arena": { "script": true } }
+    },
+    "window-overscan": {
+      "$value": 6,
+      "$description": "How many rows a windowed list mounts beyond the viewport on each side, so a focus\nmove or a Tab press finds the next row already mounted. The mounted total is a\nCONSEQUENCE: the rows the viewport meets + 2 * overscan.",
+      "$extensions": { "com.dravensoft.arena": { "script": true } }
+    },
+    "window-initial": {
+      "$value": 30,
+      "$description": "How many rows a windowed list projects before any row is measured: the window a\nserver render and the first client render draw. Once a row is measured, the window\nderives from the viewport and this number no longer applies.",
+      "$extensions": { "com.dravensoft.arena": { "script": true } }
     }
   }
 }

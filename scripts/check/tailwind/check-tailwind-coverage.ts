@@ -120,6 +120,8 @@ export const EXCLUDED = new Map([
   ['dismiss-actionable', 'script-readable: the host runs the toast clock in JS, never a utility'],
   ['dismiss-confirmation', 'script-readable: a copy button runs its confirmation clock in JS, never a utility'],
   ['limit-pagination-siblings', 'script-readable: an array bound, and the elision threshold derives from it in JS'],
+  ['limit-window-overscan', 'script-readable: a row count the window arithmetic widens its range by in JS, never a utility'],
+  ['limit-window-initial', 'script-readable: a row count the window arithmetic projects before a measure in JS, never a utility'],
   ['heat-step-1', HEAT_STEP_REASON],
   ['heat-step-2', HEAT_STEP_REASON],
   ['heat-step-3', HEAT_STEP_REASON],
