@@ -129,6 +129,8 @@ Every field is optional in what you provide, and one you leave out keeps the def
 | `funnelChartName` | `{label} — funnel chart` | A funnel chart's accessible name. {label} is the chart's label. |
 | `funnelConversionStep` | `Of previous stage` | The heading of a funnel chart's column, and the tooltip line, that holds each stage's share of the stage before it. |
 | `funnelConversionTotal` | `Of first stage` | The heading of a funnel chart's column, and the tooltip line, that holds each stage's share of the first stage. |
+| `heatmapChartName` | `{label} — heatmap` | A heatmap's accessible name. {label} is the chart's label. |
+| `heatmapTableRow` | `Row` | The first heading of a heatmap's data table, over the row names. |
 | `chartTableCategory` | `Category` | The first heading of the data table a categorical chart writes. |
 | `chartTablePoint` | `Point` | The first heading of the data table a line chart writes. |
 | `chartTableAxis` | `Axis` | The first heading of the data table a radar chart writes. |

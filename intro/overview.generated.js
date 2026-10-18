@@ -4,7 +4,6 @@
 // scripts/generate/core/arena-cli/style-plugin-rules.ts
 var RESERVED = new Map([
   ["tree-view", "ArenaTreeView, a hierarchy that expands and collapses (spec 25)"],
-  ["heatmap-chart", "ArenaHeatmapChart, values on a grid of two categories (spec 26)"],
   ["sticky-head", "the sticky family option that keeps a table head in view (spec 27)"],
   ["sticky-none", "the sticky family option that lets a table head scroll away (spec 27)"]
 ]);

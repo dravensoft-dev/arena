@@ -108,6 +108,8 @@
     "funnelChartName": { "form": "primitive", "type": "string", "required": true, "default": "{label} — funnel chart", "description": "A funnel chart's accessible name. {label} is the chart's label." },
     "funnelConversionStep": { "form": "primitive", "type": "string", "required": true, "default": "Of previous stage", "description": "The heading of a funnel chart's column, and the tooltip line, that holds each stage's share of the stage before it." },
     "funnelConversionTotal": { "form": "primitive", "type": "string", "required": true, "default": "Of first stage", "description": "The heading of a funnel chart's column, and the tooltip line, that holds each stage's share of the first stage." },
+    "heatmapChartName": { "form": "primitive", "type": "string", "required": true, "default": "{label} — heatmap", "description": "A heatmap's accessible name. {label} is the chart's label." },
+    "heatmapTableRow": { "form": "primitive", "type": "string", "required": true, "default": "Row", "description": "The first heading of a heatmap's data table, over the row names." },
     "chartTableCategory": { "form": "primitive", "type": "string", "required": true, "default": "Category", "description": "The first heading of the data table a categorical chart writes." },
     "chartTablePoint": { "form": "primitive", "type": "string", "required": true, "default": "Point", "description": "The first heading of the data table a line chart writes." },
     "chartTableAxis": { "form": "primitive", "type": "string", "required": true, "default": "Axis", "description": "The first heading of the data table a radar chart writes." },
