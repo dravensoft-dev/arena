@@ -51,6 +51,8 @@ Cells are **positional**: the nth cell takes the nth column.
 
 <!-- @answers GENERATED from the vocabulary and the manifests. Edit a family or a manifest's answers, not this line. -->
 
+**Answers** [`sticky`](../../../../VOCABULARY.md#sticky): `arena-sticky-head`, `arena-sticky-none` (default). Write one as `class="arena-sticky-head"` on the component, or on a container whose components should all take it.
+
 **Answers** [`column`](../../../../VOCABULARY.md#column): keyed by each column's `key`, as `--arena-column-<key>-width` and `--arena-column-<key>-align`, set on the component or a container of yours.
 
 <!-- @answers end -->

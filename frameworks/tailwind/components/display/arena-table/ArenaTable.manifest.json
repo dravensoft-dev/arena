@@ -1,12 +1,12 @@
 {
   "component": "ArenaTable",
-  "answers": ["column"],
+  "answers": ["column", "sticky"],
   "slots": {
-    "root": "block w-full font-body shadow-surface-rest",
+    "root": "block w-full [isolation:var(--arena-sticky-isolation,auto)] font-body shadow-surface-rest",
     "grid": "table w-full border-collapse",
     "body": "table-row-group",
-    "headRow": "table-row bg-track",
-    "th": "table-cell w-[var(--arena-column-width,auto)] px-row-px py-row-py [text-align:var(--arena-column-align,left)] align-middle font-face-label text-label font-bold tracking-label-role case-label text-ink-muted/(--level-ink-muted) border-b-[length:var(--bw-separator)] border-edge-separator outline-none focus:shadow-[inset_0_0_0_var(--focus-width)_var(--focus-ring)]",
+    "headRow": "table-row",
+    "th": "table-cell [position:var(--arena-sticky-position,static)] top-0 z-1 bg-track w-[var(--arena-column-width,auto)] px-row-px py-row-py [text-align:var(--arena-column-align,left)] align-middle font-face-label text-label font-bold tracking-label-role case-label text-ink-muted/(--level-ink-muted) border-b-[length:var(--bw-separator)] border-edge-separator outline-none focus:shadow-[inset_0_0_0_var(--focus-width)_var(--focus-ring)]",
     "sortCaret": "inline-flex ms-1.5 align-middle text-[length:var(--icon-sm)]",
     "pager": "flex justify-end border-t-[length:var(--bw-separator)] border-edge-separator px-row-px py-row-py",
     "row": "table-row border-t-[length:var(--bw-separator)] border-edge-separator transition-[background] duration-[var(--dur-hover)] ease-hover",
@@ -48,7 +48,7 @@
   "variants": {
     "narrow": {
       "false": {
-        "root": "border-[length:var(--bw-surface)] border-edge-surface rounded-surface overflow-hidden bg-surface"
+        "root": "border-[length:var(--bw-surface)] border-edge-surface rounded-surface overflow-clip bg-surface"
       },
       "true": {
         "root": "flex flex-col gap-4",

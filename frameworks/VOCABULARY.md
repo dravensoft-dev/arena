@@ -34,6 +34,7 @@
 | [`skeleton`](#skeleton) | box | `arena-skeleton-block` (default), `arena-skeleton-circle`, `arena-skeleton-line` | `--arena-skeleton-width`, `--arena-skeleton-height`, `--arena-skeleton-radius` | ArenaSkeleton ([React](./react/components/display/arena-skeleton/ArenaSkeleton.prompt.md), [Angular](./angular/components/display/arena-skeleton/ArenaSkeleton.prompt.md)) |
 | [`sr-only`](#sr-only) | box | `arena-sr-only` |  | markup you write |
 | [`stack`](#stack) | box | `arena-stack`, `arena-stack--end`, `arena-stack--group`, `arena-stack--section`, `arena-stack--start` |  | markup you write |
+| [`sticky`](#sticky) | box | `arena-sticky-head`, `arena-sticky-none` (default) |  | ArenaTable ([React](./react/components/display/arena-table/ArenaTable.prompt.md), [Angular](./angular/components/display/arena-table/ArenaTable.prompt.md)) |
 
 ## accent
 
@@ -313,3 +314,12 @@ The air between peers in a column of yours, as three named steps rather than a n
 - **Options:** `arena-stack`, `arena-stack--end`, `arena-stack--group`, `arena-stack--section`, `arena-stack--start`.
 - **Reach:** box: it goes on an element you wrote, and it decides that element alone.
 - **Written on:** an element you wrote, never a component.
+
+## sticky
+
+Whether a table's header row stays at the top of the box that scrolls it or scrolls away with the rows. The header row is the table's own. Write this on the table, or on a container inside the box that scrolls. A header that sticks to the viewport slides under an app bar. The setting stops at the table it reaches.
+
+- **Options:** `arena-sticky-head`, `arena-sticky-none` (default).
+- **Reach:** box: it reaches the nearest component, and stops at the content that component projects.
+- **Answered by:**
+  - ArenaTable ([React](./react/components/display/arena-table/ArenaTable.prompt.md), [Angular](./angular/components/display/arena-table/ArenaTable.prompt.md)).

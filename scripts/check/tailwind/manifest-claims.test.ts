@@ -131,6 +131,12 @@ test('every manifest claim holds', () => {
   assert.deepEqual(problems, [], problems.join('\n'));
 });
 
+test('the sticky family writes the position and the isolation channels the table reads', () => {
+  const family = readJson(join(repoRoot, 'frameworks/tailwind/vocabulary/arena-sticky/Sticky.family.json')) as any;
+  assert.equal(family.variants['arena-sticky-head'], '[--arena-sticky-position:sticky] [--arena-sticky-isolation:isolate]');
+  assert.equal(family.variants['arena-sticky-none'], '[--arena-sticky-position:static] [--arena-sticky-isolation:auto]');
+});
+
 test('the band ceiling compiles to the declaration the band family gives .arena-band', () => {
   const declaration = (css: string, selector: string) => {
     const at = css.indexOf(`${selector} {`);
@@ -298,7 +304,9 @@ export const CLAIMS = {
     { chosen: { numeric: true }, slot: 'td', has: ['font-mono', 'tabular-nums'], hasNot: ['font-body'], why: 'a figure column aligns by digit, and the figure treatment replaces the prose face rather than stacking on it' },
     { chosen: { numeric: false }, slot: 'td', has: ['font-body'], hasNot: ['font-mono'], why: 'a prose column keeps the body face' },
     { slot: 'root', has: ['block'], why: 'a host-bound root is never the UA-default inline box' },
-    { chosen: { narrow: false }, slot: 'root', has: ['rounded-surface', 'overflow-hidden'], hasNot: ['flex-col'], why: 'the wide shape is the framed grid, and it is the default because nothing has been measured yet' },
+    { chosen: { narrow: false }, slot: 'root', has: ['rounded-surface', 'overflow-clip'], hasNot: ['flex-col', 'overflow-hidden'], why: 'the wide shape is the framed grid, and it is the default because nothing has been measured yet; it clips the corners without becoming a scroll container, or a sticky head would stick to a root that never scrolls' },
+    { slot: 'root', has: ['[isolation:var(--arena-sticky-isolation,auto)]'], hasNot: ['isolate'], why: 'the table keeps its own layer only while its head sticks, so the stuck head never competes with a layering token a menu or a tooltip draws at and the default table paints as before' },
+    { slot: 'th', has: ['[position:var(--arena-sticky-position,static)]', 'top-0', 'z-1', 'bg-track'], why: 'a head cell reads the sticky channel with the default written as its fallback, and carries its own fill so a stuck head is opaque over the rows that pass under it' },
     { chosen: { narrow: false }, slot: 'grid', has: ['table'], why: 'the wide shape is the framed grid' },
     { chosen: { narrow: true }, slot: 'root', has: ['flex', 'flex-col'], hasNot: ['rounded-surface', 'overflow-hidden'], why: 'below the breakpoint the frame goes away and the rows become a stack of cards' },
     { chosen: { narrow: true }, slot: 'grid', has: ['table', 'contents'], why: 'below the breakpoint the frame goes away and the rows become a stack of cards: the base table and the branch contents are both present and the branch is emitted later' },

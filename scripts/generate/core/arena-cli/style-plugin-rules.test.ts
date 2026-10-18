@@ -53,8 +53,8 @@ test('a reserved name is never a class the tree ships, so a component that lands
   assert.deepEqual(stale(new Map([...RESERVED, ['table', 'ArenaTable, a planted entry (spec 00)']]), shipped), ['table']);
 });
 
-test('the reservation holds three names, one per class Arena is going to ship', () => {
-  assert.equal(RESERVED.size, 3);
+test('the reservation holds one name, the class Arena is going to ship', () => {
+  assert.equal(RESERVED.size, 1);
 });
 
 test('every reserved name is kebab, is no polarity, and carries a reason naming its spec and no version', () => {
@@ -72,7 +72,7 @@ test('a reserved name is refused as a style plugin, naming the component that ho
     + 'Arena is going to ship as the class .arena-tree-view. A build naming it would fail on the release that ships '
     + 'that class, so the name is refused while renaming costs nothing.',
   ]);
-  assert.equal(nameProblems('sticky-head', POLARITIES, 'at').length, 1);
+  assert.equal(nameProblems('tree-view', POLARITIES, 'at').length, 1);
   assert.equal(nameProblems('tree-view', POLARITIES, 'at', ['tree-view']).length, 1,
     'a name both shipped and held reports once, as shipped');
   assert.match(nameProblems('tree-view', POLARITIES, 'at', ['tree-view'])[0] ?? '', /already a class this package ships/);
