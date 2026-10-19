@@ -32,15 +32,15 @@ import manifest from './ArenaSection.classes.generated';
 export class ArenaSection {
   protected readonly parts = manifest.parts;
 
-  /** Names the region, both on screen and to assistive technology. Required, and guarded at runtime after trimming: a section is a heading over a group, and one with no heading is a stack, which the vocabulary page lists as a class. The guard trims first because the value it exists to catch is a present and useless one, not an absent one, which the type already refuses. */
+  /** Names the region, both on screen and to assistive technology. Required, and guarded at runtime after trimming. A section is a heading over a group, and one with no heading is a stack, which the vocabulary page lists as a class. The guard trims first because the value it exists to catch is a present and useless one, not an absent one, which the type already refuses. */
   readonly title = input.required<string>();
-  /** Which rung of the document outline the title takes. Only the element changes: the title's class is the same at every value, so the render is identical and no appearance follows from it. It defaults to `h2` because the section register is already a step under a page's title and a step over a card's, and this is that register said as structure rather than as a size. `none` is refused at runtime, the rule every component whose `title` is required follows: a title required because it names the thing it draws cannot also be told that the name is not one. */
+  /** Which rung of the document outline the title takes. Only the element changes: the title's class is the same at every value, so the render is identical and no appearance follows from it. The member defaults to `h2` because the section register is already a step under a page's title and a step over a card's. That register is said here as structure rather than as a size. `none` is refused at runtime, the rule every component whose `title` is required follows. A title required because it names the thing it draws cannot also be told that the name is not one. */
   readonly headingLevel = input<ArenaHeadingLevel, ArenaHeadingLevel | undefined>(
     'h2', { transform: (value) => value ?? 'h2' },
   );
   /** A line above the title saying which part of the page this is. Same register as every other eyebrow in the system, so a style plugin that takes them out of the console's mono capitals takes this one with them. */
   readonly eyebrow = input<string>();
-  /** A line under the title, in the muted ink. It sits below the head row rather than beside the title, because a sentence and an action competing for the same row is what makes a head wrap on a narrow screen. */
+  /** A line under the title, in the muted ink. The line sits below the head row, not beside the title, because a sentence and an action sharing one row make a head wrap on a narrow screen. */
   readonly description = input<string>();
   protected readonly action = contentChild(ArenaAction);
   private readonly body = viewChild.required<ElementRef<HTMLElement>>('body');

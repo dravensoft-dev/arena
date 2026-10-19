@@ -9,7 +9,7 @@
     "showLabel": { "form": "primitive", "type": "boolean", "default": true,
                    "description": "Draws the label above the field. False keeps the accessible name and drops the drawn text, for a field inside a row that already names it." },
     "id": { "form": "primitive", "type": "string",
-            "description": "The field's id, and what the label's `for` points at. Generated from `label` when omitted, as `nf-` followed by the label with each run of whitespace replaced by a single hyphen and the whole lowercased. The derivation is normative, and the prefix differs per component on purpose: the same markup must get the same id in every layer, and two controls sharing a label must not collide. The hint or the error takes it followed by `-note`." },
+            "description": "The field's id, and what the label's `for` points at. Generated from `label` when omitted, as `nf-` followed by the label with each run of whitespace replaced by a single hyphen and the whole lowercased. The derivation is normative, and the prefix differs per component on purpose. Identical markup must get an identical id in every layer, and two controls sharing a label must not collide. The hint or the error takes it followed by `-note`." },
     "hint": { "form": "primitive", "type": "string", "description": "A line of help under the field, and the field's description. An error replaces it while one shows." },
     "error": { "form": "primitive", "type": "string", "description": "Controlled error message; wins over `validate`, and describes the field while it shows." },
     "valid": { "form": "primitive", "type": "boolean", "default": false, "description": "Force the valid (green check) state." },

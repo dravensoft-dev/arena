@@ -16,7 +16,7 @@ The page's principal landmark and nothing else. The component returns the `<main
 
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
-| `children` | slot |  |  | What the page is for, once the furniture around it is taken away. It is optional and unguarded rather than required: a router that has not resolved its route yet renders nothing, and a landmark that threw during that frame would fail on the ordinary case rather than on a mistake. |
+| `children` | slot |  |  | What the page is for, once the furniture around it is taken away. The slot is optional and unguarded rather than required. A router that has not resolved its route yet renders nothing, and a landmark that threw during that frame would fail on the ordinary case rather than on a mistake. |
 
 <!-- @api end -->
 

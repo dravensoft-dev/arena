@@ -22,7 +22,7 @@
       "form": "primitive",
       "type": "string",
       "required": true,
-      "description": "Names the chart for its accessible name and for the caption of its data table. This is the CHART's name, not a series': a series names itself. Required and guarded rather than defaulted, because a fallback of the chart TYPE satisfies roles.label mechanically and tells a screen-reader user nothing, so two charts on one page announce identically."
+      "description": "Names the chart for its accessible name and for the caption of its data table. The name is for the CHART, and a series names itself. Required and guarded rather than defaulted: a fallback of the chart TYPE satisfies roles.label mechanically and tells a screen-reader user nothing, so two charts on one page announce identically."
     },
     "valuePrefix": {
       "form": "primitive",
@@ -47,7 +47,7 @@
     "height": {
       "form": "primitive",
       "type": "number",
-      "description": "The plot's height in px. Absent, it is computed from the row count, one row pitch for each row plus the pads and the legend strip, so a chart with many rows grows with its data. It is the axis the rows run down, so a caller with a fixed tile passes the room it has. A number rather than a dimension string, because the chart does arithmetic with it to place every mark."
+      "description": "The plot's height in px. Absent, the height is computed from the row count, one row pitch for each row plus the pads and the legend strip. A chart with many rows therefore grows with its data. The height is the axis the rows run down, so a caller with a fixed tile passes the room it has. A number rather than a dimension string, because the chart does arithmetic with it to place every mark."
     }
   }
 }

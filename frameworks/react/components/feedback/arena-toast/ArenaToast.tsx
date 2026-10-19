@@ -27,7 +27,7 @@ export interface ArenaToastProps {
   /** The inline action was activated. */
   onAction?: () => void;
 
-  /** Disables the host's auto-dismiss and shows the Pinned marker. **Implied by `tone: "danger"`, which ignores `false`**: a critical message that vanishes on a timer is one a user can miss entirely, so an error state makes the pin mandatory and the layers enforce it rather than leave it to documentation. Set it explicitly for any other tone that must not disappear on its own. */
+  /** Disables the host's auto-dismiss and shows the Pinned marker. **Implied by `tone: "danger"`, which ignores `false`.** A critical message that vanishes on a timer is one a user can miss entirely. An error state therefore makes the pin mandatory, and the layers enforce it rather than leave it to documentation. Set it explicitly for any other tone that must not disappear on its own. */
   persist?: boolean;
 
   /** Whether the × is shown. Every layer gates the × on this member and never on whether anything listens for `onClose`, because Arena never derives what it draws from what a consumer listens for. */

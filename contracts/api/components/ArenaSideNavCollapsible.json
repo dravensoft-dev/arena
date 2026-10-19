@@ -10,7 +10,7 @@
       "form": "primitive",
       "type": "string",
       "required": true,
-      "description": "Identifies the group. The disclosure pattern needs two DOM ids that resolve -- the trigger's aria-controls must name the region, and the region's aria-labelledby must name the trigger -- and Arena derives both from this member, as `${id}-trigger` and `${id}-region`. Neither wiring is conditional: every collapsible has a trigger and a region, so there is no shape in which the id goes unused, and that is why it is required rather than optional. A group is a thing a consumer names anyway. Falsy-guarded as well as required: a blank id yields the pair `-trigger`/`-region`, which every other blank-id collapsible on the page would share, and duplicate ids make aria-controls resolve to the wrong element rather than to none. A consumer can address either element from outside as a consequence -- an aria-describedby, a deep link, a test hook -- but that is a benefit of the derivation, not the reason for it."
+      "description": "Identifies the group. The disclosure pattern needs two DOM ids that resolve -- the trigger's aria-controls must name the region, and the region's aria-labelledby must name the trigger. Arena derives both from this member, as `${id}-trigger` and `${id}-region`. Neither wiring is conditional. Every collapsible has a trigger and a region, so there is no shape in which the id goes unused, and that is why it is required rather than optional. A group is a thing a consumer names anyway. Falsy-guarded as well as required: a blank id yields the pair `-trigger`/`-region`, which every other blank-id collapsible on the page would share. Duplicate ids make aria-controls resolve to the wrong element rather than to none. A consumer can address either element from outside as a consequence -- an aria-describedby, a deep link, a test hook. Addressing them is a benefit of the derivation, not the reason for it."
     },
     "label": {
       "form": "primitive",
@@ -27,7 +27,7 @@
       "form": "primitive",
       "type": "boolean",
       "default": false,
-      "description": "Whether the group starts open. It is a seed, not a control: after the first render the state is the component's, and the group also opens itself when it comes to hold the active destination."
+      "description": "Whether the group starts open. The value is a seed, not a control: after the first render the state is the component's. The group also opens itself when it comes to hold the active destination."
     },
     "content": {
       "form": "slot",
@@ -36,7 +36,7 @@
     "toggle": {
       "form": "event",
       "payload": "boolean",
-      "description": "The trigger was pressed, carrying the state it moved to. It fires on a press ONLY: the automatic expansion that follows the active destination is Arena's decision rather than the user's, and reporting it here would be a lie a consumer persists."
+      "description": "The trigger was pressed, carrying the state it moved to. The event fires on a press ONLY. The automatic expansion that follows the active destination is Arena's decision rather than the user's, and reporting it here would be a lie a consumer persists."
     }
   }
 }

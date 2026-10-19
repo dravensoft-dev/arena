@@ -24,7 +24,7 @@ the column its parent lays out. The control is a real `<input>`, named by a real
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
 | `label` | primitive | `string` |  | Field label above the control. |
-| `id` | primitive | `string` |  | The control's id, and what the label's `for` points at. Generated from `label` when omitted, as `in-` followed by the label with each run of whitespace replaced by a single hyphen and the whole lowercased. The derivation is normative, and the prefix differs per component on purpose: the same markup must get the same id in every layer, and an ArenaInput and an ArenaTextarea sharing a label must not collide. The hint or the error takes it followed by `-note`. |
+| `id` | primitive | `string` |  | The control's id, and what the label's `for` points at. Generated from `label` when omitted, as `in-` followed by the label with each run of whitespace replaced by a single hyphen and the whole lowercased. The derivation is normative, and the prefix differs per component on purpose. Identical markup must get an identical id in every layer, and an ArenaInput and an ArenaTextarea sharing a label must not collide. The hint or the error takes it followed by `-note`. |
 | `hint` | primitive | `string` |  | A line of help under the field. |
 | `error` | primitive | `string` |  | Controlled error message; wins over `validate`. |
 | `valid` | primitive | `boolean` | `false` | Force the valid (green check) state. |

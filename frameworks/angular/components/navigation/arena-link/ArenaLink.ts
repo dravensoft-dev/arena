@@ -22,15 +22,15 @@ export class ArenaLink {
 
   /** Where the link goes. Required, and guarded at runtime after trimming: an <a> without an address is not a link and takes no focus. */
   readonly href = input.required<string>();
-  /** Opens the address in a new tab. Arena writes target="_blank", adds noopener and noreferrer to rel, and says the locale's linkExternal word after the text without drawing it. It is the one route to a new tab, and nothing is cancelled: a router cannot own a tab it did not open, so navigate does not fire. */
+  /** Opens the address in a new tab. Arena writes target="_blank", adds noopener and noreferrer to rel, and says the locale's linkExternal word after the text without drawing it. The member is the one route to a new tab, and nothing is cancelled: a router cannot own a tab it did not open, so navigate does not fire. */
   readonly external = input(false, { transform: booleanAttribute });
   /** Saves the address instead of navigating to it, under the name the browser chooses. Nothing is cancelled and navigate does not fire, because a router cannot own a download. */
   readonly download = input(false, { transform: booleanAttribute });
-  /** Link types the consumer adds to rel, such as nofollow or ugc. Arena merges them with its own: it adds noopener whenever the link opens another browsing context, through external or a target that names one, and drops an opener token, so no list written here hands the new page this one. */
+  /** Link types the consumer adds to rel, such as nofollow or ugc. Arena merges them with its own: it adds noopener whenever the link opens another browsing context, through external or a target that names one. Arena drops an opener token, so no list written here hands the new page this one. */
   readonly rel = input<readonly string[]>();
   /** A named browsing context the link opens in, such as a help window reused across links, or a keyword such as _top. _blank is not taken here: a new tab is external, so a _blank target is ignored and warned once. A target it writes other than _self cancels nothing and fires no navigate. The navigation happens in a context a router does not own. */
   readonly target = input<string>();
-  /** The link was activated by the one activation a router owns, a primary click with no modifier, or Enter on the focused link, and Arena has already cancelled the anchor's own navigation by the time it fires. A modified click, a middle click and a context menu are the browser's and fire nothing, and so does a link that is external, a download or targeted elsewhere. No payload, because the consumer wrote this element and already holds what it is about. */
+  /** The link was activated by the one activation a router owns, a primary click with no modifier, or Enter on the focused link. Arena has already cancelled the anchor's own navigation by the time the event fires. A modified click, a middle click and a context menu are the browser's and fire nothing, and so does a link that is external, a download or targeted elsewhere. No payload, because the consumer wrote this element and already holds what it is about. */
   readonly navigate = output<void>();
 
   private readonly anchor = viewChild.required<ElementRef<HTMLAnchorElement>>('anchor');

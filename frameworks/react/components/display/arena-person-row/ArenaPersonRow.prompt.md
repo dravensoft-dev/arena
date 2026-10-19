@@ -16,13 +16,13 @@ position in front and an optional figure behind. The row's size comes from the l
 
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
-| `name*` | primitive | `string` |  | The person or entity. It is the row's own text and the face's initials when there is no image, which is why one member carries both: a name spelt differently in either is the same person drawn as two. The face sets `nameShown`, so the row announces the name once, from its text. Required and guarded at runtime rather than defaulted, because nothing can derive who a row is about and a blank one draws a face, a rank and a figure around nobody. |
+| `name*` | primitive | `string` |  | The person or entity. The name is the row's own text and the face's initials when there is no image, which is why one member carries both. A name spelt differently in either is the same person drawn as two. The face sets `nameShown`, so the row announces the name once, from its text. Required and guarded at runtime rather than defaulted, because nothing can derive who a row is about. A blank name draws a face, a rank and a figure around nobody. |
 | `src` | primitive | `string` |  | The face's image. Absent, the row draws the initials `name` gives it, which is the same fallback ArenaAvatar states and the reason a row needs no second member for the picture. |
 | `secondary` | primitive | `string` |  | One line under the name: a handle, a role, a team, why this person is being suggested. Prose rather than a value, so it is set in the body register and never in the numeric one. |
-| `rank` | primitive | `number` |  | The position this row holds, drawn in front of the face in a column wide enough for the list's longest. It is the number a standings list is read by, so it is set in the numeric register, and it says nothing about the order the rows are in: that is `ArenaPeopleList.ordered`. |
-| `figure` | primitive | `string` |  | The quantity this row is about, drawn at the end: a score, a count, a share. A string rather than a number because the unit travels with it and a row reading "1815 XP" is one value and not two, which also keeps the formatting where the data is. |
-| `current` | primitive | `boolean` | `false` | Whether this row is the reader's own. It fills the row so it can be found without reading it, and it says so rather than only showing it, because a highlight nothing announces is a highlight half the readers do not get. |
-| `action` | slot |  |  | One control at the end of the row: follow, invite, remove. It sits after the figure, and the row draws nothing for it beyond the space it takes. |
+| `rank` | primitive | `number` |  | The position this row holds, drawn in front of the face in a column wide enough for the list's longest. The rank is the number a standings list is read by, so it is set in the numeric register. The rank says nothing about the order the rows are in, which belongs to `ArenaPeopleList.ordered`. |
+| `figure` | primitive | `string` |  | The quantity this row is about, drawn at the end: a score, a count, a share. A string rather than a number because the unit travels with it. A row reading "1815 XP" is one value and not two, which also keeps the formatting where the data is. |
+| `current` | primitive | `boolean` | `false` | Whether this row is the reader's own. The row is filled so it can be found without reading it. The row says so rather than only showing it, because a highlight nothing announces is a highlight half the readers do not get. |
+| `action` | slot |  |  | One control at the end of the row: follow, invite, remove. The control sits after the figure, and the row draws nothing for it beyond the space it takes. |
 
 <!-- @api end -->
 

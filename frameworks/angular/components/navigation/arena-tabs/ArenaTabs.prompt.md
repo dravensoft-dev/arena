@@ -21,7 +21,7 @@ view and `arena-tabs` draws the tablist, places the panels, and owns the keyboar
 
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
-| `content` | slot |  |  | The tabs. Which one is selected, which is the strip's tab stop, the ids wiring each to its panel and how the choice is reported are the strip's to settle, and none of it is a member here. EVERY tab's content mounts: one panel per tab is rendered and the inactive ones are hidden, because each tab's aria-controls must reference a tabpanel that exists. So a panel's side effects run immediately rather than on first selection. |
+| `content` | slot |  |  | The tabs. Which one is selected, which is the strip's tab stop, the ids wiring each to its panel and how the choice is reported are the strip's to settle. None of it is a member here. EVERY tab's content mounts: one panel per tab is rendered and the inactive ones are hidden, because each tab's aria-controls must reference a tabpanel that exists. So a panel's side effects run immediately rather than on first selection. |
 | `value` | primitive | `string` |  | The selected tab's value. Omit and pass `defaultValue` to let it govern itself. |
 | `defaultValue` | primitive | `string` |  | The initially selected value when uncontrolled. Defaults to the first tab. |
 | `change` | event | `string` |  | A different tab was chosen; carries its value. |

@@ -14,13 +14,13 @@ Styled native dropdown selector. `options` is an array of `{value, label}` objec
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
 | `label` | primitive | `string` |  | Field label above the control. |
-| `placeholder` | primitive | `string` |  | An empty-valued first option, drawn before the choices and unselectable once a real one is made -- "Choose a customer". It is an option rather than an attribute because a native select has no placeholder, and it is what makes "nothing chosen yet" distinguishable from "the first choice". |
+| `placeholder` | primitive | `string` |  | An empty-valued first option, drawn before the choices and unselectable once a real one is made -- "Choose a customer". The placeholder is an option rather than an attribute, because a native select has no placeholder. The option makes "nothing chosen yet" distinguishable from "the first choice". |
 | `options` | array | `readonly ArenaSelectOption[]` | `[]` | The choices, drawn as native options. |
 | `value` | primitive | `string` |  | The selected option's value. |
 | `disabled` | primitive | `boolean` | `false` | Blocks the control and dims it. |
 | `required` | primitive | `boolean` | `false` | Must have a value for the form to submit. |
 | `hint` | primitive | `string` |  | A line of help under the field. |
-| `error` | primitive | `string` |  | Controlled error message. It is the whole validation surface here, unlike ArenaInput, which also takes a `validate` function: a native select offers a closed list, so there is no value to parse and nothing for a validator to reject that the options did not already prevent. |
+| `error` | primitive | `string` |  | Controlled error message. The message is the whole validation surface here, unlike ArenaInput, which also takes a `validate` function. A native select offers a closed list, so there is no value to parse and nothing for a validator to reject that the options did not already prevent. |
 | `valid` | primitive | `boolean` | `false` | Force the valid (green check) state. |
 | `icon` | primitive | `string` |  | Phosphor class name drawn at the field's start. |
 | `name` | primitive | `string` |  | Submitted with the form. |

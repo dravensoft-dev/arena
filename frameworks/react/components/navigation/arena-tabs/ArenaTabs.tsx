@@ -4,7 +4,7 @@ import manifest from './ArenaTabs.classes.generated.ts';
 
 export interface ArenaTabsProps {
 
-  /** The tabs. Which one is selected, which is the strip's tab stop, the ids wiring each to its panel and how the choice is reported are the strip's to settle, and none of it is a member here. EVERY tab's content mounts: one panel per tab is rendered and the inactive ones are hidden, because each tab's aria-controls must reference a tabpanel that exists. So a panel's side effects run immediately rather than on first selection. */
+  /** The tabs. Which one is selected, which is the strip's tab stop, the ids wiring each to its panel and how the choice is reported are the strip's to settle. None of it is a member here. EVERY tab's content mounts: one panel per tab is rendered and the inactive ones are hidden, because each tab's aria-controls must reference a tabpanel that exists. So a panel's side effects run immediately rather than on first selection. */
   children?: React.ReactNode;
 
   /** The selected tab's value. Omit and pass `defaultValue` to let it govern itself. */

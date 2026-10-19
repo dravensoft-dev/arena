@@ -95,7 +95,7 @@ export class ArenaNumberField {
   readonly label = input.required<string>();
   /** Draws the label above the field. False keeps the accessible name and drops the drawn text, for a field inside a row that already names it. */
   readonly showLabel = input(true, { transform: booleanAttribute });
-  /** The field's id, and what the label's `for` points at. Generated from `label` when omitted, as `nf-` followed by the label with each run of whitespace replaced by a single hyphen and the whole lowercased. The derivation is normative, and the prefix differs per component on purpose: the same markup must get the same id in every layer, and two controls sharing a label must not collide. The hint or the error takes it followed by `-note`. */
+  /** The field's id, and what the label's `for` points at. Generated from `label` when omitted, as `nf-` followed by the label with each run of whitespace replaced by a single hyphen and the whole lowercased. The derivation is normative, and the prefix differs per component on purpose. Identical markup must get an identical id in every layer, and two controls sharing a label must not collide. The hint or the error takes it followed by `-note`. */
   readonly id = input<string>();
   /** A line of help under the field, and the field's description. An error replaces it while one shows. */
   readonly hint = input<string>();

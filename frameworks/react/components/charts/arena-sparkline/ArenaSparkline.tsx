@@ -30,10 +30,10 @@ export interface ArenaSparklineProps {
   /** Names the sparkline for its accessible name and for the caption of its data table. Required and guarded rather than defaulted: a table cell holding six sparklines needs six distinct names, and a fallback of the chart type would announce all six identically. */
   label: string;
 
-  /** Fill under the line at 18% of the series colour: a tint, never a gradient. The fill reaches the floor of the box, which is the lowest value and not zero, so it shades the shape and measures nothing. */
+  /** Fill under the line at 18% of the series colour: a tint, never a gradient. The fill reaches the floor of the box, which is the lowest value and not zero. The fill therefore shades the shape and measures nothing. */
   area?: boolean;
 
-  /** Draw the series as a smooth curve rather than straight segments between points. The interpolation is monotone cubic, not Catmull-Rom: a Catmull-Rom curve overshoots and draws a peak or a trough nobody measured, while a monotone curve stays inside the band its own two points define. It changes the path string and nothing else. */
+  /** Draw the series as a smooth curve rather than straight segments between points. The interpolation is monotone cubic, not Catmull-Rom. A Catmull-Rom curve overshoots and draws a peak or a trough nobody measured. A monotone curve stays inside the band its own two points define. The curve changes the path string and nothing else. */
   curve?: boolean;
 
   /** Whether the plot answers the pointer and the keyboard: one tab stop whose arrow keys move a data cursor, a crosshair, an enlarged dot and a tooltip. Off by default, because the common place of a sparkline is a table cell, where every interactive one adds a tab stop to the page. A declared boolean rather than one derived from a bound listener, because a sparkline reports nothing to listen to. */
@@ -48,7 +48,7 @@ export interface ArenaSparklineProps {
   /** How each number is written before the prefix and suffix are added: which locale, how many fraction digits, whether thousands are grouped, whether large numbers are compacted. Absent, the raw JavaScript number. */
   valueFormat?: ArenaNumberFormat;
 
-  /** The plot's height in px, the --chart-sparkline-height token by default, which is the line box of a compact table row, so a sparkline in a cell leaves the row the height its text gives it. A number rather than a dimension string, because the sparkline does arithmetic with it to place every point. */
+  /** The plot's height in px, the --chart-sparkline-height token by default. That token is the line box of a compact table row, so a sparkline in a cell leaves the row the height its text gives it. A number rather than a dimension string, because the sparkline does arithmetic with it to place every point. */
   height?: number;
 }
 

@@ -22,7 +22,7 @@
       "form": "primitive",
       "type": "string",
       "required": true,
-      "description": "Names the chart for its accessible name and for the caption of its data table. This is the CHART's name, not a series': a series names itself. Required and guarded rather than defaulted, because a fallback of the chart TYPE satisfies roles.label mechanically and tells a screen-reader user nothing."
+      "description": "Names the chart for its accessible name and for the caption of its data table. The CHART's name is wanted here, not a series': a series names itself. Required and guarded rather than defaulted, because a fallback of the chart TYPE satisfies roles.label mechanically and tells a screen-reader user nothing."
     },
     "fill": {
       "form": "primitive",

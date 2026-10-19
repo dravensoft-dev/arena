@@ -59,7 +59,7 @@ export class ArenaSelect {
 
   /** Field label above the control. */
   readonly label = input<string>();
-  /** An empty-valued first option, drawn before the choices and unselectable once a real one is made -- "Choose a customer". It is an option rather than an attribute because a native select has no placeholder, and it is what makes "nothing chosen yet" distinguishable from "the first choice". */
+  /** An empty-valued first option, drawn before the choices and unselectable once a real one is made -- "Choose a customer". The placeholder is an option rather than an attribute, because a native select has no placeholder. The option makes "nothing chosen yet" distinguishable from "the first choice". */
   readonly placeholder = input<string>();
   /** The choices, drawn as native options. */
   readonly options = input<readonly ArenaSelectOption[], readonly ArenaSelectOption[] | undefined>(
@@ -74,7 +74,7 @@ export class ArenaSelect {
   readonly required = input(false, { transform: booleanAttribute });
   /** A line of help under the field. */
   readonly hint = input<string>();
-  /** Controlled error message. It is the whole validation surface here, unlike ArenaInput, which also takes a `validate` function: a native select offers a closed list, so there is no value to parse and nothing for a validator to reject that the options did not already prevent. */
+  /** Controlled error message. The message is the whole validation surface here, unlike ArenaInput, which also takes a `validate` function. A native select offers a closed list, so there is no value to parse and nothing for a validator to reject that the options did not already prevent. */
   readonly error = input<string>();
   /** Force the valid (green check) state. */
   readonly valid = input(false, { transform: booleanAttribute });

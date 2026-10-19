@@ -115,7 +115,7 @@ export class ArenaHeatmapChart {
   readonly labels = input.required<readonly string[]>();
   /** One series per row, top to bottom in the order given, its `label` the row's name and its `values` the row's cells, one per column. A short row leaves its last cells empty, and an empty or non-finite cell is drawn with an outline and no fill, because missing is not low. `colorId`, `colorIds` and `tone` are ignored with one development warning, because a cell's colour is its magnitude. */
   readonly series = input.required<readonly ArenaSeries[]>();
-  /** Names the chart for its accessible name and for the caption of its data table. This is the CHART's name, not a series': a series names itself. Required and guarded rather than defaulted, because a fallback of the chart TYPE satisfies roles.label mechanically and tells a screen-reader user nothing, so two charts on one page announce identically. */
+  /** Names the chart for its accessible name and for the caption of its data table. The name is for the CHART, and a series names itself. Required and guarded rather than defaulted: a fallback of the chart TYPE satisfies roles.label mechanically and tells a screen-reader user nothing, so two charts on one page announce identically. */
   readonly label = input.required<string>();
   /** Drawn verbatim before every number the chart writes: the legend, the tooltip and the accessible table, as valueSuffix is drawn after it. */
   readonly valuePrefix = input<string>();
@@ -125,7 +125,7 @@ export class ArenaHeatmapChart {
   readonly valueFormat = input<ArenaNumberFormat>();
   /** The narrowest a column is drawn, in px. Below it the plot stops compressing and overflows its container sideways, in the region that is the plot's one tab stop. Absent, the plot fits whatever width it is given. */
   readonly minCellWidth = input<number>();
-  /** The plot's height in px. Absent, it is computed from the row count, one row pitch for each row plus the pads and the legend strip, so a chart with many rows grows with its data. It is the axis the rows run down, so a caller with a fixed tile passes the room it has. A number rather than a dimension string, because the chart does arithmetic with it to place every mark. */
+  /** The plot's height in px. Absent, the height is computed from the row count, one row pitch for each row plus the pads and the legend strip. A chart with many rows therefore grows with its data. The height is the axis the rows run down, so a caller with a fixed tile passes the room it has. A number rather than a dimension string, because the chart does arithmetic with it to place every mark. */
   readonly height = input<number>();
 
   protected readonly parts = manifest.parts;

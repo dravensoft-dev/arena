@@ -14,7 +14,7 @@ export interface ArenaSelectProps {
   /** Field label above the control. */
   label?: string;
 
-  /** An empty-valued first option, drawn before the choices and unselectable once a real one is made -- "Choose a customer". It is an option rather than an attribute because a native select has no placeholder, and it is what makes "nothing chosen yet" distinguishable from "the first choice". */
+  /** An empty-valued first option, drawn before the choices and unselectable once a real one is made -- "Choose a customer". The placeholder is an option rather than an attribute, because a native select has no placeholder. The option makes "nothing chosen yet" distinguishable from "the first choice". */
   placeholder?: string;
 
   /** The choices, drawn as native options. */
@@ -32,7 +32,7 @@ export interface ArenaSelectProps {
   /** A line of help under the field. */
   hint?: string;
 
-  /** Controlled error message. It is the whole validation surface here, unlike ArenaInput, which also takes a `validate` function: a native select offers a closed list, so there is no value to parse and nothing for a validator to reject that the options did not already prevent. */
+  /** Controlled error message. The message is the whole validation surface here, unlike ArenaInput, which also takes a `validate` function. A native select offers a closed list, so there is no value to parse and nothing for a validator to reject that the options did not already prevent. */
   error?: string;
 
   /** Force the valid (green check) state. */

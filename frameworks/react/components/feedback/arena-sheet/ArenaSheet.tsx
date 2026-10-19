@@ -13,10 +13,10 @@ export interface ArenaSheetProps {
   /** Whether the panel is on the page at all. The host owns it, the same way it owns a dialog's. Closed renders nothing, which is what distinguishes it from collapsed. */
   open: boolean;
 
-  /** Names the panel for assistive technology and heads it visually. It is also the accessible name of the fold control, so a reader hears which panel is being folded rather than the word Toggle. Required and **guarded at runtime** rather than defaulted: what this panel is showing is editorial, and a constant fallback would satisfy the pattern mechanically while telling a screen-reader user nothing. */
+  /** Names the panel for assistive technology and heads it visually. The title is also the accessible name of the fold control, so a reader hears which panel is being folded rather than the word Toggle. Required and **guarded at runtime** rather than defaulted: what this panel is showing is editorial, and a constant fallback would satisfy the pattern mechanically while telling a screen-reader user nothing. */
   title: string;
 
-  /** Whether the body is folded away. The header stays visible either way: a collapsed panel is still on the page and still says what it is, which is why folding is not the same act as closing. The body is hidden rather than removed, so the fold control's reference to it never points at nothing. */
+  /** Whether the body is folded away. The header stays visible either way. A collapsed panel is still on the page and still says what it is, which is why folding is not the same act as closing. The body is hidden rather than removed, so the fold control's reference to it never points at nothing. */
   collapsed?: boolean;
 
   /** The fold control was pressed, carrying the state it moved to. Arena never folds the panel by itself, so a host that ignores this gets a control that reports and a body that does not move. */
@@ -25,13 +25,13 @@ export interface ArenaSheetProps {
   /** Whether the close control is shown. Every layer gates it on this member and never on whether anything listens for `onClose`, because Arena never derives what it draws from what a consumer listens for. */
   dismissible?: boolean;
 
-  /** The panel was dismissed, by the close control or by Escape. No payload. Escape reports here rather than adding a member of its own, and it is the only key the panel takes: a non-modal panel leaves every other key to the page behind it. */
+  /** The panel was dismissed, by the close control or by Escape. No payload. Escape reports here rather than adding a member of its own. Escape is the only key the panel takes: a non-modal panel leaves every other key to the page behind it. */
   onClose?: () => void;
 
   /** The panel's body, which is what folds away. */
   children?: React.ReactNode;
 
-  /** A row that stays put while the body scrolls: a total and its action, a pair of filters buttons. It is outside the folding body on purpose, so a folded panel can still carry the one action it exists for. */
+  /** A row that stays put while the body scrolls: a total and its action, a pair of filters buttons. The footer sits outside the folding body on purpose, so a folded panel can still carry the one action it exists for. */
   footer?: React.ReactNode;
 }
 

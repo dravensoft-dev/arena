@@ -16,7 +16,7 @@ export interface ArenaIconButtonProps {
   /** The accessible name, present in every state. Also the visible text when showLabel is set, and the title attribute when it is not. */
   label: string;
 
-  /** Whether this control is a toggle, and whether it is currently on. Present, Arena writes aria-pressed and draws the on state with the same accent tint a current ArenaSideNav item takes, so "this one is on" is one statement across the library; absent, the control is not a toggle at all. The tri-state is the point and a default of false would destroy it: aria-pressed="false" on a plain button announces a toggle that is off rather than a button, so every ArenaIconButton in the system would announce as an unpressed toggle. The label does NOT change with the state, which is what the button pattern means by a toggle: a control that renames itself is announced as a different control rather than as the same one in another state. */
+  /** Whether this control is a toggle, and whether it is currently on. Present, Arena writes aria-pressed and draws the on state with the same accent tint a current ArenaSideNav item takes, so "this one is on" is one statement across the library. Absent, the control is not a toggle at all. The tri-state is the point and a default of false would destroy it. aria-pressed="false" on a plain button announces a toggle that is off rather than a button, so every ArenaIconButton in the system would announce as an unpressed toggle. The label does NOT change with the state, which is what the button pattern means by a toggle. A control that renames itself is announced as a different control rather than as the same one in another state. */
   pressed?: boolean;
 
   /** Shows the label as text beside the icon (H6). Don't rely on the title alone on touch or keyboard surfaces. */
@@ -39,7 +39,7 @@ export interface ArenaIconButtonProps {
   /** The id of the form this button belongs to, when it is not a descendant of it. */
   form?: string;
 
-  /** Whether the control is reached from the page's Tab sequence. Set false when it lives inside a composite that manages its own focus (a grid with a roving tab stop, a menu), where reaching it by Tab would be a second way in. Arena writes tabindex="-1" and the control stays programmatically focusable; a positive tab order is not expressible and never should be. */
+  /** Whether the control is reached from the page's Tab sequence. Set false when the control lives inside a composite that manages its own focus, such as a grid with a roving tab stop or a menu. Reaching it by Tab there would be a second way in. Arena writes tabindex="-1" and the control stays programmatically focusable; a positive tab order is not expressible and never should be. */
   tabStop?: boolean;
 
   /** The button was activated, by pointer or by keyboard. */

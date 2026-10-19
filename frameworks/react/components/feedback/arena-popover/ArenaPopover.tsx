@@ -29,7 +29,7 @@ export interface ArenaPopoverProps {
   /** Which edge of the trigger the panel lines up with. */
   align?: ArenaMenuAlign;
 
-  /** The panel asks to be shown or hidden, carrying the state it asks for: the trigger was pressed, Escape was pressed while it was the topmost panel, a press landed outside it, or Tab left it. The panel moves only when open does. */
+  /** The panel asks to be shown or hidden, carrying the state it asks for. The trigger was pressed, Escape was pressed while it was the topmost panel, a press landed outside it, or Tab left it. The panel moves only when open does. */
   onOpenChange?: (open: boolean) => void;
 }
 

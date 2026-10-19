@@ -11,7 +11,7 @@ export interface ArenaTextareaProps {
   /** Field label; the counter and error sit under the field. */
   label?: string;
 
-  /** The control's id, and what the label's `for` points at. Generated from `label` when omitted, as `ta-` followed by the label with each run of whitespace replaced by a single hyphen and the whole lowercased: the derivation ArenaInput.id states, under this component's own prefix. The hint or the error takes it followed by `-note`. */
+  /** The control's id, and what the label's `for` points at. Generated from `label` when omitted, as `ta-` followed by the label with each run of whitespace replaced by a single hyphen and the whole lowercased. The derivation is the one ArenaInput.id states, under this component's own prefix. The hint or the error takes it followed by `-note`. */
   id?: string;
 
   /** A line of help under the field. */
