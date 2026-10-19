@@ -5,9 +5,9 @@
  * routers and stops, and the whole cost of every route is asserted to be its entry plus its worst
  * branch, which is the sum a reader actually pays and the one a split model could quietly lose. */
 
-import { test } from 'node:test';
+import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
@@ -16,8 +16,14 @@ import {
   routeProblems, reasonProblems, REASON_MAX_CHARS,
 } from './check-routes.ts';
 
+const made: string[] = [];
+const track = (dir: string) => { made.push(dir); return dir; };
+after(() => {
+  for (const dir of made) rmSync(dir, { recursive: true, force: true });
+});
+
 function tree(files: Record<string, string>) {
-  const base = mkdtempSync(join(tmpdir(), 'arena-routes-'));
+  const base = track(mkdtempSync(join(tmpdir(), 'arena-routes-')));
   for (const [rel, text] of Object.entries(files)) {
     const path = join(base, rel);
     mkdirSync(join(path, '..'), { recursive: true });

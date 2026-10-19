@@ -1,9 +1,15 @@
-import test from 'node:test';
+import test, { after } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, writeFileSync, mkdirSync } from 'node:fs';
+import { mkdtempSync, writeFileSync, mkdirSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, posix, win32 } from 'node:path';
 import { contentType, resolveInRoot, startStaticServer } from './static-server.ts';
+
+const made: string[] = [];
+const track = (dir: string) => { made.push(dir); return dir; };
+after(() => {
+  for (const dir of made) rmSync(dir, { recursive: true, force: true });
+});
 
 test('contentType maps the extensions the demo pages actually load', () => {
   assert.equal(contentType('/a/b.html'), 'text/html; charset=utf-8');
@@ -33,7 +39,7 @@ test('resolveInRoot refuses a path that escapes the root', () => {
 });
 
 test('the server serves a file, 404s a missing one, and stops cleanly', async () => {
-  const root = mkdtempSync(join(tmpdir(), 'arena-static-'));
+  const root = track(mkdtempSync(join(tmpdir(), 'arena-static-')));
   mkdirSync(join(root, 'sub'));
   writeFileSync(join(root, 'sub', 'page.html'), '<!doctype html><p>hi</p>');
 

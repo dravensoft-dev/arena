@@ -3,9 +3,9 @@
  * have stopped defining are the two ways the map goes wrong. The tree assertions are the ones
  * that would have caught the density pair: they read the real sheets and the real pages. */
 
-import { test } from 'node:test';
+import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { REFERENCES } from '../../lib/arena/consumer-references.ts';
@@ -14,8 +14,14 @@ import {
   staleExemptProblems, collect, utilitiesIn, themeUtilities,
 } from './check-classes.ts';
 
+const made: string[] = [];
+const track = (dir: string) => { made.push(dir); return dir; };
+after(() => {
+  for (const dir of made) rmSync(dir, { recursive: true, force: true });
+});
+
 function tree(files: Record<string, string>) {
-  const base = mkdtempSync(join(tmpdir(), 'arena-classes-'));
+  const base = track(mkdtempSync(join(tmpdir(), 'arena-classes-')));
   for (const [rel, text] of Object.entries(files) as [string, string][]) {
     const path = join(base, rel);
     mkdirSync(join(path, '..'), { recursive: true });

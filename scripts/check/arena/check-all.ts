@@ -24,6 +24,7 @@ import {
   type Finished, type Outcome, type Pool, type Slots, type Step,
 } from '../../graph/scheduler.ts';
 import { stepBlock } from '../../graph/step-block.ts';
+import { suiteTmp } from '../../lib/arena/suite-tmp.ts';
 import { deadline, type Deadline } from '../../lib/arena/deadline.ts';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -34,7 +35,7 @@ export { DOMAINS };
 export type Gate = { name: string; file: string; pool?: Pool | undefined; cost?: number | undefined };
 export type TestStep = { name: string; args: string[]; pool?: Pool | undefined; cost?: number | undefined; after?: string[] | undefined };
 export type Result = { name: string; status: 'pass' | 'fail' | 'skip' | 'cached'; note?: string | undefined; ms?: number | undefined };
-export type Planned = { name: string; command: string; args: string[]; pool?: Pool | undefined; cost?: number | undefined; after?: string[] | undefined; reason?: string | null | undefined };
+export type Planned = { name: string; command: string; args: string[]; pool?: Pool | undefined; cost?: number | undefined; after?: string[] | undefined; reason?: string | null | undefined; scratch?: boolean | undefined };
 
 export const GATES: Gate[] = [
   { name: 'check:docs', file: 'arena/check-docs.ts' },
@@ -289,7 +290,8 @@ export function planSteps(
     planned.push({ name, command, args: [join(checkRoot, file)], pool, cost, reason: decided?.reason ?? null });
   }
   for (const step of tests) {
-    planned.push({ name: step.name, command, args: step.args, pool: step.pool, cost: step.cost, after: step.after });
+    planned.push({ name: step.name, command, args: step.args, pool: step.pool, cost: step.cost, after: step.after,
+      ...(step.name.startsWith('test (') ? { scratch: true } : {}) });
   }
   return { kept, planned };
 }
@@ -336,7 +338,14 @@ export async function runSteps(
     cost: one.cost,
     after: one.after,
     run: async () => {
-      const ended = await childOutputAsync(one.command, one.args, { cwd: options.cwd ?? repoRoot, signal: options.signal });
+      const scratch = one.scratch ? suiteTmp() : null;
+      let ended;
+      try {
+        ended = await childOutputAsync(one.command, one.args,
+          { cwd: options.cwd ?? repoRoot, signal: options.signal, env: scratch?.env });
+      } finally {
+        scratch?.remove();
+      }
       const outcome = stepOutcome(ended);
       print(block(one, ended.output, outcome));
       return outcome;

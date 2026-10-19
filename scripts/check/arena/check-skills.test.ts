@@ -1,5 +1,5 @@
-import test from 'node:test';
-import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
+import test, { after } from 'node:test';
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import assert from 'node:assert/strict';
@@ -7,6 +7,12 @@ import {
   skillProblems, firstDifference, zeroDeclarationProblems, trackingProblems, questionProblems,
 } from './check-skills.ts';
 import { skillTargets } from '../../generate/arena/generate-skills.ts';
+
+const made: string[] = [];
+const track = (dir: string) => { made.push(dir); return dir; };
+after(() => {
+  for (const dir of made) rmSync(dir, { recursive: true, force: true });
+});
 
 test('every committed index matches a fresh emit', () => {
   const { problems } = skillProblems();
@@ -69,7 +75,7 @@ test('a question row naming a file that does not exist is a problem', () => {
 });
 
 test('a question row whose file the skill does not link is a problem, and SKILL.md itself is always reachable', () => {
-  const base = mkdtempSync(join(tmpdir(), 'questions-'));
+  const base = track(mkdtempSync(join(tmpdir(), 'questions-')));
   mkdirSync(join(base, 'skills/design/references'), { recursive: true });
   writeFileSync(join(base, 'skills/design/SKILL.md'), '# Arena\n\nSee [a](./references/a.md).\n');
   writeFileSync(join(base, 'skills/design/references/a.md'), '# A\n\n## Linked?\n');
@@ -83,14 +89,14 @@ test('a question row whose file the skill does not link is a problem, and SKILL.
 });
 
 test('a heading inside a code fence is not a heading', () => {
-  const base = mkdtempSync(join(tmpdir(), 'questions-'));
+  const base = track(mkdtempSync(join(tmpdir(), 'questions-')));
   mkdirSync(join(base, 'skills/design'), { recursive: true });
   writeFileSync(join(base, 'skills/design/SKILL.md'), '# Arena\n\n```sh\n# a comment\n```\n');
   assert.equal(questionProblems(base, manifest('a comment', 'skills/design/SKILL.md')).length, 1);
 });
 
 test('a SKILL.md link carrying an anchor links the file, and a repeated heading takes -1 in document order', () => {
-  const base = mkdtempSync(join(tmpdir(), 'questions-'));
+  const base = track(mkdtempSync(join(tmpdir(), 'questions-')));
   mkdirSync(join(base, 'skills/design/references'), { recursive: true });
   writeFileSync(join(base, 'skills/design/SKILL.md'), '# Arena\n\nSee [a](./references/a.md#linked).\n');
   writeFileSync(join(base, 'skills/design/references/a.md'), '# A\n\n## Same\n\n## Same\n');

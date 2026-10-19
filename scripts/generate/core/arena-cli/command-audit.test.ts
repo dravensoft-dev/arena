@@ -1,13 +1,15 @@
 /* arena audit against throwaway projects: a rule break, a restated declaration, the strict set and the
  * summary line. A project is a temp directory, so every case reads real files and nothing else. */
-import test from 'node:test';
+import test, { after } from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { run } from './command-audit.ts';
-import { captureIo, hostRoot, readable } from './cli-fixtures.ts';
+import { captureIo, hostRoot, readable, removeFixtures } from './cli-fixtures.ts';
 import { strictNames } from './reports.ts';
+
+after(removeFixtures);
 
 const BREAK = '<div style={{ color: "#b52a20" }} />';
 const CARD = '.arena-card__title {\n  color: var(--ink-muted);\n}\n';

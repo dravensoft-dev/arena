@@ -1,14 +1,16 @@
 /* The dispatch table of the arena command: what each first word does, and that a command gets the
  * rest of the arguments and answers with its own exit code. */
 
-import { test } from 'node:test';
+import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { COMMANDS, USAGE, isProgram, main } from './arena.ts';
 import { COMMAND_NAMES, SPECS, usageOf } from './args.ts';
-import { captureIo, hostRoot } from './cli-fixtures.ts';
+import { captureIo, hostRoot, removeFixtures } from './cli-fixtures.ts';
+
+after(removeFixtures);
 
 const cwd = tmpdir();
 

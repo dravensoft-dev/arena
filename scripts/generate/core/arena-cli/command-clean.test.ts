@@ -1,14 +1,20 @@
 /* arena clean: it deletes the sheets arena build writes, by name, inside --out, and nothing else. */
-import { test } from 'node:test';
+import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, mkdirSync, mkdtempSync, readdirSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { run } from './command-clean.ts';
 import { OUTPUT_SHEETS } from './sources.ts';
 import { captureIo } from './cli-fixtures.ts';
 
-const root = () => mkdtempSync(join(tmpdir(), 'arena-clean-'));
+const made: string[] = [];
+const track = (dir: string) => { made.push(dir); return dir; };
+after(() => {
+  for (const dir of made) rmSync(dir, { recursive: true, force: true });
+});
+
+const root = () => track(mkdtempSync(join(tmpdir(), 'arena-clean-')));
 
 test('removes exactly the three output sheets in --out and leaves a sibling file', () => {
   const dir = root();

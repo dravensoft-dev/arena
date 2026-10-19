@@ -1,9 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { ANGULAR_EMIT, JIT_SUITES, SUITES, suiteSteps, testStep } from '../../check/arena/check-all.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
+import { runSuite } from './run-suite.ts';
 
 const manifest = () => JSON.parse(readFileSync(join(repoRoot, 'package.json'), 'utf8'));
 
@@ -71,4 +73,34 @@ test('the JIT run reads the layer sources through its preload and no emit, and i
   }
   assert.ok(!testStep({ isBun: true, testFiles: [] }).some((s) => s.args.includes(preload)),
     'bun run check runs the emitted suite, never the JIT one');
+});
+
+test('each step runs under a temp root of its own, and the root is gone when the step ends, pass or fail', () => {
+  const log = mkdtempSync(join(tmpdir(), 'arena-run-suite-log-'));
+  try {
+    const step = (name: string, code: number) => ({
+      name,
+      args: ['-e', [
+        "const { appendFileSync, writeFileSync } = require('node:fs');",
+        "const { join } = require('node:path');",
+        "writeFileSync(join(process.env.TMPDIR, 'made'), 'x');",
+        `appendFileSync(${JSON.stringify(join(log, 'seen'))}, process.env.TMPDIR + '\\n');`,
+        `process.exit(${code});`,
+      ].join('\n')],
+    });
+    const seen = () => readFileSync(join(log, 'seen'), 'utf8').trim().split('\n');
+
+    assert.equal(runSuite('probe', [step('first', 0), step('second', 0)]), 0);
+    const [first, second] = seen();
+    assert.ok(first && second && first !== second, 'two steps share one temp root');
+    assert.equal(existsSync(first), false, 'a step that passed left its temp root behind');
+    assert.equal(existsSync(second), false, 'the last step left its temp root behind');
+
+    assert.equal(runSuite('probe', [step('broken', 3), step('never', 0)]), 3);
+    const failed = seen().slice(2);
+    assert.equal(failed.length, 1, 'a step ran after the one that failed');
+    assert.equal(existsSync(failed[0] ?? ''), false, 'a step that failed left its temp root behind');
+  } finally {
+    rmSync(log, { recursive: true, force: true });
+  }
 });

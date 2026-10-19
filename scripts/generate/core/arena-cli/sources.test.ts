@@ -1,11 +1,13 @@
-import { test } from 'node:test';
+import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { sourceFiles, OUTPUT_SHEETS, auditFiles, pluginDirs, missingSource } from './sources.ts';
 import { THEME_SHEET, ICONS_SHEET, PLUGIN_SHEET, PLUGIN_CSS } from './sheets.ts';
-import { options, project, readable } from './cli-fixtures.ts';
+import { options, project, readable, removeFixtures } from './cli-fixtures.ts';
+
+after(removeFixtures);
 
 test('a path that is not there reads as nothing rather than as an empty tree', () => {
   assert.equal(sourceFiles(join(tmpdir(), 'arena-nowhere')), null);

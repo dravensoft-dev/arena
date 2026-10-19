@@ -1,13 +1,20 @@
 /* arena check against throwaway projects: the reports of the plan and of the marker check, the strict
  * set and the exit codes. A project is a temp directory, so every case reads real files. */
-import test from 'node:test';
+import test, { after } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readdirSync, readFileSync, statSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { run } from './command-check.ts';
-import { captureIo, colors, phosphor, readable } from './cli-fixtures.ts';
+import { captureIo, colors, phosphor, readable, removeFixtures } from './cli-fixtures.ts';
 import type { ComponentMap } from './components.ts';
+
+const made: string[] = [];
+const track = (dir: string) => { made.push(dir); return dir; };
+after(() => {
+  for (const dir of made) rmSync(dir, { recursive: true, force: true });
+  removeFixtures();
+});
 
 const DIM = { ...readable, palettes: [{ ...readable.palettes[0]!, colors: colors({
   'base-content': '#1a1a1a', 'cat-1': '#3c7b0a', 'cat-2': '#3b63be', 'cat-3': '#0a924b', 'cat-4': '#6a59bc',
@@ -20,7 +27,7 @@ const WASHED = { layers: ['css/base.css'], components: ['button'], levels: [],
   catalogue: { tokens: {}, roles: {} } };
 
 function setup(files: Record<string, string>, config: unknown = readable) {
-  const root = mkdtempSync(join(tmpdir(), 'arena-check-'));
+  const root = track(mkdtempSync(join(tmpdir(), 'arena-check-')));
   mkdirSync(join(root, 'src'), { recursive: true });
   if (config) writeFileSync(join(root, 'arena.config.json'), JSON.stringify(config));
   for (const [name, content] of Object.entries(files)) writeFileSync(join(root, 'src', name), content);

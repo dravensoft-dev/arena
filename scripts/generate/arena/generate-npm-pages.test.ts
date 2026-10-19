@@ -3,7 +3,7 @@
  * rather than rewritten, and a page with them comes back byte-identical once it is current. The
  * generated text is emitted verbatim, so a page that is current comes back unchanged. */
 
-import { test } from 'node:test';
+import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -21,8 +21,10 @@ import { packageSheetName, sheetFamilies } from '../../lib/tailwind/vocabulary.t
 import { MAX_WORDS, plain, words } from '../../check/arena/check-register.ts';
 import { RULE_TAGS, RULE_DESCRIPTIONS } from '../core/arena-cli/audit.ts';
 import { run } from '../core/arena-cli/command-init.ts';
-import { captureIo, hostRoot } from '../core/arena-cli/cli-fixtures.ts';
+import { captureIo, hostRoot, removeFixtures } from '../core/arena-cli/cli-fixtures.ts';
 import { RULES } from '../../lib/arena/language-rules.ts';
+
+after(removeFixtures);
 
 const SHARED = ['repository', 'skin', 'defaults', 'sheets', 'toast', 'layout', 'queues'];
 

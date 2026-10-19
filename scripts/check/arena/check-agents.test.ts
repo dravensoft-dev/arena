@@ -2,9 +2,9 @@
  * takes: a level no chain of links reaches, a level reached through a sibling rather than a
  * parent, a README.md back on the branch, and a SURVIVORS entry whose file has gone. */
 
-import { test } from 'node:test';
+import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
@@ -14,8 +14,14 @@ import {
 } from './check-agents.ts';
 import { trackedPages } from './check-agents-spec.ts';
 
+const made: string[] = [];
+const track = (dir: string) => { made.push(dir); return dir; };
+after(() => {
+  for (const dir of made) rmSync(dir, { recursive: true, force: true });
+});
+
 function tree(files: Record<string, string>) {
-  const base = mkdtempSync(join(tmpdir(), 'arena-agents-'));
+  const base = track(mkdtempSync(join(tmpdir(), 'arena-agents-')));
   for (const [rel, text] of Object.entries(files) as [string, string][]) {
     const path = join(base, rel);
     mkdirSync(join(path, '..'), { recursive: true });

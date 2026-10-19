@@ -1,14 +1,16 @@
 /* arena init: the config it copies, the scripts it wires, and what it leaves alone. */
-import { test } from 'node:test';
+import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { chmodSync, existsSync, mkdtempSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { run } from './command-init.ts';
-import { captureIo, hostRoot } from './cli-fixtures.ts';
+import { captureIo, hostRoot, removeFixtures } from './cli-fixtures.ts';
 import { RULE_TAGS } from './audit.ts';
 import { parseArgs } from './args.ts';
 import { strictNames } from './reports.ts';
+
+after(removeFixtures);
 
 const REACT = '@dravensoft/arena-react';
 const ANGULAR = '@dravensoft/arena-angular';

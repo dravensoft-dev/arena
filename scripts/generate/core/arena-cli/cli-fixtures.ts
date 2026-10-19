@@ -1,4 +1,8 @@
-import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
+/* The fixtures the CLI suites share. `removeFixtures` removes every directory `project`, `phosphor`
+ * and `hostRoot` made, and a suite importing any of them calls it in its own `after`, so a direct
+ * `bun test` leaves nothing behind. */
+
+import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { PALETTE_KEYS } from './palette-keys.ts';
@@ -8,6 +12,17 @@ import type { ComponentMap } from './components.ts';
 import type { HostEnvironment } from './host.ts';
 import type { Io } from './io.ts';
 import { RESERVED } from './style-plugin-rules.ts';
+
+const made: string[] = [];
+
+function track(dir: string) {
+  made.push(dir);
+  return dir;
+}
+
+export function removeFixtures() {
+  for (const dir of made.splice(0)) rmSync(dir, { recursive: true, force: true });
+}
 
 export async function whileHeld<T>(name: string, body: () => T | Promise<T>): Promise<T> {
   RESERVED.set(name, 'ArenaHeld, a name held for one case (spec 00)');
@@ -50,7 +65,7 @@ ${selector}.ph-sun:before { content: "\\e6a2"; }
 `;
 
 export function phosphor(weights: Record<string, string> = { bold: 'Phosphor-Bold', fill: 'Phosphor-Fill' }) {
-  const root = mkdtempSync(join(tmpdir(), 'arena-phosphor-'));
+  const root = track(mkdtempSync(join(tmpdir(), 'arena-phosphor-')));
   const web = join(root, 'node_modules', '@phosphor-icons', 'web');
   mkdirSync(web, { recursive: true });
   writeFileSync(join(web, 'package.json'), JSON.stringify({ name: '@phosphor-icons/web' }));
@@ -65,7 +80,7 @@ export function phosphor(weights: Record<string, string> = { bold: 'Phosphor-Bol
 }
 
 export function project(config: any = readable, files: Record<string, string> = { 'app.html': '<i class="ph-bold ph-bell"></i>' }) {
-  const root = mkdtempSync(join(tmpdir(), 'arena-'));
+  const root = track(mkdtempSync(join(tmpdir(), 'arena-')));
   mkdirSync(join(root, 'src'), { recursive: true });
   if (config) writeFileSync(join(root, 'arena.config.json'), JSON.stringify(config));
   for (const [name, content] of Object.entries(files)) writeFileSync(join(root, 'src', name), content);
@@ -107,7 +122,7 @@ export function captureIo(cwd: string, environment: HostEnvironment = {}) {
 }
 
 export function hostRoot(name: string, version: string, files: Record<string, string> = {}) {
-  const root = mkdtempSync(join(tmpdir(), 'arena-host-root-'));
+  const root = track(mkdtempSync(join(tmpdir(), 'arena-host-root-')));
   writeFileSync(join(root, 'package.json'), JSON.stringify({ name, version }));
   writeFileSync(join(root, 'arena.config.example.json'), JSON.stringify({ palettes: [] }));
   for (const [file, content] of Object.entries(files)) writeFileSync(join(root, file), content);

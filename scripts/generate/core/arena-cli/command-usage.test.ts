@@ -1,12 +1,14 @@
 /* arena usage: it names what the sources draw and what the plugins paint, writes nothing, and
  * holds no report, so its only failures are the ones where it cannot run. */
 
-import { test } from 'node:test';
+import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { run } from './command-usage.ts';
-import { MAP, captureIo, project, readable } from './cli-fixtures.ts';
+import { MAP, captureIo, project, readable, removeFixtures } from './cli-fixtures.ts';
+
+after(removeFixtures);
 
 const environment = { arena: null, packageName: '@dravensoft/arena-react', map: MAP, phosphor: null };
 

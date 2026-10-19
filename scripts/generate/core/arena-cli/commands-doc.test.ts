@@ -5,9 +5,9 @@
  * names is a run that exits with that code. The page is prose a person writes, so this is what
  * keeps it from promising a code, a script or a flag the command does not keep. */
 
-import { test } from 'node:test';
+import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -16,8 +16,15 @@ import { COMMAND_NAMES, FLAGS, FLAG_NAMES, NEIGHBOURS, SPECS } from './args.ts';
 import type { FlagName } from './args.ts';
 import { KINDS_BY_COMMAND, RULES_BY_KIND } from './reports.ts';
 import { OUTPUT_SHEETS } from './sources.ts';
-import { MAP, SHEETS, captureIo, hostRoot, phosphor, project, readable } from './cli-fixtures.ts';
+import { MAP, SHEETS, captureIo, hostRoot, phosphor, project, readable, removeFixtures } from './cli-fixtures.ts';
 import type { HostEnvironment } from './host.ts';
+
+const made: string[] = [];
+const track = (dir: string) => { made.push(dir); return dir; };
+after(() => {
+  for (const dir of made) rmSync(dir, { recursive: true, force: true });
+  removeFixtures();
+});
 
 const PAGE = fileURLToPath(new URL('../../../../skills/design/references/cli.md', import.meta.url));
 const ANSWERED = new Set<string>([...COMMAND_NAMES, 'help', '--help', '-h', '--version']);
@@ -119,7 +126,7 @@ function block(source: string, heading: string) {
 
 for (const [framework, name] of INIT_BLOCKS) {
   test(`the ${framework} JSON block is what arena init writes into {} on ${name}`, async () => {
-    const cwd = mkdtempSync(join(tmpdir(), 'arena-doc-init-'));
+    const cwd = track(mkdtempSync(join(tmpdir(), 'arena-doc-init-')));
     writeFileSync(join(cwd, 'package.json'), '{}\n');
     const { io } = captureIo(cwd, { arena: hostRoot(name, '1.0.0') });
     assert.equal(await main(['init'], io), 0);

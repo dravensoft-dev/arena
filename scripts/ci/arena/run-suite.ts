@@ -10,12 +10,19 @@
 import { spawnSync } from 'node:child_process';
 import { isMainModule } from '../../utils/main-module.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
+import { suiteTmp } from '../../lib/arena/suite-tmp.ts';
 import { suiteSteps } from '../../check/arena/check-all.ts';
 
-export function runSuite(name: string) {
-  for (const step of suiteSteps(name)) {
+export function runSuite(name: string, steps: { name: string; args: string[] }[] = suiteSteps(name)) {
+  for (const step of steps) {
     console.log(`\n> ${step.name}\n`);
-    const r = spawnSync(process.execPath, step.args, { stdio: 'inherit', cwd: repoRoot });
+    const scratch = suiteTmp();
+    let r;
+    try {
+      r = spawnSync(process.execPath, step.args, { stdio: 'inherit', cwd: repoRoot, env: scratch.env });
+    } finally {
+      scratch.remove();
+    }
     if (r.error) {
       console.error(`run-suite: failed to spawn: ${r.error.message || r.error}`);
       return 1;

@@ -1,7 +1,7 @@
 /* plan() answers what a build would leave on disk without leaving anything: every case reads the
  * Plan and the tree, and the theme and icons cases assert on outputs instead of on files. */
 
-import { test } from 'node:test';
+import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdirSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -9,7 +9,9 @@ import { join } from 'node:path';
 import { plan, sheetStates } from './plan.ts';
 import type { SheetOutput } from './plan.ts';
 import { THEME_SHEET, ICONS_SHEET, PLUGIN_SHEET, ICON_MANIFEST } from './sheets.ts';
-import { auto, hostRoot, MAP, SHEETS, options, phosphor, project, readable } from './cli-fixtures.ts';
+import { auto, hostRoot, MAP, SHEETS, options, phosphor, project, readable, removeFixtures } from './cli-fixtures.ts';
+
+after(removeFixtures);
 
 const NAME = '@dravensoft/arena-react';
 

@@ -667,3 +667,38 @@ test('runSteps hands each step its cost, so with one heavy slot the longest heav
     { print: () => {} });
   assert.deepEqual(finished.map((one) => one.name), ['long', 'short']);
 });
+
+test('a test step runs under a temp root of its own that is gone when it ends, and a gate keeps the inherited one',
+  { timeout: BUDGET }, async () => {
+    const log = mkdtempSync(join(tmpdir(), 'arena-check-all-log-'));
+    try {
+      const file = (name: string) => join(log, name.replace(/\W+/g, '_'));
+      const probe = (name: string, code: number, scratch: boolean): Planned => ({
+        name, command: process.execPath, scratch,
+        args: ['-e', [
+          "const { appendFileSync } = require('node:fs');",
+          `appendFileSync(${JSON.stringify(file(name))}, String(process.env.TMPDIR));`,
+          `process.exit(${code});`,
+        ].join('\n')],
+      });
+      const { finished } = await runSteps(
+        [probe('test (passes)', 0, true), probe('test (fails)', 1, true), probe('check:gate', 0, false)],
+        { total: 3, heavy: 1, browser: 1 }, { print: () => {} });
+      assert.deepEqual(finished.map((one) => [one.name, one.status]).sort(),
+        [['check:gate', 'pass'], ['test (fails)', 'fail'], ['test (passes)', 'pass']]);
+      for (const name of ['test (passes)', 'test (fails)']) {
+        const root = readFileSync(file(name), 'utf8');
+        assert.notEqual(root, String(process.env.TMPDIR), `${name} ran under the inherited temp directory`);
+        assert.equal(existsSync(root), false, `${name} left its temp root behind`);
+      }
+      assert.equal(readFileSync(file('check:gate'), 'utf8'), String(process.env.TMPDIR),
+        'a gate step is handed the environment it inherited');
+      const planned = planSteps([{ name: 'check:docs', file: 'arena/check-docs.ts' }], new Map(),
+        testStep({ isBun: true, testFiles: [] }), '/bin/bun').planned;
+      assert.deepEqual(planned.filter((one) => one.scratch).map((one) => one.name.startsWith('test (')),
+        planned.filter((one) => one.name.startsWith('test (')).map(() => true),
+        'every test step, and only a test step, is planned with a temp root');
+    } finally {
+      rmSync(log, { recursive: true, force: true });
+    }
+  });

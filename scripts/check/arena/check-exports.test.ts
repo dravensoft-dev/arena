@@ -2,9 +2,9 @@
  * INTERNAL is asserted in both directions, since a symbol nobody declared and one the barrel has
  * stopped carrying are the two ways the map goes wrong. */
 
-import { test } from 'node:test';
+import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
@@ -12,8 +12,14 @@ import {
   zeroReachProblems, homeProblems, staleInternalProblems, collect, parametersOf, signatureProblems,
 } from './check-exports.ts';
 
+const made: string[] = [];
+const track = (dir: string) => { made.push(dir); return dir; };
+after(() => {
+  for (const dir of made) rmSync(dir, { recursive: true, force: true });
+});
+
 function tree(files: Record<string, string>) {
-  const base = mkdtempSync(join(tmpdir(), 'arena-exports-'));
+  const base = track(mkdtempSync(join(tmpdir(), 'arena-exports-')));
   for (const [rel, text] of Object.entries(files) as [string, string][]) {
     const path = join(base, rel);
     mkdirSync(join(path, '..'), { recursive: true });

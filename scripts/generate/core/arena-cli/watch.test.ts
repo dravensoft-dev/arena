@@ -1,5 +1,5 @@
 /* arena build --watch: the loop is driven with a fake watch and a fake schedule, never real time. */
-import { test } from 'node:test';
+import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -7,7 +7,9 @@ import { commandOptions } from './args.ts';
 import type { Options } from './args.ts';
 import { relevant, watchBuild, watchTargets, SETTLE_MS } from './watch.ts';
 import type { WatchDeps, WatchEvent, WatchTarget } from './watch.ts';
-import { captureIo, project } from './cli-fixtures.ts';
+import { captureIo, project, removeFixtures } from './cli-fixtures.ts';
+
+after(removeFixtures);
 
 function optionsOf(root: string, extra: string[] = []): Options {
   const { io } = captureIo(root);

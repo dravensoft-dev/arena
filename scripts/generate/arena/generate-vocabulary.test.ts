@@ -1,9 +1,9 @@
 /* The vocabulary page is emitted from the family files and the manifests that answer them, so a
  * family is listed by being declared and a component by answering it. Each family has an anchor
  * a prompt links to. */
-import test from 'node:test';
+import test, { after } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { renderVocabulary, VOCABULARY_TARGET } from './generate-vocabulary.ts';
@@ -11,6 +11,12 @@ import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { layerManifests } from '../../lib/tailwind/tailwind-compile.ts';
 import { answerOf, axesOf, readFamilies, targetOf } from '../../lib/tailwind/vocabulary.ts';
 import { MAX_WORDS, plain, words } from '../../check/arena/check-register.ts';
+
+const made: string[] = [];
+const track = (dir: string) => { made.push(dir); return dir; };
+after(() => {
+  for (const dir of made) rmSync(dir, { recursive: true, force: true });
+});
 
 test('every family is a row and a section, with its options, its default, its reach and who answers it', () => {
   const page = renderVocabulary();
@@ -22,7 +28,7 @@ test('every family is a row and a section, with its options, its default, its re
 });
 
 test('a markup family is answered by markup you write, carries no default, and says where its class goes', () => {
-  const base = mkdtempSync(join(tmpdir(), 'vocabulary-page-'));
+  const base = track(mkdtempSync(join(tmpdir(), 'vocabulary-page-')));
   mkdirSync(join(base, 'frameworks/tailwind/components'), { recursive: true });
   const family = (dir: string, body: object) => {
     mkdirSync(join(base, 'frameworks/tailwind/vocabulary', dir), { recursive: true });
@@ -46,7 +52,7 @@ test('a markup family is answered by markup you write, carries no default, and s
 });
 
 test('a component answering a subset of a family, or with a default of its own, says so under Answered by', () => {
-  const base = mkdtempSync(join(tmpdir(), 'vocabulary-answers-'));
+  const base = track(mkdtempSync(join(tmpdir(), 'vocabulary-answers-')));
   const dir = join(base, 'frameworks/tailwind/components/forms/arena-probe');
   mkdirSync(dir, { recursive: true });
   mkdirSync(join(base, 'frameworks/tailwind/vocabulary/arena-size'), { recursive: true });
@@ -67,7 +73,7 @@ test('a component answering a subset of a family, or with a default of its own, 
 });
 
 test('a group of answerers too long for one sentence is cut into lines the register holds, each naming its options', () => {
-  const base = mkdtempSync(join(tmpdir(), 'vocabulary-long-group-'));
+  const base = track(mkdtempSync(join(tmpdir(), 'vocabulary-long-group-')));
   const dir = join(base, 'frameworks/tailwind/components/forms/arena-probe');
   mkdirSync(dir, { recursive: true });
   mkdirSync(join(base, 'frameworks/tailwind/vocabulary/arena-size'), { recursive: true });
@@ -93,7 +99,7 @@ const KEYED = { family: 'column', reach: 'box', target: 'keyed', keyed: 'key', d
   binds: ['ArenaTable', 'ArenaTableCell'] };
 
 test('a keyed family is keyed by its field, lists its properties, and is answered by the components that bind it', () => {
-  const base = mkdtempSync(join(tmpdir(), 'vocabulary-keyed-'));
+  const base = track(mkdtempSync(join(tmpdir(), 'vocabulary-keyed-')));
   mkdirSync(join(base, 'frameworks/tailwind/components'), { recursive: true });
   mkdirSync(join(base, 'frameworks/tailwind/vocabulary/arena-column'), { recursive: true });
   writeFileSync(join(base, 'frameworks/tailwind/vocabulary/arena-column/Column.family.json'), JSON.stringify(KEYED));
@@ -133,7 +139,7 @@ test('a component with a prompt in a layer links to it, and a table cell too lon
 });
 
 test('a row whose answerers outrun a sentence names them alone and sends the options to the section', () => {
-  const base = mkdtempSync(join(tmpdir(), 'vocabulary-long-'));
+  const base = track(mkdtempSync(join(tmpdir(), 'vocabulary-long-')));
   const dir = join(base, 'frameworks/tailwind/components/forms/arena-probe');
   mkdirSync(dir, { recursive: true });
   mkdirSync(join(base, 'frameworks/tailwind/vocabulary/arena-size'), { recursive: true });

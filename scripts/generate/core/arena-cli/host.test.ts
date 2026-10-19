@@ -1,11 +1,13 @@
-import { test } from 'node:test';
+import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { hostManifest, hostPackage, hostPackageName, packageSheets, phosphorRoot, resolveEnvironment } from './host.ts';
 import { loadVocabulary, VOCABULARY_INDEX } from './audit.ts';
-import { hostRoot, phosphor } from './cli-fixtures.ts';
+import { hostRoot, phosphor, removeFixtures } from './cli-fixtures.ts';
+
+after(removeFixtures);
 
 test('the package around the command is found by its name, and nothing else is', () => {
   const root = mkdtempSync(join(tmpdir(), 'arena-host-'));

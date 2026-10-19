@@ -1,11 +1,13 @@
 /* arena build: it writes the sheets a plan answers, only the ones that changed, and says so. */
-import { test } from 'node:test';
+import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync, mkdirSync, readFileSync, statSync, utimesSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { run, writeOutputs } from './command-build.ts';
 import { THEME_SHEET, ICONS_SHEET, PLUGIN_SHEET } from './sheets.ts';
-import { captureIo, phosphor, project, readable, whileHeld } from './cli-fixtures.ts';
+import { captureIo, phosphor, project, readable, whileHeld, removeFixtures } from './cli-fixtures.ts';
+
+after(removeFixtures);
 
 const CATALOGUED = {
   layers: ['css/reset.css'],

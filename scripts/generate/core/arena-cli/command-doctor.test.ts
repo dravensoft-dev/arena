@@ -1,6 +1,6 @@
 /* arena doctor compares the tree with what a build would leave and names what differs; it writes
  * nothing, and only held environment reports, a plan fatal or a differing sheet change its exit. */
-import { test } from 'node:test';
+import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdirSync, mkdtempSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -8,7 +8,9 @@ import { join } from 'node:path';
 import { run, satisfies } from './command-doctor.ts';
 import { plan } from './plan.ts';
 import { ICON_MANIFEST, PLUGIN_SHEET } from './sheets.ts';
-import { MAP, SHEETS, captureIo, hostRoot, options, phosphor, project, readable } from './cli-fixtures.ts';
+import { MAP, SHEETS, captureIo, hostRoot, options, phosphor, project, readable, removeFixtures } from './cli-fixtures.ts';
+
+after(removeFixtures);
 
 function setup(extra: Record<string, unknown> = {}) {
   const root = project();
