@@ -223,7 +223,7 @@ nowhere runs in no job and is worth nothing, so the directory is not the authori
 | [`arena/`](./arena/AGENTS.md) | 57 | two or more layers at once, or the repository root |
 | [`tailwind/`](./tailwind/AGENTS.md) | 9 | the shared Tailwind layer |
 | [`angular/`](./angular/AGENTS.md) | 5 | the Angular layer |
-| [`core/`](./core/AGENTS.md) | 14 | `contracts/` and `assets/` only |
+| [`core/`](./core/AGENTS.md) | 15 | `contracts/` and `assets/` only |
 | [`react/`](./react/AGENTS.md) | 5 | the React layer |
 
 `check-all.test.ts` asserts every gate names one of the five domains and points at

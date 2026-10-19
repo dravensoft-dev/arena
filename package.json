@@ -67,6 +67,7 @@
     "check:catalogue": "bun scripts/check/core/check-catalogue.ts",
     "check:style-plugin": "bun scripts/check/core/check-style-plugin.ts",
     "check:style-plugin-coverage": "bun scripts/check/core/check-style-plugin-coverage.ts",
+    "check:plugin-css": "bun scripts/check/core/check-plugin-css.ts",
     "check:role-contract": "bun scripts/check/core/check-role-contract.ts",
     "check:compat-aliases": "bun scripts/check/core/check-compat-aliases.ts",
     "check:polarity": "bun scripts/check/core/check-polarity.ts",
