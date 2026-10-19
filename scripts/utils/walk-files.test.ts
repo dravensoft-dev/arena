@@ -1,12 +1,13 @@
-/* Four claims and no more: the walk reaches every depth, its order is the sorted one at each
- * level rather than the filesystem's, `skip` decides a directory and a file alike, and a root
+/* Six claims and no more: the walk reaches every depth, its order is the sorted one at each
+ * level rather than the filesystem's, `skip` decides a directory and a file alike, a root
  * that is not there throws rather than answering as an empty tree, which is the half a
- * caller's own existsSync rests on. The fixtures are real directories under tmpdir: a walk
+ * caller's own existsSync rests on, and a directory below the root that vanishes mid-walk is
+ * absent while any other read error throws. The fixtures are real directories under tmpdir: a walk
  * mocked over an object literal proves the mock. */
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { relPosix } from './posix-path.ts';
@@ -70,4 +71,26 @@ test('a walk with everything skipped is empty, and calling that a failure is the
   try {
     assert.deepEqual(found(root, { skip: (name) => name === 'x' }), []);
   } finally { rmSync(root, { recursive: true }); }
+});
+
+test('a directory below the root that vanishes between its listing and its read is absent, and the files beside it come back', () => {
+  const root = tree(['keep.ts', 'gone/a.ts', 'src/b.ts']);
+  try {
+    const skip = (name: string, path: string) => {
+      if (name === 'gone') rmSync(path, { recursive: true });
+      return false;
+    };
+    assert.deepEqual(found(root, { skip }), ['keep.ts', 'src/b.ts']);
+  } finally { rmSync(root, { recursive: true }); }
+});
+
+test('a directory below the root that cannot be read throws rather than reading as absent', { skip: process.getuid?.() === 0 }, () => {
+  const root = tree(['keep.ts', 'locked/a.ts']);
+  try {
+    chmodSync(join(root, 'locked'), 0o000);
+    assert.throws(() => found(root), /EACCES/);
+  } finally {
+    chmodSync(join(root, 'locked'), 0o755);
+    rmSync(root, { recursive: true });
+  }
 });

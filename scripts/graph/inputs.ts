@@ -14,7 +14,7 @@ import { join } from 'node:path';
 import { walkFiles, type WalkOptions } from '../utils/walk-files.ts';
 import { relPosix } from '../utils/posix-path.ts';
 import { withForeignTrees } from '../lib/arena/foreign-trees.ts';
-import { globFreePrefix, normalizeSpec, partition, resolveSpecs } from './pathspecs.ts';
+import { globFreePrefix, normalizeSpec, partition, resolveSpecs, specMatcher } from './pathspecs.ts';
 
 export type Stamp = { size: number; mtimeMs: number; hash: string };
 
@@ -55,7 +55,13 @@ export function restamp(
   walk: (dir: string, options: WalkOptions) => string[] = walkFiles,
 ) {
   const found = new Set<string>();
-  for (const spec of partition(specs).included) {
+  const { included, excluded } = partition(specs);
+  const pruned = excluded
+    .filter((spec) => spec.endsWith('/**'))
+    .map((spec) => specMatcher(spec.slice(0, -'/**'.length)));
+  const skip = (name: string, path: string, isDirectory: boolean) =>
+    SKIPPED_DIRECTORIES.has(name) || (isDirectory && pruned.some((test) => test(relPosix(root, path))));
+  for (const spec of included) {
     const normal = normalizeSpec(spec);
     const at = GLOB.test(normal) ? globFreePrefix(spec) : normal;
     let directory;
@@ -68,7 +74,7 @@ export function restamp(
       found.add(at);
       continue;
     }
-    for (const full of walk(join(root, at), { skip: (name) => SKIPPED_DIRECTORIES.has(name) })) {
+    for (const full of walk(join(root, at), { skip })) {
       found.add(relPosix(root, full));
     }
   }
