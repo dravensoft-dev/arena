@@ -50,7 +50,7 @@
     ]
   },
   "bind": {
-    "change": "value"
+    "valueChange": "value"
   },
   "note": "With no children it draws an empty tablist and no panel, which beats a panel pointing at a tab that is not there."
 }

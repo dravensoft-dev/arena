@@ -1,7 +1,7 @@
 Arena tab, one view inside an `arena-tabs` strip. Standalone, `OnPush`, signal I/O. The component exists because a consumer's own content has to go inside **one** item of something Arena draws. The moment there is one element per view, per-item projection stops being the problem it would be otherwise.
 
 ```html
-<arena-tabs [value]="view()" (change)="view.set($event)">
+<arena-tabs [value]="view()" (valueChange)="view.set($event)">
   <arena-tab value="overview" label="Overview">
     <arena-stat-card label="Uptime" value="99.98%" />
   </arena-tab>
@@ -15,7 +15,7 @@ Arena tab, one view inside an `arena-tabs` strip. Standalone, `OnPush`, signal I
 
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
-| `value*` | primitive | `string` |  | What this tab selects, and what the `change` event of ArenaTabs carries. |
+| `value*` | primitive | `string` |  | What this tab selects, and what the `valueChange` event of ArenaTabs carries. |
 | `label*` | primitive | `string` |  | What the tab reads. Arena draws the button; the consumer names it. |
 | `content` | slot |  |  | What the panel shows while this tab is selected. ArenaTabs places it; ArenaTab never renders it, because a tabpanel may not sit inside a tablist. |
 
@@ -35,7 +35,7 @@ Arena tab, one view inside an `arena-tabs` strip. Standalone, `OnPush`, signal I
 style choice, a tabpanel may not sit inside a tablist, so the two cannot be one element.
 
 **Do / Don't**
-- **`value` and `label` are both required.** `value` is what the parent's `change` carries;
+- **`value` and `label` are both required.** `value` is what the parent's `valueChange` carries;
   `label` is what the button reads.
 - **The panel only works inside `arena-tabs`.** The panel injects the parent's state to learn whether it is selected and which ids wire it to its button. On its own it has nothing to inject, and Angular reports it as a missing provider.
 - **Values must be distinct within one strip.** The parent resolves both ids by finding the tab

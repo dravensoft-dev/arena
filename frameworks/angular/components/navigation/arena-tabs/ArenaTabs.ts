@@ -39,7 +39,7 @@ export class ArenaTabs {
   /** The initially selected value when uncontrolled. Defaults to the first tab. */
   readonly defaultValue = input<string>();
   /** A different tab was chosen; carries its value. */
-  readonly change = output<string>();
+  readonly valueChange = output<string>();
 
   private readonly base = inject(ArenaIdGenerator).next('arena-tabs');
   private readonly chosen = signal<string | undefined>(undefined);
@@ -101,7 +101,7 @@ export class ArenaTabs {
   protected select(value: string): void {
     if (value === this.active()) return;
     this.chosen.set(value);
-    this.change.emit(value);
+    this.valueChange.emit(value);
   }
 
   protected onKeydown(event: KeyboardEvent): void {

@@ -26,7 +26,7 @@ const TAB_BINDING = join(ANGULAR_COMPONENTS, 'navigation/arena-tab/ArenaTab.beha
   standalone: true,
   imports: [ArenaTabs, ArenaTab],
   template: `
-    <arena-tabs [value]="value" [defaultValue]="defaultValue" (change)="chosen.push($event)">
+    <arena-tabs [value]="value" [defaultValue]="defaultValue" (valueChange)="chosen.push($event)">
       <arena-tab value="overview" label="Overview">Overview body</arena-tab>
       <arena-tab value="deployments" label="Deployments">Deployments body</arena-tab>
       <arena-tab value="settings" label="Settings">Settings body</arena-tab>
@@ -51,6 +51,72 @@ function render(patch: Partial<TabsHost> = {}) {
   });
   return { fixture, host, read };
 }
+
+@Component({
+  selector: 'tabs-field-host',
+  standalone: true,
+  imports: [ArenaTabs, ArenaTab],
+  template: `
+    <arena-tabs value="overview" (valueChange)="heard = heard + 1">
+      <arena-tab value="overview" label="Overview"><select><option>one</option><option>two</option></select></arena-tab>
+      <arena-tab value="settings" label="Settings">Settings body</arena-tab>
+    </arena-tabs>
+  `,
+})
+class FieldHost {
+  heard = 0;
+}
+
+test('a native change inside a panel is not heard as a tab choice, and choosing a tab is heard once', () => {
+  const fixture = TestBed.createComponent(FieldHost);
+  try {
+    fixture.detectChanges();
+    const tabs = fixture.debugElement.children[0]!.componentInstance as ArenaTabs;
+    let emitted = 0;
+    tabs.valueChange.subscribe(() => { emitted += 1; });
+    const host = fixture.nativeElement as HTMLElement;
+    const field = host.querySelector('select') as HTMLSelectElement;
+    field.dispatchEvent(new Event('change', { bubbles: true }));
+    fixture.detectChanges();
+    assert.equal(emitted, 0, 'the output emitted for a field inside a panel');
+    assert.equal(fixture.componentInstance.heard, 0, 'the template binding heard a bubbled native change');
+    (host.querySelectorAll('[role="tab"]')[1] as HTMLButtonElement).click();
+    fixture.detectChanges();
+    assert.equal(emitted, 1, 'choosing a tab did not emit exactly once on the instance');
+    assert.equal(fixture.componentInstance.heard, 1, 'choosing a tab was not heard exactly once through the binding');
+  } finally {
+    fixture.destroy();
+  }
+});
+
+@Component({
+  selector: 'tabs-model-host',
+  standalone: true,
+  imports: [ArenaTabs, ArenaTab],
+  template: `
+    <arena-tabs [(value)]="view">
+      <arena-tab value="overview" label="Overview">Overview body</arena-tab>
+      <arena-tab value="settings" label="Settings">Settings body</arena-tab>
+    </arena-tabs>
+  `,
+})
+class ModelHost {
+  view = 'overview';
+}
+
+test('a two-way binding on value follows the tab that was clicked', () => {
+  const fixture = TestBed.createComponent(ModelHost);
+  try {
+    fixture.detectChanges();
+    const host = fixture.nativeElement as HTMLElement;
+    (host.querySelectorAll('[role="tab"]')[1] as HTMLButtonElement).click();
+    fixture.detectChanges();
+    assert.equal(fixture.componentInstance.view, 'settings', 'the bound value did not follow the click');
+    assert.equal((host.querySelectorAll('[role="tab"]')[1] as HTMLButtonElement).getAttribute('aria-selected'), 'true');
+  } finally {
+    fixture.destroy();
+  }
+});
 
 const KEY_CODES: Record<string, number> = {
   ArrowLeft: 37, ArrowUp: 38, ArrowRight: 39, ArrowDown: 40,
@@ -209,7 +275,7 @@ test('clicking a tab selects it, and clicking the selected one reports nothing',
     read().tabs[2].click();
     fixture.detectChanges();
     assert.deepEqual(fixture.componentInstance.chosen, ['settings'],
-      'change fires when a DIFFERENT tab is chosen, which is what the contract says');
+      'valueChange fires when a DIFFERENT tab is chosen, which is what the contract says');
   } finally {
     fixture.destroy();
   }

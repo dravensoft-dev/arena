@@ -14,7 +14,7 @@ export interface ArenaTabsProps {
   defaultValue?: string;
 
   /** A different tab was chosen; carries its value. */
-  onChange?: (value: string) => void;
+  onValueChange?: (value: string) => void;
 }
 
 
@@ -32,7 +32,7 @@ interface ArenaTabInjected {
 
 const arenaTabsStyles = arenaStyles(manifest);
 
-export function ArenaTabs({ children, value, defaultValue, onChange }: ArenaTabsProps) {
+export function ArenaTabs({ children, value, defaultValue, onValueChange }: ArenaTabsProps) {
 
   const base = `tabs-${useId().replace(/:/g, '')}`;
 
@@ -44,7 +44,7 @@ export function ArenaTabs({ children, value, defaultValue, onChange }: ArenaTabs
   const at = items.findIndex((c) => c.props.value === active);
   const stop = at === -1 ? 0 : at;
   const listRef = useRef<HTMLDivElement | null>(null);
-  const select = (v: string) => { setInternal(v); onChange && onChange(v); };
+  const select = (v: string) => { setInternal(v); onValueChange && onValueChange(v); };
 
   const tabId = (i: number) => `${base}-tab-${i}`;
   const panelId = (i: number) => `${base}-panel-${i}`;

@@ -59,11 +59,11 @@ test('an event a description names in a code span is written under the layer\'s 
 
 test('a named component\'s event is translated in the dotted and the "event of" forms, and a non-event is left alone', () => {
   const contract = { component: 'ArenaX', api: { nav: { form: 'event', payload: 'string' } } };
-  const spec = { form: 'primitive', type: 'string', description: 'Same as ArenaTableRow.click and `ArenaTableRow.click`, the `change` event of ArenaTabs, not ArenaCard.href, the `nav` event of ArenaSideNav, and own `nav`.' };
+  const spec = { form: 'primitive', type: 'string', description: 'Same as ArenaTableRow.click and `ArenaTableRow.click`, the `valueChange` event of ArenaTabs, not ArenaCard.href, the `nav` event of ArenaSideNav, and own `nav`.' };
   assert.equal(memberRow('href', spec, 'react', contract),
-    '| `href` | primitive | `string` |  | Same as ArenaTableRow.onClick and `ArenaTableRow.onClick`, the `onChange` event of ArenaTabs, not ArenaCard.href, the `onNav` event of ArenaSideNav, and own `onNav`. |');
+    '| `href` | primitive | `string` |  | Same as ArenaTableRow.onClick and `ArenaTableRow.onClick`, the `onValueChange` event of ArenaTabs, not ArenaCard.href, the `onNav` event of ArenaSideNav, and own `onNav`. |');
   assert.equal(memberRow('href', spec, 'angular', contract),
-    '| `href` | primitive | `string` |  | Same as ArenaTableRow.click and `ArenaTableRow.click`, the `change` event of ArenaTabs, not ArenaCard.href, the `nav` event of ArenaSideNav, and own `nav`. |');
+    '| `href` | primitive | `string` |  | Same as ArenaTableRow.click and `ArenaTableRow.click`, the `valueChange` event of ArenaTabs, not ArenaCard.href, the `nav` event of ArenaSideNav, and own `nav`. |');
 });
 
 test('a description spanning lines becomes one cell, and a pipe cannot split the row', () => {
