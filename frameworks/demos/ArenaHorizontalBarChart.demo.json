@@ -22,5 +22,5 @@
     ],
     "label": "Open issues by area"
   },
-  "note": "Categories with names worth reading are what this chart is for: across the plot they would be rotated or truncated."
+  "note": "Categories with names worth reading are what this chart is for: along a vertical chart's bottom edge long names collide."
 }

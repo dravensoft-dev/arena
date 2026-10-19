@@ -1,4 +1,4 @@
-Categorical bars running across the plot, with the category names down its left edge. Same data, same accessible table and same series as `ArenaBarChart`, with the axes transposed. Reach for this chart when the category names are worth reading. Across the bottom of a vertical chart they get rotated or truncated, and here they have a gutter of their own.
+Categorical bars running across the plot, with the category names down its left edge. Same data, same accessible table and same series as `ArenaBarChart`, with the axes transposed. Reach for this chart when the category names are worth reading. A vertical chart sets the names along its bottom edge, where long names collide; this chart gives them a gutter of their own.
 
 ```ts
 readonly issues = computed<ArenaSeries[]>(() => [{ label: 'Open issues', values: this.counts() }]);

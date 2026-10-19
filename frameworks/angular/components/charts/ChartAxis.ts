@@ -166,6 +166,11 @@ export function arenaCategoryLabelX(): number {
   return chartPadCategory - chartLabelGap;
 }
 
+/** The rectangle that clips the category names of a horizontal chart: the gutter, from the card's start edge to the plot's, over the whole plot height. */
+export function arenaCategoryGutter(plotH: number): ArenaPlotBox {
+  return { x: 0, y: 0, w: chartPadCategory, h: plotH };
+}
+
 export function arenaTickLabelY(height: number): number {
   return height - chartLabelGap;
 }

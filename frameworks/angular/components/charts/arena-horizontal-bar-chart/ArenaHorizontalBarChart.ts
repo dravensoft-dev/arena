@@ -7,7 +7,7 @@ import {
   arenaLinearScale, arenaBandScale, arenaBandCenter, arenaBandIndex, arenaBandMark, arenaBandSubBand, arenaScaleValue,
 } from '../ChartScales';
 import { arenaBarPathH } from '../ChartMarks';
-import { arenaPlotBoxH, arenaAxisModelX, arenaCategoryLabelX, arenaTickLabelY } from '../ChartAxis';
+import { arenaPlotBoxH, arenaAxisModelX, arenaCategoryGutter, arenaCategoryLabelX, arenaTickLabelY } from '../ChartAxis';
 import {
   arenaChartTable, arenaSeriesColors, arenaSwatchChoice, arenaSeriesDomain, arenaSeriesPointCount, arenaStackSegments, arenaStackDomain,
 } from '../ChartSeries';
@@ -21,6 +21,7 @@ import { chartBarGap, chartSeriesGap, chartBarRadius } from '../../../Tokens.gen
 import { ARENA_LOCALE } from '../../../ArenaLocale';
 import { ArenaSlotAttributes } from '../../../SlotData';
 import { arenaPhrase } from '../../../Phrase';
+import { ArenaIdGenerator } from '../../../ArenaIds';
 
 const BAR_RADIUS = chartBarRadius;
 
@@ -73,11 +74,18 @@ const BAR_STYLE = { transition: 'opacity var(--dur-hover) var(--ease-hover)' } a
         </g>
       }
 
-      @for (bar of bars(); track bar.index) {
-        <text [attr.x]="categoryLabelX" [attr.y]="bar.midY" text-anchor="end" dominant-baseline="middle"
-              [attr.fill]="inkMuted" font-family="var(--font-body)"
-              [style]="categoryLabelStyle">{{ bar.label }}</text>
-      }
+      <defs>
+        <clipPath [attr.id]="gutterId">
+          <rect [attr.x]="gutter().x" [attr.y]="gutter().y" [attr.width]="gutter().w" [attr.height]="gutter().h" />
+        </clipPath>
+      </defs>
+      <g [attr.clip-path]="gutterClip">
+        @for (bar of bars(); track bar.index) {
+          <text [attr.x]="categoryLabelX" [attr.y]="bar.midY" text-anchor="end" dominant-baseline="middle"
+                [attr.fill]="inkMuted" font-family="var(--font-body)"
+                [style]="categoryLabelStyle"><title>{{ bar.label }}</title>{{ bar.label }}</text>
+        }
+      </g>
 
       <rect [attr.x]="plotLeft()" [attr.y]="plotTop()" [attr.width]="innerWidth()" [attr.height]="innerHeight()"
             fill="transparent" (pointermove)="onPointer($event, 'move')" (pointerdown)="onPointer($event, 'down')"
@@ -152,6 +160,8 @@ export class ArenaHorizontalBarChart {
   protected readonly barStyle = BAR_STYLE;
   protected readonly categoryLabelX = arenaCategoryLabelX();
   protected readonly hover = signal<number | null>(null);
+  protected readonly gutterId = `${inject(ArenaIdGenerator).next('arena-horizontal-bar-chart')}-gutter`;
+  protected readonly gutterClip = `url(#${this.gutterId})`;
 
   private readonly write = computed(() => arenaValueWriter({
     prefix: this.valuePrefix(), suffix: this.valueSuffix(), format: this.valueFormat(),
@@ -183,6 +193,7 @@ export class ArenaHorizontalBarChart {
   protected readonly plotBottom = computed(() => this.box().y + this.box().h);
   protected readonly innerWidth = computed(() => this.box().w);
   protected readonly innerHeight = computed(() => this.box().h);
+  protected readonly gutter = computed(() => arenaCategoryGutter(this.strip().plotH));
   protected readonly tickLabelY = computed(() => arenaTickLabelY(this.strip().plotH));
 
   private readonly xScale = computed(() => {

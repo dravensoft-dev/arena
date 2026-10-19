@@ -168,6 +168,51 @@ test('arena-sparkline REFUSES an empty label, since the accessible name would be
   assertEmptyLabelRefused(ArenaSparkline, WITH_SERIES, wholeMessage('ArenaSparkline', 'sparkline'));
 });
 
+test('arena-horizontal-bar-chart clips a long category name at its gutter and keeps the full name in a title', () => {
+  const name = 'Quarterly revenue from the northern area';
+  assert.equal(name.length, 40, 'the case draws a category of exactly 40 characters');
+  const fixture = TestBed.createComponent(ArenaHorizontalBarChart);
+  fixture.componentRef.setInput('labels', [name, 'Short']);
+  fixture.componentRef.setInput('series', [{ label: SERIES, values: [30, 12] }]);
+  fixture.componentRef.setInput('label', CHART);
+  fixture.detectChanges();
+  try {
+    const host = fixture.nativeElement as Element;
+    const group = host.querySelector('g[clip-path]');
+    assert.notEqual(group, null, 'the category labels sit in a group clipped by a clip path');
+    const id = /^url\(#(.+)\)$/.exec(group!.getAttribute('clip-path') ?? '')?.[1];
+    assert.notEqual(id, undefined, 'the clip-path names an id');
+    const clipPath = host.querySelector(`clipPath[id="${id}"]`);
+    assert.notEqual(clipPath, null, `a clipPath with id ${id} holds the gutter rectangle`);
+    const rect = clipPath!.querySelector('rect')!;
+    assert.equal(rect.getAttribute('width'), String(chartPadCategory), 'the rectangle is the gutter wide');
+    assert.equal(rect.getAttribute('x'), '0');
+    const titles = [...group!.querySelectorAll('text > title')].map((one) => one.textContent);
+    assert.deepEqual(titles, [name, 'Short'], 'each label carries its full name as a title');
+  } finally {
+    fixture.destroy();
+  }
+});
+
+test('arena-horizontal-bar-chart gives each instance its own gutter clip id', () => {
+  const drawn: Array<ReturnType<typeof TestBed.createComponent<ArenaHorizontalBarChart>>> = [];
+  try {
+    for (let i = 0; i < 2; i += 1) {
+      const fixture = TestBed.createComponent(ArenaHorizontalBarChart);
+      drawn.push(fixture);
+      fixture.componentRef.setInput('labels', ['A']);
+      fixture.componentRef.setInput('series', [{ label: SERIES, values: [1] }]);
+      fixture.componentRef.setInput('label', CHART);
+      fixture.detectChanges();
+    }
+    const ids = drawn.map((fixture) => (fixture.nativeElement as Element).querySelector('clipPath')?.getAttribute('id'));
+    assert.notEqual(ids[0], undefined);
+    assert.notEqual(ids[0], ids[1]);
+  } finally {
+    for (const fixture of drawn) fixture.destroy();
+  }
+});
+
 test('arena-bar-chart appends valueSuffix to the axis ticks and to the accessible table alike', () => {
   const fixture = TestBed.createComponent(ArenaBarChart);
   fixture.componentRef.setInput('labels', LABELS);

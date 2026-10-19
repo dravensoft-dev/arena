@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useId, useState } from 'react';
 import { useArenaContainerWidth } from '../../../UseArenaContainerWidth.ts';
 import { ARENA_CHART_HEIGHT, ARENA_INK_MUTED, arenaSrOnly, arenaValueWriter } from '../../../DataVisuals.ts';
 import {
   arenaLinearScale, arenaBandScale, arenaBandCenter, arenaBandIndex, arenaBandMark, arenaBandSubBand, arenaScaleValue,
 } from '../ChartScales.ts';
 import { arenaBarPathH } from '../ChartMarks.ts';
-import { arenaPlotBoxH, arenaAxisModelX, arenaCategoryLabelX, arenaTickLabelY } from '../ChartAxis.ts';
+import { arenaPlotBoxH, arenaAxisModelX, arenaCategoryGutter, arenaCategoryLabelX, arenaTickLabelY } from '../ChartAxis.ts';
 import {
   arenaChartTable, arenaSeriesColors, arenaSwatchHue, arenaSeriesDomain, arenaSeriesPointCount, arenaStackSegments, arenaStackDomain,
 } from '../ChartSeries.ts';
@@ -64,6 +64,7 @@ export function ArenaHorizontalBarChart({ className,
   if (!labels) throw new Error('ArenaHorizontalBarChart: `labels` is required');
   if (!series) throw new Error('ArenaHorizontalBarChart: `series` is required');
   const [ref, measured] = useArenaContainerWidth();
+  const gutterId = `gutter-${useId().replace(/:/g, '')}`;
   const [hover, setHover] = useState<number | null>(null);
 
   const width = measured ?? 600;
@@ -78,6 +79,8 @@ export function ArenaHorizontalBarChart({ className,
   const axis = arenaAxisModelX(xScale, domain, fmt);
   const colors = series.map((one, s) => arenaSeriesColors(one, n, s + 1));
   const table = arenaChartTable(locale.chartTableCategory, series, labels, fmt);
+
+  const gutter = arenaCategoryGutter(strip.plotH);
 
   const name = arenaPhrase(locale.horizontalBarChartName, { label });
 
@@ -135,10 +138,20 @@ export function ArenaHorizontalBarChart({ className,
           </g>
         ))}
 
-        {Array.from({ length: n }, (_, i) => (
-          <text key={i} x={arenaCategoryLabelX()} y={arenaBandCenter(bands, i)} textAnchor="end" dominantBaseline="middle"
-            fill={ARENA_INK_MUTED} fontFamily="var(--font-body)" style={{ fontSize: 'var(--dz-text-xs)' }}>{labels[i] ?? ''}</text>
-        ))}
+        <defs>
+          <clipPath id={gutterId}>
+            <rect x={gutter.x} y={gutter.y} width={gutter.w} height={gutter.h} />
+          </clipPath>
+        </defs>
+        <g clipPath={`url(#${gutterId})`}>
+          {Array.from({ length: n }, (_, i) => (
+            <text key={i} x={arenaCategoryLabelX()} y={arenaBandCenter(bands, i)} textAnchor="end" dominantBaseline="middle"
+              fill={ARENA_INK_MUTED} fontFamily="var(--font-body)" style={{ fontSize: 'var(--dz-text-xs)' }}>
+              <title>{labels[i] ?? ''}</title>
+              {labels[i] ?? ''}
+            </text>
+          ))}
+        </g>
 
         <rect x={box.x} y={box.y} width={box.w} height={box.h} fill="transparent"
           onPointerMove={(e) => onPointer(e, 'move')} onPointerDown={(e) => onPointer(e, 'down')}
