@@ -8,7 +8,7 @@ useTestEnvironment();
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { join } from 'node:path';
-import { Component, signal } from '@angular/core';
+import { Component, signal, type Type } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ArenaBarChart } from './arena-bar-chart/ArenaBarChart';
 import { ArenaDoughnutChart } from './arena-doughnut-chart/ArenaDoughnutChart';
@@ -119,6 +119,55 @@ test('arena-bar-chart REFUSES to render without a label, and names itself by not
     fixture.destroy();
   }
 });
+function assertEmptyLabelRefused(type: Type<unknown>, inputs: Record<string, unknown>, message: RegExp): void {
+  const fixture = TestBed.createComponent(type);
+  for (const [name, value] of Object.entries(inputs)) fixture.componentRef.setInput(name, value);
+  fixture.componentRef.setInput('label', '');
+  try {
+    assert.throws(() => fixture.detectChanges(), message);
+  } finally {
+    fixture.destroy();
+  }
+}
+
+const wholeMessage = (name: string, thing = 'chart') => new RegExp(
+  `${name}: \`label\` is required \\(it names the ${thing} for the accessible name, and nothing can derive that\\)$`);
+
+const WITH_SERIES = { labels: LABELS, series: [{ label: SERIES, values: VALUES }] };
+const WITH_POINTS = { series: [{ label: SERIES, x: [1, 2, 3], y: VALUES }], xLabel: 'Requests', yLabel: 'Latency' };
+
+test('arena-bar-chart REFUSES an empty label, since the accessible name would be the type alone', () => {
+  assertEmptyLabelRefused(ArenaBarChart, WITH_SERIES, wholeMessage('ArenaBarChart'));
+});
+
+test('arena-line-chart REFUSES an empty label, since the accessible name would be the type alone', () => {
+  assertEmptyLabelRefused(ArenaLineChart, WITH_SERIES, wholeMessage('ArenaLineChart'));
+});
+
+test('arena-horizontal-bar-chart REFUSES an empty label, since the accessible name would be the type alone', () => {
+  assertEmptyLabelRefused(ArenaHorizontalBarChart, WITH_SERIES, wholeMessage('ArenaHorizontalBarChart'));
+});
+
+test('arena-pyramid-chart REFUSES an empty label, since the accessible name would be the type alone', () => {
+  assertEmptyLabelRefused(ArenaPyramidChart, WITH_SERIES, wholeMessage('ArenaPyramidChart'));
+});
+
+test('arena-radar-chart REFUSES an empty label, since the accessible name would be the type alone', () => {
+  assertEmptyLabelRefused(ArenaRadarChart, WITH_SERIES, wholeMessage('ArenaRadarChart'));
+});
+
+test('arena-scatter-chart REFUSES an empty label, since the accessible name would be the type alone', () => {
+  assertEmptyLabelRefused(ArenaScatterChart, WITH_POINTS, wholeMessage('ArenaScatterChart'));
+});
+
+test('arena-doughnut-chart REFUSES an empty label, since the accessible name would be the type alone', () => {
+  assertEmptyLabelRefused(ArenaDoughnutChart, WITH_SERIES, wholeMessage('ArenaDoughnutChart'));
+});
+
+test('arena-sparkline REFUSES an empty label, since the accessible name would be the type alone', () => {
+  assertEmptyLabelRefused(ArenaSparkline, WITH_SERIES, wholeMessage('ArenaSparkline', 'sparkline'));
+});
+
 test('arena-bar-chart appends valueSuffix to the axis ticks and to the accessible table alike', () => {
   const fixture = TestBed.createComponent(ArenaBarChart);
   fixture.componentRef.setInput('labels', LABELS);
@@ -991,7 +1040,7 @@ test('arena-gauge-chart throws without a label or with an empty one, and for a b
   unnamed.componentRef.setInput('label', '');
   unnamed.componentRef.setInput('value', 1);
   try {
-    assert.throws(() => unnamed.detectChanges(), /ArenaGaugeChart: `label` is required/);
+    assert.throws(() => unnamed.detectChanges(), wholeMessage('ArenaGaugeChart'));
   } finally {
     unnamed.destroy();
   }
@@ -1340,7 +1389,7 @@ test('arena-funnel-chart REFUSES an empty label, since the accessible name would
   fixture.componentRef.setInput('labels', STAGES);
   fixture.componentRef.setInput('series', [{ label: 'Accounts', values: COUNTS }]);
   try {
-    assert.throws(() => fixture.detectChanges(), /ArenaFunnelChart: `label` is required/);
+    assert.throws(() => fixture.detectChanges(), wholeMessage('ArenaFunnelChart'));
   } finally {
     fixture.destroy();
   }
@@ -1753,7 +1802,7 @@ test('arena-heatmap-chart REFUSES to render without a label, labels or series', 
   fixture.componentRef.setInput('labels', HOURS);
   fixture.componentRef.setInput('series', ROWS);
   try {
-    assert.throws(() => fixture.detectChanges(), /ArenaHeatmapChart: `label` is required/);
+    assert.throws(() => fixture.detectChanges(), wholeMessage('ArenaHeatmapChart'));
   } finally {
     fixture.destroy();
   }

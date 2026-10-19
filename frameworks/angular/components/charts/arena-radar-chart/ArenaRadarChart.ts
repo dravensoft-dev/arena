@@ -165,7 +165,9 @@ export class ArenaRadarChart {
   private readonly width = computed(() => this.measured() ?? ASSUMED_WIDTH);
 
   protected readonly name = computed(() => {
-    return arenaPhrase(this.locale.radarChartName, { label: this.label() });
+    const label = this.label();
+    if (!label) throw new Error('ArenaRadarChart: `label` is required (it names the chart for the accessible name, and nothing can derive that)');
+    return arenaPhrase(this.locale.radarChartName, { label });
   });
 
   private readonly axes = computed(() => arenaSeriesPointCount(this.series()));

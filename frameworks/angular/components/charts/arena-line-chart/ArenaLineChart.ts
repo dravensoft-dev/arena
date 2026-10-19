@@ -208,7 +208,9 @@ export class ArenaLineChart {
   });
 
   protected readonly name = computed(() => {
-    return arenaPhrase(this.locale.lineChartName, { label: this.label() });
+    const label = this.label();
+    if (!label) throw new Error('ArenaLineChart: `label` is required (it names the chart for the accessible name, and nothing can derive that)');
+    return arenaPhrase(this.locale.lineChartName, { label });
   });
 
   private readonly domain = computed(() => arenaSeriesDomain(this.series()));

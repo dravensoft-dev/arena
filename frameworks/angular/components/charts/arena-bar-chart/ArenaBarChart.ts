@@ -172,7 +172,9 @@ export class ArenaBarChart {
   private readonly rail = viewChild<ElementRef<HTMLElement>>('rail');
 
   protected readonly name = computed(() => {
-    return arenaPhrase(this.locale.barChartName, { label: this.label() });
+    const label = this.label();
+    if (!label) throw new Error('ArenaBarChart: `label` is required (it names the chart for the accessible name, and nothing can derive that)');
+    return arenaPhrase(this.locale.barChartName, { label });
   });
 
   private readonly domain = computed(

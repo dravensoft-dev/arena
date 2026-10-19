@@ -146,7 +146,11 @@ export class ArenaSparkline {
     () => arenaOneSeries(this.series(), 'ArenaSparkline', 'A sparkline has no legend to tell two lines apart'),
   );
 
-  protected readonly name = computed(() => arenaPhrase(this.locale.sparklineChartName, { label: this.label() }));
+  protected readonly name = computed(() => {
+    const label = this.label();
+    if (!label) throw new Error('ArenaSparkline: `label` is required (it names the sparkline for the accessible name, and nothing can derive that)');
+    return arenaPhrase(this.locale.sparklineChartName, { label });
+  });
   protected readonly color = computed(() => arenaSeriesColors(this.one(), 1, 1)[0] as string);
   protected readonly areaFill = computed(() => arenaAreaFill(this.color()));
 

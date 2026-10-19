@@ -188,7 +188,9 @@ export class ArenaScatterChart {
   private readonly width = computed(() => this.measured() ?? ASSUMED_WIDTH);
 
   protected readonly name = computed(() => {
-    return arenaPhrase(this.locale.scatterChartName, { label: this.label() });
+    const label = this.label();
+    if (!label) throw new Error('ArenaScatterChart: `label` is required (it names the chart for the accessible name, and nothing can derive that)');
+    return arenaPhrase(this.locale.scatterChartName, { label });
   });
 
   private readonly domains = computed(() => arenaPointSeriesDomain(this.series()));

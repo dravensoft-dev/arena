@@ -164,7 +164,9 @@ export class ArenaHorizontalBarChart {
   private readonly width = computed(() => this.measured() ?? ASSUMED_WIDTH);
 
   protected readonly name = computed(() => {
-    return arenaPhrase(this.locale.horizontalBarChartName, { label: this.label() });
+    const label = this.label();
+    if (!label) throw new Error('ArenaHorizontalBarChart: `label` is required (it names the chart for the accessible name, and nothing can derive that)');
+    return arenaPhrase(this.locale.horizontalBarChartName, { label });
   });
 
   private readonly domain = computed(

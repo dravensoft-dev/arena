@@ -162,7 +162,9 @@ export class ArenaPyramidChart {
   private readonly width = computed(() => this.measured() ?? ASSUMED_WIDTH);
 
   protected readonly name = computed(() => {
-    return arenaPhrase(this.locale.pyramidChartName, { label: this.label() });
+    const label = this.label();
+    if (!label) throw new Error('ArenaPyramidChart: `label` is required (it names the chart for the accessible name, and nothing can derive that)');
+    return arenaPhrase(this.locale.pyramidChartName, { label });
   });
 
   private readonly sides = computed(() => arenaTwoSeries(this.series(), 'ArenaPyramidChart'));

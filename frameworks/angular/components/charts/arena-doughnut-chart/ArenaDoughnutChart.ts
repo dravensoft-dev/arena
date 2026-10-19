@@ -131,7 +131,9 @@ export class ArenaDoughnutChart {
   protected readonly styles = computed(() => arenaDoughnutChartStyles({ stacked: this.stacked() }));
 
   protected readonly name = computed(() => {
-    return arenaPhrase(this.shape() === 'pie' ? this.locale.doughnutChartPieName : this.locale.doughnutChartName, { label: this.label() });
+    const label = this.label();
+    if (!label) throw new Error('ArenaDoughnutChart: `label` is required (it names the chart for the accessible name, and nothing can derive that)');
+    return arenaPhrase(this.shape() === 'pie' ? this.locale.doughnutChartPieName : this.locale.doughnutChartName, { label });
   });
 
   protected readonly arenaPlotWidth = computed(() => arenaLegendPlotWidth(this.width()));
