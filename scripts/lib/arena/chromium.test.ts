@@ -205,9 +205,11 @@ test('a request made after drain still gets its own promise, unaffected by the e
 
 test('launchChromium rejects instead of crashing when spawn cannot start the binary, and leaves no temp profile behind',
   { timeout: BUDGET_MS }, async () => {
-  const before = chromiumTempDirs();
+  const mine = (names: Set<string>) =>
+    new Set([...names].filter((n) => n.startsWith(`${PROFILE_PREFIX}${process.pid}-`)));
+  const before = mine(chromiumTempDirs());
   await assert.rejects(() => launchChromium('/this/path/does/not/exist'));
-  const after = chromiumTempDirs();
+  const after = mine(chromiumTempDirs());
   assert.deepEqual(after, before, 'a temp profile dir was left behind by the rejected launch');
 });
 
