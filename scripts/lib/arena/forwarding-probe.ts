@@ -13,6 +13,8 @@ import { pathToFileURL } from 'node:url';
 import { deadline, type Deadline } from './deadline.ts';
 import { waitFor } from './wait-for.ts';
 
+export const PROBE_IMPORTED: Deadline = deadline('forwarding-probe:imported', 30_000,
+  'the parent resolves the whole step module before it writes its ready mark, which takes about half a second on an idle machine, and a full check that keeps every core busy stretches that many times over');
 export const PROBE_SPAWNED: Deadline = deadline('forwarding-probe:spawned', 30_000,
   'two bun processes start and the second writes its pid, and a loaded machine starts a runtime in a second or two');
 export const PROBE_ENDED: Deadline = deadline('forwarding-probe:ended', 15_000,
@@ -55,6 +57,7 @@ export async function probeInterrupt(options: {
   const tmp = join(root, 'tmp');
   mkdirSync(tmp);
   const pidFile = join(root, 'child.pid');
+  const readyFile = join(root, 'parent.ready');
   let parent: ChildProcess | undefined;
   try {
     const stub = join(root, 'stub.js');
@@ -68,6 +71,8 @@ export async function probeInterrupt(options: {
       `import * as step from ${JSON.stringify(pathToFileURL(options.module).href)};`,
       `const root = ${JSON.stringify(root)};`,
       `const stub = ${JSON.stringify(stub)};`,
+      "import { writeFileSync as markReady } from 'node:fs';",
+      `markReady(${JSON.stringify(readyFile)}, 'ready');`,
       options.body,
     ].join('\n'));
     const errPath = join(root, 'parent.stderr');
@@ -79,6 +84,9 @@ export async function probeInterrupt(options: {
     closeSync(err);
     let ended: { code: number | null; signal: NodeJS.Signals | null } | undefined;
     parent.once('exit', (code, signal) => { ended = { code, signal }; });
+    const imported = await waitFor(() => existsSync(readyFile) || ended !== undefined, PROBE_IMPORTED);
+    if (!existsSync(readyFile))
+      throw new Error(`the parent never finished its imports: ${imported.seen ? `it exited first, printing ${readFileSync(errPath, 'utf8')}` : imported.why}`);
     const up = await waitFor(() => existsSync(pidFile) && readFileSync(pidFile, 'utf8') !== '', PROBE_SPAWNED);
     if (!up.seen) throw new Error(`the stand-in compiler never started: ${up.why}`);
     const childPid = Number(readFileSync(pidFile, 'utf8'));

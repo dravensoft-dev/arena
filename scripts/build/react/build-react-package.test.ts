@@ -11,7 +11,7 @@ import { platform } from '../../lib/arena/platform.ts';
 import { budgetFor } from '../../lib/arena/deadline.ts';
 import { TERM_GRACE } from '../../lib/arena/child-output.ts';
 import { TSC_SPAWN } from '../../lib/arena/typecheck.ts';
-import { PROBE_ENDED, PROBE_SPAWNED, assertCompilerEnded, probeInterrupt } from '../../lib/arena/forwarding-probe.ts';
+import { PROBE_ENDED, PROBE_IMPORTED, PROBE_SPAWNED, assertCompilerEnded, probeInterrupt } from '../../lib/arena/forwarding-probe.ts';
 import { version, CLI_BINS } from '../../lib/arena/package-assembly.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 
@@ -170,7 +170,7 @@ test('a declaration is not mistaken for a source to compile', () => {
 });
 
 test('an interrupt of the React package step ends the tsc it spawned and prints what it wrote', {
-  timeout: budgetFor(PROBE_SPAWNED, PROBE_ENDED, TERM_GRACE, TSC_SPAWN),
+  timeout: budgetFor(PROBE_IMPORTED, PROBE_SPAWNED, PROBE_ENDED, TERM_GRACE, TSC_SPAWN),
   skip: platform === 'win32' ? 'a signal sent to a process is a POSIX idea' : false,
 }, async () => {
   const probed = await probeInterrupt({

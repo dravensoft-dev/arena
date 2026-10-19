@@ -17,9 +17,9 @@ import {
 import { budgetFor } from './deadline.ts';
 import { TERM_GRACE, childOutput } from './child-output.ts';
 import { platform } from './platform.ts';
-import { PROBE_ENDED, PROBE_SPAWNED, assertCompilerEnded, probeInterrupt } from './forwarding-probe.ts';
+import { PROBE_ENDED, PROBE_IMPORTED, PROBE_SPAWNED, assertCompilerEnded, probeInterrupt } from './forwarding-probe.ts';
 
-const BUDGET_MS = budgetFor(TSC_SPAWN, PROBE_SPAWNED, PROBE_ENDED, TERM_GRACE);
+const BUDGET_MS = budgetFor(TSC_SPAWN, PROBE_IMPORTED, PROBE_SPAWNED, PROBE_ENDED, TERM_GRACE);
 
 function project(b: string) {
   const root = mkdtempSync(join(tmpdir(), 'arena-typecheck-'));

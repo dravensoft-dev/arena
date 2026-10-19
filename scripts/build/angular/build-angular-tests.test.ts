@@ -6,7 +6,7 @@ import { tmpdir } from 'node:os';
 import { platform } from '../../lib/arena/platform.ts';
 import { budgetFor } from '../../lib/arena/deadline.ts';
 import { TERM_GRACE } from '../../lib/arena/child-output.ts';
-import { PROBE_ENDED, PROBE_SPAWNED, assertCompilerEnded, probeInterrupt } from '../../lib/arena/forwarding-probe.ts';
+import { PROBE_ENDED, PROBE_IMPORTED, PROBE_SPAWNED, assertCompilerEnded, probeInterrupt } from '../../lib/arena/forwarding-probe.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { collectInputs, missingEmitProblems, readStamp, recordInputs, stalenessReason } from './build-angular-tests.ts';
@@ -155,7 +155,7 @@ test('an extra emitted file with no source is not this function\'s problem -- pr
 });
 
 test('an interrupt of the test-surface step ends the ngc it spawned', {
-  timeout: budgetFor(PROBE_SPAWNED, PROBE_ENDED, TERM_GRACE),
+  timeout: budgetFor(PROBE_IMPORTED, PROBE_SPAWNED, PROBE_ENDED, TERM_GRACE),
   skip: platform === 'win32' ? 'a signal sent to a process is a POSIX idea' : false,
 }, async () => {
   const probed = await probeInterrupt({

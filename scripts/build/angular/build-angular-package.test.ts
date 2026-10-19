@@ -9,7 +9,7 @@ import { join, posix } from 'node:path';
 import { platform } from '../../lib/arena/platform.ts';
 import { budgetFor } from '../../lib/arena/deadline.ts';
 import { TERM_GRACE } from '../../lib/arena/child-output.ts';
-import { PROBE_ENDED, PROBE_SPAWNED, assertCompilerEnded, probeInterrupt } from '../../lib/arena/forwarding-probe.ts';
+import { PROBE_ENDED, PROBE_IMPORTED, PROBE_SPAWNED, assertCompilerEnded, probeInterrupt } from '../../lib/arena/forwarding-probe.ts';
 import {
   manifest, ngPackageConfig, libTsconfig, withAssets, ngPackagrBin, annotatePure,
   NAME, RUNTIME_DEPENDENCIES, STAGING, LAYER, VARIANTS, SECONDARY_ENTRY_POINTS, rewriteEntryImports,
@@ -156,7 +156,7 @@ test('a set of lines that differs from the entry points is refused with a senten
 });
 
 test('an interrupt of the package step ends the ng-packagr it spawned and prints what it wrote', {
-  timeout: budgetFor(PROBE_SPAWNED, PROBE_ENDED, TERM_GRACE),
+  timeout: budgetFor(PROBE_IMPORTED, PROBE_SPAWNED, PROBE_ENDED, TERM_GRACE),
   skip: platform === 'win32' ? 'a signal sent to a process is a POSIX idea' : false,
 }, async () => {
   const probed = await probeInterrupt({
