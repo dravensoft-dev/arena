@@ -6,6 +6,7 @@ import { mkdirSync, mkdtempSync, readdirSync, readFileSync, statSync, writeFileS
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { run } from './command-check.ts';
+import { wiredScripts } from './command-init.ts';
 import { captureIo, colors, phosphor, readable, removeFixtures } from './cli-fixtures.ts';
 import type { ComponentMap } from './components.ts';
 
@@ -73,7 +74,7 @@ test('--strict holds a check kind and exits 1 with heldMessage', () => {
   const result = check(root, ['--strict']);
   assert.equal(result.code, 1);
   assert.match(result.err.join('\n'),
-    /--strict holds components, contrast, ramp, weight, glyph, markers, and this run reports \d+ of them: contrast, glyph/);
+    /--strict holds components, contrast, ramp, weight, glyph, markers, heat, and this run reports \d+ of them: contrast, glyph/);
 });
 
 test('--strict=components does not hold a glyph report', () => {
@@ -105,4 +106,39 @@ test('--strict=audit exits 2 naming arena audit', () => {
   const result = check(root, ['--strict=audit']);
   assert.equal(result.code, 2);
   assert.match(result.err.join('\n'), /arena audit/);
+});
+
+const unpinned = (ink: string) => {
+  const kept = Object.fromEntries(Object.entries(readable.palettes[0]!.colors).filter(([key]) => !key.startsWith('heat-')));
+  return { ...readable, palettes: [{ ...readable.palettes[0]!, colors: { ...kept, 'base-content': ink } }] };
+};
+const LOW = unpinned('#6a6464');
+
+test('a low-contrast ink prints a heat report for each cramped pair of steps', () => {
+  const root = setup({ 'app.html': '<i class="ph-bold ph-bell"></i>' }, LOW);
+  const heat = check(root).err.filter((line) => line.startsWith('arena check: [heat] '));
+  assert.ok(heat.length > 0, 'a dim ink on a dark surface leaves the derived ladder cramped');
+  assert.match(heat[0]!, /\[heat\] dark: heat, steps 1 and 2: lightness gap 0\.\d{3}, under the 0\.06 a reader needs/);
+});
+
+test('a palette with a readable ink and no heat step pinned prints no heat report', () => {
+  const root = setup({ 'app.html': '<i class="ph-bold ph-bell"></i>' }, unpinned('#f3ede5'));
+  assert.doesNotMatch(check(root).err.join('\n'), /\[heat\]/);
+});
+
+test('a palette that pins every heat step is not read for heat', () => {
+  const pinned = { ...LOW, palettes: [{ ...LOW.palettes[0]!, colors: { ...LOW.palettes[0]!.colors,
+    'heat-1': '#101010', 'heat-2': '#111111', 'heat-3': '#121212', 'heat-4': '#131313', 'heat-5': '#141414' } }] };
+  const root = setup({ 'app.html': '<i class="ph-bold ph-bell"></i>' }, pinned);
+  assert.doesNotMatch(check(root).err.join('\n'), /\[heat\]/);
+});
+
+test('--strict and --strict=heat hold the heat report, and the list arena init writes does not', () => {
+  const root = setup({ 'app.html': '<i class="ph-bold ph-bell"></i>' }, LOW);
+  assert.equal(check(root, ['--strict']).code, 1);
+  const named = check(root, ['--strict=heat']);
+  assert.equal(named.code, 1);
+  assert.match(named.err.join('\n'), /--strict holds heat, and this run reports \d+ of them: heat/);
+  const initCheck = new Map(wiredScripts([])).get('arena:check')!.split(' ').slice(2);
+  assert.equal(check(root, initCheck).code, 0);
 });

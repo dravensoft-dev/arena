@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  configProblems, themeCss, paletteReports, defaultPalette, isStylesheet, scopedImports,
+  configProblems, heatReports, themeCss, paletteReports, defaultPalette, isStylesheet, scopedImports,
   pluginName, pluginValue, readPlugin, weightReports, rootWithDefaults, resolvedPlugin,
   type CheckedStylesheet, type CheckedSheets,
 } from './theme-css.ts';
@@ -968,4 +968,11 @@ test('a status hue whose on-ink clears 4.5:1 over its ink is not reported', () =
     'base-100': '#101010', error: '#ff8888',
   }) }] });
   assert.deepEqual(contrastMessages(c, { 'hue-danger-ink': '{color.error}', 'hue-danger-on-ink': '{color.base-100}' }), []);
+});
+
+test('a derived heat ladder whose steps do not rise or fall in lightness is reported once, by its order', () => {
+  const disordered = Object.fromEntries(['#202020', '#808080', '#404040', '#c0c0c0', '#ffffff'].map((hex, i) => [`heat-${i + 1}`, hex]));
+  const reports = heatReports({}, disordered);
+  assert.equal(reports.length, 1);
+  assert.match(JSON.stringify(reports[0]), /do not rise or fall in lightness/);
 });

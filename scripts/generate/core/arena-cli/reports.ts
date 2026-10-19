@@ -11,7 +11,7 @@
 import { RULE_TAGS } from './audit.ts';
 
 export const STRICT_KINDS = ['components', 'contrast', 'ramp', 'weight', 'glyph', 'markers',
-  'audit', 'environment', 'restated'] as const;
+  'audit', 'environment', 'restated', 'heat'] as const;
 
 export const UNHOLDABLE_KINDS = ['wash'] as const;
 
@@ -32,7 +32,7 @@ export type StrictName = StrictKind | `${StrictKind}:${string}`;
 export const RULES_BY_KIND: Partial<Record<StrictKind, readonly string[]>> = { audit: RULE_TAGS };
 
 export const KINDS_BY_COMMAND = {
-  check: ['components', 'contrast', 'ramp', 'weight', 'glyph', 'markers'],
+  check: ['components', 'contrast', 'ramp', 'weight', 'glyph', 'markers', 'heat'],
   audit: ['audit', 'restated'],
   doctor: ['environment'],
 } as const satisfies Record<string, readonly StrictKind[]>;

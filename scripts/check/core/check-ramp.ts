@@ -14,6 +14,7 @@ import { ARENA_HEAT_STEPS } from '../../generate/core/arena-cli/palette-keys.ts'
 import { isMainModule } from '../../utils/main-module.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { rampFailed } from '../../generate/core/arena-cli/theme-css.ts';
+import { HEAT_MIN_DL, ladderGaps } from '../../generate/core/arena-cli/oklab.ts';
 
 export const PALETTE = 'contracts/design-generated/palette.generated.css';
 
@@ -28,7 +29,7 @@ const SLOTS = 8;
 
 export const HEAT_STEPS = ARENA_HEAT_STEPS;
 
-export const HEAT_MIN_DL = 0.06;
+export { HEAT_MIN_DL };
 
 export const THEMES = [
   { name: 'dark', mode: 'dark', selector: ':root' },
@@ -74,12 +75,8 @@ export function heatTheme(css: string, selector: string) {
 
 export function cvdRow(steps: readonly string[], kind: (typeof CVD_KINDS)[number]): [string, boolean, string] {
   const ls = steps.map((hex) => simulatedLightness(hex, kind));
-  const gaps = ls.slice(1).map((l, i) => l - ls[i]!);
-  const rising = gaps.every((g) => g > 0);
-  const falling = gaps.every((g) => g < 0);
-  const least = Math.min(...gaps.map(Math.abs));
-  const ok = (rising || falling) && least >= HEAT_MIN_DL;
-  const detail = !(rising || falling)
+  const { ordered, least, ok } = ladderGaps(ls);
+  const detail = !ordered
     ? `out of order: L values ${JSON.stringify(ls.map((l) => +l.toFixed(3)))}`
     : least >= HEAT_MIN_DL ? `monotone, least gap ${least.toFixed(3)}` : `least gap ${least.toFixed(3)} below ${HEAT_MIN_DL}`;
   return [`CVD ${kind}`, ok, detail];

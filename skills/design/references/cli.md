@@ -9,7 +9,7 @@ The command ships inside both component packages, so installing Arena installs i
 | command | what it does | writes | flags |
 | --- | --- | --- | --- |
 | `arena build` | Writes the theme, icon and plugin sheets from your config and sources. | the sheets | `--config`, `--src`, `-o`, `--out`, `--no-import`, `--watch` |
-| `arena check` | Names what the sheets a build would write, and your sources, get wrong: contrast, ramp, weight, glyph, component and marker reports. | nothing | `--config`, `--src`, `--strict` |
+| `arena check` | Names what the sheets a build would write, and your sources, get wrong: contrast, ramp, heat, weight, glyph, component and marker reports. | nothing | `--config`, `--src`, `--strict` |
 | `arena audit` | Reads your sources and style plugins against the rules of the language. | nothing | `--config`, `--src`, `--strict` |
 | `arena usage` | Names the components the package ships that your sources draw nowhere, and the parts your style plugins paint. A component Arena draws on your behalf counts as undrawn, because you never wrote it. | nothing | `--config`, `--src` |
 | `arena init` | Copies the example config and wires the scripts below into `package.json`. | the config and `package.json`, only what is absent | `--config` |
@@ -36,7 +36,7 @@ A report never changes the exit until `--strict` holds it. Bare, `--strict` hold
 
 | command | kinds |
 | --- | --- |
-| `arena check --strict` | `components`, `contrast`, `ramp`, `weight`, `glyph`, `markers` |
+| `arena check --strict` | `components`, `contrast`, `ramp`, `weight`, `glyph`, `markers`, `heat` |
 | `arena audit --strict` | `audit`, `restated` |
 | `arena doctor --strict` | `environment` |
 
@@ -50,7 +50,7 @@ A report never changes the exit until `--strict` holds it. Bare, `--strict` hold
 
 `contrast` also reports a chart axis answered lighter than the grid (`--edge-axis` against `--edge-separator` on base-100). `contrast` reports a status hue whose `--hue-<hue>-on-ink` measures under 4.5:1 over `--hue-<hue>-ink`, the label of a solid badge over its fill, in either polarity.
 
-**Name the kinds when one of them is a decision you already made.** A brand under 4.5:1 can be deliberate, and one switch would make it the price of holding the rest in CI. `weight` says a role asks for a weight the face you loaded does not carry. `glyph` is a name Phosphor does not draw. `markers` is an Angular projection marker, such as `[footer]`, written in a template that does not import its directive. That marker renders nothing, and neither the build nor `ngc --strictTemplates` reports it; [`exports.md`](./exports.md) lists every marker. `restated` is a plugin rule restating the value its part's slot already paints. `environment` says Arena's own icons went uncounted, outside an Arena package or without its `icons.json`. In `arena doctor` it also says Node misses `engines.node`, or that range is one it cannot compare. `wash` is reported and never held: a token on a wash of its own colour clears AA at no percentage, and a gate nobody can fix is not a gate.
+**Name the kinds when one of them is a decision you already made.** A brand under 4.5:1 can be deliberate, and one switch would make it the price of holding the rest in CI. `weight` says a role asks for a weight the face you loaded does not carry. `glyph` is a name Phosphor does not draw. `markers` is an Angular projection marker, such as `[footer]`, written in a template that does not import its directive. That marker renders nothing, and neither the build nor `ngc --strictTemplates` reports it; [`exports.md`](./exports.md) lists every marker. `heat` says two neighbouring heat steps Arena derives sit under 0.06 of lightness apart, or the five are out of order, so a reader cannot tell them apart. A palette that pins `heat-1` to `heat-5` is not read. Raise the ink contrast on `base-200`, or pin the steps. `arena init` leaves `heat` out of `arena:check`, so name it there to hold it. `restated` is a plugin rule restating the value its part's slot already paints. `environment` says Arena's own icons went uncounted, outside an Arena package or without its `icons.json`. In `arena doctor` it also says Node misses `engines.node`, or that range is one it cannot compare. `wash` is reported and never held: a token on a wash of its own colour clears AA at no percentage, and a gate nobody can fix is not a gate.
 
 ## What does an exit code mean?
 

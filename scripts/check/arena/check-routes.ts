@@ -121,7 +121,7 @@ export const ROUTES: Route[] = [
       'skills/design/references/config.md',
       'skills/design/references/cli.md',
     ],
-    budget: 34_800,
+    budget: 35_200,
     reason:
       'paid once per project rather than per screen, so it carries what the build route may not: '
       + 'the install, the config file and the command, each as its own reference. The package '
@@ -134,7 +134,8 @@ export const ROUTES: Route[] = [
       + 'mark a line whose attribute a directive of the project reads. It also states '
       + 'what the contrast kind reports, the axis and solid badge reports included. The config '
       + 'reference lists the names the build refuses, the note a defaulted role prints and the roles '
-      + 'that carry a default, a list that grows per role.',
+      + 'that carry a default, a list that grows per role. The command reference also names the heat kind, '
+      + 'the derived ladder a reader cannot tell apart, which costs one more sentence.',
   },
   {
     name: 'consumer-skin',

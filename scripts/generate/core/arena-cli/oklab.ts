@@ -1,13 +1,11 @@
-/* The colour arithmetic both readers of a palette need, in the tree the packages ship, because
- * a package carries no scripts/ and the gate holding Arena's skin must compute the command's
- * number. It is not in validate-palette.mjs, which is vendored and re-vendored rather than patched.
- * errorFill derives --color-error-fill for a config that pins none. It moves error AWAY from
- * error-content rather than toward black, because "darker" only helps a palette whose filled
- * danger carries white, and a dark palette naming its page as error-content does not.
- * FILL_FALLBACK_KEEP is how much of the colour it keeps. heatLadder derives the five heat steps
- * of a palette that pins none, from the surface through the slot toward the ink, as the slot alone
- * caps the top step. Each step solves for a lightness, step 1 at HEAT_FLOOR, equal gaps up to
- * HEAT_REACH of the ink, because fixed stops crowd a light slot. A cramped ink still comes out ordered. */
+/* The colour arithmetic both readers of a palette need, in the tree the packages ship, because a package
+ * carries no scripts/ and the gate holding Arena's skin must compute the command's number. It is not in
+ * validate-palette.mjs, which is vendored and re-vendored rather than patched. errorFill derives
+ * --color-error-fill for a config that pins none, moving error AWAY from error-content rather than toward
+ * black, and FILL_FALLBACK_KEEP is how much of the colour it keeps. heatLadder derives the five heat steps
+ * of a palette that pins none, step 1 at HEAT_FLOOR and equal lightness gaps up to HEAT_REACH of the ink,
+ * because fixed stops crowd a light slot. A cramped ink still comes out ordered, and ladderGaps is the one
+ * rule arena check and check:ramp both read: one direction, and HEAT_MIN_DL between neighbours. */
 
 import { contrast } from './validate-palette.mjs';
 import { ARENA_HEAT_STEPS } from './palette-keys.ts';
@@ -106,4 +104,24 @@ export function heatLadder(slot: string, surface: string, ink: string, _polarity
     stops.push(bisect(stops[step - 1]!, (t) => toward * (lightness(t) - target) >= 0));
   }
   return stops.map(at);
+}
+
+export const HEAT_MIN_DL = 0.06;
+
+export function ladderGaps(lightness: readonly number[]) {
+  const gaps = lightness.slice(1).map((l, i) => l - lightness[i]!);
+  const rising = gaps.every((g) => g > 0);
+  const falling = gaps.every((g) => g < 0);
+  const least = Math.min(...gaps.map(Math.abs));
+  return { gaps, ordered: rising || falling, least, ok: (rising || falling) && least >= HEAT_MIN_DL };
+}
+
+export function heatCramped(steps: readonly string[]) {
+  const lightness = steps.map((hex) => toOklab(hex)[0]);
+  const { ordered, gaps } = ladderGaps(lightness);
+  const cramped: { from: number; to: number; gap: number }[] = [];
+  gaps.forEach((gap, i) => {
+    if (Math.abs(gap) < HEAT_MIN_DL) cramped.push({ from: i + 1, to: i + 2, gap: Math.abs(gap) });
+  });
+  return { ordered, cramped };
 }

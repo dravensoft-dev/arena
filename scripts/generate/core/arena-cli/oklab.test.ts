@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { composite, darkenOklab, errorFill, FILL_FALLBACK_KEEP, heatLadder, toOklab } from './oklab.ts';
+import { composite, darkenOklab, errorFill, FILL_FALLBACK_KEEP, heatCramped, heatLadder, ladderGaps, toOklab } from './oklab.ts';
 import { contrast } from './validate-palette.mjs';
 import { validateOrdinal } from '../../../lib/core/validate-palette.mjs';
 import { CVD_KINDS } from '../../../lib/core/cvd.ts';
@@ -90,4 +90,18 @@ test('an ink too near the floor leaves no room for the gaps, and the five steps 
 
 test('a heat step is a #rrggbb literal, so the gate and the command read it as a palette colour', () => {
   for (const one of heatLadder('#6a59bc', '#ffffff', '#000000', 'light')) assert.match(one, /^#[0-9a-f]{6}$/);
+});
+
+test('ladderGaps asks for one direction and a gap of HEAT_MIN_DL between neighbours', () => {
+  assert.equal(ladderGaps([0.2, 0.3, 0.4, 0.5, 0.6]).ok, true);
+  assert.equal(ladderGaps([0.6, 0.5, 0.4, 0.3, 0.2]).ok, true);
+  assert.equal(ladderGaps([0.2, 0.3, 0.35, 0.5, 0.6]).ok, false);
+  assert.equal(ladderGaps([0.2, 0.3, 0.25, 0.5, 0.6]).ordered, false);
+});
+
+test('heatCramped names each neighbouring pair of steps under the gap', () => {
+  const steps = ['#101010', '#111111', '#808080', '#818181', '#f0f0f0'];
+  assert.deepEqual(heatCramped(steps).cramped.map(({ from, to }) => [from, to]), [[1, 2], [3, 4]]);
+  assert.equal(heatCramped(steps).ordered, true);
+  assert.deepEqual(heatCramped(['#101010', '#404040', '#707070', '#a0a0a0', '#d0d0d0']).cramped, []);
 });

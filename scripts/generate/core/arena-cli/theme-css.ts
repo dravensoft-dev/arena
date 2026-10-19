@@ -18,7 +18,7 @@ import {
   FS_STEP, RHYTHM_STEP, floorProblems, nameProblems, reservedProblems, scopeOn, totalityProblems, withDefaults,
 } from './style-plugin-rules.ts';
 import { serialize } from './serialize-token.ts';
-import { errorFill, heatLadder } from './oklab.ts';
+import { HEAT_MIN_DL, errorFill, heatCramped, heatLadder } from './oklab.ts';
 import { axisReports, derivedLevels, emphasisReports, levelReports, onInkReports, raisedReports, washReports } from './levels.ts';
 import type { Level, Wash } from './levels.ts';
 import { report } from './reports.ts';
@@ -481,6 +481,15 @@ export function surfaceOf(palette: CheckedPalette, roles: Map<string, string>) {
   return (key && palette.colors[key]) || palette.colors['base-100'];
 }
 
+export function heatReports(pinned: Record<string, string>, colors: Record<string, string>): Report[] {
+  if (!heatKeys().every((k) => pinned[k] === undefined) || !heatKeys().every((k) => colors[k] !== undefined)) return [];
+  const { ordered, cramped } = heatCramped(heatKeys().map((k) => colors[k]!));
+  const lines = cramped.map(({ from, to, gap }) =>
+    `heat, steps ${from} and ${to}: lightness gap ${gap.toFixed(3)}, under the ${HEAT_MIN_DL} a reader needs to tell them apart`);
+  if (!ordered && lines.length === 0) lines.push('heat: the derived steps do not rise or fall in lightness');
+  return lines.map((line) => report('heat', line));
+}
+
 export function paletteReports(
   config: CheckedConfig, catalogue: TokenCatalogue | null = null, plugins: ResolvedPlugins = null,
   levels: Level[] = [], washes: Wash[] = [],
@@ -503,6 +512,8 @@ export function paletteReports(
         if (rampFailed(state)) messages.push(report('ramp', `ramp, ${name}: ${detail}`));
       }
     }
+
+    messages.push(...heatReports(palette.colors, colors));
 
     const text = [
       ...SURFACE_PAIRS.map(({ ink, on }) => [`${ink} on ${on}`, colors[ink], colors[on]]),
