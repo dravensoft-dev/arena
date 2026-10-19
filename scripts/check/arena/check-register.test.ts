@@ -1,8 +1,11 @@
-import test from 'node:test';
+import test, { after } from 'node:test';
 import assert from 'node:assert/strict';
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import {
   collect, sentenceProblems, sentencesIn, blocks, plain, clauseCount, unnamedSubject, inScope,
-  blanked, unregioned,
+  blanked, unregioned, descriptionsIn, descriptionProblems, contractScan,
   excusedBy, scoped, zeroScanProblems, staleSpecProblems, staleExemptProblems,
   NOT_YET_REWRITTEN, MAX_WORDS, MAX_CLAUSES,
 } from './check-register.ts';
@@ -141,4 +144,41 @@ test('a generated region and a fence are blanked in place, so a line number afte
   assert.ok(found.length > 0, 'the sentence past the fence is still read');
   assert.ok(found.every((one) => /:11:/.test(one)),
     'a region that dropped its lines instead of blanking them reported every later line short');
+});
+
+const made: string[] = [];
+after(() => { for (const dir of made) rmSync(dir, { recursive: true, force: true }); });
+
+function contractTree(descriptions: Record<string, unknown>) {
+  const base = mkdtempSync(join(tmpdir(), 'arena-register-'));
+  made.push(base);
+  mkdirSync(join(base, 'contracts/api/components'), { recursive: true });
+  for (const [name, body] of Object.entries(descriptions))
+    writeFileSync(join(base, 'contracts/api/components', name), JSON.stringify(body));
+  return base;
+}
+
+const thirtyOne = Array.from({ length: 31 }, (_, i) => `word${i}`).join(' ');
+
+test('a contract description past the word limit fails with its contract path and member path', () => {
+  const base = contractTree({ 'ArenaX.json': { description: 'A clean one.',
+    api: { pageControl: { description: `${thirtyOne}.` } } } });
+  const found = collect(base);
+  assert.ok(found.some((one) => one.startsWith('contracts/api/components/ArenaX.json:api.pageControl: ')
+    && /31 words, over 30/.test(one)), found.join('\n'));
+  assert.ok(found.every((one) => !/ArenaX\.json:\.:/.test(one)), 'the clean root description reports nothing');
+});
+
+test('a contract whose descriptions read in the register passes, and the root member is a dot', () => {
+  const base = contractTree({ 'ArenaX.json': { description: 'One sentence, which is short.',
+    fields: [{ description: 'Another short sentence.' }] } });
+  assert.deepEqual(contractScan(base), []);
+  assert.deepEqual(descriptionsIn({ description: 'a', fields: [{ description: 'b' }] }),
+    [{ member: '.', text: 'a' }, { member: 'fields[0]', text: 'b' }]);
+  assert.match(descriptionProblems('c.json', 'api.x', 'It draws the box.')[0] ?? '', /^c\.json:api\.x: a sentence opening/);
+});
+
+test('a contract tree with no description to read is a problem rather than a pass over nothing', () => {
+  const base = contractTree({ 'ArenaX.json': { name: 'ArenaX' } });
+  assert.match(contractScan(base)[0] ?? '', /no contract description was read/);
 });

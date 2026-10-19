@@ -1,6 +1,6 @@
 {
   "name": "ArenaSliderOrientation",
   "kind": "enum",
-  "description": "Which way a slider's track runs. Across, the minimum sits at the start edge and follows the reading direction; down, the minimum sits at the bottom whatever the direction. It is a member rather than a class because it changes what the slider says and does, not only how it is drawn: the thumb announces it, and a pointer is read along the axis it names.",
+  "description": "Which way a slider's track runs. Across, the minimum sits at the start edge and follows the reading direction; down, the minimum sits at the bottom whatever the direction. Orientation is a member rather than a class, because it changes what the slider says and does, not only how it is drawn. The thumb announces the orientation, and a pointer is read along the axis it names.",
   "values": ["horizontal", "vertical"]
 }

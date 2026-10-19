@@ -1,7 +1,7 @@
 {
   "name": "ArenaTreeNode",
   "kind": "object",
-  "description": "One node of an ArenaTreeView. The tree is one flat array in which each node names its parent, so the order of the array is the order of siblings and the hierarchy is data, never nesting. Visible order, level, set size and position are derived from it.",
+  "description": "One node of an ArenaTreeView. The tree is one flat array in which each node names its parent. The order of the array is the order of siblings, and the hierarchy is data, never nesting. Visible order, level, set size and position are derived from the array.",
   "fields": {
     "id": {
       "form": "primitive",

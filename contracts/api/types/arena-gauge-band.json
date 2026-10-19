@@ -1,7 +1,7 @@
 {
   "name": "ArenaGaugeBand",
   "kind": "object",
-  "description": "One stretch of a gauge's scale and what a value inside it means. A band runs from its `from` to the next band's `from`, and the last one to the gauge's `max`, so a list of bands cuts the scale without a gap and without an overlap. The word is required because a status colour never ships alone: the label is what the centre reading, the table and a screen reader say.",
+  "description": "One stretch of a gauge's scale and what a value inside it means. A band runs from its `from` to the next band's `from`, and the last one to the gauge's `max`. A list of bands therefore cuts the scale without a gap and without an overlap. The word is required because a status colour never ships alone: the label is what the centre reading, the table and a screen reader say.",
   "fields": {
     "from": { "form": "primitive", "type": "number", "required": true,
               "description": "Where the band starts. Inclusive: a value equal to `from` is in this band and not in the one below." },

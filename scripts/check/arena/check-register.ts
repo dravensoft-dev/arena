@@ -3,14 +3,16 @@
  * distinction it turns on, joined by four clauses and referred to two paragraphs later as "it". A
  * reader holding the whole page resolves that, and a model holding a half written screen does not,
  * so the failure is silent: it produces a screen rather than a question. Three things are
- * measurable and each is measured: how long a sentence runs, how many clauses hang off it, and
- * whether it names its own subject. Only a subordinator counts, because a comma before `and` is as
- * often a list as a claim. Prose is read the way check:duplication reads it, so a generated region
- * is judged where it is emitted. NOT_YET_REWRITTEN is empty, which is the state it was written to
- * reach: an entry whose documents already read in this register failed as a stale allowance. */
+ * measured: how long a sentence runs, how many clauses hang off it, and whether it names its own
+ * subject. Only a subordinator counts, because a comma before `and` is as often a list as a claim.
+ * Prose is read the way check:duplication reads it, so a generated region is judged where it is
+ * emitted, and every contract description is read as written, because it reaches each prompt.
+ * NOT_YET_REWRITTEN is empty, the state it was written to reach: a stale entry fails the gate. */
 
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { walkFiles } from '../../utils/walk-files.ts';
+import { relPosix } from '../../utils/posix-path.ts';
 import { isMainModule } from '../../utils/main-module.ts';
 import { unfenced } from '../../lib/arena/markdown-prose.ts';
 import { FRONTMATTER } from '../../lib/arena/llms-index.ts';
@@ -53,7 +55,7 @@ export const NOT_YET_REWRITTEN = new Map<string, string>([
 export const node = {
   name: 'check:register',
   reads: [
-    'skills/**/*.md', 'frameworks/**/INDEX.md', 'frameworks/**/PACKAGE.md',
+    'contracts/api/**/*.json', 'skills/**/*.md', 'frameworks/**/INDEX.md', 'frameworks/**/PACKAGE.md',
     'frameworks/**/*.prompt.md', 'plugin-style-store/catalogue/*/ENTRY.md',
     CONSUMER_VOCABULARY, `${CONSUMER_CATALOGUE}${CONSUMER_INDEX}`,
     '!frameworks/angular/build/**', '!frameworks/react/dist/**', '!frameworks/angular/dist/**',
@@ -202,9 +204,40 @@ export function staleSpecProblems(clean: Map<string, boolean>, entries = NOT_YET
   return problems;
 }
 
+export const CONTRACTS = 'contracts/api';
+
+export function descriptionsIn(value: unknown, path = ''): { member: string; text: string }[] {
+  if (Array.isArray(value)) return value.flatMap((one, i) => descriptionsIn(one, `${path}[${i}]`));
+  if (value === null || typeof value !== 'object') return [];
+  return Object.entries(value).flatMap(([key, one]) =>
+    key === 'description' && typeof one === 'string'
+      ? [{ member: path || '.', text: one }]
+      : descriptionsIn(one, path ? `${path}.${key}` : key));
+}
+
+export function descriptionProblems(rel: string, member: string, text: string) {
+  return sentenceProblems(`${rel}:${member}`, text)
+    .map((one) => one.replace(/^([^ ]*?):\d+: /, '$1: '));
+}
+
+export function contractScan(base = root) {
+  const problems: string[] = [];
+  let read = 0;
+  for (const file of walkFiles(join(base, CONTRACTS)).filter((one) => one.endsWith('.json'))) {
+    const rel = relPosix(base, file);
+    for (const { member, text } of descriptionsIn(JSON.parse(readFileSync(file, 'utf8')))) {
+      read += 1;
+      problems.push(...descriptionProblems(rel, member, text));
+    }
+  }
+  if (read === 0)
+    problems.push(`${CONTRACTS}: no contract description was read, so every claim below passed over nothing`);
+  return problems;
+}
+
 export function collect(base = root) {
   const docs = scoped(base);
-  const problems = [...zeroScanProblems(docs), ...staleExemptProblems(docs)];
+  const problems = [...zeroScanProblems(docs), ...staleExemptProblems(docs), ...contractScan(base)];
   const clean = new Map<string, boolean>();
   for (const rel of docs) {
     if (EXEMPT.has(rel)) continue;

@@ -1,7 +1,7 @@
 {
   "name": "ArenaToastNotice",
   "kind": "object",
-  "description": "A notice raised from code rather than from a template, drawn by the ArenaToast the consumer renders in the host. Every field means what the toast's member of the same name means. How long the notice stays follows from its tone, its action and persist: a danger notice or a persisting one has no timer, an actionable one stays longer than a plain one.",
+  "description": "A notice raised from code rather than from a template, drawn by the ArenaToast the consumer renders in the host. Every field means what the toast's member of the same name means. How long the notice stays follows from its tone, its action and persist. A danger notice or a persisting one has no timer. An actionable one stays longer than a plain one.",
   "fields": {
     "title": { "form": "primitive", "type": "string", "description": "The bold lead line." },
     "message": { "form": "primitive", "type": "string", "description": "The body." },
