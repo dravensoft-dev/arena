@@ -81,7 +81,7 @@ test('placeholder is a disabled empty first option, so "nothing chosen" is not t
   const html = renderToStaticMarkup(
     <ArenaSelect label="Customer" placeholder="Choose a customer" options={[{ value: 'a', label: 'Acme' }]} />,
   );
-  assert.match(html, /<option value="" disabled="">Choose a customer<\/option>/);
+  assert.match(html, /<option value="" disabled="" selected="">Choose a customer<\/option>/);
   assert.ok(html.indexOf('Choose a customer') < html.indexOf('Acme'), 'the placeholder is not first');
 });
 

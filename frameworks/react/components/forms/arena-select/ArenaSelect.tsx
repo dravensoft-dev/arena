@@ -70,7 +70,7 @@ export function ArenaSelect({ className,
       {label && <label htmlFor={selectId} className={styles.label()} data-arena-part={manifest.parts.label} {...styles.$data.label()}>{label}</label>}
       <div className={styles.wrap()} data-arena-part={manifest.parts.wrap} {...styles.$data.wrap()}>
         {icon && <i className={`${icon} ${styles.iconWrap()}`} data-arena-part={manifest.parts.iconWrap} {...styles.$data.iconWrap()} aria-hidden="true" />}
-        <select id={selectId} value={value} onChange={(e) => onChange && onChange(e.target.value)} disabled={disabled}
+        <select id={selectId} {...(value === undefined && placeholder ? { defaultValue: '' } : { value })} onChange={(e) => onChange && onChange(e.target.value)} disabled={disabled}
           required={required} name={name}
           aria-invalid={hasError || undefined} aria-describedby={error || hint ? noteId : undefined}
           className={styles.field()} data-arena-part={manifest.parts.field} {...styles.$data.field()}>

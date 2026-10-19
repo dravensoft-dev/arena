@@ -197,6 +197,16 @@ test('placeholder is a disabled empty first option, so "nothing chosen" is not t
   }
 });
 
+test('a placeholder with no value starts the select on the placeholder and submits an empty value', () => {
+  const { fixture, field } = noted({ placeholder: 'Any region' });
+  try {
+    assert.equal(field.selectedOptions[0]?.textContent?.trim(), 'Any region');
+    assert.equal(field.value, '');
+  } finally {
+    fixture.destroy();
+  }
+});
+
 test('icon is drawn hidden and pushes the text clear of it', () => {
   const { fixture, host, field } = noted({ icon: 'ph-bold ph-user' });
   try {
