@@ -46,10 +46,11 @@ emitted file matches a fresh run of the generator.
 }
 ```
 
-An item is a component name, and that is the whole of it: there is no override form, because a
-sink that could reseed a component would be a second place a component is configured, and the
-first divergence it produced would look exactly like the divergence this whole arrangement
-exists to catch.
+An item is a component name, or a component name and one of its variants after a colon, as in
+`ArenaGaugeChart:at-min`. There is no override form: a sink that could reseed a component would be a
+second place a component is configured, and the first divergence it produced would look exactly
+like the divergence this whole arrangement exists to catch. A variant is declared in the
+component's own demo fixture, so the sink names a seed and never writes one.
 
 ## Two arrangements, and they are two appearances
 
@@ -82,12 +83,36 @@ never absorbed by a narrow allowance; one the run does not spend is stale and re
 before the shutter, because what moves and what holds focus are asked with better instruments than a
 photograph: `check:focus-trap` and the motion roles.
 
+**A phase's acceptance run is a flag of the gate and not a member of `GATES`.** `--baseline <ref>`
+builds the ref in a cached worktree and compares each layer with the same page there, and against
+`HEAD` on a clean tree it reports nothing. `--allow <sink>=<selector>` (repeatable, `*` for every
+sink) names the parts the phase expects to differ, each element measured with its descendants. A
+difference outside them or a size change fails, and each is reported with its spent pixels or
+`unspent`.
+
 The order and grouping are an arrangement's own, and one built for an appearance shows it doing
 its work on a layout that argues for it: `default` groups by the category a component is registered
 under, because that appearance draws the region and the box is the grouping, and `complete` groups
 by what an appearance does to a thing, because a dialog beside a sheet beside a menu is where a role
-answered inconsistently shows. What may **not** differ is the set: every fixture holds every
+answered inconsistently shows. What may **not** differ is the set: every appearance holds every
 component, so no page is compared over a smaller surface than its siblings.
+
+## A third arrangement, and it is a set of seeds
+
+`charts` is not an appearance. It draws the variants of the chart demos under the appearance a
+consumer installs, because a demo seed shows one state of a chart and a divergence in a state no seed
+reaches is seen only when both suites happen to carry a twin. Each chart's
+[`demo`](../demos/AGENTS.md) declares a few named variants: the optional data taken out, a value at
+the scale's lower end and past it, a value past the upper end, and a configuration the chart warns
+about. The arrangement places each of them once, and an arrangement whose items all carry a variant is
+held to that rule instead of the registry rule, so no list says which arrangement is which.
+
+Two things are compared on these pages. The pixels, as on every page. And the console warnings: the
+gate collects what each layer's page warns about and fails when the two lists differ, which a page
+holding a configuration only one layer warns about passes on pixels alone. A warning is deduplicated
+by its text, so a message shared by several charts would be printed once per page and hide a second
+chart that fails to print it; every chart's warning therefore names the chart, and a variant meant
+to be heard carries a message of its own.
 
 ## A component that cannot stand alone
 
@@ -97,8 +122,9 @@ reads it from there, so a component that gains or loses a host says so once.
 
 ## Adding one
 
-A new component needs its name in every fixture in the same commit, or `check:kitchen-sink` fails
-on the registry entry no fixture covers. Put the name where the arrangement argues it goes, run
+A new component needs its name in every appearance in the same commit, or `check:kitchen-sink` fails
+on the registry entry no fixture covers. A new variant in a demo needs its item in `charts.sink.json`
+in the same commit, or it fails on the variant no arrangement places. Put the name where the arrangement argues it goes, run
 `bun run build`, and open the pair with `bun run demos`.
 
 A new **arrangement** is a file here and nothing else: the emitter walks `*.sink.json`, and

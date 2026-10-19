@@ -12,11 +12,14 @@ import { join } from 'node:path';
 import { kebab } from '../../utils/case.ts';
 import { repoRoot } from './repo-root.ts';
 import { categoryOf, manifestFor } from '../tailwind/manifest-surfaces.ts';
-import { SUBJECT, childLists } from './playground-model.ts';
+import { SUBJECT, childLists, variantSeed } from './playground-model.ts';
 import type { Fixture, FixtureChild, FixtureNode, Place, Places } from './playground-model.ts';
 import type { ManifestClassSource } from '../tailwind/manifest-shapes.ts';
 
-export type SinkItem = { component: string; node: FixtureNode; staged: boolean; vars?: Record<string, string> };
+export type SinkItem = {
+  component: string; variant?: string; label: string; node: FixtureNode; staged: boolean;
+  vars?: Record<string, string>;
+};
 
 export type SinkSection = { title: string; items: SinkItem[] };
 
@@ -34,6 +37,19 @@ export type SinkFixture = {
 };
 
 export const ROOT_SINK = 'default';
+
+export const VARIANT_MARK = ':';
+
+export function splitItem(item: string): { component: string; variant?: string } {
+  const at = item.indexOf(VARIANT_MARK);
+  if (at === -1) return { component: item };
+  return { component: item.slice(0, at), variant: item.slice(at + 1) };
+}
+
+export function isVariantArrangement(fixture: Pick<SinkFixture, 'sections'>) {
+  const items = fixture.sections.flatMap((section) => section.items);
+  return items.length > 0 && items.every((item) => splitItem(item).variant !== undefined);
+}
 
 export const FIXED = /(?:^|\s)(?:[\w-]+:)*fixed(?=\s|$)/;
 
@@ -140,16 +156,18 @@ export function sinkModel(fixture: SinkFixture, demos: Map<string, Fixture>,
   const uses = new Set<string>();
   const sections = fixture.sections.map((section) => ({
     title: section.title,
-    items: section.items.map((component) => {
+    items: section.items.map((entry) => {
+      const { component, variant } = splitItem(entry);
       const demo = demos.get(component);
       if (!demo) {
         throw new Error(`kitchen-sink-model: ${fixture.sink} arranges ${component}, and `
           + `frameworks/demos/${component}.demo.json is not there, so nothing says how to seed it`);
       }
-      const node = rebaseNode(instanceNode(demo), depth.from, depth.to) as FixtureNode;
+      const drawn = variant === undefined ? demo : { ...demo, seed: variantSeed(demo, variant) };
+      const node = rebaseNode(instanceNode(drawn), depth.from, depth.to) as FixtureNode;
       componentsIn(node, uses);
       const vars = demo.vars && Object.keys(demo.vars).length > 0 ? { vars: demo.vars } : {};
-      return { component, node, staged: staged.has(component), ...vars };
+      return { component, label: entry, node, staged: staged.has(component), ...(variant === undefined ? {} : { variant }), ...vars };
     }),
   }));
   return {

@@ -14,7 +14,7 @@ import {
   playgroundsOnDisk, missingPlaygrounds, playgroundSections, sinkPages, pages, indexedDirectories,
   modules, missingModules, titleOf, url, directoryUrl,
   BENCHES_DIR, BENCHES_MANIFEST, benchPairs, benchPages, benchDirectories, phosphorDrops, treePages,
-  COPIED_FILES,
+  COPIED_FILES, variantSinkNames,
 } from './site-pages.ts';
 
 function benchOut(products: string[]) {
@@ -241,4 +241,9 @@ test('the identity template and its worked answer are pages the site declares, a
 
 test('the tree carries each page the site declares from arena-from-scratch', () => {
   for (const rel of COPIED_FILES) assert.ok(existsSync(join(repoRoot, rel)), `${rel} exists`);
+});
+
+test('the arrangement of chart variants is told from the style plugins by its items, and only it', () => {
+  assert.deepEqual(variantSinkNames(), ['charts']);
+  assert.ok(sinkNames().includes('charts') && sinkNames().includes('default'));
 });

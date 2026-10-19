@@ -24,7 +24,7 @@ export function importPath(place: Place) {
 export function tile(item: SinkModel['sections'][number]['items'][number], places: Places, depth: number) {
   const pad = '  '.repeat(depth);
   return `${pad}<div className="${KS.tile}">\n`
-    + `${pad}  <span className="${KS.label}">${item.component}</span>\n`
+    + `${pad}  <span className="${KS.label}">${item.label}</span>\n`
     + `${pad}  <div className="${bodyClass(item.staged)}"${varsStyle(item.vars) ? ` style={${JSON.stringify(item.vars)} as React.CSSProperties}` : ''}>\n`
     + `${renderNode(item.node, places, depth + 2)}\n`
     + `${pad}  </div>\n`

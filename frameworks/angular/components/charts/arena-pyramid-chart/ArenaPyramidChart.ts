@@ -224,7 +224,7 @@ export class ArenaPyramidChart {
           name: `${one.label}: `,
           path: arenaBarPathH(arenaBandMark(bands, index), bands.band,
             arenaScaleValue(xScale, signed), zeroX, BAR_RADIUS),
-          color: arenaSeriesColors(one, this.points(), s + 1)[index],
+          color: arenaSeriesColors(one, this.points(), s + 1, 'ArenaPyramidChart')[index],
           value: write(value),
         }];
       }),

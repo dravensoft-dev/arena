@@ -75,7 +75,7 @@ export function ArenaPyramidChart({ className,
   const xScale = arenaLinearScale(domain.min, domain.max, box.x, box.x + box.w);
   const bands = arenaBandScale(n, box.y, box.h, chartBarGap);
   const axis = arenaAxisModelX(xScale, domain, away);
-  const colors = sides.map((one, s) => arenaSeriesColors(one, n, s + 1));
+  const colors = sides.map((one, s) => arenaSeriesColors(one, n, s + 1, 'ArenaPyramidChart'));
   const table = arenaChartTable(locale.chartTableCategory, sides, labels, fmt);
 
   const name = arenaPhrase(locale.pyramidChartName, { label });

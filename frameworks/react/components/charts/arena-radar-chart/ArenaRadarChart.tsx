@@ -79,7 +79,7 @@ export function ArenaRadarChart({ className,
   const radial = arenaLinearScale(domain.min, domain.max, 0, outer);
   const reach = (value: number) => Math.max(0, arenaScaleValue(radial, value));
 
-  const colors = series.map((one, s) => arenaSeriesColors(one, 1, s + 1)[0] as string);
+  const colors = series.map((one, s) => arenaSeriesColors(one, 1, s + 1, 'ArenaRadarChart')[0] as string);
   const table = arenaChartTable(locale.chartTableAxis, series, labels, fmt);
   const rings = arenaRadarRings(domain);
 

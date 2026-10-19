@@ -46,7 +46,7 @@ const MEASURED_HEAVY = new Map([
 ]);
 
 const MEASURED_COST = new Map([
-  ['check:pixel-parity', 34], ['check:script-types', 13.5], ['check:react-types', 12.7],
+  ['check:pixel-parity', 52], ['check:script-types', 13.5], ['check:react-types', 12.7],
   ['check:target-size', 20.3], ['check:proximity', 10.2], ['check:focus-trap', 4.1], ['check:anchoring', 6.3],
 ]);
 
@@ -459,7 +459,7 @@ test('the plan holds every gate once and every suite step once, and a kept gate 
   assert.deepEqual(all.kept, []);
   const pixel = all.planned.find((one) => one.name === 'check:pixel-parity');
   assert.equal(pixel?.pool, 'browser');
-  assert.equal(pixel?.cost, 34);
+  assert.equal(pixel?.cost, 52);
   assert.equal(pixel?.command, '/bin/bun');
   assert.match(pixel?.args[0] ?? '', /check-pixel-parity\.ts$/);
 

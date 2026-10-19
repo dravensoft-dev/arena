@@ -76,7 +76,21 @@ export type Fixture = {
   bind?: Record<string, any>;
   host?: FixtureChild;
   vars?: Record<string, string>;
+  variants?: Record<string, Record<string, any>>;
 };
+
+export function variantSeed(fixture: Pick<Fixture, 'component' | 'seed' | 'variants'>, name: string) {
+  const variant = fixture.variants?.[name];
+  if (!variant) {
+    throw new Error(`${fixture.component}.demo.json declares no variant "${name}", so there is no seed to draw it from`);
+  }
+  const merged: Record<string, any> = { ...(fixture.seed ?? {}) };
+  for (const [member, value] of Object.entries(variant)) {
+    if (value === null) delete merged[member];
+    else merged[member] = value;
+  }
+  return merged;
+}
 
 export type Place = { name: string; category: string; dir: string; self?: boolean };
 

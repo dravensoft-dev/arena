@@ -77,7 +77,7 @@ export function ArenaHorizontalBarChart({ className,
   const xScale = arenaLinearScale(domain.min, domain.max, box.x, box.x + box.w);
   const bands = arenaBandScale(n, box.y, box.h, chartBarGap);
   const axis = arenaAxisModelX(xScale, domain, fmt);
-  const colors = series.map((one, s) => arenaSeriesColors(one, n, s + 1));
+  const colors = series.map((one, s) => arenaSeriesColors(one, n, s + 1, 'ArenaHorizontalBarChart'));
   const table = arenaChartTable(locale.chartTableCategory, series, labels, fmt);
 
   const gutter = arenaCategoryGutter(strip.plotH);

@@ -92,7 +92,7 @@ export function ArenaBarChart({ className,
   const yScale = arenaLinearScale(domain.min, domain.max, box.y + box.h, box.y);
   const bands = arenaBandScale(n, box.x, box.w, chartBarGap);
   const axis = arenaAxisModel(yScale, domain, fmt);
-  const colors = series.map((one, s) => arenaSeriesColors(one, n, s + 1));
+  const colors = series.map((one, s) => arenaSeriesColors(one, n, s + 1, 'ArenaBarChart'));
   const table = arenaChartTable(locale.chartTableCategory, series, labels, fmt);
 
   const name = arenaPhrase(locale.barChartName, { label });

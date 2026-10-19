@@ -98,7 +98,8 @@ test('a fixture\'s vars are written as the style of the wrapper, and a fixture w
   const { angularSinkEntry } = await import('../angular/kitchen-sink-angular.ts');
   const vars = { '--arena-column-status-align': 'right', '--arena-column-status-width': '8rem' };
   const node = { text: 'x' };
-  const item = (own?: Record<string, string>) => ({ component: 'ArenaTable', node, staged: false, ...(own ? { vars: own } : {}) });
+  const item = (own?: Record<string, string>, label = 'ArenaTable') =>
+    ({ component: 'ArenaTable', label, node, staged: false, ...(own ? { vars: own } : {}) });
   assert.equal(varsStyle(vars), '--arena-column-status-align: right; --arena-column-status-width: 8rem');
   assert.equal(varsStyle(undefined), '');
   const react = tile(item(vars), new Map(), 0);
@@ -108,4 +109,14 @@ test('a fixture\'s vars are written as the style of the wrapper, and a fixture w
     { sink: 's', note: '', uses: [], sections: [{ title: 't', items: [item(own)] }] }, new Map(), new Map(), '', '');
   assert.ok(entry(vars).includes(`<div class="${KS.body}" style="${varsStyle(vars)}">`));
   assert.doesNotMatch(entry(), new RegExp(`class="${KS.body}" style=`));
+});
+
+test('a tile is labelled with its item as the arrangement spells it, a variant included, in both layers', async () => {
+  const { tile } = await import('../react/kitchen-sink-react.ts');
+  const { angularSinkEntry } = await import('../angular/kitchen-sink-angular.ts');
+  const item = { component: 'ArenaGaugeChart', variant: 'at-min', label: 'ArenaGaugeChart:at-min', node: { text: 'x' }, staged: false };
+  assert.ok(tile(item, new Map(), 0).includes(`<span className="${KS.label}">ArenaGaugeChart:at-min</span>`));
+  const entry = angularSinkEntry(
+    { sink: 'charts', note: '', uses: [], sections: [{ title: 't', items: [item] }] }, new Map(), new Map(), '', '');
+  assert.ok(entry.includes(`<span class="${KS.label}">ArenaGaugeChart:at-min</span>`), entry);
 });

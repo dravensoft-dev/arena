@@ -99,7 +99,7 @@ export function ArenaLineChart({ className,
   const yScale = arenaLinearScale(domain.min, domain.max, box.y + box.h, box.y);
   const xScale = arenaPointScale(n, box.x, box.w);
   const axis = arenaAxisModel(yScale, domain, fmt);
-  const colors = series.map((one, s) => arenaSeriesColors(one, 1, s + 1)[0] as string);
+  const colors = series.map((one, s) => arenaSeriesColors(one, 1, s + 1, 'ArenaLineChart')[0] as string);
   const table = arenaChartTable(locale.chartTablePoint, series, labels, fmt);
 
   const plotted = series.map(

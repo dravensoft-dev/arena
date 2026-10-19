@@ -10,5 +10,24 @@
     "valueSuffix": " builds",
     "valueFormat": { "grouping": true }
   },
+  "variants": {
+    "zeros": {
+      "series": [{"label": "Deployments", "values": [0, 0, 0, 0, 0]}]
+    },
+    "negative": {
+      "series": [{"label": "Net change", "values": [18, -12, 7, -25, 4]}]
+    },
+    "stacked-negative": {
+      "stack": true,
+      "series": [{"label": "Gains", "values": [14, 9, 0, 21, 6]}, {"label": "Losses", "values": [-6, -11, -3, 0, -8]}]
+    },
+    "single-category": {
+      "labels": ["Mon"],
+      "series": [{"label": "Deployments", "values": [42]}, {"label": "Rollbacks", "values": [4]}]
+    },
+    "tone-and-color-id": {
+      "series": [{"label": "Deployments", "values": [42, 51, 38, 64, 57], "tone": "success", "colorId": 2}]
+    }
+  },
   "note": "Two series share each category's band, so a reader compares within a day before comparing across days."
 }

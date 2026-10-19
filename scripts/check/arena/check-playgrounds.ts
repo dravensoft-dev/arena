@@ -16,7 +16,7 @@ import { readJson } from '../../utils/read-file.ts';
 import { relPosix } from '../../utils/posix-path.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { LAYERS } from '../../lib/arena/layers.ts';
-import { playgroundModel, SUBJECT } from '../../lib/arena/playground-model.ts';
+import { playgroundModel, variantSeed, SUBJECT } from '../../lib/arena/playground-model.ts';
 import { buildPlaygrounds, PLAYGROUND_LAYERS } from '../../generate/arena/generate-playgrounds.ts';
 import { memberEntries, fieldEntries } from '../../lib/arena/contract-shapes.ts';
 import type { ComponentContract, MemberSpec, TypeContract } from '../../lib/arena/contract-shapes.ts';
@@ -158,6 +158,20 @@ export function seedProblems(name: string, contract: ComponentContract,
     if (spec.form === 'slot' || spec.form === 'event') continue;
     if (spec.required && !('default' in spec) && !(member in seed))
       problems.push(`${name}.seed: ${member} is required and carries no default, so the fixture has to seed it`);
+  }
+  return problems;
+}
+
+export function variantProblems(name: string, contract: ComponentContract,
+  fixture: Pick<Fixture, 'component' | 'seed' | 'variants'>, types: Types) {
+  const problems: string[] = [];
+  for (const [variant, partial] of Object.entries(fixture.variants ?? {})) {
+    if (partial === null || typeof partial !== 'object' || Array.isArray(partial)) continue;
+    const merged = variantSeed(fixture, variant);
+    if (JSON.stringify(merged) === JSON.stringify(fixture.seed ?? {})) {
+      problems.push(`${name}.variants.${variant}: draws the seed unchanged, so the variant compares nothing the seed does not`);
+    }
+    problems.push(...seedProblems(`${name}.variants.${variant}`, contract, { seed: merged }, types));
   }
   return problems;
 }
@@ -361,9 +375,13 @@ export function shapeProblems(name: string, fixture: Fixture & Record<string, un
   const problems: string[] = [];
   if (fixture.component !== name)
     problems.push(`${name}${FIXTURE_SUFFIX}: declares component "${fixture.component}", and the file name says ${name}`);
-  const known = ['component', 'seed', 'class', 'slots', 'bind', 'host', 'note', 'vars'];
+  const known = ['component', 'seed', 'class', 'slots', 'bind', 'host', 'note', 'vars', 'variants'];
   for (const key of Object.keys(fixture))
     if (!known.includes(key)) problems.push(`${name}${FIXTURE_SUFFIX}: carries ${key}, and a fixture holds ${known.join(', ')}`);
+  for (const [variant, partial] of Object.entries(fixture.variants ?? {})) {
+    if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(variant)) problems.push(`${name}${FIXTURE_SUFFIX}: variants names "${variant}", and a variant is named in lower-case words joined by hyphens, since a kitchen-sink arrangement spells it after a colon`);
+    if (partial === null || typeof partial !== 'object' || Array.isArray(partial)) problems.push(`${name}${FIXTURE_SUFFIX}: variants.${variant} is a partial seed, an object of members`);
+  }
   const vars = fixture.vars;
   if (vars !== undefined && (vars === null || typeof vars !== 'object' || Array.isArray(vars)))
     problems.push(`${name}${FIXTURE_SUFFIX}: vars is a map of --arena-* names to string values`);
@@ -380,6 +398,7 @@ export function fixtureProblems(name: string, contract: ComponentContract, fixtu
   const problems = [
     ...shapeProblems(name, fixture),
     ...seedProblems(name, contract, fixture, types),
+    ...variantProblems(name, contract, fixture, types),
     ...classProblems(`${name}.class`, name, fixture.class),
     ...slotProblems(name, contract, fixture, contracts, types),
     ...bindProblems(name, contract, fixture, types),

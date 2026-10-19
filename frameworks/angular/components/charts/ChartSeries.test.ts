@@ -30,45 +30,45 @@ function captureWarnings(body: () => void): string[] {
 
 test('arenaSeriesColors always returns exactly `count` colours', () => {
   for (const count of [0, 1, 3, 25]) {
-    assert.equal(arenaSeriesColors(series(), count, 1).length, count);
-    assert.equal(arenaSeriesColors(series({ colorId: 3 }), count, 1).length, count);
-    assert.equal(arenaSeriesColors(series({ colorIds: [1, 2] }), count, 1).length, count);
-    assert.equal(arenaSeriesColors(series({ tone: 'danger' }), count, 1).length, count);
+    assert.equal(arenaSeriesColors(series(), count, 1, 'ArenaLineChart').length, count);
+    assert.equal(arenaSeriesColors(series({ colorId: 3 }), count, 1, 'ArenaLineChart').length, count);
+    assert.equal(arenaSeriesColors(series({ colorIds: [1, 2] }), count, 1, 'ArenaLineChart').length, count);
+    assert.equal(arenaSeriesColors(series({ tone: 'danger' }), count, 1, 'ArenaLineChart').length, count);
   }
 });
 
 test('a series with no identity of its own takes the slot its POSITION gives it', () => {
 
-  assert.deepEqual(arenaSeriesColors(series(), 2, 1), ['var(--color-cat-1)', 'var(--color-cat-1)']);
-  assert.deepEqual(arenaSeriesColors(series(), 2, 3), ['var(--color-cat-3)', 'var(--color-cat-3)']);
+  assert.deepEqual(arenaSeriesColors(series(), 2, 1, 'ArenaLineChart'), ['var(--color-cat-1)', 'var(--color-cat-1)']);
+  assert.deepEqual(arenaSeriesColors(series(), 2, 3, 'ArenaLineChart'), ['var(--color-cat-3)', 'var(--color-cat-3)']);
 });
 
 test('`colorId` paints the whole series one identity colour, whatever its position', () => {
-  assert.deepEqual(arenaSeriesColors(series({ colorId: 4 }), 2, 7), ['var(--color-cat-4)', 'var(--color-cat-4)']);
+  assert.deepEqual(arenaSeriesColors(series({ colorId: 4 }), 2, 7, 'ArenaLineChart'), ['var(--color-cat-4)', 'var(--color-cat-4)']);
 });
 
 test('`colorIds` maps per mark, falling back to the mark index where it runs short', () => {
 
-  assert.deepEqual(arenaSeriesColors(series({ colorIds: [5, 2] }), 4, 1), [
+  assert.deepEqual(arenaSeriesColors(series({ colorIds: [5, 2] }), 4, 1, 'ArenaLineChart'), [
     'var(--color-cat-5)', 'var(--color-cat-2)', 'var(--color-cat-3)', 'var(--color-cat-4)',
   ]);
 });
 
 test('`colorIds` shorter than `count` still never cycles past the ramp', () => {
-  const colours = arenaSeriesColors(series({ colorIds: [] }), 12, 1);
+  const colours = arenaSeriesColors(series({ colorIds: [] }), 12, 1, 'ArenaLineChart');
   assert.equal(colours[11], `var(--color-cat-${ARENA_CAT_SLOTS})`);
   assert.equal(new Set(colours).size, ARENA_CAT_SLOTS, 'the ramp clamps rather than wrapping');
 });
 
 test('`tone` paints the whole series the semantic colour', () => {
-  assert.deepEqual(arenaSeriesColors(series({ tone: 'warning' }), 2, 1), ['var(--warning)', 'var(--warning)']);
+  assert.deepEqual(arenaSeriesColors(series({ tone: 'warning' }), 2, 1, 'ArenaLineChart'), ['var(--warning)', 'var(--warning)']);
 });
 
 test('`tone` wins over `colorId` and over `colorIds`, and passing both warns', () => {
   forgetArenaWarnings();
   const warnings = captureWarnings(() => {
-    assert.deepEqual(arenaSeriesColors(series({ tone: 'danger', colorId: 3 }), 1, 1), ['var(--danger)']);
-    assert.deepEqual(arenaSeriesColors(series({ tone: 'danger', colorIds: [3] }), 1, 1), ['var(--danger)']);
+    assert.deepEqual(arenaSeriesColors(series({ tone: 'danger', colorId: 3 }), 1, 1, 'ArenaLineChart'), ['var(--danger)']);
+    assert.deepEqual(arenaSeriesColors(series({ tone: 'danger', colorIds: [3] }), 1, 1, 'ArenaLineChart'), ['var(--danger)']);
   });
   assert.ok(warnings.length <= 1, 'arenaWarnOnce must not warn twice for one message');
   forgetArenaWarnings();
@@ -77,31 +77,42 @@ test('`tone` wins over `colorId` and over `colorIds`, and passing both warns', (
 test('the mutually-exclusive warning fires once, and only when both are passed', () => {
   forgetArenaWarnings();
   const clean = captureWarnings(() => {
-    arenaSeriesColors(series({ tone: 'danger' }), 1, 1);
-    arenaSeriesColors(series({ colorId: 2 }), 1, 1);
-    arenaSeriesColors(series(), 1, 1);
+    arenaSeriesColors(series({ tone: 'danger' }), 1, 1, 'ArenaLineChart');
+    arenaSeriesColors(series({ colorId: 2 }), 1, 1, 'ArenaLineChart');
+    arenaSeriesColors(series(), 1, 1, 'ArenaLineChart');
   });
   assert.deepEqual(clean, [], 'identity alone and meaning alone are both legal, and silent');
 
   const warnings = captureWarnings(() => {
-    arenaSeriesColors(series({ tone: 'danger', colorId: 3 }), 1, 1);
-    arenaSeriesColors(series({ tone: 'info', colorIds: [2] }), 1, 1);
+    arenaSeriesColors(series({ tone: 'danger', colorId: 3 }), 1, 1, 'ArenaLineChart');
+    arenaSeriesColors(series({ tone: 'info', colorIds: [2] }), 1, 1, 'ArenaLineChart');
   });
   assert.equal(warnings.length, 1, 'warned once for the two offending calls');
-  assert.match(warnings[0] as string, /^\[arena\] chart:/);
+  assert.match(warnings[0] as string, /^\[arena\] ArenaLineChart:/);
   assert.match(warnings[0] as string, /mutually exclusive/);
+  forgetArenaWarnings();
+});
+
+test('the mutually-exclusive warning names the chart that drew it, so a second chart is heard too', () => {
+  forgetArenaWarnings();
+  const warnings = captureWarnings(() => {
+    arenaSeriesColors(series({ tone: 'danger', colorId: 3 }), 1, 1, 'ArenaLineChart');
+    arenaSeriesColors(series({ tone: 'danger', colorId: 3 }), 1, 1, 'ArenaSparkline');
+    arenaPointSeriesColor({ label: 'T', x: [], y: [], tone: 'danger', colorId: 3 }, 1, 'ArenaScatterChart');
+  });
+  assert.deepEqual(warnings.map((line) => /^\[arena\] (\w+):/.exec(line)?.[1]), ['ArenaLineChart', 'ArenaSparkline', 'ArenaScatterChart']);
   forgetArenaWarnings();
 });
 
 test('a tone outside the union falls back to slot 1 instead of yielding undefined', () => {
 
   const rogue = 'critical' as unknown as ArenaSeriesTone;
-  assert.deepEqual(arenaSeriesColors(series({ tone: rogue }), 2, 4), ['var(--color-cat-1)', 'var(--color-cat-1)']);
+  assert.deepEqual(arenaSeriesColors(series({ tone: rogue }), 2, 4, 'ArenaLineChart'), ['var(--color-cat-1)', 'var(--color-cat-1)']);
 });
 
 test('`colorId: 0` is still an identity, not an absent one', () => {
 
-  assert.deepEqual(arenaSeriesColors(series({ colorId: 0 }), 1, 5), ['var(--color-cat-1)']);
+  assert.deepEqual(arenaSeriesColors(series({ colorId: 0 }), 1, 5, 'ArenaLineChart'), ['var(--color-cat-1)']);
 });
 
 test('the point count is the longest series, so a short one does not truncate the axis', () => {
@@ -415,8 +426,8 @@ test('the table lists a row per pair with the series named on every one, in the 
 });
 
 test('a point series takes its colour by position when it declares none', () => {
-  assert.notEqual(arenaPointSeriesColor(PAIRS[0] as ArenaPointSeries, 1),
-    arenaPointSeriesColor(PAIRS[1] as ArenaPointSeries, 2),
+  assert.notEqual(arenaPointSeriesColor(PAIRS[0] as ArenaPointSeries, 1, 'ArenaScatterChart'),
+    arenaPointSeriesColor(PAIRS[1] as ArenaPointSeries, 2, 'ArenaScatterChart'),
     'two clouds that were never told apart must not come out the same colour');
 });
 
@@ -428,7 +439,7 @@ test('tone still wins over colorId on a point series, and still warns', () => {
   console.warn = (message: string) => { warnings.push(message); };
   try {
     const both: ArenaPointSeries = { label: 'Both', x: [1], y: [1], colorId: 4, tone: 'danger' };
-    assert.equal(arenaPointSeriesColor(both, 1), arenaPointSeriesColor({ label: 'T', x: [], y: [], tone: 'danger' }, 1));
+    assert.equal(arenaPointSeriesColor(both, 1, 'ArenaScatterChart'), arenaPointSeriesColor({ label: 'T', x: [], y: [], tone: 'danger' }, 1, 'ArenaScatterChart'));
     assert.ok(warnings.some((w) => w.includes('mutually exclusive')), `no warning, got ${JSON.stringify(warnings)}`);
   } finally {
     console.warn = real;

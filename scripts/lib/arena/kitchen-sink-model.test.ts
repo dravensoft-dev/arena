@@ -7,8 +7,9 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   FIXED, classStrings, drawsFixed, stagedComponents, substitute, instanceNode, componentsIn,
-  rebase, rebaseNode, sinkModel, scopeClass, ROOT_SINK,
+  rebase, rebaseNode, sinkModel, scopeClass, ROOT_SINK, splitItem, isVariantArrangement,
 } from './kitchen-sink-model.ts';
+import { variantSeed } from './playground-model.ts';
 
 const DEPTH = { from: '../../../../../', to: '../../../../' };
 
@@ -150,4 +151,51 @@ test('a fixture\'s vars reach its item, and an item of a fixture without any car
   const model = sinkModel({ sink: 's', sections: [{ title: 'T', items: ['ArenaTable', 'ArenaBadge'] }] }, demos, new Set(), DEPTH);
   assert.deepEqual(model.sections[0]?.items[0]?.vars, vars);
   assert.equal('vars' in (model.sections[0]?.items[1] ?? {}), false);
+});
+
+const GAUGE = {
+  component: 'ArenaGaugeChart',
+  seed: { value: 72, label: 'CPU load', colorId: 2, bands: [{ from: 0, tone: 'success', label: 'Healthy' }] },
+  variants: { 'at-min': { value: 0 }, 'no-bands': { bands: null } },
+};
+
+test('an item is a component, or a component and a variant after a colon', () => {
+  assert.deepEqual(splitItem('ArenaGaugeChart'), { component: 'ArenaGaugeChart' });
+  assert.deepEqual(splitItem('ArenaGaugeChart:at-min'), { component: 'ArenaGaugeChart', variant: 'at-min' });
+});
+
+test('an arrangement of variants is told by every item carrying one', () => {
+  assert.equal(isVariantArrangement({ sections: [{ title: 'T', items: ['A:x', 'B:y'] }] }), true);
+  assert.equal(isVariantArrangement({ sections: [{ title: 'T', items: ['A:x', 'B'] }] }), false);
+  assert.equal(isVariantArrangement({ sections: [] }), false);
+});
+
+test('a variant lays its members over the seed, and null takes a seeded member out', () => {
+  assert.deepEqual(variantSeed(GAUGE, 'at-min'), { ...GAUGE.seed, value: 0 });
+  const bare = variantSeed(GAUGE, 'no-bands');
+  assert.equal('bands' in bare, false);
+  assert.equal(bare.colorId, 2);
+  assert.deepEqual(GAUGE.seed.bands.length, 1, 'the seed itself is not mutated');
+  assert.throws(() => variantSeed(GAUGE, 'nowhere'), /declares no variant "nowhere"/);
+});
+
+test('a variant item is drawn from the seed with its variant over it, and labelled with both', () => {
+  const model = sinkModel(
+    { sink: 'charts', sections: [{ title: 'Gauge', items: ['ArenaGaugeChart:at-min', 'ArenaGaugeChart:no-bands'] }] },
+    new Map([['ArenaGaugeChart', GAUGE]]), new Set(), DEPTH,
+  );
+  const [first, second] = model.sections[0]?.items ?? [];
+  assert.equal(first?.label, 'ArenaGaugeChart:at-min');
+  assert.equal(first?.variant, 'at-min');
+  assert.equal(first?.node.members?.value, 0);
+  assert.equal(first?.node.members?.colorId, 2);
+  assert.equal('bands' in (second?.node.members ?? {}), false);
+});
+
+test('a variant its demo does not declare fails rather than drawing the seed', () => {
+  assert.throws(
+    () => sinkModel({ sink: 'charts', sections: [{ title: 'G', items: ['ArenaGaugeChart:nowhere'] }] },
+      new Map([['ArenaGaugeChart', GAUGE]]), new Set(), DEPTH),
+    /declares no variant "nowhere"/,
+  );
 });

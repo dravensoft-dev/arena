@@ -246,7 +246,7 @@ export class ArenaScatterChart {
   protected readonly zeroY = computed(() => this.yAxis().zeroY);
 
   protected readonly colors = computed(
-    () => this.series().map((one, index) => arenaPointSeriesColor(one, index + 1)),
+    () => this.series().map((one, index) => arenaPointSeriesColor(one, index + 1, 'ArenaScatterChart')),
   );
 
   protected readonly marks = computed(() => {

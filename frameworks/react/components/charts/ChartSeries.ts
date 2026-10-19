@@ -23,10 +23,10 @@ export interface ArenaStackSegment {
   outer: boolean;
 }
 
-export function arenaSeriesColors(series: ArenaSeries, count: number, fallbackSlot: number): string[] {
+export function arenaSeriesColors(series: ArenaSeries, count: number, fallbackSlot: number, chart: string): string[] {
   const { colorId, colorIds, tone } = series;
   if (tone && (colorId !== undefined || colorIds !== undefined)) {
-    arenaWarnOnce('chart: `tone` and `colorId`/`colorIds` are mutually exclusive — a series carries identity or meaning, never both. `tone` wins; remove the other.');
+    arenaWarnOnce(`${chart}: \`tone\` and \`colorId\`/\`colorIds\` are mutually exclusive — a series carries identity or meaning, never both. \`tone\` wins; remove the other.`);
   }
   if (tone) {
     const colour = arenaToneColor(tone) || arenaCatColor(1);
@@ -353,10 +353,10 @@ export function arenaPointSeriesDomain(series: readonly ArenaPointSeries[], coun
   return { x: arenaNiceDomain(minX, maxX, count), y: arenaNiceDomain(minY, maxY, count) };
 }
 
-export function arenaPointSeriesColor(series: ArenaPointSeries, fallbackSlot: number): string {
+export function arenaPointSeriesColor(series: ArenaPointSeries, fallbackSlot: number, chart: string): string {
   const { colorId, tone } = series;
   if (tone && colorId !== undefined) {
-    arenaWarnOnce('chart: `tone` and `colorId` are mutually exclusive — a series carries identity or meaning, never both. `tone` wins; remove the other.');
+    arenaWarnOnce(`${chart}: \`tone\` and \`colorId\` are mutually exclusive — a series carries identity or meaning, never both. \`tone\` wins; remove the other.`);
   }
   if (tone) return arenaToneColor(tone) || arenaCatColor(1);
   return arenaCatColor(colorId ?? fallbackSlot);

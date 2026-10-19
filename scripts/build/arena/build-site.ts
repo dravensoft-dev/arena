@@ -18,7 +18,7 @@ import { walkFiles } from '../../utils/walk-files.ts';
 import { relPosix } from '../../utils/posix-path.ts';
 import {
   DOMAIN, SITE_DIR, LAYERS, COPIED, COPIED_FILES, SINK_PAGE, BENCHES_DIR,
-  entryPoints, sinkNames, components, pages, indexedDirectories, phosphorFiles,
+  entryPoints, sinkNames, variantSinkNames, components, pages, indexedDirectories, phosphorFiles,
   playgroundsOnDisk, playgroundSections, modules, titleOf, url, directoryUrl, REPOSITORY,
   benches, benchPairs, phosphorDrops,
 } from '../../lib/arena/site-pages.ts';
@@ -337,7 +337,7 @@ export async function buildSite(base = repoRoot, out = join(base, SITE_DIR)) {
     const page = directory === ''
       ? landingPage(base, out)
       : indexPage(
-        titleFor(directory), descriptionFor(directory), directoryUrl(directory),
+        titleFor(directory), descriptionFor(directory, base), directoryUrl(directory),
         sectionsFor(directory, base, out), depth,
       );
     written.push(write(out, rel, page));
@@ -370,7 +370,7 @@ export async function buildSite(base = repoRoot, out = join(base, SITE_DIR)) {
   return written;
 }
 
-function descriptionFor(directory: string) {
+function descriptionFor(directory: string, base: string) {
   if (directory === BENCHES_DIR) {
     return 'Products drawn twice from one arena.config.json and one style plugin of their own, '
       + 'once under React and once under Angular, each half a running application rather than a '
@@ -388,9 +388,13 @@ function descriptionFor(directory: string) {
   const sink = /^frameworks\/([a-z]+)\/kitchen-sink$/.exec(directory);
   if (sink) {
     return `Every Arena component under ${sink[1]} on one page, under each style plugin this `
-      + 'repository ships.';
+      + 'repository ships, and the chart variants on a page of their own.';
   }
   const one = /^frameworks\/([a-z]+)\/kitchen-sink\/([a-z]+)$/.exec(directory);
+  if (one && variantSinkNames(base).includes(one[2] ?? '')) {
+    return `Every chart variant the demos declare under ${one[1]} on one page: absent data, `
+      + 'values at and past the ends of the scale, and configurations a chart warns about.';
+  }
   if (one) {
     return `The ${one[2]} style plugin drawing every Arena component under ${one[1]} on one page.`;
   }

@@ -49,7 +49,7 @@ export function angularSinkEntry(model: SinkModel, places: Places,
   const imports = new Set<string>();
   const sections = model.sections.map((one) => {
     const tiles = one.items.map((item) => `        <div class="${KS.tile}">
-          <span class="${KS.label}">${item.component}</span>
+          <span class="${KS.label}">${item.label}</span>
           <div class="${bodyClass(item.staged)}"${varsStyle(item.vars) ? ` style="${varsStyle(item.vars)}"` : ''}>
 ${renderNode(item.node, places, fields, markers, tags, 6, imports)}
           </div>

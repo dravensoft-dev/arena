@@ -10,5 +10,37 @@
       { "from": 85, "tone": "danger", "label": "Critical" }
     ]
   },
+  "variants": {
+    "no-bands": {
+      "bands": null
+    },
+    "below-first-band": {
+      "value": 10,
+      "bands": [{"from": 20, "tone": "success", "label": "Healthy"}, {"from": 60, "tone": "warning", "label": "Elevated"}, {"from": 85, "tone": "danger", "label": "Critical"}]
+    },
+    "at-min": {
+      "value": 0,
+      "colorId": 3
+    },
+    "below-min": {
+      "value": -12
+    },
+    "at-max": {
+      "value": 100
+    },
+    "above-max": {
+      "value": 130
+    },
+    "unsorted-bands": {
+      "bands": [{"from": 60, "tone": "warning", "label": "Elevated"}, {"from": 0, "tone": "success", "label": "Healthy"}, {"from": 85, "tone": "danger", "label": "Critical"}]
+    },
+    "empty-scale": {
+      "max": 0
+    },
+    "identity-colour": {
+      "bands": null,
+      "colorId": 3
+    }
+  },
   "note": "Colour is a band and a band has a word: the label under the reading is what a reader who cannot tell the hues apart receives."
 }

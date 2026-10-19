@@ -18,6 +18,7 @@ import { memoBy } from '../../utils/memo.ts';
 import { repoRoot as root } from './repo-root.ts';
 import { IDENTITY_PAGES } from './agent-payload.ts';
 import { componentMap } from './component-map.ts';
+import { isVariantArrangement, type SinkFixture } from './kitchen-sink-model.ts';
 import { PHOSPHOR_WEIGHTS } from './playground-page.ts';
 import { kebab, pascal } from '../../utils/case.ts';
 
@@ -61,6 +62,11 @@ export function sinkNames(base = root) {
     .filter((file) => file.endsWith(SINK_SUFFIX))
     .map((file) => file.slice(0, -SINK_SUFFIX.length))
     .sort();
+}
+
+export function variantSinkNames(base = root) {
+  return sinkNames(base).filter((name) => isVariantArrangement(
+    JSON.parse(readFileSync(join(base, SINK_FIXTURES, `${name}${SINK_SUFFIX}`), 'utf8')) as Pick<SinkFixture, 'sections'>));
 }
 
 export function entryPoints(base = root): Entry[] {

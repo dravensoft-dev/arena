@@ -1,8 +1,8 @@
 /* Holds what check:pixel-parity is pointed at. That gate reports the two layers agreeing over a
  * page holding everything exactly as it does over a page holding nothing, so the arrangement is
  * the thing to hold and this is where. Each claim closes a way the surface silently shrinks:
- * every component the registry names appears in every arrangement, so no page is compared over
- * less than its siblings; nothing names what does not exist, since a typo drops a component and reads
+ * every component the registry names appears in every whole arrangement, and every variant a demo
+ * declares appears once in the variant one, so no page is compared over less than its siblings; nothing names what does not exist, since a typo drops a component and reads
  * as a choice; a fixture keeps pinning the members its component would otherwise take off the
  * clock or the host's own zone, which would move the page between two runs; and every emitted
  * file matches a fresh run, so a page edited by hand fails rather than becoming the thing
@@ -14,6 +14,7 @@ import { isMainModule } from '../../utils/main-module.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { everyComponent } from '../../lib/tailwind/manifest-surfaces.ts';
 import { buildKitchenSink, loadFixtures, FIXTURES } from '../../generate/arena/generate-kitchen-sink.ts';
+import { splitItem, isVariantArrangement } from '../../lib/arena/kitchen-sink-model.ts';
 import type { SinkFixture } from '../../lib/arena/kitchen-sink-model.ts';
 
 export const node = {
@@ -38,7 +39,40 @@ export const PINNED: Record<string, { members: string[]; reason: string }> = {
   },
 };
 
-export function coverageProblems(fixtures: Map<string, SinkFixture>, registry: string[]) {
+export function variantNames(demos: Map<string, { variants?: Record<string, unknown> }>) {
+  const out = new Map<string, string[]>();
+  for (const [component, demo] of demos) {
+    const names = Object.keys(demo.variants ?? {});
+    if (names.length > 0) out.set(component, names);
+  }
+  return out;
+}
+
+export function variantCoverageProblems(sink: string, items: string[], variants: Map<string, string[]>) {
+  const problems = [];
+  const expected = [...variants].flatMap(([component, names]) => names.map((name) => `${component}:${name}`));
+  const seen = new Set(items);
+  const missing = expected.filter((item) => !seen.has(item));
+  if (missing.length > 0) {
+    problems.push(`${sink}: ${missing.length} variant(s) a demo declares appear nowhere in this `
+      + `arrangement, so nothing compares them here: ${missing.join(', ')}`);
+  }
+  const known = new Set(expected);
+  const unknown = [...seen].filter((item) => !known.has(item)).sort();
+  if (unknown.length > 0) {
+    problems.push(`${sink}: names ${unknown.join(', ')}, which no demo declares as a variant, so the `
+      + 'name reaches no seed and the arrangement silently holds one fewer');
+  }
+  const twice = [...seen].filter((item) => items.filter((one) => one === item).length > 1).sort();
+  if (twice.length > 0) {
+    problems.push(`${sink}: places ${twice.join(', ')} more than once, and a variant drawn twice is `
+      + 'a tile that lost track of what it was for');
+  }
+  return problems;
+}
+
+export function coverageProblems(fixtures: Map<string, SinkFixture>, registry: string[],
+  variants: Map<string, string[]> = new Map()) {
   const problems = [];
   const known = new Set(registry);
   for (const [sink, fixture] of fixtures) {
@@ -46,6 +80,17 @@ export function coverageProblems(fixtures: Map<string, SinkFixture>, registry: s
     if (items.length === 0) {
       problems.push(`${sink}: the arrangement holds no component at all, so its pair of pages `
         + 'compares two empty documents and passes');
+      continue;
+    }
+    if (isVariantArrangement(fixture)) {
+      problems.push(...variantCoverageProblems(sink, items, variants));
+      continue;
+    }
+    const mixed = items.filter((item) => splitItem(item).variant !== undefined);
+    if (mixed.length > 0) {
+      problems.push(`${sink}: places ${mixed.join(', ')}, a variant, beside whole components. An `
+        + 'arrangement holds the library or the variants, since the registry rule is stated over one '
+        + 'and the variant rule over the other');
       continue;
     }
     const seen = new Set(items);
@@ -128,10 +173,11 @@ function main() {
     process.exit(1);
   }
 
+  const demos = loadDemoSeeds();
   const { files, problems: emitted } = buildKitchenSink();
   const problems = [
-    ...coverageProblems(fixtures, registry),
-    ...pinnedProblems(loadDemoSeeds()),
+    ...coverageProblems(fixtures, registry, variantNames(demos)),
+    ...pinnedProblems(demos),
     ...emitted,
     ...emissionProblems(files),
   ];
@@ -141,8 +187,11 @@ function main() {
     for (const p of problems) console.error(`  ${p}\n`);
     process.exit(1);
   }
-  console.log(`check-kitchen-sink: ${fixtures.size} arrangement(s) place all ${registry.length} `
-    + `component(s) each, and the ${files.size} emitted file(s) match a fresh run of the generator`);
+  const drawn = [...fixtures.values()].filter(isVariantArrangement).length;
+  const counted = [...variantNames(demos).values()].reduce((total, names) => total + names.length, 0);
+  console.log(`check-kitchen-sink: ${fixtures.size - drawn} arrangement(s) place all ${registry.length} `
+    + `component(s) each, ${drawn} place all ${counted} variant(s) the demos declare, and the `
+    + `${files.size} emitted file(s) match a fresh run of the generator`);
 }
 
 if (isMainModule(import.meta.url)) main();

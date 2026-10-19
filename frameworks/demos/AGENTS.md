@@ -69,6 +69,11 @@ notices.
   // control to change them. Optional.
   "vars": { "--arena-column-status-align": "right" },
 
+  // Named seeds the kitchen-sink arrangement of variants draws, one tile each: a variant is a partial
+  // seed laid over `seed`, a member it holds as null is taken out of it, and the name is lower-case
+  // words joined by hyphens. The playground ignores them. Optional.
+  "variants": { "at-min": { "value": 0 }, "no-bands": { "bands": null } },
+
   // One line under the page title. Optional.
   "note": "A surface. With interactive or href it becomes one activation target."
 }

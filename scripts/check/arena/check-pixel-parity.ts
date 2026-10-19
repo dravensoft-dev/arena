@@ -6,7 +6,8 @@
  * rather than a member of GATES. ALLOWED is the one relief and it is EMPTY: an entry would be per
  * sink, bounded on count AND delta, and stale when unspent. Motion, focus and MEASUREMENT stop before
  * the shutter, the third because the shutter reaches past the viewport and hands width 0 to every
- * live ResizeObserver, so a chart redraws collapsed. Pairs are walked, and a sweep finding none fails. */
+ * live ResizeObserver, so a chart redraws collapsed. Pairs are walked, and a sweep finding none fails.
+ * The two layers' console warnings must agree too: a divergence no pixel shows. */
 import { readdirSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { withTimeout } from '../../utils/with-timeout.ts';
@@ -20,7 +21,8 @@ import type { Cdp, CdpSend } from '../../lib/arena/cdp.ts';
 import { arenaEnv, cannotRun } from '../../lib/arena/arena-scripts-vars.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import {
-  COLLECT, REPORT, paintedProblem, silenceOf, threwProblem, type Painted, type Silence,
+  COLLECT, COLLECT_WARNINGS, WARNINGS, REPORT, paintedProblem, silenceOf, threwProblem, warningsProblem,
+  type Painted, type Silence,
 } from '../../lib/arena/page-errors.ts';
 import { loadInFreshTab, networkChangedProblem, type Lost } from '../../lib/arena/page-load.ts';
 import { READY, PAGE_FILE } from '../../lib/arena/kitchen-sink-page.ts';
@@ -297,6 +299,7 @@ async function captureIn(cdp: Cdp, sessionId: string, url: string, selectors: st
   await cdp.send('Page.enable', {}, sessionId);
   await cdp.send('Page.addScriptToEvaluateOnNewDocument', { source: COLLECT }, sessionId);
   await cdp.send('Page.addScriptToEvaluateOnNewDocument', { source: WATCH }, sessionId);
+  await cdp.send('Page.addScriptToEvaluateOnNewDocument', { source: COLLECT_WARNINGS }, sessionId);
   const settled = loaded(cdp, sessionId);
   await withTimeout(cdp.send('Page.navigate', { url }, sessionId), NAVIGATE.ms,
     `${url}: navigate timed out after ${NAVIGATE.ms}ms, which is that size because ${NAVIGATE.why}`);
@@ -317,7 +320,7 @@ async function captureIn(cdp: Cdp, sessionId: string, url: string, selectors: st
     if (error instanceof PageThrew) return undefined;
     throw error;
   }) as Silence | undefined;
-  if (!painted.ready) return { png: null, settled: false, tries: 0, painted, silence, threw, rects: [] as Rect[][] };
+  if (!painted.ready) return { png: null, settled: false, tries: 0, painted, silence, threw, rects: [] as Rect[][], warnings: [] as string[] };
 
   await ev(STILL);
   await ev(stableHeightExpression(PAINTED));
@@ -331,11 +334,11 @@ async function captureIn(cdp: Cdp, sessionId: string, url: string, selectors: st
   let previous = await once();
   for (let tries = 1; tries <= SETTLE_TRIES; tries += 1) {
     const next = await once();
-    if (next.equals(previous)) return { png: next, settled: true, tries, painted, silence, rects: await rectsOf(ev, selectors) };
+    if (next.equals(previous)) return { png: next, settled: true, tries, painted, silence, rects: await rectsOf(ev, selectors), warnings: await ev(WARNINGS) as string[] };
     previous = next;
     if (Date.now() >= until) break;
   }
-  return { png: previous, settled: false, tries: SETTLE_TRIES, painted, silence, threw, rects: await rectsOf(ev, selectors) };
+  return { png: previous, settled: false, tries: SETTLE_TRIES, painted, silence, threw, rects: await rectsOf(ev, selectors), warnings: await ev(WARNINGS) as string[] };
 }
 
 export function paintProblem(name: string, layer: string,
@@ -528,6 +531,7 @@ async function main() {
   const dumped = [];
   const measured = new Map<string, number>();
   const absorbed: string[] = [];
+  const printed: string[] = [];
   let compared = 0;
   let slowest = 0;
   try {
@@ -544,6 +548,10 @@ async function main() {
           .filter((one): one is string => one !== null);
         if (unpainted.length > 0) { problems.push(...unpainted); continue; }
         if (!react.png || !angular.png) continue;
+
+        const warned = warningsProblem(name, { react: react.warnings, angular: angular.warnings });
+        if (warned !== null) problems.push(warned);
+        if (warned === null && react.warnings.length > 0) printed.push(`${name}: ${react.warnings.length} console warning(s), the same in both layers`);
 
         compared += 1;
         if (react.png.equals(angular.png)) { measured.set(sink, measured.get(sink) ?? 0); continue; }
@@ -571,9 +579,11 @@ async function main() {
   }
   console.log(`check-pixel-parity: ${compared} pair(s) captured in a real browser across `
     + `${sinks.length} sink(s) and ${THEMES.length} theme(s), and every one of them is identical `
-    + `byte for byte${absorbed.length ? ` bar ${absorbed.length} inside a declared allowance` : ''}. `
+    + `byte for byte${absorbed.length ? ` bar ${absorbed.length} inside a declared allowance` : ''}, `
+    + 'and the two layers print the same console warnings on each. '
     + `The slowest page painted after ${slowest}ms of the ${PAINTED.ms}ms allowed`);
   for (const one of absorbed) console.log(`  ${one}`);
+  for (const one of printed) console.log(`  ${one}`);
 }
 
 if (isMainModule(import.meta.url)) {

@@ -78,5 +78,26 @@
       ]
     }
   },
+  "variants": {
+    "flat": {
+      "series": [{"label": "Requests per minute", "values": [150, 150, 150, 150, 150, 150, 150]}]
+    },
+    "negative": {
+      "series": [{"label": "Net change", "values": [-20, 35, -8, 14, -31, 5, 12]}]
+    },
+    "single-point": {
+      "labels": ["Mon"],
+      "series": [{"label": "Requests per minute", "values": [148]}]
+    },
+    "area": {
+      "area": true
+    },
+    "two-series": {
+      "series": [{"label": "Requests per minute", "values": [148, 132, 176, 161, 190, 122, 137]}, {"label": "Errors per minute", "values": [4, 9, 6, 12, 8, 3, 5]}]
+    },
+    "tone-and-color-id": {
+      "series": [{"label": "Requests per minute", "values": [148, 132, 176, 161, 190, 122, 137], "tone": "success", "colorId": 2}]
+    }
+  },
   "note": "The default is the static case, shown in the place a sparkline lives: a table column, where it adds no tab stop. The card below the table sets interactive, for a standalone sparkline the keyboard can read: one tab stop, never shorter than the smallest control."
 }

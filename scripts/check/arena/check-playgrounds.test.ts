@@ -4,7 +4,7 @@ import {
   coverageProblems, shapeProblems, seedProblems, slotProblems, bindProblems, fieldProblems, hostProblems,
   valueProblems, objectProblems, nodeProblems, fixtureProblems, citationProblems,
   loadContracts, loadFixtures, loadTypes, citingFiles, basenameIndex, emissionProblems,
-  pagePaths, classProblems,
+  pagePaths, classProblems, variantProblems,
 } from './check-playgrounds.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import type { ComponentContract, TypeContract } from '../../lib/arena/contract-shapes.ts';
@@ -343,4 +343,32 @@ test('a fixture\'s vars name --arena-* properties and hold strings', () => {
   for (const bad of ['a"b', 'a;b', 'a{b', 'a}b', 'a<b'])
     assert.match(shapeProblems('Widget', { ...ok, vars: { '--arena-x': bad } } as any).join('\n'), /would break the style attribute/);
   assert.deepEqual(shapeProblems('Widget', { ...ok, vars: { '--arena-x': 'calc(var(--sp-1) * 4)' } } as any), []);
+});
+
+test('a variant is a partial seed laid over the seed, and each member it holds is checked like a seed member', () => {
+  const fixture = { component: 'Widget', seed: { label: 'Client Portal' }, variants: { loud: { tone: 'danger' } } };
+  assert.deepEqual(variantProblems('Widget', widget, fixture, types), []);
+  assert.deepEqual(fixtureProblems('Widget', widget, { ...ok, variants: fixture.variants }, contracts, types), []);
+});
+
+test('a variant holding a wrong value, an unknown member or nothing new fails, naming the variant', () => {
+  const seed = { label: 'Client Portal' };
+  assert.match(variantProblems('Widget', widget, { component: 'Widget', seed, variants: { odd: { tone: 'loud' } } }, types)[0] ?? '',
+    /Widget\.variants\.odd\.seed\.tone/);
+  assert.match(variantProblems('Widget', widget, { component: 'Widget', seed, variants: { odd: { nope: 1 } } }, types)[0] ?? '',
+    /Widget\.variants\.odd\.seed\.nope: the contract declares no such member/);
+  assert.match(variantProblems('Widget', widget, { component: 'Widget', seed, variants: { same: { label: 'Client Portal' } } }, types)[0] ?? '',
+    /draws the seed unchanged/);
+});
+
+test('a variant taking a required member out of the seed fails, since the chart would throw', () => {
+  const problems = variantProblems('Widget', widget, { component: 'Widget', seed: { label: 'x' }, variants: { bare: { label: null } } }, types);
+  assert.match(problems[0] ?? '', /label is required and carries no default/);
+});
+
+test('a variant is named in lower-case words, and is an object of members', () => {
+  const problems = shapeProblems('Widget', { component: 'Widget', variants: { 'At Min': {}, plain: 3 as any } });
+  assert.equal(problems.length, 2);
+  assert.match(problems[0] ?? '', /variants names "At Min"/);
+  assert.match(problems[1] ?? '', /variants\.plain is a partial seed/);
 });
