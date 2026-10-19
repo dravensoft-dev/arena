@@ -10,7 +10,8 @@ import {
 import { arenaLinePoints, arenaLineAreaPath, arenaCurvePath, arenaCurveAreaPath } from '../ChartMarks';
 import { arenaPlotBox, arenaAxisModel, arenaTickLabelX, arenaCategoryLabelY, arenaValueGutter } from '../ChartAxis';
 import { arenaChartTable, arenaSeriesColors, arenaSwatchChoice, arenaSeriesDomain, arenaSeriesPointCount } from '../ChartSeries';
-import { arenaTooltipAnchor } from '../ChartTooltip';
+import { arenaRailAnchorX, arenaTooltipAnchor } from '../ChartTooltip';
+import { arenaRailView } from '../ChartRailView';
 import { arenaCursorHandles, arenaCursorStep, arenaPointerClears, arenaPointerUpdates } from '../ChartPointer';
 import { arenaLegendStrip } from '../ChartLegend';
 import { arenaLineChartStyles } from './ArenaLineChart.variants';
@@ -46,7 +47,7 @@ const POINT_LABEL_STYLE = { fontSize: 'var(--dz-text-xs)' } as const satisfies R
   template: `
     <div [class]="styles.frame()" [attr.data-arena-part]="parts.frame" [style.height.px]="height()">
     <div #rail [style]="arenaRailStyle" tabindex="0" role="group" [attr.aria-label]="name()"
-         (keydown)="onKey($event)">
+         (keydown)="onKey($event)" (scroll)="syncView()">
     <svg [attr.width]="scrolls() ? width() : '100%'" [attr.height]="plotH()" role="img" [attr.aria-label]="name()"
          style="display:block;overflow:visible">
       @for (tick of gridLines(); track tick.value) {
@@ -195,6 +196,8 @@ export class ArenaLineChart {
 
   private readonly rail = viewChild<ElementRef<HTMLElement>>('rail');
 
+  private readonly railView = arenaRailView(() => this.rail()?.nativeElement);
+
   protected readonly colors = computed(
     () => this.series().map((one, index) => arenaSeriesColors(one, 1, index + 1)[0] as string),
   );
@@ -305,7 +308,7 @@ export class ArenaLineChart {
       x,
       label: this.labels()[index] ?? '',
       readings,
-      anchor: arenaTooltipAnchor(x, Math.min(...readings.map((one) => one.y))),
+      anchor: arenaTooltipAnchor(arenaRailAnchorX(x, this.scrolls(), this.railView.view(), this.available()), Math.min(...readings.map((one) => one.y))),
     };
   });
 
@@ -316,6 +319,17 @@ export class ArenaLineChart {
       if (!rail || !this.scrolls()) return;
       rail.scrollLeft = rail.scrollWidth - rail.clientWidth;
     });
+
+    afterRenderEffect(() => {
+      this.available();
+      this.width();
+      this.scrolls();
+      this.railView.sync();
+    });
+  }
+
+  protected syncView(): void {
+    this.railView.sync();
   }
 
   protected onPointer(event: PointerEvent, phase: string): void {

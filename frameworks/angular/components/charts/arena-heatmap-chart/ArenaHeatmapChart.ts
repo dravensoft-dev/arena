@@ -1,5 +1,5 @@
 import {
-  afterRenderEffect, ChangeDetectionStrategy, Component, computed, ElementRef, inject, input, signal, untracked, viewChild,
+  afterRenderEffect, ChangeDetectionStrategy, Component, computed, ElementRef, inject, input, signal, viewChild,
 } from '@angular/core';
 import { arenaContainerWidth } from '../../../ContainerSize';
 import { arenaWarnOnce } from '../../../WarnOnce';
@@ -14,7 +14,8 @@ import {
 } from '../ChartAxis';
 import { arenaHeatDomain, arenaHeatmapTable, arenaSeriesPointCount } from '../ChartSeries';
 import { arenaHeatLegendStrip } from '../ChartLegend';
-import { arenaScrolledAnchorX, arenaTooltipAnchor } from '../ChartTooltip';
+import { arenaRailAnchorX, arenaTooltipAnchor } from '../ChartTooltip';
+import { arenaRailView } from '../ChartRailView';
 import type { ArenaCell } from '../ChartPointer';
 import { arenaCursorHandles2d, arenaCursorStep2d, arenaPointerClears, arenaPointerUpdates } from '../ChartPointer';
 import { arenaHeatmapChartStyles } from './ArenaHeatmapChart.variants';
@@ -139,7 +140,7 @@ export class ArenaHeatmapChart {
   protected readonly columnNameStyle = COLUMN_NAME_STYLE;
   protected readonly rowNameX = arenaCategoryLabelX();
   protected readonly cursor = signal<ArenaCell | null>(null);
-  private readonly view = signal({ left: 0, visible: 0 });
+  private readonly railView = arenaRailView(() => this.rail()?.nativeElement);
 
   private readonly write = computed(() => arenaValueWriter({
     prefix: this.valuePrefix(), suffix: this.valueSuffix(), format: this.valueFormat(),
@@ -250,8 +251,7 @@ export class ArenaHeatmapChart {
 
   private anchorX(col: number): number {
     const x = arenaBandCenter(this.colScale(), col);
-    const view = this.view();
-    return this.scrolls() ? arenaScrolledAnchorX(x, view.left, view.visible || this.available()) : x;
+    return arenaRailAnchorX(x, this.scrolls(), this.railView.view(), this.available());
   }
 
   protected readonly active = computed(() => {
@@ -285,12 +285,7 @@ export class ArenaHeatmapChart {
   }
 
   protected syncView(): void {
-    const rail = this.rail()?.nativeElement;
-    if (!rail) return;
-    const was = untracked(() => this.view());
-    if (was.left !== rail.scrollLeft || was.visible !== rail.clientWidth) {
-      this.view.set({ left: rail.scrollLeft, visible: rail.clientWidth });
-    }
+    this.railView.sync();
   }
 
   protected onPointer(event: PointerEvent, phase: string): void {

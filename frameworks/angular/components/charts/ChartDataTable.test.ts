@@ -28,6 +28,7 @@ import { ArenaTable } from '../display/arena-table/ArenaTable';
 import { ArenaTableRow } from '../display/arena-table-row/ArenaTableRow';
 import { ArenaTableCell } from '../display/arena-table-cell/ArenaTableCell';
 import { assertPattern, assertPatternCases, ANGULAR_COMPONENTS } from '../../test/Compliance';
+import { arenaScrolledAnchorX } from './ChartTooltip';
 import { assertNoNode } from '../../test/NodeAssert';
 import { forgetArenaWarnings } from '../../WarnOnce';
 import { chartGaugeHeight, chartHeatmapRowH, chartLegendStrip, chartPadCategory, chartSparklineHeight } from '../../Tokens.generated';
@@ -1614,6 +1615,48 @@ test('arena-heatmap-chart anchors the tooltip at the cell\'s place in the rail\'
   } finally {
     fixture.destroy();
   }
+});
+
+const SCROLLED_BY = 112;
+const RAIL_WIDTH = 800;
+const RAIL_LABELS = Array.from({ length: 8 }, (_, i) => `d${i}`);
+const RAIL_SERIES = [{ label: 'Revenue', values: RAIL_LABELS.map((_, i) => i + 1) }];
+
+function leftOf(x: number): string {
+  return `${x}px`;
+}
+
+function assertRailAnchor(type: Type<unknown>, part: string): void {
+  const fixture = TestBed.createComponent(type);
+  fixture.componentRef.setInput('labels', RAIL_LABELS);
+  fixture.componentRef.setInput('series', RAIL_SERIES);
+  fixture.componentRef.setInput('label', CHART);
+  fixture.componentRef.setInput('minPointSpacing', 100);
+  fixture.detectChanges();
+  try {
+    const host = fixture.nativeElement as Element;
+    const rail = host.querySelector('[role="group"]') as HTMLElement;
+    Object.defineProperty(rail, 'scrollLeft', { get: () => SCROLLED_BY, set: () => {}, configurable: true });
+    Object.defineProperty(rail, 'clientWidth', { get: () => RAIL_WIDTH, configurable: true });
+    rail.dispatchEvent(new Event('scroll'));
+    fixture.detectChanges();
+    heatPress(fixture, rail, 'End');
+    const last = [...host.querySelectorAll('svg text')].find((one) => one.textContent === RAIL_LABELS[RAIL_LABELS.length - 1]) as Element;
+    const x = Number(last.getAttribute('x'));
+    assert.notEqual(arenaScrolledAnchorX(x, SCROLLED_BY, RAIL_WIDTH), arenaScrolledAnchorX(x, 0, RAIL_WIDTH), 'the case separates a scrolled rail from an unscrolled one');
+    const tip = host.querySelector(`[data-arena-part="${part}.tooltip"]`) as HTMLElement;
+    assert.equal(tip.style.left, leftOf(arenaScrolledAnchorX(x, SCROLLED_BY, RAIL_WIDTH)), 'the readout sits over the last point as the rail is scrolled');
+  } finally {
+    fixture.destroy();
+  }
+}
+
+test('arena-line-chart anchors the tooltip at the point\'s place in the rail\'s visible span', () => {
+  assertRailAnchor(ArenaLineChart, 'line-chart');
+});
+
+test('arena-bar-chart anchors the tooltip at the bar\'s place in the rail\'s visible span', () => {
+  assertRailAnchor(ArenaBarChart, 'bar-chart');
 });
 
 test('arena-heatmap-chart holds the tooltip inside the rail after the container narrows', () => {

@@ -22,6 +22,7 @@ import { ArenaSparkline } from './arena-sparkline/ArenaSparkline.tsx';
 import { ArenaGaugeChart } from './arena-gauge-chart/ArenaGaugeChart.tsx';
 import { ArenaFunnelChart } from './arena-funnel-chart/ArenaFunnelChart.tsx';
 import { ArenaHeatmapChart } from './arena-heatmap-chart/ArenaHeatmapChart.tsx';
+import { arenaScrolledAnchorX } from './ChartTooltip.ts';
 import { ArenaTable } from '../display/arena-table/ArenaTable.tsx';
 import { ArenaTableRow } from '../display/arena-table-row/ArenaTableRow.tsx';
 import { ArenaTableCell } from '../display/arena-table-cell/ArenaTableCell.tsx';
@@ -726,6 +727,38 @@ test('ArenaHeatmapChart anchors the tooltip at the cell\'s place in the rail\'s 
   scrolled = 0;
   act(() => { rail.dispatchEvent(new Event('scroll')); });
   assert.equal(tip(), 300, 'a cell scrolled past the right edge holds the readout at the edge');
+});
+
+const RAIL_SCROLLED = 112;
+const RAIL_VISIBLE = 800;
+const RAIL_LABELS = Array.from({ length: 8 }, (_, i) => `d${i}`);
+const RAIL_SERIES = [{ label: 'Revenue', values: RAIL_LABELS.map((_, i) => i + 1) }];
+
+function leftOf(x: number): string {
+  return `${x}px`;
+}
+
+function assertRailAnchor(root: HTMLElement, part: string): void {
+  const rail = root.querySelector<HTMLElement>('[role="group"]')!;
+  Object.defineProperty(rail, 'scrollLeft', { get: () => RAIL_SCROLLED, set: () => {}, configurable: true });
+  Object.defineProperty(rail, 'clientWidth', { get: () => RAIL_VISIBLE, configurable: true });
+  act(() => { rail.dispatchEvent(new Event('scroll')); });
+  pressed(rail, 'End');
+  const last = [...root.querySelectorAll('svg text')].find((one) => one.textContent === RAIL_LABELS[RAIL_LABELS.length - 1])!;
+  const x = Number(last.getAttribute('x'));
+  assert.notEqual(arenaScrolledAnchorX(x, RAIL_SCROLLED, RAIL_VISIBLE), arenaScrolledAnchorX(x, 0, RAIL_VISIBLE), 'the case separates a scrolled rail from an unscrolled one');
+  const tip = root.querySelector<HTMLElement>(`[data-arena-part="${part}.tooltip"]`)!;
+  assert.equal(tip.style.left, leftOf(arenaScrolledAnchorX(x, RAIL_SCROLLED, RAIL_VISIBLE)), 'the readout sits over the last point as the rail is scrolled');
+}
+
+test('ArenaLineChart anchors the tooltip at the point\'s place in the rail\'s visible span', () => {
+  const root = mount(<ArenaLineChart labels={RAIL_LABELS} label={CHART} series={RAIL_SERIES} minPointSpacing={100} />);
+  assertRailAnchor(root, 'line-chart');
+});
+
+test('ArenaBarChart anchors the tooltip at the bar\'s place in the rail\'s visible span', () => {
+  const root = mount(<ArenaBarChart labels={RAIL_LABELS} label={CHART} series={RAIL_SERIES} minPointSpacing={100} />);
+  assertRailAnchor(root, 'bar-chart');
 });
 
 test('ArenaHeatmapChart holds the tooltip inside the rail after the container narrows', () => {

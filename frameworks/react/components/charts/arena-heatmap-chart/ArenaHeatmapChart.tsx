@@ -12,7 +12,8 @@ import {
 } from '../ChartAxis.ts';
 import { arenaHeatDomain, arenaHeatmapTable, arenaSeriesPointCount } from '../ChartSeries.ts';
 import { arenaHeatLegendStrip } from '../ChartLegend.ts';
-import { arenaScrolledAnchorX, arenaTooltipAnchor } from '../ChartTooltip.ts';
+import { arenaRailAnchorX, arenaTooltipAnchor } from '../ChartTooltip.ts';
+import { useArenaRailView } from '../ChartRailView.ts';
 import type { ArenaCell } from '../ChartPointer.ts';
 import { arenaCursorHandles2d, arenaCursorStep2d, arenaPointerClears, arenaPointerUpdates } from '../ChartPointer.ts';
 import { chartBarGap, chartBarRadius } from '../../../Tokens.generated.js';
@@ -70,7 +71,6 @@ export function ArenaHeatmapChart({ className,
   const [ref, measured] = useArenaContainerWidth();
   const rail = useRef<HTMLDivElement>(null);
   const [cursor, setCursor] = useState<ArenaCell | null>(null);
-  const [view, setView] = useState({ left: 0, visible: 0 });
 
   if (series.some((one) => one.colorId !== undefined || one.colorIds !== undefined || one.tone !== undefined)) {
     arenaWarnOnce('ArenaHeatmapChart: a series\' colorId, colorIds and tone are ignored, because a cell\'s colour is its magnitude');
@@ -83,6 +83,7 @@ export function ArenaHeatmapChart({ className,
   const strip = arenaHeatLegendStrip(total);
   const width = arenaHeatmapWidth(available, cols, minCellWidth);
   const scrolls = width > available;
+  const [view, syncView] = useArenaRailView(rail, [measured, scrolls, width]);
   const box = arenaHeatmapBox(width, strip.plotH);
   const colScale = arenaBandScale(cols, box.x, box.w, chartBarGap);
   const rowScale = arenaBandScale(rows, box.y, box.h, chartBarGap);
@@ -98,13 +99,6 @@ export function ArenaHeatmapChart({ className,
     return { x: arenaBandMark(colScale, col), y: arenaBandMark(rowScale, row), width: w, height: h, rx: Math.min(chartBarRadius, w / 2, h / 2) };
   };
 
-  const syncView = () => {
-    const region = rail.current;
-    if (!region) return;
-    setView((was) => (was.left === region.scrollLeft && was.visible === region.clientWidth
-      ? was : { left: region.scrollLeft, visible: region.clientWidth }));
-  };
-
   useEffect(() => {
     const region = rail.current;
     if (!region || !scrolls || !cursor) return;
@@ -114,8 +108,6 @@ export function ArenaHeatmapChart({ className,
     else if (right > region.scrollLeft + region.clientWidth) region.scrollLeft = right - region.clientWidth;
     syncView();
   }, [cursor, scrolls, colScale.step]);
-
-  useEffect(syncView, [measured, scrolls, width]);
 
   const onPointer = (e: React.PointerEvent<SVGRectElement>, phase: string) => {
     if (!rows || !cols || !arenaPointerUpdates(e.pointerType, phase)) return;
@@ -183,7 +175,7 @@ export function ArenaHeatmapChart({ className,
         return (
           <div className={styles.tooltip()} data-arena-part={manifest.parts.tooltip} {...styles.$data.tooltip()} style={{
             ...arenaTooltipAnchor(
-              scrolls ? arenaScrolledAnchorX(arenaBandCenter(colScale, active.col), view.left, view.visible || available) : arenaBandCenter(colScale, active.col),
+              arenaRailAnchorX(arenaBandCenter(colScale, active.col), scrolls, view, available),
               arenaBandMark(rowScale, active.row),
             ),
           }}>

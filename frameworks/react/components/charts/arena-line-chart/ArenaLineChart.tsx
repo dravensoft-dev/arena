@@ -9,7 +9,8 @@ import { arenaLinePoints, arenaLineAreaPath, arenaCurvePath, arenaCurveAreaPath 
 import { arenaPlotBox, arenaAxisModel, arenaTickLabelX, arenaCategoryLabelY, arenaValueGutter } from '../ChartAxis.ts';
 import { arenaChartTable, arenaSeriesColors, arenaSwatchHue, arenaSeriesDomain, arenaSeriesPointCount } from '../ChartSeries.ts';
 import { arenaLegendStrip } from '../ChartLegend.ts';
-import { arenaTooltipAnchor } from '../ChartTooltip.ts';
+import { arenaRailAnchorX, arenaTooltipAnchor } from '../ChartTooltip.ts';
+import { useArenaRailView } from '../ChartRailView.ts';
 import { arenaCursorHandles, arenaCursorStep, arenaPointerClears, arenaPointerUpdates } from '../ChartPointer.ts';
 import { chartPointR, chartPointRHover } from '../../../Tokens.generated.js';
 
@@ -76,12 +77,14 @@ export function ArenaLineChart({ className,
   const n = arenaSeriesPointCount(series);
   const width = arenaPlotWidth(available, n, minPointSpacing);
   const scrolls = width > available;
+  const [view, syncView] = useArenaRailView(rail, [measured, scrolls, width]);
   const fmt = arenaValueWriter({ prefix: valuePrefix, suffix: valueSuffix, format: valueFormat });
 
   useEffect(() => {
     const box = rail.current;
     if (!box || !scrolls) return;
     box.scrollLeft = box.scrollWidth - box.clientWidth;
+    syncView();
   }, [scrolls, width]);
 
   if (area && series.length > 1) {
@@ -122,7 +125,7 @@ export function ArenaLineChart({ className,
 
   return (
     <div className={arenaClassName('ArenaLineChart', styles.frame(), className)} ref={ref} data-arena-part={manifest.parts.frame} {...styles.$data.frame()} style={{ height }}>
-      <div ref={rail} style={arenaRailStyle} tabIndex={0} role="group" aria-label={name} onKeyDown={onKeyDown}>
+      <div ref={rail} style={arenaRailStyle} tabIndex={0} role="group" aria-label={name} onKeyDown={onKeyDown} onScroll={syncView}>
       <svg width={scrolls ? width : '100%'} height={strip.plotH} role="img" aria-label={name} style={{ display: 'block', overflow: 'visible' }}>
         {axis.ticks.map((tick, i) => (
           <g key={i}>
@@ -187,7 +190,7 @@ export function ArenaLineChart({ className,
 
       {hover !== null && hover < n && (
         <div className={styles.tooltip()} data-arena-part={manifest.parts.tooltip} {...styles.$data.tooltip()} style={{
-          ...arenaTooltipAnchor(arenaPointAt(xScale, hover),
+          ...arenaTooltipAnchor(arenaRailAnchorX(arenaPointAt(xScale, hover), scrolls, view, available),
             Math.min(...series.map((one) => arenaScaleValue(yScale, one.values[hover] ?? 0)))),
         }}>
           <div className={styles.tooltipLabel()} data-arena-part={manifest.parts.tooltipLabel} {...styles.$data.tooltipLabel()}>{labels[hover]}</div>

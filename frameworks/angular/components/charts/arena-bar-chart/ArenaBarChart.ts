@@ -13,7 +13,8 @@ import {
   arenaChartTable, arenaSeriesColors, arenaSwatchChoice, arenaSeriesDomain, arenaSeriesPointCount, arenaStackSegments, arenaStackDomain,
 } from '../ChartSeries';
 import { arenaLegendStrip } from '../ChartLegend';
-import { arenaTooltipAnchor } from '../ChartTooltip';
+import { arenaRailAnchorX, arenaTooltipAnchor } from '../ChartTooltip';
+import { arenaRailView } from '../ChartRailView';
 import { arenaCursorHandles, arenaCursorStep, arenaPointerClears, arenaPointerUpdates } from '../ChartPointer';
 import { arenaBarChartStyles } from './ArenaBarChart.variants';
 import manifest from './ArenaBarChart.classes.generated';
@@ -47,7 +48,7 @@ const BAR_STYLE = { transition: 'opacity var(--dur-hover) var(--ease-hover)' } a
   template: `
     <div [class]="styles.frame()" [attr.data-arena-part]="parts.frame" [style.height.px]="height()">
     <div #rail [style]="arenaRailStyle" tabindex="0" role="group" [attr.aria-label]="name()"
-         (keydown)="onKey($event)">
+         (keydown)="onKey($event)" (scroll)="syncView()">
     <svg [attr.width]="scrolls() ? width() : '100%'" [attr.height]="plotH()" role="img" [attr.aria-label]="name()"
          style="display:block;overflow:visible">
       @for (tick of gridLines(); track tick.value) {
@@ -171,6 +172,8 @@ export class ArenaBarChart {
 
   private readonly rail = viewChild<ElementRef<HTMLElement>>('rail');
 
+  private readonly railView = arenaRailView(() => this.rail()?.nativeElement);
+
   protected readonly name = computed(() => {
     const label = this.label();
     if (!label) throw new Error('ArenaBarChart: `label` is required (it names the chart for the accessible name, and nothing can derive that)');
@@ -274,7 +277,7 @@ export class ArenaBarChart {
     const bar = index === null ? null : this.bars()[index] ?? null;
     if (!bar || bar.marks.length === 0) return null;
     const top = Math.min(...bar.marks.map((mark) => mark.y));
-    return { ...bar, anchor: arenaTooltipAnchor(bar.midX, top) };
+    return { ...bar, anchor: arenaTooltipAnchor(arenaRailAnchorX(bar.midX, this.scrolls(), this.railView.view(), this.available()), top) };
   });
 
   protected onPointer(event: PointerEvent, phase: string): void {
@@ -302,5 +305,16 @@ export class ArenaBarChart {
       if (!rail || !this.scrolls()) return;
       rail.scrollLeft = rail.scrollWidth - rail.clientWidth;
     });
+
+    afterRenderEffect(() => {
+      this.available();
+      this.width();
+      this.scrolls();
+      this.railView.sync();
+    });
+  }
+
+  protected syncView(): void {
+    this.railView.sync();
   }
 }

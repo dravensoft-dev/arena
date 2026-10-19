@@ -10,7 +10,8 @@ import {
   arenaChartTable, arenaSeriesColors, arenaSwatchHue, arenaSeriesDomain, arenaSeriesPointCount, arenaStackSegments, arenaStackDomain,
 } from '../ChartSeries.ts';
 import { arenaLegendStrip } from '../ChartLegend.ts';
-import { arenaTooltipAnchor } from '../ChartTooltip.ts';
+import { arenaRailAnchorX, arenaTooltipAnchor } from '../ChartTooltip.ts';
+import { useArenaRailView } from '../ChartRailView.ts';
 import { arenaCursorHandles, arenaCursorStep, arenaPointerClears, arenaPointerUpdates } from '../ChartPointer.ts';
 import { chartBarGap, chartSeriesGap, chartBarRadius } from '../../../Tokens.generated.js';
 
@@ -74,12 +75,14 @@ export function ArenaBarChart({ className,
   const n = arenaSeriesPointCount(series);
   const width = arenaPlotWidth(available, n, minPointSpacing);
   const scrolls = width > available;
+  const [view, syncView] = useArenaRailView(rail, [measured, scrolls, width]);
   const fmt = arenaValueWriter({ prefix: valuePrefix, suffix: valueSuffix, format: valueFormat });
 
   useEffect(() => {
     const box = rail.current;
     if (!box || !scrolls) return;
     box.scrollLeft = box.scrollWidth - box.clientWidth;
+    syncView();
   }, [scrolls, width]);
 
   const domain = stack ? arenaStackDomain(series) : arenaSeriesDomain(series);
@@ -110,7 +113,7 @@ export function ArenaBarChart({ className,
 
   return (
     <div className={arenaClassName('ArenaBarChart', styles.frame(), className)} ref={ref} data-arena-part={manifest.parts.frame} {...styles.$data.frame()} style={{ height }}>
-      <div ref={rail} style={arenaRailStyle} tabIndex={0} role="group" aria-label={name} onKeyDown={onKeyDown}>
+      <div ref={rail} style={arenaRailStyle} tabIndex={0} role="group" aria-label={name} onKeyDown={onKeyDown} onScroll={syncView}>
       <svg width={scrolls ? width : '100%'} height={strip.plotH} role="img" aria-label={name}
         style={{ display: 'block', overflow: 'visible' }}>
         {}
@@ -178,7 +181,7 @@ export function ArenaBarChart({ className,
 
       {hover !== null && hover < n && (
         <div className={styles.tooltip()} data-arena-part={manifest.parts.tooltip} {...styles.$data.tooltip()} style={{
-          ...arenaTooltipAnchor(arenaBandCenter(bands, hover),
+          ...arenaTooltipAnchor(arenaRailAnchorX(arenaBandCenter(bands, hover), scrolls, view, available),
             Math.min(...(stack
               ? arenaStackSegments(series, hover).map((segment) => arenaScaleValue(yScale, segment.to))
               : series.map((one) => arenaScaleValue(yScale, one.values[hover] ?? 0))))),
