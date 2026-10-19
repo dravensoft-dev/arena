@@ -172,11 +172,11 @@ export class ArenaCommandPalette {
   readonly commands = input.required<readonly ArenaCommand[]>();
   /** The search field's placeholder. Absent, the provided locale's commandPalettePlaceholder answers it. */
   readonly placeholder = input<string>();
-  /** How many matches the list shows at most. Absent, all of them. The ceiling applies AFTER the query has run over every command, which is what makes it different from the caller trimming `commands` before passing them: a trimmed list cannot match what was cut, and a capped one can, so the first rows are still the best the whole set has. It is the palette's rather than the domain's, because how many rows help before the list stops being an accelerator is a property of this control; a caller who caps their own collection has guessed at it once, for one collection, with no query in hand. It is not ranking: the order stays the order the caller passed, ungrouped first and then each group as it first appears. */
+  /** How many matches the list shows at most. Absent, all of them. The ceiling applies AFTER the query has run over every command, which is what makes it different from the caller trimming `commands` before passing them. A trimmed list cannot match what was cut, and a capped one can, so the first rows are still the best the whole set has. The ceiling is the palette's rather than the domain's, because how many rows help before the list stops being an accelerator is a property of this control. A caller who caps their own collection has guessed at it once, for one collection, with no query in hand. The cap is not ranking: the order stays the order the caller passed, ungrouped first and then each group as it first appears. */
   readonly maxResults = input<number>();
   /** The palette asked to be closed: Escape, the scrim, or a command having been run. */
   readonly close = output<void>();
-  /** A command was activated, carrying which one. Emitted after close. For a command with `route` it fires for a primary click with no modifier and for Enter, both of which cancel the row's anchor first, so the two activations do the same thing and a host that routes here never navigates twice; a modified or middle click on such a row is the browser's, fires nothing and does not close the palette. */
+  /** A command was activated, carrying which one. Emitted after close. For a command with `route` the event fires for a primary click with no modifier and for Enter. Both cancel the row's anchor first, so the two activations do the same thing and a host that routes here never navigates twice. A modified or middle click on such a row is the browser's, fires nothing and does not close the palette. */
   readonly run = output<ArenaCommand>();
 
   protected readonly query = signal('');

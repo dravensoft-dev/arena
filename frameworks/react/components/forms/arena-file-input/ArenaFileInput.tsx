@@ -15,19 +15,19 @@ import {
 export interface ArenaFileInputProps {
   className?: ArenaFileInputClass;
 
-  /** Names what is being attached, such as "Passport scan". It labels the field and, followed by the trigger's own text, names the trigger, so a screen reader hears "Passport scan, Choose file". Required, and guarded at runtime: a blank one throws, because nothing can derive what a file is for. */
+  /** Names what is being attached, such as "Passport scan". The text labels the field and, followed by the trigger's own text, names the trigger, so a screen reader hears "Passport scan, Choose file". Required, and guarded at runtime: a blank one throws, because nothing can derive what a file is for. */
   label: string;
 
-  /** The trigger's id, and what the label's `for` points at. Generated from `label` when omitted, as `fi-` followed by the label with each run of whitespace replaced by a single hyphen and the whole lowercased. The derivation is normative, and the prefix differs per component on purpose: the same markup must get the same id in every layer, and two controls sharing a label must not collide. The label and the trigger's text take this id followed by `-label` and `-text`. The hint or the error takes it followed by `-note`, and the required word takes `-required`. */
+  /** The trigger's id, and what the label's `for` points at. Generated from `label` when omitted, as `fi-` followed by the label with each run of whitespace replaced by a single hyphen and the whole lowercased. The derivation is normative, and the prefix differs per component on purpose. Identical markup must get the same id in every layer, and two controls sharing a label must not collide. The label and the trigger's text take this id followed by `-label` and `-text`. The hint or the error takes it followed by `-note`, and the required word takes `-required`. */
   id?: string;
 
   /** A line of help under the field, and the trigger's description. An error replaces it while one shows. */
   hint?: string;
 
-  /** Controlled error message, such as a count rule or a refusal from the server. Wins over the hint and turns the zone's edge to the danger hue. It describes the trigger, and a changed message is announced once. */
+  /** Controlled error message, such as a count rule or a refusal from the server. Wins over the hint and turns the zone's edge to the danger hue. The message describes the trigger, and a changed message is announced once. */
   error?: string;
 
-  /** Marks the label and makes the hidden file input required, so a native submission refuses an empty selection, the browser's message is anchored at the trigger and focus returns to the trigger. The trigger's name then carries the required word, as in "Passport scan, required, Choose file". */
+  /** Marks the label and makes the hidden file input required. A native submission then refuses an empty selection, the browser's message is anchored at the trigger and focus returns to the trigger. The trigger's name then carries the required word, as in "Passport scan, required, Choose file". */
   required?: boolean;
 
   /** Blocks the trigger, the drop zone and every chip's remove, and dims the field. */
@@ -36,7 +36,7 @@ export interface ArenaFileInputProps {
   /** The name the files are submitted under. The hidden file input carries it and always holds exactly the files shown, so a native submission and `new FormData(form)` carry the real files. */
   name?: string;
 
-  /** The native `accept` syntax, such as `.pdf,image/*`: extensions, exact types and wildcard types. It narrows the picker and is enforced on every pick and every drop, because a drop is not filtered by the browser. */
+  /** The native `accept` syntax, such as `.pdf,image/*`: extensions, exact types and wildcard types. The syntax narrows the picker and is enforced on every pick and every drop, because a drop is not filtered by the browser. */
   accept?: string;
 
   /** Whether more than one file may be held. With it a pick or a drop appends, and a file already held, the same name, size and modified time, is held once. Without it a pick replaces the selection, and every accepted file after the first in one drop is refused as surplus. */

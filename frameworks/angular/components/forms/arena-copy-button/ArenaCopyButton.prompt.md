@@ -11,7 +11,7 @@ Arena copy button, an icon button that writes a string to the clipboard and conf
 
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
-| `text*` | primitive | `string` |  | What is written to the clipboard, exactly as given. A blank text draws the button disabled, because there is nothing to copy; it is data, so it is not guarded. |
+| `text*` | primitive | `string` |  | What is written to the clipboard, exactly as given. A blank text draws the button disabled, because there is nothing to copy. The text is data, so it is not guarded. |
 | `label` | primitive | `string` |  | The button's accessible name, the same in every state. Absent or blank, the provided locale's copyButtonLabel answers it, which reads Copy by default. Name what is copied when a page holds more than one. |
 | `showLabel` | primitive | `boolean` | `false` | Draws the name beside the glyph, as ArenaIconButton.showLabel does. |
 | `disabled` | primitive | `boolean` | `false` | Blocks the copy. |

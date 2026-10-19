@@ -59,7 +59,7 @@ export class ArenaBulkActionBar {
   readonly noun = input<string>();
   /** The actions offered for the current selection. */
   readonly actions = input.required<readonly ArenaBulkAction[]>();
-  /** Whether the bar may stack. 'auto' measures its OWN container, not the viewport, and drops the count, the actions and Clear onto separate rows when one row does not fit; 'inline' keeps the single row at every width, for a bar in a place the consumer knows is wide. It is a member rather than something a consumer reaches in with CSS because the alternative is what happens without it: reordering the bar's own children by position, which puts focus order out of step with visual order and breaks the next time anything inside moves. Stacking here reorders nothing, so the tab order and the reading order stay the same order they are wide. */
+  /** Whether the bar may stack. 'auto' measures its OWN container, not the viewport, and drops the count, the actions and Clear onto separate rows when one row does not fit. 'inline' keeps the single row at every width, for a bar in a place the consumer knows is wide. The layout is a member rather than something a consumer reaches in with CSS, because the alternative is what happens without it: reordering the bar's own children by position. Reordering by position puts focus order out of step with visual order and breaks the next time anything inside moves. Stacking here reorders nothing, so the tab order and the reading order stay the same order they are wide. */
   readonly layout = input<ArenaBulkActionBarLayout, ArenaBulkActionBarLayout | undefined>(
     'auto',
     { transform: (value) => value ?? 'auto' },

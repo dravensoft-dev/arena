@@ -46,7 +46,7 @@ export class ArenaAvatar {
 
   /** Image URL. Absent renders initials from `name`. */
   readonly src = input<string>();
-  /** The person or entity name. Its first two words' initials render when there is no `src`, and it is the image's alt text. With `nameShown` set, both stay drawn and neither is announced, because what composes the avatar already says the name. */
+  /** The person or entity name. The name's first two words' initials render when there is no `src`, and the name is the image's alt text. With `nameShown` set, both stay drawn and neither is announced, because what composes the avatar already says the name. */
   readonly name = input<string, string | undefined>('', { transform: (value) => value ?? '' });
   /** Whether the avatar stands for a person or for a team. A person is drawn as a circle and a team as a rounded square, so the two read apart in a list that holds both. */
   readonly kind = input<ArenaAvatarKind, ArenaAvatarKind | undefined>(
@@ -55,7 +55,7 @@ export class ArenaAvatar {
   );
   /** A presence dot in the state's colour. `offline` is a visible muted dot; omit `status` entirely for no dot. Optional: there is no invisible enum value. */
   readonly status = input<ArenaAvatarStatus>();
-  /** Whether what composes this avatar already says its name: a name drawn beside it, or a control named on its own. Set, the image and the initials leave the accessibility tree so the name is announced once, and the presence dot keeps its own name. Leave it unset where the avatar is the only statement of who this is, including when it is a control's whole content, since that is how the control gets its name. */
+  /** Whether what composes this avatar already says its name: a name drawn beside it, or a control named on its own. Set, the image and the initials leave the accessibility tree so the name is announced once, and the presence dot keeps its own name. Leave it unset where the avatar is the only statement of who this is. Leave it unset as well when the avatar is a control's whole content, since that is how the control gets its name. */
   readonly nameShown = input(false, { transform: booleanAttribute });
 
   protected readonly styles = computed(() =>

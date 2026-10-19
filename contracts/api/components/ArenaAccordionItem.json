@@ -8,6 +8,6 @@
     "label": { "form": "primitive", "type": "string", "required": true,
                "description": "What the header reads, and the accessible name of the panel. Required, and guarded at runtime after trimming: a header with no words names nothing for the panel to borrow." },
     "content": { "form": "slot",
-                 "description": "The panel's content. It mounts whether the panel is open or not, so put no costly work in it." }
+                 "description": "The panel's content. The content mounts whether the panel is open or not, so put no costly work in it." }
   }
 }

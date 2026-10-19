@@ -33,7 +33,7 @@ export interface ArenaFunnelChartProps {
   /** Exactly one series, the count at each stage in order. A second series warns and is ignored, because two funnels are two charts. `colorIds` is per-stage identity. `tone`, when given, colours the whole series and never a position, because a later stage is not worse for being later. */
   series: readonly ArenaSeries[];
 
-  /** Names the chart for its accessible name and for the caption of its data table. This is the CHART's name, not a series': a series names itself. Required and guarded rather than defaulted, because a fallback of the chart TYPE satisfies roles.label mechanically and tells a screen-reader user nothing, so two charts on one page announce identically. */
+  /** Names the chart for its accessible name and for the caption of its data table. The label is the CHART's name, not a series': a series names itself. A fallback of the chart TYPE satisfies roles.label mechanically and tells a screen-reader user nothing, so two charts on one page announce identically. Required and guarded rather than defaulted for that reason. */
   label: string;
 
   /** Whether the conversion is drawn and tabled. On, each stage's share of the stage before it is written beside the loss between the two, the table gains the two conversion columns, and the tooltip reads both ratios. Off, the funnel is its marks and their counts. */
@@ -48,7 +48,7 @@ export interface ArenaFunnelChartProps {
   /** How each count is written before the prefix and suffix are added: which locale, how many fraction digits, whether thousands are grouped, whether large numbers are compacted. Absent, the raw JavaScript number. The conversion takes only the locale and keeps at most one fraction digit, so 62.4% is never written 62%. */
   valueFormat?: ArenaNumberFormat;
 
-  /** The plot's height in px, the --chart-height token by default. It is the axis the stages run down, so a funnel of many stages wants more of it: pass the room the data needs rather than letting the stages thin out. A number rather than a dimension string, because the chart does arithmetic with it to place every mark. */
+  /** The plot's height in px, the --chart-height token by default. The height is the axis the stages run down, so a funnel of many stages wants more of it. Pass the room the data needs rather than letting the stages thin out. A number rather than a dimension string, because the chart does arithmetic with it to place every mark. */
   height?: number;
 }
 

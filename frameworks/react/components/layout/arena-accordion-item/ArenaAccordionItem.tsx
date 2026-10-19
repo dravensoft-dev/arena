@@ -23,7 +23,7 @@ export interface ArenaAccordionItemProps {
   /** What the header reads, and the accessible name of the panel. Required, and guarded at runtime after trimming: a header with no words names nothing for the panel to borrow. */
   label: string;
 
-  /** The panel's content. It mounts whether the panel is open or not, so put no costly work in it. */
+  /** The panel's content. The content mounts whether the panel is open or not, so put no costly work in it. */
   children?: React.ReactNode;
 }
 

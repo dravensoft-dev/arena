@@ -84,9 +84,9 @@ export class ArenaDoughnutChart {
   protected readonly locale = inject(ARENA_LOCALE);
   /** One label per slice, in the same order as the series' `values`. A label with no value at its index is dropped. */
   readonly labels = input.required<readonly string[]>();
-  /** The parts, as one series whose values are read as shares of their own total. Exactly one series: a ring of two series is a sunburst, which is a different chart and not this one, so a second warns in development and is ignored. Per-slice identity goes in that series' `colorIds`. */
+  /** The parts, as one series whose values are read as shares of their own total. Exactly one series: a ring of two series is a sunburst, which is a different chart and not this one. A second series warns in development and is ignored. Per-slice identity goes in that series' `colorIds`. */
   readonly series = input.required<readonly ArenaSeries[]>();
-  /** Names the chart for its accessible name and for the caption of its data table. Required and guarded rather than defaulted, because a fallback of the chart TYPE satisfies roles.label mechanically and tells a screen-reader user nothing, so two charts on one page announce identically. */
+  /** Names the chart for its accessible name and for the caption of its data table. Required and guarded rather than defaulted, because a fallback of the chart TYPE would satisfy roles.label mechanically and tell a screen-reader user nothing. Two doughnuts on one page would then announce identically. */
   readonly label = input.required<string>();
   /** Appended verbatim to every number the chart draws: the legend value and the accessible table. Not the centre label, which is a percentage rather than a value. */
   readonly valueSuffix = input<string>();
@@ -94,17 +94,17 @@ export class ArenaDoughnutChart {
   readonly valuePrefix = input<string>();
   /** How each number is written before the prefix and suffix are added: which locale, how many fraction digits, whether thousands are grouped, whether large numbers are compacted. Absent, the raw JavaScript number, which is what this chart drew before the member existed. */
   readonly valueFormat = input<ArenaNumberFormat>();
-  /** Whether the ring keeps its hole or fills to the centre. 'pie' is the same chart with the same slices, the same legend and the same table, drawn solid. It costs the centre percentage, which has nowhere to go once the hole is gone: over a wedge it would put the heading ink on a --color-cat slot, a pair nothing checks for contrast because nothing else draws it. The figure is not lost, it is in the legend row and in the accessible table, which is where every other number the chart writes already is. */
+  /** Whether the ring keeps its hole or fills to the centre. 'pie' is the same chart with the same slices, the same legend and the same table, drawn solid. The pie costs the centre percentage, which has nowhere to go once the hole is gone. Over a wedge it would put the heading ink on a --color-cat slot, a pair nothing checks for contrast because nothing else draws it. The figure is not lost, it is in the legend row and in the accessible table, which is where every other number the chart writes already is. */
   readonly shape = input<ArenaChartShape, ArenaChartShape | undefined>(
     'doughnut',
     { transform: (value) => value ?? 'doughnut' },
   );
-  /** How each legend row arranges its label and its figure. 'inline' puts them on one line, which is what fits a wide tile; 'stacked' puts the label above the figure; 'auto' measures the legend column and stacks when the row does not give. It exists because the two do not degrade equally: on one line the figure does not yield, so the label is what gets truncated, and a legend of numbers with nothing saying what they count is the opposite of a legend. The threshold is already declared, as the chart-legend-min and chart-legend-max tokens the ring width is clamped between; what was missing was the behaviour. */
+  /** How each legend row arranges its label and its figure. 'inline' puts them on one line, which is what fits a wide tile. 'stacked' puts the label above the figure. 'auto' measures the legend column and stacks when the row does not give. The member exists because the two do not degrade equally: on one line the figure does not yield, so the label is what gets truncated. A legend of numbers with nothing saying what they count is the opposite of a legend. The threshold is already declared, as the chart-legend-min and chart-legend-max tokens the ring width is clamped between; what was missing was the behaviour. */
   readonly legendLayout = input<ArenaChartLegendLayout, ArenaChartLegendLayout | undefined>(
     'auto',
     { transform: (value) => value ?? 'auto' },
   );
-  /** A slice was activated, by pointer on the arc or on its legend row, or by keyboard on that row, which is a real button and answers Enter and Space without the component binding either. It carries the slice's index in the series' `values`. **In `values`, never in the drawn paths**, and that is the whole member: a slice worth zero paints nothing, so the shapes on screen and the entries in the array are two different lists, and a consumer indexing the SVG has to reproduce that omission from outside to translate one into the other. It is reverse engineering of a component's own DOM, which the next release breaks in silence. */
+  /** A slice was activated, by pointer on the arc or on its legend row, or by keyboard on that row. The row is a real button and answers Enter and Space without the component binding either. The event carries the slice's index in the series' `values`. **In `values`, never in the drawn paths**: that is the whole member. A slice worth zero paints nothing, so the shapes on screen and the entries in the array are two different lists. A consumer indexing the SVG has to reproduce that omission from outside to translate one into the other. Indexing the drawn paths is reverse engineering of a component's own DOM, which the next release breaks in silence. */
   readonly sliceActivate = output<number>();
 
   protected readonly parts = manifest.parts;

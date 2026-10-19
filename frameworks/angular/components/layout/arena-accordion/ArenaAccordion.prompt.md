@@ -18,10 +18,10 @@ Arena accordion, a stack of sections under headings. Standalone, `OnPush`, signa
 
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
-| `content` | slot |  |  | The items. Which ones are open, the ids wiring each header to its panel and how a press is reported are the accordion's to settle, and none of it is a member of an item. EVERY panel mounts: a closed one is hidden and keeps its content, so a panel's side effects run at first render. |
+| `content` | slot |  |  | The items. Which ones are open, the ids wiring each header to its panel and how a press is reported are the accordion's to settle. None of it is a member of an item. EVERY panel mounts: a closed one is hidden and keeps its content, so a panel's side effects run at first render. |
 | `multiple` | primitive | `boolean` | `false` | Whether several panels may be open at once. False reads `value`, `defaultValue` and `valueChange`; true reads `values`, `defaultValues` and `valuesChange`. The pair of the other mode is ignored, and a set one is warned about once. |
 | `collapsible` | primitive | `boolean` | `true` | Without `multiple`, whether the open panel may be closed again. False keeps it open once one is open, and its header writes aria-disabled. Nothing opens by itself: seed `defaultValue` to start with one open. Ignored with `multiple`, where every press toggles. |
-| `headingLevel` | enum | `ArenaHeadingLevel` | `"h3"` | The rung each header's heading takes. It defaults to `h3`, the card's rung under a section's `h2`. `none` is refused at runtime, because each label names its panel and a header is a heading. |
+| `headingLevel` | enum | `ArenaHeadingLevel` | `"h3"` | The rung each header's heading takes. The rung defaults to `h3`, the card's rung under a section's `h2`. `none` is refused at runtime, because each label names its panel and a header is a heading. |
 | `value` | primitive | `string` |  | Without `multiple`, the open item's value, controlled. The empty string, or a value no item has, opens nothing. Omit it and pass `defaultValue` to let the accordion govern itself. |
 | `defaultValue` | primitive | `string` |  | Without `multiple`, the item open at first render when uncontrolled. Absent, every panel starts closed. |
 | `valueChange` | event | `string` |  | Without `multiple`, a header was pressed; carries the value of the item now open, or the empty string when the open one closed. Fired on a press only, never when a controlled `value` merely changes. |

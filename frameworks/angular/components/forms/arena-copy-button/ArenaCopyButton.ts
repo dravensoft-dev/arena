@@ -31,7 +31,7 @@ export class ArenaCopyButton {
   protected readonly parts = manifest.parts;
   protected readonly locale = inject(ARENA_LOCALE);
 
-  /** What is written to the clipboard, exactly as given. A blank text draws the button disabled, because there is nothing to copy; it is data, so it is not guarded. */
+  /** What is written to the clipboard, exactly as given. A blank text draws the button disabled, because there is nothing to copy. The text is data, so it is not guarded. */
   readonly text = input.required<string>();
   /** The button's accessible name, the same in every state. Absent or blank, the provided locale's copyButtonLabel answers it, which reads Copy by default. Name what is copied when a page holds more than one. */
   readonly label = input<string>();

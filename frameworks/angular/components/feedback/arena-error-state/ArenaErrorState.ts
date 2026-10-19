@@ -53,7 +53,7 @@ export class ArenaErrorState {
   readonly icon = input<string>();
   /** The headline: what failed. Absent, the provided locale's errorStateTitle answers it. */
   readonly title = input<string>();
-  /** Which rung of the document outline the title takes. Only the element changes: the title's class is the same at every value, so the render is identical and no appearance follows from it. It defaults to `h3`, the card rung of the title ladder, for the reason an empty state does: a failure fills the body of a region something above it already names. `none` takes the headline out of the outline, which is what a failure inside a small surface wants, and it is available here because `title` carries a default rather than being required. */
+  /** Which rung of the document outline the title takes. Only the element changes: the title's class is the same at every value, so the render is identical and no appearance follows from it. The default is `h3`, the card rung of the title ladder, for the reason an empty state does. A failure fills the body of a region something above it already names. `none` takes the headline out of the outline, which is what a failure inside a small surface wants. The value is available here because `title` carries a default rather than being required. */
   readonly headingLevel = input<ArenaHeadingLevel, ArenaHeadingLevel | undefined>(
     'h3', { transform: (value) => value ?? 'h3' },
   );

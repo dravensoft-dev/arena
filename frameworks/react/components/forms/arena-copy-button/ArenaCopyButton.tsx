@@ -11,7 +11,7 @@ export interface ArenaCopyButtonProps {
   className?: ArenaCopyButtonClass;
 
 
-  /** What is written to the clipboard, exactly as given. A blank text draws the button disabled, because there is nothing to copy; it is data, so it is not guarded. */
+  /** What is written to the clipboard, exactly as given. A blank text draws the button disabled, because there is nothing to copy. The text is data, so it is not guarded. */
   text: string;
 
   /** The button's accessible name, the same in every state. Absent or blank, the provided locale's copyButtonLabel answers it, which reads Copy by default. Name what is copied when a page holds more than one. */

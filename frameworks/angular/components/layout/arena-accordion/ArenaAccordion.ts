@@ -34,7 +34,7 @@ export class ArenaAccordion {
   readonly multiple = input(false, { transform: booleanAttribute });
   /** Without `multiple`, whether the open panel may be closed again. False keeps it open once one is open, and its header writes aria-disabled. Nothing opens by itself: seed `defaultValue` to start with one open. Ignored with `multiple`, where every press toggles. */
   readonly collapsible = input(true, { transform: booleanAttribute });
-  /** The rung each header's heading takes. It defaults to `h3`, the card's rung under a section's `h2`. `none` is refused at runtime, because each label names its panel and a header is a heading. */
+  /** The rung each header's heading takes. The rung defaults to `h3`, the card's rung under a section's `h2`. `none` is refused at runtime, because each label names its panel and a header is a heading. */
   readonly headingLevel = input<ArenaHeadingLevel, ArenaHeadingLevel | undefined>(
     'h3', { transform: (value) => value ?? 'h3' },
   );

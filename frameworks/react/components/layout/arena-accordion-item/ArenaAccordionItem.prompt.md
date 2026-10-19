@@ -15,7 +15,7 @@ One section of an `ArenaAccordion`: a heading holding the button, and the panel 
 |---|---|---|---|---|
 | `value*` | primitive | `string` |  | The item's identity, and what the accordion's `value`, `values` and their events carry. Required, and guarded at runtime after trimming: two blank values cannot be told apart, and the two items would open together. |
 | `label*` | primitive | `string` |  | What the header reads, and the accessible name of the panel. Required, and guarded at runtime after trimming: a header with no words names nothing for the panel to borrow. |
-| `children` | slot |  |  | The panel's content. It mounts whether the panel is open or not, so put no costly work in it. |
+| `children` | slot |  |  | The panel's content. The content mounts whether the panel is open or not, so put no costly work in it. |
 
 <!-- @api end -->
 

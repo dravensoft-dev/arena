@@ -22,7 +22,7 @@
       "form": "primitive",
       "type": "string",
       "required": true,
-      "description": "Names the chart for its accessible name and for the caption of its data table. This is the CHART's name, not a series': a series names itself. Required and guarded rather than defaulted, because a fallback of the chart TYPE satisfies roles.label mechanically and tells a screen-reader user nothing, so two charts on one page announce identically."
+      "description": "Names the chart for its accessible name and for the caption of its data table. The label is the CHART's name, not a series': a series names itself. A fallback of the chart TYPE satisfies roles.label mechanically and tells a screen-reader user nothing, so two charts on one page announce identically. Required and guarded rather than defaulted for that reason."
     },
     "showConversion": {
       "form": "primitive",
@@ -49,7 +49,7 @@
       "form": "primitive",
       "type": "number",
       "default": 280,
-      "description": "The plot's height in px, the --chart-height token by default. It is the axis the stages run down, so a funnel of many stages wants more of it: pass the room the data needs rather than letting the stages thin out. A number rather than a dimension string, because the chart does arithmetic with it to place every mark."
+      "description": "The plot's height in px, the --chart-height token by default. The height is the axis the stages run down, so a funnel of many stages wants more of it. Pass the room the data needs rather than letting the stages thin out. A number rather than a dimension string, because the chart does arithmetic with it to place every mark."
     }
   }
 }

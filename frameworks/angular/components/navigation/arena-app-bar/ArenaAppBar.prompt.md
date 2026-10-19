@@ -22,10 +22,10 @@ banner landmark has to be that element.
 
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
-| `brand` | slot |  |  | The identity, at the start edge: an ArenaAppLogo, a wordmark, a mark. Wrap it in your own link if it should lead home; the bar draws no anchor of its own, which is what keeps a router's link out of a component that would have to swallow it. |
-| `nav` | slot |  |  | The way through the site, between the brand and the actions. It is a slot and not a list of destinations because the links are the consumer's: they are their router's, and the navigation landmark around them is theirs to name, since a page with a side nav as well needs the two told apart. |
+| `brand` | slot |  |  | The identity, at the start edge: an ArenaAppLogo, a wordmark, a mark. Wrap it in your own link if it should lead home. The bar draws no anchor of its own, which is what keeps a router's link out of a component that would have to swallow it. |
+| `nav` | slot |  |  | The way through the site, between the brand and the actions. The slot is not a list of destinations because the links are the consumer's: they are their router's. The navigation landmark around them is theirs to name, since a page with a side nav as well needs the two told apart. |
 | `actions` | slot |  |  | What follows the reader everywhere, at the end edge: search, theme, basket, account. Arena draws the row; the consumer draws what sits in it. |
-| `sticky` | primitive | `boolean` | `true` | Whether the bar stays at the top edge as the page scrolls. True by default, because a bar that carries the way through a site and scrolls away with the content is a bar the reader has to go back for. It takes the navigation layer of the stacking order, so a dialog and a sheet still cover it. |
+| `sticky` | primitive | `boolean` | `true` | Whether the bar stays at the top edge as the page scrolls. True by default, because a bar that carries the way through a site and scrolls away with the content is a bar the reader has to go back for. The bar takes the navigation layer of the stacking order, so a dialog and a sheet still cover it. |
 
 <!-- @api end -->
 

@@ -10,7 +10,7 @@ import type { ArenaAccordionItemInjected } from '../arena-accordion-item/ArenaAc
 export interface ArenaAccordionProps {
   className?: ArenaAccordionClass;
 
-  /** The items. Which ones are open, the ids wiring each header to its panel and how a press is reported are the accordion's to settle, and none of it is a member of an item. EVERY panel mounts: a closed one is hidden and keeps its content, so a panel's side effects run at first render. */
+  /** The items. Which ones are open, the ids wiring each header to its panel and how a press is reported are the accordion's to settle. None of it is a member of an item. EVERY panel mounts: a closed one is hidden and keeps its content, so a panel's side effects run at first render. */
   children?: React.ReactNode;
 
   /** Whether several panels may be open at once. False reads `value`, `defaultValue` and `onValueChange`; true reads `values`, `defaultValues` and `onValuesChange`. The pair of the other mode is ignored, and a set one is warned about once. */
@@ -19,7 +19,7 @@ export interface ArenaAccordionProps {
   /** Without `multiple`, whether the open panel may be closed again. False keeps it open once one is open, and its header writes aria-disabled. Nothing opens by itself: seed `defaultValue` to start with one open. Ignored with `multiple`, where every press toggles. */
   collapsible?: boolean;
 
-  /** The rung each header's heading takes. It defaults to `h3`, the card's rung under a section's `h2`. `none` is refused at runtime, because each label names its panel and a header is a heading. */
+  /** The rung each header's heading takes. The rung defaults to `h3`, the card's rung under a section's `h2`. `none` is refused at runtime, because each label names its panel and a header is a heading. */
   headingLevel?: ArenaHeadingLevel;
 
   /** Without `multiple`, the open item's value, controlled. The empty string, or a value no item has, opens nothing. Omit it and pass `defaultValue` to let the accordion govern itself. */
