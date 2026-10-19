@@ -27,7 +27,7 @@ export function ArenaPeopleList({ className, label, ordered = false, children }:
   if (!label?.trim()) throw new Error('ArenaPeopleList: `label` is required (it names what these people are a list of, and nothing can derive that)');
   const List = ordered ? 'ol' : 'ul';
   return (
-    <List aria-label={label} className={arenaClassName('ArenaPeopleList', peopleStyles({}).root(), className)} data-arena-part={manifest.parts.root} {...peopleStyles({}).$data.root()} data-arena-boundary="">
+    <List role="list" aria-label={label} className={arenaClassName('ArenaPeopleList', peopleStyles({}).root(), className)} data-arena-part={manifest.parts.root} {...peopleStyles({}).$data.root()} data-arena-boundary="">
       {children}
     </List>
   );
