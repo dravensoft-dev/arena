@@ -21,6 +21,7 @@ import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { budgetFor, deadline, type Deadline } from '../../lib/arena/deadline.ts';
 import { TERM_GRACE } from '../../lib/arena/child-output.ts';
 import { referenceText } from '../../lib/arena/consumer-references.ts';
+import { toPosix } from '../../utils/posix-path.ts';
 
 const made: string[] = [];
 const track = (dir: string) => { made.push(dir); return dir; };
@@ -287,7 +288,7 @@ test('check:packages --layer requires and judges the one package it names, whate
   assert.equal(refusal(base, '1', ['angular']).status, 1);
   assert.deepEqual(collect(root, (layer) => distDir(layer, base), ['angular']).assembled, []);
   assert.throws(() => collect(root, (layer) => distDir(layer, base), ['react']),
-    (error: Error) => error.message.includes(join(distDir('react', base), 'css', 'tailwind-theme.css')));
+    (error: Error) => error.message.includes(toPosix(join(distDir('react', base), 'css', 'tailwind-theme.css'))));
 });
 
 test('check:packages with no layer requires both packages, and a layer it does not know is refused', () => {
