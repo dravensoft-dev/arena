@@ -185,15 +185,16 @@ test('a page declaring no canonical is not a page declaring the wrong one, which
 });
 
 test('the sitemap owes the index pages a visitor lands on, and not only the leaves under them', () => {
-  const every = located();
-  for (const directory of indexedDirectories()) assert.ok(every.includes(directory === '' ? `https://${DOMAIN}/` : `https://${DOMAIN}/${directory}/`));
-  assert.equal(every.length, indexedDirectories().length + pages().length);
+  const bare = out({});
+  const every = located(repoRoot, bare);
+  for (const directory of indexedDirectories(repoRoot, bare)) assert.ok(every.includes(directory === '' ? `https://${DOMAIN}/` : `https://${DOMAIN}/${directory}/`));
+  assert.equal(every.length, indexedDirectories(repoRoot, bare).length + pages(repoRoot, bare).length);
 });
 
 test('a sitemap naming a longer path does not stand in for the directory above it', () => {
   const entry = (loc: string) => `<url><loc>${loc}</loc></url>`;
   const base = out({
-    'sitemap.xml': `<urlset>${located().filter((loc) => loc !== `https://${DOMAIN}/intro/guidelines/`).map(entry).join('')}</urlset>`,
+    'sitemap.xml': `<urlset>${located(repoRoot, out({})).filter((loc) => loc !== `https://${DOMAIN}/intro/guidelines/`).map(entry).join('')}</urlset>`,
   });
   const problems = sitemapProblems(base);
   assert.equal(problems.length, 1);

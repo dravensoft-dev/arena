@@ -102,19 +102,19 @@ test('a sink stands for every layer times every fixture, and the list has no rep
 });
 
 test('no page is published twice, which would put a repeat in the sitemap', () => {
-  const all = pages();
+  const all = pages(repoRoot, benchOut([]));
   assert.equal(new Set(all).size, all.length);
 });
 
 test('a directory a visitor can land on gets an index, since serve.ts lists it and a host does not', () => {
-  const directories = indexedDirectories();
+  const directories = indexedDirectories(repoRoot, benchOut([]));
   assert.ok(directories.includes(''), 'the site root is one of them');
   assert.ok(directories.includes('intro/guidelines'));
   assert.equal(new Set(directories).size, directories.length);
 });
 
 test('a specimen with no title is named by its @dsCard header rather than by its filename', () => {
-  const specimen = pages().find((rel) => rel.startsWith('intro/guidelines/'));
+  const specimen = pages(repoRoot, benchOut([])).find((rel) => rel.startsWith('intro/guidelines/'));
   assert.ok(specimen, 'the guidelines publish at least one specimen');
   assert.ok(!titleOf(specimen).endsWith('.html'), `${specimen} fell back to its filename`);
 });
@@ -159,8 +159,9 @@ test('a section is a category the tree already has, headed and never empty', () 
 });
 
 test('every public entry point lands on a page the site publishes or a directory it indexes', () => {
-  const published = new Set(pages().map((rel) => `/${rel}`));
-  const indexed = new Set(indexedDirectories().map((dir) => (dir === '' ? '/' : `/${dir}/`)));
+  const bare = benchOut([]);
+  const published = new Set(pages(repoRoot, bare).map((rel) => `/${rel}`));
+  const indexed = new Set(indexedDirectories(repoRoot, bare).map((dir) => (dir === '' ? '/' : `/${dir}/`)));
   for (const { label, path } of entryPoints().filter((entry) => entry.public)) {
     const target = decodeURIComponent(path);
     assert.ok(published.has(target) || indexed.has(target),
@@ -172,7 +173,7 @@ test('every public entry point lands on a page the site publishes or a directory
 test('a directory is addressed with the trailing slash a host serves its index at', () => {
   assert.equal(directoryUrl(''), `https://${DOMAIN}/`);
   assert.equal(directoryUrl('intro/guidelines'), `https://${DOMAIN}/intro/guidelines/`);
-  for (const directory of indexedDirectories()) assert.match(directoryUrl(directory), /\/$/);
+  for (const directory of indexedDirectories(repoRoot, benchOut([]))) assert.match(directoryUrl(directory), /\/$/);
 });
 
 test('a manifest beside the applications declares the pairs, and no manifest declares nothing', () => {

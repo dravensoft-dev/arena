@@ -2,8 +2,8 @@
  * frameworks/react/dist. That tree is git-ignored and emitted only by build:release, so pointed at
  * the real one these asserted a fact about the machine rather than about the code: green wherever
  * someone had built it, ENOENT out of walkFiles everywhere else, and never once a claim this file
- * makes. The real dist is checked by the gate, which is the caller that guards for it: collect()
- * runs the same functions over it, and main() refuses a tree where either manifest is not there. */
+ * makes. The package half over the real dist is the gate's, which refuses a tree where either
+ * manifest is not there. */
 
 import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
@@ -278,8 +278,10 @@ test('check:packages refuses when either package is missing, naming the layers',
 });
 
 test('the repository passes its own equivalence claim, over more than nothing', { timeout: BUDGET }, () => {
-  const { problems, compared } = collect(root);
+  const none = track(mkdtempSync(join(tmpdir(), 'arena-no-dist-')));
+  const { problems, compared, assembled } = collect(root, () => none);
   assert.deepEqual(problems, []);
+  assert.deepEqual(assembled, []);
   assert.ok(compared > 0, `${GENERATED_PALETTE} yielded no declaration to compare`);
 });
 
