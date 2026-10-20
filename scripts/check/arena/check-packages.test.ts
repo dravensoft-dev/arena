@@ -5,7 +5,7 @@
  * makes. The real dist is checked by the gate, which is the caller that guards for it: collect()
  * runs the same functions over it and skips a package whose manifest is not there. */
 
-import { test } from 'node:test';
+import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -19,6 +19,12 @@ import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { budgetFor, deadline, type Deadline } from '../../lib/arena/deadline.ts';
 import { TERM_GRACE } from '../../lib/arena/child-output.ts';
 import { referenceText } from '../../lib/arena/consumer-references.ts';
+
+const made: string[] = [];
+const track = (dir: string) => { made.push(dir); return dir; };
+after(() => {
+  for (const dir of made) rmSync(dir, { recursive: true, force: true });
+});
 
 const [REACT_PACKAGE, ANGULAR_PACKAGE] = PACKAGES;
 if (!REACT_PACKAGE || !ANGULAR_PACKAGE) throw new Error('PACKAGES no longer declares both layers');
@@ -127,7 +133,7 @@ test('an Arena package is always a peer, never a dependency', () => {
 });
 
 function assembled(files: Record<string, string>) {
-  const dir = mkdtempSync(join(tmpdir(), 'arena-pkg-'));
+  const dir = track(mkdtempSync(join(tmpdir(), 'arena-pkg-')));
   for (const [path, body] of Object.entries(files) as [string, string][]) {
     const full = join(dir, path);
     mkdirSync(join(full, '..'), { recursive: true });
@@ -418,14 +424,14 @@ test('a wash of a colour the ink is not, stated once, is what a clean package lo
 });
 
 test('a package with no icons.json cannot tell a consumer what Arena draws for them', () => {
-  const problems = iconManifestProblems(PKG, mkdtempSync(join(tmpdir(), 'arena-pkg-')));
+  const problems = iconManifestProblems(PKG, track(mkdtempSync(join(tmpdir(), 'arena-pkg-'))));
   assert.equal(problems.length, 1);
   assert.match(problems[0] ?? '', /no icons\.json/);
   assert.match(problems[0] ?? '', /reading this package as text/);
 });
 
 test('an icons.json that does not parse says so rather than reading as an empty list', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'arena-pkg-'));
+  const dir = track(mkdtempSync(join(tmpdir(), 'arena-pkg-')));
   writeFileSync(join(dir, 'icons.json'), '{ not json');
   const problems = iconManifestProblems(PKG, dir);
   assert.equal(problems.length, 1);
@@ -433,7 +439,7 @@ test('an icons.json that does not parse says so rather than reading as an empty 
 });
 
 test('an icons.json that outlived its renders fails, which is what keeps the list honest', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'arena-pkg-'));
+  const dir = track(mkdtempSync(join(tmpdir(), 'arena-pkg-')));
   writeFileSync(join(dir, 'icons.json'), JSON.stringify({ pairs: { bold: ['ph-ghost'] }, loose: [] }));
   const problems = iconManifestProblems(PKG, dir);
   assert.equal(problems.length, 1);
@@ -441,7 +447,7 @@ test('an icons.json that outlived its renders fails, which is what keeps the lis
 });
 
 test('a list assembled from the renders it was derived from is the passing case', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'arena-pkg-'));
+  const dir = track(mkdtempSync(join(tmpdir(), 'arena-pkg-')));
   writeFileSync(join(dir, 'icons.json'), `${JSON.stringify(iconManifest('react'), null, 2)}\n`);
   assert.deepEqual(iconManifestProblems(PKG, dir), []);
   rmSync(dir, { recursive: true });
@@ -455,7 +461,7 @@ test('every secondary entry point is an exports key of the assembled Angular pac
 });
 
 function distTree(files: Record<string, string>) {
-  const dir = mkdtempSync(join(tmpdir(), 'arena-pkg-'));
+  const dir = track(mkdtempSync(join(tmpdir(), 'arena-pkg-')));
   for (const [rel, text] of Object.entries(files)) {
     mkdirSync(join(dir, rel, '..'), { recursive: true });
     writeFileSync(join(dir, rel), text);
@@ -502,7 +508,7 @@ test('a family channel declared inside a layer is not a token, and a token besid
 });
 
 test('a shipped css file the page never names fails, and a css path the page names that does not ship fails', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'pkg-'));
+  const dir = track(mkdtempSync(join(tmpdir(), 'pkg-')));
   for (const rel of ['css/base.css', 'css/vocabulary/stack.css', 'css/components/arena-button.css']) {
     mkdirSync(dirname(join(dir, rel)), { recursive: true });
     writeFileSync(join(dir, rel), '');
@@ -515,7 +521,7 @@ test('a shipped css file the page never names fails, and a css path the page nam
 });
 
 test('the css/hues pattern row covers a shipped hue sheet, and without it the sheet fails', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'pkg-'));
+  const dir = track(mkdtempSync(join(tmpdir(), 'pkg-')));
   for (const rel of ['css/base.css', 'css/hues/arena-button.css']) {
     mkdirSync(dirname(join(dir, rel)), { recursive: true });
     writeFileSync(join(dir, rel), '');
@@ -529,10 +535,10 @@ test('the css/hues pattern row covers a shipped hue sheet, and without it the sh
 });
 
 test('a sheet only the other layer\'s section names does not count, and one naming an unshipped sheet fails', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'pkg-'));
+  const dir = track(mkdtempSync(join(tmpdir(), 'pkg-')));
   mkdirSync(join(dir, 'css'), { recursive: true });
   writeFileSync(join(dir, 'css/base.css'), '');
-  const base = mkdtempSync(join(tmpdir(), 'refs-'));
+  const base = track(mkdtempSync(join(tmpdir(), 'refs-')));
   mkdirSync(join(base, 'skills/design/references'), { recursive: true });
   writeFileSync(join(base, 'skills/design/references/stylesheets.md'),
     '| `css/base.css` | x |\n\n## Which sheet re-bases the Angular CDK overlay?\n\n`css/arena-cdk.css` ships here.\n');

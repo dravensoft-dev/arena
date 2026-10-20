@@ -11,6 +11,12 @@ import { strictNames } from './reports.ts';
 
 after(removeFixtures);
 
+const made: string[] = [];
+const track = (dir: string) => { made.push(dir); return dir; };
+after(() => {
+  for (const dir of made) rmSync(dir, { recursive: true, force: true });
+});
+
 const BREAK = '<div style={{ color: "#b52a20" }} />';
 const CARD = '.arena-card__title {\n  color: var(--ink-muted);\n}\n';
 const RESTATE = '[data-arena-part="card.title"] { color: var(--ink-muted); }\n';
@@ -21,7 +27,7 @@ function tree(root: string): string[] {
 }
 
 function setup(files: Record<string, string>, plugin = false) {
-  const root = mkdtempSync(join(tmpdir(), 'arena-audit-'));
+  const root = track(mkdtempSync(join(tmpdir(), 'arena-audit-')));
   mkdirSync(join(root, 'src'), { recursive: true });
   writeFileSync(join(root, 'arena.config.json'),
     JSON.stringify(plugin ? { ...readable, stylePlugins: ['plugin'] } : readable));

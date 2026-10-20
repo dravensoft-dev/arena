@@ -6,14 +6,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { EventEmitter } from 'node:events';
-import { chmodSync, existsSync, mkdirSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdirSync, mkdtempSync, readdirSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, join, win32 } from 'node:path';
 import { execFileSync, spawn, spawnSync } from 'node:child_process';
 import {
   DARWIN_APPS, DEVTOOLS, GRACE, LINUX_CANDIDATES, PROFILE_PREFIX, REAP, SIGNALS, WINDOWS_APPS, browserFlags,
   candidates, findChromium, launchChromium, observerFor, orphanProfiles, ownerOf, processesNaming,
-  profileNeedle, reapOnSignal, running, sweepOrphans,
+  profileNeedle, reapOnSignal, running, sweepOrphans, newEmptyFetchers, ownTempDirs, FETCHER_DIR,
 } from './chromium.ts';
 import { budgetFor, deadline, type Deadline } from './deadline.ts';
 import { waitFor } from './wait-for.ts';
@@ -553,3 +553,39 @@ test('a gate that is sent SIGTERM reaps the browser group and the profile before
       rmSync(root, { recursive: true, force: true });
     }
   });
+
+test('the temp directory the singleton links of a profile name is found, whatever the brand, and a link anywhere else is not',
+  { skip: platform === 'win32' ? 'a symbolic link needs a privilege there' : false }, () => {
+  const base = mkdtempSync(join(tmpdir(), 'arena-own-dirs-'));
+  try {
+    const profile = join(base, 'profile');
+    const own = join(base, '.com.google.Chrome.abc123');
+    mkdirSync(profile);
+    mkdirSync(own);
+    symlinkSync(join(own, 'SingletonSocket'), join(profile, 'SingletonSocket'));
+    symlinkSync('host-4242', join(profile, 'SingletonLock'));
+    symlinkSync(join(base, 'deep', 'elsewhere', 'SingletonCookie'), join(profile, 'SingletonCookie'));
+    assert.deepEqual(ownTempDirs(profile), [own]);
+    assert.deepEqual(ownTempDirs(join(base, 'no-such-profile')), []);
+    rmSync(join(profile, 'SingletonSocket'));
+    symlinkSync(join(profile, 'SingletonSocket'), join(profile, 'SingletonSocket'));
+    assert.deepEqual(ownTempDirs(profile), [], 'a link into the profile itself names no directory of its own');
+  } finally {
+    rmSync(base, { recursive: true, force: true });
+  }
+});
+
+test('only a fetcher directory that is new and empty is taken for the run itself, under any brand', () => {
+  const base = mkdtempSync(join(tmpdir(), 'arena-fetchers-'));
+  try {
+    const old = join(base, `${FETCHER_DIR}old000`);
+    const fresh = join(base, `org.chromium.Chromium.chromium_${FETCHER_DIR}new000`);
+    const branded = join(base, `.com.google.Chrome.${FETCHER_DIR}new111`);
+    const full = join(base, `${FETCHER_DIR}full00`);
+    for (const dir of [old, fresh, branded, full]) mkdirSync(dir);
+    writeFileSync(join(full, 'in-use'), 'x');
+    assert.deepEqual(newEmptyFetchers(new Set([old]), base).sort(), [branded, fresh].sort());
+  } finally {
+    rmSync(base, { recursive: true, force: true });
+  }
+});

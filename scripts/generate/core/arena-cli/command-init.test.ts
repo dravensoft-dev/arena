@@ -12,6 +12,12 @@ import { strictNames } from './reports.ts';
 
 after(removeFixtures);
 
+const made: string[] = [];
+const track = (dir: string) => { made.push(dir); return dir; };
+after(() => {
+  for (const dir of made) rmSync(dir, { recursive: true, force: true });
+});
+
 const REACT = '@dravensoft/arena-react';
 const ANGULAR = '@dravensoft/arena-angular';
 const AUDIT = `arena audit --strict=${strictNames('audit').join(',')}`;
@@ -19,7 +25,7 @@ const EXAMPLE = '{\n  "palettes": [],\n  "x": 1\n}\n';
 
 function setup(name = REACT, pkg: string | null = '{}\n') {
   const arena = hostRoot(name, '1.0.0', { 'arena.config.example.json': EXAMPLE });
-  const cwd = mkdtempSync(join(tmpdir(), 'arena-init-'));
+  const cwd = track(mkdtempSync(join(tmpdir(), 'arena-init-')));
   if (pkg !== null) writeFileSync(join(cwd, 'package.json'), pkg);
   const captured = captureIo(cwd, { arena });
   return { arena, cwd, ...captured };

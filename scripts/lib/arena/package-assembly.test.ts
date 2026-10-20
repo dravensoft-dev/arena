@@ -1,4 +1,4 @@
-import { test } from 'node:test';
+import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -16,8 +16,14 @@ import { repoRoot } from './repo-root.ts';
 import { sheetFamilies, packageSheetName } from '../tailwind/vocabulary.ts';
 import { splitCompiledSheet } from '../tailwind/sheet-split.ts';
 
+const made: string[] = [];
+const track = (dir: string) => { made.push(dir); return dir; };
+after(() => {
+  for (const dir of made) rmSync(dir, { recursive: true, force: true });
+});
+
 function tree(files: Record<string, string>) {
-  const root = mkdtempSync(join(tmpdir(), 'arena-assembly-'));
+  const root = track(mkdtempSync(join(tmpdir(), 'arena-assembly-')));
   for (const [path, body] of Object.entries(files) as [string, string][]) {
     const full = join(root, path);
     mkdirSync(join(full, '..'), { recursive: true });
@@ -90,7 +96,7 @@ test('reset empties a directory that already has a previous build in it', () => 
 
 test('copyTree carries a nested tree and drops what is excluded', () => {
   const from = tree({ 'a/b/Keep.ts': 'k', 'a/b/Drop.test.ts': 'd', 'a/test/Also.ts': 'x' });
-  const to = mkdtempSync(join(tmpdir(), 'arena-assembly-out-'));
+  const to = track(mkdtempSync(join(tmpdir(), 'arena-assembly-out-')));
   const written = copyTree(from, to, 'bin');
   assert.equal(written.length, 1);
   assert.equal(readFileSync(join(to, 'bin', 'a', 'b', 'Keep.ts'), 'utf8'), 'k');
@@ -168,7 +174,7 @@ test('no command ships as TypeScript, because node_modules is where node refuses
 });
 
 test('what copyCli emits is JavaScript, and its specifiers point at what it wrote', () => {
-  const to = mkdtempSync(join(tmpdir(), 'arena-assembly-cli-'));
+  const to = track(mkdtempSync(join(tmpdir(), 'arena-assembly-cli-')));
   const written = copyCli(to, repoRoot);
   for (const one of written) {
     assert.doesNotMatch(one, /\.tsx?$/, `${one} left the assembly as TypeScript`);
@@ -182,7 +188,7 @@ test('what copyCli emits is JavaScript, and its specifiers point at what it wrot
 });
 
 test('every command the manifest declares is copied, flat, and no two of them share a filename', () => {
-  const to = mkdtempSync(join(tmpdir(), 'arena-assembly-cli-'));
+  const to = track(mkdtempSync(join(tmpdir(), 'arena-assembly-cli-')));
   const written = copyCli(to, repoRoot);
   for (const target of Object.values(CLI_BINS)) {
     assert.ok(written.includes(target), `${target} is declared and was not copied`);
@@ -193,7 +199,7 @@ test('every command the manifest declares is copied, flat, and no two of them sh
 });
 
 test('a command name and the directory its source lives in are independent', () => {
-  const to = mkdtempSync(join(tmpdir(), 'arena-assembly-cli-'));
+  const to = track(mkdtempSync(join(tmpdir(), 'arena-assembly-cli-')));
   const written = copyCli(to, repoRoot);
   assert.ok(CLI_SOURCES.length > 0);
   for (const source of CLI_SOURCES) {
@@ -209,7 +215,7 @@ test('a command name and the directory its source lives in are independent', () 
 });
 
 test('what a command ships reaches nothing outside bin/, because scripts/ is not there', () => {
-  const to = mkdtempSync(join(tmpdir(), 'arena-assembly-cli-'));
+  const to = track(mkdtempSync(join(tmpdir(), 'arena-assembly-cli-')));
   copyCli(to, repoRoot);
   const escaping: string[] = [];
   for (const file of collectFiles(to)) {
@@ -229,7 +235,7 @@ test('what a command ships reaches nothing outside bin/, because scripts/ is not
 });
 
 test('each package carries the map its own layer derives, under the one name the command reads', () => {
-  const to = mkdtempSync(join(tmpdir(), 'arena-assembly-map-'));
+  const to = track(mkdtempSync(join(tmpdir(), 'arena-assembly-map-')));
   const angular = readJson(writeComponentMap(to, 'angular', repoRoot));
   const react = readJson(writeComponentMap(join(to, 'react'), 'react', repoRoot));
   assert.equal(existsSync(join(to, MAP_FILE)), true);
@@ -240,8 +246,8 @@ test('each package carries the map its own layer derives, under the one name the
 });
 
 test('a map that claims no sheet at all is refused, because auto would then unstyle every screen', () => {
-  const to = mkdtempSync(join(tmpdir(), 'arena-assembly-map-'));
-  const from = mkdtempSync(join(tmpdir(), 'arena-empty-'));
+  const to = track(mkdtempSync(join(tmpdir(), 'arena-assembly-map-')));
+  const from = track(mkdtempSync(join(tmpdir(), 'arena-empty-')));
   mkdirSync(join(from, 'frameworks', 'angular'), { recursive: true });
   writeFileSync(join(from, MARKERS_FILE),
     "@Directive({ selector: '[action]', standalone: true })\nexport class ArenaAction {}\n");
@@ -253,7 +259,7 @@ test('a map that claims no sheet at all is refused, because auto would then unst
 });
 
 test('a marker declaration nothing can be read out of is refused rather than yielding no markers', () => {
-  const from = mkdtempSync(join(tmpdir(), 'arena-nomarkers-'));
+  const from = track(mkdtempSync(join(tmpdir(), 'arena-nomarkers-')));
   mkdirSync(join(from, 'frameworks', 'angular'), { recursive: true });
   writeFileSync(join(from, MARKERS_FILE), 'export const nothing = 1;\n');
   assert.throws(() => markerAttributes(from), /declares no projection marker/);
@@ -261,13 +267,13 @@ test('a marker declaration nothing can be read out of is refused rather than yie
 });
 
 test('a command whose directory moved is reported rather than shipped missing', () => {
-  const to = mkdtempSync(join(tmpdir(), 'arena-assembly-cli-'));
-  assert.throws(() => copyCli(to, mkdtempSync(join(tmpdir(), 'arena-empty-'))), /copied 0 files for arena-cli/);
+  const to = track(mkdtempSync(join(tmpdir(), 'arena-assembly-cli-')));
+  assert.throws(() => copyCli(to, track(mkdtempSync(join(tmpdir(), 'arena-empty-')))), /copied 0 files for arena-cli/);
   rmSync(to, { recursive: true });
 });
 
 test('write creates the directories leading to a file nobody made yet', () => {
-  const root = mkdtempSync(join(tmpdir(), 'arena-assembly-'));
+  const root = track(mkdtempSync(join(tmpdir(), 'arena-assembly-')));
   write(root, 'a/b/c/File.css', 'body{}');
   assert.equal(readFileSync(join(root, 'a', 'b', 'c', 'File.css'), 'utf8'), 'body{}');
   rmSync(root, { recursive: true });
@@ -306,7 +312,7 @@ test('every import the component barrel writes resolves to a sheet the same call
 test('a component sheet is reached through the barrel alone, never named twice in arena.css', () => {
   const root = tailwindTree(['tag']);
   const sheets = componentSheets('', () => ({ base: '' }), root);
-  const dir = mkdtempSync(join(tmpdir(), 'arena-assembly-out-'));
+  const dir = track(mkdtempSync(join(tmpdir(), 'arena-assembly-out-')));
 
   writeCssChain(dir, '@dravensoft/arena-angular', sheets, repoRoot);
   const links = importsIn(readFileSync(join(dir, 'arena.css'), 'utf8'));

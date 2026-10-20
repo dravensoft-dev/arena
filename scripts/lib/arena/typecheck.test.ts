@@ -3,9 +3,10 @@
  * would do the same one level up, a listing read past a line it cannot place would answer
  * for files it never saw, and a held verdict handed no candidate would answer for a tree a
  * new file joined after it. The spawning cases compile a project of two files under a
- * temporary root, so none of them pays for a real project or writes into the tree. */
+ * temporary root, so none of them pays for a real project or writes into the tree, and tsc runs
+ * with Node's compile cache off, so it writes nothing into the temp directory either. */
 
-import test from 'node:test';
+import test, { after } from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdirSync, mkdtempSync, readdirSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -18,6 +19,13 @@ import { budgetFor } from './deadline.ts';
 import { TERM_GRACE, childOutput } from './child-output.ts';
 import { platform } from './platform.ts';
 import { PROBE_ENDED, PROBE_IMPORTED, PROBE_SPAWNED, assertCompilerEnded, probeInterrupt } from './forwarding-probe.ts';
+
+const cacheWas = process.env.NODE_DISABLE_COMPILE_CACHE;
+process.env.NODE_DISABLE_COMPILE_CACHE = '1';
+after(() => {
+  if (cacheWas === undefined) delete process.env.NODE_DISABLE_COMPILE_CACHE;
+  else process.env.NODE_DISABLE_COMPILE_CACHE = cacheWas;
+});
 
 const BUDGET_MS = budgetFor(TSC_SPAWN, PROBE_IMPORTED, PROBE_SPAWNED, PROBE_ENDED, TERM_GRACE);
 

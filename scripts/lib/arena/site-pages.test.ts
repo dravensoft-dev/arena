@@ -3,7 +3,7 @@
  * the specimen with no <title>, and the URL of a page whose name carries a space. The absence
  * check is the reason the module exists, so it is asserted against the tree rather than a stub. */
 
-import { test } from 'node:test';
+import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -17,8 +17,14 @@ import {
   COPIED_FILES, variantSinkNames,
 } from './site-pages.ts';
 
+const made: string[] = [];
+const track = (dir: string) => { made.push(dir); return dir; };
+after(() => {
+  for (const dir of made) rmSync(dir, { recursive: true, force: true });
+});
+
 function benchOut(products: string[]) {
-  const out = mkdtempSync(join(tmpdir(), 'arena-benches-'));
+  const out = track(mkdtempSync(join(tmpdir(), 'arena-benches-')));
   if (products.length > 0) {
     mkdirSync(join(out, BENCHES_DIR), { recursive: true });
     writeFileSync(join(out, BENCHES_DIR, BENCHES_MANIFEST), JSON.stringify({
@@ -227,7 +233,7 @@ test('the identity template and its worked answer are pages the site declares, a
   assert.deepEqual(COPIED_FILES, [
     'arena-from-scratch/identity.html', 'arena-from-scratch/identity.example.html',
   ]);
-  const base = mkdtempSync(join(tmpdir(), 'arena-identity-'));
+  const base = track(mkdtempSync(join(tmpdir(), 'arena-identity-')));
   try {
     mkdirSync(join(base, 'arena-from-scratch'), { recursive: true });
     for (const rel of [...COPIED_FILES, 'arena-from-scratch/AGENTS.md']) writeFileSync(join(base, rel), 'x');

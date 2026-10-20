@@ -26,6 +26,12 @@ import { RULES } from '../../lib/arena/language-rules.ts';
 
 after(removeFixtures);
 
+const made: string[] = [];
+const track = (dir: string) => { made.push(dir); return dir; };
+after(() => {
+  for (const dir of made) rmSync(dir, { recursive: true, force: true });
+});
+
 const SHARED = ['repository', 'skin', 'defaults', 'sheets', 'toast', 'layout', 'queues'];
 
 test('a region shared by several pages names no layer, because it is written into each at once', () => {
@@ -127,7 +133,7 @@ test('the sheets region names each vocabulary sheet once, as sheetFamilies and p
 });
 
 test('the sheets region splits a long list into sentences within the register word limit', () => {
-  const base = mkdtempSync(join(tmpdir(), 'npm-sheets-'));
+  const base = track(mkdtempSync(join(tmpdir(), 'npm-sheets-')));
   for (let at = 0; at < 45; at++) {
     const dir = `f${String(at).padStart(2, '0')}`;
     mkdirSync(join(base, 'frameworks/tailwind/vocabulary', dir), { recursive: true });
@@ -148,7 +154,7 @@ test('the sheets region splits a long list into sentences within the register wo
 });
 
 test('the skin region names which roles carry a default, so an empty set reads as empty rather than as a promise', () => {
-  const base = mkdtempSync(join(tmpdir(), 'npm-roles-'));
+  const base = track(mkdtempSync(join(tmpdir(), 'npm-roles-')));
   mkdirSync(join(base, 'contracts/design'), { recursive: true });
   const write = (roles: object) => writeFileSync(join(base, ROLE_CONTRACT), JSON.stringify(roles));
   write({ 'r-surface': { $type: 'dimension' }, 'gap-row': { $type: 'dimension' } });
@@ -189,7 +195,7 @@ test('the defaults statement leads with the fact and cites the roles the roles-w
 });
 
 test('the toast region writes the intervals the behaviour contract holds, and no number is typed by hand', () => {
-  const base = mkdtempSync(join(tmpdir(), 'npm-toast-'));
+  const base = track(mkdtempSync(join(tmpdir(), 'npm-toast-')));
   mkdirSync(join(base, 'contracts/design'), { recursive: true });
   writeFileSync(join(base, BEHAVIOUR_CONTRACT), JSON.stringify({
     dismiss: { default: { $value: { value: 111, unit: 'ms' } }, actionable: { $value: { value: 222, unit: 'ms' } } },
@@ -227,7 +233,7 @@ test('the queues region tables each field of a notice and of a confirmation requ
 });
 
 test('the lead of a queues table is read off the required flags of its contract', () => {
-  const base = mkdtempSync(join(tmpdir(), 'arena-lead-'));
+  const base = track(mkdtempSync(join(tmpdir(), 'arena-lead-')));
   try {
     const write = (fields: Record<string, { required?: boolean }>) => {
       mkdirSync(join(base, 'contracts/api/types'), { recursive: true });
@@ -246,7 +252,7 @@ test('the lead of a queues table is read off the required flags of its contract'
 });
 
 test('a density value of a shape the table cannot show is refused, naming the file and the key', () => {
-  const base = mkdtempSync(join(tmpdir(), 'arena-density-'));
+  const base = track(mkdtempSync(join(tmpdir(), 'arena-density-')));
   try {
     const file = 'contracts/design/density.compact.json';
     mkdirSync(join(base, 'contracts/design'), { recursive: true });
@@ -333,7 +339,7 @@ test('the audit region has one row per tag in RULE_TAGS order, with the rules th
 test('each fenced arena:audit script is what arena init writes for that layer', () => {
   for (const [key, name] of [['scriptsReact', '@dravensoft/arena-react'], ['scriptsAngular', '@dravensoft/arena-angular']] as const) {
     assert.ok(regionsOf(CLI_PAGE).includes(key), `${CLI_PAGE} carries ${key}`);
-    const cwd = mkdtempSync(join(tmpdir(), 'arena-cli-fence-'));
+    const cwd = track(mkdtempSync(join(tmpdir(), 'arena-cli-fence-')));
     try {
       writeFileSync(join(cwd, 'package.json'), '{}\n');
       const { io } = captureIo(cwd, { arena: hostRoot(name, '1.0.0', { 'arena.config.example.json': '{}\n' }) });

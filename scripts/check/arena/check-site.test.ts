@@ -4,7 +4,7 @@
  * matters, and its cases are the four shapes a static host answers differently from serve.ts: a
  * relative path, a root-relative one, a directory that has an index, and one that does not. */
 
-import { test } from 'node:test';
+import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -18,6 +18,12 @@ import {
 import {
   DOMAIN, BENCHES_DIR, BENCHES_MANIFEST, modules, pages, indexedDirectories,
 } from '../../lib/arena/site-pages.ts';
+
+const made: string[] = [];
+const track = (dir: string) => { made.push(dir); return dir; };
+after(() => {
+  for (const dir of made) rmSync(dir, { recursive: true, force: true });
+});
 
 function benchOut(halves: Record<string, string[]>) {
   const files: Record<string, string> = {
@@ -35,7 +41,7 @@ function benchOut(halves: Record<string, string[]>) {
 }
 
 function out(files: Record<string, string>) {
-  const base = mkdtempSync(join(tmpdir(), 'arena-site-'));
+  const base = track(mkdtempSync(join(tmpdir(), 'arena-site-')));
   for (const [rel, text] of Object.entries(files) as [string, string][]) {
     const path = join(base, rel);
     mkdirSync(join(path, '..'), { recursive: true });

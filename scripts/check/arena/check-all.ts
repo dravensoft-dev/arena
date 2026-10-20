@@ -4,10 +4,10 @@
  * what `bun run check` gets. A gate whose runtime dependency is missing exits 2 and is reported
  * SKIP, making the run INCOMPLETE. Each step prints as one block when it ends, and the summary
  * lists the steps in the order planned with what each took, so --jobs=1 is the serial run.
- * testStep() is the single authority for how the suites are invoked: --preload installs
- * happy-dom PROCESS-wide and replaces Bun's own fetch, which turns static-server.test.ts's fetch
- * assertion into a cross-origin failure, so scripts/ rides a DOM-free invocation. Read the args
- * here, never reconstruct them. */
+ * testStep() is the single authority for how the suites are invoked, so read its args and never
+ * reconstruct them: --preload installs happy-dom PROCESS-wide and replaces Bun's fetch, so
+ * scripts/ rides a DOM-free invocation. A test step runs in a temp root of its own and, on Linux,
+ * fails when that root holds anything as it ends; on win32 and darwin it only warns. */
 
 import { availableParallelism, freemem } from 'node:os';
 import { fileURLToPath } from 'node:url';
@@ -24,8 +24,9 @@ import {
   type Finished, type Outcome, type Pool, type Slots, type Step,
 } from '../../graph/scheduler.ts';
 import { stepBlock } from '../../graph/step-block.ts';
-import { suiteTmp } from '../../lib/arena/suite-tmp.ts';
+import { leftoverFails, leftoverLine, suiteTmp } from '../../lib/arena/suite-tmp.ts';
 import { deadline, type Deadline } from '../../lib/arena/deadline.ts';
+import type { Platform } from '../../lib/arena/platform.ts';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const checkRoot = join(here, '..');
@@ -330,7 +331,10 @@ export function block(step: { name: string; reason?: string | null | undefined }
 export async function runSteps(
   planned: Planned[],
   slots: Slots,
-  options: { signal?: AbortSignal; print?: (text: string) => void; finished?: (one: Finished) => void; cwd?: string } = {},
+  options: {
+    signal?: AbortSignal; print?: (text: string) => void; finished?: (one: Finished) => void; cwd?: string;
+    on?: Platform;
+  } = {},
 ) {
   const print = options.print ?? ((text: string) => { process.stdout.write(text); });
   const steps: Step[] = planned.map((one) => ({
@@ -341,14 +345,24 @@ export async function runSteps(
     run: async () => {
       const scratch = one.scratch ? suiteTmp() : null;
       let ended;
+      let left: string[] = [];
       try {
         ended = await childOutputAsync(one.command, one.args,
           { cwd: options.cwd ?? repoRoot, signal: options.signal, env: scratch?.env });
+        left = scratch?.left() ?? [];
       } finally {
         scratch?.remove();
       }
-      const outcome = stepOutcome(ended);
-      print(block(one, ended.output, outcome));
+      let outcome = stepOutcome(ended);
+      let output = ended.output;
+      if (left.length > 0) {
+        const line = leftoverLine(one.name, left);
+        const fatal = leftoverFails(options.on);
+        if (outcome.status === 'fail' || !fatal) {
+          output += `${output.endsWith('\n') || output === '' ? '' : '\n'}${fatal ? '' : 'warning: '}${line}\n`;
+        } else outcome = { status: 'fail', note: line };
+      }
+      print(block(one, output, outcome));
       return outcome;
     },
   }));

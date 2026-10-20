@@ -1,17 +1,17 @@
 /* Finds and launches a headless browser for the gates that need one, and decides for all of them
  * what its absence costs. CHROME_PATH stays terminal -- set and pointing at nothing, it says so
- * instead of falling back -- but it is never declared: laying a default under the environment
- * leaves the candidate list unreachable and its macOS entries dead.
- * `browserOrExit` is the single spelling of strict-or-skip. Colour is pinned to sRGB and text
- * drawn against a grey ramp, because subpixel antialiasing answers about the panel rather than
- * about Arena. Teardown reaps the GROUP whatever the parent did, then waits for it to empty
- * before removing the profile, since a polite exit leaves a zygote and a directory one writes to
- * fails with EBUSY. SIGTERM or SIGINT reaps the detached group and the profile at once; SIGKILL
- * leaves a profile carrying its launcher's pid, which the next launch reaps. */
+ * instead of falling back -- but it is never declared: a default under the environment leaves the
+ * candidate list unreachable and its macOS entries dead. `browserOrExit` is the single spelling
+ * of strict-or-skip. Colour is pinned to sRGB and text drawn against a grey ramp, because
+ * subpixel antialiasing answers about the panel rather than about Arena. Teardown reaps the GROUP,
+ * then waits for it to empty before removing the profile, since a polite exit leaves a zygote and
+ * a directory one writes to fails with EBUSY. SIGTERM or SIGINT reaps group and profile at once;
+ * SIGKILL leaves a profile carrying its launcher's pid, which the next launch reaps. The browser's
+ * own temp directories go too: the one its singleton links name, and a new empty fetcher one. */
 
 import { execFileSync, spawn, spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readdirSync, rmSync } from 'node:fs';
-import { basename } from 'node:path';
+import { existsSync, mkdtempSync, readdirSync, readlinkSync, rmSync, rmdirSync } from 'node:fs';
+import { basename, dirname, isAbsolute } from 'node:path';
 import { constants, tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { arenaEnv, cannotRun } from './arena-scripts-vars.ts';
@@ -221,7 +221,9 @@ export function reapProfile(profile: string, on: Platform = platform) {
     try { process.kill(-owner, 'SIGKILL'); } catch {  }
     try { process.kill(owner, 'SIGKILL'); } catch {  }
   }
+  const own = ownTempDirs(profile);
   try { rmSync(profile, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 }); } catch {  }
+  for (const dir of own) try { rmSync(dir, { recursive: true, force: true }); } catch {  }
   return true;
 }
 
@@ -232,6 +234,30 @@ export function sweepOrphans(at = tmpdir(), on: Platform = platform) {
   for (const entry of orphanProfiles(entries, running))
     if (reapProfile(join(at, entry), on)) reaped += 1;
   return reaped;
+}
+
+export const FETCHER_DIR = 'chrome_url_fetcher_';
+
+export function ownTempDirs(profile: string) {
+  const dirs = new Set<string>();
+  for (const name of ['SingletonSocket', 'SingletonLock', 'SingletonCookie']) {
+    try {
+      const target = readlinkSync(join(profile, name));
+      const dir = dirname(target);
+      if (isAbsolute(target) && dirname(dir) === dirname(profile) && dir !== profile) dirs.add(dir);
+    } catch {  }
+  }
+  return [...dirs];
+}
+
+export function fetcherDirs(at = tmpdir()) {
+  try { return readdirSync(at).filter((name) => name.includes(FETCHER_DIR)).map((name) => join(at, name)); } catch { return []; }
+}
+
+export function newEmptyFetchers(before: Set<string>, at = tmpdir()) {
+  return fetcherDirs(at).filter((dir) => {
+    try { return !before.has(dir) && readdirSync(dir).length === 0; } catch { return false; }
+  });
 }
 
 export const SIGNALS = ['SIGTERM', 'SIGINT'] as const;
@@ -285,6 +311,14 @@ export function reapOnSignal(
 export async function launchChromium(exePath: string, on: Platform = platform): Promise<{ wsUrl: string; kill: () => Promise<void> }> {
   sweepOrphans(tmpdir(), on);
   const profile = mkdtempSync(join(tmpdir(), `${PROFILE_PREFIX}${process.pid}-`));
+  const fetchersBefore = new Set(fetcherDirs());
+  const removeProfile = (retry: object) => {
+    const own = ownTempDirs(profile);
+    const fetchers = newEmptyFetchers(fetchersBefore);
+    try { rmSync(profile, { recursive: true, force: true, ...retry }); } catch {  }
+    for (const dir of own) try { rmSync(dir, { recursive: true, force: true }); } catch {  }
+    for (const dir of fetchers) try { rmdirSync(dir); } catch {  }
+  };
 
   const child = spawn(exePath, browserFlags(profile, on), {
     stdio: ['ignore', 'ignore', 'pipe'],
@@ -323,7 +357,7 @@ export async function launchChromium(exePath: string, on: Platform = platform): 
 
   const unlisten = reapOnSignal(() => {
     reapGroup();
-    try { rmSync(profile, { recursive: true, force: true }); } catch {  }
+    removeProfile({});
   });
 
   const kill = async () => {
@@ -334,7 +368,7 @@ export async function launchChromium(exePath: string, on: Platform = platform): 
     }
     reapGroup();
     await waitFor(groupGone, REAP);
-    try { rmSync(profile, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 }); } catch {  }
+    removeProfile({ maxRetries: 10, retryDelay: 100 });
   };
 
   const wsUrl = await new Promise((resolve, reject) => {
