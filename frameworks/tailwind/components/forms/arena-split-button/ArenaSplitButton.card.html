@@ -15,7 +15,7 @@ const manifest = await (await fetch('./ArenaSplitButton.manifest.json')).json();
 function split(label, opts = {}, { disabled = false, loading = false, open = false, cls = '' } = {}) {
   const c = arenaClassesFor(manifest, opts);
   const d = arenaSlotDataFor(manifest, opts);
-  const root = el('div', { role: 'group', 'aria-label': 'Deployment', class: `${c.root} ${cls}`.trim(), 'data-arena-part': 'split-button', ...d.root });
+  const root = el('div', { role: 'group', 'aria-label': 'Deployment', class: `${c.root} ${cls}`.trim(), ...d.root });
   const primary = el('button', { class: c.primary, ...d.primary, type: 'button', disabled: (disabled || loading) || undefined });
   if (loading) primary.append(el('span', { class: c.spinner, ...d.spinner, 'aria-hidden': 'true' }));
   else primary.append(el('i', { class: 'ph-bold ph-rocket-launch', 'aria-hidden': 'true' }));

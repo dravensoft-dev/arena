@@ -21,22 +21,22 @@ function row({ label, icon, level, size, pos, open, selected, disabled }) {
   const dv = arenaSlotDataFor(manifest, v);
   const branch = open !== undefined;
   return el('div', {
-    class: cv.item, ...dv.item, 'data-arena-part': 'tree-view.item', role: 'treeitem', tabindex: selected ? 0 : -1,
+    class: cv.item, ...dv.item, role: 'treeitem', tabindex: selected ? 0 : -1,
     'aria-level': level, 'aria-setsize': size, 'aria-posinset': pos,
     'aria-expanded': branch ? String(open) : undefined,
     'aria-selected': String(Boolean(selected)),
     'aria-disabled': disabled ? 'true' : undefined,
     style: `--arena-tree-depth: ${level - 1}`,
   },
-    el('span', { class: c.caret, ...d.caret, 'data-arena-part': 'tree-view.caret', 'aria-hidden': 'true' },
+    el('span', { class: c.caret, ...d.caret, 'aria-hidden': 'true' },
       branch ? el('i', { class: `ph-bold ${open ? 'ph-caret-down' : 'ph-caret-right'}` }) : ''),
-    el('i', { class: `${c.icon} ph-bold ${icon}`, ...d.icon, 'data-arena-part': 'tree-view.icon', 'aria-hidden': 'true' }),
-    el('span', { class: c.label, ...d.label, 'data-arena-part': 'tree-view.label', text: label }));
+    el('i', { class: `${c.icon} ph-bold ${icon}`, ...d.icon, 'aria-hidden': 'true' }),
+    el('span', { class: c.label, ...d.label, text: label }));
 }
 
 mountSpecimen({ sections: [
   section('Open, closed, disabled and selected, three levels in', [
-    el('div', { class: c.root, ...d.root, 'data-arena-part': 'tree-view', role: 'tree', 'aria-label': 'Project files' },
+    el('div', { class: c.root, ...d.root, role: 'tree', 'aria-label': 'Project files' },
       row({ label: 'Project', icon: 'ph-folder', level: 1, size: 1, pos: 1, open: true }),
       row({ label: 'src', icon: 'ph-folder', level: 2, size: 2, pos: 1, open: true }),
       row({ label: 'components', icon: 'ph-folder', level: 3, size: 2, pos: 1, open: false, disabled: true }),

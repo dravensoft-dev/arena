@@ -71,7 +71,11 @@ export function partData(manifests: Iterable<ComponentManifest>) {
   for (const manifest of manifests) {
     const parts = classesManifest(manifest).parts ?? {};
     const data = arenaSlotDataFor(manifest);
-    for (const [slot, part] of Object.entries(parts)) if (!out.has(part) && data[slot]) out.set(part, data[slot]!);
+    for (const [slot, part] of Object.entries(parts)) {
+      if (out.has(part) || !data[slot]) continue;
+      const { 'data-arena-part': written, ...groups } = data[slot]!;
+      out.set(part, groups);
+    }
   }
   return out;
 }

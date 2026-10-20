@@ -132,5 +132,8 @@ export function arenaClassesFor(manifest, chosen = {}) {
 }
 
 export function arenaSlotDataFor(manifest, chosen = {}) {
-  return slotData(classesManifest(manifest), chosen);
+  const named = classesManifest(manifest);
+  const data = slotData(named, chosen);
+  for (const [slot, part] of Object.entries(named.parts)) data[slot]['data-arena-part'] = part;
+  return data;
 }

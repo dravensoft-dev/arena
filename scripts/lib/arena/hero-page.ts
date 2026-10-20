@@ -47,7 +47,7 @@ function buttonOpening() {
   const root = `${arenaClassesFor(manifest).root} arena-size-lg`;
   const data = Object.entries(arenaSlotDataFor(manifest).root ?? {})
     .map(([name, value]) => ` ${name}="${value}"`).join('');
-  return `<button class="${root}"${data} data-arena-part="button" type="button">`;
+  return `<button class="${root}"${data} type="button">`;
 }
 
 const button = (label: string) => `${buttonOpening()}${label}</button>`;
