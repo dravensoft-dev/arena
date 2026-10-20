@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { DECLARED, arenaEnv, cannotRun, skipExitCode } from './arena-scripts-vars.ts';
+import { DECLARED, arenaEnv, cannotRun, refuseWhen, skipExitCode } from './arena-scripts-vars.ts';
 
 test('a declared value fills a variable the environment does not carry', () => {
   assert.equal(arenaEnv({}).ARENA_CHECK_STRICT, DECLARED.ARENA_CHECK_STRICT);
@@ -93,4 +93,16 @@ test('cannotRun skips where an environment has asked for it, and says what that 
   assert.match(said, /INCOMPLETE/,
     'a soft skip that does not say the run proves less than it looks like is the failure the '
     + 'strict default exists to prevent');
+});
+
+test('refuseWhen returns on a null reason and exits through cannotRun on a string one', () => {
+  const none = captureExit(() => refuseWhen('check-cards', null, arenaEnv({})));
+  assert.equal(none.code, undefined);
+  assert.equal(none.said, '');
+  const some = captureExit(() => refuseWhen('check-cards', 'no browser', arenaEnv({})));
+  assert.equal(some.code, 1);
+  assert.match(some.said, /check-cards: FAILED \(strict\) — no browser/);
+  const soft = captureExit(() => refuseWhen('check-cards', 'no browser', arenaEnv({ ARENA_CHECK_STRICT: '0' })));
+  assert.equal(soft.code, 2);
+  assert.equal(captureExit(() => refuseWhen('check-cards', '', arenaEnv({}))).code, undefined);
 });

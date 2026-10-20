@@ -187,6 +187,13 @@ test('a root reached through a loop variable is a problem, and a loop over other
   assert.deepEqual(clean.problems, []);
 });
 
+test('a computed first segment never stands for the root first segment, while a computed middle one still does', async () => {
+  const first = await scan(suite("const at = join(repoRoot, name, 'mcp');"));
+  assert.deepEqual(first.problems, []);
+  const middle = await scan(suite("const at = join(repoRoot, 'frameworks', name, 'dist');"));
+  assert.match(middle.problems.join('\n'), /frameworks\/react\/dist/);
+});
+
 test('a namespace member spelling a root is a problem, and an unreadable one is unsettled', async () => {
   const head = `${ROOT_IMPORT}import * as c from '../consts.ts';\nimport * as gone from '../missing.ts';\n`;
   const { problems } = await scan(suite('const at = join(repoRoot, c.DIST);\nconst on = join(repoRoot, ...c.PARTS);\nconst t = join(repoRoot, `${c.DIST}/x`);', head));

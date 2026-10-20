@@ -286,7 +286,8 @@ test('check:packages --layer requires and judges the one package it names, whate
   assert.match(refusal(base, '1', ['react']).stdout, /went on/);
   assert.equal(refusal(base, '1', ['angular']).status, 1);
   assert.deepEqual(collect(root, (layer) => distDir(layer, base), ['angular']).assembled, []);
-  assert.throws(() => collect(root, (layer) => distDir(layer, base), ['react']));
+  assert.throws(() => collect(root, (layer) => distDir(layer, base), ['react']),
+    (error: Error) => error.message.includes(join(distDir('react', base), 'css', 'tailwind-theme.css')));
 });
 
 test('check:packages with no layer requires both packages, and a layer it does not know is refused', () => {

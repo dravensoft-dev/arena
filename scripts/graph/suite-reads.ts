@@ -169,7 +169,7 @@ function spellsRoot(parts: string[], roots: string[]) {
   return roots.find((root) => {
     const wanted = root.split('/');
     return spelled.length >= wanted.length
-      && wanted.every((one, at) => spelled[at] === one || (spelled[at] === ANY && at < wanted.length - 1));
+      && wanted.every((one, at) => spelled[at] === one || (spelled[at] === ANY && at > 0 && at < wanted.length - 1));
   });
 }
 
