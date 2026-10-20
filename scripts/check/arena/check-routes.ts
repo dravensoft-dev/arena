@@ -424,7 +424,7 @@ export const ROUTES: Route[] = [
       + 'package is, and what CI does with the tag once it exists',
     entry: 'contributor',
     stops: ['versioning_steps.md', 'frameworks/PACKAGING.md', '.github/workflows/AGENTS.md'],
-    budget: 74_600,
+    budget: 75_100,
     reason:
       'the least frequent route on the branch and the most expensive one to get wrong, because '
       + 'each of its failures publishes nothing and errors nowhere. The sequence is the first stop '
@@ -436,7 +436,8 @@ export const ROUTES: Route[] = [
       + 'publisher of its own, and a first publish needs one configured by hand; the corpus and '
       + 'the components travel apart. The workflow page states how pull requests, develop and main '
       + 'verify through one reusable workflow, what each of its jobs runs and how long it may run, '
-      + 'and which target a publish that misses its cache builds. Each of these fails in silence, '
+      + 'and which target a publish that misses its cache builds and which layer it hands '
+      + 'check:packages. Each of these fails in silence, '
       + 'which is what the budget is there to keep visible.',
   },
 ];

@@ -120,7 +120,7 @@ export function binProblems(dir: string) {
 export const ESCAPING_SPECIFIER = /\bfrom\s+'(\.\.\/[^']*)'/g;
 
 export function flatProblems(dir: string) {
-  const problems = [];
+  const problems: string[] = [];
   if (!existsSync(join(dir, 'bin'))) return problems;
   for (const file of walkFiles(join(dir, 'bin')).filter((path) => path.endsWith('.mjs'))) {
     const escaping = [...readFileSync(file, 'utf8').matchAll(ESCAPING_SPECIFIER)].map((m) => m[1]);
