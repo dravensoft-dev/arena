@@ -223,7 +223,7 @@ test('a skip written as a shorthand option, through let or var, or called at run
   const head = "import { existsSync } from 'node:fs';\n";
   const shorthand = await scan(suite("const skip = !existsSync(at) && 'no';\ntest('x', { skip }, () => {});", head));
   assert.match(shorthand.problems.join('\n'), /skips on skip/);
-  const mutable = await scan(suite("let MISSING = !existsSync(at);\nvar OTHER = existsSync(at);\ntest('x', { skip: MISSING }, () => {});\ntest('y', { timeout: 1, skip: OTHER }, () => {});", head));
+  const mutable = await scan(suite("let MISSING = !existsSync(at);\nvar OTHER = existsSync(at);\ntest('x', { skip: MISSING }, () => {});\ntest('y', { concurrency: true, skip: OTHER }, () => {});", head));
   assert.equal(mutable.problems.length, 2);
   const runtime = await scan(suite("test('x', (t) => {\n  if (!existsSync(at)) return t.skip('none');\n});\ntest('y', (t) => {\n  if (existsSync(at)) { t.skip('gone'); }\n});", head));
   assert.equal(runtime.problems.length, 2);
