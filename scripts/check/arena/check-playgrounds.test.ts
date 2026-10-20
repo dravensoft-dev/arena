@@ -1,5 +1,8 @@
-import { test } from 'node:test';
+import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { dirname, join } from 'node:path';
 import {
   coverageProblems, shapeProblems, seedProblems, slotProblems, bindProblems, fieldProblems, hostProblems,
   valueProblems, objectProblems, nodeProblems, fixtureProblems, citationProblems,
@@ -7,6 +10,7 @@ import {
   pagePaths, classProblems, variantProblems,
 } from './check-playgrounds.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
+import { buildPlaygrounds } from '../../generate/arena/generate-playgrounds.ts';
 import type { ComponentContract, TypeContract } from '../../lib/arena/contract-shapes.ts';
 
 const types = new Map<string, TypeContract>([
@@ -259,10 +263,23 @@ test('every real fixture in the tree holds against its real contract', () => {
   assert.deepEqual(problems, []);
 });
 
+const made: string[] = [];
+after(() => { for (const dir of made) rmSync(dir, { recursive: true, force: true }); });
+
 test('the codec emission is compared against the source, so a hand-edited copy fails', () => {
-  assert.deepEqual(emissionProblems(root), []);
-  const files = new Map([['frameworks/react/playground/PlaygroundCodec.generated.ts', 'not what is on disk']]);
-  assert.match(emissionProblems(root, files)[0] ?? '', /stale — run bun run generate:playgrounds/);
+  const files = buildPlaygrounds(root).files;
+  const temp = mkdtempSync(join(tmpdir(), 'arena-playgrounds-'));
+  made.push(temp);
+  for (const [rel, body] of files) {
+    mkdirSync(dirname(join(temp, rel)), { recursive: true });
+    writeFileSync(join(temp, rel), body);
+  }
+  assert.deepEqual(emissionProblems(temp, files), []);
+  const codec = 'frameworks/react/playground/PlaygroundCodec.generated.ts';
+  writeFileSync(join(temp, codec), 'not what is on disk');
+  assert.match(emissionProblems(temp, files)[0] ?? '', /stale — run bun run generate:playgrounds/);
+  rmSync(join(temp, codec));
+  assert.match(emissionProblems(temp, files)[0] ?? '', /missing — run bun run generate:playgrounds/);
 });
 
 test('a missing copy is named with the command that writes it', () => {

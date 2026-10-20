@@ -1,14 +1,20 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
+import {
+  copyFileSync, mkdtempSync, mkdirSync, readdirSync, rmdirSync, rmSync, statSync, unlinkSync, writeFileSync,
+} from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
 import {
   FORBIDDEN_FIELDS, NON_CONTRACT, catalogueProblems, collect, expectedCarried, manifestProblems,
   payloadProblems, zeroDerivedProblems,
 } from './check-contracts-package.ts';
-import { CATALOGUE, NAME, NOT_CARRIED, catalogue, manifest, unmatchedExclusions } from '../../build/arena/build-contracts-package.ts';
+import { CATALOGUE, NAME, NOT_CARRIED, buildContractsPackage, catalogue, manifest, unmatchedExclusions } from '../../build/arena/build-contracts-package.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
+import { linkDir, platform } from '../../lib/arena/platform.ts';
+
+const LINKED_WHOLE = ['contracts', 'assets'];
+const COPIED_ONE_FILE = [['frameworks', 'Components.json'], ['.claude-plugin', 'plugin.json']] as const;
 
 function fixture() {
   const dir = mkdtempSync(join(tmpdir(), 'arena-contracts-'));
@@ -99,11 +105,30 @@ test('an exclusion matching nothing in the tree fails, so it cannot outlive what
 });
 
 test('the tree passes its own claim, over more than nothing', () => {
-  const { problems, expected, assembled } = collect();
-  assert.deepEqual(problems, []);
-  assert.ok(expected.length > 0);
-  assert.ok(NOT_CARRIED.size > 0, 'a package that excludes nothing is one nobody decided the shape of');
-  assert.equal(typeof assembled, 'boolean');
+  const temp = mkdtempSync(join(tmpdir(), 'arena-contracts-tree-'));
+  const links: string[] = [];
+  try {
+    for (const name of readdirSync(repoRoot).filter((entry) => !['dist', 'node_modules', '.git'].includes(entry))) {
+      const from = join(repoRoot, name);
+      if (!statSync(from).isDirectory()) copyFileSync(from, join(temp, name));
+      else if (LINKED_WHOLE.includes(name)) { linkDir(from, join(temp, name)); links.push(join(temp, name)); }
+    }
+    for (const [dir, file] of COPIED_ONE_FILE) {
+      mkdirSync(join(temp, dir));
+      copyFileSync(join(repoRoot, dir, file), join(temp, dir, file));
+    }
+    buildContractsPackage(temp);
+    const { problems, expected, assembled } = collect(temp);
+    assert.deepEqual(problems, []);
+    assert.ok(expected.length > 0);
+    assert.ok(NOT_CARRIED.size > 0, 'a package that excludes nothing is one nobody decided the shape of');
+    assert.equal(assembled, true);
+  } finally {
+    for (const link of links) {
+      try { if (platform === 'win32') rmdirSync(link); else unlinkSync(link); } catch {  }
+    }
+    rmSync(temp, { recursive: true, force: true });
+  }
 });
 
 test('the derived set is every contract level and nothing else', () => {
