@@ -13,7 +13,7 @@ import { execFileSync, spawn, spawnSync } from 'node:child_process';
 import {
   DARWIN_APPS, DEVTOOLS, GRACE, LINUX_CANDIDATES, PROFILE_PREFIX, REAP, SIGNALS, WINDOWS_APPS, browserFlags,
   candidates, findChromium, launchChromium, observerFor, orphanProfiles, ownerOf, processesNaming,
-  profileNeedle, reapOnSignal, running, sweepOrphans, newEmptyFetchers, ownTempDirs, FETCHER_DIR,
+  profileNeedle, reapOnSignal, running, sweepOrphans, newEmptyFetchers, newTempFiles, ownTempDirs, FETCHER_DIR,
 } from './chromium.ts';
 import { budgetFor, deadline, type Deadline } from './deadline.ts';
 import { waitFor } from './wait-for.ts';
@@ -570,6 +570,22 @@ test('the temp directory the singleton links of a profile name is found, whateve
     rmSync(join(profile, 'SingletonSocket'));
     symlinkSync(join(profile, 'SingletonSocket'), join(profile, 'SingletonSocket'));
     assert.deepEqual(ownTempDirs(profile), [], 'a link into the profile itself names no directory of its own');
+  } finally {
+    rmSync(base, { recursive: true, force: true });
+  }
+});
+
+test('only a <uuid>.tmp file that is new is taken for the run itself, and only on Windows', () => {
+  const base = mkdtempSync(join(tmpdir(), 'arena-temp-files-'));
+  try {
+    const old = join(base, '0b8e1f2a-3c4d-4e5f-8a9b-0c1d2e3f4a5b.tmp');
+    const fresh = join(base, '71a0fc17-1cd4-4efe-8d2b-8f14e0f6e990.tmp');
+    const other = join(base, 'tmp1A2B.tmp');
+    const upper = join(base, '71A0FC17-1CD4-4EFE-8D2B-8F14E0F6E990.tmp');
+    for (const file of [old, fresh, other, upper]) writeFileSync(file, 'x');
+    assert.deepEqual(newTempFiles(new Set([old]), base, 'win32'), [fresh]);
+    assert.deepEqual(newTempFiles(new Set(), base, 'linux'), []);
+    assert.deepEqual(newTempFiles(new Set(), base, 'darwin'), []);
   } finally {
     rmSync(base, { recursive: true, force: true });
   }

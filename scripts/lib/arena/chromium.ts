@@ -7,7 +7,9 @@
  * then waits for it to empty before removing the profile, since a polite exit leaves a zygote and
  * a directory one writes to fails with EBUSY. SIGTERM or SIGINT reaps group and profile at once;
  * SIGKILL leaves a profile carrying its launcher's pid, which the next launch reaps. The browser's
- * own temp directories go too: the one its singleton links name, and a new empty fetcher one. */
+ * own temp directories go too: the one its singleton links name, and a new empty fetcher one. On
+ * Windows the reap is taskkill /F, which leaves the <uuid>.tmp files the browser was writing, so
+ * every one that appeared while it ran goes as well. */
 
 import { execFileSync, spawn, spawnSync } from 'node:child_process';
 import { existsSync, mkdtempSync, readdirSync, readlinkSync, rmSync, rmdirSync } from 'node:fs';
@@ -260,6 +262,17 @@ export function newEmptyFetchers(before: Set<string>, at = tmpdir()) {
   });
 }
 
+export const TEMP_FILE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.tmp$/;
+
+export function tempFiles(at = tmpdir(), on: Platform = platform) {
+  if (on !== 'win32') return [];
+  try { return readdirSync(at).filter((name) => TEMP_FILE.test(name)).map((name) => join(at, name)); } catch { return []; }
+}
+
+export function newTempFiles(before: Set<string>, at = tmpdir(), on: Platform = platform) {
+  return tempFiles(at, on).filter((file) => !before.has(file));
+}
+
 export const SIGNALS = ['SIGTERM', 'SIGINT'] as const;
 
 type Signal = (typeof SIGNALS)[number];
@@ -312,12 +325,15 @@ export async function launchChromium(exePath: string, on: Platform = platform): 
   sweepOrphans(tmpdir(), on);
   const profile = mkdtempSync(join(tmpdir(), `${PROFILE_PREFIX}${process.pid}-`));
   const fetchersBefore = new Set(fetcherDirs());
+  const filesBefore = new Set(tempFiles(tmpdir(), on));
   const removeProfile = (retry: object) => {
     const own = ownTempDirs(profile);
     const fetchers = newEmptyFetchers(fetchersBefore);
+    const files = newTempFiles(filesBefore, tmpdir(), on);
     try { rmSync(profile, { recursive: true, force: true, ...retry }); } catch {  }
     for (const dir of own) try { rmSync(dir, { recursive: true, force: true }); } catch {  }
     for (const dir of fetchers) try { rmdirSync(dir); } catch {  }
+    for (const file of files) try { rmSync(file, { force: true }); } catch {  }
   };
 
   const child = spawn(exePath, browserFlags(profile, on), {
