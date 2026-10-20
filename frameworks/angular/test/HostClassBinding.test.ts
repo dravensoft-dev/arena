@@ -981,7 +981,6 @@ class StrayAttributeHost {
 }
 
 test('the clearing binding removes a STATIC attribute and leaves the input holding its value', () => {
-  useTestEnvironment();
   const fixture = TestBed.createComponent(StrayAttributeHost);
   fixture.detectChanges();
   try {
