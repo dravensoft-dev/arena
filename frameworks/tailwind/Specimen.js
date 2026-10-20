@@ -3,7 +3,7 @@ import { classesFor, arenaClassesFor, arenaSlotDataFor } from './ManifestClasses
 for (const style of ['bold', 'fill']) {
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = `../../../node_modules/@phosphor-icons/web/src/${style}/style.css`;
+  link.href = new URL(`../../node_modules/@phosphor-icons/web/src/${style}/style.css`, import.meta.url).href;
   document.head.appendChild(link);
 }
 
