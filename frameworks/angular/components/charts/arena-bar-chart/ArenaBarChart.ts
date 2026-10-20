@@ -14,7 +14,7 @@ import {
 } from '../ChartSeries';
 import { arenaLegendStrip } from '../ChartLegend';
 import { arenaRailAnchorX, arenaTooltipAnchor } from '../ChartTooltip';
-import { arenaRailView } from '../ChartRailView';
+import { arenaRailReveal, arenaRailView } from '../ChartRailView';
 import { arenaCursorHandles, arenaCursorStep, arenaPointerClears, arenaPointerUpdates } from '../ChartPointer';
 import { arenaBarChartStyles } from './ArenaBarChart.variants';
 import manifest from './ArenaBarChart.classes.generated';
@@ -304,6 +304,19 @@ export class ArenaBarChart {
       const rail = this.rail()?.nativeElement;
       if (!rail || !this.scrolls()) return;
       rail.scrollLeft = rail.scrollWidth - rail.clientWidth;
+    });
+
+    afterRenderEffect(() => {
+      const rail = this.rail()?.nativeElement;
+      const at = this.hover();
+      const bands = this.bands();
+      const count = this.points();
+      this.available();
+      if (!rail || !this.scrolls() || at === null || at >= count) return;
+      const left = arenaBandMark(bands, at);
+      const to = arenaRailReveal(left, left + bands.band, rail.scrollLeft, rail.clientWidth);
+      if (to !== rail.scrollLeft) rail.scrollLeft = to;
+      this.railView.sync();
     });
 
     afterRenderEffect(() => {

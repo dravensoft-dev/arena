@@ -15,7 +15,7 @@ import {
 import { arenaHeatDomain, arenaHeatmapTable, arenaSeriesPointCount } from '../ChartSeries';
 import { arenaHeatLegendStrip } from '../ChartLegend';
 import { arenaRailAnchorX, arenaTooltipAnchor } from '../ChartTooltip';
-import { arenaRailView } from '../ChartRailView';
+import { arenaRailReveal, arenaRailView } from '../ChartRailView';
 import type { ArenaCell } from '../ChartPointer';
 import { arenaCursorHandles2d, arenaCursorStep2d, arenaPointerClears, arenaPointerUpdates } from '../ChartPointer';
 import { arenaHeatmapChartStyles } from './ArenaHeatmapChart.variants';
@@ -276,9 +276,8 @@ export class ArenaHeatmapChart {
       if (!rail) return;
       if (this.scrolls() && at) {
         const left = arenaBandMark(this.colScale(), at.col);
-        const right = left + this.colScale().band;
-        if (left < rail.scrollLeft) rail.scrollLeft = left;
-        else if (right > rail.scrollLeft + rail.clientWidth) rail.scrollLeft = right - rail.clientWidth;
+        const to = arenaRailReveal(left, left + this.colScale().band, rail.scrollLeft, rail.clientWidth);
+        if (to !== rail.scrollLeft) rail.scrollLeft = to;
       }
       this.syncView();
     });

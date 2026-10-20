@@ -11,7 +11,7 @@ import {
 } from '../ChartSeries.ts';
 import { arenaLegendStrip } from '../ChartLegend.ts';
 import { arenaRailAnchorX, arenaTooltipAnchor } from '../ChartTooltip.ts';
-import { useArenaRailView } from '../ChartRailView.ts';
+import { arenaRailReveal, useArenaRailView } from '../ChartRailView.ts';
 import { arenaCursorHandles, arenaCursorStep, arenaPointerClears, arenaPointerUpdates } from '../ChartPointer.ts';
 import { chartBarGap, chartSeriesGap, chartBarRadius } from '../../../Tokens.generated.js';
 
@@ -91,6 +91,15 @@ export function ArenaBarChart({ className,
   const box = arenaPlotBox(width, strip.plotH, gutter);
   const yScale = arenaLinearScale(domain.min, domain.max, box.y + box.h, box.y);
   const bands = arenaBandScale(n, box.x, box.w, chartBarGap);
+
+  useEffect(() => {
+    const region = rail.current;
+    if (!region || !scrolls || hover === null || hover >= n) return;
+    const left = arenaBandMark(bands, hover);
+    const to = arenaRailReveal(left, left + bands.band, region.scrollLeft, region.clientWidth);
+    if (to !== region.scrollLeft) region.scrollLeft = to;
+    syncView();
+  }, [hover, scrolls, bands.step, measured]);
   const axis = arenaAxisModel(yScale, domain, fmt);
   const colors = series.map((one, s) => arenaSeriesColors(one, n, s + 1, 'ArenaBarChart'));
   const table = arenaChartTable(locale.chartTableCategory, series, labels, fmt);

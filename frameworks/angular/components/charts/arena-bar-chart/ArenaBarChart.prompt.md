@@ -111,7 +111,7 @@ Arena computes the minimum width from its own axis padding, so nothing outside n
 ### Reading the bars without a pointer
 
 The rail is one keyboard region and it is the plot's only tab stop. Inside the plot, Arrow Left and Arrow Right move a data cursor from bar to bar, clamping at the ends rather than wrapping. Home and End jump to the first and the last, and Escape clears the cursor. The cursor drives exactly
-what hover drives: the emphasised bar and its tooltip.
+what hover drives: the emphasised bar and its tooltip. When the rail scrolls, the cursor moves the rail to keep the current bar in view.
 
 Nothing inside the graphic is focusable, and that is deliberate rather than an omission. A
 `role="img"` subtree is presentational, so no ARIA on a mark inside it reaches a screen reader

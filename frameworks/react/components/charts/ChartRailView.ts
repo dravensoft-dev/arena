@@ -16,3 +16,10 @@ export function useArenaRailView(
   useEffect(syncView, resync);
   return [view, syncView];
 }
+
+/** The scroll position that puts the span `[start, end]` inside the rail's visible width: `scrollLeft` unchanged when the span is already inside, `start` when it begins before the view, otherwise `end - visible` when it ends past the view. A span wider than the view that begins before it shows its start; one that begins inside it is scrolled to its end. */
+export function arenaRailReveal(start: number, end: number, scrollLeft: number, visible: number): number {
+  if (start < scrollLeft) return start;
+  if (end > scrollLeft + visible) return end - visible;
+  return scrollLeft;
+}

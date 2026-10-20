@@ -11,7 +11,7 @@ import { arenaLinePoints, arenaLineAreaPath, arenaCurvePath, arenaCurveAreaPath 
 import { arenaPlotBox, arenaAxisModel, arenaTickLabelX, arenaCategoryLabelY, arenaValueGutter } from '../ChartAxis';
 import { arenaChartTable, arenaSeriesColors, arenaSwatchChoice, arenaSeriesDomain, arenaSeriesPointCount } from '../ChartSeries';
 import { arenaRailAnchorX, arenaTooltipAnchor } from '../ChartTooltip';
-import { arenaRailView } from '../ChartRailView';
+import { arenaRailReveal, arenaRailView } from '../ChartRailView';
 import { arenaCursorHandles, arenaCursorStep, arenaPointerClears, arenaPointerUpdates } from '../ChartPointer';
 import { arenaLegendStrip } from '../ChartLegend';
 import { arenaLineChartStyles } from './ArenaLineChart.variants';
@@ -318,6 +318,19 @@ export class ArenaLineChart {
       const rail = this.rail()?.nativeElement;
       if (!rail || !this.scrolls()) return;
       rail.scrollLeft = rail.scrollWidth - rail.clientWidth;
+    });
+
+    afterRenderEffect(() => {
+      const rail = this.rail()?.nativeElement;
+      const at = this.hover();
+      const xScale = this.xScale();
+      const count = this.pointCount();
+      this.available();
+      if (!rail || !this.scrolls() || at === null || at >= count) return;
+      const x = arenaPointAt(xScale, at);
+      const to = arenaRailReveal(Math.max(0, x - xScale.step / 2), Math.min(this.width(), x + xScale.step / 2), rail.scrollLeft, rail.clientWidth);
+      if (to !== rail.scrollLeft) rail.scrollLeft = to;
+      this.railView.sync();
     });
 
     afterRenderEffect(() => {

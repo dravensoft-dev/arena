@@ -29,9 +29,10 @@ import { ArenaTableRow } from '../display/arena-table-row/ArenaTableRow';
 import { ArenaTableCell } from '../display/arena-table-cell/ArenaTableCell';
 import { assertPattern, assertPatternCases, ANGULAR_COMPONENTS } from '../../test/Compliance';
 import { arenaScrolledAnchorX } from './ChartTooltip';
+import { arenaRailReveal } from './ChartRailView';
 import { assertNoNode } from '../../test/NodeAssert';
 import { forgetArenaWarnings } from '../../WarnOnce';
-import { chartGaugeHeight, chartHeatmapRowH, chartLegendStrip, chartPadCategory, chartSparklineHeight } from '../../Tokens.generated';
+import { chartBarGap, chartGaugeHeight, chartHeatmapRowH, chartLegendStrip, chartPadCategory, chartSparklineHeight } from '../../Tokens.generated';
 import type { ArenaGaugeBand } from '../../Api.generated';
 const BINDING = join(ANGULAR_COMPONENTS, 'charts/arena-bar-chart/ArenaBarChart.behaviour.json');
 
@@ -1657,6 +1658,152 @@ test('arena-line-chart anchors the tooltip at the point\'s place in the rail\'s 
 
 test('arena-bar-chart anchors the tooltip at the bar\'s place in the rail\'s visible span', () => {
   assertRailAnchor(ArenaBarChart, 'bar-chart');
+});
+
+type Span = (xs: number[], index: number, width: number) => [number, number];
+
+function stubRail(fixture: { detectChanges: () => void }, rail: HTMLElement, start: number, visible: number): () => number {
+  let scrolled = start;
+  Object.defineProperty(rail, 'scrollLeft', { get: () => scrolled, set: (to: number) => { scrolled = to; }, configurable: true });
+  Object.defineProperty(rail, 'clientWidth', { get: () => visible, configurable: true });
+  rail.dispatchEvent(new Event('scroll'));
+  fixture.detectChanges();
+  return () => scrolled;
+}
+
+function assertRailFollows(type: Type<unknown>, part: string, span: Span): void {
+  const fixture = TestBed.createComponent(type);
+  fixture.componentRef.setInput('labels', RAIL_LABELS);
+  fixture.componentRef.setInput('series', RAIL_SERIES);
+  fixture.componentRef.setInput('label', CHART);
+  fixture.componentRef.setInput('minPointSpacing', 100);
+  fixture.detectChanges();
+  try {
+    const host = fixture.nativeElement as Element;
+    const rail = host.querySelector('[role="group"]') as HTMLElement;
+    const width = Number((host.querySelector('svg') as Element).getAttribute('width'));
+    const xs = RAIL_LABELS.map((name) => Number([...host.querySelectorAll('svg text')].find((one) => one.textContent === name)?.getAttribute('x')));
+    const visible = RAIL_WIDTH / 2;
+    const scrollAt = stubRail(fixture, rail, width - visible, visible);
+    const tip = () => (host.querySelector(`[data-arena-part="${part}.tooltip"]`) as HTMLElement).style.left;
+    const parked = scrollAt();
+    heatPress(fixture, rail, 'Home');
+    const [from, to] = span(xs, 0, width);
+    const home = arenaRailReveal(from, to, parked, visible);
+    assert.notEqual(home, parked, 'the case starts with the first point off screen');
+    assert.equal(scrollAt(), home, 'Home scrolls the rail to the first point');
+    assert.equal(tip(), leftOf(arenaScrolledAnchorX(xs[0] as number, home, visible)), 'the readout sits over the first point in the new view');
+    assert.notEqual(tip(), leftOf(arenaScrolledAnchorX(xs[0] as number, parked, visible)), 'and not at the clamped edge of the old view');
+    heatPress(fixture, rail, 'End');
+    const [lastFrom, lastTo] = span(xs, xs.length - 1, width);
+    const back = arenaRailReveal(lastFrom, lastTo, home, visible);
+    assert.notEqual(back, home, 'End moves the rail again');
+    assert.equal(scrollAt(), back, 'End brings the rail back to the last point');
+    assert.equal(tip(), leftOf(arenaScrolledAnchorX(xs[xs.length - 1] as number, back, visible)), 'the readout sits over the last point');
+  } finally {
+    fixture.destroy();
+  }
+}
+
+const LINE_SPAN: Span = (xs, index, width) => {
+  const step = (xs[1] as number) - (xs[0] as number);
+  return [Math.max(0, (xs[index] as number) - step / 2), Math.min(width, (xs[index] as number) + step / 2)];
+};
+
+const BAR_SPAN: Span = (xs, index) => {
+  const band = (xs[1] as number) - (xs[0] as number) - chartBarGap;
+  return [(xs[index] as number) - band / 2, (xs[index] as number) + band / 2];
+};
+
+test('arena-line-chart scrolls the rail to keep the cursor\'s point in view', () => {
+  assertRailFollows(ArenaLineChart, 'line-chart', LINE_SPAN);
+});
+
+test('arena-bar-chart scrolls the rail to keep the cursor\'s bar in view', () => {
+  assertRailFollows(ArenaBarChart, 'bar-chart', BAR_SPAN);
+});
+
+test('arena-heatmap-chart scrolls the rail to the cell\'s band through the shared reveal', () => {
+  const fixture = renderHeat({ labels: LABELS, series: GRID, minCellWidth: 400 });
+  try {
+    const host = fixture.nativeElement as Element;
+    const rail = host.querySelector('[role="group"]') as HTMLElement;
+    const scrollAt = stubRail(fixture, rail, 900, 300);
+    heatPress(fixture, rail, 'Home');
+    const outline = host.querySelector('svg rect[stroke="var(--ink-body)"]') as Element;
+    const left = Number(outline.getAttribute('x'));
+    assert.equal(scrollAt(), arenaRailReveal(left, left + Number(outline.getAttribute('width')), 900, 300), 'Home scrolls the rail to the first cell');
+    assert.notEqual(scrollAt(), 900, 'the case moves the rail');
+  } finally {
+    fixture.destroy();
+  }
+});
+
+function railFixture(type: Type<unknown>, count = RAIL_LABELS.length) {
+  const fixture = TestBed.createComponent(type);
+  fixture.componentRef.setInput('labels', RAIL_LABELS.slice(0, count));
+  fixture.componentRef.setInput('series', [{ label: 'Revenue', values: RAIL_SERIES[0]!.values.slice(0, count) }]);
+  fixture.componentRef.setInput('label', CHART);
+  fixture.componentRef.setInput('minPointSpacing', 100);
+  fixture.detectChanges();
+  return fixture;
+}
+
+test('the line and bar charts keep the cursor\'s point in view after the container narrows', () => {
+  const saved = globalThis.ResizeObserver;
+  let report: ResizeObserverCallback = () => {};
+  globalThis.ResizeObserver = class {
+    constructor(callback: ResizeObserverCallback) { report = callback; }
+    observe(): void {}
+    unobserve(): void {}
+    disconnect(): void {}
+  } as unknown as typeof ResizeObserver;
+  try {
+    for (const [type, span] of [[ArenaLineChart, LINE_SPAN], [ArenaBarChart, BAR_SPAN]] as const) {
+      const fixture = railFixture(type);
+      try {
+        const host = fixture.nativeElement as Element;
+        const rail = host.querySelector('[role="group"]') as HTMLElement;
+        const width = Number((host.querySelector('svg') as Element).getAttribute('width'));
+        const xs = RAIL_LABELS.map((name) => Number([...host.querySelectorAll('svg text')].find((one) => one.textContent === name)?.getAttribute('x')));
+        let visible = 600;
+        const scrollAt = stubRail(fixture, rail, width - visible, visible);
+        Object.defineProperty(rail, 'clientWidth', { get: () => visible, configurable: true });
+        heatPress(fixture, rail, 'End');
+        const parked = scrollAt();
+        visible = 390;
+        report([{ borderBoxSize: [{ inlineSize: 390 }], target: rail } as unknown as ResizeObserverEntry], {} as ResizeObserver);
+        fixture.detectChanges();
+        const [from, to] = span(xs, xs.length - 1, width);
+        assert.equal(scrollAt(), arenaRailReveal(from, to, parked, visible), 'the last point is brought back into the narrower view');
+        assert.notEqual(scrollAt(), parked, 'the case moves the rail');
+      } finally {
+        fixture.destroy();
+      }
+    }
+  } finally {
+    globalThis.ResizeObserver = saved;
+  }
+});
+
+test('the line and bar charts do not send the rail to a span past the series when it shrinks under the cursor', () => {
+  for (const type of [ArenaLineChart, ArenaBarChart]) {
+    const fixture = railFixture(type);
+    try {
+      const host = fixture.nativeElement as Element;
+      const rail = host.querySelector('[role="group"]') as HTMLElement;
+      const scrollAt = stubRail(fixture, rail, 0, 400);
+      Object.defineProperty(rail, 'scrollWidth', { get: () => 5000, configurable: true });
+      heatPress(fixture, rail, 'End');
+      rail.scrollLeft = 4600;
+      fixture.componentRef.setInput('labels', RAIL_LABELS.slice(0, RAIL_LABELS.length - 1));
+      fixture.componentRef.setInput('series', [{ label: 'Revenue', values: RAIL_SERIES[0]!.values.slice(0, RAIL_LABELS.length - 1) }]);
+      fixture.detectChanges();
+      assert.equal(scrollAt(), 4600, 'a cursor past the new last point sends the rail nowhere near that span');
+    } finally {
+      fixture.destroy();
+    }
+  }
 });
 
 test('arena-heatmap-chart holds the tooltip inside the rail after the container narrows', () => {

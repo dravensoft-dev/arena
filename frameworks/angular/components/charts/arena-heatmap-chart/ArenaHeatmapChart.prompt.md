@@ -77,7 +77,7 @@ The plot is one tab stop, and it is a named group whether or not it scrolls side
 The four arrows move a cursor across cells, and each one stops at the edge of the grid without wrapping.
 Home and End go to the first and the last cell of the current row, and Escape clears the cursor.
 While the plot has focus the arrows are its own and the page does not scroll. Tab leaves it in one press.
-The cursor drives the outlined cell and the tooltip, as hover does. The tooltip reads the column name and the row's number.
+The cursor drives the outlined cell and the tooltip, as hover does. The tooltip reads the column name and the row's number. When the plot scrolls, the cursor moves the rail to keep the current cell in view.
 
 ### Columns that do not fit
 

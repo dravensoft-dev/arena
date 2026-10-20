@@ -23,6 +23,8 @@ import { ArenaGaugeChart } from './arena-gauge-chart/ArenaGaugeChart.tsx';
 import { ArenaFunnelChart } from './arena-funnel-chart/ArenaFunnelChart.tsx';
 import { ArenaHeatmapChart } from './arena-heatmap-chart/ArenaHeatmapChart.tsx';
 import { arenaScrolledAnchorX } from './ChartTooltip.ts';
+import { arenaRailReveal } from './ChartRailView.ts';
+import { chartBarGap } from '../../Tokens.generated.js';
 import { ArenaTable } from '../display/arena-table/ArenaTable.tsx';
 import { ArenaTableRow } from '../display/arena-table-row/ArenaTableRow.tsx';
 import { ArenaTableCell } from '../display/arena-table-cell/ArenaTableCell.tsx';
@@ -759,6 +761,128 @@ test('ArenaLineChart anchors the tooltip at the point\'s place in the rail\'s vi
 test('ArenaBarChart anchors the tooltip at the bar\'s place in the rail\'s visible span', () => {
   const root = mount(<ArenaBarChart labels={RAIL_LABELS} label={CHART} series={RAIL_SERIES} minPointSpacing={100} />);
   assertRailAnchor(root, 'bar-chart');
+});
+
+type Span = (xs: number[], index: number, width: number) => [number, number];
+
+function stubRail(rail: HTMLElement, start: number, visible: number): () => number {
+  let scrolled = start;
+  Object.defineProperty(rail, 'scrollLeft', { get: () => scrolled, set: (to: number) => { scrolled = to; }, configurable: true });
+  Object.defineProperty(rail, 'clientWidth', { get: () => visible, configurable: true });
+  act(() => { rail.dispatchEvent(new Event('scroll')); });
+  return () => scrolled;
+}
+
+function assertRailFollows(root: HTMLElement, part: string, span: Span): void {
+  const rail = root.querySelector<HTMLElement>('[role="group"]')!;
+  const width = Number(root.querySelector('svg')!.getAttribute('width'));
+  const xs = RAIL_LABELS.map((name) => Number([...root.querySelectorAll('svg text')].find((one) => one.textContent === name)!.getAttribute('x')));
+  const visible = RAIL_VISIBLE / 2;
+  const scrollAt = stubRail(rail, width - visible, visible);
+  const tip = () => root.querySelector<HTMLElement>(`[data-arena-part="${part}.tooltip"]`)!.style.left;
+  const parked = scrollAt();
+  pressed(rail, 'Home');
+  const [from, to] = span(xs, 0, width);
+  const home = arenaRailReveal(from, to, parked, visible);
+  assert.notEqual(home, parked, 'the case starts with the first point off screen');
+  assert.equal(scrollAt(), home, 'Home scrolls the rail to the first point');
+  assert.equal(tip(), leftOf(arenaScrolledAnchorX(xs[0] as number, home, visible)), 'the readout sits over the first point in the new view');
+  assert.notEqual(tip(), leftOf(arenaScrolledAnchorX(xs[0] as number, parked, visible)), 'and not at the clamped edge of the old view');
+  pressed(rail, 'End');
+  const [lastFrom, lastTo] = span(xs, xs.length - 1, width);
+  const back = arenaRailReveal(lastFrom, lastTo, home, visible);
+  assert.notEqual(back, home, 'End moves the rail again');
+  assert.equal(scrollAt(), back, 'End brings the rail back to the last point');
+  assert.equal(tip(), leftOf(arenaScrolledAnchorX(xs[xs.length - 1] as number, back, visible)), 'the readout sits over the last point');
+}
+
+const LINE_SPAN: Span = (xs, index, width) => {
+  const step = (xs[1] as number) - (xs[0] as number);
+  return [Math.max(0, (xs[index] as number) - step / 2), Math.min(width, (xs[index] as number) + step / 2)];
+};
+
+const BAR_SPAN: Span = (xs, index) => {
+  const band = (xs[1] as number) - (xs[0] as number) - chartBarGap;
+  return [(xs[index] as number) - band / 2, (xs[index] as number) + band / 2];
+};
+
+test('ArenaLineChart scrolls the rail to keep the cursor\'s point in view', () => {
+  const root = mount(<ArenaLineChart labels={RAIL_LABELS} label={CHART} series={RAIL_SERIES} minPointSpacing={100} />);
+  assertRailFollows(root, 'line-chart', LINE_SPAN);
+});
+
+test('ArenaBarChart scrolls the rail to keep the cursor\'s bar in view', () => {
+  const root = mount(<ArenaBarChart labels={RAIL_LABELS} label={CHART} series={RAIL_SERIES} minPointSpacing={100} />);
+  assertRailFollows(root, 'bar-chart', BAR_SPAN);
+});
+
+test('ArenaHeatmapChart scrolls the rail to the cell\'s band through the shared reveal', () => {
+  const root = mount(<ArenaHeatmapChart labels={LABELS} label={CHART} series={GRID} minCellWidth={400} />);
+  const rail = root.querySelector<HTMLElement>('[role="group"]')!;
+  const scrollAt = stubRail(rail, 900, 300);
+  pressed(root.querySelector<HTMLElement>('svg')!.parentElement!, 'Home');
+  const outline = root.querySelector('svg rect[stroke="var(--ink-body)"]')!;
+  const left = Number(outline.getAttribute('x'));
+  assert.equal(scrollAt(), arenaRailReveal(left, left + Number(outline.getAttribute('width')), 900, 300), 'Home scrolls the rail to the first cell');
+  assert.notEqual(scrollAt(), 900, 'the case moves the rail');
+});
+
+function railChart(kind: 'line' | 'bar', count = RAIL_LABELS.length): React.ReactElement {
+  const props = {
+    labels: RAIL_LABELS.slice(0, count), label: CHART, minPointSpacing: 100,
+    series: [{ label: 'Revenue', values: RAIL_SERIES[0]!.values.slice(0, count) }],
+  };
+  return kind === 'line' ? <ArenaLineChart {...props} /> : <ArenaBarChart {...props} />;
+}
+
+test('the line and bar charts keep the cursor\'s point in view after the container narrows', () => {
+  const saved = globalThis.ResizeObserver;
+  let report: ResizeObserverCallback = () => {};
+  globalThis.ResizeObserver = class {
+    constructor(callback: ResizeObserverCallback) { report = callback; }
+    observe(): void {}
+    unobserve(): void {}
+    disconnect(): void {}
+  } as unknown as typeof ResizeObserver;
+  try {
+    for (const [kind, span] of [['line', LINE_SPAN], ['bar', BAR_SPAN]] as const) {
+      const root = mount(railChart(kind));
+      const rail = root.querySelector<HTMLElement>('[role="group"]')!;
+      const width = Number(root.querySelector('svg')!.getAttribute('width'));
+      const xs = RAIL_LABELS.map((name) => Number([...root.querySelectorAll('svg text')].find((one) => one.textContent === name)!.getAttribute('x')));
+      let visible = 600;
+      const scrollAt = stubRail(rail, width - visible, visible);
+      Object.defineProperty(rail, 'clientWidth', { get: () => visible, configurable: true });
+      pressed(rail, 'End');
+      const parked = scrollAt();
+      visible = 390;
+      act(() => { report([{ borderBoxSize: [{ inlineSize: 390 }], target: root } as unknown as ResizeObserverEntry], {} as ResizeObserver); });
+      const [from, to] = span(xs, xs.length - 1, width);
+      assert.equal(scrollAt(), arenaRailReveal(from, to, parked, visible), `${kind}: the last point is brought back into the narrower view`);
+      assert.notEqual(scrollAt(), parked, `${kind}: the case moves the rail`);
+    }
+  } finally {
+    globalThis.ResizeObserver = saved;
+  }
+});
+
+test('the line and bar charts do not send the rail to a span past the series when it shrinks under the cursor', () => {
+  for (const kind of ['line', 'bar'] as const) {
+    let shrink = () => {};
+    const Shrinks = () => {
+      const [count, setCount] = React.useState(RAIL_LABELS.length);
+      shrink = () => setCount(RAIL_LABELS.length - 1);
+      return railChart(kind, count);
+    };
+    const root = mount(<Shrinks />);
+    const rail = root.querySelector<HTMLElement>('[role="group"]')!;
+    const scrollAt = stubRail(rail, 0, 400);
+    Object.defineProperty(rail, 'scrollWidth', { get: () => 5000, configurable: true });
+    pressed(rail, 'End');
+    rail.scrollLeft = 4600;
+    act(() => { shrink(); });
+    assert.equal(scrollAt(), 4600, `${kind}: a cursor past the new last point sends the rail nowhere near that span`);
+  }
 });
 
 test('ArenaHeatmapChart holds the tooltip inside the rail after the container narrows', () => {

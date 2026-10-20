@@ -11,6 +11,7 @@ import assert from 'node:assert/strict';
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { arenaPlotWidth, ARENA_PAD } from '../../DataVisuals';
+import { arenaRailReveal } from './ChartRailView';
 import { ArenaLineChart } from './arena-line-chart/ArenaLineChart';
 
 test('with no minPointSpacing the plot is exactly the width it was given', () => {
@@ -63,4 +64,24 @@ test('the plot is a keyboard region whether it overflows or not', () => {
     assert.match(box?.getAttribute('aria-label') ?? '', /Revenue/,
       'the region takes the chart\'s own name, so it is not announced as an unnamed group');
   }
+});
+
+test('a span inside the rail\'s view leaves the scroll position as it is', () => {
+  assert.equal(arenaRailReveal(120, 180, 100, 200), 100);
+});
+
+test('a span that begins before the view scrolls to its start', () => {
+  assert.equal(arenaRailReveal(40, 90, 100, 200), 40);
+});
+
+test('a span that ends past the view scrolls so its end meets the view\'s edge', () => {
+  assert.equal(arenaRailReveal(260, 340, 100, 200), 140);
+});
+
+test('a span wider than the view that begins before it shows its start', () => {
+  assert.equal(arenaRailReveal(40, 500, 100, 200), 40);
+});
+
+test('a span wider than the view that begins inside it is scrolled to its end', () => {
+  assert.equal(arenaRailReveal(150, 500, 100, 200), 300);
 });

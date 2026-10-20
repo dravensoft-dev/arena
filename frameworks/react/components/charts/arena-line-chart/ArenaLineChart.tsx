@@ -10,7 +10,7 @@ import { arenaPlotBox, arenaAxisModel, arenaTickLabelX, arenaCategoryLabelY, are
 import { arenaChartTable, arenaSeriesColors, arenaSwatchHue, arenaSeriesDomain, arenaSeriesPointCount } from '../ChartSeries.ts';
 import { arenaLegendStrip } from '../ChartLegend.ts';
 import { arenaRailAnchorX, arenaTooltipAnchor } from '../ChartTooltip.ts';
-import { useArenaRailView } from '../ChartRailView.ts';
+import { arenaRailReveal, useArenaRailView } from '../ChartRailView.ts';
 import { arenaCursorHandles, arenaCursorStep, arenaPointerClears, arenaPointerUpdates } from '../ChartPointer.ts';
 import { chartPointR, chartPointRHover } from '../../../Tokens.generated.js';
 
@@ -98,6 +98,15 @@ export function ArenaLineChart({ className,
   const box = arenaPlotBox(width, strip.plotH, gutter);
   const yScale = arenaLinearScale(domain.min, domain.max, box.y + box.h, box.y);
   const xScale = arenaPointScale(n, box.x, box.w);
+
+  useEffect(() => {
+    const region = rail.current;
+    if (!region || !scrolls || hover === null || hover >= n) return;
+    const x = arenaPointAt(xScale, hover);
+    const to = arenaRailReveal(Math.max(0, x - xScale.step / 2), Math.min(width, x + xScale.step / 2), region.scrollLeft, region.clientWidth);
+    if (to !== region.scrollLeft) region.scrollLeft = to;
+    syncView();
+  }, [hover, scrolls, xScale.step, measured]);
   const axis = arenaAxisModel(yScale, domain, fmt);
   const colors = series.map((one, s) => arenaSeriesColors(one, 1, s + 1, 'ArenaLineChart')[0] as string);
   const table = arenaChartTable(locale.chartTablePoint, series, labels, fmt);

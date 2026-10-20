@@ -13,7 +13,7 @@ import {
 import { arenaHeatDomain, arenaHeatmapTable, arenaSeriesPointCount } from '../ChartSeries.ts';
 import { arenaHeatLegendStrip } from '../ChartLegend.ts';
 import { arenaRailAnchorX, arenaTooltipAnchor } from '../ChartTooltip.ts';
-import { useArenaRailView } from '../ChartRailView.ts';
+import { arenaRailReveal, useArenaRailView } from '../ChartRailView.ts';
 import type { ArenaCell } from '../ChartPointer.ts';
 import { arenaCursorHandles2d, arenaCursorStep2d, arenaPointerClears, arenaPointerUpdates } from '../ChartPointer.ts';
 import { chartBarGap, chartBarRadius } from '../../../Tokens.generated.js';
@@ -103,9 +103,8 @@ export function ArenaHeatmapChart({ className,
     const region = rail.current;
     if (!region || !scrolls || !cursor) return;
     const left = arenaBandMark(colScale, cursor.col);
-    const right = left + colScale.band;
-    if (left < region.scrollLeft) region.scrollLeft = left;
-    else if (right > region.scrollLeft + region.clientWidth) region.scrollLeft = right - region.clientWidth;
+    const to = arenaRailReveal(left, left + colScale.band, region.scrollLeft, region.clientWidth);
+    if (to !== region.scrollLeft) region.scrollLeft = to;
     syncView();
   }, [cursor, scrolls, colScale.step]);
 
