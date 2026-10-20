@@ -6,14 +6,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { EventEmitter } from 'node:events';
-import { chmodSync, existsSync, mkdirSync, mkdtempSync, readdirSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { basename, join, win32 } from 'node:path';
+import { basename, dirname, join, win32 } from 'node:path';
 import { execFileSync, spawn, spawnSync } from 'node:child_process';
 import {
   DARWIN_APPS, DEVTOOLS, GRACE, LINUX_CANDIDATES, PROFILE_PREFIX, REAP, SIGNALS, WINDOWS_APPS, browserFlags,
   candidates, findChromium, launchChromium, observerFor, orphanProfiles, ownerOf, processesNaming,
-  profileNeedle, reapOnSignal, running, sweepOrphans, newEmptyFetchers, newTempFiles, ownTempDirs, FETCHER_DIR,
+  profileNeedle, reapOnSignal, running, sweepOrphans, newEmptyFetchers, ownTempDirs, FETCHER_DIR, OWN_TMP_SUFFIX,
 } from './chromium.ts';
 import { budgetFor, deadline, type Deadline } from './deadline.ts';
 import { waitFor } from './wait-for.ts';
@@ -39,7 +39,7 @@ import { platform, type Platform } from './platform.ts';
 import { hostBinary } from './host-binary.ts';
 
 function chromiumTempDirs() {
-  return new Set(readdirSync(tmpdir()).filter((n) => n.startsWith('arena-chromium-')));
+  return new Set(readdirSync(tmpdir()).filter((n) => n.startsWith('arena-chromium-') && !n.endsWith(OWN_TMP_SUFFIX)));
 }
 
 function pidsNaming(profilePath: string, where: Parameters<typeof hostBinary>[2] = {}) {
@@ -428,6 +428,15 @@ test('a profile is an orphan when the run that made it is gone, and never while 
   + 'a question this cannot answer');
 });
 
+test('a browser temp directory goes with its profile, and alone only when the profile is already gone', () => {
+  const alive = () => false;
+  assert.deepEqual(orphanProfiles([
+    `${PROFILE_PREFIX}8-a`, `${PROFILE_PREFIX}8-a${OWN_TMP_SUFFIX}`, `${PROFILE_PREFIX}8-b${OWN_TMP_SUFFIX}`,
+  ], alive), [`${PROFILE_PREFIX}8-a`, `${PROFILE_PREFIX}8-b${OWN_TMP_SUFFIX}`],
+  'reaping the profile removes its temp directory, so asking the host about both spends a second '
+  + 'process-table walk on a directory no browser names');
+});
+
 test('a pid that answers a signal is running, and one that answers nothing is not', () => {
   assert.equal(running(process.pid), true);
   const gone = spawnSync(process.execPath, ['-e', '']);
@@ -575,21 +584,75 @@ test('the temp directory the singleton links of a profile name is found, whateve
   }
 });
 
-test('only a <uuid>.tmp file that is new is taken for the run itself, and only on Windows', () => {
-  const base = mkdtempSync(join(tmpdir(), 'arena-temp-files-'));
-  try {
-    const old = join(base, '0b8e1f2a-3c4d-4e5f-8a9b-0c1d2e3f4a5b.tmp');
-    const fresh = join(base, '71a0fc17-1cd4-4efe-8d2b-8f14e0f6e990.tmp');
-    const other = join(base, 'tmp1A2B.tmp');
-    const upper = join(base, '71A0FC17-1CD4-4EFE-8D2B-8F14E0F6E990.tmp');
-    for (const file of [old, fresh, other, upper]) writeFileSync(file, 'x');
-    assert.deepEqual(newTempFiles(new Set([old]), base, 'win32'), [fresh]);
-    assert.deepEqual(newTempFiles(new Set(), base, 'linux'), []);
-    assert.deepEqual(newTempFiles(new Set(), base, 'darwin'), []);
-  } finally {
-    rmSync(base, { recursive: true, force: true });
-  }
-});
+const FAKE_BROWSER = [
+  "import { renameSync, rmSync, writeFileSync } from 'node:fs';",
+  "import { randomUUID } from 'node:crypto';",
+  "import { join } from 'node:path';",
+  "import { tmpdir } from 'node:os';",
+  'const [report, mode] = process.argv.slice(2);',
+  'const tmp = process.env.TMP ?? tmpdir();',
+  "const drop = () => { const file = join(tmp, `${randomUUID()}.tmp`); writeFileSync(file, ''); return file; };",
+  'drop();',
+  'writeFileSync(`${report}.part`, JSON.stringify({ pid: process.pid, tmp }));',
+  'renameSync(`${report}.part`, report);',
+  "if (mode === 'racing') {",
+  "  process.on('SIGTERM', drop);",
+  '  let last;',
+  '  const again = () => { try { const next = drop(); if (last) rmSync(last); last = next; } catch { return; } setImmediate(again); };',
+  '  again();',
+  '}',
+  "process.stderr.write('DevTools listening on ws://127.0.0.1:1/devtools/browser/fake\\n');",
+  'setInterval(() => {}, 1_000);',
+].join('\n');
+
+const FAKES = [
+  { mode: 'still', what: 'writes a <uuid>.tmp and blocks' },
+  { mode: 'racing', what: 'writes a new one every turn of its loop and one more as SIGTERM lands, so a write meets the kill' },
+];
+
+test('a browser given a temp directory of its own leaves nothing in it, or of it, once kill() resolves',
+  { timeout: BUDGET_MS * FAKES.length }, async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'arena-fake-browser-'));
+    try {
+      const fake = join(dir, 'fake-browser.mjs');
+      writeFileSync(fake, FAKE_BROWSER);
+      for (const one of FAKES) {
+        const report = join(dir, `${one.mode}.json`);
+        const { kill } = await launchChromium(process.execPath, platform, { prefix: [fake, report, one.mode], ownTemp: true });
+        const { pid, tmp } = JSON.parse(readFileSync(report, 'utf8')) as { pid: number; tmp: string };
+        assert.ok(basename(dirname(tmp)) === basename(tmpdir()) && basename(tmp).startsWith(`${PROFILE_PREFIX}${process.pid}-`)
+          && tmp.endsWith(OWN_TMP_SUFFIX), `${one.mode}: the browser wrote into ${tmp}, not a directory of its own beside its profile`);
+        assert.ok(readdirSync(tmp).some((name) => name.endsWith('.tmp')), `${one.mode}: the fake wrote nothing, so this proves nothing`);
+        await kill();
+        assert.equal(running(pid), false, `${one.mode}: kill() resolved with the browser alive, which can still write`);
+        assert.equal(existsSync(tmp), false, `${one.mode}, a browser that ${one.what}: its temp directory outlived kill()`);
+      }
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+test('off Windows the browser keeps the temp directory it inherits, since a longer TMPDIR moves its singleton socket past the limit',
+  { timeout: BUDGET_MS }, async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'arena-fake-browser-'));
+    let dropped: string[] = [];
+    try {
+      const fake = join(dir, 'fake-browser.mjs');
+      writeFileSync(fake, FAKE_BROWSER);
+      const report = join(dir, 'still.json');
+      const before = new Set(readdirSync(tmpdir()));
+      const { kill } = await launchChromium(process.execPath, 'linux', { prefix: [fake, report, 'still'] });
+      const { tmp } = JSON.parse(readFileSync(report, 'utf8')) as { tmp: string };
+      dropped = readdirSync(tmpdir()).filter((name) => !before.has(name) && name.endsWith('.tmp'));
+      assert.equal(readdirSync(tmpdir()).some((name) => !before.has(name) && name.endsWith(OWN_TMP_SUFFIX)), false,
+        'a temp directory of its own was made off Windows');
+      await kill();
+      assert.equal(tmp, process.env.TMP ?? tmpdir());
+    } finally {
+      for (const name of dropped) rmSync(join(tmpdir(), name), { force: true });
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
 
 test('only a fetcher directory that is new and empty is taken for the run itself, under any brand', () => {
   const base = mkdtempSync(join(tmpdir(), 'arena-fetchers-'));

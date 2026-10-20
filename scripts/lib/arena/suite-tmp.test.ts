@@ -35,14 +35,20 @@ test('the remover deletes the root with what a step left inside it, and a second
   }
 });
 
-test('an empty root reads empty, and a root holding a file and a directory reads both names, sorted', () => {
+test('an empty root reads empty, and a root holding files and a directory reads each described, sorted by name', () => {
   const base = mkdtempSync(join(tmpdir(), 'arena-suite-tmp-base-'));
   try {
     const scratch = suiteTmp(base, {});
     assert.deepEqual(scratch.left(), []);
-    mkdirSync(join(scratch.root, 'b-dir'));
-    writeFileSync(join(scratch.root, 'a-file'), 'x');
-    assert.deepEqual(scratch.left(), ['a-file', 'b-dir']);
+    mkdirSync(join(scratch.root, 'c-dir'));
+    writeFileSync(join(scratch.root, 'a-file'), 'x\n"y"');
+    writeFileSync(join(scratch.root, 'b-empty.tmp'), '');
+    const [file, empty, dir] = scratch.left();
+    assert.match(file ?? '', /^a-file \(file, 5 B, mtime \d{4}-\d\d-\d\dT[\d:.]+Z, starts "x\\n\\"y\\""\)$/);
+    assert.match(empty ?? '', /^b-empty\.tmp \(file, 0 B, mtime \d{4}-\d\d-\d\dT[\d:.]+Z, empty\)$/,
+      'what a leftover was is what it takes to find who wrote it, and an empty one is a different trail');
+    assert.equal(dir, 'c-dir (directory)');
+    assert.equal(scratch.left().length, 3);
     scratch.remove();
     assert.deepEqual(scratch.left(), [], 'a removed root reads empty');
   } finally {
