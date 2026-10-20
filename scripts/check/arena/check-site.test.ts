@@ -265,3 +265,7 @@ test('the generated index of the benches is not a half, so it is not an undeclar
   assert.deepEqual(benchProblems(base), [],
     'this build writes that page itself, and a half is one directory deeper');
 });
+
+test('located takes the output it reads, so none defaults to the bench output', () => {
+  assert.equal(located.length, 2);
+});

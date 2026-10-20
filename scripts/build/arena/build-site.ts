@@ -273,7 +273,7 @@ export function sitemap(base = repoRoot, out = join(base, SITE_DIR)) {
 
 function sectionsFor(directory: string, base: string, out: string): Section[] {
   if (directory === 'intro/guidelines') {
-    return [{ links: guidelineLinks(base) }];
+    return [{ links: guidelineLinks(base, out) }];
   }
   if (directory === BENCHES_DIR) {
     return benchPairs(out).map(({ product, label }) => ({
@@ -292,10 +292,10 @@ function sectionsFor(directory: string, base: string, out: string): Section[] {
   return [];
 }
 
-function guidelineLinks(base: string) {
+function guidelineLinks(base: string, out: string) {
   const dir = join(base, 'intro', 'guidelines');
   if (!existsSync(dir)) return [];
-  return pages(base)
+  return pages(base, out)
     .filter((rel) => rel.startsWith('intro/guidelines/'))
     .map((rel) => ({ href: rel.slice('intro/guidelines/'.length), label: titleOf(rel, base) }));
 }

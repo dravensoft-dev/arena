@@ -180,7 +180,7 @@ export function benchDirectories(out: string) {
   return benchPairs(out).length === 0 ? [] : [BENCHES_DIR];
 }
 
-export function pages(base = root, out = join(base, SITE_DIR)) {
+export function pages(base: string, out: string) {
   return [...treePages(base), ...benchPages(out)];
 }
 
@@ -231,7 +231,7 @@ export function missingModules(base = root) {
   return moduleGraph(base).absent;
 }
 
-export function indexedDirectories(base = root, out = join(base, SITE_DIR)) {
+export function indexedDirectories(base: string, out: string) {
   return [
     '',
     'intro/guidelines',

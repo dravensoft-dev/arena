@@ -188,7 +188,7 @@ export function domainProblems(out: string) {
   return named === DOMAIN ? [] : [`CNAME names ${named} and the site is built for ${DOMAIN}`];
 }
 
-export function located(base = root, out = join(root, SITE_DIR)) {
+export function located(base: string, out: string) {
   return [...indexedDirectories(base, out).map(directoryUrl), ...pages(base, out).map(url)];
 }
 

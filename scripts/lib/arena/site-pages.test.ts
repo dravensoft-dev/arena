@@ -254,3 +254,8 @@ test('the arrangement of chart variants is told from the style plugins by its it
   assert.deepEqual(variantSinkNames(), ['charts']);
   assert.ok(sinkNames().includes('charts') && sinkNames().includes('default'));
 });
+
+test('pages and indexedDirectories take the output they read, so none defaults to the bench output', () => {
+  assert.equal(pages.length, 2);
+  assert.equal(indexedDirectories.length, 2);
+});
