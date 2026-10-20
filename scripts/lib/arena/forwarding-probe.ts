@@ -41,9 +41,9 @@ export const alive = (pid: number) => {
 };
 
 const STAND_IN = [
-  "import { writeFileSync } from 'node:fs';",
+  "import { writeFileSync, writeSync } from 'node:fs';",
+  "writeSync(1, 'compiler said hello\\n');",
   "writeFileSync(process.env.STAND_IN_PID ?? '', String(process.pid));",
-  "console.log('compiler said hello');",
   'setInterval(() => {}, 1_000);',
 ].join('\n');
 
