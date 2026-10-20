@@ -149,3 +149,15 @@ test('themeImports follows an import of an import once, even around a cycle', ()
     rmSync(root, { recursive: true, force: true });
   }
 });
+
+test('themeImports follows url() and bare relative stylesheets, ignores a comment, and leaves a package alone', () => {
+  const root = themeRoot(
+    "/* @import './Gone.css'; */\n@import url('./A.css');\n@import url(./B.css) layer(x);\n@import 'C.css';\n@import 'tailwindcss/theme.css';\n@import url('https://x.test/f.css');\n",
+    { 'A.css': '', 'B.css': '', 'C.css': '' },
+  );
+  try {
+    assert.deepEqual(themeImports(root), ['frameworks/tailwind/A.css', 'frameworks/tailwind/B.css', 'frameworks/tailwind/C.css']);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});

@@ -75,7 +75,8 @@ export function compileEntry(entry: string, root = repoRoot, inputs?: string[]) 
   return cached(entryName(entry), inputs, run, root);
 }
 
-const LOCAL_IMPORT = /@import\s+(['"])(\.{1,2}\/[^'"]+)\1/g;
+const IMPORT = /@import\s+(?:url\(\s*)?(['"]?)([^'"\s)]+)\1/g;
+const COMMENT = /\/\*[\s\S]*?\*\//g;
 
 export function themeImports(root = repoRoot) {
   const theme = join(root, 'frameworks/tailwind/Theme.css');
@@ -83,9 +84,11 @@ export function themeImports(root = repoRoot) {
   const queue = [theme];
   while (queue.length) {
     const from = queue.pop()!;
-    for (const found of readFileSync(from, 'utf8').matchAll(LOCAL_IMPORT)) {
+    for (const found of readFileSync(from, 'utf8').replace(COMMENT, '').matchAll(IMPORT)) {
       const spec = captured(found, 2);
       const file = join(dirname(from), spec);
+      const dotted = /^\.{1,2}\//.test(spec);
+      if (!dotted && !(spec.endsWith('.css') && !/^([a-z][a-z0-9+.-]*:|\/)/i.test(spec) && existsSync(file))) continue;
       if (!existsSync(file))
         throw new Error(`${relPosix(root, from)} imports ${spec}, which does not exist at ${relPosix(root, file)}`);
       if (file !== theme && !seen.has(file)) {
