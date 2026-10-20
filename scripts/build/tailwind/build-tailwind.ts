@@ -73,7 +73,7 @@ export const VOCABULARY_TYPES = 'frameworks/react/Vocabulary.generated.ts';
 
 export const PRESET = [
   'frameworks/tailwind/Theme.css', 'frameworks/tailwind/Animations.css',
-  'frameworks/tailwind/Case.css',
+  'frameworks/tailwind/Case.css', 'frameworks/tailwind/Media.css',
   'frameworks/tailwind/Breakpoints.generated.css', 'contracts/design-generated',
 ];
 

@@ -10,14 +10,15 @@
 
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { basename, join } from 'node:path';
+import { basename, dirname, join } from 'node:path';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { repoRoot } from '../arena/repo-root.ts';
 import { nodeBin } from '../arena/node-bin.ts';
 import { cached } from '../arena/artifact-cache.ts';
+import { captured } from '../../utils/captures.ts';
 import { relPosix, toPosix } from '../../utils/posix-path.ts';
 import type { ManifestClassSource, Manifests } from './manifest-shapes.ts';
 
@@ -73,9 +74,32 @@ export function compileEntry(entry: string, root = repoRoot, inputs?: string[]) 
   return cached(entryName(entry), inputs, run, root);
 }
 
+const LOCAL_IMPORT = /@import\s+(['"])(\.{1,2}\/[^'"]+)\1/g;
+
+export function themeImports(root = repoRoot) {
+  const theme = join(root, 'frameworks/tailwind/Theme.css');
+  const seen = new Set<string>();
+  const queue = [theme];
+  while (queue.length) {
+    const from = queue.pop()!;
+    for (const found of readFileSync(from, 'utf8').matchAll(LOCAL_IMPORT)) {
+      const spec = captured(found, 2);
+      const file = join(dirname(from), spec);
+      if (!existsSync(file))
+        throw new Error(`${relPosix(root, from)} imports ${spec}, which does not exist at ${relPosix(root, file)}`);
+      if (file !== theme && !seen.has(file)) {
+        seen.add(file);
+        queue.push(file);
+      }
+    }
+  }
+  return [...seen].map((path) => relPosix(root, path)).sort();
+}
+
 export function layerInputs(root = repoRoot) {
   return [
     relPosix(root, join(root, 'frameworks/tailwind/Theme.css')),
+    ...themeImports(root),
     ...manifestFiles(join(root, 'frameworks/tailwind/components')).map((path) => relPosix(root, path)),
   ];
 }
