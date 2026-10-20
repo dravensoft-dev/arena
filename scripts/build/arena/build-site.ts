@@ -39,7 +39,7 @@ export const node = {
     'intro/**', 'arena-from-scratch/identity*.html', 'contracts/behaviour/**', 'contracts/design/**', 'contracts/design-generated/**', 'assets/**',
     'plugin-style-store/**/plugin.css', 'plugin-style-store/catalogue/*/plugin.tokens.json',
     'frameworks/tailwind/consume/**', 'frameworks/react/vendor/**',
-    'frameworks/*/kitchen-sink/**', 'frameworks/*/components/**',
+    'frameworks/kitchen-sink/*.sink.json', 'frameworks/*/kitchen-sink/**', 'frameworks/*/components/**',
     'frameworks/*/playground/**', 'frameworks/react/*.generated.js',
     'frameworks/angular/build/demo/**',
     '.claude-plugin/plugin.json', 'frameworks/tailwind/Hues.json', 'frameworks/tailwind/vocabulary/**',
