@@ -12,7 +12,7 @@ import {
   styleStoreProblems, identityProblems,
 } from './check-mcp.ts';
 import {
-  RUNTIME_DEPENDENCIES, ENTRY, NAME, LAYERS, DIST, REGISTRY_NAME, manifest,
+  RUNTIME_DEPENDENCIES, ENTRY, NAME, LAYERS, DIST, REGISTRY_NAME, manifest, buildMcpPackage,
 } from '../../build/arena/build-mcp-package.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { IDENTITY_DIR as PAYLOAD_IDENTITY_DIR } from '../../lib/arena/agent-payload.ts';
@@ -39,9 +39,14 @@ function corpus(files: Record<string, string>) {
   return dir;
 }
 
-test('the tree passes its own claims', () => {
-  const { problems } = collect();
-  assert.deepEqual(problems, []);
+const assembly = track(mkdtempSync(join(tmpdir(), 'arena-mcp-asm-')));
+buildMcpPackage(root, assembly);
+
+test('the tree passes its own claims, and an empty assembly does not', () => {
+  assert.deepEqual(collect(root, assembly).problems, []);
+  const empty = corpus({});
+  mkdirSync(join(empty, 'bin'));
+  assert.ok(collect(root, empty).problems.length > 0, 'an assembly holding no file cannot pass in vacuum');
 });
 
 const refusal = (base: string, strict: string) => spawnSync(process.execPath, ['-e', [
@@ -162,7 +167,7 @@ test('a link, a relative inline path and an absolute one are all targets; prose 
 });
 
 test('the catalogue claim is measured against what the tree declares, and it names the package', () => {
-  assert.deepEqual(catalogueProblems(join(root, ...DIST.split('/'))), []);
+  assert.deepEqual(catalogueProblems(assembly), []);
   assert.equal(NAME, '@dravensoft/arena-mcp');
 });
 

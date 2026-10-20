@@ -1,4 +1,4 @@
-import test from 'node:test';
+import test, { after } from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -12,11 +12,15 @@ import { walkFiles } from '../../../utils/walk-files.ts';
 import { relPosix } from '../../../utils/posix-path.ts';
 import { repoRoot } from '../../../lib/arena/repo-root.ts';
 import { vocabularyIndex, writeVocabularyIndex } from '../../../lib/arena/vocabulary-index.ts';
+import { buildMcpPackage } from '../../../build/arena/build-mcp-package.ts';
 
 const manifest = { name: 'arena', description: 'd', homepage: 'h', version: '12.0.0',
   package: '@dravensoft/arena-react', layer: 'react', router: 'skills/design/ROUTER.md' };
 
-const PAYLOAD = bundledPayload('react', join(repoRoot, 'dist', 'mcp')) ?? '';
+const temp = mkdtempSync(join(tmpdir(), 'arena-mcp-asm-'));
+buildMcpPackage(repoRoot, temp);
+after(() => rmSync(temp, { recursive: true, force: true }));
+const PAYLOAD = bundledPayload('react', temp) ?? '';
 
 test('the arguments are a layer, a payload, help, or an error naming what was not understood', () => {
   assert.deepEqual(parseArgs([]), { payload: null, layer: null });
@@ -71,9 +75,8 @@ test('the listing names every document with what it answers', () => {
   assert.equal(text, 'arena://x\n  what x answers');
 });
 
-test('the server registers a resource per document and the four tools, over the real corpus', {
-  skip: PAYLOAD !== '' && existsSync(PAYLOAD) ? false : 'dist/mcp is not assembled',
-}, () => {
+test('the server registers a resource per document and the four tools, over the real corpus', () => {
+  assert.ok(PAYLOAD !== '' && existsSync(PAYLOAD), 'the assembly carries a react payload');
   const manifest = manifestIn(PAYLOAD);
   assert.ok(manifest, 'the assembled payload carries a manifest');
   const { server, entries } = build(PAYLOAD, manifest);
@@ -84,9 +87,8 @@ test('the server registers a resource per document and the four tools, over the 
   assert.equal(NAME, 'arena');
 });
 
-test('the catalogue built from the assembled payload reaches every kind of document', {
-  skip: existsSync(PAYLOAD) ? false : 'frameworks/react/dist/agent is not assembled',
-}, () => {
+test('the catalogue built from the assembled payload reaches every kind of document', () => {
+  assert.ok(PAYLOAD !== '' && existsSync(PAYLOAD), 'the assembly carries a react payload');
   const manifest = manifestIn(PAYLOAD);
   assert.ok(manifest);
   const { entries } = catalogue(PAYLOAD, manifest);

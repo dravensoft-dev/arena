@@ -106,8 +106,7 @@ export function servedPackages() {
   return PACKAGES;
 }
 
-export function buildMcpPackage(root = repoRoot) {
-  const dir = join(root, DIST);
+export function buildMcpPackage(root = repoRoot, dir = join(root, DIST)) {
   reset(dir);
   const written = [];
 
