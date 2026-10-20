@@ -63,11 +63,8 @@ jobs:
           "$exe" --version || true
           echo "TMPDIR=$TMPDIR darwin=$(getconf DARWIN_USER_TEMP_DIR)"
           export WATCH="$(getconf DARWIN_USER_TEMP_DIR)"
-          bun .diag/direct.ts "$exe" 150000 > base.out 2>&1 &
-          a=$!
-          bun .diag/direct.ts "$exe" 150000 --component-updater=url-source=http://127.0.0.1:9/ > dead.out 2>&1 &
-          b=$!
-          wait $a; wait $b
+          bun .diag/direct.ts "$exe" 150000 > base.out 2>&1
+          bun .diag/direct.ts "$exe" 150000 --component-updater=url-source=http://127.0.0.1:9/ > dead.out 2>&1
           echo "== base"; cat base.out
           echo "== dead updater source"; cat dead.out
       - name: the same, killed at 2 s, inside the early fetcher's life
