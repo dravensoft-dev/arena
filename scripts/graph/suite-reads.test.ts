@@ -180,6 +180,74 @@ test('a segment the suite computes locally is no assembly read and passes', asyn
   assert.deepEqual(problems, []);
 });
 
+test('a root reached through a loop variable is a problem, and a loop over other directories is not', async () => {
+  const { problems } = await scan(suite("for (const layer of LAYERS) read(join(repoRoot, 'frameworks', layer, 'dist'));"));
+  assert.match(problems.join('\n'), /frameworks\/react\/dist/);
+  const clean = await scan(suite("for (const layer of LAYERS) read(join(repoRoot, 'frameworks', layer, 'components'));\nconst a = join(repoRoot, name);\nconst b = join(repoRoot, a, b);"));
+  assert.deepEqual(clean.problems, []);
+});
+
+test('a namespace member spelling a root is a problem, and an unreadable one is unsettled', async () => {
+  const head = `${ROOT_IMPORT}import * as c from '../consts.ts';\nimport * as gone from '../missing.ts';\n`;
+  const { problems } = await scan(suite('const at = join(repoRoot, c.DIST);\nconst on = join(repoRoot, ...c.PARTS);\nconst t = join(repoRoot, `${c.DIST}/x`);', head));
+  assert.equal(problems.length, 3);
+  assert.match(problems.join('\n'), /dist\/mcp[\s\S]*dist\/contracts[\s\S]*dist\/mcp/);
+  const lost = await scan(suite('const at = join(repoRoot, gone.WHERE);', head));
+  assert.match(lost.problems.join('\n'), /gone\.WHERE.*resolves to no module/);
+  const other = await scan(suite('const at = join(repoRoot, entry.name);', head));
+  assert.deepEqual(other.problems, []);
+});
+
+test('an alias of the repository root is the repository root', async () => {
+  const { problems } = await scan(suite("const base = repoRoot;\nconst deeper = base;\nconst at = join(deeper, 'dist', 'mcp');"));
+  assert.match(problems.join('\n'), /dist\/mcp/);
+});
+
+test('a constant imported from a suite is unsettled and the suite is never run', async () => {
+  const { problems } = await scan({
+    ...suite('const at = join(repoRoot, DIR);', `${ROOT_IMPORT}import { DIR } from '../other.test.ts';\n`),
+    'other.test.ts': "export const DIR = 'dist/mcp';\nthrow new Error('ran');\n",
+  });
+  assert.match(problems.join('\n'), /DIR.*is a suite, and a suite is not a module to settle a path from/);
+});
+
+test('a gate collect handed the gate default or a read of the repository root is a problem', async () => {
+  const head = `${ROOT_IMPORT}import { collect, distDir } from '../check/gate.ts';\n`;
+  const own = await scan(suite('const a = collect(repoRoot, distDir);', head));
+  assert.match(own.problems.join('\n'), /runs collect\(repoRoot, distDir\)/);
+  const read = await scan(suite('const a = collect(repoRoot, () => assembled(repoRoot));', head));
+  assert.match(read.problems.join('\n'), /runs collect\(repoRoot, \(\) => assembled\(repoRoot\)\)/);
+});
+
+test('a skip written as a shorthand option, through let or var, or called at runtime is a problem', async () => {
+  const head = "import { existsSync } from 'node:fs';\n";
+  const shorthand = await scan(suite("const skip = !existsSync(at) && 'no';\ntest('x', { skip }, () => {});", head));
+  assert.match(shorthand.problems.join('\n'), /skips on skip/);
+  const mutable = await scan(suite("let MISSING = !existsSync(at);\nvar OTHER = existsSync(at);\ntest('x', { skip: MISSING }, () => {});\ntest('y', { timeout: 1, skip: OTHER }, () => {});", head));
+  assert.equal(mutable.problems.length, 2);
+  const runtime = await scan(suite("test('x', (t) => {\n  if (!existsSync(at)) return t.skip('none');\n});\ntest('y', (t) => {\n  if (existsSync(at)) { t.skip('gone'); }\n});", head));
+  assert.equal(runtime.problems.length, 2);
+  assert.match(runtime.problems.join('\n'), /skips under if \(!existsSync\(at\)\)/);
+  const platform = await scan(suite("test('x', (t) => {\n  if (process.platform === 'win32') return t.skip('no');\n});", head));
+  assert.deepEqual(platform.problems, []);
+});
+
+test('a skip that is a function is a walk filter and no test option', async () => {
+  const { problems } = await scan(suite(
+    "walk(dir, { skip: (n) => existsSync(join(n, '.git')) });\nwalk(dir, { skip: n => existsSync(n) });\nwalk(dir, { skip: function (n) { return existsSync(n); } });",
+    "import { existsSync } from 'node:fs';\n",
+  ));
+  assert.deepEqual(problems, []);
+});
+
+test('the suites read are those found on disk', async () => {
+  const base = mkdtempSync(join(tmpdir(), 'arena-suite-reads-'));
+  made.push(base);
+  writeFileSync(join(base, 'here.test.ts'), 'export {};\n');
+  const { read } = await suiteReadProblems(base, ROOTS, new Map(), { files: ['here.test.ts', 'gone.test.ts'], gates: new Set() });
+  assert.equal(read, 1);
+});
+
 test('an exception silences the file it names', async () => {
   const why = 'this suite builds the package it reads in a step of its own';
   const { problems } = await scan(suite("const at = join(repoRoot, 'dist', 'mcp');"), new Map([['a/one.test.ts', why]]));
