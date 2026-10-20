@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, dirname, join } from 'node:path';
-import { SUITE_TMP_PREFIX, leftoverFails, leftoverLine, suiteTmp } from './suite-tmp.ts';
+import { SUITE_TMP_PREFIX, leftoverLine, suiteTmp } from './suite-tmp.ts';
 
 test('the root is made under the base it is given, and every temp variable points at it', () => {
   const base = mkdtempSync(join(tmpdir(), 'arena-suite-tmp-base-'));
@@ -57,10 +57,4 @@ test('the leftover line names the step and the count, and shows twenty names bef
   assert.ok(line.startsWith('test (x) left 23 entries in its temp root: entry-00, '), line);
   assert.ok(line.includes('entry-19') && !line.includes('entry-20'), line);
   assert.ok(line.endsWith(', and 3 more'), line);
-});
-
-test('a leftover fails the step on linux and only warns on win32 and darwin', () => {
-  assert.equal(leftoverFails('linux'), true);
-  assert.equal(leftoverFails('win32'), false);
-  assert.equal(leftoverFails('darwin'), false);
 });

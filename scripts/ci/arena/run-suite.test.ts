@@ -119,44 +119,14 @@ test('a step that passes and leaves something in its temp root fails, naming the
       ].join('\n')],
     });
     console.error = (text: string) => { lines.push(String(text)); };
-    assert.equal(runSuite('probe', [step('test (leaks)', 0), step('never', 0)], 'linux'), 1);
-    assert.equal(runSuite('probe', [step('test (fails and leaks)', 3)], 'linux'), 3, 'a failed step keeps its own status');
+    assert.equal(runSuite('probe', [step('test (leaks)', 0), step('never', 0)]), 1);
+    assert.equal(runSuite('probe', [step('test (fails and leaks)', 3)]), 3, 'a failed step keeps its own status');
     console.error = original;
     assert.equal(lines.length, 2);
     assert.match(lines[0] ?? '', /test \(leaks\) left 1 entry in its temp root: arena-leak-probe/);
     assert.match(lines[1] ?? '', /test \(fails and leaks\) left 1 entry in its temp root: arena-leak-probe/);
     const seen = readFileSync(join(log, 'seen'), 'utf8').trim().split('\n');
     assert.equal(seen.length, 2, 'the step after the leaking one never ran: one root per runSuite call');
-    for (const root of seen) assert.equal(existsSync(root), false, 'a step that left something kept its temp root');
-  } finally {
-    console.error = original;
-    rmSync(log, { recursive: true, force: true });
-  }
-});
-
-test('on win32 and darwin a step that leaves something in its temp root only warns, and the run goes on', () => {
-  const log = mkdtempSync(join(tmpdir(), 'arena-run-suite-log-'));
-  const lines: string[] = [];
-  const original = console.error;
-  try {
-    const step = (name: string) => ({
-      name,
-      args: ['-e', [
-        "const { appendFileSync, writeFileSync } = require('node:fs');",
-        "const { join } = require('node:path');",
-        "writeFileSync(join(process.env.TMPDIR, 'arena-leak-probe'), 'x');",
-        `appendFileSync(${JSON.stringify(join(log, 'seen'))}, process.env.TMPDIR + '\\n');`,
-      ].join('\n')],
-    });
-    console.error = (text: string) => { lines.push(String(text)); };
-    for (const on of ['win32', 'darwin'] as const) {
-      assert.equal(runSuite('probe', [step('test (leaks)'), step('test (after)')], on), 0);
-    }
-    console.error = original;
-    assert.equal(lines.length, 4);
-    for (const line of lines) assert.match(line, /^run-suite: warning: test \((leaks|after)\) left 1 entry in its temp root: arena-leak-probe/);
-    const seen = readFileSync(join(log, 'seen'), 'utf8').trim().split('\n');
-    assert.equal(seen.length, 4, 'the step after the leaking one ran');
     for (const root of seen) assert.equal(existsSync(root), false, 'a step that left something kept its temp root');
   } finally {
     console.error = original;

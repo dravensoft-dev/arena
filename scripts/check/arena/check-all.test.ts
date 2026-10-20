@@ -719,39 +719,11 @@ test('a test step that leaves something in its temp root fails, naming the entry
       });
       let printed = '';
       const { finished } = await runSteps([probe('test (leaks)', 0), probe('test (fails and leaks)', 1)],
-        { total: 2, heavy: 2, browser: 1 }, { print: (text) => { printed += text; }, on: 'linux' });
+        { total: 2, heavy: 2, browser: 1 }, { print: (text) => { printed += text; } });
       assert.deepEqual(finished.map((one) => [one.name, one.status]).sort(),
         [['test (fails and leaks)', 'fail'], ['test (leaks)', 'fail']]);
       assert.match(printed, /test \(leaks\) left 1 entry in its temp root: arena-leak-probe/);
       assert.match(printed, /test \(fails and leaks\) left 1 entry in its temp root: arena-leak-probe/);
-      for (const root of readFileSync(join(log, 'seen'), 'utf8').trim().split('\n')) {
-        assert.equal(existsSync(root), false, 'a step that left something kept its temp root');
-      }
-    } finally {
-      rmSync(log, { recursive: true, force: true });
-    }
-  });
-
-test('on win32 and darwin a test step that leaves something in its temp root passes and prints a warning',
-  { timeout: BUDGET }, async () => {
-    const log = mkdtempSync(join(tmpdir(), 'arena-check-all-log-'));
-    try {
-      const probe: Planned = {
-        name: 'test (leaks)', command: process.execPath, scratch: true,
-        args: ['-e', [
-          "const { appendFileSync, writeFileSync } = require('node:fs');",
-          "const { join } = require('node:path');",
-          "writeFileSync(join(process.env.TMPDIR, 'arena-leak-probe'), 'x');",
-          `appendFileSync(${JSON.stringify(join(log, 'seen'))}, process.env.TMPDIR + '\\n');`,
-        ].join('\n')],
-      };
-      for (const on of ['win32', 'darwin'] as const) {
-        let printed = '';
-        const { finished } = await runSteps([probe], { total: 1, heavy: 1, browser: 1 },
-          { print: (text) => { printed += text; }, on });
-        assert.deepEqual(finished.map((one) => [one.name, one.status]), [['test (leaks)', 'pass']]);
-        assert.match(printed, /warning: test \(leaks\) left 1 entry in its temp root: arena-leak-probe/);
-      }
       for (const root of readFileSync(join(log, 'seen'), 'utf8').trim().split('\n')) {
         assert.equal(existsSync(root), false, 'a step that left something kept its temp root');
       }

@@ -6,8 +6,8 @@
  * lists the steps in the order planned with what each took, so --jobs=1 is the serial run.
  * testStep() is the single authority for how the suites are invoked, so read its args and never
  * reconstruct them: --preload installs happy-dom PROCESS-wide and replaces Bun's fetch, so
- * scripts/ rides a DOM-free invocation. A test step runs in a temp root of its own and, on Linux,
- * fails when that root holds anything as it ends; on win32 and darwin it only warns. */
+ * scripts/ rides a DOM-free invocation. A test step runs in a temp root of its own and fails when
+ * that root holds anything as it ends. */
 
 import { availableParallelism, freemem } from 'node:os';
 import { fileURLToPath } from 'node:url';
@@ -24,9 +24,8 @@ import {
   type Finished, type Outcome, type Pool, type Slots, type Step,
 } from '../../graph/scheduler.ts';
 import { stepBlock } from '../../graph/step-block.ts';
-import { leftoverFails, leftoverLine, suiteTmp } from '../../lib/arena/suite-tmp.ts';
+import { leftoverLine, suiteTmp } from '../../lib/arena/suite-tmp.ts';
 import { deadline, type Deadline } from '../../lib/arena/deadline.ts';
-import type { Platform } from '../../lib/arena/platform.ts';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const checkRoot = join(here, '..');
@@ -333,7 +332,6 @@ export async function runSteps(
   slots: Slots,
   options: {
     signal?: AbortSignal; print?: (text: string) => void; finished?: (one: Finished) => void; cwd?: string;
-    on?: Platform;
   } = {},
 ) {
   const print = options.print ?? ((text: string) => { process.stdout.write(text); });
@@ -357,10 +355,8 @@ export async function runSteps(
       let output = ended.output;
       if (left.length > 0) {
         const line = leftoverLine(one.name, left);
-        const fatal = leftoverFails(options.on);
-        if (outcome.status === 'fail' || !fatal) {
-          output += `${output.endsWith('\n') || output === '' ? '' : '\n'}${fatal ? '' : 'warning: '}${line}\n`;
-        } else outcome = { status: 'fail', note: line };
+        if (outcome.status === 'fail') output += `${output.endsWith('\n') || output === '' ? '' : '\n'}${line}\n`;
+        else outcome = { status: 'fail', note: line };
       }
       print(block(one, output, outcome));
       return outcome;
