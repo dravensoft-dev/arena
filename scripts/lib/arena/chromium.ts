@@ -6,10 +6,8 @@
  * subpixel antialiasing answers about the panel rather than about Arena. Teardown reaps the GROUP,
  * then waits for it to empty before removing the profile, since a polite exit leaves a zygote and
  * a directory one writes to fails with EBUSY. SIGTERM or SIGINT reaps group and profile at once;
- * SIGKILL leaves a profile carrying its launcher's pid, which the next launch reaps. The browser's
- * own temp directories go too: the one its singleton links name, and a new empty fetcher one. On
- * Windows the reap is taskkill /F, which leaves the <uuid>.tmp files the browser was writing, so
- * every one that appeared while it ran goes as well. */
+ * SIGKILL leaves a profile with its launcher's pid for the next launch to reap. The singleton links'
+ * directory, a new empty fetcher one and, on Windows, the <uuid>.tmp files taskkill /F strands go too. */
 
 import { execFileSync, spawn, spawnSync } from 'node:child_process';
 import { existsSync, mkdtempSync, readdirSync, readlinkSync, rmSync, rmdirSync } from 'node:fs';
