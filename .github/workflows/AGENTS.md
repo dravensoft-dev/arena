@@ -217,12 +217,18 @@ a red operating system into a merge request that cannot land.
 **Assembling is part of the build rather than a step of its own.** The `build` job of
 `verify.yml` runs `bun run build:release` and `portable` runs `bun run build:packages`; both pass
 `--assemble`, so every package is part of a run the workflow already makes. Dropping the
-assembly would not skip package work: `check:packages` reads no manifest and passes while saying so,
-which is a quieter green rather than a faster one, and `check:consumer` fails on a missing
+assembly would not skip package work: `check:packages` refuses an unassembled tree through `cannotRun`,
+which is a red rather than a faster green, and `check:consumer` fails on a missing
 `dist/`, because it judges an assembled package and never builds one. Assembling nothing is not
 publishing nothing, and nothing here publishes.
 
 ## Publish arena-react, Publish arena-angular, Publish arena-contracts, Publish arena-mcp
+
+**A package job holds the one package it assembles.** On a cache miss `npm-publish-react-package.yml`
+builds only the React package and `npm-publish-angular-package.yml` only the Angular one, so each
+runs `bun run check:packages --layer=react` or `--layer=angular`: the flag requires and judges that
+package alone. Without it the gate requires both, which is how `bun run check` and the verify
+workflow run it.
 
 **A release moves the version in several places and the tag is the one the rest are pinned to.**
 It lives in `.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json` and the README's

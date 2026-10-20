@@ -14,7 +14,7 @@ import { spawnSync } from 'node:child_process';
 import { pathToFileURL } from 'node:url';
 import { iconManifest } from '../../lib/arena/icon-manifest.ts';
 import {
-  GENERATED_PALETTE, PACKAGES, collect, unassembled, componentMapProblems, componentReachProblems, bundledCssProblems, declaredComponents, distDir, exportProblems, globMatches, manifestProblems, paletteEquivalenceProblems, stripAtStatements, styleProblems,
+  GENERATED_PALETTE, PACKAGES, collect, unassembled, layersOf, LAYERS, componentMapProblems, componentReachProblems, bundledCssProblems, declaredComponents, distDir, exportProblems, globMatches, manifestProblems, paletteEquivalenceProblems, stripAtStatements, styleProblems,
   payloadProblems, CARRIED_BY_PACKAGE, iconManifestProblems, entryPointProblems, COMPILED_BY_CONSUMER, cssListProblems, CSS_HOMES, directiveProblems, themeSheetProblems, themeCompileProblems, unlayeredTokenProblems
 } from './check-packages.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
@@ -252,9 +252,9 @@ test('the two packages are named, and each dist sits under its own layer', () =>
   assert.equal(distDir('react', '/x'), join('/x', 'frameworks', 'react', 'dist'));
 });
 
-const refusal = (base: string, strict: string) => spawnSync(process.execPath, ['-e', [
+const refusal = (base: string, strict: string, layers?: string[]) => spawnSync(process.execPath, ['-e', [
   `const { refuseUnassembled } = await import(${JSON.stringify(pathToFileURL(join(root, 'scripts', 'check', 'arena', 'check-packages.ts')).href)});`,
-  `refuseUnassembled('check:packages', ${JSON.stringify(base)}, { ARENA_CHECK_STRICT: ${JSON.stringify(strict)} });`,
+  `refuseUnassembled('check:packages', ${JSON.stringify(base)}, { ARENA_CHECK_STRICT: ${JSON.stringify(strict)} }${layers ? `, ${JSON.stringify(layers)}` : ''});`,
   "console.log('went on');",
 ].join('\n')], { encoding: 'utf8' });
 
@@ -275,6 +275,33 @@ test('check:packages refuses when either package is missing, naming the layers',
   writeFileSync(join(distDir('angular', base), 'package.json'), '{}\n');
   assert.equal(unassembled(base), null);
   assert.match(refusal(base, '1').stdout, /went on/);
+});
+
+test('check:packages --layer requires and judges the one package it names, whatever the other is', () => {
+  const base = track(mkdtempSync(join(tmpdir(), 'check-packages-layer-')));
+  mkdirSync(distDir('react', base), { recursive: true });
+  writeFileSync(join(distDir('react', base), 'package.json'), '{}\n');
+  assert.equal(unassembled(base, ['react']), null);
+  assert.match(unassembled(base, ['angular']) ?? '', /^angular is not assembled/);
+  assert.match(refusal(base, '1', ['react']).stdout, /went on/);
+  assert.equal(refusal(base, '1', ['angular']).status, 1);
+  assert.deepEqual(collect(root, (layer) => distDir(layer, base), ['angular']).assembled, []);
+  assert.throws(() => collect(root, (layer) => distDir(layer, base), ['react']));
+});
+
+test('check:packages with no layer requires both packages, and a layer it does not know is refused', () => {
+  assert.deepEqual(layersOf([]), LAYERS);
+  assert.deepEqual(LAYERS, ['react', 'angular']);
+  assert.deepEqual(layersOf(['--layer=angular']), ['angular']);
+  assert.throws(() => layersOf(['--layer=vue']), /unknown layer vue; the layers are react, angular/);
+  assert.throws(() => layersOf(['--layers=react']), /unknown argument --layers=react/);
+  assert.throws(() => layersOf(['react']), /unknown argument react/);
+  const run = (arg: string) => spawnSync(process.execPath,
+    [join(root, 'scripts', 'check', 'arena', 'check-packages.ts'), arg], { encoding: 'utf8' });
+  const vue = run('--layer=vue');
+  assert.equal(vue.status, 1, vue.stderr);
+  assert.match(vue.stderr, /unknown layer vue/);
+  assert.match(run('--bogus').stderr, /unknown argument --bogus/);
 });
 
 test('the repository passes its own equivalence claim, over more than nothing', { timeout: BUDGET }, () => {

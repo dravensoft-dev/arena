@@ -1,12 +1,12 @@
 /* Five claims. First, that the CLI shipped inside both packages emits what Style Dictionary
- * emits: a second emitter exists, so something has to hold the two together. Second, when
- * dist/ has been assembled, that each package is registry-standard: the version comes from
- * plugin.json, every exports target resolves, the entry declaration is advertised at the root,
- * and no peer leaked into dependencies. Third, that the stylesheets resolve and each is named in
- * its layer's stylesheet and install references. Fourth, that the component map reaches every
- * sheet both ways. Fifth is the one the ASSEMBLED CSS is the only honest subject for, since what
- * a consumer installs is this and not an intermediate: supports-blocks.ts states both halves of
- * it. dist/ is git-ignored, so all but the first skip. */
+ * emits: a second emitter exists, so something has to hold the two together. Second, that each
+ * package is registry-standard: the version comes from plugin.json, every exports target resolves,
+ * the entry declaration is advertised at the root, and no peer leaked into dependencies. Third,
+ * that the stylesheets resolve and each is named in its layer's stylesheet and install references.
+ * Fourth, that the component map reaches every sheet both ways. Fifth is the one the ASSEMBLED CSS
+ * is the only honest subject for: supports-blocks.ts states both halves of it. dist/ is
+ * git-ignored, so an unassembled tree stops the gate through cannotRun, and --layer=<name> judges
+ * and requires that one package, as a publish job that assembles only its own does. */
 
 import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import { join, dirname, basename } from 'node:path';
@@ -72,14 +72,27 @@ export function assembled(layer: string, base = root) {
   return existsSync(join(distDir(layer, base), 'package.json'));
 }
 
-export function unassembled(base = root) {
-  const missing = PACKAGES.filter(({ layer }) => !assembled(layer, base)).map(({ layer }) => layer);
+export const LAYERS = PACKAGES.map(({ layer }) => layer);
+
+export function unassembled(base = root, layers = LAYERS) {
+  const missing = layers.filter((layer) => !assembled(layer, base));
   return missing.length === 0 ? null : unassembledReason(missing);
 }
 
-export function refuseUnassembled(gate: string, base = root, env = arenaEnv()) {
-  const reason = unassembled(base);
+export function refuseUnassembled(gate: string, base = root, env = arenaEnv(), layers = LAYERS) {
+  const reason = unassembled(base, layers);
   if (reason) cannotRun(gate, reason, env);
+}
+
+export function layersOf(args: string[]) {
+  const given = args.filter((arg) => arg.startsWith('--layer='));
+  const stray = args.filter((arg) => !arg.startsWith('--layer='));
+  if (stray.length > 0) throw new Error(`check-packages: unknown argument ${stray.join(' ')}; the one flag is --layer=${LAYERS.join('|')}`);
+  if (given.length === 0) return LAYERS;
+  const named = given.map((arg) => arg.slice('--layer='.length));
+  const unknown = named.filter((layer) => !LAYERS.includes(layer));
+  if (unknown.length > 0) throw new Error(`check-packages: unknown layer ${unknown.join(', ')}; the layers are ${LAYERS.join(', ')}`);
+  return named;
 }
 
 const isColour = (name: string) => name.startsWith('color-');
@@ -475,7 +488,7 @@ export function componentReachProblems(pkg: { layer: string; name: string }, dir
     + 'Run bun run build:packages'];
 }
 
-export function collect(base = root, dirOf = distDir) {
+export function collect(base = root, dirOf = distDir, layers = LAYERS) {
   const version = readJson(join(base, '.claude-plugin/plugin.json')).version;
   const problems = [];
 
@@ -487,7 +500,7 @@ export function collect(base = root, dirOf = distDir) {
   const assembled = [];
   const declared = declaredComponents(base);
   let sheets = 0;
-  for (const pkg of PACKAGES) {
+  for (const pkg of PACKAGES.filter(({ layer }) => layers.includes(layer))) {
     const dir = dirOf(pkg.layer, base);
     const manifestPath = join(dir, 'package.json');
     if (!existsSync(manifestPath)) continue;
@@ -513,9 +526,16 @@ export function collect(base = root, dirOf = distDir) {
   return { problems, compared: equivalence.compared, assembled, version, sheets };
 }
 
-function main() {
-  refuseUnassembled('check:packages');
-  const { problems, compared, assembled, version, sheets } = collect();
+function main(args: string[]) {
+  let layers: string[];
+  try {
+    layers = layersOf(args);
+  } catch (error) {
+    console.error((error as Error).message);
+    process.exit(1);
+  }
+  refuseUnassembled('check:packages', root, arenaEnv(), layers);
+  const { problems, compared, assembled, version, sheets } = collect(root, distDir, layers);
   for (const problem of problems) console.error(`check-packages: ${problem}`);
 
   if (problems.length) {
@@ -529,4 +549,4 @@ function main() {
   console.log(`check-packages: arena build matches ${GENERATED_PALETTE} across ${compared} declaration(s); ${built}`);
 }
 
-if (isMainModule(import.meta.url)) main();
+if (isMainModule(import.meta.url)) main(process.argv.slice(2));

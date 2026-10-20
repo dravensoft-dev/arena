@@ -177,7 +177,7 @@ jobs:
         run: bun scripts/graph/run-build.ts --force --assert-full --target=build:angular-package
 
       - name: hold the manifests and the CLI
-        run: bun run check:packages
+        run: bun run check:packages --layer=angular
 
       - name: pack, so the artifact is byte-identical to what leaves the machine
         id: pack

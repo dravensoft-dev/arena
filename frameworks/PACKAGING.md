@@ -26,6 +26,9 @@ bun run build:release   # every source, and both packages assembled from them
 bun run check:packages  # the manifests, and the CLI against the token pipeline
 ```
 
+A job that assembles one package runs `bun run check:packages --layer=react` or
+`--layer=angular`, which requires and judges that package alone.
+
 Each package's own `README.md` is what a consumer reads. They are authored here as
 [`react/PACKAGE.md`](./react/PACKAGE.md) and [`angular/PACKAGE.md`](./angular/PACKAGE.md),
 and the assembly copies each into its `dist/` as `README.md`. They live in the tree rather
