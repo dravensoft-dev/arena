@@ -1,0 +1,130 @@
+name: Arena diag (temporary)
+
+on:
+  push:
+    branches: [diag/fetchers-timeout-windows]
+
+permissions:
+  contents: read
+
+env:
+  BUN_VERSION: 1.3.14
+
+jobs:
+  hang:
+    name: bun timeout ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+      - name: a test that never ends fails at its own timeout
+        shell: bash
+        run: |
+          bun --version
+          s=$(date +%s)
+          set +e
+          bun test ./.diag/hang.test.ts 2>&1 | tee hang.log
+          rc=${PIPESTATUS[0]}
+          set -e
+          echo "rc=$rc wall=$(( $(date +%s) - s ))s"
+          test "$rc" = 1
+          test "$(grep -c '^(fail)' hang.log)" = 2
+
+  fetchers:
+    name: fetchers ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+      - id: chrome
+        uses: browser-actions/setup-chrome@v1
+      - name: real Chrome for 150 s in a private TMPDIR, base against a dead updater source
+        shell: bash
+        run: |
+          exe='${{ steps.chrome.outputs.chrome-path }}'
+          "$exe" --version || true
+          bun .diag/direct.ts "$exe" 150000 > base.out 2>&1 &
+          a=$!
+          bun .diag/direct.ts "$exe" 150000 --component-updater=url-source=http://127.0.0.1:9/ > dead.out 2>&1 &
+          b=$!
+          wait $a; wait $b
+          echo "== base"; cat base.out
+          echo "== dead updater source"; cat dead.out
+      - name: the same, killed at 2 s, inside the early fetcher's life
+        shell: bash
+        run: |
+          exe='${{ steps.chrome.outputs.chrome-path }}'
+          for i in 1 2 3; do
+            echo "== base $i"; bun .diag/direct.ts "$exe" 2000
+            echo "== dead $i"; bun .diag/direct.ts "$exe" 2000 --component-updater=url-source=http://127.0.0.1:9/
+          done
+
+  windows:
+    name: windows repeats
+    runs-on: windows-latest
+    timeout-minutes: 150
+    steps:
+      - run: git config --system core.longpaths true
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+      - run: bun install --frozen-lockfile
+      - uses: browser-actions/setup-chrome@v1
+      - run: bun run build:packages
+      - name: 20 rounds of the chromium suite, half under load
+        shell: pwsh
+        run: |
+          $cores = [Environment]::ProcessorCount
+          $pass = 0; $fail = 0
+          for ($i = 1; $i -le 20; $i++) {
+            $load = @()
+            if ($i % 2 -eq 0) { for ($c = 0; $c -lt $cores; $c++) { $load += Start-Process bun -ArgumentList '-e', 'while (true) {}' -PassThru -WindowStyle Hidden } }
+            $sw = [Diagnostics.Stopwatch]::StartNew()
+            bun test scripts/lib/arena/chromium.test.ts *> "chromium-$i.log"
+            $rc = $LASTEXITCODE
+            foreach ($p in $load) { Stop-Process -Id $p.Id -Force -ErrorAction SilentlyContinue }
+            Write-Host "round $i load=$($i % 2 -eq 0) rc=$rc $([int]$sw.Elapsed.TotalSeconds)s $((Select-String -Path "chromium-$i.log" -Pattern '^\s*\d+ (pass|fail)$' | ForEach-Object { $_.Line.Trim() }) -join ', ')"
+            if ($rc -eq 0) { $pass++ } else { $fail++; Get-Content "chromium-$i.log" | Select-String -Pattern '\(fail\)|error|Error' -Context 0,6 }
+          }
+          Write-Host "chromium suite: $pass pass, $fail fail"
+          "$fail" | Out-File chromium-fail.txt
+      - name: 5 rounds of the whole scripts suite, rounds 2 and 4 under load
+        if: always()
+        shell: pwsh
+        run: |
+          $cores = [Environment]::ProcessorCount
+          $pass = 0; $fail = 0
+          for ($i = 1; $i -le 5; $i++) {
+            $load = @()
+            if ($i % 2 -eq 0) { for ($c = 0; $c -lt $cores; $c++) { $load += Start-Process bun -ArgumentList '-e', 'while (true) {}' -PassThru -WindowStyle Hidden } }
+            $sw = [Diagnostics.Stopwatch]::StartNew()
+            bun run test:scripts *> "scripts-$i.log"
+            $rc = $LASTEXITCODE
+            foreach ($p in $load) { Stop-Process -Id $p.Id -Force -ErrorAction SilentlyContinue }
+            Write-Host "round $i load=$($i % 2 -eq 0) rc=$rc $([int]$sw.Elapsed.TotalSeconds)s $((Select-String -Path "scripts-$i.log" -Pattern '^\s*\d+ (pass|fail)$' | ForEach-Object { $_.Line.Trim() }) -join ', ')"
+            if ($rc -eq 0) { $pass++ } else { $fail++; Get-Content "scripts-$i.log" | Select-String -Pattern '\(fail\)|left|leftover' -Context 0,8 }
+          }
+          Write-Host "scripts suite: $pass pass, $fail fail"
+          if ($fail -gt 0 -or (Get-Content chromium-fail.txt) -ne '0') { exit 1 }
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-logs
+          path: '*.log'
