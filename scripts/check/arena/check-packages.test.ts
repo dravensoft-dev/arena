@@ -3,16 +3,18 @@
  * the real one these asserted a fact about the machine rather than about the code: green wherever
  * someone had built it, ENOENT out of walkFiles everywhere else, and never once a claim this file
  * makes. The real dist is checked by the gate, which is the caller that guards for it: collect()
- * runs the same functions over it and skips a package whose manifest is not there. */
+ * runs the same functions over it, and main() refuses a tree where either manifest is not there. */
 
 import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
+import { spawnSync } from 'node:child_process';
+import { pathToFileURL } from 'node:url';
 import { iconManifest } from '../../lib/arena/icon-manifest.ts';
 import {
-  GENERATED_PALETTE, PACKAGES, collect, componentMapProblems, componentReachProblems, bundledCssProblems, declaredComponents, distDir, exportProblems, globMatches, manifestProblems, paletteEquivalenceProblems, stripAtStatements, styleProblems,
+  GENERATED_PALETTE, PACKAGES, collect, unassembled, componentMapProblems, componentReachProblems, bundledCssProblems, declaredComponents, distDir, exportProblems, globMatches, manifestProblems, paletteEquivalenceProblems, stripAtStatements, styleProblems,
   payloadProblems, CARRIED_BY_PACKAGE, iconManifestProblems, entryPointProblems, COMPILED_BY_CONSUMER, cssListProblems, CSS_HOMES, directiveProblems, themeSheetProblems, themeCompileProblems, unlayeredTokenProblems
 } from './check-packages.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
@@ -248,6 +250,31 @@ test('typings is the other spelling of the same claim, and ng-packagr writes tha
 test('the two packages are named, and each dist sits under its own layer', () => {
   assert.deepEqual(PACKAGES.map((p) => p.name), ['@dravensoft/arena-react', '@dravensoft/arena-angular']);
   assert.equal(distDir('react', '/x'), join('/x', 'frameworks', 'react', 'dist'));
+});
+
+const refusal = (base: string, strict: string) => spawnSync(process.execPath, ['-e', [
+  `const { refuseUnassembled } = await import(${JSON.stringify(pathToFileURL(join(root, 'scripts', 'check', 'arena', 'check-packages.ts')).href)});`,
+  `refuseUnassembled('check:packages', ${JSON.stringify(base)}, { ARENA_CHECK_STRICT: ${JSON.stringify(strict)} });`,
+  "console.log('went on');",
+].join('\n')], { encoding: 'utf8' });
+
+test('check:packages refuses when either package is missing, naming the layers', () => {
+  assert.match(unassembled('/nowhere-at-all') ?? '', /react and angular is not assembled.*run bun run build:packages first/);
+  const base = track(mkdtempSync(join(tmpdir(), 'check-packages-one-')));
+  mkdirSync(distDir('react', base), { recursive: true });
+  writeFileSync(join(distDir('react', base), 'package.json'), '{}\n');
+  const reason = unassembled(base) ?? '';
+  assert.match(reason, /^angular is not assembled/);
+  assert.doesNotMatch(reason, /react/);
+  const soft = refusal(base, '0');
+  assert.equal(soft.status, 2, soft.stderr);
+  assert.match(soft.stderr, /check:packages: SKIPPED/);
+  assert.doesNotMatch(soft.stdout, /went on/);
+  assert.equal(refusal(base, '1').status, 1);
+  mkdirSync(distDir('angular', base), { recursive: true });
+  writeFileSync(join(distDir('angular', base), 'package.json'), '{}\n');
+  assert.equal(unassembled(base), null);
+  assert.match(refusal(base, '1').stdout, /went on/);
 });
 
 test('the repository passes its own equivalence claim, over more than nothing', { timeout: BUDGET }, () => {

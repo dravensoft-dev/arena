@@ -3,8 +3,10 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { spawnSync } from 'node:child_process';
+import { pathToFileURL } from 'node:url';
 import {
-  collect, dependencyProblems, importedPackages, binProblems, corpusProblems, catalogueProblems,
+  collect, unassembled, dependencyProblems, importedPackages, binProblems, corpusProblems, catalogueProblems,
   unresolvedTarget, targetsIn, registryProblems, SITE_BASE, REGISTRY_SCHEMA,
   REGISTRY_DESCRIPTION_LIMIT, flatProblems, ESCAPING_SPECIFIER, vocabularyProblems,
   styleStoreProblems, identityProblems,
@@ -40,6 +42,25 @@ function corpus(files: Record<string, string>) {
 test('the tree passes its own claims', () => {
   const { problems } = collect();
   assert.deepEqual(problems, []);
+});
+
+const refusal = (base: string, strict: string) => spawnSync(process.execPath, ['-e', [
+  `const { refuseUnassembled } = await import(${JSON.stringify(pathToFileURL(join(root, 'scripts', 'check', 'arena', 'check-mcp.ts')).href)});`,
+  `refuseUnassembled(${JSON.stringify(base)}, { ARENA_CHECK_STRICT: ${JSON.stringify(strict)} });`,
+  "console.log('went on');",
+].join('\n')], { encoding: 'utf8' });
+
+test('check:mcp refuses a tree with no dist/mcp and names the step that assembles it', () => {
+  assert.match(unassembled('/nowhere-at-all') ?? '', new RegExp(`${DIST} is not assembled.*run bun run build:packages first`));
+  const soft = refusal('/nowhere-at-all', '0');
+  assert.equal(soft.status, 2, soft.stderr);
+  assert.match(soft.stderr, /check:mcp: SKIPPED/);
+  assert.doesNotMatch(soft.stdout, /went on/);
+  assert.equal(refusal('/nowhere-at-all', '1').status, 1);
+  const base = track(mkdtempSync(join(tmpdir(), 'check-mcp-assembled-')));
+  mkdirSync(join(base, ...DIST.split('/')), { recursive: true });
+  assert.equal(unassembled(base), null);
+  assert.match(refusal(base, '1').stdout, /went on/);
 });
 
 test('the gate read a real result set rather than an empty one', () => {

@@ -22,7 +22,7 @@ import { hostBinary } from '../../lib/arena/host-binary.ts';
 import { linkDir } from '../../lib/arena/platform.ts';
 import { isForeignTree } from '../../lib/arena/foreign-trees.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
-import { PACKAGES, distDir } from './check-packages.ts';
+import { PACKAGES, distDir, refuseUnassembled as refuseUnassembledPackages } from './check-packages.ts';
 import {
   THEME_SHEET, ICONS_SHEET, PLUGIN_SHEET, PLUGIN_CSS, PLUGIN_LAYER, PLUGIN_LAYER_ORDER,
 } from '../../generate/core/arena-cli/sheets.ts';
@@ -117,21 +117,8 @@ export const UNKNOWN: Record<string, Record<string, string>> = {
   angular: { 'src/app.html': '<arena-nothing-at-all></arena-nothing-at-all>\n' },
 };
 
-export function assembled(layer: string, base = root) {
-  return existsSync(join(distDir(layer, base), 'package.json'));
-}
-
-export function unassembled(base = root) {
-  const missing = PACKAGES.filter(({ layer }) => !assembled(layer, base)).map(({ layer }) => layer);
-  if (missing.length === 0) return null;
-  return `${missing.join(' and ')} is not assembled, so there is no package to install; run bun run `
-    + 'build:packages first. A gate that built what it judges would rewrite dist/ under every gate '
-    + 'running beside it';
-}
-
 export function refuseUnassembled(base = root, env = arenaEnv()) {
-  const reason = unassembled(base);
-  if (reason) cannotRun('check:consumer', reason, env);
+  refuseUnassembledPackages('check:consumer', base, env);
 }
 
 export type CliRun = {

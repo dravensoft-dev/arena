@@ -4,8 +4,8 @@
  * vocabulary index per layer, since a package with the transport and no documents answers every
  * question with silence. Every path inside it resolves to something the package carries or the
  * site publishes. The catalogue reaches every component the tree declares. And server.json states
- * this tree's own name and version. dist/ is git-ignored, so the three that read it skip against
- * an unassembled tree. */
+ * this tree's own name and version. dist/ is git-ignored, so an unassembled tree stops the gate
+ * through cannotRun. */
 
 import { existsSync, readFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
@@ -14,6 +14,7 @@ import { walkFiles } from '../../utils/walk-files.ts';
 import { relPosix } from '../../utils/posix-path.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
+import { arenaEnv, cannotRun, unassembledReason } from '../../lib/arena/arena-scripts-vars.ts';
 import {
   DIST, SOURCE, ENTRY, BIN, NAME, REGISTRY_NAME, RUNTIME_DEPENDENCIES, manifest, sources,
   node as mcpPackageNode,
@@ -95,6 +96,15 @@ export function dependencyProblems(
 
 export function assembled(base = root) {
   return join(base, ...DIST.split('/'));
+}
+
+export function unassembled(base = root) {
+  return existsSync(assembled(base)) ? null : unassembledReason([DIST]);
+}
+
+export function refuseUnassembled(base = root, env = arenaEnv()) {
+  const reason = unassembled(base);
+  if (reason) cannotRun('check:mcp', reason, env);
 }
 
 export function binProblems(dir: string) {
@@ -368,22 +378,19 @@ export function identityProblems(dir: string, base = root) {
   return problems;
 }
 
-export function collect(base = root) {
-  const dir = assembled(base);
-  const problems = [...dependencyProblems(base), ...registryProblems(base)];
-  if (!existsSync(dir)) return { problems, assembled: false };
+export function collect(base = root, dir = assembled(base)) {
   return {
     problems: [
-      ...problems, ...binProblems(dir), ...flatProblems(dir), ...corpusProblems(dir),
-      ...vocabularyProblems(dir), ...servedLinkProblems(dir), ...catalogueProblems(dir, base),
-      ...styleStoreProblems(dir, base), ...identityProblems(dir, base),
+      ...dependencyProblems(base), ...registryProblems(base), ...binProblems(dir), ...flatProblems(dir),
+      ...corpusProblems(dir), ...vocabularyProblems(dir), ...servedLinkProblems(dir),
+      ...catalogueProblems(dir, base), ...styleStoreProblems(dir, base), ...identityProblems(dir, base),
     ],
-    assembled: true,
   };
 }
 
 function main() {
-  const { problems, assembled: built } = collect();
+  refuseUnassembled();
+  const { problems } = collect();
   if (problems.length > 0) {
     console.error(`check-mcp: ${problems.length} problem(s)\n`);
     for (const problem of problems) console.error(`  ${problem}`);
@@ -391,10 +398,9 @@ function main() {
   }
   console.log(`check-mcp: ${NAME} declares the ${Object.keys(RUNTIME_DEPENDENCIES).length} dependency `
     + `it imports and states ${REGISTRY_NAME} at the version ${PLUGIN_MANIFEST} hands out`
-    + `${built ? ', ships its bin, carries one corpus per layer whose every path resolves, serves '
+    + ', ships its bin, carries one corpus per layer whose every path resolves, serves '
     + 'every one of them with its links addressed as this server answers them, '
-    + 'and would serve every component the tree declares' : ', and is not assembled, so the bin and '
-    + 'the corpus rules went unread'}`);
+    + 'and would serve every component the tree declares');
 }
 
 if (isMainModule(import.meta.url)) main();

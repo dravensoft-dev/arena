@@ -13,11 +13,11 @@ import { pathToFileURL } from 'node:url';
 import { CLI_BINS } from '../../lib/arena/package-assembly.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import {
-  importedSheets, unknownSymbolProblems, listProblems, closedListProblems, iconProblems, assembled, unassembled, documented, CONFIG_REFERENCE,
+  importedSheets, unknownSymbolProblems, listProblems, closedListProblems, iconProblems, documented, CONFIG_REFERENCE,
   palettesProblems, SOURCES, UNKNOWN, FILL, GLYPH, THIRD_PALETTE, CLI, snapshot, treeChanges, exitProblem, binProblems,
 } from './check-consumer.ts';
 import type { CliRun } from './check-consumer.ts';
-import { distDir } from './check-packages.ts';
+import { distDir, unassembled, assembled } from './check-packages.ts';
 
 const ok: CliRun = { status: 0, stdout: '', stderr: '', theme: null, icons: null, plugin: null };
 

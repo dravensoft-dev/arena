@@ -16,6 +16,7 @@ import { isMainModule } from '../../utils/main-module.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
+import { arenaEnv, cannotRun, unassembledReason } from '../../lib/arena/arena-scripts-vars.ts';
 import { parseDecls } from '../../lib/arena/css-decls.ts';
 import { arenaConfig } from '../../lib/core/arena-config.ts';
 import { themeCss } from '../../generate/core/arena-cli/theme-css.ts';
@@ -66,6 +67,20 @@ export const PACKAGES = [
 export const GENERATED_PALETTE = 'contracts/design-generated/palette.generated.css';
 
 export const distDir = (layer: string, base = root) => join(base, 'frameworks', layer, 'dist');
+
+export function assembled(layer: string, base = root) {
+  return existsSync(join(distDir(layer, base), 'package.json'));
+}
+
+export function unassembled(base = root) {
+  const missing = PACKAGES.filter(({ layer }) => !assembled(layer, base)).map(({ layer }) => layer);
+  return missing.length === 0 ? null : unassembledReason(missing);
+}
+
+export function refuseUnassembled(gate: string, base = root, env = arenaEnv()) {
+  const reason = unassembled(base);
+  if (reason) cannotRun(gate, reason, env);
+}
 
 const isColour = (name: string) => name.startsWith('color-');
 
@@ -460,7 +475,7 @@ export function componentReachProblems(pkg: { layer: string; name: string }, dir
     + 'Run bun run build:packages'];
 }
 
-export function collect(base = root) {
+export function collect(base = root, dirOf = distDir) {
   const version = readJson(join(base, '.claude-plugin/plugin.json')).version;
   const problems = [];
 
@@ -473,7 +488,7 @@ export function collect(base = root) {
   const declared = declaredComponents(base);
   let sheets = 0;
   for (const pkg of PACKAGES) {
-    const dir = distDir(pkg.layer, base);
+    const dir = dirOf(pkg.layer, base);
     const manifestPath = join(dir, 'package.json');
     if (!existsSync(manifestPath)) continue;
     assembled.push(pkg.name);
@@ -499,6 +514,7 @@ export function collect(base = root) {
 }
 
 function main() {
+  refuseUnassembled('check:packages');
   const { problems, compared, assembled, version, sheets } = collect();
   for (const problem of problems) console.error(`check-packages: ${problem}`);
 
@@ -507,11 +523,9 @@ function main() {
     process.exit(1);
   }
 
-  const built = assembled.length
-    ? `${assembled.length} package(s) assembled at ${version}: ${assembled.join(', ')}, whose `
-      + `${sheets} stylesheet(s) carry no fallback painting an ink in its own colour and state `
-      + 'each condition once per rule'
-    : 'no package assembled; run bun run build:packages to check the manifests too';
+  const built = `${assembled.length} package(s) assembled at ${version}: ${assembled.join(', ')}, whose `
+    + `${sheets} stylesheet(s) carry no fallback painting an ink in its own colour and state `
+    + 'each condition once per rule';
   console.log(`check-packages: arena build matches ${GENERATED_PALETTE} across ${compared} declaration(s); ${built}`);
 }
 

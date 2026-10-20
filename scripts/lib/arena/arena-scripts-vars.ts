@@ -31,3 +31,9 @@ export function cannotRun(gate: string, reason: string, env = arenaEnv()): never
   }
   process.exit(code);
 }
+
+export function unassembledReason(missing: string[]) {
+  return `${missing.join(' and ')} is not assembled, so there is no package to read; run bun run `
+    + 'build:packages first. A gate that built what it judges would rewrite dist/ under every gate '
+    + 'running beside it';
+}
