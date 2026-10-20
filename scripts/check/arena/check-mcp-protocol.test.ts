@@ -50,8 +50,8 @@ export function session(payload: string) {
 }
 
 const temp = mkdtempSync(join(tmpdir(), 'arena-mcp-asm-'));
-buildMcpPackage(repoRoot, temp);
 after(() => rmSync(temp, { recursive: true, force: true }));
+buildMcpPackage(repoRoot, temp);
 const payload = bundledPayload('react', temp) ?? '';
 
 test('an editor can initialize, list and read, which is the whole of what it does', async () => {

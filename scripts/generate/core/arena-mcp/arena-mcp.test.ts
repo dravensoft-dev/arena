@@ -18,8 +18,8 @@ const manifest = { name: 'arena', description: 'd', homepage: 'h', version: '12.
   package: '@dravensoft/arena-react', layer: 'react', router: 'skills/design/ROUTER.md' };
 
 const temp = mkdtempSync(join(tmpdir(), 'arena-mcp-asm-'));
-buildMcpPackage(repoRoot, temp);
 after(() => rmSync(temp, { recursive: true, force: true }));
+buildMcpPackage(repoRoot, temp);
 const PAYLOAD = bundledPayload('react', temp) ?? '';
 
 test('the arguments are a layer, a payload, help, or an error naming what was not understood', () => {

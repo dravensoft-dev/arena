@@ -14,7 +14,7 @@ import { walkFiles } from '../../utils/walk-files.ts';
 import { relPosix } from '../../utils/posix-path.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
-import { arenaEnv, cannotRun, unassembledReason } from '../../lib/arena/arena-scripts-vars.ts';
+import { arenaEnv, refuseWhen, unassembledReason } from '../../lib/arena/arena-scripts-vars.ts';
 import {
   DIST, SOURCE, ENTRY, BIN, NAME, REGISTRY_NAME, RUNTIME_DEPENDENCIES, manifest, sources,
   node as mcpPackageNode,
@@ -103,8 +103,7 @@ export function unassembled(base = root) {
 }
 
 export function refuseUnassembled(base = root, env = arenaEnv()) {
-  const reason = unassembled(base);
-  if (reason) cannotRun('check:mcp', reason, env);
+  refuseWhen('check:mcp', unassembled(base), env);
 }
 
 export function binProblems(dir: string) {
@@ -122,6 +121,7 @@ export const ESCAPING_SPECIFIER = /\bfrom\s+'(\.\.\/[^']*)'/g;
 
 export function flatProblems(dir: string) {
   const problems = [];
+  if (!existsSync(join(dir, 'bin'))) return problems;
   for (const file of walkFiles(join(dir, 'bin')).filter((path) => path.endsWith('.mjs'))) {
     const escaping = [...readFileSync(file, 'utf8').matchAll(ESCAPING_SPECIFIER)].map((m) => m[1]);
     for (const specifier of escaping) {

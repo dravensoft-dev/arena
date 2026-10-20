@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, mkdirSync, mkdtempSync, readdirSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, rmSync, rmdirSync, unlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
@@ -8,6 +8,7 @@ import {
 } from './tailwind-compile.ts';
 import { CACHE_DIR } from '../arena/artifact-cache.ts';
 import { repoRoot } from '../arena/repo-root.ts';
+import { linkDir, platform } from '../arena/platform.ts';
 import { relPosix } from '../../utils/posix-path.ts';
 
 test('collects classes from slots and from every variant value', () => {
@@ -118,13 +119,15 @@ test('layerInputs keys on the stylesheets Theme.css imports, so an edit to one i
 
 test('an edit to an imported stylesheet reaches the next cached compile', () => {
   const root = themeRoot("@import './Part.css';\n", { 'Part.css': '.zzone{color:red}\n' });
-  symlinkSync(join(repoRoot, 'node_modules'), join(root, 'node_modules'), 'dir');
+  const link = join(root, 'node_modules');
   try {
+    linkDir(join(repoRoot, 'node_modules'), link);
     const entry = entryStylesheet(join(root, 'frameworks/tailwind/Theme.css'), join(root, 'frameworks/tailwind/components'));
     assert.match(compileEntry(entry, root, layerInputs(root)), /zzone/);
     writeFileSync(join(root, 'frameworks/tailwind/Part.css'), '.zzone{color:red}\n.zztwo{color:blue}\n');
     assert.match(compileEntry(entry, root, layerInputs(root)), /zztwo/);
   } finally {
+    try { if (platform === 'win32') rmdirSync(link); else unlinkSync(link); } catch {  }
     rmSync(root, { recursive: true, force: true });
   }
 });

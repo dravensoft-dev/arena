@@ -45,7 +45,6 @@ buildMcpPackage(root, assembly);
 test('the tree passes its own claims, and an empty assembly does not', () => {
   assert.deepEqual(collect(root, assembly).problems, []);
   const empty = corpus({});
-  mkdirSync(join(empty, 'bin'));
   assert.ok(collect(root, empty).problems.length > 0, 'an assembly holding no file cannot pass in vacuum');
 });
 

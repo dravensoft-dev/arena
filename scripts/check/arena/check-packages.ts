@@ -16,7 +16,7 @@ import { isMainModule } from '../../utils/main-module.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
-import { arenaEnv, cannotRun, unassembledReason } from '../../lib/arena/arena-scripts-vars.ts';
+import { arenaEnv, refuseWhen, unassembledReason } from '../../lib/arena/arena-scripts-vars.ts';
 import { parseDecls } from '../../lib/arena/css-decls.ts';
 import { arenaConfig } from '../../lib/core/arena-config.ts';
 import { themeCss } from '../../generate/core/arena-cli/theme-css.ts';
@@ -80,8 +80,7 @@ export function unassembled(base = root, layers = LAYERS) {
 }
 
 export function refuseUnassembled(gate: string, base = root, env = arenaEnv(), layers = LAYERS) {
-  const reason = unassembled(base, layers);
-  if (reason) cannotRun(gate, reason, env);
+  refuseWhen(gate, unassembled(base, layers), env);
 }
 
 export function layersOf(args: string[]) {

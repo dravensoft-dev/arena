@@ -6,7 +6,8 @@
  * key each is a silent no-op except the depth, which goes negative and throws. Handing it back to
  * node costs nothing, since join reads a forward slash on every platform. The two paths in the
  * entry stylesheet convert for the same reason: a backslash inside a CSS string starts an escape
- * rather than a segment, so a native root names a file that is not on disk. */
+ * rather than a segment, so a native root names a file that is not on disk. The cache key is
+ * Theme.css, every local stylesheet it imports, and the manifests. */
 
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';

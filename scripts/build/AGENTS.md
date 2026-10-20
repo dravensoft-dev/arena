@@ -89,10 +89,10 @@ signal, not a failure**: the message each prints names the command to run. `bun 
 builds first for exactly this reason.
 
 **A fresh clone runs `bun run build:packages`, or `bun run build:release`, before `check:consumer`
-and `check:graph`.** `bun run build` assembles no package: `check:consumer`, `check:packages` and `check:mcp` refuse a package
-that is not assembled, and `check:graph` reads what the package steps write, so on a clone that ran only
-`bun run build` each reports its subject missing. The commands of a CI job run on a clone built
-like the job are in [`../ci/arena/AGENTS.md`](../ci/arena/AGENTS.md).
+and `check:graph`.** `bun run build` assembles no package: `check:consumer`, `check:packages` and
+`check:mcp` refuse a package that is not assembled, and `check:graph` reads what the package steps
+write, so on a clone that ran only `bun run build` each reports its subject missing. The commands
+of a CI job run on a clone built like the job are in [`../ci/arena/AGENTS.md`](../ci/arena/AGENTS.md).
 
 `bun run build` is idempotent: running it on a clean tree leaves `git status` empty. If it does
 not, a generator and a committed file disagree, which is what `check:tokens` and `check:fonts`
