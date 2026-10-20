@@ -351,10 +351,25 @@ test('while open, a pane that matches its anchor follows the anchor\'s width, an
   }
 });
 
+const corner = (position: { originX: string; originY: string }) => `${position.originY}:${position.originX}`;
+
+test('an aligned panel tries its preferred side at both alignments before the other side', () => {
+  const list = (align: 'start' | 'end', prefer: 'below' | 'above') => arenaConnectedPositions(align, prefer, 6).map(corner);
+  assert.deepEqual(list('end', 'below'), ['bottom:end', 'bottom:start', 'top:end', 'top:start']);
+  assert.deepEqual(list('start', 'below'), ['bottom:start', 'bottom:end', 'top:start', 'top:end']);
+  assert.deepEqual(list('end', 'above'), ['top:end', 'top:start', 'bottom:end', 'bottom:start']);
+  assert.deepEqual(list('start', 'above'), ['top:start', 'top:end', 'bottom:start', 'bottom:end']);
+});
+
+test('a centred panel keeps its two positions, one per side', () => {
+  assert.deepEqual(arenaConnectedPositions('center', 'above', 6).map(corner), ['top:center', 'bottom:center']);
+});
+
 test('start and end are the physical left and right, whatever the writing direction', () => {
   const sides = (rtl: boolean) => arenaPhysicalPositions(arenaConnectedPositions('end', 'below', 6), rtl)
     .map((position) => [position.originX, position.overlayX]);
-  assert.deepEqual(sides(false), [['end', 'end'], ['end', 'end']]);
-  assert.deepEqual(sides(true), [['start', 'start'], ['start', 'start']], 'in a right-to-left page the CDK reads end as the left edge');
+  assert.deepEqual(sides(false), [['end', 'end'], ['start', 'start'], ['end', 'end'], ['start', 'start']]);
+  assert.deepEqual(sides(true), [['start', 'start'], ['end', 'end'], ['start', 'start'], ['end', 'end']],
+    'in a right-to-left page the CDK reads end as the left edge');
   assert.deepEqual(arenaPhysicalPositions(arenaConnectedPositions('center', 'above', 6), true).map((p) => p.originX), ['center', 'center']);
 });

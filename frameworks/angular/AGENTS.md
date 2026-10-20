@@ -303,8 +303,10 @@ its keyboard and its type-ahead are the user agent's.
 
 **An anchored panel is attached through `AnchoredOverlay.ts:ArenaAnchoredOverlay`**, which a component
 constructs in its own injection context. It attaches the panel's template to a CDK pane placed by
-the connected positions `arenaConnectedPositions(align, prefer, offset)` returns, pushed inside the
-viewport, and keeps the stack Escape and an outside press consult. Focus on open, focus restore
+the connected positions `arenaConnectedPositions(align, prefer, offset)` returns. They try the
+preferred side at the alignment, then at the opposite alignment, then the other side the same way;
+when none fits, the pane is pushed inside the viewport at the alignment that overflows least. The
+overlay also keeps the stack Escape and an outside press consult. Focus on open, focus restore
 and Tab-out are options it takes. `ArenaMenu`, `ArenaTooltip` and `ArenaPopover` stand on it.
 
 **A style binding may interpolate the name of the property it reads.** The table's cells bind

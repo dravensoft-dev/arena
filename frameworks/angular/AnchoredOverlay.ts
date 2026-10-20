@@ -38,9 +38,13 @@ const stack: StackEntry[] = [];
 const live = () => stack.filter((entry) => entry.panel.isConnected);
 
 export function arenaConnectedPositions(align: ArenaPanelAlign, prefer: ArenaPanelSide, offset: number): ConnectedPosition[] {
-  const below: ConnectedPosition = { originX: align, originY: 'bottom', overlayX: align, overlayY: 'top', offsetY: offset };
-  const above: ConnectedPosition = { originX: align, originY: 'top', overlayX: align, overlayY: 'bottom', offsetY: -offset };
-  return prefer === 'below' ? [below, above] : [above, below];
+  const opposite = { start: 'end', end: 'start', center: 'center' } as const;
+  const at = (side: ArenaPanelSide, edge: ArenaPanelAlign): ConnectedPosition => side === 'below'
+    ? { originX: edge, originY: 'bottom', overlayX: edge, overlayY: 'top', offsetY: offset }
+    : { originX: edge, originY: 'top', overlayX: edge, overlayY: 'bottom', offsetY: -offset };
+  const other: ArenaPanelSide = prefer === 'below' ? 'above' : 'below';
+  const edges: ArenaPanelAlign[] = align === 'center' ? [align] : [align, opposite[align]];
+  return [prefer, other].flatMap((side) => edges.map((edge) => at(side, edge)));
 }
 
 export function arenaPhysicalPositions(positions: readonly ConnectedPosition[], rtl: boolean): ConnectedPosition[] {

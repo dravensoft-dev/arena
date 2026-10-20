@@ -33,17 +33,15 @@ test('a divider and a header are not activatable; everything else is', () => {
     'a disabled row is still a row -- it renders as a menuitem and reports nothing');
 });
 
-test('both alignments offer a flip below the trigger, and the gap is derived from the token rather than written', () => {
+test('both alignments offer a flip above the trigger, and the gap is derived from the token rather than written', () => {
   for (const align of ['start', 'end'] as const) {
     const positions = ARENA_MENU_POSITIONS[align];
-    assert.equal(positions.length, 2, `${align} must offer a fallback above the trigger`);
-    assert.equal(positions[0].offsetY, sp1 * 1.5);
-    assert.equal(positions[1].offsetY, -sp1 * 1.5);
-    assert.equal(positions[0].originY, 'bottom');
-    assert.equal(positions[1].originY, 'top');
+    assert.equal(positions.length, 4, `${align} must offer both alignments below the trigger and above it`);
+    assert.deepEqual(positions.map((position) => position.offsetY), [sp1 * 1.5, sp1 * 1.5, -sp1 * 1.5, -sp1 * 1.5]);
+    assert.deepEqual(positions.map((position) => position.originY), ['bottom', 'bottom', 'top', 'top']);
   }
-  assert.equal(ARENA_MENU_POSITIONS.start[0].originX, 'start');
-  assert.equal(ARENA_MENU_POSITIONS.end[0].originX, 'end');
+  assert.deepEqual(ARENA_MENU_POSITIONS.start.map((position) => position.originX), ['start', 'end', 'start', 'end']);
+  assert.deepEqual(ARENA_MENU_POSITIONS.end.map((position) => position.originX), ['end', 'start', 'end', 'start']);
 });
 
 test('the sheet positions the panel at neither edge, because the overlay places it', () => {

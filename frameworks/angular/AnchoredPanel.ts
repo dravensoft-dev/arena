@@ -39,9 +39,15 @@ export function arenaPlacePanel(anchor: ArenaPanelRect, panel: ArenaPanelSize, v
   const side = arenaPanelSide(anchor, panel, viewport, offset, prefer);
   const placed = side === 'below' ? anchor.top + anchor.height + offset : anchor.top - offset - panel.height;
   const y = Math.max(0, Math.min(placed, viewport.height - panel.height));
-  let wanted = anchor.left;
-  if (align === 'end') wanted = anchor.left + anchor.width - panel.width;
-  if (align === 'center') wanted = anchor.left + (anchor.width - panel.width) / 2;
+  const alignedAt = (one: ArenaPanelAlign) => one === 'end' ? anchor.left + anchor.width - panel.width
+    : one === 'center' ? anchor.left + (anchor.width - panel.width) / 2 : anchor.left;
+  const fits = (at: number) => at >= 0 && at + panel.width <= viewport.width;
+  const overflow = (at: number) => Math.max(0, -at) + Math.max(0, at + panel.width - viewport.width);
+  let wanted = alignedAt(align);
+  if (align !== 'center' && !fits(wanted)) {
+    const flipped = alignedAt(align === 'end' ? 'start' : 'end');
+    if (overflow(flipped) < overflow(wanted)) wanted = flipped;
+  }
   const x = Math.max(0, Math.min(wanted, viewport.width - panel.width));
   return { x, y, side };
 }

@@ -180,10 +180,37 @@ test('a seeded case opens its page with the seed as the query, and an unseeded o
 });
 
 test('the split\'s panel is measured from the start edge of the whole split, in both layers, seeded there', () => {
-  const split = ANCHORED.filter((kase) => kase.name.startsWith('ArenaSplitButton:'));
+  const split = ANCHORED.filter((kase) => /^ArenaSplitButton:(react|angular)$/.test(kase.name));
   assert.equal(split.length, 2);
   for (const kase of split) {
     assert.deepEqual(kase.edge, { anchor: '[data-arena-part="split-button"]', align: 'start' }, kase.name);
     assert.equal(kase.seed, 'align=start', `${kase.name} measures start without seeding it, so the demo's end is what opens`);
   }
+});
+
+test('an aligned panel is pinned to each horizontal edge in both layers, for the split and the menu', () => {
+  const pinned = ANCHORED.filter((kase) => kase.pin !== undefined && kase.width === undefined);
+  assert.deepEqual(pinned.map((kase) => kase.name).sort(), ['ArenaMenu', 'ArenaSplitButton'].flatMap((component) => ['react', 'angular']
+    .flatMap((layer) => ['end-at-start', 'start-at-end'].map((kind) => `${component}:${layer}:${kind}`))).sort());
+  for (const kase of pinned) {
+    const [, , kind] = kase.name.split(':');
+    assert.equal(kase.pin, kind === 'end-at-start' ? 'start' : 'end', kase.name);
+    assert.equal(kase.edge?.align, kase.pin, `${kase.name} measures the edge the panel flips to, which is the pinned one`);
+  }
+});
+
+test('a menu that fits neither alignment is opened in both layers, in a viewport the panel nearly fills', () => {
+  const narrow = ANCHORED.filter((kase) => kase.width !== undefined);
+  assert.deepEqual(narrow.map((kase) => kase.name).sort(), ['ArenaMenu:angular:fits-neither', 'ArenaMenu:react:fits-neither']);
+  for (const kase of narrow) {
+    assert.equal(kase.pin, 'end', kase.name);
+    assert.equal(kase.seed, 'align=start', `${kase.name} asks for the alignment that overflows more`);
+    assert.equal(kase.edge?.align, 'end', `${kase.name} measures the alignment that overflows less, which is the one clamped`);
+  }
+});
+
+test('a pinned stage lines its trigger against the edge it names', () => {
+  assert.match(confineExpression({ ...below, pin: 'start' }), /justifyContent: 'flex-start'/);
+  assert.match(confineExpression({ ...below, pin: 'end' }), /justifyContent: 'flex-end'/);
+  assert.doesNotMatch(confineExpression(below), /justifyContent/);
 });

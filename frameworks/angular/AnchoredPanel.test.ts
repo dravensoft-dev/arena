@@ -42,11 +42,28 @@ test('a panel that prefers above flips below near the top', () => {
   assert.equal(arenaPanelSide(rect(100, 4, 80, 32), size(60, 24), VIEWPORT, 6, 'above'), 'below');
 });
 
-test('a panel pushed past the right edge is clamped inside the viewport, and past the left to zero', () => {
-  assert.equal(arenaPlacePanel(rect(700, 100, 80, 32), PANEL, VIEWPORT, 'start', 6).x, 600);
-  assert.equal(arenaPlacePanel(rect(10, 100, 80, 32), PANEL, VIEWPORT, 'end', 6).x, 0);
-  assert.equal(arenaPlacePanel(rect(10, 100, 80, 32), size(900, 10), VIEWPORT, 'start', 6).x, 0,
+test('an aligned panel that would leave the viewport takes the opposite alignment when that fits', () => {
+  assert.equal(arenaPlacePanel(rect(700, 100, 80, 32), PANEL, VIEWPORT, 'start', 6).x, 580,
+    'a start-aligned panel past the right edge ends where its anchor ends');
+  assert.equal(arenaPlacePanel(rect(10, 100, 80, 32), PANEL, VIEWPORT, 'end', 6).x, 10,
+    'an end-aligned panel past the left edge starts where its anchor starts');
+  assert.equal(arenaPlacePanel(rect(400, 100, 80, 32), PANEL, VIEWPORT, 'end', 6).x, 280, 'a panel that fits keeps its alignment');
+});
+
+test('a panel that fits neither alignment is clamped inside the viewport, from the alignment that overflows less', () => {
+  assert.equal(arenaPlacePanel(rect(100, 100, 20, 32), size(250, 10), size(300, 600), 'start', 6).x, 50,
+    'the asked alignment overflows less, so it is the one clamped');
+  assert.equal(arenaPlacePanel(rect(165, 100, 20, 32), size(200, 10), size(360, 600), 'end', 6).x, 160,
+    'the flipped alignment overflows by 5 and the asked one by 15, so the flipped one is clamped');
+  assert.equal(arenaPlacePanel(rect(165, 100, 20, 32), size(200, 10), size(360, 600), 'start', 6).x, 160,
+    'the asked alignment overflows by 5 and the flipped one by 15, so the asked one is clamped');
+  assert.equal(arenaPlacePanel(rect(0, 100, 80, 32), size(900, 10), VIEWPORT, 'start', 6).x, 0,
     'a panel wider than the viewport starts at its left edge');
+});
+
+test('a centred panel never flips, and is clamped at the edge', () => {
+  assert.equal(arenaPlacePanel(rect(10, 100, 20, 32), PANEL, VIEWPORT, 'center', 6).x, 0);
+  assert.equal(arenaPlacePanel(rect(770, 100, 20, 32), PANEL, VIEWPORT, 'center', 6).x, 600);
 });
 
 test('the topmost panel is the last one opened, and an empty stack has none', () => {

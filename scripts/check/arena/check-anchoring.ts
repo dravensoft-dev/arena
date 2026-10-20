@@ -1,12 +1,12 @@
-/* An anchored panel is placed by script in one layer and by the CDK overlay in the other, and
- * happy-dom has no layout and no top layer, so no suite sees where a panel lands. This drives real
- * Chromium over each declared demo page: it pins the playground stage to the viewport edge the
- * panel prefers to open toward, clips it with overflow: hidden and gives it a transform, opens the
- * panel from its own trigger, and reads three facts. The panel is painted at its centre, so no
- * ancestor clipped it; it lies inside the viewport; and it opened on the far side of its trigger,
- * so it flipped. A case naming an edge seeds its align and puts the panel's aligned edge on the
- * named anchor's. A case naming rows measures the smallest against each density floor
- * check:target-size declares, the panel open, since no sink draws a list open. A wait is for a
+/* An anchored panel is placed by script in one layer and by the CDK overlay in the other, and happy-
+ * dom has no layout and no top layer, so no suite sees where a panel lands. This drives real Chromium
+ * over each declared demo page: it pins the playground stage to the viewport edge the panel prefers to
+ * open toward, clips it with overflow: hidden and gives it a transform, opens the panel, and reads
+ * three facts. The panel is painted at its centre, so no ancestor clipped it; it lies inside the
+ * viewport; and it opened on the far side of its trigger, so it flipped. A case naming an edge seeds
+ * its align and puts the panel's aligned edge on the named anchor's; a pin puts the trigger against an
+ * edge so the panel must flip, and a width leaves neither alignment room. A case naming rows measures
+ * the smallest against each density floor check:target-size declares, the panel open. A wait is for a
  * condition with a declared deadline, never a span. */
 
 import { withTimeout } from '../../utils/with-timeout.ts';
@@ -49,7 +49,7 @@ export type Edge = 'below' | 'above';
 
 export type Aligned = { anchor: string; align: 'start' | 'end' };
 
-export type Anchored = { name: string; page: string; trigger: string; panel: string; open: 'click' | 'focus'; prefer: Edge; rows?: string; edge?: Aligned; seed?: string };
+export type Anchored = { name: string; page: string; trigger: string; panel: string; open: 'click' | 'focus'; prefer: Edge; rows?: string; edge?: Aligned; seed?: string; pin?: Aligned['align']; width?: number };
 
 export type EdgeReading = { wanted: number; actual: number };
 
@@ -57,6 +57,25 @@ export type RowReading = { scope: string; floor: number; count: number; smallest
 
 const REACT = 'frameworks/react/components';
 const ANGULAR = 'frameworks/angular/components';
+
+const SPLIT = '[data-arena-part="split-button"]';
+
+const MENU = '[aria-haspopup="menu"]';
+
+const FITS_NEITHER = 208;
+
+function flipped(layer: 'react' | 'angular', root: string): Anchored[] {
+  const split = `${root}/forms/arena-split-button/ArenaSplitButton.demo.generated.html`;
+  const menu = `${root}/navigation/arena-menu/ArenaMenu.demo.generated.html`;
+  const shared = { trigger: MENU, panel: '[role="menu"]', open: 'click', prefer: 'below' } as const;
+  return [
+    { ...shared, name: `ArenaSplitButton:${layer}:end-at-start`, page: split, pin: 'start', edge: { anchor: SPLIT, align: 'start' } },
+    { ...shared, name: `ArenaSplitButton:${layer}:start-at-end`, page: split, pin: 'end', edge: { anchor: SPLIT, align: 'end' }, seed: 'align=start' },
+    { ...shared, name: `ArenaMenu:${layer}:end-at-start`, page: menu, pin: 'start', edge: { anchor: MENU, align: 'start' }, seed: 'align=end' },
+    { ...shared, name: `ArenaMenu:${layer}:start-at-end`, page: menu, pin: 'end', edge: { anchor: MENU, align: 'end' }, seed: 'align=start' },
+    { ...shared, name: `ArenaMenu:${layer}:fits-neither`, page: menu, pin: 'end', width: FITS_NEITHER, edge: { anchor: MENU, align: 'end' }, seed: 'align=start' },
+  ];
+}
 
 export const ANCHORED: Anchored[] = [
   { name: 'ArenaPopover:react', page: `${REACT}/feedback/arena-popover/ArenaPopover.demo.generated.html`, trigger: '[aria-haspopup="dialog"]', panel: '[role="dialog"]', open: 'click', prefer: 'below' },
@@ -71,6 +90,8 @@ export const ANCHORED: Anchored[] = [
   { name: 'ArenaMultiSelect:angular', page: `${ANGULAR}/forms/arena-multi-select/ArenaMultiSelect.demo.generated.html`, trigger: '[role="combobox"]', panel: '[role="listbox"]', open: 'click', prefer: 'below', rows: '[role="option"]' },
   { name: 'ArenaSplitButton:react', page: `${REACT}/forms/arena-split-button/ArenaSplitButton.demo.generated.html`, trigger: '[aria-haspopup="menu"]', panel: '[role="menu"]', open: 'click', prefer: 'below', edge: { anchor: '[data-arena-part="split-button"]', align: 'start' }, seed: 'align=start' },
   { name: 'ArenaSplitButton:angular', page: `${ANGULAR}/forms/arena-split-button/ArenaSplitButton.demo.generated.html`, trigger: '[aria-haspopup="menu"]', panel: '[role="menu"]', open: 'click', prefer: 'below', edge: { anchor: '[data-arena-part="split-button"]', align: 'start' }, seed: 'align=start' },
+  ...flipped('react', REACT),
+  ...flipped('angular', ANGULAR),
 ];
 
 export type Reading = {
@@ -105,6 +126,7 @@ export function waitExpression(selector: string, bound: Deadline) {
 
 export function confineExpression(kase: Anchored) {
   const edge = kase.prefer === 'below' ? 'bottom' : 'top';
+  const pin = kase.pin === undefined ? '' : `Object.assign(stage.style, { display: 'flex', justifyContent: '${kase.pin === 'start' ? 'flex-start' : 'flex-end'}' });`;
   return `(() => {
     const trigger = document.querySelector(${JSON.stringify(kase.trigger)});
     const stage = trigger && trigger.closest('.pg-stage');
@@ -112,6 +134,7 @@ export function confineExpression(kase: Anchored) {
     const tall = Math.ceil(trigger.getBoundingClientRect().height) + 2;
     Object.assign(stage.style, { position: 'fixed', left: '16px', right: '16px', ${edge}: '8px',
       height: tall + 'px', minHeight: '0', padding: '0', overflow: 'hidden', transform: 'translateZ(0)' });
+    ${pin}
     return true;
   })()`;
 }
@@ -206,7 +229,7 @@ export function anchoringProblems(kase: Anchored, reading: Reading) {
 }
 
 async function readIn(cdp: Cdp, sessionId: string, url: string, kase: Anchored): Promise<Reading> {
-  await cdp.send('Emulation.setDeviceMetricsOverride', { width: 1000, height: 760, deviceScaleFactor: 1, mobile: false }, sessionId);
+  await cdp.send('Emulation.setDeviceMetricsOverride', { width: kase.width ?? 1000, height: 760, deviceScaleFactor: 1, mobile: false }, sessionId);
   await cdp.send('Page.enable', {}, sessionId);
   await withTimeout(cdp.send('Page.navigate', { url }, sessionId), NAVIGATE.ms,
     `${url}: navigate timed out after ${NAVIGATE.ms}ms, which is that size because ${NAVIGATE.why}`);
@@ -255,7 +278,9 @@ async function main() {
   const measured = ANCHORED.filter((kase) => kase.rows !== undefined).length;
   console.log(`check-anchoring: ${ANCHORED.length} panel(s) opened from a trigger pinned to a clipped, `
     + 'transformed edge, and each painted whole, inside the viewport, on the far side of its trigger; '
-    + `${ANCHORED.filter((kase) => kase.edge !== undefined).length} lined up with the edge they name; `
+    + `${ANCHORED.filter((kase) => kase.edge !== undefined).length} lined up with the edge they name, `
+    + `${ANCHORED.filter((kase) => kase.pin !== undefined).length} of them pinned to a horizontal edge so the aligned panel had to flip, `
+    + `${ANCHORED.filter((kase) => kase.width !== undefined).length} in a viewport narrower than the panel plus its anchor so it fit neither alignment; `
     + `the rows of ${measured} clear the floor of every density scope`);
 }
 
