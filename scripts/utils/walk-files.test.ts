@@ -10,6 +10,7 @@ import assert from 'node:assert/strict';
 import { chmodSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { tmpdir } from 'node:os';
+import { platform } from '../lib/arena/platform.ts';
 import { relPosix } from './posix-path.ts';
 import { walkFiles } from './walk-files.ts';
 import type { WalkOptions } from './walk-files.ts';
@@ -84,7 +85,9 @@ test('a directory below the root that vanishes between its listing and its read 
   } finally { rmSync(root, { recursive: true }); }
 });
 
-test('a directory below the root that cannot be read throws rather than reading as absent', { skip: process.getuid?.() === 0 }, () => {
+test('a directory below the root that cannot be read throws rather than reading as absent', {
+  skip: platform === 'win32' ? 'a mode bit does not deny a read on Windows' : process.getuid?.() === 0,
+}, () => {
   const root = tree(['keep.ts', 'locked/a.ts']);
   try {
     chmodSync(join(root, 'locked'), 0o000);

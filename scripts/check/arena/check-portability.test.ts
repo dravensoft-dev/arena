@@ -12,7 +12,7 @@ import {
   portabilityProblems, setupProblems, staleOwners, timeoutProblems, trackedPaths, violations, workflowFiles,
 } from './check-portability.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
-import { join } from 'node:path';
+import { basename, join } from 'node:path';
 import { mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
@@ -435,7 +435,7 @@ test('every real workflow job declares its time limit, and the sweep read each f
     assert.deepEqual(timeoutProblems(file, text), [], file);
   }
   assert.ok(jobs > files.length);
-  assert.deepEqual(workflowFiles().map((file) => file.split('/').pop()).sort(), files);
+  assert.deepEqual(workflowFiles().map((file) => basename(file)).sort(), files);
 });
 
 test('portabilityProblems reports a workflow with no time limit, read off a temporary root', () => {
@@ -496,7 +496,7 @@ const planted = (workflow: string, text: string) => {
 test('a .yaml workflow with no time limit is read and reported, as a .yml one is', () => {
   const base = planted('extra.yaml', job(`    runs-on: ubuntu-latest\n${STEPS}`));
   try {
-    assert.deepEqual(workflowFiles(base).map((file) => file.split('/').pop()), ['extra.yaml']);
+    assert.deepEqual(workflowFiles(base).map((file) => basename(file)), ['extra.yaml']);
     assert.match(portabilityProblems(base).problems.join('\n'), /extra\.yaml: job a does not declare timeout-minutes/);
   } finally {
     rmSync(base, { recursive: true, force: true });
