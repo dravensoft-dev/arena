@@ -1,10 +1,12 @@
 /* Covers spawn-forwarding.ts through its exports: a parent that runs a child through it and is
  * sent SIGTERM or SIGINT ends the child, waits for it, prints what the child wrote and ends by
- * that signal, leaving no capture directory; the listeners it adds are gone once a child has
- * ended on its own. Signals are a POSIX idea. */
+ * that signal, leaving no capture directory; the listeners it adds are on before the child exists
+ * and gone once it has ended on its own; the probe signals on the stand-in's ready mark, which
+ * the old order, mark before line, fails every time. Signals are a POSIX idea. */
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { spawn } from 'node:child_process';
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { tmpdir } from 'node:os';
@@ -12,7 +14,7 @@ import { join } from 'node:path';
 import { platform } from './platform.ts';
 import { budgetFor } from './deadline.ts';
 import { TERM_GRACE } from './child-output.ts';
-import { PROBE_ENDED, PROBE_IMPORTED, PROBE_SPAWNED, probeInterrupt } from './forwarding-probe.ts';
+import { PROBE_ENDED, PROBE_IMPORTED, PROBE_SPAWNED, probeInterrupt, standIn } from './forwarding-probe.ts';
 import { FORWARDED, spawnForwarding } from './spawn-forwarding.ts';
 
 const BUDGET = budgetFor(PROBE_IMPORTED, PROBE_SPAWNED, PROBE_ENDED, TERM_GRACE);
@@ -48,6 +50,68 @@ test('a signal sent to the parent reaches the child, and the parent ends by that
     assert.equal(walked, CASES.length);
     assert.equal(CASES.length, 3);
   });
+
+const ORDERS = [
+  { name: 'the line, then the mark at once', standIn: standIn(), hello: true },
+  { name: 'the line, a pause, then the mark', standIn: standIn({ pauseMs: 300 }), hello: true },
+  { name: 'the old order, the mark, then the line after a pause the signal always lands in',
+    standIn: standIn({ markFirst: true, pauseMs: 600_000 }), hello: false },
+];
+
+test('the probe signals on the stand-in\'s ready mark, so a pause between the line and the mark changes nothing, and the old order never prints the line',
+  { timeout: BUDGET * ORDERS.length, skip: SKIP }, async () => {
+    for (const one of ORDERS) {
+      const probed = await probeInterrupt({
+        module: join(import.meta.dirname, 'spawn-forwarding.ts'),
+        standIn: one.standIn,
+        body: [
+          'const r = await step.spawnForwarding(process.execPath, [stub], { capture: true });',
+          "step.endIfInterrupted('probe', r);",
+        ].join('\n'),
+      });
+      assert.equal(probed.signal, 'SIGTERM', `${one.name}: the parent ends by the signal it was sent`);
+      assert.equal(probed.childAliveAtExit, false, `${one.name}: the child is gone when the parent is`);
+      assert.match(probed.stderr, /probe: interrupted by SIGTERM/, one.name);
+      if (one.hello) assert.match(probed.stderr, /compiler said hello/, one.name);
+      else assert.doesNotMatch(probed.stderr, /compiler said hello/, `${one.name}: the probe would not catch the race`);
+    }
+  });
+
+test('the listeners are on before the child exists, and a signal that lands before it does ends it as it is spawned',
+  { timeout: BUDGET }, async () => {
+    const before = FORWARDED.map((name) => process.listenerCount(name));
+    let atSpawn: number[] = [];
+    const r = await spawnForwarding(process.execPath, ['-e', 'setInterval(() => {}, 1_000);'], {
+      spawn: (command, args, options) => {
+        atSpawn = FORWARDED.map((name) => process.listenerCount(name));
+        for (const listener of process.listeners('SIGTERM').slice(before[0])) (listener as (s: string) => void)('SIGTERM');
+        return spawn(command, args, options);
+      },
+    });
+    assert.deepEqual(atSpawn, before.map((n) => n + 1), 'a signal between the spawn and the listeners kills the parent alone');
+    assert.equal(r.interrupted, 'SIGTERM');
+    assert.notEqual(r.status, 0, 'the child ran on after the signal that came before it');
+    assert.deepEqual(FORWARDED.map((name) => process.listenerCount(name)), before);
+  });
+
+test('an interrupt prints the whole capture and its own line before it signals itself, even into a pipe', { timeout: BUDGET }, async () => {
+  const dir = mkdtempSync(join(tmpdir(), 'arena-forward-pipe-'));
+  try {
+    const parent = join(dir, 'parent.ts');
+    writeFileSync(parent, [
+      `import { endIfInterrupted } from ${JSON.stringify(pathToFileURL(join(import.meta.dirname, 'spawn-forwarding.ts')).href)};`,
+      "endIfInterrupted('probe', { status: null, signal: 'SIGTERM', interrupted: 'SIGTERM', output: 'x'.repeat(4 * 1024 * 1024) + '\\nend of capture\\n' });",
+    ].join('\n'));
+    const child = spawn(process.execPath, [parent], { stdio: ['ignore', 'ignore', 'pipe'] });
+    let err = '';
+    child.stderr.on('data', (chunk) => { err += String(chunk); });
+    await new Promise((done) => child.once('close', done));
+    assert.ok(err.length > 4 * 1024 * 1024, `only ${err.length} bytes reached the pipe before the signal`);
+    assert.match(err, /end of capture\nprobe: interrupted by SIGTERM/);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
 
 test('the listeners it adds are removed when the child ends on its own, and its output is returned when asked for',
   { timeout: BUDGET }, async () => {

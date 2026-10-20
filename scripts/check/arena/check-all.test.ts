@@ -598,28 +598,31 @@ test('an interrupt ends every running child, kills one that ignores SIGTERM, sta
     try {
       const hold = join(dir, 'hold.mjs');
       writeFileSync(hold, [
-        "import { writeFileSync } from 'node:fs';",
-        'writeFileSync(process.argv[2], String(process.pid));',
+        "import { renameSync, writeFileSync } from 'node:fs';",
+        'writeFileSync(`${process.argv[2]}.part`, String(process.pid));',
+        'renameSync(`${process.argv[2]}.part`, process.argv[2]);',
         'setInterval(() => {}, 1_000);',
       ].join('\n'));
       const stubborn = join(dir, 'stubborn.mjs');
       writeFileSync(stubborn, [
-        "import { writeFileSync } from 'node:fs';",
+        "import { renameSync, writeFileSync } from 'node:fs';",
         "process.on('SIGTERM', () => {});",
-        'writeFileSync(process.argv[2], String(process.pid));',
+        'writeFileSync(`${process.argv[2]}.part`, String(process.pid));',
+        'renameSync(`${process.argv[2]}.part`, process.argv[2]);',
         'setInterval(() => {}, 1_000);',
       ].join('\n'));
       const harness = join(dir, 'harness.ts');
       const url = (...parts: string[]) => JSON.stringify(pathToFileURL(join(repoRoot, ...parts)).href);
       writeFileSync(harness, [
-        "import { writeFileSync } from 'node:fs';",
+        "import { renameSync, writeFileSync } from 'node:fs';",
         `import { runSteps } from ${url('scripts', 'check', 'arena', 'check-all.ts')};`,
         `import { interruptOn } from ${url('scripts', 'graph', 'scheduler.ts')};`,
         `const dir = ${JSON.stringify(dir)};`,
         `const hold = ${JSON.stringify(hold)};`,
         `const stubborn = ${JSON.stringify(stubborn)};`,
-        "writeFileSync(`${dir}/harness.pid`, String(process.pid));",
         'const signal = interruptOn();',
+        "writeFileSync(`${dir}/harness.pid.part`, String(process.pid));",
+        "renameSync(`${dir}/harness.pid.part`, `${dir}/harness.pid`);",
         'const step = (name, file = hold) => ({ name, command: process.execPath, args: [file, `${dir}/${name}.pid`] });',
         "const { finished, notStarted } = await runSteps([step('a'), step('b'), step('c', stubborn), step('d')],",
         '  { total: 3, heavy: 1, browser: 1 }, { signal, print: () => {} });',

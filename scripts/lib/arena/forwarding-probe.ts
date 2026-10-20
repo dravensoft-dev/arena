@@ -2,7 +2,11 @@
  * a signal the way run-build ends a step, and reports how the parent ended, whether the stand-in
  * is still running once it has, what the parent printed and which directories it left in its
  * temporary directory. Everything lives under one mkdtemp root, and the parent's TMPDIR is a
- * directory in it, so a capture directory that outlives its parent is seen and never leaks. */
+ * directory in it, so a capture directory that outlives its parent is seen and never leaks. The
+ * signal goes on the stand-in's ready mark, which it renames into place, pid inside, after its line
+ * is in the capture file: an order rather than a timing, since the mark is the stand-in's last
+ * act, and a mark that is never half-written. spawnForwarding listens before it spawns, so the
+ * mark also means the parent is listening. `standIn` takes the old order and a pause to prove it. */
 
 import { closeSync, existsSync, mkdirSync, mkdtempSync, openSync, readFileSync, readdirSync, rmSync, writeFileSync, copyFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -16,7 +20,7 @@ import { waitFor } from './wait-for.ts';
 export const PROBE_IMPORTED: Deadline = deadline('forwarding-probe:imported', 30_000,
   'the parent resolves the whole step module before it writes its ready mark, which takes about half a second on an idle machine, and a full check that keeps every core busy stretches that many times over');
 export const PROBE_SPAWNED: Deadline = deadline('forwarding-probe:spawned', 30_000,
-  'two bun processes start and the second writes its pid, and a loaded machine starts a runtime in a second or two');
+  'two bun processes start and the second writes its ready mark, and a loaded machine starts a runtime in a second or two');
 export const PROBE_ENDED: Deadline = deadline('forwarding-probe:ended', 15_000,
   'the stand-in ends on SIGTERM within a fraction of a second and the parent exits when it has');
 
@@ -40,28 +44,35 @@ export const alive = (pid: number) => {
   try { process.kill(pid, 0); return true; } catch { return false; }
 };
 
-const STAND_IN = [
-  "import { writeFileSync, writeSync } from 'node:fs';",
-  "writeSync(1, 'compiler said hello\\n');",
-  "writeFileSync(process.env.STAND_IN_PID ?? '', String(process.pid));",
-  'setInterval(() => {}, 1_000);',
-].join('\n');
+export function standIn(order: { markFirst?: boolean; pauseMs?: number } = {}) {
+  const line = "writeSync(1, 'compiler said hello\\n');";
+  const mark = "writeFileSync(`${ready}.part`, String(process.pid)); renameSync(`${ready}.part`, ready);";
+  const [first, then] = order.markFirst ? [mark, line] : [line, mark];
+  return [
+    "import { renameSync, writeFileSync, writeSync } from 'node:fs';",
+    "const ready = process.env.STAND_IN_READY ?? '';",
+    first,
+    order.pauseMs ? `setTimeout(() => { ${then} }, ${order.pauseMs});` : then,
+    'setInterval(() => {}, 1_000);',
+  ].join('\n');
+}
 
 export async function probeInterrupt(options: {
   module: string;
   body: string;
   stubAt?: string[] | undefined;
   signal?: NodeJS.Signals | undefined;
+  standIn?: string | undefined;
 }): Promise<Probed> {
   const root = mkdtempSync(join(tmpdir(), 'arena-forward-probe-'));
   const tmp = join(root, 'tmp');
   mkdirSync(tmp);
-  const pidFile = join(root, 'child.pid');
+  const childReady = join(root, 'child.ready');
   const readyFile = join(root, 'parent.ready');
   let parent: ChildProcess | undefined;
   try {
     const stub = join(root, 'stub.js');
-    writeFileSync(stub, STAND_IN);
+    writeFileSync(stub, options.standIn ?? standIn());
     for (const rel of options.stubAt ?? []) {
       mkdirSync(dirname(join(root, rel)), { recursive: true });
       copyFileSync(stub, join(root, rel));
@@ -79,7 +90,7 @@ export async function probeInterrupt(options: {
     const err = openSync(errPath, 'w');
     parent = spawn(process.execPath, [parentScript], {
       stdio: ['ignore', 'ignore', err],
-      env: { ...process.env, TMPDIR: tmp, STAND_IN_PID: pidFile },
+      env: { ...process.env, TMPDIR: tmp, STAND_IN_READY: childReady },
     });
     closeSync(err);
     let ended: { code: number | null; signal: NodeJS.Signals | null } | undefined;
@@ -87,9 +98,9 @@ export async function probeInterrupt(options: {
     const imported = await waitFor(() => existsSync(readyFile) || ended !== undefined, PROBE_IMPORTED);
     if (!existsSync(readyFile))
       throw new Error(`the parent never finished its imports: ${imported.seen ? `it exited first, printing ${readFileSync(errPath, 'utf8')}` : imported.why}`);
-    const up = await waitFor(() => existsSync(pidFile) && readFileSync(pidFile, 'utf8') !== '', PROBE_SPAWNED);
-    if (!up.seen) throw new Error(`the stand-in compiler never started: ${up.why}`);
-    const childPid = Number(readFileSync(pidFile, 'utf8'));
+    const up = await waitFor(() => existsSync(childReady), PROBE_SPAWNED);
+    if (!up.seen) throw new Error(`the stand-in compiler never marked itself ready: ${up.why}`);
+    const childPid = Number(readFileSync(childReady, 'utf8'));
     parent.kill(options.signal ?? 'SIGTERM');
     const done = await waitFor(() => ended !== undefined, PROBE_ENDED);
     if (!done.seen || ended === undefined) throw new Error(`the parent never ended: ${done.seen ? '' : done.why}`);
@@ -104,8 +115,8 @@ export async function probeInterrupt(options: {
     };
   } finally {
     parent?.kill('SIGKILL');
-    if (existsSync(pidFile)) {
-      try { process.kill(Number(readFileSync(pidFile, 'utf8')), 'SIGKILL'); } catch { void 0; }
+    if (existsSync(childReady)) {
+      try { process.kill(Number(readFileSync(childReady, 'utf8')), 'SIGKILL'); } catch { void 0; }
     }
     rmSync(root, { recursive: true, force: true });
   }
