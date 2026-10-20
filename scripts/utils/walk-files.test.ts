@@ -7,10 +7,9 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { chmodSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, mkdirSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { tmpdir } from 'node:os';
-import { platform } from '../lib/arena/platform.ts';
 import { relPosix } from './posix-path.ts';
 import { walkFiles } from './walk-files.ts';
 import type { WalkOptions } from './walk-files.ts';
@@ -27,6 +26,22 @@ function tree(files: string[]) {
 
 const found = (root: string, options?: WalkOptions) =>
   walkFiles(root, options).map((p) => relPosix(root, p));
+
+function modeDeniesRead() {
+  const root = tree(['locked/a.ts']);
+  try {
+    chmodSync(join(root, 'locked'), 0o000);
+    try {
+      readdirSync(join(root, 'locked'));
+      return false;
+    } catch {
+      return true;
+    }
+  } finally {
+    chmodSync(join(root, 'locked'), 0o755);
+    rmSync(root, { recursive: true });
+  }
+}
 
 test('every file at every depth comes back, and a directory never does', () => {
   const root = tree(['a.ts', 'one/b.ts', 'one/two/three/c.ts']);
@@ -86,7 +101,7 @@ test('a directory below the root that vanishes between its listing and its read 
 });
 
 test('a directory below the root that cannot be read throws rather than reading as absent', {
-  skip: platform === 'win32' ? 'a mode bit does not deny a read on Windows' : process.getuid?.() === 0,
+  skip: modeDeniesRead() ? false : 'a mode bit denies no read on this host, as on Windows or for root',
 }, () => {
   const root = tree(['keep.ts', 'locked/a.ts']);
   try {
