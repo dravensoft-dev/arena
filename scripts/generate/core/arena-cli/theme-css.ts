@@ -18,8 +18,8 @@ import {
   FS_STEP, RHYTHM_STEP, floorProblems, nameProblems, reservedProblems, scopeOn, totalityProblems, withDefaults,
 } from './style-plugin-rules.ts';
 import { serialize } from './serialize-token.ts';
-import { HEAT_MIN_DL, errorFill, heatCramped, heatLadder } from './oklab.ts';
-import { axisReports, derivedLevels, emphasisReports, levelReports, onInkReports, raisedReports, washReports } from './levels.ts';
+import { HEAT_MIN_DL, errorFill, heatCramped, heatLadder, toOklab } from './oklab.ts';
+import { axisReports, derivedLevels, emphasisReports, levelReports, onInkReports, paletteKey, raisedReports, washReports } from './levels.ts';
 import type { Level, Wash } from './levels.ts';
 import { report } from './reports.ts';
 import type { Report } from './reports.ts';
@@ -497,6 +497,18 @@ export function heatReports(pinned: Record<string, string>, colors: Record<strin
   return lines.map((line) => report('heat', line));
 }
 
+export function heatOrderReports(steps: readonly string[], surface: string): Report[] {
+  const ground = toOklab(surface)[0];
+  const reach = steps.map((hex) => Math.abs(toOklab(hex)[0] - ground));
+  const out: Report[] = [];
+  reach.slice(1).forEach((far, i) => {
+    if (far > reach[i]!) return;
+    out.push(report('heat', `heat, steps ${i + 1} and ${i + 2}: step ${i + 2} is no further from the surface than step ${i + 1}, `
+      + 'and roles.json orders the steps by magnitude'));
+  });
+  return out;
+}
+
 export function paletteReports(
   config: CheckedConfig, catalogue: TokenCatalogue | null = null, plugins: ResolvedPlugins = null,
   levels: Level[] = [], washes: Wash[] = [],
@@ -521,6 +533,10 @@ export function paletteReports(
     }
 
     messages.push(...heatReports(palette.colors, colors));
+    if (root && surface) {
+      const answers = heatKeys().map((_, i) => colors[paletteKey(roles.get(`heat-step-${i + 1}`)) ?? '']);
+      if (answers.every((hex) => hex !== undefined)) messages.push(...heatOrderReports(answers as string[], surface));
+    }
 
     const text = [
       ...SURFACE_PAIRS.map(({ ink, on }) => [`${ink} on ${on}`, colors[ink], colors[on]]),

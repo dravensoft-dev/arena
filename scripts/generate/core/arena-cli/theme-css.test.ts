@@ -1,7 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { readdirSync, readFileSync } from 'node:fs';
 import {
-  configProblems, heatReports, themeCss, paletteReports, defaultPalette, isStylesheet, scopedImports,
+  configProblems, heatReports, heatOrderReports, themeCss, paletteReports, defaultPalette, isStylesheet, scopedImports,
   pluginName, pluginValue, readPlugin, weightReports, rootWithDefaults, resolvedPlugin,
   ARENA_FONT_DEFAULTS, type CheckedStylesheet, type CheckedSheets,
 } from './theme-css.ts';
@@ -1000,4 +1001,59 @@ test('a derived heat ladder whose steps do not rise or fall in lightness is repo
   const reports = heatReports({}, disordered);
   assert.equal(reports.length, 1);
   assert.match(JSON.stringify(reports[0]), /do not rise or fall in lightness/);
+});
+
+test('heatOrderReports accepts a ladder that moves away from the surface, on a light and on a dark surface', () => {
+  assert.deepEqual(heatOrderReports(['#e0e0e0', '#b0b0b0', '#808080', '#505050', '#101010'], '#ffffff'), []);
+  assert.deepEqual(heatOrderReports(['#202020', '#505050', '#808080', '#b0b0b0', '#f0f0f0'], '#000000'), []);
+});
+
+test('heatOrderReports reports a step no further from the surface than the one before, naming both steps', () => {
+  const light = heatOrderReports(['#101010', '#505050', '#808080', '#b0b0b0', '#e0e0e0'], '#ffffff');
+  assert.equal(light.length, 4);
+  assert.match(JSON.stringify(light[0]), /heat, steps 1 and 2: step 2 is no further from the surface than step 1/);
+  const dark = heatOrderReports(['#f0f0f0', '#b0b0b0', '#808080', '#505050', '#202020'], '#000000');
+  assert.equal(dark.length, 4, 'a reversed ladder on a dark surface is reported as it is on a light one');
+  assert.match(JSON.stringify(dark[3]), /steps 4 and 5/);
+});
+
+const HEAT_ROLES = {
+  tokens: Object.fromEntries(['base-100', 'base-content', ...heatKeys()].map((key) => [`color-${key}`, `var(--color-${key})`])),
+};
+
+const heatRoot = (order: string[]) => readPlugin('heated',
+  Object.fromEntries(order.map((key, i) => [`heat-step-${i + 1}`, { $type: 'color', $value: `{color.${key}}` }])));
+
+const heatLadderColours = (polarity: 'light' | 'dark') => polarity === 'light'
+  ? { 'base-100': '#ffffff', 'base-200': '#f4f4f4', 'base-content': '#111111',
+    'heat-1': '#e0e0e0', 'heat-2': '#b0b0b0', 'heat-3': '#808080', 'heat-4': '#505050', 'heat-5': '#202020' }
+  : { 'base-100': '#000000', 'base-200': '#0a0a0a', 'base-content': '#f0f0f0',
+    'heat-1': '#202020', 'heat-2': '#505050', 'heat-3': '#808080', 'heat-4': '#b0b0b0', 'heat-5': '#e0e0e0' };
+
+const heatMessages = (polarity: 'light' | 'dark', order: string[]) =>
+  paletteReports(config({ palettes: [{ name: polarity, default: true, polarity, colors: colors(heatLadderColours(polarity)) }] }),
+    HEAT_ROLES as any, [heatRoot(order)])[0]?.messages.filter((m) => m.kind === 'heat').map((m) => m.message) ?? [];
+
+test('arena check reports the heat order of a root plugin that answers the steps reversed', () => {
+  const reversed = ['heat-5', 'heat-4', 'heat-3', 'heat-2', 'heat-1'];
+  const forward = ['heat-1', 'heat-2', 'heat-3', 'heat-4', 'heat-5'];
+  for (const polarity of ['light', 'dark'] as const) {
+    assert.equal(heatMessages(polarity, reversed).length, 4, `${polarity}: every reversed pair is named`);
+    assert.deepEqual(heatMessages(polarity, forward), [], `${polarity}: the palette's own order is not reported`);
+  }
+});
+
+test('every plugin under plugin-style-store answers the heat steps in order under Arena\'s light and dark palettes', () => {
+  const store = new URL('../../../../plugin-style-store/', import.meta.url).pathname;
+  const dirs = ['default', 'complete', ...readdirSync(`${store}catalogue`, { withFileTypes: true })
+    .filter((d) => d.isDirectory()).map((d) => `catalogue/${d.name}`)];
+  assert.ok(dirs.length > 3);
+  for (const dir of dirs) {
+    const plugin = readPlugin(dir, JSON.parse(readFileSync(`${store}${dir}/plugin.tokens.json`, 'utf8')));
+    for (const polarity of ['light', 'dark'] as const) {
+      const c = config({ palettes: [{ name: polarity, default: true, polarity, colors: colors(heatLadderColours(polarity)) }] });
+      const out = paletteReports(c, HEAT_ROLES as any, [plugin])[0]?.messages.filter((m) => m.kind === 'heat') ?? [];
+      assert.deepEqual(out, [], `${dir} under ${polarity}`);
+    }
+  }
 });
