@@ -85,8 +85,9 @@ export const RULES: LanguageRule[] = [
   {
     id: 'icons-are-strings',
     short: 'Icons are Phosphor class-name strings, never elements and never SVG.',
-    body: 'Write `icon="ph-bold ph-plus"`. Install `@phosphor-icons/web`, because Arena never '
-      + 'bundles it.',
+    body: 'Write `icon="ph-bold ph-plus"`. In a project with a build, install `@phosphor-icons/web`, '
+      + 'because Arena never bundles it. A static page links the weight sheets instead, as '
+      + '[`references/artifact.md`](./references/artifact.md) shows.',
     held: 'icon-element',
     unheld: null,
   },
@@ -96,8 +97,8 @@ export const RULES: LanguageRule[] = [
     body: 'That nests an anchor inside an anchor, and in Angular it does not bind at all. Pass the '
       + 'href to the component and route from the event it reports. An `ArenaLink` inside a link of your own is reported as '
       + '`wrapped-link`. The members that take an href: '
-      + '`ArenaCard.href`, `ArenaCommand.route`, `ArenaCrumb.href`, `ArenaLink.href` and '
-      + '`ArenaSideNavItem.href`.',
+      + '`ArenaBottomNavItem.href`, `ArenaCard.href`, `ArenaCommand.route`, `ArenaCrumb.href`, '
+      + '`ArenaLink.href`, `ArenaSideNavItem.href` and `ArenaTableCell.href`.',
     held: 'router-link',
     unheld: null,
   },

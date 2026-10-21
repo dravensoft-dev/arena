@@ -4,7 +4,7 @@ import {
   collect, heldProblems, shapeProblems, zeroScanProblems, emitProblems, ID,
 } from './check-rules.ts';
 import { RULES, reportedMark, type LanguageRule } from '../../lib/arena/language-rules.ts';
-import { RULE_TAGS } from '../../generate/core/arena-cli/audit.ts';
+import { RULE_TAGS, RULE_DESCRIPTIONS } from '../../generate/core/arena-cli/audit.ts';
 import { TARGETS, MARKED, CONTEXT7 } from '../../generate/arena/generate-rules.ts';
 
 const rule = (over: Partial<LanguageRule> = {}): LanguageRule => ({
@@ -102,4 +102,25 @@ test('the mark names the tag that holds the rule, and a rule no tag holds has no
   assert.equal(reportedMark(tokens), '**`arena audit` reports this one, as `raw-value`.**');
   for (const one of RULES.filter((held) => held.held !== null)) assert.ok(reportedMark(one).includes(`\`${one.held}\``), one.id);
   assert.throws(() => reportedMark(rule()), /held by no tag/);
+});
+
+test('the router-link rule names every component audit.ts holds', () => {
+  const router = RULES.find((one) => one.id === 'router-link');
+  assert.ok(router, 'router-link is declared');
+  const phrase = /directly wraps an Arena (.+?)\.$/.exec(RULE_DESCRIPTIONS['router-link']);
+  assert.ok(phrase, 'the audit description lists the wrapped components');
+  const roles = phrase[1]!.split(/, | or /).map((role) => role.trim()).filter((role) => role !== '');
+  assert.ok(roles.length > 1, 'the description names more than one role');
+  const named = new Set(router.body.match(/Arena\w+/g));
+  for (const role of roles) {
+    const component = `Arena${role.split(' ').map((word) => word[0]!.toUpperCase() + word.slice(1)).join('')}`;
+    assert.ok(named.has(component), `the router-link body names ${component}`);
+  }
+});
+
+test('the icon rule sends a static page to the weight sheets and a build to the package', () => {
+  const icons = RULES.find((one) => one.id === 'icons-are-strings');
+  assert.ok(icons, 'icons-are-strings is declared');
+  assert.match(icons.body, /In a project with a build, install `@phosphor-icons\/web`/);
+  assert.match(icons.body, /static page links the weight sheets[^.]*references\/artifact\.md/);
 });

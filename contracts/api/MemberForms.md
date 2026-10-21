@@ -316,8 +316,8 @@ stay the browser's, and nothing is emitted for any of them: the reader asked for
 the address, and answering with an in-app route would be the defect the convention exists to
 avoid. So a handler that routes fires for exactly the activation it should answer, and the keyboard
 agrees with the mouse, because Enter on such a row takes the same path a primary click does. This is
-the rule `RouterLink` applies, and it is here for the same reason. Four members carry it:
-`ArenaCard.href`, `ArenaCommand.route`, `ArenaCrumb.href` and `ArenaSideNavItem.href`.
+the rule `RouterLink` applies, and it is here for the same reason. The members that carry it are
+listed by the `router-link` rule in `scripts/lib/arena/language-rules.ts`.
 
 **Leaving it to the router instead is not available, and the reason is mechanical rather than
 doctrinal.** `RouterLink` decides whether it sits on an anchor by `tagName` and by

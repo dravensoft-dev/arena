@@ -124,14 +124,16 @@ source text cannot show, is `arena://rules` on the MCP server.
   **`arena audit` reports this one, as `raw-value`.**
 - **No emoji, in product or in copy.** **`arena audit` reports this one, as `emoji`.**
 - **Icons are Phosphor class-name strings, never elements and never SVG.** Write `icon="ph-bold
-  ph-plus"`. Install `@phosphor-icons/web`, because Arena never bundles it. **`arena audit`
-  reports this one, as `icon-element`.**
+  ph-plus"`. In a project with a build, install `@phosphor-icons/web`, because Arena never bundles
+  it. A static page links the weight sheets instead, as
+  [`references/artifact.md`](./references/artifact.md) shows. **`arena audit` reports this one, as
+  `icon-element`.**
 - **Never wrap an Arena component in your router's own link.** That nests an anchor inside an
   anchor, and in Angular it does not bind at all. Pass the href to the component and route from
   the event it reports. An `ArenaLink` inside a link of your own is reported as `wrapped-link`.
-  The members that take an href: `ArenaCard.href`, `ArenaCommand.route`, `ArenaCrumb.href`,
-  `ArenaLink.href` and `ArenaSideNavItem.href`. **`arena audit` reports this one, as
-  `router-link`.**
+  The members that take an href: `ArenaBottomNavItem.href`, `ArenaCard.href`,
+  `ArenaCommand.route`, `ArenaCrumb.href`, `ArenaLink.href`, `ArenaSideNavItem.href` and
+  `ArenaTableCell.href`. **`arena audit` reports this one, as `router-link`.**
 - **An anchor Arena draws splits its activations.** A primary click with no modifier, and Enter,
   are cancelled and reported through the component's own event. Route from that handler and
   nothing navigates twice. A modified click, a middle click and the context menu belong to the
