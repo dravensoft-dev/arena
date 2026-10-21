@@ -421,9 +421,10 @@ function useChartRedraw(chart: Chart, svg: SVGSVGElement) {
 In Angular `ArenaThemeService.theme` is a signal, and an `afterRenderEffect` that reads it runs once the new palette is applied to the document.
 
 ```ts
-import { afterRenderEffect, inject } from '@angular/core';
+import { afterRenderEffect, Component, inject } from '@angular/core';
 import { ArenaThemeService } from '@dravensoft/arena-angular';
 
+@Component({ selector: 'app-chart-panel', templateUrl: './chart-panel.html' })
 export class ChartPanel {
   private readonly themes = inject(ArenaThemeService);
   chart!: Chart;
