@@ -69,6 +69,9 @@ export type ArenaConfig = {
   components?: string | string[];
 };
 
+export const ARENA_CONFIG_KEYS: readonly (keyof ArenaConfig)[] = ['palettes', 'fonts', 'stylePlugins', 'stylesheet', 'gradientMark'];
+export const ARENA_FONT_KEYS: readonly (keyof ArenaFont)[] = ['family', 'src', 'fallback', 'style', 'weight', 'display'];
+
 export type CheckedPalette = ArenaPalette & {
   name: string;
   polarity: string;
@@ -78,6 +81,8 @@ export type CheckedPalette = ArenaPalette & {
 export type CheckedFont = ArenaFont & { family: string; src: string };
 
 export type CheckedStylesheet = { preflight?: boolean; components: string[] };
+
+export const ARENA_FONT_DEFAULTS = { style: 'normal', weight: '400 900', display: 'swap' };
 
 export type CheckedConfig = ArenaConfig & {
   palettes: CheckedPalette[];
@@ -189,7 +194,8 @@ export function stylesheetProblems(stylesheet: ArenaStylesheet, sheets: PackageS
   if (stylesheet.preflight !== undefined && typeof stylesheet.preflight !== 'boolean') {
     problems.push(`stylesheet.preflight: ${JSON.stringify(stylesheet.preflight)} is not true or false`);
   }
-  if (!Array.isArray(stylesheet.components) || stylesheet.components.length === 0) {
+  const named = stylesheet.components;
+  if (named !== undefined && (!Array.isArray(named) || named.length === 0)) {
     problems.push('stylesheet.components: name at least one component sheet, or drop stylesheet to import them all');
     return problems;
   }
@@ -198,9 +204,10 @@ export function stylesheetProblems(stylesheet: ArenaStylesheet, sheets: PackageS
       + 'so a name in it can be held to nothing');
     return problems;
   }
+  if (named === undefined) return problems;
 
   const seen = new Set<string>();
-  for (const name of stylesheet.components as unknown[]) {
+  for (const name of named as unknown[]) {
     if (typeof name !== 'string' || !sheets.components.includes(name)) {
       problems.push(`stylesheet.components: ${JSON.stringify(name)} is not a sheet this package ships, `
         + `which are ${sheets.components.join(', ')}`);
@@ -625,9 +632,9 @@ function fontFace(font: CheckedFont) {
   return [
     '@font-face{',
     `  font-family:'${font.family}';`,
-    `  font-style:${font.style ?? 'normal'};`,
-    `  font-weight:${font.weight ?? '400 900'};`,
-    `  font-display:${font.display ?? 'swap'};`,
+    `  font-style:${font.style ?? ARENA_FONT_DEFAULTS.style};`,
+    `  font-weight:${font.weight ?? ARENA_FONT_DEFAULTS.weight};`,
+    `  font-display:${font.display ?? ARENA_FONT_DEFAULTS.display};`,
     `  src:url('${font.src}')${format};`,
     '}',
   ].join('\n');
@@ -708,7 +715,7 @@ export function themeCss(config: CheckedConfig, options: ThemeOptions = {}) {
         + 'and the package\'s own sheets were never read, which configProblems refuses; emitting here '
         + 'would import nothing or import an appearance the config replaced');
     } else {
-      const stylesheet = config.stylesheet ?? { components: sheets.components };
+      const stylesheet = { ...config.stylesheet, components: config.stylesheet?.components ?? sheets.components };
       parts.push(scopedImports(packageName, stylesheet, sheets, withDefault).join('\n'));
     }
   }

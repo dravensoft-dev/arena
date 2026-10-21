@@ -21,6 +21,8 @@ import { packageSheetName, sheetFamilies } from '../../lib/tailwind/vocabulary.t
 import { MAX_WORDS, plain, words } from '../../check/arena/check-register.ts';
 import { RULE_TAGS, RULE_DESCRIPTIONS } from '../core/arena-cli/audit.ts';
 import { run } from '../core/arena-cli/command-init.ts';
+import { ARENA_FONT_DEFAULTS, ARENA_FONT_KEYS } from '../core/arena-cli/theme-css.ts';
+import { FONT_ROLES } from '../core/arena-cli/palette-keys.ts';
 import { captureIo, hostRoot, removeFixtures } from '../core/arena-cli/cli-fixtures.ts';
 import { RULES } from '../../lib/arena/language-rules.ts';
 
@@ -179,6 +181,25 @@ test('the skin region names which roles carry a default, so an empty set reads a
   assert.match(defaultsStatement(base), /^The 1 roles carrying a default are `gap-row`\. Your root plugin answers the other \d+\./);
   assert.ok(renderRegion('skin').includes(defaultsStatement()),
     'the region on the page says what roles.json carries');
+});
+
+test('the skin region\'s key table names every ArenaFont field with its default', () => {
+  const rows = renderRegion('skin').split('\n').filter((line) => line.startsWith('| `'));
+  const row = (key: string) => rows.find((line) => line.startsWith(`| \`${key}\` |`)) ?? '';
+  for (const key of ARENA_FONT_KEYS) assert.ok(row(`fonts.<role>.${key}`), `a row for ${key}`);
+  for (const key of ['style', 'weight', 'display'] as const) {
+    assert.ok(row(`fonts.<role>.${key}`).includes(`\`${ARENA_FONT_DEFAULTS[key]}\``), key);
+  }
+  for (const [role, list] of Object.entries(FONT_ROLES)) {
+    assert.ok(row('fonts.<role>.fallback').includes(`${role} \`${list.join(', ')}\``), role);
+  }
+  assert.match(row('stylesheet.preflight'), /\| `true` \|$/);
+});
+
+test('the skin region says what a stylePlugins path resolves against and links the catalogue configs', () => {
+  const region = renderRegion('skin');
+  assert.ok(region.includes('A `stylePlugins` path resolves against the directory that holds `arena.config.json`.'));
+  assert.ok(region.includes('plugin-style-store/catalogue/*/arena.config.json'));
 });
 
 test('a numbered run of three or more roles is written as its two ends, and a shorter run is spelt out', () => {

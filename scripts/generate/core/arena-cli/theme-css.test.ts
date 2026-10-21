@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {
   configProblems, heatReports, themeCss, paletteReports, defaultPalette, isStylesheet, scopedImports,
   pluginName, pluginValue, readPlugin, weightReports, rootWithDefaults, resolvedPlugin,
-  type CheckedStylesheet, type CheckedSheets,
+  ARENA_FONT_DEFAULTS, type CheckedStylesheet, type CheckedSheets,
 } from './theme-css.ts';
 import { PALETTE_KEYS, heatKeys } from './palette-keys.ts';
 import { heatLadder } from './oklab.ts';
@@ -421,6 +421,31 @@ test('preflight false drops the one layer that is Tailwind\'s and not Arena\'s',
   assert.deepEqual(configProblems(c, shipped), []);
   assert.ok(!scopedImports('p', c.stylesheet, shipped).some((line) => line.includes('css/base.css')));
   assert.ok(scopedImports('p', c.stylesheet, shipped).some((line) => line.includes('css/prelude.css')));
+});
+
+test('a stylesheet block with preflight false and no components imports every component sheet and drops base.css', () => {
+  const c = config({ stylesheet: { preflight: false } });
+  assert.deepEqual(configProblems(c, shipped), []);
+  const imports = themeCss(c, { sheets: shipped });
+  assert.ok(!imports.includes('css/base.css'));
+  for (const name of shipped.components) assert.ok(imports.includes(`css/components/${name}.css`), name);
+});
+
+test('an empty components list is still refused', () => {
+  assert.deepEqual(configProblems(config({ stylesheet: { components: [], preflight: false } }), shipped),
+    ['stylesheet.components: name at least one component sheet, or drop stylesheet to import them all']);
+});
+
+test('an unknown stylesheet key is still refused', () => {
+  assert.deepEqual(configProblems(config({ stylesheet: { preflight: false, minify: true } }), shipped),
+    ['stylesheet.minify: not an Arena stylesheet key']);
+});
+
+test('fontFace writes ARENA_FONT_DEFAULTS for a font that names no style, weight or display', () => {
+  const css = themeCss(config(), { importHeader: false });
+  assert.ok(css.includes(`font-style:${ARENA_FONT_DEFAULTS.style};`));
+  assert.ok(css.includes(`font-weight:${ARENA_FONT_DEFAULTS.weight};`));
+  assert.ok(css.includes(`font-display:${ARENA_FONT_DEFAULTS.display};`));
 });
 
 test('a component the package does not ship is fatal and the message lists what it does ship', () => {

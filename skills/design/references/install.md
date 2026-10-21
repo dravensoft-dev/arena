@@ -52,7 +52,7 @@ The stylesheet that turns those classes into glyphs is the sheet `arena build` w
 
 ## How do I import the stylesheets in React?
 
-Run `arena build` first. The command writes two files, and a third when a style plugin of yours carries CSS. Import them after every Arena sheet and before your own rules, in your entry file.
+Run `arena build` first. The command writes two files, and a third when a style plugin of yours carries CSS. Import the generated files before your own rules, in your entry file. `arena.generated.css` imports the package stylesheet itself, and a sheet you import by hand under `--no-import` goes before them.
 
 ```js
 import './icons.generated.css';
@@ -64,7 +64,7 @@ The import happens in JavaScript. A bundler resolves each specifier as a stylesh
 
 ## How do I import the stylesheets in Angular?
 
-Import the generated files from `src/styles.css`. Import them after every Arena sheet and before your own rules.
+Import the generated files from `src/styles.css`. Import the generated files before your own rules. `arena.generated.css` imports the package stylesheet itself, and a sheet you import by hand under `--no-import` goes before them.
 
 ```css
 @import './icons.generated.css';

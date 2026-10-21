@@ -123,21 +123,21 @@ export const ROUTES: Route[] = [
       'skills/design/references/config.md',
       'skills/design/references/cli.md',
     ],
-    budget: 35_200,
+    budget: 36_700,
     reason:
       'paid once per project rather than per screen, so it carries what the build route may not: '
       + 'the install, the config file and the command, each as its own reference. The package '
-      + 'carries none of the language, so a thing the package ships and these references never name '
+      + 'carries none of the language, so a thing these references never name '
       + 'is a thing nobody imports: an export, a stylesheet, a class, a config key. The config block '
       + 'is copied whole and the install reference gives the evidence behind each package manager it '
-      + 'names, and the one entry sheet of a Tailwind v4 project in its import order. The command reference quotes whole the scripts `arena init` writes and names every '
+      + 'names, and the one entry sheet of a Tailwind v4 project. The command reference quotes whole the scripts `arena init` writes and names every '
       + 'audit tag, unknown-input and wrapped-link among them, in a table giving the rule each reports and what fires it, '
       + 'in both scripts, and says how to '
       + 'mark a line whose attribute a directive of the project reads. It also states '
       + 'what the contrast kind reports, the axis and solid badge reports included. The config '
       + 'reference lists the names the build refuses, the note a defaulted role prints and the roles '
       + 'that carry a default, a list that grows per role. The command reference also names the heat kind, '
-      + 'the derived ladder a reader cannot tell apart, which costs one more sentence.',
+      + 'the derived ladder a reader cannot tell apart. The config reference also tables every key with its type and default.',
   },
   {
     name: 'consumer-skin',

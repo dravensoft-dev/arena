@@ -16,7 +16,7 @@ The command ships inside both component packages, so installing Arena installs i
 | `arena doctor` | Says whether the project is set up: package, Node against `engines.node`, the config, and whether every sheet on disk is what a build would write. | nothing | `--config`, `--src`, `-o`, `--out`, `--no-import`, `--strict` |
 | `arena clean` | Deletes the sheets `arena build` writes, by name, inside `-o`. Clean never deletes another file or the directory. | removes the sheets | `-o`, `--out` |
 
-`arena --help` and `arena help` list the commands; `arena help <command>` and `arena <command> --help` print one command's flags; `arena --version` names the package and its version. `--config` defaults to `arena.config.json`. `--src` defaults to `src`, takes a file or a directory, and repeats for more trees. `-o` defaults to `src`.
+`arena --help` and `arena help` list the commands; `arena help <command>` and `arena <command> --help` print one command's flags; `arena --version` names the package and its version. `--config` defaults to `arena.config.json`. `--src` defaults to `src`, takes a file or a directory, and repeats for more trees. `-o` and `--out` are one flag and default to `src`.
 
 ## What does `arena build` write?
 

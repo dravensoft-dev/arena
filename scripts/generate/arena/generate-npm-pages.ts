@@ -16,7 +16,12 @@ import { NPM_PAGES, renderQuestions } from '../../lib/arena/npm-questions.ts';
 import { ARENA_EXT, RESERVED } from '../core/arena-cli/style-plugin-rules.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { fieldEntries } from '../../lib/arena/contract-shapes.ts';
-import { readPlugin, resolvedPlugin, PLUGIN_TOKENS, PLUGIN_SHEET } from '../core/arena-cli/theme-css.ts';
+import {
+  readPlugin, resolvedPlugin, PLUGIN_TOKENS, PLUGIN_SHEET, ARENA_CONFIG_KEYS, ARENA_FONT_KEYS, ARENA_FONT_DEFAULTS,
+  STYLESHEET_KEYS,
+} from '../core/arena-cli/theme-css.ts';
+import type { ArenaConfig, ArenaFont } from '../core/arena-cli/theme-css.ts';
+import { FONT_ROLES } from '../core/arena-cli/palette-keys.ts';
 import { CSS_TARGETS } from './generate-tokens.ts';
 import { HUES_FILE } from '../../lib/tailwind/hue-sheet.ts';
 import { RULE_TAGS, RULE_DESCRIPTIONS } from '../core/arena-cli/audit.ts';
@@ -26,6 +31,42 @@ import { RULES } from '../../lib/arena/language-rules.ts';
 export const LOCALE_CONTRACT = 'contracts/api/types/arena-locale.json';
 export const ROLE_CONTRACT = 'contracts/design/roles.json';
 export const BEHAVIOUR_CONTRACT = 'contracts/design/behaviour.json';
+
+type Row = { type: string; required: string; default: string };
+
+const CONFIG_ROWS: Partial<Record<keyof ArenaConfig, Row>> = {
+  palettes: { type: 'array of palettes', required: 'yes', default: 'none' },
+  fonts: { type: 'object, one entry per font role', required: 'yes', default: 'none' },
+  stylePlugins: { type: 'array of `default` or a directory path', required: 'no', default: '`["default"]`' },
+  stylesheet: { type: 'object', required: 'no', default: 'every sheet the package ships' },
+  gradientMark: { type: 'boolean', required: 'no', default: 'unset' },
+};
+
+const FONT_ROWS: Partial<Record<keyof ArenaFont, () => Row>> = {
+  family: () => ({ type: 'string', required: 'yes', default: 'none' }),
+  src: () => ({ type: 'string, a stylesheet URL or a font file', required: 'yes', default: 'none' }),
+  fallback: () => ({
+    type: 'array of family names', required: 'no',
+    default: `per role: ${Object.entries(FONT_ROLES).map(([name, list]) => `${name} \`${list.join(', ')}\``).join(', ')}`,
+  }),
+  style: () => ({ type: 'string', required: 'no', default: `\`${ARENA_FONT_DEFAULTS.style}\`` }),
+  weight: () => ({ type: 'string', required: 'no', default: `\`${ARENA_FONT_DEFAULTS.weight}\`` }),
+  display: () => ({ type: 'string', required: 'no', default: `\`${ARENA_FONT_DEFAULTS.display}\`` }),
+};
+
+const STYLESHEET_ROWS: Record<string, Row> = {
+  components: { type: 'array of sheet names, or `"auto"`', required: 'no', default: 'every component sheet' },
+  preflight: { type: 'boolean', required: 'no', default: '`true`' },
+};
+
+export function configKeyTable() {
+  const line = (key: string, row: Row) => `| \`${key}\` | ${cell(row.type)} | ${row.required} | ${cell(row.default)} |`;
+  return ['| key | type | required | default |', '| --- | --- | --- | --- |',
+    ...ARENA_CONFIG_KEYS.map((key) => line(key, CONFIG_ROWS[key]!)),
+    ...ARENA_FONT_KEYS.map((key) => line(`fonts.<role>.${key}`, FONT_ROWS[key]!())),
+    ...STYLESHEET_KEYS.map((key) => line(`stylesheet.${key}`, STYLESHEET_ROWS[key]!)),
+  ].join('\n');
+}
 
 export function defaultedRoles(base = root) {
   const roles = readJson(join(base, ROLE_CONTRACT)) as Record<string, { $extensions?: Record<string, { default?: unknown }> }>;
@@ -357,7 +398,11 @@ Write \`arena.config.json\` in your project root. The block below is the whole f
 }
 \`\`\`
 
-\`arena.config.example.json\`, which each package ships at its root, is the same file with two palettes, one dark and one light, ready to copy and edit.
+\`arena.config.example.json\`, which each package ships at its root, is the same file with two palettes, one dark and one light, ready to copy and edit. The full examples are \`plugin-style-store/catalogue/*/arena.config.json\`, listed in [\`INDEX.md\`](../../../plugin-style-store/catalogue/INDEX.md).
+
+Every key, with its type and its default:
+
+${configKeyTable()}
 
 **\`stylePlugins\` is in that block because leaving it out is a decision and not a blank.** The value above is the appearance this package installs with, which is Dravensoft's. A project that means to look like itself replaces it with the path to a plugin directory of its own. Both
 are finished answers; only one of them is one somebody made.
@@ -385,7 +430,7 @@ What each part means:
   component rewritten to get there.
   The key is a list, because a build can carry more than one register. The first entry is what a page with no class on it looks like. Every later one emits under \`.arena-<name>\`, which you put on \`<html>\` beside any palette class, and is a difference. An entry is the word
   \`default\`, which is the appearance this package installs with, or a path to a directory of
-  your own holding \`plugin.tokens.json\` and optionally \`plugin.css\`. The plugin's name is the name of that directory, so a directory called \`ember\` declares the plugin \`ember\`. The name must be kebab-case, and it may not repeat a palette name or another plugin's. The first entry answers every role that carries no default. ${defaultsStatement(base)} A custom property with no value is invalid at computed-value time, so an unanswered role is a missing border rather than a plainer look. Declare a list without \`default\` and you do not receive its stylesheet, the
+  your own holding \`plugin.tokens.json\` and optionally \`plugin.css\`. A \`stylePlugins\` path resolves against the directory that holds \`arena.config.json\`. The plugin's name is the name of that directory, so a directory called \`ember\` declares the plugin \`ember\`. The name must be kebab-case, and it may not repeat a palette name or another plugin's. The first entry answers every role that carries no default. ${defaultsStatement(base)} A custom property with no value is invalid at computed-value time, so an unanswered role is a missing border rather than a plainer look. Declare a list without \`default\` and you do not receive its stylesheet, the
   same way the preflight can already be dropped.
 - **\`gradientMark\`** is optional, a boolean, and says the mark your product is drawn with is a
   gradient. Arena ships no element that is one, so yours lives in your own CSS, where \`arena audit\` reports it. The scope reads which directory a line sits in, which is right for a part hook and wrong for a brand. Declare it once and that rule goes quiet in your sources; the colours inside

@@ -62,7 +62,25 @@ Write `arena.config.json` in your project root. The block below is the whole fil
 }
 ```
 
-`arena.config.example.json`, which each package ships at its root, is the same file with two palettes, one dark and one light, ready to copy and edit.
+`arena.config.example.json`, which each package ships at its root, is the same file with two palettes, one dark and one light, ready to copy and edit. The full examples are `plugin-style-store/catalogue/*/arena.config.json`, listed in [`INDEX.md`](../../../plugin-style-store/catalogue/INDEX.md).
+
+Every key, with its type and its default:
+
+| key | type | required | default |
+| --- | --- | --- | --- |
+| `palettes` | array of palettes | yes | none |
+| `fonts` | object, one entry per font role | yes | none |
+| `stylePlugins` | array of `default` or a directory path | no | `["default"]` |
+| `stylesheet` | object | no | every sheet the package ships |
+| `gradientMark` | boolean | no | unset |
+| `fonts.<role>.family` | string | yes | none |
+| `fonts.<role>.src` | string, a stylesheet URL or a font file | yes | none |
+| `fonts.<role>.fallback` | array of family names | no | per role: display `system-ui, sans-serif`, body `system-ui, sans-serif`, mono `ui-monospace, monospace` |
+| `fonts.<role>.style` | string | no | `normal` |
+| `fonts.<role>.weight` | string | no | `400 900` |
+| `fonts.<role>.display` | string | no | `swap` |
+| `stylesheet.components` | array of sheet names, or `"auto"` | no | every component sheet |
+| `stylesheet.preflight` | boolean | no | `true` |
 
 **`stylePlugins` is in that block because leaving it out is a decision and not a blank.** The value above is the appearance this package installs with, which is Dravensoft's. A project that means to look like itself replaces it with the path to a plugin directory of its own. Both
 are finished answers; only one of them is one somebody made.
@@ -90,7 +108,7 @@ What each part means:
   component rewritten to get there.
   The key is a list, because a build can carry more than one register. The first entry is what a page with no class on it looks like. Every later one emits under `.arena-<name>`, which you put on `<html>` beside any palette class, and is a difference. An entry is the word
   `default`, which is the appearance this package installs with, or a path to a directory of
-  your own holding `plugin.tokens.json` and optionally `plugin.css`. The plugin's name is the name of that directory, so a directory called `ember` declares the plugin `ember`. The name must be kebab-case, and it may not repeat a palette name or another plugin's. The first entry answers every role that carries no default. The 24 roles carrying a default are `ff-key`, `heat-step-1` to `heat-step-5`, `hue-danger-on-ink`, `hue-info-on-ink`, `hue-success-on-ink`, `hue-warning-on-ink`, `ink-action`, `ink-figure`, `ink-key`, `ink-link`, `pad-band-x`, `pad-band-y`, `pad-key-y`, `pad-nav-row-x`, `pad-nav-row-y`, `size-sm-badge-pad-x`, `size-sm-badge-pad-y`, `size-sm-badge-step`, `timeline-dot`, `tt-key`. Your root plugin answers the other 239. A minor release may add a role that carries Arena's default. Your root plugin may then leave that role silent, and the role takes the default. The command notes it, as `N role(s) your root style plugin leaves unanswered take Arena's default: …`. Your package's `arena.tokens.json` writes a role's default beside its type. A custom property with no value is invalid at computed-value time, so an unanswered role is a missing border rather than a plainer look. Declare a list without `default` and you do not receive its stylesheet, the
+  your own holding `plugin.tokens.json` and optionally `plugin.css`. A `stylePlugins` path resolves against the directory that holds `arena.config.json`. The plugin's name is the name of that directory, so a directory called `ember` declares the plugin `ember`. The name must be kebab-case, and it may not repeat a palette name or another plugin's. The first entry answers every role that carries no default. The 24 roles carrying a default are `ff-key`, `heat-step-1` to `heat-step-5`, `hue-danger-on-ink`, `hue-info-on-ink`, `hue-success-on-ink`, `hue-warning-on-ink`, `ink-action`, `ink-figure`, `ink-key`, `ink-link`, `pad-band-x`, `pad-band-y`, `pad-key-y`, `pad-nav-row-x`, `pad-nav-row-y`, `size-sm-badge-pad-x`, `size-sm-badge-pad-y`, `size-sm-badge-step`, `timeline-dot`, `tt-key`. Your root plugin answers the other 239. A minor release may add a role that carries Arena's default. Your root plugin may then leave that role silent, and the role takes the default. The command notes it, as `N role(s) your root style plugin leaves unanswered take Arena's default: …`. Your package's `arena.tokens.json` writes a role's default beside its type. A custom property with no value is invalid at computed-value time, so an unanswered role is a missing border rather than a plainer look. Declare a list without `default` and you do not receive its stylesheet, the
   same way the preflight can already be dropped.
 - **`gradientMark`** is optional, a boolean, and says the mark your product is drawn with is a
   gradient. Arena ships no element that is one, so yours lives in your own CSS, where `arena audit` reports it. The scope reads which directory a line sits in, which is right for a part hook and wrong for a brand. Declare it once and that rule goes quiet in your sources; the colours inside
@@ -111,7 +129,11 @@ The `stylesheet` key is how a project pays only for what it renders. Set `"compo
 
 The command counts a component as drawn when your sources use it. The command adds what Arena draws on your behalf. A table renders a pagination and a select that you never wrote. The command prints both counts. The command names on stderr anything it saw and could not place.
 
-`preflight: false` is a separate switch. Set it when the project already ships an equivalent browser reset. The switch drops `css/base.css` and nothing else: the token layer and every vocabulary sheet arrive whatever the list names.
+`preflight: false` is a separate switch. Set it when the project already ships an equivalent browser reset. The switch drops `css/base.css` and nothing else: the token layer and every vocabulary sheet arrive whatever the list names. A block that names no `components` imports every component sheet, so the switch stands alone.
+
+```json
+{ "stylesheet": { "preflight": false } }
+```
 
 ### What counts as drawn in React?
 
