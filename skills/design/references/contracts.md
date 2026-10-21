@@ -57,6 +57,23 @@ Every design value is a DTCG token. A dimension is `{ "value": 16, "unit": "px" 
 }
 ```
 
+A role entry in `contracts/design/roles.json` is one question the style kernel asks, keyed by its name. The entry's `$type` is a DTCG type or `keyword`, and the `$description` says what the question is. A keyword role carries its closed set under `$extensions["com.dravensoft.arena"].values`. The default a plugin falls back to sits under `$extensions["com.dravensoft.arena"].default`.
+
+```json
+"tt-key": {
+  "$type": "keyword",
+  "$description": "Whether a key is set in capitals. ...",
+  "$extensions": { "com.dravensoft.arena": { "values": ["none", "uppercase", "lowercase", "capitalize"], "default": "{case.none}" } }
+},
+"heat-step-1": {
+  "$type": "color",
+  "$description": "The fill of a heatmap cell ...",
+  "$extensions": { "com.dravensoft.arena": { "default": "{color.heat-1}" } }
+}
+```
+
+A default in braces is an alias: the first segment is the group and the rest is the token. `{color.heat-1}` is `color["heat-1"]` in the palette of the polarity you resolve for. In `palette.light.json` that token's `$value` is `{ "colorSpace": "srgb", "components": [0.6196, 0.6, 0.7922], "hex": "#9e99ca" }`, so the light default of `heat-step-1` is `#9e99ca`. In `palette.dark.json` the same alias resolves to `#55488e`. A keyword alias such as `{case.none}` resolves the same way, to a bare word. [`style-kernel.md`](./style-kernel.md) says what a style plugin may answer a role with.
+
 A target decides some things for itself, because a value and a unit cannot say them.
 
 - **What the reader's text setting does to a value.** Every dimension declares it as `$extensions["com.dravensoft.arena"].userScale`. The set is closed. `scales` grows with the platform's text scale. `follows` is a multiplier that scales for free. `fixed` stays put while the box around it grows. A group declares for the leaves under it, and a leaf overrides its group.
@@ -78,6 +95,16 @@ A behaviour contract states what a kind of component must **do**. Such a contrac
 **A requirement a browser meets through an element's own semantics is an explicit obligation everywhere else.** A native `<button>` answers a role, two keys and a disabled state while the component asserts nothing. A platform with no such mapping owes every one of them by hand. Know that asymmetry before you implement a pattern from this package.
 
 Two patterns carry no requirements. `none` is for a component a user cannot act on. `absent` is for a component a layer does not ship at all. Both exist to be declared and never implemented.
+
+## How do I write a layer?
+
+A short checklist for a platform target. Each step names the file it reads.
+
+1. Read `arena.contracts.json` for the paths the installed version holds. [`contracts/AGENTS.md`](../../../contracts/AGENTS.md) says which of the three levels a fact belongs to.
+2. Read `contracts/api/components/*.json` for the members each component presents, and [`MemberForms.md`](../../../contracts/api/MemberForms.md) for the forms they are written in.
+3. Read `contracts/behaviour/*.json` for the role, keys, focus and dismissal each component owes.
+4. Read `contracts/design/*.json` for the tokens, and `contracts/design/roles.json` for the questions a style plugin answers. [`TokenTypes.md`](../../../contracts/design/TokenTypes.md) says what each `$type` is authored as.
+5. Resolve each alias against the palette of the polarity you build, as the section above shows.
 
 ## How do I version the contracts package?
 

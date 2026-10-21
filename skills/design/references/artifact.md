@@ -42,6 +42,23 @@ Every URL below is served by `https://arena.dravensoft.org`, so the file works o
 
 The page is dark. Put `class="arena-light"` on `<html>` for the light palette.
 
+## Which icons, at which size
+
+Icons are Phosphor class names, and the page above links the two weights it draws. Bold is the default weight. Fill marks the active or selected state, such as the current navigation item or a toggle that is on. Duotone is for a feature or an onboarding highlight, used sparingly, and its sheet is `.../src/duotone/style.css` beside the other two. Write the weight class and the icon class together: `<i class="ph-bold ph-rocket-launch"></i>`. Never override `font-family`, `font-weight` or `font-style` on a `.ph-*` class, because the glyphs break.
+
+The sizes are four custom properties that `intro/styles.css` defines. Set one as the `font-size` of the icon, since Phosphor renders as a webfont.
+
+| Property | Value | Use |
+|---|---|---|
+| `--icon-sm` | 14px | a compact inline glyph beside dense chrome |
+| `--icon-md` | 16px | the default inline control icon: close, a chevron, a list item |
+| `--icon-lg` | 18px | a prominent standalone icon: a tone icon, a search glyph |
+| `--icon-xl` | 34px | an illustration-scale icon, such as an empty state |
+
+An icon takes `currentColor`. Colour it with `--accent-primary-ink` only when the icon is interactive or active.
+
+A page with no network needs the glyph sheets locally. Install `@phosphor-icons/web`, copy its `src/bold` and `src/fill` folders next to the file, and link `bold/style.css` and `fill/style.css` from there. Each folder holds its `style.css` and the font files that sheet names, so copy the whole folder. A prototype with a network can take the CDN sheet instead, such as `https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/bold/style.css`.
+
 ## What the stylesheet carries
 
 `intro/styles.css` carries tokens, the default style plugin and a reset, and no component class and no
