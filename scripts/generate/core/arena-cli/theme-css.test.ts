@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readdirSync, readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import {
   configProblems, heatReports, heatOrderReports, themeCss, paletteReports, defaultPalette, isStylesheet, scopedImports,
   pluginName, pluginValue, readPlugin, weightReports, rootWithDefaults, resolvedPlugin,
@@ -1044,7 +1045,7 @@ test('arena check reports the heat order of a root plugin that answers the steps
 });
 
 const shippedPalette = (polarity: 'light' | 'dark'): Record<string, string> => {
-  const file = new URL(`../../../../contracts/design/palette.${polarity}.json`, import.meta.url).pathname;
+  const file = fileURLToPath(new URL(`../../../../contracts/design/palette.${polarity}.json`, import.meta.url));
   const entries = JSON.parse(readFileSync(file, 'utf8')).color as Record<string, any>;
   return Object.fromEntries(Object.entries(entries)
     .filter(([key, entry]) => !key.startsWith('$') && typeof entry?.$value?.hex === 'string')
@@ -1052,7 +1053,7 @@ const shippedPalette = (polarity: 'light' | 'dark'): Record<string, string> => {
 };
 
 test('every plugin under plugin-style-store answers the heat steps in order under Arena\'s light and dark palettes', () => {
-  const store = new URL('../../../../plugin-style-store/', import.meta.url).pathname;
+  const store = fileURLToPath(new URL('../../../../plugin-style-store/', import.meta.url));
   const dirs = ['default', 'complete', ...readdirSync(`${store}catalogue`, { withFileTypes: true })
     .filter((d) => d.isDirectory()).map((d) => `catalogue/${d.name}`)];
   assert.ok(dirs.length > 3);
