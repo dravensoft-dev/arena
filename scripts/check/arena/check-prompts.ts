@@ -1,13 +1,12 @@
-/* Holds every prompt's five generated regions equal to a fresh emit. A prompt is the consumer's
- * last stop, and the rest of it is hand-written prose no gate can judge; these are the parts
+/* Holds every prompt's generated regions equal to a fresh emit. A prompt is the consumer's last
+ * stop, and the rest of it is hand-written prose no gate can judge; these are the parts
  * something can hold. @api comes from the component's contract, so a member renamed, retyped or
- * given a new default surfaces as a stale table rather than as silence, and the fix is always the
- * contract and then bun run generate:api, never the table. @answers names the families the component's manifest answers, so a family added to a manifest
- * surfaces as a stale prompt. @keys names the keys the binding's pattern requires. @markers names the directive behind each marker an Angular
- * component queries. @rules is the note pointing back at the router, owed to every prompt whether contracted or not: it is the last stop's only path
- * back to the rules, and a prompt that has lost it is a page an agent can read to the end and
- * drift off. Whether a component is contracted at all is check:api's question, so an uncontracted
- * one is counted here rather than failed. */
+ * given a new default surfaces as a stale table, and the fix is the contract and then
+ * bun run generate:api, never the table. @answers names the families the component's manifest
+ * answers. @keys names the keys the binding's pattern requires. @markers names the directive
+ * behind each marker an Angular component queries. @rules points back at the router, owed to
+ * every prompt. Whether a component is contracted at all is check:api's question, so an
+ * uncontracted one is counted here rather than failed. */
 
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';

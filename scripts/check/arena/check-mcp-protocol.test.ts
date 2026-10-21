@@ -12,7 +12,7 @@ import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { hostBinary } from '../../lib/arena/host-binary.ts';
 import { bundledPayload } from '../../generate/core/arena-mcp/payload.ts';
 import { buildMcpPackage } from '../../build/arena/build-mcp-package.ts';
-import { ROUTER_URI, SCHEME } from '../../generate/core/arena-mcp/catalogue.ts';
+import { ROUTER_URI, SCHEME, COMPONENT_PREFIX } from '../../generate/core/arena-mcp/catalogue.ts';
 
 export const SERVER = 'scripts/generate/core/arena-mcp/arena-mcp.ts';
 export const PROTOCOL = '2025-06-18';
@@ -78,9 +78,9 @@ test('an editor can initialize, list and read, which is the whole of what it doe
     assert.match(router.result?.contents?.[0]?.text ?? '', /Arena/);
 
     const found = await mcp.call('tools/call', { name: 'arena_find', arguments: { query: 'confirm dialog' } });
-    assert.match(found.result?.content?.[0]?.text ?? '', new RegExp(`${SCHEME}://component/Arena`));
+    assert.match(found.result?.content?.[0]?.text ?? '', new RegExp(`${COMPONENT_PREFIX}Arena`));
 
-    const absent = await mcp.call('tools/call', { name: 'arena_read', arguments: { uri: `${SCHEME}://component/Nope` } });
+    const absent = await mcp.call('tools/call', { name: 'arena_read', arguments: { uri: `${COMPONENT_PREFIX}Nope` } });
     assert.equal(absent.result?.isError, true, 'a document that is not there is an error rather than silence');
 
     const broken = await mcp.call('tools/call', {

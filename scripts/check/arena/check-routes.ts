@@ -260,7 +260,8 @@ export const ROUTES: Route[] = [
     reason:
       'paid per element a builder draws themselves, which every screen has. What it buys is the '
       + 'half of a page that is never a component: which colour role each thing a builder draws takes '
-      + 'and which level holds it back, because a bare muted ink paints a caption at body strength under the default style plugin; '
+      + 'and which level holds it back, because a bare muted ink paints a caption at body strength '
+      + 'under the default style plugin; '
       + 'the three rhythm steps as classes and as '
       + 'custom properties; the row as the horizontal half of those steps rather than a wrapping '
       + 'line; what to wrap when the element being laid out is a component; the block air the band '

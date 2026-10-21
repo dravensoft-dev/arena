@@ -1,11 +1,11 @@
-/* Writes five regions into the component's own prompt, between markers this script owns. @api is
- * every contracted member as a table, so a wrong cell is fixed in the contract. @answers names the
- * families its own manifest answers, linked to their rows. @keys names the pattern its binding binds
- * and the keys it requires. @markers, in an Angular prompt only, names the directive behind each projection
- * attribute the component queries and states the import rule. @rules points back at the router, since
- * a prompt is what an agent rereads deepest into a session; it is owed to every prompt and all sit
- * at one depth, so ROUTER_FROM_PROMPT is a constant. The prose between stays hand-written, and
- * check:prompts holds all five regions equal to a fresh emit. */
+/* Writes every generated region into the component's own prompt, between markers this script
+ * owns. @api is every contracted member as a table, so a wrong cell is fixed in the contract.
+ * @answers names the families its own manifest answers, linked to their rows. @keys names the
+ * pattern its binding binds and the keys it requires. @markers, in an Angular prompt only, names
+ * the directive behind each projection attribute the component queries and states the import
+ * rule. @rules points back at the router, owed to every prompt, all at one depth, so
+ * ROUTER_FROM_PROMPT is a constant. The prose between stays hand-written, and check:prompts
+ * holds all its regions equal to a fresh emit. */
 
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { join, dirname, basename } from 'node:path';
@@ -356,14 +356,16 @@ export function applyMarkersRegion(source: string, region: string | null) {
   return [...lines.slice(0, after + 1), '', ...region.split('\n'), ...lines.slice(after + 1)].join('\n');
 }
 
-export function markersOf(path: string, layer: string, map = angularComponentMap(root)) {
+export function markersOf(path: string, layer: string, map?: ReturnType<typeof angularComponentMap>) {
   if (layer !== 'angular') return [];
-  return map.markers[basename(dirname(path))] ?? [];
+  return (map ?? angularComponentMap(root)).markers[basename(dirname(path))] ?? [];
 }
 
-export function markersRegionOf(path: string, layer: string, map = angularComponentMap(root)) {
-  const attributes = markersOf(path, layer, map);
-  return attributes.length > 0 ? renderMarkersRegion(attributes, map.markerDirectives) : null;
+export function markersRegionOf(path: string, layer: string, map?: ReturnType<typeof angularComponentMap>) {
+  if (layer !== 'angular') return null;
+  const built = map ?? angularComponentMap(root);
+  const attributes = markersOf(path, layer, built);
+  return attributes.length > 0 ? renderMarkersRegion(attributes, built.markerDirectives) : null;
 }
 
 export function keysOf(path: string, component: string, base = root) {

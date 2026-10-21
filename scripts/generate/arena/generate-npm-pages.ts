@@ -16,7 +16,7 @@ import { NPM_PAGES, renderQuestions } from '../../lib/arena/npm-questions.ts';
 import { ARENA_EXT, RESERVED } from '../core/arena-cli/style-plugin-rules.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { fieldEntries } from '../../lib/arena/contract-shapes.ts';
-import { readPlugin, resolvedPlugin, PLUGIN_TOKENS } from '../core/arena-cli/theme-css.ts';
+import { readPlugin, resolvedPlugin, PLUGIN_TOKENS, PLUGIN_SHEET } from '../core/arena-cli/theme-css.ts';
 import { CSS_TARGETS } from './generate-tokens.ts';
 import { HUES_FILE } from '../../lib/tailwind/hue-sheet.ts';
 import { RULE_TAGS, RULE_DESCRIPTIONS } from '../core/arena-cli/audit.ts';
@@ -274,7 +274,6 @@ ${fieldTable(base, CONFIRM_REQUEST_CONTRACT)}`,
 
   sheets: (base = root) => {
     const families = sheetFamilies(base).map((one) => one.family).sort().map((family) => `\`${packageSheetName(family)}\``);
-    const PLUGIN_SHEET = 'css/style-plugin-default.css';
     const tokens = CSS_CHAIN.map(({ to }) => (to === PLUGIN_SHEET
       ? `the slot your style plugin's sheet takes (\`${to}\` until you write one)`
       : `\`${to}\``));

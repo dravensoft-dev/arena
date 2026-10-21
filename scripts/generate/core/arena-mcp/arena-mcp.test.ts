@@ -50,7 +50,7 @@ test('the opening names what is installed and sends a reader to the router first
   const manifest = { name: 'arena', description: 'd', homepage: 'h', version: '1.0.0',
     package: '@dravensoft/arena-react', layer: 'react', router: 'skills/design/ROUTER.md' };
   const text = opening(manifest, [
-    { uri: `${SCHEME}://component/A`, rel: 'a', title: 'A', mime: 'text/markdown' },
+    { uri: `${COMPONENT_PREFIX}A`, rel: 'a', title: 'A', mime: 'text/markdown' },
     { uri: ROUTER_URI, rel: 'r', title: 'R', mime: 'text/markdown' },
   ]);
   assert.match(text, /1 component document/);
@@ -61,7 +61,7 @@ test('the opening names what is installed and sends a reader to the router first
 test('a corpus older than the components beside it says so in the first thing a client reads', () => {
   const manifest = { name: 'arena', description: 'd', homepage: 'h', version: '11.0.0',
     package: '@dravensoft/arena-mcp', layer: 'react', router: 'skills/design/ROUTER.md' };
-  const entries = [{ uri: `${SCHEME}://component/A`, rel: 'a', title: 'A', mime: 'text/markdown' }];
+  const entries = [{ uri: `${COMPONENT_PREFIX}A`, rel: 'a', title: 'A', mime: 'text/markdown' }];
   const agreed = opening(manifest, entries,
     { package: '@dravensoft/arena-react', layer: 'react', version: '11.0.0', dir: '/x' });
   assert.doesNotMatch(agreed, /the components are right/);

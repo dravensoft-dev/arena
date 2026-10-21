@@ -122,7 +122,9 @@ test('the sheets region names the vocabulary sheets and the spacing sheet, and n
 
 test('the sheets region lists the token layer in CSS_CHAIN order and names where the style plugin\'s sheet sits', () => {
   const region = renderRegion('sheets');
-  const paragraph = region.slice(region.indexOf('The token layer is'));
+  const opener = region.indexOf('The token layer is');
+  assert.ok(opener >= 0, 'the sheets region no longer opens a sentence with "The token layer is"');
+  const paragraph = region.slice(opener);
   const at = CSS_CHAIN.map(({ to }) => paragraph.indexOf(`\`${to}\``));
   assert.ok(at.every((place) => place >= 0), `a CSS_CHAIN entry is missing from the token layer sentence: ${at}`);
   assert.deepEqual([...at].sort((a, b) => a - b), at, 'the token layer sentence is not in CSS_CHAIN order');
