@@ -60,6 +60,12 @@ test('colorStart: an explicit colorId and colorIds keep their slots under colorS
     series: [{ label: 'A', values: [1, 2, 3], colorIds: [2] }],
   });
   assert.deepEqual(marks(ids, 'fill'), [2, 4, 5]);
+  const empty = render(ArenaBarChart, {
+    label: 'Sales', labels: ONE_CATEGORY, colorStart: 3,
+    series: [{ label: 'A', values: [1], colorIds: [] }, { label: 'B', values: [2] }],
+  });
+  assert.deepEqual(marks(empty, 'fill'), [3, 4]);
+  assert.deepEqual(swatches(empty), [3, 4]);
 });
 
 test('colorStart: a stacked bar rotates its segments as the grouped bars do', () => {
@@ -92,9 +98,9 @@ test('colorStart: a radar chart starts at slot 7 and wraps, on the polygons and 
 });
 
 test('colorStart: a pyramid chart starts at slot 7 and wraps, on both sides and the swatches', () => {
-  const html = render(ArenaPyramidChart, { label: 'Age', labels: ONE_CATEGORY, series: four().slice(0, 2), colorStart: 7 });
-  assert.deepEqual(marks(html, 'fill'), [7, 8]);
-  assert.deepEqual(swatches(html), [7, 8]);
+  const html = render(ArenaPyramidChart, { label: 'Age', labels: ONE_CATEGORY, series: four().slice(0, 2), colorStart: 8 });
+  assert.deepEqual(marks(html, 'fill'), [8, 1]);
+  assert.deepEqual(swatches(html), [8, 1]);
 });
 
 test('colorStart: a scatter chart starts at slot 7 and wraps, on the marks and the swatches', () => {
