@@ -4,13 +4,17 @@
  * made under the runner's own temp directory, never under the step's. Setting all three names on
  * every platform is harmless where only one is read. `left()` reads what the root holds before the
  * removal, each entry with its kind and, for a file, its size, mtime and first bytes, which is what
- * finding its writer takes; `leftoverLine` words the line a runner fails a step with. */
+ * finding its writer takes; `leftoverLine` words the line a runner fails a step with. An empty
+ * fetcher directory a browser left is swept first: only once the step has ended is no browser of
+ * its own alive to use one, and a teardown in a shared root cannot tell its own from another's. */
 
-import { closeSync, lstatSync, mkdtempSync, openSync, readSync, readdirSync, rmSync } from 'node:fs';
+import { closeSync, lstatSync, mkdtempSync, openSync, readSync, readdirSync, rmSync, rmdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 export const SUITE_TMP_PREFIX = 'arena-run-';
+
+export const FETCHER_DIR = 'chrome_url_fetcher_';
 
 const SHOWN = 20;
 
@@ -45,6 +49,8 @@ export function suiteTmp(base = tmpdir(), inherited: NodeJS.ProcessEnv = process
     env: { ...inherited, TMPDIR: root, TEMP: root, TMP: root },
     left: () => {
       try {
+        for (const name of readdirSync(root))
+          if (name.includes(FETCHER_DIR)) try { rmdirSync(join(root, name)); } catch {  }
         return readdirSync(root).sort().map((name) => describeEntry(join(root, name), name));
       } catch {
         return [];

@@ -6,10 +6,10 @@
  * a directory a live process writes to fails with EBUSY. On Windows the browser's TMP is <profile>.t,
  * removed whole with it, because taskkill /F strands the empty <uuid>.tmp it was about to use. SIGTERM
  * or SIGINT reaps group and profile at once; SIGKILL leaves a profile with its launcher's pid for the
- * next launch to reap. The singleton links' directory and a new empty fetcher one go too. */
+ * next launch to reap. The singleton links' directory goes too; a suite root sweeps the fetcher one. */
 
 import { execFileSync, spawn, spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readdirSync, readlinkSync, rmSync, rmdirSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, readlinkSync, rmSync } from 'node:fs';
 import { basename, dirname, isAbsolute } from 'node:path';
 import { constants, tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -240,8 +240,6 @@ export function sweepOrphans(at = tmpdir(), on: Platform = platform) {
   return reaped;
 }
 
-export const FETCHER_DIR = 'chrome_url_fetcher_';
-
 export function ownTempDirs(profile: string) {
   const dirs = new Set<string>();
   for (const name of ['SingletonSocket', 'SingletonLock', 'SingletonCookie']) {
@@ -252,16 +250,6 @@ export function ownTempDirs(profile: string) {
     } catch {  }
   }
   return [...dirs];
-}
-
-export function fetcherDirs(at = tmpdir()) {
-  try { return readdirSync(at).filter((name) => name.includes(FETCHER_DIR)).map((name) => join(at, name)); } catch { return []; }
-}
-
-export function newEmptyFetchers(before: Set<string>, at = tmpdir()) {
-  return fetcherDirs(at).filter((dir) => {
-    try { return !before.has(dir) && readdirSync(dir).length === 0; } catch { return false; }
-  });
 }
 
 export const SIGNALS = ['SIGTERM', 'SIGINT'] as const;
@@ -322,14 +310,11 @@ export async function launchChromium(
   const ownTemp = options.ownTemp ?? on === 'win32';
   const temp = `${profile}${OWN_TMP_SUFFIX}`;
   if (ownTemp) mkdirSync(temp);
-  const fetchersBefore = new Set(fetcherDirs());
   const removeProfile = (retry: object) => {
     const own = ownTempDirs(profile);
-    const fetchers = newEmptyFetchers(fetchersBefore);
     for (const dir of ownTemp ? [profile, temp] : [profile])
       try { rmSync(dir, { recursive: true, force: true, ...retry }); } catch {  }
     for (const dir of own) try { rmSync(dir, { recursive: true, force: true }); } catch {  }
-    for (const dir of fetchers) try { rmdirSync(dir); } catch {  }
   };
 
   const child = spawn(exePath, [...options.prefix ?? [], ...browserFlags(profile, on)], {

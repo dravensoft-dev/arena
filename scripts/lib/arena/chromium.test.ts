@@ -13,7 +13,7 @@ import { execFileSync, spawn, spawnSync } from 'node:child_process';
 import {
   DARWIN_APPS, DEVTOOLS, GRACE, LINUX_CANDIDATES, PROFILE_PREFIX, REAP, SIGNALS, WINDOWS_APPS, browserFlags,
   candidates, findChromium, launchChromium, observerFor, orphanProfiles, ownerOf, processesNaming,
-  profileNeedle, reapOnSignal, running, sweepOrphans, newEmptyFetchers, ownTempDirs, FETCHER_DIR, OWN_TMP_SUFFIX,
+  profileNeedle, reapOnSignal, running, sweepOrphans, ownTempDirs, OWN_TMP_SUFFIX,
 } from './chromium.ts';
 import { budgetFor, deadline, type Deadline } from './deadline.ts';
 import { waitFor } from './wait-for.ts';
@@ -654,17 +654,26 @@ test('off Windows the browser keeps the temp directory it inherits, since a long
     }
   });
 
-test('only a fetcher directory that is new and empty is taken for the run itself, under any brand', () => {
-  const base = mkdtempSync(join(tmpdir(), 'arena-fetchers-'));
-  try {
-    const old = join(base, `${FETCHER_DIR}old000`);
-    const fresh = join(base, `org.chromium.Chromium.chromium_${FETCHER_DIR}new000`);
-    const branded = join(base, `.com.google.Chrome.${FETCHER_DIR}new111`);
-    const full = join(base, `${FETCHER_DIR}full00`);
-    for (const dir of [old, fresh, branded, full]) mkdirSync(dir);
-    writeFileSync(join(full, 'in-use'), 'x');
-    assert.deepEqual(newEmptyFetchers(new Set([old]), base).sort(), [branded, fresh].sort());
-  } finally {
-    rmSync(base, { recursive: true, force: true });
-  }
-});
+test('a fetcher directory another process makes while the browser lives is left alone by its teardown',
+  { timeout: BUDGET_MS }, async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'arena-fake-browser-'));
+    let dropped: string[] = [];
+    let foreign = '';
+    try {
+      const fake = join(dir, 'fake-browser.mjs');
+      writeFileSync(fake, FAKE_BROWSER);
+      const report = join(dir, 'still.json');
+      const before = new Set(readdirSync(tmpdir()));
+      const { kill } = await launchChromium(process.execPath, 'linux', { prefix: [fake, report, 'still'] });
+      foreign = mkdtempSync(join(tmpdir(), 'org.chromium.Chromium.chromium_chrome_url_fetcher_.'));
+      dropped = readdirSync(tmpdir()).filter((name) => !before.has(name) && name.endsWith('.tmp'));
+      await kill();
+      assert.equal(existsSync(foreign), true,
+        'kill() removed an empty fetcher directory made after the launch by another process, which a '
+        + 'shared temp directory gives no way to tell from one the browser made');
+    } finally {
+      for (const name of dropped) rmSync(join(tmpdir(), name), { force: true });
+      if (foreign) rmSync(foreign, { recursive: true, force: true });
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });

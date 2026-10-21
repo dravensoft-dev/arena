@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, dirname, join } from 'node:path';
-import { SUITE_TMP_PREFIX, leftoverLine, suiteTmp } from './suite-tmp.ts';
+import { FETCHER_DIR, SUITE_TMP_PREFIX, leftoverLine, suiteTmp } from './suite-tmp.ts';
 
 test('the root is made under the base it is given, and every temp variable points at it', () => {
   const base = mkdtempSync(join(tmpdir(), 'arena-suite-tmp-base-'));
@@ -51,6 +51,21 @@ test('an empty root reads empty, and a root holding files and a directory reads 
     assert.equal(scratch.left().length, 3);
     scratch.remove();
     assert.deepEqual(scratch.left(), [], 'a removed root reads empty');
+  } finally {
+    rmSync(base, { recursive: true, force: true });
+  }
+});
+
+test('an empty fetcher directory is swept before the root is read, under any brand, and a full one is named', () => {
+  const base = mkdtempSync(join(tmpdir(), 'arena-suite-tmp-base-'));
+  try {
+    const scratch = suiteTmp(base, {});
+    const full = `${FETCHER_DIR}full00`;
+    for (const name of [`org.chromium.Chromium.chromium_${FETCHER_DIR}new000`, `.com.google.Chrome.${FETCHER_DIR}new111`, full])
+      mkdirSync(join(scratch.root, name));
+    writeFileSync(join(scratch.root, full, 'in-use'), 'x');
+    assert.deepEqual(scratch.left(), [`${full} (directory)`]);
+    scratch.remove();
   } finally {
     rmSync(base, { recursive: true, force: true });
   }
