@@ -277,8 +277,8 @@ passed, so 130 on a scale of 0 to 100 draws a full arc and says 130, and a value
 finite draws the empty track and writes nothing. The band a value is in is
 `arenaGaugeBand(bands, value)`, a lookup over the threshold primitive of `Thresholds.ts`, so a
 band includes its lower edge exactly as a meter's region does, and the tone and the label are the
-only layer the gauge adds. The arc takes that band's tone colour, the identity colour of the
-first slot below the first band, or `colorId` when there are no bands. The gauge reads no cursor
+only layer the gauge adds. The arc takes that band's tone colour, the `colorStart` slot
+below the first band, or `colorId`, then `colorStart`, when there are no bands. The gauge reads no cursor
 and takes no tab stop, because the value, both ends and every band edge are drawn as text and are
 all in the table. The radius derives from `--chart-gauge-height` and the width through
 `arenaGaugeRadii(width, height)`, so the band ring, the track, the edge numbers and the centre
