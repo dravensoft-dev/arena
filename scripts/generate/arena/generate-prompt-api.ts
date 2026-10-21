@@ -28,6 +28,8 @@ export const node = {
   name: 'generate:prompt-api',
   reads: ['contracts/api/components', 'frameworks/Components.json', VOCABULARY_DIR,
     'frameworks/tailwind/components', 'contracts/behaviour',
+    'frameworks/angular/ProjectionMarkers.ts', 'frameworks/angular/components/**/*.ts',
+    '!frameworks/angular/components/**/*.generated.ts', '!frameworks/angular/components/**/*.test.ts',
     ...CONSUMER_LAYERS.map((layer) => `frameworks/${layer}/components/**/*.behaviour.json`), ...PROMPTS],
   writes: PROMPTS,
   feeds: [

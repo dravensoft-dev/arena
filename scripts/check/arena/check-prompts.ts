@@ -31,6 +31,8 @@ export const node = {
     'frameworks/tailwind/vocabulary', 'frameworks/tailwind/components', 'contracts/behaviour',
     'frameworks/react/components/**/*.behaviour.json', 'frameworks/angular/components/**/*.behaviour.json',
     'frameworks/react/components/**/*.prompt.md', 'frameworks/angular/components/**/*.prompt.md',
+    'frameworks/angular/ProjectionMarkers.ts', 'frameworks/angular/components/**/*.ts',
+    '!frameworks/angular/components/**/*.generated.ts', '!frameworks/angular/components/**/*.test.ts',
   ],
   writes: [],
   feeds: [],
