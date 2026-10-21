@@ -22,13 +22,13 @@ Install the layer package and the MCP package at the versions you resolved, and 
 
 ## How do I upgrade?
 
-Pin an exact version of each package. The versions are listed at `https://github.com/dravensoft-dev/arena/releases`.
+Pin an exact version of each package. Arena's releases are listed at `https://github.com/dravensoft-dev/arena/releases`.
 
 ```bash
-npm i -E @dravensoft/arena-react@<version> @dravensoft/arena-angular@<version> @dravensoft/arena-mcp@<version>            # or: npm i --save-exact
-pnpm add -E @dravensoft/arena-react@<version> @dravensoft/arena-angular@<version> @dravensoft/arena-mcp@<version>         # or: pnpm add --save-exact
-yarn add -E @dravensoft/arena-react@<version> @dravensoft/arena-angular@<version> @dravensoft/arena-mcp@<version>         # or: yarn add --exact
-bun add -E @dravensoft/arena-react@<version> @dravensoft/arena-angular@<version> @dravensoft/arena-mcp@<version>          # or: bun add --exact
+npm i -E @dravensoft/arena-react@<react-version> @dravensoft/arena-angular@<angular-version> @dravensoft/arena-mcp@<mcp-version>  # or: npm i --save-exact
+pnpm add -E @dravensoft/arena-react@<react-version> @dravensoft/arena-angular@<angular-version> @dravensoft/arena-mcp@<mcp-version>  # or: pnpm add --save-exact
+yarn add -E @dravensoft/arena-react@<react-version> @dravensoft/arena-angular@<angular-version> @dravensoft/arena-mcp@<mcp-version>  # or: yarn add --exact
+bun add -E @dravensoft/arena-react@<react-version> @dravensoft/arena-angular@<angular-version> @dravensoft/arena-mcp@<mcp-version>  # or: bun add --exact
 ```
 
 Keep the layer package your project uses and the MCP package, and drop the other layer. The section above says the numbers differ, so look each one up: `npm view <package> version` prints the newest version of a package, and `npm ls <package>` prints the one your project has installed.
@@ -37,7 +37,7 @@ Raise the layer package and the MCP package together. Then run `arena build`, `a
 
 No deprecation window precedes a removal, and three readers catch what one leaves behind. `arena build` refuses a stylesheet or component name this version does not ship and lists the names it does ship. The compiler reports a removed export or member. `arena audit` reports a class that the vocabulary does not carry as `own-class`.
 
-No list of breaking changes is written, and the three readers are what an upgrader has. A custom property or a role that your own CSS reads through `var()` goes unreported by every tool, so search your own CSS for each `var(--` name before you move.
+No list of breaking changes is written, and the three readers are what an upgrader has. A custom property or a role that your own CSS reads through `var()` goes unreported by every tool. Before you move, look each `var(--` name your CSS reads up in the new version's `arena.tokens.json`, whose keys drop the leading `--`.
 
 ## Which licence does Arena carry?
 
