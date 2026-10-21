@@ -354,7 +354,7 @@ object form, and that is the price.
 }
 ```
 
-`form` takes eight values (`primitive`, `enum`, `object`, `array`, `consumerData`,
+`form` takes one value per form, and the two array forms share `array` (`primitive`, `enum`, `object`, `array`, `consumerData`,
 `functionInput`, `slot`, `event`) and `array` is discriminated by `of`: a primitive type name
 (`"string"`) makes it an array of primitives, a declared type name (`"ArenaCrumb"`) makes it an array
 of predefined objects, and the form name `"consumerData"` makes it a list of consumer data.

@@ -11,7 +11,7 @@ documents; what a table here adds is which role a step plays, which is the thing
 choosing between two steps actually needs and the one thing the JSON cannot say.
 
 ## Type scale (`fs`)
-Editorial type, meaning prose and headings and never chrome (see the `dz` table above for the density scale that governs buttons, inputs and labels instead). Closed and semantic: each name is a role, the scale gains no in-between steps, and an off-scale editorial size snaps to its nearest neighbor rather than adding one. The ratio between steps accelerates through the reading range and into display:
+Editorial type, meaning prose and headings and never chrome (see the `dz` table below for the density scale that governs buttons, inputs and labels instead). Closed and semantic: each name is a role, the scale gains no in-between steps, and an off-scale editorial size snaps to its nearest neighbor rather than adding one. The ratio between steps accelerates through the reading range and into display:
 
 | Token | Value | Ratio from previous | Role |
 |---|---|---|---|
