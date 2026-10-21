@@ -98,7 +98,10 @@ return (
 
 ```tsx
 import { createContext, useContext, type ReactNode } from 'react';
-import { ArenaButton, ArenaToast, ArenaToastHost, useArenaToasts, type ArenaToastQueue } from '@dravensoft/arena-react';
+import {
+  ArenaButton, ArenaConfirmDialog, ArenaToast, ArenaToastHost, useArenaConfirm, useArenaToasts,
+  type ArenaConfirmQueue, type ArenaToastQueue,
+} from '@dravensoft/arena-react';
 
 const ToastContext = createContext<ArenaToastQueue | null>(null);
 export const useToasts = () => {
@@ -107,12 +110,30 @@ export const useToasts = () => {
   return queue;
 };
 
+const ConfirmContext = createContext<ArenaConfirmQueue | null>(null);
+export const useConfirms = () => {
+  const queue = useContext(ConfirmContext);
+  if (!queue) throw new Error('useConfirms needs the shell above it');
+  return queue;
+};
+
 export function Shell({ children }: { children: ReactNode }) {
   const queue = useArenaToasts();
+  const confirms = useArenaConfirm();
+  const open = confirms.current;
   const undo = (id: number) => { restore(id); queue.dismiss(id); };
   return (
     <ToastContext.Provider value={queue}>
+      <ConfirmContext.Provider value={confirms}>
       {children}
+      {open && (
+        <ArenaConfirmDialog open title={open.title} eyebrow={open.eyebrow}
+          confirmLabel={open.confirmLabel} cancelLabel={open.cancelLabel}
+          destructive={open.destructive} requireText={open.requireText}
+          onConfirm={() => confirms.settle(open.id, true)} onCancel={() => confirms.settle(open.id, false)}>
+          {open.message}
+        </ArenaConfirmDialog>
+      )}
       <ArenaToastHost>
         {queue.toasts.map((t) => (
           <ArenaToast key={t.id} tone={t.tone} title={t.title} message={t.message}
@@ -120,6 +141,7 @@ export function Shell({ children }: { children: ReactNode }) {
             onAction={() => undo(t.id)} onClose={() => queue.dismiss(t.id)} />
         ))}
       </ArenaToastHost>
+      </ConfirmContext.Provider>
     </ToastContext.Provider>
   );
 }
@@ -128,9 +150,18 @@ function SaveButton() {
   const toasts = useToasts();
   return <ArenaButton onClick={() => toasts.raise({ title: 'Saved', actionLabel: 'Undo' })}>Save</ArenaButton>;
 }
+
+function DeleteButton() {
+  const confirms = useConfirms();
+  return (
+    <ArenaButton onClick={async () => {
+      if (await confirms.ask({ title: 'Delete the project?', destructive: true })) remove();
+    }}>Delete</ArenaButton>
+  );
+}
 ```
 
-A notice is data: it carries the action's label and never its handler, so `restore` is yours, keyed by the id `raise` returned, and the notice closes after it. Give the confirmation queue a second context in the same way.
+A notice is data: it carries the action's label and never its handler, so `restore` is yours, keyed by the id `raise` returned, and the notice closes after it.
 
 ## How do I trap focus in an overlay of my own in React?
 
@@ -337,7 +368,14 @@ const colours = [1, 2, 3].map(read);
 
 The colours change with the palette, so resolve them again when the palette changes. In React `useArenaTheme()` re-renders its component with the new name, and an effect keyed on that name redraws the canvas. In Angular `ArenaThemeService.theme` is a signal, and an `afterRenderEffect` that reads it redraws once the new palette is applied to the document. [`theme.md`](./theme.md) covers both.
 
-Arena ships no sequential or diverging ramp. The scale of a heatmap is the project's own decision.
+The sequential ramp is the heat ladder, `--heat-step-1` to `--heat-step-5`. `ArenaHeatmapChart` paints those roles. Order is magnitude: step 1 is the least and each step is further from the surface, in a light palette and in a dark one. The palette's `--color-heat-1` to `--color-heat-5` is what the roles take by default, and a style plugin may answer them in another order. A chart reads the roles. A change of palette or of plugin redraws the same way.
+
+```ts
+const heat = [1, 2, 3, 4, 5].map((step) =>
+  getComputedStyle(document.documentElement).getPropertyValue(`--heat-step-${step}`).trim());
+```
+
+No diverging ramp ships.
 
 ## How do I route an activation of my own?
 

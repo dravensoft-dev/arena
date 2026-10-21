@@ -105,6 +105,38 @@ The `.app-frame` rule is the one in the React section, written in the global sty
 
 The footer in the samples is your own element, and `ArenaSiteFooter` draws columns and a note when the page needs them. Write one header and one footer at the top level of the page. A second banner or a second footer makes the landmark useless to a reader who navigates by it.
 
+## Where does focus go after a route change?
+
+**After a navigation, focus `ArenaMain` through `ARENA_MAIN_ID`, and pass `preventScroll: true` when the router restores the scroll position.** The first load is not a navigation, so the effect skips it.
+
+```tsx
+// React: a component inside the router, keyed on the pathname
+import { useEffect, useRef } from 'react';
+import { useLocation } from 'react-router';
+import { ARENA_MAIN_ID } from '@dravensoft/arena-react';
+
+export function FocusMainOnNavigation() {
+  const { pathname } = useLocation();
+  const first = useRef(true);
+  useEffect(() => {
+    if (first.current) { first.current = false; return; }
+    document.getElementById(ARENA_MAIN_ID)?.focus({ preventScroll: true });
+  }, [pathname]);
+  return null;
+}
+```
+
+```ts
+// Angular: in the constructor of the root component
+import { NavigationEnd, Router } from '@angular/router';
+import { filter, skip } from 'rxjs';
+import { ARENA_MAIN_ID } from '@dravensoft/arena-angular';
+
+this.router.events.pipe(filter((e) => e instanceof NavigationEnd), skip(1)).subscribe(() => {
+  document.getElementById(ARENA_MAIN_ID)?.focus({ preventScroll: true });
+});
+```
+
 ## How wide is the rail?
 
 The collapsed rail sizes itself. The width is a control's height plus a step of padding on each side, and it holds in an `auto` column and in a definite one alike.
