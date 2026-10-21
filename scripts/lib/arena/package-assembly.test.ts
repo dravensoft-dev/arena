@@ -327,9 +327,17 @@ test('a component sheet is reached through the barrel alone, never named twice i
 });
 
 test('the token catalogue offers roles and no catalogue of appearances', () => {
-  assert.deepEqual(Object.keys(tokenCatalogue()).sort(), ['roles', 'tokens'],
+  assert.deepEqual(Object.keys(tokenCatalogue()).sort(), ['aliases', 'roles', 'tokens'],
     'a consumer resolves an alias against the tokens and answers a role itself, and a menu of '
     + 'appearances is a decision Arena took for somebody else');
+});
+
+test('the catalogue holds the 40 aliases of colors.css in file order, and no level', () => {
+  const names = Object.keys(tokenCatalogue().aliases);
+  assert.equal(names.length, 40);
+  assert.equal(names[0], 'ink');
+  assert.equal(names.at(-1), 'scrim');
+  assert.ok(names.every((name) => !name.startsWith('level-')));
 });
 
 test('the package stylesheet imports the default plugin between the scales and the palette', () => {

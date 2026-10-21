@@ -278,8 +278,9 @@ export function installed(layer: string, dir: string, base = root) {
 
 export const THIRD_PALETTE = { name: 'dusk', polarity: 'dark' };
 
-export const POLARITY_SCOPES: [string, string][] = [
-  [':root', 'dark'], ['.arena-light', 'light'], [`.arena-${THIRD_PALETTE.name}`, 'dark'],
+export const POLARITY_SCOPES: [string, string, string][] = [
+  [':root', 'dark', 'dark'], ['.arena-dark', 'dark', 'dark'], ['.arena-light', 'light', 'light'],
+  [`.arena-${THIRD_PALETTE.name}`, 'dark', THIRD_PALETTE.name],
 ];
 
 export function palettesFixture(layer: string, base = root) {
@@ -302,7 +303,7 @@ export function palettesProblems(layer: string, run: CliRun) {
       + 'that carries more than the classic pair is one no project can spend'];
   }
   const problems = [];
-  for (const [selector, polarity] of POLARITY_SCOPES) {
+  for (const [selector, polarity, name] of POLARITY_SCOPES) {
     const block = blockIn(run.theme ?? '', selector);
     if (block === null) {
       problems.push(`${layer}: ${THEME_SHEET} carries no ${selector} block, so one of three declared `
@@ -313,6 +314,14 @@ export function palettesProblems(layer: string, run: CliRun) {
       problems.push(`${layer}: ${selector} declares no color-scheme:${polarity}, so the browser draws `
         + 'the furniture Arena never draws against the wrong polarity: its scrollbars, its native '
         + 'controls, its autofill and the canvas it paints wherever nothing else does');
+    }
+    if (!block.includes(`--arena-palette:${name};`)) {
+      problems.push(`${layer}: ${selector} declares no --arena-palette:${name}, so an overlay lifted `
+        + 'out of this palette\'s subtree cannot find the palette to wear');
+    }
+    if (!block.includes('--focus-ring:')) {
+      problems.push(`${layer}: ${selector} carries no --focus-ring, so the alias block never reached `
+        + 'this palette and a ring would resolve against the page\'s colours instead of its own');
     }
   }
   return problems;

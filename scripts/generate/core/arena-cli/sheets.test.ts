@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { componentMap, roleReferencesIn, pluginCss, COMPONENT_MAP, PLUGIN_LAYER_ORDER } from './sheets.ts';
+import { componentMap, roleReferencesIn, aliasesIn, pluginCss, COMPONENT_MAP, PLUGIN_LAYER_ORDER } from './sheets.ts';
 import { LAYER_ORDER } from '../../../lib/tailwind/component-sheets.ts';
 import { repoRoot } from '../../../lib/arena/repo-root.ts';
 import { tokenCatalogue } from '../../../lib/arena/package-assembly.ts';
@@ -31,6 +31,12 @@ test('a colour reference is derived from the catalogue, because a consumer palet
   'only a colour reference is restated per palette. A dz reference is restated per DENSITY, which '
   + 'is another axis and another block, and a resolved length is right in every scope there is');
   assert.deepEqual(roleReferencesIn(null), []);
+});
+
+test('the aliases are written as declarations in the catalogue\'s order', () => {
+  assert.deepEqual(aliasesIn({ tokens: {}, roles: {}, aliases: { ink: 'var(--color-base-100)', scrim: 'x' } }),
+    ['--ink:var(--color-base-100);', '--scrim:x;']);
+  assert.deepEqual(aliasesIn(null), []);
 });
 
 test('the shipped catalogue is the one this build actually assembles, not only a fixture', () => {

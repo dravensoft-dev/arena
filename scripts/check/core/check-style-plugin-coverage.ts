@@ -17,7 +17,7 @@ import { kebab } from '../../utils/case.ts';
 import { categoryOf } from '../../lib/tailwind/manifest-surfaces.ts';
 import { MANIFESTS, partsOf } from '../arena/check-parts.ts';
 import { ARENA_EXT, ROLES, ROOT_PLUGIN } from './check-style-plugin.ts';
-import { tokenCatalogue } from '../../lib/arena/package-assembly.ts';
+import { ALIAS_SOURCE, tokenCatalogue } from '../../lib/arena/package-assembly.ts';
 import { readPlugin, resolvedPlugin } from '../../generate/core/arena-cli/theme-css.ts';
 import { CSS_TARGETS } from '../../generate/arena/generate-tokens.ts';
 
@@ -27,7 +27,7 @@ export const COMPLETE_CSS = 'plugin-style-store/complete/plugin.css';
 
 export const node = {
   name: 'check:style-plugin-coverage',
-  reads: [ROLES, ROOT_PLUGIN, COMPLETE, COMPLETE_CSS, 'frameworks/tailwind/components/**',
+  reads: [ROLES, ALIAS_SOURCE, ROOT_PLUGIN, COMPLETE, COMPLETE_CSS, 'frameworks/tailwind/components/**',
     ...CSS_TARGETS, 'frameworks/Components.json',
     'frameworks/tailwind/consume/components/**/*.styles.generated.css'],
   writes: [],

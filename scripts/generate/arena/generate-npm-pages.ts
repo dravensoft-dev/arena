@@ -11,7 +11,7 @@ import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { packageSheetName, sheetFamilies, VOCABULARY_DIR, FAMILY_SUFFIX } from '../../lib/tailwind/vocabulary.ts';
-import { CSS_CHAIN, tokenCatalogue } from '../../lib/arena/package-assembly.ts';
+import { CSS_CHAIN, ALIAS_SOURCE, tokenCatalogue } from '../../lib/arena/package-assembly.ts';
 import { NPM_PAGES, renderQuestions } from '../../lib/arena/npm-questions.ts';
 import { ARENA_EXT, RESERVED } from '../core/arena-cli/style-plugin-rules.ts';
 import { readJson } from '../../utils/read-file.ts';
@@ -209,7 +209,7 @@ export const TARGETS = [...new Set(Object.values(REGION_TARGETS).flat())];
 
 export const node = {
   name: 'generate:npm-pages',
-  reads: [...TARGETS, 'scripts/generate/core/arena-cli/audit.ts', 'scripts/generate/core/arena-cli/command-init.ts', 'scripts/lib/arena/language-rules.ts', `${DEFAULT_PLUGIN_DIR}/${PLUGIN_TOKENS}`, '.claude-plugin/plugin.json', 'scripts/generate/core/arena-cli/style-plugin-rules.ts', LOCALE_CONTRACT, ROLE_CONTRACT, BEHAVIOUR_CONTRACT, ...Object.values(DENSITY_CONTRACTS), THEME_SHEET, 'contracts/api/components/*.json', 'contracts/design/spacing.json', BREAKPOINT_TARGET, TOAST_NOTICE_CONTRACT, CONFIRM_REQUEST_CONTRACT, ...CSS_TARGETS, HUES_FILE, `${VOCABULARY_DIR}/**/*${FAMILY_SUFFIX}`],
+  reads: [...TARGETS, ALIAS_SOURCE, 'scripts/generate/core/arena-cli/audit.ts', 'scripts/generate/core/arena-cli/command-init.ts', 'scripts/lib/arena/language-rules.ts', `${DEFAULT_PLUGIN_DIR}/${PLUGIN_TOKENS}`, '.claude-plugin/plugin.json', 'scripts/generate/core/arena-cli/style-plugin-rules.ts', LOCALE_CONTRACT, ROLE_CONTRACT, BEHAVIOUR_CONTRACT, ...Object.values(DENSITY_CONTRACTS), THEME_SHEET, 'contracts/api/components/*.json', 'contracts/design/spacing.json', BREAKPOINT_TARGET, TOAST_NOTICE_CONTRACT, CONFIRM_REQUEST_CONTRACT, ...CSS_TARGETS, HUES_FILE, `${VOCABULARY_DIR}/**/*${FAMILY_SUFFIX}`],
   writes: TARGETS,
   feeds: [
     'build:angular-package',

@@ -269,6 +269,14 @@ export function catalogueRole(role: Record<string, any>) {
   };
 }
 
+export const ALIAS_SOURCE = 'contracts/design/colors.css';
+export const ALIAS_BLOCK = ':root,.arena-dark,.arena-light';
+
+export function aliasDeclarations(root = repoRoot) {
+  const block = parseDecls(readFileSync(join(root, ALIAS_SOURCE), 'utf8')).get(ALIAS_BLOCK) ?? new Map<string, string>();
+  return Object.fromEntries([...block].filter(([name]) => !name.startsWith('level-')));
+}
+
 export function tokenCatalogue(root = repoRoot) {
   const decls = new Map<string, Map<string, string>>();
   for (const target of CSS_TARGETS) {
@@ -280,7 +288,7 @@ export function tokenCatalogue(root = repoRoot) {
   const roleFile = readJson(join(root, 'contracts', 'design', 'roles.json')) as Record<string, any>;
   const roles = Object.fromEntries(Object.entries(roleFile).map(([name, role]) => [name, catalogueRole(role)]));
 
-  return { tokens, roles };
+  return { tokens, roles, aliases: aliasDeclarations(root) };
 }
 
 export const CLI_BINS = { arena: './bin/arena.mjs' };

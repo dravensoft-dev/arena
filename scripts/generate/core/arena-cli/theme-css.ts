@@ -28,6 +28,7 @@ import type { SerializableToken } from './serialize-token.ts';
 export type TokenCatalogue = {
   tokens: Record<string, string>;
   roles: Record<string, { type?: string; values?: string[]; default?: string }>;
+  aliases?: Record<string, string>;
 };
 
 export type CheckedSheets = {
@@ -37,6 +38,7 @@ export type CheckedSheets = {
   washes?: Wash[];
   scopes?: string[];
   roleReferences?: string[];
+  aliases?: string[];
   catalogue?: TokenCatalogue;
 };
 
@@ -757,30 +759,38 @@ export function themeCss(config: CheckedConfig, options: ThemeOptions = {}) {
   };
 
   const fallback = defaultPalette(config.palettes);
+  const aliases = sheets?.aliases ?? [];
   parts.push(block(':root', [
     ...colourDeclarations(fallback),
     ...levelDeclarations(fallback),
+    `--arena-palette:${fallback.name};`,
     `--picker-invert:${pickerInvert(fallback.polarity)};`,
     `color-scheme:${fallback.polarity};`,
+    ...aliases,
     ...Object.keys(FONT_ROLES).map((role) => `--font-${role}:${family(fontFor(role).family, fallbackFor(role) as string[])};`),
   ]));
 
   for (const { plugin, at } of declared) {
     const answers = pluginBlocks(plugin, catalogue, fallback.polarity);
-    if (answers.length) parts.push(block(at, answers));
+    if (at === ':root') {
+      if (answers.length) parts.push(block(at, answers));
+    } else {
+      parts.push(block(at, [`--arena-plugin:${plugin.name};`, ...answers]));
+    }
   }
 
   const restated = (plugin: StylePlugin, polarity: string) =>
     pluginBlocks(plugin, catalogue, polarity).filter((d) => d.includes('var(--color-'));
 
   for (const palette of config.palettes) {
-    if (palette === fallback) continue;
     const cross = scopeOn(`.arena-${palette.name}`);
     parts.push(block(`.arena-${palette.name}`, [
       ...colourDeclarations(palette),
       ...levelDeclarations(palette),
+      `--arena-palette:${palette.name};`,
       `--picker-invert:${pickerInvert(palette.polarity)};`,
       `color-scheme:${palette.polarity};`,
+      ...aliases,
       ...(sheets?.roleReferences ?? []),
       ...(root ? restated(root, palette.polarity) : []),
     ]));

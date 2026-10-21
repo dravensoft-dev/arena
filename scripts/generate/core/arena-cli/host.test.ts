@@ -40,6 +40,7 @@ test('the sheets a package ships are read from beside the command, so no copy of
     washes: [],
     scopes: [],
     roleReferences: [],
+    aliases: [],
     catalogue: undefined,
   });
   rmSync(root, { recursive: true });

@@ -104,21 +104,43 @@ test('the config reference carries exactly one components list, and it names she
 
 const themed = (...blocks: string[]): CliRun => ({ ...ok, theme: blocks.join('\n\n') });
 
-const paletteBlock = (selector: string, polarity: string | null) =>
-  `${selector}{\n  --color-base-100:#141010;\n${polarity ? `  color-scheme:${polarity};\n` : ''}}`;
+const paletteBlock = (selector: string, polarity: string | null, name = selector === ':root' ? 'dark' : selector.replace(/^\.arena-/, ''),
+  alias: string | null = '--focus-ring:var(--color-secondary);') =>
+  `${selector}{\n  --color-base-100:#141010;\n  --arena-palette:${name};\n${alias ? `  ${alias}\n` : ''}`
+  + `${polarity ? `  color-scheme:${polarity};\n` : ''}}`;
 
 test('three palettes each reaching a block with their own polarity is what a pass means', () => {
   const run = themed(
     paletteBlock(':root', 'dark'),
+    paletteBlock('.arena-dark', 'dark'),
     paletteBlock('.arena-light', 'light'),
     paletteBlock(`.arena-${THIRD_PALETTE.name}`, 'dark'),
   );
   assert.deepEqual(palettesProblems('react', run), []);
 });
 
+test('a palette block that names no palette, or carries no alias block, is reported', () => {
+  const unnamed = themed(
+    paletteBlock(':root', 'dark'), paletteBlock('.arena-dark', 'dark'),
+    paletteBlock('.arena-light', 'light', 'dark'), paletteBlock(`.arena-${THIRD_PALETTE.name}`, 'dark'),
+  );
+  assert.match(palettesProblems('react', unnamed)[0] ?? '', /\.arena-light declares no --arena-palette:light/);
+  const bare = themed(
+    paletteBlock(':root', 'dark'), paletteBlock('.arena-dark', 'dark', 'dark', null),
+    paletteBlock('.arena-light', 'light'), paletteBlock(`.arena-${THIRD_PALETTE.name}`, 'dark'),
+  );
+  assert.match(palettesProblems('react', bare)[0] ?? '', /\.arena-dark carries no --focus-ring/);
+  const noDefault = themed(
+    paletteBlock(':root', 'dark'), paletteBlock('.arena-light', 'light'),
+    paletteBlock(`.arena-${THIRD_PALETTE.name}`, 'dark'),
+  );
+  assert.match(palettesProblems('react', noDefault)[0] ?? '', /carries no \.arena-dark block/);
+});
+
 test('a palette whose block carries no color-scheme is reported, and so is one with no block at all', () => {
   const silent = themed(
     paletteBlock(':root', 'dark'),
+    paletteBlock('.arena-dark', 'dark'),
     paletteBlock('.arena-light', null),
     paletteBlock(`.arena-${THIRD_PALETTE.name}`, 'dark'),
   );
@@ -126,7 +148,7 @@ test('a palette whose block carries no color-scheme is reported, and so is one w
   assert.equal(problems.length, 1);
   assert.match(problems[0] ?? '', /\.arena-light declares no color-scheme:light/);
 
-  const missing = themed(paletteBlock(':root', 'dark'), paletteBlock('.arena-light', 'light'));
+  const missing = themed(paletteBlock(':root', 'dark'), paletteBlock('.arena-dark', 'dark'), paletteBlock('.arena-light', 'light'));
   assert.match(palettesProblems('react', missing)[0] ?? '', /carries no \.arena-dusk block/);
 });
 

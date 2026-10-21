@@ -250,16 +250,58 @@ test('a missing font role names the three tokens Arena reads', () => {
   assert.match(configProblems(c)[0] ?? '', /fonts\.mono: missing; Arena reads --font-display/);
 });
 
-test('the default palette lands on :root and every other on its own class', () => {
+test('the default palette lands on :root and, with every other, on its own class', () => {
   const c = config({ palettes: [
     { name: 'dark', default: true, polarity: 'dark', colors: colors() },
     { name: 'light', polarity: 'light', colors: colors({ 'base-100': '#ffffff' }) },
     { name: 'high-contrast', polarity: 'light', colors: colors({ 'base-100': '#fefefe' }) },
   ] });
   const decls = parseDecls(themeCss(c));
-  assert.deepEqual([...decls.keys()].filter((s) => !s.startsWith('@')), [':root', '.arena-light', '.arena-high-contrast']);
+  assert.deepEqual([...decls.keys()].filter((s) => !s.startsWith('@')), [':root', '.arena-dark', '.arena-light', '.arena-high-contrast']);
   assert.equal(decls.get(':root').get('color-base-100'), '#141010');
   assert.equal(decls.get('.arena-light').get('color-base-100'), '#ffffff');
+  assert.equal(decls.get('.arena-dark').get('color-base-100'), '#141010');
+});
+
+const aliased = () => ({ ...SHEETS_FULL, aliases: ['--ink:var(--color-base-100);', '--focus-ring:var(--color-secondary);'] });
+const TWO_PALETTES = [
+  { name: 'dark', default: true, polarity: 'dark', colors: colors() },
+  { name: 'light', polarity: 'light', colors: colors({ 'base-100': '#ffffff' }) },
+];
+
+test('the default palette also wears its class, carrying its polarity and its name', () => {
+  const css = themeCss(config({ palettes: TWO_PALETTES }), { importHeader: false });
+  const block = (selector: string) => css.slice(css.indexOf(`${selector}{`), css.indexOf('}', css.indexOf(`${selector}{`)));
+  assert.match(block('.arena-dark'), /color-scheme:dark;/);
+  assert.match(block('.arena-dark'), /--arena-palette:dark;/);
+  assert.match(block(':root'), /--arena-palette:dark;/);
+  assert.match(block('.arena-light'), /--arena-palette:light;/);
+  assert.match(block('.arena-light'), /color-scheme:light;/);
+});
+
+test('every palette block, :root included, holds every alias the catalogue declares', () => {
+  const css = themeCss(config({ palettes: TWO_PALETTES }), { importHeader: false, sheets: aliased() });
+  const decls = parseDecls(css);
+  for (const selector of [':root', '.arena-dark', '.arena-light'])
+    for (const alias of ['ink', 'focus-ring'])
+      assert.ok(decls.get(selector).has(alias), `${selector} lacks --${alias}`);
+  assert.equal(decls.get('.arena-light').get('focus-ring'), 'var(--color-secondary)');
+});
+
+test('a later plugin names itself, the root plugin does not, and the default palette crosses too', () => {
+  const css = themeCss(listed(['console', 'marketing'], { palettes: [
+    { name: 'dark', default: true, polarity: 'dark', colors: colors() },
+    { name: 'light', polarity: 'light', colors: colors() },
+  ] }), {
+    sheets: SHEETS_FULL, importHeader: false,
+    plugins: [total(), scoped({ 'ink-eyebrow': { $type: 'color', $value: '{color.secondary}' } })],
+  });
+  const decls = parseDecls(css);
+  assert.equal(decls.get('.arena-marketing').get('arena-plugin'), 'marketing');
+  assert.equal(decls.get(':root').has('arena-plugin'), false);
+  const keys = [...decls.keys()];
+  for (const key of crossKeys('.arena-dark', '.arena-marketing'))
+    assert.ok(keys.includes(key), `the default palette lacks the cross ${key}`);
 });
 
 test('polarity decides --picker-invert and color-scheme in every block', () => {

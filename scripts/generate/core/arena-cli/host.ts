@@ -9,7 +9,7 @@ import { dirname, basename, join, resolve } from 'node:path';
 import { loadVocabulary } from './audit.ts';
 import type { VocabularyIndex } from './audit.ts';
 import { inlineHues, levelDefaults, levelsIn, washesIn } from './levels.ts';
-import { SHEET_IMPORT, componentMap, packageCatalogue, roleReferencesIn, scopesIn } from './sheets.ts';
+import { SHEET_IMPORT, componentMap, packageCatalogue, aliasesIn, roleReferencesIn, scopesIn } from './sheets.ts';
 import type { PackageSheets } from './theme-css.ts';
 import type { ComponentMap } from './components.ts';
 
@@ -68,6 +68,7 @@ export function packageSheets(root: string): PackageSheets {
       washes,
       scopes: [...new Set([...layerCss, ...sheets].flatMap(scopesIn))].sort(),
       roleReferences: roleReferencesIn(catalogue),
+      aliases: aliasesIn(catalogue),
       catalogue: catalogue ?? undefined,
     };
   } catch {

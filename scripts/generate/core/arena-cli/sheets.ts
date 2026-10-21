@@ -42,6 +42,10 @@ export function roleReferencesIn(catalogue: TokenCatalogue | null): string[] {
     .filter((d) => REFERENCE_DECLARATION.test(d.replace(/;$/, '')));
 }
 
+export function aliasesIn(catalogue: TokenCatalogue | null): string[] {
+  return Object.entries(catalogue?.aliases ?? {}).map(([name, value]) => `--${name}:${value};`);
+}
+
 const CSS_COMMENT = /\/\*[\s\S]*?\*\//g;
 
 export const SCOPE_CLASS = /\.arena-([a-z][a-z0-9]*(?:-[a-z0-9]+)*)/g;

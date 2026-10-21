@@ -18,7 +18,7 @@ import {
   POLARITIES, FONT_ROLES, requiredKeys,
 } from '../../generate/core/arena-cli/palette-keys.ts';
 import { CSS_TARGETS } from '../../generate/arena/generate-tokens.ts';
-import { tokenCatalogue } from '../../lib/arena/package-assembly.ts';
+import { ALIAS_SOURCE, tokenCatalogue } from '../../lib/arena/package-assembly.ts';
 import { readPlugin, resolvedPlugin } from '../../generate/core/arena-cli/theme-css.ts';
 import type { TokenCatalogue } from '../../generate/core/arena-cli/theme-css.ts';
 import { ROLES, movedTokens } from './check-style-plugin.ts';
@@ -40,7 +40,7 @@ export const CARRIES = [TOKENS, SHEET, CONFIG, CARD];
 
 export const node = {
   name: 'check:catalogue',
-  reads: [ROLES, ...CSS_TARGETS, `${CATALOGUE}/**`],
+  reads: [ROLES, ALIAS_SOURCE, ...CSS_TARGETS, `${CATALOGUE}/**`],
   writes: [],
   feeds: [],
 };
