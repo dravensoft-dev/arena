@@ -18,11 +18,11 @@ What differs is which numbers exist for each package. Suppose a release changes 
 
 The newest version of a package is the version of the last Arena release that changed it. A gap in the sequence records a release that left the package alone. Two packages at different versions are two packages that last changed at different times. All of them are built from the same tree.
 
-Install the layer package and the contracts package at the versions you resolved, and pin them. [`contracts.md`](./contracts.md) says why the contracts package wants an exact version.
+Install the layer package and the MCP package at the versions you resolved, and pin them. A project that writes a layer also installs the contracts package at an exact version; [`contracts.md`](./contracts.md) says why.
 
 ## How do I upgrade?
 
-Pin an exact version of each package, and read the release page for the version you move to. The pages are at `https://github.com/dravensoft-dev/arena/releases`.
+Pin an exact version of each package. The versions are listed at `https://github.com/dravensoft-dev/arena/releases`.
 
 ```bash
 npm i -E @dravensoft/arena-react@<version>            # or: npm i --save-exact
@@ -31,11 +31,13 @@ yarn add -E @dravensoft/arena-react@<version>         # or: yarn add --exact
 bun add -E @dravensoft/arena-react@<version>          # or: bun add --exact
 ```
 
-Raise the layer package, the contracts package and the MCP package together. Then run `arena build`, `arena check` and `arena audit --strict`, or the `arena:audit` script of your project. [`cli.md`](./cli.md) says what each reports.
+The Angular layer is `@dravensoft/arena-angular` and the MCP server is `@dravensoft/arena-mcp`; give each its own line in the form above. The section above says the numbers differ, so look each one up: `npm view <package> version` prints the newest version of a package, and `npm ls <package>` prints the one your project has installed.
+
+Raise the layer package and the MCP package together. Then run `arena build`, `arena check` and `arena audit --strict`, or the `arena:audit` script of your project. [`cli.md`](./cli.md) says what each reports.
 
 No deprecation window precedes a removal, and three readers catch what one leaves behind. `arena build` refuses a stylesheet or component name this version does not ship and lists the names it does ship. The compiler reports a removed export or member. `arena audit` reports a class that the vocabulary does not carry as `own-class`.
 
-The release page lists the rest. A custom property or a role that your own CSS reads through `var()` goes unreported by every tool, so read the page before you move.
+No list of breaking changes is written, and the three readers are what an upgrader has. A custom property or a role that your own CSS reads through `var()` goes unreported by every tool, so search your own CSS for each `var(--` name before you move.
 
 ## Which licence does Arena carry?
 

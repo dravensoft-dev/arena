@@ -145,6 +145,8 @@ Every field is optional in what you provide, and one you leave out keeps the def
 Wrap the tree in `ArenaLocaleProvider`.
 
 ```tsx
+import { ArenaLocaleProvider, useArenaLocale, arenaMergeLocale, ARENA_DEFAULT_LOCALE } from '@dravensoft/arena-react';
+
 <ArenaLocaleProvider value={{ locale: 'es-ES', calendarToday: 'Hoy', paginationPrevious: 'Anterior', paginationNext: 'Siguiente', onboardingStep: 'Paso {current} de {total}' }}>
   <App />
 </ArenaLocaleProvider>
@@ -169,6 +171,8 @@ const spanish = { locale: 'es-ES', calendarToday: 'Hoy', paginationNext: 'Siguie
 Provide the locale at bootstrap.
 
 ```ts
+import { provideArenaLocale, ARENA_LOCALE, arenaMergeLocale } from '@dravensoft/arena-angular';
+
 bootstrapApplication(App, {
   providers: [provideArenaLocale({ locale: 'es-ES', calendarToday: 'Hoy', paginationPrevious: 'Anterior', paginationNext: 'Siguiente', onboardingStep: 'Paso {current} de {total}' })],
 });
