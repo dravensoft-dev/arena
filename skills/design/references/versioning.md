@@ -1,6 +1,6 @@
 # What a version promises, and why a package's may differ from Arena's
 
-Why is the latest version of `@dravensoft/arena-react` not the latest version of `@dravensoft/arena-angular`? Which version is Arena's? What does a version promise? Can two copies of Arena share an app? Which licence does Arena carry? Read this when you choose a range, plan an upgrade, or find two Arena packages at different versions.
+Why is the latest version of `@dravensoft/arena-react` not the latest version of `@dravensoft/arena-angular`? Which version is Arena's? What does a version promise? Can two copies of Arena share an app? Which licence does Arena carry? Read this when you choose a range, install a version, or find two Arena packages at different versions.
 
 ## What does a version promise?
 
@@ -8,7 +8,7 @@ Every package follows semantic versioning, measured against what these reference
 
 ## Can two copies of Arena share an app?
 
-No. One app installs one copy of its layer package. The stylesheet, its classes and the custom properties on `:root` belong to the whole document. So does the `arena-theme` storage key, and two copies overwrite each other in whatever order their sheets load. What a provider hands down, the locale or the themes, reaches only its own copy's components. Move the whole app to a new major at once. [How do I upgrade?](#how-do-i-upgrade) says what catches a name the new version removes.
+No. One app installs one copy of its layer package. The stylesheet, its classes and the custom properties on `:root` belong to the whole document. So does the `arena-theme` storage key, and two copies overwrite each other in whatever order their sheets load. What a provider hands down, the locale or the themes, reaches only its own copy's components.
 
 ## Why might a package's latest version not match Arena's latest version?
 
@@ -18,26 +18,20 @@ What differs is which numbers exist for each package. Suppose a release changes 
 
 The newest version of a package is the version of the last Arena release that changed it. A gap in the sequence records a release that left the package alone. Two packages at different versions are two packages that last changed at different times. All of them are built from the same tree.
 
-Install the layer package and the MCP package at the versions you resolved, and pin them. A project that writes a layer also installs the contracts package at an exact version; [`contracts.md`](./contracts.md) says why.
+A project that writes a layer also installs the contracts package at an exact version; [`contracts.md`](./contracts.md) says why.
 
-## How do I upgrade?
+## How do I install a version?
 
-Pin an exact version of each package. Arena's releases are listed at `https://github.com/dravensoft-dev/arena/releases`.
+Pin an exact version of the layer package your project uses and of the MCP package. Arena's releases are listed at `https://github.com/dravensoft-dev/arena/releases`. Each command names one layer, here React; for Angular, write `@dravensoft/arena-angular@<version>`.
 
 ```bash
-npm i -E @dravensoft/arena-react@<react-version> @dravensoft/arena-angular@<angular-version> @dravensoft/arena-mcp@<mcp-version>  # or: npm i --save-exact
-pnpm add -E @dravensoft/arena-react@<react-version> @dravensoft/arena-angular@<angular-version> @dravensoft/arena-mcp@<mcp-version>  # or: pnpm add --save-exact
-yarn add -E @dravensoft/arena-react@<react-version> @dravensoft/arena-angular@<angular-version> @dravensoft/arena-mcp@<mcp-version>  # or: yarn add --exact
-bun add -E @dravensoft/arena-react@<react-version> @dravensoft/arena-angular@<angular-version> @dravensoft/arena-mcp@<mcp-version>  # or: bun add --exact
+npm i -E @dravensoft/arena-react@<version> @dravensoft/arena-mcp@<version>  # or: npm i --save-exact
+pnpm add -E @dravensoft/arena-react@<version> @dravensoft/arena-mcp@<version>  # or: pnpm add --save-exact
+yarn add -E @dravensoft/arena-react@<version> @dravensoft/arena-mcp@<version>  # or: yarn add --exact
+bun add -E @dravensoft/arena-react@<version> @dravensoft/arena-mcp@<version>  # or: bun add --exact
 ```
 
-Keep the layer package your project uses and the MCP package, and drop the other layer. The section above says the numbers differ, so look each one up: `npm view <package> version` prints the newest version of a package, and `npm ls <package>` prints the one your project has installed.
-
-Raise the layer package and the MCP package together. Then run `arena build`, `arena check` and `arena audit --strict`, or the `arena:audit` script of your project. [`cli.md`](./cli.md) says what each reports.
-
-No deprecation window precedes a removal, and three readers catch what one leaves behind. `arena build` refuses a stylesheet or component name this version does not ship and lists the names it does ship. The compiler reports a removed export or member. `arena audit` reports a class that the vocabulary does not carry as `own-class`.
-
-No list of breaking changes is written, and the three readers are what an upgrader has. A custom property or a role that your own CSS reads through `var()` goes unreported by every tool. Before you move, look each `var(--` name your CSS reads up in the new version's `arena.tokens.json`, whose keys drop the leading `--`.
+The section above says the numbers differ, so look each one up: `npm view <package> version` prints the newest version of a package, and `npm ls <package>` prints the one your project has installed.
 
 ## Which licence does Arena carry?
 

@@ -102,9 +102,11 @@ full and says which of them a gate reads your own sources for.
 bun add @dravensoft/arena-react     # or @dravensoft/arena-angular
 ```
 
-**That is the whole install.** Phosphor is a peer rather than a second
-command, because Arena renders icon class names and never SVG; the layer page
-below says which peers each package declares.
+**That is the whole install.** The command names the peers a project lacks. A manager that
+installs no peer, Yarn among them, needs them named; Phosphor is a peer rather than a second
+package, so Arena renders icon class names and never SVG.
+[`install.md`](./skills/design/references/install.md#how-do-i-install-a-package) lists the
+commands per layer, and the layer page below says which peers each package declares.
 
 Then run `npx --no-install arena init` (or `pnpm exec arena init`, or `bunx --no-install arena init`),
 which copies an example `arena.config.json` and wires the build scripts, and import what
@@ -199,8 +201,8 @@ component ships under both names and the two documents are not interchangeable.
 
 The two packages and the plugin do not always carry the same number, because a
 package publishes only when something it ships changed.
-[`skills/design/references/versioning.md`](./skills/design/references/versioning.md#how-do-i-upgrade)
-explains what that means for an upgrade.
+[`skills/design/references/versioning.md`](./skills/design/references/versioning.md#how-do-i-install-a-version)
+explains what that means.
 
 ## Latest project artifacts
 - **Repo/Claude Code plugin**: 12.1.1
