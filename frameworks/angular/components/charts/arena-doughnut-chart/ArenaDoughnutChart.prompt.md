@@ -1,6 +1,6 @@
 Arena doughnut, parts of one whole, hand-written SVG, every colour a token. The chart takes exactly one series, whose values are read as shares of their own total. The legend is not optional:
 slices are categories, and identity is never colour alone. Colours come from the categorical
-ramp in order and are never cycled; a slice cannot be a status, so `tone` has no meaning on
+ramp in order from `colorStart`; a slice cannot be a status, so `tone` has no meaning on
 this chart's series. The ring starts at 12 o'clock and the hole is 62% of the outer radius. Hovering either a slice or its legend row dims the others and reads that slice's percentage in the hole. Focusing a legend row does the same, because every row is a real button. The
 numbers are also a real table for anyone who cannot see the ring.
 
@@ -75,9 +75,10 @@ measures a frame of its own template, a row holding the ring and the legend.
   reads better. The ceiling is not a rendering limit. The ceiling is what the shape can carry.
 - Make sure the values really are parts of one whole. Two doughnuts whose slices come from
   different totals are two charts that look like one.
-- Don't ask for a ninth colour. The ramp has eight slots and is never cycled, so a ninth
-  slice repeats slot 8 rather than silently claiming two categories are one, fold the tail
-  into "Other" instead.
+- Use `colorStart` to move the slot the first slice takes. `colorIds` keeps the slots it names.
+- Don't ask for a ninth colour. The ramp has eight slots and the count starts again after the
+  last, so a ninth slice takes the first slot again and reads as the first category. Fold the
+  tail into "Other" instead.
 - Don't use it for change over time. The component for that is `arena-line-chart`.
 - Don't pass a second series. A ring of two series is a sunburst, which is a different chart
   and not this one: the second warns in development and is ignored.

@@ -250,8 +250,9 @@ export async function buildScriptModules() {
   lines.push(
     '',
     '/* Derived, not authored: the number of --color-cat-* slots in',
-    ' * contracts/design/palette.dark.json. Assigned in order and NEVER cycled -- a 9th',
-    ' * series folds to "Other", small multiples, or direct labels. */',
+    ' * contracts/design/palette.dark.json. A chart assigns the slots by position',
+    ' * from its colorStart and wraps; a 9th series still folds to "Other", small',
+    ' * multiples, or direct labels. */',
     `export const catSlots = ${await catSlotCount()};`,
     '',
     '/* Derived, not authored: the number of --color-heat-* steps in',

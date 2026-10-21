@@ -163,9 +163,9 @@ Two of these numbers the scripts **report without gating**: crimson as text sits
 
 ### The categorical ramp
 
-A fixed set of slots for colouring N arbitrary entities: chart series, calendar events, any set where the color answers *which thing*. Authored per theme, **fixed order, never cycled**. A ninth entity folds to "Other", small multiples, or direct labels, never a generated hue. The slots carry **identity only**; when a series *is* a state, a chart's `tone` prop uses the status colors instead.
+A fixed set of slots for colouring N arbitrary entities: chart series, calendar events, any set where the color answers *which thing*. Authored per theme, **fixed order**: an explicit slot clamps at the last one, and a slot a chart assigns by position rotates from its `colorStart`. A ninth entity folds to "Other", small multiples, or direct labels, never a generated hue. The slots carry **identity only**; when a series *is* a state, a chart's `tone` prop uses the status colors instead.
 
-The ramp is one system with one clamp: `arenaCatIndex(slot)`, which every layer carries in its own `DataVisuals` module. A chart's colour and `ArenaCalendar`'s `colorId` both read it rather than keeping their own copy: two clamps over one ramp is how a ramp stops being a ramp.
+The ramp is one system with one clamp: `arenaCatIndex(slot)`, which every layer carries in its own `DataVisuals` module. A chart's colour and `ArenaCalendar`'s `colorId` both read it rather than keeping their own copy: two clamps over one ramp is how a ramp stops being a ramp. `arenaCatRotate(start, position)` is the one rotation: a chart counts a positional slot from `colorStart` through it and wraps after the last slot.
 
 Where a component has no `tone` escape hatch, **state goes on a non-chromatic channel**, never by turning an identity-coloured entity `--danger`. An entity painted a status color while its neighbours carry identity colors makes the palette mean two things at once, and the reader cannot tell which. `ArenaCalendar` is the strict case: it draws every event chip itself, so a consumer has no chromatic channel *and* no non-chromatic one, and a cancelled class says so in its title or does not appear on the schedule. That is a capability the API contract does not offer, and `ArenaCalendar.prompt.md` records it.
 

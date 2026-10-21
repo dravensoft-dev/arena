@@ -40,6 +40,7 @@ Parts of one whole, a share breakdown across a handful of categories. Always dra
 **Do**
 - Keep it to a handful of slices. Past five or six, the small ones are unreadable; fold the tail into "Other", or use bars.
 - Let the series' `colorIds` default. Ramp slots 1..N in order is the rule, not a starting point to tweak.
+- Use `colorStart` to move the slot the first slice takes. `colorIds` keeps the slots it names.
 - Use it only when the parts genuinely sum to one whole. If they don't, it is a bar chart.
 - Pass `label`, because it names the chart for a screen reader and captions the numbers table. Without it the chart throws: a fallback of "Doughnut chart" identifies the chart *type* and not the chart, so two rings on one page would announce identically.
 - Pass exactly one series. The slices are that series' values read as shares of their own total, and the slice identities are its `colorIds`.
@@ -49,7 +50,7 @@ Parts of one whole, a share breakdown across a handful of categories. Always dra
 - Don't reach for `tone` on the series. A slice is a category by definition, and a ring has no state to report. A tone here paints every slice one colour and destroys the only thing the chart encodes.
 - Don't pass a second series. A ring of two series is a sunburst, which is a different chart and not this one: the second warns in development and is ignored.
 - Use `valuePrefix` for a currency that goes in front, and `valueFormat` for the number itself: locale, fraction digits, grouping, compaction. Formatting before you pass them is not an option, because what you pass is `ArenaSeries[]` and the writing happens on labels Arena generates afterwards. With no `valueFormat` the raw JavaScript number is drawn, which is what a chart always did.
-- Don't go past eight categories. The ramp is eight slots and is never cycled: a ninth slice would repeat the last slot and claim two categories are one.
+- Don't go past eight categories. The ramp is eight slots and the count starts again after the last. A ninth slice takes the first slot again and reads as the first category, so fold the tail into "Other".
 - Don't compare two doughnuts side by side. Reading angle differences across charts is the thing people are worst at; use grouped bars.
 - Don't omit `labels`, `series` or `label`. All three are required props, and `ArenaDoughnutChart` throws from its render rather than drawing an empty ring. A required member absent is a caller bug that fails hard in every layer, not a state to render.
 - Don't pass more `labels` than the series has values. A slice is drawn per value and takes the label at its own index. A surplus label is silently dropped rather than given a legend row with no slice behind it.

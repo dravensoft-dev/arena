@@ -50,8 +50,10 @@ nowhere to put the second. Its label is not decoration: it heads that series' ow
 so a reader of the table never has to work out which number belongs to which line. The
 component's own `label` is the chart's name and a different thing, and both are required and
 guarded for the reason `contracts/api/MemberForms.md` gives. A series with no identity of its
-own takes the ramp slot its POSITION gives it, so two series are never the same colour by
-accident, and the ramp still clamps rather than cycling. **A missing number is not a zero**: a
+own takes the ramp slot its POSITION gives it, counted from the chart's `colorStart` (slot 1 by
+default) through `arenaCatRotate(start, position)`, so two series are never the same colour by
+accident. After the last slot the count starts again, and an explicit slot still clamps through
+`arenaCatIndex(slot)`. **A missing number is not a zero**: a
 series shorter than the others stops there, leaves an empty cell in the table, and draws no
 mark, because inventing the difference is the one thing a chart may not do.
 

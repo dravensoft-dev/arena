@@ -111,7 +111,7 @@
   --color-neutral: var(--color-neutral);
   --color-neutral-content: var(--color-neutral-content);
 
-  /* categorical ramp (identity, in order, never cycled) */
+  /* categorical ramp (identity, in order) */
   --color-cat-1: var(--color-cat-1);
   --color-cat-2: var(--color-cat-2);
   --color-cat-3: var(--color-cat-3);
