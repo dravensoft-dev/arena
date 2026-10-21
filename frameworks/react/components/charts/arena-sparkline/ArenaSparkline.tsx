@@ -24,7 +24,7 @@ export interface ArenaSparklineProps {
   /** One label per point, in the order of the series' `values`. A label heads its row of the hidden table and the tooltip. A label with no value ends the line there rather than dropping it to zero. */
   labels: readonly string[];
 
-  /** The series drawn, exactly one. A second warns and is ignored, because a sparkline has no legend to say which line is which. `tone` is the only trend colour; without it the line takes the identity colour of the first slot, which says nothing about whether the trend is good. */
+  /** The series drawn, exactly one. A second warns and is ignored, because a sparkline has no legend to say which line is which. `tone` is the only trend colour; without it the line takes the identity colour of the slot `colorStart` names, which says nothing about whether the trend is good. */
   series: readonly ArenaSeries[];
 
   /** The ramp slot the line takes when its series names no colour of its own. Absent, 1. */

@@ -13,7 +13,7 @@ readonly errors = computed<ArenaSeries[]>(() => [{ label: 'Error rate', values: 
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
 | `labels*` | array | `readonly string[]` |  | One label per point, in the order of the series' `values`. A label heads its row of the hidden table and the tooltip. A label with no value ends the line there rather than dropping it to zero. |
-| `series*` | array | `readonly ArenaSeries[]` |  | The series drawn, exactly one. A second warns and is ignored, because a sparkline has no legend to say which line is which. `tone` is the only trend colour; without it the line takes the identity colour of the first slot, which says nothing about whether the trend is good. |
+| `series*` | array | `readonly ArenaSeries[]` |  | The series drawn, exactly one. A second warns and is ignored, because a sparkline has no legend to say which line is which. `tone` is the only trend colour; without it the line takes the identity colour of the slot `colorStart` names, which says nothing about whether the trend is good. |
 | `colorStart` | enum | `ArenaCatSlot` | `1` | The ramp slot the line takes when its series names no colour of its own. Absent, 1. |
 | `label*` | primitive | `string` |  | Names the sparkline for its accessible name and for the caption of its data table. Required and guarded rather than defaulted: a table cell holding six sparklines needs six distinct names, and a fallback of the chart type would announce all six identically. |
 | `area` | primitive | `boolean` | `false` | Fill under the line at 18% of the series colour: a tint, never a gradient. The fill reaches the floor of the box, which is the lowest value and not zero. The fill therefore shades the shape and measures nothing. |
