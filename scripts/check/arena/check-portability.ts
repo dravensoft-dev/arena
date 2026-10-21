@@ -27,6 +27,8 @@ export const node = {
   reads: [
     'scripts/**', '.github/workflows/**',
     'frameworks/**/*.ts', 'frameworks/**/*.tsx', 'frameworks/**/*.mts', 'frameworks/**/*.mjs',
+    '!frameworks/**/dist/**', '!frameworks/**/build/**', '!frameworks/**/node_modules/**',
+    '!frameworks/**/*.generated.*',
   ],
   writes: [],
   feeds: [],
