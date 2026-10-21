@@ -82,9 +82,9 @@ The missing origin is reported once, with a `console.warn`, and only on an index
 
 | export | what it is |
 | --- | --- |
-| `provideArenaMetadata(config?)` | the provider, returning `EnvironmentProviders` because a `TitleStrategy` is the application's and not one component's. Takes `suffix`, `separator`, `origin`, `robots`, `description`, `image` and `siteName`, each a default a route can outrank |
+| `provideArenaMetadata(config?)` | the provider, returning `EnvironmentProviders` because a `TitleStrategy` is the application's and not one component's. Takes `suffix`, `separator`, `origin`, `robots`, `description`, `image` and `siteName`, each a default a route can outrank. `separator` defaults to `' · '` (`ARENA_TITLE_SEPARATOR`), and the title is `<title><separator><suffix>`. `image` reaches `og:image` as given, so an absolute URL is the caller's |
 | `arenaRouteMeta(meta)` | a route's own `description`, `robots`, `image`, `type` and `canonical`, under one key of the `data` that is yours. Typed, because `Route.data` is not: written flat, a misspelled `descripton` is a metadatum that never appears and nothing that fails. A deeper route wins a key and keeps what it did not name, so a layout route sets what its section shares |
-| `ArenaMetadataService` | the writer itself, one method, `apply(page)`. Call it for a page whose metadata is not a fact about the route: a detail screen described by the record it just loaded |
+| `ArenaMetadataService` | the writer itself, one method, `apply(page)`, where `page` takes `title`, `description`, `robots`, `image`, `type`, `canonical` and `url`. Call it for a page whose metadata is not a fact about the route: a detail screen described by the record it just loaded |
 | `ArenaTitleStrategy` | the strategy the provider installs, exported so one of your own extends it rather than replaces it |
 
 ## How does a React project write the head?
@@ -99,6 +99,9 @@ export function Orders() {
       <meta name="description" content="Every order in the system." />
       <meta name="robots" content="index,follow" />
       <link rel="canonical" href="https://andina.example/orders" />
+      <meta property="og:title" content="Orders · Andina" />
+      <meta property="og:url" content="https://andina.example/orders" />
+      <meta property="og:image" content="https://andina.example/orders.png" />
       <h1>Orders</h1>
     </>
   );
@@ -128,6 +131,25 @@ import { arenaEscapeJsonLd } from '@dravensoft/arena-react';
 const data = { '@context': 'https://schema.org', '@type': 'Organization', name: 'Andina', url: 'https://andina.example' };
 
 <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: arenaEscapeJsonLd(JSON.stringify(data)) }} />
+```
+
+```ts
+import { Component, DOCUMENT, OnDestroy, inject } from '@angular/core';
+import { arenaEscapeJsonLd } from '@dravensoft/arena-angular';
+
+@Component({ selector: 'app-organization', template: '' })
+export class Organization implements OnDestroy {
+  private readonly script = inject(DOCUMENT).createElement('script');
+
+  constructor() {
+    const data = { '@context': 'https://schema.org', '@type': 'Organization', name: 'Andina', url: 'https://andina.example' };
+    this.script.type = 'application/ld+json';
+    this.script.textContent = arenaEscapeJsonLd(JSON.stringify(data));
+    inject(DOCUMENT).head.appendChild(this.script);
+  }
+
+  ngOnDestroy() { this.script.remove(); }
+}
 ```
 
 A trail of your own that does not use `ArenaBreadcrumbs` takes `arenaBreadcrumbList(items, origin?)`, exported from the root of both packages. The call returns the `BreadcrumbList` already escaped, so the string goes into the same script as written.

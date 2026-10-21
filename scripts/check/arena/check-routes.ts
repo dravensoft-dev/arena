@@ -168,21 +168,20 @@ export const ROUTES: Route[] = [
       + 'then the page that says what Arena hands over instead of a component',
     entry: 'consumer',
     stops: ['skills/design/references/media-register.md'],
-    budget: 11_700,
+    budget: 12_400,
     reason:
-      'paid once per project, by a reader the router has just told to write their own markup. What '
-      + 'it buys is that the honest sentence sending them away from the component list stops costing '
+      'paid once per project, by a reader the router has just told to write their own markup. It '
+      + 'buys that the honest sentence sending them away from the component list stops costing '
       + 'more than a dishonest one: without it a walk hand-rolls a focus trap the package already '
       + 'ships, guesses an ARIA contract that is written down, and rediscovers that a photo wall is '
       + 'one line of CSS. It names what Arena hands over instead of a component, the component names '
       + 'that look like the answer and are not, and the viewer that opens a picture at full size with '
       + 'the answers every walk otherwise invents: what dims the page, whether the picture is '
       + 'contained, what a control over it stands on, and which pattern it still binds. It also says '
-      + 'where a value no step names is set. The number is what the stops measure with room for one '
-      + 'section, and it grows when the register gains a part to hand over rather than when the page '
-      + 'gains a paragraph. The feed\'s keys are written out as a function, because the component '
+      + 'where a value no step names is set. The number is what the stops measure, and it grows when '
+      + 'the register gains a part to hand over rather than when the page gains a paragraph. The feed\'s keys are written out as a function, because the component '
       + 'binding them ships compiled and no export hands them over, and the Angular component binding '
-      + 'them is shown whole.',
+      + 'them is shown whole. It answers the four media roles in a fragment, and places video and illustration in the figure.',
   },
   {
     name: 'consumer-seo',
@@ -190,7 +189,7 @@ export const ROUTES: Route[] = [
       + 'then the page that says what Arena writes into the head and which layer writes it',
     entry: 'consumer',
     stops: ['skills/design/references/seo.md'],
-    budget: 9_300,
+    budget: 10_400,
     reason:
       'paid once per project and taken before the first screen, because the answer reaches the '
       + 'layer and the install rather than a component, so a project that settles it afterwards '
@@ -201,10 +200,9 @@ export const ROUTES: Route[] = [
       + 'supplies a head and that a framework picked to be found supplies its own, and it points at '
       + 'the node carrying the server-rendering evidence at the decision, without choosing an '
       + 'architecture for the project. It tables what the Angular head entry point exports. The '
-      + 'number is what the stops measure with room for one section, and it grows when Arena gains '
-      + 'something to write into the head. It says how each layer mounts a structured-data script, '
+      + 'number is what the stops measure, and it grows when Arena gains something to write into the head. It says how each layer mounts a structured-data script, '
       + 'names each Open Graph tag Angular writes, and shows React a head and a JSON-LD script of its '
-      + 'own, because React ships no writer, and names the breadcrumb serialiser beside the escape.',
+      + 'own, because React ships no writer, and names the breadcrumb serialiser beside the escape. It gives the page fields and the title the writer composes.',
   },
   {
     name: 'consumer-surface',
