@@ -269,10 +269,16 @@ The package is the code. The server, the plugin and the repository are the langu
     const roles = new Set(Object.keys(readJson(join(base, ROLE_CONTRACT)) as Record<string, unknown>));
     const utilities = utilitiesOf(base, /^\s*--(spacing|radius|shadow|ease|z-index)-([a-z0-9-]+):\s*var\(--((?:sp|r|shadow|ease|z)-[a-z0-9-]+)\)\s*;/,
       (kind, name) => ({ spacing: `*-${name}`, radius: `rounded-${name}`, 'z-index': `z-${name}` })[kind] ?? `${kind}-${name}`);
+    const unit = /^\s*--spacing:\s*var\(--([a-z0-9-]+)\)\s*;/m.exec(readFileSync(join(base, THEME_SHEET), 'utf8'))?.[1];
+    const pixels = (name: string) => /^(-?[\d.]+)px$/.exec(String(tokens[name]))?.[1];
+    const multiple = (name: string) => {
+      const step = unit === undefined ? undefined : Number(pixels(name)) / Number(pixels(unit));
+      return name.startsWith('sp-') && step !== undefined && Number.isFinite(step) ? `\`*-${step}\`` : undefined;
+    };
     const rows = groups.flatMap((group) => Object.entries(tokens)
       .filter(([name]) => !roles.has(name) && (name === group || name.startsWith(`${group}-`)))
-      .map(([name, value]) => `| \`--${name}\` | \`${value}\` | ${utilities.get(name)?.join(', ') ?? 'none'} |`));
-    return ['`*-` stands for any spacing utility, such as `h-` or `py-`. A utility the table marks `none` has no mapping in the Tailwind sheet, so it emits nothing and reports nothing.', '',
+      .map(([name, value]) => `| \`--${name}\` | \`${value}\` | ${multiple(name) ?? utilities.get(name)?.join(', ') ?? 'none'} |`));
+    return ['`*-` stands for any spacing utility, such as `h-` or `py-`. The sheet sets the spacing base to `--sp-1`, so a spacing utility resolves as its number times that step. A row marked `none` has no utility that reads its token. Where the sheet resets a Tailwind default scale (radius, shadow, ease and z-index), a utility of that default, such as `shadow-md`, emits nothing and reports nothing. The `sm:`, `md:` and `lg:` variants keep Tailwind\'s own widths, not the `--bp-*` values.', '',
       '| custom property | value | Tailwind |', '| --- | --- | --- |', ...rows].join('\n');
   },
 
