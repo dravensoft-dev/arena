@@ -27,6 +27,10 @@
     },
     "tone-and-color-id": {
       "series": [{"label": "Deployments", "values": [42, 51, 38, 64, 57], "tone": "success", "colorId": 2}]
+    },
+    "color-start": {
+      "colorStart": 6,
+      "series": [{"label": "Deployments", "values": [42, 51, 38, 64, 57]}, {"label": "Rollbacks", "values": [4, 9, 2, 11, 3]}, {"label": "Hotfixes", "values": [1, 3, 0, 5, 2]}, {"label": "Reverts", "values": [2, 1, 4, 0, 3]}]
     }
   },
   "note": "Two series share each category's band, so a reader compares within a day before comparing across days."

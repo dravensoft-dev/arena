@@ -3,9 +3,9 @@
   "note": "Every variant a chart's demo declares, drawn once: absent bands and data, a value at and past each end of the scale, and a configuration the chart warns about. The pixels and the console warnings of the two layers must agree on each.",
   "sections": [
     { "title": "ArenaLineChart", "items": ["ArenaLineChart:flat", "ArenaLineChart:negative", "ArenaLineChart:single-point", "ArenaLineChart:area-two-series", "ArenaLineChart:tone-and-color-id"] },
-    { "title": "ArenaBarChart", "items": ["ArenaBarChart:zeros", "ArenaBarChart:negative", "ArenaBarChart:stacked-negative", "ArenaBarChart:single-category", "ArenaBarChart:tone-and-color-id"] },
+    { "title": "ArenaBarChart", "items": ["ArenaBarChart:zeros", "ArenaBarChart:negative", "ArenaBarChart:stacked-negative", "ArenaBarChart:single-category", "ArenaBarChart:tone-and-color-id", "ArenaBarChart:color-start"] },
     { "title": "ArenaHorizontalBarChart", "items": ["ArenaHorizontalBarChart:zeros", "ArenaHorizontalBarChart:negative", "ArenaHorizontalBarChart:long-name", "ArenaHorizontalBarChart:stacked-negative", "ArenaHorizontalBarChart:tone-and-color-id"] },
-    { "title": "ArenaDoughnutChart", "items": ["ArenaDoughnutChart:pie", "ArenaDoughnutChart:one-slice", "ArenaDoughnutChart:zero-total", "ArenaDoughnutChart:two-series", "ArenaDoughnutChart:tone-and-color-id"] },
+    { "title": "ArenaDoughnutChart", "items": ["ArenaDoughnutChart:pie", "ArenaDoughnutChart:one-slice", "ArenaDoughnutChart:zero-total", "ArenaDoughnutChart:two-series", "ArenaDoughnutChart:tone-and-color-id", "ArenaDoughnutChart:color-start"] },
     { "title": "ArenaRadarChart", "items": ["ArenaRadarChart:flat", "ArenaRadarChart:zeros", "ArenaRadarChart:three-axes", "ArenaRadarChart:filled-one-series", "ArenaRadarChart:tone-and-color-id"] },
     { "title": "ArenaScatterChart", "items": ["ArenaScatterChart:no-size", "ArenaScatterChart:single-point", "ArenaScatterChart:negative", "ArenaScatterChart:flat-y", "ArenaScatterChart:tone-and-color-id"] },
     { "title": "ArenaPyramidChart", "items": ["ArenaPyramidChart:empty-side", "ArenaPyramidChart:one-series", "ArenaPyramidChart:three-series", "ArenaPyramidChart:tone-and-color-id"] },

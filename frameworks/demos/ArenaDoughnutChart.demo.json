@@ -23,6 +23,11 @@
     },
     "tone-and-color-id": {
       "series": [{"label": "Suites", "values": [128, 14, 6], "tone": "success", "colorId": 2}]
+    },
+    "color-start": {
+      "colorStart": 6,
+      "labels": ["Passing", "Flaky", "Failing", "Skipped"],
+      "series": [{"label": "Suites", "values": [128, 14, 6, 9]}]
     }
   },
   "note": "Identity colours, never status colours: a slice is a category, not a verdict."
