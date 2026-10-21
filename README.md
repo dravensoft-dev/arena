@@ -103,8 +103,8 @@ bun add @dravensoft/arena-react     # or @dravensoft/arena-angular
 ```
 
 **That is the whole install.** The command names the peers a project lacks. A manager that
-installs no peer, Yarn among them, needs them named; Phosphor is a peer rather than a second
-package, so Arena renders icon class names and never SVG.
+installs no peer, Yarn among them, needs them named. Phosphor is a peer rather than a second
+command, because Arena renders icon class names and never SVG.
 [`install.md`](./skills/design/references/install.md#how-do-i-install-a-package) lists the
 commands per layer, and the layer page below says which peers each package declares.
 

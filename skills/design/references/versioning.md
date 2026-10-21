@@ -22,13 +22,13 @@ A project that writes a layer also installs the contracts package at an exact ve
 
 ## How do I install a version?
 
-Pin an exact version of the layer package your project uses and of the MCP package. Arena's releases are listed at `https://github.com/dravensoft-dev/arena/releases`. Each command names one layer, here React; for Angular, write `@dravensoft/arena-angular@<version>`.
+Pin an exact version of the layer package your project uses and of the MCP package. Arena's releases are listed at `https://github.com/dravensoft-dev/arena/releases`. Each command names one layer, here React; for Angular, write `@dravensoft/arena-angular@<layer-version>`.
 
 ```bash
-npm i -E @dravensoft/arena-react@<version> @dravensoft/arena-mcp@<version>  # or: npm i --save-exact
-pnpm add -E @dravensoft/arena-react@<version> @dravensoft/arena-mcp@<version>  # or: pnpm add --save-exact
-yarn add -E @dravensoft/arena-react@<version> @dravensoft/arena-mcp@<version>  # or: yarn add --exact
-bun add -E @dravensoft/arena-react@<version> @dravensoft/arena-mcp@<version>  # or: bun add --exact
+npm i -E @dravensoft/arena-react@<layer-version> @dravensoft/arena-mcp@<mcp-version>  # or: npm i --save-exact
+pnpm add -E @dravensoft/arena-react@<layer-version> @dravensoft/arena-mcp@<mcp-version>  # or: pnpm add --save-exact
+yarn add -E @dravensoft/arena-react@<layer-version> @dravensoft/arena-mcp@<mcp-version>  # or: yarn add --exact
+bun add -E @dravensoft/arena-react@<layer-version> @dravensoft/arena-mcp@<mcp-version>  # or: bun add --exact
 ```
 
 The section above says the numbers differ, so look each one up: `npm view <package> version` prints the newest version of a package, and `npm ls <package>` prints the one your project has installed.
