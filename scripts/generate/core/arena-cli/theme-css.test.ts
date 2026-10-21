@@ -269,6 +269,13 @@ const TWO_PALETTES = [
   { name: 'light', polarity: 'light', colors: colors({ 'base-100': '#ffffff' }) },
 ];
 
+test('a later plugin with no answer for the palette still names itself in its block', () => {
+  const css = themeCss(listed(['console', 'marketing']), {
+    sheets: SHEETS_FULL, importHeader: false, plugins: [total(), readPlugin('marketing', {})],
+  });
+  assert.match(css, /\.arena-marketing\{\n  --arena-plugin:marketing;\n\}/);
+});
+
 test('the default palette also wears its class, carrying its polarity and its name', () => {
   const css = themeCss(config({ palettes: TWO_PALETTES }), { importHeader: false });
   const block = (selector: string) => css.slice(css.indexOf(`${selector}{`), css.indexOf('}', css.indexOf(`${selector}{`)));

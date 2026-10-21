@@ -273,7 +273,11 @@ export const ALIAS_SOURCE = 'contracts/design/colors.css';
 export const ALIAS_BLOCK = ':root,.arena-dark,.arena-light';
 
 export function aliasDeclarations(root = repoRoot) {
-  const block = parseDecls(readFileSync(join(root, ALIAS_SOURCE), 'utf8')).get(ALIAS_BLOCK) ?? new Map<string, string>();
+  const block = parseDecls(readFileSync(join(root, ALIAS_SOURCE), 'utf8')).get(ALIAS_BLOCK);
+  if (!block) {
+    throw new Error(`package-assembly: ${ALIAS_SOURCE} holds no ${ALIAS_BLOCK} block, so every palette arena build `
+      + 'writes would carry no alias and a component reading var(--focus-ring) would resolve to nothing');
+  }
   return Object.fromEntries([...block].filter(([name]) => !name.startsWith('level-')));
 }
 

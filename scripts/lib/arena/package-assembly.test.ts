@@ -7,7 +7,7 @@ import { relPosix } from '../../utils/posix-path.ts';
 import {
   EXCLUDED_NAMES, EXCLUDED_PATTERNS, CSS_CHAIN, arenaCssHeader, excluded,
   collectFiles, reset, write, copyTree, copyCli, CLI_BINS, CLI_SOURCES, baseManifest, pluginIdentity, version, repositoryBase, agentBases, componentSheets, writeCssChain,
-  writeComponentMap, keywords, SHARED_KEYWORDS, tokenCatalogue, catalogueRole,
+  writeComponentMap, keywords, SHARED_KEYWORDS, tokenCatalogue, aliasDeclarations, catalogueRole,
 } from './package-assembly.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { MARKERS_FILE, markerAttributes } from './component-map.ts';
@@ -338,6 +338,14 @@ test('the catalogue holds the 40 aliases of colors.css in file order, and no lev
   assert.equal(names[0], 'ink');
   assert.equal(names.at(-1), 'scrim');
   assert.ok(names.every((name) => !name.startsWith('level-')));
+});
+
+test('a colors.css without the alias block is refused rather than shipped with no aliases', () => {
+  const root = mkdtempSync(join(tmpdir(), 'arena-aliases-'));
+  mkdirSync(join(root, 'contracts', 'design'), { recursive: true });
+  writeFileSync(join(root, 'contracts', 'design', 'colors.css'), ':root{--level-ink-body:82%;}\n');
+  assert.throws(() => aliasDeclarations(root), /contracts\/design\/colors\.css holds no :root,\.arena-dark,\.arena-light block/);
+  rmSync(root, { recursive: true });
 });
 
 test('the package stylesheet imports the default plugin between the scales and the palette', () => {
