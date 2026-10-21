@@ -1120,3 +1120,29 @@ test('every plugin under plugin-style-store answers the heat steps in order unde
     }
   }
 });
+
+const ROOT_ONLY = {
+  contrast: '@media (prefers-contrast: more) {\n  :root {\n    --bw-surface: var(--bw-strong);\n    --focus-width: var(--sp-1);\n  }\n}\n',
+  environment: ':root {\n  --pad-safe-top: max(var(--sp-0), env(safe-area-inset-top));\n  --title-hero-fit: clamp(1px, 2px, 3px);\n}\n',
+};
+
+test('each later plugin restates the high-contrast widths and the hero fit after its own block', () => {
+  const css = themeCss(listed(['console', 'marketing', 'ops']), {
+    sheets: { ...SHEETS_FULL, rootOnly: ROOT_ONLY }, importHeader: false, plugins: [total(), scoped(), readPlugin('ops', { 'bw-surface': { $type: 'dimension', $value: { value: 2, unit: 'px' } } })],
+  });
+  for (const name of ['marketing', 'ops']) {
+    const own = css.indexOf(`.arena-${name}{\n  --arena-plugin:${name};`);
+    const media = css.indexOf(`@media (prefers-contrast: more) {\n.arena-${name}{`);
+    const fit = css.indexOf(`.arena-${name}{\n  --title-hero-fit:clamp(1px, 2px, 3px);`);
+    assert.ok(own >= 0 && media > own && fit > media, `${name}: own block, then the media block, then the hero fit`);
+  }
+  assert.doesNotMatch(css, /:root\{[^}]*--title-hero-fit/, 'the root plugin is not restated, :root already carries it');
+  assert.doesNotMatch(css, /pad-safe/, 'only the hero fit is taken from environment.css');
+});
+
+test('a package whose sheets carry no root-only text emits no restatement', () => {
+  const css = themeCss(listed(['console', 'marketing']), {
+    sheets: SHEETS_FULL, importHeader: false, plugins: [total(), scoped()],
+  });
+  assert.doesNotMatch(css, /prefers-contrast|title-hero-fit/);
+});

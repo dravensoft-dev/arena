@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { basename, dirname, join } from 'node:path';
-import { DANGER_FLOOR, KEBAB, RESERVED, floorProblems, nameProblems, reservedProblems, withDefaults } from './style-plugin-rules.ts';
+import { DANGER_FLOOR, KEBAB, RESERVED, floorProblems, nameProblems, reservedProblems, rootOnlyFor, withDefaults } from './style-plugin-rules.ts';
 import { scopesIn } from './sheets.ts';
 import { POLARITIES } from './palette-keys.ts';
 import { walkFiles } from '../../../utils/walk-files.ts';
@@ -174,4 +174,13 @@ test('with no default declared the plugin comes back as it was, in the same key 
   assert.deepEqual(defaulted, []);
   assert.deepEqual(Object.keys(plugin.tokens), Object.keys(tokens));
   assert.equal(plugin.name, 'console');
+});
+
+test('rootOnlyFor restates the :root contrast rule in a media query and the hero fit, and reads only its text', () => {
+  const contrast = '/* :root { --no: 1; } */\n@media (prefers-contrast: more) {\n  :root {\n    --bw-surface: var(--bw-strong);\n    --focus-width: var(--sp-1);\n  }\n}\n';
+  const environment = ':root {\n  --pad-safe-top: max(var(--sp-0), env(safe-area-inset-top));\n  --title-hero-fit: clamp(1px, calc(2px - (3px - 100cqi) / 24), 4px);\n}\n';
+  assert.equal(rootOnlyFor('.arena-x', { contrast, environment }),
+    '@media (prefers-contrast: more) {\n.arena-x{\n  --bw-surface:var(--bw-strong);\n  --focus-width:var(--sp-1);\n}\n}\n'
+    + '.arena-x{\n  --title-hero-fit:clamp(1px, calc(2px - (3px - 100cqi) / 24), 4px);\n}');
+  assert.equal(rootOnlyFor('.arena-x', { contrast: '', environment: '' }), '');
 });

@@ -1,13 +1,11 @@
 /* The floors a reader is owed and the shape a moved token takes, stated once and run in two
- * places. Arena runs it over what it ships; a consumer's build runs it over what they wrote, and
- * the two have to agree or one would be held to a weaker rule than the other. It lives inside the
- * command's own directory because that is the only tree a package carries: a module under scripts/
- * is a specifier that resolves here and to nothing beside a consumer's node_modules, so the shared
- * half goes in and the gates import upward, which is what audit.ts and palette-keys.ts already do.
- * Everything here is a function of plain data, reads no file and knows no path, since the
- * repository hands it CSS off disk and the CLI hands it CSS out of a package. scopeOn spells how a
- * scope class crosses a selector, and scopeKey and crossKeys name where a reader finds it: the
- * generator and the emitter both write that rule, and two spellings of it drift. */
+ * places: Arena runs it over what it ships, a consumer's build over what they wrote, and the two
+ * must agree. It lives inside the command's own directory because that is the only tree a package
+ * carries; the gates import upward, as audit.ts and palette-keys.ts do. Everything here is a
+ * function of plain data and reads no file. scopeOn, scopeKey and crossKeys spell how a scope class
+ * crosses a selector and where a reader finds it, since generator and emitter both write that rule.
+ * rootOnlyFor restates what :root alone computes (the contrast widths, the hero fit) on a plugin's
+ * class after its own block: both weigh the same, so order wins. */
 
 export const ARENA_EXT = 'com.dravensoft.arena';
 
@@ -37,6 +35,21 @@ export const scopeKey = (root: string, selector: string) => `@scope (${root}) ${
 
 export const crossKeys = (className: string, selector: string) =>
   [scopeKey(className, selector), scopeKey(selector, className)];
+
+const rootDecls = (css: string) => {
+  const body = /:root\s*\{([^}]*)\}/.exec(css.replace(/\/\*[\s\S]*?\*\//g, ''))?.[1] ?? '';
+  return [...body.matchAll(/(--[\w-]+)\s*:\s*([^;]+);/g)].map((m) => ({ name: m[1] as string, value: (m[2] as string).trim() }));
+};
+
+export function rootOnlyFor(className: string, sources: { contrast: string; environment: string }) {
+  const lines = (decls: { name: string; value: string }[]) => decls.map((d) => `  ${d.name}:${d.value};`).join('\n');
+  const widened = rootDecls(sources.contrast);
+  const fit = rootDecls(sources.environment).filter((d) => d.name === '--title-hero-fit');
+  return [
+    widened.length ? `@media (prefers-contrast: more) {\n${className}{\n${lines(widened)}\n}\n}` : '',
+    fit.length ? `${className}{\n${lines(fit)}\n}` : '',
+  ].filter(Boolean).join('\n');
+}
 
 export type RoleShape = { $type?: string; $extensions?: Record<string, { values?: unknown }> };
 

@@ -677,3 +677,18 @@
   --size-sm-badge-step:var(--dz-text-xs);
 }
 }
+@media (prefers-contrast: more) {
+.arena-complete{
+  --bw-surface:var(--bw-strong);
+  --bw-surface-head:var(--bw-strong);
+  --bw-control:var(--bw-strong);
+  --bw-field:var(--bw-strong);
+  --bw-separator:var(--bw-strong);
+  --bw-marker:var(--bw-strong);
+  --scrim-blur:var(--sp-0);
+  --focus-width:var(--sp-1);
+}
+}
+.arena-complete{
+  --title-hero-fit:clamp(min(var(--step-title-page), var(--step-title-hero)), calc(var(--step-title-hero) - (1280px - 100cqi) / 24), var(--step-title-hero));
+}

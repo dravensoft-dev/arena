@@ -4,8 +4,8 @@ import { readFileSync } from 'node:fs';
 import { readJson } from '../../utils/read-file.ts';
 import { flattenTokens, previewFor } from './token-preview.ts';
 import { parseDecls } from '../arena/css-decls.ts';
-import { crossKeys } from '../../generate/core/arena-cli/style-plugin-rules.ts';
-import { DESIGN_DIR, FILES, THEME_SCOPES } from '../../generate/arena/generate-tokens.ts';
+import { crossKeys, rootOnlyFor } from '../../generate/core/arena-cli/style-plugin-rules.ts';
+import { DESIGN_DIR, FILES, ROOT_ONLY_SOURCES, THEME_SCOPES } from '../../generate/arena/generate-tokens.ts';
 
 test('flattens a nested group into dash-joined custom-property names', () => {
   const out = flattenTokens({
@@ -87,13 +87,20 @@ function deriveCases(files: { out: string; blocks: { selector: string; source: s
       if (!bySelector.has(selector)) bySelector.set(selector, []);
       bySelector.get(selector).push(`${dir}/${source}`);
       if (plugin !== undefined) named.set(selector, ['arena-plugin']);
+      const rootOnly = (file as { rootOnly?: string }).rootOnly;
+      if (rootOnly === selector) {
+        const [contrast, environment] = ROOT_ONLY_SOURCES.map((at) => readFileSync(at, 'utf8'));
+        const restated = [...rootOnlyFor(selector, { contrast: contrast as string, environment: environment as string })
+          .matchAll(/--([\w-]+):/g)].map((m) => m[1] as string);
+        named.set(selector, [...(named.get(selector) ?? []), ...restated]);
+      }
     }
     const css = `contracts/design-generated/${file.out}`;
     for (const [selector, sources] of bySelector) {
       const tokens: { name: string; path?: string[] }[] =
         sources.flatMap((s: string) => flattenTokens(readJson(s)));
       cases.push([
-        [...(named.get(selector) ?? []), ...tokens.filter((t) => !themeOf(t)).map((t) => t.name)],
+        [...new Set([...(named.get(selector) ?? []), ...tokens.filter((t) => !themeOf(t)).map((t) => t.name)])],
         css, selector, sources,
       ]);
       const references = colourReferencesIn(sources);

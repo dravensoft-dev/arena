@@ -69,6 +69,10 @@ export function packageSheets(root: string): PackageSheets {
       scopes: [...new Set([...layerCss, ...sheets].flatMap(scopesIn))].sort(),
       roleReferences: roleReferencesIn(catalogue),
       aliases: aliasesIn(catalogue),
+      rootOnly: {
+        contrast: read(join(root, 'css', 'contrast.css')),
+        environment: read(join(root, 'css', 'environment.css')),
+      },
       catalogue: catalogue ?? undefined,
     };
   } catch {

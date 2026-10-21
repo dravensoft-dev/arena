@@ -41,6 +41,7 @@ test('the sheets a package ships are read from beside the command, so no copy of
     scopes: [],
     roleReferences: [],
     aliases: [],
+    rootOnly: { contrast: '', environment: '' },
     catalogue: undefined,
   });
   rmSync(root, { recursive: true });

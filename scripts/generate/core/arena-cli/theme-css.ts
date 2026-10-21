@@ -15,7 +15,7 @@ import {
 } from './palette-keys.ts';
 import { validate, contrast } from './validate-palette.mjs';
 import {
-  FS_STEP, RHYTHM_STEP, floorProblems, nameProblems, reservedProblems, scopeOn, totalityProblems, withDefaults,
+  FS_STEP, RHYTHM_STEP, floorProblems, nameProblems, reservedProblems, rootOnlyFor, scopeOn, totalityProblems, withDefaults,
 } from './style-plugin-rules.ts';
 import { serialize } from './serialize-token.ts';
 import { HEAT_MIN_DL, errorFill, heatCramped, heatLadder, toOklab } from './oklab.ts';
@@ -39,6 +39,7 @@ export type CheckedSheets = {
   scopes?: string[];
   roleReferences?: string[];
   aliases?: string[];
+  rootOnly?: { contrast: string; environment: string };
   catalogue?: TokenCatalogue;
 };
 
@@ -776,6 +777,8 @@ export function themeCss(config: CheckedConfig, options: ThemeOptions = {}) {
       if (answers.length) parts.push(block(at, answers));
     } else {
       parts.push(block(at, [`--arena-plugin:${plugin.name};`, ...answers]));
+      const again = sheets?.rootOnly ? rootOnlyFor(at, sheets.rootOnly) : '';
+      if (again) parts.push(again);
     }
   }
 

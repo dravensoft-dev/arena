@@ -195,4 +195,9 @@ test('the default palette wears a class: .arena-dark carries the :root block, an
   }
   const complete = built.get('style-plugin.complete.generated.css') as string;
   assert.match(complete, /^\.arena-complete\{\n {2}--arena-plugin:complete;/m);
+  const own = complete.indexOf('.arena-complete{');
+  const media = complete.indexOf('@media (prefers-contrast: more) {\n.arena-complete{');
+  const fit = complete.indexOf('.arena-complete{\n  --title-hero-fit:');
+  assert.ok(own >= 0 && media > own && fit > media, 'the contrast widths and the hero fit follow the class block');
+  assert.match(complete, /--bw-surface:var\(--bw-strong\);/);
 });

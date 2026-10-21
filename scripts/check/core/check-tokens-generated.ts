@@ -4,14 +4,14 @@
 
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { buildAll, buildBreakpointTheme, BREAKPOINT_TARGET, SOURCES } from '../../generate/arena/generate-tokens.ts';
+import { buildAll, buildBreakpointTheme, BREAKPOINT_TARGET, ROOT_ONLY_SOURCES, SOURCES } from '../../generate/arena/generate-tokens.ts';
 import { parseDecls } from '../../lib/arena/css-decls.ts';
 import { isMainModule } from '../../utils/main-module.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 
 export const node = {
   name: 'check:tokens',
-  reads: ['contracts/design/*.json', ...SOURCES, 'contracts/design-generated/*.generated.css', BREAKPOINT_TARGET],
+  reads: ['contracts/design/*.json', ...SOURCES, ...ROOT_ONLY_SOURCES, 'contracts/design-generated/*.generated.css', BREAKPOINT_TARGET],
   writes: [],
   feeds: [],
 };

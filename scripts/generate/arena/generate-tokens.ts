@@ -10,14 +10,14 @@
  * REDECLARED_GROUPS restates some of those per scope, and check:proximity's step-* cases hold it. */
 
 import StyleDictionary from 'style-dictionary';
-import { writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import nodePath, { join } from 'node:path';
 import { toPosix } from '../../utils/posix-path.ts';
 import type { PathModule } from '../../utils/posix-path.ts';
 import { camel } from '../../utils/case.ts';
 import { isMainModule } from '../../utils/main-module.ts';
 import { serialize } from '../core/arena-cli/serialize-token.ts';
-import { scopeOn } from '../core/arena-cli/style-plugin-rules.ts';
+import { rootOnlyFor, scopeOn } from '../core/arena-cli/style-plugin-rules.ts';
 import { serializeScript } from '../../lib/core/serialize-script.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { ARENA_EXT, childEntries, isStamped, isToken } from '../../lib/core/dtcg-shapes.ts';
@@ -54,7 +54,7 @@ export const FILES = [
   ] },
   { out: 'style-plugin.complete.generated.css', blocks: [
     { selector: '.arena-complete', source: 'plugin.tokens.json', dir: `${PLUGIN_DIR}/complete`, plugin: 'complete' },
-  ] },
+  ], rootOnly: '.arena-complete' },
 ];
 
 export const RESOLVES_AGAINST = {
@@ -120,11 +120,14 @@ export const SOURCES = [...new Set(FILES.flatMap((file) =>
 
 export const CSS_TARGETS = FILES.map((file) => `contracts/design-generated/${file.out}`);
 
+export const ROOT_ONLY_SOURCES = [`${DESIGN_DIR}/contrast.css`, `${DESIGN_DIR}/environment.css`];
+
 export const node = {
   name: 'generate:tokens',
   reads: [...new Set([
     ...SOURCES,
     ...Object.values(RESOLVES_AGAINST).flat().map((source) => `${DESIGN_DIR}/${source}`),
+    ...ROOT_ONLY_SOURCES,
   ])],
   writes: [...CSS_TARGETS, ...SCRIPT_TARGETS, BREAKPOINT_TARGET],
   feeds: [
@@ -370,6 +373,11 @@ export async function buildAll() {
   for (const file of FILES) {
     const blocks = [];
     for (const b of file.blocks) blocks.push(await block(b));
+    const rootOnly = (file as { rootOnly?: string }).rootOnly;
+    if (rootOnly) {
+      const [contrast, environment] = ROOT_ONLY_SOURCES.map((at) => readFileSync(join(root, at), 'utf8'));
+      blocks.push(rootOnlyFor(rootOnly, { contrast: contrast as string, environment: environment as string }));
+    }
     out.set(file.out, `${HEADER}\n${blocks.join('\n')}\n`);
   }
   return out;
