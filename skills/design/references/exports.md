@@ -20,8 +20,8 @@ Every component is imported from the package root, and its types ship with it. T
 | `useArenaViewportBelow(name)` | a boolean over `not all and (min-width: N)`, where `name` is `'sm' \| 'md' \| 'lg'` and resolves the same `--bp-*` token Arena's own components branch on. For a page's own layout, such as swapping `arena-compact` for `arena-comfortable` below a breakpoint, and **never for a component**: that is wrong the first time somebody puts it in a narrow column. [How do I change density below a breakpoint?](#how-do-i-change-density-below-a-breakpoint) has it in use. Call `forgetArenaBreakpoints()` if your app swaps its stylesheet at runtime. **It answers in the first client render.** A server render answers `false` until the client takes over, so a frame a server renders takes the `md:` and `max-md:` variants instead |
 | `useArenaRowWindow(options)` | `{ ref, style, offset, count, padTop, padBottom, slice, scrollToRow, onRowRequest }`: attach `ref` and `style` to the box that scrolls a long table, and render only the `count` rows from `offset`. `total` is the length of the whole list. `rowHeight` is the estimate before the first reading, `overscan` is the rows kept beyond each edge, and `enabled` false projects the first rows with no padding. **The hook measures every mounted row after layout**, so rows may wrap and differ in height, and a table below `md` windows its cards the same way. A server render and the first client render project the same first rows, so the HTML agrees. `scrollToRow(index)` puts a row at the top edge and `onRowRequest(index)` scrolls only as far as the row needs. Neither moves focus. [How do I window a long table?](#how-do-i-window-a-long-table) has it in use |
 | `arenaCatColor(slot)`, `arenaCatIndex(slot)`, `arenaCatSurface(slot)`, `arenaCatTint(colour)`, `arenaCatSlotFor(key)`, `arenaCatRotate(start, position)`, `ARENA_CAT_SLOTS` | the chart ramp, for a legend or a chip you draw yourself. The ramp's order is its identity, so a slot means the same thing in every chart on the screen. `arenaCatIndex` clamps and rounds a number to the ramp's 1..8, the value `data-arena-color-id` carries. `arenaCatTint` is the soft surface an identity colour stands on, over whatever answers `fill-surface`; it takes a colour, not a slot, and fills `arenaCatSurface`, which returns `{ fill, border }`. `arenaCatSlotFor` hashes a key to a stable slot, so two keys may share one; give series their slots in order when they must differ. `arenaCatRotate` counts a position from a start slot and wraps after the last slot |
-| `useArenaToasts()` | the notice queue: it holds their identity and their order, and runs the clock `ArenaToastHost` deliberately does not own. `raise(notice)` returns an id, `dismiss(id)` takes one away, `clear()` takes them all, and `toasts` is what you render into the host. The queue applies the dismissal rule in [How long does a raised toast stay?](#how-long-does-a-raised-toast-stay) |
-| `useArenaConfirm()` | the confirmation queue. `ask(request)` returns a promise of the answer, `current` is the one open request, an `ArenaConfirmEntry`, and `settle(id, answer)` resolves it and opens the next |
+| `useArenaToasts()` | the notice queue: it holds their identity and their order, and runs the clock `ArenaToastHost` deliberately does not own. `raise(notice)` returns an id, `dismiss(id)` takes one away, `clear()` takes them all, and `toasts` is what you render into the host. Each is an `ArenaToastEntry`, the notice plus its `id`. The queue applies the dismissal rule in [How long does a raised toast stay?](#how-long-does-a-raised-toast-stay) |
+| `useArenaConfirm()` | the confirmation queue. `ask(request)` returns a promise of the answer, `current` is the one open request. The request is an `ArenaConfirmEntry`, the request plus its `id`. `settle(id, answer)` resolves it and opens the next |
 | `arenaToastDelay(notice, dismiss)`, `ARENA_TOAST_DISMISS` | the dismissal rule of [How long does a raised toast stay?](#how-long-does-a-raised-toast-stay) on its own, for a queue of your own: the interval a notice runs on, or `null` when it must not be taken away. Pass `ARENA_TOAST_DISMISS` as `dismiss` |
 | `isArenaPrimaryActivation(event)` | the predicate behind the anchor rule: true for a primary click with no modifier, false for every modified click, middle click and context menu. The predicate reads a pointer event, so Enter on an element of yours is a `keydown` you handle beside it |
 | `isArenaOwnActivation(target, container)` | true when an activation landed on the container itself rather than on a link, a button, a field or any other interactive element inside it. The predicate is what lets a clickable row hold a checkbox and a row action without taking their presses. A `label` counts as interactive too, and so does an element whose `role` is a control's, such as a radio, a slider, a combobox or a tree item. A cell, a row or a panel is not a control, so a press on one is still the container's. [How do I route an activation of my own?](#how-do-i-route-an-activation-of-my-own) has both in use |
@@ -199,8 +199,8 @@ Every component is standalone, so import the ones a template uses. **A parent do
 | `arenaViewportBelow(name)` | `Signal<boolean>` over `not all and (min-width: N)`, where `name` is `'sm' \| 'md' \| 'lg'` and resolves the same `--bp-*` token Arena's own components branch on. For a page's own layout, such as swapping `arena-compact` for `arena-comfortable` below a breakpoint, and **never for a component**: that is wrong the first time somebody puts it in a narrow column. [How do I change density below a breakpoint?](#how-do-i-change-density-below-a-breakpoint) has it in use. Call `forgetArenaBreakpoints()` if your app swaps its stylesheet at runtime. **It answers from construction**, so the first change detection draws the right frame. A server render answers `false` until the client takes over, so a frame a server renders takes the `md:` and `max-md:` variants instead |
 | `arenaCatColor(slot)`, `arenaCatIndex(slot)`, `arenaCatSurface(slot)`, `arenaCatTint(colour)`, `arenaCatSlotFor(key)`, `arenaCatRotate(start, position)`, `ARENA_CAT_SLOTS` | the chart ramp, for a legend or a chip you draw yourself. The ramp's order is its identity, so a slot means the same thing in every chart on the screen. `arenaCatIndex` clamps and rounds a number to the ramp's 1..8, the value `data-arena-color-id` carries. `arenaCatTint` is the soft surface an identity colour stands on, over whatever answers `fill-surface`; it takes a colour, not a slot, and fills `arenaCatSurface`, which returns `{ fill, border }`. `arenaCatSlotFor` hashes a key to a stable slot, so two keys may share one; give series their slots in order when they must differ. `arenaCatRotate` counts a position from a start slot and wraps after the last slot |
 | `ArenaRowWindow` | the directive `arenaRowWindow` on the box that scrolls a long table, exported as `#w="arenaRowWindow"`. The directive offers `offset`, `count`, `padTop`, `padBottom` and `slice` as signals, and sets the box's `overflow-anchor` and `scroll-padding-top` itself. `total` is the length of the whole list. `rowHeight` is the estimate before the first reading, `overscan` is the rows kept beyond each edge, and `enabled` false projects the first rows with no padding. **The directive measures every mounted row after the render**, so rows may wrap and differ in height, and a table below `md` windows its cards the same way. The first render projects the first rows before anything is measured. `scrollToRow(index)` puts a row at the top edge and `onRowRequest(index)` scrolls only as far as the row needs. Neither moves focus. [How do I window a long table in Angular?](#how-do-i-window-a-long-table-in-angular) has it in use |
-| `ArenaToastQueue` | the notice queue, provided in root: it holds their identity and their order, and runs the clock `arena-toast-host` deliberately does not own. `raise(notice)` returns an id, `dismiss(id)` takes one away, `clear()` takes them all, and `toasts` is the signal you render into the host. The queue applies the dismissal rule in [How long does a raised toast stay?](#how-long-does-a-raised-toast-stay) |
-| `ArenaConfirmQueue` | the confirmation queue, provided in root. `ask(request)` returns a promise of the answer, `current` is the signal holding the one open request, an `ArenaConfirmEntry`, and `settle(id, answer)` resolves it and opens the next |
+| `ArenaToastQueue` | the notice queue, provided in root: it holds their identity and their order, and runs the clock `arena-toast-host` deliberately does not own. `raise(notice)` returns an id, `dismiss(id)` takes one away, `clear()` takes them all, and `toasts` is the signal you render into the host. Each is an `ArenaToastEntry`, the notice plus its `id`. The queue applies the dismissal rule in [How long does a raised toast stay?](#how-long-does-a-raised-toast-stay) |
+| `ArenaConfirmQueue` | the confirmation queue, provided in root. `ask(request)` returns a promise of the answer, `current` is the signal holding the one open request. The request is an `ArenaConfirmEntry`, the request plus its `id`. `settle(id, answer)` resolves it and opens the next |
 | `arenaToastDelay(notice, dismiss)`, `ARENA_TOAST_DISMISS` | the dismissal rule of [How long does a raised toast stay?](#how-long-does-a-raised-toast-stay) on its own, for a queue of your own: the interval a notice runs on, or `null` when it must not be taken away. Pass `ARENA_TOAST_DISMISS` as `dismiss` |
 | `isArenaPrimaryActivation(event)` | the predicate behind the anchor rule: true for a primary click with no modifier, false for every modified click, middle click and context menu. The predicate reads a pointer event, so Enter on an element of yours is a `keydown` you handle beside it |
 | `isArenaOwnActivation(target, container)` | true when an activation landed on the container itself rather than on a link, a button, a field or any other interactive element inside it. The predicate is what lets a clickable row hold a checkbox and a row action without taking their presses. A `label` counts as interactive too, and so does an element whose `role` is a control's, such as a radio, a slider, a combobox or a tree item. A cell, a row or a panel is not a control, so a press on one is still the container's. [How do I route an activation of my own?](#how-do-i-route-an-activation-of-my-own) has both in use |
@@ -367,7 +367,71 @@ const read = (slot: number) =>
 const colours = [1, 2, 3].map(read);
 ```
 
-The colours change with the palette, so resolve them again when the palette changes. In React `useArenaTheme()` re-renders its component with the new name, and an effect keyed on that name redraws the canvas. In Angular `ArenaThemeService.theme` is a signal, and an `afterRenderEffect` that reads it redraws once the new palette is applied to the document. [`theme.md`](./theme.md) covers both.
+The colours change with the palette, so resolve them again when the palette changes. The two examples below are allowed, untested: Arena ships no chart-library adapter, and the calls follow each library's documented API.
+
+Chart.js paints a bar chart on a canvas. The categorical array is the `backgroundColor`.
+
+```ts
+import { Chart } from 'chart.js/auto';
+
+const read = (name: string) =>
+  getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+const categorical = () => [1, 2, 3].map((slot) => read(`--color-cat-${slot}`));
+
+const chart = new Chart(canvas, {
+  type: 'bar',
+  data: { labels: ['Deploy', 'Build', 'Test'], datasets: [{ data: [12, 19, 7], backgroundColor: categorical() }] },
+});
+```
+
+D3 draws an SVG heat cell scale over the heat array.
+
+```ts
+import { scaleQuantize, select } from 'd3';
+
+const heat = () => [1, 2, 3, 4, 5].map((step) => read(`--heat-step-${step}`));
+const cells = [{ x: 0, y: 0, value: 3 }, { x: 1, y: 0, value: 8 }, { x: 2, y: 0, value: 14 }];
+
+function drawHeat(svg: SVGSVGElement) {
+  const scale = scaleQuantize<string>().domain([0, 14]).range(heat());
+  select(svg).selectAll('rect').data(cells).join('rect')
+    .attr('x', (d) => d.x * 24).attr('y', (d) => d.y * 24)
+    .attr('width', 22).attr('height', 22)
+    .attr('fill', (d) => scale(d.value));
+}
+drawHeat(svg);
+```
+
+In React `useArenaTheme()` re-renders its component with the new name, and an effect keyed on that name updates the Chart.js instance and joins the D3 selection again.
+
+```tsx
+import { useEffect } from 'react';
+import { useArenaTheme } from '@dravensoft/arena-react';
+
+const [theme] = useArenaTheme();
+useEffect(() => {
+  chart.data.datasets[0].backgroundColor = categorical();
+  chart.update();
+  drawHeat(svg);
+}, [theme]);
+```
+
+In Angular `ArenaThemeService.theme` is a signal, and an `afterRenderEffect` that reads it runs once the new palette is applied to the document.
+
+```ts
+import { afterRenderEffect, inject } from '@angular/core';
+import { ArenaThemeService } from '@dravensoft/arena-angular';
+
+const themes = inject(ArenaThemeService);
+afterRenderEffect(() => {
+  themes.theme();
+  chart.data.datasets[0].backgroundColor = categorical();
+  chart.update();
+  drawHeat(svg);
+});
+```
+
+[`theme.md`](./theme.md) covers both layers.
 
 The sequential ramp is the heat ladder, `--heat-step-1` to `--heat-step-5`. `ArenaHeatmapChart` paints those roles. Order is magnitude: step 1 is the least and each step is further from the surface, in a light palette and in a dark one. The palette's `--color-heat-1` to `--color-heat-5` is what the roles take by default, and a style plugin may answer them with other colours, in the same order of magnitude. A chart reads the roles. A change of palette or of plugin redraws the same way.
 

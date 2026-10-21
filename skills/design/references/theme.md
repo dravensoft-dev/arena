@@ -51,7 +51,7 @@ Pass the same palettes your config declares. Call `set('light')` on the service,
 
 ## When does a palette get stored?
 
-Each layer stores only a user's choice: React's `setArenaTheme` and Angular's `set` and `toggle` write the `arena-theme` key, and neither `initArenaTheme` nor injecting the service writes it. Until a choice is stored the page follows the system. Remove the `arena-theme` key to follow the system again. In React call `initArenaTheme()` after removing it, and in Angular the next load follows the system. Nothing listens for a change of the system setting while the page is open.
+Each layer stores only a user's choice: React's `setArenaTheme` and Angular's `set` and `toggle` write the `arena-theme` key, and neither `initArenaTheme` nor injecting the service writes it. Until a choice is stored the page follows the system. Remove the `arena-theme` key to follow the system again. In React call `initArenaTheme(themes)` after removing it, and in Angular the next load follows the system. Nothing listens for a change of the system setting while the page is open.
 
 ## How do I avoid a flash on first paint?
 
