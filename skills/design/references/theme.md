@@ -47,11 +47,15 @@ bootstrapApplication(App, {
 });
 ```
 
-Pass the same palettes your config declares. Call `set('light')` on the service, or `toggle()` to walk the palettes in order. `theme` is a signal, so a template reads it directly. With no providers the service answers `dark` and `light`. **The service applies and stores the palette only once something injects it**, so inject it in your root component even when no control there switches palette. `set()` throws on a name the palettes do not declare.
+Pass the same palettes your config declares. Call `set('light')` on the service, or `toggle()` to walk the palettes in order. `theme` is a signal, so a template reads it directly. With no providers the service answers `dark` and `light`. **The service applies the palette only once something injects it**, so inject it in your root component even when no control there switches palette. `set()` throws on a name the palettes do not declare.
+
+## When does a palette get stored?
+
+Each layer stores only a user's choice: React's `setArenaTheme` and Angular's `set` and `toggle` write the `arena-theme` key, and neither `initArenaTheme` nor injecting the service writes it. Until a choice is stored the page follows the system. Remove the `arena-theme` key to follow the system again. In React call `initArenaTheme()` after removing it, and in Angular the next load follows the system. Nothing listens for a change of the system setting while the page is open.
 
 ## How do I avoid a flash on first paint?
 
-Apply the class before your stylesheet loads. In React put the script in your HTML shell. In Angular put it in `index.html`.
+Apply the class before your stylesheet loads. In React put the script in the HTML document your bundler or server sends, in `<head>` before the stylesheet link. In Angular put it in `index.html`.
 
 ```html
 <script>

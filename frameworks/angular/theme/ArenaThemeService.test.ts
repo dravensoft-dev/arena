@@ -118,6 +118,33 @@ test('with nothing stored, the first palette of the preferred polarity wins', ()
   clean();
 });
 
+test('injecting the service stores nothing, so a first visit keeps following the system', () => {
+  clean();
+  service(THREE);
+  TestBed.tick();
+  assert.equal(localStorage.getItem('arena-theme'), null);
+  clean();
+});
+
+test('set stores the choice under arena-theme', () => {
+  clean();
+  const theme = service(THREE);
+  theme.set('light');
+  TestBed.tick();
+  assert.equal(localStorage.getItem('arena-theme'), 'light');
+  clean();
+});
+
+test('toggle stores the choice under arena-theme', () => {
+  clean();
+  const theme = service(THREE);
+  theme.set('dark');
+  theme.toggle();
+  TestBed.tick();
+  assert.equal(localStorage.getItem('arena-theme'), 'light');
+  clean();
+});
+
 test('polarity is what a palette answers prefers-color-scheme with', () => {
   clean();
   const theme = service(THREE);

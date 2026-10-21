@@ -46,7 +46,6 @@ export class ArenaThemeService {
       for (const palette of this.palettes) {
         classes.toggle(arenaThemeClass(palette.name), palette.name === current && current !== this.fallback);
       }
-      this.doc.defaultView?.localStorage?.setItem(STORAGE_KEY, current);
     });
   }
 
@@ -54,17 +53,22 @@ export class ArenaThemeService {
     if (!this.declares(theme)) {
       throw new Error(`ArenaThemeService: no palette named "${theme}"; the declared palettes are ${this.names().join(', ')}`);
     }
-    this.theme.set(theme);
+    this.choose(theme);
   }
 
   toggle(): void {
     const names = this.names();
     const at = names.indexOf(this.theme());
-    this.theme.set(names[(at + 1) % names.length]);
+    this.choose(names[(at + 1) % names.length]);
   }
 
   polarityOf(theme: ArenaTheme): 'dark' | 'light' | null {
     return this.palettes.find((p) => p.name === theme)?.polarity ?? null;
+  }
+
+  private choose(theme: ArenaTheme): void {
+    this.theme.set(theme);
+    this.doc.defaultView?.localStorage?.setItem(STORAGE_KEY, theme);
   }
 
   private names(): string[] {
