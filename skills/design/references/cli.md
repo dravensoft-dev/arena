@@ -57,7 +57,7 @@ A report never changes the exit until `--strict` holds it. Bare, `--strict` hold
 | code | meaning |
 | --- | --- |
 | `0` | The command did its job. Reports may print. |
-| `1` | A project problem: a config that parses and is invalid, a `stylesheet` name the package does not ship, or a report `--strict` holds. `arena doctor` exits 1 on anything that stops a build, and on a sheet that is missing, stale or no longer produced. |
+| `1` | A project problem: a config that parses and is invalid, a `stylesheet` name the package does not ship, an unanswered root role, or a report `--strict` holds. `arena doctor` exits 1 on anything that stops a build, and on a sheet that is missing, stale or no longer produced. |
 | `2` | The command cannot run: an unknown, refused or repeated flag, a config it cannot read as JSON, a missing `--src` or Phosphor not installed. So is a file it cannot write or delete, or `arena init` with no `package.json`. |
 
 ## What does each audit tag report?
