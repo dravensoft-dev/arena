@@ -25,13 +25,13 @@ Install the layer package and the MCP package at the versions you resolved, and 
 Pin an exact version of each package. The versions are listed at `https://github.com/dravensoft-dev/arena/releases`.
 
 ```bash
-npm i -E @dravensoft/arena-react@<version>            # or: npm i --save-exact
-pnpm add -E @dravensoft/arena-react@<version>         # or: pnpm add --save-exact
-yarn add -E @dravensoft/arena-react@<version>         # or: yarn add --exact
-bun add -E @dravensoft/arena-react@<version>          # or: bun add --exact
+npm i -E @dravensoft/arena-react@<version> @dravensoft/arena-angular@<version> @dravensoft/arena-mcp@<version>            # or: npm i --save-exact
+pnpm add -E @dravensoft/arena-react@<version> @dravensoft/arena-angular@<version> @dravensoft/arena-mcp@<version>         # or: pnpm add --save-exact
+yarn add -E @dravensoft/arena-react@<version> @dravensoft/arena-angular@<version> @dravensoft/arena-mcp@<version>         # or: yarn add --exact
+bun add -E @dravensoft/arena-react@<version> @dravensoft/arena-angular@<version> @dravensoft/arena-mcp@<version>          # or: bun add --exact
 ```
 
-The Angular layer is `@dravensoft/arena-angular` and the MCP server is `@dravensoft/arena-mcp`; give each its own line in the form above. The section above says the numbers differ, so look each one up: `npm view <package> version` prints the newest version of a package, and `npm ls <package>` prints the one your project has installed.
+Keep the layer package your project uses and the MCP package, and drop the other layer. The section above says the numbers differ, so look each one up: `npm view <package> version` prints the newest version of a package, and `npm ls <package>` prints the one your project has installed.
 
 Raise the layer package and the MCP package together. Then run `arena build`, `arena check` and `arena audit --strict`, or the `arena:audit` script of your project. [`cli.md`](./cli.md) says what each reports.
 
