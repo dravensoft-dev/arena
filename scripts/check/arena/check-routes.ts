@@ -143,7 +143,7 @@ export const ROUTES: Route[] = [
       + 'document that says what the questions are and which answers carry the difference',
     entry: 'consumer',
     stops: ['skills/design/references/style-kernel.md'],
-    budget: 19_600,
+    budget: 19_700,
     reason:
       'paid once per project and never per screen, which is what lets it carry the whole surface '
       + 'the kernel exposes rather than a pointer to it, so a project stops learning the kernel from '
@@ -153,12 +153,12 @@ export const ROUTES: Route[] = [
       + 'table is a measurement over the '
       + 'catalogue, so it grows by remeasuring and not by writing, and a row the catalogue moves from '
       + 'inherited to decided is a decision this page is obliged to name. The number is what the '
-      + 'stops measure with room for the kernel to grow a section, and it moves when the kernel grows '
-      + 'a question rather than when the document grows a paragraph. The root rule says where a '
+      + 'stops measure with room for a section, and it moves when the kernel grows '
+      + 'a question rather than a paragraph. The root rule says where a '
       + 'role\'s default is written and states first, in a region generated with the config page\'s, '
       + 'which roles carry a default and that the root answers the rest, as a mechanism read '
       + 'before its roster reads as one with members. It says where a project with no clone '
-      + 'fetches the default plugin. The roster grows per role, as does the table of registers.',
+      + 'fetches the default plugin. The roster grows per role, as does the table of registers. The hand checklist builds before it imports.',
   },
   {
     name: 'consumer-register',
@@ -210,7 +210,7 @@ export const ROUTES: Route[] = [
       + 'every part Arena ships, the three steps a project can stop at, and where Arena stops',
     entry: 'consumer',
     stops: ['skills/design/references/surface.md'],
-    budget: 11_400,
+    budget: 11_500,
     reason:
       'paid once per project and taken before the skin, register and seo routes, because each of '
       + 'them asks how much of a thing nobody has shown the reader yet. What it buys is that a '
@@ -222,7 +222,7 @@ export const ROUTES: Route[] = [
       + 'promising the whole line is falsified by any part of it kept elsewhere. The number is what '
       + 'the stops measure with room for one part, and it grows when Arena ships something new rather '
       + 'than when the page explains something better. The row naming the layout container is what the '
-      + 'page spends beyond the parts it already listed.',
+      + 'page spends beyond the parts it already listed, and the spacing scale names its half step.',
   },
   {
     name: 'consumer-stack',
@@ -253,12 +253,11 @@ export const ROUTES: Route[] = [
       + 'column it sits in and how much air goes between two components',
     entry: 'consumer',
     stops: ['skills/design/references/page.md', 'skills/design/references/style.md'],
-    budget: 23_800,
+    budget: 23_900,
     reason:
       'paid per element a builder draws themselves, which every screen has. What it buys is the '
       + 'half of a page that is never a component: which colour role each thing a builder draws takes '
-      + 'and which level holds it back, because a bare muted ink paints a caption at body strength '
-      + 'under the default style plugin; the three rhythm steps as classes and as '
+      + 'and which level holds it back, because a bare muted ink paints a caption at body strength; the three rhythm steps as classes and as '
       + 'custom properties; the row as the horizontal half of those steps rather than a wrapping '
       + 'line; what to wrap when the element being laid out is a component; the block air the band '
       + 'leaves; the gutter as a ceiling; and which frame the viewport shows, through the theme '
@@ -269,7 +268,7 @@ export const ROUTES: Route[] = [
       + 'the stops measure, and it grows when Arena ships a piece for somebody else\'s markup. '
       + 'The style page prints the '
       + 'default plugin\'s layout answers and sends density values to the token table. The ink table '
-      + 'grows per text role.',
+      + 'grows per text role. The page says Arena paints no selection or scrollbar.',
   },
   {
     name: 'consumer-coldstart',

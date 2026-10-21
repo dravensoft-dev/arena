@@ -34,6 +34,8 @@ built Arena screen looks broken.
 controls and autofill point the way the palette does, so a palette states whether it is dark or
 light rather than leaving it inferred.
 
+Arena paints neither the selection nor the scrollbars, and the browser draws both from `color-scheme`.
+
 ## Which colour your own markup takes
 
 **Reach for a role when the thing you are drawing is furniture, and an alias when it is voice.**
