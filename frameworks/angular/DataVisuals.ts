@@ -28,6 +28,10 @@ export function arenaCatColor(slot: number): string {
   return `var(--color-cat-${arenaCatIndex(slot)})`;
 }
 
+export function arenaCatRotate(start: number, position: number): number {
+  return ((arenaCatIndex(start) - 1 + position) % ARENA_CAT_SLOTS) + 1;
+}
+
 export function arenaCatSlotFor(key: string): number {
   let hash = 0;
   for (let i = 0; i < key.length; i += 1) hash = (hash * 31 + key.charCodeAt(i)) >>> 0;

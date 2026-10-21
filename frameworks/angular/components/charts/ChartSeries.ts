@@ -1,4 +1,4 @@
-import { ARENA_HEAT_STEPS, arenaCatColor, arenaCatIndex, arenaToneColor } from '../../DataVisuals';
+import { ARENA_HEAT_STEPS, arenaCatColor, arenaCatIndex, arenaCatRotate, arenaToneColor } from '../../DataVisuals';
 import type { ArenaSelection } from '../../ArenaStyles.generated';
 import { arenaWarnOnce } from '../../WarnOnce';
 import { arenaPhrase } from '../../Phrase';
@@ -24,7 +24,9 @@ export interface ArenaStackSegment {
   outer: boolean;
 }
 
-export function arenaSeriesColors(series: ArenaSeries, count: number, fallbackSlot: number, chart: string): string[] {
+export function arenaSeriesColors(
+  series: ArenaSeries, count: number, fallbackSlot: number, chart: string, start = 1,
+): string[] {
   const { colorId, colorIds, tone } = series;
   if (tone && (colorId !== undefined || colorIds !== undefined)) {
     arenaWarnOnce(`${chart}: \`tone\` and \`colorId\`/\`colorIds\` are mutually exclusive — a series carries identity or meaning, never both. \`tone\` wins; remove the other.`);
@@ -33,15 +35,15 @@ export function arenaSeriesColors(series: ArenaSeries, count: number, fallbackSl
     const colour = arenaToneColor(tone) || arenaCatColor(1);
     return Array.from({ length: count }, () => colour);
   }
-  if (colorIds) return Array.from({ length: count }, (_, index) => arenaCatColor(colorIds[index] ?? index + 1));
+  if (colorIds) return Array.from({ length: count }, (_, index) => arenaCatColor(colorIds[index] ?? arenaCatRotate(start, index)));
   return Array.from({ length: count }, () => arenaCatColor(colorId ?? fallbackSlot));
 }
 
 export function arenaSwatchChoice(
-  series: Pick<ArenaSeries, 'tone' | 'colorId' | 'colorIds'>, fallbackSlot: number, index = 0,
+  series: Pick<ArenaSeries, 'tone' | 'colorId' | 'colorIds'>, fallbackSlot: number, index = 0, start = 1,
 ): ArenaSelection {
   if (series.tone) return arenaToneColor(series.tone) ? { tone: series.tone } : { colorId: '1' };
-  if (series.colorIds) return { colorId: String(arenaCatIndex(series.colorIds[index] ?? index + 1)) };
+  if (series.colorIds) return { colorId: String(arenaCatIndex(series.colorIds[index] ?? arenaCatRotate(start, index))) };
   return { colorId: String(arenaCatIndex(series.colorId ?? fallbackSlot)) };
 }
 
@@ -171,15 +173,15 @@ export function arenaGaugeTicks(bands: readonly ArenaGaugeBand[], min: number, m
 }
 
 export function arenaGaugeColor(
-  bands: readonly ArenaGaugeBand[], index: number, colorId: number | undefined, chart: string,
+  bands: readonly ArenaGaugeBand[], index: number, colorId: number | undefined, chart: string, start = 1,
 ): string {
-  if (bands.length === 0) return arenaCatColor(colorId ?? 1);
+  if (bands.length === 0) return arenaCatColor(colorId ?? start);
   if (colorId !== undefined) {
     arenaWarnOnce(`${chart}: \`colorId\` is ignored while \`bands\` is given. A chart carries identity or meaning,`
       + ' never both, and the bands are the meaning.');
   }
   const band = bands[index];
-  return band ? arenaToneColor(band.tone) : arenaCatColor(1);
+  return band ? arenaToneColor(band.tone) : arenaCatColor(start);
 }
 
 export function arenaGaugeTable(

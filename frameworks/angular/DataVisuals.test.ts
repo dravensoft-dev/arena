@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   ARENA_CAT_SLOTS, ARENA_CHART_HEIGHT, ARENA_INK_BODY, ARENA_INK_MUTED, ARENA_PAD, ARENA_SR_ONLY,
-  arenaCatColor, arenaCatSlotFor, arenaCatSurface, arenaAreaFill, arenaToneColor,
+  arenaCatColor, arenaCatRotate, arenaCatSlotFor, arenaCatSurface, arenaAreaFill, arenaToneColor,
   arenaPercentWriter, arenaValueWriter, ARENA_HEAT_STEPS, arenaHeatFill,
 } from './DataVisuals';
 import { forgetArenaWarnings } from './WarnOnce';
@@ -150,4 +150,16 @@ test('the heat ladder has five steps and each step fills with its own role', () 
   const fills = Array.from({ length: ARENA_HEAT_STEPS }, (_, index) => arenaHeatFill(index + 1));
   assert.deepEqual(fills, ['var(--heat-step-1)', 'var(--heat-step-2)', 'var(--heat-step-3)', 'var(--heat-step-4)', 'var(--heat-step-5)']);
   assert.equal(new Set(fills).size, ARENA_HEAT_STEPS, 'no two steps share a fill');
+});
+
+test('arenaCatRotate counts from the start slot and wraps after the last', () => {
+  assert.deepEqual([0, 1, 2, 3].map((p) => arenaCatRotate(6, p)), [6, 7, 8, 1]);
+  assert.equal(arenaCatRotate(1, ARENA_CAT_SLOTS), 1);
+  assert.equal(arenaCatRotate(1, 8 + 2), 3);
+});
+
+test('arenaCatRotate clamps the start before counting', () => {
+  assert.equal(arenaCatRotate(0, 0), 1);
+  assert.equal(arenaCatRotate(99, 0), ARENA_CAT_SLOTS);
+  assert.equal(arenaCatRotate(99, 1), 1);
 });

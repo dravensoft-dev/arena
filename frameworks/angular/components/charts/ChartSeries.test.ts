@@ -54,10 +54,32 @@ test('`colorIds` maps per mark, falling back to the mark index where it runs sho
   ]);
 });
 
-test('`colorIds` shorter than `count` still never cycles past the ramp', () => {
-  const colours = arenaSeriesColors(series({ colorIds: [] }), 12, 1, 'ArenaLineChart');
-  assert.equal(colours[11], `var(--color-cat-${ARENA_CAT_SLOTS})`);
-  assert.equal(new Set(colours).size, ARENA_CAT_SLOTS, 'the ramp clamps rather than wrapping');
+test('`colorIds` shorter than `count` falls back to the rotated position, which wraps after the last slot', () => {
+  const colours = arenaSeriesColors(series({ colorIds: [] }), 12, 1, 'ArenaLineChart', 1);
+  assert.equal(colours[8], 'var(--color-cat-1)');
+  assert.equal(colours[11], 'var(--color-cat-4)');
+});
+
+test('the colorIds fallback counts from `start`', () => {
+  assert.deepEqual(arenaSeriesColors(series({ colorIds: [5] }), 3, 1, 'ArenaLineChart', 6),
+    ['var(--color-cat-5)', 'var(--color-cat-7)', 'var(--color-cat-8)']);
+});
+
+test('an explicit colorId ignores `start` and still clamps', () => {
+  assert.deepEqual(arenaSeriesColors(series({ colorId: 9 }), 1, 1, 'ArenaLineChart', 3), [`var(--color-cat-${ARENA_CAT_SLOTS})`]);
+});
+
+test('the swatch counts the colorIds fallback from `start`', () => {
+  assert.deepEqual(arenaSwatchChoice({ colorIds: [] }, 1, 2, 6), { colorId: '8' });
+});
+
+test('without bands the arc takes colorId, then start', () => {
+  assert.equal(arenaGaugeColor([], -1, undefined, 'ArenaGaugeChart', 4), 'var(--color-cat-4)');
+  assert.equal(arenaGaugeColor([], -1, 2, 'ArenaGaugeChart', 4), 'var(--color-cat-2)');
+});
+
+test('a value in no band takes start', () => {
+  assert.equal(arenaGaugeColor(BANDS, -1, undefined, 'ArenaGaugeChart', 4), 'var(--color-cat-4)');
 });
 
 test('`tone` paints the whole series the semantic colour', () => {
