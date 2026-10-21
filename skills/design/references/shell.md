@@ -107,7 +107,7 @@ The footer in the samples is your own element, and `ArenaSiteFooter` draws colum
 
 ## Where does focus go after a route change?
 
-**After a navigation, focus `ArenaMain` through `ARENA_MAIN_ID`, and pass `preventScroll: true` when the router restores the scroll position.** The first load is not a navigation, so the effect skips it.
+**After a navigation, focus `ArenaMain` through `ARENA_MAIN_ID`, and pass `preventScroll: true`.** Both snippets assume a router that restores the scroll position, so drop `preventScroll` when yours does not. The first load is not a navigation, so the effect skips it.
 
 ```tsx
 // React: a component inside the router, keyed on the pathname
@@ -117,24 +117,32 @@ import { ARENA_MAIN_ID } from '@dravensoft/arena-react';
 
 export function FocusMainOnNavigation() {
   const { pathname } = useLocation();
-  const first = useRef(true);
+  const last = useRef(pathname);
   useEffect(() => {
-    if (first.current) { first.current = false; return; }
+    if (last.current === pathname) return;
+    last.current = pathname;
     document.getElementById(ARENA_MAIN_ID)?.focus({ preventScroll: true });
   }, [pathname]);
   return null;
 }
 ```
 
+React Router is allowed and untested: no Arena test exercises a router. In Next.js the same effect keys on `usePathname()` from `next/navigation`.
+
 ```ts
-// Angular: in the constructor of the root component
+// Angular: in the root component class
+import { inject } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { filter, skip } from 'rxjs';
 import { ARENA_MAIN_ID } from '@dravensoft/arena-angular';
 
-this.router.events.pipe(filter((e) => e instanceof NavigationEnd), skip(1)).subscribe(() => {
-  document.getElementById(ARENA_MAIN_ID)?.focus({ preventScroll: true });
-});
+private readonly router = inject(Router);
+
+constructor() {
+  this.router.events.pipe(filter((e) => e instanceof NavigationEnd), skip(1)).subscribe(() => {
+    document.getElementById(ARENA_MAIN_ID)?.focus({ preventScroll: true });
+  });
+}
 ```
 
 ## How wide is the rail?

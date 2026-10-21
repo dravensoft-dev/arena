@@ -125,22 +125,22 @@ export function Shell({ children }: { children: ReactNode }) {
   return (
     <ToastContext.Provider value={queue}>
       <ConfirmContext.Provider value={confirms}>
-      {children}
-      {open && (
-        <ArenaConfirmDialog open title={open.title} eyebrow={open.eyebrow}
-          confirmLabel={open.confirmLabel} cancelLabel={open.cancelLabel}
-          destructive={open.destructive} requireText={open.requireText}
-          onConfirm={() => confirms.settle(open.id, true)} onCancel={() => confirms.settle(open.id, false)}>
-          {open.message}
-        </ArenaConfirmDialog>
-      )}
-      <ArenaToastHost>
-        {queue.toasts.map((t) => (
-          <ArenaToast key={t.id} tone={t.tone} title={t.title} message={t.message}
-            actionLabel={t.actionLabel} persist={t.persist} dismissible={t.dismissible}
-            onAction={() => undo(t.id)} onClose={() => queue.dismiss(t.id)} />
-        ))}
-      </ArenaToastHost>
+        {children}
+        {open && (
+          <ArenaConfirmDialog open title={open.title} eyebrow={open.eyebrow}
+            confirmLabel={open.confirmLabel} cancelLabel={open.cancelLabel}
+            destructive={open.destructive} requireText={open.requireText}
+            onConfirm={() => confirms.settle(open.id, true)} onCancel={() => confirms.settle(open.id, false)}>
+            {open.message}
+          </ArenaConfirmDialog>
+        )}
+        <ArenaToastHost>
+          {queue.toasts.map((t) => (
+            <ArenaToast key={t.id} tone={t.tone} title={t.title} message={t.message}
+              actionLabel={t.actionLabel} persist={t.persist} dismissible={t.dismissible}
+              onAction={() => undo(t.id)} onClose={() => queue.dismiss(t.id)} />
+          ))}
+        </ArenaToastHost>
       </ConfirmContext.Provider>
     </ToastContext.Provider>
   );
@@ -368,7 +368,7 @@ const colours = [1, 2, 3].map(read);
 
 The colours change with the palette, so resolve them again when the palette changes. In React `useArenaTheme()` re-renders its component with the new name, and an effect keyed on that name redraws the canvas. In Angular `ArenaThemeService.theme` is a signal, and an `afterRenderEffect` that reads it redraws once the new palette is applied to the document. [`theme.md`](./theme.md) covers both.
 
-The sequential ramp is the heat ladder, `--heat-step-1` to `--heat-step-5`. `ArenaHeatmapChart` paints those roles. Order is magnitude: step 1 is the least and each step is further from the surface, in a light palette and in a dark one. The palette's `--color-heat-1` to `--color-heat-5` is what the roles take by default, and a style plugin may answer them in another order. A chart reads the roles. A change of palette or of plugin redraws the same way.
+The sequential ramp is the heat ladder, `--heat-step-1` to `--heat-step-5`. `ArenaHeatmapChart` paints those roles. Order is magnitude: step 1 is the least and each step is further from the surface, in a light palette and in a dark one. The palette's `--color-heat-1` to `--color-heat-5` is what the roles take by default, and a style plugin may answer them with other colours, in the same order of magnitude. A chart reads the roles. A change of palette or of plugin redraws the same way.
 
 ```ts
 const heat = [1, 2, 3, 4, 5].map((step) =>
