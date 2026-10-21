@@ -19,6 +19,7 @@ import {
   MIN_PROSE_MEASURE, RHYTHM_STEP, floorProblems, keyProblems, nameProblems, totalityProblems,
   valueProblems, withDefaults,
 } from '../../generate/core/arena-cli/style-plugin-rules.ts';
+import { crossKeys } from '../../generate/core/arena-cli/style-plugin-rules.ts';
 import { readPlugin } from '../../generate/core/arena-cli/theme-css.ts';
 import { emittedWords } from './check-role-contract.ts';
 
@@ -53,11 +54,11 @@ export const SCOPES = ['dark', ...THEME_SCOPES.keys()];
 
 export function resolvedFor(css: string, name: string, scope = 'dark') {
   const decls = parseDecls(css);
-  const themed = THEME_SCOPES.get(scope)?.(`.arena-${name}`);
+  const themed = THEME_SCOPES.has(scope) ? crossKeys(`.arena-${scope}`, `.arena-${name}`) : [];
   return new Map<string, string>([
     ...(decls.get(':root') ?? new Map()),
     ...(decls.get(`.arena-${name}`) ?? new Map()),
-    ...((themed && decls.get(themed)) || new Map()),
+    ...themed.flatMap((key) => [...(decls.get(key) ?? new Map())]),
   ]);
 }
 

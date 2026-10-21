@@ -10,6 +10,7 @@ import {
 import { PALETTE_KEYS, heatKeys } from './palette-keys.ts';
 import { heatLadder } from './oklab.ts';
 import { parseDecls } from '../../../lib/arena/css-decls.ts';
+import { crossKeys } from './style-plugin-rules.ts';
 import { whileHeld } from './cli-fixtures.ts';
 
 const colors = (overrides: Record<string, string> = {}): Record<string, string> => {
@@ -642,7 +643,7 @@ test('the first plugin lands on :root and the rest on their own class', () => {
     'the first plugin is what a page with no class on it looks like, so it has no class of its own');
 });
 
-test('a polarity group emits all three compound selectors', () => {
+test('a polarity group emits both @scope rules of a cross', () => {
   const css = themeCss(listed(['console', 'marketing'], {
     palettes: [
       { name: 'dark', default: true, polarity: 'dark', colors: colors() },
@@ -653,11 +654,12 @@ test('a polarity group emits all three compound selectors', () => {
     importHeader: false,
     plugins: [total(), scoped({ light: { 'ink-eyebrow': { $type: 'color', $value: '{color.secondary}' } } })],
   });
-  assert.ok(css.includes('.arena-light.arena-marketing'));
-  assert.ok(css.includes('.arena-light .arena-marketing'));
-  assert.ok(css.includes('.arena-marketing .arena-light'),
-    'the plugin class and the theme class sit in either order or on one element, and this is the one '
-    + 'an author forgets: without it a light region inside a scoped root takes the dark answer');
+  const keys = [...parseDecls(css).keys()];
+  for (const key of crossKeys('.arena-light', '.arena-marketing'))
+    assert.ok(keys.includes(key),
+      'the plugin class and the theme class sit in either order or on one element, and a cross that '
+      + `lacks ${key} leaves a light region inside a scoped root, or the reverse, on the dark answer`);
+  assert.ok(!css.includes('.arena-light.arena-marketing, '), 'the comma list of compound selectors is gone');
 });
 
 test('only the root plugin is held to totality', () => {

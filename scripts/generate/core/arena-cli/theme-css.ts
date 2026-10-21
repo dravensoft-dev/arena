@@ -787,7 +787,7 @@ export function themeCss(config: CheckedConfig, options: ThemeOptions = {}) {
     for (const { plugin, at } of declared) {
       if (at === ':root') continue;
       const answers = restated(plugin, palette.polarity);
-      if (answers.length) parts.push(block(cross(at), answers));
+      if (answers.length) parts.push(cross(at, `\n${answers.map((d) => `  ${d}`).join('\n')}\n`));
     }
   }
 

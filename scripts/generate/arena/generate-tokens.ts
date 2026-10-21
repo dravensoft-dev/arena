@@ -61,11 +61,11 @@ export const RESOLVES_AGAINST = {
   'plugin.tokens.json': ['effects.json', 'palette.dark.json', 'spacing.json', 'typography.json'],
 };
 
-export const THEME_SCOPES = new Map<string, (selector: string) => string>([
+export const THEME_SCOPES = new Map<string, (selector: string, body: string) => string>([
   ['light', scopeOn('.arena-light')],
 ]);
 
-export const SCOPE_SELECTORS = new Map<string, (selector: string) => string>([
+export const SCOPE_SELECTORS = new Map<string, (selector: string, body: string) => string>([
   ...THEME_SCOPES,
   ['compact', scopeOn('.arena-compact')],
   ['comfortable', scopeOn('.arena-comfortable')],
@@ -347,17 +347,17 @@ export async function block({ selector, source, dir = DESIGN_DIR }:
   for (const [theme, scope] of THEME_SCOPES) {
     const references = restatedIn(theme);
     const restated = references.length
-      ? [`${scope(selector)}{\n${renderLines(references).join('\n')}\n}`] : [];
+      ? [scope(selector, `\n${renderLines(references).join('\n')}\n`)] : [];
     const themed = buckets.get(theme) ?? [];
     const overrides = themed.length
-      ? [`${scope(selector)}{\n${renderLines(themed).join('\n')}\n}`] : [];
+      ? [scope(selector, `\n${renderLines(themed).join('\n')}\n`)] : [];
     out.push(...restated, ...overrides);
   }
 
   for (const [name, scope] of SCOPE_SELECTORS) {
     if (THEME_SCOPES.has(name)) continue;
     const references = restatedIn(name);
-    if (references.length) out.push(`${scope(selector)}{\n${renderLines(references).join('\n')}\n}`);
+    if (references.length) out.push(scope(selector, `\n${renderLines(references).join('\n')}\n`));
   }
   return out.join('\n');
 }

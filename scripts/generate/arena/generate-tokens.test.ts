@@ -134,14 +134,14 @@ test('every group that is redeclared names scopes this build actually emits', ()
     const emitted = new Set(written);
     for (const family of families.filter((f) => f.restates === group)) {
       for (const option of Object.keys(family.variants)) {
-        const selector = SCOPE_SELECTORS.get(option.replace(/^arena-/, ''));
-        if (selector) emitted.add(selector(':root'));
+        const name = option.replace(/^arena-/, '');
+        if (SCOPE_SELECTORS.has(name)) emitted.add(`.arena-${name}`);
       }
     }
     for (const scope of scopes) {
       const selector = SCOPE_SELECTORS.get(scope);
       assert.ok(selector, `${group} names the scope "${scope}", which has no selector`);
-      assert.ok(emitted.has(selector(':root')),
+      assert.ok(emitted.has(`.arena-${scope}`),
         `${group} names the scope "${scope}", which no block in FILES writes: a reference restated `
         + 'into a selector nothing else declares would sit alone and answer nothing');
     }

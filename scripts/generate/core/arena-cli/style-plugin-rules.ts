@@ -5,9 +5,9 @@
  * is a specifier that resolves here and to nothing beside a consumer's node_modules, so the shared
  * half goes in and the gates import upward, which is what audit.ts and palette-keys.ts already do.
  * Everything here is a function of plain data, reads no file and knows no path, since the
- * repository hands it CSS off disk and the CLI hands it CSS out of a package. scopeOn spells how
- * a scope class crosses a selector, and it is here for the same reason: the generator and the
- * emitter both write that selector, and two spellings of one cascade rule drift. */
+ * repository hands it CSS off disk and the CLI hands it CSS out of a package. scopeOn spells how a
+ * scope class crosses a selector, and scopeKey and crossKeys name where a reader finds it: the
+ * generator and the emitter both write that rule, and two spellings of it drift. */
 
 export const ARENA_EXT = 'com.dravensoft.arena';
 
@@ -29,9 +29,14 @@ export const DANGER_FLOOR = 'hue-danger-fill-strong';
 
 export const RESERVED = new Map<string, string>();
 
-export const scopeOn = (className: string) => (selector: string) => (selector === ':root'
-  ? className
-  : `${className}${selector}, ${className} ${selector}, ${selector} ${className}`);
+export const scopeOn = (className: string) => (selector: string, body: string) => (selector === ':root'
+  ? `${className}{${body}}`
+  : `@scope (${className}) {\n:where(:scope)${selector}, ${selector}{${body}}\n}\n@scope (${selector}) {\n${className}{${body}}\n}`);
+
+export const scopeKey = (root: string, selector: string) => `@scope (${root}) ${selector}`;
+
+export const crossKeys = (className: string, selector: string) =>
+  [scopeKey(className, selector), scopeKey(selector, className)];
 
 export type RoleShape = { $type?: string; $extensions?: Record<string, { values?: unknown }> };
 

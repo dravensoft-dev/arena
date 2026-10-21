@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 import { readJson } from '../../utils/read-file.ts';
 import { flattenTokens, previewFor } from './token-preview.ts';
 import { parseDecls } from '../arena/css-decls.ts';
+import { crossKeys } from '../../generate/core/arena-cli/style-plugin-rules.ts';
 import { DESIGN_DIR, FILES, THEME_SCOPES } from '../../generate/arena/generate-tokens.ts';
 
 test('flattens a nested group into dash-joined custom-property names', () => {
@@ -94,11 +95,11 @@ function deriveCases(files: { out: string; blocks: { selector: string; source: s
         css, selector, sources,
       ]);
       const references = colourReferencesIn(sources);
-      for (const [theme, scope] of THEME_SCOPES) {
+      for (const theme of THEME_SCOPES.keys()) {
         const themed = tokens.filter((t) => themeOf(t) === theme)
           .map((t) => (t.path ?? []).slice(1).join('-'));
         if (themed.length || references.length)
-          cases.push([[...references, ...themed], css, scope(selector), sources]);
+          cases.push([[...references, ...themed], css, selector === ':root' ? [`.arena-${theme}`] : crossKeys(`.arena-${theme}`, selector), sources]);
       }
     }
   }
@@ -108,10 +109,11 @@ function deriveCases(files: { out: string; blocks: { selector: string; source: s
 test('derived names match the custom properties the build actually emits, in every scope a block carries', () => {
   const cases = deriveCases(FILES);
   assert.ok(cases.length >= 4, 'expected at least one case per output file');
-  assert.ok(cases.some(([, , selector]) => String(selector).includes('.arena-light')),
+  assert.ok(cases.some(([, , selector]) => [selector].flat().join().includes('.arena-light')),
     'no theme-scoped case was derived, so this test would pass without ever reading a theme block');
   for (const [names, css, selector, sources] of cases) {
-    const emitted = [...parseDecls(readFileSync(String(css), 'utf8')).get(selector).keys()].sort();
+    const sheet = parseDecls(readFileSync(String(css), 'utf8'));
+    const emitted = [...new Set([selector].flat().flatMap((key) => [...sheet.get(key).keys()]))].sort();
     assert.deepEqual([...(names as string[])].sort(), emitted,
       `${(sources as string[]).join(', ')} -> ${css} ${selector}`);
   }

@@ -3,6 +3,7 @@
  * has to be servable on its own. See build-intro.ts for why the tag needs it tracked. */
 // scripts/generate/core/arena-cli/style-plugin-rules.ts
 var RESERVED = new Map;
+var scopeKey = (root, selector) => `@scope (${root}) ${selector}`;
 
 // scripts/lib/core/dtcg-shapes.ts
 function childEntries(node) {
@@ -68,13 +69,43 @@ function flattenTokens(tree) {
 }
 
 // scripts/lib/arena/css-decls.ts
+var SCOPE_AT = /^@scope\s*\(([^()]*)\)$/;
+var innerKey = (selector) => [...new Set(selector.split(",").map((one) => one.trim().replace(/^:where\(:scope\)/, "")))].join(", ");
+function frames(text) {
+  const out = [];
+  const roots = [];
+  const brace = /[{}]/g;
+  let at = 0;
+  for (let m = brace.exec(text);m; m = brace.exec(text)) {
+    if (m[0] === "}") {
+      roots.pop();
+      at = m.index + 1;
+      continue;
+    }
+    const selector = text.slice(at, m.index).trim();
+    const next = text.indexOf("}", m.index);
+    const inner = text.indexOf("{", m.index + 1);
+    if (inner !== -1 && inner < next) {
+      roots.push(SCOPE_AT.exec(selector)?.[1]?.trim());
+      at = m.index + 1;
+      continue;
+    }
+    const root = roots[roots.length - 1];
+    out.push({ selector, body: text.slice(m.index + 1, next), ...root === undefined ? {} : { root } });
+    brace.lastIndex = next + 1;
+    at = next + 1;
+  }
+  return out;
+}
 function parseDecls(cssText) {
   const stripped = cssText.replace(/\/\*[\s\S]*?\*\//g, "");
   const out = new Map;
-  for (const m of stripped.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
-    const selector = (m[1] ?? "").trim();
+  for (const { selector: written, body, root } of frames(stripped)) {
+    if (!written)
+      continue;
+    const selector = root === undefined ? written : scopeKey(root, innerKey(written));
     const decls = out.get(selector) ?? new Map;
-    for (const d of (m[2] ?? "").split(";")) {
+    for (const d of body.split(";")) {
       const i = d.indexOf(":");
       if (i === -1)
         continue;
