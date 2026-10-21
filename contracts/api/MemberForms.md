@@ -354,10 +354,11 @@ object form, and that is the price.
 }
 ```
 
-`form` takes one value per form, and the two array forms share `array` (`primitive`, `enum`, `object`, `array`, `consumerData`,
-`functionInput`, `slot`, `event`) and `array` is discriminated by `of`: a primitive type name
-(`"string"`) makes it an array of primitives, a declared type name (`"ArenaCrumb"`) makes it an array
-of predefined objects, and the form name `"consumerData"` makes it a list of consumer data.
+`form` takes one value per form: `primitive`, `enum`, `object`, `array`, `consumerData`,
+`functionInput`, `slot` or `event`. The two array forms share `array`, which is discriminated by
+`of`: a primitive type name (`"string"`) makes it an array of primitives, a declared type name
+(`"ArenaCrumb"`) makes it an array of predefined objects, and the form name `"consumerData"` makes
+it a list of consumer data.
 
 A slot declares its parameters, or none:
 
