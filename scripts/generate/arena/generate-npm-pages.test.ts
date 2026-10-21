@@ -14,7 +14,7 @@ import {
   TARGETS, openLine, closeLine, renderRegion, applyRegion, renderTarget, regionsOf,
   ROLE_CONTRACT, BEHAVIOUR_CONTRACT, densityValues, requiredLead, toastIntervals, defaultedRoles, defaultedSentence, defaultsStatement, roleRuns, unansweredCount,
 } from './generate-npm-pages.ts';
-import { tokenCatalogue } from '../../lib/arena/package-assembly.ts';
+import { tokenCatalogue, CSS_CHAIN } from '../../lib/arena/package-assembly.ts';
 import { NPM_PAGES } from '../../lib/arena/npm-questions.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { packageSheetName, sheetFamilies } from '../../lib/tailwind/vocabulary.ts';
@@ -118,6 +118,15 @@ test('the sheets region names the vocabulary sheets and the spacing sheet, and n
   assert.ok(region.includes('css/vocabulary/stack.css'));
   assert.ok(region.includes('css/spacing.css'));
   assert.ok(!region.includes('css/rhythm.css'));
+});
+
+test('the sheets region lists the token layer in CSS_CHAIN order and names where the style plugin\'s sheet sits', () => {
+  const region = renderRegion('sheets');
+  const paragraph = region.slice(region.indexOf('The token layer is'));
+  const at = CSS_CHAIN.map(({ to }) => paragraph.indexOf(`\`${to}\``));
+  assert.ok(at.every((place) => place >= 0), `a CSS_CHAIN entry is missing from the token layer sentence: ${at}`);
+  assert.deepEqual([...at].sort((a, b) => a - b), at, 'the token layer sentence is not in CSS_CHAIN order');
+  assert.match(paragraph, /slot your style plugin's sheet takes/);
 });
 
 const sheetNamesIn = (region: string) => {
