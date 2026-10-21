@@ -253,7 +253,7 @@ export const COMPAT_ALIASES = [
   'gold-strong', 'gold-soft', 'success', 'success-soft', 'warning', 'warning-soft', 'danger',
   'danger-strong', 'danger-soft', 'danger-fill', 'info', 'info-soft', 'bg', 'bg-raised',
   'surface-card', 'surface-input', 'text-strong', 'text-body', 'text-muted', 'border',
-  'border-strong', 'accent', 'accent-press', 'accent-soft', 'focus-ring', 'on-accent',
+  'border-strong', 'accent', 'accent-press', 'accent-soft', 'focus-ring', 'on-accent', 'scrim',
 ];
 
 export const COMPAT_ALIAS_MESSAGE = 'a value read through one of Arena\'s own compatibility '

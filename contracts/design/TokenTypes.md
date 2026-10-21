@@ -31,7 +31,6 @@ values; do not re-derive them.
 | Radius (`r-xs..pill`) | `effects.json` | `dimension` | px; `r-xs/sm/md/lg/xl/2xl` = `4/6/10/14/22/34px`, `r-pill` = `999px` |
 | Border widths (`bw`, `bw-strong`) | `effects.json` | `dimension` | px |
 | Shadows (`shadow-1..3`) | `effects.json` | `shadow` | composite, incl. negative spread and rgba color |
-| `scrim` | `effects.json` | `color` | structured srgb with `alpha`, rendered as `rgba()` |
 | `scrim-blur`, `focus-width`, `focus-offset` | `effects.json` | `dimension` | px |
 | Durations (the `dur` group) | `effects.json` | `duration` | ms |
 | Loop durations (`loop-spin/sweep/shimmer/brand/reduced/brand-reduced`) | `effects.json` | `duration` | ms; cyclical motion, deliberately separate from `dur`'s transition range |
@@ -44,7 +43,7 @@ values; do not re-derive them.
 
 ### Value formats are strict
 
-- Every `color`, including each `shadow`'s color slot and `scrim`, is a
+- Every `color`, including each `shadow`'s color slot, is a
   structured object: `{ "colorSpace": "srgb", "components": [r,g,b], "alpha"?: a,
   "hex"?: "#rrggbb" }`. Never a bare hex or `rgba()` string. When `hex` is
   present it must round-trip `components`; `scripts/check/core/check-dtcg.ts` enforces it,

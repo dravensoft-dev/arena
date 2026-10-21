@@ -4,11 +4,12 @@ import { node as tailwindNode } from '../../build/tailwind/build-tailwind.ts';
 
 export const node = {
   name: 'check:tailwind',
-  reads: tailwindNode.reads,
+  reads: [...tailwindNode.reads, 'contracts/design/colors.css'],
   writes: [],
   feeds: [],
 };
-import { arenaTokens } from '../../lib/core/arena-tokens.ts';
+import { arenaTokenNames } from '../../lib/core/arena-tokens.ts';
+import { repoRoot } from '../../lib/arena/repo-root.ts';
 import type { ManifestClassSource } from '../../lib/tailwind/manifest-shapes.ts';
 import { captured } from '../../utils/captures.ts';
 
@@ -95,7 +96,7 @@ export function checkCompiled(css: string, manifests: Map<string, ManifestClassS
 
 function main() {
   const { css, manifests } = compileLayer();
-  const errs = checkCompiled(css, manifests, arenaTokens());
+  const errs = checkCompiled(css, manifests, arenaTokenNames(repoRoot));
   for (const m of manifests.values()) errs.push(...transitionProblems(m));
   if (errs.length) {
     console.error(`check-tailwind: ${errs.length} violation(s) in the compiled Tailwind layer\n`);

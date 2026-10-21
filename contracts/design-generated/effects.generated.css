@@ -16,13 +16,11 @@
   --shadow-2:0px 12px 28px -12px rgba(0,0,0,.6);
   --shadow-3:0px 30px 60px -20px rgba(0,0,0,.7);
   /*
-     Overlay scrim: backdrop for anything that covers the app (ArenaDialog,
-     ConfirmDialog, ArenaCommandPalette, ArenaOnboarding). The blur is what separates a
+     The blur behind an overlay scrim (the scrim's colour is --scrim in colors.css, the palette's base-100 at 60%). The blur is what separates a
      modal from a coachmark: ArenaDialog/ArenaConfirmDialog/ArenaCommandPalette pair the scrim
      with --scrim-blur, ArenaOnboarding uses the scrim alone, because a tour that
      blurs the product it is touring defeats itself.
    */
-  --scrim:rgba(20,16,16,.6);
   --scrim-blur:6px;
 
   /* Focus */

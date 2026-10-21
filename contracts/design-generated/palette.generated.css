@@ -77,6 +77,84 @@
   --color-heat-4:#a7a0d3; /* Step 4 of the heat ladder. Magnitude only, never identity, never meaning. OPTIONAL, like heat-1. */
   --color-heat-5:#c6c1dc; /* Step 5 of the heat ladder. Magnitude only, never identity, never meaning. OPTIONAL, like heat-1. */
 }
+.arena-dark{
+  /*
+     Arena: Dravensoft skin (palette), dark theme.
+     This is the source you swap to re-skin Arena. It holds only skin values:
+     the daisyUI --color-* set per theme, the categorical chart ramp and the heat ladder.
+     Everything else (the Arena aliases, the muted-text derivations) lives in
+     contracts/design/colors.css and follows automatically.
+     After changing anything here, rebuild and re-run: bun scripts/check/core/check-ramp.ts
+   */
+  --color-base-100:#141010; /* main background */
+  --color-base-200:#1d1715; /* elevated surface / card */
+  --color-base-300:#241c19; /* panel / border */
+  --color-base-content:#f3ede5; /* text on base */
+  --color-primary:#b52a20; /* crimson */
+  --color-primary-content:#ffffff;
+  /*
+     The ground primary-content sits on: a filled button, a checked box, a current page.
+     OPTIONAL, like error-fill: omit it and the fill is primary. It exists for a
+     palette whose accent, tuned to read as ink on its page, is too light to carry
+     its content; crimson carries white in both themes, so this skin pins primary.
+   */
+  --color-primary-fill:#b52a20;
+  --color-secondary:#c5a059; /* gold */
+  --color-secondary-content:#141010;
+  --color-neutral:#2c221e; /* neutral surface */
+  --color-neutral-content:#d8cfc4;
+  --color-info:#3182ce;
+  --color-info-content:#141010;
+  --color-success:#38a169;
+  --color-success-content:#141010;
+  --color-warning:#ecc94b;
+  --color-warning-content:#141010;
+  /*
+     Outline danger: this red IS the text and the border, so it is tuned against
+     the base surfaces, lighter than the shared #e53e3e it replaced (4.29:1 on
+     base-200: under AA).
+   */
+  --color-error:#e85151;
+  --color-error-content:#ffffff;
+  /*
+     Filled danger. --color-error is tuned to be read AS TEXT on the base
+     surfaces, which makes it far too light to carry white text itself. The one
+     filled danger surface (ArenaConfirmDialog's final confirmation) therefore takes
+     its own fill, dark enough for --color-error-content. The two cannot be one
+     token: the outline needs a lighter red and the fill a darker one, in
+     opposite directions. This pin is OPTIONAL: omit it and colors.css derives
+     the fill from --color-error by darkening in oklab; the Dravensoft skin pins
+     it for an exact tone. Both gates are machine-checked: check-text-contrast.ts.
+   */
+  --color-error-fill:#ce3838;
+  /*
+     Categorical chart ramp: identity only, never meaning (see README → Theming).
+     Fixed order: slot N is always slot N. A 9th series folds to "Other", small
+     multiples, or direct labels; it is NEVER a generated hue.
+     Chroma is capped at OKLCH C <= 0.15 so the ramp sits in Arena's register
+     (crimson .177, gold .100) instead of reading as neon.
+     forest  136°
+   */
+  --color-cat-1:#3c7b0a;
+  --color-cat-2:#3b63be; /* indigo  264° */
+  --color-cat-3:#0a924b; /* green   152° */
+  --color-cat-4:#6a59bc; /* violet  288° */
+  --color-cat-5:#00a3c0; /* cyan    216° */
+  --color-cat-6:#884da9; /* purple  312° */
+  --color-cat-7:#00a99a; /* teal    184° */
+  --color-cat-8:#984697; /* orchid  328° */
+  /*
+     Step 1 of the heat ladder, the lowest of five. A heat step carries magnitude only: never identity, never meaning.
+     OPTIONAL: a palette that pins none of heat-1 to heat-5 has all five derived from cat-4, base-200
+     and base-content (arena-cli/oklab.ts:heatLadder); a palette pins all five or none.
+     This skin pins a ladder of its own, tuned by hand, and check:ramp holds the values a browser is served.
+   */
+  --color-heat-1:#55488e;
+  --color-heat-2:#6d5dbd; /* Step 2 of the heat ladder. Magnitude only, never identity, never meaning. OPTIONAL, like heat-1. */
+  --color-heat-3:#897fc9; /* Step 3 of the heat ladder. Magnitude only, never identity, never meaning. OPTIONAL, like heat-1. */
+  --color-heat-4:#a7a0d3; /* Step 4 of the heat ladder. Magnitude only, never identity, never meaning. OPTIONAL, like heat-1. */
+  --color-heat-5:#c6c1dc; /* Step 5 of the heat ladder. Magnitude only, never identity, never meaning. OPTIONAL, like heat-1. */
+}
 .arena-light{
   /* Light theme: warm inverse of the dark base. */
   --color-base-100:#ffffff; /* main background: white */

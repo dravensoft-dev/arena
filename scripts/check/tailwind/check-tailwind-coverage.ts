@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
-import { arenaTokens } from '../../lib/core/arena-tokens.ts';
+import { arenaTokenNames, arenaTokens } from '../../lib/core/arena-tokens.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { MANIFESTS, PRESET } from '../../build/tailwind/build-tailwind.ts';
 import { readHues, HUES_FILE } from '../../lib/tailwind/hue-sheet.ts';
@@ -12,7 +12,7 @@ import { ROOT_PLUGIN } from '../core/check-style-plugin.ts';
 
 export const node = {
   name: 'check:coverage',
-  reads: [...PRESET, MANIFESTS, HUES_FILE, ROOT_PLUGIN, `${VOCABULARY_DIR}/**/*${FAMILY_SUFFIX}`],
+  reads: [...PRESET, 'contracts/design/colors.css', MANIFESTS, HUES_FILE, ROOT_PLUGIN, `${VOCABULARY_DIR}/**/*${FAMILY_SUFFIX}`],
   writes: [],
   feeds: [],
 };
@@ -23,6 +23,8 @@ const HEAT_KEY_REASON = 'the default a heat-step role is born at, so it reaches 
   + 'heatmap\'s SVG and legend swatch, never through a utility';
 
 export const EXCLUDED = new Map([
+  ['arena-plugin', 'names the style plugin a subtree wears, so an overlay lifted out of that subtree can find the one to '
+    + 'wear; a channel read from computed style, never painted, so no utility offers it'],
   ['pad-band-x', 'read inside the band\'s min()'],
   ['pad-row-indent', 'only the side nav\'s arbitrary inset reads it'],
   ['sp-0', 'p-0 compiles to a literal 0px in v4 regardless of the theme'],
@@ -187,7 +189,7 @@ export function presetTokens(css: string) {
 }
 
 export function checkCoverage(
-  tokens: Set<string>, exposed: Set<string>, excluded: Map<string, string>,
+  tokens: Set<string>, exposed: Set<string>, excluded: Map<string, string>, known: Set<string> = tokens,
 ) {
   const errs = [];
   for (const t of [...tokens].sort()) {
@@ -200,7 +202,7 @@ export function checkCoverage(
   for (const t of [...excluded.keys()].sort())
     if (!tokens.has(t)) errs.push(`--${t} is excluded but no such token exists — drop the exclusion`);
   for (const t of [...exposed].sort())
-    if (!tokens.has(t)) errs.push(`the preset references --${t} — no such token in contracts/design-generated/`);
+    if (!known.has(t)) errs.push(`the preset references --${t} — no such token in contracts/design-generated/`);
   return errs;
 }
 
@@ -209,7 +211,7 @@ function main() {
   const preset = readFileSync(join(repoRoot, 'frameworks/tailwind/Theme.css'), 'utf8');
   const exposed = presetTokens(preset);
   const excluded = new Map([...EXCLUDED, ...pluginOptionRoles().excluded]);
-  const errs = checkCoverage(tokens, exposed, excluded);
+  const errs = checkCoverage(tokens, exposed, excluded, arenaTokenNames(repoRoot));
   if (errs.length) {
     console.error(`check-tailwind-coverage: ${errs.length} token(s) undeclared\n`);
     for (const e of errs) console.error(`  ${e}`);

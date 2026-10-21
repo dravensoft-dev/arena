@@ -47,6 +47,9 @@ export const NOT_WRITTEN = new Map<string, string>([
   ['arena-light', 'the class Arena\'s own light palette takes, which the invariant sheet keys the '
     + 'picker inversion and the polarity off. A project writes .arena-<name> for a palette its own '
     + 'config declares, and both pages document that shape rather than this one instance of it'],
+  ['arena-dark', 'the class Arena\'s own dark palette takes, beside the :root it also answers on, which the invariant '
+    + 'sheet keys the picker inversion and the polarity off. A project writes .arena-<name> for a palette its own '
+    + 'config declares, and both pages document that shape rather than this one instance of it'],
   ['arena-shimmer', 'an animation a manifest names on a skeleton, not a family option: it paints a loading '
     + 'placeholder, and an adopter does not write it on a component'],
   ['arena-pop', 'an animation a manifest names on a dialog panel, not a family option: it is an entrance, '

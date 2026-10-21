@@ -78,20 +78,22 @@ function colourReferencesIn(sources: string[]) {
   return names;
 }
 
-function deriveCases(files: { out: string; blocks: { selector: string; source: string; dir?: string }[] }[]) {
+function deriveCases(files: { out: string; blocks: { selector: string; source: string; dir?: string; plugin?: string }[] }[]) {
   const cases = [];
   for (const file of files) {
     const bySelector = new Map();
-    for (const { selector, source, dir = DESIGN_DIR } of file.blocks) {
+    const named = new Map<string, string[]>();
+    for (const { selector, source, dir = DESIGN_DIR, plugin } of file.blocks) {
       if (!bySelector.has(selector)) bySelector.set(selector, []);
       bySelector.get(selector).push(`${dir}/${source}`);
+      if (plugin !== undefined) named.set(selector, ['arena-plugin']);
     }
     const css = `contracts/design-generated/${file.out}`;
     for (const [selector, sources] of bySelector) {
       const tokens: { name: string; path?: string[] }[] =
         sources.flatMap((s: string) => flattenTokens(readJson(s)));
       cases.push([
-        tokens.filter((t) => !themeOf(t)).map((t) => t.name),
+        [...(named.get(selector) ?? []), ...tokens.filter((t) => !themeOf(t)).map((t) => t.name)],
         css, selector, sources,
       ]);
       const references = colourReferencesIn(sources);

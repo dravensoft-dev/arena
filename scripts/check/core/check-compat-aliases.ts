@@ -27,9 +27,12 @@ const COMMENT = /\/\*[\s\S]*?\*\//g;
 
 const DEFINED = /--([a-z0-9-]+)\s*:/g;
 
+const CHANNEL = /^arena-/;
+
 export function aliasesIn(css: string) {
   const text = css.replace(COMMENT, ' ');
-  return [...new Set([...text.matchAll(DEFINED)].map((one) => one[1] ?? ''))].filter(Boolean);
+  return [...new Set([...text.matchAll(DEFINED)].map((one) => one[1] ?? ''))]
+    .filter((name) => name !== '' && !CHANNEL.test(name));
 }
 
 export function missing(defined: string[], known: string[]) {

@@ -207,7 +207,10 @@ export function compileFamily(family: Family, manifests: Iterable<ComponentManif
         + 'a markup family applies to the element its class is written on, so no manifest answers it');
     }
     const blocks = Object.keys(family.variants).map((option) => {
-      const body = optionDeclarations(family, option, root).map(([name, value]) => `    ${name}: ${value};`).join('\n');
+      const named: [string, string][] = family.reach === 'context'
+        ? [[`--arena-${family.family}`, option.replace(/^arena-/, '')]] : [];
+      const body = [...named, ...optionDeclarations(family, option, root)]
+        .map(([name, value]) => `    ${name}: ${value};`).join('\n');
       return `@scope (.${option}) {\n  :scope {\n${body}\n  }\n}`;
     });
     return `${LAYER_ORDER}${blocks.join('\n')}\n`;

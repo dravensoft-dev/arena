@@ -50,7 +50,7 @@ export const node = {
 
 type Token = { $type?: string; $value?: unknown; $description?: string };
 
-export const SCOPES = ['dark', ...THEME_SCOPES.keys()];
+export const SCOPES = [...THEME_SCOPES.keys()];
 
 export function resolvedFor(css: string, name: string, scope = 'dark') {
   const decls = parseDecls(css);

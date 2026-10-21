@@ -3,6 +3,7 @@
 @layer theme, base, components, utilities, arena-plugin;
 @scope (.arena-compact) {
   :scope {
+    --arena-density: compact;
     --dz-ctl-h: 32px;
     --dz-ctl-h-sm: 26px;
     --dz-ctl-h-lg: 40px;
@@ -21,6 +22,7 @@
 }
 @scope (.arena-comfortable) {
   :scope {
+    --arena-density: comfortable;
     --dz-ctl-h: 48px;
     --dz-ctl-h-sm: 44px;
     --dz-ctl-h-lg: 56px;

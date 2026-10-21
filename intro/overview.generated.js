@@ -27,7 +27,6 @@ var BY_GROUP = {
   bw: "rule",
   "bw-strong": "rule",
   shadow: "elevation",
-  scrim: "swatch",
   "scrim-blur": "bar",
   focus: "rule",
   dur: "duration",

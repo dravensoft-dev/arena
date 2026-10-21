@@ -32,6 +32,7 @@ export const DESIGN_DIR = 'contracts/design';
 export const FILES = [
   { out: 'palette.generated.css', blocks: [
     { selector: ':root', source: 'palette.dark.json' },
+    { selector: '.arena-dark', source: 'palette.dark.json' },
     { selector: '.arena-light', source: 'palette.light.json' },
   ] },
   { out: 'typography.generated.css', blocks: [
@@ -52,7 +53,7 @@ export const FILES = [
     { selector: ':root', source: 'plugin.tokens.json', dir: `${PLUGIN_DIR}/default` },
   ] },
   { out: 'style-plugin.complete.generated.css', blocks: [
-    { selector: '.arena-complete', source: 'plugin.tokens.json', dir: `${PLUGIN_DIR}/complete` },
+    { selector: '.arena-complete', source: 'plugin.tokens.json', dir: `${PLUGIN_DIR}/complete`, plugin: 'complete' },
   ] },
 ];
 
@@ -62,6 +63,7 @@ export const RESOLVES_AGAINST = {
 };
 
 export const THEME_SCOPES = new Map<string, (selector: string, body: string) => string>([
+  ['dark', scopeOn('.arena-dark')],
   ['light', scopeOn('.arena-light')],
 ]);
 
@@ -72,7 +74,7 @@ export const SCOPE_SELECTORS = new Map<string, (selector: string, body: string) 
 ]);
 
 export const REDECLARED_GROUPS = new Map<string, string[]>([
-  ['color', ['light']],
+  ['color', ['dark', 'light']],
   ['dz', ['compact', 'comfortable']],
 ]);
 
@@ -332,8 +334,8 @@ function renderLines(items: Emitted[]) {
   return lines;
 }
 
-export async function block({ selector, source, dir = DESIGN_DIR }:
-{ selector: string; source: string; dir?: string }) {
+export async function block({ selector, source, dir = DESIGN_DIR, plugin }:
+{ selector: string; source: string; dir?: string; plugin?: string }) {
   const buckets = new Map<string, Emitted[]>([['', []]]);
   for (const item of walk(await load(source, dir))) {
     const theme = isTokenItem(item) ? themeOf(item.token) : '';
@@ -342,7 +344,8 @@ export async function block({ selector, source, dir = DESIGN_DIR }:
   const base = buckets.get('') ?? [];
   const restatedIn = (name: string) => base.filter((item) =>
     isTokenItem(item) && scopesRedeclaring(item.token).includes(name));
-  const out = base.length ? [`${selector}{\n${renderLines(base).join('\n')}\n}`] : [];
+  const named = plugin === undefined ? [] : [`  --arena-plugin:${plugin};`];
+  const out = base.length ? [`${selector}{\n${[...named, ...renderLines(base)].join('\n')}\n}`] : [];
 
   for (const [theme, scope] of THEME_SCOPES) {
     const references = restatedIn(theme);

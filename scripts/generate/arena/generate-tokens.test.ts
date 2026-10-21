@@ -33,7 +33,7 @@ const SCRIPT_FLAG = /"script"\s*:\s*true/g;
 test('FILES declares no block outside a theme, a density or a plugin in the store', () => {
   const selectors = FILES.flatMap((f) => f.blocks.map((b) => b.selector));
   const scopes = [...new Set(selectors.filter((s) => s !== ':root'))].sort();
-  assert.deepEqual(scopes, ['.arena-complete', '.arena-light'],
+  assert.deepEqual(scopes, ['.arena-complete', '.arena-dark', '.arena-light'],
     'a scope this generator emits is a theme or a plugin the store holds; a density is a vocabulary '
     + 'family and every other selector would be an answer Arena curated for somebody else');
 });
@@ -149,7 +149,7 @@ test('every group that is redeclared names scopes this build actually emits', ()
 });
 
 test('a reference is restated under the scopes that redeclare it, and under no others', () => {
-  assert.deepEqual(scopesRedeclaring(aliasing('{color.base-200}', 'color')), ['light']);
+  assert.deepEqual(scopesRedeclaring(aliasing('{color.base-200}', 'color')), ['dark', 'light']);
   assert.deepEqual(scopesRedeclaring(aliasing('{dz.text-xs}')), ['compact', 'comfortable'],
     'the density axis has two scopes and a reference has to land in both, because a token restated '
     + 'into one of them still inherits the base value into the other');
@@ -174,4 +174,25 @@ test('the default plugin answers every declared role', () => {
   assert.deepEqual(declared.filter((role) => !css.includes(`--${role}:`)), [],
     'a role the root plugin leaves unanswered is a custom property with no value, which is invalid '
     + 'at computed-value time: the declaration reading it is dropped and the property disappears');
+});
+
+test('the default palette wears a class: .arena-dark carries the :root block, and the default plugin restates under it what it restates under .arena-light', async () => {
+  const { buildAll } = await import('./generate-tokens.ts');
+  const built = await buildAll();
+  const body = (css: string, selector: string) =>
+    new RegExp(`^${selector.replace('.', '\\.')}\\{\\n([\\s\\S]*?)\\n\\}`, 'm').exec(css)?.[1];
+  const palette = built.get('palette.generated.css') as string;
+  assert.ok(body(palette, '.arena-dark'), 'palette.generated.css has no .arena-dark block');
+  assert.equal(body(palette, '.arena-dark'), body(palette, ':root'));
+  const plugin = built.get('style-plugin.default.generated.css') as string;
+  const names = (selector: string) => [...(body(plugin, selector) ?? '').matchAll(/^\s*--([\w-]+):/gm)].map((m) => m[1]);
+  assert.equal(names('.arena-dark').length, 75);
+  assert.deepEqual(names('.arena-dark'), names('.arena-light'));
+  const rootValue = (name: string) => new RegExp(`--${name}:([^;]+);`).exec(body(plugin, ':root') ?? '')?.[1];
+  for (const line of (body(plugin, '.arena-dark') ?? '').split('\n').filter(Boolean)) {
+    const [, name, value] = /--([\w-]+):([^;]+);/.exec(line) ?? [];
+    assert.equal(value, rootValue(name ?? ''), `--${name} under .arena-dark is not the :root value`);
+  }
+  const complete = built.get('style-plugin.complete.generated.css') as string;
+  assert.match(complete, /^\.arena-complete\{\n {2}--arena-plugin:complete;/m);
 });

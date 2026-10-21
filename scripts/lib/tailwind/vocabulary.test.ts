@@ -156,6 +156,7 @@ test('a restating option writes the literal values of the contract file it names
     variants: { 'arena-compact': 'contracts/design/x.json' } };
   assert.equal(compileFamily(density, [], root), `${LAYER_ORDER}@scope (.arena-compact) {
   :scope {
+    --arena-density: compact;
     --dz-ctl-h: 32px;
     --dz-lh: 1;
   }
