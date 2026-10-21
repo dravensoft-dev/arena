@@ -323,6 +323,7 @@ test('the tokens table carries a Tailwind column read from Theme.css', () => {
   assert.equal(rowOf('sp-0')[3], '`*-0`');
   assert.equal(rowOf('sp-0-5')[3], '`*-0.5`');
   assert.equal(rowOf('z-modal')[3], '`z-modal`');
+  assert.equal(rowOf('bp-md')[3], '`md:`');
   assert.equal(rowOf('loop-spin')[3], 'none');
   assert.match(renderRegion('tokens'), /\| custom property \| value \| Tailwind \|/);
 });

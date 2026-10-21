@@ -22,7 +22,7 @@ import {
 } from '../core/arena-cli/theme-css.ts';
 import type { ArenaConfig, ArenaFont } from '../core/arena-cli/theme-css.ts';
 import { FONT_ROLES } from '../core/arena-cli/palette-keys.ts';
-import { CSS_TARGETS } from './generate-tokens.ts';
+import { CSS_TARGETS, BREAKPOINT_TARGET } from './generate-tokens.ts';
 import { HUES_FILE } from '../../lib/tailwind/hue-sheet.ts';
 import { RULE_TAGS, RULE_DESCRIPTIONS } from '../core/arena-cli/audit.ts';
 import { LAYER_SCRIPTS, wiredScripts } from '../core/arena-cli/command-init.ts';
@@ -275,10 +275,12 @@ The package is the code. The server, the plugin and the repository are the langu
       const step = unit === undefined ? undefined : Number(pixels(name)) / Number(pixels(unit));
       return name.startsWith('sp-') && step !== undefined && Number.isFinite(step) ? `\`*-${step}\`` : undefined;
     };
+    const variants = new Map([...readFileSync(join(base, BREAKPOINT_TARGET), 'utf8').matchAll(/^\s*--breakpoint-([a-z0-9-]+):/gm)]
+      .map((match) => [`bp-${match[1]}`, `\`${match[1]}:\``]));
     const rows = groups.flatMap((group) => Object.entries(tokens)
       .filter(([name]) => !roles.has(name) && (name === group || name.startsWith(`${group}-`)))
-      .map(([name, value]) => `| \`--${name}\` | \`${value}\` | ${multiple(name) ?? utilities.get(name)?.join(', ') ?? 'none'} |`));
-    return ['`*-` stands for any spacing utility, such as `h-` or `py-`. The sheet sets the spacing base to `--sp-1`, so a spacing utility resolves as its number times that step. A row marked `none` has no utility that reads its token. Where the sheet resets a Tailwind default scale (radius, shadow, ease and z-index), a utility of that default, such as `shadow-md`, emits nothing and reports nothing. The `sm:`, `md:` and `lg:` variants keep Tailwind\'s own widths, not the `--bp-*` values.', '',
+      .map(([name, value]) => `| \`--${name}\` | \`${value}\` | ${multiple(name) ?? variants.get(name) ?? utilities.get(name)?.join(', ') ?? 'none'} |`));
+    return ['`*-` stands for any spacing utility, such as `h-` or `py-`. The sheet sets the spacing base to `--sp-1`, so a spacing utility resolves as its number times that step. A row marked `none` has no utility named for its token, so read it with `var()`. Where the sheet resets a Tailwind default scale (radius, shadow, ease and z-index), a utility of that default, such as `shadow-md`, emits nothing and reports nothing. A breakpoint row names the variant that reads it, and Tailwind\'s other default widths, such as `xl:`, stop resolving.', '',
       '| custom property | value | Tailwind |', '| --- | --- | --- |', ...rows].join('\n');
   },
 
