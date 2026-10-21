@@ -133,6 +133,10 @@ thing to hold true:
   puts `a` before `B` under en-US and after it by code unit, so a generator emits two different
   files on two machines and the `git diff --exit-code` in every workflow calls the second one a
   generator out of step. That rule's owner list is **empty**, and the emptiness is the claim.
+- **A path from a `file:` URL is `fileURLToPath`, never its `.pathname`.** On Windows the
+  `.pathname` of `file:///D:/a/x` is `/D:/a/x`, which no fs call reads, and the same line passes
+  on Linux. One rule, `file-url-pathname`, reaches scripts, suites and the `frameworks/` sources;
+  the owner is `lib/arena/static-server.ts`, whose URL is an http request.
 - **A directory link is `linkDir`**, a junction on Windows, which needs neither Developer Mode
   nor elevation where a symlink needs both.
 - **A gate that cannot run FAILS, in one spelling.** `cannotRun` in `lib/arena/arena-scripts-vars.ts`.

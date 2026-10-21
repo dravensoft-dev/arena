@@ -24,7 +24,10 @@ import { HOST_BINARIES } from '../../lib/arena/host-binaries.ts';
 
 export const node = {
   name: 'check:portability',
-  reads: ['scripts/**', '.github/workflows/**'],
+  reads: [
+    'scripts/**', '.github/workflows/**',
+    'frameworks/**/*.ts', 'frameworks/**/*.tsx', 'frameworks/**/*.mts', 'frameworks/**/*.mjs',
+  ],
   writes: [],
   feeds: [],
 };
@@ -57,7 +60,7 @@ export type Rule = {
   owners: string[];
   why: string;
   written?: 'as a string';
-  reaches?: 'suites as well';
+  reaches?: 'suites as well' | 'every tracked source';
 };
 
 export const RULES: Rule[] = [
@@ -197,6 +200,15 @@ export const RULES: Rule[] = [
       + 'fail-open without a separator boundary and fail-closed with a hardcoded one',
     reaches: 'suites as well',
   },
+  {
+    id: 'file-url-pathname',
+    pattern: /(?<!\blocation)\.pathname\b/g,
+    owners: ['scripts/lib/arena/static-server.ts'],
+    why: 'the .pathname of a file: URL is /D:/a/... on Windows, which no fs call reads, so '
+      + 'fileURLToPath is the one spelling of a path taken from a file URL; the owner\'s URL is an '
+      + 'http request, which has no drive letter to lose',
+    reaches: 'every tracked source',
+  },
 ];
 
 export function inScope(path: string, base = root) {
@@ -220,6 +232,19 @@ export function inSuiteScope(path: string, base = root) {
 
 export function suiteFiles(base = root) {
   return walkFiles(join(base, 'scripts')).filter((path) => inSuiteScope(path, base));
+}
+
+export const EVERY_RULES = RULES.filter((rule) => rule.reaches === 'every tracked source');
+
+const BUILT = ['/dist/', '/build/', '/node_modules/', '.generated.'];
+
+export function layerFiles(base = root) {
+  const dir = join(base, 'frameworks');
+  if (!existsSync(dir)) return [];
+  return walkFiles(dir).filter((path) => {
+    const rel = `/${relPosix(base, path)}`;
+    return /\.(?:ts|tsx|mts|mjs)$/.test(rel) && !BUILT.some((part) => rel.includes(part));
+  });
 }
 
 export function commentRanges(source: string): [number, number][] {
@@ -596,6 +621,7 @@ export function checkoutProblems(paths: string[]) {
 export function portabilityProblems(base = root) {
   const files = scriptFiles(base);
   const suites = suiteFiles(base);
+  const layers = layerFiles(base);
   const tracked = trackedPaths(base);
   const problems: string[] = [];
 
@@ -610,7 +636,8 @@ export function portabilityProblems(base = root) {
     }
   };
   scan(files, RULES);
-  scan(suites, SUITE_RULES);
+  scan(suites, [...SUITE_RULES, ...EVERY_RULES]);
+  scan(layers, EVERY_RULES);
 
   problems.push(...staleOwners([...files, ...suites], base));
   problems.push(...matrixProblems(base));

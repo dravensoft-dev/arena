@@ -6,7 +6,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  CLONE_ROOT_BUDGET, MATRIX_WORKFLOW, MAX_PATH, PR_WORKFLOW, REQUIRED_JOB, RULES, SUITE_RULES,
+  CLONE_ROOT_BUDGET, EVERY_RULES, MATRIX_WORKFLOW, MAX_PATH, PR_WORKFLOW, REQUIRED_JOB, RULES, SUITE_RULES,
   WORKFLOWS, browserNamingProblems, browserPathProblems, browserWorkflows, checkoutProblems, declaredNeeds, gateProblems,
   inScope, inSuiteScope, jobBlocks, jobShapeProblems, matrixLegs, matrixProblems, needsProblems,
   portabilityProblems, setupProblems, staleOwners, timeoutProblems, trackedPaths, violations, workflowFiles,
@@ -32,6 +32,7 @@ const PLANTED: Record<string, string> = {
   'host-separator': "import { join, sep } from 'node:path';\n",
   'sliced-relative': 'const rel = path.slice(root.length + 1);\n',
   'slash-index': "const dir = path.slice(0, path.lastIndexOf('/'));\n",
+  'file-url-pathname': "const file = new URL('./x.json', import.meta.url).pathname;\n",
 };
 
 test('every rule has a planted case, so a rule added without one fails here', () => {
@@ -106,6 +107,49 @@ test('the separator rules read a suite as well, and the rest still leave one alo
   assert.equal(violations(suite, PLANTED['native-relative'] ?? '', SUITE_RULES).length, 1,
     'a native path in a suite becomes an expected value spelled for one operating system, and '
     + 'the assertion then passes on the machine that wrote it and nowhere else');
+});
+
+test('file-url-pathname fires on any file URL, not only import.meta.url', () => {
+  const found = violations('scripts/build/arena/made-up.ts', 'const p = pathToFileURL(x).pathname;\n');
+  assert.equal(found.length, 1);
+  assert.equal(found[0]?.line, 1);
+});
+
+test('file-url-pathname leaves location.pathname alone', () => {
+  assert.deepEqual(violations('frameworks/react/made-up.ts',
+    "history.replaceState(null, '', window.location.pathname);\n"), []);
+});
+
+test('file-url-pathname leaves fileURLToPath alone', () => {
+  assert.deepEqual(violations('scripts/build/arena/made-up.ts',
+    "const p = fileURLToPath(new URL('./x', import.meta.url));\n"), []);
+});
+
+test('file-url-pathname skips a template literal', () => {
+  assert.deepEqual(violations('scripts/build/arena/made-up.ts',
+    'const doc = `new URL(r.name).pathname`;\n'), []);
+});
+
+test('file-url-pathname reaches the framework layers, suites and scripts', () => {
+  const rule = RULES.find((one) => one.id === 'file-url-pathname');
+  assert.equal(rule?.reaches, 'every tracked source');
+  assert.ok(EVERY_RULES.includes(rule as never));
+  const base = mkdtempSync(join(tmpdir(), 'arena-layer-'));
+  try {
+    mkdirSync(join(base, 'scripts'), { recursive: true });
+    mkdirSync(join(base, 'frameworks/react/dist'), { recursive: true });
+    mkdirSync(join(base, WORKFLOWS), { recursive: true });
+    writeFileSync(join(base, 'frameworks/react/made-up.test.tsx'), PLANTED['file-url-pathname'] ?? '');
+    writeFileSync(join(base, 'frameworks/react/dist/built.ts'), PLANTED['file-url-pathname'] ?? '');
+    writeFileSync(join(base, 'frameworks/react/Index.generated.ts'), PLANTED['file-url-pathname'] ?? '');
+    writeFileSync(join(base, 'scripts/one.test.ts'), PLANTED['file-url-pathname'] ?? '');
+    const mine = portabilityProblems(base).problems.filter((one) => one.includes(' breaks file-url-pathname'));
+    assert.equal(mine.length, 2, mine.join('\n'));
+    assert.ok(mine.some((one) => one.startsWith('frameworks/react/made-up.test.tsx:1:')), mine.join('\n'));
+    assert.ok(mine.some((one) => one.startsWith('scripts/one.test.ts:1:')), mine.join('\n'));
+  } finally {
+    rmSync(base, { recursive: true, force: true });
+  }
 });
 
 test('the tree itself is clean, and the gate scanned enough of it to mean something', () => {
