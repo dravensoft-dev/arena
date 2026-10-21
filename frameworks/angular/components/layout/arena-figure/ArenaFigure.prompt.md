@@ -32,8 +32,16 @@ because a `<figcaption>` outside a `<figure>` is associated with nothing.
 **Keys:** none.
 <!-- @keys end -->
 
-**The three slots are attributes**, `media`, `fallback` and `overlay`, projected through the marker
-directives every Arena component with named slots uses.
+<!-- @markers GENERATED from the projection markers the component queries. -->
+**Markers**, one directive per slot:
+- `[fallback]` is `ArenaFallback`.
+- `[media]` is `ArenaMedia`.
+- `[overlay]` is `ArenaOverlay`.
+
+Put each marker your template writes in your own component's `imports`. An un-imported marker leaves its slot empty with no error, and `arena check` reports it. [Which markers must I import?](../../../../../skills/design/references/exports.md#which-angular-projection-markers-must-i-import)
+<!-- @markers end -->
+
+**The three slots are attributes**, `media`, `fallback` and `overlay`.
 
 **Nothing here takes a source or an alternative text**, and that is the point. The picture is the
 element you wrote, so `src`, `srcset`, `loading` and `alt` stay where the platform already asks for

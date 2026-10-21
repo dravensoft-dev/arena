@@ -37,11 +37,17 @@ you place. The section register is the middle rung of the title ladder, under a 
 **Keys:** none.
 <!-- @keys end -->
 
+<!-- @markers GENERATED from the projection markers the component queries. -->
+**Markers**, one directive per slot:
+- `[action]` is `ArenaAction`.
+
+Put each marker your template writes in your own component's `imports`. An un-imported marker leaves its slot empty with no error, and `arena check` reports it. [Which markers must I import?](../../../../../skills/design/references/exports.md#which-angular-projection-markers-must-i-import)
+<!-- @markers end -->
+
 **`title` and the content slot are both required, and both are guarded at runtime.** A section is a heading over a group. With no heading it is a stack, which the vocabulary page lists as `.arena-stack`. With no children the heading names nothing. The title guard trims first,
 because the value it exists to catch is a present and useless one rather than an absent one.
 
-**The action slot is the `action` attribute**, projected through the marker directive every Arena
-component with a trailing slot uses. Anything else you write lands in the body.
+**The action slot is the `action` attribute**. Anything else you write lands in the body.
 
 **The host is a plain section element and claims no landmark.** A section becomes a `region` in the accessibility tree only once it has an accessible name. A page where every section announced itself would bury the two or three landmarks that matter. The heading is the structure a reader
 navigates by, and it is the platform's own.

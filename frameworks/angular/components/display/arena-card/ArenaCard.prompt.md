@@ -46,6 +46,13 @@ take, and the host goes `display: contents`.
 - `Enter`: activate.
 <!-- @keys end -->
 
+<!-- @markers GENERATED from the projection markers the component queries. -->
+**Markers**, one directive per slot:
+- `[action]` is `ArenaAction`.
+
+Put each marker your template writes in your own component's `imports`. An un-imported marker leaves its slot empty with no error, and `arena check` reports it. [Which markers must I import?](../../../../../skills/design/references/exports.md#which-angular-projection-markers-must-i-import)
+<!-- @markers end -->
+
 **`interactive` makes the whole card one activation target**, which is the ordinary shape of a list on a phone. The member is a declared boolean rather than "is `(click)` bound?". Arena never derives what it draws from what a consumer listens for. `arena-table-row`'s `interactive` gives the same answer. Arena writes `role="button"`, a tab stop and
 an Enter/Space handler, and draws the surface's own hover and focus states. Without it the card is
 inert and adds no tab stop, because a dead stop on every card of every list is worse than the gap

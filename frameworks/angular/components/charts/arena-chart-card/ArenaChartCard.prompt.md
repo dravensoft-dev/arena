@@ -33,6 +33,13 @@ says so with `headingLevel`, and `h3` is the rung a chart card inside a section 
 **Keys:** none.
 <!-- @keys end -->
 
+<!-- @markers GENERATED from the projection markers the component queries. -->
+**Markers**, one directive per slot:
+- `[actions]` is `ArenaActions`.
+
+Put each marker your template writes in your own component's `imports`. An un-imported marker leaves its slot empty with no error, and `arena check` reports it. [Which markers must I import?](../../../../../skills/design/references/exports.md#which-angular-projection-markers-must-i-import)
+<!-- @markers end -->
+
 Import `ArenaActions` from `@dravensoft/arena-angular` alongside `ArenaChartCard` in the host component's `imports`. `actions` is a directive rather than a plain attribute, because it is how the card detects that actions were projected at all. Without it the attribute is inert, the
 head row never renders when there is no title, and the button silently disappears.
 `ArenaActions` is shared: every primitive with a plural, toolbar-shaped projected slot

@@ -41,7 +41,15 @@ hero, so `<arena-hero>` is the element you place. The hero's title takes the her
 **Keys:** none.
 <!-- @keys end -->
 
-**The two slots are attributes**, `actions` and `figure`, projected through the marker directives.
+<!-- @markers GENERATED from the projection markers the component queries. -->
+**Markers**, one directive per slot:
+- `[actions]` is `ArenaActions`.
+- `[figure]` is `ArenaFigureSlot`.
+
+Put each marker your template writes in your own component's `imports`. An un-imported marker leaves its slot empty with no error, and `arena check` reports it. [Which markers must I import?](../../../../../skills/design/references/exports.md#which-angular-projection-markers-must-i-import)
+<!-- @markers end -->
+
+**The two slots are attributes**, `actions` and `figure`.
 The actions slot takes one element, so wrap your buttons in a container of your own if there is
 more than one.
 

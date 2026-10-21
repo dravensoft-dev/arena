@@ -48,6 +48,13 @@ slots higher, and the scrim is how it says so.
 - `Space`: activates the button and toggles the region.
 <!-- @keys end -->
 
+<!-- @markers GENERATED from the projection markers the component queries. -->
+**Markers**, one directive per slot:
+- `[footer]` is `ArenaFooter`.
+
+Put each marker your template writes in your own component's `imports`. An un-imported marker leaves its slot empty with no error, and `arena check` reports it. [Which markers must I import?](../../../../../skills/design/references/exports.md#which-angular-projection-markers-must-i-import)
+<!-- @markers end -->
+
 **Closed and collapsed are two different states, and both exist.** `open` decides whether the panel is on the page at all. `collapsed` folds the body away and leaves the header and the footer where they were. The two states are what the pattern buys. A reader can put the cart out of the way, still see what it is and still check out, without losing it. The body is hidden rather than removed, so the
 fold control's `aria-controls` never points at nothing.
 

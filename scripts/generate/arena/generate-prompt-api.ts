@@ -1,13 +1,14 @@
-/* Writes four regions into the component's own prompt, between markers this script owns. @api is
+/* Writes five regions into the component's own prompt, between markers this script owns. @api is
  * every contracted member as a table, so a wrong cell is fixed in the contract. @answers names the
  * families its own manifest answers, linked to their rows. @keys names the pattern its binding binds
- * and the keys it requires. @rules points back at the router, since
+ * and the keys it requires. @markers, in an Angular prompt only, names the directive behind each projection
+ * attribute the component queries and states the import rule. @rules points back at the router, since
  * a prompt is what an agent rereads deepest into a session; it is owed to every prompt and all sit
  * at one depth, so ROUTER_FROM_PROMPT is a constant. The prose between stays hand-written, and
- * check:prompts holds all four regions equal to a fresh emit. */
+ * check:prompts holds all five regions equal to a fresh emit. */
 
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
-import { join, dirname } from 'node:path';
+import { join, dirname, basename } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { bindingName, normaliseDoc, layerDescription } from '../../lib/arena/api-surface.ts';
@@ -17,6 +18,7 @@ import {
 } from './generate-skills.ts';
 import { captured } from '../../utils/captures.ts';
 import { readFamilies, answerOf, answeredFamilies as answeredNames, axesOf, targetOf, VOCABULARY_DIR, type Family } from '../../lib/tailwind/vocabulary.ts';
+import { angularComponentMap } from '../../lib/arena/component-map.ts';
 import { manifestFor } from '../../lib/tailwind/manifest-surfaces.ts';
 import { readManifests } from '../../check/arena/check-measured-box.ts';
 
@@ -319,6 +321,49 @@ export function applyKeysRegion(source: string, region: string) {
   return [...lines.slice(0, after + 1), '', ...region.split('\n'), ...lines.slice(after + 1)].join('\n');
 }
 
+export const MARKERS_OPEN_LINE = /^<!-- @markers GENERATED[^\n]*-->$/m;
+export const MARKERS_CLOSE_LINE = '<!-- @markers end -->';
+export const MARKERS_OPEN = '<!-- @markers GENERATED from the projection markers the component queries. -->';
+export const MARKERS_FROM_PROMPT = '../../../../../skills/design/references/exports.md#which-angular-projection-markers-must-i-import';
+
+export function renderMarkersRegion(attributes: string[], directives: Record<string, string>) {
+  const lines = attributes.map((attribute) => {
+    const directive = directives[attribute];
+    if (!directive) throw new Error(`generate-prompt-api: the projection attribute "${attribute}" has no marker directive`);
+    return `- \`[${attribute}]\` is \`${directive}\`.`;
+  });
+  const rule = 'Put each marker your template writes in your own component\'s `imports`. An un-imported marker leaves '
+    + 'its slot empty with no error, and `arena check` reports it. '
+    + `[Which markers must I import?](${MARKERS_FROM_PROMPT})`;
+  return [MARKERS_OPEN, '**Markers**, one directive per slot:', ...lines, '', rule, MARKERS_CLOSE_LINE].join('\n');
+}
+
+export function applyMarkersRegion(source: string, region: string | null) {
+  const lines = source.split('\n');
+  const opensAt = lines.findIndex((line) => MARKERS_OPEN_LINE.test(line));
+  if (opensAt !== -1) {
+    const closesAt = lines.indexOf(MARKERS_CLOSE_LINE, opensAt);
+    if (closesAt === -1) throw new Error('generate-prompt-api: a @markers region opens and never closes');
+    const tail = lines.slice(closesAt + 1);
+    if (region === null) return [...lines.slice(0, opensAt > 0 && lines[opensAt - 1] === '' ? opensAt - 1 : opensAt), ...tail].join('\n');
+    return [...lines.slice(0, opensAt), ...region.split('\n'), ...tail].join('\n');
+  }
+  if (region === null) return source;
+  const after = lines.indexOf(KEYS_CLOSE_LINE);
+  if (after === -1) return `${source.replace(/\s*$/, '')}\n\n${region}\n`;
+  return [...lines.slice(0, after + 1), '', ...region.split('\n'), ...lines.slice(after + 1)].join('\n');
+}
+
+export function markersOf(path: string, component: string, layer: string, map = angularComponentMap(root)) {
+  if (layer !== 'angular') return [];
+  return map.markers[basename(dirname(path))] ?? [];
+}
+
+export function markersRegionOf(path: string, component: string, layer: string, map = angularComponentMap(root)) {
+  const attributes = markersOf(path, component, layer, map);
+  return attributes.length > 0 ? renderMarkersRegion(attributes, map.markerDirectives) : null;
+}
+
 export function keysOf(path: string, component: string, base = root) {
   const at = join(base, dirname(path), `${component}.behaviour.json`);
   if (!existsSync(at)) return { binding: null, patterns: [] as Pattern[] };
@@ -337,6 +382,7 @@ export function writePromptApis({
   const written = [];
   const families = readFamilies(base);
   const manifests = readManifests(base);
+  const markers = angularComponentMap(base);
   for (const { component, layer, path } of prompts) {
     const contract = loadContract(component, base);
     const before = read(join(base, path), 'utf8');
@@ -346,7 +392,8 @@ export function writePromptApis({
     );
     const { binding, patterns } = keysOf(path, component, base);
     const withKeys = applyKeysRegion(withAnswers, renderKeysRegion(binding, patterns));
-    const after = applyRulesRegion(withKeys, renderRulesRegion(layer));
+    const withMarkers = applyMarkersRegion(withKeys, markersRegionOf(path, component, layer, markers));
+    const after = applyRulesRegion(withMarkers, renderRulesRegion(layer));
     if (after !== before) { write(join(base, path), after); written.push(path); }
   }
   return written;

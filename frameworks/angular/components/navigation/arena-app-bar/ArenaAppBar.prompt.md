@@ -39,8 +39,16 @@ banner landmark has to be that element.
 **Keys:** none (`banner`).
 <!-- @keys end -->
 
-**The three slots are attributes**, `brand`, `nav` and `actions`, projected through the marker
-directives. Each takes one element, so wrap a row of controls in a container of your own.
+<!-- @markers GENERATED from the projection markers the component queries. -->
+**Markers**, one directive per slot:
+- `[actions]` is `ArenaActions`.
+- `[brand]` is `ArenaBrand`.
+- `[nav]` is `ArenaNav`.
+
+Put each marker your template writes in your own component's `imports`. An un-imported marker leaves its slot empty with no error, and `arena check` reports it. [Which markers must I import?](../../../../../skills/design/references/exports.md#which-angular-projection-markers-must-i-import)
+<!-- @markers end -->
+
+**The three slots are attributes**, `brand`, `nav` and `actions`. Each takes one element, so wrap a row of controls in a container of your own.
 
 **The bar spans the viewport and the band inside it does not.** The fill and the hairline run edge to edge. The contents stop at the page width with a gutter either side, so they line up with everything under them. Both lengths are the roles a style plugin re-answers, the same pair `.arena-band`
 carries for markup you wrote yourself.

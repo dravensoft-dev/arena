@@ -46,6 +46,13 @@ Week or day schedule on a time grid: a toolbar, one column per day, events posit
 - `End`: moves focus to the last cell in the current row.
 <!-- @keys end -->
 
+<!-- @markers GENERATED from the projection markers the component queries. -->
+**Markers**, one directive per slot:
+- `[actions]` is `ArenaActions`.
+
+Put each marker your template writes in your own component's `imports`. An un-imported marker leaves its slot empty with no error, and `arena check` reports it. [Which markers must I import?](../../../../../skills/design/references/exports.md#which-angular-projection-markers-must-i-import)
+<!-- @markers end -->
+
 `timeZone` is optional and defaults to the reader's own resolved zone, which is right whenever the schedule belongs to whoever is looking at it. **Pass it when the calendar has a zone of its own.** A class at 09:00 in Madrid must stay at 09:00 for a student loading the page from Lima. Only an explicit `timeZone="Europe/Madrid"` says so. The default is also **not safe under server rendering**. On a server it resolves to the *server's* zone, and then to the client's on hydration.
 
 The anchor is internal, so prev/Today/next work with nothing wired. `rangeChange` reports the new anchor date; take it as the cue to refetch. Bind `anchorDate` only when you want to drive the date yourself: it is a `linkedSignal` source, so it wins whenever it changes and resets any navigation the reader had done.

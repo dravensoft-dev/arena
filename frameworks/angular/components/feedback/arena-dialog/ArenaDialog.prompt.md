@@ -40,6 +40,13 @@ The host **is** the scrim, so `<arena-dialog>` covers the viewport when open and
 - `Escape`: close.
 <!-- @keys end -->
 
+<!-- @markers GENERATED from the projection markers the component queries. -->
+**Markers**, one directive per slot:
+- `[footer]` is `ArenaFooter`.
+
+Put each marker your template writes in your own component's `imports`. An un-imported marker leaves its slot empty with no error, and `arena check` reports it. [Which markers must I import?](../../../../../skills/design/references/exports.md#which-angular-projection-markers-must-i-import)
+<!-- @markers end -->
+
 `title` and `open` are both **required inputs**. `title` names the dialog for assistive
 technology, the panel's `aria-labelledby` points at it, and nothing can derive it, because a
 dialog's subject is editorial. `open` is required because `false` is the closed state and not an
@@ -47,7 +54,7 @@ absence; the host owns it.
 
 The dialog's width is the `arena-dialog-width` class, `sm`, `md` or `lg`, and `--arena-dialog-width` on a container takes a **CSS length** for a width no step names. Write a token expression such as `calc(var(--sp-1) * 200)`, never a bare `520`. A class on the dialog wins over a property on its container, and a dialog that fills the screen ignores both. Write `class="arena-dialog-width-lg"` on a form's dialog for the wide panel. A value that is not a width, such as `md` written as the property, sets a declaration the browser drops and leaves the panel at its default. Arena reports that once at runtime rather than letting it pass in silence. The panel already carries its own default, `arena-dialog-width-md`, and a `92vw` cap, so a wide dialog still fits a narrow viewport.
 
-The footer is projected through the `[footer]` marker and is **optional**, with nothing marked,
+The footer is the `[footer]` attribute and is **optional**, with nothing marked,
 the action row is not rendered at all rather than rendered empty. **Import `ArenaFooter` from `@dravensoft/arena-angular` in the component that writes the marker.** The gate is a `contentChild(ArenaFooter)`, which resolves the directive rather than the attribute. An un-imported marker leaves the query null and the whole footer silently unrendered, with no error and no template diagnostic. A bare `footer` attribute on a `<div>` is valid HTML whether or not a directive matches it. The component cannot detect it, because it cannot tell "the marker was not
 imported" from "nothing was projected". Arena catches every such consumer inside its own tree;
 nothing can reach one in yours.

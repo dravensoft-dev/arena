@@ -41,6 +41,13 @@ Arena draws itself, not projected content.
 **Keys:** none.
 <!-- @keys end -->
 
+<!-- @markers GENERATED from the projection markers the component queries. -->
+**Markers**, one directive per slot:
+- `[action]` is `ArenaAction`.
+
+Put each marker your template writes in your own component's `imports`. An un-imported marker leaves its slot empty with no error, and `arena check` reports it. [Which markers must I import?](../../../../../skills/design/references/exports.md#which-angular-projection-markers-must-i-import)
+<!-- @markers end -->
+
 Import `ArenaAction` from `@dravensoft/arena-angular` alongside `ArenaEmptyState` in the host component's `imports`. `action` is a directive rather than a plain attribute, because it is how the empty state detects that an action was projected at all. `ArenaAction` is shared: every
 primitive that projects a single action through `[action]` (`ArenaEmptyState`,
 `ArenaErrorState`) imports the same directive rather than declaring its own.

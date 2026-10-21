@@ -32,6 +32,13 @@ head lays out controls the consumer wrote rather than declaring a second button 
 **Keys:** none.
 <!-- @keys end -->
 
+<!-- @markers GENERATED from the projection markers the component queries. -->
+**Markers**, one directive per slot:
+- `[actions]` is `ArenaActions`.
+
+Put each marker your template writes in your own component's `imports`. An un-imported marker leaves its slot empty with no error, and `arena check` reports it. [Which markers must I import?](../../../../../skills/design/references/exports.md#which-angular-projection-markers-must-i-import)
+<!-- @markers end -->
+
 `title` is required: a page head with no title is a bug, not a state. `arena-align-start` (the default) keeps the actions top-aligned with a tall title, and `arena-align-center` centers them against it.
 Both govern only the wide layout; below `--bp-sm` the row always stacks and the align class has no effect. `arena-page-head`
 applies no outer bottom margin; the parent composes that spacing.

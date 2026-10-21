@@ -48,6 +48,13 @@ exists, a bare error state ships no dead space for a retry it does not offer.
 **Keys:** none (`alert`).
 <!-- @keys end -->
 
+<!-- @markers GENERATED from the projection markers the component queries. -->
+**Markers**, one directive per slot:
+- `[secondaryAction]` is `ArenaSecondaryAction`.
+
+Put each marker your template writes in your own component's `imports`. An un-imported marker leaves its slot empty with no error, and `arena check` reports it. [Which markers must I import?](../../../../../skills/design/references/exports.md#which-angular-projection-markers-must-i-import)
+<!-- @markers end -->
+
 Import `ArenaSecondaryAction` from `@dravensoft/arena-angular` alongside `ArenaErrorState` in the host component's `imports`. `secondaryAction` is a directive rather than a plain attribute, because it is how the error state detects that a secondary action was projected at all.
 
 **Do / Don't**
