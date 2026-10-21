@@ -54,7 +54,19 @@ not installed anywhere.
 
 ## Which arena:// resources does the server offer?
 
-Every document is also offered as an MCP resource under an `arena://` URI. The resources are the router, one per reference, the component indexes, one per component, the vocabulary, one per family and the style roles. The rules of the language and the support record are resources too.
+Every document is also offered as an MCP resource under an `arena://` URI.
+
+| Resource | URI |
+|---|---|
+| The router | `arena://router` |
+| One reference | `arena://reference/<name>` |
+| The layer's component index and the layer-neutral catalogue | `arena://index` and `arena://index/all` |
+| One component category | `arena://category/<category>` |
+| One component | `arena://component/<Name>` |
+| The vocabulary and one family | `arena://vocabulary` and `arena://family/<name>` |
+| The style roles | `arena://roles` |
+| The rules of the language | `arena://rules` |
+| The support record | `arena://support` |
 
 The values travel too. Every JSON file of `contracts/design/` is one group at `arena://tokens/<group>`, such as `arena://tokens/spacing` for the `--sp-*` scale or `arena://tokens/palette.dark`. The group `arena://tokens/behaviour` holds the motion delays and is not a behaviour pattern. `arena://behaviour/<pattern>` is one behaviour contract: the roles, keys and focus a pattern requires.
 

@@ -1,13 +1,15 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
   entries, catalogue, search, nameOf, categoryOf, words, textOf, withUris, relIndex,
-  ROUTER_URI, SUPPORT_URI, ROLES_URI, LAYER_INDEX_URI, CATALOGUE_URI, VOCABULARY_URI, SCHEME,
-  extractFamilies, STYLE_PREFIX, IDENTITY_PREFIX,
+  ROUTER_URI, SUPPORT_URI, RULES_URI, ROLES_URI, LAYER_INDEX_URI, CATALOGUE_URI, VOCABULARY_URI, SCHEME,
+  extractFamilies, STYLE_PREFIX, IDENTITY_PREFIX, TOKENS_PREFIX, BEHAVIOUR_PREFIX, FAMILY_PREFIX,
+  REFERENCE_PREFIX, CATEGORY_PREFIX, COMPONENT_PREFIX,
 } from './catalogue.ts';
+import { repoRoot } from '../../../lib/arena/repo-root.ts';
 import type { Manifest } from './payload.ts';
 
 const MANIFEST: Manifest = {
@@ -349,4 +351,27 @@ test('the identity template and its worked answer are served as html resources',
     assert.equal(textOf(dir, page, byRel), '<!doctype html><title>Identity document</title>');
     assert.equal(search(dir, [...byUri.values()], 'identity')[0]?.entry.uri.startsWith(IDENTITY_PREFIX), true);
   } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+const MCP_PAGE = readFileSync(join(repoRoot, 'skills', 'design', 'references', 'mcp.md'), 'utf8');
+const SERVED_EXACT = [ROUTER_URI, SUPPORT_URI, RULES_URI, ROLES_URI, LAYER_INDEX_URI, CATALOGUE_URI, VOCABULARY_URI];
+const SERVED_PREFIXES = [TOKENS_PREFIX, BEHAVIOUR_PREFIX, STYLE_PREFIX, IDENTITY_PREFIX, FAMILY_PREFIX,
+  REFERENCE_PREFIX, CATEGORY_PREFIX, COMPONENT_PREFIX];
+
+test('every arena:// URI mcp.md names is one the catalogue serves', () => {
+  const named = [...MCP_PAGE.matchAll(/arena:\/\/[^\s`)]+/g)].map((one) => one[0].replace(/[.,;:]+$/, ''));
+  assert.ok(named.length > 0);
+  for (const uri of named) {
+    const pattern = uri.indexOf('<');
+    const literal = pattern >= 0 ? uri.slice(0, pattern) : uri;
+    const served = (pattern < 0 && SERVED_EXACT.includes(uri))
+      || SERVED_PREFIXES.some((prefix) => literal.startsWith(prefix));
+    assert.ok(served, `${uri} is not served by the catalogue`);
+  }
+});
+
+test('the router, reference, category and component URIs are all named in mcp.md', () => {
+  for (const uri of [ROUTER_URI, REFERENCE_PREFIX, CATEGORY_PREFIX, COMPONENT_PREFIX]) {
+    assert.ok(MCP_PAGE.includes(uri), `mcp.md does not name ${uri}`);
+  }
 });

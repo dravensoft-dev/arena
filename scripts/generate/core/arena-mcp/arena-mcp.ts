@@ -15,7 +15,7 @@ import * as z from 'zod/v4';
 import {
   resolvePayload, manifestIn, disagreement, LAYERS, type Manifest, type Installed,
 } from './payload.ts';
-import { catalogue, search, textOf, ROUTER_URI, SCHEME, type Entry } from './catalogue.ts';
+import { catalogue, search, textOf, ROUTER_URI, SCHEME, COMPONENT_PREFIX, type Entry } from './catalogue.ts';
 import { auditText, loadVocabulary, type VocabularyIndex } from '../arena-cli/audit.ts';
 
 export const NAME = 'arena';
@@ -75,7 +75,7 @@ export function listing(entries: Entry[]) {
 }
 
 export function opening(manifest: Manifest, entries: Entry[], installed: Installed | null = null) {
-  const components = entries.filter((one) => one.uri.startsWith(`${SCHEME}://component/`)).length;
+  const components = entries.filter((one) => one.uri.startsWith(COMPONENT_PREFIX)).length;
   const drift = disagreement(manifest, installed);
   return `Arena ${manifest.version}, the ${manifest.layer} layer, from ${manifest.package}. `
     + `${components} component document(s). Read ${ROUTER_URI} before the first screen: it carries `

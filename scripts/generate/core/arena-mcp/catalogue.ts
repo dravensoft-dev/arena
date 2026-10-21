@@ -60,6 +60,9 @@ const jsonIn = (rel: string, dir: string) => dirPosix(rel) === dir && rel.endsWi
 const jsonName = (rel: string) => (rel.split('/').at(-1) ?? '').replace(/\.json$/, '');
 
 export const FAMILY_PREFIX = `${SCHEME}://family/`;
+export const REFERENCE_PREFIX = `${SCHEME}://reference/`;
+export const CATEGORY_PREFIX = `${SCHEME}://category/`;
+export const COMPONENT_PREFIX = `${SCHEME}://component/`;
 
 export type Entry = { uri: string; rel: string; title: string; mime: string };
 
@@ -163,17 +166,17 @@ export function entries(payload: string, manifest: Manifest): Entry[] {
       continue;
     }
     if (rel.startsWith(`${REFERENCE_DIR}/`) && rel.endsWith('.md')) {
-      found.push({ uri: `${SCHEME}://reference/${nameOf(rel)}`, rel, mime: 'text/markdown',
+      found.push({ uri: `${REFERENCE_PREFIX}${nameOf(rel)}`, rel, mime: 'text/markdown',
         title: `Reference: ${nameOf(rel)}` });
       continue;
     }
     if (rel.endsWith(`/${INDEX}`) && rel.includes('/components/')) {
-      found.push({ uri: `${SCHEME}://category/${categoryOf(rel)}`, rel, mime: 'text/markdown',
+      found.push({ uri: `${CATEGORY_PREFIX}${categoryOf(rel)}`, rel, mime: 'text/markdown',
         title: `Every ${layer} component filed under ${categoryOf(rel)}` });
       continue;
     }
     if (rel.endsWith(PROMPT_SUFFIX)) {
-      found.push({ uri: `${SCHEME}://component/${nameOf(rel)}`, rel, mime: 'text/markdown',
+      found.push({ uri: `${COMPONENT_PREFIX}${nameOf(rel)}`, rel, mime: 'text/markdown',
         title: `${nameOf(rel)}: its members, its examples and its Do and Don't` });
     }
   }
@@ -182,7 +185,7 @@ export function entries(payload: string, manifest: Manifest): Entry[] {
 
 export function catalogue(payload: string, manifest: Manifest) {
   const found = entries(payload, manifest);
-  const components = found.filter((one) => one.uri.startsWith(`${SCHEME}://component/`));
+  const components = found.filter((one) => one.uri.startsWith(COMPONENT_PREFIX));
   if (components.length === 0) {
     throw new Error('arena-mcp: the payload carries no component document, so every question about '
       + 'a component would be answered with silence. Check that the Arena package it came from is '

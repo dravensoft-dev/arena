@@ -7,7 +7,7 @@ import {
   parseArgs, listing, opening, build, isProgram, USAGE, NAME, checked, CHECKED_AS, vocabularyOf,
 } from './arena-mcp.ts';
 import { manifestIn, bundledPayload } from './payload.ts';
-import { catalogue, entries, search, SCHEME, ROUTER_URI } from './catalogue.ts';
+import { catalogue, entries, search, SCHEME, ROUTER_URI, COMPONENT_PREFIX } from './catalogue.ts';
 import { walkFiles } from '../../../utils/walk-files.ts';
 import { relPosix } from '../../../utils/posix-path.ts';
 import { repoRoot } from '../../../lib/arena/repo-root.ts';
@@ -81,7 +81,7 @@ test('the server registers a resource per document and the four tools, over the 
   assert.ok(manifest, 'the assembled payload carries a manifest');
   const { server, entries } = build(PAYLOAD, manifest);
   assert.equal(server.server.getClientCapabilities(), undefined, 'nothing is connected yet');
-  const components = entries.filter((one) => one.uri.startsWith(`${SCHEME}://component/`));
+  const components = entries.filter((one) => one.uri.startsWith(COMPONENT_PREFIX));
   assert.ok(components.length > 40, `${components.length} component(s) is not the whole library`);
   assert.ok(entries.some((one) => one.uri === ROUTER_URI), 'the router is offered');
   assert.equal(NAME, 'arena');

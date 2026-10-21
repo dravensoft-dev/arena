@@ -22,7 +22,7 @@ import {
 import { loadVocabulary } from '../../generate/core/arena-cli/audit.ts';
 import {
   catalogue, textOf, MARKDOWN_LINK, ADDRESSED, STYLE_PREFIX, STYLE_DIR,
-  IDENTITY_PREFIX, IDENTITY_DIR,
+  IDENTITY_PREFIX, IDENTITY_DIR, COMPONENT_PREFIX,
 } from '../../generate/core/arena-mcp/catalogue.ts';
 import { manifestIn, bundledPayload } from '../../generate/core/arena-mcp/payload.ts';
 import { servedDocs, writtenPages } from '../../lib/arena/llms-index.ts';
@@ -307,7 +307,7 @@ export function catalogueProblems(dir: string, base = root) {
     const found = manifestIn(payload);
     if (found === null) { problems.push(`${payload} carries no manifest`); continue; }
     const served = catalogue(payload, found).entries
-      .filter((one) => one.uri.startsWith('arena://component/')).length;
+      .filter((one) => one.uri.startsWith(COMPONENT_PREFIX)).length;
     if (served === expected) continue;
     problems.push(`${NAME} would serve ${served} component document(s) of the ${layer} layer against `
       + `the ${expected} the tree declares. A server that serves half the library answers the other `
