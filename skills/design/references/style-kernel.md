@@ -287,7 +287,7 @@ floor, so answering `lh-heading` with it refuses the build.
 Beyond those, `arena audit` reads each source file and nothing reads the rendered view. The
 last step is the only one that checks the thing you care about.
 
-- [ ] Answer every role that carries no default in `plugin.tokens.json`, starting with the shapes.
+- [ ] Run `arena build`, which names every role the root plugin leaves unanswered, one line each. A plugin started empty is listed whole. Answer every role that carries no default in `plugin.tokens.json`, starting with the shapes.
 - [ ] Run `arena audit`. Your plugin directory is in scope because the config
       declares it, so the audit measures your application and your plugin together.
 - [ ] Read the report. Fix what it names, and re-run it until it names nothing.

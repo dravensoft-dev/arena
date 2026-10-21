@@ -35,6 +35,19 @@ controls and autofill point the way the palette does, so a palette states whethe
 light rather than leaving it inferred.
 
 Arena paints neither the selection nor the scrollbars, and the browser draws both from `color-scheme`.
+A project that wants its own colours writes the rule, and the rule below is the project's, not Arena's.
+
+```css
+:root {
+  scrollbar-color: var(--mute-2-disabled) transparent;
+}
+::selection {
+  background: var(--gold-soft);
+  color: var(--bone);
+}
+```
+
+The canvas follows `color-scheme` from the root element alone, where the `.arena-<name>` class goes, so a `color-scheme` set on `body` or on a wrapper leaves the canvas as it was.
 
 ## Which colour your own markup takes
 
@@ -45,7 +58,7 @@ resolves to a palette colour and follows the palette instead.
 
 **Markup of yours written with Tailwind v4 reads the same tokens.** Import the package's
 `css/tailwind-theme.css` right after `tailwindcss`, and `bg-base-100` or `p-4` on your own
-element resolves to the token a component reads. Tailwind's own defaults stop resolving at all.
+element resolves to the token a component reads. Where the sheet resets a Tailwind scale, a default utility such as `shadow-md` emits nothing and reports nothing, and [the token tables](./tokens.md) name the utilities that resolve.
 
 **A page's frame is chosen by the viewport, and a component by its own box.** Wrap a wide screen's
 rail in an element of your own marked `max-md:hidden`, and a phone's drawer in one marked
@@ -106,6 +119,7 @@ palette it was written against.
 `--crimson` and `--gold` are the two accents, with a soft wash beside each. `--danger`,
 `--success`, `--warning` and `--info` are the four status colours, with the same. `--bone` and
 `--mute` are text at full strength and text held back.
+Each key of a palette's `colors` becomes `--color-<key>`, so `base-100` is `--color-base-100`. [config.md](./config.md#declare-your-skin) lists the keys.
 
 ## Meaning and identity are two different colour sets
 

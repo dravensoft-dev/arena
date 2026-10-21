@@ -169,3 +169,18 @@ Give the wrapper a display. The wrapper is the flex or grid item now, so it is w
 ## Density
 
 **`.arena-compact` and `.arena-comfortable` are the density family on the vocabulary page, `frameworks/VOCABULARY.md`.** The first re-densifies the controls. The second grows them to a 48px touch target. A container wearing both gets `.arena-comfortable`, as the vocabulary page states. Each re-answers the control and row sizes and nothing else. Markup of your own follows the class when it takes its sizes from the `--dz-*` properties. [tokens.md](./tokens.md#what-does-each-density-class-change) lists each one, the value each class gives it and the Tailwind utility that reads it. The rhythm above does not re-densify, so the air between two components stays where you spent it.
+
+A row and a control of your own, once in CSS and once in the Tailwind utilities that table names:
+
+```css
+.my-row { padding: var(--dz-row-py) var(--dz-row-px); }
+.my-control { height: var(--dz-ctl-h); font-size: var(--dz-text); }
+```
+
+```html
+<div class="py-row-py px-row-px">
+  <button class="h-ctl-h text-ctl">Save</button>
+</div>
+```
+
+Both follow `.arena-compact` and `.arena-comfortable` on an ancestor.

@@ -145,7 +145,7 @@ export const ROUTES: Route[] = [
       + 'document that says what the questions are and which answers carry the difference',
     entry: 'consumer',
     stops: ['skills/design/references/style-kernel.md'],
-    budget: 19_700,
+    budget: 19_800,
     reason:
       'paid once per project and never per screen, which is what lets it carry the whole surface '
       + 'the kernel exposes rather than a pointer to it, so a project stops learning the kernel from '
@@ -158,10 +158,9 @@ export const ROUTES: Route[] = [
       + 'stops measure with room for the kernel to grow a section, and it moves when it grows '
       + 'a question, not a paragraph. The root rule says where a '
       + 'role\'s default is written and states first, in a region generated with the config page\'s, '
-      + 'which roles carry a default and that the root answers the rest, as a mechanism read '
-      + 'before its roster reads as one with members. It says where a project with no clone '
+      + 'which roles carry a default and that the root answers the rest. It says where a project with no clone '
       + 'fetches the default plugin. The roster grows per role, as does the table of registers. '
-      + 'The hand checklist builds before it imports.',
+      + 'The hand checklist builds first and names each unanswered role.',
   },
   {
     name: 'consumer-register',
@@ -256,7 +255,7 @@ export const ROUTES: Route[] = [
       + 'column it sits in and how much air goes between two components',
     entry: 'consumer',
     stops: ['skills/design/references/page.md', 'skills/design/references/style.md'],
-    budget: 23_900,
+    budget: 25_100,
     reason:
       'paid per element a builder draws themselves, which every screen has. What it buys is the '
       + 'half of a page that is never a component: which colour role each thing a builder draws takes '
@@ -272,8 +271,7 @@ export const ROUTES: Route[] = [
       + 'names each layer\'s breakpoint helper and the quiet ink level. The number is what '
       + 'the stops measure, and it grows when Arena ships a piece for somebody else\'s markup. '
       + 'The style page prints the '
-      + 'default plugin\'s layout answers and sends density values to the token table. The ink table '
-      + 'grows per text role. Arena paints no selection or scrollbar.',
+      + 'default plugin\'s layout answers and sends density values to the token table. Arena paints no selection or scrollbar, so a recipe gives one.',
   },
   {
     name: 'consumer-coldstart',
