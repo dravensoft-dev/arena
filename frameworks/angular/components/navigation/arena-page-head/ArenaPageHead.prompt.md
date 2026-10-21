@@ -43,8 +43,7 @@ Put each marker your template writes in your own component's `imports`. An un-im
 Both govern only the wide layout; below `--bp-sm` the row always stacks and the align class has no effect. `arena-page-head`
 applies no outer bottom margin; the parent composes that spacing.
 
-Import `ArenaActions` from `@dravensoft/arena-angular` alongside `ArenaPageHead` in the host component's `imports`. `actions` is a directive rather than a plain attribute, because it is how the page head detects that actions were projected at all. Without it the attribute is inert, the
-actions wrapper never renders, and the buttons silently disappear. `ArenaActions` is
+`actions` is a directive rather than a plain attribute, because it is how the page head detects that actions were projected at all. `ArenaActions` is
 shared: every primitive with a plural, toolbar-shaped projected slot imports the same
 directive rather than declaring its own.
 

@@ -266,7 +266,7 @@ test('a cases binding lists the keys of every case once, and a case exception re
 const markersAt = (layer: string, component: string) => {
   const found = promptPaths().find((one) => one.layer === layer && one.component === component);
   assert.ok(found, `${layer} ${component} has no prompt`);
-  return markersOf(found.path, found.component, found.layer);
+  return markersOf(found.path, found.layer);
 };
 
 const regionIn = (layer: string, component: string) => {
@@ -304,7 +304,7 @@ test('no React prompt gets a @markers region', () => {
   const react = promptPaths().filter((one) => one.layer === 'react');
   assert.ok(react.length > 0);
   for (const { component, layer, path } of react) {
-    assert.deepEqual(markersOf(path, component, layer), [], component);
+    assert.deepEqual(markersOf(path, layer), [], component);
     assert.equal(readFileSync(join(repoRoot, path), 'utf8').includes('@markers'), false, component);
   }
 });

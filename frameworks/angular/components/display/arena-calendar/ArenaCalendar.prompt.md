@@ -57,8 +57,6 @@ Put each marker your template writes in your own component's `imports`. An un-im
 
 The anchor is internal, so prev/Today/next work with nothing wired. `rangeChange` reports the new anchor date; take it as the cue to refetch. Bind `anchorDate` only when you want to drive the date yourself: it is a `linkedSignal` source, so it wins whenever it changes and resets any navigation the reader had done.
 
-**The toolbar's actions slot needs its marker directive.** `<ng-content select="[actions]">` is drawn only when `contentChild(ArenaActions)` resolves. A consumer who writes `actions` on an element without importing `ArenaActions` from the layer root gets no toolbar actions and no error. The silent miss is the one failure mode of every marker slot in this layer.
-
 **The range in the toolbar is a label, not a heading.** The caption says which dates are on screen, and it is rewritten every time the reader steps a week. A document outline built on it would carry "13 – 15 Jul 2026" where the name of a region belongs. The region is named already: the grid takes
 an `aria-label` composed from the same range, which is what a reader arriving by name lands on.
 The heading that says what this calendar IS belongs outside it, on the `arena-section` or the page

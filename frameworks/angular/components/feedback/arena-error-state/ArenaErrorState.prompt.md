@@ -55,7 +55,7 @@ exists, a bare error state ships no dead space for a retry it does not offer.
 Put each marker your template writes in your own component's `imports`. An un-imported marker leaves its slot empty with no error, and `arena check` reports it. [Which markers must I import?](../../../../../skills/design/references/exports.md#which-angular-projection-markers-must-i-import)
 <!-- @markers end -->
 
-Import `ArenaSecondaryAction` from `@dravensoft/arena-angular` alongside `ArenaErrorState` in the host component's `imports`. `secondaryAction` is a directive rather than a plain attribute, because it is how the error state detects that a secondary action was projected at all.
+`secondaryAction` is a directive rather than a plain attribute, because it is how the error state detects that a secondary action was projected at all.
 
 **Do / Don't**
 - Always pass `retryLabel` when a retry could work. An error state with no retry is a
@@ -65,9 +65,6 @@ Import `ArenaSecondaryAction` from `@dravensoft/arena-angular` alongside `ArenaE
 - Don't put the raw exception in `message`. The code chip is where a machine-readable
   detail goes; the message is for a person.
 - Don't use this for a validation failure on a field: that belongs on the field.
-- Don't forget to import `ArenaSecondaryAction` when projecting a secondary action,
-  without it, the `secondaryAction` attribute is inert and the content silently fails
-  to render.
 
 **Words.** `title` answers first; when it is absent, the locale's `errorStateTitle` does.
 

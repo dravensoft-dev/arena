@@ -135,7 +135,7 @@ export function promptProblems(base = root, prompts = promptPaths(base)) {
     const keys = keysProblem(path, source, binding, patterns);
     if (keys.length === 0) keyed += 1;
     problems.push(...keys);
-    problems.push(...markersProblem(path, source, markersRegionOf(path, component, layer, markerMap)));
+    problems.push(...markersProblem(path, source, markersRegionOf(path, layer, markerMap)));
 
     const contract = loadContract(component, base);
     if (!contract) { uncontracted += 1; continue; }

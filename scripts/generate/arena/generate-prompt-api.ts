@@ -354,13 +354,13 @@ export function applyMarkersRegion(source: string, region: string | null) {
   return [...lines.slice(0, after + 1), '', ...region.split('\n'), ...lines.slice(after + 1)].join('\n');
 }
 
-export function markersOf(path: string, component: string, layer: string, map = angularComponentMap(root)) {
+export function markersOf(path: string, layer: string, map = angularComponentMap(root)) {
   if (layer !== 'angular') return [];
   return map.markers[basename(dirname(path))] ?? [];
 }
 
-export function markersRegionOf(path: string, component: string, layer: string, map = angularComponentMap(root)) {
-  const attributes = markersOf(path, component, layer, map);
+export function markersRegionOf(path: string, layer: string, map = angularComponentMap(root)) {
+  const attributes = markersOf(path, layer, map);
   return attributes.length > 0 ? renderMarkersRegion(attributes, map.markerDirectives) : null;
 }
 
@@ -392,7 +392,7 @@ export function writePromptApis({
     );
     const { binding, patterns } = keysOf(path, component, base);
     const withKeys = applyKeysRegion(withAnswers, renderKeysRegion(binding, patterns));
-    const withMarkers = applyMarkersRegion(withKeys, markersRegionOf(path, component, layer, markers));
+    const withMarkers = applyMarkersRegion(withKeys, markersRegionOf(path, layer, markers));
     const after = applyRulesRegion(withMarkers, renderRulesRegion(layer));
     if (after !== before) { write(join(base, path), after); written.push(path); }
   }

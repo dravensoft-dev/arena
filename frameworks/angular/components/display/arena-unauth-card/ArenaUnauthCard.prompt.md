@@ -49,7 +49,7 @@ is actually for, and a footer. The panel knows nothing about credentials, so one
 Put each marker your template writes in your own component's `imports`. An un-imported marker leaves its slot empty with no error, and `arena check` reports it. [Which markers must I import?](../../../../../skills/design/references/exports.md#which-angular-projection-markers-must-i-import)
 <!-- @markers end -->
 
-Import `ArenaBrand` and `ArenaFooter` from `@dravensoft/arena-angular` alongside `ArenaUnauthCard` in the host component's `imports`. `brand` and `footer` are directives rather than plain attributes, because they are how the panel detects that something was actually projected into each slot. Both wrappers carry their
+`brand` and `footer` are directives rather than plain attributes, because they are how the panel detects that something was actually projected into each slot. Both wrappers carry their
 own margin, so a card that omits one ships no dead space for it.
 
 **Do / Don't**
@@ -59,9 +59,6 @@ own margin, so a card that omits one ships no dead space for it.
   the screen; this is the frame around them.
 - Don't override the width. 454px is the figure this panel has always rendered at, and it
   is arithmetic, content, padding and both hairlines added back together.
-- Don't forget to import `ArenaBrand` / `ArenaFooter` when projecting into `[brand]` /
-  `[footer]`, without them, the attribute is inert and the content silently fails to
-  render inside its wrapper.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
