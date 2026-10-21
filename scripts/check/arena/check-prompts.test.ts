@@ -103,7 +103,7 @@ test('a marker region that is missing, stale or owed by no marker is reported, a
   const region = renderMarkersRegion(['nav'], { nav: 'ArenaNav' });
   assert.deepEqual(markersProblem('p.md', `x\n\n${region}\n`, region), []);
   assert.deepEqual(markersProblem('p.md', 'x\n', null), []);
-  assert.match(markersProblem('p.md', 'x\n', region)[0], /carries no @markers region/);
-  assert.match(markersProblem('p.md', `x\n\n${region.replace('ArenaNav', 'ArenaOld')}\n`, region)[0], /does not match/);
-  assert.match(markersProblem('p.md', `x\n\n${region}\n`, null)[0], /queries no projection marker/);
+  assert.match(markersProblem('p.md', 'x\n', region)[0] ?? '', /carries no @markers region/);
+  assert.match(markersProblem('p.md', `x\n\n${region.replace('ArenaNav', 'ArenaOld')}\n`, region)[0] ?? '', /does not match/);
+  assert.match(markersProblem('p.md', `x\n\n${region}\n`, null)[0] ?? '', /queries no projection marker/);
 });
