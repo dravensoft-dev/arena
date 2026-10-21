@@ -86,6 +86,7 @@ export function initArenaTheme(themes: ArenaThemeConfig = ARENA_DEFAULT_THEMES):
   current = null;
   const name = getArenaTheme();
   apply(name);
+  for (const listener of listeners) listener(name);
   return name;
 }
 

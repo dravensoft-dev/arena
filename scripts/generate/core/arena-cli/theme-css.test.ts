@@ -1043,6 +1043,14 @@ test('arena check reports the heat order of a root plugin that answers the steps
   }
 });
 
+const shippedPalette = (polarity: 'light' | 'dark'): Record<string, string> => {
+  const file = new URL(`../../../../contracts/design/palette.${polarity}.json`, import.meta.url).pathname;
+  const entries = JSON.parse(readFileSync(file, 'utf8')).color as Record<string, any>;
+  return Object.fromEntries(Object.entries(entries)
+    .filter(([key, entry]) => !key.startsWith('$') && typeof entry?.$value?.hex === 'string')
+    .map(([key, entry]) => [key, entry.$value.hex as string]));
+};
+
 test('every plugin under plugin-style-store answers the heat steps in order under Arena\'s light and dark palettes', () => {
   const store = new URL('../../../../plugin-style-store/', import.meta.url).pathname;
   const dirs = ['default', 'complete', ...readdirSync(`${store}catalogue`, { withFileTypes: true })
@@ -1054,6 +1062,9 @@ test('every plugin under plugin-style-store answers the heat steps in order unde
       const c = config({ palettes: [{ name: polarity, default: true, polarity, colors: colors(heatLadderColours(polarity)) }] });
       const out = paletteReports(c, HEAT_ROLES as any, [plugin])[0]?.messages.filter((m) => m.kind === 'heat') ?? [];
       assert.deepEqual(out, [], `${dir} under ${polarity}`);
+      const shipped = config({ palettes: [{ name: polarity, default: true, polarity, colors: colors(shippedPalette(polarity)) }] });
+      const real = paletteReports(shipped, HEAT_ROLES as any, [plugin])[0]?.messages.filter((m) => m.kind === 'heat') ?? [];
+      assert.deepEqual(real, [], `${dir} under the shipped ${polarity} palette`);
     }
   }
 });

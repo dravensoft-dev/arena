@@ -175,6 +175,7 @@ export const NAMED_BUT_NOT_HERE = new Map([
   ['fullcalendar-overrides.css', THE_CONSUMER_WRITES],
   ['tailwind-theme.css', THE_PACKAGE_SHIPS],
   ['Next.js', 'a framework\'s name and not a file, which the dot makes read as one'],
+  ['Chart.js', 'a chart library\'s name and not a file, which the dot makes read as one'],
   ['claude_desktop_config.json', 'the desktop client\'s own configuration file, on the reader\'s machine and in no project'],
 ]);
 

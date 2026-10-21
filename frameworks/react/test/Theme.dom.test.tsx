@@ -8,6 +8,9 @@ import {
   toggleArenaTheme, arenaPalettes,
 } from '../Theme.ts';
 import type { ArenaThemeConfig } from '../Theme.ts';
+import React from 'react';
+import { mount, cleanup, act } from './Harness.tsx';
+import { useArenaTheme } from '../Theme.ts';
 
 const THREE: ArenaThemeConfig = {
   palettes: [
@@ -97,5 +100,22 @@ test('choosing a palette remembers it for the next load', () => {
   initArenaTheme(THREE);
   setArenaTheme('high-contrast');
   assert.equal(localStorage.getItem('arena-theme'), 'high-contrast');
+  clean();
+});
+
+test('initArenaTheme after the stored key is removed tells a mounted useArenaTheme the system\'s palette', () => {
+  clean();
+  initArenaTheme(THREE);
+  setArenaTheme('high-contrast');
+  const Label = () => React.createElement('span', { id: 'name' }, useArenaTheme()[0]);
+  const box = mount(React.createElement(Label));
+  assert.equal(box.querySelector('#name')?.textContent, 'high-contrast');
+
+  localStorage.removeItem('arena-theme');
+  act(() => { initArenaTheme(THREE); });
+  assert.notEqual(getArenaTheme(), 'high-contrast');
+  assert.equal(box.querySelector('#name')?.textContent, getArenaTheme(),
+    'the mounted hook shows the palette the page now wears, not the one it held before');
+  cleanup();
   clean();
 });

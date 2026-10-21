@@ -146,13 +146,12 @@ export function FocusMainOnNavigation() {
 React Router is allowed and untested: no Arena test exercises a router. In Next.js the same effect keys on `usePathname()` from `next/navigation`.
 
 ```ts
-// Angular: in the root component class, keyed on the path
-import { Component, inject } from '@angular/core';
+// Angular: add to the skeleton's App class, keyed on the path
+import { inject } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { distinctUntilChanged, filter, map, skip } from 'rxjs';
 import { ARENA_MAIN_ID } from '@dravensoft/arena-angular';
 
-@Component({ selector: 'app-root', template: '' })
 export class App {
   private readonly router = inject(Router);
 

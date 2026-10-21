@@ -125,9 +125,8 @@ source text cannot show, is `arena://rules` on the MCP server.
 - **No emoji, in product or in copy.** **`arena audit` reports this one, as `emoji`.**
 - **Icons are Phosphor class-name strings, never elements and never SVG.** Write `icon="ph-bold
   ph-plus"`. In a project with a build, install `@phosphor-icons/web`, because Arena never bundles
-  it. A static page links the weight sheets instead, as
-  [`references/artifact.md`](./references/artifact.md) shows. **`arena audit` reports this one, as
-  `icon-element`.**
+  it. A static page links the weight sheets instead, as `references/artifact.md` shows. **`arena
+  audit` reports this one, as `icon-element`.**
 - **Never wrap an Arena component in your router's own link.** That nests an anchor inside an
   anchor, and in Angular it does not bind at all. Pass the href to the component and route from
   the event it reports. An `ArenaLink` inside a link of your own is reported as `wrapped-link`.

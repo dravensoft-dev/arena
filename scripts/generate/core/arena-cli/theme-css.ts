@@ -82,7 +82,7 @@ export type CheckedFont = ArenaFont & { family: string; src: string };
 
 export type CheckedStylesheet = { preflight?: boolean; components: string[] };
 
-export const ARENA_FONT_DEFAULTS = { style: 'normal', weight: '400 900', display: 'swap' };
+export const ARENA_FONT_DEFAULTS = { style: 'normal', weight: '400 900', display: 'swap' } as const;
 
 export type CheckedConfig = ArenaConfig & {
   palettes: CheckedPalette[];

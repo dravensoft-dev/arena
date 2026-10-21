@@ -43,7 +43,7 @@ export const node = {
     'frameworks/*/playground/**', 'frameworks/react/*.generated.js',
     'frameworks/angular/build/demo/**',
     '.claude-plugin/plugin.json', 'frameworks/tailwind/Hues.json', 'frameworks/tailwind/vocabulary/**',
-    'AGENTS.md', 'CONTRIBUTING.md', 'DOUBTS.md', 'contracts/api/MemberForms.md', 'frameworks/AGENTS.md',
+    'AGENTS.md', 'contracts/AGENTS.md', 'CONTRIBUTING.md', 'DOUBTS.md', 'contracts/api/MemberForms.md', 'frameworks/AGENTS.md',
     'frameworks/CHARTS.md', 'frameworks/tailwind/AGENTS.md', 'plugin-style-store/AGENTS.md',
     'plugin-style-store/catalogue/AGENTS.md',
   ],

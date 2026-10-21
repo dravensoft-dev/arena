@@ -209,7 +209,7 @@ export const TARGETS = [...new Set(Object.values(REGION_TARGETS).flat())];
 
 export const node = {
   name: 'generate:npm-pages',
-  reads: [...TARGETS, 'scripts/generate/core/arena-cli/audit.ts', 'scripts/generate/core/arena-cli/command-init.ts', 'scripts/lib/arena/language-rules.ts', `${DEFAULT_PLUGIN_DIR}/${PLUGIN_TOKENS}`, '.claude-plugin/plugin.json', 'scripts/generate/core/arena-cli/style-plugin-rules.ts', LOCALE_CONTRACT, ROLE_CONTRACT, BEHAVIOUR_CONTRACT, ...Object.values(DENSITY_CONTRACTS), THEME_SHEET, TOAST_NOTICE_CONTRACT, CONFIRM_REQUEST_CONTRACT, ...CSS_TARGETS, HUES_FILE, `${VOCABULARY_DIR}/**/*${FAMILY_SUFFIX}`],
+  reads: [...TARGETS, 'scripts/generate/core/arena-cli/audit.ts', 'scripts/generate/core/arena-cli/command-init.ts', 'scripts/lib/arena/language-rules.ts', `${DEFAULT_PLUGIN_DIR}/${PLUGIN_TOKENS}`, '.claude-plugin/plugin.json', 'scripts/generate/core/arena-cli/style-plugin-rules.ts', LOCALE_CONTRACT, ROLE_CONTRACT, BEHAVIOUR_CONTRACT, ...Object.values(DENSITY_CONTRACTS), THEME_SHEET, 'contracts/api/components/*.json', 'contracts/design/spacing.json', BREAKPOINT_TARGET, TOAST_NOTICE_CONTRACT, CONFIRM_REQUEST_CONTRACT, ...CSS_TARGETS, HUES_FILE, `${VOCABULARY_DIR}/**/*${FAMILY_SUFFIX}`],
   writes: TARGETS,
   feeds: [
     'build:angular-package',
@@ -280,7 +280,7 @@ The package is the code. The server, the plugin and the repository are the langu
     const rows = groups.flatMap((group) => Object.entries(tokens)
       .filter(([name]) => !roles.has(name) && (name === group || name.startsWith(`${group}-`)))
       .map(([name, value]) => `| \`--${name}\` | \`${value}\` | ${multiple(name) ?? variants.get(name) ?? utilities.get(name)?.join(', ') ?? 'none'} |`));
-    return ['`*-` stands for any spacing utility, such as `h-` or `py-`. The sheet sets the spacing base to `--sp-1`, so a spacing utility resolves as its number times that step. A row marked `none` has no utility named for its token, so read it with `var()`. Where the sheet resets a Tailwind default scale (radius, shadow, ease and z-index), a utility of that default, such as `shadow-md`, emits nothing and reports nothing. A breakpoint row names the variant that reads it, and Tailwind\'s other default widths, such as `xl:`, stop resolving.', '',
+    return ['`*-` stands for any spacing utility, such as `h-` or `py-`. The sheet sets the spacing base to `--sp-1`, so a spacing utility resolves as its number times that step. A row marked `none` has no utility named for its token, so read it with `var()`. Where the sheet resets a Tailwind default scale (radius, shadow and ease), a utility of that default, such as `shadow-md`, emits nothing and reports nothing. A breakpoint row names the variant that reads it, and Tailwind\'s other default widths, such as `xl:`, stop resolving.', '',
       '| custom property | value | Tailwind |', '| --- | --- | --- |', ...rows].join('\n');
   },
 
