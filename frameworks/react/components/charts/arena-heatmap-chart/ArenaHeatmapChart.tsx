@@ -18,7 +18,7 @@ import type { ArenaCell } from '../ChartPointer.ts';
 import { arenaCursorHandles2d, arenaCursorStep2d, arenaPointerClears, arenaPointerUpdates } from '../ChartPointer.ts';
 import { chartBarGap, chartBarRadius } from '../../../Tokens.generated.js';
 
-import type { ArenaNumberFormat, ArenaSeries } from '../../../Api.generated';
+import type { ArenaCatSlot, ArenaNumberFormat, ArenaSeries } from '../../../Api.generated';
 import { useArenaLocale } from '../../../ArenaLocale.ts';
 import { arenaPhrase } from '../../../Phrase.ts';
 import type { ArenaHeatmapChartClass } from '../../../Vocabulary.generated.ts';
@@ -35,6 +35,9 @@ export interface ArenaHeatmapChartProps {
 
   /** One series per row, top to bottom in the order given, its `label` the row's name and its `values` the row's cells, one per column. A short row leaves its last cells empty, and an empty or non-finite cell is drawn with an outline and no fill, because missing is not low. `colorId`, `colorIds` and `tone` are ignored with one development warning, because a cell's colour is its magnitude. */
   series: readonly ArenaSeries[];
+
+  /** Accepted so every chart takes the same member, and ignored with a development warning, because a cell's colour is its magnitude. */
+  colorStart?: ArenaCatSlot;
 
   /** Names the chart for its accessible name and for the caption of its data table. The name is for the CHART, and a series names itself. Required and guarded rather than defaulted: a fallback of the chart TYPE satisfies roles.label mechanically and tells a screen-reader user nothing, so two charts on one page announce identically. */
   label: string;
@@ -61,7 +64,7 @@ const arenaHeatmapChartStyles = arenaStyles(manifest);
 const STEPS = Array.from({ length: ARENA_HEAT_STEPS }, (_, i) => i + 1);
 
 export function ArenaHeatmapChart({ className,
-  labels, series, label, valuePrefix, valueSuffix, valueFormat, minCellWidth, height,
+  labels, series, colorStart, label, valuePrefix, valueSuffix, valueFormat, minCellWidth, height,
 }: ArenaHeatmapChartProps) {
   const locale = useArenaLocale();
   const styles = arenaHeatmapChartStyles();
@@ -72,8 +75,8 @@ export function ArenaHeatmapChart({ className,
   const rail = useRef<HTMLDivElement>(null);
   const [cursor, setCursor] = useState<ArenaCell | null>(null);
 
-  if (series.some((one) => one.colorId !== undefined || one.colorIds !== undefined || one.tone !== undefined)) {
-    arenaWarnOnce('ArenaHeatmapChart: a series\' colorId, colorIds and tone are ignored, because a cell\'s colour is its magnitude');
+  if (series.some((one) => one.colorId !== undefined || one.colorIds !== undefined || one.tone !== undefined) || colorStart !== undefined) {
+    arenaWarnOnce('ArenaHeatmapChart: a series\' colorId, colorIds and tone, and the chart\'s colorStart, are ignored, because a cell\'s colour is its magnitude');
   }
 
   const available = measured ?? 600;

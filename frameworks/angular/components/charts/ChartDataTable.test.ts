@@ -2008,7 +2008,7 @@ test('arena-heatmap-chart warns once that identity and meaning are ignored, and 
       fixtures.push(renderHeat({ ...small, series: marked }), renderHeat({ ...small, series: marked }));
     });
     assert.equal(warned.length, 1);
-    assert.match(warned[0] as string, /ArenaHeatmapChart: a series' colorId, colorIds and tone are ignored, because a cell's colour is its magnitude/);
+    assert.match(warned[0] as string, /ArenaHeatmapChart: a series' colorId, colorIds and tone, and the chart's colorStart, are ignored, because a cell's colour is its magnitude/);
     const markedFills = heatFills(fixtures[0]!.nativeElement as Element).slice(0, 2);
     const plainFills = heatFills(plain.nativeElement as Element);
     assert.deepEqual(markedFills, plainFills);

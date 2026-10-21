@@ -1,12 +1,12 @@
 import { ChangeDetectionStrategy, Component, computed, ElementRef, inject, input, output, signal, viewChild } from '@angular/core';
 import { arenaContainerWidth } from '../../../ContainerSize';
-import { ARENA_CHART_HEIGHT, ARENA_SR_ONLY, arenaValueWriter } from '../../../DataVisuals';
+import { ARENA_CHART_HEIGHT, ARENA_SR_ONLY, arenaValueWriter, arenaCatRotate } from '../../../DataVisuals';
 import { arenaDoughnutSlices } from '../ChartScales';
 import { arenaArcPath } from '../ChartMarks';
 import { arenaDoughnutRadii } from '../ChartAxis';
 import { arenaLegendPlotWidth, arenaLegendStacked } from '../ChartLegend';
 import { arenaChartTable, arenaOneSeries, arenaSeriesColors, arenaSwatchChoice } from '../ChartSeries';
-import type { ArenaChartLegendLayout, ArenaChartShape, ArenaNumberFormat, ArenaSeries } from '../../../Api.generated';
+import type { ArenaCatSlot, ArenaChartLegendLayout, ArenaChartShape, ArenaNumberFormat, ArenaSeries } from '../../../Api.generated';
 import { arenaDoughnutChartStyles } from './ArenaDoughnutChart.variants';
 import manifest from './ArenaDoughnutChart.classes.generated';
 import { ARENA_LOCALE } from '../../../ArenaLocale';
@@ -86,6 +86,12 @@ export class ArenaDoughnutChart {
   readonly labels = input.required<readonly string[]>();
   /** The parts, as one series whose values are read as shares of their own total. Exactly one series: a ring of two series is a sunburst, which is a different chart and not this one. A second series warns in development and is ignored. Per-slice identity goes in that series' `colorIds`. */
   readonly series = input.required<readonly ArenaSeries[]>();
+
+  /** The ramp slot the first slice takes when the series gives no `colorIds`. Each later slice takes the next slot, and after the last slot the count starts again at the first. A slice past the end of `colorIds` takes the slot its position gives, counted the same way. Absent, 1. */
+  readonly colorStart = input<ArenaCatSlot, ArenaCatSlot | undefined>(
+    1,
+    { transform: (value) => value ?? 1 },
+  );
   /** Names the chart for its accessible name and for the caption of its data table. Required and guarded rather than defaulted, because a fallback of the chart TYPE would satisfy roles.label mechanically and tell a screen-reader user nothing. Two doughnuts on one page would then announce identically. */
   readonly label = input.required<string>();
   /** Appended verbatim to every number the chart draws: the legend value and the accessible table. Not the centre label, which is a percentage rather than a value. */
@@ -148,8 +154,8 @@ export class ArenaDoughnutChart {
     const only = this.only();
     const values = only.values;
 
-    const coloured = only.tone ? only : { ...only, colorIds: only.colorIds ?? values.map((_, index) => index + 1) };
-    const colors = arenaSeriesColors(coloured, values.length, 1, 'ArenaDoughnutChart');
+    const coloured = only.tone ? only : { ...only, colorIds: only.colorIds ?? values.map((_, index) => arenaCatRotate(this.colorStart(), index)) };
+    const colors = arenaSeriesColors(coloured, values.length, arenaCatRotate(this.colorStart(), 0), 'ArenaDoughnutChart', this.colorStart());
     const write = this.write();
     const centreX = this.centreX();
     const centreY = this.centreY();
@@ -157,7 +163,7 @@ export class ArenaDoughnutChart {
     return arenaDoughnutSlices(values).map((slice) => ({
       ...slice,
       color: colors[slice.index],
-      swatch: arenaDoughnutChartStyles(arenaSwatchChoice(coloured, 1, slice.index)).$data.legendSwatch(),
+      swatch: arenaDoughnutChartStyles(arenaSwatchChoice(coloured, arenaCatRotate(this.colorStart(), 0), slice.index, this.colorStart())).$data.legendSwatch(),
       label: this.labels()[slice.index] ?? '',
       formatted: write(values[slice.index]),
       path: slice.to > slice.from ? arenaArcPath(centreX, centreY, outer, inner, slice.from, slice.to) : '',

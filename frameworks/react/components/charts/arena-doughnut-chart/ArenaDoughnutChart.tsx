@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { useArenaContainerWidth } from '../../../UseArenaContainerWidth.ts';
-import { arenaSrOnly, arenaValueWriter, ARENA_CHART_HEIGHT } from '../../../DataVisuals.ts';
+import { arenaSrOnly, arenaValueWriter, ARENA_CHART_HEIGHT, arenaCatRotate } from '../../../DataVisuals.ts';
 import { arenaDoughnutSlices } from '../ChartScales.ts';
 import { arenaArcPath } from '../ChartMarks.ts';
 import { arenaDoughnutRadii } from '../ChartAxis.ts';
 import { arenaLegendPlotWidth, arenaLegendStacked } from '../ChartLegend.ts';
 import { arenaChartTable, arenaOneSeries, arenaSeriesColors, arenaSwatchHue } from '../ChartSeries.ts';
 
-import type { ArenaChartLegendLayout, ArenaChartShape, ArenaNumberFormat, ArenaSeries } from '../../../Api.generated';
+import type { ArenaCatSlot, ArenaChartLegendLayout, ArenaChartShape, ArenaNumberFormat, ArenaSeries } from '../../../Api.generated';
 import { useArenaLocale } from '../../../ArenaLocale.ts';
 import { arenaPhrase } from '../../../Phrase.ts';
 import type { ArenaDoughnutChartClass } from '../../../Vocabulary.generated.ts';
@@ -24,6 +24,9 @@ export interface ArenaDoughnutChartProps {
 
   /** The parts, as one series whose values are read as shares of their own total. Exactly one series: a ring of two series is a sunburst, which is a different chart and not this one. A second series warns in development and is ignored. Per-slice identity goes in that series' `colorIds`. */
   series: readonly ArenaSeries[];
+
+  /** The ramp slot the first slice takes when the series gives no `colorIds`. Each later slice takes the next slot, and after the last slot the count starts again at the first. A slice past the end of `colorIds` takes the slot its position gives, counted the same way. Absent, 1. */
+  colorStart?: ArenaCatSlot;
 
   /** Names the chart for its accessible name and for the caption of its data table. Required and guarded rather than defaulted, because a fallback of the chart TYPE would satisfy roles.label mechanically and tell a screen-reader user nothing. Two doughnuts on one page would then announce identically. */
   label: string;
@@ -51,7 +54,7 @@ export interface ArenaDoughnutChartProps {
 const arenaDoughnutChartStyles = arenaStyles(manifest);
 
 export function ArenaDoughnutChart({ className, 
-  labels, series, label, valueSuffix, valuePrefix, valueFormat,
+  labels, series, colorStart = 1, label, valueSuffix, valuePrefix, valueFormat,
   shape = 'doughnut', legendLayout = 'auto', onSliceActivate,
 }: ArenaDoughnutChartProps) {
   const locale = useArenaLocale();
@@ -67,8 +70,8 @@ export function ArenaDoughnutChart({ className,
   const values = only.values;
   const n = values.length;
   const fmt = arenaValueWriter({ prefix: valuePrefix, suffix: valueSuffix, format: valueFormat });
-  const tonedSeries = only.tone ? only : { ...only, colorIds: only.colorIds ?? Array.from({ length: n }, (_, i) => i + 1) };
-  const colors = arenaSeriesColors(tonedSeries, n, 1, 'ArenaDoughnutChart');
+  const tonedSeries = only.tone ? only : { ...only, colorIds: only.colorIds ?? Array.from({ length: n }, (_, i) => arenaCatRotate(colorStart, i)) };
+  const colors = arenaSeriesColors(tonedSeries, n, arenaCatRotate(colorStart, 0), 'ArenaDoughnutChart', colorStart);
 
   const stacked = arenaLegendStacked(legendLayout, width);
   const styles = arenaDoughnutChartStyles({ stacked });
@@ -113,7 +116,7 @@ export function ArenaDoughnutChart({ className,
             onClick={() => onSliceActivate?.(i)}
             className={styles.legendRow()} data-arena-part={manifest.parts.legendRow} {...styles.$data.legendRow()}
             style={{ opacity: hover === null || hover === i ? 1 : 0.55 }}>
-            <span aria-hidden="true" className={arenaDoughnutChartStyles(arenaSwatchHue(tonedSeries, i, 1)).legendSwatch()} data-arena-part={manifest.parts.legendSwatch} {...arenaDoughnutChartStyles(arenaSwatchHue(tonedSeries, i, 1)).$data.legendSwatch()} />
+            <span aria-hidden="true" className={arenaDoughnutChartStyles(arenaSwatchHue(tonedSeries, i, arenaCatRotate(colorStart, 0), colorStart)).legendSwatch()} data-arena-part={manifest.parts.legendSwatch} {...arenaDoughnutChartStyles(arenaSwatchHue(tonedSeries, i, arenaCatRotate(colorStart, 0), colorStart)).$data.legendSwatch()} />
             <span className={styles.legendText()} data-arena-part={manifest.parts.legendText} {...styles.$data.legendText()}>
               <span className={styles.legendLabel()} data-arena-part={manifest.parts.legendLabel} {...styles.$data.legendLabel()}>{labels[i] ?? ''}</span>
               <span className={styles.legendValue()} data-arena-part={manifest.parts.legendValue} {...styles.$data.legendValue()}>{fmt(values[i] ?? 0)}</span>

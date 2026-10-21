@@ -7,7 +7,7 @@ import { arenaArcPath } from '../ChartMarks';
 import { arenaGaugeBand, arenaGaugeBands, arenaGaugeColor, arenaGaugeTable, arenaGaugeTicks } from '../ChartSeries';
 import { arenaGaugeChartStyles } from './ArenaGaugeChart.variants';
 import manifest from './ArenaGaugeChart.classes.generated';
-import type { ArenaGaugeBand, ArenaNumberFormat } from '../../../Api.generated';
+import type { ArenaCatSlot, ArenaGaugeBand, ArenaNumberFormat } from '../../../Api.generated';
 import { chartGaugeHeight, chartLabelGap } from '../../../Tokens.generated';
 import { ARENA_LOCALE } from '../../../ArenaLocale';
 import { arenaPhrase } from '../../../Phrase';
@@ -89,8 +89,14 @@ export class ArenaGaugeChart {
   readonly max = input<number, number | undefined>(100, { transform: (value) => value ?? 100 });
   /** What the scale means. Each band runs from its `from` to the next band's `from`, and the last to `max`, and the arc takes the colour of the band the value is in. A value below the first band is in no band and takes the identity colour. Absent, the arc is one identity colour and no band is drawn. Data rather than a threshold function, so the dial and the table are cut from the same list. An unsorted list is configuration and not data, so it warns once and is read in order of `from`. A band without a `label` throws, because a status colour never ships without its word. */
   readonly bands = input<readonly ArenaGaugeBand[]>();
-  /** The identity slot of the arc when there are no `bands`, clamped to the ramp, the first when absent. With `bands` it is ignored with a development warning, because a chart carries identity or meaning and never both. */
+  /** The identity slot of the arc when there are no `bands`, clamped to the ramp, `colorStart` when absent. With `bands` it is ignored with a development warning, because a chart carries identity or meaning and never both. */
   readonly colorId = input<number>();
+
+  /** The ramp slot the arc takes when there are no `bands` and no `colorId`, and the slot a value below the first band takes. With `bands`, the band's tone wins. Absent, 1. */
+  readonly colorStart = input<ArenaCatSlot, ArenaCatSlot | undefined>(
+    1,
+    { transform: (value) => value ?? 1 },
+  );
   /** Appended verbatim to every number the gauge writes: the centre reading, the end labels, the band edges and the accessible table. Carries its own leading space if one is wanted. */
   readonly valueSuffix = input<string>();
   /** Drawn verbatim before every number the gauge writes, as valueSuffix is drawn after it, for a currency that precedes its amount. */
@@ -141,7 +147,7 @@ export class ArenaGaugeChart {
   protected readonly centreY = computed(() => this.radii().cy);
 
   private readonly index = computed(() => arenaGaugeBand(this.sorted(), this.value()));
-  private readonly color = computed(() => arenaGaugeColor(this.sorted(), this.index(), this.colorId(), 'ArenaGaugeChart'));
+  private readonly color = computed(() => arenaGaugeColor(this.sorted(), this.index(), this.colorId(), 'ArenaGaugeChart', this.colorStart()));
   private readonly fraction = computed(() => arenaGaugeFraction(this.value(), this.min(), this.max()));
   protected readonly word = computed(() => this.sorted()[this.index()]?.label);
   protected readonly reads = computed(() => Number.isFinite(this.value()));

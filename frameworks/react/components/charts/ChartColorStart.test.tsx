@@ -8,6 +8,12 @@ import { ArenaLineChart } from './arena-line-chart/ArenaLineChart.tsx';
 import { ArenaRadarChart } from './arena-radar-chart/ArenaRadarChart.tsx';
 import { ArenaPyramidChart } from './arena-pyramid-chart/ArenaPyramidChart.tsx';
 import { ArenaScatterChart } from './arena-scatter-chart/ArenaScatterChart.tsx';
+import { ArenaDoughnutChart } from './arena-doughnut-chart/ArenaDoughnutChart.tsx';
+import { ArenaFunnelChart } from './arena-funnel-chart/ArenaFunnelChart.tsx';
+import { ArenaSparkline } from './arena-sparkline/ArenaSparkline.tsx';
+import { ArenaGaugeChart } from './arena-gauge-chart/ArenaGaugeChart.tsx';
+import { ArenaHeatmapChart } from './arena-heatmap-chart/ArenaHeatmapChart.tsx';
+import { forgetArenaWarnings } from '../../WarnOnce.ts';
 
 const NUMBERS = (count: number) => Array.from({ length: count }, (_, i) => i + 1);
 
@@ -76,4 +82,77 @@ test('colorStart: a scatter chart starts at slot 7 and wraps, on the marks and t
   const html = renderToStaticMarkup(<ArenaScatterChart label="Load" xLabel="Requests" yLabel="Latency" series={series} colorStart={7} />);
   assert.deepEqual(marks(html, 'fill'), [7, 8, 1]);
   assert.deepEqual(swatches(html), [7, 8, 1]);
+});
+
+function captureWarnings(body: () => void): string[] {
+  const captured: string[] = [];
+  const original = console.warn;
+  console.warn = (...args: unknown[]) => { captured.push(args.map(String).join(' ')); };
+  try { body(); } finally { console.warn = original; }
+  return captured;
+}
+
+const FOUR_LABELS = ['A', 'B', 'C', 'D'];
+
+test('colorStart: a doughnut of four slices without colorIds starts at slot 6 and wraps, on the ring and the legend', () => {
+  const html = renderToStaticMarkup(<ArenaDoughnutChart label="Share" labels={FOUR_LABELS} series={[{ label: 'S', values: [10, 20, 30, 40] }]} colorStart={6} />);
+  assert.deepEqual(marks(html, 'fill'), [6, 7, 8, 1]);
+  assert.deepEqual(swatches(html), [6, 7, 8, 1]);
+});
+
+test(`colorStart: a doughnut's short colorIds resumes from colorStart`, () => {
+  const html = renderToStaticMarkup(<ArenaDoughnutChart label="Share" labels={['A', 'B', 'C']} series={[{ label: 'S', values: [10, 20, 30], colorIds: [2] }]} colorStart={5} />);
+  assert.deepEqual(marks(html, 'fill'), [2, 6, 7]);
+  assert.deepEqual(swatches(html), [2, 6, 7]);
+});
+
+test('colorStart: a funnel takes colorStart for its stages', () => {
+  const html = renderToStaticMarkup(<ArenaFunnelChart label="Pipeline" labels={['Visit', 'Sign up', 'Buy']} series={[{ label: 'S', values: [100, 50, 10] }]} colorStart={4} />);
+  const slots = marks(html, 'fill');
+  assert.ok(slots.length >= 3);
+  assert.ok(slots.every((slot) => slot === 4), `every stage is slot 4, got ${slots}`);
+});
+
+test('colorStart: a sparkline takes colorStart for its line', () => {
+  const html = renderToStaticMarkup(<ArenaSparkline label="Load" labels={['a', 'b', 'c']} series={[{ label: 'S', values: [1, 3, 2] }]} colorStart={5} />);
+  const slots = marks(html, 'stroke');
+  assert.ok(slots.length >= 1);
+  assert.ok(slots.every((slot) => slot === 5), `the line is slot 5, got ${slots}`);
+});
+
+test('colorStart: a gauge without bands takes colorId, then colorStart', () => {
+  const arc = (props: object) => new Set(marks(renderToStaticMarkup(<ArenaGaugeChart label="Fill" value={60} {...props} />), 'fill'));
+  assert.ok(arc({ colorStart: 6 }).has(6));
+  assert.ok(!arc({ colorStart: 6 }).has(1));
+  assert.ok(arc({ colorStart: 6, colorId: 2 }).has(2));
+  assert.ok(!arc({ colorStart: 6, colorId: 2 }).has(6));
+});
+
+test(`colorStart: a gauge with bands takes the band's tone and says nothing of colorStart`, () => {
+  const bands = [{ from: 0, label: 'Low', tone: 'danger' as const }, { from: 50, label: 'High', tone: 'success' as const }];
+  forgetArenaWarnings();
+  let html = '';
+  const warned = captureWarnings(() => { html = renderToStaticMarkup(<ArenaGaugeChart label="Fill" value={70} bands={bands} colorStart={6} />); });
+  assert.deepEqual(warned, []);
+  assert.ok(!marks(html, 'fill').includes(6));
+  forgetArenaWarnings();
+});
+
+test('colorStart: a gauge value below the first band takes colorStart', () => {
+  const bands = [{ from: 50, label: 'High', tone: 'success' as const }];
+  const html = renderToStaticMarkup(<ArenaGaugeChart label="Fill" value={20} bands={bands} colorStart={6} />);
+  assert.ok(marks(html, 'fill').includes(6));
+});
+
+test('colorStart: a heatmap accepts colorStart, ignores it and names it in its one warning', () => {
+  const rows = [{ label: 'Mon', values: [1, 9] }, { label: 'Tue', values: [4, 5] }];
+  const draw = (extra: object = {}) => renderToStaticMarkup(<ArenaHeatmapChart label="Hours" labels={['a', 'b']} series={rows} {...extra} />);
+  const plain = draw();
+  forgetArenaWarnings();
+  let html = '';
+  const warned = captureWarnings(() => { html = draw({ colorStart: 6 }); draw({ colorStart: 6 }); });
+  assert.equal(warned.length, 1);
+  assert.ok(warned[0]!.endsWith("ArenaHeatmapChart: a series' colorId, colorIds and tone, and the chart's colorStart, are ignored, because a cell's colour is its magnitude"));
+  assert.equal(html, plain);
+  forgetArenaWarnings();
 });

@@ -2,7 +2,7 @@ import {
   booleanAttribute, ChangeDetectionStrategy, Component, computed, ElementRef, inject, input, signal, viewChild,
 } from '@angular/core';
 import { arenaContainerWidth } from '../../../ContainerSize';
-import { ARENA_SR_ONLY, arenaAreaFill, arenaValueWriter } from '../../../DataVisuals';
+import { ARENA_SR_ONLY, arenaAreaFill, arenaValueWriter, arenaCatRotate } from '../../../DataVisuals';
 import { arenaLinearScale, arenaPointScale, arenaPointAt, arenaScaleValue, arenaNearestPointIndex } from '../ChartScales';
 import { arenaLinePoints, arenaLineAreaPath, arenaCurvePath, arenaCurveAreaPath } from '../ChartMarks';
 import { arenaSparkBox, arenaSparkTooltipTop, arenaTooltipShift } from '../ChartAxis';
@@ -11,7 +11,7 @@ import { arenaTooltipAnchor } from '../ChartTooltip';
 import { arenaCursorHandles, arenaCursorStep, arenaPointerClears, arenaPointerUpdates } from '../ChartPointer';
 import { arenaSparklineStyles } from './ArenaSparkline.variants';
 import manifest from './ArenaSparkline.classes.generated';
-import type { ArenaNumberFormat, ArenaSeries } from '../../../Api.generated';
+import type { ArenaCatSlot, ArenaNumberFormat, ArenaSeries } from '../../../Api.generated';
 import { chartPointR, chartPointRHover, chartSparklineHeight } from '../../../Tokens.generated';
 import { ARENA_LOCALE } from '../../../ArenaLocale';
 import { arenaPhrase } from '../../../Phrase';
@@ -103,6 +103,12 @@ export class ArenaSparkline {
   readonly labels = input.required<readonly string[]>();
   /** The series drawn, exactly one. A second warns and is ignored, because a sparkline has no legend to say which line is which. `tone` is the only trend colour; without it the line takes the identity colour of the first slot, which says nothing about whether the trend is good. */
   readonly series = input.required<readonly ArenaSeries[]>();
+
+  /** The ramp slot the line takes when its series names no colour of its own. Absent, 1. */
+  readonly colorStart = input<ArenaCatSlot, ArenaCatSlot | undefined>(
+    1,
+    { transform: (value) => value ?? 1 },
+  );
   /** Names the sparkline for its accessible name and for the caption of its data table. Required and guarded rather than defaulted: a table cell holding six sparklines needs six distinct names, and a fallback of the chart type would announce all six identically. */
   readonly label = input.required<string>();
   /** Fill under the line at 18% of the series colour: a tint, never a gradient. The fill reaches the floor of the box, which is the lowest value and not zero. The fill therefore shades the shape and measures nothing. */
@@ -151,7 +157,7 @@ export class ArenaSparkline {
     if (!label) throw new Error('ArenaSparkline: `label` is required (it names the sparkline for the accessible name, and nothing can derive that)');
     return arenaPhrase(this.locale.sparklineChartName, { label });
   });
-  protected readonly color = computed(() => arenaSeriesColors(this.one(), 1, 1, 'ArenaSparkline')[0] as string);
+  protected readonly color = computed(() => arenaSeriesColors(this.one(), 1, arenaCatRotate(this.colorStart(), 0), 'ArenaSparkline', this.colorStart())[0] as string);
   protected readonly areaFill = computed(() => arenaAreaFill(this.color()));
 
   private readonly box = computed(() => arenaSparkBox(this.width(), this.height()));

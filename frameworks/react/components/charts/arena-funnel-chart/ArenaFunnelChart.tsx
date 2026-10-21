@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useArenaContainerWidth } from '../../../UseArenaContainerWidth.ts';
 import {
-  ARENA_CHART_HEIGHT, ARENA_INK_BODY, ARENA_INK_MUTED, arenaAreaFill, arenaPercentWriter, arenaSrOnly, arenaValueWriter,
+  ARENA_CHART_HEIGHT, arenaCatRotate, ARENA_INK_BODY, ARENA_INK_MUTED, arenaAreaFill, arenaPercentWriter, arenaSrOnly, arenaValueWriter,
 } from '../../../DataVisuals.ts';
 import {
   arenaLinearScale, arenaBandCenter, arenaBandIndex, arenaBandMark, arenaBandStart, arenaFunnelBands, arenaFunnelWidth,
@@ -15,7 +15,7 @@ import { arenaTooltipAnchor } from '../ChartTooltip.ts';
 import { arenaCursorHandles, arenaCursorStep, arenaPointerClears, arenaPointerUpdates } from '../ChartPointer.ts';
 import { chartBarRadius, chartLabelGap } from '../../../Tokens.generated.js';
 
-import type { ArenaNumberFormat, ArenaSeries } from '../../../Api.generated';
+import type { ArenaCatSlot, ArenaNumberFormat, ArenaSeries } from '../../../Api.generated';
 import { useArenaLocale } from '../../../ArenaLocale.ts';
 import { arenaPhrase } from '../../../Phrase.ts';
 import type { ArenaFunnelChartClass } from '../../../Vocabulary.generated.ts';
@@ -32,6 +32,9 @@ export interface ArenaFunnelChartProps {
 
   /** Exactly one series, the count at each stage in order. A second series warns and is ignored, because two funnels are two charts. `colorIds` is per-stage identity. `tone`, when given, colours the whole series and never a position, because a later stage is not worse for being later. */
   series: readonly ArenaSeries[];
+
+  /** The ramp slot the stages take when the series names no colour of its own. A stage past the end of `colorIds` takes the slot its position gives, counted from this one, and after the last slot the count starts again at the first. Absent, 1. */
+  colorStart?: ArenaCatSlot;
 
   /** Names the chart for its accessible name and for the caption of its data table. The label is the CHART's name, not a series': a series names itself. A fallback of the chart TYPE satisfies roles.label mechanically and tells a screen-reader user nothing, so two charts on one page announce identically. Required and guarded rather than defaulted for that reason. */
   label: string;
@@ -56,7 +59,7 @@ export interface ArenaFunnelChartProps {
 const arenaFunnelChartStyles = arenaStyles(manifest);
 
 export function ArenaFunnelChart({ className, 
-  labels, series, label, showConversion = true, valueSuffix, valuePrefix, valueFormat,
+  labels, series, colorStart = 1, label, showConversion = true, valueSuffix, valuePrefix, valueFormat,
   height = ARENA_CHART_HEIGHT,
 }: ArenaFunnelChartProps) {
   const locale = useArenaLocale();
@@ -85,7 +88,7 @@ export function ArenaFunnelChart({ className,
   const cx = box.x + box.w / 2;
   const scale = arenaLinearScale(0, arenaFunnelMax(values), 0, box.w);
   const bands = arenaFunnelBands(n, box.y, box.h);
-  const colors = arenaSeriesColors(one, n, 1, 'ArenaFunnelChart');
+  const colors = arenaSeriesColors(one, n, arenaCatRotate(colorStart, 0), 'ArenaFunnelChart', colorStart);
   const table = arenaFunnelTable(
     { stage: locale.chartTableCategory, step: locale.funnelConversionStep, total: locale.funnelConversionTotal },
     one, labels, fmt, percent, showConversion,

@@ -20,7 +20,7 @@ import type { ArenaCell } from '../ChartPointer';
 import { arenaCursorHandles2d, arenaCursorStep2d, arenaPointerClears, arenaPointerUpdates } from '../ChartPointer';
 import { arenaHeatmapChartStyles } from './ArenaHeatmapChart.variants';
 import manifest from './ArenaHeatmapChart.classes.generated';
-import type { ArenaNumberFormat, ArenaSeries } from '../../../Api.generated';
+import type { ArenaCatSlot, ArenaNumberFormat, ArenaSeries } from '../../../Api.generated';
 import { chartBarGap, chartBarRadius } from '../../../Tokens.generated';
 import { ARENA_LOCALE } from '../../../ArenaLocale';
 import { arenaPhrase } from '../../../Phrase';
@@ -116,6 +116,9 @@ export class ArenaHeatmapChart {
   readonly labels = input.required<readonly string[]>();
   /** One series per row, top to bottom in the order given, its `label` the row's name and its `values` the row's cells, one per column. A short row leaves its last cells empty, and an empty or non-finite cell is drawn with an outline and no fill, because missing is not low. `colorId`, `colorIds` and `tone` are ignored with one development warning, because a cell's colour is its magnitude. */
   readonly series = input.required<readonly ArenaSeries[]>();
+
+  /** Accepted so every chart takes the same member, and ignored with a development warning, because a cell's colour is its magnitude. */
+  readonly colorStart = input<ArenaCatSlot>();
   /** Names the chart for its accessible name and for the caption of its data table. The name is for the CHART, and a series names itself. Required and guarded rather than defaulted: a fallback of the chart TYPE satisfies roles.label mechanically and tells a screen-reader user nothing, so two charts on one page announce identically. */
   readonly label = input.required<string>();
   /** Drawn verbatim before every number the chart writes: the legend, the tooltip and the accessible table, as valueSuffix is drawn after it. */
@@ -160,8 +163,8 @@ export class ArenaHeatmapChart {
 
   private readonly rows = computed(() => {
     const series = this.series();
-    if (series.some((one) => one.colorId !== undefined || one.colorIds !== undefined || one.tone !== undefined)) {
-      arenaWarnOnce('ArenaHeatmapChart: a series\' colorId, colorIds and tone are ignored, because a cell\'s colour is its magnitude');
+    if (series.some((one) => one.colorId !== undefined || one.colorIds !== undefined || one.tone !== undefined) || this.colorStart() !== undefined) {
+      arenaWarnOnce('ArenaHeatmapChart: a series\' colorId, colorIds and tone, and the chart\'s colorStart, are ignored, because a cell\'s colour is its magnitude');
     }
     return series.length;
   });

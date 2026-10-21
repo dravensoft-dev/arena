@@ -7,7 +7,7 @@ import { arenaArcPath } from '../ChartMarks.ts';
 import { arenaGaugeBand, arenaGaugeBands, arenaGaugeColor, arenaGaugeTable, arenaGaugeTicks } from '../ChartSeries.ts';
 import { chartGaugeHeight, chartLabelGap } from '../../../Tokens.generated.js';
 
-import type { ArenaGaugeBand, ArenaNumberFormat } from '../../../Api.generated';
+import type { ArenaCatSlot, ArenaGaugeBand, ArenaNumberFormat } from '../../../Api.generated';
 import { useArenaLocale } from '../../../ArenaLocale.ts';
 import { arenaPhrase } from '../../../Phrase.ts';
 import type { ArenaGaugeChartClass } from '../../../Vocabulary.generated.ts';
@@ -34,8 +34,11 @@ export interface ArenaGaugeChartProps {
   /** What the scale means. Each band runs from its `from` to the next band's `from`, and the last to `max`, and the arc takes the colour of the band the value is in. A value below the first band is in no band and takes the identity colour. Absent, the arc is one identity colour and no band is drawn. Data rather than a threshold function, so the dial and the table are cut from the same list. An unsorted list is configuration and not data, so it warns once and is read in order of `from`. A band without a `label` throws, because a status colour never ships without its word. */
   bands?: readonly ArenaGaugeBand[];
 
-  /** The identity slot of the arc when there are no `bands`, clamped to the ramp, the first when absent. With `bands` it is ignored with a development warning, because a chart carries identity or meaning and never both. */
+  /** The identity slot of the arc when there are no `bands`, clamped to the ramp, `colorStart` when absent. With `bands` it is ignored with a development warning, because a chart carries identity or meaning and never both. */
   colorId?: number;
+
+  /** The ramp slot the arc takes when there are no `bands` and no `colorId`, and the slot a value below the first band takes. With `bands`, the band's tone wins. Absent, 1. */
+  colorStart?: ArenaCatSlot;
 
   /** Appended verbatim to every number the gauge writes: the centre reading, the end labels, the band edges and the accessible table. Carries its own leading space if one is wanted. */
   valueSuffix?: string;
@@ -54,7 +57,7 @@ export interface ArenaGaugeChartProps {
 const arenaGaugeChartStyles = arenaStyles(manifest);
 
 export function ArenaGaugeChart({ className,
-  value, label, min = 0, max = 100, bands, colorId, valueSuffix, valuePrefix, valueFormat,
+  value, label, min = 0, max = 100, bands, colorId, colorStart = 1, valueSuffix, valuePrefix, valueFormat,
   height = chartGaugeHeight,
 }: ArenaGaugeChartProps) {
   const locale = useArenaLocale();
@@ -72,7 +75,7 @@ export function ArenaGaugeChart({ className,
   const sorted = arenaGaugeBands(bands ?? [], 'ArenaGaugeChart');
   const ticks = arenaGaugeTicks(sorted, min, max, 'ArenaGaugeChart');
   const index = arenaGaugeBand(sorted, value);
-  const color = arenaGaugeColor(sorted, index, colorId, 'ArenaGaugeChart');
+  const color = arenaGaugeColor(sorted, index, colorId, 'ArenaGaugeChart', colorStart);
   const fraction = arenaGaugeFraction(value, min, max);
   const word = sorted[index]?.label;
   const name = arenaPhrase(locale.gaugeChartName, { label });

@@ -18,6 +18,11 @@
       "required": true,
       "description": "One series per row, top to bottom in the order given, its `label` the row's name and its `values` the row's cells, one per column. A short row leaves its last cells empty, and an empty or non-finite cell is drawn with an outline and no fill, because missing is not low. `colorId`, `colorIds` and `tone` are ignored with one development warning, because a cell's colour is its magnitude."
     },
+    "colorStart": {
+      "form": "enum",
+      "type": "ArenaCatSlot",
+      "description": "Accepted so every chart takes the same member, and ignored with a development warning, because a cell's colour is its magnitude."
+    },
     "label": {
       "form": "primitive",
       "type": "string",

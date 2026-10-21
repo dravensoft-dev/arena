@@ -4,6 +4,7 @@ import {
 import { arenaContainerWidth } from '../../../ContainerSize';
 import {
   ARENA_CHART_HEIGHT, ARENA_INK_BODY, ARENA_INK_MUTED, ARENA_SR_ONLY, arenaAreaFill, arenaPercentWriter, arenaValueWriter,
+  arenaCatRotate,
 } from '../../../DataVisuals';
 import {
   arenaLinearScale, arenaBandCenter, arenaBandIndex, arenaBandMark, arenaBandStart, arenaFunnelBands, arenaFunnelWidth,
@@ -17,7 +18,7 @@ import { arenaTooltipAnchor } from '../ChartTooltip';
 import { arenaCursorHandles, arenaCursorStep, arenaPointerClears, arenaPointerUpdates } from '../ChartPointer';
 import { arenaFunnelChartStyles } from './ArenaFunnelChart.variants';
 import manifest from './ArenaFunnelChart.classes.generated';
-import type { ArenaNumberFormat, ArenaSeries } from '../../../Api.generated';
+import type { ArenaCatSlot, ArenaNumberFormat, ArenaSeries } from '../../../Api.generated';
 import { chartBarRadius, chartLabelGap } from '../../../Tokens.generated';
 import { ARENA_LOCALE } from '../../../ArenaLocale';
 import { arenaPhrase } from '../../../Phrase';
@@ -116,6 +117,12 @@ export class ArenaFunnelChart {
   readonly labels = input.required<readonly string[]>();
   /** Exactly one series, the count at each stage in order. A second series warns and is ignored, because two funnels are two charts. `colorIds` is per-stage identity. `tone`, when given, colours the whole series and never a position, because a later stage is not worse for being later. */
   readonly series = input.required<readonly ArenaSeries[]>();
+
+  /** The ramp slot the stages take when the series names no colour of its own. A stage past the end of `colorIds` takes the slot its position gives, counted from this one, and after the last slot the count starts again at the first. Absent, 1. */
+  readonly colorStart = input<ArenaCatSlot, ArenaCatSlot | undefined>(
+    1,
+    { transform: (value) => value ?? 1 },
+  );
   /** Names the chart for its accessible name and for the caption of its data table. The label is the CHART's name, not a series': a series names itself. A fallback of the chart TYPE satisfies roles.label mechanically and tells a screen-reader user nothing, so two charts on one page announce identically. Required and guarded rather than defaulted for that reason. */
   readonly label = input.required<string>();
   /** Whether the conversion is drawn and tabled. On, each stage's share of the stage before it is written beside the loss between the two, the table gains the two conversion columns, and the tooltip reads both ratios. Off, the funnel is its marks and their counts. */
@@ -195,7 +202,7 @@ export class ArenaFunnelChart {
 
   private readonly bands = computed(() => arenaFunnelBands(this.points(), this.box().y, this.box().h));
 
-  private readonly colors = computed(() => arenaSeriesColors(this.one(), this.points(), 1, 'ArenaFunnelChart'));
+  private readonly colors = computed(() => arenaSeriesColors(this.one(), this.points(), arenaCatRotate(this.colorStart(), 0), 'ArenaFunnelChart', this.colorStart()));
 
   private readonly widthOf = computed(() => {
     const scale = this.scale();

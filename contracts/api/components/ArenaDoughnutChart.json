@@ -18,6 +18,12 @@
       "required": true,
       "description": "The parts, as one series whose values are read as shares of their own total. Exactly one series: a ring of two series is a sunburst, which is a different chart and not this one. A second series warns in development and is ignored. Per-slice identity goes in that series' `colorIds`."
     },
+    "colorStart": {
+      "form": "enum",
+      "type": "ArenaCatSlot",
+      "default": 1,
+      "description": "The ramp slot the first slice takes when the series gives no `colorIds`. Each later slice takes the next slot, and after the last slot the count starts again at the first. A slice past the end of `colorIds` takes the slot its position gives, counted the same way. Absent, 1."
+    },
     "label": {
       "form": "primitive",
       "type": "string",

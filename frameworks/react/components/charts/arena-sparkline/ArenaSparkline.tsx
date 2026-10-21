@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useArenaContainerWidth } from '../../../UseArenaContainerWidth.ts';
-import { arenaSrOnly, arenaAreaFill, arenaValueWriter } from '../../../DataVisuals.ts';
+import { arenaSrOnly, arenaAreaFill, arenaValueWriter, arenaCatRotate } from '../../../DataVisuals.ts';
 import { arenaLinearScale, arenaPointScale, arenaPointAt, arenaScaleValue, arenaNearestPointIndex } from '../ChartScales.ts';
 import { arenaLinePoints, arenaLineAreaPath, arenaCurvePath, arenaCurveAreaPath } from '../ChartMarks.ts';
 import { arenaSparkBox, arenaSparkTooltipTop, arenaTooltipShift } from '../ChartAxis.ts';
@@ -9,7 +9,7 @@ import { arenaTooltipAnchor } from '../ChartTooltip.ts';
 import { arenaCursorHandles, arenaCursorStep, arenaPointerClears, arenaPointerUpdates } from '../ChartPointer.ts';
 import { chartPointR, chartPointRHover, chartSparklineHeight } from '../../../Tokens.generated.js';
 
-import type { ArenaNumberFormat, ArenaSeries } from '../../../Api.generated';
+import type { ArenaCatSlot, ArenaNumberFormat, ArenaSeries } from '../../../Api.generated';
 import { useArenaLocale } from '../../../ArenaLocale.ts';
 import { arenaPhrase } from '../../../Phrase.ts';
 import type { ArenaSparklineClass } from '../../../Vocabulary.generated.ts';
@@ -26,6 +26,9 @@ export interface ArenaSparklineProps {
 
   /** The series drawn, exactly one. A second warns and is ignored, because a sparkline has no legend to say which line is which. `tone` is the only trend colour; without it the line takes the identity colour of the first slot, which says nothing about whether the trend is good. */
   series: readonly ArenaSeries[];
+
+  /** The ramp slot the line takes when its series names no colour of its own. Absent, 1. */
+  colorStart?: ArenaCatSlot;
 
   /** Names the sparkline for its accessible name and for the caption of its data table. Required and guarded rather than defaulted: a table cell holding six sparklines needs six distinct names, and a fallback of the chart type would announce all six identically. */
   label: string;
@@ -62,7 +65,7 @@ const REGION_STYLE: React.CSSProperties = {
 };
 
 export function ArenaSparkline({ className,
-  labels, series, label, area = false, curve = false, interactive = false, valueSuffix, valuePrefix, valueFormat,
+  labels, series, colorStart = 1, label, area = false, curve = false, interactive = false, valueSuffix, valuePrefix, valueFormat,
   height = chartSparklineHeight,
 }: ArenaSparklineProps) {
   const locale = useArenaLocale();
@@ -83,7 +86,7 @@ export function ArenaSparkline({ className,
   const floor = box.y + box.h;
   const yScale = arenaLinearScale(domain.min, domain.max, floor, box.y);
   const xScale = arenaPointScale(n, box.x, box.w);
-  const color = arenaSeriesColors(one, 1, 1, 'ArenaSparkline')[0] as string;
+  const color = arenaSeriesColors(one, 1, arenaCatRotate(colorStart, 0), 'ArenaSparkline', colorStart)[0] as string;
   const table = arenaChartTable(locale.chartTablePoint, [one], labels, fmt);
   const points = one.values.map((value, i) => ({ x: arenaPointAt(xScale, i), y: arenaScaleValue(yScale, value) }));
   const last = points[n - 1];

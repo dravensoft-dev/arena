@@ -140,7 +140,7 @@ test('ArenaHeatmapChart warns once that identity and meaning are ignored, and pa
   forgetArenaWarnings();
   const warned = captureWarnings(() => { marked(); marked(); });
   assert.equal(warned.length, 1);
-  assert.match(warned[0] as string, /ArenaHeatmapChart: a series' colorId, colorIds and tone are ignored, because a cell's colour is its magnitude/);
+  assert.match(warned[0] as string, /ArenaHeatmapChart: a series' colorId, colorIds and tone, and the chart's colorStart, are ignored, because a cell's colour is its magnitude/);
   assert.deepEqual(fills(marked()).slice(0, 2), fills(plain));
   forgetArenaWarnings();
   assert.deepEqual(captureWarnings(() => { draw(); }), [], 'a plain series warns of nothing');

@@ -16,7 +16,7 @@ export const PAIRS = [
   { name: 'table columns', minimum: 5, only: /./,
     react: 'frameworks/react/components/display/arena-table/ArenaTable.columns.dom.test.tsx',
     angular: 'frameworks/angular/components/display/arena-table/ArenaTable.columns.test.ts' },
-  { name: 'chart colorStart', minimum: 8, only: /^colorStart: /,
+  { name: 'chart colorStart', minimum: 16, only: /^colorStart: /,
     react: 'frameworks/react/components/charts/ChartColorStart.test.tsx',
     angular: 'frameworks/angular/components/charts/ChartColorStart.test.ts' },
 ];
