@@ -39,7 +39,7 @@ Parts of one whole, a share breakdown across a handful of categories. Always dra
 
 **Do**
 - Keep it to a handful of slices. Past five or six, the small ones are unreadable; fold the tail into "Other", or use bars.
-- Let the series' `colorIds` default. Ramp slots 1..N in order is the rule, not a starting point to tweak.
+- Let the series' `colorIds` default. The slices take the ramp in order from `colorStart`, and that order is the rule.
 - Use `colorStart` to move the slot the first slice takes. `colorIds` keeps the slots it names.
 - Use it only when the parts genuinely sum to one whole. If they don't, it is a bar chart.
 - Pass `label`, because it names the chart for a screen reader and captions the numbers table. Without it the chart throws: a fallback of "Doughnut chart" identifies the chart *type* and not the chart, so two rings on one page would announce identically.
