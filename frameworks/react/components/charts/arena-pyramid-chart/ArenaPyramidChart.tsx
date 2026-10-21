@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useArenaContainerWidth } from '../../../UseArenaContainerWidth.ts';
-import { ARENA_CHART_HEIGHT, ARENA_INK_MUTED, arenaSrOnly, arenaValueWriter } from '../../../DataVisuals.ts';
+import { ARENA_CHART_HEIGHT, ARENA_INK_MUTED, arenaSrOnly, arenaValueWriter, arenaCatRotate } from '../../../DataVisuals.ts';
 import {
   arenaLinearScale, arenaBandScale, arenaBandCenter, arenaBandIndex, arenaBandMark, arenaScaleValue,
 } from '../ChartScales.ts';
@@ -14,7 +14,7 @@ import { arenaTooltipAnchor } from '../ChartTooltip.ts';
 import { arenaCursorHandles, arenaCursorStep, arenaPointerClears, arenaPointerUpdates } from '../ChartPointer.ts';
 import { chartBarGap, chartBarRadius } from '../../../Tokens.generated.js';
 
-import type { ArenaNumberFormat, ArenaSeries } from '../../../Api.generated';
+import type { ArenaCatSlot, ArenaNumberFormat, ArenaSeries } from '../../../Api.generated';
 import { useArenaLocale } from '../../../ArenaLocale.ts';
 import { arenaPhrase } from '../../../Phrase.ts';
 import type { ArenaPyramidChartClass } from '../../../Vocabulary.generated.ts';
@@ -31,6 +31,9 @@ export interface ArenaPyramidChartProps {
 
   /** Exactly two series, one for each side of the centre line, in order: the first is drawn to the left and the second to the right. Both carry counts rather than signed values, and the chart negates the first when it draws it. The accessible table therefore reads the numbers that were passed, and the picture reads the shape they make. A third series has nowhere to go and warns; a single one is a horizontal bar chart and should be one. */
   series: readonly ArenaSeries[];
+
+  /** The ramp slot the first series takes when it names no colour of its own. Each later series takes the next slot, and after the last slot the count starts again at the first. A series' `colorId` or `colorIds` keeps the slot it names. Absent, 1. */
+  colorStart?: ArenaCatSlot;
 
   /** Names the chart for its accessible name and for the caption of its data table. The CHART gets the name, and a series names itself. Required and guarded rather than defaulted, because a fallback of the chart TYPE satisfies roles.label mechanically and tells a screen-reader user nothing. Two charts on one page would announce identically. */
   label: string;
@@ -52,7 +55,7 @@ export interface ArenaPyramidChartProps {
 const arenaPyramidChartStyles = arenaStyles(manifest);
 
 export function ArenaPyramidChart({ className, 
-  labels, series, label, valueSuffix, valuePrefix, valueFormat,
+  labels, series, colorStart = 1, label, valueSuffix, valuePrefix, valueFormat,
   height = ARENA_CHART_HEIGHT,
 }: ArenaPyramidChartProps) {
   const locale = useArenaLocale();
@@ -75,7 +78,7 @@ export function ArenaPyramidChart({ className,
   const xScale = arenaLinearScale(domain.min, domain.max, box.x, box.x + box.w);
   const bands = arenaBandScale(n, box.y, box.h, chartBarGap);
   const axis = arenaAxisModelX(xScale, domain, away);
-  const colors = sides.map((one, s) => arenaSeriesColors(one, n, s + 1, 'ArenaPyramidChart'));
+  const colors = sides.map((one, s) => arenaSeriesColors(one, n, arenaCatRotate(colorStart, s), 'ArenaPyramidChart', colorStart));
   const table = arenaChartTable(locale.chartTableCategory, sides, labels, fmt);
 
   const name = arenaPhrase(locale.pyramidChartName, { label });
@@ -143,7 +146,7 @@ export function ArenaPyramidChart({ className,
         <div aria-hidden="true" className={styles.legend()} data-arena-part={manifest.parts.legend} {...styles.$data.legend()} style={{ height: strip.stripH }}>
           {sides.map((one, s) => (
             <span key={s} className={styles.legendItem()} data-arena-part={manifest.parts.legendItem} {...styles.$data.legendItem()}>
-              <span className={arenaPyramidChartStyles(arenaSwatchHue(one, 0, s + 1)).legendSwatch()} data-arena-part={manifest.parts.legendSwatch} {...arenaPyramidChartStyles(arenaSwatchHue(one, 0, s + 1)).$data.legendSwatch()} />
+              <span className={arenaPyramidChartStyles(arenaSwatchHue(one, 0, arenaCatRotate(colorStart, s), colorStart)).legendSwatch()} data-arena-part={manifest.parts.legendSwatch} {...arenaPyramidChartStyles(arenaSwatchHue(one, 0, arenaCatRotate(colorStart, s), colorStart)).$data.legendSwatch()} />
               <span className={styles.legendLabel()} data-arena-part={manifest.parts.legendLabel} {...styles.$data.legendLabel()}>{one.label}</span>
             </span>
           ))}

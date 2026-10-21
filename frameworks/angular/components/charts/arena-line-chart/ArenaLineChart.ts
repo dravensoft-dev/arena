@@ -3,7 +3,7 @@ import {
 } from '@angular/core';
 import { arenaContainerWidth } from '../../../ContainerSize';
 import { arenaWarnOnce } from '../../../WarnOnce';
-import { ARENA_CHART_HEIGHT, ARENA_INK_MUTED, ARENA_RAIL_STYLE, ARENA_SR_ONLY, arenaAreaFill, arenaPlotWidth, arenaValueWriter } from '../../../DataVisuals';
+import { ARENA_CHART_HEIGHT, ARENA_INK_MUTED, ARENA_RAIL_STYLE, ARENA_SR_ONLY, arenaAreaFill, arenaPlotWidth, arenaValueWriter, arenaCatRotate } from '../../../DataVisuals';
 import {
   arenaLinearScale, arenaPointScale, arenaPointAt, arenaScaleValue, arenaNearestPointIndex,
 } from '../ChartScales';
@@ -16,7 +16,7 @@ import { arenaCursorHandles, arenaCursorStep, arenaPointerClears, arenaPointerUp
 import { arenaLegendStrip } from '../ChartLegend';
 import { arenaLineChartStyles } from './ArenaLineChart.variants';
 import manifest from './ArenaLineChart.classes.generated';
-import type { ArenaNumberFormat, ArenaSeries } from '../../../Api.generated';
+import type { ArenaCatSlot, ArenaNumberFormat, ArenaSeries } from '../../../Api.generated';
 import { chartPointR, chartPointRHover } from '../../../Tokens.generated';
 import { ARENA_LOCALE } from '../../../ArenaLocale';
 import { ArenaSlotAttributes } from '../../../SlotData';
@@ -145,6 +145,11 @@ export class ArenaLineChart {
   readonly labels = input.required<readonly string[]>();
   /** The plotted series, drawn as one polyline each over the same ordered sequence. One series is the common case and draws exactly what it drew before. The area fill is refused past one series, because two fills occlude each other and the reader cannot tell which value either edge belongs to. */
   readonly series = input.required<readonly ArenaSeries[]>();
+  /** The ramp slot the first series takes when it names no colour of its own. Each later series takes the next slot, and after the last slot the count starts again at the first. A series' `colorId` or `colorIds` keeps the slot it names. Absent, 1. */
+  readonly colorStart = input<ArenaCatSlot, ArenaCatSlot | undefined>(
+    1,
+    { transform: (value) => value ?? 1 },
+  );
   /** Names the chart for its accessible name and for the caption of its data table. The name is the CHART's, not a series': a series names itself. Required and guarded rather than defaulted, because a fallback of the chart TYPE satisfies roles.label mechanically and tells a screen-reader user nothing. Two charts on one page would announce identically. */
   readonly label = input.required<string>();
   /** Fill under the line at 18% of the series colour: a tint, never a gradient. For a single series; two fills occlude each other. */
@@ -199,7 +204,7 @@ export class ArenaLineChart {
   private readonly railView = arenaRailView(() => this.rail()?.nativeElement);
 
   protected readonly colors = computed(
-    () => this.series().map((one, index) => arenaSeriesColors(one, 1, index + 1, 'ArenaLineChart')[0] as string),
+    () => this.series().map((one, index) => arenaSeriesColors(one, 1, arenaCatRotate(this.colorStart(), index), 'ArenaLineChart', this.colorStart())[0] as string),
   );
 
   protected readonly fills = computed(() => {
@@ -281,7 +286,7 @@ export class ArenaLineChart {
   protected readonly legend = computed(() => {
     if (this.strip().stripH === 0) return null;
     return this.series().map((one, index) => ({
-      index, label: one.label, swatch: arenaLineChartStyles(arenaSwatchChoice(one, index + 1)).$data.legendSwatch(),
+      index, label: one.label, swatch: arenaLineChartStyles(arenaSwatchChoice(one, arenaCatRotate(this.colorStart(), index), 0, this.colorStart())).$data.legendSwatch(),
     }));
   });
 

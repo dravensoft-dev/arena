@@ -16,7 +16,13 @@
       "form": "array",
       "of": "ArenaSeries",
       "required": true,
-      "description": "The plotted series, drawn as one group of bars per category. One series is the common case and draws one bar per category. Two or more share each category's band, so the bars of one category stand side by side and the reader compares within a category before comparing across. The ramp clamps at its last slot rather than cycling, so a ninth series folds into \"Other\" upstream, never into a colour already spent."
+      "description": "The plotted series, drawn as one group of bars per category. One series is the common case and draws one bar per category. Two or more share each category's band, so the bars of one category stand side by side and the reader compares within a category before comparing across. After the last slot the positional count starts again at the first, so fold a ninth series into \"Other\" upstream."
+    },
+    "colorStart": {
+      "form": "enum",
+      "type": "ArenaCatSlot",
+      "default": 1,
+      "description": "The ramp slot the first series takes when it names no colour of its own. Each later series takes the next slot, and after the last slot the count starts again at the first. A series' `colorId` or `colorIds` keeps the slot it names. Absent, 1."
     },
     "label": {
       "form": "primitive",

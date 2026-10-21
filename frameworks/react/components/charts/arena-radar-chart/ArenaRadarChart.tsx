@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useArenaContainerWidth } from '../../../UseArenaContainerWidth.ts';
-import { ARENA_CHART_HEIGHT, ARENA_INK_MUTED, arenaSrOnly, arenaAreaFill, arenaValueWriter } from '../../../DataVisuals.ts';
+import { ARENA_CHART_HEIGHT, ARENA_INK_MUTED, arenaSrOnly, arenaAreaFill, arenaValueWriter, arenaCatRotate } from '../../../DataVisuals.ts';
 import { arenaLinearScale, arenaScaleValue } from '../ChartScales.ts';
 import { arenaLinePoints } from '../ChartMarks.ts';
 import {
@@ -14,7 +14,7 @@ import { arenaTooltipAnchor } from '../ChartTooltip.ts';
 import { arenaCursorHandles, arenaCursorStep, arenaPointerClears, arenaPointerUpdates } from '../ChartPointer.ts';
 import { chartPointR, chartPointRHover } from '../../../Tokens.generated.js';
 
-import type { ArenaNumberFormat, ArenaSeries } from '../../../Api.generated';
+import type { ArenaCatSlot, ArenaNumberFormat, ArenaSeries } from '../../../Api.generated';
 import { useArenaLocale } from '../../../ArenaLocale.ts';
 import { arenaPhrase } from '../../../Phrase.ts';
 import type { ArenaRadarChartClass } from '../../../Vocabulary.generated.ts';
@@ -29,8 +29,11 @@ export interface ArenaRadarChartProps {
   /** One label per axis, in the same order as every series' `values`, running clockwise from 12 o'clock. Keep the count small: past eight or so the labels collide and the shape stops being readable, which is a limit of the form rather than of the drawing. */
   labels: readonly string[];
 
-  /** The plotted series, drawn as one closed polygon each over the same axes. The shape is the reading, so two or three series is the useful case and more is a tangle. The ramp clamps at its last slot rather than cycling. */
+  /** The plotted series, drawn as one closed polygon each over the same axes. The shape is the reading, so two or three series is the useful case and more is a tangle. After the last slot the positional count starts again at the first, so fold a ninth series into "Other" upstream. */
   series: readonly ArenaSeries[];
+
+  /** The ramp slot the first series takes when it names no colour of its own. Each later series takes the next slot, and after the last slot the count starts again at the first. A series' `colorId` or `colorIds` keeps the slot it names. Absent, 1. */
+  colorStart?: ArenaCatSlot;
 
   /** Names the chart for its accessible name and for the caption of its data table. The CHART's name is wanted here, not a series': a series names itself. Required and guarded rather than defaulted, because a fallback of the chart TYPE satisfies roles.label mechanically and tells a screen-reader user nothing. */
   label: string;
@@ -55,7 +58,7 @@ export interface ArenaRadarChartProps {
 const arenaRadarChartStyles = arenaStyles(manifest);
 
 export function ArenaRadarChart({ className, 
-  labels, series, label, fill = false, valueSuffix, valuePrefix, valueFormat,
+  labels, series, colorStart = 1, label, fill = false, valueSuffix, valuePrefix, valueFormat,
   height = ARENA_CHART_HEIGHT,
 }: ArenaRadarChartProps) {
   const locale = useArenaLocale();
@@ -79,7 +82,7 @@ export function ArenaRadarChart({ className,
   const radial = arenaLinearScale(domain.min, domain.max, 0, outer);
   const reach = (value: number) => Math.max(0, arenaScaleValue(radial, value));
 
-  const colors = series.map((one, s) => arenaSeriesColors(one, 1, s + 1, 'ArenaRadarChart')[0] as string);
+  const colors = series.map((one, s) => arenaSeriesColors(one, 1, arenaCatRotate(colorStart, s), 'ArenaRadarChart', colorStart)[0] as string);
   const table = arenaChartTable(locale.chartTableAxis, series, labels, fmt);
   const rings = arenaRadarRings(domain);
 
@@ -160,7 +163,7 @@ export function ArenaRadarChart({ className,
         <div aria-hidden="true" className={styles.legend()} data-arena-part={manifest.parts.legend} {...styles.$data.legend()} style={{ height: strip.stripH }}>
           {series.map((one, s) => (
             <span key={s} className={styles.legendItem()} data-arena-part={manifest.parts.legendItem} {...styles.$data.legendItem()}>
-              <span className={arenaRadarChartStyles(arenaSwatchHue(one, 0, s + 1)).legendSwatch()} data-arena-part={manifest.parts.legendSwatch} {...arenaRadarChartStyles(arenaSwatchHue(one, 0, s + 1)).$data.legendSwatch()} />
+              <span className={arenaRadarChartStyles(arenaSwatchHue(one, 0, arenaCatRotate(colorStart, s), colorStart)).legendSwatch()} data-arena-part={manifest.parts.legendSwatch} {...arenaRadarChartStyles(arenaSwatchHue(one, 0, arenaCatRotate(colorStart, s), colorStart)).$data.legendSwatch()} />
               <span className={styles.legendLabel()} data-arena-part={manifest.parts.legendLabel} {...styles.$data.legendLabel()}>{one.label}</span>
             </span>
           ))}

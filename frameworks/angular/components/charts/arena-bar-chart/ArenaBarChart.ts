@@ -2,7 +2,7 @@ import {
   afterRenderEffect, booleanAttribute, ChangeDetectionStrategy, Component, computed, ElementRef, inject, input, signal, viewChild,
 } from '@angular/core';
 import { arenaContainerWidth } from '../../../ContainerSize';
-import { ARENA_CHART_HEIGHT, ARENA_INK_MUTED, ARENA_RAIL_STYLE, ARENA_SR_ONLY, arenaPlotWidth, arenaValueWriter } from '../../../DataVisuals';
+import { ARENA_CHART_HEIGHT, ARENA_INK_MUTED, ARENA_RAIL_STYLE, ARENA_SR_ONLY, arenaPlotWidth, arenaValueWriter, arenaCatRotate } from '../../../DataVisuals';
 import {
   arenaLinearScale, arenaBandScale, arenaBandStart, arenaBandCenter, arenaBandIndex, arenaBandMark, arenaBandSubBand,
   arenaScaleValue,
@@ -18,7 +18,7 @@ import { arenaRailReveal, arenaRailView } from '../ChartRailView';
 import { arenaCursorHandles, arenaCursorStep, arenaPointerClears, arenaPointerUpdates } from '../ChartPointer';
 import { arenaBarChartStyles } from './ArenaBarChart.variants';
 import manifest from './ArenaBarChart.classes.generated';
-import type { ArenaNumberFormat, ArenaSeries } from '../../../Api.generated';
+import type { ArenaCatSlot, ArenaNumberFormat, ArenaSeries } from '../../../Api.generated';
 import { chartBarGap, chartSeriesGap, chartBarRadius } from '../../../Tokens.generated';
 import { ARENA_LOCALE } from '../../../ArenaLocale';
 import { ArenaSlotAttributes } from '../../../SlotData';
@@ -123,8 +123,13 @@ export class ArenaBarChart {
   protected readonly locale = inject(ARENA_LOCALE);
   /** One label per category, in the same order as every series' `values`. A category with no value in a series is drawn for the series that do have one. */
   readonly labels = input.required<readonly string[]>();
-  /** The plotted series, drawn as one group of bars per category. One series is the common case and draws one bar per category. Two or more share each category's band, so the bars of one category stand side by side and the reader compares within a category before comparing across. The ramp clamps at its last slot rather than cycling, so a ninth series folds into "Other" upstream, never into a colour already spent. */
+  /** The plotted series, drawn as one group of bars per category. One series is the common case and draws one bar per category. Two or more share each category's band, so the bars of one category stand side by side and the reader compares within a category before comparing across. After the last slot the positional count starts again at the first, so fold a ninth series into "Other" upstream. */
   readonly series = input.required<readonly ArenaSeries[]>();
+  /** The ramp slot the first series takes when it names no colour of its own. Each later series takes the next slot, and after the last slot the count starts again at the first. A series' `colorId` or `colorIds` keeps the slot it names. Absent, 1. */
+  readonly colorStart = input<ArenaCatSlot, ArenaCatSlot | undefined>(
+    1,
+    { transform: (value) => value ?? 1 },
+  );
   /** Names the chart for its accessible name and for the caption of its data table. The label names the CHART, not a series: a series names itself. Required and guarded rather than defaulted, because a fallback of the chart TYPE satisfies roles.label mechanically and tells a screen-reader user nothing. Two charts on one page then announce identically. */
   readonly label = input.required<string>();
   /** Sit each series on the one below it inside a single band per category, rather than standing them side by side. Stack when the series are parts of one total and that total is the thing being read. Leave it off when the comparison is between the series, because a segment that does not start at zero is one a reader cannot measure against its neighbours. Positive and negative values stack on their own runs. A category holding both grows in both directions from the zero line, and the axis is sized from the two sums rather than from the largest single value. A series with no value at a category contributes no segment. The segment above it sits on the one below rather than floating over a gap: a missing number is not a zero here either. Only the outermost segment of each direction is rounded, so the joints inside a bar stay square and read as joints. */
@@ -237,7 +242,7 @@ export class ArenaBarChart {
             path: arenaBarPath(arenaBandMark(bands, index), bands.band,
               arenaScaleValue(yScale, segment.to), arenaScaleValue(yScale, segment.from),
               segment.outer ? BAR_RADIUS : 0),
-            color: arenaSeriesColors(one, this.points(), segment.seriesIndex + 1, 'ArenaBarChart')[index],
+            color: arenaSeriesColors(one, this.points(), arenaCatRotate(this.colorStart(), segment.seriesIndex), 'ArenaBarChart', this.colorStart())[index],
             value: write(one.values[index] as number),
           };
         })
@@ -251,7 +256,7 @@ export class ArenaBarChart {
             y,
             name: series.length > 1 ? `${one.label}: ` : '',
             path: arenaBarPath(sub.x, sub.width, y, zeroY, BAR_RADIUS),
-            color: arenaSeriesColors(one, this.points(), s + 1, 'ArenaBarChart')[index],
+            color: arenaSeriesColors(one, this.points(), arenaCatRotate(this.colorStart(), s), 'ArenaBarChart', this.colorStart())[index],
             value: write(value),
           }];
         }),
@@ -264,7 +269,7 @@ export class ArenaBarChart {
     return series.map((one, index) => ({
       index,
       label: one.label,
-      swatch: arenaBarChartStyles(arenaSwatchChoice(one, index + 1)).$data.legendSwatch(),
+      swatch: arenaBarChartStyles(arenaSwatchChoice(one, arenaCatRotate(this.colorStart(), index), 0, this.colorStart())).$data.legendSwatch(),
     }));
   });
 

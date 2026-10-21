@@ -8,9 +8,9 @@
     "values": { "form": "array", "of": "number", "required": true,
                 "description": "The plotted numbers, in order, one per point or category. A series shorter than the labels stops early rather than padding, because a missing number and a zero are different facts and a chart may not invent the difference." },
     "colorId": { "form": "primitive", "type": "number",
-              "description": "One identity colour from the categorical ramp for the whole series. 1-based, clamped to the ramp, never cycled. Absent, the chart assigns the series its position in the list, which is the rule rather than a starting point." },
+              "description": "One identity colour from the categorical ramp for the whole series, 1-based and clamped to the ramp. Absent, the series takes the slot its position gives, counted from the chart's `colorStart`." },
     "colorIds": { "form": "array", "of": "number",
-               "description": "Per-mark identity override, one ramp slot each. Wins over `colorId`. For a chart whose marks are the identities rather than the series, which is what a single-series bar chart and a doughnut both are." },
+               "description": "Per-mark identity override, one ramp slot each. Wins over `colorId`. For a chart whose marks are the identities rather than the series, which is what a single-series bar chart and a doughnut both are. An entry past the end of the list takes the slot its position gives, counted from the chart's `colorStart`." },
     "tone": { "form": "enum", "type": "ArenaSeriesTone",
               "description": "Semantic colour, for a series that IS a state. Mutually exclusive with colorId/colorIds; passing both warns in development and tone wins, because a chart carries identity or meaning, never both." }
   }

@@ -2,7 +2,7 @@ import {
   ChangeDetectionStrategy, Component, computed, ElementRef, inject, input, signal, viewChild,
 } from '@angular/core';
 import { arenaContainerWidth } from '../../../ContainerSize';
-import { ARENA_CHART_HEIGHT, ARENA_INK_MUTED, ARENA_SR_ONLY, arenaValueWriter } from '../../../DataVisuals';
+import { ARENA_CHART_HEIGHT, ARENA_INK_MUTED, ARENA_SR_ONLY, arenaValueWriter, arenaCatRotate } from '../../../DataVisuals';
 import {
   arenaLinearScale, arenaBandScale, arenaBandCenter, arenaBandIndex, arenaBandMark, arenaScaleValue,
 } from '../ChartScales';
@@ -16,7 +16,7 @@ import { arenaTooltipAnchor } from '../ChartTooltip';
 import { arenaCursorHandles, arenaCursorStep, arenaPointerClears, arenaPointerUpdates } from '../ChartPointer';
 import { arenaPyramidChartStyles } from './ArenaPyramidChart.variants';
 import manifest from './ArenaPyramidChart.classes.generated';
-import type { ArenaNumberFormat, ArenaSeries } from '../../../Api.generated';
+import type { ArenaCatSlot, ArenaNumberFormat, ArenaSeries } from '../../../Api.generated';
 import { chartBarGap, chartBarRadius } from '../../../Tokens.generated';
 import { ARENA_LOCALE } from '../../../ArenaLocale';
 import { ArenaSlotAttributes } from '../../../SlotData';
@@ -125,6 +125,11 @@ export class ArenaPyramidChart {
   readonly labels = input.required<readonly string[]>();
   /** Exactly two series, one for each side of the centre line, in order: the first is drawn to the left and the second to the right. Both carry counts rather than signed values, and the chart negates the first when it draws it. The accessible table therefore reads the numbers that were passed, and the picture reads the shape they make. A third series has nowhere to go and warns; a single one is a horizontal bar chart and should be one. */
   readonly series = input.required<readonly ArenaSeries[]>();
+  /** The ramp slot the first series takes when it names no colour of its own. Each later series takes the next slot, and after the last slot the count starts again at the first. A series' `colorId` or `colorIds` keeps the slot it names. Absent, 1. */
+  readonly colorStart = input<ArenaCatSlot, ArenaCatSlot | undefined>(
+    1,
+    { transform: (value) => value ?? 1 },
+  );
   /** Names the chart for its accessible name and for the caption of its data table. The CHART gets the name, and a series names itself. Required and guarded rather than defaulted, because a fallback of the chart TYPE satisfies roles.label mechanically and tells a screen-reader user nothing. Two charts on one page would announce identically. */
   readonly label = input.required<string>();
   /** Appended verbatim to every number the chart draws: the axis ticks, the tooltip and the accessible table. The ticks carry the magnitude, never the minus sign the left side is drawn with, because both sides count upward from the centre. */
@@ -224,7 +229,7 @@ export class ArenaPyramidChart {
           name: `${one.label}: `,
           path: arenaBarPathH(arenaBandMark(bands, index), bands.band,
             arenaScaleValue(xScale, signed), zeroX, BAR_RADIUS),
-          color: arenaSeriesColors(one, this.points(), s + 1, 'ArenaPyramidChart')[index],
+          color: arenaSeriesColors(one, this.points(), arenaCatRotate(this.colorStart(), s), 'ArenaPyramidChart', this.colorStart())[index],
           value: write(value),
         }];
       }),
@@ -237,7 +242,7 @@ export class ArenaPyramidChart {
     return sides.map((one, index) => ({
       index,
       label: one.label,
-      swatch: arenaPyramidChartStyles(arenaSwatchChoice(one, index + 1)).$data.legendSwatch(),
+      swatch: arenaPyramidChartStyles(arenaSwatchChoice(one, arenaCatRotate(this.colorStart(), index), 0, this.colorStart())).$data.legendSwatch(),
     }));
   });
 
