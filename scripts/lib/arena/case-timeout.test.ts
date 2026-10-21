@@ -73,7 +73,9 @@ test('a case that never ends fails at the timeout it declares, a declared timeou
         assert.ok(ms >= (FLAG.ms + HUNG.ms) / 2,
           `"${name}" ended after ${ms}ms, which is the flag's ${FLAG.ms}ms and not its own ${HUNG.ms}ms`);
       }
-      assert.equal((output.match(new RegExp(`timed out after ${HUNG.ms}ms`, 'g')) ?? []).length, 2, output);
+      assert.match(output, new RegExp(`timed out after ${HUNG.ms}ms`), output);
+      assert.doesNotMatch(output, new RegExp(`timed out after ${FLAG.ms}ms`),
+        `a case was reported ended by the flag's ${FLAG.ms}ms, which a GitHub runner's annotations repeat but never change:\n${output}`);
       assert.doesNotMatch(output, /^\(fail\) a case that outlives the flag/m,
         `a case declaring ${DECLARED.ms}ms was ended by --timeout=${FLAG.ms}, so a budget above the flag binds nothing`);
       assert.match(output, /^ 2 pass$/m, `bun prints no passing case into a pipe, so the count says the case after them ran:\n${output}`);
