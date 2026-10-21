@@ -314,6 +314,31 @@ test('the tokens region tables every value of its nine groups that no role answe
   assert.ok(!region.includes('--fs-'), 'a group outside the nine is not tabled');
 });
 
+test('the tokens table carries a Tailwind column read from Theme.css', () => {
+  const rows = renderRegion('tokens').split('\n').filter((line) => line.startsWith('| `--'));
+  const rowOf = (name: string) => rows.find((row) => row.startsWith(`| \`--${name}\` |`))!.split('|').map((cell) => cell.trim());
+  assert.equal(rowOf('r-lg')[3], '`rounded-lg`');
+  assert.equal(rowOf('shadow-1')[3], '`shadow-1`');
+  assert.equal(rowOf('sp-4')[3], '`*-4`');
+  assert.equal(rowOf('z-modal')[3], '`z-modal`');
+  assert.equal(rowOf('loop-spin')[3], 'none');
+  assert.match(renderRegion('tokens'), /\| custom property \| value \| Tailwind \|/);
+});
+
+test('the density table says what each property sizes, from its $description', () => {
+  const rows = renderRegion('density').split('\n').filter((line) => line.startsWith('| `--dz-'));
+  const cells = (name: string) => rows.find((row) => row.startsWith(`| \`--${name}\` |`))!.split('|').map((cell) => cell.trim());
+  assert.match(cells('dz-row-py')[6]!, /table\/list row vertical padding/);
+  assert.ok(rows.length > 0 && rows.every((row) => row.split('|')[6]!.trim() !== ''), 'no row is empty');
+});
+
+test('the locale table names the member that outranks a field', () => {
+  const rows = renderRegion('locale').split('\n').filter((line) => /^\| `[a-z][A-Za-z]+` \|/.test(line));
+  const cells = (name: string) => rows.find((row) => row.startsWith(`| \`${name}\` |`))!.split('|').map((cell) => cell.trim());
+  assert.equal(cells('bulkActionBarNoun')[4], '`ArenaBulkActionBar.noun`');
+  assert.equal(cells('calendarToday')[4], 'none');
+});
+
 const unreadButRead = (rows: string[], theme: string) => rows.map((row) => row.split('|').map((cell) => cell.trim()))
   .filter((cells) => cells[5] === 'none' && theme.includes(`var(${cells[1]!.replace(/`/g, '')})`)).map((cells) => cells[1]!);
 

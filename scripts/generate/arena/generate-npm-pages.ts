@@ -6,7 +6,7 @@
  * pages names no layer: `check:layer-independence` refuses a page under `frameworks/<A>/` that
  * cites layer B, and the test here holds every shared region to that. */
 
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
@@ -148,6 +148,19 @@ function utilitiesOf(base: string, pattern: RegExp, render: (kind: string, name:
   return found;
 }
 
+export function localeMembers(base = root) {
+  const found = new Map<string, string[]>();
+  const dir = join(base, 'contracts/api/components');
+  for (const file of readdirSync(dir).filter((name) => name.endsWith('.json')).sort()) {
+    const contract = readJson(join(dir, file)) as { component: string; api?: Record<string, { description?: string }> };
+    for (const [member, entry] of Object.entries(contract.api ?? {})) {
+      const field = /provided locale's `?(\w+)`?/.exec(entry.description ?? '')?.[1];
+      if (field) found.set(field, [...(found.get(field) ?? []), `${contract.component}.${member}`]);
+    }
+  }
+  return found;
+}
+
 export function densityValues(base: string, file: string) {
   const dz = (readJson(join(base, file)) as { dz: Record<string, { $value: unknown }> }).dz;
   const text = (key: string, value: unknown) => {
@@ -254,10 +267,13 @@ The package is the code. The server, the plugin and the repository are the langu
     const groups = ['sp', 'r', 'bw', 'shadow', 'dur', 'loop', 'ease', 'z', 'bp'];
     const { tokens } = tokenCatalogue(base);
     const roles = new Set(Object.keys(readJson(join(base, ROLE_CONTRACT)) as Record<string, unknown>));
+    const utilities = utilitiesOf(base, /^\s*--(spacing|radius|shadow|ease|z-index)-([a-z0-9-]+):\s*var\(--((?:sp|r|shadow|ease|z)-[a-z0-9-]+)\)\s*;/,
+      (kind, name) => ({ spacing: `*-${name}`, radius: `rounded-${name}`, 'z-index': `z-${name}` })[kind] ?? `${kind}-${name}`);
     const rows = groups.flatMap((group) => Object.entries(tokens)
       .filter(([name]) => !roles.has(name) && (name === group || name.startsWith(`${group}-`)))
-      .map(([name, value]) => `| \`--${name}\` | \`${value}\` |`));
-    return ['| custom property | value |', '| --- | --- |', ...rows].join('\n');
+      .map(([name, value]) => `| \`--${name}\` | \`${value}\` | ${utilities.get(name)?.join(', ') ?? 'none'} |`));
+    return ['`*-` stands for any spacing utility, such as `h-` or `py-`. A utility the table marks `none` has no mapping in the Tailwind sheet, so it emits nothing and reports nothing.', '',
+      '| custom property | value | Tailwind |', '| --- | --- | --- |', ...rows].join('\n');
   },
 
   density: (base = root) => {
@@ -268,13 +284,16 @@ The package is the code. The server, the plugin and the repository are the langu
       (kind, name) => kind === 'spacing' ? `*-${name}` : `${kind}-${name}`,
       (match) => [...match[3]!.matchAll(/var\(--dz-([a-z0-9-]+)\)/g)].map((one) => one[1]!));
     const shown = (value: string | undefined) => value === undefined ? 'base' : `\`${cell(value)}\``;
+    const sizes = (readJson(join(base, 'contracts/design/spacing.json')) as { dz: Record<string, { $description?: string }> }).dz;
     const rows = Object.entries(tokens).filter(([name]) => name.startsWith('dz-')).map(([name, value]) => {
       const key = name.slice(3);
       const reads = utilities.get(key)?.join(', ') ?? 'none';
-      return `| \`--${name}\` | \`${value}\` | ${shown(compact(key))} | ${shown(comfortable(key))} | ${reads} |`;
+      const sized = sizes[key]?.$description?.split(/\. /)[0]?.replace(/\.$/, '');
+      if (!sized) throw new Error(`generate-npm-pages: contracts/design/spacing.json dz.${key} has no $description to say what it sizes`);
+      return `| \`--${name}\` | \`${value}\` | ${shown(compact(key))} | ${shown(comfortable(key))} | ${reads} | ${cell(sized)} |`;
     });
     return ['`*-` stands for any spacing utility, such as `h-` or `py-`.', '',
-      '| custom property | base | .arena-compact | .arena-comfortable | Tailwind |', '| --- | --- | --- | --- | --- |', ...rows].join('\n');
+      '| custom property | base | .arena-compact | .arena-comfortable | Tailwind | what it sizes |', '| --- | --- | --- | --- | --- | --- |', ...rows].join('\n');
   },
 
   typography: (base = root) => {
@@ -446,10 +465,11 @@ you import it beside the other two. The sheet declares the cascade layer order i
     const contract = readJson(join(base, LOCALE_CONTRACT)) as {
       fields: Record<string, { default: string; description: string }>;
     };
+    const outranks = localeMembers(base);
     const rows = Object.entries(contract.fields)
-      .map(([name, field]) => `| \`${name}\` | \`${cell(field.default)}\` | ${cell(field.description)} |`);
-    return ['Every field is optional in what you provide, and one you leave out keeps the default below.', '',
-      '| field | English default | what it names |', '| --- | --- | --- |', ...rows].join('\n');
+      .map(([name, field]) => `| \`${name}\` | \`${cell(field.default)}\` | ${cell(field.description)} | ${outranks.get(name)?.map((member) => `\`${member}\``).join(', ') ?? 'none'} |`);
+    return ['Every field is optional in what you provide, and one you leave out keeps the default below. A member in the last column outranks its field on that component.', '',
+      '| field | English default | what it names | member that outranks it |', '| --- | --- | --- | --- |', ...rows].join('\n');
   },
 
   questions: (base = root, target = '') => renderQuestions(target, base),

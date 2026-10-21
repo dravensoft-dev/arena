@@ -71,8 +71,8 @@
      instead of hard-coded px so a single scope switch re-densifies rows and controls.
    */
   --dz-ctl-h:40px; /* control height (buttons, inputs, switches row) */
-  --dz-ctl-h-sm:32px;
-  --dz-ctl-h-lg:48px;
+  --dz-ctl-h-sm:32px; /* small control height (buttons and icon buttons at arena-size-sm, the least height of a sparkline's keyboard region) */
+  --dz-ctl-h-lg:48px; /* large control height (buttons and icon buttons at arena-size-lg) */
   --dz-row-py:12px; /* table/list row vertical padding */
   --dz-row-px:16px; /* row horizontal padding */
   --dz-stack:12px; /* gap between stacked items */

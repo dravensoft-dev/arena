@@ -27,6 +27,16 @@ test('every family is a row and a section, with its options, its default, its re
   assert.equal(VOCABULARY_TARGET, 'frameworks/VOCABULARY.md');
 });
 
+test('the lead names every family written on markup you write', () => {
+  const page = renderVocabulary();
+  const lead = page.split('\n').find((line) => line.startsWith('**Every vocabulary class'))!;
+  const written = page.split('\n').filter((line) => line.startsWith('| [`') && line.endsWith('| markup you write |'))
+    .map((line) => /^\| \[`([^`]+)`\]/.exec(line)![1]!);
+  assert.ok(written.length >= 8, 'the table holds the markup families');
+  for (const name of written) assert.ok(lead.includes(`\`${name}\``), `the lead names ${name}`);
+  assert.match(lead, /the `density` context/);
+}); 
+
 test('a markup family is answered by markup you write, carries no default, and says where its class goes', () => {
   const base = track(mkdtempSync(join(tmpdir(), 'vocabulary-page-')));
   mkdirSync(join(base, 'frameworks/tailwind/components'), { recursive: true });
