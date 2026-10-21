@@ -51,20 +51,22 @@ export const ENTRIES: Entry[] = [
   {
     name: 'consumer',
     router: 'skills/design/SKILL.md',
-    budget: 20_200,
+    budget: 20_600,
     reason:
       'the page every consumer route opens with, declared once rather than as the first stop of '
-      + 'each route, so it is argued once and not once per route. What a route pays past it is its own, and each is argued '
-      + 'where it is spent. A question earns a row here only when it '
-      + 'is asked before a builder knows which situation they are in: whether a component exists, how '
-      + 'much of Arena a project takes, what it installs Arena with, where the appearance comes from, '
-      + 'whether anybody outside the product has to find it, how a page is assembled, and where a defect goes once it is '
-      + 'proved to be Arena\'s. Everything asked after that belongs to the node that asks it. The '
-      + 'rules list is emitted from one declaration, so each rule names the audit tag that reads the '
-      + 'reader\'s own sources, or says why none does, and the prose holds the register check:register reads. What moves this '
-      + 'number is a new question, or a helper a reader cannot ask for by name, which the export row '
-      + 'lists, or a tag beside the one it extends, as wrapped-link stands beside router-link. The vocabulary families name which style decision reaches which '
-      + 'component owner and answer the route\'s questions about appearance sources at the decision layer.',
+      + 'each route. What a route pays past it is its own, and each is argued where it is spent. '
+      + 'A question earns a row here only when it is asked before a builder knows which situation '
+      + 'they are in: whether a component exists, how much of Arena a project takes, what it '
+      + 'installs Arena with, where the appearance comes from, whether anybody outside the product '
+      + 'has to find it, how a page is assembled, and where a defect goes once it is proved to be '
+      + 'Arena\'s. Everything asked after that belongs to the node that asks it. The rules list is '
+      + 'emitted from one declaration, so each rule names the audit tag that reads the reader\'s '
+      + 'own sources, or says why none does. What moves this number is a new question, or a helper '
+      + 'a reader cannot ask for by name, which the export row lists, or a tag beside the one it '
+      + 'extends, as wrapped-link stands beside router-link. The vocabulary families name which '
+      + 'style decision reaches which component owner and answer the route\'s questions about '
+      + 'appearance sources at the decision layer. The tokens-only rule names the bracket values '
+      + 'audit holds, and a row routes a mock to the artifact page.',
   },
   {
     name: 'contributor',

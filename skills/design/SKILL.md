@@ -98,8 +98,10 @@ source text cannot show, is `arena://rules` on the MCP server.
 - **Tokens are the only styling layer.** A raw colour is a bug, as is a bare `16px`. A hex, a
   channel triple in `rgb()` or `oklch()`, and a colour's own name are one defect written three
   ways. Read a value through its custom property, as `var(--ink-body)` or `var(--sp-4)`. Derive
-  one with `calc()` or `clamp()`, or mix one with `color-mix()`, over a token. **`arena audit`
-  reports this one, as `raw-value`.**
+  one with `calc()` or `clamp()`, or mix one with `color-mix()`, over a token. A bracket value in
+  a class, as `p-[13px]`, is the same raw value. A bracket may hold a `var()` of a token, a
+  `calc()`, `min()`, `max()` or `clamp()` over tokens, or one value in a unit no token models,
+  such as `%`, `ch` or `vw`. **`arena audit` reports this one, as `raw-value`.**
 - **Only a class of the vocabulary goes on an Arena component.** Write it as a literal on the
   component, or on a container whose components all take it. Write no rule targeting a component:
   its `arena-<component>__<slot>` classes are compiler output no contract names, and a slot may be
@@ -175,7 +177,7 @@ source text cannot show, is `arena://rules` on the MCP server.
 | Where is each style decision made, and which of them are mine? | [`references/style.md`](./references/style.md): the five places, and the two you write in |
 | What exactly does this member take? | the members table in that same prompt |
 | Why does this member exist at all? | `contracts/api/components/<Name>.json` |
-| What else is exported: density by breakpoint, a focus trap, toast and confirmation queues, router predicates, tabular figures, hidden labels, the categorical ramp and tone colours for my own chart? How do I size a layout or a panel? | [exports](./references/exports.md), then [shell](./references/shell.md) for a frame. Switching palettes is [theme](./references/theme.md) and Arena's words are [locale](./references/locale.md) |
+| What else is exported: density by breakpoint, a focus trap, toast and confirmation queues, router predicates, tabular figures, hidden labels? What do I read for my own chart: the categorical ramp and tone colours and the heat ladder? How do I size a layout or a panel? | [exports](./references/exports.md), then [shell](./references/shell.md) for a frame. Switching palettes is [theme](./references/theme.md) and Arena's words are [locale](./references/locale.md) |
 | What do I paint my page and my own markup with? | [`references/page.md`](./references/page.md): the floor, the colour roles, and why a role follows the skin where an alias follows the palette. **Arena paints no page of yours** |
 | How much air goes between two components, and what column does the page sit in? | [`references/style.md`](./references/style.md): the four classes the column is made of, and the stack and row steps as classes and as tokens. That page also draws the cut between air you place and air the kernel answers |
 | How do I assemble a page: skip link, landmarks, side nav beside content? | [shell](./references/shell.md): the skeleton in each layer, which landmark each piece is, how wide the rail is and how the title follows the route |
@@ -184,6 +186,7 @@ source text cannot show, is `arena://rules` on the MCP server.
 | What is the value of a token? | the DTCG JSON for its group in `contracts/design/` (`ls contracts/design/*.json`), which is the machine-readable form and is cheaper than the specification below. Two files hold what DTCG cannot: `contracts/design/colors.css` and `contracts/design/environment.css`, both of which [`references/page.md`](./references/page.md) reads for you. The values of spacing, radius, border, shadow, motion, layer and breakpoint are tabled in [`references/tokens.md`](./references/tokens.md) |
 | What does a value mean, and why is it that? | [`contracts/design/AGENTS.md`](../../contracts/design/AGENTS.md), the normative design specification |
 | What must this kind of component do to be accessible, and what does an Arena one promise? | `contracts/behaviour/<pattern>.json`, one file per pattern and shipped inside your package. The page handing you the markup names the file it binds: [`references/media-register.md`](./references/media-register.md) for a feed, a lightbox or a viewer, [`references/seo.md`](./references/seo.md) for structured data. What one of Arena's own components does is its `.prompt.md`; the file recording which pattern it binds is what Arena is held to, not a document you read |
+| I want a static mock or a throwaway prototype with no build step. What do I link? | [`references/artifact.md`](./references/artifact.md) |
 | How do I install Arena in my app? | [install](./references/install.md), then [config](./references/config.md) for `arena.config.json`, [cli](./references/cli.md) for the `arena` command and [stylesheets](./references/stylesheets.md) for the import depth |
 | Contracts, an editor server, or two package versions? | [contracts](./references/contracts.md), [mcp](./references/mcp.md), [versioning](./references/versioning.md) |
 | What does every component look like at once? | `frameworks/react/kitchen-sink/`, and the same page in `frameworks/angular/` |

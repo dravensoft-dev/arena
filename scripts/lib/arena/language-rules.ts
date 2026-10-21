@@ -22,7 +22,10 @@ export const RULES: LanguageRule[] = [
     body: 'A raw colour is a bug, as is a bare `16px`. A hex, a channel triple in `rgb()` or '
       + '`oklch()`, and a colour\'s own name are one defect written three ways. Read a value '
       + 'through its custom property, as `var(--ink-body)` or `var(--sp-4)`. Derive one with '
-      + '`calc()` or `clamp()`, or mix one with `color-mix()`, over a token.',
+      + '`calc()` or `clamp()`, or mix one with `color-mix()`, over a token. A bracket value in a '
+      + 'class, as `p-[13px]`, is the same raw value. A bracket may hold a `var()` of a token, a '
+      + '`calc()`, `min()`, `max()` or `clamp()` over tokens, or one value in a unit no token '
+      + 'models, such as `%`, `ch` or `vw`.',
     held: 'raw-value',
     unheld: null,
   },
