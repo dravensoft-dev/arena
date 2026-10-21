@@ -417,7 +417,7 @@ export function renderCatalogueIndex(base = root) {
       + 'against the second column and open only the entry it fits. Copy that entry\'s two style plugin '
       + 'files into `design/<entry>/` of your project, where they become yours as they are. '
       + '`arena.config.json` is a starting file for the root of your project. With no config there, copy it '
-      + 'and replace the palette and the fonts; with one already there, take only its `stylePlugins` entry. '
+      + 'and replace the palette and the fonts. With one already there, take only its `stylePlugins` entry and make it the first one in the list, since a catalogue entry answers every role. '
       + 'Node 4 of [`cold-start.md`](../../skills/design/references/cold-start.md) is where this choice is made.',
     '',
     '| Entry | Take this entry when | Files to copy |',

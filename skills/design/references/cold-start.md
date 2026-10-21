@@ -91,7 +91,7 @@ failure as a screenshot read silently, with a better result and the same missing
 `arena.config.json`. The first two become your project's own under `design/<name>/` as they are, and
 node 11 is where they land. The config is a starting file for the root of your project. With no
 `arena.config.json` there, copy it and replace the palette and the fonts. With one already there,
-take only its `stylePlugins` entry.
+take only its `stylePlugins` entry and make it the first one in the list, since a catalogue entry answers every role.
 
 **The catalogue is on the site and in the repository, not the package.** Each entry's files sit
 beside its `ENTRY.md`.
@@ -111,11 +111,11 @@ Arena repository is the template, and
 [`identity.example.html`](../../../arena-from-scratch/identity.example.html) beside it is one worked
 answer to read first. Without a clone, fetch the template at
 `https://arena.dravensoft.org/arena-from-scratch/identity.html` and the worked answer at
-`https://arena.dravensoft.org/arena-from-scratch/identity.example.html`, or call `arena_read` on
+`https://arena.dravensoft.org/arena-from-scratch/identity.example.html`, or call `arena_read`, which [`mcp.md`](./mcp.md) describes, on
 `arena://identity/identity.html` and on `arena://identity/identity.example.html`.
 
 The output is a page rather than a list, because a palette described in prose is a palette nobody
-can approve. Serve it over HTTP, so the web fonts it names load. Show it to the user, and change what they change.
+can approve. Save the filled document as `design/identity.html` in the project, and serve it over HTTP with `npx serve design`, so the web fonts it names load. Show it to the user, and change what they change.
 
 **Then stop.** The next node writes files, and files written against an unapproved appearance are
 the ones that get rewritten.
@@ -277,7 +277,7 @@ Then, in this order, because each file is read by the next.
 **A catalogue entry from node 4 answers part of this list.** The entry's `plugin.tokens.json` and
 `plugin.css` are the second and third bullets, copied as they are. The entry's `arena.config.json`
 is the starting file of the first bullet. With no config in the project, copy it and replace the
-palette and the fonts. With one already there, take only its `stylePlugins` entry.
+palette and the fonts. With one already there, take only its `stylePlugins` entry and make it the first one in the list, since a catalogue entry answers every role.
 
 The identity document from node 5 is what each of these is checked against, and it stays in the
 project. The next agent to open the project starts at node 2 with the good answer instead of at

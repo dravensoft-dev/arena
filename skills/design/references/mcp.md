@@ -12,7 +12,9 @@ Arena over the Model Context Protocol serves the router, the references and ever
 npm i -D @dravensoft/arena-mcp        # or: bun add -d / pnpm add -D / yarn add -D
 ```
 
-The server serves the layer your project installed. `@dravensoft/arena-react` or `@dravensoft/arena-angular` in the project tells the server which layer that is. The server resolves whichever it finds above the working directory. With neither
+The dev dependency pins the version of the server, and `npx` runs that installed copy. The `-y` in the next section only answers the prompt for a package that is not installed.
+
+The server serves the layer your project installed. `@dravensoft/arena-react` or `@dravensoft/arena-angular` in the project tells the server which layer that is. The server resolves whichever it finds above the working directory, and that is the directory the client starts the server in. With neither
 installed, `--layer react` or `--layer angular` names the half you want.
 
 ## How do I point my editor at the server?
@@ -33,6 +35,16 @@ The configuration file differs per editor and the command does not. Every client
 | Claude Desktop | `claude_desktop_config.json` under `mcpServers` | allowed, untested |
 | Cursor | `.cursor/mcp.json` under `mcpServers` | allowed, untested |
 | VS Code | `.vscode/mcp.json` under `servers` | allowed, untested |
+
+A project holding neither layer, or both, adds the layer to `args`:
+
+```json
+{
+  "mcpServers": {
+    "arena": { "command": "npx", "args": ["-y", "@dravensoft/arena-mcp", "--layer", "react"] }
+  }
+}
+```
 
 No test starts one of these clients. A row says "works" only when a test has exercised that client against the server.
 

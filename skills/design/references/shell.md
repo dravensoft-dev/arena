@@ -7,22 +7,38 @@ How do I put a skip link, an app bar, a side nav, the main region and a footer o
 The `.arena-shell` holds the skip link, the app bar, a row that holds the rail and the main region, and a footer of your own. The row is the shell's one child that takes the slack, so it carries `.arena-shell__main`.
 
 ```tsx
-<div className="arena-shell">
-  <ArenaSkipLink label="Skip to content" />
-  <ArenaAppBar
-    brand={<Link to="/" aria-label="Andina, home"><ArenaAppLogo name="Andina" className="arena-size-sm" /></Link>}
-    actions={<ArenaIconButton icon="ph-bold ph-magnifying-glass" label="Search" onClick={openSearch} />} />
-  <div className="arena-shell__main app-frame">
-    <ArenaSideNav ariaLabel="Primary" active={active} onNav={(id) => go(id)}>
-      <ArenaSideNavItem id="orders" icon="ph-bold ph-package" label="Orders" href="/orders" />
-      <ArenaSideNavItem id="cash" icon="ph-bold ph-coins" label="Cash" href="/cash" />
-    </ArenaSideNav>
-    <ArenaMain>
-      <Outlet />
-    </ArenaMain>
+import { Link, Outlet, useLocation, useNavigate } from 'react-router';
+import {
+  ArenaAppBar, ArenaAppLogo, ArenaIconButton, ArenaMain, ArenaSideNav, ArenaSideNavItem, ArenaSkipLink,
+} from '@dravensoft/arena-react';
+
+const DESTINATIONS = [{ id: 'orders', href: '/orders' }, { id: 'cash', href: '/cash' }];
+
+export function Shell({ openSearch }: { openSearch: () => void }) {
+  const { pathname } = useLocation();
+  const navigate = useNavigate();
+  const active = DESTINATIONS.find((d) => pathname === d.href || pathname.startsWith(`${d.href}/`))?.id;
+  const go = (id: string) => navigate(DESTINATIONS.find((d) => d.id === id)!.href);
+
+  return (
+  <div className="arena-shell">
+    <ArenaSkipLink label="Skip to content" />
+    <ArenaAppBar
+      brand={<Link to="/" aria-label="Andina, home"><ArenaAppLogo name="Andina" className="arena-size-sm" /></Link>}
+      actions={<ArenaIconButton icon="ph-bold ph-magnifying-glass" label="Search" onClick={openSearch} />} />
+    <div className="arena-shell__main app-frame">
+      <ArenaSideNav ariaLabel="Primary" active={active} onNav={(id) => go(id)}>
+        <ArenaSideNavItem id="orders" icon="ph-bold ph-package" label="Orders" href="/orders" />
+        <ArenaSideNavItem id="cash" icon="ph-bold ph-coins" label="Cash" href="/cash" />
+      </ArenaSideNav>
+      <ArenaMain>
+        <Outlet />
+      </ArenaMain>
+    </div>
+    <footer>© 2026 Andina</footer>
   </div>
-  <footer>© 2026 Andina</footer>
-</div>
+  );
+}
 ```
 
 ```css
@@ -32,7 +48,7 @@ The `.arena-shell` holds the skip link, the app bar, a row that holds the rail a
 }
 ```
 
-`.app-frame` is a class of your own on markup you wrote, so the vocabulary rules for Arena components do not reach it. A page without a rail puts `.arena-shell__main` on a `<div>` around `ArenaMain`, as [`ArenaMain.prompt.md`](../../../frameworks/react/components/layout/arena-main/ArenaMain.prompt.md) shows. The classes of the shell are in [`style.md`](./style.md#the-column-the-page-sits-in), and the active id comes from your router as [`ArenaSideNav.prompt.md`](../../../frameworks/react/components/navigation/arena-side-nav/ArenaSideNav.prompt.md) shows.
+The content of the `brand` slot is the project's own, its router link included, so the rule against wrapping a component in a router link does not reach it. `.app-frame` is a class of your own on markup you wrote, so the vocabulary rules for Arena components do not reach it. A page without a rail puts `.arena-shell__main` on a `<div>` around `ArenaMain`, as [`ArenaMain.prompt.md`](../../../frameworks/react/components/layout/arena-main/ArenaMain.prompt.md) shows. The classes of the shell are in [`style.md`](./style.md#the-column-the-page-sits-in), and the active id comes from your router as [`ArenaSideNav.prompt.md`](../../../frameworks/react/components/navigation/arena-side-nav/ArenaSideNav.prompt.md) shows.
 
 ## What does the skeleton look like in Angular?
 
@@ -130,18 +146,26 @@ export function FocusMainOnNavigation() {
 React Router is allowed and untested: no Arena test exercises a router. In Next.js the same effect keys on `usePathname()` from `next/navigation`.
 
 ```ts
-// Angular: in the root component class
-import { inject } from '@angular/core';
+// Angular: in the root component class, keyed on the path
+import { Component, inject } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
-import { filter, skip } from 'rxjs';
+import { distinctUntilChanged, filter, map, skip } from 'rxjs';
 import { ARENA_MAIN_ID } from '@dravensoft/arena-angular';
 
-private readonly router = inject(Router);
+@Component({ selector: 'app-root', template: '' })
+export class App {
+  private readonly router = inject(Router);
 
-constructor() {
-  this.router.events.pipe(filter((e) => e instanceof NavigationEnd), skip(1)).subscribe(() => {
-    document.getElementById(ARENA_MAIN_ID)?.focus({ preventScroll: true });
-  });
+  constructor() {
+    this.router.events.pipe(
+      filter((e) => e instanceof NavigationEnd),
+      map(() => this.router.url.split(/[?#]/)[0]),
+      distinctUntilChanged(),
+      skip(1),
+    ).subscribe(() => {
+      document.getElementById(ARENA_MAIN_ID)?.focus({ preventScroll: true });
+    });
+  }
 }
 ```
 

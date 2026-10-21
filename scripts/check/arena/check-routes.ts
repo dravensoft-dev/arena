@@ -288,7 +288,7 @@ export const ROUTES: Route[] = [
         ],
       },
     ],
-    budget: 30_700,
+    budget: 31_100,
     reason:
       'the route declared as a tree, charged its worst branch and never the sum, because a reader '
       + 'answers a question and walks one way. Handed a document stating the palette and the type, a '
@@ -299,7 +299,8 @@ export const ROUTES: Route[] = [
       + 'its last node derives the dependency list from answers. The index is generated from the one '
       + 'line every entry carries, grows a row per entry and keeps the last stop at a single entry. '
       + 'The tree names where an entry and the identity template are fetched without a clone, and '
-      + 'says an entry\'s config is a starting file. The alternative to reading it is an agent '
+      + 'says an entry\'s config is a starting file whose plugin leads the list, and where the filled '
+      + 'identity document is saved and served. The alternative to reading it is an agent '
       + 'inferring a palette from a screenshot, which costs nothing here and costs the project every '
       + 'screen.',
   },
