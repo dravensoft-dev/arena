@@ -3,7 +3,7 @@
  * and each one is exercised in both directions, because a check that cannot fail is a
  * check that proves nothing. */
 
-import test from 'node:test';
+import test, { after } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
@@ -161,6 +161,7 @@ test('a command that refused a third palette is a failure rather than an empty t
 const DUSK = { name: THIRD_PALETTE.name, polarity: THIRD_PALETTE.polarity, colors: { 'base-100': '#101010' } };
 const dir = mkdtempSync(join(tmpdir(), 'arena-runtime-problems-'));
 writeFileSync(join(dir, 'arena.config.json'), JSON.stringify({ palettes: [DUSK] }));
+after(() => rmSync(dir, { recursive: true, force: true }));
 
 const shipped = { 'color-base-100': '#101010', 'level-1': '4%' };
 const decls = (m: Record<string, string>) => Object.entries(m).map(([k, v]) => `--${k}:${v};`).join('');
