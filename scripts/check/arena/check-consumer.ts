@@ -34,6 +34,7 @@ import { captured } from '../../utils/captures.ts';
 import { parseDecls } from '../../lib/arena/css-decls.ts';
 import { browserOrExit, launchChromium } from '../../lib/arena/chromium.ts';
 import { connect, type Cdp } from '../../lib/arena/cdp.ts';
+import { networkChangedProblem } from '../../lib/arena/page-load.ts';
 import { contrastProblems, readContrast } from '../../lib/arena/consumer-contrast.ts';
 
 export const node = {
@@ -755,9 +756,10 @@ export function documented(page: string) {
 export async function collect(base = root) {
   const problems = [];
   const dirs = [];
+  const exe = browserOrExit('check-consumer');
   const open: { chrome?: Awaited<ReturnType<typeof launchChromium>>; cdp?: Cdp } = {};
   const opened = async () => {
-    open.chrome ??= await launchChromium(browserOrExit('check-consumer'));
+    open.chrome ??= await launchChromium(exe);
     open.cdp ??= await connect(open.chrome.wsUrl);
     return open.cdp;
   };
@@ -804,7 +806,9 @@ export async function collect(base = root) {
       problems.push(...layerProblems(layer, valid));
       if (valid.status === 0) {
         const name = PACKAGES.find((p) => p.layer === layer)?.name ?? '';
-        problems.push(...contrastProblems(layer, await readContrast(plugged, name, await opened(), pluginName(PLUGINS.partial))));
+        const { readings, lost } = await readContrast(plugged, name, await opened(), pluginName(PLUGINS.partial));
+        if (lost.length > 0) problems.push(networkChangedProblem(`${layer} contrast card page`, lost));
+        else problems.push(...contrastProblems(layer, readings));
       }
       problems.push(...exitProblem(layer, 'arena check --strict over two valid style plugins',
         runCli(layer, plugged, base, ['check'], ['--strict']), 0));

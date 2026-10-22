@@ -279,10 +279,16 @@ test('write creates the directories leading to a file nobody made yet', () => {
   rmSync(root, { recursive: true });
 });
 
-function tailwindTree(names: string[]) {
+function tailwindTree(names: string[], families: string[] = ['zeta', 'align']) {
   const files: Record<string, string> = {
     'frameworks/tailwind/consume/Prelude.generated.css': ':root{}',
   };
+  for (const family of families) {
+    const pascal = `${family[0]?.toUpperCase()}${family.slice(1)}`;
+    files[`frameworks/tailwind/vocabulary/arena-${family}/${pascal}.family.json`] =
+      JSON.stringify({ family, variants: {}, default: '' });
+    files[`frameworks/tailwind/consume/vocabulary/${pascal}.generated.css`] = `.arena-${family}{}`;
+  }
   for (const name of names) {
     files[`frameworks/tailwind/components/display/${name}/${name}.manifest.json`] = '{}';
     files[`frameworks/tailwind/consume/components/display/${name}/${name}.styles.generated.css`] =
@@ -462,6 +468,8 @@ test('arenaCssLayers is the list of imports writeCssChain writes into arena.css,
     writeCssChain(dir, '@dravensoft/arena-x', [...sheets, ...extra], repoRoot);
     const written = importsIn(readFileSync(join(dir, 'arena.css'), 'utf8')).map((one) => one?.slice('./'.length));
     assert.deepEqual(arenaCssLayers(extra, root), written);
+    assert.ok(written.indexOf('css/vocabulary/align.css') > written.indexOf('css/components.css'), 'the families are in the stub');
+    assert.ok(written.indexOf('css/vocabulary/zeta.css') > written.indexOf('css/vocabulary/align.css'), 'sorted by name');
   }
   rmSync(root, { recursive: true });
 });

@@ -1171,6 +1171,7 @@ test('a default root emits no :root restatement', () => {
     sheets: { ...SHEETS_FULL, rootOnly: ROOT_ONLY }, importHeader: false, plugins: [null, scoped()],
   });
   assert.ok(!css.includes(HC_ROOT));
+  assert.ok(css.includes('@media (prefers-contrast: more) {\n.arena-marketing{'));
 });
 
 test('each of several plugins gets exactly one high-contrast block', () => {

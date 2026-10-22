@@ -5,7 +5,8 @@
  * function of plain data and reads no file. scopeOn, scopeKey and crossKeys spell how a scope class
  * crosses a selector and where a reader finds it, since generator and emitter both write that rule.
  * rootOnlyFor restates what :root alone computes (the contrast widths, the hero fit) on a plugin's
- * class after its own block: both weigh the same, so order wins. */
+ * class after its own block: both weigh the same, so order wins. highContrastFor does the same for
+ * the widths alone, on :root, after a project's own root answers. */
 
 import { POLARITIES } from './palette-keys.ts';
 
@@ -55,6 +56,8 @@ const rootDecls = (css: string, within?: RegExp) => {
 };
 
 const linesOf = (decls: { name: string; value: string }[]) => decls.map((d) => `  ${d.name}:${d.value};`).join('\n');
+
+export const highContrastNames = (contrast: string) => rootDecls(contrast, HIGH_CONTRAST).map((d) => d.name);
 
 export function highContrastFor(className: string, sources: { contrast: string; environment: string }) {
   const widened = rootDecls(sources.contrast, HIGH_CONTRAST);
