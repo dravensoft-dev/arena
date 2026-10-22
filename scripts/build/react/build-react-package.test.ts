@@ -12,6 +12,7 @@ import { budgetFor } from '../../lib/arena/deadline.ts';
 import { TERM_GRACE } from '../../lib/arena/child-output.ts';
 import { TSC_SPAWN } from '../../lib/arena/typecheck.ts';
 import { PROBE_ENDED, PROBE_IMPORTED, PROBE_SPAWNED, assertCompilerEnded, probeInterrupt } from '../../lib/arena/forwarding-probe.ts';
+import { CLI_DEPENDENCIES } from '../../lib/arena/support-matrix.ts';
 import { version, CLI_BINS, PALETTE_ENTRY } from '../../lib/arena/package-assembly.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 
@@ -65,13 +66,19 @@ test('the version is stamped from plugin.json rather than written here', () => {
   assert.equal(manifest(repoRoot).version, version(repoRoot));
 });
 
-test('react, react-dom and Phosphor are the peers, and nothing at all is a dependency', () => {
+test('react, react-dom and Phosphor are the peers, and the three of the arena command are the dependencies', () => {
   const m = manifest(repoRoot);
   assert.deepEqual(Object.keys(m.peerDependencies).sort(), ['@phosphor-icons/web', 'react', 'react-dom']);
   assert.equal(m.peerDependencies.react, '^18 || ^19',
     'the range is the two majors a real tarball install was rendered under; an open >=18 would promise React 20');
-  assert.ok(!('dependencies' in m),
-    'a component composes its own class names, so no recipe library ships with it');
+  assert.deepEqual(m.dependencies, CLI_DEPENDENCIES,
+    'a component imports none of them; they are the arena command\'s, and a component composes its own class names');
+});
+
+test('the React manifest carries a module field pointing at the root entry', () => {
+  const m = manifest(repoRoot) as Record<string, any>;
+  assert.equal(m.module, m.exports['.'].import);
+  assert.equal(m.main, undefined);
 });
 
 test('the command the package ships is declared, and it is the one both packages declare', () => {

@@ -29,8 +29,7 @@ import { CSS_TARGETS } from '../../generate/arena/generate-tokens.ts';
 import { ARENA_EXT } from '../core/dtcg-shapes.ts';
 import { EXCLUDED_NAMES, EXCLUDED_PATTERNS, excluded } from './package-exclusions.ts';
 import { RULES } from './language-rules.ts';
-import { NODE_ENGINE } from './support-matrix.ts';
-import { AXES, PEERS, OPTIONAL_PEERS, BUILT_AGAINST, NODE_ENGINE as ENGINE } from './support-matrix.ts';
+import { AXES, CLI_DEPENDENCIES, PEERS, OPTIONAL_PEERS, BUILT_AGAINST, NODE_ENGINE, NODE_ENGINE as ENGINE } from './support-matrix.ts';
 import {
   ROUTER_SOURCE, ROUTER_FILE, MANIFEST_FILE as AGENT_MANIFEST, RULES_FILE as AGENT_RULES,
   SUPPORT_FILE, carriedSpecs, matchesSpec, payloadDir,
@@ -423,6 +422,7 @@ export function baseManifest(root = repoRoot) {
     ...pluginIdentity(root),
     bin: { ...CLI_BINS },
     engines: { node: NODE_ENGINE },
+    dependencies: { ...CLI_DEPENDENCIES },
   };
 }
 

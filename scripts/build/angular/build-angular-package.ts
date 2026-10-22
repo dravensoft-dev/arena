@@ -24,7 +24,7 @@ import {
   writeComponentMap, writeIconManifest, CLI_BINS, keywords,
   copyBehaviourContracts, PALETTE_ENTRY, ANGULAR_EXTRA,
 } from '../../lib/arena/package-assembly.ts';
-import { PEERS, OPTIONAL_PEERS } from '../../lib/arena/support-matrix.ts';
+import { PEERS, OPTIONAL_PEERS, CLI_DEPENDENCIES } from '../../lib/arena/support-matrix.ts';
 import { splitCompiledSheet } from '../../lib/tailwind/sheet-split.ts';
 import { CONSUME } from '../tailwind/build-tailwind.ts';
 import { THEME_SOURCES, tailwindThemeSheet } from '../../lib/tailwind/theme-sheet.ts';
@@ -69,7 +69,7 @@ export function manifest(root = repoRoot) {
     ...baseManifest(root),
     peerDependencies: PEERS.angular,
     peerDependenciesMeta: OPTIONAL_PEERS.angular,
-    dependencies: RUNTIME_DEPENDENCIES,
+    dependencies: { ...RUNTIME_DEPENDENCIES, ...CLI_DEPENDENCIES },
   };
 }
 
@@ -113,7 +113,7 @@ export function ngPackageConfig() {
     $schema: fromStaging('node_modules/ng-packagr/ng-package.schema.json'),
     dest: fromStaging(`${LAYER}/dist`),
     lib: { entryFile: 'index.ts' },
-    allowedNonPeerDependencies: Object.keys(RUNTIME_DEPENDENCIES),
+    allowedNonPeerDependencies: [...Object.keys(RUNTIME_DEPENDENCIES), ...Object.keys(CLI_DEPENDENCIES)],
     assets: [] as string[],
   };
 }

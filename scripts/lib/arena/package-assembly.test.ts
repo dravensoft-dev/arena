@@ -13,6 +13,7 @@ import { readJson } from '../../utils/read-file.ts';
 import { MARKERS_FILE, markerAttributes } from './component-map.ts';
 import { MAP_FILE } from './component-map.ts';
 import { repoRoot } from './repo-root.ts';
+import { CLI_DEPENDENCIES } from './support-matrix.ts';
 import { sheetFamilies, packageSheetName } from '../tailwind/vocabulary.ts';
 import { splitCompiledSheet } from '../tailwind/sheet-split.ts';
 
@@ -128,6 +129,10 @@ test('the manifest takes its version and its identity from plugin.json, never fr
   assert.equal(base.publishConfig.access, 'public');
   assert.match(base.repository.url, /^git\+https:\/\/github\.com\//);
   assert.deepEqual(base.bin, CLI_BINS);
+});
+
+test('the base manifest declares the CLI\'s dependencies, the same three in every layer', () => {
+  assert.deepEqual(baseManifest(repoRoot).dependencies, CLI_DEPENDENCIES);
 });
 
 test('the identity half carries who published it and nothing about how it runs', () => {

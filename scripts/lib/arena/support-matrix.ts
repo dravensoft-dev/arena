@@ -24,6 +24,12 @@ export type Axis = { axis: string; question: string; neutral: boolean; rows: Row
 
 export const NODE_ENGINE = '>=22';
 
+export const CLI_DEPENDENCIES: Readonly<Record<string, string>> = {
+  '@phosphor-icons/core': '^2.1.1',
+  harfbuzzjs: '^1.6.4',
+  wawoff2: '^2.0.1',
+};
+
 export const PEERS = {
   react: {
     react: '^18 || ^19',

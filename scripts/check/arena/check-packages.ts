@@ -16,6 +16,7 @@ import { isMainModule } from '../../utils/main-module.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
+import { CLI_DEPENDENCIES } from '../../lib/arena/support-matrix.ts';
 import { arenaEnv, refuseWhen, unassembledReason } from '../../lib/arena/arena-scripts-vars.ts';
 import { parseDecls } from '../../lib/arena/css-decls.ts';
 import { arenaConfig } from '../../lib/core/arena-config.ts';
@@ -149,6 +150,14 @@ export function manifestProblems(pkg: { layer: string; name: string }, manifest:
     }
     if (name.startsWith('@dravensoft/')) problems.push(`${at}: ${name} is a dependency; an Arena package is always a peer`);
     if (name === '@phosphor-icons/web') problems.push(`${at}: Phosphor is the consumer's to install, never a dependency`);
+  }
+  const declared = manifest.dependencies ?? {};
+  const allowed = new Set([...Object.keys(CLI_DEPENDENCIES), ...(pkg.layer === 'angular' ? ['tslib'] : [])]);
+  for (const name of Object.keys(CLI_DEPENDENCIES)) {
+    if (!Object.hasOwn(declared, name)) problems.push(`${at}: dependencies lack ${name}, which the arena command needs at build time`);
+  }
+  for (const name of Object.keys(declared)) {
+    if (!allowed.has(name)) problems.push(`${at}: dependencies hold ${name}, which is not one of the arena command's`);
   }
   if (!Object.hasOwn(manifest.peerDependencies ?? {}, '@phosphor-icons/web')) {
     problems.push(`${at}: no peer on @phosphor-icons/web, and every component renders ph-* classes`);

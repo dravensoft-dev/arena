@@ -166,6 +166,7 @@ export function manifest(root = repoRoot) {
     type: 'module',
     sideEffects: ['*.css'],
     ...baseManifest(root),
+    module: './Index.generated.js',
     types: './Index.generated.d.ts',
     exports: {
       '.': { types: './Index.generated.d.ts', import: './Index.generated.js' },

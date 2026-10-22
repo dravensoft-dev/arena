@@ -21,6 +21,7 @@ import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { budgetFor, deadline, type Deadline } from '../../lib/arena/deadline.ts';
 import { TERM_GRACE } from '../../lib/arena/child-output.ts';
 import { referenceText } from '../../lib/arena/consumer-references.ts';
+import { CLI_DEPENDENCIES } from '../../lib/arena/support-matrix.ts';
 import { toPosix } from '../../utils/posix-path.ts';
 
 const made: string[] = [];
@@ -96,6 +97,7 @@ const manifest = (overrides = {}) => ({
   name: '@dravensoft/arena-react',
   version: '4.1.0',
   types: './Index.d.ts',
+  dependencies: { ...CLI_DEPENDENCIES },
   peerDependencies: { react: '>=18', '@phosphor-icons/web': '^2.1.2' },
   ...overrides,
 });
@@ -128,6 +130,20 @@ test('Phosphor is the consumer\'s, so bundling it or omitting the peer are both 
 
   const missing = manifestProblems(REACT_PACKAGE, manifest({ peerDependencies: { react: '>=18' } }), '4.1.0');
   assert.deepEqual(missing, ['@dravensoft/arena-react: no peer on @phosphor-icons/web, and every component renders ph-* classes']);
+});
+
+test('a layer manifest declares exactly the CLI\'s dependencies', () => {
+  const [first, ...rest] = Object.keys(CLI_DEPENDENCIES) as [string, ...string[]];
+  const without = Object.fromEntries(rest.map((name) => [name, CLI_DEPENDENCIES[name]]));
+  const missing = manifestProblems(REACT_PACKAGE, manifest({ dependencies: without }), '4.1.0');
+  assert.deepEqual(missing, [`@dravensoft/arena-react: dependencies lack ${first}, which the arena command needs at build time`]);
+
+  const extra = manifestProblems(REACT_PACKAGE, manifest({ dependencies: { ...CLI_DEPENDENCIES, lodash: '^4' } }), '4.1.0');
+  assert.deepEqual(extra, ['@dravensoft/arena-react: dependencies hold lodash, which is not one of the arena command\'s']);
+
+  assert.deepEqual(manifestProblems(REACT_PACKAGE, manifest({ dependencies: { ...CLI_DEPENDENCIES } }), '4.1.0'), []);
+  assert.deepEqual(manifestProblems({ layer: 'angular', name: '@dravensoft/arena-angular' },
+    manifest({ name: '@dravensoft/arena-angular', dependencies: { ...CLI_DEPENDENCIES, tslib: '^2.8.1' } }), '4.1.0'), []);
 });
 
 test('an Arena package is always a peer, never a dependency', () => {

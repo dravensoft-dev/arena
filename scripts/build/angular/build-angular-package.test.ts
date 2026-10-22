@@ -15,6 +15,7 @@ import {
   NAME, RUNTIME_DEPENDENCIES, STAGING, LAYER, VARIANTS, SECONDARY_ENTRY_POINTS, rewriteEntryImports,
   normalNpmignore,
 } from './build-angular-package.ts';
+import { CLI_DEPENDENCIES } from '../../lib/arena/support-matrix.ts';
 import { version, collectFiles, CLI_BINS, PALETTE_ENTRY } from '../../lib/arena/package-assembly.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 
@@ -35,7 +36,7 @@ test('the schema is named at the depth the staging tree sits at, so an editor re
 });
 
 test('the one runtime dependency is allowed by name, or ng-packagr refuses to write', () => {
-  assert.deepEqual(ngPackageConfig().allowedNonPeerDependencies, Object.keys(RUNTIME_DEPENDENCIES));
+  assert.deepEqual(ngPackageConfig().allowedNonPeerDependencies, [...Object.keys(RUNTIME_DEPENDENCIES), ...Object.keys(CLI_DEPENDENCIES)]);
   assert.deepEqual(Object.keys(RUNTIME_DEPENDENCIES).sort(), ['tslib'],
     'a component composes its own class names, so no recipe library ships here; '
     + 'tslib is Angular\'s own helper import and is the only one left');
@@ -53,7 +54,7 @@ test('the manifest names the package and takes its version from plugin.json', ()
   assert.equal(m.version, version(repoRoot));
 });
 
-test('Angular, the CDK and Phosphor are the peers; tslib is the only real dependency', () => {
+test('Angular, the CDK and Phosphor are the peers; tslib and the three of the arena command are the dependencies', () => {
   const m = manifest(repoRoot);
   assert.deepEqual(Object.keys(m.peerDependencies).sort(),
     ['@angular/cdk', '@angular/common', '@angular/core', '@angular/forms', '@angular/platform-browser',
@@ -61,8 +62,8 @@ test('Angular, the CDK and Phosphor are the peers; tslib is the only real depend
   assert.deepEqual(m.peerDependenciesMeta, { '@angular/router': { optional: true }, '@angular/forms': { optional: true } },
     'the router and forms are each reachable only through their own entry point, so a project that '
     + 'never imports that subpath must install cleanly without it and be told nothing');
-  assert.deepEqual(m.dependencies, RUNTIME_DEPENDENCIES,
-    'a slot class is composed from the names the build emits, with no runtime dependency a consumer would have to bring');
+  assert.deepEqual(m.dependencies, { ...RUNTIME_DEPENDENCIES, ...CLI_DEPENDENCIES },
+    'a slot class is composed from the names the build emits; the only others are the arena command\'s three, which no component imports');
 });
 
 test('the assets are added to what ng-packagr wrote without losing its own entry', () => {
