@@ -7,6 +7,8 @@
  * rootOnlyFor restates what :root alone computes (the contrast widths, the hero fit) on a plugin's
  * class after its own block: both weigh the same, so order wins. */
 
+import { POLARITIES } from './palette-keys.ts';
+
 export const ARENA_EXT = 'com.dravensoft.arena';
 
 export const KEBAB = /^[a-z][a-z0-9]*(-[a-z0-9]+)*$/;
@@ -25,10 +27,9 @@ export const MAX_PROSE_MEASURE = 90;
 
 export const DANGER_FLOOR = 'hue-danger-fill-strong';
 
-export const RESERVED = new Map<string, string>([
-  ['polarity-dark', 'the polarity hook a runtime palette wears (spec 28)'],
-  ['polarity-light', 'the polarity hook a runtime palette wears (spec 28)'],
-]);
+export const RESERVED = new Map<string, string>();
+
+export const POLARITY_HOOKS: ReadonlySet<string> = new Set(POLARITIES.map((polarity) => `polarity-${polarity}`));
 
 export const scopeOn = (className: string) => (selector: string, body: string) => (selector === ':root'
   ? `${className}{${body}}`
@@ -170,6 +171,9 @@ export function withDefaults<P extends Answers>(
 }
 
 export function reservedProblems(name: string, where: string) {
+  if (POLARITY_HOOKS.has(name))
+    return [`${where}: "${name}" is the polarity hook a runtime palette wears, the class .arena-${name} every `
+      + 'build with "runtimePalettes": true emits, so a palette or plugin of that name would collide with it.'];
   const reason = RESERVED.get(name);
   if (reason === undefined) return [];
   return [`${where}: "${name}" is held for ${reason}, which Arena is going to ship as the class .arena-${name}. `

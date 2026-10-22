@@ -1222,5 +1222,5 @@ test('runtimePalettes: "yes" is refused', () => {
 test('a palette named polarity-light is refused', () => {
   assert.equal(reservedProblems('polarity-light', 'at').length, 1);
   const c = config({ palettes: [{ name: 'polarity-light', default: true, polarity: 'light', colors: colors() }] });
-  assert.ok(configProblems(c).some((m) => m.includes('"polarity-light" is held for the polarity hook')));
+  assert.ok(configProblems(c).some((m) => m.includes('"polarity-light" is the polarity hook a runtime palette wears')));
 });

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { basename, dirname, join } from 'node:path';
-import { DANGER_FLOOR, KEBAB, RESERVED, floorProblems, nameProblems, reservedProblems, rootOnlyFor, withDefaults } from './style-plugin-rules.ts';
+import { DANGER_FLOOR, KEBAB, POLARITY_HOOKS, RESERVED, floorProblems, nameProblems, reservedProblems, rootOnlyFor, withDefaults } from './style-plugin-rules.ts';
 import { scopesIn } from './sheets.ts';
 import { POLARITIES } from './palette-keys.ts';
 import { walkFiles } from '../../../utils/walk-files.ts';
@@ -54,19 +54,10 @@ test('a reserved name is never a class the tree ships, so a component that lands
   assert.deepEqual(stale(new Map([...RESERVED, ['table', 'ArenaTable, a planted entry (spec 00)']]), shipped), ['table']);
 });
 
-const POLARITY_HOOKS = ['polarity-dark', 'polarity-light'];
-
-test('the polarity hooks are the only names held ahead, and a held entry is gone when the case that planted it ends', async () => {
-  assert.deepEqual([...RESERVED.keys()], POLARITY_HOOKS);
-  await whileHeld('held-name', () => assert.equal(RESERVED.size, 3));
-  assert.deepEqual([...RESERVED.keys()], POLARITY_HOOKS);
-});
-
-test('a name or a plugin called polarity-dark or polarity-light is refused for the hook a runtime palette wears', () => {
-  for (const name of POLARITY_HOOKS) {
-    assert.match(reservedProblems(name, 'at')[0] ?? '', /held for the polarity hook a runtime palette wears \(spec 28\)/, name);
-    assert.equal(nameProblems(name, POLARITIES, 'at').length, 1, name);
-  }
+test('no class is held ahead, and a held entry is gone when the case that planted it ends', async () => {
+  assert.equal(RESERVED.size, 0);
+  await whileHeld('held-name', () => assert.equal(RESERVED.size, 1));
+  assert.equal(RESERVED.size, 0);
 });
 
 test('every reserved name is kebab, is no polarity, and carries a reason naming its spec and no version', () => {
@@ -89,6 +80,15 @@ test('a reserved name is refused as a style plugin, naming the component that ho
     'a name both shipped and held reports once, as shipped');
   assert.match(nameProblems('held-name', POLARITIES, 'at', ['held-name'])[0] ?? '', /already a class this package ships/);
 }));
+
+test('the polarity hooks are refused as a palette name and as a style plugin name', () => {
+  assert.deepEqual([...POLARITY_HOOKS], ['polarity-dark', 'polarity-light']);
+  for (const name of POLARITY_HOOKS) {
+    assert.match(reservedProblems(name, 'at')[0] ?? '', /is the polarity hook a runtime palette wears/, name);
+    assert.equal(nameProblems(name, POLARITIES, 'stylePlugins[1]').length, 1, name);
+  }
+  assert.deepEqual(reservedProblems('polarity', 'at'), [], 'only the two hooks are named');
+});
 
 test('a name held by nobody is not refused', () => {
   assert.deepEqual(nameProblems('tree-view', POLARITIES, 'at'), []);
