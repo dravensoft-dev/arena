@@ -122,13 +122,36 @@ Apply the class before your stylesheet loads. In React put the script in the HTM
       for (var i = 0; i < PALETTES.length; i++) {
         if (PALETTES[i].name === stored) { name = stored; break; }
       }
-      if (!name) {
+      var runtime = null;
+      if (!name && stored) {
+        var cached = null;
+        try { cached = JSON.parse(localStorage.getItem('arena-runtime-palette')); } catch (e) {}
+        var props = cached && cached.properties;
+        var fits = !!props && typeof props === 'object' && !Array.isArray(props) &&
+          cached.name === stored && /^[a-z0-9]+(-[a-z0-9]+)*$/.test(stored) &&
+          (cached.polarity === 'dark' || cached.polarity === 'light');
+        for (var key in props) {
+          if (!fits) break;
+          var val = props[key];
+          fits = Object.prototype.hasOwnProperty.call(props, key) && typeof val === 'string' &&
+            (key === '--arena-palette' ? val === stored
+              : /^--color-[a-z0-9-]+$/.test(key) ? /^#[0-9a-f]{6}$/.test(val)
+              : /^--level-[a-z0-9-]+$/.test(key) && /^\d{1,3}%$/.test(val));
+        }
+        if (fits) runtime = cached;
+      }
+      if (runtime) {
+        document.documentElement.classList.add('arena-polarity-' + runtime.polarity);
+        for (var prop in runtime.properties) {
+          document.documentElement.style.setProperty(prop, runtime.properties[prop]);
+        }
+      } else if (!name) {
         var wants = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
         for (var j = 0; j < PALETTES.length; j++) {
           if (PALETTES[j].polarity === wants) { name = PALETTES[j].name; break; }
         }
       }
-      if (name && name !== DEFAULT) {
+      if (!runtime && name && name !== DEFAULT) {
         document.documentElement.classList.add('arena-' + name);
       }
     } catch (e) {}
@@ -136,7 +159,7 @@ Apply the class before your stylesheet loads. In React put the script in the HTM
 </script>
 ```
 
-Set the list to your own palettes and `DEFAULT` to the palette your config marks default. The theme surface takes the same two values. Keep both copies equal, or a palette added to one is a palette the first paint never shows. The snippet reads the key the surface writes, `arena-theme`, and it treats a stored name the build no longer declares as a first visit, as the surface does.
+Set the list to your own palettes and `DEFAULT` to the palette your config marks default. The theme surface takes the same two values. Keep both copies equal, or a palette added to one is a palette the first paint never shows. The snippet reads the key the surface writes, `arena-theme`, and it treats a stored name the build no longer declares as a first visit, as the surface does. A runtime palette is the one exception. A runtime palette has a name the config does not declare, and the `arena-runtime-palette` key holds the cache for it. For that name the snippet puts the `arena-polarity-<polarity>` class on `<html>` and sets each cached property with `style.setProperty`. The snippet accepts the cache on the surface's own checks. The name is kebab and equals the stored one, and the polarity is `dark` or `light`. `--color-*` values are lower-case `#rrggbb`, `--level-*` values look like `40%`, and `--arena-palette` equals the name. A cache that fails any check is a first visit.
 
 The default reaches `:root` and also has its class, `.arena-dark` in Arena's own palettes. The theme surface leaves `<html>` bare for the default. A snippet that names the wrong default puts on `<html>` the class of the palette the theme surface leaves bare, or leaves a palette that needs its class without it.
 

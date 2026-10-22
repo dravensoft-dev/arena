@@ -6,7 +6,10 @@
      PALETTES and DEFAULT below are the same two values ArenaThemeService takes, written
      twice, so keep them equal. A first visit, or a stored name the build no longer declares,
      answers the device, and the device answers a polarity rather than a name, so the first
-     palette of that polarity is the one. -->
+     palette of that polarity is the one. A stored name the build does not declare may be a
+     runtime palette: `arena-runtime-palette` holds its cache, and a cache that passes the
+     same checks as the theme surface paints the polarity class and its properties, while any
+     other cache is a first visit. -->
 <script>
   (function () {
     var PALETTES = [
@@ -20,13 +23,36 @@
       for (var i = 0; i < PALETTES.length; i++) {
         if (PALETTES[i].name === stored) { name = stored; break; }
       }
-      if (!name) {
+      var runtime = null;
+      if (!name && stored) {
+        var cached = null;
+        try { cached = JSON.parse(localStorage.getItem('arena-runtime-palette')); } catch (e) {}
+        var props = cached && cached.properties;
+        var fits = !!props && typeof props === 'object' && !Array.isArray(props) &&
+          cached.name === stored && /^[a-z0-9]+(-[a-z0-9]+)*$/.test(stored) &&
+          (cached.polarity === 'dark' || cached.polarity === 'light');
+        for (var key in props) {
+          if (!fits) break;
+          var val = props[key];
+          fits = Object.prototype.hasOwnProperty.call(props, key) && typeof val === 'string' &&
+            (key === '--arena-palette' ? val === stored
+              : /^--color-[a-z0-9-]+$/.test(key) ? /^#[0-9a-f]{6}$/.test(val)
+              : /^--level-[a-z0-9-]+$/.test(key) && /^\d{1,3}%$/.test(val));
+        }
+        if (fits) runtime = cached;
+      }
+      if (runtime) {
+        document.documentElement.classList.add('arena-polarity-' + runtime.polarity);
+        for (var prop in runtime.properties) {
+          document.documentElement.style.setProperty(prop, runtime.properties[prop]);
+        }
+      } else if (!name) {
         var wants = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
         for (var j = 0; j < PALETTES.length; j++) {
           if (PALETTES[j].polarity === wants) { name = PALETTES[j].name; break; }
         }
       }
-      if (name && name !== DEFAULT) {
+      if (!runtime && name && name !== DEFAULT) {
         document.documentElement.classList.add('arena-' + name);
       }
     } catch (e) {}

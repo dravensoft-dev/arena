@@ -307,7 +307,7 @@ export const ROUTES: Route[] = [
       + 'layer that binds it',
     entry: 'contributor',
     stops: ['frameworks/AGENTS.md', 'frameworks/*/AGENTS.md'],
-    budget: 76_998,
+    budget: 77_200,
     reason:
       'the most-walked contributor route, carrying the most reasoning per stop, paid by '
       + 'whoever changes Arena. It carries no category\'s own tour: the '
