@@ -139,6 +139,10 @@ export const CONSUMER_OWN_OUTPUT = new Map([
    + 'project by the same run of arena build. The third of the three and the only one that is '
    + 'conditional, since it exists when a declared plugin carries a plugin.css. Named on the npm '
    + 'page for the reason the other two are: a consumer cannot import a file nobody told them about.'],
+  ['runtime.generated.json',
+   'the data the CONSUMER\'s runtime palette functions read, written into their own project by the same run of '
+   + 'arena build when the config sets "runtimePalettes": true. Same reading as arena.generated.css above, and the pattern reads the name from its last dot-free word: the '
+   + 'infix is theirs, and the npm page has to name the file for a consumer to pass its contents.'],
 ]);
 
 export const CONTRIBUTOR_PATHS = [

@@ -22,6 +22,8 @@ The command ships inside both component packages, so installing Arena installs i
 
 **`arena.generated.css`** holds your palettes and your `@font-face` rules. The sheet leads with an `@import` of the package stylesheet; `--no-import` leaves that out, for a project that imports `@dravensoft/arena-react/arena.css` or `@dravensoft/arena-angular/arena.css` itself. Every colour comes from this file: the package declares no `--color-*`, only the rules that read them. The font roles are the half that overrides: the package declares them, and your later file wins at equal specificity in `:root`.
 
+**`arena.runtime.generated.json`** is written when the config sets `"runtimePalettes": true`. The file holds the level list, the washes and the style plugin's roles for each polarity, which `arenaRuntimePalette`, `arenaCheckPalette` and `arenaPaletteDeclarations` read as their `data`. [`theme.md`](./theme.md) covers them.
+
 **`icons.generated.css`** holds the class rules, in `woff2` alone, for every glyph your sources draw and every glyph Arena's components draw for you. Your sources are read as text; Arena's half is the package's `icons.json`, computed from its renders. Every glyph you name also reaches the filled weight, since an active navigation item draws filled. The `@font-face` points at the whole font Phosphor ships; subset it to this glyph list if the bytes matter.
 
 **`plugin.generated.css`** is written when a style plugin carries a `plugin.css`. The sheet holds that CSS in the reserved cascade layer and leads with the layer order itself, so where a bundler places it cannot change what wins.

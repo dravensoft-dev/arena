@@ -1,6 +1,6 @@
 # Switching palettes and avoiding the first-paint flash
 
-How do I switch between a dark and a light palette? How do I stop a flash of the wrong palette on first paint? What do `initArenaTheme`, `useArenaTheme`, `provideArenaThemes` and `ArenaThemeService` do? Read this when the config declares more than one palette.
+How do I switch between a dark and a light palette? How do I stop a flash of the wrong palette on first paint? What do `initArenaTheme`, `useArenaTheme`, `provideArenaThemes` and `ArenaThemeService` do? Read this when the config declares more than one palette, or when a user designs a palette of their own.
 
 Declare the palettes in `arena.config.json` first. [`config.md`](./config.md) covers the file. Exactly one palette is the default and reaches `:root`. Every palette is a class, `.arena-<name>`. The theme functions put the chosen class on `<html>`, and a subtree takes one through `ArenaPaletteScope` or the class itself.
 
@@ -166,3 +166,80 @@ The default reaches `:root` and also has its class, `.arena-dark` in Arena's own
 ## Why does the snippet read the media query?
 
 On a first visit nothing is stored. The theme surface falls back to the first palette whose polarity matches the device. A snippet that reads only storage paints the default first. The app corrects it after boot, and that correction is the flash the snippet exists to prevent.
+
+## What is a runtime palette?
+
+A runtime palette is a palette nobody declared in `arena.config.json`: a user designs it, and the app applies it while it runs. The checks the build runs on a declared palette run on a runtime palette too. The palette paints what the same colours would paint if the config declared them.
+
+**A runtime palette may change** every colour key and the polarity. The colour keys are the 26 required keys of a declared palette, the eight chart slots `cat-1` to `cat-8` among them. The polarity is `dark` or `light`. The seven optional keys, `error-fill`, `primary-fill` and `heat-1` to `heat-5`, may be given and are derived when absent, as in the config. The polarity picks which of the style plugin's answers apply, plus the native date picker's colour and `color-scheme`.
+
+**A runtime palette may not change** the style plugin and its roles, the fonts, the density, the component sheets or the gradient mark. The build fixes those, and a runtime palette answers to the plugin the app was built with, as a declared palette does.
+
+**The app keeps the rest.** Arena does not store a user's palette, load it at sign-in, draw the editor where the user picks colours, or decide who may change whose palette.
+
+## How do I switch a runtime palette on?
+
+Set `"runtimePalettes": true` in `arena.config.json` ([`config.md`](./config.md)). With the key, `arena build` does three more things.
+
+- `arena build` writes `arena.runtime.generated.json` for the palette functions to read ([`cli.md`](./cli.md)).
+- It adds `--arena-runtime-palettes:1` to `:root`.
+- It emits the `.arena-polarity-dark` and `.arena-polarity-light` blocks. The blocks hold the plugin roles, the colour aliases, `--picker-invert` and `color-scheme` that depend on polarity.
+
+A runtime palette applied to an element, `<html>` included, wins there over any palette the config declares. Without the key, `arena.generated.css` is what it is for a project that never heard of runtime palettes, and the functions below refuse. The names `polarity-dark` and `polarity-light` belong to those blocks, so no palette or plugin can take them.
+
+## How do I check a runtime palette and turn it into a palette to apply?
+
+`@dravensoft/arena-react/palette` and `@dravensoft/arena-angular/palette` are one module with no framework in it. The module runs in the browser and on a server that saves the palette. The module sits outside the root entry, so an app that never imports it ships none of it. Pass the contents of `arena.runtime.generated.json` as `data`.
+
+```ts
+import { arenaRuntimePalette } from '@dravensoft/arena-react/palette';
+import data from './arena.runtime.generated.json';
+
+const { palette, reports } = arenaRuntimePalette('ocean', {
+  polarity: 'light',
+  colors: { 'base-100': '#fbfaf7', /* ...every required colour key... */ },
+}, data);
+```
+
+| function | what it does |
+| --- | --- |
+| `arenaRuntimePalette(name, input, data)` | answers `{ palette, reports }`. `palette` is `{ name, polarity, properties }`, the custom properties to apply, and `reports` is the list of what the checks found |
+| `arenaCheckPalette(input, data)` | answers only the reports |
+| `arenaPaletteDeclarations(input, data)` | answers only the properties, as an object of name to value |
+
+`input` is `{ polarity, colors }`. Each colour is a six-digit hex such as `#141010`, and the properties carry it in lower case. The types are `ArenaPolarity`, `ArenaPaletteInput`, `ArenaPaletteReport`, `ArenaRuntimeData` and `ArenaRuntimePalette`.
+
+**A palette that fails a check is returned, not refused.** `reports` holds the rules and messages `arena check` prints for a declared palette. The rules are the ramp and colour-vision simulation, the text pairs, the axis, the ink on a fill, emphasis, the levels and the washes. Whether to apply a palette with reports, warn the user or turn it away is the app's decision. An empty list means the build would have said nothing.
+
+**The functions throw** on input they cannot read. Data that is missing or of another shape throws a message naming `"runtimePalettes": true`. An input that is not an object, a polarity that is neither `dark` nor `light`, and a missing or malformed colour throw too. So does a name that is not kebab-case, that the config declares, that is a class the package ships, or that is `polarity-dark` or `polarity-light`. Check a palette with `arenaCheckPalette` on the server before it is saved.
+
+## How do I apply a runtime palette?
+
+Register the `palette` the function answered. Then it behaves like a declared one.
+
+```tsx
+import { registerArenaPalette, setArenaTheme } from '@dravensoft/arena-react';
+
+registerArenaPalette(palette);
+setArenaTheme(palette.name);
+```
+
+```ts
+const theme = inject(ArenaThemeService);
+theme.register(palette);
+theme.set(palette.name);
+```
+
+In React `useArenaPalettes()` answers the declared palettes followed by the registered ones, in registration order, and `setArenaTheme`, `useArenaTheme`, `toggleArenaTheme` and `arenaPalettes` accept a registered name. In Angular `runtimePalettes` is a signal of the registered palettes, `runtimePalette(name)` answers one or `null`, and `set`, `toggle` and `polarityOf` accept a registered name. `toggle` walks the declared palettes and then the registered ones. A name that is neither declared nor registered throws, and the message lists both.
+
+The page paints it with the polarity class on `<html>` and each property set with `style.setProperty`. `ArenaPaletteScope` and `[arenaPalette]` accept a registered name too, and an Angular overlay opened inside the scope wears the same palette. **Register a palette before a scope that names it renders.** React renders a scope that mounts before `initArenaTheme` or the registration, and throws for an unknown name once the theme is initialised.
+
+**Registration throws** in four cases. The config declares the name. The page's `:root` lacks `--arena-runtime-palettes:1`, and the message names `"runtimePalettes": true`. The polarity is neither `dark` nor `light`, or the name is not kebab-case. Or `properties` holds anything but `--color-*` values of the form `#rrggbb`, `--level-*` values such as `40%`, and `--arena-palette` equal to the name.
+
+## How do I keep a runtime palette between visits?
+
+The app keeps the palette; Arena keeps a copy to paint the first frame. When the active palette is a runtime one, the theme surface writes it to `localStorage['arena-runtime-palette']` beside `arena-theme`, and choosing a declared palette removes it. The cache is not the source. The app loads the user's palette from its own store and registers it. Until then the cache stops the page from showing the base palette. The snippet in [How do I avoid a flash on first paint?](#how-do-i-avoid-a-flash-on-first-paint) reads the cache before anything loads.
+
+## What does a runtime palette cost under a content security policy?
+
+The theme surface writes every property with `style.setProperty`. That needs no `unsafe-inline` in `style-src`, and nothing a user types reaches a stylesheet as text, because each value is a validated hex or percentage. A server render that writes the palette as a `style` attribute does need `unsafe-inline` for styles, or a hash or nonce scheme your server controls. Whether to render it on the server is the app's choice.
