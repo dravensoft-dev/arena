@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { basename, dirname, join } from 'node:path';
-import { DANGER_FLOOR, KEBAB, POLARITY_HOOKS, RESERVED, floorProblems, nameProblems, highContrastFor, reservedProblems, rootOnlyFor, withDefaults } from './style-plugin-rules.ts';
+import { DANGER_FLOOR, KEBAB, POLARITY_HOOKS, RESERVED, floorProblems, highContrastFor, nameProblems, reservedProblems, rootOnlyFor, withDefaults } from './style-plugin-rules.ts';
 import { scopesIn } from './sheets.ts';
 import { POLARITIES } from './palette-keys.ts';
 import { walkFiles } from '../../../utils/walk-files.ts';

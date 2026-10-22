@@ -1159,7 +1159,7 @@ test('a project\'s own root plugin is followed by the high-contrast :root block,
   const css = themeCss(listed(['console', 'marketing']), {
     sheets: { ...SHEETS_FULL, rootOnly: ROOT_ONLY }, importHeader: false, plugins: [total(), scoped()],
   });
-  const answers = css.indexOf(':root{\n  --ff-eyebrow:');
+  const answers = css.search(/:root\{[^}]*--bw-surface:1px;/);
   const media = css.indexOf(HC_ROOT);
   assert.ok(answers >= 0 && media > answers, 'the media block follows the root answers block');
   assert.match(css.slice(media, css.indexOf('\n}\n', media)), /--bw-surface:var\(--bw-strong\);/);
