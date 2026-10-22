@@ -29,7 +29,6 @@ const CONFIG: any = {
   },
 };
 
-const ARENA = 'com.dravensoft.arena';
 const SHEETS: any = {
   layers: ['css/reset.css'],
   components: ['button'],
@@ -51,7 +50,6 @@ const PLUGINS = [
   }),
   readPlugin('marketing', { 'ink-eyebrow': { $type: 'color', $value: '{color.base-200}' } }),
 ];
-void ARENA;
 
 const data = runtimeData(CONFIG, SHEETS, PLUGINS);
 const css = themeCss(CONFIG, { sheets: SHEETS, importHeader: false, plugins: PLUGINS });
@@ -113,16 +111,20 @@ test('input refusals name the key', () => {
     if (drop) delete c[drop];
     return { polarity: 'dark', colors: c };
   };
-  fail(() => arenaCheckPalette(bad({ primary: '#fff' }), data), 'primary');
-  fail(() => arenaCheckPalette(bad({ primary: 'red' }), data), 'primary');
-  fail(() => arenaCheckPalette(bad({ primary: 'url(x)' }), data), 'primary');
-  fail(() => arenaCheckPalette(bad({ primary: '#aabbccdd' }), data), 'primary');
+  fail(() => arenaCheckPalette(bad({ primary: '#fff' }), data), 'palette.colors.primary: "#fff" is not a #rrggbb hex');
+  fail(() => arenaCheckPalette(bad({ primary: 'red' }), data), 'palette.colors.primary: "red" is not a #rrggbb hex');
+  fail(() => arenaCheckPalette(bad({ primary: 'url(x)' }), data), 'palette.colors.primary: "url(x)" is not a #rrggbb hex');
+  fail(() => arenaCheckPalette(bad({ primary: '#aabbccdd' }), data), 'palette.colors.primary: "#aabbccdd" is not a #rrggbb hex');
   fail(() => arenaCheckPalette(bad({}, 'primary'), data), 'primary');
   fail(() => arenaCheckPalette(bad({ brand: '#aabbcc' }), data), 'brand');
   fail(() => arenaCheckPalette({ polarity: 'dim', colors: ok }, data), 'polarity');
   const noHeat = Object.fromEntries(Object.entries(ok).filter(([k]) => !k.startsWith('heat-')));
   fail(() => arenaCheckPalette({ polarity: 'dark', colors: { ...noHeat, 'heat-1': '#aabbcc' } }, data), 'heat-1');
   fail(() => arenaCheckPalette(undefined, data), 'palette');
+  for (const nonObject of [null, 'dark', [], 7]) fail(() => arenaCheckPalette(nonObject, data), 'palette.polarity');
+  for (const colorsOf of [null, 'x', [], 7]) {
+    fail(() => arenaCheckPalette({ polarity: 'dark', colors: colorsOf }, data), 'palette.colors: not an object');
+  }
   const upper = arenaPaletteDeclarations(bad({ primary: '#AABBCC' }), data);
   assert.equal(upper['--color-primary'], '#aabbcc');
 });
@@ -132,6 +134,21 @@ test('data refusals say how to get the data', () => {
     fail(() => arenaCheckPalette(PALETTES[0], bad), 'arenaCheckPalette: no runtime data', '"runtimePalettes": true');
     fail(() => arenaPaletteDeclarations(PALETTES[0], bad), 'arenaPaletteDeclarations: no runtime data', '"runtimePalettes": true');
     fail(() => arenaRuntimePalette('mine', PALETTES[0], bad), 'arenaRuntimePalette: no runtime data', '"runtimePalettes": true', 'arena.runtime.generated.json');
+  }
+});
+
+test('marker-only and malformed data throw a shape error naming the function', () => {
+  const cases: unknown[] = [
+    { arenaRuntimePalettes: 1 },
+    { ...data, roles: undefined },
+    { ...data, roles: { dark: {}, light: 'x' } },
+    { ...data, hasRoot: undefined },
+    { ...data, declared: 'dusk' },
+    { ...data, levels: {} },
+  ];
+  for (const bad of cases) {
+    fail(() => arenaCheckPalette(PALETTES[0], bad), 'arenaCheckPalette: the runtime data does not match', 'arena.runtime.generated.json');
+    fail(() => arenaRuntimePalette('mine', PALETTES[0], bad), 'arenaRuntimePalette: the runtime data does not match');
   }
 });
 

@@ -23,10 +23,23 @@ type Held = {
   roles: Record<ArenaPolarity, Record<string, string>>;
 };
 
+const isRecord = (v: unknown): v is Record<string, unknown> => v !== null && typeof v === 'object' && !Array.isArray(v);
+const isStrings = (v: unknown): boolean => Array.isArray(v) && v.every((one) => typeof one === 'string');
+const isRoles = (v: unknown): boolean => isRecord(v) && Object.values(v).every((one) => typeof one === 'string');
+
 function held(fn: string, data: unknown): Held {
   const found = data as { arenaRuntimePalettes?: unknown } | null | undefined;
   if (found === null || typeof found !== 'object' || found.arenaRuntimePalettes !== 1) {
     throw new Error(`${fn}: no runtime data. Set "runtimePalettes": true in arena.config.json, run arena build, `
+      + 'and pass the contents of arena.runtime.generated.json');
+  }
+  const d = found as Record<string, unknown>;
+  const roles = d.roles as Record<string, unknown> | undefined;
+  const fits = typeof d.hasRoot === 'boolean' && isStrings(d.declared) && isStrings(d.taken)
+    && Array.isArray(d.levels) && Array.isArray(d.washes)
+    && isRecord(roles) && isRoles(roles.dark) && isRoles(roles.light);
+  if (!fits) {
+    throw new Error(`${fn}: the runtime data does not match this package's shape. Run arena build again `
       + 'and pass the contents of arena.runtime.generated.json');
   }
   return found as unknown as Held;
@@ -45,21 +58,27 @@ function rolesOf(data: Held, polarity: ArenaPolarity): Map<string, string> {
   return new Map(Object.entries(data.roles[polarity]));
 }
 
-export function arenaCheckPalette(input: unknown, data: unknown): ArenaPaletteReport[] {
-  const known = held('arenaCheckPalette', data);
-  const palette = checked(input);
+function reportsOf(palette: ArenaPaletteInput, known: Held): ArenaPaletteReport[] {
   return paletteMessages(palette, rolesOf(known, palette.polarity), known.levels, known.washes, known.hasRoot);
 }
 
-export function arenaPaletteDeclarations(input: unknown, data: unknown): Record<string, string> {
-  const known = held('arenaPaletteDeclarations', data);
-  const palette = checked(input);
+function declarationsOf(palette: ArenaPaletteInput, known: Held): Record<string, string> {
   const out: Record<string, string> = {};
   for (const declaration of paletteDeclarations(palette, rolesOf(known, palette.polarity), known.levels)) {
     const at = declaration.indexOf(':');
     out[declaration.slice(0, at)] = declaration.slice(at + 1).replace(/;$/, '');
   }
   return out;
+}
+
+export function arenaCheckPalette(input: unknown, data: unknown): ArenaPaletteReport[] {
+  const known = held('arenaCheckPalette', data);
+  return reportsOf(checked(input), known);
+}
+
+export function arenaPaletteDeclarations(input: unknown, data: unknown): Record<string, string> {
+  const known = held('arenaPaletteDeclarations', data);
+  return declarationsOf(checked(input), known);
 }
 
 function nameProblem(name: string, data: Held): string | null {
@@ -80,8 +99,8 @@ export function arenaRuntimePalette(
     palette: {
       name,
       polarity: palette.polarity,
-      properties: { ...arenaPaletteDeclarations(palette, data), '--arena-palette': name },
+      properties: { ...declarationsOf(palette, known), '--arena-palette': name },
     },
-    reports: arenaCheckPalette(palette, data),
+    reports: reportsOf(palette, known),
   };
 }
