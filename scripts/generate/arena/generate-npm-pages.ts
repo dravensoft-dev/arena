@@ -347,7 +347,7 @@ ${fieldTable(base, CONFIRM_REQUEST_CONTRACT)}`,
 
   noImport: (base = root) => {
     const fence = (name: string, extra: CssChainEntry[]) => ['```css', ...noImportSheets(name, base, extra), "@import './arena.generated.css';", '```'].join('\n');
-    return `**React:**\n\n${fence('@dravensoft/arena-react', [])}\n\n**Angular:**\n\n${fence('@dravensoft/arena-angular', ANGULAR_EXTRA)}\n\nEach \`<component>\` is a sheet from the closed list \`arena build\` prints. That list is the ones \`stylesheet.components\` names plus the ones Arena draws for them, or every component sheet when the config names none. Each \`<family>\` is a vocabulary sheet. \`css/base.css\` is left out when \`stylesheet.preflight\` is \`false\`.`;
+    return `**React:**\n\n${fence('@dravensoft/arena-react', [])}\n\n**Angular:**\n\n${fence('@dravensoft/arena-angular', ANGULAR_EXTRA)}\n\nEach \`<component>\` stands for each sheet in the closed list the build writes into the imports. That list is the ones \`stylesheet.components\` names plus the ones Arena draws for them, or every component sheet when the config names none. Each \`<family>\` is a vocabulary sheet. \`css/base.css\` is left out when \`stylesheet.preflight\` is \`false\`.`;
   },
 
   scriptsReact: () => initFence('@dravensoft/arena-react'),

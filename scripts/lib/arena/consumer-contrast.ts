@@ -3,7 +3,7 @@
  * fixture's built theme sheet and the package's own card sheet in Chromium, once per prefers-contrast
  * value, and reads the computed border width of an .arena-card__root: at the page root, inside
  * .arena-light and inside the scope class of a second plugin, and every --bw-* role the package's
- * contrast sheet widens, at the document element. The card sheet is linked by hand because
+ * contrast sheet widens, resolved to px by a probe element's border so rem and calc() compare. The card sheet is linked by hand because
  * a fixture imports only the components its sources use. The page sits beside the theme sheet so its
  * relative imports still resolve. contrastProblems reads no file and launches nothing. */
 
@@ -101,8 +101,13 @@ export async function readContrast(dir: string, packageName: string, cdp: Cdp, s
             + `${contrast} within ${LOADED.ms}ms, which is that size because ${LOADED.why}`);
           const widths = await evaluate(cdp, `(() => Object.fromEntries(${JSON.stringify(ELEMENTS)}.map((id) =>
             [id, getComputedStyle(document.getElementById(id)).borderTopWidth])))()`, sessionId);
-          const named = await evaluate(cdp, `(() => Object.fromEntries(${JSON.stringify(roles)}.map((role) =>
-            [role, getComputedStyle(document.documentElement).getPropertyValue('--' + role).trim()])))()`, sessionId);
+          const named = await evaluate(cdp, `(() => Object.fromEntries(${JSON.stringify(roles)}.map((role) => {
+            const probe = document.body.appendChild(document.createElement('div'));
+            probe.style.borderTop = 'var(--' + role + ') solid';
+            const width = getComputedStyle(probe).borderTopWidth;
+            probe.remove();
+            return [role, width];
+          })))()`, sessionId);
           return { contrast, ...widths, roles: named } as ContrastReading;
         } finally {
           off();

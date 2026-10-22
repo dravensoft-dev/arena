@@ -61,7 +61,7 @@ A `--no-import` project whose root style plugin is its own imports the package s
 @import './arena.generated.css';
 ```
 
-Each `<component>` is a sheet from the closed list `arena build` prints. That list is the ones `stylesheet.components` names plus the ones Arena draws for them, or every component sheet when the config names none. Each `<family>` is a vocabulary sheet. `css/base.css` is left out when `stylesheet.preflight` is `false`.
+Each `<component>` stands for each sheet in the closed list the build writes into the imports. That list is the ones `stylesheet.components` names plus the ones Arena draws for them, or every component sheet when the config names none. Each `<family>` is a vocabulary sheet. `css/base.css` is left out when `stylesheet.preflight` is `false`.
 
 <!-- @shared noImport end -->
 
