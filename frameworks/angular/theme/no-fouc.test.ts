@@ -4,10 +4,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { Window } from 'happy-dom';
+import { REPO } from '../test/Compliance';
 
-const HTML = readFileSync(new URL('./no-fouc.html', import.meta.url), 'utf8');
-const DOC = readFileSync(new URL('../../../skills/design/references/theme.md', import.meta.url), 'utf8');
+const HTML = readFileSync(join(REPO, 'frameworks/angular/theme/no-fouc.html'), 'utf8');
+const DOC = readFileSync(join(REPO, 'skills/design/references/theme.md'), 'utf8');
 
 const bodyOf = (source: string): string => {
   const m = /<script>([\s\S]*?)<\/script>/.exec(source.replace(/<!--[\s\S]*?-->/g, ''));
