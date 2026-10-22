@@ -339,7 +339,9 @@ export function runtimeFixture(layer: string, base = root) {
 export type Shipped = { declarations: Record<string, string>; refusals: Record<string, string | null> };
 
 const PROBE = `import * as m from '@PKG@/palette';
-const { input, data, names } = JSON.parse(process.argv[2]);
+const chunks = [];
+for await (const c of process.stdin) chunks.push(c);
+const { input, data, names } = JSON.parse(Buffer.concat(chunks).toString('utf8'));
 const refusals = {};
 for (const n of names) {
   try { m.arenaRuntimePalette(n, input, data); refusals[n] = null; } catch (e) { refusals[n] = String(e.message); }
@@ -354,7 +356,12 @@ export async function installedPalette(
   const node = hostBinary('node', 'to import the shipped palette module the way a consumer imports it');
   const probe = join(dir, 'arena-palette-probe.mjs');
   writeFileSync(probe, PROBE.replace('@PKG@', name));
-  const run = spawnSync(node, [probe, JSON.stringify({ input, data, names })], { cwd: dir, encoding: 'utf8' });
+  let run;
+  try {
+    run = spawnSync(node, [probe], { cwd: dir, encoding: 'utf8', input: JSON.stringify({ input, data, names }) });
+  } finally {
+    rmSync(probe, { force: true });
+  }
   if (run.status !== 0) throw new Error(`${name}/palette did not import from a consumer's directory:\n${run.stderr}`);
   return JSON.parse(run.stdout) as Shipped;
 }
