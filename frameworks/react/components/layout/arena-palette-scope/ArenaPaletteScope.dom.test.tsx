@@ -76,6 +76,24 @@ function captureWarnings<T>(run: () => T): { result: T; warned: string[] } {
   }
 }
 
+test('a registered palette re-registered while a scope names it updates the host class and style', () => {
+  resetArenaTheme();
+  document.documentElement.style.setProperty(ROOT, '1');
+  try {
+    registerArenaPalette({ name: 'scope-flip', polarity: 'dark', properties: { '--color-base-100': '#101010', '--color-base-200': '#202020', '--arena-palette': 'scope-flip' } });
+    const root = mount(<ArenaPaletteScope palette="scope-flip"><i /></ArenaPaletteScope>);
+    const scope = () => root.querySelector<HTMLElement>('[data-arena-part="palette-scope"]');
+    assert.ok(scope()?.classList.contains('arena-polarity-dark'));
+    act(() => { registerArenaPalette({ name: 'scope-flip', polarity: 'light', properties: { '--color-base-100': '#fafafa', '--arena-palette': 'scope-flip' } }); });
+    assert.ok(scope()?.classList.contains('arena-polarity-light'));
+    assert.equal(scope()?.classList.contains('arena-polarity-dark'), false);
+    assert.equal(scope()?.style.getPropertyValue('--color-base-100'), '#fafafa');
+    assert.equal(scope()?.style.getPropertyValue('--color-base-200'), '', 'a property the new palette lacks stayed');
+  } finally {
+    document.documentElement.style.removeProperty(ROOT);
+  }
+});
+
 test('a scope naming a name nobody has registered renders pending, warns once, and paints when it is registered', () => {
   resetArenaTheme();
   forgetArenaWarnings();
