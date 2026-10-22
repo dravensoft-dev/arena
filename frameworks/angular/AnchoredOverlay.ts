@@ -59,6 +59,14 @@ export function arenaFirstFocusable(panel: HTMLElement): HTMLElement {
   return arenaOpeningFocus(arenaFocusableElements(panel), panel);
 }
 
+export function arenaScopeClasses(anchor: Element): string[] {
+  const style = getComputedStyle(anchor);
+  return ['--arena-palette', '--arena-plugin', '--arena-density']
+    .map((property) => style.getPropertyValue(property).trim())
+    .filter((value) => value !== '')
+    .map((value) => `arena-${value}`);
+}
+
 export class ArenaAnchoredOverlay {
   private readonly injector = inject(Injector);
   private readonly viewContainer = inject(ViewContainerRef);
@@ -89,6 +97,7 @@ export class ArenaAnchoredOverlay {
         .withPositions(arenaPhysicalPositions(this.options.positions(), this.directionality.value === 'rtl'))
         .withPush(true),
       scrollStrategy: createRepositionScrollStrategy(this.injector),
+      panelClass: arenaScopeClasses(anchor),
     });
     if (this.options.matchAnchorWidth) ref.updateSize({ minWidth: anchor.getBoundingClientRect().width });
     ref.attach(new TemplatePortal(this.options.panel(), this.viewContainer));

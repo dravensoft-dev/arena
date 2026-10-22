@@ -11,7 +11,7 @@ import assert from 'node:assert/strict';
 import { Component, ElementRef, TemplateRef, input, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import {
-  ArenaAnchoredOverlay, arenaConnectedPositions, arenaFirstFocusable, arenaPhysicalPositions,
+  ArenaAnchoredOverlay, arenaConnectedPositions, arenaFirstFocusable, arenaPhysicalPositions, arenaScopeClasses,
 } from '../AnchoredOverlay';
 import type { ArenaAnchoredOverlayOptions, ArenaPanelDismissal } from '../AnchoredOverlay';
 import { assertNotSameNode, assertSameNode } from './NodeAssert';
@@ -372,4 +372,38 @@ test('start and end are the physical left and right, whatever the writing direct
   assert.deepEqual(sides(true), [['start', 'start'], ['end', 'end'], ['start', 'start'], ['end', 'end']],
     'in a right-to-left page the CDK reads end as the left edge');
   assert.deepEqual(arenaPhysicalPositions(arenaConnectedPositions('center', 'above', 6), true).map((p) => p.originX), ['center', 'center']);
+});
+
+test('arenaScopeClasses names the palette, plugin and density the anchor carries, and nothing when it carries none', () => {
+  const anchor = document.createElement('span');
+  document.body.append(anchor);
+  try {
+    assert.deepEqual(arenaScopeClasses(anchor), []);
+    anchor.style.setProperty('--arena-palette', ' light ');
+    anchor.style.setProperty('--arena-plugin', 'complete');
+    assert.deepEqual(arenaScopeClasses(anchor), ['arena-light', 'arena-complete']);
+    anchor.style.setProperty('--arena-density', 'compact');
+    assert.deepEqual(arenaScopeClasses(anchor), ['arena-light', 'arena-complete', 'arena-compact']);
+  } finally { anchor.remove(); }
+});
+
+test('refreshes the pane classes on every open', () => {
+  const { fixture, solo } = renderSolo({ plain: true });
+  const anchor = fixture.nativeElement.querySelector('arena-test-probe span') as HTMLElement;
+  const paneOf = () => panelOf('solo')!.closest('.cdk-overlay-pane') as HTMLElement;
+  try {
+    anchor.style.setProperty('--arena-palette', 'light');
+    solo.overlay.open();
+    fixture.detectChanges();
+    assert.ok(paneOf().classList.contains('arena-light'), 'the pane did not take the anchor palette');
+    solo.overlay.close();
+    anchor.style.setProperty('--arena-palette', 'dark');
+    solo.overlay.open();
+    fixture.detectChanges();
+    assert.ok(paneOf().classList.contains('arena-dark'), 'the second open did not take the new palette');
+    assert.ok(!paneOf().classList.contains('arena-light'), 'the previous palette class stayed on the pane');
+  } finally {
+    fixture.destroy();
+    disposeOverlays();
+  }
 });

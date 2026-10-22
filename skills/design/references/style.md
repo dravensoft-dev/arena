@@ -17,9 +17,11 @@ the components that answer it. **The class nearest the component wins**, so `are
 button beats `arena-fit` on the container holding it, whatever order your stylesheets load in.
 **A box family stops at the content a component projects**: `arena-fill` on a container reaches a button
 beside the card and not the button inside the card's body. The trigger of a tooltip or a menu is
-the exception: a class on the tooltip reaches the control it wraps. **A surface a layer renders in an overlay leaves the subtree its trigger sits in**, so no class
-above the trigger reaches it. The Angular overlay does this. In React a menu panel renders
-inside its root, and a class above the trigger reaches it.
+the exception: a class on the tooltip reaches the control it wraps. **A surface a layer renders in an overlay leaves the subtree its trigger sits in**, so a class
+above the trigger does not reach it. The Angular overlay does this, and it takes the nearest
+palette, style plugin and density of its trigger; any other vocabulary class above the trigger
+does not reach it. In React a menu panel renders inside its root, and a class above the trigger
+reaches it.
 
 **A step class on the component beats the property.** `--arena-grid-min` on a container sets
 the cell width of every grid inside it, and `arena-grid-min-lg` on one grid keeps that grid at
