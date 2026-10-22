@@ -67,6 +67,7 @@ export const SCALE_UTILITIES = new Map<string, string>([
 ]);
 
 export const SCALE_USES = new Map<string, string>([
+  ['ArenaPaletteScope:root:text-base-content', 'the ink an island paints in its own palette, which is the palette\'s base-content by definition: the island is the one slot that names the palette\'s ink itself, where an ink role is an assignment a style plugin answers for a kind of text'],
   ['ArenaDialog:panel:shadow-none', 'the panel of a dialog filling a narrow screen, which is the screen and has no depth: the literal cancels the deep role the panel paints everywhere else rather than answering a role of its own'],
   ['ArenaSideNav:item:ps-[calc(var(--pad-nav-row-x)*var(--dz-row-scale-x)+var(--pad-row-indent)*var(--arena-side-nav-depth,0))]', 'the inline start of a row that nests, at the row inset plus one indent step per level the component writes: it sizes the nesting depth, not the room around content, so it is this slot\'s own length'],
   ['ArenaSideNav:trigger:ps-[calc(var(--pad-nav-row-x)*var(--dz-row-scale-x)+var(--pad-row-indent)*var(--arena-side-nav-depth,0))]', 'the inline start of the trigger of a collapsible section, at the row inset plus one indent step per level the component writes: it sizes the nesting depth, not the room around content, so it is this slot\'s own length'],

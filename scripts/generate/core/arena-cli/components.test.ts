@@ -89,6 +89,14 @@ test('a selector is matched at its end, so one name is not read inside a longer 
     + 'or every part hook in a consumer\'s own markup is reported as a component nobody can place');
 });
 
+test('a camel-cased attribute selector is read as written and as a binding', () => {
+  const map = { match: 'selector', draws: { arenaPalette: 'palette-scope' }, needs: {} };
+  assert.deepEqual(selectorKeys(map, ['<section arenaPalette="light">x</section>']).drawn, ['arenaPalette']);
+  assert.deepEqual(selectorKeys(map, ['<div class="a" [arenaPalette]="theme()">x</div>']).drawn, ['arenaPalette'],
+    'the binding spelling is the same use, and a sheet it needs is missing from the emit if it is not read');
+  assert.deepEqual(selectorKeys(map, ['<div arenaPaletteX="1"></div>']).unplaced, ['arenaPaletteX']);
+});
+
 test('React is read through the import that names the package', () => {
   const source = "import { ArenaButton, ArenaTable as ArenaGrid } from '@dravensoft/arena-react';";
   const { drawn } = symbolKeys(REACT, [source], '@dravensoft/arena-react');

@@ -17,7 +17,7 @@ import { byCodeUnit, byKey } from '../../utils/compare.ts';
 import { memoBy } from '../../utils/memo.ts';
 import { repoRoot as root } from './repo-root.ts';
 import { IDENTITY_PAGES } from './agent-payload.ts';
-import { componentMap } from './component-map.ts';
+import { shippedComponents } from './component-map.ts';
 import { isVariantArrangement, type SinkFixture } from './kitchen-sink-model.ts';
 import { PHOSPHOR_WEIGHTS } from './playground-page.ts';
 import { kebab, pascal } from '../../utils/case.ts';
@@ -92,7 +92,7 @@ export function componentsDir(layer: string) {
 }
 
 export function components(layer: string, base = root) {
-  return Object.keys(componentMap(layer, base).draws).map(kebab).sort();
+  return shippedComponents(layer, base).map(kebab).sort();
 }
 
 export function playgroundsOnDisk(layer: string, base = root) {

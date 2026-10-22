@@ -277,6 +277,7 @@ const NO_WORDS: Record<string, string> = {
   ArenaMain: DRAWS_MEMBERS,
   ArenaMenu: DRAWS_MEMBERS,
   ArenaPageHead: DRAWS_MEMBERS,
+  ArenaPaletteScope: DRAWS_MEMBERS,
   ArenaPeopleList: DRAWS_MEMBERS,
   ArenaPersonRow: DRAWS_MEMBERS,
   ArenaPopover: DRAWS_MEMBERS,

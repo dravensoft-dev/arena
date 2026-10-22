@@ -7,6 +7,7 @@ export * from './arena-figure';
 export * from './arena-grid';
 export * from './arena-hero';
 export * from './arena-main';
+export * from './arena-palette-scope';
 export * from './arena-scroller';
 export * from './arena-scroller-item';
 export * from './arena-section';

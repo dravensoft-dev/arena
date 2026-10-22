@@ -20,7 +20,7 @@ type FieldRef = Pick<Field, 'name' | 'member' | 'node'>;
 
 type Markers = Map<string, string>;
 
-export type Tag = { element: string; hook: string };
+export type Tag = { element: string; hook: string; aliases?: Record<string, string> };
 
 export type Tags = Map<string, Tag>;
 
@@ -69,18 +69,35 @@ export function componentTags(sources: Map<string, string>): Tags {
   const found: Tags = new Map();
   for (const [name, source] of sources) {
     const declared = source.match(/selector:\s*'([^']+)'/);
-    if (declared) found.set(name, tagFor(captured(declared)));
+    if (!declared) continue;
+    const aliases = inputAliases(source);
+    found.set(name, Object.keys(aliases).length > 0
+      ? { ...tagFor(captured(declared)), aliases }
+      : tagFor(captured(declared)));
   }
   return found;
 }
 
-export function selector(name: string, tags?: Tags) {
-  return tags?.get(name)?.element ?? kebab(name);
+export function inputAliases(source: string): Record<string, string> {
+  const found: Record<string, string> = {};
+  for (const m of source.matchAll(/readonly (\w+)\s*=\s*input[^;]*?\balias:\s*'(\w+)'/g)) found[captured(m)] = captured(m, 2);
+  return found;
 }
 
-export function hook(name: string, tags?: Tags) {
+export function bindingName(name: string, member: string, tags?: Tags) {
+  return tags?.get(name)?.aliases?.[member] ?? member;
+}
+
+export function selector(name: string, tags?: Tags) {
+  const tag = tags?.get(name);
+  if (tag === undefined) return kebab(name);
+  return tag.element || (tag.hook ? 'div' : kebab(name));
+}
+
+export function hook(name: string, tags?: Tags, attrs = '') {
   const carried = tags?.get(name)?.hook;
-  return carried ? ` ${carried}` : '';
+  if (!carried || attrs.includes(` [${carried}]=`) || attrs.includes(` ${carried}=`)) return '';
+  return ` ${carried}`;
 }
 
 export function typeExpr(knob: Knob) {
@@ -144,11 +161,12 @@ export function fieldFor(fields: FieldRef[],
   return fields.find((one) => one.node === node && one.member === member)?.name;
 }
 
-export function nodeAttributes(node: FixtureNode, fields: FieldRef[]) {
+export function nodeAttributes(node: FixtureNode, fields: FieldRef[], tags?: Tags) {
+  const bound = (member: string) => (typeof node.component === 'string' ? bindingName(node.component, member, tags) : member);
   return (Object.entries(node.members ?? {}) as [string, any][])
     .map(([member, value]) => (staticAttribute(value)
-      ? ` ${member}="${attributeText(value)}"`
-      : ` [${member}]="${fieldFor(fields, node, member)}"`))
+      ? ` ${bound(member)}="${attributeText(value)}"`
+      : ` [${bound(member)}]="${fieldFor(fields, node, member)}"`))
     .join('');
 }
 
@@ -175,10 +193,10 @@ export function renderNode(node: FixtureNode, places: Places, fields: FieldRef[]
 
   const place = placeOf(places, node.component);
   const tag = selector(place.name, tags);
-  const open = `${tag}${hook(place.name, tags)}`;
   imports.add(place.name);
   const slots = node.slots ?? {};
-  const attrs = nodeAttributes(node, fields) + classAttribute(node.class);
+  const attrs = nodeAttributes(node, fields, tags) + classAttribute(node.class);
+  const open = `${tag}${hook(place.name, tags, attrs)}`;
   const children = [];
   for (const [name, list] of Object.entries(slots) as [string, any[]][]) {
     for (const one of list) {
@@ -227,19 +245,19 @@ export function renderSubject(model: PlaygroundModel, places: Places,
   const pad = '  '.repeat(depth);
   const inner = `${pad}  `;
   const tag = selector(model.component, tags);
-  const open = `${tag}${hook(model.component, tags)}`;
   imports.add(model.component);
 
   const attrs = model.knobs
     .filter((knob) => knob.form !== 'slot')
     .map((knob) => (knob.form === 'functionInput'
-      ? `\n${inner}[${knob.member}]="validatorFor(k().${knob.member})"`
-      : `\n${inner}[${knob.member}]="k().${knob.member}"`))
+      ? `\n${inner}[${bindingName(model.component, knob.member, tags)}]="validatorFor(k().${knob.member})"`
+      : `\n${inner}[${bindingName(model.component, knob.member, tags)}]="k().${knob.member}"`))
     .concat(model.events.map((event) => (event.payload
       ? `\n${inner}(${event.name})="play.fire('${event.name}', $event)"`
       : `\n${inner}(${event.name})="play.fire('${event.name}')"`)))
     .join('') + (model.class ? `\n${inner}class="${attributeText(model.class)}"` : '');
 
+  const open = `${tag}${hook(model.component, tags, attrs.replace(/\n\s*/g, ' '))}`;
   const slots = model.knobs.filter((knob) => knob.form === 'slot');
   if (slots.length === 0) return `${pad}<${open}${attrs}></${tag}>`;
 
@@ -276,9 +294,9 @@ export function renderTree(model: PlaygroundModel, places: Places, fields: Field
     }
     const place = placeOf(places, node.component);
     const tag = selector(place.name, tags);
-    const open = `${tag}${hook(place.name, tags)}`;
     imports.add(place.name);
-    const attrs = nodeAttributes(node, fields) + classAttribute(node.class);
+    const attrs = nodeAttributes(node, fields, tags) + classAttribute(node.class);
+    const open = `${tag}${hook(place.name, tags, attrs)}`;
     const children = [];
     for (const [name, list] of Object.entries(node.slots ?? {}) as [string, any[]][]) {
       for (const one of list) {

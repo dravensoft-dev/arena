@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
-  selector, hook, componentTags, typeExpr, importPath, markerNames, collectFields, escapeText,
+  selector, hook, bindingName, componentTags, typeExpr, importPath, markerNames, collectFields, escapeText,
   renderSubject, renderTree,
   knobsInterface, angularEntry, angularPage, renderNode, slotBlock, attributeText, MARKERS_SOURCE, validatorTable,
 } from './playground-angular.ts';
@@ -73,6 +73,19 @@ test('an attribute selector opens with the element and its hook, and closes with
   assert.equal(selector('ArenaCard', tags), 'arena-card');
   assert.equal(hook('ArenaCard', tags), '',
     'an element selector carries no hook, or every tag would open with its own name written twice');
+});
+
+test('a bare attribute selector opens a div, binds the input under its alias and writes the hook once', () => {
+  const tags = componentTags(new Map([
+    ['ArenaPaletteScope', "@Component({\n  selector: '[arenaPalette]',\n})\nexport class ArenaPaletteScope {\n  readonly palette = input.required<string>({ alias: 'arenaPalette' });\n  readonly other = input<string>();\n}"],
+  ]));
+  assert.deepEqual(tags.get('ArenaPaletteScope'), { element: '', hook: 'arenaPalette', aliases: { palette: 'arenaPalette' } });
+  assert.equal(selector('ArenaPaletteScope', tags), 'div');
+  assert.equal(bindingName('ArenaPaletteScope', 'palette', tags), 'arenaPalette');
+  assert.equal(bindingName('ArenaPaletteScope', 'other', tags), 'other');
+  assert.equal(hook('ArenaPaletteScope', tags), ' arenaPalette');
+  assert.equal(hook('ArenaPaletteScope', tags, ' [arenaPalette]="k().palette"'), '');
+  assert.equal(hook('ArenaPaletteScope', tags, ' arenaPalette="light"'), '');
 });
 
 test('a component the sources do not reach still gets a tag, so a missing read is not a silent empty tag', () => {

@@ -83,6 +83,7 @@
     "ArenaGrid",
     "ArenaHero",
     "ArenaMain",
+    "ArenaPaletteScope",
     "ArenaScroller",
     "ArenaScrollerItem",
     "ArenaSection",

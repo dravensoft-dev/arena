@@ -1,0 +1,8 @@
+{
+  "component": "ArenaPaletteScope",
+  "seed": { "palette": "light" },
+  "slots": {
+    "content": [ { "text": "This subtree is drawn in the light palette." } ]
+  },
+  "note": "A palette island: it puts the palette's class on its element, paints the ground and gives the readers below it the palette's name."
+}

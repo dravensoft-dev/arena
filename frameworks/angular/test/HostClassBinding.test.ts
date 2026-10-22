@@ -829,8 +829,13 @@ test('every Angular primitive host-binds a slot that carries a display utility, 
     assert.ok(!('root' in ownerSlots), `OWN_HOST names "${owner}", but its manifest now carries a root slot -- the exclusion is stale and should be removed so this primitive is checked like every other one`);
   }
 
+  const onAdoptersElement = new Set(primitiveSources()
+    .filter(({ source }) => /selector:\s*'\[\w+\]'/.test(source))
+    .map(({ name }) => name.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase()));
+
   for (const name of names) {
     if (OWN_HOST.has(name)) continue;
+    if (onAdoptersElement.has(name)) continue;
     const override = HOST_SLOT[name];
     const slot = override?.slot ?? 'root';
     const manifestName = override?.manifest ?? `${kebabToPascal(name)}.manifest.json`;

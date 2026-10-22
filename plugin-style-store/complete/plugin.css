@@ -1518,6 +1518,12 @@
   outline-offset: var(--sp-1);
 }
 
+.arena-complete [data-arena-part="palette-scope"] {
+  border-radius: var(--r-media);
+  outline: var(--bw-surface) dashed var(--edge-surface);
+  outline-offset: calc(var(--sp-1) * -1);
+}
+
 .arena-complete [data-arena-part="people-list"] {
   border-radius: var(--r-media);
   outline: var(--bw-surface) dashed var(--edge-surface);
