@@ -123,3 +123,23 @@ test('an unknown name throws listing declared and registered', () => {
     assert.throws(() => fixture.detectChanges(), /ArenaPaletteScope: no palette named "sepia"; the declared palettes are dark, light; the registered palettes are dusk/);
   } finally { unmark(); }
 });
+
+test('a registered palette re-registered while a scope names it updates the host class and style', () => {
+  TestBed.resetTestingModule();
+  const unmark = markRuntimePalettes();
+  try {
+    const service = TestBed.inject(ArenaThemeService);
+    service.register(runtimePalette('dusk', 'dark'));
+    const fixture = render();
+    fixture.componentInstance.inner.set('dusk');
+    fixture.detectChanges();
+    const inner = pick(fixture, 'inner');
+    assert.ok(inner.classList.contains('arena-polarity-dark'));
+    service.register({ name: 'dusk', polarity: 'light', properties: { '--color-base-100': '#fafafa', '--arena-palette': 'dusk' } });
+    fixture.detectChanges();
+    assert.ok(inner.classList.contains('arena-polarity-light'));
+    assert.equal(inner.classList.contains('arena-polarity-dark'), false);
+    assert.equal(inner.style.getPropertyValue('--color-base-100'), '#fafafa');
+    assert.equal(inner.style.getPropertyValue('--color-base-200'), '', 'a property the new palette lacks stayed');
+  } finally { unmark(); }
+});

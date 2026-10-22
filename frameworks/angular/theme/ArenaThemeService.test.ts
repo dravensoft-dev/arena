@@ -36,6 +36,21 @@ function clean(): void {
 }
 
 const root = document.documentElement;
+
+function marked(body: () => void): () => void {
+  return () => {
+    clean();
+    const unmark = markRuntimePalettes();
+    try { body(); } finally { unmark(); clean(); }
+  };
+}
+
+function unmarked(body: () => void): () => void {
+  return () => {
+    clean();
+    try { body(); } finally { clean(); }
+  };
+}
 const hooks = () => ['arena-polarity-dark', 'arena-polarity-light'].filter((name) => root.classList.contains(name));
 const propertiesOf = (palette: ArenaRuntimePalette) => Object.keys(palette.properties);
 
@@ -173,9 +188,7 @@ test('the shipped default is two palettes, which is what the package carries', (
   assert.equal(ARENA_DEFAULT_THEMES.default, 'dark');
 });
 
-test('register then set paints the hook and every property, and no declared class', () => {
-  clean();
-  const unmark = markRuntimePalettes();
+test('register then set paints the hook and every property, and no declared class', marked(() => {
   const theme = service(THREE);
   const dusk = runtimePalette('dusk', 'dark');
   theme.register(dusk);
@@ -189,13 +202,9 @@ test('register then set paints the hook and every property, and no declared clas
   assert.equal(theme.runtimePalette('midnight'), null);
   assert.equal(localStorage.getItem('arena-theme'), 'dusk');
   assert.deepEqual(JSON.parse(localStorage.getItem(RUNTIME_CACHE_KEY)!), dusk);
-  unmark();
-  clean();
-});
+}));
 
-test('re-registering with the other polarity flips the hook and leaves no old property', () => {
-  clean();
-  const unmark = markRuntimePalettes();
+test('re-registering with the other polarity flips the hook and leaves no old property', marked(() => {
   const theme = service(THREE);
   theme.register(runtimePalette('dusk', 'dark'));
   theme.set('dusk');
@@ -209,13 +218,9 @@ test('re-registering with the other polarity flips the hook and leaves no old pr
     assert.equal(root.style.getPropertyValue(stale), '', `${stale} outlived the palette that set it`);
   }
   assert.equal(JSON.parse(localStorage.getItem(RUNTIME_CACHE_KEY)!).polarity, 'light', 'the cache follows the registration');
-  unmark();
-  clean();
-});
+}));
 
-test('setting a declared palette removes every runtime property, the hook and the cache', () => {
-  clean();
-  const unmark = markRuntimePalettes();
+test('setting a declared palette removes every runtime property, the hook and the cache', marked(() => {
   const theme = service(THREE);
   const dusk = runtimePalette('dusk', 'dark');
   theme.register(dusk);
@@ -227,39 +232,29 @@ test('setting a declared palette removes every runtime property, the hook and th
   for (const name of propertiesOf(dusk)) assert.equal(root.style.getPropertyValue(name), '', name);
   assert.ok(root.classList.contains('arena-light'));
   assert.equal(localStorage.getItem(RUNTIME_CACHE_KEY), null);
-  unmark();
-  clean();
-});
+}));
 
-test('toggle cycles the declared palettes, then the registered ones, and wraps', () => {
-  clean();
-  const unmark = markRuntimePalettes();
+test('toggle cycles the declared palettes, then the registered ones in registration order, and wraps', marked(() => {
   const theme = service();
   theme.register(runtimePalette('dusk', 'dark'));
+  theme.register(runtimePalette('dawn', 'light', '#fafafa'));
   theme.set('dark');
-  theme.toggle();
-  assert.equal(theme.theme(), 'light');
-  theme.toggle();
-  assert.equal(theme.theme(), 'dusk');
-  theme.toggle();
-  assert.equal(theme.theme(), 'dark');
+  for (const next of ['light', 'dusk', 'dawn', 'dark']) {
+    theme.toggle();
+    assert.equal(theme.theme(), next);
+  }
   assert.deepEqual(theme.palettes.map((p) => p.name), ['dark', 'light'], 'palettes stays the declared list');
-  unmark();
-  clean();
-});
+}));
 
-test('set refuses an unknown name and lists the declared and the registered palettes', () => {
-  clean();
-  const unmark = markRuntimePalettes();
+test('set refuses an unknown name, and lists the registered palettes only when there are some', marked(() => {
   const theme = service(THREE);
+  assert.throws(() => theme.set('midnight'), (error: Error) =>
+    error.message === 'ArenaThemeService: no palette named "midnight"; the declared palettes are dark, light, high-contrast');
   theme.register(runtimePalette('dusk', 'dark'));
-  assert.throws(() => theme.set('midnight'), /no palette named "midnight"; the declared palettes are dark, light, high-contrast; the registered palettes are dusk/);
-  unmark();
-  clean();
-});
+  assert.throws(() => theme.set('midnight'), /no palette named "midnight"; the declared palettes are dark, light, high-contrast; the registered palettes are dusk$/);
+}));
 
-test('a stored cache restores the palette on first read, before the stylesheet is checked', () => {
-  clean();
+test('a stored cache restores the palette on first read, before the stylesheet is checked', unmarked(() => {
   const dusk = runtimePalette('dusk', 'dark');
   localStorage.setItem('arena-theme', 'dusk');
   localStorage.setItem(RUNTIME_CACHE_KEY, JSON.stringify(dusk));
@@ -269,57 +264,52 @@ test('a stored cache restores the palette on first read, before the stylesheet i
   TestBed.tick();
   assert.deepEqual(hooks(), ['arena-polarity-dark']);
   assert.equal(root.style.getPropertyValue('--color-base-100'), dusk.properties['--color-base-100']);
-  clean();
-});
+}));
 
-test('a cache naming a declared palette, malformed JSON, a foreign property or another name is ignored', () => {
+test('a cache naming a declared palette, malformed JSON, a foreign property, a bad colour or another name is ignored', unmarked(() => {
   const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
-  const followsDevice = (theme: ArenaThemeService) => {
-    assert.equal(theme.theme(), prefersLight ? 'light' : 'dark');
-    assert.equal(theme.runtimePalette('dusk'), null);
-    clean();
-  };
+  const dusk = runtimePalette('dusk', 'dark');
   const cases: [string, string][] = [
     ['a declared name', JSON.stringify(runtimePalette('light', 'light'))],
     ['malformed JSON', '{not json'],
-    ['a foreign property', JSON.stringify({ ...runtimePalette('dusk', 'dark'), properties: { '--evil': 'url(x)', '--arena-palette': 'dusk' } })],
-    ['a colour that is not #rrggbb', JSON.stringify({ ...runtimePalette('dusk', 'dark'), properties: { '--color-base-100': 'red', '--arena-palette': 'dusk' } })],
+    ['a foreign property', JSON.stringify({ ...dusk, properties: { '--evil': 'url(x)', '--arena-palette': 'dusk' } })],
+    ['a colour that is not lower-case #rrggbb', JSON.stringify({ ...dusk, properties: { '--color-base-100': '#1B1830', '--arena-palette': 'dusk' } })],
     ['another name', JSON.stringify(runtimePalette('other', 'dark'))],
   ];
   for (const [label, cache] of cases) {
     clean();
-    localStorage.setItem('arena-theme', label === 'a declared name' ? 'light' : 'dusk');
+    localStorage.setItem('arena-theme', 'dusk');
     localStorage.setItem(RUNTIME_CACHE_KEY, cache);
     const theme = service(THREE);
-    if (label === 'a declared name') {
-      assert.equal(theme.theme(), 'light');
-      assert.equal(theme.runtimePalette('light'), null, 'a declared name is never registered from the cache');
-      clean();
-    } else {
-      followsDevice(theme);
-    }
+    assert.equal(theme.theme(), prefersLight ? 'light' : 'dark', `${label}: the page follows the device`);
+    assert.equal(theme.runtimePalette('dusk'), null, label);
+    assert.equal(theme.runtimePalette('light'), null, `${label}: a declared name is never registered from the cache`);
   }
-});
+}));
 
-test('register without the root marker throws naming runtimePalettes, and registers nothing', () => {
-  clean();
+test('register without the root marker throws naming runtimePalettes, and registers nothing', unmarked(() => {
   const theme = service(THREE);
-  assert.throws(() => theme.register(runtimePalette('dusk', 'dark')), /"runtimePalettes": true in arena\.config\.json/);
+  assert.throws(() => theme.register(runtimePalette('dusk', 'dark')), (error: Error) =>
+    error.message === 'ArenaThemeService.register: this page\'s stylesheet was built without "runtimePalettes": true in arena.config.json, so no runtime palette can paint here');
   assert.equal(theme.runtimePalette('dusk'), null);
-  clean();
-});
+}));
 
-test('register refuses a declared name, and a palette that breaks the property rules', () => {
-  clean();
-  const unmark = markRuntimePalettes();
+test('register refuses a declared name before it looks at the marker', unmarked(() => {
   const theme = service(THREE);
-  assert.throws(() => theme.register(runtimePalette('light', 'light')), /"light" is a palette the theme config declares/);
-  const broken = (properties: Record<string, string>) => () => theme.register({ name: 'dusk', polarity: 'dark', properties });
-  assert.throws(broken({ '--evil': '1' }), /--evil is not a --color-\*/);
-  assert.throws(broken({ '--color-base-100': 'red' }), /not #rrggbb/);
-  assert.throws(broken({ '--level-2': '8px' }), /not a percentage/);
-  assert.throws(broken({ '--arena-palette': 'other' }), /--arena-palette is "other"/);
+  assert.throws(() => theme.register(runtimePalette('light', 'light')), (error: Error) =>
+    error.message === 'ArenaThemeService.register: no palette named "light" can be registered, because the theme config declares it; the declared palettes are dark, light, high-contrast');
+}));
+
+test('register refuses a palette that breaks the shape rules, with the canonical texts', marked(() => {
+  const theme = service(THREE);
+  const fails = (palette: ArenaRuntimePalette, text: string) =>
+    assert.throws(() => theme.register(palette), (error: Error) => error.message === `ArenaThemeService.register: ${text}`);
+  const props = (properties: Record<string, string>): ArenaRuntimePalette => ({ name: 'dusk', polarity: 'dark', properties });
+  fails({ name: 'dusk', polarity: 'dim' as 'dark', properties: {} }, 'polarity "dim" is neither dark nor light');
+  fails(props({ '--evil': '1' }), '"--evil" is not a property a palette carries; only --color-*, --level-* and --arena-palette are');
+  fails(props({ '--color-base-100': 'red' }), '--color-base-100 is "red", not a #rrggbb colour');
+  fails(props({ '--color-base-100': '#AABBCC' }), '--color-base-100 is "#AABBCC", not a #rrggbb colour');
+  fails(props({ '--level-2': '8px' }), '--level-2 is "8px", not a percentage such as 40%');
+  fails(props({ '--arena-palette': 'other' }), '--arena-palette is "other" and the palette is named "dusk"');
   assert.equal(theme.runtimePalette('dusk'), null);
-  unmark();
-  clean();
-});
+}));

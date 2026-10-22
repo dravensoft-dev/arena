@@ -44,18 +44,18 @@ function runtimeProblem(value: unknown): string | null {
   if (typeof value !== 'object' || value === null) return 'palette: not an object';
   const { name, polarity, properties } = value as Record<string, unknown>;
   if (typeof name !== 'string' || name === '') return 'palette: name is not a string';
-  if (polarity !== 'dark' && polarity !== 'light') return `palette "${name}": polarity is not "dark" or "light"`;
-  if (typeof properties !== 'object' || properties === null) return `palette "${name}": properties is not an object`;
+  if (polarity !== 'dark' && polarity !== 'light') return `polarity "${String(polarity)}" is neither dark nor light`;
+  if (typeof properties !== 'object' || properties === null) return 'palette: properties is not an object';
   for (const [key, entry] of Object.entries(properties)) {
-    if (typeof entry !== 'string') return `palette "${name}": ${key} is not a string`;
+    if (typeof entry !== 'string') return `${key} is not a string`;
     if (key === '--arena-palette') {
-      if (entry !== name) return `palette "${name}": --arena-palette is "${entry}", not the palette's name`;
+      if (entry !== name) return `--arena-palette is "${entry}" and the palette is named "${name}"`;
     } else if (/^--color-[a-z0-9-]+$/.test(key)) {
-      if (!/^#[0-9a-fA-F]{6}$/.test(entry)) return `palette "${name}": ${key} is "${entry}", not #rrggbb`;
+      if (!/^#[0-9a-f]{6}$/.test(entry)) return `${key} is "${entry}", not a #rrggbb colour`;
     } else if (/^--level-[a-z0-9-]+$/.test(key)) {
-      if (!/^\d{1,3}%$/.test(entry)) return `palette "${name}": ${key} is "${entry}", not a percentage such as 40%`;
+      if (!/^\d{1,3}%$/.test(entry)) return `${key} is "${entry}", not a percentage such as 40%`;
     } else {
-      return `palette "${name}": ${key} is not a --color-*, --level-* or --arena-palette property`;
+      return `"${key}" is not a property a palette carries; only --color-*, --level-* and --arena-palette are`;
     }
   }
   return null;
@@ -92,15 +92,16 @@ export class ArenaThemeService {
   }
 
   register(palette: ArenaRuntimePalette): void {
-    const problem = runtimeProblem(palette);
-    if (problem) throw new Error(`ArenaThemeService.register: ${problem}`);
-    if (this.declares(palette.name)) {
-      throw new Error(`ArenaThemeService.register: "${palette.name}" is a palette the theme config declares; a runtime palette needs a name of its own`);
+    const name = (palette as { name?: unknown } | null)?.name;
+    if (typeof name === 'string' && this.declares(name)) {
+      throw new Error(`ArenaThemeService.register: no palette named "${name}" can be registered, because the theme config declares it; the declared palettes are ${this.declaredNames().join(', ')}`);
     }
     const window = this.doc.defaultView;
     if (window && window.getComputedStyle(this.doc.documentElement).getPropertyValue(RUNTIME_MARKER).trim() !== '1') {
       throw new Error('ArenaThemeService.register: this page\'s stylesheet was built without "runtimePalettes": true in arena.config.json, so no runtime palette can paint here');
     }
+    const problem = runtimeProblem(palette);
+    if (problem) throw new Error(`ArenaThemeService.register: ${problem}`);
     this.store(palette);
     if (this.theme() === palette.name) this.remember(palette);
   }
