@@ -758,6 +758,7 @@ export const polarityClass = (polarity: string) => `arena-polarity-${polarity}`;
 
 export type ArenaRuntimeDataShape = {
   arenaRuntimePalettes: 1;
+  hasRoot: boolean;
   declared: string[];
   taken: string[];
   levels: Level[];
@@ -771,6 +772,7 @@ export function runtimeData(config: CheckedConfig, sheets: PackageSheets, plugin
   const rolesIn = (polarity: string) => Object.fromEntries(rolesFor(root, catalogue, polarity));
   return {
     arenaRuntimePalettes: 1,
+    hasRoot: root !== null,
     declared: (config.palettes as CheckedPalette[]).map((palette) => palette.name),
     taken: sheets?.scopes ?? [],
     levels: sheets?.levels ?? [],
