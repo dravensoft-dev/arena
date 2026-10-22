@@ -4,8 +4,7 @@
  * makes every entry a claim, and a stale one is silent -- these tests are the check. */
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync, existsSync, mkdtempSync, writeFileSync, rmSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { readFileSync, existsSync, mkdirSync, mkdtempSync, writeFileSync, rmSync } from 'node:fs';
 import nodePath, { join, win32, posix } from 'node:path';
 import { readJson } from '../../utils/read-file.ts';
 import { DESIGN_DIR, FILES, REDECLARED_GROUPS, RESOLVES_AGAINST, SCOPE_SELECTORS, SCRIPT_TARGETS, collectScriptTokens, designPath, isFrom, referenceOf, scopesRedeclaring } from './generate-tokens.ts';
@@ -206,7 +205,8 @@ test('the default palette wears a class: .arena-dark carries the :root block, an
 
 test('a dark group of a plugin source reaches the base selector as well as the .arena-dark scope', async () => {
   const { block } = await import('./generate-tokens.ts');
-  const tmp = mkdtempSync(join(tmpdir(), 'arena-dark-group-'));
+  mkdirSync(join(repoRoot, '.cache'), { recursive: true });
+  const tmp = mkdtempSync(join(repoRoot, '.cache', 'arena-dark-group-'));
   try {
     writeFileSync(join(tmp, 'p.tokens.json'), JSON.stringify({
       'bw-surface': { $type: 'dimension', $value: { value: 1, unit: 'px' } },
