@@ -88,7 +88,7 @@ test('a registered palette re-registered while a scope names it updates the host
     assert.ok(scope()?.classList.contains('arena-polarity-light'));
     assert.equal(scope()?.classList.contains('arena-polarity-dark'), false);
     assert.equal(scope()?.style.getPropertyValue('--color-base-100'), '#fafafa');
-    assert.equal(scope()?.style.getPropertyValue('--color-base-200'), '', 'a property the new palette lacks stayed');
+    assert.equal(scope()?.style.getPropertyValue('--color-base-200'), '', 'a property the new palette lacks was not removed');
   } finally {
     document.documentElement.style.removeProperty(ROOT);
   }
@@ -161,4 +161,35 @@ test('a scope naming a cache-restored palette hydrates against the server markup
   } finally {
     localStorage.removeItem(RUNTIME_CACHE_KEY);
   }
+});
+
+test('a scope naming an unregistered palette hydrates against a server that ran without init, then is pending', () => {
+  resetArenaTheme();
+  const element = <ArenaPaletteScope palette="scope-late"><Reader label="l" /></ArenaPaletteScope>;
+  const server = renderToString(element);
+  assert.match(server, /arena-scope-late/);
+  initArenaTheme();
+  const box = document.createElement('div');
+  box.innerHTML = server;
+  document.body.appendChild(box);
+  const logged: unknown[][] = [];
+  const recovered: unknown[] = [];
+  const original = console.error;
+  console.error = (...args: unknown[]) => { logged.push(args); };
+  const originalWarn = console.warn;
+  console.warn = () => { void 0; };
+  let root: ReturnType<typeof hydrateRoot> | undefined;
+  try {
+    act(() => { root = hydrateRoot(box, element, { onRecoverableError: (error) => { recovered.push(error); } }); });
+  } finally {
+    console.error = original;
+    console.warn = originalWarn;
+  }
+  assert.deepEqual(logged, []);
+  assert.deepEqual(recovered, []);
+  const scope = box.querySelector<HTMLElement>('[data-arena-part="palette-scope"]');
+  assert.equal(scope?.classList.contains('arena-scope-late'), false, 'pending after hydration');
+  assert.equal(scope?.className.includes('arena-polarity'), false);
+  act(() => { root?.unmount(); });
+  box.remove();
 });

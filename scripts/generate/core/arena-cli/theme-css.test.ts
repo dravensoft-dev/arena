@@ -1183,7 +1183,7 @@ const runtime = (over: Record<string, any> = {}) => themeCss(listed(['console', 
   plugins: [total(), MARKETING()],
 });
 
-test('a config without runtimePalettes emits what it emitted before the runtime-palette work, byte for byte', () => {
+test('a config without runtimePalettes emits what it emitted before the runtime-palette work, its body matching the golden sheet byte for byte, the generated header apart', () => {
   const { config: c, options } = goldenInput(readPlugin);
   const golden = readFileSync(fileURLToPath(new URL('../../../lib/arena/theme-css-golden.css', import.meta.url)), 'utf8');
   const bodyOf = (sheet: string) => sheet.slice(sheet.indexOf('\n\n') + 2);

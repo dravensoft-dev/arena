@@ -37,7 +37,7 @@ export function useRegisteredArenaPalette(name: string): ArenaRuntimePalette | u
 }
 
 export function useArenaThemeReady(): boolean {
-  return useSyncExternalStore(subscribe, () => state.initialised, () => state.initialised);
+  return useSyncExternalStore(subscribe, () => state.initialised, () => false);
 }
 
 export function resetArenaTheme(): void {
