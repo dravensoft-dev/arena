@@ -34,7 +34,7 @@ export const node = {
     'check:angular-demos',
     'check:focus-trap',
     'check:anchoring',
-    'check:pixel-parity',
+    'check:pixel-parity', 'check:palette-islands',
     'check:target-size',
     'check:playgrounds',
     'build:site',

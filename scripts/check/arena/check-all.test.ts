@@ -41,13 +41,14 @@ const BUDGET = budgetFor(COLLECTION, INTERRUPTED, TERM_GRACE, ABORT_GRACE, PAST_
 
 const MEASURED_HEAVY = new Map([
   ['check:pixel-parity', 'browser'], ['check:target-size', 'browser'], ['check:proximity', 'browser'],
+  ['check:palette-islands', 'browser'],
   ['check:focus-trap', 'browser'], ['check:anchoring', 'browser'], ['check:script-types', 'compiler'],
   ['check:react-types', 'compiler'],
 ]);
 
 const MEASURED_COST = new Map([
   ['check:pixel-parity', 52], ['check:script-types', 13.5], ['check:react-types', 12.7],
-  ['check:target-size', 20.3], ['check:proximity', 10.2], ['check:focus-trap', 4.1], ['check:anchoring', 6.3],
+  ['check:target-size', 20.3], ['check:proximity', 10.2], ['check:palette-islands', 4.7], ['check:focus-trap', 4.1], ['check:anchoring', 6.3],
 ]);
 
 const TEST_COST = new Map([
@@ -59,10 +60,10 @@ const SPLIT_TESTS = ['build (ngc emit of the Angular layer)', 'test (scripts)', 
   'test (react-dom)', 'test (angular)'];
 
 test('GATES lists every check gate', () => {
-  assert.equal(GATES.length, 91);
+  assert.equal(GATES.length, 92);
   assert.deepEqual(
     GATES.map((g) => g.name),
-    ['check:docs', 'check:graph', 'check:portability', 'check:workflow-scripts', 'check:generated', 'check:skill-spec', 'check:skills', 'check:support', 'check:prompts', 'check:rules', 'check:register', 'check:routes', 'check:vocabulary', 'check:families', 'check:architecture', 'check:duplication', 'check:dtcg', 'check:user-scale', 'check:catalogue', 'check:style-plugin', 'check:style-plugin-coverage', 'check:plugin-css', 'check:role-contract', 'check:compat-aliases', 'check:polarity', 'check:tokens', 'check:token-collisions', 'check:script-tokens', 'check:duplicate-constants', 'check:deadlines', 'check:ramp', 'check:boundary-contrast', 'check:text-contrast', 'check:tailwind', 'check:tailwind-generated', 'check:coverage', 'check:radius', 'check:roles', 'check:arbitrary', 'check:safe-area', 'check:component-css', 'check:channels', 'check:dimensions', 'check:states', 'check:measured-box', 'check:intrinsic-width', 'check:appearance', 'check:parts', 'check:boundaries', 'check:layer-independence', 'check:structure', 'check:contracts', 'check:contracts-package', 'check:mcp', 'check:contracts-neutrality', 'check:contracts-resolve', 'check:behaviour', 'check:compliance', 'check:api', 'check:playgrounds', 'check:kitchen-sink', 'check:citations', 'check:agents', 'check:agents-spec', 'check:community', 'check:site', 'check:icons', 'check:fonts', 'check:intro', 'check:vendor', 'check:demos', 'check:react-barrel', 'check:react-types', 'check:text-runs', 'check:script-types', 'check:script-reach', 'check:focus-trap', 'check:anchoring', 'check:target-size', 'check:pixel-parity', 'check:proximity', 'check:shared-arithmetic', 'check:packages', 'check:consumer', 'check:exports', 'check:classes', 'check:angular-demos', 'check:assertions', 'check:cdk', 'check:boolean-inputs', 'check:optional-inputs'],
+    ['check:docs', 'check:graph', 'check:portability', 'check:workflow-scripts', 'check:generated', 'check:skill-spec', 'check:skills', 'check:support', 'check:prompts', 'check:rules', 'check:register', 'check:routes', 'check:vocabulary', 'check:families', 'check:architecture', 'check:duplication', 'check:dtcg', 'check:user-scale', 'check:catalogue', 'check:style-plugin', 'check:style-plugin-coverage', 'check:plugin-css', 'check:role-contract', 'check:compat-aliases', 'check:polarity', 'check:tokens', 'check:token-collisions', 'check:script-tokens', 'check:duplicate-constants', 'check:deadlines', 'check:ramp', 'check:boundary-contrast', 'check:text-contrast', 'check:tailwind', 'check:tailwind-generated', 'check:coverage', 'check:radius', 'check:roles', 'check:arbitrary', 'check:safe-area', 'check:component-css', 'check:channels', 'check:dimensions', 'check:states', 'check:measured-box', 'check:intrinsic-width', 'check:appearance', 'check:parts', 'check:boundaries', 'check:layer-independence', 'check:structure', 'check:contracts', 'check:contracts-package', 'check:mcp', 'check:contracts-neutrality', 'check:contracts-resolve', 'check:behaviour', 'check:compliance', 'check:api', 'check:playgrounds', 'check:kitchen-sink', 'check:citations', 'check:agents', 'check:agents-spec', 'check:community', 'check:site', 'check:icons', 'check:fonts', 'check:intro', 'check:vendor', 'check:demos', 'check:react-barrel', 'check:react-types', 'check:text-runs', 'check:script-types', 'check:script-reach', 'check:focus-trap', 'check:anchoring', 'check:target-size', 'check:pixel-parity', 'check:proximity', 'check:palette-islands', 'check:shared-arithmetic', 'check:packages', 'check:consumer', 'check:exports', 'check:classes', 'check:angular-demos', 'check:assertions', 'check:cdk', 'check:boolean-inputs', 'check:optional-inputs'],
   );
 });
 
@@ -356,7 +357,7 @@ test('a failure the graph would have run anyway is the gate\'s own, and says not
 });
 
 test('every gate measured as a browser or a compiler declares that pool, and no other gate declares one', () => {
-  assert.equal(MEASURED_HEAVY.size, 7);
+  assert.equal(MEASURED_HEAVY.size, 8);
   const declared = new Map(GATES.filter((g) => g.pool !== undefined).map((g) => [g.name, g.pool]));
   for (const name of MEASURED_HEAVY.keys()) assert.ok(GATES.some((g) => g.name === name), `${name} is not in GATES`);
   assert.deepEqual([...declared].sort(), [...MEASURED_HEAVY].sort(),

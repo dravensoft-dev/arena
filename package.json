@@ -123,6 +123,7 @@
     "check:channels": "bun scripts/check/tailwind/check-channels.ts",
     "check:boundaries": "bun scripts/check/arena/check-boundaries.ts",
     "check:proximity": "bun scripts/check/arena/check-proximity.ts",
+    "check:palette-islands": "bun scripts/check/arena/check-palette-islands.ts",
     "check:appearance": "bun scripts/check/arena/check-appearance.ts",
     "check:parts": "bun scripts/check/arena/check-parts.ts",
     "check:layer-independence": "bun scripts/check/arena/check-layer-independence.ts",

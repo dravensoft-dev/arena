@@ -2,7 +2,7 @@
  * page holding everything exactly as it does over a page holding nothing, so the arrangement is
  * the thing to hold and this is where. Each claim closes a way the surface silently shrinks:
  * every component the registry names appears in every whole arrangement, and every variant a demo
- * declares appears once in the variant one, so no page is compared over less than its siblings; nothing names what does not exist, since a typo drops a component and reads
+ * declares appears once in some variant arrangement, so no page is compared over less than its siblings; nothing names what does not exist, since a typo drops a component and reads
  * as a choice; a fixture keeps pinning the members its component would otherwise take off the
  * clock or the host's own zone, which would move the page between two runs; and every emitted
  * file matches a fresh run, so a page edited by hand fails rather than becoming the thing
@@ -48,12 +48,13 @@ export function variantNames(demos: Map<string, { variants?: Record<string, unkn
   return out;
 }
 
-export function variantCoverageProblems(sink: string, items: string[], variants: Map<string, string[]>) {
+export function variantCoverageProblems(sink: string, items: string[], variants: Map<string, string[]>,
+  held: Set<string> = new Set(items), reportMissing = true) {
   const problems = [];
   const expected = [...variants].flatMap(([component, names]) => names.map((name) => `${component}:${name}`));
   const seen = new Set(items);
-  const missing = expected.filter((item) => !seen.has(item));
-  if (missing.length > 0) {
+  const missing = expected.filter((item) => !held.has(item));
+  if (reportMissing && missing.length > 0) {
     problems.push(`${sink}: ${missing.length} variant(s) a demo declares appear nowhere in this `
       + `arrangement, so nothing compares them here: ${missing.join(', ')}`);
   }
@@ -75,6 +76,8 @@ export function coverageProblems(fixtures: Map<string, SinkFixture>, registry: s
   variants: Map<string, string[]> = new Map()) {
   const problems = [];
   const known = new Set(registry);
+  const drawn = [...fixtures].filter(([, fixture]) => isVariantArrangement(fixture));
+  const held = new Set(drawn.flatMap(([, fixture]) => fixture.sections.flatMap((section) => section.items)));
   for (const [sink, fixture] of fixtures) {
     const items = fixture.sections.flatMap((section) => section.items);
     if (items.length === 0) {
@@ -83,7 +86,7 @@ export function coverageProblems(fixtures: Map<string, SinkFixture>, registry: s
       continue;
     }
     if (isVariantArrangement(fixture)) {
-      problems.push(...variantCoverageProblems(sink, items, variants));
+      problems.push(...variantCoverageProblems(sink, items, variants, held, drawn[0]?.[0] === sink));
       continue;
     }
     const mixed = items.filter((item) => splitItem(item).variant !== undefined);

@@ -251,7 +251,7 @@ test('the tree carries each page the site declares from arena-from-scratch', () 
 });
 
 test('the arrangement of chart variants is told from the style plugins by its items, and only it', () => {
-  assert.deepEqual(variantSinkNames(), ['charts']);
+  assert.deepEqual(variantSinkNames(), ['charts', 'palettes']);
   assert.ok(sinkNames().includes('charts') && sinkNames().includes('default'));
 });
 

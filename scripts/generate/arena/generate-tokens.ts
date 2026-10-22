@@ -155,7 +155,7 @@ export const node = {
     'check:icons',
     'check:layer-independence',
     'check:packages',
-    'check:target-size', 'check:pixel-parity',
+    'check:target-size', 'check:pixel-parity', 'check:palette-islands',
     'check:ramp',
     'check:script-tokens',
     'check:shared-arithmetic',

@@ -151,7 +151,7 @@ thing this runner promises.
 ## Exit 2 means SKIP, and a skip is never green
 
 **A gate needing a runtime dependency plain node does not have declares it rather than assuming
-it**: `check:focus-trap`, `check:anchoring`, `check:target-size`, `check:pixel-parity` and `check:proximity` drive a headless browser, `check:vendor` and
+it**: `check:focus-trap`, `check:anchoring`, `check:target-size`, `check:pixel-parity`, `check:proximity` and `check:palette-islands` drive a headless browser, `check:vendor` and
 `check:intro` need `Bun.build`, `check:demos` needs `Bun.Transpiler`. Derive the set with
 `grep -rl 'cannotRun\|skipExitCode' scripts/check/*/check-*.ts` rather than reading a count. Where the dependency is missing the gate exits **2**, `check-all` marks it
 `SKIP`, and the whole run reports **INCOMPLETE** rather than passing.
@@ -220,7 +220,7 @@ nowhere runs in no job and is worth nothing, so the directory is not the authori
 
 | domain | gates | |
 | --- | --- | --- |
-| [`arena/`](./arena/AGENTS.md) | 57 | two or more layers at once, or the repository root |
+| [`arena/`](./arena/AGENTS.md) | 58 | two or more layers at once, or the repository root |
 | [`tailwind/`](./tailwind/AGENTS.md) | 9 | the shared Tailwind layer |
 | [`angular/`](./angular/AGENTS.md) | 5 | the Angular layer |
 | [`core/`](./core/AGENTS.md) | 15 | `contracts/` and `assets/` only |

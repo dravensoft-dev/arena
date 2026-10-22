@@ -162,13 +162,28 @@ export function seedProblems(name: string, contract: ComponentContract,
   return problems;
 }
 
+export const SEED_REPEATS: Record<string, { variant: string; reason: string }> = {
+  ArenaPaletteScope: {
+    variant: 'light',
+    reason: 'the palettes arrangement draws an island of each polarity and a variant is how an '
+      + 'arrangement names a seed, and the one member the component has takes either polarity, so '
+      + 'whichever the seed holds, the variant of that polarity repeats it',
+  },
+};
+
 export function variantProblems(name: string, contract: ComponentContract,
   fixture: Pick<Fixture, 'component' | 'seed' | 'variants'>, types: Types) {
   const problems: string[] = [];
   for (const [variant, partial] of Object.entries(fixture.variants ?? {})) {
     if (partial === null || typeof partial !== 'object' || Array.isArray(partial)) continue;
     const merged = variantSeed(fixture, variant);
-    if (JSON.stringify(merged) === JSON.stringify(fixture.seed ?? {})) {
+    const repeats = JSON.stringify(merged) === JSON.stringify(fixture.seed ?? {});
+    const allowed = SEED_REPEATS[name]?.variant === variant;
+    if (allowed && !repeats) {
+      problems.push(`${name}.variants.${variant}: SEED_REPEATS allows it to repeat the seed and it no longer does, `
+        + `so the allowance outlived what it was written for: ${SEED_REPEATS[name]?.reason}`);
+    }
+    if (repeats && !allowed) {
       problems.push(`${name}.variants.${variant}: draws the seed unchanged, so the variant compares nothing the seed does not`);
     }
     problems.push(...seedProblems(`${name}.variants.${variant}`, contract, { seed: merged }, types));

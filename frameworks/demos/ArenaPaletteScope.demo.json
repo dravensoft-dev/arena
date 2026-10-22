@@ -2,7 +2,34 @@
   "component": "ArenaPaletteScope",
   "seed": { "palette": "light" },
   "slots": {
-    "content": [ { "text": "This subtree is drawn in the light palette." } ]
+    "content": [
+      {
+        "component": "ArenaCard",
+        "members": { "title": "checkout-api", "eyebrow": "Delivery" },
+        "slots": { "content": [ { "text": "Last published 2 h ago, build #4821." } ] }
+      },
+      {
+        "component": "ArenaButton",
+        "slots": { "content": [ { "text": "Promote" } ] }
+      },
+      {
+        "component": "ArenaInput",
+        "members": { "label": "Service name", "value": "checkout-api", "placeholder": "billing-worker" }
+      },
+      {
+        "component": "ArenaTooltip",
+        "members": { "label": "Copy the commit SHA" },
+        "slots": {
+          "content": [
+            { "component": "ArenaIconButton", "members": { "icon": "ph-bold ph-copy", "label": "Copy" } }
+          ]
+        }
+      }
+    ]
+  },
+  "variants": {
+    "light": { "palette": "light" },
+    "dark": { "palette": "dark" }
   },
   "note": "A palette island: it puts the palette's class on its element, paints the ground and gives the readers below it the palette's name."
 }

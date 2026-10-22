@@ -1,0 +1,8 @@
+{
+  "sink": "palettes",
+  "note": "A palette island drawn in each polarity, holding a surface, a control, a field and a control with a floating bubble. The page is drawn in both themes, so each island sits inside its own palette and inside the other, and check:palette-islands fails on any painted colour that belongs to the palette outside.",
+  "sections": [
+    { "title": "Light island", "items": ["ArenaPaletteScope:light"] },
+    { "title": "Dark island", "items": ["ArenaPaletteScope:dark"] }
+  ]
+}

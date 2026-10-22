@@ -388,9 +388,12 @@ function descriptionFor(directory: string, base: string) {
   const sink = /^frameworks\/([a-z]+)\/kitchen-sink$/.exec(directory);
   if (sink) {
     return `Every Arena component under ${sink[1]} on one page, under each style plugin this `
-      + 'repository ships, and the chart variants on a page of their own.';
+      + 'repository ships, the chart variants and the palette islands on a page of their own each.';
   }
   const one = /^frameworks\/([a-z]+)\/kitchen-sink\/([a-z]+)$/.exec(directory);
+  if (one && one[2] === 'palettes') {
+    return `A palette island under ${one[1]} drawn in each polarity, with its overlay open, on one page.`;
+  }
   if (one && variantSinkNames(base).includes(one[2] ?? '')) {
     return `Every chart variant the demos declare under ${one[1]} on one page: absent data, `
       + 'values at and past the ends of the scale, and configurations a chart warns about.';

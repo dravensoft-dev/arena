@@ -378,6 +378,14 @@ test('a variant holding a wrong value, an unknown member or nothing new fails, n
     /draws the seed unchanged/);
 });
 
+test('a variant may repeat the seed only where SEED_REPEATS says so, and the entry fails once it stops repeating', () => {
+  const seed = { label: 'Client Portal' };
+  const fixture = { component: 'ArenaPaletteScope', seed, variants: { light: { label: 'Client Portal' } } };
+  assert.deepEqual(variantProblems('ArenaPaletteScope', widget, fixture, types), []);
+  const moved = { component: 'ArenaPaletteScope', seed, variants: { light: { label: 'Other' } } };
+  assert.match(variantProblems('ArenaPaletteScope', widget, moved, types)[0] ?? '', /outlived what it was written for/);
+});
+
 test('a variant taking a required member out of the seed fails, since the chart would throw', () => {
   const problems = variantProblems('Widget', widget, { component: 'Widget', seed: { label: 'x' }, variants: { bare: { label: null } } }, types);
   assert.match(problems[0] ?? '', /label is required and carries no default/);

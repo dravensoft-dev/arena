@@ -23,7 +23,7 @@ place that names it, whichever gate or build step spawns it.
 | `bun` | `bun --version` | the runtime and the package manager. `package.json` pins the version and every workflow pins the same one. |
 | `git` | `git --version` | `check:generated`, `check:skills` and `check:citations` ask it what the tree tracks, which no other tool can answer. |
 | `node` | `node --version` | `check:consumer` runs the shipped CLI the way a consumer runs it, under node rather than bun. It is the one place the two are not interchangeable. |
-| a Chromium-family browser | `bun run check:focus-trap` | the gates that measure a real render (`check:focus-trap`, `check:anchoring`, `check:target-size`, `check:pixel-parity`, `check:proximity`) drive Chrome, Chromium or Edge over CDP. Discovery is keyed by platform, so an install in the usual place needs no configuration; `CHROME_PATH` names one anywhere else and is **terminal**, so pointing it at nothing reports that rather than falling back. |
+| a Chromium-family browser | `bun run check:focus-trap` | the gates that measure a real render (`check:focus-trap`, `check:anchoring`, `check:target-size`, `check:pixel-parity`, `check:proximity`, `check:palette-islands`) drive Chrome, Chromium or Edge over CDP. Discovery is keyed by platform, so an install in the usual place needs no configuration; `CHROME_PATH` names one anywhere else and is **terminal**, so pointing it at nothing reports that rather than falling back. |
 | the network, once | `bun scripts/generate/core/fetch-fonts.ts` | only to rebuild the webfonts. Their outputs are tracked precisely because a clone cannot reproduce them, so a normal build never needs it. |
 
 **On macOS** that is the whole list: nothing here is Linux-shaped.

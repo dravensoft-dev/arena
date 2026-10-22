@@ -114,6 +114,15 @@ by its text, so a message shared by several charts would be printed once per pag
 chart that fails to print it; every chart's warning therefore names the chart, and a variant meant
 to be heard carries a message of its own.
 
+## A fourth arrangement, and it is a palette island
+
+`palettes` is a set of seeds too, and the rule that holds `charts` holds it: every item carries a
+variant. It draws `ArenaPaletteScope:light` and `ArenaPaletteScope:dark`, each an island holding a
+surface, a control, a field and a control with a floating bubble. Both pages are drawn in both themes,
+so every island sits inside its own palette and inside the other, and `check:palette-islands` opens each
+tooltip and fails on any painted colour that belongs to the palette outside the island. The variants the demos
+declare are split between these two files, and each is held to appear in one of them.
+
 ## A component that cannot stand alone
 
 Nothing here says so. `ArenaTableCell` needs a table around it and `ArenaTab` needs its tab list,
@@ -124,7 +133,7 @@ reads it from there, so a component that gains or loses a host says so once.
 
 A new component needs its name in every appearance in the same commit, or `check:kitchen-sink` fails
 on the registry entry no fixture covers. A new variant in a demo needs its item in `charts.sink.json`
-in the same commit, or it fails on the variant no arrangement places. Put the name where the arrangement argues it goes, run
+(or `palettes.sink.json`) in the same commit, or it fails on the variant no arrangement places. Put the name where the arrangement argues it goes, run
 `bun run build`, and open the pair with `bun run demos`.
 
 A new **arrangement** is a file here and nothing else: the emitter walks `*.sink.json`, and

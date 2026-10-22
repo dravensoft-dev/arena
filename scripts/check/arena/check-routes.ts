@@ -370,7 +370,7 @@ export const ROUTES: Route[] = [
       + 'the domain the gate lands in',
     entry: 'contributor',
     stops: ['scripts/AGENTS.md', 'scripts/check/AGENTS.md', 'scripts/check/*/AGENTS.md'],
-    budget: 96_400,
+    budget: 97_300,
     reason:
       'the route a contributor takes most often after the component one, and the one whose last '
       + 'stop grows every time a gate lands, because each gate has a row in its domain\'s table. The '
@@ -378,13 +378,11 @@ export const ROUTES: Route[] = [
       + 'rather than the growth it is there to report. A row states the claim and the failure the '
       + 'gate exists for, and the rest of its argument belongs to the gate\'s own reason strings, '
       + 'which its paired suite asserts by name; check:docs caps a table cell, so a row cannot '
-      + 'become the page. Before writing a row, measure the median and the '
-      + 'longest row of the domain table, because the row that breaks a budget is the long one and '
-      + 'the median is what says how often that happens. The rows of the arena domain table '
+      + 'become the page. Measure the longest row of a domain table before writing one. The rows of the arena domain table '
       + 'state what their gates refuse, and the check page carries its section on the sweep running '
       + 'side by side, its pools and --jobs. The focus-trap row names both questions that gate puts '
       + 'to a real browser, the trap and the handoff of a refused hidden control. The target-size row names '
-      + 'its two exceptions. The scripts page names the two Angular runs, the emitted verdict, '
+      + 'its two exceptions. The palette-islands row names what it reads and what it does not. The scripts page names the two Angular runs, the emitted verdict, '
       + 'the JIT loop a task runs and the file-URL rule.',
   },
   {

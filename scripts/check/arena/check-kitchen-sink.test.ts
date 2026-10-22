@@ -99,6 +99,18 @@ test('a variant no arrangement places is named, because nothing would compare it
   assert.match(problems[0] ?? '', /ArenaGaugeChart:no-bands/);
 });
 
+test('the variants may be split across arrangements of variants, each drawn in one of them', () => {
+  const split = new Map<string, SinkFixture>([
+    ['charts', { sink: 'charts', sections: [{ title: 'Charts', items: ['ArenaGaugeChart:at-min', 'ArenaGaugeChart:no-bands'] }] }],
+    ['palettes', { sink: 'palettes', sections: [{ title: 'Palettes', items: ['ArenaSparkline:flat'] }] }],
+  ]);
+  assert.deepEqual(coverageProblems(split, REGISTRY, VARIANTS), []);
+  split.delete('palettes');
+  const problems = coverageProblems(split, REGISTRY, VARIANTS);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /ArenaSparkline:flat/);
+});
+
 test('a variant no demo declares fails, since a typo silently draws one tile fewer', () => {
   const problems = coverageProblems(drawn('ArenaGaugeChart:at-min', 'ArenaGaugeChart:no-bands',
     'ArenaSparkline:flat', 'ArenaSparkline:typo'), REGISTRY, VARIANTS);
