@@ -755,12 +755,11 @@ export function documented(page: string) {
 export async function collect(base = root) {
   const problems = [];
   const dirs = [];
-  let chrome: Awaited<ReturnType<typeof launchChromium>> | null = null;
-  let cdp: Cdp | null = null;
+  const open: { chrome?: Awaited<ReturnType<typeof launchChromium>>; cdp?: Cdp } = {};
   const opened = async () => {
-    chrome ??= await launchChromium(browserOrExit('check-consumer'));
-    cdp ??= await connect(chrome.wsUrl);
-    return cdp;
+    open.chrome ??= await launchChromium(browserOrExit('check-consumer'));
+    open.cdp ??= await connect(open.chrome.wsUrl);
+    return open.cdp;
   };
   const { lists, names: list } = documented(readFileSync(join(base, ...CONFIG_REFERENCE.split('/')), 'utf8'));
   try {
@@ -816,8 +815,8 @@ export async function collect(base = root) {
       problems.push(...subcommandProblems(layer, base, dirs));
     }
   } finally {
-    (cdp as Cdp | null)?.close();
-    await (chrome as { kill(): Promise<unknown> } | null)?.kill();
+    open.cdp?.close();
+    await open.chrome?.kill();
     for (const dir of dirs) rmSync(dir, { recursive: true, force: true });
   }
   return { problems };

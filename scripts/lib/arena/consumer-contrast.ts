@@ -6,7 +6,6 @@
  * a fixture imports only the components its sources use. The page sits beside the theme sheet so its
  * relative imports still resolve. contrastProblems reads no file and launches nothing. */
 
-
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { startStaticServer } from './static-server.ts';
