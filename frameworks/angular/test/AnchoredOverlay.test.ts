@@ -11,12 +11,13 @@ import assert from 'node:assert/strict';
 import { Component, ElementRef, TemplateRef, input, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import {
-  ArenaAnchoredOverlay, arenaConnectedPositions, arenaFirstFocusable, arenaPhysicalPositions, arenaScopeClasses,
+  ArenaAnchoredOverlay, arenaConnectedPositions, arenaFirstFocusable, arenaPhysicalPositions, arenaScopeDress,
 } from '../AnchoredOverlay';
 import type { ArenaAnchoredOverlayOptions, ArenaPanelDismissal } from '../AnchoredOverlay';
 import { assertNotSameNode, assertSameNode } from './NodeAssert';
 import { disposeOverlays } from './Overlays';
 import { ArenaThemeService } from '../theme/ArenaThemeService';
+import { markRuntimePalettes, runtimePalette } from './RuntimePalette';
 
 @Component({
   selector: 'arena-test-probe',
@@ -375,16 +376,16 @@ test('start and end are the physical left and right, whatever the writing direct
   assert.deepEqual(arenaPhysicalPositions(arenaConnectedPositions('center', 'above', 6), true).map((p) => p.originX), ['center', 'center']);
 });
 
-test('arenaScopeClasses names the palette, plugin and density the anchor carries, and nothing when it carries none', () => {
+test('arenaScopeDress names the palette, plugin and density the anchor carries, and nothing when it carries none', () => {
   const anchor = document.createElement('span');
   document.body.append(anchor);
   try {
-    assert.deepEqual(arenaScopeClasses(anchor), []);
+    assert.deepEqual(arenaScopeDress(anchor, null), { classes: [], properties: {} });
     anchor.style.setProperty('--arena-palette', ' light ');
     anchor.style.setProperty('--arena-plugin', 'complete');
-    assert.deepEqual(arenaScopeClasses(anchor), ['arena-light', 'arena-complete']);
+    assert.deepEqual(arenaScopeDress(anchor, null).classes, ['arena-light', 'arena-complete']);
     anchor.style.setProperty('--arena-density', 'compact');
-    assert.deepEqual(arenaScopeClasses(anchor), ['arena-light', 'arena-complete', 'arena-compact']);
+    assert.deepEqual(arenaScopeDress(anchor, null), { classes: ['arena-light', 'arena-complete', 'arena-compact'], properties: {} });
   } finally { anchor.remove(); }
 });
 
@@ -440,6 +441,86 @@ test('an open pane follows the page theme: it drops the old palette class, takes
     assert.equal(document.body.querySelectorAll('.cdk-overlay-pane.arena-dark, .cdk-overlay-pane.arena-light').length, 0);
   } finally {
     window.localStorage?.removeItem('arena-theme');
+    fixture.destroy();
+    disposeOverlays();
+  }
+});
+
+const paneIn = (fixture: { nativeElement: HTMLElement }) => panelOf('solo')!.closest('.cdk-overlay-pane') as HTMLElement;
+
+test('a declared palette still gives its class and no properties', () => {
+  const unmark = markRuntimePalettes();
+  const { fixture, solo } = renderSolo({ plain: true });
+  const anchor = fixture.nativeElement.querySelector('arena-test-probe span') as HTMLElement;
+  try {
+    TestBed.inject(ArenaThemeService).register(runtimePalette('dusk', 'dark'));
+    anchor.style.setProperty('--arena-palette', 'light');
+    solo.overlay.open();
+    fixture.detectChanges();
+    const pane = paneIn(fixture);
+    assert.ok(pane.classList.contains('arena-light'));
+    assert.equal(pane.style.getPropertyValue('--color-base-100'), '');
+  } finally {
+    unmark();
+    fixture.destroy();
+    disposeOverlays();
+  }
+});
+
+test('a pane opened inside a runtime palette wears its hook and properties, not arena-<name>', () => {
+  const unmark = markRuntimePalettes();
+  const { fixture, solo } = renderSolo({ plain: true });
+  const anchor = fixture.nativeElement.querySelector('arena-test-probe span') as HTMLElement;
+  try {
+    const dusk = runtimePalette('dusk', 'dark');
+    TestBed.inject(ArenaThemeService).register(dusk);
+    anchor.style.setProperty('--arena-palette', 'dusk');
+    anchor.style.setProperty('--arena-density', 'compact');
+    solo.overlay.open();
+    fixture.detectChanges();
+    const pane = paneIn(fixture);
+    assert.ok(pane.classList.contains('arena-polarity-dark'));
+    assert.ok(pane.classList.contains('arena-compact'));
+    assert.ok(!pane.classList.contains('arena-dusk'), 'the pane took a class no stylesheet has');
+    for (const [name, value] of Object.entries(dusk.properties)) assert.equal(pane.style.getPropertyValue(name), value, name);
+    solo.overlay.close();
+    anchor.style.setProperty('--arena-palette', 'light');
+    solo.overlay.open();
+    fixture.detectChanges();
+    const again = paneIn(fixture);
+    assert.ok(again.classList.contains('arena-light'));
+    assert.equal(again.style.getPropertyValue('--color-base-100'), '', 'a new pane carries none of the last one\'s properties');
+  } finally {
+    unmark();
+    fixture.destroy();
+    disposeOverlays();
+  }
+});
+
+test('a pane open while the runtime palette is re-registered follows it', () => {
+  const unmark = markRuntimePalettes();
+  const { fixture, solo } = renderSolo({ plain: true });
+  const anchor = fixture.nativeElement.querySelector('arena-test-probe span') as HTMLElement;
+  const service = TestBed.inject(ArenaThemeService);
+  try {
+    service.register(runtimePalette('dusk', 'dark'));
+    anchor.style.setProperty('--arena-palette', 'dusk');
+    solo.overlay.open();
+    fixture.detectChanges();
+    const pane = paneIn(fixture);
+    assert.equal(pane.style.getPropertyValue('--color-base-200'), '#25213f');
+    service.register({ name: 'dusk', polarity: 'light', properties: { '--color-base-100': '#fafafa', '--arena-palette': 'dusk' } });
+    fixture.detectChanges();
+    TestBed.tick();
+    assert.ok(pane.classList.contains('arena-polarity-light'));
+    assert.ok(!pane.classList.contains('arena-polarity-dark'), 'the old hook stayed on the pane');
+    assert.equal(pane.style.getPropertyValue('--color-base-100'), '#fafafa');
+    assert.equal(pane.style.getPropertyValue('--color-base-200'), '', 'a property the new palette lacks stayed on the pane');
+    solo.overlay.close();
+  } finally {
+    unmark();
+    window.localStorage?.removeItem('arena-theme');
+    window.localStorage?.removeItem('arena-runtime-palette');
     fixture.destroy();
     disposeOverlays();
   }

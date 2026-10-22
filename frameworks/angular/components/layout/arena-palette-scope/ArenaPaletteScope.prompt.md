@@ -12,7 +12,7 @@ A palette island: a subtree drawn in one palette while the page keeps another. S
 
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
-| `palette*` | primitive | `string` |  | The name of a palette the theme config declares, such as `light`. A name the theme config does not declare throws, listing the declared ones. The scope draws the class `arena-<palette>` on its element and gives every reader below it this name. |
+| `palette*` | primitive | `string` |  | The name of a palette the theme config declares or one `registerArenaPalette` registered, such as `light`. A name that is neither throws, listing the declared and the registered ones. The scope draws the class `arena-<palette>` on its element, or for a registered palette its polarity hook and its properties, and gives every reader below it this name. |
 | `content` | slot |  |  | What is drawn in the palette. The slot is optional and unguarded, because a scope holding nothing yet is still a valid island. |
 
 <!-- @api end -->
@@ -33,7 +33,9 @@ A palette island: a subtree drawn in one palette while the page keeps another. S
 
 **A bare palette class is a valid island for styling and it is not a scope.** An element with `arena-light` on it takes the light variables, and the readers above do not see it. Use the component wherever something below needs to know the palette.
 
-**A palette the theme config does not declare throws**, with the message `ArenaPaletteScope: no palette named "x"; the declared palettes are dark, light`. The declared names come from the same config `setArenaTheme` checks.
+**A palette neither the theme config nor `ArenaThemeService.register` knows throws**, with the message `ArenaPaletteScope: no palette named "x"; the declared palettes are dark, light`, followed by `; the registered palettes are a, b` when any is registered. The declared names come from the same config `ArenaThemeService.set` checks.
+
+**A registered palette puts its polarity hook and its properties on the scope.** The host wears `arena-polarity-<dark|light>` and the palette's `--color-*`, `--level-*` and `--arena-palette` properties in `style`, in place of `arena-<palette>`. An overlay opened from inside it wears the same.
 
 **Do**
 - Put it around the part of a screen that must keep its own palette, such as a receipt that prints light on a dark page.

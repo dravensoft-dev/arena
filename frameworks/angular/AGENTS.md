@@ -308,7 +308,7 @@ preferred side at the alignment, then at the opposite alignment, then the other 
 when none fits, the pane is pushed inside the viewport at the alignment that overflows least. The
 overlay also keeps the stack Escape and an outside press consult. Focus on open, focus restore
 and Tab-out are options it takes. The pane wears the palette, plugin and density classes the anchor resolves: it reads
-`arenaScopeClasses(anchor)` on each open and again whenever `ArenaThemeService.theme` changes while it is open. `ArenaMenu`,
+`arenaScopeDress(anchor, theme)` on each open and again whenever `ArenaThemeService.theme` changes or a runtime palette is registered while it is open. A runtime palette gives the pane its polarity hook in place of `arena-<name>`, and its properties through `style.setProperty`. `ArenaMenu`,
 `ArenaTooltip`, `ArenaPopover`, `ArenaCombobox` and `ArenaMultiSelect` stand on it.
 
 **A style binding may interpolate the name of the property it reads.** The table's cells bind

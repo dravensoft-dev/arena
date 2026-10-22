@@ -13,7 +13,7 @@ import {
   type ArenaPanelAlign, type ArenaPanelDismissal, type ArenaPanelSide,
 } from './AnchoredPanel';
 import { arenaFocusableElements } from './FocusTrap';
-import { ArenaThemeService } from './theme/ArenaThemeService';
+import { ArenaThemeService, arenaPolarityClass } from './theme/ArenaThemeService';
 
 export type { ArenaPanelAlign, ArenaPanelDismissal, ArenaPanelSide };
 
@@ -60,12 +60,20 @@ export function arenaFirstFocusable(panel: HTMLElement): HTMLElement {
   return arenaOpeningFocus(arenaFocusableElements(panel), panel);
 }
 
-export function arenaScopeClasses(anchor: Element): string[] {
+export interface ArenaScopeDress {
+  classes: string[];
+  properties: Record<string, string>;
+}
+
+export function arenaScopeDress(anchor: Element, theme: ArenaThemeService | null): ArenaScopeDress {
   const style = getComputedStyle(anchor);
-  return ['--arena-palette', '--arena-plugin', '--arena-density']
-    .map((property) => style.getPropertyValue(property).trim())
-    .filter((value) => value !== '')
-    .map((value) => `arena-${value}`);
+  const read = (property: string) => style.getPropertyValue(property).trim();
+  const runtime = theme?.runtimePalette(read('--arena-palette')) ?? null;
+  const classes = ['--arena-palette', '--arena-plugin', '--arena-density']
+    .map((property) => [property, read(property)] as const)
+    .filter(([, value]) => value !== '')
+    .map(([property, value]) => (runtime && property === '--arena-palette' ? arenaPolarityClass(runtime.polarity) : `arena-${value}`));
+  return { classes, properties: runtime ? { ...runtime.properties } : {} };
 }
 
 export class ArenaAnchoredOverlay {
@@ -78,6 +86,7 @@ export class ArenaAnchoredOverlay {
   private ref: OverlayRef | null = null;
   private detach: (() => void) | null = null;
   private paneClasses: string[] = [];
+  private paneProperties: string[] = [];
   private following = false;
 
   readonly isOpen: Signal<boolean> = this.shown.asReadonly();
@@ -94,6 +103,7 @@ export class ArenaAnchoredOverlay {
     if (!theme) return;
     effect(() => {
       theme.theme();
+      theme.runtimePalettes();
       untracked(() => this.refreshPaneClasses());
     }, { injector: this.injector });
   }
@@ -102,11 +112,18 @@ export class ArenaAnchoredOverlay {
     const ref = this.ref;
     const anchor = this.options.anchor();
     if (!ref || !anchor) return;
-    const next = arenaScopeClasses(anchor);
+    const { classes: next, properties } = arenaScopeDress(anchor, this.injector.get(ArenaThemeService, null));
     const stale = this.paneClasses.filter((name) => !next.includes(name));
     if (stale.length) ref.removePanelClass(stale);
     if (next.length) ref.addPanelClass(next);
     this.paneClasses = next;
+    this.wearProperties(ref, properties);
+  }
+
+  private wearProperties(ref: OverlayRef, properties: Record<string, string>): void {
+    for (const name of this.paneProperties) ref.overlayElement.style.removeProperty(name);
+    for (const [name, value] of Object.entries(properties)) ref.overlayElement.style.setProperty(name, value);
+    this.paneProperties = Object.keys(properties);
   }
 
   panelElement(): HTMLElement | null {
@@ -117,7 +134,7 @@ export class ArenaAnchoredOverlay {
   open(): void {
     const anchor = this.options.anchor();
     if (this.ref || !anchor) return;
-    const classes = arenaScopeClasses(anchor);
+    const { classes, properties } = arenaScopeDress(anchor, this.injector.get(ArenaThemeService, null));
     const ref = createOverlayRef(this.injector, {
       positionStrategy: createFlexibleConnectedPositionStrategy(this.injector, anchor)
         .withPositions(arenaPhysicalPositions(this.options.positions(), this.directionality.value === 'rtl'))
@@ -129,6 +146,8 @@ export class ArenaAnchoredOverlay {
     ref.attach(new TemplatePortal(this.options.panel(), this.viewContainer));
     this.ref = ref;
     this.paneClasses = classes;
+    this.paneProperties = [];
+    this.wearProperties(ref, properties);
     this.followTheme();
     this.listen(ref);
     this.shown.set(true);
@@ -147,6 +166,7 @@ export class ArenaAnchoredOverlay {
     this.ref?.dispose();
     this.ref = null;
     this.paneClasses = [];
+    this.paneProperties = [];
     this.shown.set(false);
   }
 

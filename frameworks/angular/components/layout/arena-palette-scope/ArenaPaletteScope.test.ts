@@ -9,6 +9,7 @@ import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ArenaThemeService } from '../../../theme/ArenaThemeService';
 import { ArenaPaletteScope, injectArenaPalette } from './ArenaPaletteScope';
+import { markRuntimePalettes, runtimePalette } from '../../../test/RuntimePalette';
 
 afterEach(() => {
   TestBed.inject(ArenaThemeService).set('dark');
@@ -88,4 +89,37 @@ test('refuses a palette the theme config does not declare', () => {
   const fixture = TestBed.createComponent(Host);
   fixture.componentInstance.inner.set('sepia');
   assert.throws(() => fixture.detectChanges(), /ArenaPaletteScope: no palette named "sepia"; the declared palettes are dark, light/);
+});
+
+test('a scope naming a registered palette wears the hook and the properties', () => {
+  TestBed.resetTestingModule();
+  const unmark = markRuntimePalettes();
+  try {
+    const dusk = runtimePalette('dusk', 'dark');
+    TestBed.inject(ArenaThemeService).register(dusk);
+    const fixture = render();
+    fixture.componentInstance.inner.set('dusk');
+    fixture.detectChanges();
+    const inner = pick(fixture, 'inner');
+    assert.ok(inner.classList.contains('arena-polarity-dark'));
+    assert.equal(inner.classList.contains('arena-dusk'), false);
+    assert.ok(inner.classList.contains('arena-palette-scope__root'));
+    for (const [name, value] of Object.entries(dusk.properties)) assert.equal(inner.style.getPropertyValue(name), value, name);
+    assert.equal(pick(fixture, 'inner-reader').textContent, 'dusk');
+    fixture.componentInstance.inner.set('light');
+    fixture.detectChanges();
+    assert.equal(inner.classList.contains('arena-polarity-dark'), false, 'leaving the runtime palette drops the hook');
+    assert.equal(inner.style.getPropertyValue('--color-base-100'), '', 'and its properties');
+  } finally { unmark(); }
+});
+
+test('an unknown name throws listing declared and registered', () => {
+  TestBed.resetTestingModule();
+  const unmark = markRuntimePalettes();
+  try {
+    TestBed.inject(ArenaThemeService).register(runtimePalette('dusk', 'dark'));
+    const fixture = TestBed.createComponent(Host);
+    fixture.componentInstance.inner.set('sepia');
+    assert.throws(() => fixture.detectChanges(), /ArenaPaletteScope: no palette named "sepia"; the declared palettes are dark, light; the registered palettes are dusk/);
+  } finally { unmark(); }
 });

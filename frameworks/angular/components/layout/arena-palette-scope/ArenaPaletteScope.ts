@@ -1,7 +1,7 @@
 import {
   ChangeDetectionStrategy, Component, InjectionToken, Signal, computed, inject, input,
 } from '@angular/core';
-import { ARENA_THEMES, ArenaThemeConfig, ArenaThemeService, arenaThemeClass } from '../../../theme/ArenaThemeService';
+import { ArenaThemeService, arenaPolarityClass, arenaThemeClass } from '../../../theme/ArenaThemeService';
 import { arenaPaletteScopeStyles } from './ArenaPaletteScope.variants';
 import manifest from './ArenaPaletteScope.classes.generated';
 
@@ -13,10 +13,12 @@ export function injectArenaPalette(): Signal<string> {
   return inject(ARENA_PALETTE, { optional: true }) ?? inject(ArenaThemeService).theme;
 }
 
-function declared(palette: string, config: ArenaThemeConfig): string {
-  const names = config.palettes.map((p) => p.name);
-  if (!names.includes(palette)) {
-    throw new Error(`ArenaPaletteScope: no palette named "${palette}"; the declared palettes are ${names.join(', ')}`);
+function declared(palette: string, theme: ArenaThemeService): string {
+  const names = theme.palettes.map((p) => p.name);
+  if (!names.includes(palette) && !theme.runtimePalette(palette)) {
+    const runtime = theme.runtimePalettes().map((p) => p.name);
+    const registered = runtime.length ? `; the registered palettes are ${runtime.join(', ')}` : '';
+    throw new Error(`ArenaPaletteScope: no palette named "${palette}"; the declared palettes are ${names.join(', ')}${registered}`);
   }
   return palette;
 }
@@ -29,12 +31,13 @@ function declared(palette: string, config: ArenaThemeConfig): string {
     provide: ARENA_PALETTE,
     useFactory: () => {
       const scope = inject(ArenaPaletteScope);
-      const config = inject(ARENA_THEMES);
-      return computed(() => declared(scope.palette(), config));
+      const theme = inject(ArenaThemeService);
+      return computed(() => declared(scope.palette(), theme));
     },
   }],
   host: {
     '[class]': 'hostClass()',
+    '[style]': 'hostStyle()',
     '[attr.data-arena-part]': 'parts.root',
     'data-arena-boundary': '',
   },
@@ -42,14 +45,20 @@ function declared(palette: string, config: ArenaThemeConfig): string {
 })
 export class ArenaPaletteScope {
   protected readonly parts = manifest.parts;
-  private readonly config = inject(ARENA_THEMES);
+  private readonly theme = inject(ArenaThemeService);
 
-  /** The name of a palette the theme config declares, such as `light`. A name the theme config does not declare throws, listing the declared ones. The scope draws the class `arena-<palette>` on its element and gives every reader below it this name. */
+  /** The name of a palette the theme config declares or one `registerArenaPalette` registered, such as `light`. A name that is neither throws, listing the declared and the registered ones. The scope draws the class `arena-<palette>` on its element, or for a registered palette its polarity hook and its properties, and gives every reader below it this name. */
   readonly palette = input.required<string>({ alias: 'arenaPalette' });
 
   protected readonly styles = computed(() => arenaPaletteScopeStyles());
 
-  protected readonly hostClass = computed(
-    () => `${arenaThemeClass(declared(this.palette(), this.config))} ${this.styles().root()}`,
-  );
+  private readonly runtime = computed(() => this.theme.runtimePalette(declared(this.palette(), this.theme)));
+
+  protected readonly hostClass = computed(() => {
+    const runtime = this.runtime();
+    const own = runtime ? arenaPolarityClass(runtime.polarity) : arenaThemeClass(this.palette());
+    return `${own} ${this.styles().root()}`;
+  });
+
+  protected readonly hostStyle = computed(() => this.runtime()?.properties ?? null);
 }

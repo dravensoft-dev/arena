@@ -26,9 +26,40 @@ export function provideArenaThemes(config: ArenaThemeConfig): Provider {
   return { provide: ARENA_THEMES, useValue: config };
 }
 
+export interface ArenaRuntimePalette {
+  name: string;
+  polarity: 'dark' | 'light';
+  properties: Record<string, string>;
+}
+
 export const arenaThemeClass = (name: string): string => `arena-${name}`;
+export const arenaPolarityClass = (polarity: string): string => `arena-polarity-${polarity}`;
 
 const STORAGE_KEY = 'arena-theme';
+export const RUNTIME_CACHE_KEY = 'arena-runtime-palette';
+const RUNTIME_MARKER = '--arena-runtime-palettes';
+const POLARITIES = ['dark', 'light'] as const;
+
+function runtimeProblem(value: unknown): string | null {
+  if (typeof value !== 'object' || value === null) return 'palette: not an object';
+  const { name, polarity, properties } = value as Record<string, unknown>;
+  if (typeof name !== 'string' || name === '') return 'palette: name is not a string';
+  if (polarity !== 'dark' && polarity !== 'light') return `palette "${name}": polarity is not "dark" or "light"`;
+  if (typeof properties !== 'object' || properties === null) return `palette "${name}": properties is not an object`;
+  for (const [key, entry] of Object.entries(properties)) {
+    if (typeof entry !== 'string') return `palette "${name}": ${key} is not a string`;
+    if (key === '--arena-palette') {
+      if (entry !== name) return `palette "${name}": --arena-palette is "${entry}", not the palette's name`;
+    } else if (/^--color-[a-z0-9-]+$/.test(key)) {
+      if (!/^#[0-9a-fA-F]{6}$/.test(entry)) return `palette "${name}": ${key} is "${entry}", not #rrggbb`;
+    } else if (/^--level-[a-z0-9-]+$/.test(key)) {
+      if (!/^\d{1,3}%$/.test(entry)) return `palette "${name}": ${key} is "${entry}", not a percentage such as 40%`;
+    } else {
+      return `palette "${name}": ${key} is not a --color-*, --level-* or --arena-palette property`;
+    }
+  }
+  return null;
+}
 
 @Injectable({ providedIn: 'root' })
 export class ArenaThemeService {
@@ -37,21 +68,52 @@ export class ArenaThemeService {
 
   readonly palettes = this.config.palettes;
   readonly fallback = this.config.default ?? this.config.palettes[0].name;
+  private readonly registered = signal<ArenaRuntimePalette[]>([]);
+  readonly runtimePalettes = this.registered.asReadonly();
   readonly theme = signal<ArenaTheme>(this.initial());
+  private painted: string[] = [];
 
   constructor() {
     effect(() => {
       const current = this.theme();
-      const classes = this.doc.documentElement.classList;
+      const runtime = this.runtimePalette(current);
+      const root = this.doc.documentElement;
       for (const palette of this.palettes) {
-        classes.toggle(arenaThemeClass(palette.name), palette.name === current && current !== this.fallback);
+        root.classList.toggle(arenaThemeClass(palette.name), !runtime && palette.name === current && current !== this.fallback);
+      }
+      for (const polarity of POLARITIES) root.classList.toggle(arenaPolarityClass(polarity), runtime?.polarity === polarity);
+      for (const property of this.painted) root.style.removeProperty(property);
+      this.painted = [];
+      for (const [property, value] of Object.entries(runtime?.properties ?? {})) {
+        root.style.setProperty(property, value);
+        this.painted.push(property);
       }
     });
   }
 
+  register(palette: ArenaRuntimePalette): void {
+    const problem = runtimeProblem(palette);
+    if (problem) throw new Error(`ArenaThemeService.register: ${problem}`);
+    if (this.declares(palette.name)) {
+      throw new Error(`ArenaThemeService.register: "${palette.name}" is a palette the theme config declares; a runtime palette needs a name of its own`);
+    }
+    const window = this.doc.defaultView;
+    if (window && window.getComputedStyle(this.doc.documentElement).getPropertyValue(RUNTIME_MARKER).trim() !== '1') {
+      throw new Error('ArenaThemeService.register: this page\'s stylesheet was built without "runtimePalettes": true in arena.config.json, so no runtime palette can paint here');
+    }
+    this.store(palette);
+    if (this.theme() === palette.name) this.remember(palette);
+  }
+
+  runtimePalette(name: string): ArenaRuntimePalette | null {
+    return this.registered().find((p) => p.name === name) ?? null;
+  }
+
   set(theme: ArenaTheme): void {
-    if (!this.declares(theme)) {
-      throw new Error(`ArenaThemeService: no palette named "${theme}"; the declared palettes are ${this.names().join(', ')}`);
+    if (!this.declares(theme) && !this.runtimePalette(theme)) {
+      const runtime = this.registered().map((p) => p.name);
+      const registered = runtime.length ? `; the registered palettes are ${runtime.join(', ')}` : '';
+      throw new Error(`ArenaThemeService: no palette named "${theme}"; the declared palettes are ${this.declaredNames().join(', ')}${registered}`);
     }
     this.choose(theme);
   }
@@ -63,25 +125,54 @@ export class ArenaThemeService {
   }
 
   polarityOf(theme: ArenaTheme): 'dark' | 'light' | null {
-    return this.palettes.find((p) => p.name === theme)?.polarity ?? null;
+    return this.palettes.find((p) => p.name === theme)?.polarity ?? this.runtimePalette(theme)?.polarity ?? null;
   }
 
   private choose(theme: ArenaTheme): void {
     this.theme.set(theme);
-    this.doc.defaultView?.localStorage?.setItem(STORAGE_KEY, theme);
+    const storage = this.doc.defaultView?.localStorage;
+    storage?.setItem(STORAGE_KEY, theme);
+    const runtime = this.runtimePalette(theme);
+    if (runtime) this.remember(runtime);
+    else storage?.removeItem(RUNTIME_CACHE_KEY);
   }
 
-  private names(): string[] {
+  private store(palette: ArenaRuntimePalette): void {
+    const copy = { name: palette.name, polarity: palette.polarity, properties: { ...palette.properties } };
+    this.registered.update((all) => [...all.filter((p) => p.name !== copy.name), copy]);
+  }
+
+  private remember(palette: ArenaRuntimePalette): void {
+    this.doc.defaultView?.localStorage?.setItem(RUNTIME_CACHE_KEY, JSON.stringify(this.runtimePalette(palette.name)));
+  }
+
+  private declaredNames(): string[] {
     return this.palettes.map((p) => p.name);
   }
 
+  private names(): string[] {
+    return [...this.declaredNames(), ...this.registered().map((p) => p.name)];
+  }
+
   private declares(theme: ArenaTheme): boolean {
-    return this.names().includes(theme);
+    return this.declaredNames().includes(theme);
+  }
+
+  private restored(name: string): boolean {
+    let cached: unknown;
+    try {
+      cached = JSON.parse(this.doc.defaultView?.localStorage?.getItem(RUNTIME_CACHE_KEY) ?? 'null');
+    } catch {
+      return false;
+    }
+    if (runtimeProblem(cached) !== null || (cached as ArenaRuntimePalette).name !== name) return false;
+    this.store(cached as ArenaRuntimePalette);
+    return true;
   }
 
   private initial(): ArenaTheme {
     const stored = this.doc.defaultView?.localStorage?.getItem(STORAGE_KEY);
-    if (stored && this.declares(stored)) return stored;
+    if (stored && (this.declares(stored) || this.restored(stored))) return stored;
     const prefersLight = this.doc.defaultView?.matchMedia('(prefers-color-scheme: light)').matches;
     const preferred = this.palettes.find((p) => p.polarity === (prefersLight ? 'light' : 'dark'));
     return preferred?.name ?? this.fallback;
