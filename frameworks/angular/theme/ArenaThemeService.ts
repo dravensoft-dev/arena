@@ -40,12 +40,15 @@ export const RUNTIME_CACHE_KEY = 'arena-runtime-palette';
 const RUNTIME_MARKER = '--arena-runtime-palettes';
 const POLARITIES = ['dark', 'light'] as const;
 
+const KEBAB = /^[a-z][a-z0-9]*(-[a-z0-9]+)*$/;
+
 function runtimeProblem(value: unknown): string | null {
   if (typeof value !== 'object' || value === null) return 'palette: not an object';
   const { name, polarity, properties } = value as Record<string, unknown>;
   if (typeof name !== 'string' || name === '') return 'palette: name is not a string';
   if (polarity !== 'dark' && polarity !== 'light') return `polarity "${String(polarity)}" is neither dark nor light`;
-  if (typeof properties !== 'object' || properties === null) return 'palette: properties is not an object';
+  if (!KEBAB.test(name)) return `${JSON.stringify(name)} is not a kebab-case name`;
+  if (typeof properties !== 'object' || properties === null || Array.isArray(properties)) return 'palette: properties is not an object';
   for (const [key, entry] of Object.entries(properties)) {
     if (typeof entry !== 'string') return `${key} is not a string`;
     if (key === '--arena-palette') {

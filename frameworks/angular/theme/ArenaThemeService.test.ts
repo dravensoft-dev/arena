@@ -313,3 +313,20 @@ test('register refuses a palette that breaks the shape rules, with the canonical
   fails(props({ '--arena-palette': 'other' }), '--arena-palette is "other" and the palette is named "dusk"');
   assert.equal(theme.runtimePalette('dusk'), null);
 }));
+
+test('a name that is not kebab case, or an array of properties, is refused at register', marked(() => {
+  const theme = service(THREE);
+  assert.throws(() => theme.register(runtimePalette('My Palette', 'dark')), (error: Error) =>
+    error.message === 'ArenaThemeService.register: "My Palette" is not a kebab-case name');
+  assert.throws(() => theme.register({ ...runtimePalette('dusk', 'dark'), properties: [] as never }), /properties is not an object/);
+  assert.equal(theme.runtimePalette('My Palette'), null);
+}));
+
+test('a cache named with a leading digit is ignored when stored as the current name', unmarked(() => {
+  const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+  localStorage.setItem('arena-theme', '9dusk');
+  localStorage.setItem(RUNTIME_CACHE_KEY, JSON.stringify(runtimePalette('9dusk', 'dark')));
+  const theme = service(THREE);
+  assert.equal(theme.theme(), prefersLight ? 'light' : 'dark');
+  assert.equal(theme.runtimePalette('9dusk'), null);
+}));

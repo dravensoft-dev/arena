@@ -58,8 +58,11 @@ function cache(palette: ArenaRuntimePalette | undefined): void {
   }
 }
 
+const KEBAB = /^[a-z][a-z0-9]*(-[a-z0-9]+)*$/;
+
 function shapeProblem(palette: ArenaRuntimePalette): string | null {
   if (!POLARITIES.includes(palette.polarity)) return `polarity "${String(palette.polarity)}" is neither dark nor light`;
+  if (!KEBAB.test(palette.name)) return `${JSON.stringify(palette.name)} is not a kebab-case name`;
   for (const [key, value] of Object.entries(palette.properties)) {
     if (key === '--arena-palette') {
       if (value !== palette.name) return `${key} is "${String(value)}" and the palette is named "${palette.name}"`;

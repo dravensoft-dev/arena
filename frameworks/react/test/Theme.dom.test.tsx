@@ -337,3 +337,16 @@ test('registering the stored name before any read applies it', () => {
   assert.ok(html().classList.contains('arena-polarity-light'));
   assert.equal(html().style.getPropertyValue('--arena-palette'), 'rt-first');
 });
+
+test('a name that is not kebab case is refused at register and ignored in the cache', () => {
+  runtimeClean();
+  initArenaTheme(THREE);
+  assert.throws(() => registerArenaPalette({ ...make('rt-kebab'), name: 'My Palette' }), /registerArenaPalette: "My Palette" is not a kebab-case name/);
+  const odd = { ...make('rt-kebab'), name: '9dusk', properties: { ...make('rt-kebab').properties, '--arena-palette': '9dusk' } };
+  localStorage.setItem('arena-theme', '9dusk');
+  localStorage.setItem(RUNTIME_CACHE_KEY, JSON.stringify(odd));
+  initArenaTheme(THREE);
+  assert.equal(arenaPalettes().some((p) => p.name === '9dusk'), false);
+  assert.ok(THREE.palettes.some((p) => p.name === getArenaTheme()));
+  runtimeClean();
+});

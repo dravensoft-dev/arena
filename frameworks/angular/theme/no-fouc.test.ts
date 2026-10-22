@@ -54,11 +54,11 @@ for (const [label, code] of [['no-fouc.html', htmlBody], ['theme.md', docBody]] 
 
   test(`${label}: a cache that fails a rule leaves the first-visit result`, () => {
     const cases: unknown[] = [
-      bad({ name: 'dark' }),
-      bad({ name: 'light', properties: { '--arena-palette': 'light' } }),
       'not json{',
       bad({ polarity: 'sepia' }),
       bad({ name: 'Sunset', properties: { '--arena-palette': 'Sunset' } }),
+      bad({ name: '9dusk', properties: { '--arena-palette': '9dusk' } }),
+      bad({ properties: [] }),
       props({ '--font-size': '12px' }),
       props({ '--color-base-100': '#FFF1E6' }),
       props({ '--color-base-100': '#fff1e6aa' }),
@@ -82,7 +82,19 @@ for (const [label, code] of [['no-fouc.html', htmlBody], ['theme.md', docBody]] 
   test(`${label}: a declared stored name behaves as before`, () => {
     assert.deepEqual(run(code, { 'arena-theme': 'light' }).classes, ['arena-light']);
     assert.deepEqual(run(code, { 'arena-theme': 'dark' }).classes, []);
-    assert.deepEqual(run(code, withCache(good, 'light')).style, {});
+    const declared = { name: 'light', polarity: 'dark', properties: { '--arena-palette': 'light', '--color-base-100': '#000000' } };
+    const r = run(code, withCache(declared, 'light'));
+    assert.deepEqual(r.style, {}, 'a declared stored name never consults the cache');
+    assert.deepEqual(r.classes, ['arena-light']);
+  });
+
+  test(`${label}: the boundary shapes the layers accept paint, and the rest are first visits`, () => {
+    const empty = run(code, withCache(bad({ properties: {} })));
+    assert.deepEqual(empty.classes, ['arena-polarity-light']);
+    assert.deepEqual(empty.style, {});
+    const noMark = run(code, withCache(bad({ properties: { '--color-base-100': '#fff1e6' } })));
+    assert.deepEqual(noMark.classes, ['arena-polarity-light']);
+    assert.deepEqual(noMark.style, { '--color-base-100': '#fff1e6' });
   });
 
   test(`${label}: a first visit answers the device`, () => {

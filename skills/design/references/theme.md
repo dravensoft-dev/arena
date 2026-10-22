@@ -128,7 +128,7 @@ Apply the class before your stylesheet loads. In React put the script in the HTM
         try { cached = JSON.parse(localStorage.getItem('arena-runtime-palette')); } catch (e) {}
         var props = cached && cached.properties;
         var fits = !!props && typeof props === 'object' && !Array.isArray(props) &&
-          cached.name === stored && /^[a-z0-9]+(-[a-z0-9]+)*$/.test(stored) &&
+          cached.name === stored && /^[a-z][a-z0-9]*(-[a-z0-9]+)*$/.test(stored) &&
           (cached.polarity === 'dark' || cached.polarity === 'light');
         for (var key in props) {
           if (!fits) break;
