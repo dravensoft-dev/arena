@@ -15,8 +15,8 @@
    color-scheme is read by the browser, and it decides the furniture Arena
    never draws: scrollbars, native controls, autofill, and the canvas the UA
    paints wherever nothing else does. It is set per palette class and reaches
-   the page canvas only from the root element, which is where the
-   .arena-<name> class goes.
+   the page canvas only from the root element; on any other element it sets that
+   subtree's native controls and scrollbars.
    --arena-palette names the palette a subtree wears, which is how an overlay
    lifted out of that subtree finds the palette to wear.
    These are declarations about the palette and not a paint: --fill-page is
