@@ -122,7 +122,7 @@ export const GATES: Gate[] = [
   { name: 'check:palette-islands', file: 'arena/check-palette-islands.ts', pool: 'browser', cost: 4.7 },
   { name: 'check:shared-arithmetic', file: 'arena/check-shared-arithmetic.ts' },
   { name: 'check:packages', file: 'arena/check-packages.ts' },
-  { name: 'check:consumer', file: 'arena/check-consumer.ts' },
+  { name: 'check:consumer', file: 'arena/check-consumer.ts', pool: 'browser', cost: 15.3 },
   { name: 'check:exports', file: 'arena/check-exports.ts' },
   { name: 'check:classes', file: 'arena/check-classes.ts' },
   { name: 'check:angular-demos', file: 'angular/check-angular-demos.ts' },

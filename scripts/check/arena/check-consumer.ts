@@ -32,6 +32,9 @@ import { WEIGHT_CLASSES } from '../../generate/core/arena-cli/icon-css.ts';
 import { RULE_TAGS } from '../../generate/core/arena-cli/audit.ts';
 import { captured } from '../../utils/captures.ts';
 import { parseDecls } from '../../lib/arena/css-decls.ts';
+import { browserOrExit, launchChromium } from '../../lib/arena/chromium.ts';
+import { connect } from '../../lib/arena/cdp.ts';
+import { contrastProblems, readContrast } from '../../lib/arena/consumer-contrast.ts';
 
 export const node = {
   name: 'check:consumer',
@@ -752,6 +755,8 @@ export function documented(page: string) {
 export async function collect(base = root) {
   const problems = [];
   const dirs = [];
+  const chrome = await launchChromium(browserOrExit('check-consumer'));
+  const cdp = await connect(chrome.wsUrl);
   const { lists, names: list } = documented(readFileSync(join(base, ...CONFIG_REFERENCE.split('/')), 'utf8'));
   try {
     for (const { layer } of PACKAGES) {
@@ -793,6 +798,10 @@ export async function collect(base = root) {
       const valid = runCli(layer, plugged, base);
       problems.push(...stylePluginProblems(layer, valid, runCli(layer, partialRoot, base)));
       problems.push(...layerProblems(layer, valid));
+      if (valid.status === 0) {
+        const name = PACKAGES.find((p) => p.layer === layer)?.name ?? '';
+        problems.push(...contrastProblems(layer, await readContrast(plugged, name, cdp, pluginName(PLUGINS.partial))));
+      }
       problems.push(...exitProblem(layer, 'arena check --strict over two valid style plugins',
         runCli(layer, plugged, base, ['check'], ['--strict']), 0));
       problems.push(...scopeProblems(layer, runCli(layer, plugged, base, ['audit']),
@@ -802,6 +811,8 @@ export async function collect(base = root) {
       problems.push(...subcommandProblems(layer, base, dirs));
     }
   } finally {
+    cdp.close();
+    await chrome.kill();
     for (const dir of dirs) rmSync(dir, { recursive: true, force: true });
   }
   return { problems };
@@ -817,7 +828,8 @@ async function main() {
   }
   console.log(`check-consumer: both packages run ${CLI} from a node_modules/ path, resolve "auto" to the sheets `
     + `a consumer's sources name, close a named list over what its components draw, `
-    + `scope a style plugin of the project's own, emit a block carrying `
+    + `scope a style plugin of the project's own, widen the boundaries of its root under Increase Contrast `
+    + `in Chromium, emit a block carrying `
     + `its own polarity for each of three palettes, hold a runtime palette from the shipped module equal to `
     + `the class the CLI builds, and every subcommand leaves the tree and the exit code `
     + `it promises`);
