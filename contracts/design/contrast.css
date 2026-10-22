@@ -12,6 +12,8 @@
    Loaded after the roles a style plugin answers, so a plugin's own
    step is what a boundary widens FROM. A project that re-values --bw
    or --bw-strong gets its own two widths here rather than Arena's.
+   For a project's own root plugin, arena build restates this block
+   after the plugin's answers, so the widening starts from its step.
 
    The three cases below are what the kernel can answer. The fourth is
    an accent drawn as ink: whether one is, and which role does it, is a

@@ -11,7 +11,7 @@ import { join } from 'node:path';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { LAYER_TOKENS, FORBIDDEN } from '../../check/arena/check-layer-independence.ts';
 import {
-  TARGETS, openLine, closeLine, renderRegion, applyRegion, renderTarget, regionsOf,
+  TARGETS, noImportSheets, openLine, closeLine, renderRegion, applyRegion, renderTarget, regionsOf,
   ROLE_CONTRACT, BEHAVIOUR_CONTRACT, densityValues, requiredLead, toastIntervals, defaultedRoles, defaultedSentence, defaultsStatement, roleRuns, unansweredCount,
 } from './generate-npm-pages.ts';
 import { tokenCatalogue, CSS_CHAIN } from '../../lib/arena/package-assembly.ts';
@@ -412,4 +412,17 @@ test('each fenced arena:audit script is what arena init writes for that layer', 
       rmSync(cwd, { recursive: true, force: true });
     }
   }
+});
+
+test('the noImport region lists what arena.css imports less the default plugin sheet, in order, and ends with the generated sheet', () => {
+  assert.ok(regionsOf(CLI_PAGE).includes('noImport'), `${CLI_PAGE} carries noImport`);
+  const lines = noImportSheets(repoRoot);
+  assert.ok(!lines.some((line) => line.includes('style-plugin-default.css')));
+  const names = lines.map((line) => line.replace(/^@import '<package>\//, '').replace(/';$/, ''));
+  const chain = CSS_CHAIN.map(({ to }) => to).filter((to) => to !== 'css/style-plugin-default.css');
+  assert.deepEqual(names.slice(0, chain.length), chain);
+  assert.deepEqual(names.slice(chain.length), ['css/base.css', 'css/prelude.css', 'css/components/<component>.css', 'css/vocabulary/<family>.css']);
+  const region = renderRegion('noImport', repoRoot, CLI_PAGE);
+  assert.ok(region.includes("@import './arena.generated.css';\n```"));
+  assert.ok(region.indexOf('arena.generated.css') > region.indexOf('css/vocabulary/<family>.css'));
 });
