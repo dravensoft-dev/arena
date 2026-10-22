@@ -47,7 +47,7 @@ A project that wants its own colours writes the rule, and the rule below is the 
 }
 ```
 
-The page canvas follows the palette of the root element alone, whether that is `:root`, `.arena-dark` or `.arena-light`, so a `color-scheme` set on `body` or on a wrapper leaves the canvas as it was. A palette island paints its own ground through `ArenaPaletteScope`.
+The page canvas follows the palette of the root element alone, whether that is `:root`, `.arena-dark` or `.arena-light`. A `color-scheme` set on `body` or on a wrapper leaves the canvas as it was. A palette island paints its own ground through `ArenaPaletteScope`.
 
 ## Which colour your own markup takes
 

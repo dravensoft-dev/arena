@@ -405,7 +405,7 @@ function drawHeat(svg: SVGSVGElement) {
 }
 ```
 
-In React `useArenaPalette()` re-renders its component with the palette of the nearest `ArenaPaletteScope`, or the page theme outside one, and an effect keyed on that name updates the Chart.js instance and joins the D3 selection again. A bare palette class is not a scope the hook sees, so a chart sits inside an `ArenaPaletteScope` that its parent mounts, and not under a bare class.
+In React `useArenaPalette()` re-renders its component with the palette of the nearest `ArenaPaletteScope`, or the page theme outside one. An effect keyed on that name updates the Chart.js instance and joins the D3 selection again. A bare palette class is not a scope the hook sees. A chart therefore sits inside an `ArenaPaletteScope` that its parent mounts, and not under a bare class.
 
 ```tsx
 import { useEffect } from 'react';

@@ -44,6 +44,12 @@ export const node = {
 };
 
 export const NOT_WRITTEN = new Map<string, string>([
+  ['arena-light', 'the class Arena\'s own light palette takes, which the invariant sheet keys the '
+    + 'picker inversion and the polarity off. The build emits a palette class per declared palette, and '
+    + 'it is not vocabulary: page.md, theme.md and SKILL.md name it as a palette, which is where an adopter meets it'],
+  ['arena-dark', 'the class Arena\'s own dark palette takes, beside the :root it also answers on, which the invariant '
+    + 'sheet keys the picker inversion and the polarity off. The build emits a palette class per declared palette, and '
+    + 'it is not vocabulary: page.md, theme.md and SKILL.md name it as a palette, which is where an adopter meets it'],
   ['arena-shimmer', 'an animation a manifest names on a skeleton, not a family option: it paints a loading '
     + 'placeholder, and an adopter does not write it on a component'],
   ['arena-pop', 'an animation a manifest names on a dialog panel, not a family option: it is an entrance, '
