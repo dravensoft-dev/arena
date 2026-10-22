@@ -2,7 +2,10 @@
  * A browser bundle: the page loads this, so what it imports out of scripts/ never
  * has to be servable on its own. See build-intro.ts for why the tag needs it tracked. */
 // scripts/generate/core/arena-cli/style-plugin-rules.ts
-var RESERVED = new Map;
+var RESERVED = new Map([
+  ["polarity-dark", "the polarity hook a runtime palette wears (spec 28)"],
+  ["polarity-light", "the polarity hook a runtime palette wears (spec 28)"]
+]);
 var scopeKey = (root, selector) => `@scope (${root}) ${selector}`;
 
 // scripts/lib/core/dtcg-shapes.ts

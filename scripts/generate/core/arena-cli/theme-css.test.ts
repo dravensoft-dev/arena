@@ -1158,11 +1158,16 @@ const hookBody = (css: string, polarity: string) => {
   return css.slice(at + open.length, css.indexOf('}', at)).split('\n').map((l) => l.trim()).filter(Boolean);
 };
 
+const MARKETING = () => scoped({
+  'ink-eyebrow': { $type: 'color', $value: '{color.secondary}' },
+  light: { 'ink-eyebrow': { $type: 'color', $value: '{color.base-200}' } },
+});
+
 const runtime = (over: Record<string, any> = {}) => themeCss(listed(['console', 'marketing'], {
   palettes: TWO_PALETTES, runtimePalettes: true, ...over,
 }), {
   sheets: { ...aliased(), roleReferences: ['--fill-x:var(--color-base-200);'] }, importHeader: false,
-  plugins: [total(), scoped({ light: { 'ink-eyebrow': { $type: 'color', $value: '{color.secondary}' } } })],
+  plugins: [total(), MARKETING()],
 });
 
 test('a config without runtimePalettes emits what it emitted before', () => {
@@ -1177,7 +1182,7 @@ test('a config without runtimePalettes emits what it emitted before', () => {
 test('runtimePalettes emits one hook block per polarity carrying exactly the polarity half', () => {
   const css = runtime();
   const sheets = { ...aliased(), roleReferences: ['--fill-x:var(--color-base-200);'] };
-  const plugins = [total(), scoped({ light: { 'ink-eyebrow': { $type: 'color', $value: '{color.secondary}' } } })];
+  const plugins = [total(), MARKETING()];
   const context = { aliases: sheets.aliases, roleReferences: sheets.roleReferences, root: plugins[0]!, catalogue: sheets.catalogue };
   for (const p of POLARITIES) {
     assert.deepEqual(hookBody(css, p), polarityDeclarations(p, context), p);
@@ -1196,17 +1201,15 @@ test('runtimePalettes marks :root', () => {
 
 test('a non-root plugin gets a hook cross per polarity', () => {
   const css = runtime();
-  const marketing = scoped({ light: { 'ink-eyebrow': { $type: 'color', $value: '{color.secondary}' } } });
+  const marketing = MARKETING();
   for (const p of POLARITIES) {
     const answers = restatedBy(marketing, SHEETS_FULL.catalogue, p);
+    assert.ok(answers.length > 0, `the fixture's plugin answers ${p}`);
     const body = `\n${answers.map((d) => `  ${d}`).join('\n')}\n`;
-    if (!answers.length) continue;
-    const cross = scopeOn(`.${polarityClass(p)}`)('.arena-marketing', body);
-    assert.ok(css.includes(cross), `no hook cross for ${p}`);
-    const declared = scopeOn(`.arena-${p}`)('.arena-marketing', body);
-    assert.ok(css.includes(declared), `the palette cross for ${p} differs in body`);
+    assert.ok(css.includes(scopeOn(`.${polarityClass(p)}`)('.arena-marketing', body)), `no hook cross for ${p}`);
+    assert.ok(css.includes(scopeOn(`.arena-${p}`)('.arena-marketing', body)),
+      `the declared ${p} palette's cross lacks the body the hook cross carries`);
   }
-  assert.ok(restatedBy(marketing, SHEETS_FULL.catalogue, 'light').length > 0, 'the fixture answers light');
 });
 
 test('runtimePalettes: "yes" is refused', () => {

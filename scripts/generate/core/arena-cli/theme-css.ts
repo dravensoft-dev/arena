@@ -856,6 +856,11 @@ export function themeCss(config: CheckedConfig, options: ThemeOptions = {}) {
     aliases, roleReferences: sheets?.roleReferences ?? [], root: root ?? null, catalogue,
   };
 
+  const crossesOf = (cross: ReturnType<typeof scopeOn>, polarity: string) => declared.flatMap(({ plugin, at }) => {
+    const answers = at === ':root' ? [] : restatedBy(plugin, catalogue, polarity);
+    return answers.length ? [cross(at, `\n${answers.map((d) => `  ${d}`).join('\n')}\n`)] : [];
+  });
+
   for (const palette of config.palettes) {
     const cross = scopeOn(`.arena-${palette.name}`);
     parts.push(block(`.arena-${palette.name}`, [
@@ -863,22 +868,14 @@ export function themeCss(config: CheckedConfig, options: ThemeOptions = {}) {
       `--arena-palette:${palette.name};`,
       ...polarityDeclarations(palette.polarity, context),
     ]));
-    for (const { plugin, at } of declared) {
-      if (at === ':root') continue;
-      const answers = restatedBy(plugin, catalogue, palette.polarity);
-      if (answers.length) parts.push(cross(at, `\n${answers.map((d) => `  ${d}`).join('\n')}\n`));
-    }
+    parts.push(...crossesOf(cross, palette.polarity));
   }
 
   if (config.runtimePalettes === true) {
     for (const polarity of POLARITIES) {
       const cross = scopeOn(`.${polarityClass(polarity)}`);
       parts.push(block(`.${polarityClass(polarity)}`, polarityDeclarations(polarity, context)));
-      for (const { plugin, at } of declared) {
-        if (at === ':root') continue;
-        const answers = restatedBy(plugin, catalogue, polarity);
-        if (answers.length) parts.push(cross(at, `\n${answers.map((d) => `  ${d}`).join('\n')}\n`));
-      }
+      parts.push(...crossesOf(cross, polarity));
     }
   }
 

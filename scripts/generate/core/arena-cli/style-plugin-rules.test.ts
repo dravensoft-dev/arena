@@ -64,16 +64,15 @@ test('the polarity hooks are the only names held ahead, and a held entry is gone
 
 test('a name or a plugin called polarity-dark or polarity-light is refused for the hook a runtime palette wears', () => {
   for (const name of POLARITY_HOOKS) {
-    assert.match(reservedProblems(name, 'at')[0] ?? '', /held for the polarity hook a runtime palette wears/, name);
+    assert.match(reservedProblems(name, 'at')[0] ?? '', /held for the polarity hook a runtime palette wears \(spec 28\)/, name);
     assert.equal(nameProblems(name, POLARITIES, 'at').length, 1, name);
   }
 });
 
-test('every reserved name is kebab, is no polarity, and carries a reason naming its spec and no version (the polarity hooks name a hook instead)', () => {
+test('every reserved name is kebab, is no polarity, and carries a reason naming its spec and no version', () => {
   for (const [name, reason] of RESERVED) {
     assert.match(name, KEBAB, name);
     assert.ok(!POLARITIES.includes(name), `${name} is a polarity, and a palette may always take its own`);
-    if (POLARITY_HOOKS.includes(name)) continue;
     assert.match(reason, /\(spec \d{2}\)$/, name);
     assert.doesNotMatch(reason, /\bv?\d+\.\d+/, `${name} names a version`);
   }

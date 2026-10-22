@@ -40,6 +40,7 @@ const CONFIG_ROWS: Partial<Record<keyof ArenaConfig, Row>> = {
   stylePlugins: { type: 'array of `default` or a directory path', required: 'no', default: '`["default"]`' },
   stylesheet: { type: 'object', required: 'no', default: 'every sheet the package ships' },
   gradientMark: { type: 'boolean', required: 'no', default: 'unset' },
+  runtimePalettes: { type: 'boolean', required: 'no', default: 'unset' },
 };
 
 const FONT_ROWS: Partial<Record<keyof ArenaFont, () => Row>> = {
