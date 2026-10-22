@@ -189,11 +189,11 @@ A runtime palette applied to an element, `<html>` included, wins there over any 
 
 ## How do I check a runtime palette and turn it into a palette to apply?
 
-`@dravensoft/arena-react/palette` and `@dravensoft/arena-angular/palette` are one module with no framework in it. The module runs in the browser and on a server that saves the palette. The module sits outside the root entry, so an app that never imports it ships none of it. Pass the contents of `arena.runtime.generated.json` as `data`.
+`@dravensoft/arena-react/palette` and `@dravensoft/arena-angular/palette` are one module with no framework in it. The module runs in the browser and on a server that saves the palette. The module sits outside the root entry, so an app that never imports it ships none of it. Pass the contents of `arena.runtime.generated.json` as `data`. The file sits where `arena build` wrote it, which is `src` unless `-o` names another directory ([`cli.md`](./cli.md)). A bundler imports the JSON. Node ESM needs the `with { type: 'json' }` attribute, or `JSON.parse(readFileSync(path, 'utf8'))`.
 
 ```ts
 import { arenaRuntimePalette } from '@dravensoft/arena-react/palette';
-import data from './arena.runtime.generated.json';
+import data from './arena.runtime.generated.json' with { type: 'json' };
 
 const { palette, reports } = arenaRuntimePalette('ocean', {
   polarity: 'light',
@@ -211,7 +211,7 @@ const { palette, reports } = arenaRuntimePalette('ocean', {
 
 **A palette that fails a check is returned, not refused.** `reports` holds the rules and messages `arena check` prints for a declared palette. The rules are the ramp and colour-vision simulation, the text pairs, the axis, the ink on a fill, emphasis, the levels and the washes. Whether to apply a palette with reports, warn the user or turn it away is the app's decision. An empty list means the build would have said nothing.
 
-**The functions throw** on input they cannot read. Data that is missing or of another shape throws a message naming `"runtimePalettes": true`. An input that is not an object, a polarity that is neither `dark` nor `light`, and a missing or malformed colour throw too. So does a name that is not kebab-case, that the config declares, that is a class the package ships, or that is `polarity-dark` or `polarity-light`. Check a palette with `arenaCheckPalette` on the server before it is saved.
+**The functions throw** on input they cannot read. Data that is missing or of another shape throws a message naming `"runtimePalettes": true`. An input that is not an object, or a polarity that is neither `dark` nor `light`, throws too. So does a missing or malformed colour, a colour key Arena does not have, or only some of `heat-1` to `heat-5`. So does a name that is not kebab-case, that the config declares, that is a class the package ships, or that is `polarity-dark` or `polarity-light`. Check a palette with `arenaCheckPalette` on the server before it is saved.
 
 ## How do I apply a runtime palette?
 
@@ -230,9 +230,9 @@ theme.register(palette);
 theme.set(palette.name);
 ```
 
-In React `useArenaPalettes()` answers the declared palettes followed by the registered ones, in registration order, and `setArenaTheme`, `useArenaTheme`, `toggleArenaTheme` and `arenaPalettes` accept a registered name. In Angular `runtimePalettes` is a signal of the registered palettes, `runtimePalette(name)` answers one or `null`, and `set`, `toggle` and `polarityOf` accept a registered name. `toggle` walks the declared palettes and then the registered ones. A name that is neither declared nor registered throws, and the message lists both.
+In React `arenaPalettes()` and `useArenaPalettes()` list the declared palettes followed by the registered ones, in registration order. `setArenaTheme`, `useArenaTheme` and `toggleArenaTheme` accept a registered name. In Angular `runtimePalettes` is a signal of the registered palettes, `runtimePalette(name)` answers one or `null`, and `set`, `toggle` and `polarityOf` accept a registered name. `toggle` walks the declared palettes and then the registered ones. A name that is neither declared nor registered throws, and the message lists both.
 
-The page paints it with the polarity class on `<html>` and each property set with `style.setProperty`. `ArenaPaletteScope` and `[arenaPalette]` accept a registered name too, and an Angular overlay opened inside the scope wears the same palette. **Register a palette before a scope that names it renders.** React renders a scope that mounts before `initArenaTheme` or the registration, and throws for an unknown name once the theme is initialised.
+The page paints it with the polarity class on `<html>` and each property set with `style.setProperty`. `ArenaPaletteScope` and `[arenaPalette]` accept a registered name too. An Angular overlay wears the palette in effect at its anchor, a scope's or the page's. **Register a palette before a scope that names it renders.** React tolerates an unregistered name only before `initArenaTheme` has run: the scope draws `arena-<name>` with no properties and repaints once the palette is registered. After `initArenaTheme`, React throws for an unregistered name. Angular always throws for one.
 
 **Registration throws** in four cases. The config declares the name. The page's `:root` lacks `--arena-runtime-palettes:1`, and the message names `"runtimePalettes": true`. The polarity is neither `dark` nor `light`, or the name is not kebab-case. Or `properties` holds anything but `--color-*` values of the form `#rrggbb`, `--level-*` values such as `40%`, and `--arena-palette` equal to the name.
 
@@ -242,4 +242,4 @@ The app keeps the palette; Arena keeps a copy to paint the first frame. When the
 
 ## What does a runtime palette cost under a content security policy?
 
-The theme surface writes every property with `style.setProperty`. That needs no `unsafe-inline` in `style-src`, and nothing a user types reaches a stylesheet as text, because each value is a validated hex or percentage. A server render that writes the palette as a `style` attribute does need `unsafe-inline` for styles, or a hash or nonce scheme your server controls. Whether to render it on the server is the app's choice.
+The theme surface writes every property with `style.setProperty`. That needs no `unsafe-inline` in `style-src`, and nothing a user types reaches a stylesheet as text, because each value is a validated hex or percentage. A server render that writes the palette as a `style` attribute does need `unsafe-inline` for styles, or a hash or nonce scheme your server controls. Whether to render it on the server is the app's choice. The no-flash snippet is an inline script, so a strict `script-src` needs a hash or a nonce for it.
