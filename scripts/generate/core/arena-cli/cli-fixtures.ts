@@ -137,13 +137,14 @@ export function nodeImportsReachedFrom(file: string): string[] {
   const visit = (path: string) => {
     if (seen.has(path)) return;
     seen.add(path);
-    const text = readFileSync(path, 'utf8');
-    for (const match of text.matchAll(/\b(?:from|import)\s*['"]([^'"]+)['"]/g)) {
+    const text = readFileSync(path, 'utf8').replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[^:'"`])\/\/[^\n]*/g, '$1');
+    for (const match of text.matchAll(/\b(?:from|import)\s*\(?\s*['"]([^'"]+)['"]/g)) {
       const specifier = match[1]!;
       if (specifier.startsWith('node:')) found.push(`${basename(path)}: ${specifier}`);
       else if (/^\.\.?\/.*\.m?[jt]s$/.test(specifier)) {
         const next = resolve(dirname(path), specifier);
-        if (existsSync(next)) visit(next);
+        if (!existsSync(next)) throw new Error(`${basename(path)} imports ${specifier}, which does not exist`);
+        visit(next);
       }
     }
   };

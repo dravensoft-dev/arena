@@ -2,6 +2,7 @@
  * and holds what needs the audit rule tags. */
 
 import { RULE_TAGS } from './audit.ts';
+import type { Report } from './report.ts';
 import type { StrictKind } from './report.ts';
 
 export { report, STRICT_KINDS, UNHOLDABLE_KINDS, REPORT_KINDS } from './report.ts';

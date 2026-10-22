@@ -708,6 +708,10 @@ export function paletteDeclarations(
   return [...declared, ...stepped];
 }
 
+export function restatedBy(plugin: StylePlugin, catalogue: TokenCatalogue | null, polarity: string) {
+  return pluginBlocks(plugin, catalogue, polarity).filter((d) => d.includes('var(--color-'));
+}
+
 export type PolarityContext = {
   aliases: string[]; roleReferences: string[]; root: StylePlugin | null; catalogue: TokenCatalogue | null;
 };
@@ -721,10 +725,6 @@ export function polarityDeclarations(polarity: string, context: PolarityContext)
     ...roleReferences,
     ...(root ? restatedBy(root, catalogue, polarity) : []),
   ];
-}
-
-export function restatedBy(plugin: StylePlugin, catalogue: TokenCatalogue | null, polarity: string) {
-  return pluginBlocks(plugin, catalogue, polarity).filter((d) => d.includes('var(--color-'));
 }
 
 export function scopedImports(
