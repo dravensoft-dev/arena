@@ -310,6 +310,8 @@ export function emitCli(source: string) {
   return outputText.replace(SHIPPED_SPECIFIER, '$1$2.mjs$3');
 }
 
+export const DECLARATION_REACH = /\bimport\s*\(|^\s*(import|export)\b[^;\n]*\bfrom\s*['"]/m;
+
 export function emitDeclaration(source: string, name: string) {
   const { outputText, diagnostics = [] } = transpileDeclaration(source, {
     reportDiagnostics: true,
@@ -342,15 +344,15 @@ export function copyCli(dir: string, root = repoRoot) {
       written.push(one);
     }
   }
-  const palette = join(root, 'scripts', 'generate', 'core', 'arena-cli', 'palette.ts');
-  const declared = emitDeclaration(readFileSync(palette, 'utf8'), 'palette.ts');
-  if (/^import /m.test(declared)) {
-    throw new Error('package-assembly: palette.d.mts imports another file, and a consumer resolves only palette');
-  }
-  write(dir, PALETTE_ENTRY.types.slice(2), declared);
   if (!written.includes(PALETTE_ENTRY.module)) {
     throw new Error(`package-assembly: the manifest exports ${PALETTE_ENTRY.module} and nothing was copied there`);
   }
+  const palette = join(root, 'scripts', 'generate', 'core', 'arena-cli', 'palette.ts');
+  const declared = emitDeclaration(readFileSync(palette, 'utf8'), 'palette.ts');
+  if (DECLARATION_REACH.test(declared)) {
+    throw new Error('package-assembly: palette.d.mts reaches another file, and a consumer resolves only palette');
+  }
+  write(dir, PALETTE_ENTRY.types.slice(2), declared);
   for (const [name, target] of Object.entries(CLI_BINS)) {
     if (!written.includes(target)) {
       throw new Error(`package-assembly: the manifest declares ${name} at ${target} and nothing was copied there`);

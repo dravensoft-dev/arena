@@ -167,5 +167,7 @@ test('an interrupt of the package step ends the ng-packagr it spawned and prints
 });
 
 test('withAssets exports ./palette', () => {
-  assert.deepEqual(withAssets({ exports: {} }).exports['./palette'], { types: PALETTE_ENTRY.types, default: PALETTE_ENTRY.module });
+  const entry = withAssets({ exports: {} }).exports['./palette'] as object;
+  assert.deepEqual(entry, { types: PALETTE_ENTRY.types, default: PALETTE_ENTRY.module });
+  assert.equal(Object.keys(entry)[0], 'types', 'types leads the conditions, or a resolver takes the module first');
 });

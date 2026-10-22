@@ -182,5 +182,7 @@ test('an interrupt of the React package step ends the tsc it spawned and prints 
 });
 
 test('the react manifest exports ./palette', () => {
-  assert.deepEqual(manifest(repoRoot).exports['./palette'], { types: PALETTE_ENTRY.types, import: PALETTE_ENTRY.module });
+  const entry = manifest(repoRoot).exports['./palette'];
+  assert.deepEqual(entry, { types: PALETTE_ENTRY.types, import: PALETTE_ENTRY.module });
+  assert.equal(Object.keys(entry)[0], 'types', 'types leads the conditions, or a resolver takes the module first');
 });
