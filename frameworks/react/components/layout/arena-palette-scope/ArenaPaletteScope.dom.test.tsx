@@ -2,7 +2,10 @@ import test, { afterEach, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
 import React from 'react';
 import { mount, cleanup, act } from '../../../test/Harness.tsx';
-import { initArenaTheme, registerArenaPalette, resetArenaTheme, setArenaTheme } from '../../../Theme.ts';
+import { hydrateRoot } from 'react-dom/client';
+import { renderToString } from 'react-dom/server';
+import { initArenaTheme, registerArenaPalette, RUNTIME_CACHE_KEY, setArenaTheme } from '../../../Theme.ts';
+import { resetArenaTheme } from '../../../ThemeState.ts';
 import { ArenaPaletteScope, useArenaPalette } from './ArenaPaletteScope.tsx';
 
 function Reader({ label }: { label: string }) {
@@ -79,5 +82,41 @@ test('an unknown name after init throws listing declared and registered', () => 
   } finally {
     console.error = quiet;
     document.documentElement.style.removeProperty(ROOT);
+  }
+});
+
+test('a scope naming a cache-restored palette hydrates against the server markup, then wears the palette', () => {
+  resetArenaTheme();
+  const palette = { name: 'scope-cached', polarity: 'light' as const, properties: { '--color-base-100': '#fafafa', '--arena-palette': 'scope-cached' } };
+  localStorage.setItem('arena-theme', 'scope-cached');
+  localStorage.setItem(RUNTIME_CACHE_KEY, JSON.stringify(palette));
+  try {
+    initArenaTheme();
+    const element = <ArenaPaletteScope palette="scope-cached"><Reader label="c" /></ArenaPaletteScope>;
+    const server = renderToString(element);
+    assert.match(server, /arena-scope-cached/);
+    assert.doesNotMatch(server, /arena-polarity/);
+    const box = document.createElement('div');
+    box.innerHTML = server;
+    document.body.appendChild(box);
+    const logged: unknown[][] = [];
+    const recovered: unknown[] = [];
+    const original = console.error;
+    console.error = (...args: unknown[]) => { logged.push(args); };
+    let root: ReturnType<typeof hydrateRoot> | undefined;
+    try {
+      act(() => { root = hydrateRoot(box, element, { onRecoverableError: (error) => { recovered.push(error); } }); });
+    } finally {
+      console.error = original;
+    }
+    assert.deepEqual(logged, []);
+    assert.deepEqual(recovered, []);
+    const scope = box.querySelector<HTMLElement>('[data-arena-part="palette-scope"]');
+    assert.ok(scope?.classList.contains('arena-polarity-light'));
+    assert.equal(scope?.style.getPropertyValue('--color-base-100'), '#fafafa');
+    act(() => { root?.unmount(); });
+    box.remove();
+  } finally {
+    localStorage.removeItem(RUNTIME_CACHE_KEY);
   }
 });

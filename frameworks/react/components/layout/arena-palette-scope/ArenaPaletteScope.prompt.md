@@ -33,7 +33,7 @@ A palette island: a subtree drawn in one palette while the page keeps another. T
 
 **A bare palette class is a valid island for styling and it is not a scope.** An element with `arena-light` on it takes the light variables, and the readers above do not see it. Use the component wherever something below needs to know the palette.
 
-**A name that is neither declared nor registered throws**, with the message `ArenaPaletteScope: no palette named "x"; the declared palettes are dark, light; the registered palettes are none`. The declared names come from the same config `setArenaTheme` checks. The scope checks the name once `initArenaTheme` has run. Before that it draws `arena-<palette>` and checks on init, so a scope may mount ahead of the call.
+**A name that is neither declared nor registered throws**, with the message `ArenaPaletteScope: no palette named "x"; the declared palettes are dark, light`, followed by `; the registered palettes are a, b` when any is registered. The declared names come from the same config `setArenaTheme` checks. The scope checks the name once `initArenaTheme` has run. Before that it draws `arena-<palette>` and checks on init, so a scope may mount ahead of the call.
 
 **A palette `registerArenaPalette` registered** has no class of its own name. The scope's element wears its polarity hook, `arena-polarity-dark` or `arena-polarity-light`, and its `--color-*` and `--level-*` properties.
 

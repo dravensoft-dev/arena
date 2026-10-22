@@ -39,7 +39,7 @@ test('refuses a palette the theme config does not declare, once initArenaTheme h
   initArenaTheme();
   assert.throws(
     () => renderToStaticMarkup(<ArenaPaletteScope palette="sepia">x</ArenaPaletteScope>),
-    /ArenaPaletteScope: no palette named "sepia"; the declared palettes are dark, light; the registered palettes are none/,
+    /ArenaPaletteScope: no palette named "sepia"; the declared palettes are dark, light/,
   );
 });
 

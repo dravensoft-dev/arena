@@ -1,4 +1,5 @@
 import { useSyncExternalStore } from 'react';
+import { ARENA_DEFAULT_THEMES, POLARITIES, polarityClass, state, subscribe, unknownPalette } from './ThemeState.ts';
 
 export type ArenaPolarity = 'dark' | 'light';
 
@@ -18,31 +19,18 @@ export interface ArenaThemeConfig {
   default?: string;
 }
 
-export const ARENA_DEFAULT_THEMES: ArenaThemeConfig = {
-  palettes: [{ name: 'dark', polarity: 'dark' }, { name: 'light', polarity: 'light' }],
-  default: 'dark',
-};
+export { ARENA_DEFAULT_THEMES } from './ThemeState.ts';
 
 export const arenaThemeClass = (name: string): string => `arena-${name}`;
 
 const STORAGE_KEY = 'arena-theme';
 export const RUNTIME_CACHE_KEY = 'arena-runtime-palette';
 const RUNTIME_MARKER = '--arena-runtime-palettes';
-const POLARITIES: ArenaPolarity[] = ['dark', 'light'];
 
-let config: ArenaThemeConfig = ARENA_DEFAULT_THEMES;
-const listeners = new Set<(name: string) => void>();
-let current: string | null = null;
-let initialised = false;
-const registered = new Map<string, ArenaRuntimePalette>();
-let all: ArenaPalette[] | null = null;
-let held: string[] = [];
-
-const names = (): string[] => config.palettes.map((p) => p.name);
-const fallback = (): string => config.default ?? config.palettes[0]?.name ?? 'dark';
+const names = (): string[] => state.config.palettes.map((p) => p.name);
+const fallback = (): string => state.config.default ?? state.config.palettes[0]?.name ?? 'dark';
 const declares = (name: string | null): name is string => name !== null && names().includes(name);
-const knows = (name: string | null): name is string => declares(name) || (name !== null && registered.has(name));
-const polarityClass = (polarity: ArenaPolarity): string => `arena-polarity-${polarity}`;
+const knows = (name: string | null): name is string => declares(name) || (name !== null && state.registered.has(name));
 
 const root = () => (typeof document === 'undefined' ? null : document.documentElement);
 
@@ -108,17 +96,17 @@ function restored(name: string): ArenaRuntimePalette | null {
 function preferred(): string {
   const light = typeof window !== 'undefined'
     && window.matchMedia?.('(prefers-color-scheme: light)').matches;
-  const match = config.palettes.find((p) => p.polarity === (light ? 'light' : 'dark'));
+  const match = state.config.palettes.find((p) => p.polarity === (light ? 'light' : 'dark'));
   return match?.name ?? fallback();
 }
 
 function apply(name: string): void {
   const element = root();
   if (!element) return;
-  for (const key of held) element.style.removeProperty(key);
-  held = [];
-  const runtime = registered.get(name);
-  for (const palette of config.palettes) {
+  for (const key of state.held) element.style.removeProperty(key);
+  state.held = [];
+  const runtime = state.registered.get(name);
+  for (const palette of state.config.palettes) {
     element.classList.toggle(arenaThemeClass(palette.name), !runtime && palette.name === name && name !== fallback());
   }
   for (const polarity of POLARITIES) {
@@ -127,34 +115,32 @@ function apply(name: string): void {
   if (!runtime) return;
   for (const [key, value] of Object.entries(runtime.properties)) {
     element.style.setProperty(key, value);
-    held.push(key);
+    state.held.push(key);
   }
 }
 
 export function getArenaTheme(): string {
-  if (current === null) {
+  if (state.current === null) {
     const saved = stored();
     if (saved !== null && !knows(saved)) {
       const palette = restored(saved);
       if (palette !== null) {
-        registered.set(saved, palette);
-        all = null;
+        state.registered.set(saved, palette);
+        state.all = null;
       }
     }
-    current = knows(saved) ? saved : preferred();
+    state.current = knows(saved) ? saved : preferred();
   }
-  return current;
+  return state.current;
 }
 
 export function setArenaTheme(name: string): string {
-  if (!knows(name)) {
-    throw new Error(`setArenaTheme: no palette named "${name}"; the declared palettes are ${names().join(', ')}`);
-  }
-  current = name;
+  if (!knows(name)) throw new Error(`setArenaTheme: ${unknownPalette(name)}`);
+  state.current = name;
   apply(name);
   remember(name);
-  cache(registered.get(name));
-  for (const listener of listeners) listener(name);
+  cache(state.registered.get(name));
+  for (const listener of state.listeners) listener(name);
   return name;
 }
 
@@ -169,73 +155,48 @@ export function registerArenaPalette(palette: ArenaRuntimePalette): string {
   }
   const problem = shapeProblem(palette);
   if (problem !== null) throw new Error(`registerArenaPalette: ${problem}`);
-  registered.set(name, { name, polarity: palette.polarity, properties: { ...palette.properties } });
-  all = null;
-  if (current === name) {
+  state.registered.set(name, { name, polarity: palette.polarity, properties: { ...palette.properties } });
+  state.all = null;
+  if (state.current === null) getArenaTheme();
+  if (state.current === name) {
     apply(name);
-    cache(registered.get(name));
+    cache(state.registered.get(name));
   }
-  for (const listener of listeners) listener(getArenaTheme());
+  for (const listener of state.listeners) listener(getArenaTheme());
   return name;
 }
 
 export function initArenaTheme(themes: ArenaThemeConfig = ARENA_DEFAULT_THEMES): string {
-  config = themes;
-  current = null;
-  initialised = true;
-  for (const name of registered.keys()) if (declares(name)) registered.delete(name);
-  all = null;
+  state.config = themes;
+  state.current = null;
+  state.initialised = true;
+  for (const name of state.registered.keys()) if (declares(name)) state.registered.delete(name);
+  state.all = null;
   const name = getArenaTheme();
   apply(name);
-  for (const listener of listeners) listener(name);
+  for (const listener of state.listeners) listener(name);
   return name;
 }
 
-export function resetArenaTheme(): void {
-  const element = root();
-  if (element) {
-    for (const key of held) element.style.removeProperty(key);
-    for (const polarity of POLARITIES) element.classList.remove(polarityClass(polarity));
-  }
-  held = [];
-  config = ARENA_DEFAULT_THEMES;
-  current = null;
-  initialised = false;
-  registered.clear();
-  all = null;
-  for (const listener of listeners) listener(fallback());
-}
-
 export function arenaPalettes(): ArenaPalette[] {
-  all ??= [
-    ...config.palettes,
-    ...[...registered.values()].map((p): ArenaPalette => ({ name: p.name, polarity: p.polarity })),
+  state.all ??= [
+    ...state.config.palettes,
+    ...[...state.registered.values()].map((p): ArenaPalette => ({ name: p.name, polarity: p.polarity })),
   ];
-  return all;
+  return state.all;
 }
 
-export function registeredArenaPalette(name: string): ArenaRuntimePalette | undefined {
-  return registered.get(name);
-}
-
-function subscribe(listener: () => void): () => void {
-  listeners.add(listener);
-  return () => { listeners.delete(listener); };
-}
+const declaredPalettes = (): ArenaPalette[] => state.config.palettes;
 
 export function useArenaPalettes(): ArenaPalette[] {
-  return useSyncExternalStore(subscribe, arenaPalettes, arenaPalettes);
+  return useSyncExternalStore(subscribe, arenaPalettes, declaredPalettes);
 }
 
 export function toggleArenaTheme(): string {
-  const declared = names();
-  const next = declared[(declared.indexOf(getArenaTheme()) + 1) % declared.length];
+  const order = arenaPalettes().map((p) => p.name);
+  const next = order[(order.indexOf(getArenaTheme()) + 1) % order.length];
   if (next === undefined) throw new Error('toggleArenaTheme: no palette is declared');
   return setArenaTheme(next);
-}
-
-export function useArenaThemeReady(): boolean {
-  return useSyncExternalStore(subscribe, () => initialised, () => initialised);
 }
 
 export function useArenaTheme(): [string, (name: string) => string] {

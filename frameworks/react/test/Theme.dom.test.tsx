@@ -7,8 +7,10 @@ import test, { afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   ARENA_DEFAULT_THEMES, arenaThemeClass, initArenaTheme, getArenaTheme, setArenaTheme,
-  toggleArenaTheme, arenaPalettes, registerArenaPalette, RUNTIME_CACHE_KEY, resetArenaTheme,
+  toggleArenaTheme, arenaPalettes, registerArenaPalette, RUNTIME_CACHE_KEY, useArenaPalettes,
 } from '../Theme.ts';
+import { resetArenaTheme } from '../ThemeState.ts';
+import type { CheckedConfig } from '../../../scripts/generate/core/arena-cli/theme-css.ts';
 import { renderToString } from 'react-dom/server';
 import { hydrateRoot } from 'react-dom/client';
 import { PALETTE_KEYS } from '../../../scripts/generate/core/arena-cli/palette-keys.ts';
@@ -130,17 +132,15 @@ test('initArenaTheme after the stored key is removed tells a mounted useArenaThe
 const PALETTE_KEYS_FIXTURE = (base: string): Record<string, string> => Object.fromEntries(
   PALETTE_KEYS.map((key) => [key, base]),
 );
-const BUILD: any = {
+const BUILD: CheckedConfig = {
   palettes: [
     { name: 'dark', default: true, polarity: 'dark', colors: PALETTE_KEYS_FIXTURE('#141010') },
     { name: 'light', polarity: 'light', colors: PALETTE_KEYS_FIXTURE('#ffffff') },
   ],
+  fonts: {},
   runtimePalettes: true,
 };
-const DATA = runtimeData(BUILD, {
-  layers: [], components: [], scopes: [], aliases: [], roleReferences: [],
-  catalogue: { tokens: {}, roles: {} },
-} as any, []);
+const DATA = runtimeData(BUILD, null, null);
 const input = (polarity: 'dark' | 'light', base = '#1b1830') => ({ polarity, colors: PALETTE_KEYS_FIXTURE(base) });
 const make = (name: string, polarity: 'dark' | 'light' = 'dark', base = '#1b1830') =>
   arenaRuntimePalette(name, input(polarity, base), DATA).palette;
@@ -224,7 +224,7 @@ test('a stored cache restores the palette on first read', () => {
 test('a cache naming a declared palette, malformed JSON, or a foreign property is ignored', () => {
   const good = make('rt-ignored');
   const cases: Array<[string, string, string]> = [
-    ['declared', 'light', JSON.stringify({ ...good, name: 'light' })],
+    ['declared', 'rt-gone', JSON.stringify({ ...good, name: 'light' })],
     ['malformed', 'rt-ignored', '{not json'],
     ['foreign property', 'rt-ignored', JSON.stringify({ ...good, properties: { ...good.properties, '--evil': 'url(x)' } })],
     ['bad colour', 'rt-ignored', JSON.stringify({ ...good, properties: { ...good.properties, '--color-base-100': 'red' } })],
@@ -264,6 +264,23 @@ test('register refuses a declared name, a foreign property, a bad value and a mi
   runtimeClean();
 });
 
+function hydrated(element: React.ReactElement, markup: string) {
+  const box = document.createElement('div');
+  box.innerHTML = markup;
+  document.body.appendChild(box);
+  const logged: unknown[][] = [];
+  const recovered: unknown[] = [];
+  const original = console.error;
+  console.error = (...args: unknown[]) => { logged.push(args); };
+  let root: ReturnType<typeof hydrateRoot> | undefined;
+  try {
+    act(() => { root = hydrateRoot(box, element, { onRecoverableError: (error) => { recovered.push(error); } }); });
+  } finally {
+    console.error = original;
+  }
+  return { box, logged, recovered, unmount: () => { act(() => { root?.unmount(); }); box.remove(); } };
+}
+
 test('server snapshot is the fallback, and hydrating logs no mismatch', () => {
   runtimeClean();
   initArenaTheme(THREE);
@@ -272,21 +289,51 @@ test('server snapshot is the fallback, and hydrating logs no mismatch', () => {
   const Label = () => React.createElement('span', { id: 'name' }, useArenaTheme()[0]);
   const server = renderToString(React.createElement(Label));
   assert.equal(server, '<span id="name">dark</span>', 'the server answers the fallback while localStorage holds another name');
-  const box = document.createElement('div');
-  box.innerHTML = server;
-  document.body.appendChild(box);
-  const errors: unknown[][] = [];
-  const original = console.error;
-  console.error = (...args: unknown[]) => { errors.push(args); };
-  let root: ReturnType<typeof hydrateRoot> | undefined;
-  try {
-    act(() => { root = hydrateRoot(box, React.createElement(Label)); });
-  } finally {
-    console.error = original;
-  }
-  assert.deepEqual(errors, [], 'no hydration mismatch is logged');
-  assert.equal(box.querySelector('#name')?.textContent, 'rt-ssr', 'the client then moves to the stored palette');
-  act(() => { root?.unmount(); });
-  box.remove();
+  const run = hydrated(React.createElement(Label), server);
+  assert.deepEqual(run.logged, [], 'no hydration mismatch is logged');
+  assert.deepEqual(run.recovered, [], 'and none is recovered from');
+  assert.equal(run.box.querySelector('#name')?.textContent, 'rt-ssr', 'the client then moves to the stored palette');
+  run.unmount();
+});
+
+test('a list from useArenaPalettes hydrates against the declared palettes, then grows', () => {
   runtimeClean();
+  initArenaTheme(THREE);
+  registerArenaPalette(make('rt-list'));
+  const List = () => React.createElement('b', { id: 'list' }, useArenaPalettes().map((p) => p.name).join(','));
+  const server = renderToString(React.createElement(List));
+  assert.equal(server, '<b id="list">dark,light,high-contrast</b>');
+  const run = hydrated(React.createElement(List), server);
+  assert.deepEqual(run.logged, []);
+  assert.deepEqual(run.recovered, []);
+  assert.equal(run.box.querySelector('#list')?.textContent, 'dark,light,high-contrast,rt-list');
+  run.unmount();
+});
+
+test('toggle cycles the declared palettes, then the registered ones, and wraps', () => {
+  runtimeClean();
+  initArenaTheme(THREE);
+  registerArenaPalette(make('rt-tog-a'));
+  registerArenaPalette(make('rt-tog-b'));
+  setArenaTheme('high-contrast');
+  assert.equal(toggleArenaTheme(), 'rt-tog-a');
+  assert.equal(toggleArenaTheme(), 'rt-tog-b');
+  assert.equal(toggleArenaTheme(), 'dark');
+});
+
+test('an unknown name names the registered palettes only when some are registered', () => {
+  runtimeClean();
+  initArenaTheme(THREE);
+  assert.throws(() => setArenaTheme('nope'), (e: Error) => e.message === 'setArenaTheme: no palette named "nope"; the declared palettes are dark, light, high-contrast');
+  registerArenaPalette(make('rt-named'));
+  assert.throws(() => setArenaTheme('nope'), /high-contrast; the registered palettes are rt-named$/);
+});
+
+test('registering the stored name before any read applies it', () => {
+  runtimeClean();
+  localStorage.setItem('arena-theme', 'rt-first');
+  registerArenaPalette(make('rt-first', 'light'));
+  assert.equal(getArenaTheme(), 'rt-first');
+  assert.ok(html().classList.contains('arena-polarity-light'));
+  assert.equal(html().style.getPropertyValue('--arena-palette'), 'rt-first');
 });

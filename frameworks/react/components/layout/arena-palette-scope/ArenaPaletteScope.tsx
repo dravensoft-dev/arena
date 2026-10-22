@@ -3,7 +3,8 @@ import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaPaletteScope.classes.generated.ts';
 import type { ArenaPaletteScopeClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
-import { arenaPalettes, arenaThemeClass, registeredArenaPalette, useArenaPalettes, useArenaTheme, useArenaThemeReady } from '../../../Theme.ts';
+import { arenaThemeClass, useArenaTheme } from '../../../Theme.ts';
+import { state, unknownPalette, useArenaThemeReady, useRegisteredArenaPalette } from '../../../ThemeState.ts';
 
 export interface ArenaPaletteScopeProps {
   className?: ArenaPaletteScopeClass;
@@ -28,14 +29,9 @@ export function useArenaPalette(): string {
 
 export function ArenaPaletteScope({ className, palette, children }: ArenaPaletteScopeProps) {
   const ready = useArenaThemeReady();
-  const known = useArenaPalettes();
-  const runtime = registeredArenaPalette(palette);
-  if (!runtime && ready) {
-    const declared = arenaPalettes().filter((p) => !registeredArenaPalette(p.name)).map((p) => p.name);
-    if (!declared.includes(palette)) {
-      const added = known.map((p) => p.name).filter((n) => !declared.includes(n));
-      throw new Error(`ArenaPaletteScope: no palette named "${palette}"; the declared palettes are ${declared.join(', ')}; the registered palettes are ${added.length > 0 ? added.join(', ') : 'none'}`);
-    }
+  const runtime = useRegisteredArenaPalette(palette);
+  if (ready && !state.registered.has(palette) && !state.config.palettes.some((p) => p.name === palette)) {
+    throw new Error(`ArenaPaletteScope: ${unknownPalette(palette)}`);
   }
   const styles = arenaPaletteScopeStyles();
   return (
