@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from 'react';
-import { ARENA_DEFAULT_THEMES, fallback, POLARITIES, polarityClass, state, subscribe, unknownPalette } from './ThemeState.ts';
+import { DEFAULT_THEMES, fallback, POLARITIES, polarityClass, state, subscribe, unknownPalette } from './ThemeState.ts';
 
 export type ArenaPolarity = 'dark' | 'light';
 
@@ -19,7 +19,7 @@ export interface ArenaThemeConfig {
   default?: string;
 }
 
-export { ARENA_DEFAULT_THEMES } from './ThemeState.ts';
+export const ARENA_DEFAULT_THEMES: ArenaThemeConfig = DEFAULT_THEMES;
 
 export const arenaThemeClass = (name: string): string => `arena-${name}`;
 

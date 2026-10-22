@@ -10,7 +10,7 @@ import {
   toggleArenaTheme, arenaPalettes, registerArenaPalette, RUNTIME_CACHE_KEY, useArenaPalettes,
 } from '../Theme.ts';
 import { resetArenaTheme } from '../ThemeState.ts';
-import type { CheckedConfig } from '../../../scripts/generate/core/arena-cli/theme-css.ts';
+import type { themeCss } from '../../../scripts/generate/core/arena-cli/theme-css.ts';
 import { renderToString } from 'react-dom/server';
 import { hydrateRoot } from 'react-dom/client';
 import { PALETTE_KEYS } from '../../../scripts/generate/core/arena-cli/palette-keys.ts';
@@ -132,6 +132,7 @@ test('initArenaTheme after the stored key is removed tells a mounted useArenaThe
 const PALETTE_KEYS_FIXTURE = (base: string): Record<string, string> => Object.fromEntries(
   PALETTE_KEYS.map((key) => [key, base]),
 );
+type CheckedConfig = Parameters<typeof themeCss>[0];
 const BUILD: CheckedConfig = {
   palettes: [
     { name: 'dark', default: true, polarity: 'dark', colors: PALETTE_KEYS_FIXTURE('#141010') },

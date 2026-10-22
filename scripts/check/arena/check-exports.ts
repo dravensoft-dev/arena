@@ -64,6 +64,9 @@ export const INTERNAL = new Map<string, string>([
     + 'writing against a list that moves'],
   ['arenaThemeClass', THE_DOCUMENTED_SURFACE_IS_ABOVE_IT],
   ['ARENA_DEFAULT_THEMES', THE_DOCUMENTED_SURFACE_IS_ABOVE_IT],
+  ['RUNTIME_CACHE_KEY', 'the localStorage key the theme surface writes the active runtime palette\'s '
+    + 'cache under. theme.md names the key as the string `arena-runtime-palette`, which is what the '
+    + 'no-flash snippet reads, so a consumer holds the string and not this constant'],
   ['arenaToastPersists', THE_DOCUMENTED_SURFACE_IS_ABOVE_IT],
   ['arenaActiveWeight', 'how the Angular layer picks the filled weight of a Phosphor glyph for a '
     + 'selected nav row. A consumer writes the class string themselves and picks their own weight'],

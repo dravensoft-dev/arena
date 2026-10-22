@@ -1,7 +1,7 @@
 import { useSyncExternalStore } from 'react';
 import type { ArenaPolarity, ArenaPalette, ArenaRuntimePalette, ArenaThemeConfig } from './Theme.ts';
 
-export const ARENA_DEFAULT_THEMES: ArenaThemeConfig = {
+export const DEFAULT_THEMES: ArenaThemeConfig = {
   palettes: [{ name: 'dark', polarity: 'dark' }, { name: 'light', polarity: 'light' }],
   default: 'dark',
 };
@@ -12,7 +12,7 @@ export const POLARITIES: ArenaPolarity[] = ['dark', 'light'];
 export const polarityClass = (polarity: ArenaPolarity): string => `arena-polarity-${polarity}`;
 
 export const state = {
-  config: ARENA_DEFAULT_THEMES,
+  config: DEFAULT_THEMES,
   current: null as string | null,
   initialised: false,
   registered: new Map<string, ArenaRuntimePalette>(),
@@ -47,7 +47,7 @@ export function resetArenaTheme(): void {
     for (const polarity of POLARITIES) element.classList.remove(polarityClass(polarity));
   }
   state.held = [];
-  state.config = ARENA_DEFAULT_THEMES;
+  state.config = DEFAULT_THEMES;
   state.current = null;
   state.initialised = false;
   state.registered.clear();
