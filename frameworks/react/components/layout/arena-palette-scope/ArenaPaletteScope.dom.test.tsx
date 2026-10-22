@@ -6,6 +6,7 @@ import { hydrateRoot } from 'react-dom/client';
 import { renderToString } from 'react-dom/server';
 import { initArenaTheme, registerArenaPalette, RUNTIME_CACHE_KEY, setArenaTheme } from '../../../Theme.ts';
 import { resetArenaTheme } from '../../../ThemeState.ts';
+import { forgetArenaWarnings } from '../../../WarnOnce.ts';
 import { ArenaPaletteScope, useArenaPalette } from './ArenaPaletteScope.tsx';
 
 function Reader({ label }: { label: string }) {
@@ -43,9 +44,6 @@ test('a scope naming a project palette renders before initArenaTheme and validat
   assert.ok(root.querySelector('[data-arena-part="palette-scope"]')?.classList.contains('arena-project-only'));
   act(() => { initArenaTheme({ palettes: [{ name: 'dark', polarity: 'dark' }, { name: 'project-only', polarity: 'light' }], default: 'dark' }); });
   assert.ok(root.querySelector('[data-arena-part="palette-scope"]')?.classList.contains('arena-project-only'));
-  cleanup();
-  act(() => { initArenaTheme(); });
-  assert.throws(() => mount(<ArenaPaletteScope palette="project-only"><i /></ArenaPaletteScope>), /no palette named "project-only"/);
 });
 
 test('a scope naming a registered palette wears the hook and the properties', () => {
@@ -67,20 +65,46 @@ test('a scope naming a registered palette wears the hook and the properties', ()
   }
 });
 
-test('an unknown name after init throws listing declared and registered', () => {
+function captureWarnings<T>(run: () => T): { result: T; warned: string[] } {
+  const warned: string[] = [];
+  const original = console.warn;
+  console.warn = (...args: unknown[]) => { warned.push(args.map(String).join(' ')); };
+  try {
+    return { result: run(), warned };
+  } finally {
+    console.warn = original;
+  }
+}
+
+test('a scope naming a name nobody has registered renders pending, warns once, and paints when it is registered', () => {
   resetArenaTheme();
+  forgetArenaWarnings();
   initArenaTheme();
   document.documentElement.style.setProperty(ROOT, '1');
-  registerArenaPalette({ name: 'listed-rt', polarity: 'dark', properties: { '--arena-palette': 'listed-rt' } });
-  const quiet = console.error;
-  console.error = () => undefined;
   try {
-    assert.throws(
-      () => mount(<ArenaPaletteScope palette="nope"><i /></ArenaPaletteScope>),
-      /no palette named "nope"; the declared palettes are dark, light; the registered palettes are listed-rt/,
-    );
+    const { result: root, warned } = captureWarnings(() => mount(
+      <ArenaPaletteScope palette="later-rt"><Reader label="l" /></ArenaPaletteScope>,
+    ));
+    const scope = () => root.querySelector<HTMLElement>('[data-arena-part="palette-scope"]');
+    const palette = () => [...(scope()?.classList ?? [])].filter((c) => c.startsWith('arena-') && !c.startsWith('arena-palette-scope'));
+    assert.deepEqual(palette(), [], 'no palette class while pending');
+    assert.equal(scope()?.getAttribute('style') ?? '', '', 'and no properties');
+    assert.equal(root.querySelector('[data-reader="l"]')?.textContent, 'later-rt', 'the reader still answers the scope name');
+    assert.equal(warned.length, 1);
+    assert.match(warned[0] ?? '', /no palette named "later-rt" is declared or registered/);
+    const again = captureWarnings(() => {
+      act(() => { setArenaTheme('dark'); });
+      cleanup();
+      mount(<ArenaPaletteScope palette="later-rt"><i /></ArenaPaletteScope>);
+    });
+    assert.deepEqual(again.warned, [], 'the same name warns once');
+    cleanup();
+    const root2 = mount(<ArenaPaletteScope palette="later-rt"><Reader label="l" /></ArenaPaletteScope>);
+    act(() => { registerArenaPalette({ name: 'later-rt', polarity: 'light', properties: { '--color-base-100': '#fafafa', '--arena-palette': 'later-rt' } }); });
+    const painted = root2.querySelector<HTMLElement>('[data-arena-part="palette-scope"]');
+    assert.ok(painted?.classList.contains('arena-polarity-light'));
+    assert.equal(painted?.style.getPropertyValue('--color-base-100'), '#fafafa');
   } finally {
-    console.error = quiet;
     document.documentElement.style.removeProperty(ROOT);
   }
 });

@@ -8,6 +8,7 @@ import assert from 'node:assert/strict';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ArenaThemeService } from '../../../theme/ArenaThemeService';
+import { forgetArenaWarnings } from '../../../WarnOnce';
 import { ArenaPaletteScope, injectArenaPalette } from './ArenaPaletteScope';
 import { markRuntimePalettes, runtimePalette } from '../../../test/RuntimePalette';
 
@@ -88,12 +89,6 @@ test('answers the page theme outside any scope', () => {
   assert.equal(pick(fixture, 'bare').textContent, 'dark');
 });
 
-test('refuses a palette the theme config does not declare', () => {
-  const fixture = TestBed.createComponent(Host);
-  fixture.componentInstance.inner.set('sepia');
-  assert.throws(() => fixture.detectChanges(), /ArenaPaletteScope: no palette named "sepia"; the declared palettes are dark, light/);
-});
-
 test('a scope naming a registered palette wears the hook and the properties', () => {
   TestBed.resetTestingModule();
   const unmark = markRuntimePalettes();
@@ -116,15 +111,34 @@ test('a scope naming a registered palette wears the hook and the properties', ()
   } finally { unmark(); }
 });
 
-test('an unknown name throws listing declared and registered', () => {
+test('a name nobody has registered renders pending, warns once, and paints when it is registered', () => {
   TestBed.resetTestingModule();
+  forgetArenaWarnings();
   const unmark = markRuntimePalettes();
+  const warned: string[] = [];
+  const original = console.warn;
+  console.warn = (...args: unknown[]) => { warned.push(args.map(String).join(' ')); };
   try {
-    TestBed.inject(ArenaThemeService).register(runtimePalette('dusk', 'dark'));
     const fixture = TestBed.createComponent(Host);
-    fixture.componentInstance.inner.set('sepia');
-    assert.throws(() => fixture.detectChanges(), /ArenaPaletteScope: no palette named "sepia"; the declared palettes are dark, light; the registered palettes are dusk/);
-  } finally { unmark(); }
+    fixture.componentInstance.inner.set('later');
+    fixture.detectChanges();
+    fixture.detectChanges();
+    const inner = pick(fixture, 'inner');
+    assert.equal([...inner.classList].filter((c) => /^arena-(?!palette-scope)/.test(c)).length, 0, 'no palette class while pending');
+    assert.equal(inner.getAttribute('style') ?? '', '', 'and no properties');
+    assert.equal(pick(fixture, 'inner-reader').textContent, 'later', 'the reader still answers the scope name');
+    assert.equal(warned.length, 1);
+    assert.match(warned[0] ?? '', /no palette named "later" is declared or registered/);
+    const dusk = runtimePalette('later', 'dark');
+    TestBed.inject(ArenaThemeService).register(dusk);
+    fixture.detectChanges();
+    assert.ok(inner.classList.contains('arena-polarity-dark'));
+    for (const [name, value] of Object.entries(dusk.properties)) assert.equal(inner.style.getPropertyValue(name), value, name);
+    assert.equal(warned.length, 1, 'registering does not warn again');
+  } finally {
+    console.warn = original;
+    unmark();
+  }
 });
 
 test('a registered palette re-registered while a scope names it updates the host class and style', () => {

@@ -5,6 +5,7 @@ import {
   ARENA_THEMES, ArenaRuntimePalette, ArenaThemeConfig, ArenaThemeService, arenaPolarityClass, arenaThemeClass,
 } from '../../../theme/ArenaThemeService';
 import { arenaPaletteScopeStyles } from './ArenaPaletteScope.variants';
+import { arenaWarnOnce } from '../../../WarnOnce';
 import manifest from './ArenaPaletteScope.classes.generated';
 
 /** The palette of the nearest `ArenaPaletteScope` above, as a signal. */
@@ -20,19 +21,13 @@ type Theme = () => ArenaThemeService;
 
 const lazily = (injector: Injector): Theme => () => untracked(() => injector.get(ArenaThemeService));
 
-function declared(palette: string, config: ArenaThemeConfig, theme: Theme): string {
-  const names = config.palettes.map((p) => p.name);
-  if (!names.includes(palette) && !theme().runtimePalette(palette)) {
-    const runtime = theme().runtimePalettes().map((p) => p.name);
-    const registered = runtime.length ? `; the registered palettes are ${runtime.join(', ')}` : '';
-    throw new Error(`ArenaPaletteScope: no palette named "${palette}"; the declared palettes are ${names.join(', ')}${registered}`);
-  }
-  return palette;
-}
+const declares = (palette: string, config: ArenaThemeConfig): boolean => config.palettes.some((p) => p.name === palette);
 
 function runtimeOf(palette: string, config: ArenaThemeConfig, theme: Theme): ArenaRuntimePalette | null {
-  const name = declared(palette, config, theme);
-  return config.palettes.some((p) => p.name === name) ? null : theme().runtimePalette(name);
+  if (declares(palette, config)) return null;
+  const runtime = theme().runtimePalette(palette);
+  if (!runtime) arenaWarnOnce(`ArenaPaletteScope: no palette named "${palette}" is declared or registered, so the scope draws no palette until one of that name is registered`);
+  return runtime;
 }
 
 @Component({
@@ -43,9 +38,7 @@ function runtimeOf(palette: string, config: ArenaThemeConfig, theme: Theme): Are
     provide: ARENA_PALETTE,
     useFactory: () => {
       const scope = inject(ArenaPaletteScope);
-      const config = inject(ARENA_THEMES);
-      const theme = lazily(inject(Injector));
-      return computed(() => declared(scope.palette(), config, theme));
+      return computed(() => scope.palette());
     },
   }],
   host: {
@@ -61,7 +54,7 @@ export class ArenaPaletteScope {
   private readonly config = inject(ARENA_THEMES);
   private readonly theme = lazily(inject(Injector));
 
-  /** The name of a palette the theme config declares or one registered at runtime, such as `light`. A name that is neither throws, listing the declared and the registered ones. The scope draws the class `arena-<palette>` on its element, or for a registered palette its polarity hook and its properties, and gives every reader below it this name. */
+  /** The name of a palette the theme config declares or one registered at runtime, such as `light`. A name that is neither renders pending: no palette class and no properties, so the children inherit the page's palette, and a one-time console warning names it. The scope paints the palette as soon as that name is registered. The scope draws the class `arena-<palette>` on its element, or for a registered palette its polarity hook and its properties, and gives every reader below it this name. */
   readonly palette = input.required<string>({ alias: 'arenaPalette' });
 
   protected readonly styles = computed(() => arenaPaletteScopeStyles());
@@ -70,8 +63,9 @@ export class ArenaPaletteScope {
 
   protected readonly hostClass = computed(() => {
     const runtime = this.runtime();
-    const own = runtime ? arenaPolarityClass(runtime.polarity) : arenaThemeClass(this.palette());
-    return `${own} ${this.styles().root()}`;
+    const name = this.palette();
+    const own = runtime ? arenaPolarityClass(runtime.polarity) : declares(name, this.config) ? arenaThemeClass(name) : '';
+    return `${own} ${this.styles().root()}`.trim();
   });
 
   protected readonly hostStyle = computed(() => this.runtime()?.properties ?? null);

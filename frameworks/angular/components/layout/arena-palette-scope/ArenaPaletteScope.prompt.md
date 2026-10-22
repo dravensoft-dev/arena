@@ -12,7 +12,7 @@ A palette island: a subtree drawn in one palette while the page keeps another. S
 
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
-| `palette*` | primitive | `string` |  | The name of a palette the theme config declares or one registered at runtime, such as `light`. A name that is neither throws, listing the declared and the registered ones. The scope draws the class `arena-<palette>` on its element, or for a registered palette its polarity hook and its properties, and gives every reader below it this name. |
+| `palette*` | primitive | `string` |  | The name of a palette the theme config declares or one registered at runtime, such as `light`. A name that is neither renders pending: no palette class and no properties, so the children inherit the page's palette, and a one-time console warning names it. The scope paints the palette as soon as that name is registered. The scope draws the class `arena-<palette>` on its element, or for a registered palette its polarity hook and its properties, and gives every reader below it this name. |
 | `content` | slot |  |  | What is drawn in the palette. The slot is optional and unguarded, because a scope holding nothing yet is still a valid island. |
 
 <!-- @api end -->
@@ -33,7 +33,7 @@ A palette island: a subtree drawn in one palette while the page keeps another. S
 
 **A bare palette class is a valid island for styling and it is not a scope.** An element with `arena-light` on it takes the light variables, and the readers above do not see it. Use the component wherever something below needs to know the palette.
 
-**A palette neither the theme config nor `ArenaThemeService.register` knows throws**, with the message `ArenaPaletteScope: no palette named "x"; the declared palettes are dark, light`, followed by `; the registered palettes are a, b` when any is registered. The declared names come from the same config `ArenaThemeService.set` checks.
+**A palette neither the theme config nor `ArenaThemeService.register` knows renders pending.** The host wears no palette class and no properties, so everything below it inherits the page's palette, and `console.warn` names the missing palette once. The scope paints the palette as soon as `register` registers that name, and `injectArenaPalette()` below it answers the scope's name meanwhile. Nothing throws, so the scope may mount before the user's palette has been fetched and registered.
 
 **A registered palette puts its polarity hook and its properties on the scope.** The host wears `arena-polarity-<dark|light>` and the palette's `--color-*`, `--level-*` and `--arena-palette` properties in `style`, in place of `arena-<palette>`. An overlay opened from inside it wears the same.
 
