@@ -25,6 +25,8 @@ const HEAT_KEY_REASON = 'the default a heat-step role is born at, so it reaches 
 export const EXCLUDED = new Map([
   ['arena-plugin', 'names the style plugin a subtree wears, so an overlay lifted out of that subtree can find the one to '
     + 'wear; a channel read from computed style, never painted, so no utility offers it'],
+  ['title-hero-fit', 'a computed size the hero reaches through an arbitrary length, text-[length:var(--title-hero-fit)], '
+    + 'restated on every plugin class so a nested plugin keeps it; no utility offers it'],
   ['pad-band-x', 'read inside the band\'s min()'],
   ['pad-row-indent', 'only the side nav\'s arbitrary inset reads it'],
   ['sp-0', 'p-0 compiles to a literal 0px in v4 regardless of the theme'],
