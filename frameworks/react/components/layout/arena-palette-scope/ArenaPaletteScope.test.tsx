@@ -35,12 +35,17 @@ test('answers the page theme outside any scope, before initArenaTheme and with n
   assert.match(renderToStaticMarkup(<Reader label="bare" />), new RegExp(`<i data-reader="bare">${getArenaTheme()}</i>`));
 });
 
-test('refuses a palette the theme config does not declare, once initArenaTheme has run', () => {
+test('a palette the theme config does not declare renders pending once initArenaTheme has run', () => {
   initArenaTheme();
-  assert.throws(
-    () => renderToStaticMarkup(<ArenaPaletteScope palette="sepia">x</ArenaPaletteScope>),
-    /ArenaPaletteScope: no palette named "sepia"; the declared palettes are dark, light/,
-  );
+  const quiet = console.warn;
+  console.warn = () => undefined;
+  try {
+    const html = renderToStaticMarkup(<ArenaPaletteScope palette="sepia">x</ArenaPaletteScope>);
+    assert.doesNotMatch(html, /arena-sepia/);
+    assert.match(html, /arena-palette-scope__root/);
+  } finally {
+    console.warn = quiet;
+  }
 });
 
 test('the default palette is an island too', () => {
