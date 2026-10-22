@@ -73,6 +73,7 @@ export const UNTRACKED = {
   'frameworks/react/StructuredData.generated.js': 'the same, for the schema.org serialisation the '
     + 'structured-data pattern requires.',
   'frameworks/react/Theme.generated.js': 'the same, for the theme helper.',
+  'frameworks/react/ThemeState.generated.js': 'the same, for the state the theme helper and the palette scope share.',
   'frameworks/react/WarnOnce.generated.js': 'the same, for the once-per-message console warning '
     + 'the charts and ArenaTable share.',
   'frameworks/react/UseArenaContainerWidth.generated.js': 'the same, for the container-width hook.',

@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from 'react';
-import { ARENA_DEFAULT_THEMES, POLARITIES, polarityClass, state, subscribe, unknownPalette } from './ThemeState.ts';
+import { ARENA_DEFAULT_THEMES, fallback, POLARITIES, polarityClass, state, subscribe, unknownPalette } from './ThemeState.ts';
 
 export type ArenaPolarity = 'dark' | 'light';
 
@@ -28,7 +28,6 @@ export const RUNTIME_CACHE_KEY = 'arena-runtime-palette';
 const RUNTIME_MARKER = '--arena-runtime-palettes';
 
 const names = (): string[] => state.config.palettes.map((p) => p.name);
-const fallback = (): string => state.config.default ?? state.config.palettes[0]?.name ?? 'dark';
 const declares = (name: string | null): name is string => name !== null && names().includes(name);
 const knows = (name: string | null): name is string => declares(name) || (name !== null && state.registered.has(name));
 

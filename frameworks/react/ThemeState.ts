@@ -6,6 +6,8 @@ export const ARENA_DEFAULT_THEMES: ArenaThemeConfig = {
   default: 'dark',
 };
 
+export const fallback = (): string => state.config.default ?? state.config.palettes[0]?.name ?? 'dark';
+
 export const POLARITIES: ArenaPolarity[] = ['dark', 'light'];
 export const polarityClass = (polarity: ArenaPolarity): string => `arena-polarity-${polarity}`;
 
@@ -50,5 +52,5 @@ export function resetArenaTheme(): void {
   state.initialised = false;
   state.registered.clear();
   state.all = null;
-  for (const listener of state.listeners) listener(state.config.default ?? 'dark');
+  for (const listener of state.listeners) listener(fallback());
 }
