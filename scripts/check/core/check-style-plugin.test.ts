@@ -30,7 +30,7 @@ const ROLES = {
 test('the rules module carries floors, shape checks and the kernel defaults, and no design theory', () => {
   assert.deepEqual(Object.keys(rules).sort(), [
     'ARENA_EXT', 'DANGER_FLOOR', 'FS_STEP', 'KEBAB', 'MAX_PROSE_MEASURE', 'MIN_HEADING_LEADING',
-    'MIN_PROSE_LEADING', 'MIN_PROSE_MEASURE', 'RESERVED', 'RHYTHM_STEP',
+    'MIN_PROSE_LEADING', 'MIN_PROSE_MEASURE', 'POLARITY_HOOKS', 'RESERVED', 'RHYTHM_STEP',
     'crossKeys', 'floorProblems', 'keyProblems', 'nameProblems', 'reservedProblems', 'rootOnlyFor', 'scopeKey', 'scopeOn',
     'totalityProblems', 'valueProblems', 'withDefaults',
   ], 'a rule that keeps a catalogue coherent is Arena design theory, and a floor is a claim about '
