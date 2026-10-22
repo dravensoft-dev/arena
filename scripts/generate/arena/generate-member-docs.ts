@@ -37,6 +37,7 @@ export const node = {
     'check:api',
     'check:appearance',
     'check:parts',
+    'check:portability',
     'check:arbitrary',
     'check:behaviour',
     'check:boolean-inputs',
