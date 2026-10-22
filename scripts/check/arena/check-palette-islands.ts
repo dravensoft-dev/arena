@@ -2,7 +2,8 @@
  * palette outside. The `palettes` sink draws an island of each polarity; this loads it in both
  * layers and both themes, hovers and focuses each tooltip trigger so the bubble is open (the
  * Angular one leaves the island for the overlay container), resolves both palettes from every
- * custom property a palette rule declares on a probe wearing each class, and reads the painted
+ * custom property a palette rule declares on a probe wearing each class, once flat and once inside
+ * the opposite class (a name whose value moves between the two is reported), and reads the painted
  * colours of every element in the island and its bubble. A colour only the opposite palette holds
  * is an outsider; one both hold is ignored. Colours compare as the 8-bit sRGB a canvas draws, and
  * alpha 0 paints nothing, so it is dropped from both sides. */
@@ -60,7 +61,11 @@ export type IslandReading = {
   painted: Finding[];
   bubbles: number;
   elements: number;
+  nested: string[];
+  waits: Waits;
 };
+
+export type Waits = { opened: boolean; closed: boolean };
 
 export type PageReading = { layer: string; theme: string; islands: IslandReading[] };
 
@@ -83,6 +88,17 @@ export function outsiderLines(layer: string, theme: string, reading: IslandReadi
   return lines;
 }
 
+export function readIslandProblems(label: string, waits: Waits) {
+  const problems: string[] = [];
+  if (!waits.opened) {
+    problems.push(`${label}: the tooltip bubble did not open within ${OPENED.ms}ms, so the overlay was read without it`);
+  }
+  if (!waits.closed) {
+    problems.push(`${label}: the tooltip bubble did not close within ${CLOSED.ms}ms, so a bubble left over would shift the next island's reading`);
+  }
+  return problems;
+}
+
 export function readingProblems(reading: PageReading) {
   const where = `${reading.layer} ${SINK}?theme=${reading.theme}`;
   const problems: string[] = [];
@@ -93,9 +109,18 @@ export function readingProblems(reading: PageReading) {
     const label = `${where} ${one.palette} island`;
     if (one.island.length === 0 || one.outer.length === 0) {
       problems.push(`${label}: a palette resolved to no colour, so no colour could be told apart`);
-    } else if (new Set(one.island).size === new Set([...one.island, ...one.outer]).size) {
-      problems.push(`${label}: the two palettes hold the same colours, so an outsider could not be told from the island's own`);
+    } else {
+      const mine = new Set(one.island);
+      const theirs = new Set(one.outer);
+      if ([...mine].every((c) => theirs.has(c)) || [...theirs].every((c) => mine.has(c))) {
+        problems.push(`${label}: one palette holds nothing the other lacks, so an outsider could not be told from the island's own`);
+      }
     }
+    for (const name of one.nested) {
+      problems.push(`${label}: ${name} resolves differently on a probe inside the opposite palette class than on a flat one, `
+        + 'so a token derived from the palette was not restated for the nesting and reads as shared');
+    }
+    problems.push(...readIslandProblems(label, one.waits));
     if (one.bubbles === 0) {
       problems.push(`${label}: no tooltip opened, so the overlay was not read`);
     }
@@ -157,14 +182,25 @@ export const PALETTES = `(() => {
     }
   };
   for (const sheet of document.styleSheets) { try { walk(sheet.cssRules); } catch (_) {} }
-  const out = {};
-  for (const palette of ['light', 'dark']) {
+  const out = { nested: {} };
+  const resolve = (host, palette) => {
     const probe = document.createElement('div');
     probe.className = 'arena-' + palette;
-    document.body.append(probe);
+    host.append(probe);
     const style = getComputedStyle(probe);
-    out[palette] = [...new Set([...names].map((n) => window.__arenaNorm(style.getPropertyValue(n).trim())).filter(Boolean))];
+    const values = new Map([...names].map((n) => [n, window.__arenaNorm(style.getPropertyValue(n).trim())]));
     probe.remove();
+    return values;
+  };
+  for (const palette of ['light', 'dark']) {
+    const opposite = document.createElement('div');
+    opposite.className = 'arena-' + (palette === 'light' ? 'dark' : 'light');
+    document.body.append(opposite);
+    const flat = resolve(document.body, palette);
+    const inside = resolve(opposite, palette);
+    opposite.remove();
+    out[palette] = [...new Set([...flat.values()].filter(Boolean))];
+    out.nested[palette] = [...names].filter((n) => flat.get(n) !== inside.get(n)).sort();
   }
   return out;
 })()`;
@@ -274,16 +310,17 @@ export const COLLECT_PAINT = (index: number) => `(() => {
 export async function readIsland(cdp: Cdp, sessionId: string, index: number) {
   const ev = (expression: string) => evaluate(cdp, expression, sessionId);
   const at = await ev(TRIGGER(index)) as { x: number; y: number } | null;
+  let opened = true;
   if (at) {
     await cdp.send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: at.x, y: at.y }, sessionId);
     await ev(FOCUS(index));
-    await ev(bubbleExpression(true, OPENED));
+    opened = await ev(bubbleExpression(true, OPENED)) as boolean;
   }
   const read = await ev(COLLECT_PAINT(index)) as { painted: Finding[]; bubbles: number; elements: number };
   await cdp.send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: 0, y: 0 }, sessionId);
   await ev(BLUR);
-  await ev(bubbleExpression(false, CLOSED));
-  return read;
+  const closed = await ev(bubbleExpression(false, CLOSED)) as boolean;
+  return { ...read, waits: { opened, closed } };
 }
 
 async function readIn(cdp: Cdp, sessionId: string, layer: string, theme: string, url: string) {
@@ -306,13 +343,13 @@ async function readIn(cdp: Cdp, sessionId: string, layer: string, theme: string,
     painted = await ev(readyExpression(PAINTED)) as Painted;
     if (painted.ready) {
       const count = await ev(`${ISLANDS}.length`) as number;
-      const palettes = await ev(PALETTES) as Record<string, string[]>;
+      const palettes = await ev(PALETTES) as Record<string, string[]> & { nested: Record<string, string[]> };
       const islands: IslandReading[] = [];
       for (let index = 0; index < count; index += 1) {
         const palette = await ev(`${ISLANDS}[${index}].classList.contains('arena-light') ? 'light' : 'dark'`) as string;
         const other = palette === 'light' ? 'dark' : 'light';
         const read = await readIsland(cdp, sessionId, index);
-        islands.push({ palette, island: palettes[palette] ?? [], outer: palettes[other] ?? [], ...read });
+        islands.push({ palette, island: palettes[palette] ?? [], outer: palettes[other] ?? [], nested: palettes.nested[palette] ?? [], ...read });
       }
       reading = { layer, theme, islands };
     }

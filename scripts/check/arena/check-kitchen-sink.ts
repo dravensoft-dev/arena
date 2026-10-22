@@ -49,13 +49,13 @@ export function variantNames(demos: Map<string, { variants?: Record<string, unkn
 }
 
 export function variantCoverageProblems(sink: string, items: string[], variants: Map<string, string[]>,
-  held: Set<string> = new Set(items), reportMissing = true) {
+  held: Set<string> = new Set(items), reportMissing = true, elsewhere: Set<string> = new Set()) {
   const problems = [];
   const expected = [...variants].flatMap(([component, names]) => names.map((name) => `${component}:${name}`));
   const seen = new Set(items);
   const missing = expected.filter((item) => !held.has(item));
   if (reportMissing && missing.length > 0) {
-    problems.push(`${sink}: ${missing.length} variant(s) a demo declares appear nowhere in this `
+    problems.push(`${sink}: ${missing.length} variant(s) a demo declares appear in no variant `
       + `arrangement, so nothing compares them here: ${missing.join(', ')}`);
   }
   const known = new Set(expected);
@@ -68,6 +68,11 @@ export function variantCoverageProblems(sink: string, items: string[], variants:
   if (twice.length > 0) {
     problems.push(`${sink}: places ${twice.join(', ')} more than once, and a variant drawn twice is `
       + 'a tile that lost track of what it was for');
+  }
+  const shared = [...seen].filter((item) => elsewhere.has(item)).sort();
+  if (shared.length > 0) {
+    problems.push(`${sink}: draws ${shared.join(', ')}, which another variant arrangement also draws, `
+      + 'and a variant is drawn once');
   }
   return problems;
 }
@@ -86,7 +91,9 @@ export function coverageProblems(fixtures: Map<string, SinkFixture>, registry: s
       continue;
     }
     if (isVariantArrangement(fixture)) {
-      problems.push(...variantCoverageProblems(sink, items, variants, held, drawn[0]?.[0] === sink));
+      const elsewhere = new Set(drawn.filter(([name]) => name !== sink)
+        .flatMap(([, other]) => other.sections.flatMap((section) => section.items)));
+      problems.push(...variantCoverageProblems(sink, items, variants, held, drawn[0]?.[0] === sink, elsewhere));
       continue;
     }
     const mixed = items.filter((item) => splitItem(item).variant !== undefined);

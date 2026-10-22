@@ -97,6 +97,7 @@ test('a variant no arrangement places is named, because nothing would compare it
   const problems = coverageProblems(drawn('ArenaGaugeChart:at-min', 'ArenaSparkline:flat'), REGISTRY, VARIANTS);
   assert.equal(problems.length, 1);
   assert.match(problems[0] ?? '', /ArenaGaugeChart:no-bands/);
+  assert.match(problems[0] ?? '', /in no variant arrangement/);
 });
 
 test('the variants may be split across arrangements of variants, each drawn in one of them', () => {
@@ -109,6 +110,16 @@ test('the variants may be split across arrangements of variants, each drawn in o
   const problems = coverageProblems(split, REGISTRY, VARIANTS);
   assert.equal(problems.length, 1);
   assert.match(problems[0] ?? '', /ArenaSparkline:flat/);
+});
+
+test('a variant drawn in two variant arrangements fails, since it is to be drawn once', () => {
+  const twice = new Map<string, SinkFixture>([
+    ['charts', { sink: 'charts', sections: [{ title: 'Charts', items: ['ArenaGaugeChart:at-min', 'ArenaGaugeChart:no-bands', 'ArenaSparkline:flat'] }] }],
+    ['palettes', { sink: 'palettes', sections: [{ title: 'Palettes', items: ['ArenaSparkline:flat'] }] }],
+  ]);
+  const problems = coverageProblems(twice, REGISTRY, VARIANTS);
+  assert.equal(problems.length, 2, 'each of the two arrangements names the variant');
+  assert.match(problems.join('\n'), /ArenaSparkline:flat, which another variant arrangement also draws/);
 });
 
 test('a variant no demo declares fails, since a typo silently draws one tile fewer', () => {

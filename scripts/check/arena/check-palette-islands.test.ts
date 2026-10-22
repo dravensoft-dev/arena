@@ -1,12 +1,12 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { paintedOutsiders, outsiderLines, readingProblems, main, node, SINK, type IslandReading } from './check-palette-islands.ts';
+import { paintedOutsiders, outsiderLines, readingProblems, readIslandProblems, main, node, SINK, type IslandReading } from './check-palette-islands.ts';
 
 const LIGHT = ['rgb(255, 255, 255)', 'rgb(10, 10, 10)', 'rgb(1, 2, 3)'];
 const DARK = ['rgb(20, 16, 16)', 'rgb(243, 237, 229)', 'rgb(1, 2, 3)'];
 
 const island = (painted: IslandReading['painted'], over: Partial<IslandReading> = {}): IslandReading => ({
-  palette: 'light', island: LIGHT, outer: DARK, painted, bubbles: 1, elements: 9, ...over,
+  palette: 'light', island: LIGHT, outer: DARK, painted, bubbles: 1, elements: 9, nested: [], waits: { opened: true, closed: true }, ...over,
 });
 
 test('a painted colour found only in the outer palette is an outsider', () => {
@@ -38,7 +38,7 @@ test('an island with no tooltip, no paint, or two palettes that agree is a probl
   assert.match(readingProblems(page(island(painted, { bubbles: 0 })))[0] ?? '', /no tooltip opened/);
   assert.match(readingProblems(page(island([])))[0] ?? '', /no painted colour/);
   assert.match(readingProblems(page(island(painted, { outer: [] })))[0] ?? '', /resolved to no colour/);
-  assert.match(readingProblems(page(island(painted, { outer: ['rgb(1, 2, 3)'] })))[0] ?? '', /hold the same colours/);
+  assert.match(readingProblems(page(island(painted, { outer: ['rgb(1, 2, 3)'] })))[0] ?? '', /holds nothing the other lacks/);
   assert.match(readingProblems({ layer: 'react', theme: 'dark', islands: [] })[0] ?? '', /no palette island/);
 });
 
@@ -68,4 +68,24 @@ test('main exits 0 silently on a clean sweep', async () => {
 test('the gate sits in the browser pool and reads the sink it draws', () => {
   assert.equal(SINK, 'palettes');
   assert.ok(node.reads.some((one) => one.includes('kitchen-sink/palettes')));
+});
+
+test('the palettes must each hold a colour the other lacks, not only the island one', () => {
+  const page = (one: IslandReading) => ({ layer: 'react', theme: 'dark', islands: [one] });
+  const painted = [{ selector: 'div', property: 'color', colour: 'rgb(10, 10, 10)' }];
+  const subset = island(painted, { island: ['rgb(1, 2, 3)'], outer: ['rgb(1, 2, 3)', 'rgb(9, 9, 9)'] });
+  assert.match(readingProblems(page(subset))[0] ?? '', /holds nothing the other lacks/);
+});
+
+test('a colour that changes when the probe sits inside the opposite class is named', () => {
+  const page = { layer: 'react', theme: 'dark', islands: [island(
+    [{ selector: 'div', property: 'color', colour: 'rgb(10, 10, 10)' }],
+    { nested: ['--mute'] })] };
+  assert.ok(readingProblems(page).some((one) => /--mute/.test(one) && /opposite/.test(one)));
+});
+
+test('a bubble that did not open or close is a problem naming the island', () => {
+  assert.deepEqual(readIslandProblems('react palettes?theme=dark light island', { opened: true, closed: true }), []);
+  assert.match(readIslandProblems('x', { opened: false, closed: true })[0] ?? '', /bubble did not open/);
+  assert.match(readIslandProblems('x', { opened: true, closed: false })[0] ?? '', /bubble did not close/);
 });
