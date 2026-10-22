@@ -6,6 +6,7 @@ import { existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync
 import { tmpdir } from 'node:os';
 import { basename, dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { preProcessFile } from 'typescript';
 import { PALETTE_KEYS } from './palette-keys.ts';
 import { parseArgs } from './args.ts';
 import type { Options } from './args.ts';
@@ -137,11 +138,10 @@ export function nodeImportsReachedFrom(file: string): string[] {
   const visit = (path: string) => {
     if (seen.has(path)) return;
     seen.add(path);
-    const text = readFileSync(path, 'utf8').replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[^:'"`])\/\/[^\n]*/g, '$1');
-    for (const match of text.matchAll(/\b(?:from|import)\s*\(?\s*['"]([^'"]+)['"]/g)) {
-      const specifier = match[1]!;
+    const text = readFileSync(path, 'utf8');
+    for (const { fileName: specifier } of preProcessFile(text, true, true).importedFiles) {
       if (specifier.startsWith('node:')) found.push(`${basename(path)}: ${specifier}`);
-      else if (/^\.\.?\/.*\.m?[jt]s$/.test(specifier)) {
+      else if (/^\.\.?\/.*\.(?:m?[jt]s)$/.test(specifier)) {
         const next = resolve(dirname(path), specifier);
         if (!existsSync(next)) throw new Error(`${basename(path)} imports ${specifier}, which does not exist`);
         visit(next);
