@@ -12,7 +12,7 @@ import { budgetFor } from '../../lib/arena/deadline.ts';
 import { TERM_GRACE } from '../../lib/arena/child-output.ts';
 import { TSC_SPAWN } from '../../lib/arena/typecheck.ts';
 import { PROBE_ENDED, PROBE_IMPORTED, PROBE_SPAWNED, assertCompilerEnded, probeInterrupt } from '../../lib/arena/forwarding-probe.ts';
-import { version, CLI_BINS } from '../../lib/arena/package-assembly.ts';
+import { version, CLI_BINS, PALETTE_ENTRY } from '../../lib/arena/package-assembly.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 
 test('a relative source specifier becomes .js, because the package holds no JSX and no TypeScript', () => {
@@ -179,4 +179,8 @@ test('an interrupt of the React package step ends the tsc it spawned and prints 
     body: 'await step.emitDeclarations(root, "");',
   });
   assertCompilerEnded(probed, true);
+});
+
+test('the react manifest exports ./palette', () => {
+  assert.deepEqual(manifest(repoRoot).exports['./palette'], { types: PALETTE_ENTRY.types, import: PALETTE_ENTRY.module });
 });

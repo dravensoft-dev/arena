@@ -15,7 +15,7 @@ import {
   NAME, RUNTIME_DEPENDENCIES, STAGING, LAYER, VARIANTS, SECONDARY_ENTRY_POINTS, rewriteEntryImports,
   normalNpmignore,
 } from './build-angular-package.ts';
-import { version, collectFiles, CLI_BINS } from '../../lib/arena/package-assembly.ts';
+import { version, collectFiles, CLI_BINS, PALETTE_ENTRY } from '../../lib/arena/package-assembly.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 
 test('ng-packagr is pointed at the entry file and told where the package lands', () => {
@@ -164,4 +164,8 @@ test('an interrupt of the package step ends the ng-packagr it spawned and prints
     body: 'await step.runNgPackagr(stub, root);',
   });
   assertCompilerEnded(probed, true);
+});
+
+test('withAssets exports ./palette', () => {
+  assert.deepEqual(withAssets({ exports: {} }).exports['./palette'], { types: PALETTE_ENTRY.types, default: PALETTE_ENTRY.module });
 });

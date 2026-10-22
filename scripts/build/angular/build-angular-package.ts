@@ -22,7 +22,7 @@ import {
   collectFiles, reset, write, copy, writeCssChain, componentSheets, copyCli, baseManifest, report,
   CATALOGUE_FILE, tokenCatalogue,
   writeComponentMap, writeIconManifest, CLI_BINS, keywords,
-  copyBehaviourContracts,
+  copyBehaviourContracts, PALETTE_ENTRY,
 } from '../../lib/arena/package-assembly.ts';
 import { PEERS, OPTIONAL_PEERS } from '../../lib/arena/support-matrix.ts';
 import { splitCompiledSheet } from '../../lib/tailwind/sheet-split.ts';
@@ -248,6 +248,7 @@ export function withAssets(emitted: NgPackage): NgPackage & { exports: Record<st
     ...emitted,
     exports: {
       ...emitted.exports,
+      './palette': { types: PALETTE_ENTRY.types, default: PALETTE_ENTRY.module },
       './arena.css': { default: './arena.css' },
       './css/*': { default: './css/*' },
       './css/components/*': { default: './css/components/*' },

@@ -21,7 +21,7 @@ import {
   collectFiles, reset, write, copy, writeCssChain, componentSheets, copyCli, baseManifest, report,
   CATALOGUE_FILE, tokenCatalogue,
   writeComponentMap, writeIconManifest, keywords,
-  copyBehaviourContracts,
+  copyBehaviourContracts, PALETTE_ENTRY,
 } from '../../lib/arena/package-assembly.ts';
 import { PEERS } from '../../lib/arena/support-matrix.ts';
 import { splitCompiledSheet } from '../../lib/tailwind/sheet-split.ts';
@@ -169,6 +169,7 @@ export function manifest(root = repoRoot) {
     types: './Index.generated.d.ts',
     exports: {
       '.': { types: './Index.generated.d.ts', import: './Index.generated.js' },
+      './palette': { types: PALETTE_ENTRY.types, import: PALETTE_ENTRY.module },
       './arena.css': './arena.css',
       './css/*': './css/*',
       './css/components/*': './css/components/*',

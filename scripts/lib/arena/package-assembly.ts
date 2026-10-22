@@ -7,7 +7,7 @@
  * that prefix, and a native one does not, so the sheet would be looked for beside the manifest. */
 
 import { readFileSync, writeFileSync, mkdirSync, copyFileSync, rmSync, existsSync, statSync } from 'node:fs';
-import { ModuleKind, ScriptTarget, transpileModule } from 'typescript';
+import { ModuleKind, ScriptTarget, transpileModule, transpileDeclaration, flattenDiagnosticMessageText } from 'typescript';
 import { join, dirname, relative, basename } from 'node:path';
 import { relPosix } from '../../utils/posix-path.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
@@ -297,6 +297,8 @@ export function tokenCatalogue(root = repoRoot) {
 
 export const CLI_BINS = { arena: './bin/arena.mjs' };
 
+export const PALETTE_ENTRY = { types: './bin/palette.d.mts', module: './bin/palette.mjs' };
+
 export const CLI_SOURCES = ['arena-cli'];
 
 export const SHIPPED_SPECIFIER = /(from\s+')(\.[^']*)\.ts(')/g;
@@ -306,6 +308,19 @@ export function emitCli(source: string) {
     compilerOptions: { target: ScriptTarget.ES2022, module: ModuleKind.ESNext, verbatimModuleSyntax: true },
   });
   return outputText.replace(SHIPPED_SPECIFIER, '$1$2.mjs$3');
+}
+
+export function emitDeclaration(source: string, name: string) {
+  const { outputText, diagnostics = [] } = transpileDeclaration(source, {
+    reportDiagnostics: true,
+    fileName: name,
+    compilerOptions: { target: ScriptTarget.ES2022, module: ModuleKind.ESNext, isolatedDeclarations: true, declaration: true },
+  });
+  if (diagnostics.length > 0) {
+    throw new Error(`package-assembly: ${name} has no declaration: `
+      + diagnostics.map((one) => flattenDiagnosticMessageText(one.messageText, '\n')).join('; '));
+  }
+  return outputText;
 }
 
 export function copyCli(dir: string, root = repoRoot) {
@@ -326,6 +341,15 @@ export function copyCli(dir: string, root = repoRoot) {
       }
       written.push(one);
     }
+  }
+  const palette = join(root, 'scripts', 'generate', 'core', 'arena-cli', 'palette.ts');
+  const declared = emitDeclaration(readFileSync(palette, 'utf8'), 'palette.ts');
+  if (/^import /m.test(declared)) {
+    throw new Error('package-assembly: palette.d.mts imports another file, and a consumer resolves only palette');
+  }
+  write(dir, PALETTE_ENTRY.types.slice(2), declared);
+  if (!written.includes(PALETTE_ENTRY.module)) {
+    throw new Error(`package-assembly: the manifest exports ${PALETTE_ENTRY.module} and nothing was copied there`);
   }
   for (const [name, target] of Object.entries(CLI_BINS)) {
     if (!written.includes(target)) {

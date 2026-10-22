@@ -6,7 +6,7 @@ import { join } from 'node:path';
 import { relPosix } from '../../utils/posix-path.ts';
 import {
   EXCLUDED_NAMES, EXCLUDED_PATTERNS, CSS_CHAIN, arenaCssHeader, excluded,
-  collectFiles, reset, write, copyTree, copyCli, CLI_BINS, CLI_SOURCES, baseManifest, pluginIdentity, version, repositoryBase, agentBases, componentSheets, writeCssChain,
+  collectFiles, reset, write, copyTree, copyCli, CLI_BINS, PALETTE_ENTRY, CLI_SOURCES, baseManifest, pluginIdentity, version, repositoryBase, agentBases, componentSheets, writeCssChain,
   writeComponentMap, keywords, SHARED_KEYWORDS, tokenCatalogue, aliasDeclarations, catalogueRole,
 } from './package-assembly.ts';
 import { readJson } from '../../utils/read-file.ts';
@@ -414,4 +414,16 @@ test('a catalogue role carries its type, its closed set and its kernel default, 
   assert.deepEqual(Object.keys(catalogueRole({
     $type: 'keyword', $extensions: { 'com.dravensoft.arena': { default: '{tt-label}', values: ['none'] } },
   })), ['type', 'values', 'default'], 'type and values keep the order the catalogue file is written in');
+});
+
+test('copyCli writes bin/palette.d.mts with no import', () => {
+  const to = track(mkdtempSync(join(tmpdir(), 'arena-assembly-cli-')));
+  const written = copyCli(to, repoRoot);
+  assert.equal(PALETTE_ENTRY.types, './bin/palette.d.mts');
+  assert.equal(PALETTE_ENTRY.module, './bin/palette.mjs');
+  assert.ok(written.includes(PALETTE_ENTRY.module));
+  const declared = readFileSync(join(to, PALETTE_ENTRY.types), 'utf8');
+  assert.match(declared, /arenaRuntimePalette/);
+  assert.doesNotMatch(declared, /^import /m, 'a declaration that imports reaches a file the package does not ship as types');
+  rmSync(to, { recursive: true });
 });
