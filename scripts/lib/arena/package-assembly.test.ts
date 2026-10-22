@@ -6,7 +6,7 @@ import { join } from 'node:path';
 import { relPosix } from '../../utils/posix-path.ts';
 import {
   EXCLUDED_NAMES, EXCLUDED_PATTERNS, CSS_CHAIN, arenaCssHeader, excluded,
-  collectFiles, reset, write, copyTree, copyCli, emitDeclaration, DECLARATION_REACH, CLI_BINS, PALETTE_ENTRY, CLI_SOURCES, baseManifest, pluginIdentity, version, repositoryBase, agentBases, componentSheets, writeCssChain,
+  collectFiles, reset, write, copyTree, copyCli, emitDeclaration, declarationReach, CLI_BINS, PALETTE_ENTRY, CLI_SOURCES, baseManifest, pluginIdentity, version, repositoryBase, agentBases, componentSheets, writeCssChain,
   writeComponentMap, keywords, SHARED_KEYWORDS, tokenCatalogue, aliasDeclarations, catalogueRole,
 } from './package-assembly.ts';
 import { readJson } from '../../utils/read-file.ts';
@@ -428,11 +428,25 @@ test('copyCli writes bin/palette.d.mts with no import', () => {
   rmSync(to, { recursive: true });
 });
 
-test('the declaration guard rejects an import line, an inline import type and a re-export', () => {
+test('the declaration guard refuses an import line, an inline import type and a re-export, and accepts a string literal', () => {
   for (const reach of ["import { A } from './a.mjs';", 'export type T = import("./a.mjs").A;', "export { A } from './a.mjs';", "export * from './a.mjs';"]) {
-    assert.match(reach, DECLARATION_REACH, reach);
+    assert.deepEqual(declarationReach(reach), ['./a.mjs'], reach);
   }
-  assert.doesNotMatch('export declare function f(): string;\nexport type T = { from: string };', DECLARATION_REACH);
+  assert.deepEqual(declarationReach('export declare const x: "from";\n'), []);
+});
+
+test('copyCli refuses a palette whose declaration reaches another file, and writes no palette.d.mts', () => {
+  const cache = join(repoRoot, '.cache');
+  mkdirSync(cache, { recursive: true });
+  const root = track(mkdtempSync(join(cache, 'arena-assembly-reach-')));
+  const cli = join(root, 'scripts', 'generate', 'core', 'arena-cli');
+  mkdirSync(cli, { recursive: true });
+  writeFileSync(join(cli, 'arena.ts'), 'export const arena = 1;\n');
+  writeFileSync(join(cli, 'other.ts'), 'export type Other = string;\n');
+  writeFileSync(join(cli, 'palette.ts'), "import type { Other } from './other.ts';\nexport type Held = Other;\n");
+  const to = track(mkdtempSync(join(cache, 'arena-assembly-reach-out-')));
+  assert.throws(() => copyCli(to, root), /palette\.d\.mts reaches \.\/other\.ts/);
+  assert.equal(existsSync(join(to, 'bin', 'palette.d.mts')), false);
 });
 
 test('emitDeclaration throws naming the file and the message when a declaration cannot be written alone', () => {

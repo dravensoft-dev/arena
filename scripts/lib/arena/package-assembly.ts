@@ -7,7 +7,7 @@
  * that prefix, and a native one does not, so the sheet would be looked for beside the manifest. */
 
 import { readFileSync, writeFileSync, mkdirSync, copyFileSync, rmSync, existsSync, statSync } from 'node:fs';
-import { ModuleKind, ScriptTarget, transpileModule, transpileDeclaration, flattenDiagnosticMessageText } from 'typescript';
+import { preProcessFile, ModuleKind, ScriptTarget, transpileModule, transpileDeclaration, flattenDiagnosticMessageText } from 'typescript';
 import { join, dirname, relative, basename } from 'node:path';
 import { relPosix } from '../../utils/posix-path.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
@@ -310,7 +310,7 @@ export function emitCli(source: string) {
   return outputText.replace(SHIPPED_SPECIFIER, '$1$2.mjs$3');
 }
 
-export const DECLARATION_REACH = /\bimport\s*\(|^\s*(import|export)\b[^;\n]*\bfrom\s*['"]/m;
+export const declarationReach = (declared: string) => preProcessFile(declared, true, true).importedFiles.map((one) => one.fileName);
 
 export function emitDeclaration(source: string, name: string) {
   const { outputText, diagnostics = [] } = transpileDeclaration(source, {
@@ -349,8 +349,9 @@ export function copyCli(dir: string, root = repoRoot) {
   }
   const palette = join(root, 'scripts', 'generate', 'core', 'arena-cli', 'palette.ts');
   const declared = emitDeclaration(readFileSync(palette, 'utf8'), 'palette.ts');
-  if (DECLARATION_REACH.test(declared)) {
-    throw new Error('package-assembly: palette.d.mts reaches another file, and a consumer resolves only palette');
+  const reached = declarationReach(declared);
+  if (reached.length > 0) {
+    throw new Error(`package-assembly: palette.d.mts reaches ${reached.join(', ')}, and a consumer resolves only palette`);
   }
   write(dir, PALETTE_ENTRY.types.slice(2), declared);
   for (const [name, target] of Object.entries(CLI_BINS)) {
