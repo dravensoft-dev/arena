@@ -15,6 +15,7 @@ import {
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { isMainModule } from '../../utils/main-module.ts';
 import { readJson, readIfExists } from '../../utils/read-file.ts';
 import { arenaEnv, cannotRun } from '../../lib/arena/arena-scripts-vars.ts';
@@ -24,13 +25,14 @@ import { isForeignTree } from '../../lib/arena/foreign-trees.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { PACKAGES, distDir, refuseUnassembled as refuseUnassembledPackages } from './check-packages.ts';
 import {
-  THEME_SHEET, ICONS_SHEET, PLUGIN_SHEET, PLUGIN_CSS, PLUGIN_LAYER, PLUGIN_LAYER_ORDER,
+  THEME_SHEET, ICONS_SHEET, PLUGIN_SHEET, RUNTIME_DATA, PLUGIN_CSS, PLUGIN_LAYER, PLUGIN_LAYER_ORDER,
 } from '../../generate/core/arena-cli/sheets.ts';
 import { DEFAULT_PLUGIN, PLUGIN_TOKENS, pluginName } from '../../generate/core/arena-cli/theme-css.ts';
 import { ROOT_PLUGIN } from '../core/check-style-plugin.ts';
 import { WEIGHT_CLASSES } from '../../generate/core/arena-cli/icon-css.ts';
 import { RULE_TAGS } from '../../generate/core/arena-cli/audit.ts';
 import { captured } from '../../utils/captures.ts';
+import { parseDecls } from '../../lib/arena/css-decls.ts';
 
 export const node = {
   name: 'check:consumer',
@@ -123,7 +125,7 @@ export function refuseUnassembled(base = root, env = arenaEnv()) {
 
 export type CliRun = {
   status: number | null; stdout: string; stderr: string;
-  theme: string | null; icons: string | null; plugin: string | null;
+  theme: string | null; icons: string | null; plugin: string | null; runtime: string | null;
 };
 
 export function fixture(
@@ -327,6 +329,77 @@ export function palettesProblems(layer: string, run: CliRun) {
   return problems;
 }
 
+export function runtimeFixture(layer: string, base = root) {
+  const dir = palettesFixture(layer, base);
+  const written = readJson(join(dir, 'arena.config.json'));
+  writeFileSync(join(dir, 'arena.config.json'), JSON.stringify({ ...written, runtimePalettes: true }, null, 2));
+  return dir;
+}
+
+type PaletteModule = {
+  arenaPaletteDeclarations: (input: unknown, data: unknown) => Record<string, string>;
+  arenaRuntimePalette: (name: string, input: unknown, data: unknown) => unknown;
+};
+
+export async function installedPalette(layer: string, dir: string): Promise<PaletteModule> {
+  const name = PACKAGES.find((p) => p.layer === layer)?.name ?? '';
+  const at = join(dir, 'node_modules', ...name.split('/'));
+  const entry = readJson(join(at, 'package.json')).exports?.['./palette'];
+  const target = entry?.import ?? entry?.default;
+  if (typeof target !== 'string') throw new Error(`${name} exports no ./palette for an import`);
+  return await import(pathToFileURL(join(at, ...target.split('/'))).href) as PaletteModule;
+}
+
+const SAME_KEYS_APART = ['arena-palette'];
+
+export async function runtimeProblems(
+  layer: string, run: CliRun, dir: string, load = installedPalette,
+): Promise<string[]> {
+  if (run.status !== 0) {
+    return [`${layer}: a configuration with "runtimePalettes": true exited ${run.status}, so the field `
+      + 'that lets a page declare a palette after the build is one no project can spend'];
+  }
+  if (run.runtime === null) {
+    return [`${layer}: "runtimePalettes": true wrote no ${RUNTIME_DATA}, so the shipped module has no `
+      + 'build data to check a palette against'];
+  }
+  if (!blockIn(run.theme ?? '', ':root')?.includes('--arena-runtime-palettes:1;')) {
+    return [`${layer}: ${THEME_SHEET} carries no --arena-runtime-palettes:1 on :root, so a page cannot `
+      + 'tell a build that expects a runtime palette from one that does not'];
+  }
+  const data = JSON.parse(run.runtime);
+  const input = readJson(join(dir, 'arena.config.json')).palettes
+    .find((p: { name: string }) => p.name === THIRD_PALETTE.name);
+  const mod = await load(layer, dir);
+  const css = parseDecls(run.theme ?? '');
+  const built = css.get(`.arena-${THIRD_PALETTE.name}`) as Map<string, string> | undefined;
+  const hook = css.get(`.arena-polarity-${THIRD_PALETTE.polarity}`) as Map<string, string> | undefined;
+  if (!built || !hook) {
+    return [`${layer}: ${THEME_SHEET} carries no .arena-${THIRD_PALETTE.name} or no `
+      + `.arena-polarity-${THIRD_PALETTE.polarity} block to hold the shipped module against`];
+  }
+  const shipped = new Map<string, string>(Object.entries({
+    ...mod.arenaPaletteDeclarations(input, data), ...Object.fromEntries(hook),
+  }).map(([key, value]) => [key.replace(/^--/, ''), value]));
+  const problems = [];
+  for (const key of new Set([...built.keys(), ...shipped.keys()])) {
+    if (SAME_KEYS_APART.includes(key) || built.get(key) === shipped.get(key)) continue;
+    problems.push(`${layer}: --${key} is ${built.get(key) ?? 'absent'} in the class the CLI built for `
+      + `${THIRD_PALETTE.name} and ${shipped.get(key) ?? 'absent'} from the shipped ./palette module, so a palette `
+      + 'declared at runtime paints differently from the same one declared at build');
+  }
+  const refused = (name: string) => {
+    try { mod.arenaRuntimePalette(name, input, data); return false; } catch { return true; }
+  };
+  if (!refused(THIRD_PALETTE.name)) {
+    problems.push(`${layer}: arenaRuntimePalette accepted "${THIRD_PALETTE.name}", a palette the build already declares`);
+  }
+  if (refused(`${THIRD_PALETTE.name}-runtime`)) {
+    problems.push(`${layer}: arenaRuntimePalette refused "${THIRD_PALETTE.name}-runtime", a free name`);
+  }
+  return problems;
+}
+
 export const COMMAND_FLAGS: Record<string, string[]> = {
   build: ['--src', 'src', '--out', 'out'],
   check: ['--src', 'src'],
@@ -354,10 +427,11 @@ export function runCli(
     theme: read(THEME_SHEET),
     icons: read(ICONS_SHEET),
     plugin: read(PLUGIN_SHEET),
+    runtime: read(RUNTIME_DATA),
   };
 }
 
-const BARE: CliRun = { status: null, stdout: '', stderr: '', theme: null, icons: null, plugin: null };
+const BARE: CliRun = { status: null, stdout: '', stderr: '', theme: null, icons: null, plugin: null, runtime: null };
 
 export function snapshot(dir: string) {
   const seen = new Map<string, string>();
@@ -638,7 +712,7 @@ export function documented(page: string) {
   return { lists: 1, names };
 }
 
-export function collect(base = root) {
+export async function collect(base = root) {
   const problems = [];
   const dirs = [];
   const { lists, names: list } = documented(readFileSync(join(base, ...CONFIG_REFERENCE.split('/')), 'utf8'));
@@ -662,7 +736,8 @@ export function collect(base = root) {
       const plugged = pluginFixture(layer, [PLUGINS.total, PLUGINS.partial], base);
       const partialRoot = pluginFixture(layer, [PLUGINS.partial], base);
       const palettes = palettesFixture(layer, base);
-      dirs.push(auto, unexported, named, closed, unknown, unplaced, broken, plugged, partialRoot, palettes);
+      const runtime = runtimeFixture(layer, base);
+      dirs.push(auto, unexported, named, closed, unknown, unplaced, broken, plugged, partialRoot, palettes, runtime);
 
       const result = runCli(layer, auto, base);
       problems.push(...mergeProblems(layer, result, base));
@@ -686,6 +761,7 @@ export function collect(base = root) {
       problems.push(...scopeProblems(layer, runCli(layer, plugged, base, ['audit']),
         runCli(layer, plugged, base, ['usage'])));
       problems.push(...palettesProblems(layer, runCli(layer, palettes, base)));
+      problems.push(...await runtimeProblems(layer, runCli(layer, runtime, base), runtime));
       problems.push(...subcommandProblems(layer, base, dirs));
     }
   } finally {
@@ -694,9 +770,9 @@ export function collect(base = root) {
   return { problems };
 }
 
-function main() {
+async function main() {
   refuseUnassembled();
-  const { problems } = collect();
+  const { problems } = await collect();
   if (problems.length > 0) {
     console.error(`check-consumer: ${problems.length} problem(s)\n`);
     for (const one of problems) console.error(`  ${one}`);
@@ -705,8 +781,9 @@ function main() {
   console.log(`check-consumer: both packages run ${CLI} from a node_modules/ path, resolve "auto" to the sheets `
     + `a consumer's sources name, close a named list over what its components draw, `
     + `scope a style plugin of the project's own, emit a block carrying `
-    + `its own polarity for each of three palettes, and every subcommand leaves the tree and the exit code `
+    + `its own polarity for each of three palettes, hold a runtime palette from the shipped module equal to `
+    + `the class the CLI builds, and every subcommand leaves the tree and the exit code `
     + `it promises`);
 }
 
-if (isMainModule(import.meta.url)) main();
+if (isMainModule(import.meta.url)) await main();

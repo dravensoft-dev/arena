@@ -14,12 +14,12 @@ import { CLI_BINS } from '../../lib/arena/package-assembly.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import {
   importedSheets, unknownSymbolProblems, listProblems, closedListProblems, iconProblems, documented, CONFIG_REFERENCE,
-  palettesProblems, SOURCES, UNKNOWN, FILL, GLYPH, THIRD_PALETTE, CLI, snapshot, treeChanges, exitProblem, binProblems,
+  palettesProblems, runtimeProblems, SOURCES, UNKNOWN, FILL, GLYPH, THIRD_PALETTE, CLI, snapshot, treeChanges, exitProblem, binProblems,
 } from './check-consumer.ts';
 import type { CliRun } from './check-consumer.ts';
 import { distDir, unassembled, assembled } from './check-packages.ts';
 
-const ok: CliRun = { status: 0, stdout: '', stderr: '', theme: null, icons: null, plugin: null };
+const ok: CliRun = { status: 0, stdout: '', stderr: '', theme: null, icons: null, plugin: null, runtime: null };
 
 const sheetImports = (...names: string[]) => ({
   ...ok,
@@ -156,6 +156,50 @@ test('a command that refused a third palette is a failure rather than an empty t
   const problems = palettesProblems('angular', { ...ok, status: 1 });
   assert.equal(problems.length, 1);
   assert.match(problems[0] ?? '', /three palettes exited 1/);
+});
+
+const DUSK = { name: THIRD_PALETTE.name, polarity: THIRD_PALETTE.polarity, colors: { 'base-100': '#101010' } };
+const dir = mkdtempSync(join(tmpdir(), 'arena-runtime-problems-'));
+writeFileSync(join(dir, 'arena.config.json'), JSON.stringify({ palettes: [DUSK] }));
+
+const shipped = { 'color-base-100': '#101010', 'level-1': '4%' };
+const decls = (m: Record<string, string>) => Object.entries(m).map(([k, v]) => `--${k}:${v};`).join('');
+const runtimeRun = (dusk = decls({ 'arena-palette': 'dusk', ...shipped })): CliRun => ({
+  ...ok,
+  theme: `:root{--arena-palette:dark;--arena-runtime-palettes:1;}\n.arena-${THIRD_PALETTE.name}{${dusk}}\n`
+    + '.arena-polarity-dark{color-scheme:dark;}',
+  runtime: JSON.stringify({ arenaRuntimePalettes: 1 }),
+});
+const module_ = {
+  arenaPaletteDeclarations: () => ({ '--color-base-100': '#101010', '--level-1': '4%' }),
+  arenaRuntimePalette: (name: string) => {
+    if (name === THIRD_PALETTE.name) throw new Error('declared');
+    return {};
+  },
+};
+const load = async () => module_;
+
+test('a runtime palette from the shipped module that equals the CLI class key by key passes', async () => {
+  assert.deepEqual(await runtimeProblems('react', runtimeRun(), dir, load), []);
+});
+
+test('one declaration edited in the CLI class is named, and a missing file or marker is reported', async () => {
+  const edited = runtimeRun(decls({ 'arena-palette': 'dusk', ...shipped, 'color-base-100': '#101011' }));
+  const problems = await runtimeProblems('react', edited, dir, load);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /--color-base-100 is #101011/);
+  assert.match((await runtimeProblems('react', { ...runtimeRun(), runtime: null }, dir, load))[0] ?? '', /wrote no/);
+  const unmarked = { ...runtimeRun(), theme: runtimeRun().theme?.replace('--arena-runtime-palettes:1;', '') ?? '' };
+  assert.match((await runtimeProblems('react', unmarked, dir, load))[0] ?? '', /--arena-runtime-palettes:1/);
+});
+
+test('a module that accepts a declared name, or refuses a free one, is reported', async () => {
+  const lax = { ...module_, arenaRuntimePalette: () => ({}) };
+  const accepting = await runtimeProblems('react', runtimeRun(), dir, async () => lax);
+  assert.match(accepting[0] ?? '', /accepted "dusk"/);
+  const strict = { ...module_, arenaRuntimePalette: () => { throw new Error('no'); } };
+  const refusing = await runtimeProblems('react', runtimeRun(), dir, async () => strict);
+  assert.match(refusing[0] ?? '', /refused "dusk-runtime"/);
 });
 
 test('the gate runs the one bin the package declares', () => {
