@@ -15,7 +15,6 @@ import {
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { pathToFileURL } from 'node:url';
 import { isMainModule } from '../../utils/main-module.ts';
 import { readJson, readIfExists } from '../../utils/read-file.ts';
 import { arenaEnv, cannotRun } from '../../lib/arena/arena-scripts-vars.ts';
@@ -363,7 +362,11 @@ export async function installedPalette(
     rmSync(probe, { force: true });
   }
   if (run.status !== 0) throw new Error(`${name}/palette did not import from a consumer's directory:\n${run.stderr}`);
-  return JSON.parse(run.stdout) as Shipped;
+  try {
+    return JSON.parse(run.stdout) as Shipped;
+  } catch {
+    throw new Error(`${name}/palette probe exited 0 but wrote no JSON.\nstdout: ${run.stdout}\nstderr: ${run.stderr}`);
+  }
 }
 
 const SAME_KEYS_APART = ['arena-palette'];
