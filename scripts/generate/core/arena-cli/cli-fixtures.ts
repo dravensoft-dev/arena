@@ -2,9 +2,10 @@
  * and `hostRoot` made, and a suite importing any of them calls it in its own `after`, so a direct
  * `bun test` leaves nothing behind. */
 
-import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { basename, dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { PALETTE_KEYS } from './palette-keys.ts';
 import { parseArgs } from './args.ts';
 import type { Options } from './args.ts';
@@ -127,4 +128,25 @@ export function hostRoot(name: string, version: string, files: Record<string, st
   writeFileSync(join(root, 'arena.config.example.json'), JSON.stringify({ palettes: [] }));
   for (const [file, content] of Object.entries(files)) writeFileSync(join(root, file), content);
   return root;
+}
+
+export function nodeImportsReachedFrom(file: string): string[] {
+  const root = resolve(dirname(fileURLToPath(import.meta.url)), '../../../..');
+  const seen = new Set<string>();
+  const found: string[] = [];
+  const visit = (path: string) => {
+    if (seen.has(path)) return;
+    seen.add(path);
+    const text = readFileSync(path, 'utf8');
+    for (const match of text.matchAll(/\b(?:from|import)\s*['"]([^'"]+)['"]/g)) {
+      const specifier = match[1]!;
+      if (specifier.startsWith('node:')) found.push(`${basename(path)}: ${specifier}`);
+      else if (/^\.\.?\/.*\.m?[jt]s$/.test(specifier)) {
+        const next = resolve(dirname(path), specifier);
+        if (existsSync(next)) visit(next);
+      }
+    }
+  };
+  visit(resolve(root, file));
+  return found;
 }

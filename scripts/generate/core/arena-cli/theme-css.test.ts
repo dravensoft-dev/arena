@@ -11,7 +11,7 @@ import { PALETTE_KEYS, heatKeys } from './palette-keys.ts';
 import { heatLadder } from './oklab.ts';
 import { parseDecls } from '../../../lib/arena/css-decls.ts';
 import { crossKeys } from './style-plugin-rules.ts';
-import { whileHeld } from './cli-fixtures.ts';
+import { nodeImportsReachedFrom, whileHeld } from './cli-fixtures.ts';
 
 const colors = (overrides: Record<string, string> = {}): Record<string, string> => {
   const out: Record<string, string> = {};
@@ -1145,4 +1145,8 @@ test('a package whose sheets carry no root-only text emits no restatement', () =
     sheets: SHEETS_FULL, importHeader: false, plugins: [total(), scoped()],
   });
   assert.doesNotMatch(css, /prefers-contrast|title-hero-fit/);
+});
+
+test('the palette code imports no node: module, however deep', () => {
+  assert.deepEqual(nodeImportsReachedFrom('scripts/generate/core/arena-cli/theme-css.ts'), []);
 });

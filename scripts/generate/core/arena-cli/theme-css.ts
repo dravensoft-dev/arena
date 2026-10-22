@@ -21,8 +21,8 @@ import { serialize } from './serialize-token.ts';
 import { HEAT_MIN_DL, errorFill, heatCramped, heatLadder, toOklab } from './oklab.ts';
 import { axisReports, derivedLevels, emphasisReports, levelReports, onInkReports, paletteKey, raisedReports, washReports } from './levels.ts';
 import type { Level, Wash } from './levels.ts';
-import { report } from './reports.ts';
-import type { Report } from './reports.ts';
+import { report } from './report.ts';
+import type { Report } from './report.ts';
 import type { SerializableToken } from './serialize-token.ts';
 
 export type TokenCatalogue = {
@@ -93,8 +93,8 @@ export type CheckedConfig = ArenaConfig & {
   stylesheet?: CheckedStylesheet;
 };
 
-const HEX = /^#[0-9a-fA-F]{6}$/;
-const KEBAB = /^[a-z][a-z0-9]*(-[a-z0-9]+)*$/;
+export const HEX = /^#[0-9a-fA-F]{6}$/;
+export const KEBAB = /^[a-z][a-z0-9]*(-[a-z0-9]+)*$/;
 
 const isObject = (v: unknown): v is Record<string, unknown> =>
   v !== null && typeof v === 'object' && !Array.isArray(v);
@@ -105,30 +105,8 @@ export function defaultPalette(palettes: CheckedPalette[]): CheckedPalette {
   return found;
 }
 
-function paletteProblems(
-  palette: ArenaPalette, index: number, seen: Set<string>, shipped: readonly string[] = [],
-) {
-  const at = `palettes[${index}]`;
-  const problems = [];
-  if (!isObject(palette)) return [`${at}: not an object`];
-
-  if (typeof palette.name !== 'string' || !KEBAB.test(palette.name)) {
-    problems.push(`${at}.name: ${JSON.stringify(palette.name)} is not a kebab-case name`);
-  } else if (seen.has(palette.name)) {
-    problems.push(`${at}.name: ${palette.name} is declared twice`);
-  } else {
-    seen.add(palette.name);
-    if (shipped.includes(palette.name) && palette.name !== palette.polarity) {
-      problems.push(`${at}.name: "${palette.name}" is already a class this package ships, and both `
-        + `would be .arena-${palette.name}. A palette shares one class namespace with every scope, `
-        + 'utility and component Arena draws, so the colours would land on whatever that class '
-        + `already selects. The one name a palette may take out of that set is its own polarity, `
-        + `which is the scope a palette of that polarity is meant to answer to.`);
-    } else {
-      problems.push(...reservedProblems(palette.name, `${at}.name`));
-    }
-  }
-
+export function paletteInputProblems(at: string, palette: { polarity?: unknown; colors?: unknown }) {
+  const problems: string[] = [];
   if (typeof palette.polarity !== 'string' || !POLARITIES.includes(palette.polarity)) {
     problems.push(`${at}.polarity: ${JSON.stringify(palette.polarity)} is not one of ${POLARITIES.join(', ')}`);
   }
@@ -155,6 +133,34 @@ function paletteProblems(
       problems.push(`${at}.colors.${key}: ${JSON.stringify(value)} is not a #rrggbb hex`);
     }
   }
+  return problems;
+}
+
+function paletteProblems(
+  palette: ArenaPalette, index: number, seen: Set<string>, shipped: readonly string[] = [],
+) {
+  const at = `palettes[${index}]`;
+  const problems = [];
+  if (!isObject(palette)) return [`${at}: not an object`];
+
+  if (typeof palette.name !== 'string' || !KEBAB.test(palette.name)) {
+    problems.push(`${at}.name: ${JSON.stringify(palette.name)} is not a kebab-case name`);
+  } else if (seen.has(palette.name)) {
+    problems.push(`${at}.name: ${palette.name} is declared twice`);
+  } else {
+    seen.add(palette.name);
+    if (shipped.includes(palette.name) && palette.name !== palette.polarity) {
+      problems.push(`${at}.name: "${palette.name}" is already a class this package ships, and both `
+        + `would be .arena-${palette.name}. A palette shares one class namespace with every scope, `
+        + 'utility and component Arena draws, so the colours would land on whatever that class '
+        + `already selects. The one name a palette may take out of that set is its own polarity, `
+        + `which is the scope a palette of that polarity is meant to answer to.`);
+    } else {
+      problems.push(...reservedProblems(palette.name, `${at}.name`));
+    }
+  }
+
+  problems.push(...paletteInputProblems(at, palette));
   return problems;
 }
 
@@ -486,7 +492,7 @@ export const SURFACE_ROLE = 'fill-surface';
 
 export const rampFailed = (state: unknown) => state !== true && state !== 'pass';
 
-export function surfaceOf(palette: CheckedPalette, roles: Map<string, string>) {
+export function surfaceOf(palette: { colors: Record<string, string> }, roles: Map<string, string>) {
   const key = roles.get(SURFACE_ROLE)?.match(/^var\(--color-([\w-]+)\)$/)?.[1];
   return (key && palette.colors[key]) || palette.colors['base-100'];
 }
@@ -512,6 +518,57 @@ export function heatOrderReports(steps: readonly string[], surface: string): Rep
   return out;
 }
 
+export function rolesFor(root: StylePlugin | null, catalogue: TokenCatalogue | null, polarity: string) {
+  return root
+    ? resolvedPlugin(root, catalogue, polarity)
+    : new Map<string, string>(Object.entries(catalogue?.tokens ?? {}));
+}
+
+export function paletteMessages(
+  palette: { polarity: string; colors: Record<string, string> }, roles: Map<string, string>,
+  levels: Level[], washes: Wash[], hasRoot: boolean,
+) {
+  const mode = palette.polarity;
+  const colors = derivedColours(palette.colors, mode);
+  const surface = surfaceOf({ colors }, roles);
+  const ramp = catKeys().map((k) => colors[k]).filter(Boolean);
+  const messages: Report[] = [];
+
+  if (ramp.length) {
+    const rampOptions = { mode, surface };
+    for (const [name, state, detail] of validate(ramp, rampOptions).report as [string, any, string][]) {
+      if (rampFailed(state)) messages.push(report('ramp', `ramp, ${name}: ${detail}`));
+    }
+  }
+
+  messages.push(...heatReports(palette.colors, colors));
+  if (hasRoot && surface) {
+    const answers = heatKeys().map((_, i) => colors[paletteKey(roles.get(`heat-step-${i + 1}`)) ?? '']);
+    if (answers.every((hex) => hex !== undefined)) messages.push(...heatOrderReports(answers as string[], surface));
+  }
+
+  const text = [
+    ...SURFACE_PAIRS.map(({ ink, on }) => [`${ink} on ${on}`, colors[ink], colors[on]]),
+    ...FILL_PAIRS.map(({ fill, content }) => [`${content} on ${fill}`, colors[content], colors[fill]]),
+  ];
+  for (const [what, fg, bg] of text) {
+    if (!fg || !bg) continue;
+    const ratio = contrast(fg, bg);
+    if (ratio < TEXT_MIN) {
+      messages.push(report('contrast',
+        `text, ${what}: ${ratio.toFixed(2)}:1, under the ${TEXT_MIN}:1 Arena holds itself to`));
+    }
+  }
+
+  messages.push(...axisReports(roles, colors, mode), ...onInkReports(roles, colors, mode), ...emphasisReports(roles, colors, mode));
+
+  const derived = derivedLevels(levels, roles, colors);
+  messages.push(...levelReports(levels, roles, colors, derived));
+  messages.push(...raisedReports(derived));
+  messages.push(...washReports(washes, roles, colors));
+  return messages;
+}
+
 export function paletteReports(
   config: CheckedConfig, catalogue: TokenCatalogue | null = null, plugins: ResolvedPlugins = null,
   levels: Level[] = [], washes: Wash[] = [],
@@ -519,48 +576,7 @@ export function paletteReports(
   const root = (plugins ?? [])[0] ?? null;
   const out = [];
   for (const palette of config.palettes) {
-    const mode = palette.polarity;
-    const colors = derivedColours(palette.colors, mode);
-    const roles = root
-      ? resolvedPlugin(root, catalogue, mode)
-      : new Map<string, string>(Object.entries(catalogue?.tokens ?? {}));
-    const surface = surfaceOf({ ...palette, colors }, roles);
-    const ramp = catKeys().map((k) => colors[k]).filter(Boolean);
-    const messages: Report[] = [];
-
-    if (ramp.length) {
-      const rampOptions = { mode, surface };
-      for (const [name, state, detail] of validate(ramp, rampOptions).report as [string, any, string][]) {
-        if (rampFailed(state)) messages.push(report('ramp', `ramp, ${name}: ${detail}`));
-      }
-    }
-
-    messages.push(...heatReports(palette.colors, colors));
-    if (root && surface) {
-      const answers = heatKeys().map((_, i) => colors[paletteKey(roles.get(`heat-step-${i + 1}`)) ?? '']);
-      if (answers.every((hex) => hex !== undefined)) messages.push(...heatOrderReports(answers as string[], surface));
-    }
-
-    const text = [
-      ...SURFACE_PAIRS.map(({ ink, on }) => [`${ink} on ${on}`, colors[ink], colors[on]]),
-      ...FILL_PAIRS.map(({ fill, content }) => [`${content} on ${fill}`, colors[content], colors[fill]]),
-    ];
-    for (const [what, fg, bg] of text) {
-      if (!fg || !bg) continue;
-      const ratio = contrast(fg, bg);
-      if (ratio < TEXT_MIN) {
-        messages.push(report('contrast',
-          `text, ${what}: ${ratio.toFixed(2)}:1, under the ${TEXT_MIN}:1 Arena holds itself to`));
-      }
-    }
-
-    messages.push(...axisReports(roles, colors, mode), ...onInkReports(roles, colors, mode), ...emphasisReports(roles, colors, mode));
-
-    const derived = derivedLevels(levels, roles, colors);
-    messages.push(...levelReports(levels, roles, colors, derived));
-    messages.push(...raisedReports(derived));
-    messages.push(...washReports(washes, roles, colors));
-
+    const messages = paletteMessages(palette, rolesFor(root, catalogue, palette.polarity), levels, washes, root !== null);
     if (messages.length) out.push({ palette: palette.name, messages });
   }
   return out;
@@ -679,13 +695,36 @@ export function derivedColours(colors: Record<string, string>, polarity: string)
   return out;
 }
 
-function colourDeclarations(palette: CheckedPalette) {
+export function paletteDeclarations(
+  palette: { polarity: string; colors: Record<string, string> }, roles: Map<string, string>, levels: Level[],
+) {
   const colors = derivedColours(palette.colors, palette.polarity);
-  return PALETTE_KEYS
-    .flatMap((key) => {
-      const value = colors[key];
-      return value === undefined ? [] : [`--color-${key}:${value.toLowerCase()};`];
-    });
+  const declared = PALETTE_KEYS.flatMap((key) => {
+    const value = colors[key];
+    return value === undefined ? [] : [`--color-${key}:${value.toLowerCase()};`];
+  });
+  const stepped = [...derivedLevels(levels, roles, colors)]
+    .flatMap(([name, one]) => (one.percent === null ? [] : [`--${name}:${one.percent}%;`]));
+  return [...declared, ...stepped];
+}
+
+export type PolarityContext = {
+  aliases: string[]; roleReferences: string[]; root: StylePlugin | null; catalogue: TokenCatalogue | null;
+};
+
+export function polarityDeclarations(polarity: string, context: PolarityContext) {
+  const { aliases, roleReferences, root, catalogue } = context;
+  return [
+    `--picker-invert:${pickerInvert(polarity)};`,
+    `color-scheme:${polarity};`,
+    ...aliases,
+    ...roleReferences,
+    ...(root ? restatedBy(root, catalogue, polarity) : []),
+  ];
+}
+
+export function restatedBy(plugin: StylePlugin, catalogue: TokenCatalogue | null, polarity: string) {
+  return pluginBlocks(plugin, catalogue, polarity).filter((d) => d.includes('var(--color-'));
 }
 
 export function scopedImports(
@@ -751,19 +790,13 @@ export function themeCss(config: CheckedConfig, options: ThemeOptions = {}) {
     (plugin ? [{ plugin, at: i === 0 ? ':root' : `.arena-${plugin.name}` }] : []));
   const root = declared.find(({ at }) => at === ':root')?.plugin;
 
-  const levelDeclarations = (palette: CheckedPalette) => {
-    const roles = root
-      ? resolvedPlugin(root, catalogue, palette.polarity)
-      : new Map<string, string>(Object.entries(catalogue?.tokens ?? {}));
-    return [...derivedLevels(sheets?.levels ?? [], roles, derivedColours(palette.colors, palette.polarity))]
-      .flatMap(([name, one]) => (one.percent === null ? [] : [`--${name}:${one.percent}%;`]));
-  };
+  const levels = sheets?.levels ?? [];
+  const rolesOf = (palette: CheckedPalette) => rolesFor(root ?? null, catalogue, palette.polarity);
 
   const fallback = defaultPalette(config.palettes);
   const aliases = sheets?.aliases ?? [];
   parts.push(block(':root', [
-    ...colourDeclarations(fallback),
-    ...levelDeclarations(fallback),
+    ...paletteDeclarations(fallback, rolesOf(fallback), levels),
     `--arena-palette:${fallback.name};`,
     `--picker-invert:${pickerInvert(fallback.polarity)};`,
     `color-scheme:${fallback.polarity};`,
@@ -782,24 +815,20 @@ export function themeCss(config: CheckedConfig, options: ThemeOptions = {}) {
     }
   }
 
-  const restated = (plugin: StylePlugin, polarity: string) =>
-    pluginBlocks(plugin, catalogue, polarity).filter((d) => d.includes('var(--color-'));
+  const context: PolarityContext = {
+    aliases, roleReferences: sheets?.roleReferences ?? [], root: root ?? null, catalogue,
+  };
 
   for (const palette of config.palettes) {
     const cross = scopeOn(`.arena-${palette.name}`);
     parts.push(block(`.arena-${palette.name}`, [
-      ...colourDeclarations(palette),
-      ...levelDeclarations(palette),
+      ...paletteDeclarations(palette, rolesOf(palette), levels),
       `--arena-palette:${palette.name};`,
-      `--picker-invert:${pickerInvert(palette.polarity)};`,
-      `color-scheme:${palette.polarity};`,
-      ...aliases,
-      ...(sheets?.roleReferences ?? []),
-      ...(root ? restated(root, palette.polarity) : []),
+      ...polarityDeclarations(palette.polarity, context),
     ]));
     for (const { plugin, at } of declared) {
       if (at === ':root') continue;
-      const answers = restated(plugin, palette.polarity);
+      const answers = restatedBy(plugin, catalogue, palette.polarity);
       if (answers.length) parts.push(cross(at, `\n${answers.map((d) => `  ${d}`).join('\n')}\n`));
     }
   }
