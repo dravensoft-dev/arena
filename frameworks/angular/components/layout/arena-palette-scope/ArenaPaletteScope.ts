@@ -47,7 +47,7 @@ export class ArenaPaletteScope {
   protected readonly parts = manifest.parts;
   private readonly theme = inject(ArenaThemeService);
 
-  /** The name of a palette the theme config declares or one `registerArenaPalette` registered, such as `light`. A name that is neither throws, listing the declared and the registered ones. The scope draws the class `arena-<palette>` on its element, or for a registered palette its polarity hook and its properties, and gives every reader below it this name. */
+  /** The name of a palette the theme config declares or one registered at runtime, such as `light`. A name that is neither throws, listing the declared and the registered ones. The scope draws the class `arena-<palette>` on its element, or for a registered palette its polarity hook and its properties, and gives every reader below it this name. */
   readonly palette = input.required<string>({ alias: 'arenaPalette' });
 
   protected readonly styles = computed(() => arenaPaletteScopeStyles());

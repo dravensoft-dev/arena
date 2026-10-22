@@ -3,12 +3,12 @@ import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaPaletteScope.classes.generated.ts';
 import type { ArenaPaletteScopeClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
-import { arenaPalettes, arenaThemeClass, useArenaTheme } from '../../../Theme.ts';
+import { arenaPalettes, arenaThemeClass, registeredArenaPalette, useArenaPalettes, useArenaTheme, useArenaThemeReady } from '../../../Theme.ts';
 
 export interface ArenaPaletteScopeProps {
   className?: ArenaPaletteScopeClass;
 
-  /** The name of a palette the theme config declares, such as `light`. A name the theme config does not declare throws, listing the declared ones. The scope draws the class `arena-<palette>` on its element and gives every reader below it this name. */
+  /** The name of a palette the theme config declares or one registered at runtime, such as `light`. A name that is neither throws, listing the declared and the registered ones. The scope draws the class `arena-<palette>` on its element, or for a registered palette its polarity hook and its properties, and gives every reader below it this name. */
   palette: string;
 
   /** What is drawn in the palette. The slot is optional and unguarded, because a scope holding nothing yet is still a valid island. */
@@ -27,15 +27,21 @@ export function useArenaPalette(): string {
 }
 
 export function ArenaPaletteScope({ className, palette, children }: ArenaPaletteScopeProps) {
-  const declared = arenaPalettes().map((p) => p.name);
-  if (!declared.includes(palette)) {
-    throw new Error(`ArenaPaletteScope: no palette named "${palette}"; the declared palettes are ${declared.join(', ')}`);
+  const ready = useArenaThemeReady();
+  const known = useArenaPalettes();
+  const runtime = registeredArenaPalette(palette);
+  if (!runtime && ready) {
+    const declared = arenaPalettes().filter((p) => !registeredArenaPalette(p.name)).map((p) => p.name);
+    if (!declared.includes(palette)) {
+      const added = known.map((p) => p.name).filter((n) => !declared.includes(n));
+      throw new Error(`ArenaPaletteScope: no palette named "${palette}"; the declared palettes are ${declared.join(', ')}; the registered palettes are ${added.length > 0 ? added.join(', ') : 'none'}`);
+    }
   }
   const styles = arenaPaletteScopeStyles();
   return (
     <ArenaPaletteContext.Provider value={palette}>
-      <div className={arenaClassName('ArenaPaletteScope', `${arenaThemeClass(palette)} ${styles.root()}`, className)}
-        data-arena-part={manifest.parts.root} {...styles.$data.root()} data-arena-boundary="">
+      <div className={arenaClassName('ArenaPaletteScope', `${runtime ? `arena-polarity-${runtime.polarity}` : arenaThemeClass(palette)} ${styles.root()}`, className)}
+        style={runtime?.properties as React.CSSProperties | undefined} data-arena-part={manifest.parts.root} {...styles.$data.root()} data-arena-boundary="">
         {children}
       </div>
     </ArenaPaletteContext.Provider>

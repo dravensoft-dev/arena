@@ -1,12 +1,19 @@
 /* A .dom suite because every claim here is about documentElement's class list, and the
- * module keeps process-wide state, so each test re-initialises it and clears the root. */
+ * module keeps process-wide state, so each test re-initialises it and clears the root. The
+ * runtime-palette tests register a real `arenaRuntimePalette` result, so a drift between the two
+ * declarations of its shape fails this file's type-check. */
 
-import test from 'node:test';
+import test, { afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   ARENA_DEFAULT_THEMES, arenaThemeClass, initArenaTheme, getArenaTheme, setArenaTheme,
-  toggleArenaTheme, arenaPalettes,
+  toggleArenaTheme, arenaPalettes, registerArenaPalette, RUNTIME_CACHE_KEY, resetArenaTheme,
 } from '../Theme.ts';
+import { renderToString } from 'react-dom/server';
+import { hydrateRoot } from 'react-dom/client';
+import { PALETTE_KEYS } from '../../../scripts/generate/core/arena-cli/palette-keys.ts';
+import { runtimeData } from '../../../scripts/generate/core/arena-cli/theme-css.ts';
+import { arenaRuntimePalette } from '../../../scripts/generate/core/arena-cli/palette.ts';
 import type { ArenaThemeConfig } from '../Theme.ts';
 import React from 'react';
 import { mount, cleanup, act } from './Harness.tsx';
@@ -118,4 +125,168 @@ test('initArenaTheme after the stored key is removed tells a mounted useArenaThe
     'the mounted hook shows the palette the page now wears, not the one it held before');
   cleanup();
   clean();
+});
+
+const PALETTE_KEYS_FIXTURE = (base: string): Record<string, string> => Object.fromEntries(
+  PALETTE_KEYS.map((key) => [key, base]),
+);
+const BUILD: any = {
+  palettes: [
+    { name: 'dark', default: true, polarity: 'dark', colors: PALETTE_KEYS_FIXTURE('#141010') },
+    { name: 'light', polarity: 'light', colors: PALETTE_KEYS_FIXTURE('#ffffff') },
+  ],
+  runtimePalettes: true,
+};
+const DATA = runtimeData(BUILD, {
+  layers: [], components: [], scopes: [], aliases: [], roleReferences: [],
+  catalogue: { tokens: {}, roles: {} },
+} as any, []);
+const input = (polarity: 'dark' | 'light', base = '#1b1830') => ({ polarity, colors: PALETTE_KEYS_FIXTURE(base) });
+const make = (name: string, polarity: 'dark' | 'light' = 'dark', base = '#1b1830') =>
+  arenaRuntimePalette(name, input(polarity, base), DATA).palette;
+const html = () => document.documentElement;
+
+function runtimeClean() {
+  resetArenaTheme();
+  clean();
+  localStorage.removeItem(RUNTIME_CACHE_KEY);
+  html().style.setProperty('--arena-runtime-palettes', '1');
+}
+
+afterEach(() => {
+  resetArenaTheme();
+  clean();
+  localStorage.removeItem(RUNTIME_CACHE_KEY);
+  document.documentElement.style.removeProperty('--arena-runtime-palettes');
+});
+
+test('register then set paints the hook and every property', () => {
+  runtimeClean();
+  initArenaTheme(THREE);
+  const palette = make('rt-paint');
+  assert.equal(registerArenaPalette(palette), 'rt-paint');
+  assert.deepEqual(arenaPalettes().slice(-1), [{ name: 'rt-paint', polarity: 'dark' }]);
+  setArenaTheme('rt-paint');
+  assert.ok(html().classList.contains('arena-polarity-dark'));
+  assert.equal(html().classList.contains('arena-rt-paint'), false, 'a registered palette has no class of its own');
+  for (const [key, value] of Object.entries(palette.properties)) {
+    assert.equal(html().style.getPropertyValue(key), value, key);
+  }
+  assert.equal(html().style.getPropertyValue('--arena-palette'), 'rt-paint');
+  assert.equal(JSON.parse(localStorage.getItem(RUNTIME_CACHE_KEY) ?? 'null').name, 'rt-paint');
+  assert.equal(localStorage.getItem('arena-theme'), 'rt-paint');
+  runtimeClean();
+});
+
+test('re-registering with the other polarity flips the hook and leaves no old property', () => {
+  runtimeClean();
+  initArenaTheme(THREE);
+  registerArenaPalette({ ...make('rt-flip'), properties: { ...make('rt-flip').properties, '--color-extra-one': '#010203' } });
+  setArenaTheme('rt-flip');
+  assert.equal(html().style.getPropertyValue('--color-extra-one'), '#010203');
+  registerArenaPalette(make('rt-flip', 'light', '#fafafa'));
+  assert.ok(html().classList.contains('arena-polarity-light'));
+  assert.equal(html().classList.contains('arena-polarity-dark'), false);
+  assert.equal(html().style.getPropertyValue('--color-extra-one'), '', 'the old property is gone');
+  assert.equal(html().style.getPropertyValue('--color-base-100'), '#fafafa');
+  assert.equal(JSON.parse(localStorage.getItem(RUNTIME_CACHE_KEY) ?? 'null').polarity, 'light', 'the cache follows the re-registration');
+  runtimeClean();
+});
+
+test('setting a declared palette removes every runtime property, the hook and the cache', () => {
+  runtimeClean();
+  initArenaTheme(THREE);
+  registerArenaPalette(make('rt-leave'));
+  setArenaTheme('rt-leave');
+  setArenaTheme('light');
+  assert.equal(html().classList.contains('arena-polarity-dark'), false);
+  assert.equal(html().style.getPropertyValue('--color-base-100'), '');
+  assert.equal(html().style.getPropertyValue('--level-base-100'), '');
+  assert.equal(html().style.getPropertyValue('--arena-palette'), '');
+  assert.equal(html().style.getPropertyValue('--arena-runtime-palettes'), '1', 'only the properties it set are removed');
+  assert.equal(localStorage.getItem(RUNTIME_CACHE_KEY), null);
+  runtimeClean();
+});
+
+test('a stored cache restores the palette on first read', () => {
+  runtimeClean();
+  const palette = make('rt-restore', 'light');
+  localStorage.setItem('arena-theme', 'rt-restore');
+  localStorage.setItem(RUNTIME_CACHE_KEY, JSON.stringify(palette));
+  html().style.removeProperty('--arena-runtime-palettes');
+  assert.equal(initArenaTheme(THREE), 'rt-restore', 'no marker check: the stylesheet may not be loaded yet');
+  assert.ok(html().classList.contains('arena-polarity-light'));
+  assert.equal(html().style.getPropertyValue('--color-base-100'), palette.properties['--color-base-100']);
+  assert.ok(arenaPalettes().some((p) => p.name === 'rt-restore'));
+  runtimeClean();
+});
+
+test('a cache naming a declared palette, malformed JSON, or a foreign property is ignored', () => {
+  const good = make('rt-ignored');
+  const cases: Array<[string, string, string]> = [
+    ['declared', 'light', JSON.stringify({ ...good, name: 'light' })],
+    ['malformed', 'rt-ignored', '{not json'],
+    ['foreign property', 'rt-ignored', JSON.stringify({ ...good, properties: { ...good.properties, '--evil': 'url(x)' } })],
+    ['bad colour', 'rt-ignored', JSON.stringify({ ...good, properties: { ...good.properties, '--color-base-100': 'red' } })],
+    ['another name', 'rt-ignored', JSON.stringify({ ...good, name: 'rt-other' })],
+  ];
+  for (const [label, stored, cache] of cases) {
+    runtimeClean();
+    localStorage.setItem('arena-theme', stored);
+    localStorage.setItem(RUNTIME_CACHE_KEY, cache);
+    initArenaTheme(THREE);
+    assert.equal(arenaPalettes().some((p) => p.name === 'rt-ignored'), false, label);
+    assert.equal(html().style.getPropertyValue('--evil'), '', label);
+    assert.ok(THREE.palettes.some((p) => p.name === getArenaTheme()), `${label}: the page follows a declared palette`);
+  }
+  runtimeClean();
+});
+
+test('register without the root marker throws naming runtimePalettes', () => {
+  runtimeClean();
+  html().style.removeProperty('--arena-runtime-palettes');
+  initArenaTheme(THREE);
+  assert.throws(() => registerArenaPalette(make('rt-nomarker')), /"runtimePalettes": true in arena\.config\.json/);
+  runtimeClean();
+});
+
+test('register refuses a declared name, a foreign property, a bad value and a mismatched --arena-palette', () => {
+  runtimeClean();
+  initArenaTheme(THREE);
+  const good = make('rt-refuse');
+  assert.throws(() => registerArenaPalette({ ...good, name: 'light' }), /registerArenaPalette: .*"light".*declared/);
+  const withProp = (key: string, value: string) => ({ ...good, properties: { ...good.properties, [key]: value } });
+  assert.throws(() => registerArenaPalette(withProp('--font-body', 'x')), /"--font-body" is not a property a palette carries/);
+  assert.throws(() => registerArenaPalette(withProp('--color-base-100', 'red')), /--color-base-100 is "red", not a #rrggbb colour/);
+  assert.throws(() => registerArenaPalette(withProp('--level-base-100', '12px')), /--level-base-100 is "12px"/);
+  assert.throws(() => registerArenaPalette(withProp('--arena-palette', 'other')), /--arena-palette is "other"/);
+  assert.equal(arenaPalettes().some((p) => p.name === 'rt-refuse'), false);
+  runtimeClean();
+});
+
+test('server snapshot is the fallback, and hydrating logs no mismatch', () => {
+  runtimeClean();
+  initArenaTheme(THREE);
+  registerArenaPalette(make('rt-ssr'));
+  setArenaTheme('rt-ssr');
+  const Label = () => React.createElement('span', { id: 'name' }, useArenaTheme()[0]);
+  const server = renderToString(React.createElement(Label));
+  assert.equal(server, '<span id="name">dark</span>', 'the server answers the fallback while localStorage holds another name');
+  const box = document.createElement('div');
+  box.innerHTML = server;
+  document.body.appendChild(box);
+  const errors: unknown[][] = [];
+  const original = console.error;
+  console.error = (...args: unknown[]) => { errors.push(args); };
+  let root: ReturnType<typeof hydrateRoot> | undefined;
+  try {
+    act(() => { root = hydrateRoot(box, React.createElement(Label)); });
+  } finally {
+    console.error = original;
+  }
+  assert.deepEqual(errors, [], 'no hydration mismatch is logged');
+  assert.equal(box.querySelector('#name')?.textContent, 'rt-ssr', 'the client then moves to the stored palette');
+  act(() => { root?.unmount(); });
+  box.remove();
+  runtimeClean();
 });

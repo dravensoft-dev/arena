@@ -12,7 +12,7 @@ A palette island: a subtree drawn in one palette while the page keeps another. T
 
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
-| `palette*` | primitive | `string` |  | The name of a palette the theme config declares, such as `light`. A name the theme config does not declare throws, listing the declared ones. The scope draws the class `arena-<palette>` on its element and gives every reader below it this name. |
+| `palette*` | primitive | `string` |  | The name of a palette the theme config declares or one registered at runtime, such as `light`. A name that is neither throws, listing the declared and the registered ones. The scope draws the class `arena-<palette>` on its element, or for a registered palette its polarity hook and its properties, and gives every reader below it this name. |
 | `children` | slot |  |  | What is drawn in the palette. The slot is optional and unguarded, because a scope holding nothing yet is still a valid island. |
 
 <!-- @api end -->
@@ -33,11 +33,13 @@ A palette island: a subtree drawn in one palette while the page keeps another. T
 
 **A bare palette class is a valid island for styling and it is not a scope.** An element with `arena-light` on it takes the light variables, and the readers above do not see it. Use the component wherever something below needs to know the palette.
 
-**A palette the theme config does not declare throws**, with the message `ArenaPaletteScope: no palette named "x"; the declared palettes are dark, light`. The declared names come from the same config `setArenaTheme` checks.
+**A name that is neither declared nor registered throws**, with the message `ArenaPaletteScope: no palette named "x"; the declared palettes are dark, light; the registered palettes are none`. The declared names come from the same config `setArenaTheme` checks. The scope checks the name once `initArenaTheme` has run. Before that it draws `arena-<palette>` and checks on init, so a scope may mount ahead of the call.
+
+**A palette `registerArenaPalette` registered** has no class of its own name. The scope's element wears its polarity hook, `arena-polarity-dark` or `arena-polarity-light`, and its `--color-*` and `--level-*` properties.
 
 **Do**
 - Put it around the part of a screen that must keep its own palette, such as a receipt that prints light on a dark page.
-- Name a palette your theme config declares.
+- Name a palette your theme config declares or one `registerArenaPalette` registered.
 
 **Don't**
 - Don't use it to switch the page's theme. Page themes belong to `setArenaTheme` or `ArenaThemeService`, which write `<html>`.

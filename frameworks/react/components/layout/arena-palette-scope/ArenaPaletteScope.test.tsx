@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { renderToStaticMarkup } from 'react-dom/server';
 import React from 'react';
-import { getArenaTheme } from '../../../Theme.ts';
+import { getArenaTheme, initArenaTheme } from '../../../Theme.ts';
 import { ArenaPaletteScope, useArenaPalette } from './ArenaPaletteScope.tsx';
 
 function Reader({ label }: { label: string }) {
@@ -35,10 +35,11 @@ test('answers the page theme outside any scope, before initArenaTheme and with n
   assert.match(renderToStaticMarkup(<Reader label="bare" />), new RegExp(`<i data-reader="bare">${getArenaTheme()}</i>`));
 });
 
-test('refuses a palette the theme config does not declare', () => {
+test('refuses a palette the theme config does not declare, once initArenaTheme has run', () => {
+  initArenaTheme();
   assert.throws(
     () => renderToStaticMarkup(<ArenaPaletteScope palette="sepia">x</ArenaPaletteScope>),
-    /ArenaPaletteScope: no palette named "sepia"; the declared palettes are dark, light/,
+    /ArenaPaletteScope: no palette named "sepia"; the declared palettes are dark, light; the registered palettes are none/,
   );
 });
 
