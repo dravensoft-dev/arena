@@ -160,15 +160,17 @@ test('a command that refused a third palette is a failure rather than an empty t
 
 const DUSK = { name: THIRD_PALETTE.name, polarity: THIRD_PALETTE.polarity, colors: { 'base-100': '#101010' } };
 const dir = mkdtempSync(join(tmpdir(), 'arena-runtime-problems-'));
-writeFileSync(join(dir, 'arena.config.json'), JSON.stringify({ palettes: [DUSK] }));
+const LIGHT = { name: 'light', polarity: 'light', colors: { 'base-100': '#fafafa' } };
+writeFileSync(join(dir, 'arena.config.json'), JSON.stringify({ palettes: [DUSK, LIGHT] }));
 after(() => rmSync(dir, { recursive: true, force: true }));
 
 const shipped = { 'color-base-100': '#101010', 'level-1': '4%' };
 const decls = (m: Record<string, string>) => Object.entries(m).map(([k, v]) => `--${k}:${v};`).join('');
-const runtimeRun = (dusk = decls({ 'arena-palette': 'dusk', ...shipped })): CliRun => ({
+const shippedLight = { 'color-base-100': '#fafafa', 'level-1': '6%' };
+const runtimeRun = (dusk = decls({ 'arena-palette': 'dusk', ...shipped }), light = decls({ 'arena-palette': 'light', ...shippedLight })): CliRun => ({
   ...ok,
   theme: `:root{--arena-palette:dark;--arena-runtime-palettes:1;}\n.arena-${THIRD_PALETTE.name}{${dusk}color-scheme:dark;}\n`
-    + '.arena-polarity-dark{color-scheme:dark;}',
+    + `.arena-light{${light}color-scheme:light;}\n.arena-polarity-dark{color-scheme:dark;}\n.arena-polarity-light{color-scheme:light;}`,
   runtime: JSON.stringify({ arenaRuntimePalettes: 1 }),
 });
 const DECLARED = 'arenaRuntimePalette: "dusk" is a palette the build declares, so its class .arena-dusk already exists';
@@ -177,7 +179,12 @@ const module_ = (over: Partial<Shipped> = {}): Shipped => ({
   refusals: { dusk: DECLARED, 'dusk-runtime': null },
   ...over,
 });
-const load = (m: Shipped) => async () => m;
+const lightModule = (): Shipped => ({
+  declarations: { '--color-base-100': '#fafafa', '--level-1': '6%' },
+  refusals: { light: 'arenaRuntimePalette: "light" is a palette the build declares, so its class .arena-light already exists', 'light-runtime': null },
+});
+const load = (m: Shipped, light: Shipped = lightModule()) => async (_layer: string, _dir: string, input: unknown) =>
+  (input as { name: string }).name === 'light' ? light : m;
 
 test('a runtime palette from the shipped module that equals the CLI class key by key passes', async () => {
   assert.deepEqual(await runtimeProblems('react', runtimeRun(), dir, load(module_())), []);
@@ -204,6 +211,18 @@ test('a module that accepts a declared name, refuses for another reason, or refu
   assert.match(refusing[0] ?? '', /refused "dusk-runtime"/);
 });
 
+test('a light runtime palette is held against the light class and the light hook', async () => {
+  const edited = runtimeRun(undefined, decls({ 'arena-palette': 'light', ...shippedLight, 'color-base-100': '#fafafb' }));
+  const problems = await runtimeProblems('react', edited, dir, load(module_()));
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /--color-base-100 is #fafafb in the class the CLI built for light and #fafafa/);
+  const levelless = lightModule();
+  levelless.declarations = { '--color-base-100': '#fafafa' };
+  assert.match((await runtimeProblems('react', runtimeRun(), dir, load(module_(), levelless)))[0] ?? '', /--level-1 is 6% .* and absent from the shipped/);
+  const unhooked = { ...runtimeRun(), theme: runtimeRun().theme?.replace('.arena-polarity-light{color-scheme:light;}', '') ?? '' };
+  assert.match((await runtimeProblems('react', unhooked, dir, load(module_())))[0] ?? '', /carries no \.arena-light or no \.arena-polarity-light block/);
+});
+
 test('a key on one side only is named as absent, and color-scheme is compared between class and hook', async () => {
   const extra = runtimeRun(decls({ 'arena-palette': 'dusk', ...shipped, 'color-extra': '#fff' }));
   assert.match((await runtimeProblems('react', extra, dir, load(module_())))[0] ?? '', /--color-extra is #fff .* and absent from the shipped/);
@@ -213,7 +232,8 @@ test('a key on one side only is named as absent, and color-scheme is compared be
   const withScheme = (dusk: string, hook: string): CliRun => ({
     ...base,
     theme: `:root{--arena-palette:dark;--arena-runtime-palettes:1;}\n.arena-dusk{${decls({ 'arena-palette': 'dusk', ...shipped })}color-scheme:${dusk};}\n`
-      + `.arena-polarity-dark{color-scheme:${hook};}`,
+      + `.arena-light{${decls({ 'arena-palette': 'light', ...shippedLight })}color-scheme:light;}\n`
+      + `.arena-polarity-dark{color-scheme:${hook};}\n.arena-polarity-light{color-scheme:light;}`,
   });
   assert.deepEqual(await runtimeProblems('react', withScheme('dark', 'dark'), dir, load(module_())), []);
   assert.match((await runtimeProblems('react', withScheme('dark', 'light'), dir, load(module_())))[0] ?? '', /color-scheme is dark/);

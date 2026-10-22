@@ -371,6 +371,8 @@ export async function installedPalette(
 
 const SAME_KEYS_APART = ['arena-palette'];
 
+export const RUNTIME_PALETTES = [THIRD_PALETTE, { name: 'light', polarity: 'light' }];
+
 export async function runtimeProblems(
   layer: string, run: CliRun, dir: string, load = installedPalette,
 ): Promise<string[]> {
@@ -387,19 +389,28 @@ export async function runtimeProblems(
       + 'tell a build that expects a runtime palette from one that does not'];
   }
   const data = JSON.parse(run.runtime);
-  const input = readJson(join(dir, 'arena.config.json')).palettes
-    .find((p: { name: string }) => p.name === THIRD_PALETTE.name);
-  const free = `${THIRD_PALETTE.name}-runtime`;
-  const mod = await load(layer, dir, input, data, [THIRD_PALETTE.name, free]);
+  const problems: string[] = [];
+  for (const held of RUNTIME_PALETTES) {
+    const input = readJson(join(dir, 'arena.config.json')).palettes.find((p: { name: string }) => p.name === held.name);
+    const free = `${held.name}-runtime`;
+    const mod = await load(layer, dir, input, data, [held.name, free]);
+    problems.push(...heldAgainstClass(layer, run, held, mod, free));
+  }
+  return problems;
+}
+
+function heldAgainstClass(
+  layer: string, run: CliRun, held: { name: string; polarity: string }, mod: Shipped, free: string,
+): string[] {
   const css = parseDecls(run.theme ?? '');
-  const built = css.get(`.arena-${THIRD_PALETTE.name}`) as Map<string, string> | undefined;
-  const hook = css.get(`.arena-polarity-${THIRD_PALETTE.polarity}`) as Map<string, string> | undefined;
+  const built = css.get(`.arena-${held.name}`) as Map<string, string> | undefined;
+  const hook = css.get(`.arena-polarity-${held.polarity}`) as Map<string, string> | undefined;
   const schemeOf = (selector: string) => /color-scheme:([^;}]+)/.exec(blockIn(run.theme ?? '', selector) ?? '')?.[1];
-  const builtScheme = schemeOf(`.arena-${THIRD_PALETTE.name}`);
-  const hookScheme = schemeOf(`.arena-polarity-${THIRD_PALETTE.polarity}`);
+  const builtScheme = schemeOf(`.arena-${held.name}`);
+  const hookScheme = schemeOf(`.arena-polarity-${held.polarity}`);
   if (!built || !hook) {
-    return [`${layer}: ${THEME_SHEET} carries no .arena-${THIRD_PALETTE.name} or no `
-      + `.arena-polarity-${THIRD_PALETTE.polarity} block to hold the shipped module against`];
+    return [`${layer}: ${THEME_SHEET} carries no .arena-${held.name} or no `
+      + `.arena-polarity-${held.polarity} block to hold the shipped module against`];
   }
   const builtAll = new Map(built);
   if (builtScheme !== undefined) builtAll.set('color-scheme', builtScheme);
@@ -411,14 +422,14 @@ export async function runtimeProblems(
   for (const key of new Set([...builtAll.keys(), ...shipped.keys()])) {
     if (SAME_KEYS_APART.includes(key) || builtAll.get(key) === shipped.get(key)) continue;
     problems.push(`${layer}: ${key === 'color-scheme' ? key : `--${key}`} is ${builtAll.get(key) ?? 'absent'} in the class the CLI built for `
-      + `${THIRD_PALETTE.name} and ${shipped.get(key) ?? 'absent'} from the shipped ./palette module, so a palette `
+      + `${held.name} and ${shipped.get(key) ?? 'absent'} from the shipped ./palette module, so a palette `
       + 'declared at runtime paints differently from the same one declared at build');
   }
-  const said = mod.refusals[THIRD_PALETTE.name];
+  const said = mod.refusals[held.name];
   if (said === null || said === undefined) {
-    problems.push(`${layer}: arenaRuntimePalette accepted "${THIRD_PALETTE.name}", a palette the build already declares`);
+    problems.push(`${layer}: arenaRuntimePalette accepted "${held.name}", a palette the build already declares`);
   } else if (!said.includes('is a palette the build declares')) {
-    problems.push(`${layer}: arenaRuntimePalette refused "${THIRD_PALETTE.name}" for another reason: ${said}`);
+    problems.push(`${layer}: arenaRuntimePalette refused "${held.name}" for another reason: ${said}`);
   }
   if (mod.refusals[free] !== null) {
     problems.push(`${layer}: arenaRuntimePalette refused "${free}", a free name: ${mod.refusals[free]}`);

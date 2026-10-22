@@ -13,8 +13,8 @@ const colors = (overrides: Record<string, string> = {}): Record<string, string> 
 };
 
 const PALETTES = [
-  { name: 'dark', default: true, polarity: 'dark', colors: colors() },
-  { name: 'light', polarity: 'light', colors: colors({ 'base-100': '#ffffff' }) },
+  { name: 'dark', default: true, polarity: 'dark', colors: colors({ 'base-content': '#f3ede5' }) },
+  { name: 'light', polarity: 'light', colors: colors({ 'base-100': '#ffffff', 'base-200': '#f4efe9' }) },
   { name: 'dusk', polarity: 'dark', colors: colors({ 'base-100': '#1b1830', 'base-200': '#25213f', 'base-content': '#f3ede5' }) },
 ];
 
@@ -35,6 +35,11 @@ const SHEETS: any = {
   scopes: ['inverse'],
   aliases: ['--ink:var(--color-base-100);'],
   roleReferences: ['--fill-x:var(--color-base-200);'],
+  levels: [
+    { selector: '.arena-x__muted', state: '', property: 'color', variable: 'color-base-content', percent: 62, level: 'level-ink-muted' },
+    { selector: '.arena-x__quiet', state: '', property: 'color', variable: 'color-base-content', percent: 40, level: 'level-ink-quiet' },
+  ],
+  washes: [{ selector: '.arena-x__hover', variable: 'color-primary', percent: 14 }],
   catalogue: {
     tokens: {
       'color-base-200': 'var(--color-base-200)', 'color-secondary': 'var(--color-secondary)',
@@ -47,6 +52,10 @@ const PLUGINS = [
   readPlugin('console', {
     'ink-eyebrow': { $type: 'color', $value: '{color.secondary}' },
     'fill-surface': { $type: 'color', $value: '{color.base-200}' },
+    light: {
+      'ink-eyebrow': { $type: 'color', $value: '{color.base-200}' },
+      'fill-surface': { $type: 'color', $value: '{color.base-content}' },
+    },
   }),
   readPlugin('marketing', { 'ink-eyebrow': { $type: 'color', $value: '{color.base-200}' } }),
 ];
@@ -76,6 +85,7 @@ const fail = (fn: () => unknown, ...needles: string[]) => {
 for (const palette of PALETTES) {
   test(`a runtime palette and the class of the same palette declare the same thing, key by key: ${palette.name}`, () => {
     const built = keys(`.arena-${palette.name}`);
+    assert.ok(Object.keys(built).some((key) => key.startsWith('level-')), 'the fixture sheets carry levels');
     const hook = keys(`.arena-polarity-${palette.polarity}`);
     const runtime = { ...arenaPaletteDeclarations(palette, data), ...hook };
     const stripped = Object.fromEntries(Object.entries(runtime).map(([k, v]) => [k.replace(/^--/, ''), v]));
@@ -83,7 +93,7 @@ for (const palette of PALETTES) {
   });
 
   test(`the checks are the build's checks: ${palette.name}`, () => {
-    const built = paletteReports({ ...CONFIG, palettes: [palette] }, SHEETS.catalogue, PLUGINS)[0]?.messages ?? [];
+    const built = paletteReports({ ...CONFIG, palettes: [palette] }, SHEETS.catalogue, PLUGINS, SHEETS.levels, SHEETS.washes)[0]?.messages ?? [];
     assert.deepEqual(arenaCheckPalette(palette, data), built);
   });
 }
@@ -167,7 +177,7 @@ test('arenaCheckPalette reports a base-100 that contradicts the declared polarit
   const input = { polarity: 'light' as const, colors: colors() };
   const lines = arenaCheckPalette(input, data).filter((m) => m.message.startsWith('polarity,'));
   assert.deepEqual(lines.map((m) => m.message), ['polarity, base-100 #141010 reads as dark, and the palette declares light']);
-  const declared = paletteReports({ ...CONFIG, palettes: [{ name: 'x', default: true, ...input }] }, SHEETS.catalogue, PLUGINS)[0]?.messages ?? [];
+  const declared = paletteReports({ ...CONFIG, palettes: [{ name: 'x', default: true, ...input }] }, SHEETS.catalogue, PLUGINS, SHEETS.levels, SHEETS.washes)[0]?.messages ?? [];
   assert.deepEqual(declared.filter((m) => m.message.startsWith('polarity,')).map((m) => m.message), lines.map((m) => m.message));
   assert.deepEqual(arenaCheckPalette({ polarity: 'dark', colors: colors() }, data).filter((m) => m.message.startsWith('polarity,')), []);
 });
