@@ -40,6 +40,9 @@ function render() {
 }
 const pick = (fixture: { nativeElement: HTMLElement }, id: string) => fixture.nativeElement.querySelector(`#${id}`) as HTMLElement;
 
+@Component({ selector: 'scope-only-host', standalone: true, imports: [ArenaPaletteScope], template: `<div arenaPalette="light"><div arenaPalette="dark"></div></div>` })
+class ScopeOnly {}
+
 test("paints the island's ground", () => {
   const fixture = render();
   const inner = pick(fixture, 'inner');
@@ -142,4 +145,15 @@ test('a registered palette re-registered while a scope names it updates the host
     assert.equal(inner.style.getPropertyValue('--color-base-100'), '#fafafa');
     assert.equal(inner.style.getPropertyValue('--color-base-200'), '', 'a property the new palette lacks stayed');
   } finally { unmark(); }
+});
+
+test('a scope naming a declared palette leaves the page root and the theme service alone', () => {
+  TestBed.resetTestingModule();
+  window.localStorage?.removeItem('arena-theme');
+  const root = document.documentElement;
+  const before = root.className;
+  const fixture = TestBed.createComponent(ScopeOnly);
+  fixture.detectChanges();
+  assert.equal(root.className, before, 'the scope did not paint the page root');
+  assert.equal(root.hasAttribute('style'), false);
 });
