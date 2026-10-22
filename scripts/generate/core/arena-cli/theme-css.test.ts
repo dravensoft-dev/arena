@@ -378,6 +378,18 @@ test('a palette whose text fails 4.5:1 is reported rather than refused', () => {
     && m.message.startsWith('text, base-content on base-100')));
 });
 
+test('a palette whose base-100 sits on the other side of its polarity is reported, in either direction', () => {
+  const messages = (polarity: string, ground: string) =>
+    paletteReports(config({ palettes: [{ name: 'x', default: true, polarity, colors: colors({ 'base-100': ground }) }] }))[0]?.messages
+      .filter((m) => m.message.startsWith('polarity,')) ?? [];
+  assert.deepEqual(messages('dark', '#fafafa').map((m) => [m.kind, m.message]),
+    [['contrast', 'polarity, base-100 #fafafa reads as light, and the palette declares dark']]);
+  assert.deepEqual(messages('light', '#141010').map((m) => m.message),
+    ['polarity, base-100 #141010 reads as dark, and the palette declares light']);
+  assert.deepEqual(messages('dark', '#141010'), []);
+  assert.deepEqual(messages('light', '#ffffff'), []);
+});
+
 test('a ramp of one repeated colour is reported as indistinguishable', () => {
   const [report] = paletteReports(config());
   assert.ok(report?.messages.some((m) => m.kind === 'ramp' && m.message.startsWith('ramp,')));

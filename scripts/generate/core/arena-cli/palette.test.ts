@@ -162,3 +162,12 @@ test('name refusals', () => {
 test('the module imports no node: module', () => {
   assert.deepEqual(nodeImportsReachedFrom('scripts/generate/core/arena-cli/palette.ts'), []);
 });
+
+test('arenaCheckPalette reports a base-100 that contradicts the declared polarity, as a declared palette does', () => {
+  const input = { polarity: 'light' as const, colors: colors() };
+  const lines = arenaCheckPalette(input, data).filter((m) => m.message.startsWith('polarity,'));
+  assert.deepEqual(lines.map((m) => m.message), ['polarity, base-100 #141010 reads as dark, and the palette declares light']);
+  const declared = paletteReports({ ...CONFIG, palettes: [{ name: 'x', default: true, ...input }] }, SHEETS.catalogue, PLUGINS)[0]?.messages ?? [];
+  assert.deepEqual(declared.filter((m) => m.message.startsWith('polarity,')).map((m) => m.message), lines.map((m) => m.message));
+  assert.deepEqual(arenaCheckPalette({ polarity: 'dark', colors: colors() }, data).filter((m) => m.message.startsWith('polarity,')), []);
+});

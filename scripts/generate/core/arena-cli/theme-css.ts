@@ -498,6 +498,8 @@ export function configProblems(
   return problems;
 }
 
+const POLARITY_MIDPOINT = 0.5;
+
 export const SURFACE_ROLE = 'fill-surface';
 
 export const rampFailed = (state: unknown) => state !== true && state !== 'pass';
@@ -534,6 +536,12 @@ export function rolesFor(root: StylePlugin | null, catalogue: TokenCatalogue | n
     : new Map<string, string>(Object.entries(catalogue?.tokens ?? {}));
 }
 
+export function polarityReports(polarity: string, ground: string | undefined): Report[] {
+  if (!ground || (polarity !== 'dark' && polarity !== 'light')) return [];
+  const reads = toOklab(ground)[0] >= POLARITY_MIDPOINT ? 'light' : 'dark';
+  return reads === polarity ? [] : [report('contrast', `polarity, base-100 ${ground} reads as ${reads}, and the palette declares ${polarity}`)];
+}
+
 export function paletteMessages(
   palette: { polarity: string; colors: Record<string, string> }, roles: Map<string, string>,
   levels: Level[], washes: Wash[], hasRoot: boolean,
@@ -542,7 +550,7 @@ export function paletteMessages(
   const colors = derivedColours(palette.colors, mode);
   const surface = surfaceOf({ colors }, roles);
   const ramp = catKeys().map((k) => colors[k]).filter(Boolean);
-  const messages: Report[] = [];
+  const messages: Report[] = [...polarityReports(palette.polarity, palette.colors['base-100'])];
 
   if (ramp.length) {
     const rampOptions = { mode, surface };
