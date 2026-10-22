@@ -2,7 +2,8 @@
  * that both answer a light group, three palettes and sheets with aliases, role references, scopes and
  * a catalogue. theme-css-golden.css is themeCss of this input as the emitter wrote it at bb3e930c, the
  * commit before the runtime-palette work, so theme-css.test.ts can hold today's output to it byte for byte.
- * No script in this tree writes the sheet, which is why check-generated lists it as UNMARKED. */
+ * The sheet is stored without its one-line generated header, which the test strips from the output, so
+ * check-generated does not take it for a file a script writes. */
 
 import { PALETTE_KEYS } from '../../generate/core/arena-cli/palette-keys.ts';
 
