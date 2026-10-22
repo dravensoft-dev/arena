@@ -120,6 +120,17 @@ test('file-url-pathname leaves location.pathname alone', () => {
     "history.replaceState(null, '', window.location.pathname);\n"), []);
 });
 
+test('file-url-pathname leaves an optional-chained location.pathname alone', () => {
+  assert.deepEqual(violations('frameworks/react/made-up.ts',
+    'const here = window.location?.pathname;\n'), []);
+});
+
+test('file-url-pathname exempts the static server, whose URL is an http request', () => {
+  const source = 'const path = new URL(request.url).pathname;\n';
+  assert.deepEqual(violations('scripts/lib/arena/static-server.ts', source), []);
+  assert.equal(violations('scripts/lib/arena/other-server.ts', source).length, 1);
+});
+
 test('file-url-pathname leaves fileURLToPath alone', () => {
   assert.deepEqual(violations('scripts/build/arena/made-up.ts',
     "const p = fileURLToPath(new URL('./x', import.meta.url));\n"), []);

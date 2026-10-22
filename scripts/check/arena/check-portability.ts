@@ -204,7 +204,7 @@ export const RULES: Rule[] = [
   },
   {
     id: 'file-url-pathname',
-    pattern: /(?<!\blocation)\.pathname\b/g,
+    pattern: /(?<!\blocation\??)\.pathname\b/g,
     owners: ['scripts/lib/arena/static-server.ts'],
     why: 'the .pathname of a file: URL is /D:/a/... on Windows, which no fs call reads, so '
       + 'fileURLToPath is the one spelling of a path taken from a file URL; the owner\'s URL is an '

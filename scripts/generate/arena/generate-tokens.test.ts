@@ -6,11 +6,12 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, existsSync, mkdtempSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import nodePath, { join, relative, sep, win32, posix } from 'node:path';
+import nodePath, { join, win32, posix } from 'node:path';
 import { readJson } from '../../utils/read-file.ts';
 import { DESIGN_DIR, FILES, REDECLARED_GROUPS, RESOLVES_AGAINST, SCOPE_SELECTORS, SCRIPT_TARGETS, collectScriptTokens, designPath, isFrom, referenceOf, scopesRedeclaring } from './generate-tokens.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { readFamilies } from '../../lib/tailwind/vocabulary.ts';
+import { relPosix } from '../../utils/posix-path.ts';
 
 const DESIGN = join(repoRoot, DESIGN_DIR);
 const BLOCKS = FILES.flatMap((f) => f.blocks) as { source: string; dir?: string }[];
@@ -211,7 +212,7 @@ test('a dark group of a plugin source reaches the base selector as well as the .
       'bw-surface': { $type: 'dimension', $value: { value: 1, unit: 'px' } },
       dark: { 'bw-field': { $type: 'dimension', $value: { value: 3, unit: 'px' } } },
     }));
-    const dir = relative(repoRoot, tmp).split(sep).join('/');
+    const dir = relPosix(repoRoot, tmp);
     const css = await block({ selector: '.arena-p', source: 'p.tokens.json', dir });
     const base = /^\.arena-p\{\n([\s\S]*?)\n\}/m.exec(css)?.[1] ?? '';
     assert.match(base, /--bw-surface:1px;/);
