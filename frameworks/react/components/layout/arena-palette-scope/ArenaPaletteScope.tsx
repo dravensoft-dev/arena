@@ -3,7 +3,7 @@ import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaPaletteScope.classes.generated.ts';
 import type { ArenaPaletteScopeClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
-import { arenaPalettes, arenaThemeClass, getArenaTheme } from '../../../Theme.ts';
+import { arenaPalettes, arenaThemeClass, useArenaTheme } from '../../../Theme.ts';
 
 export interface ArenaPaletteScopeProps {
   className?: ArenaPaletteScopeClass;
@@ -21,7 +21,9 @@ const arenaPaletteScopeStyles = arenaStyles(manifest);
 
 /** The palette of the nearest `ArenaPaletteScope` above, else the page theme. A bare palette class is not a scope this sees. */
 export function useArenaPalette(): string {
-  return useContext(ArenaPaletteContext) ?? getArenaTheme();
+  const scoped = useContext(ArenaPaletteContext);
+  const [page] = useArenaTheme();
+  return scoped ?? page;
 }
 
 export function ArenaPaletteScope({ className, palette, children }: ArenaPaletteScopeProps) {

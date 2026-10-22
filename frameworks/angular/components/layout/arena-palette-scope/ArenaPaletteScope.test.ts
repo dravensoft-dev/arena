@@ -49,6 +49,16 @@ test('a palette change on the same host removes the previous class', () => {
   const inner = pick(fixture, 'inner');
   assert.ok(inner.classList.contains('arena-dark'));
   assert.equal(inner.classList.contains('arena-light'), false);
+  assert.ok(pick(fixture, 'outer').classList.contains('mine'), "the adopter's own class stays after the change");
+});
+
+test('the default palette is an island too', () => {
+  const fixture = render();
+  fixture.componentInstance.inner.set('dark');
+  fixture.detectChanges();
+  TestBed.inject(ArenaThemeService).set('light');
+  fixture.detectChanges();
+  assert.ok(pick(fixture, 'inner').classList.contains('arena-dark'));
 });
 
 test("provides the nearest scope's palette", () => {
@@ -59,8 +69,13 @@ test("provides the nearest scope's palette", () => {
 
 test('answers the page theme outside any scope', () => {
   const fixture = render();
-  const page = TestBed.inject(ArenaThemeService).theme();
-  assert.equal(pick(fixture, 'bare').textContent, page);
+  const service = TestBed.inject(ArenaThemeService);
+  service.set('light');
+  fixture.detectChanges();
+  assert.equal(pick(fixture, 'bare').textContent, 'light');
+  service.set('dark');
+  fixture.detectChanges();
+  assert.equal(pick(fixture, 'bare').textContent, 'dark');
 });
 
 test('refuses a palette the theme config does not declare', () => {

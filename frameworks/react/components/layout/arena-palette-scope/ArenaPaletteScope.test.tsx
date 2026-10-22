@@ -39,3 +39,8 @@ test('refuses a palette the theme config does not declare', () => {
     /ArenaPaletteScope: no palette named "sepia"; the declared palettes are dark, light/,
   );
 });
+
+test('the default palette is an island too', () => {
+  const html = renderToStaticMarkup(<ArenaPaletteScope palette="dark">x</ArenaPaletteScope>);
+  assert.match(html, /class="[^"]*\barena-dark\b/);
+});
