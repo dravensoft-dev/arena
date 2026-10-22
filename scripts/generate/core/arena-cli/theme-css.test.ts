@@ -10,6 +10,7 @@ import {
 import { PALETTE_KEYS, POLARITIES, heatKeys } from './palette-keys.ts';
 import { heatLadder } from './oklab.ts';
 import { parseDecls } from '../../../lib/arena/css-decls.ts';
+import { goldenInput } from './fixtures/theme-css-input.ts';
 import { crossKeys, reservedProblems, scopeOn } from './style-plugin-rules.ts';
 import { nodeImportsReachedFrom, whileHeld } from './cli-fixtures.ts';
 
@@ -1182,11 +1183,12 @@ const runtime = (over: Record<string, any> = {}) => themeCss(listed(['console', 
   plugins: [total(), MARKETING()],
 });
 
-test('a config without runtimePalettes emits what it emitted before', () => {
-  const c = listed(['console', 'marketing'], { palettes: TWO_PALETTES });
-  const options = { sheets: aliased(), importHeader: false, plugins: [total(), scoped()] };
+test('a config without runtimePalettes emits what it emitted before the runtime-palette work, byte for byte', () => {
+  const { config: c, options } = goldenInput(readPlugin);
+  const golden = readFileSync(fileURLToPath(new URL('./fixtures/theme-css-golden.css', import.meta.url)), 'utf8');
   const before = themeCss(c, options);
-  assert.equal(themeCss({ ...c, runtimePalettes: false }, options), before);
+  assert.equal(before, golden);
+  assert.equal(themeCss({ ...c, runtimePalettes: false }, options), golden, 'false is the same as absent');
   assert.doesNotMatch(before, /arena-polarity/);
   assert.ok(!before.includes(RUNTIME_MARKER));
 });
