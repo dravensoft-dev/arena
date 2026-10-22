@@ -336,18 +336,27 @@ export function runtimeFixture(layer: string, base = root) {
   return dir;
 }
 
-type PaletteModule = {
-  arenaPaletteDeclarations: (input: unknown, data: unknown) => Record<string, string>;
-  arenaRuntimePalette: (name: string, input: unknown, data: unknown) => unknown;
-};
+export type Shipped = { declarations: Record<string, string>; refusals: Record<string, string | null> };
 
-export async function installedPalette(layer: string, dir: string): Promise<PaletteModule> {
+const PROBE = `import * as m from '@PKG@/palette';
+const { input, data, names } = JSON.parse(process.argv[2]);
+const refusals = {};
+for (const n of names) {
+  try { m.arenaRuntimePalette(n, input, data); refusals[n] = null; } catch (e) { refusals[n] = String(e.message); }
+}
+process.stdout.write(JSON.stringify({ declarations: m.arenaPaletteDeclarations(input, data), refusals }));
+`;
+
+export async function installedPalette(
+  layer: string, dir: string, input: unknown, data: unknown, names: string[],
+): Promise<Shipped> {
   const name = PACKAGES.find((p) => p.layer === layer)?.name ?? '';
-  const at = join(dir, 'node_modules', ...name.split('/'));
-  const entry = readJson(join(at, 'package.json')).exports?.['./palette'];
-  const target = entry?.import ?? entry?.default;
-  if (typeof target !== 'string') throw new Error(`${name} exports no ./palette for an import`);
-  return await import(pathToFileURL(join(at, ...target.split('/'))).href) as PaletteModule;
+  const node = hostBinary('node', 'to import the shipped palette module the way a consumer imports it');
+  const probe = join(dir, 'arena-palette-probe.mjs');
+  writeFileSync(probe, PROBE.replace('@PKG@', name));
+  const run = spawnSync(node, [probe, JSON.stringify({ input, data, names })], { cwd: dir, encoding: 'utf8' });
+  if (run.status !== 0) throw new Error(`${name}/palette did not import from a consumer's directory:\n${run.stderr}`);
+  return JSON.parse(run.stdout) as Shipped;
 }
 
 const SAME_KEYS_APART = ['arena-palette'];
@@ -370,32 +379,39 @@ export async function runtimeProblems(
   const data = JSON.parse(run.runtime);
   const input = readJson(join(dir, 'arena.config.json')).palettes
     .find((p: { name: string }) => p.name === THIRD_PALETTE.name);
-  const mod = await load(layer, dir);
+  const free = `${THIRD_PALETTE.name}-runtime`;
+  const mod = await load(layer, dir, input, data, [THIRD_PALETTE.name, free]);
   const css = parseDecls(run.theme ?? '');
   const built = css.get(`.arena-${THIRD_PALETTE.name}`) as Map<string, string> | undefined;
   const hook = css.get(`.arena-polarity-${THIRD_PALETTE.polarity}`) as Map<string, string> | undefined;
+  const schemeOf = (selector: string) => /color-scheme:([^;}]+)/.exec(blockIn(run.theme ?? '', selector) ?? '')?.[1];
+  const builtScheme = schemeOf(`.arena-${THIRD_PALETTE.name}`);
+  const hookScheme = schemeOf(`.arena-polarity-${THIRD_PALETTE.polarity}`);
   if (!built || !hook) {
     return [`${layer}: ${THEME_SHEET} carries no .arena-${THIRD_PALETTE.name} or no `
       + `.arena-polarity-${THIRD_PALETTE.polarity} block to hold the shipped module against`];
   }
+  const builtAll = new Map(built);
+  if (builtScheme !== undefined) builtAll.set('color-scheme', builtScheme);
   const shipped = new Map<string, string>(Object.entries({
-    ...mod.arenaPaletteDeclarations(input, data), ...Object.fromEntries(hook),
+    ...mod.declarations, ...Object.fromEntries(hook),
   }).map(([key, value]) => [key.replace(/^--/, ''), value]));
+  if (hookScheme !== undefined) shipped.set('color-scheme', hookScheme);
   const problems = [];
-  for (const key of new Set([...built.keys(), ...shipped.keys()])) {
-    if (SAME_KEYS_APART.includes(key) || built.get(key) === shipped.get(key)) continue;
-    problems.push(`${layer}: --${key} is ${built.get(key) ?? 'absent'} in the class the CLI built for `
+  for (const key of new Set([...builtAll.keys(), ...shipped.keys()])) {
+    if (SAME_KEYS_APART.includes(key) || builtAll.get(key) === shipped.get(key)) continue;
+    problems.push(`${layer}: ${key === 'color-scheme' ? key : `--${key}`} is ${builtAll.get(key) ?? 'absent'} in the class the CLI built for `
       + `${THIRD_PALETTE.name} and ${shipped.get(key) ?? 'absent'} from the shipped ./palette module, so a palette `
       + 'declared at runtime paints differently from the same one declared at build');
   }
-  const refused = (name: string) => {
-    try { mod.arenaRuntimePalette(name, input, data); return false; } catch { return true; }
-  };
-  if (!refused(THIRD_PALETTE.name)) {
+  const said = mod.refusals[THIRD_PALETTE.name];
+  if (said === null || said === undefined) {
     problems.push(`${layer}: arenaRuntimePalette accepted "${THIRD_PALETTE.name}", a palette the build already declares`);
+  } else if (!said.includes('is a palette the build declares')) {
+    problems.push(`${layer}: arenaRuntimePalette refused "${THIRD_PALETTE.name}" for another reason: ${said}`);
   }
-  if (refused(`${THIRD_PALETTE.name}-runtime`)) {
-    problems.push(`${layer}: arenaRuntimePalette refused "${THIRD_PALETTE.name}-runtime", a free name`);
+  if (mod.refusals[free] !== null) {
+    problems.push(`${layer}: arenaRuntimePalette refused "${free}", a free name: ${mod.refusals[free]}`);
   }
   return problems;
 }

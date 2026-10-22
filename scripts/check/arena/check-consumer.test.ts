@@ -14,9 +14,9 @@ import { CLI_BINS } from '../../lib/arena/package-assembly.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import {
   importedSheets, unknownSymbolProblems, listProblems, closedListProblems, iconProblems, documented, CONFIG_REFERENCE,
-  palettesProblems, runtimeProblems, SOURCES, UNKNOWN, FILL, GLYPH, THIRD_PALETTE, CLI, snapshot, treeChanges, exitProblem, binProblems,
+  palettesProblems, runtimeProblems, installedPalette, SOURCES, UNKNOWN, FILL, GLYPH, THIRD_PALETTE, CLI, snapshot, treeChanges, exitProblem, binProblems,
 } from './check-consumer.ts';
-import type { CliRun } from './check-consumer.ts';
+import type { CliRun, Shipped } from './check-consumer.ts';
 import { distDir, unassembled, assembled } from './check-packages.ts';
 
 const ok: CliRun = { status: 0, stdout: '', stderr: '', theme: null, icons: null, plugin: null, runtime: null };
@@ -166,40 +166,72 @@ const shipped = { 'color-base-100': '#101010', 'level-1': '4%' };
 const decls = (m: Record<string, string>) => Object.entries(m).map(([k, v]) => `--${k}:${v};`).join('');
 const runtimeRun = (dusk = decls({ 'arena-palette': 'dusk', ...shipped })): CliRun => ({
   ...ok,
-  theme: `:root{--arena-palette:dark;--arena-runtime-palettes:1;}\n.arena-${THIRD_PALETTE.name}{${dusk}}\n`
+  theme: `:root{--arena-palette:dark;--arena-runtime-palettes:1;}\n.arena-${THIRD_PALETTE.name}{${dusk}color-scheme:dark;}\n`
     + '.arena-polarity-dark{color-scheme:dark;}',
   runtime: JSON.stringify({ arenaRuntimePalettes: 1 }),
 });
-const module_ = {
-  arenaPaletteDeclarations: () => ({ '--color-base-100': '#101010', '--level-1': '4%' }),
-  arenaRuntimePalette: (name: string) => {
-    if (name === THIRD_PALETTE.name) throw new Error('declared');
-    return {};
-  },
-};
-const load = async () => module_;
+const DECLARED = 'arenaRuntimePalette: "dusk" is a palette the build declares, so its class .arena-dusk already exists';
+const module_ = (over: Partial<Shipped> = {}): Shipped => ({
+  declarations: { '--color-base-100': '#101010', '--level-1': '4%' },
+  refusals: { dusk: DECLARED, 'dusk-runtime': null },
+  ...over,
+});
+const load = (m: Shipped) => async () => m;
 
 test('a runtime palette from the shipped module that equals the CLI class key by key passes', async () => {
-  assert.deepEqual(await runtimeProblems('react', runtimeRun(), dir, load), []);
+  assert.deepEqual(await runtimeProblems('react', runtimeRun(), dir, load(module_())), []);
 });
 
 test('one declaration edited in the CLI class is named, and a missing file or marker is reported', async () => {
   const edited = runtimeRun(decls({ 'arena-palette': 'dusk', ...shipped, 'color-base-100': '#101011' }));
-  const problems = await runtimeProblems('react', edited, dir, load);
+  const problems = await runtimeProblems('react', edited, dir, load(module_()));
   assert.equal(problems.length, 1);
   assert.match(problems[0] ?? '', /--color-base-100 is #101011/);
-  assert.match((await runtimeProblems('react', { ...runtimeRun(), runtime: null }, dir, load))[0] ?? '', /wrote no/);
+  assert.match((await runtimeProblems('react', { ...runtimeRun(), runtime: null }, dir, load(module_())))[0] ?? '', /wrote no/);
   const unmarked = { ...runtimeRun(), theme: runtimeRun().theme?.replace('--arena-runtime-palettes:1;', '') ?? '' };
-  assert.match((await runtimeProblems('react', unmarked, dir, load))[0] ?? '', /--arena-runtime-palettes:1/);
+  assert.match((await runtimeProblems('react', unmarked, dir, load(module_())))[0] ?? '', /--arena-runtime-palettes:1/);
 });
 
-test('a module that accepts a declared name, or refuses a free one, is reported', async () => {
-  const lax = { ...module_, arenaRuntimePalette: () => ({}) };
-  const accepting = await runtimeProblems('react', runtimeRun(), dir, async () => lax);
+test('a module that accepts a declared name, refuses for another reason, or refuses a free one, is reported', async () => {
+  const accepting = await runtimeProblems('react', runtimeRun(), dir, load(module_({ refusals: { dusk: null, 'dusk-runtime': null } })));
   assert.match(accepting[0] ?? '', /accepted "dusk"/);
-  const strict = { ...module_, arenaRuntimePalette: () => { throw new Error('no'); } };
-  const refusing = await runtimeProblems('react', runtimeRun(), dir, async () => strict);
+  const other = await runtimeProblems('react', runtimeRun(), dir,
+    load(module_({ refusals: { dusk: 'palette: not an object', 'dusk-runtime': null } })));
+  assert.match(other[0] ?? '', /for another reason: palette: not an object/);
+  const refusing = await runtimeProblems('react', runtimeRun(), dir,
+    load(module_({ refusals: { dusk: DECLARED, 'dusk-runtime': 'no' } })));
   assert.match(refusing[0] ?? '', /refused "dusk-runtime"/);
+});
+
+test('a key on one side only is named as absent, and color-scheme is compared between class and hook', async () => {
+  const extra = runtimeRun(decls({ 'arena-palette': 'dusk', ...shipped, 'color-extra': '#fff' }));
+  assert.match((await runtimeProblems('react', extra, dir, load(module_())))[0] ?? '', /--color-extra is #fff .* and absent from the shipped/);
+  const omitted = module_({ declarations: { '--color-base-100': '#101010' } });
+  assert.match((await runtimeProblems('react', runtimeRun(), dir, load(omitted)))[0] ?? '', /--level-1 is 4% .* and absent from the shipped/);
+  const base = runtimeRun();
+  const withScheme = (dusk: string, hook: string): CliRun => ({
+    ...base,
+    theme: `:root{--arena-palette:dark;--arena-runtime-palettes:1;}\n.arena-dusk{${decls({ 'arena-palette': 'dusk', ...shipped })}color-scheme:${dusk};}\n`
+      + `.arena-polarity-dark{color-scheme:${hook};}`,
+  });
+  assert.deepEqual(await runtimeProblems('react', withScheme('dark', 'dark'), dir, load(module_())), []);
+  assert.match((await runtimeProblems('react', withScheme('dark', 'light'), dir, load(module_())))[0] ?? '', /color-scheme is dark/);
+});
+
+for (const condition of ['import', 'default']) test(`the loader resolves ./palette through the ${condition} condition of an installed package`, async () => {
+  const fake = join(root, '.cache', `loader-test-${condition}`);
+  rmSync(fake, { recursive: true, force: true });
+  try {
+    const pkg = join(fake, 'node_modules', '@dravensoft', 'arena-react');
+    mkdirSync(join(pkg, 'bin'), { recursive: true });
+    writeFileSync(join(pkg, 'package.json'), JSON.stringify({ name: '@dravensoft/arena-react', type: 'module', exports: { './palette': { [condition]: './bin/p.mjs' } } }));
+    writeFileSync(join(pkg, 'bin', 'p.mjs'), 'export const arenaPaletteDeclarations = () => ({ "--a": "1" });\n'
+      + 'export const arenaRuntimePalette = (n) => { if (n === "x") throw new Error("taken"); };\n');
+    const got = await installedPalette('react', fake, {}, {}, ['x', 'y']);
+    assert.deepEqual(got, { declarations: { '--a': '1' }, refusals: { x: 'taken', y: null } });
+  } finally {
+    rmSync(fake, { recursive: true, force: true });
+  }
 });
 
 test('the gate runs the one bin the package declares', () => {
