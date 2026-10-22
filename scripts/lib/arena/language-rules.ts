@@ -126,7 +126,7 @@ export const RULES: LanguageRule[] = [
   {
     id: 'two-themes',
     short: 'Two themes, dark first.',
-    body: 'Dark is `:root`, light is `.arena-light`. Components never rewrite per theme; they read '
+    body: 'Dark is `:root` and `.arena-dark`, light is `.arena-light`, and either class goes on any element. Components never rewrite per theme; they read '
       + 'tokens. `.arena-compact` and `.arena-comfortable` are the density family on the vocabulary '
       + 'page, `frameworks/VOCABULARY.md`: the first re-densifies the controls, the second grows '
       + 'them to a 48px touch target, and the two are exclusive.',

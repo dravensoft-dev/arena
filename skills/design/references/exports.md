@@ -15,6 +15,7 @@ Every component is imported from the package root, and its types ship with it. T
 | export | what it is |
 | --- | --- |
 | `initArenaTheme`, `useArenaTheme`, `getArenaTheme`, `setArenaTheme`, `toggleArenaTheme`, `arenaPalettes`, `ArenaPalette`, `ArenaThemeConfig` | the theme surface, covered in [`theme.md`](./theme.md) |
+| `useArenaPalette` | the palette of the nearest `ArenaPaletteScope`, else the page theme, covered in [`theme.md`](./theme.md#how-do-i-put-a-palette-on-part-of-a-page) |
 | `ArenaLocaleProvider`, `useArenaLocale`, `arenaMergeLocale`, `ARENA_DEFAULT_LOCALE` | Arena's own words, covered in [`locale.md`](./locale.md) |
 | `useArenaContainerWidth(target?)` | `[ref, width]`: attach the ref to the box and read its outer width, the border box with no transform applied. Subtract your own padding and border when you need the content width. For a component or a panel that has to fit the room it was given. **The hook measures when React attaches the ref, before the browser paints**, then a `ResizeObserver` follows the box. A phone's first frame is already narrow, as Arena's own components are. `width` is `null` in a server render and for a box that has never had a width, such as one first drawn in a hidden parent. A box hidden later keeps its last width. Render the wide branch while `width` is `null`, which is what a server's HTML carries. Pass a `useRef` as `target`; a sealed ref is measured after the paint |
 | `useArenaViewportBelow(name)` | a boolean over `not all and (min-width: N)`, where `name` is `'sm' \| 'md' \| 'lg'` and resolves the same `--bp-*` token Arena's own components branch on. For a page's own layout, such as swapping `arena-compact` for `arena-comfortable` below a breakpoint, and **never for a component**: that is wrong the first time somebody puts it in a narrow column. [How do I change density below a breakpoint?](#how-do-i-change-density-below-a-breakpoint) has it in use. Call `forgetArenaBreakpoints()` if your app swaps its stylesheet at runtime. **It answers in the first client render.** A server render answers `false` until the client takes over, so a frame a server renders takes the `md:` and `max-md:` variants instead |
@@ -194,6 +195,7 @@ Every component is standalone, so import the ones a template uses. **A parent do
 | export | what it is |
 | --- | --- |
 | `provideArenaThemes`, `ArenaThemeService`, `arenaThemeClass`, `ArenaPalette`, `ArenaThemeConfig` | the theme surface, covered in [`theme.md`](./theme.md) |
+| `injectArenaPalette`, `ARENA_PALETTE` | `injectArenaPalette()` is a `Signal<string>` over the palette of the nearest `ArenaPaletteScope`, else the page theme, and `ARENA_PALETTE` is the token the scope provides it under, covered in [`theme.md`](./theme.md#how-do-i-put-a-palette-on-part-of-a-page) |
 | `provideArenaLocale`, `ARENA_LOCALE`, `arenaMergeLocale`, `ARENA_DEFAULT_LOCALE` | Arena's own words, covered in [`locale.md`](./locale.md) |
 | `arenaContainerWidth(target?)` | `Signal<number \| null>` over the host's box, or the `ElementRef` you pass: its outer width, the border box with no transform, so subtract your padding and border for the content width. For a component or panel that has to fit its room. **The box is read in the render hook of the tick that first draws it, before the paint**, then a `ResizeObserver` follows it. A phone's first frame is already narrow. The width is `null` in a server render and for a box that never had a width, such as one first drawn hidden. A box hidden later keeps its last width. Render the wide branch while it is `null`, as a server's HTML does |
 | `arenaViewportBelow(name)` | `Signal<boolean>` over `not all and (min-width: N)`, where `name` is `'sm' \| 'md' \| 'lg'` and resolves the same `--bp-*` token Arena's own components branch on. For a page's own layout, such as swapping `arena-compact` for `arena-comfortable` below a breakpoint, and **never for a component**: that is wrong the first time somebody puts it in a narrow column. [How do I change density below a breakpoint?](#how-do-i-change-density-below-a-breakpoint) has it in use. Call `forgetArenaBreakpoints()` if your app swaps its stylesheet at runtime. **It answers from construction**, so the first change detection draws the right frame. A server render answers `false` until the client takes over, so a frame a server renders takes the `md:` and `max-md:` variants instead |
@@ -359,29 +361,31 @@ protected readonly toneColor = arenaToneColor;
 
 ## How do I colour a chart library of my own?
 
-An SVG or DOM library takes the strings the helpers above return as they are, because `var(--color-cat-1)` resolves where the element is painted. A canvas library cannot paint a `var()`. Resolve the custom property to a colour first.
+An SVG or DOM library takes the strings the helpers above return as they are, because `var(--color-cat-1)` resolves where the element is painted. A canvas library cannot paint a `var()`. Resolve the custom property to a colour first, from the element the canvas sits in, so a canvas inside a palette island reads the island's colours and not the page's.
 
 ```ts
-const read = (slot: number) =>
-  getComputedStyle(document.documentElement).getPropertyValue(`--color-cat-${slot}`).trim();
-const colours = [1, 2, 3].map(read);
+function readColours(canvas: HTMLCanvasElement) {
+  const style = getComputedStyle(canvas);
+  return [1, 2, 3].map((slot) => style.getPropertyValue(`--color-cat-${slot}`).trim());
+}
 ```
 
-The colours change with the palette, so resolve them again when the palette changes. The two examples below are allowed, untested: Arena ships no chart-library adapter, and the calls follow each library's documented API.
+The colours change with the palette, so resolve them again when the palette of that element changes. The two examples below are allowed, untested: Arena ships no chart-library adapter, and the calls follow each library's documented API.
 
 Chart.js paints a bar chart on a canvas. The categorical array is the `backgroundColor`.
 
 ```ts
 import { Chart } from 'chart.js/auto';
 
-const read = (name: string) =>
-  getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-const categorical = () => [1, 2, 3].map((slot) => read(`--color-cat-${slot}`));
+const read = (el: Element, name: string) => getComputedStyle(el).getPropertyValue(name).trim();
+const categorical = (el: Element) => [1, 2, 3].map((slot) => read(el, `--color-cat-${slot}`));
 
-const chart = new Chart(canvas, {
-  type: 'bar',
-  data: { labels: ['Deploy', 'Build', 'Test'], datasets: [{ data: [12, 19, 7], backgroundColor: categorical() }] },
-});
+function drawBars(canvas: HTMLCanvasElement) {
+  return new Chart(canvas, {
+    type: 'bar',
+    data: { labels: ['Deploy', 'Build', 'Test'], datasets: [{ data: [12, 19, 7], backgroundColor: categorical(canvas) }] },
+  });
+}
 ```
 
 D3 draws an SVG heat cell scale over the heat array.
@@ -389,51 +393,51 @@ D3 draws an SVG heat cell scale over the heat array.
 ```ts
 import { scaleQuantize, select } from 'd3';
 
-const heat = () => [1, 2, 3, 4, 5].map((step) => read(`--heat-step-${step}`));
+const heat = (el: Element) => [1, 2, 3, 4, 5].map((step) => read(el, `--heat-step-${step}`));
 const cells = [{ x: 0, y: 0, value: 3 }, { x: 1, y: 0, value: 8 }, { x: 2, y: 0, value: 14 }];
 
 function drawHeat(svg: SVGSVGElement) {
-  const scale = scaleQuantize<string>().domain([0, 14]).range(heat());
+  const scale = scaleQuantize<string>().domain([0, 14]).range(heat(svg));
   select(svg).selectAll('rect').data(cells).join('rect')
     .attr('x', (d) => d.x * 24).attr('y', (d) => d.y * 24)
     .attr('width', 22).attr('height', 22)
     .attr('fill', (d) => scale(d.value));
 }
-drawHeat(svg);
 ```
 
-In React `useArenaTheme()` re-renders its component with the new name, and an effect keyed on that name updates the Chart.js instance and joins the D3 selection again.
+In React `useArenaPalette()` re-renders its component with the palette of the nearest `ArenaPaletteScope`, or the page theme outside one, and an effect keyed on that name updates the Chart.js instance and joins the D3 selection again. A bare palette class is not a scope the hook sees, so a chart inside one wraps itself in `ArenaPaletteScope`.
 
 ```tsx
 import { useEffect } from 'react';
-import { useArenaTheme } from '@dravensoft/arena-react';
+import { useArenaPalette } from '@dravensoft/arena-react';
 
-function useChartRedraw(chart: Chart, svg: SVGSVGElement) {
-  const [theme] = useArenaTheme();
+function useChartRedraw(chart: Chart, canvas: HTMLCanvasElement, svg: SVGSVGElement) {
+  const palette = useArenaPalette();
   useEffect(() => {
-    chart.data.datasets[0].backgroundColor = categorical();
+    chart.data.datasets[0].backgroundColor = categorical(canvas);
     chart.update();
     drawHeat(svg);
-  }, [theme]);
+  }, [palette]);
 }
 ```
 
-In Angular `ArenaThemeService.theme` is a signal, and an `afterRenderEffect` that reads it runs once the new palette is applied to the document.
+In Angular `injectArenaPalette()` is a signal, and an `afterRenderEffect` that reads it runs once the new palette is applied to the document and to the scope.
 
 ```ts
-import { afterRenderEffect, Component, inject } from '@angular/core';
-import { ArenaThemeService } from '@dravensoft/arena-angular';
+import { afterRenderEffect, Component } from '@angular/core';
+import { injectArenaPalette } from '@dravensoft/arena-angular';
 
 @Component({ selector: 'app-chart-panel', templateUrl: './chart-panel.html' })
 export class ChartPanel {
-  private readonly themes = inject(ArenaThemeService);
+  private readonly palette = injectArenaPalette();
   chart!: Chart;
+  canvas!: HTMLCanvasElement;
   svg!: SVGSVGElement;
 
   constructor() {
     afterRenderEffect(() => {
-      this.themes.theme();
-      this.chart.data.datasets[0].backgroundColor = categorical();
+      this.palette();
+      this.chart.data.datasets[0].backgroundColor = categorical(this.canvas);
       this.chart.update();
       drawHeat(this.svg);
     });
@@ -446,9 +450,13 @@ export class ChartPanel {
 The sequential ramp is the heat ladder, `--heat-step-1` to `--heat-step-5`. `ArenaHeatmapChart` paints those roles. Order is magnitude: step 1 is the least and each step is further from the surface, in a light palette and in a dark one. The palette's `--color-heat-1` to `--color-heat-5` is what the roles take by default, and a style plugin may answer them with other colours, in the same order of magnitude. A chart reads the roles. A change of palette or of plugin redraws the same way.
 
 ```ts
-const heat = [1, 2, 3, 4, 5].map((step) =>
-  getComputedStyle(document.documentElement).getPropertyValue(`--heat-step-${step}`).trim());
+function readHeat(el: Element) {
+  const style = getComputedStyle(el);
+  return [1, 2, 3, 4, 5].map((step) => style.getPropertyValue(`--heat-step-${step}`).trim());
+}
 ```
+
+The ladder reads from the element the chart is drawn in, as the categorical colours do.
 
 No diverging ramp ships.
 

@@ -124,6 +124,7 @@ export function renderVocabulary(root = repoRoot) {
       + (written.length ? `The families you write on markup of your own are ${written.slice(0, -1).join(', ')} and ${written.at(-1)}. ` : '')
       + 'A markup class beats a rule of yours of equal specificity, whatever order the sheets load in. '
       + 'Write yours more specific to override it. '
+      + 'Palette and style-plugin classes are not vocabulary: they go on any element, and theme.md says what a subtree takes. '
       + 'A class that is not on this page does nothing on an Arena component, and the audit reports it. '
       + 'A project compiling Tailwind through `css/tailwind-theme.css` also has utilities such as `arena-spinner` and `arena-fade`. '
       + 'Those utilities are Tailwind utilities that a manifest names, and not vocabulary classes.', '',

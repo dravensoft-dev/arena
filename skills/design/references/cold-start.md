@@ -220,8 +220,8 @@ where you meant it, which is better than the package drawing it for you at every
 architecture-neutral. The stylesheet is not. The tokens are declared on `:root`, and the reset
 sets the box model on `*` and a line height on `html`. Loading Arena inside a host page changes that page and not only
 your subtree. Two different Arena versions on one document collide on `:root`, and
-the last stylesheet loaded wins. One thing works in your favour. A palette other than the
-default emits as a plain class, so your own subtree can carry its own theme without touching the
+the last stylesheet loaded wins. One thing works in your favour. Every palette
+emits as a plain class, and `ArenaPaletteScope` puts one on your own subtree, so the fragment can carry its own theme without touching the
 host. Take this row knowing the host is being changed, or give the fragment a document of its own.
 
 ## 10. What does the code you write around Arena bring with it?

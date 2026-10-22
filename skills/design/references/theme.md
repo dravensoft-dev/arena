@@ -2,7 +2,7 @@
 
 How do I switch between a dark and a light palette? How do I stop a flash of the wrong palette on first paint? What do `initArenaTheme`, `useArenaTheme`, `provideArenaThemes` and `ArenaThemeService` do? Read this when the config declares more than one palette.
 
-Declare the palettes in `arena.config.json` first. [`config.md`](./config.md) covers the file. Exactly one palette is the default and reaches `:root`. Every other palette becomes a class, `.arena-<name>`, that goes on `<html>`.
+Declare the palettes in `arena.config.json` first. [`config.md`](./config.md) covers the file. Exactly one palette is the default and reaches `:root`. Every palette is a class, `.arena-<name>`. The theme functions put the chosen class on `<html>`, and a subtree takes one through `ArenaPaletteScope` or the class itself.
 
 ## How do I switch palettes in React?
 
@@ -25,7 +25,7 @@ function ThemeButton() {
 }
 ```
 
-`initArenaTheme` reads the stored choice. The function falls back to `prefers-color-scheme`, matched against each palette's polarity. Then the function puts the right class on `<html>`. Called with nothing, it answers `dark` and `light`. Outside a component, `setArenaTheme(name)`, `toggleArenaTheme()` and `getArenaTheme()` do what the hook does. A name the palettes do not declare throws, and a config with no `default` takes its first palette.
+`initArenaTheme` reads the stored choice. The function falls back to `prefers-color-scheme`, matched against each palette's polarity. Then the function puts the right class on `<html>`, and the page-wide choice is all it sets. [How do I put a palette on part of a page?](#how-do-i-put-a-palette-on-part-of-a-page) covers a subtree. Called with nothing, it answers `dark` and `light`. Outside a component, `setArenaTheme(name)`, `toggleArenaTheme()` and `getArenaTheme()` do what the hook does. A name the palettes do not declare throws, and a config with no `default` takes its first palette.
 
 ## How do I switch palettes in Angular?
 
@@ -48,6 +48,57 @@ bootstrapApplication(App, {
 ```
 
 Pass the same palettes your config declares. Call `set('light')` on the service, or `toggle()` to walk the palettes in order. `theme` is a signal, so a template reads it directly. With no providers the service answers `dark` and `light`. **The service applies the palette only once something injects it**, so inject it in your root component even when no control there switches palette. `set()` throws on a name the palettes do not declare.
+
+## How do I put a palette on part of a page?
+
+**Put the palette on the element that should wear it.** Every palette is a class, `.arena-<name>`, and the class skins whatever element carries it. On `<html>` it skins the page. On a section it skins that subtree, and the nearest palette wins when two nest, also inside a style plugin. React and Angular both ship a scope that draws the class and tells the code below which palette it is in.
+
+```tsx
+import { ArenaButton, ArenaPaletteScope, useArenaPalette } from '@dravensoft/arena-react';
+
+function PaletteName() {
+  return <span>{useArenaPalette()}</span>;
+}
+
+function Island() {
+  return (
+    <ArenaPaletteScope palette="light">
+      <ArenaButton>Save</ArenaButton>
+      <PaletteName />
+    </ArenaPaletteScope>
+  );
+}
+```
+
+In Angular the scope is the attribute component `[arenaPalette]`, and `injectArenaPalette()` returns the palette as a signal. The token behind it is `ARENA_PALETTE`.
+
+```ts
+import { Component } from '@angular/core';
+import { ArenaButton, ArenaPaletteScope, injectArenaPalette } from '@dravensoft/arena-angular';
+
+@Component({
+  selector: 'app-palette-name',
+  template: '{{ palette() }}',
+})
+export class PaletteName {
+  readonly palette = injectArenaPalette();
+}
+
+@Component({
+  selector: 'app-island',
+  imports: [ArenaPaletteScope, ArenaButton, PaletteName],
+  template: `<section arenaPalette="light"><arena-button>Save</arena-button><app-palette-name /></section>`,
+})
+export class Island {}
+```
+
+`useArenaPalette()` and `injectArenaPalette()` answer the palette of the nearest scope above, and the page theme when there is none. A palette name the theme config does not declare throws, listing the declared ones.
+
+**A subtree takes** the component sheets, the Arena Tailwind utilities of a project that renames keys, the colour aliases and the colour-mix washes, the ink levels, `color-scheme`, `--picker-invert` and the scrim. A style-plugin class and a density class go on any element the same way, and the nearest one wins. A nested plugin keeps the high-contrast widths and the hero fit. Angular overlays, which are the menu, popover, tooltip, combobox and multiselect and through them the split button and the side-nav item, take the palette, style plugin and density of their trigger. React panels stay in the subtree.
+
+**A subtree does not take** the page canvas, which follows the root's palette. It does not take a ground either unless something paints one. `ArenaPaletteScope` paints `bg-base-100 text-base-content`, and a bare class paints nothing, so a section wearing only `arena-light` keeps the ground behind it. Surfaces mounted elsewhere, which are dialogs, sheets, the confirm queue, the command palette, onboarding and the toast host, take the palette of where they are mounted. An island that wants its own toasts mounts a toast host inside it.
+
+**A bare class is not a scope.** The readers see an `ArenaPaletteScope` and nothing else, so `useArenaPalette()` under a `<section class="arena-light">` answers the page theme. Use the scope when code below the element reads the palette, such as a canvas chart, and the class when markup alone is enough.
 
 ## When does a palette get stored?
 
@@ -87,7 +138,7 @@ Apply the class before your stylesheet loads. In React put the script in the HTM
 
 Set the list to your own palettes and `DEFAULT` to the palette your config marks default. The theme surface takes the same two values. Keep both copies equal, or a palette added to one is a palette the first paint never shows. The snippet reads the key the surface writes, `arena-theme`, and it treats a stored name the build no longer declares as a first visit, as the surface does.
 
-The default reaches `:root` and wears no class. A snippet that names the wrong default puts a class on the very palette that must not have one.
+The default reaches `:root` and also has its class, `.arena-dark` in Arena's own palettes. The theme surface leaves `<html>` bare for the default. A snippet that names the wrong default puts a class on the very palette that must not have one.
 
 ## Why does the snippet read the media query?
 

@@ -40,7 +40,7 @@ Every URL below is served by `https://arena.dravensoft.org`, so the file works o
 </html>
 ```
 
-The page is dark. Put `class="arena-light"` on `<html>` for the light palette.
+The page is dark. Put `class="arena-light"` on `<html>` for the light palette. The class skins a section the same way when it sits on that section instead of `<html>`.
 
 ## Which icons, at which size
 

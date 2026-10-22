@@ -142,10 +142,11 @@ source text cannot show, is `arena://rules` on the MCP server.
   button, a link or a field inside that target runs the control and nothing else. A press
   elsewhere on the surface activates it. So a card or a row may hold controls of your own, or hand
   the press over entirely by not being interactive.
-- **Two themes, dark first.** Dark is `:root`, light is `.arena-light`. Components never rewrite
-  per theme; they read tokens. `.arena-compact` and `.arena-comfortable` are the density family on
-  the vocabulary page, `frameworks/VOCABULARY.md`: the first re-densifies the controls, the second
-  grows them to a 48px touch target, and the two are exclusive.
+- **Two themes, dark first.** Dark is `:root` and `.arena-dark`, light is `.arena-light`, and
+  either class goes on any element. Components never rewrite per theme; they read tokens.
+  `.arena-compact` and `.arena-comfortable` are the density family on the vocabulary page,
+  `frameworks/VOCABULARY.md`: the first re-densifies the controls, the second grows them to a 48px
+  touch target, and the two are exclusive.
 - **A chart carries identity or meaning, never both.** The `--color-cat-*` ramp in fixed order is
   identity. The status colours are meaning. A status colour is never a series colour.
 - **Copy is formal and direct, in the product's language.** Concrete verbs, no boasting; an error

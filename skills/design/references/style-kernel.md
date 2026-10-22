@@ -76,7 +76,7 @@ The 24 roles carrying a default are `ff-key`, `heat-step-1` to `heat-step-5`, `h
 The root plugin emits on `:root`, and a custom property with no value is invalid at
 computed-value time. The declaration reading it is dropped and the property disappears. A partial root plugin is not a plainer
 appearance, it is a page with no borders. Every later entry emits under `.arena-<name>`, taken from
-its directory, and you put that class on `<html>`. A later entry is a difference sitting over the root plugin, so it answers only what it changes. A later entry takes a default only through a role it answers itself, since the root writes every
+its directory, and you put that class on `<html>` or on any element, and the nearest one wins. A later entry is a difference sitting over the root plugin, so it answers only what it changes. A later entry takes a default only through a role it answers itself, since the root writes every
 other default. Where it and your root plugin are both silent on a role carrying a default, it takes
 its own answer to the role the default names. A plugin that moves `pad-row-x` then moves
 `pad-nav-row-x` with it. A root that answers `pad-nav-row-x` itself keeps that answer under every

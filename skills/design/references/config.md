@@ -88,8 +88,7 @@ are finished answers; only one of them is one somebody made.
 What each part means:
 
 - **`palettes`** is an array, so declare as many as you want. Exactly one is the `default` and
-  reaches `:root`; every other one becomes a class, `.arena-<name>`, that you put on
-  `<html>` to switch skin. The command refuses a palette or style plugin named after a class Arena
+  reaches `:root`. Every palette, the default too, is a class `.arena-<name>`. On `<html>` the class skins the page. On any element, or through `ArenaPaletteScope`, it skins that subtree, and theme.md says what the subtree takes. The command refuses a palette or style plugin named after a class Arena
   ships or is going to ship, naming the component a future class belongs to. No name is held ahead for a class Arena is going to ship. A palette may still take its own polarity's name, `dark` or `light`, and a style plugin may not. A palette name is kebab-case, and a name declared twice is refused.
 - **`polarity`** is `dark` or `light`. The polarity decides the native date picker's colour, and it is what a first visit matches `prefers-color-scheme` against.
 - **`colors`** takes every key above, each a six-digit hex such as `#141010`. `error-fill`, `primary-fill` and the heat steps are optional. Leave
@@ -106,7 +105,7 @@ What each part means:
   project stopping there looks like every other one. Writing one of your own is what makes the
   corners, the weights, the borders, the depth and the internal air the product's own, with no
   component rewritten to get there.
-  The key is a list, because a build can carry more than one register. The first entry is what a page with no class on it looks like. Every later one emits under `.arena-<name>`, which you put on `<html>` beside any palette class, and is a difference. An entry is the word
+  The key is a list, because a build can carry more than one register. The first entry is what a page with no class on it looks like. Every later one emits under `.arena-<name>`, which you put on `<html>` or on any element beside any palette class, and is a difference. The nearest plugin class wins. An entry is the word
   `default`, which is the appearance this package installs with, or a path to a directory of
   your own holding `plugin.tokens.json` and optionally `plugin.css`. A `stylePlugins` path resolves against the directory that holds `arena.config.json`. The plugin's name is the name of that directory, so a directory called `ember` declares the plugin `ember`. The name must be kebab-case, and it may not repeat a palette name or another plugin's. The first entry answers every role that carries no default. The 24 roles carrying a default are `ff-key`, `heat-step-1` to `heat-step-5`, `hue-danger-on-ink`, `hue-info-on-ink`, `hue-success-on-ink`, `hue-warning-on-ink`, `ink-action`, `ink-figure`, `ink-key`, `ink-link`, `pad-band-x`, `pad-band-y`, `pad-key-y`, `pad-nav-row-x`, `pad-nav-row-y`, `size-sm-badge-pad-x`, `size-sm-badge-pad-y`, `size-sm-badge-step`, `timeline-dot`, `tt-key`. Your root plugin answers the other 239. A minor release may add a role that carries Arena's default. Your root plugin may then leave that role silent, and the role takes the default. The command notes it, as `N role(s) your root style plugin leaves unanswered take Arena's default: …`. Your package's `arena.tokens.json` writes a role's default beside its type. A custom property with no value is invalid at computed-value time, so an unanswered role is a missing border rather than a plainer look. Declare a list without `default` and you do not receive its stylesheet, the
   same way the preflight can already be dropped.

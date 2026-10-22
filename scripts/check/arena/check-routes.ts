@@ -124,21 +124,21 @@ export const ROUTES: Route[] = [
       'skills/design/references/config.md',
       'skills/design/references/cli.md',
     ],
-    budget: 36_900,
+    budget: 37_070,
     reason:
       'paid once per project rather than per screen, so it carries what the build route may not: '
-      + 'the install, the config file and the command, each as its own reference. The package '
+      + 'the install, the config file and the command. The package '
       + 'carries none of the language, so a thing these references never name '
       + 'is a thing nobody imports: an export, a stylesheet, a class, a config key. The config block '
-      + 'is copied whole and the install reference gives the evidence behind each package manager it '
-      + 'names, and the one entry sheet of a Tailwind v4 project. The command reference quotes whole the scripts `arena init` writes and names every '
+      + 'is copied whole and the install reference gives the evidence behind each package manager and the '
+      + 'Tailwind v4 entry sheet. The command reference quotes whole the scripts `arena init` writes and names every '
       + 'audit tag, wrapped-link among them, in a table of the rule each reports and what fires it, '
       + 'in both scripts, and says how to '
       + 'mark a line whose attribute a directive of the project reads. It also states '
       + 'what the contrast kind reports, axis and solid badge reports included. The config '
       + 'reference lists the names the build refuses, the note a defaulted role prints and the roles '
       + 'that carry a default, a list that grows per role. The command reference also names the heat kind, '
-      + 'a derived ladder a reader cannot tell apart and a plugin whose steps lose order. The config reference also tables every key with its type and default.',
+      + 'a derived ladder a reader cannot tell apart and a plugin whose steps lose order. The config reference also tables every key with its type and default, and that a palette is a class for a subtree.',
   },
   {
     name: 'consumer-skin',
@@ -146,22 +146,20 @@ export const ROUTES: Route[] = [
       + 'document that says what the questions are and which answers carry the difference',
     entry: 'consumer',
     stops: ['skills/design/references/style-kernel.md'],
-    budget: 19_800,
+    budget: 19_804,
     reason:
       'paid once per project and never per screen, which is what lets it carry the whole surface '
       + 'the kernel exposes rather than a pointer to it, so a project stops learning the kernel from '
       + 'a normative contributor document. It states which scale each role draws from, that a reading '
       + 'floor refuses the build rather than reporting, which answers a project may inherit and which '
       + 'it has to make, and how the one exception to the scale rule is keyed. The differentiation '
-      + 'table is a measurement over the '
-      + 'catalogue, so it grows by remeasuring and not by writing, and a row the catalogue moves from '
-      + 'inherited to decided is a decision this page is obliged to name. The number is what the '
+      + 'table is a measurement over the catalogue, so it grows by remeasuring and not by writing. The number is what the '
       + 'stops measure with room for the kernel to grow a section, and it moves when it grows '
       + 'a question, not a paragraph. The root rule says where a '
       + 'role\'s default is written and states first, in a region generated with the config page\'s, '
       + 'which roles carry a default and that the root answers the rest. It says where a project with no clone '
       + 'fetches the default plugin. The roster grows per role, as does the table of registers. '
-      + 'The hand checklist builds first and names each unanswered role.',
+      + 'The hand checklist builds first and names each unanswered role. A plugin class goes on any element.',
   },
   {
     name: 'consumer-register',
@@ -254,23 +252,22 @@ export const ROUTES: Route[] = [
       + 'column it sits in and how much air goes between two components',
     entry: 'consumer',
     stops: ['skills/design/references/page.md', 'skills/design/references/style.md'],
-    budget: 25_150,
+    budget: 25_238,
     reason:
       'paid per element a builder draws themselves, which every screen has. What it buys is the '
       + 'half of a page that is never a component: which colour role each thing a builder draws takes '
-      + 'and which level holds it back, because a bare muted ink paints a caption at body strength '
-      + 'under the default style plugin; '
+      + 'and which level holds it back, since a bare muted ink paints a caption at body strength; '
       + 'the three rhythm steps as classes and as '
       + 'custom properties; the row as the horizontal half of those steps rather than a wrapping '
       + 'line; what to wrap when the element being laid out is a component; the block air the band '
       + 'leaves; the gutter as a ceiling; and which frame the viewport shows, through the theme '
       + 'sheet\'s variants, where a value no step names is set, and the rule that paints the floor with '
-      + 'the place each layer puts it. The style reference also holds the '
-      + 'layout container, the page column\'s width and the sizing section for each layer. It '
+      + 'where each layer puts it. The style reference also holds the '
+      + 'layout container, the page column\'s width and the sizing section for each layer, and '
       + 'names each layer\'s breakpoint helper and the quiet ink level. '
       + 'The style page prints the '
       + 'default plugin\'s layout answers and sends density values to the token table. Arena paints no selection or scrollbar, so a recipe gives one. '
-      + 'It says which palette, style plugin and density an overlay takes from its trigger.',
+      + 'It says which palette, style plugin and density an overlay takes from its trigger, and where an island paints its ground.',
   },
   {
     name: 'consumer-coldstart',
