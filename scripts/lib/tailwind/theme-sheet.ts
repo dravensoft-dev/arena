@@ -13,6 +13,28 @@ export const THEME_SOURCES = {
 
 const blankComments = (css: string) => css.replace(/\/\*[\s\S]*?\*\//g, (comment) => comment.replace(/[^\n]/g, ' '));
 
+export function themeDeclarations(css: string, inline = false): [string, string][] {
+  const out: [string, string][] = [];
+  for (const block of topLevelBlocks(css, '@theme')) {
+    const open = block.indexOf('{');
+    if (inline && !/^@theme\s+inline\s*$/.test(block.slice(0, open))) continue;
+    const body = block.slice(open + 1, block.lastIndexOf('}')).replace(/\/\*[\s\S]*?\*\//g, '');
+    let depth = 0;
+    let flat = '';
+    for (const ch of body) {
+      if (ch === '{') { depth += 1; continue; }
+      if (ch === '}') { depth -= 1; if (depth === 0) flat += ';'; continue; }
+      if (depth === 0) flat += ch;
+    }
+    for (const line of flat.split(';')) {
+      const i = line.indexOf(':');
+      const name = i === -1 ? '' : line.slice(0, i).trim();
+      if (name.startsWith('--')) out.push([name, line.slice(i + 1).trim()]);
+    }
+  }
+  return out;
+}
+
 export function topLevelBlocks(css: string, atRule: string): string[] {
   const text = blankComments(css);
   const blocks: string[] = [];

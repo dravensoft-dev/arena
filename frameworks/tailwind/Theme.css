@@ -91,14 +91,8 @@
 
   --tracking-*: initial;
 
-  /* layout width. Named `page`, not `max`: a --container-max key collides
-     with Tailwind's built-in static max-w-max and shadows it. */
   --container-*: initial;
 
-  /* icon size → contracts/design-generated/spacing.generated.css. A glyph rendered as a webfont is an icon,
-     not type, so it does not live in the --text-* namespace — that argument
-     is Rule 2's, made one level up at the classification stage. `--size-*`
-     is what an icon *is*: `.size-icon-md` sets both width and height. */
   --size-*: initial;
 
   /* The aspect tokens are Arena's own and no utility reads them: the ratio family does. */
@@ -386,12 +380,18 @@
   --spacing-gutter: var(--gutter);
   --spacing-sidebar: var(--layout-sidebar);
   --spacing-bar: var(--layout-bar);
+  /* layout width. Named `page`, not `max`: a --container-max key collides
+     with Tailwind's built-in static max-w-max and shadows it. */
   --container-page: var(--container-max);
 
   /* The reading column, in ch, beside the page column in px. Two different questions: the page
      asks how wide a layout gets and this asks how long a LINE gets, which is why one is a length
      and the other tracks the font size. */
   --container-prose: var(--measure-prose);
+  /* icon size → contracts/design-generated/spacing.generated.css. A glyph rendered as a webfont is an icon,
+     not type, so it does not live in the --text-* namespace — that argument
+     is Rule 2's, made one level up at the classification stage. `--size-*`
+     is what an icon *is*: `.size-icon-md` sets both width and height. */
   --size-icon-sm: var(--icon-sm);
   --size-icon-md: var(--icon-md);
   --size-icon-lg: var(--icon-lg);

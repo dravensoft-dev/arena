@@ -4,7 +4,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { compile } from '@tailwindcss/node';
-import { THEME_SOURCES, tailwindThemeSheet, topLevelBlocks } from './theme-sheet.ts';
+import { THEME_SOURCES, tailwindThemeSheet, themeDeclarations, topLevelBlocks } from './theme-sheet.ts';
 
 test('topLevelBlocks takes whole blocks, nested braces included, and ignores comments', () => {
   const css = "/* @theme { not: this } */\n@import 'x';\n@theme {\n  --a: 1;\n}\n@utility u {\n  @media (x) { color: red; }\n}\n.plain { color: blue; }\n";
@@ -52,4 +52,10 @@ test('a renamed key compiles to the variable it names, so a utility follows its 
   assert.match(css, /\.text-ctl\{font-size:var\(--dz-text\)/);
   assert.match(css, /\.h-ctl-h\{height:var\(--dz-ctl-h\)/);
   assert.match(css, /\.bg-scrim\{background-color:var\(--scrim\)/);
+});
+
+test('themeDeclarations counts braces, so a declaration after a nested block still belongs to its @theme', () => {
+  const css = "@theme {\n  --a: 1;\n  @keyframes k { from { x: 0 } }\n  --b: var(--c);\n}\n@theme inline {\n  /* note { */\n  --d: 2;\n}\n";
+  assert.deepEqual(themeDeclarations(css), [['--a', '1'], ['--b', 'var(--c)'], ['--d', '2']]);
+  assert.deepEqual(themeDeclarations(css, true), [['--d', '2']]);
 });

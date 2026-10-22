@@ -5,6 +5,7 @@ import { arenaTokenNames, arenaTokens } from '../../lib/core/arena-tokens.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { MANIFESTS, PRESET } from '../../build/tailwind/build-tailwind.ts';
 import { readHues, HUES_FILE } from '../../lib/tailwind/hue-sheet.ts';
+import { themeDeclarations } from '../../lib/tailwind/theme-sheet.ts';
 import { readFamilies, VOCABULARY_DIR, FAMILY_SUFFIX } from '../../lib/tailwind/vocabulary.ts';
 import type { Family } from '../../lib/tailwind/vocabulary.ts';
 import { readJson } from '../../utils/read-file.ts';
@@ -175,17 +176,9 @@ export function pluginOptionRoles(root = repoRoot) {
 
 export function presetTokens(css: string) {
   const out = new Set<string>();
-  const blocks = [...css.replace(/\/\*[\s\S]*?\*\//g, '').matchAll(/@theme(?:\s+inline)?\s*\{([^}]*)\}/g)];
-  if (blocks.length === 0) return out;
-
-  const body = blocks.map((block) => captured(block)).join(';');
-  for (const line of body.split(';')) {
-    const i = line.indexOf(':');
-    if (i === -1) continue;
-    const key = line.slice(0, i).trim();
-
-    if (!key.startsWith('--') || key.startsWith('--default-')) continue;
-    for (const ref of line.slice(i + 1).matchAll(/var\(--([a-z0-9-]+)\)/g)) out.add(captured(ref));
+  for (const [key, value] of themeDeclarations(css)) {
+    if (key.startsWith('--default-')) continue;
+    for (const ref of value.matchAll(/var\(--([a-z0-9-]+)\)/g)) out.add(captured(ref));
   }
   return out;
 }

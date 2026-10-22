@@ -3,6 +3,7 @@ import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { compileLayer, manifestClasses, escapeClass } from '../../lib/tailwind/tailwind-compile.ts';
 import { node as tailwindNode } from '../../build/tailwind/build-tailwind.ts';
+import { themeDeclarations } from '../../lib/tailwind/theme-sheet.ts';
 
 export const node = {
   name: 'check:tailwind',
@@ -30,16 +31,7 @@ export function themeKeys(css: string) {
 }
 
 export function inlineThemeKeys(themeCss: string) {
-  const out = new Map();
-  const blocks = themeCss.replace(/\/\*[\s\S]*?\*\//g, '').matchAll(/@theme\s+inline\s*\{([^}]*)\}/g);
-  for (const block of blocks) {
-    for (const line of captured(block).split(';')) {
-      const i = line.indexOf(':');
-      const name = i === -1 ? '' : line.slice(0, i).trim();
-      if (name.startsWith('--')) out.set(name.slice(2), line.slice(i + 1).trim());
-    }
-  }
-  return out;
+  return new Map(themeDeclarations(themeCss, true).map(([name, value]) => [name.slice(2), value]));
 }
 
 const TRANSFORM_PROPS = ['translate', 'scale', 'rotate'];
