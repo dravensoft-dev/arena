@@ -15,7 +15,7 @@ import {
 } from './palette-keys.ts';
 import { validate, contrast } from './validate-palette.mjs';
 import {
-  FS_STEP, RHYTHM_STEP, floorProblems, nameProblems, reservedProblems, rootOnlyFor, scopeOn, totalityProblems, withDefaults,
+  FS_STEP, RHYTHM_STEP, floorProblems, highContrastFor, nameProblems, reservedProblems, rootOnlyFor, scopeOn, totalityProblems, withDefaults,
 } from './style-plugin-rules.ts';
 import { serialize } from './serialize-token.ts';
 import { HEAT_MIN_DL, errorFill, heatCramped, heatLadder, toOklab } from './oklab.ts';
@@ -854,7 +854,11 @@ export function themeCss(config: CheckedConfig, options: ThemeOptions = {}) {
   for (const { plugin, at } of declared) {
     const answers = pluginBlocks(plugin, catalogue, fallback.polarity);
     if (at === ':root') {
-      if (answers.length) parts.push(block(at, answers));
+      if (answers.length) {
+        parts.push(block(at, answers));
+        const widened = sheets?.rootOnly ? highContrastFor(at, sheets.rootOnly) : '';
+        if (widened) parts.push(widened);
+      }
     } else {
       parts.push(block(at, [`--arena-plugin:${plugin.name};`, ...answers]));
       const again = sheets?.rootOnly ? rootOnlyFor(at, sheets.rootOnly) : '';

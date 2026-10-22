@@ -54,13 +54,18 @@ const rootDecls = (css: string, within?: RegExp) => {
   return [...(found?.[1] ?? '').matchAll(/(--[\w-]+)\s*:\s*([^;]+);/g)].map((m) => ({ name: m[1] as string, value: (m[2] as string).trim() }));
 };
 
-export function rootOnlyFor(className: string, sources: { contrast: string; environment: string }) {
-  const lines = (decls: { name: string; value: string }[]) => decls.map((d) => `  ${d.name}:${d.value};`).join('\n');
+const linesOf = (decls: { name: string; value: string }[]) => decls.map((d) => `  ${d.name}:${d.value};`).join('\n');
+
+export function highContrastFor(className: string, sources: { contrast: string; environment: string }) {
   const widened = rootDecls(sources.contrast, HIGH_CONTRAST);
+  return widened.length ? `@media (prefers-contrast: more) {\n${className}{\n${linesOf(widened)}\n}\n}` : '';
+}
+
+export function rootOnlyFor(className: string, sources: { contrast: string; environment: string }) {
   const fit = rootDecls(sources.environment).filter((d) => d.name === '--title-hero-fit');
   return [
-    widened.length ? `@media (prefers-contrast: more) {\n${className}{\n${lines(widened)}\n}\n}` : '',
-    fit.length ? `${className}{\n${lines(fit)}\n}` : '',
+    highContrastFor(className, sources),
+    fit.length ? `${className}{\n${linesOf(fit)}\n}` : '',
   ].filter(Boolean).join('\n');
 }
 

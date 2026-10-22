@@ -1149,8 +1149,48 @@ test('each later plugin restates the high-contrast widths and the hero fit after
     const fit = css.indexOf(`.arena-${name}{\n  --title-hero-fit:clamp(1px, 2px, 3px);`);
     assert.ok(own >= 0 && media > own && fit > media, `${name}: own block, then the media block, then the hero fit`);
   }
-  assert.doesNotMatch(css, /:root\{[^}]*--title-hero-fit/, 'the root plugin is not restated, :root already carries it');
+  assert.doesNotMatch(css, /:root\{[^}]*--title-hero-fit/, 'the root plugin takes the high-contrast block and not the hero fit');
   assert.doesNotMatch(css, /pad-safe/, 'only the hero fit is taken from environment.css');
+});
+
+const HC_ROOT = '@media (prefers-contrast: more) {\n:root{';
+
+test('a project\'s own root plugin is followed by the high-contrast :root block, and not by the hero fit', () => {
+  const css = themeCss(listed(['console', 'marketing']), {
+    sheets: { ...SHEETS_FULL, rootOnly: ROOT_ONLY }, importHeader: false, plugins: [total(), scoped()],
+  });
+  const answers = css.indexOf(':root{\n  --ff-eyebrow:');
+  const media = css.indexOf(HC_ROOT);
+  assert.ok(answers >= 0 && media > answers, 'the media block follows the root answers block');
+  assert.match(css.slice(media, css.indexOf('\n}\n', media)), /--bw-surface:var\(--bw-strong\);/);
+  assert.doesNotMatch(css, /:root\{[^}]*--title-hero-fit/);
+});
+
+test('a default root emits no :root restatement', () => {
+  const css = themeCss(listed(['default', 'marketing']), {
+    sheets: { ...SHEETS_FULL, rootOnly: ROOT_ONLY }, importHeader: false, plugins: [null, scoped()],
+  });
+  assert.ok(!css.includes(HC_ROOT));
+});
+
+test('each of several plugins gets exactly one high-contrast block', () => {
+  const css = themeCss(listed(['console', 'marketing', 'ops']), {
+    sheets: { ...SHEETS_FULL, rootOnly: ROOT_ONLY }, importHeader: false,
+    plugins: [total(), scoped(), readPlugin('ops', { 'bw-surface': { $type: 'dimension', $value: { value: 2, unit: 'px' } } })],
+  });
+  const count = (text: string) => css.split(text).length - 1;
+  assert.equal(count(HC_ROOT), 1);
+  for (const name of ['marketing', 'ops']) assert.equal(count(`@media (prefers-contrast: more) {\n.arena-${name}{`), 1, name);
+});
+
+test('a root plugin that answers bw-strong does not change the :root high-contrast block', () => {
+  const css = themeCss(listed(['console', 'marketing']), {
+    sheets: { ...SHEETS_FULL, rootOnly: ROOT_ONLY }, importHeader: false,
+    plugins: [total({ 'bw-strong': { $type: 'dimension', $value: { value: 3, unit: 'px' } } }), scoped()],
+  });
+  assert.match(css, /--bw-strong:3px;/);
+  const media = css.indexOf(HC_ROOT);
+  assert.match(css.slice(media, css.indexOf('\n}\n', media)), /--bw-surface:var\(--bw-strong\);/);
 });
 
 test('a package whose sheets carry no root-only text emits no restatement', () => {

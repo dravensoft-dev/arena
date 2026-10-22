@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { basename, dirname, join } from 'node:path';
-import { DANGER_FLOOR, KEBAB, POLARITY_HOOKS, RESERVED, floorProblems, nameProblems, reservedProblems, rootOnlyFor, withDefaults } from './style-plugin-rules.ts';
+import { DANGER_FLOOR, KEBAB, POLARITY_HOOKS, RESERVED, floorProblems, nameProblems, highContrastFor, reservedProblems, rootOnlyFor, withDefaults } from './style-plugin-rules.ts';
 import { scopesIn } from './sheets.ts';
 import { POLARITIES } from './palette-keys.ts';
 import { walkFiles } from '../../../utils/walk-files.ts';
@@ -192,6 +192,16 @@ test('rootOnlyFor restates the :root contrast rule in a media query and the hero
     '@media (prefers-contrast: more) {\n.arena-x{\n  --bw-surface:var(--bw-strong);\n  --focus-width:var(--sp-1);\n}\n}\n'
     + '.arena-x{\n  --title-hero-fit:clamp(1px, calc(2px - (3px - 100cqi) / 24), 4px);\n}');
   assert.equal(rootOnlyFor('.arena-x', { contrast: '', environment: '' }), '');
+});
+
+test('rootOnlyFor\'s media half is highContrastFor', () => {
+  const sources = {
+    contrast: '@media (prefers-contrast: more) {\n  :root {\n    --bw-surface: var(--bw-strong);\n  }\n}\n',
+    environment: ':root {\n  --title-hero-fit: clamp(1px, 2px, 3px);\n}\n',
+  };
+  assert.ok(highContrastFor('.arena-x', sources).length > 0);
+  assert.ok(rootOnlyFor('.arena-x', sources).startsWith(highContrastFor('.arena-x', sources)));
+  assert.equal(highContrastFor('.arena-x', { contrast: '', environment: '' }), '');
 });
 
 test('rootOnlyFor takes the :root inside the high-contrast query, not an earlier one, and refuses a sheet with none', () => {
