@@ -14,7 +14,8 @@ import {
   TARGETS, noImportSheets, openLine, closeLine, renderRegion, applyRegion, renderTarget, regionsOf,
   ROLE_CONTRACT, BEHAVIOUR_CONTRACT, densityValues, requiredLead, toastIntervals, defaultedRoles, defaultedSentence, defaultsStatement, roleRuns, unansweredCount,
 } from './generate-npm-pages.ts';
-import { tokenCatalogue, CSS_CHAIN } from '../../lib/arena/package-assembly.ts';
+import { tokenCatalogue, CSS_CHAIN, ANGULAR_EXTRA } from '../../lib/arena/package-assembly.ts';
+import type { CssChainEntry } from '../../lib/arena/package-assembly.ts';
 import { NPM_PAGES } from '../../lib/arena/npm-questions.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { packageSheetName, sheetFamilies } from '../../lib/tailwind/vocabulary.ts';
@@ -130,7 +131,7 @@ test('the sheets region lists the token layer in CSS_CHAIN order and names where
   const at = CSS_CHAIN.map(({ to }) => paragraph.indexOf(`\`${to}\``));
   assert.ok(at.every((place) => place >= 0), `a CSS_CHAIN entry is missing from the token layer sentence: ${at}`);
   assert.deepEqual([...at].sort((a, b) => a - b), at, 'the token layer sentence is not in CSS_CHAIN order');
-  assert.match(paragraph, /slot your style plugin's sheet takes/);
+  assert.match(paragraph, /the root plugin's slot/);
 });
 
 const sheetNamesIn = (region: string) => {
@@ -414,15 +415,17 @@ test('each fenced arena:audit script is what arena init writes for that layer', 
   }
 });
 
-test('the noImport region lists what arena.css imports less the default plugin sheet, in order, and ends with the generated sheet', () => {
+test('the noImport region lists what each package arena.css imports less the default plugin sheet, in order, and ends with the generated sheet', () => {
   assert.ok(regionsOf(CLI_PAGE).includes('noImport'), `${CLI_PAGE} carries noImport`);
-  const lines = noImportSheets(repoRoot);
-  assert.ok(!lines.some((line) => line.includes('style-plugin-default.css')));
-  const names = lines.map((line) => line.replace(/^@import '<package>\//, '').replace(/';$/, ''));
-  const chain = CSS_CHAIN.map(({ to }) => to).filter((to) => to !== 'css/style-plugin-default.css');
-  assert.deepEqual(names.slice(0, chain.length), chain);
-  assert.deepEqual(names.slice(chain.length), ['css/base.css', 'css/prelude.css', 'css/components/<component>.css', 'css/vocabulary/<family>.css']);
+  for (const [layer, extra] of [['react', []], ['angular', ANGULAR_EXTRA]] as [string, CssChainEntry[]][]) {
+    const name = `@dravensoft/arena-${layer}`;
+    const lines = noImportSheets(name, repoRoot, extra);
+    assert.ok(!lines.some((line) => line.includes('style-plugin-default.css')));
+    const names = lines.map((line) => line.slice(`@import '${name}/`.length, -2));
+    const chain = CSS_CHAIN.map(({ to }) => to).filter((to) => to !== 'css/style-plugin-default.css');
+    assert.deepEqual(names.slice(0, chain.length), chain);
+    assert.deepEqual(names.slice(chain.length), ['css/base.css', 'css/prelude.css', 'css/components/<component>.css', 'css/vocabulary/<family>.css', ...extra.map(({ to }) => to)]);
+  }
   const region = renderRegion('noImport', repoRoot, CLI_PAGE);
-  assert.ok(region.includes("@import './arena.generated.css';\n```"));
-  assert.ok(region.indexOf('arena.generated.css') > region.indexOf('css/vocabulary/<family>.css'));
+  assert.equal(region.split("@import './arena.generated.css';\n```").length, 3);
 });

@@ -52,6 +52,11 @@ export const CSS_CHAIN: CssChainEntry[] = [
   { from: 'contracts/design/environment.css', to: 'css/environment.css' },
 ];
 
+export const BASE_SHEET = 'css/base.css';
+export const PRELUDE_SHEET = 'css/prelude.css';
+export const COMPONENTS_BARREL = 'css/components.css';
+export const ANGULAR_EXTRA: CssChainEntry[] = [{ from: 'frameworks/angular/theme/arena-cdk.css', to: 'css/arena-cdk.css' }];
+
 export const arenaCssHeader = (name: string) => [
   `/* ${name} -- the invariant half of Arena's stylesheet.`,
   '   Import this FIRST, then the file arena build wrote from your arena.config.json,',
@@ -125,6 +130,11 @@ export const SHEET_BANNERS = {
   ].join('\n'),
 };
 
+export function arenaCssLayers(extra: CssChainEntry[] = [], root = repoRoot) {
+  const families = sheetFamilies(root).map((one) => one.family).sort().map(packageSheetName);
+  return [...CSS_CHAIN.map(({ to }) => to), BASE_SHEET, PRELUDE_SHEET, COMPONENTS_BARREL, ...families, ...extra.map(({ to }) => to)];
+}
+
 export function componentSheets(css: string, split: (css: string) => { base: string }, root = repoRoot) {
   const { base } = split(css);
   const dir = join(root, 'frameworks', 'tailwind');
@@ -154,11 +164,11 @@ export function componentSheets(css: string, split: (css: string) => { base: str
   });
   const barrel = named.map(({ to }) => `@import './components/${basename(to)}';`).join('\n');
   return [
-    { to: 'css/base.css', content: `${SHEET_BANNERS.base}\n${preflightSheet(base)}` },
-    { to: 'css/prelude.css', content: readFileSync(join(consume, 'Prelude.generated.css'), 'utf8') },
+    { to: BASE_SHEET, content: `${SHEET_BANNERS.base}\n${preflightSheet(base)}` },
+    { to: PRELUDE_SHEET, content: readFileSync(join(consume, 'Prelude.generated.css'), 'utf8') },
     ...named,
     ...hueSheets,
-    { to: 'css/components.css', content: `${SHEET_BANNERS.components}\n${barrel}\n` },
+    { to: COMPONENTS_BARREL, content: `${SHEET_BANNERS.components}\n${barrel}\n` },
     ...sheetFamilies(root).map((one) => one.family).sort().map((family) => ({
       to: packageSheetName(family),
       content: readFileSync(join(root, ...VOCABULARY_SHEETS.split('/'), sheetName(family)), 'utf8'),

@@ -6,7 +6,7 @@ import { join } from 'node:path';
 import { relPosix } from '../../utils/posix-path.ts';
 import {
   EXCLUDED_NAMES, EXCLUDED_PATTERNS, CSS_CHAIN, arenaCssHeader, excluded,
-  collectFiles, reset, write, copyTree, copyCli, emitDeclaration, declarationReach, CLI_BINS, PALETTE_ENTRY, CLI_SOURCES, baseManifest, pluginIdentity, version, repositoryBase, agentBases, componentSheets, writeCssChain,
+  collectFiles, reset, write, copyTree, copyCli, emitDeclaration, declarationReach, CLI_BINS, PALETTE_ENTRY, CLI_SOURCES, baseManifest, pluginIdentity, version, repositoryBase, agentBases, componentSheets, writeCssChain, arenaCssLayers, ANGULAR_EXTRA,
   writeComponentMap, keywords, SHARED_KEYWORDS, tokenCatalogue, aliasDeclarations, catalogueRole,
 } from './package-assembly.ts';
 import { readJson } from '../../utils/read-file.ts';
@@ -452,4 +452,16 @@ test('copyCli refuses a palette whose declaration reaches another file, and writ
 test('emitDeclaration throws naming the file and the message when a declaration cannot be written alone', () => {
   assert.throws(() => emitDeclaration('export function f(a: number) { return a; }\n', 'bad.ts'), (error: Error) =>
     error.message.includes('bad.ts') && error.message.length > 'package-assembly: bad.ts has no declaration: '.length);
+});
+
+test('arenaCssLayers is the list of imports writeCssChain writes into arena.css, for each package', () => {
+  const root = tailwindTree(['tag']);
+  const sheets = componentSheets('', () => ({ base: '' }), root);
+  for (const extra of [[], ANGULAR_EXTRA]) {
+    const dir = track(mkdtempSync(join(tmpdir(), 'arena-assembly-layers-')));
+    writeCssChain(dir, '@dravensoft/arena-x', [...sheets, ...extra], repoRoot);
+    const written = importsIn(readFileSync(join(dir, 'arena.css'), 'utf8')).map((one) => one?.slice('./'.length));
+    assert.deepEqual(arenaCssLayers(extra, root), written);
+  }
+  rmSync(root, { recursive: true });
 });
