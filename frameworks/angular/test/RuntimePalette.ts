@@ -1,6 +1,7 @@
 /* A runtime palette in the shape `arenaRuntimePalette` returns (scripts/generate/core/arena-cli/palette.ts).
  * The Angular test build compiles from this layer's root, so it cannot import that module; typing the
- * fixture as ArenaRuntimePalette is what makes a drift in the shape fail the build. */
+ * fixture as ArenaRuntimePalette keeps its fields in step with the service, and scripts/generate/core/arena-cli/palette-shape.test.ts
+ * is what guards the shape of the two declarations against drifting apart. */
 import type { ArenaRuntimePalette } from '../theme/ArenaThemeService';
 
 export function runtimePalette(name: string, polarity: 'dark' | 'light', base = '#1b1830'): ArenaRuntimePalette {
