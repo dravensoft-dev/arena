@@ -30,3 +30,10 @@ test('a custom property nobody generates any more is drift, not a leftover to ke
     'the gate reads the committed file as a claim about the source, so a property the source '
     + 'stopped emitting is a claim nothing backs');
 });
+
+test('a hand edit of a value inside the high-contrast block is drift, apart from the same name outside it', () => {
+  const generated = '.arena-p{--bw:2px}\n@media (prefers-contrast: more) {\n.arena-p{--bw:var(--bw-strong)}\n}\n';
+  const edited = '.arena-p{--bw:9px}\n@media (prefers-contrast: more) {\n.arena-p{--bw:var(--bw-strong)}\n}\n';
+  assert.deepEqual(fileDrift('p.generated.css', generated, edited),
+    ['contracts/design-generated/p.generated.css .arena-p: --bw is "9px", generated "2px"']);
+});

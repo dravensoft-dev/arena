@@ -80,6 +80,7 @@ function colourReferencesIn(sources: string[]) {
 
 function deriveCases(files: { out: string; blocks: { selector: string; source: string; dir?: string; plugin?: string }[] }[]) {
   const cases = [];
+  const widenedCases: (string | string[])[][] = [];
   for (const file of files) {
     const bySelector = new Map();
     const named = new Map<string, string[]>();
@@ -90,9 +91,12 @@ function deriveCases(files: { out: string; blocks: { selector: string; source: s
       const rootOnly = (file as { rootOnly?: string }).rootOnly;
       if (rootOnly === selector) {
         const [contrast, environment] = ROOT_ONLY_SOURCES.map((at) => readFileSync(at, 'utf8'));
-        const restated = [...rootOnlyFor(selector, { contrast: contrast as string, environment: environment as string })
-          .matchAll(/--([\w-]+):/g)].map((m) => m[1] as string);
-        named.set(selector, [...(named.get(selector) ?? []), ...restated]);
+        const restated = rootOnlyFor(selector, { contrast: contrast as string, environment: environment as string });
+        const widened = /^@media[^{]*\{[\s\S]*?\n\}\n\}/.exec(restated)?.[0] ?? '';
+        const names = (css: string) => [...css.matchAll(/--([\w-]+):/g)].map((m) => m[1] as string);
+        named.set(selector, [...(named.get(selector) ?? []), ...names(restated.slice(widened.length))]);
+        if (widened) widenedCases.push([names(widened), `contracts/design-generated/${file.out}`,
+          `@media (prefers-contrast: more) ${selector}`, [`${ROOT_ONLY_SOURCES[0]}`]]);
       }
     }
     const css = `contracts/design-generated/${file.out}`;
@@ -112,7 +116,7 @@ function deriveCases(files: { out: string; blocks: { selector: string; source: s
       }
     }
   }
-  return cases;
+  return [...cases, ...widenedCases];
 }
 
 test('derived names match the custom properties the build actually emits, in every scope a block carries', () => {

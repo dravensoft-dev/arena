@@ -17,9 +17,8 @@ import { THEME_SCOPES } from '../../generate/arena/generate-tokens.ts';
 import {
   ARENA_EXT, FS_STEP, KEBAB, MAX_PROSE_MEASURE, MIN_HEADING_LEADING, MIN_PROSE_LEADING,
   MIN_PROSE_MEASURE, RHYTHM_STEP, floorProblems, keyProblems, nameProblems, totalityProblems,
-  valueProblems, withDefaults,
+  crossKeys, valueProblems, withDefaults,
 } from '../../generate/core/arena-cli/style-plugin-rules.ts';
-import { crossKeys } from '../../generate/core/arena-cli/style-plugin-rules.ts';
 import { readPlugin } from '../../generate/core/arena-cli/theme-css.ts';
 import { emittedWords } from './check-role-contract.ts';
 

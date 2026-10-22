@@ -189,6 +189,12 @@ test('a cross written by scopeOn resolves for the light scope and not for the da
   assert.equal(resolvedFor(css, 'showcase', 'dark').get('a'), 'rim');
 });
 
+test('the plugin own answers are not read from its high-contrast block', () => {
+  const css = readFileSync(join(repoRoot, 'contracts/design-generated/style-plugin.complete.generated.css'), 'utf8');
+  assert.equal(resolvedFor(css, 'complete', 'light').get('bw-surface'), '2px');
+  assert.equal(resolvedFor('.arena-p{--bw:2px}\n@media (prefers-contrast: more) {\n.arena-p{--bw:9px}\n}', 'p').get('bw'), '2px');
+});
+
 test('a theme group is flattened to the tokens it holds, each labelled with the scope it overrides in', () => {
   const moved = movedTokens({
     'bw-surface': { $type: 'dimension' },

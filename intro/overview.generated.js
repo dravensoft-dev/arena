@@ -70,14 +70,23 @@ function flattenTokens(tree) {
 // scripts/lib/arena/css-decls.ts
 var SCOPE_AT = /^@scope\s*\(([^()]*)\)$/;
 var innerKey = (selector) => [...new Set(selector.split(",").map((one) => one.trim().replace(/^:where\(:scope\)/, "")))].join(", ");
+function prelude(selector) {
+  const text = selector.replace(/\s+/g, " ");
+  if (!text.startsWith("@scope"))
+    return { text, scoped: false };
+  const root = SCOPE_AT.exec(text)?.[1]?.trim();
+  if (root === undefined)
+    throw new Error(`parseDecls reads @scope (root) alone and cannot key "${text}"`);
+  return { text: scopeKey(root, "").trim(), scoped: true };
+}
 function frames(text) {
   const out = [];
-  const roots = [];
+  const stack = [];
   const brace = /[{}]/g;
   let at = 0;
   for (let m = brace.exec(text);m; m = brace.exec(text)) {
     if (m[0] === "}") {
-      roots.pop();
+      stack.pop();
       at = m.index + 1;
       continue;
     }
@@ -85,12 +94,11 @@ function frames(text) {
     const next = text.indexOf("}", m.index);
     const inner = text.indexOf("{", m.index + 1);
     if (inner !== -1 && inner < next) {
-      roots.push(SCOPE_AT.exec(selector)?.[1]?.trim());
+      stack.push(prelude(selector));
       at = m.index + 1;
       continue;
     }
-    const root = roots[roots.length - 1];
-    out.push({ selector, body: text.slice(m.index + 1, next), ...root === undefined ? {} : { root } });
+    out.push({ selector, body: text.slice(m.index + 1, next), stack: [...stack] });
     brace.lastIndex = next + 1;
     at = next + 1;
   }
@@ -99,10 +107,11 @@ function frames(text) {
 function parseDecls(cssText) {
   const stripped = cssText.replace(/\/\*[\s\S]*?\*\//g, "");
   const out = new Map;
-  for (const { selector: written, body, root } of frames(stripped)) {
+  for (const { selector: written, body, stack } of frames(stripped)) {
     if (!written)
       continue;
-    const selector = root === undefined ? written : scopeKey(root, innerKey(written));
+    const inner = stack.some((p) => p.scoped) ? innerKey(written) : written;
+    const selector = [...stack.map((p) => p.text), inner].join(" ");
     const decls = out.get(selector) ?? new Map;
     for (const d of body.split(";")) {
       const i = d.indexOf(":");

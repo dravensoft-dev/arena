@@ -56,7 +56,18 @@ test('two scopes over one inner selector stay two keys', () => {
   assert.equal(out.size, 4);
 });
 
-test('a rule outside any @scope keeps its key and other at-rules still flatten', () => {
-  const out = parseDecls('@media (min-width:1px){.a{--x:1}}\n.b{--y:2}\n');
-  assert.deepEqual([...out.keys()], ['.a', '.b']);
+test('a rule nested in @media keeps apart from the same selector outside it', () => {
+  const out = parseDecls('.b{--y:2}\n@media (min-width:1px){.b{--y:3}.a{--x:1}}\n');
+  assert.deepEqual([...out.keys()], ['.b', '@media (min-width:1px) .b', '@media (min-width:1px) .a']);
+  assert.equal(out.get('.b').get('y'), '2');
+  assert.equal(out.get('@media (min-width:1px) .b').get('y'), '3');
+});
+
+test('an @media inside @scope keys by both preludes, and an unnested key is unchanged', () => {
+  const out = parseDecls('@scope (.p) {\n@media (x) {\n:where(:scope).b{--y:1}\n}\n.c{--z:2}\n}\n.d{--w:3}');
+  assert.deepEqual([...out.keys()], ['@scope (.p) @media (x) .b', '@scope (.p) .c', '.d']);
+});
+
+test('an @scope with a lower bound throws', () => {
+  assert.throws(() => parseDecls('@scope (.a) to (.b) {\n.c{--x:1}\n}'), /cannot key/);
 });
