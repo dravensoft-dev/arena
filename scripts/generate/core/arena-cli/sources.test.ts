@@ -4,7 +4,7 @@ import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { sourceFiles, OUTPUT_SHEETS, auditFiles, pluginDirs, missingSource } from './sources.ts';
-import { THEME_SHEET, ICONS_SHEET, PLUGIN_SHEET, PLUGIN_CSS } from './sheets.ts';
+import { THEME_SHEET, ICONS_SHEET, PLUGIN_SHEET, RUNTIME_DATA, PLUGIN_CSS } from './sheets.ts';
 import { options, project, readable, removeFixtures } from './cli-fixtures.ts';
 
 after(removeFixtures);
@@ -30,7 +30,7 @@ test('a consumer file that merely ends in .generated.css is still a source, sinc
 });
 
 test('the skipped names are exactly what the command writes, derived rather than restated', () => {
-  assert.deepEqual([...OUTPUT_SHEETS].sort(), [ICONS_SHEET, PLUGIN_SHEET, THEME_SHEET].sort());
+  assert.deepEqual([...OUTPUT_SHEETS].sort(), [ICONS_SHEET, PLUGIN_SHEET, RUNTIME_DATA, THEME_SHEET].sort());
 });
 
 test('the plugin sheet is an output, so the audit walk never reads what this command wrote', () => {

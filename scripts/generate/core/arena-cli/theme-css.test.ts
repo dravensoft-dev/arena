@@ -5,12 +5,12 @@ import { fileURLToPath } from 'node:url';
 import {
   configProblems, heatReports, heatOrderReports, themeCss, paletteReports, defaultPalette, isStylesheet, scopedImports,
   pluginName, pluginValue, readPlugin, weightReports, rootWithDefaults, resolvedPlugin,
-  ARENA_FONT_DEFAULTS, type CheckedStylesheet, type CheckedSheets,
+  ARENA_FONT_DEFAULTS, RUNTIME_MARKER, polarityClass, polarityDeclarations, restatedBy, type CheckedStylesheet, type CheckedSheets,
 } from './theme-css.ts';
-import { PALETTE_KEYS, heatKeys } from './palette-keys.ts';
+import { PALETTE_KEYS, POLARITIES, heatKeys } from './palette-keys.ts';
 import { heatLadder } from './oklab.ts';
 import { parseDecls } from '../../../lib/arena/css-decls.ts';
-import { crossKeys } from './style-plugin-rules.ts';
+import { crossKeys, reservedProblems, scopeOn } from './style-plugin-rules.ts';
 import { nodeImportsReachedFrom, whileHeld } from './cli-fixtures.ts';
 
 const colors = (overrides: Record<string, string> = {}): Record<string, string> => {
@@ -1149,4 +1149,75 @@ test('a package whose sheets carry no root-only text emits no restatement', () =
 
 test('the palette code imports no node: module, however deep', () => {
   assert.deepEqual(nodeImportsReachedFrom('scripts/generate/core/arena-cli/theme-css.ts'), []);
+});
+
+const hookBody = (css: string, polarity: string) => {
+  const open = `.${polarityClass(polarity)}{`;
+  const at = css.indexOf(open);
+  assert.ok(at >= 0, `no ${open} block`);
+  return css.slice(at + open.length, css.indexOf('}', at)).split('\n').map((l) => l.trim()).filter(Boolean);
+};
+
+const runtime = (over: Record<string, any> = {}) => themeCss(listed(['console', 'marketing'], {
+  palettes: TWO_PALETTES, runtimePalettes: true, ...over,
+}), {
+  sheets: { ...aliased(), roleReferences: ['--fill-x:var(--color-base-200);'] }, importHeader: false,
+  plugins: [total(), scoped({ light: { 'ink-eyebrow': { $type: 'color', $value: '{color.secondary}' } } })],
+});
+
+test('a config without runtimePalettes emits what it emitted before', () => {
+  const c = listed(['console', 'marketing'], { palettes: TWO_PALETTES });
+  const options = { sheets: aliased(), importHeader: false, plugins: [total(), scoped()] };
+  const before = themeCss(c, options);
+  assert.equal(themeCss({ ...c, runtimePalettes: false }, options), before);
+  assert.doesNotMatch(before, /arena-polarity/);
+  assert.ok(!before.includes(RUNTIME_MARKER));
+});
+
+test('runtimePalettes emits one hook block per polarity carrying exactly the polarity half', () => {
+  const css = runtime();
+  const sheets = { ...aliased(), roleReferences: ['--fill-x:var(--color-base-200);'] };
+  const plugins = [total(), scoped({ light: { 'ink-eyebrow': { $type: 'color', $value: '{color.secondary}' } } })];
+  const context = { aliases: sheets.aliases, roleReferences: sheets.roleReferences, root: plugins[0]!, catalogue: sheets.catalogue };
+  for (const p of POLARITIES) {
+    assert.deepEqual(hookBody(css, p), polarityDeclarations(p, context), p);
+    assert.equal(css.match(new RegExp(`\\n\\n\\.${polarityClass(p)}\\{`, 'g'))?.length, 1, `${p} hook is emitted once`);
+  }
+});
+
+test('runtimePalettes marks :root', () => {
+  const css = runtime();
+  const root = css.slice(css.indexOf(':root{'), css.indexOf('}', css.indexOf(':root{')));
+  assert.ok(root.includes('--arena-palette:dark;'));
+  assert.ok(root.includes(`${RUNTIME_MARKER}:1;`));
+  assert.ok(root.indexOf(`${RUNTIME_MARKER}:1;`) > root.indexOf('--arena-palette:dark;'));
+  assert.equal(css.split(RUNTIME_MARKER).length, 2, 'the marker is on :root alone');
+});
+
+test('a non-root plugin gets a hook cross per polarity', () => {
+  const css = runtime();
+  const marketing = scoped({ light: { 'ink-eyebrow': { $type: 'color', $value: '{color.secondary}' } } });
+  for (const p of POLARITIES) {
+    const answers = restatedBy(marketing, SHEETS_FULL.catalogue, p);
+    const body = `\n${answers.map((d) => `  ${d}`).join('\n')}\n`;
+    if (!answers.length) continue;
+    const cross = scopeOn(`.${polarityClass(p)}`)('.arena-marketing', body);
+    assert.ok(css.includes(cross), `no hook cross for ${p}`);
+    const declared = scopeOn(`.arena-${p}`)('.arena-marketing', body);
+    assert.ok(css.includes(declared), `the palette cross for ${p} differs in body`);
+  }
+  assert.ok(restatedBy(marketing, SHEETS_FULL.catalogue, 'light').length > 0, 'the fixture answers light');
+});
+
+test('runtimePalettes: "yes" is refused', () => {
+  const problems = configProblems(config({ runtimePalettes: 'yes' }));
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /runtimePalettes: declare true or false/);
+  assert.deepEqual(configProblems(config({ runtimePalettes: true })), []);
+});
+
+test('a palette named polarity-light is refused', () => {
+  assert.equal(reservedProblems('polarity-light', 'at').length, 1);
+  const c = config({ palettes: [{ name: 'polarity-light', default: true, polarity: 'light', colors: colors() }] });
+  assert.ok(configProblems(c).some((m) => m.includes('"polarity-light" is held for the polarity hook')));
 });

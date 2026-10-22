@@ -3,12 +3,12 @@
 
 import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { plan, sheetStates } from './plan.ts';
 import type { SheetOutput } from './plan.ts';
-import { THEME_SHEET, ICONS_SHEET, PLUGIN_SHEET, ICON_MANIFEST } from './sheets.ts';
+import { THEME_SHEET, ICONS_SHEET, PLUGIN_SHEET, RUNTIME_DATA, ICON_MANIFEST } from './sheets.ts';
 import { auto, hostRoot, MAP, SHEETS, options, phosphor, project, readable, removeFixtures } from './cli-fixtures.ts';
 
 after(removeFixtures);
@@ -342,5 +342,44 @@ test('a root that is the default plugin is never completed and notes nothing', (
   const result = plan(options(root), environment(web, { sheets: DEFAULTED }));
   assert.deepEqual(result.fatal, []);
   assert.deepEqual(result.notes, []);
+  cleanup(root, held);
+});
+
+test('a build with runtimePalettes writes arena.runtime.generated.json', () => {
+  const { root: held, web } = phosphor();
+  const root = ownRoot();
+  const file = join(root, 'arena.config.json');
+  writeFileSync(file, JSON.stringify({ ...JSON.parse(readFileSync(file, 'utf8')), runtimePalettes: true }));
+  writeFileSync(join(root, 'design', 'andina', 'plugin.tokens.json'), JSON.stringify({
+    'ink-eyebrow': { $value: '{color.base-200}', $type: 'color' },
+    light: { 'ink-eyebrow': { $value: '{color.base-100}', $type: 'color' } },
+  }));
+  const sheets = {
+    ...CATALOGUED,
+    scopes: ['table'],
+    catalogue: { ...CATALOGUED.catalogue, tokens: { ...CATALOGUED.catalogue.tokens, 'color-base-100': 'var(--color-base-100)', 'ink-eyebrow': 'var(--color-base-content)' } },
+  };
+  const result = plan(options(root), environment(web, { sheets }));
+  assert.deepEqual(result.fatal, []);
+  const data = result.outputs.find((one) => one.name === RUNTIME_DATA);
+  assert.ok(data, 'the data file is an output');
+  assert.equal(data.path, join(options(root).out, RUNTIME_DATA));
+  const parsed = JSON.parse(data.content);
+  assert.equal(parsed.arenaRuntimePalettes, 1);
+  assert.deepEqual(parsed.declared, JSON.parse(readFileSync(file, 'utf8')).palettes.map((p: any) => p.name));
+  assert.deepEqual(parsed.taken, ['table']);
+  const differing = Object.keys(parsed.roles.dark).filter((k) => parsed.roles.dark[k] !== parsed.roles.light[k]);
+  assert.deepEqual(differing, ['ink-eyebrow'], 'the roles differ exactly where the root plugin\'s light group answers');
+  assert.equal(parsed.roles.dark['ink-eyebrow'], 'var(--color-base-200)');
+  assert.equal(parsed.roles.light['ink-eyebrow'], 'var(--color-base-100)');
+  assert.ok(data.content.endsWith('}\n'));
+  cleanup(root, held);
+});
+
+test('turning the key off removes the data file', () => {
+  const { root: held, web } = phosphor();
+  const root = project();
+  writeFileSync(join(root, 'src', RUNTIME_DATA), '{}');
+  assert.deepEqual(plan(options(root), environment(web)).orphans, [RUNTIME_DATA]);
   cleanup(root, held);
 });

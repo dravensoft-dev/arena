@@ -5,7 +5,7 @@
 
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
-import { THEME_SHEET, ICONS_SHEET, PLUGIN_SHEET } from './sheets.ts';
+import { THEME_SHEET, ICONS_SHEET, PLUGIN_SHEET, RUNTIME_DATA } from './sheets.ts';
 import { DEFAULT_PLUGIN } from './theme-css.ts';
 import { sourceScope } from './audit.ts';
 
@@ -13,7 +13,7 @@ export const DEFAULT_SOURCE = 'src';
 
 export const SOURCE_EXTENSIONS = ['.html', '.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs', '.css'];
 export const SKIPPED_DIRECTORIES = new Set(['node_modules', 'dist', '.git', '.angular', 'coverage']);
-export const OUTPUT_SHEETS = new Set([THEME_SHEET, ICONS_SHEET, PLUGIN_SHEET]);
+export const OUTPUT_SHEETS = new Set([THEME_SHEET, ICONS_SHEET, PLUGIN_SHEET, RUNTIME_DATA]);
 
 const byCodeUnit = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);
 

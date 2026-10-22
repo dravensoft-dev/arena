@@ -66,13 +66,14 @@ export type ArenaStylesheet = { preflight?: boolean; components?: unknown };
 export type ArenaConfig = {
   stylePlugins?: unknown;
   gradientMark?: unknown;
+  runtimePalettes?: unknown;
   palettes?: ArenaPalette[];
   fonts?: Record<string, ArenaFont>;
   stylesheet?: ArenaStylesheet;
   components?: string | string[];
 };
 
-export const ARENA_CONFIG_KEYS: readonly (keyof ArenaConfig)[] = ['palettes', 'fonts', 'stylePlugins', 'stylesheet', 'gradientMark'];
+export const ARENA_CONFIG_KEYS: readonly (keyof ArenaConfig)[] = ['palettes', 'fonts', 'stylePlugins', 'stylesheet', 'gradientMark', 'runtimePalettes'];
 export const ARENA_FONT_KEYS: readonly (keyof ArenaFont)[] = ['family', 'src', 'fallback', 'style', 'weight', 'display'];
 
 export type CheckedPalette = ArenaPalette & {
@@ -463,6 +464,14 @@ export function gradientMarkProblems(config: ArenaConfig) {
     + 'and a value that is not a boolean would read as true while meaning nothing'];
 }
 
+export function runtimePalettesProblems(config: ArenaConfig) {
+  const declared = config.runtimePalettes;
+  if (declared === undefined || typeof declared === 'boolean') return [];
+  return [`runtimePalettes: declare true or false, not ${typeof declared}. It says this build also emits `
+    + 'the polarity hooks, the root marker and the runtime data a browser palette reads, and a value that '
+    + 'is not a boolean would read as true while meaning nothing'];
+}
+
 export function configProblems(
   config: ArenaConfig, sheets: PackageSheets = null, plugins: ResolvedPlugins = null,
 ) {
@@ -482,6 +491,7 @@ export function configProblems(
   }
 
   problems.push(...gradientMarkProblems(config));
+  problems.push(...runtimePalettesProblems(config));
   problems.push(...stylePluginProblems(config, sheets, plugins));
   problems.push(...fontProblems(config.fonts));
   if (config.stylesheet !== undefined) problems.push(...stylesheetProblems(config.stylesheet, sheets));
@@ -743,6 +753,32 @@ export function scopedImports(
   return lines;
 }
 
+export const RUNTIME_MARKER = '--arena-runtime-palettes';
+export const polarityClass = (polarity: string) => `arena-polarity-${polarity}`;
+
+export type ArenaRuntimeDataShape = {
+  arenaRuntimePalettes: 1;
+  declared: string[];
+  taken: string[];
+  levels: Level[];
+  washes: Wash[];
+  roles: { dark: Record<string, string>; light: Record<string, string> };
+};
+
+export function runtimeData(config: CheckedConfig, sheets: PackageSheets, plugins: ResolvedPlugins): ArenaRuntimeDataShape {
+  const root = plugins?.[0] ?? null;
+  const catalogue = sheets?.catalogue ?? null;
+  const rolesIn = (polarity: string) => Object.fromEntries(rolesFor(root, catalogue, polarity));
+  return {
+    arenaRuntimePalettes: 1,
+    declared: (config.palettes as CheckedPalette[]).map((palette) => palette.name),
+    taken: sheets?.scopes ?? [],
+    levels: sheets?.levels ?? [],
+    washes: sheets?.washes ?? [],
+    roles: { dark: rolesIn('dark'), light: rolesIn('light') },
+  };
+}
+
 export type ThemeOptions = {
   packageName?: string;
   importHeader?: boolean;
@@ -798,6 +834,7 @@ export function themeCss(config: CheckedConfig, options: ThemeOptions = {}) {
   parts.push(block(':root', [
     ...paletteDeclarations(fallback, rolesOf(fallback), levels),
     `--arena-palette:${fallback.name};`,
+    ...(config.runtimePalettes === true ? [`${RUNTIME_MARKER}:1;`] : []),
     `--picker-invert:${pickerInvert(fallback.polarity)};`,
     `color-scheme:${fallback.polarity};`,
     ...aliases,
@@ -830,6 +867,18 @@ export function themeCss(config: CheckedConfig, options: ThemeOptions = {}) {
       if (at === ':root') continue;
       const answers = restatedBy(plugin, catalogue, palette.polarity);
       if (answers.length) parts.push(cross(at, `\n${answers.map((d) => `  ${d}`).join('\n')}\n`));
+    }
+  }
+
+  if (config.runtimePalettes === true) {
+    for (const polarity of POLARITIES) {
+      const cross = scopeOn(`.${polarityClass(polarity)}`);
+      parts.push(block(`.${polarityClass(polarity)}`, polarityDeclarations(polarity, context)));
+      for (const { plugin, at } of declared) {
+        if (at === ':root') continue;
+        const answers = restatedBy(plugin, catalogue, polarity);
+        if (answers.length) parts.push(cross(at, `\n${answers.map((d) => `  ${d}`).join('\n')}\n`));
+      }
     }
   }
 

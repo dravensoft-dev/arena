@@ -8,7 +8,7 @@
 import { readFileSync, existsSync } from 'node:fs';
 import { dirname, basename, join, resolve } from 'node:path';
 import { relativeFrom } from './posix.ts';
-import { configProblems, defaultedNote, paletteReports, rootWithDefaults, themeCss, weightReports } from './theme-css.ts';
+import { configProblems, defaultedNote, paletteReports, rootWithDefaults, runtimeData, themeCss, weightReports } from './theme-css.ts';
 import type { PackageSheets } from './theme-css.ts';
 import { AUTO } from './components.ts';
 import type { ComponentMap } from './components.ts';
@@ -19,7 +19,7 @@ import type { IconScan } from './icon-css.ts';
 import { report } from './reports.ts';
 import type { Report } from './reports.ts';
 import {
-  THEME_SHEET, ICONS_SHEET, PLUGIN_SHEET, PLUGIN_LAYER, ICON_MANIFEST,
+  THEME_SHEET, ICONS_SHEET, PLUGIN_SHEET, RUNTIME_DATA, PLUGIN_LAYER, ICON_MANIFEST,
   iconManifest, pluginCss, pluginSheets, readPlugins,
 } from './sheets.ts';
 import { OUTPUT_SHEETS, missingSource, sourceFiles } from './sources.ts';
@@ -30,7 +30,7 @@ import type { resolveEnvironment } from './host.ts';
 export type PlanOptions = Pick<Options, 'config' | 'paths' | 'out' | 'importHeader'>;
 export type PlanEnvironment = ReturnType<typeof resolveEnvironment>;
 export type ThemeEnvironment = { packageName: string; sheets: PackageSheets; map?: ComponentMap | null };
-export type OutputSheet = typeof THEME_SHEET | typeof ICONS_SHEET | typeof PLUGIN_SHEET;
+export type OutputSheet = typeof THEME_SHEET | typeof ICONS_SHEET | typeof PLUGIN_SHEET | typeof RUNTIME_DATA;
 export type SheetOutput = { name: OutputSheet; path: string; content: string; summary: string };
 export type Plan = {
   code: 0 | 1 | 2;
@@ -93,6 +93,10 @@ export function themeSheets(options: PlanOptions, { packageName, sheets, map }: 
       content: layered,
       summary: `${layered.length} bytes, wrapped in @layer ${PLUGIN_LAYER}`,
     });
+  }
+  if (config.runtimePalettes === true) {
+    const data = `${JSON.stringify(runtimeData(config, sheets, completed.plugins), null, 2)}\n`;
+    out.push({ name: RUNTIME_DATA, path: join(options.out, RUNTIME_DATA), content: data, summary: `${data.length} bytes` });
   }
   return { code: 0, fatal: [], reports, notes: closure.notes, sheets: out };
 }

@@ -25,7 +25,10 @@ export const MAX_PROSE_MEASURE = 90;
 
 export const DANGER_FLOOR = 'hue-danger-fill-strong';
 
-export const RESERVED = new Map<string, string>();
+export const RESERVED = new Map<string, string>([
+  ['polarity-dark', 'the polarity hook a runtime palette wears'],
+  ['polarity-light', 'the polarity hook a runtime palette wears'],
+]);
 
 export const scopeOn = (className: string) => (selector: string, body: string) => (selector === ':root'
   ? `${className}{${body}}`

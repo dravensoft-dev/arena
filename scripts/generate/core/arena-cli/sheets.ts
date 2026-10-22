@@ -15,6 +15,7 @@ import type { ShippedIcons } from './icon-css.ts';
 export const THEME_SHEET = 'arena.generated.css';
 export const ICONS_SHEET = 'icons.generated.css';
 export const PLUGIN_SHEET = 'plugin.generated.css';
+export const RUNTIME_DATA = 'arena.runtime.generated.json';
 export const PLUGIN_CSS = 'plugin.css';
 export const PLUGIN_LAYER = 'arena-plugin';
 export const PLUGIN_LAYER_ORDER = '@layer properties;\n@layer theme, base, components, utilities, arena-plugin;\n';

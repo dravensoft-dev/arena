@@ -54,16 +54,26 @@ test('a reserved name is never a class the tree ships, so a component that lands
   assert.deepEqual(stale(new Map([...RESERVED, ['table', 'ArenaTable, a planted entry (spec 00)']]), shipped), ['table']);
 });
 
-test('no class is held ahead, and a held entry is gone when the case that planted it ends', async () => {
-  assert.equal(RESERVED.size, 0);
-  await whileHeld('held-name', () => assert.equal(RESERVED.size, 1));
-  assert.equal(RESERVED.size, 0);
+const POLARITY_HOOKS = ['polarity-dark', 'polarity-light'];
+
+test('the polarity hooks are the only names held ahead, and a held entry is gone when the case that planted it ends', async () => {
+  assert.deepEqual([...RESERVED.keys()], POLARITY_HOOKS);
+  await whileHeld('held-name', () => assert.equal(RESERVED.size, 3));
+  assert.deepEqual([...RESERVED.keys()], POLARITY_HOOKS);
 });
 
-test('every reserved name is kebab, is no polarity, and carries a reason naming its spec and no version', () => {
+test('a name or a plugin called polarity-dark or polarity-light is refused for the hook a runtime palette wears', () => {
+  for (const name of POLARITY_HOOKS) {
+    assert.match(reservedProblems(name, 'at')[0] ?? '', /held for the polarity hook a runtime palette wears/, name);
+    assert.equal(nameProblems(name, POLARITIES, 'at').length, 1, name);
+  }
+});
+
+test('every reserved name is kebab, is no polarity, and carries a reason naming its spec and no version (the polarity hooks name a hook instead)', () => {
   for (const [name, reason] of RESERVED) {
     assert.match(name, KEBAB, name);
     assert.ok(!POLARITIES.includes(name), `${name} is a polarity, and a palette may always take its own`);
+    if (POLARITY_HOOKS.includes(name)) continue;
     assert.match(reason, /\(spec \d{2}\)$/, name);
     assert.doesNotMatch(reason, /\bv?\d+\.\d+/, `${name} names a version`);
   }
