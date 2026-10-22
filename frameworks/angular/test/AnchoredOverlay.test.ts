@@ -515,7 +515,7 @@ test('a pane open while the runtime palette is re-registered follows it', () => 
     assert.ok(pane.classList.contains('arena-polarity-light'));
     assert.ok(!pane.classList.contains('arena-polarity-dark'), 'the old hook stayed on the pane');
     assert.equal(pane.style.getPropertyValue('--color-base-100'), '#fafafa');
-    assert.equal(pane.style.getPropertyValue('--color-base-200'), '', 'a property the new palette lacks stayed on the pane');
+    assert.equal(pane.style.getPropertyValue('--color-base-200'), '', 'a property the new palette lacks was not removed');
     solo.overlay.close();
   } finally {
     unmark();

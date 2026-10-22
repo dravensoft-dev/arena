@@ -157,7 +157,7 @@ test('a registered palette re-registered while a scope names it updates the host
     assert.ok(inner.classList.contains('arena-polarity-light'));
     assert.equal(inner.classList.contains('arena-polarity-dark'), false);
     assert.equal(inner.style.getPropertyValue('--color-base-100'), '#fafafa');
-    assert.equal(inner.style.getPropertyValue('--color-base-200'), '', 'a property the new palette lacks stayed');
+    assert.equal(inner.style.getPropertyValue('--color-base-200'), '', 'a property the new palette lacks was not removed');
   } finally { unmark(); }
 });
 
