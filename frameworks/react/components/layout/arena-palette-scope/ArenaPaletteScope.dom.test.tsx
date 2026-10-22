@@ -10,7 +10,11 @@ function Reader({ label }: { label: string }) {
 }
 
 beforeEach(() => { setArenaTheme('dark'); });
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  setArenaTheme('dark');
+  try { globalThis.localStorage?.removeItem('arena-theme'); } catch { void 0; }
+});
 
 test('a reader outside any scope follows the page theme', () => {
   const root = mount(<Reader label="bare" />);

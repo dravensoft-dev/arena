@@ -3,12 +3,18 @@
 import { useTestEnvironment } from '../../../test/TestbedEnv';
 useTestEnvironment();
 
-import test from 'node:test';
+import test, { afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ArenaThemeService } from '../../../theme/ArenaThemeService';
 import { ArenaPaletteScope, injectArenaPalette } from './ArenaPaletteScope';
+
+afterEach(() => {
+  TestBed.inject(ArenaThemeService).set('dark');
+  TestBed.tick();
+  try { window.localStorage?.removeItem('arena-theme'); } catch { void 0; }
+});
 
 @Component({ selector: 'palette-reader', standalone: true, template: '{{ palette() }}' })
 class Reader { readonly palette = injectArenaPalette(); }

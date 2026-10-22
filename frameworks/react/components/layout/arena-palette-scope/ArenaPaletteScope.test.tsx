@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { renderToStaticMarkup } from 'react-dom/server';
 import React from 'react';
+import { getArenaTheme } from '../../../Theme.ts';
 import { ArenaPaletteScope, useArenaPalette } from './ArenaPaletteScope.tsx';
 
 function Reader({ label }: { label: string }) {
@@ -30,7 +31,8 @@ test("provides the nearest scope's palette", () => {
 test('answers the page theme outside any scope, before initArenaTheme and with no document', () => {
   assert.equal(typeof document, 'undefined');
   assert.doesNotThrow(() => renderToStaticMarkup(<Reader label="bare" />));
-  assert.match(renderToStaticMarkup(<Reader label="bare" />), /<i data-reader="bare">(dark|light)<\/i>/);
+  assert.equal(getArenaTheme(), 'dark');
+  assert.match(renderToStaticMarkup(<Reader label="bare" />), new RegExp(`<i data-reader="bare">${getArenaTheme()}</i>`));
 });
 
 test('refuses a palette the theme config does not declare', () => {
