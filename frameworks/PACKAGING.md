@@ -132,10 +132,14 @@ ships names a Tailwind utility, and neither package declares a runtime dependenc
 except `tslib`, which is Angular's own helper import. A project that runs its own Tailwind can
 declare whatever `--spacing` it likes and nothing of Arena's moves.
 
-**That indirection is the reason the strip exists rather than an optimisation.** `@apply` emits
-`gap: calc(var(--spacing, var(--sp-1)) * 1.5)`, not the Arena token: the adopter's own
-`--spacing` on an unlayered `:root` wins, the fallback is never reached, and every component
-rescales with nothing in the DOM to point at. Compiling to CSS without stripping would move the
+**That indirection is the reason the strip exists rather than an optimisation.** A key Theme.css
+declares under the token's own name, such as `--color-base-100`, compiles through `@apply` to
+`var(--color-base-100, var(--color-base-100))`: the adopter's own value on an unlayered `:root` wins,
+and every component recolours with nothing in the DOM to point at. The strip collapses each such
+pair to the Arena token and refuses an indirection Theme.css does not explain. A key that names a
+different token sits in the `@theme inline` block, so Tailwind writes the Arena token itself into the
+declaration: `gap-1.5` compiles to `calc(var(--sp-1) * 1.5)` and `bg-surface` to `var(--fill-surface)`,
+and an adopter's `--spacing` is never read. Compiling to CSS without stripping would move the
 collision from class names to custom properties rather than remove it.
 
 **What ships is a tree, and an adopter picks their depth.** `css/prelude.css` carries the layer

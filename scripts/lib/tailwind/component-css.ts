@@ -1,9 +1,10 @@
 /* Turns a manifest into the CSS a component renders, so no Tailwind class name and no Tailwind
  * custom property leaves a package. Every class name is spelt by ManifestClasses.js rather than
  * here, so the specimen harness and this generator agree. The strip is the load-bearing half:
- * `@apply` emits Tailwind's own namespace with the Arena token as a fallback, `var(--spacing,
- * var(--sp-1))`, and an adopter's own `--spacing` would rescale every component silently. A theme
- * indirection Theme.css does not confirm is an error. A family channel read, `var(--arena-<family>-
+ * `@apply` emits a key that Theme.css declares under the token's own name as a pair, `var(--color-
+ * base-100, var(--color-base-100))`, and an adopter's own value would recolour every component
+ * silently; the strip collapses the pair. A key Theme.css renames sits in the inline block and
+ * compiles to the Arena token itself. A theme indirection Theme.css does not confirm is an error. A family channel read, `var(--arena-<family>-
  * ..., var(--role))`, and a key Theme.css does not declare stay whole, or the option is erased.
  * The preset it names is posix: a backslash in a CSS string escapes. */
 
