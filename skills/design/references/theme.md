@@ -94,7 +94,7 @@ export class Island {}
 
 `useArenaPalette()` and `injectArenaPalette()` answer the palette of the nearest scope above, and the page theme when there is none. A palette name the theme config does not declare throws, listing the declared ones.
 
-**A subtree takes** the component sheets, the Arena Tailwind utilities of a project that renames keys, the colour aliases and the colour-mix washes, the ink levels, `color-scheme`, `--picker-invert` and the scrim. A style-plugin class and a density class go on any element the same way, and the nearest one wins. A nested plugin keeps the high-contrast widths and the hero fit. Angular overlays, which are the menu, popover, tooltip, combobox and multiselect and through them the split button and the side-nav item, take the palette, style plugin and density of their trigger. React panels stay in the subtree.
+**A subtree takes** the component sheets, the project's own Arena Tailwind utilities, the colour aliases and the colour-mix washes, the ink levels, `color-scheme`, `--picker-invert` and the scrim. A style-plugin class and a density class go on any element the same way, and the nearest one wins. A nested plugin keeps the high-contrast widths and the hero fit. Angular overlays, which are the menu, popover, tooltip, combobox and multiselect and through them the split button and the side-nav item, take the palette, style plugin and density of their trigger. React panels stay in the subtree.
 
 **A subtree does not take** the page canvas, which follows the root's palette. It does not take a ground either unless something paints one. `ArenaPaletteScope` paints `bg-base-100 text-base-content`, and a bare class paints nothing, so a section wearing only `arena-light` keeps the ground behind it. Surfaces mounted elsewhere, which are dialogs, sheets, the confirm queue, the command palette, onboarding and the toast host, take the palette of where they are mounted. An island that wants its own toasts mounts a toast host inside it.
 
@@ -138,7 +138,7 @@ Apply the class before your stylesheet loads. In React put the script in the HTM
 
 Set the list to your own palettes and `DEFAULT` to the palette your config marks default. The theme surface takes the same two values. Keep both copies equal, or a palette added to one is a palette the first paint never shows. The snippet reads the key the surface writes, `arena-theme`, and it treats a stored name the build no longer declares as a first visit, as the surface does.
 
-The default reaches `:root` and also has its class, `.arena-dark` in Arena's own palettes. The theme surface leaves `<html>` bare for the default. A snippet that names the wrong default puts a class on the very palette that must not have one.
+The default reaches `:root` and also has its class, `.arena-dark` in Arena's own palettes. The theme surface leaves `<html>` bare for the default. A snippet that names the wrong default puts on `<html>` the class of the palette the theme surface leaves bare, or leaves a palette that needs its class without it.
 
 ## Why does the snippet read the media query?
 

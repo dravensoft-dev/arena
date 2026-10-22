@@ -405,7 +405,7 @@ function drawHeat(svg: SVGSVGElement) {
 }
 ```
 
-In React `useArenaPalette()` re-renders its component with the palette of the nearest `ArenaPaletteScope`, or the page theme outside one, and an effect keyed on that name updates the Chart.js instance and joins the D3 selection again. A bare palette class is not a scope the hook sees, so a chart inside one wraps itself in `ArenaPaletteScope`.
+In React `useArenaPalette()` re-renders its component with the palette of the nearest `ArenaPaletteScope`, or the page theme outside one, and an effect keyed on that name updates the Chart.js instance and joins the D3 selection again. A bare palette class is not a scope the hook sees, so a chart sits inside an `ArenaPaletteScope` that its parent mounts, and not under a bare class.
 
 ```tsx
 import { useEffect } from 'react';
@@ -424,22 +424,27 @@ function useChartRedraw(chart: Chart, canvas: HTMLCanvasElement, svg: SVGSVGElem
 In Angular `injectArenaPalette()` is a signal, and an `afterRenderEffect` that reads it runs once the new palette is applied to the document and to the scope.
 
 ```ts
-import { afterRenderEffect, Component } from '@angular/core';
+import { afterRenderEffect, Component, ElementRef, viewChild } from '@angular/core';
 import { injectArenaPalette } from '@dravensoft/arena-angular';
 
-@Component({ selector: 'app-chart-panel', templateUrl: './chart-panel.html' })
+@Component({
+  selector: 'app-chart-panel',
+  template: `<canvas #canvas></canvas><svg #svg width="72" height="22"></svg>`,
+})
 export class ChartPanel {
   private readonly palette = injectArenaPalette();
-  chart!: Chart;
-  canvas!: HTMLCanvasElement;
-  svg!: SVGSVGElement;
+  private readonly canvas = viewChild.required<ElementRef<HTMLCanvasElement>>('canvas');
+  private readonly svg = viewChild.required<ElementRef<SVGSVGElement>>('svg');
+  private chart?: Chart;
 
   constructor() {
     afterRenderEffect(() => {
       this.palette();
-      this.chart.data.datasets[0].backgroundColor = categorical(this.canvas);
+      const canvas = this.canvas().nativeElement;
+      this.chart ??= drawBars(canvas);
+      this.chart.data.datasets[0].backgroundColor = categorical(canvas);
       this.chart.update();
-      drawHeat(this.svg);
+      drawHeat(this.svg().nativeElement);
     });
   }
 }

@@ -78,7 +78,7 @@ test('a declared class is kept off the page without a report', () => {
   const base = tree({
     [PAGE]: 'names nothing\n',
   });
-  assert.deepEqual(homeProblems(base, ['arena-light'], NOT_WRITTEN), []);
+  assert.deepEqual(homeProblems(base, ['arena-shimmer'], NOT_WRITTEN), []);
 });
 
 const FAMILY = (dir: string, target: string) => ({
