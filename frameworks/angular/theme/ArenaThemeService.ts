@@ -61,6 +61,7 @@ function runtimeProblem(value: unknown): string | null {
       return `"${key}" is not a property a palette carries; only --color-*, --level-* and --arena-palette are`;
     }
   }
+  if ((properties as Record<string, unknown>)['--arena-palette'] === undefined) return '--arena-palette is missing; a runtime palette carries its own name';
   return null;
 }
 
@@ -143,7 +144,9 @@ export class ArenaThemeService {
 
   private store(palette: ArenaRuntimePalette): void {
     const copy = { name: palette.name, polarity: palette.polarity, properties: { ...palette.properties } };
-    this.registered.update((all) => [...all.filter((p) => p.name !== copy.name), copy]);
+    this.registered.update((all) => (all.some((p) => p.name === copy.name)
+      ? all.map((p) => (p.name === copy.name ? copy : p))
+      : [...all, copy]));
   }
 
   private remember(palette: ArenaRuntimePalette): void {

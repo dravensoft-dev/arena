@@ -102,7 +102,7 @@ export class Island {}
 
 ## When does a palette get stored?
 
-Each layer stores only a user's choice. React's `setArenaTheme`, `toggleArenaTheme` and the setter `useArenaTheme` returns write the `arena-theme` key, and so do Angular's `set` and `toggle`. Neither `initArenaTheme` nor injecting the service writes it. Until a choice is stored the page follows the system. Remove the `arena-theme` key to follow the system again. In React call `initArenaTheme(themes)` after removing it, and in Angular the next load follows the system. Nothing listens for a change of the system setting while the page is open.
+Each layer stores a user's choice and, for a runtime palette, a copy of it. React's `setArenaTheme`, `toggleArenaTheme` and the setter `useArenaTheme` returns write the `arena-theme` key, and so do Angular's `set` and `toggle`. Neither `initArenaTheme` nor injecting the service writes it. Until a choice is stored the page follows the system. Remove the `arena-theme` key to follow the system again. In React call `initArenaTheme(themes)` after removing it, and in Angular the next load follows the system. Nothing listens for a change of the system setting while the page is open. The copy lives under `arena-runtime-palette`. A layer writes it when a runtime palette becomes the current one, by setting it or by registering the name that is already current. A layer removes it when a declared palette is chosen.
 
 ## How do I avoid a flash on first paint?
 
@@ -138,6 +138,7 @@ Apply the class before your stylesheet loads. In React put the script in the HTM
               : /^--color-[a-z0-9-]+$/.test(key) ? /^#[0-9a-f]{6}$/.test(val)
               : /^--level-[a-z0-9-]+$/.test(key) && /^\d{1,3}%$/.test(val));
         }
+        if (fits && props['--arena-palette'] !== stored) fits = false;
         if (fits) runtime = cached;
       }
       if (runtime) {
@@ -159,7 +160,7 @@ Apply the class before your stylesheet loads. In React put the script in the HTM
 </script>
 ```
 
-Set the list to your own palettes and `DEFAULT` to the palette your config marks default. The theme surface takes the same two values. Keep both copies equal, or a palette added to one is a palette the first paint never shows. The snippet reads the key the surface writes, `arena-theme`, and it treats a stored name the build no longer declares as a first visit, as the surface does. A runtime palette is the one exception. A runtime palette has a name the config does not declare, and the `arena-runtime-palette` key holds the cache for it. For that name the snippet puts the `arena-polarity-<polarity>` class on `<html>` and sets each cached property with `style.setProperty`. The snippet accepts the cache on the surface's own checks. The name is kebab and equals the stored one, and the polarity is `dark` or `light`. `--color-*` values are lower-case `#rrggbb`, `--level-*` values look like `40%`, and `--arena-palette` equals the name. A cache that fails any check is a first visit.
+Set the list to your own palettes and `DEFAULT` to the palette your config marks default. The theme surface takes the same two values. Keep both copies equal, or a palette added to one is a palette the first paint never shows. The snippet reads the key the surface writes, `arena-theme`, and it treats a stored name the build no longer declares as a first visit, as the surface does. A runtime palette is the one exception. A runtime palette has a name the config does not declare, and the `arena-runtime-palette` key holds the cache for it. For that name the snippet puts the `arena-polarity-<polarity>` class on `<html>` and sets each cached property with `style.setProperty`. The snippet accepts the cache on the surface's own checks. The name is kebab and equals the stored one, and the polarity is `dark` or `light`. `--color-*` values are lower-case `#rrggbb`, `--level-*` values look like `40%`, and `--arena-palette` is present and equals the name. A cache that fails any check is a first visit.
 
 The default reaches `:root` and also has its class, `.arena-dark` in Arena's own palettes. The theme surface leaves `<html>` bare for the default. A snippet that names the wrong default puts on `<html>` the class of the palette the theme surface leaves bare, or leaves a palette that needs its class without it.
 
@@ -234,7 +235,7 @@ In React `arenaPalettes()` and `useArenaPalettes()` list the declared palettes f
 
 The page paints it with the polarity class on `<html>` and each property set with `style.setProperty`. `ArenaPaletteScope` and `[arenaPalette]` accept a registered name too. An Angular overlay wears the palette in effect at its anchor, a scope's or the page's. **A scope can mount before the palette it names is registered.** Such a scope renders pending in both layers: no palette class and no properties, so its children inherit the page's palette, and a one-time `console.warn` names the missing palette. The scope paints as soon as that name is registered, which serves the flow of booting, fetching the user's palette and registering it. `useArenaPalette()` and `injectArenaPalette()` below a pending scope answer the scope's name. In React the scope judges a name only once `initArenaTheme` has run. Before that it draws `arena-<name>` with no properties, and a name the config declares keeps that class.
 
-**Registration throws** in four cases. The config declares the name. The page's `:root` lacks `--arena-runtime-palettes:1`, and the message names `"runtimePalettes": true`. The polarity is neither `dark` nor `light`, or the name is not kebab-case. Or `properties` holds anything but `--color-*` values of the form `#rrggbb`, `--level-*` values such as `40%`, and `--arena-palette` equal to the name.
+**Registration throws** in four cases. The config declares the name. The page's `:root` lacks `--arena-runtime-palettes:1`, and the message names `"runtimePalettes": true`. The polarity is neither `dark` nor `light`, or the name is not kebab-case. Or `properties` is wrong. A value is not a string, or a key is none of `--color-*`, `--level-*` and `--arena-palette`. A `--color-*` value is not `#rrggbb`, or a `--level-*` value is not a percentage such as `40%`. Or `--arena-palette` is missing or differs from the name. React accepts a registration before `initArenaTheme`. When the config that `initArenaTheme` then receives declares that name, the registration is dropped and a one-time `console.warn` names it.
 
 ## How do I keep a runtime palette between visits?
 

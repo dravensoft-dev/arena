@@ -1,4 +1,5 @@
 import { useSyncExternalStore } from 'react';
+import { arenaWarnOnce } from './WarnOnce.ts';
 import { DEFAULT_THEMES, fallback, POLARITIES, polarityClass, state, subscribe, unknownPalette } from './ThemeState.ts';
 
 export type ArenaPolarity = 'dark' | 'light';
@@ -64,16 +65,18 @@ function shapeProblem(palette: ArenaRuntimePalette): string | null {
   if (!POLARITIES.includes(palette.polarity)) return `polarity "${String(palette.polarity)}" is neither dark nor light`;
   if (!KEBAB.test(palette.name)) return `${JSON.stringify(palette.name)} is not a kebab-case name`;
   for (const [key, value] of Object.entries(palette.properties)) {
+    if (typeof value !== 'string') return `${key} is not a string`;
     if (key === '--arena-palette') {
-      if (value !== palette.name) return `${key} is "${String(value)}" and the palette is named "${palette.name}"`;
+      if (value !== palette.name) return `${key} is "${value}" and the palette is named "${palette.name}"`;
     } else if (!/^--(color|level)-[a-z0-9-]+$/.test(key)) {
       return `"${key}" is not a property a palette carries; only --color-*, --level-* and --arena-palette are`;
-    } else if (key.startsWith('--color-') && !/^#[0-9a-f]{6}$/.test(String(value))) {
-      return `${key} is "${String(value)}", not a #rrggbb colour`;
-    } else if (key.startsWith('--level-') && !/^\d{1,3}%$/.test(String(value))) {
-      return `${key} is "${String(value)}", not a percentage such as 40%`;
+    } else if (key.startsWith('--color-') && !/^#[0-9a-f]{6}$/.test(value)) {
+      return `${key} is "${value}", not a #rrggbb colour`;
+    } else if (key.startsWith('--level-') && !/^\d{1,3}%$/.test(value)) {
+      return `${key} is "${value}", not a percentage such as 40%`;
     }
   }
+  if (palette.properties['--arena-palette'] === undefined) return '--arena-palette is missing; a runtime palette carries its own name';
   return null;
 }
 
@@ -172,7 +175,11 @@ export function initArenaTheme(themes: ArenaThemeConfig = ARENA_DEFAULT_THEMES):
   state.config = themes;
   state.current = null;
   state.initialised = true;
-  for (const name of state.registered.keys()) if (declares(name)) state.registered.delete(name);
+  for (const name of state.registered.keys()) {
+    if (!declares(name)) continue;
+    state.registered.delete(name);
+    arenaWarnOnce(`initArenaTheme: the registered palette "${name}" is dropped, because the theme config declares it`);
+  }
   state.all = null;
   const name = getArenaTheme();
   apply(name);

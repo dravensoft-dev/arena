@@ -91,12 +91,14 @@ for (const [label, code] of [['no-fouc.html', htmlBody], ['theme.md', docBody]] 
   });
 
   test(`${label}: the boundary shapes the layers accept paint, and the rest are first visits`, () => {
-    const empty = run(code, withCache(bad({ properties: {} })));
-    assert.deepEqual(empty.classes, ['arena-polarity-light']);
-    assert.deepEqual(empty.style, {});
-    const noMark = run(code, withCache(bad({ properties: { '--color-base-100': '#fff1e6' } })));
-    assert.deepEqual(noMark.classes, ['arena-polarity-light']);
-    assert.deepEqual(noMark.style, { '--color-base-100': '#fff1e6' });
+    const onlyName = run(code, withCache(bad({ properties: { '--arena-palette': 'sunset' } })));
+    assert.deepEqual(onlyName.classes, ['arena-polarity-light']);
+    assert.deepEqual(onlyName.style, { '--arena-palette': 'sunset' });
+    for (const properties of [{}, { '--color-base-100': '#fff1e6' }]) {
+      const first = run(code, withCache(bad({ properties })));
+      assert.deepEqual(first.classes, [], JSON.stringify(properties));
+      assert.deepEqual(first.style, {}, JSON.stringify(properties));
+    }
   });
 
   test(`${label}: a first visit answers the device`, () => {

@@ -246,6 +246,20 @@ test('toggle cycles the declared palettes, then the registered ones in registrat
   assert.deepEqual(theme.palettes.map((p) => p.name), ['dark', 'light'], 'palettes stays the declared list');
 }));
 
+test('re-registering a name keeps its place in the toggle order', marked(() => {
+  const theme = service();
+  theme.register(runtimePalette('dusk', 'dark'));
+  theme.register(runtimePalette('dawn', 'light', '#fafafa'));
+  theme.register(runtimePalette('dusk', 'light', '#fafafa'));
+  assert.deepEqual(theme.runtimePalettes().map((p) => p.name), ['dusk', 'dawn']);
+  assert.equal(theme.runtimePalette('dusk')?.polarity, 'light', 'and the new palette replaces the old');
+  theme.set('light');
+  for (const next of ['dusk', 'dawn', 'dark']) {
+    theme.toggle();
+    assert.equal(theme.theme(), next);
+  }
+}));
+
 test('set refuses an unknown name, and lists the registered palettes only when there are some', marked(() => {
   const theme = service(THREE);
   assert.throws(() => theme.set('midnight'), (error: Error) =>
@@ -275,6 +289,7 @@ test('a cache naming a declared palette, malformed JSON, a foreign property, a b
     ['a foreign property', JSON.stringify({ ...dusk, properties: { '--evil': 'url(x)', '--arena-palette': 'dusk' } })],
     ['a colour that is not lower-case #rrggbb', JSON.stringify({ ...dusk, properties: { '--color-base-100': '#1B1830', '--arena-palette': 'dusk' } })],
     ['another name', JSON.stringify(runtimePalette('other', 'dark'))],
+    ['no --arena-palette', JSON.stringify({ ...dusk, properties: { '--color-base-100': '#1b1830' } })],
   ];
   for (const [label, cache] of cases) {
     clean();
@@ -311,6 +326,8 @@ test('register refuses a palette that breaks the shape rules, with the canonical
   fails(props({ '--color-base-100': '#AABBCC' }), '--color-base-100 is "#AABBCC", not a #rrggbb colour');
   fails(props({ '--level-2': '8px' }), '--level-2 is "8px", not a percentage such as 40%');
   fails(props({ '--arena-palette': 'other' }), '--arena-palette is "other" and the palette is named "dusk"');
+  fails(props({ '--color-base-100': '#aabbcc' }), '--arena-palette is missing; a runtime palette carries its own name');
+  fails(props({}), '--arena-palette is missing; a runtime palette carries its own name');
   assert.equal(theme.runtimePalette('dusk'), null);
 }));
 

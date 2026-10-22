@@ -10,6 +10,7 @@ import {
   toggleArenaTheme, arenaPalettes, registerArenaPalette, RUNTIME_CACHE_KEY, useArenaPalettes,
 } from '../Theme.ts';
 import { resetArenaTheme } from '../ThemeState.ts';
+import { forgetArenaWarnings } from '../WarnOnce.ts';
 import type { themeCss } from '../../../scripts/generate/core/arena-cli/theme-css.ts';
 import { renderToString } from 'react-dom/server';
 import { hydrateRoot } from 'react-dom/client';
@@ -141,8 +142,15 @@ const BUILD: CheckedConfig = {
   fonts: {},
   runtimePalettes: true,
 };
-const DATA = runtimeData(BUILD, null, null);
-const input = (polarity: 'dark' | 'light', base = '#1b1830') => ({ polarity, colors: PALETTE_KEYS_FIXTURE(base) });
+const LEVELS = [
+  { selector: '.arena-x__y', state: '', property: 'color', variable: 'color-base-content', percent: 62, level: 'level-ink-muted' },
+  { selector: '.arena-x__z', state: '', property: 'color', variable: 'color-base-content', percent: 40, level: 'level-ink-quiet' },
+];
+const DATA = runtimeData(BUILD, { levels: LEVELS } as unknown as Parameters<typeof runtimeData>[1], null);
+const input = (polarity: 'dark' | 'light', base = '#1b1830') => ({
+  polarity,
+  colors: { ...PALETTE_KEYS_FIXTURE(base), 'base-content': polarity === 'dark' ? '#f3ede5' : '#141010' },
+});
 const make = (name: string, polarity: 'dark' | 'light' = 'dark', base = '#1b1830') =>
   arenaRuntimePalette(name, input(polarity, base), DATA).palette;
 const html = () => document.documentElement;
@@ -190,6 +198,9 @@ test('re-registering with the other polarity flips the hook and leaves no old pr
   assert.equal(html().classList.contains('arena-polarity-dark'), false);
   assert.equal(html().style.getPropertyValue('--color-extra-one'), '', 'the old property is gone');
   assert.equal(html().style.getPropertyValue('--color-base-100'), '#fafafa');
+  const lighter = make('rt-flip', 'light', '#fafafa');
+  assert.ok(Object.keys(lighter.properties).some((key) => key.startsWith('--level-')), 'the fixture carries levels');
+  for (const [key, value] of Object.entries(lighter.properties)) assert.equal(html().style.getPropertyValue(key), value, key);
   assert.equal(JSON.parse(localStorage.getItem(RUNTIME_CACHE_KEY) ?? 'null').polarity, 'light', 'the cache follows the re-registration');
   runtimeClean();
 });
@@ -197,13 +208,14 @@ test('re-registering with the other polarity flips the hook and leaves no old pr
 test('setting a declared palette removes every runtime property, the hook and the cache', () => {
   runtimeClean();
   initArenaTheme(THREE);
-  registerArenaPalette(make('rt-leave'));
+  const leaving = make('rt-leave');
+  registerArenaPalette(leaving);
   setArenaTheme('rt-leave');
+  assert.ok(Object.keys(leaving.properties).some((key) => key.startsWith('--level-')), 'the fixture carries levels');
+  for (const [key, value] of Object.entries(leaving.properties)) assert.equal(html().style.getPropertyValue(key), value, key);
   setArenaTheme('light');
   assert.equal(html().classList.contains('arena-polarity-dark'), false);
-  assert.equal(html().style.getPropertyValue('--color-base-100'), '');
-  assert.equal(html().style.getPropertyValue('--level-base-100'), '');
-  assert.equal(html().style.getPropertyValue('--arena-palette'), '');
+  for (const key of Object.keys(leaving.properties)) assert.equal(html().style.getPropertyValue(key), '', key);
   assert.equal(html().style.getPropertyValue('--arena-runtime-palettes'), '1', 'only the properties it set are removed');
   assert.equal(localStorage.getItem(RUNTIME_CACHE_KEY), null);
   runtimeClean();
@@ -230,6 +242,8 @@ test('a cache naming a declared palette, malformed JSON, or a foreign property i
     ['foreign property', 'rt-ignored', JSON.stringify({ ...good, properties: { ...good.properties, '--evil': 'url(x)' } })],
     ['bad colour', 'rt-ignored', JSON.stringify({ ...good, properties: { ...good.properties, '--color-base-100': 'red' } })],
     ['another name', 'rt-ignored', JSON.stringify({ ...good, name: 'rt-other' })],
+    ['an array value', 'rt-ignored', JSON.stringify({ ...good, properties: { ...good.properties, '--color-base-100': ['#1b1830'] } })],
+    ['no --arena-palette', 'rt-ignored', JSON.stringify({ ...good, properties: { '--color-base-100': '#1b1830' } })],
   ];
   for (const [label, stored, cache] of cases) {
     runtimeClean();
@@ -261,6 +275,10 @@ test('register refuses a declared name, a foreign property, a bad value and a mi
   assert.throws(() => registerArenaPalette(withProp('--color-base-100', 'red')), /--color-base-100 is "red", not a #rrggbb colour/);
   assert.throws(() => registerArenaPalette(withProp('--level-base-100', '12px')), /--level-base-100 is "12px"/);
   assert.throws(() => registerArenaPalette(withProp('--arena-palette', 'other')), /--arena-palette is "other"/);
+  assert.throws(() => registerArenaPalette(withProp('--color-base-100', ['#1b1830'] as unknown as string)), /--color-base-100 is not a string/);
+  const { '--arena-palette': _name, ...unnamed } = good.properties;
+  assert.throws(() => registerArenaPalette({ ...good, properties: unnamed }),
+    (e: Error) => e.message === 'registerArenaPalette: --arena-palette is missing; a runtime palette carries its own name');
   assert.equal(arenaPalettes().some((p) => p.name === 'rt-refuse'), false);
   runtimeClean();
 });
@@ -349,5 +367,25 @@ test('a name that is not kebab case is refused at register and ignored in the ca
   initArenaTheme(THREE);
   assert.equal(arenaPalettes().some((p) => p.name === '9dusk'), false);
   assert.ok(THREE.palettes.some((p) => p.name === getArenaTheme()));
+  runtimeClean();
+});
+
+test('a name registered before init that the new config declares is dropped with one warning', () => {
+  runtimeClean();
+  forgetArenaWarnings();
+  registerArenaPalette(make('high-contrast'));
+  assert.ok(arenaPalettes().some((p) => p.name === 'high-contrast'), 'registration before init is accepted');
+  const warned: string[] = [];
+  const original = console.warn;
+  console.warn = (...args: unknown[]) => { warned.push(args.map(String).join(' ')); };
+  try {
+    initArenaTheme(THREE);
+    initArenaTheme(THREE);
+  } finally {
+    console.warn = original;
+  }
+  assert.deepEqual(arenaPalettes().filter((p) => p.name === 'high-contrast'), [{ name: 'high-contrast', polarity: 'light' }], 'only the declared one stays');
+  assert.equal(warned.length, 1);
+  assert.match(warned[0] ?? '', /"high-contrast" is dropped, because the theme config declares it/);
   runtimeClean();
 });
