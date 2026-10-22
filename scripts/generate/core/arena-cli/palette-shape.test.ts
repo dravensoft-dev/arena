@@ -9,16 +9,23 @@ import { join } from 'node:path';
 import ts from 'typescript';
 import { repoRoot } from '../../../lib/arena/repo-root.ts';
 
+const flat = (text: string) => text.replace(/[;,]$/, '').replace(/\s+/g, ' ');
+
 function members(file: string): string[] {
   const text = readFileSync(join(repoRoot, file), 'utf8');
   const source = ts.createSourceFile(file, text, ts.ScriptTarget.ES2022, true);
+  let polarity = `'dark' | 'light'`;
+  source.forEachChild((node) => {
+    if (ts.isTypeAliasDeclaration(node) && node.name.text === 'ArenaPolarity') polarity = flat(node.type.getText(source));
+  });
+  const spelled = (member: ts.TypeElement) => flat(member.getText(source)).replace('ArenaPolarity', polarity);
   let found: string[] | null = null;
   source.forEachChild((node) => {
     if (ts.isInterfaceDeclaration(node) && node.name.text === 'ArenaRuntimePalette') {
-      found = node.members.map((m) => m.getText(source).replace(/[;,]$/, '').replace(/\s+/g, ' ').replace('ArenaPolarity', "'dark' | 'light'"));
+      found = node.members.map(spelled);
     }
     if (ts.isTypeAliasDeclaration(node) && node.name.text === 'ArenaRuntimePalette' && ts.isTypeLiteralNode(node.type)) {
-      found = node.type.members.map((m) => m.getText(source).replace(/[;,]$/, '').replace(/\s+/g, ' ').replace('ArenaPolarity', "'dark' | 'light'"));
+      found = node.type.members.map(spelled);
     }
   });
   assert.ok(found, `${file} declares no ArenaRuntimePalette`);
