@@ -3,7 +3,8 @@
  * fixture's built theme sheet and the package's own card sheet in Chromium, once per prefers-contrast
  * value, and reads the computed border width of an .arena-card__root: at the page root, inside
  * .arena-light and inside the scope class of a second plugin, and every --bw-* role the package's
- * contrast sheet widens, resolved to px by a probe element's border so rem and calc() compare. The card sheet is linked by hand because
+ * contrast sheet widens, resolved to px by a probe element's border so rem and calc() compare.
+ * The card sheet is linked by hand because
  * a fixture imports only the components its sources use. The page sits beside the theme sheet so its
  * relative imports still resolve. contrastProblems reads no file and launches nothing. */
 
