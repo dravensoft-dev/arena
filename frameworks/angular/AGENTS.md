@@ -307,7 +307,9 @@ the connected positions `arenaConnectedPositions(align, prefer, offset)` returns
 preferred side at the alignment, then at the opposite alignment, then the other side the same way;
 when none fits, the pane is pushed inside the viewport at the alignment that overflows least. The
 overlay also keeps the stack Escape and an outside press consult. Focus on open, focus restore
-and Tab-out are options it takes. `ArenaMenu`, `ArenaTooltip` and `ArenaPopover` stand on it.
+and Tab-out are options it takes. The pane wears the palette, plugin and density classes the anchor resolves: it reads
+`arenaScopeClasses(anchor)` on each open and again whenever `ArenaThemeService.theme` changes while it is open. `ArenaMenu`,
+`ArenaTooltip`, `ArenaPopover`, `ArenaCombobox` and `ArenaMultiSelect` stand on it.
 
 **A style binding may interpolate the name of the property it reads.** The table's cells bind
 `[style.--arena-column-width]` to `var(--arena-column-<key>-width)`, or to `initial` when the

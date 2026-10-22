@@ -307,10 +307,10 @@ export const ROUTES: Route[] = [
       + 'layer that binds it',
     entry: 'contributor',
     stops: ['frameworks/AGENTS.md', 'frameworks/*/AGENTS.md'],
-    budget: 76_800,
+    budget: 76_998,
     reason:
-      'the most-walked contributor route and the one carrying the most reasoning per stop, paid by '
-      + 'whoever changes Arena rather than by a consumer. It carries no category\'s own tour: the '
+      'the most-walked contributor route, carrying the most reasoning per stop, paid by '
+      + 'whoever changes Arena. It carries no category\'s own tour: the '
       + 'chart family has frameworks/CHARTS.md. What it carries is what every component meets: the ordered '
       + 'steps a new component takes, including the barrel chain an Angular primitive needs and the '
       + 'suites it owes; the architecture envelope, since a module-scope read of a browser global '
@@ -318,7 +318,7 @@ export const ROUTES: Route[] = [
       + 'written twice, as the initial value and as the fallback, a pair no gate holds. The roof '
       + 'carries what binds both layers and each layer carries its own envelope and peer, which is '
       + 'the split that keeps the pair from going stale in one of them. The roof states the '
-      + 'attribute the layers build from different values and what a browser proves about focus; each layer, the binding that interpolates a property name and why a root module has one consumer, and every method a component exposes. The Tailwind page names the :scope part selector a family\'s block writes and why a bundler needs it. The kitchen-sink page holds the gate flags.',
+      + 'attribute the layers build from different values and what a browser proves about focus; each layer, the binding that interpolates a property name and why a root module has one consumer, and every method a component exposes, and the classes an open pane wears. The Tailwind page names the :scope part selector a family\'s block writes and why a bundler needs it. The kitchen-sink page holds the gate flags.',
   },
   {
     name: 'contributor-authoring',
@@ -422,7 +422,7 @@ export const ROUTES: Route[] = [
       + 'package is, and what CI does with the tag once it exists',
     entry: 'contributor',
     stops: ['versioning_steps.md', 'frameworks/PACKAGING.md', '.github/workflows/AGENTS.md'],
-    budget: 75_100,
+    budget: 75_495,
     reason:
       'the least frequent route on the branch and the most expensive one to get wrong, because '
       + 'each of its failures publishes nothing and errors nowhere. The sequence is the first stop '
@@ -432,7 +432,7 @@ export const ROUTES: Route[] = [
       + 'the merge request opens on a green develop; the tag exists before Arena main finishes; '
       + 'server.json is a version surface the release check never reads; each package has a '
       + 'publisher of its own, and a first publish needs one configured by hand; the corpus and '
-      + 'the components travel apart. The workflow page states how pull requests, develop and main '
+      + 'the components travel apart; the packaging page says what the strip makes of a Tailwind theme key. The workflow page states how pull requests, develop and main '
       + 'verify through one reusable workflow, what each of its jobs runs and how long it may run, '
       + 'and which target a publish that misses its cache builds and which layer it hands '
       + 'check:packages. Each of these fails in silence, '

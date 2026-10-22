@@ -1,5 +1,5 @@
 import {
-  DOCUMENT, DestroyRef, Injector, ViewContainerRef, afterNextRender, inject, signal,
+  DOCUMENT, DestroyRef, Injector, ViewContainerRef, afterNextRender, effect, inject, signal, untracked,
   type Signal, type TemplateRef,
 } from '@angular/core';
 import {
@@ -13,6 +13,7 @@ import {
   type ArenaPanelAlign, type ArenaPanelDismissal, type ArenaPanelSide,
 } from './AnchoredPanel';
 import { arenaFocusableElements } from './FocusTrap';
+import { ArenaThemeService } from './theme/ArenaThemeService';
 
 export type { ArenaPanelAlign, ArenaPanelDismissal, ArenaPanelSide };
 
@@ -76,12 +77,36 @@ export class ArenaAnchoredOverlay {
   private readonly shown = signal(false);
   private ref: OverlayRef | null = null;
   private detach: (() => void) | null = null;
+  private paneClasses: string[] = [];
+  private following = false;
 
   readonly isOpen: Signal<boolean> = this.shown.asReadonly();
 
   constructor(options: ArenaAnchoredOverlayOptions) {
     this.options = options;
     inject(DestroyRef).onDestroy(() => this.close());
+  }
+
+  private followTheme(): void {
+    if (this.following) return;
+    this.following = true;
+    const theme = this.injector.get(ArenaThemeService, null);
+    if (!theme) return;
+    effect(() => {
+      theme.theme();
+      untracked(() => this.refreshPaneClasses());
+    }, { injector: this.injector });
+  }
+
+  private refreshPaneClasses(): void {
+    const ref = this.ref;
+    const anchor = this.options.anchor();
+    if (!ref || !anchor) return;
+    const next = arenaScopeClasses(anchor);
+    const stale = this.paneClasses.filter((name) => !next.includes(name));
+    if (stale.length) ref.removePanelClass(stale);
+    if (next.length) ref.addPanelClass(next);
+    this.paneClasses = next;
   }
 
   panelElement(): HTMLElement | null {
@@ -92,16 +117,19 @@ export class ArenaAnchoredOverlay {
   open(): void {
     const anchor = this.options.anchor();
     if (this.ref || !anchor) return;
+    const classes = arenaScopeClasses(anchor);
     const ref = createOverlayRef(this.injector, {
       positionStrategy: createFlexibleConnectedPositionStrategy(this.injector, anchor)
         .withPositions(arenaPhysicalPositions(this.options.positions(), this.directionality.value === 'rtl'))
         .withPush(true),
       scrollStrategy: createRepositionScrollStrategy(this.injector),
-      panelClass: arenaScopeClasses(anchor),
+      panelClass: classes,
     });
     if (this.options.matchAnchorWidth) ref.updateSize({ minWidth: anchor.getBoundingClientRect().width });
     ref.attach(new TemplatePortal(this.options.panel(), this.viewContainer));
     this.ref = ref;
+    this.paneClasses = classes;
+    this.followTheme();
     this.listen(ref);
     this.shown.set(true);
     const focusOnOpen = this.options.focusOnOpen;
@@ -118,6 +146,7 @@ export class ArenaAnchoredOverlay {
     this.detach = null;
     this.ref?.dispose();
     this.ref = null;
+    this.paneClasses = [];
     this.shown.set(false);
   }
 

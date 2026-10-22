@@ -16,6 +16,7 @@ import {
 import type { ArenaAnchoredOverlayOptions, ArenaPanelDismissal } from '../AnchoredOverlay';
 import { assertNotSameNode, assertSameNode } from './NodeAssert';
 import { disposeOverlays } from './Overlays';
+import { ArenaThemeService } from '../theme/ArenaThemeService';
 
 @Component({
   selector: 'arena-test-probe',
@@ -403,6 +404,42 @@ test('refreshes the pane classes on every open', () => {
     assert.ok(paneOf().classList.contains('arena-dark'), 'the second open did not take the new palette');
     assert.ok(!paneOf().classList.contains('arena-light'), 'the previous palette class stayed on the pane');
   } finally {
+    fixture.destroy();
+    disposeOverlays();
+  }
+});
+
+test('an open pane follows the page theme: it drops the old palette class, takes the new one, and leaves none behind on close', () => {
+  const { fixture, solo } = renderSolo({ plain: true });
+  const anchor = fixture.nativeElement.querySelector('arena-test-probe span') as HTMLElement;
+  const service = TestBed.inject(ArenaThemeService);
+  service.set('dark');
+  TestBed.tick();
+  const paneOf = () => panelOf('solo')!.closest('.cdk-overlay-pane') as HTMLElement;
+  try {
+    anchor.style.setProperty('--arena-palette', 'dark');
+    anchor.style.setProperty('--arena-density', 'compact');
+    solo.overlay.open();
+    fixture.detectChanges();
+    const pane = paneOf();
+    assert.ok(pane.classList.contains('arena-dark'));
+    anchor.style.setProperty('--arena-palette', 'light');
+    service.set('light');
+    fixture.detectChanges();
+    TestBed.tick();
+    assert.ok(pane.classList.contains('arena-light'), 'the pane did not follow the page theme');
+    assert.ok(!pane.classList.contains('arena-dark'), 'the old palette class stayed on the pane');
+    assert.ok(pane.classList.contains('arena-compact'), 'the density class was lost');
+    solo.overlay.close();
+    fixture.detectChanges();
+    anchor.style.setProperty('--arena-palette', 'dark');
+    service.set('dark');
+    fixture.detectChanges();
+    TestBed.tick();
+    assert.equal(panelOf('solo'), null, 'a closed pane came back');
+    assert.equal(document.body.querySelectorAll('.cdk-overlay-pane.arena-dark, .cdk-overlay-pane.arena-light').length, 0);
+  } finally {
+    window.localStorage?.removeItem('arena-theme');
     fixture.destroy();
     disposeOverlays();
   }
