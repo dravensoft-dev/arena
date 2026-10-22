@@ -1,9 +1,10 @@
 /* The input of the theme-css golden: one rich config with no "runtimePalettes" key, two style plugins
  * that both answer a light group, three palettes and sheets with aliases, role references, scopes and
  * a catalogue. theme-css-golden.css is themeCss of this input as the emitter wrote it at bb3e930c, the
- * commit before the runtime-palette work, so theme-css.test.ts can hold today's output to it byte for byte. */
+ * commit before the runtime-palette work, so theme-css.test.ts can hold today's output to it byte for byte.
+ * No script in this tree writes the sheet, which is why check-generated lists it as UNMARKED. */
 
-import { PALETTE_KEYS } from '../palette-keys.ts';
+import { PALETTE_KEYS } from '../../generate/core/arena-cli/palette-keys.ts';
 
 const ARENA = 'com.dravensoft.arena';
 

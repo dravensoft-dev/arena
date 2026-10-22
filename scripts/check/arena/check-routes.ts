@@ -124,7 +124,7 @@ export const ROUTES: Route[] = [
       'skills/design/references/config.md',
       'skills/design/references/cli.md',
     ],
-    budget: 37_973,
+    budget: 38_300,
     reason:
       'paid once per project rather than per screen, so it carries what the build route may not: '
       + 'the install, the config file and the command. The package '
@@ -133,12 +133,11 @@ export const ROUTES: Route[] = [
       + 'is copied whole and the install reference gives the evidence behind each package manager and the '
       + 'Tailwind v4 entry sheet. The command reference quotes whole the scripts `arena init` writes and names every '
       + 'audit tag, wrapped-link among them, in a table of the rule each reports and what fires it, '
-      + 'in both scripts, and says how to '
-      + 'mark a line whose attribute a directive of the project reads. It also states '
-      + 'what the contrast kind reports, axis and solid badge reports. The config '
+      + 'in both scripts, and says how to mark a line whose attribute a directive of the project reads. It also states '
+      + 'what the contrast kind reports, axis, solid badge and polarity reports. The config '
       + 'reference lists the names the build refuses, the note a defaulted role prints and the roles '
       + 'that carry a default, a list that grows per role. The command reference names the heat kind, '
-      + 'a derived ladder a reader cannot tell apart and a plugin whose steps lose order. The config reference tables every key with its type and default, and that a palette is a class for a subtree. It names the runtimePalettes key.',
+      + 'a derived ladder a reader cannot tell apart and a plugin whose steps lose order. The config reference tables every key with its type and default, and that a palette is a class for a subtree, and names runtimePalettes.',
   },
   {
     name: 'consumer-skin',
