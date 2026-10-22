@@ -344,7 +344,7 @@ export async function block({ selector, source, dir = DESIGN_DIR, plugin }:
     const theme = isTokenItem(item) ? themeOf(item.token) : '';
     buckets.set(theme, [...(buckets.get(theme) ?? []), item]);
   }
-  const base = buckets.get('') ?? [];
+  const base = [...(buckets.get('') ?? []), ...(buckets.get('dark') ?? [])];
   const restatedIn = (name: string) => base.filter((item) =>
     isTokenItem(item) && scopesRedeclaring(item.token).includes(name));
   const named = plugin === undefined ? [] : [`  --arena-plugin:${plugin};`];

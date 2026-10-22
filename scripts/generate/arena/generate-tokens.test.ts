@@ -4,8 +4,9 @@
  * makes every entry a claim, and a stale one is silent -- these tests are the check. */
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync, existsSync } from 'node:fs';
-import nodePath, { join, win32, posix } from 'node:path';
+import { readFileSync, existsSync, mkdtempSync, writeFileSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import nodePath, { join, relative, sep, win32, posix } from 'node:path';
 import { readJson } from '../../utils/read-file.ts';
 import { DESIGN_DIR, FILES, REDECLARED_GROUPS, RESOLVES_AGAINST, SCOPE_SELECTORS, SCRIPT_TARGETS, collectScriptTokens, designPath, isFrom, referenceOf, scopesRedeclaring } from './generate-tokens.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
@@ -200,4 +201,21 @@ test('the default palette wears a class: .arena-dark carries the :root block, an
   const fit = complete.indexOf('.arena-complete{\n  --title-hero-fit:');
   assert.ok(own >= 0 && media > own && fit > media, 'the contrast widths and the hero fit follow the class block');
   assert.match(complete, /--bw-surface:var\(--bw-strong\);/);
+});
+
+test('a dark group of a plugin source reaches the base selector as well as the .arena-dark scope', async () => {
+  const { block } = await import('./generate-tokens.ts');
+  const tmp = mkdtempSync(join(tmpdir(), 'arena-dark-group-'));
+  try {
+    writeFileSync(join(tmp, 'p.tokens.json'), JSON.stringify({
+      'bw-surface': { $type: 'dimension', $value: { value: 1, unit: 'px' } },
+      dark: { 'bw-field': { $type: 'dimension', $value: { value: 3, unit: 'px' } } },
+    }));
+    const dir = relative(repoRoot, tmp).split(sep).join('/');
+    const css = await block({ selector: '.arena-p', source: 'p.tokens.json', dir });
+    const base = /^\.arena-p\{\n([\s\S]*?)\n\}/m.exec(css)?.[1] ?? '';
+    assert.match(base, /--bw-surface:1px;/);
+    assert.match(base, /--bw-field:3px;/, 'the dark answer is missing from the base selector');
+    assert.match(css, /@scope \(\.arena-dark\)[\s\S]*--bw-field:3px;/);
+  } finally { rmSync(tmp, { recursive: true, force: true }); }
 });
