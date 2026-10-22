@@ -7,15 +7,16 @@
 
    Two things below look wrong and are not.
 
-   1. The declarations are self-referential: `--color-base-100:
-      var(--color-base-100)`. Read alone that is a cycle, and a custom
-      property in a cycle computes to nothing. In context it is correct:
-      Tailwind emits @theme inside @layer theme, Arena's tokens are loaded
-      unlayered, and an unlayered declaration beats a layered one — so
-      Arena's value wins and the self-reference never resolves against
-      itself. Measured: --color-base-100 -> #141010, .bg-base-100 ->
-      rgb(20, 16, 16). `@theme inline` produces byte-identical output here
-      because the referenced variable shares the name. Do not "fix" this.
+   1. Two kinds of key, in two blocks. The same-name keys are self-referential on purpose:
+      `--color-base-100: var(--color-base-100)`. Read alone that is a cycle, and a custom
+      property in a cycle computes to nothing. In context it is correct: Tailwind emits @theme
+      inside @layer theme, Arena's tokens are loaded unlayered, and an unlayered declaration
+      beats a layered one, so Arena's value wins and the self-reference never resolves against
+      itself. Measured: --color-base-100 -> #141010, .bg-base-100 -> rgb(20, 16, 16). Do not
+      "fix" this. Every key that is renamed (`--color-surface: var(--fill-surface)`) sits in the
+      `@theme inline` block after it: an inline key writes the referenced variable into the
+      utility, so a utility reads the role where it is painted and follows the subtree that
+      re-answers the role, which a plain key resolved once at :root would not.
 
    2. Each namespace is cleared with `--<ns>-*: initial` before Arena's keys.
       Without it Tailwind's own defaults stay reachable underneath ours —
@@ -42,6 +43,108 @@
   --color-base-300: var(--color-base-300);
   --color-base-content: var(--color-base-content);
 
+  /* brand voice */
+  --color-primary: var(--color-primary);
+  --color-primary-content: var(--color-primary-content);
+  --color-primary-fill: var(--color-primary-fill);
+  --color-secondary: var(--color-secondary);
+  --color-secondary-content: var(--color-secondary-content);
+
+  /* status (meaning, never series) — the -content half is the other half of
+     the contract a skin defines, so it ships with it */
+  --color-info: var(--color-info);
+  --color-info-content: var(--color-info-content);
+  --color-success: var(--color-success);
+  --color-success-content: var(--color-success-content);
+  --color-warning: var(--color-warning);
+  --color-warning-content: var(--color-warning-content);
+  --color-error: var(--color-error);
+  --color-error-content: var(--color-error-content);
+
+  /* the system's only filled danger surface — ArenaConfirmDialog's final step */
+  --color-error-fill: var(--color-error-fill);
+
+  --color-neutral: var(--color-neutral);
+  --color-neutral-content: var(--color-neutral-content);
+
+  /* categorical ramp (identity, in order) */
+  --color-cat-1: var(--color-cat-1);
+  --color-cat-2: var(--color-cat-2);
+  --color-cat-3: var(--color-cat-3);
+  --color-cat-4: var(--color-cat-4);
+  --color-cat-5: var(--color-cat-5);
+  --color-cat-6: var(--color-cat-6);
+  --color-cat-7: var(--color-cat-7);
+  --color-cat-8: var(--color-cat-8);
+
+  /* ---- type → contracts/design-generated/typography.generated.css ----------------- */
+  --font-*: initial;
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+  --font-mono: var(--font-mono);
+
+  --text-*: initial;
+
+  --font-weight-*: initial;
+
+  --leading-*: initial;
+
+  --tracking-*: initial;
+
+  /* layout width. Named `page`, not `max`: a --container-max key collides
+     with Tailwind's built-in static max-w-max and shadows it. */
+  --container-*: initial;
+
+  /* icon size → contracts/design-generated/spacing.generated.css. A glyph rendered as a webfont is an icon,
+     not type, so it does not live in the --text-* namespace — that argument
+     is Rule 2's, made one level up at the classification stage. `--size-*`
+     is what an icon *is*: `.size-icon-md` sets both width and height. */
+  --size-*: initial;
+
+  /* The aspect tokens are Arena's own and no utility reads them: the ratio family does. */
+  --aspect-*: initial;
+
+  /* ---- effects → contracts/design-generated/effects.generated.css ----------------- */
+  --radius-*: initial;
+
+  --shadow-*: initial;
+  --shadow-1: var(--shadow-1);
+  --shadow-2: var(--shadow-2);
+  --shadow-3: var(--shadow-3);
+
+  /* the depth roles, for the same reason as the radius roles: a surface
+     asks for the tier it sits in or for the state it rises to, not for a step of
+     the elevation scale. */
+  --shadow-surface-rest: var(--shadow-surface-rest);
+  --shadow-surface-floating: var(--shadow-surface-floating);
+  --shadow-surface-deep: var(--shadow-surface-deep);
+  --shadow-control-rest: var(--shadow-control-rest);
+  --shadow-control-raised: var(--shadow-control-raised);
+
+  --ease-*: initial;
+  --ease-out: var(--ease-out);
+  --ease-in-out: var(--ease-in-out);
+  --ease-emphatic: var(--ease-emphatic);
+
+  /* the motion roles → contracts/design/roles.json. A curve is half of what a
+     transition feels like and the duration is the other half, so the two are
+     promoted together: `.duration-[var(--dur-hover)] .ease-hover` names a role at
+     both ends, which is what check:roles holds. The steps above stay reachable
+     for the entrances and the brand gesture in Animations.css, which answer the
+     reduced-motion policy rather than a voice. */
+  --ease-hover: var(--ease-hover);
+  --ease-state: var(--ease-state);
+
+  --blur-*: initial;
+
+  /* layering → contracts/design-generated/effects.generated.css. The family declares the order; a consumer
+     embedding Arena in an app with its own stacking context reads these
+     rather than guessing at a magic number. */
+  --z-index-*: initial;
+}
+
+/* The renamed keys: each one is written into the utility that reads it, so see the note at the top. */
+@theme inline {
   /* Surface fill ROLES, so bg-surface asks which surface rather than which step. Named under the
      colour namespace because that is the namespace bg-* reads, and pointed at the role rather
      than at a palette step: the role is what an extension re-values. */
@@ -84,51 +187,11 @@
   --color-edge-separator: var(--edge-separator);
   --color-edge-axis: var(--edge-axis);
   --color-edge-marker: var(--edge-marker);
-
-  /* brand voice */
-  --color-primary: var(--color-primary);
-  --color-primary-content: var(--color-primary-content);
-  --color-primary-fill: var(--color-primary-fill);
-  --color-secondary: var(--color-secondary);
-  --color-secondary-content: var(--color-secondary-content);
-
-  /* status (meaning, never series) — the -content half is the other half of
-     the contract a skin defines, so it ships with it */
-  --color-info: var(--color-info);
-  --color-info-content: var(--color-info-content);
-  --color-success: var(--color-success);
-  --color-success-content: var(--color-success-content);
-  --color-warning: var(--color-warning);
-  --color-warning-content: var(--color-warning-content);
-  --color-error: var(--color-error);
-  --color-error-content: var(--color-error-content);
-
-  /* the system's only filled danger surface — ArenaConfirmDialog's final step */
-  --color-error-fill: var(--color-error-fill);
   --color-confirm-final: var(--fill-confirm-final);
   --color-ink-confirm-final: var(--ink-confirm-final);
 
-  --color-neutral: var(--color-neutral);
-  --color-neutral-content: var(--color-neutral-content);
-
-  /* categorical ramp (identity, in order) */
-  --color-cat-1: var(--color-cat-1);
-  --color-cat-2: var(--color-cat-2);
-  --color-cat-3: var(--color-cat-3);
-  --color-cat-4: var(--color-cat-4);
-  --color-cat-5: var(--color-cat-5);
-  --color-cat-6: var(--color-cat-6);
-  --color-cat-7: var(--color-cat-7);
-  --color-cat-8: var(--color-cat-8);
-
   /* overlay scrim → contracts/design-generated/effects.generated.css */
   --color-scrim: var(--scrim);
-
-  /* ---- type → contracts/design-generated/typography.generated.css ----------------- */
-  --font-*: initial;
-  --font-display: var(--font-display);
-  --font-body: var(--font-body);
-  --font-mono: var(--font-mono);
 
   /* Face ROLES, so a manifest says which text is being set rather than which typeface it takes.
      The three families above are the consumer's to choose in arena.config.json; these three say
@@ -141,8 +204,6 @@
   --font-face-eyebrow: var(--ff-eyebrow);
   --font-face-label: var(--ff-label);
   --font-face-key: var(--ff-key);
-
-  --text-*: initial;
   --text-mega: var(--fs-mega);
   --text-hero: var(--fs-hero);
   --text-display: var(--fs-display);
@@ -187,8 +248,6 @@
   --text-logo-md: var(--logo-text-md);
   --text-logo-lg: var(--logo-text-lg);
   --text-logo-xl: var(--logo-text-xl);
-
-  --font-weight-*: initial;
   --font-weight-regular: var(--fw-regular);
   --font-weight-medium: var(--fw-medium);
   --font-weight-semibold: var(--fw-semibold);
@@ -202,8 +261,6 @@
   --font-weight-heading: var(--fw-heading);
   --font-weight-eyebrow: var(--fw-eyebrow);
   --font-weight-control: var(--fw-control);
-
-  --leading-*: initial;
   --leading-tight: var(--lh-tight);
   --leading-snug: var(--lh-snug);
   --leading-body: var(--lh-body);
@@ -223,8 +280,6 @@
      it a name indistinguishable from tight/snug/body would repeat the
      --text-base mistake retired in the fs/dz split. */
   --leading-ctl: var(--dz-lh);
-
-  --tracking-*: initial;
   --tracking-tight: var(--ls-tight);
 
   /* Tracking ROLES. The token prefix is `track` and not `ls` because `ls` is the scale's: a role
@@ -331,22 +386,12 @@
   --spacing-gutter: var(--gutter);
   --spacing-sidebar: var(--layout-sidebar);
   --spacing-bar: var(--layout-bar);
-
-  /* layout width. Named `page`, not `max`: a --container-max key collides
-     with Tailwind's built-in static max-w-max and shadows it. */
-  --container-*: initial;
   --container-page: var(--container-max);
 
   /* The reading column, in ch, beside the page column in px. Two different questions: the page
      asks how wide a layout gets and this asks how long a LINE gets, which is why one is a length
      and the other tracks the font size. */
   --container-prose: var(--measure-prose);
-
-  /* icon size → contracts/design-generated/spacing.generated.css. A glyph rendered as a webfont is an icon,
-     not type, so it does not live in the --text-* namespace — that argument
-     is Rule 2's, made one level up at the classification stage. `--size-*`
-     is what an icon *is*: `.size-icon-md` sets both width and height. */
-  --size-*: initial;
   --size-icon-sm: var(--icon-sm);
   --size-icon-md: var(--icon-md);
   --size-icon-lg: var(--icon-lg);
@@ -368,12 +413,6 @@
   --size-logo-mark-md: var(--logo-mark-md);
   --size-logo-mark-lg: var(--logo-mark-lg);
   --size-logo-mark-xl: var(--logo-mark-xl);
-
-  /* The aspect tokens are Arena's own and no utility reads them: the ratio family does. */
-  --aspect-*: initial;
-
-  /* ---- effects → contracts/design-generated/effects.generated.css ----------------- */
-  --radius-*: initial;
   --radius-xs: var(--r-xs);
   --radius-sm: var(--r-sm);
   --radius-md: var(--r-md);
@@ -393,42 +432,7 @@
   --radius-field: var(--r-field);
   --radius-marker: var(--r-marker);
   --radius-media: var(--r-media);
-
-  --shadow-*: initial;
-  --shadow-1: var(--shadow-1);
-  --shadow-2: var(--shadow-2);
-  --shadow-3: var(--shadow-3);
-
-  /* the depth roles, for the same reason as the radius roles above: a surface
-     asks for the tier it sits in or for the state it rises to, not for a step of
-     the elevation scale. */
-  --shadow-surface-rest: var(--shadow-surface-rest);
-  --shadow-surface-floating: var(--shadow-surface-floating);
-  --shadow-surface-deep: var(--shadow-surface-deep);
-  --shadow-control-rest: var(--shadow-control-rest);
-  --shadow-control-raised: var(--shadow-control-raised);
-
-  --ease-*: initial;
-  --ease-out: var(--ease-out);
-  --ease-in-out: var(--ease-in-out);
-  --ease-emphatic: var(--ease-emphatic);
-
-  /* the motion roles → contracts/design/roles.json. A curve is half of what a
-     transition feels like and the duration is the other half, so the two are
-     promoted together: `.duration-[var(--dur-hover)] .ease-hover` names a role at
-     both ends, which is what check:roles holds. The steps above stay reachable
-     for the entrances and the brand gesture in Animations.css, which answer the
-     reduced-motion policy rather than a voice. */
-  --ease-hover: var(--ease-hover);
-  --ease-state: var(--ease-state);
-
-  --blur-*: initial;
   --blur-scrim: var(--scrim-blur);
-
-  /* layering → contracts/design-generated/effects.generated.css. The family declares the order; a consumer
-     embedding Arena in an app with its own stacking context reads these
-     rather than guessing at a magic number. */
-  --z-index-*: initial;
   --z-index-nav: var(--z-nav);
   --z-index-skip: var(--z-skip);
   --z-index-sheet: var(--z-sheet);

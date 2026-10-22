@@ -547,11 +547,12 @@ test('the packaged theme equals a fresh assembly', () => {
 });
 
 test('a consumer compile resolves Arena\'s scale, keeps a later key, and reaches none of Tailwind\'s defaults', () => {
-  const compiled = '@layer theme{:root{--color-base-100:var(--color-base-100)}}.bg-base-100{background-color:var(--color-base-100)}.p-4{padding:var(--spacing-4)}.bg-brand{background-color:var(--color-brand)}';
+  const compiled = '@layer theme{:root{--color-base-100:var(--color-base-100)}}.bg-base-100{background-color:var(--color-base-100)}.p-4{padding:var(--sp-4)}.bg-surface{background-color:var(--fill-surface)}.bg-brand{background-color:var(--color-brand)}';
   const dir = distTree({ 'css/tailwind-theme.css': '' });
   assert.deepEqual(themeCompileProblems(REACT_PKG, dir, () => compiled), []);
   assert.match(themeCompileProblems(REACT_PKG, dir, () => `${compiled}.bg-red-500{color:red}`).join('\n'), /bg-red-500/);
   assert.match(themeCompileProblems(REACT_PKG, dir, () => compiled.replace('.bg-brand', '.bg-other')).join('\n'), /below the import/);
+  assert.match(themeCompileProblems(REACT_PKG, dir, () => compiled.replace('var(--fill-surface)', 'var(--color-surface)')).join('\n'), /bg-surface does not read --fill-surface/);
 });
 
 test('the token sheets arena.css reaches declare their custom properties outside any cascade layer', () => {

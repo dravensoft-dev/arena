@@ -173,10 +173,10 @@ export function pluginOptionRoles(root = repoRoot) {
 
 export function presetTokens(css: string) {
   const out = new Set<string>();
-  const m = css.match(/@theme\s*\{([\s\S]*)\}/);
-  if (!m) return out;
+  const blocks = [...css.replace(/\/\*[\s\S]*?\*\//g, '').matchAll(/@theme(?:\s+inline)?\s*\{([^}]*)\}/g)];
+  if (blocks.length === 0) return out;
 
-  const body = captured(m).replace(/\/\*[\s\S]*?\*\//g, '');
+  const body = blocks.map((block) => captured(block)).join(';');
   for (const line of body.split(';')) {
     const i = line.indexOf(':');
     if (i === -1) continue;

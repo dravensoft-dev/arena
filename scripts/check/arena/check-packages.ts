@@ -387,7 +387,7 @@ export function consumerEntry(dir: string) {
   return "@import 'tailwindcss' source(none);\n"
     + `@import '${toPosix(join(dir, THEME_SHEET))}';\n`
     + '@theme { --color-brand: var(--color-primary); }\n'
-    + '@source inline("bg-base-100 p-4 bg-brand bg-red-500");\n';
+    + '@source inline("bg-base-100 p-4 bg-surface bg-brand bg-red-500");\n';
 }
 
 export function themeCompileProblems(
@@ -399,8 +399,12 @@ export function themeCompileProblems(
   if (!/var\(--color-base-100\)/.test(rule('bg-base-100') ?? '')) {
     problems.push(`${pkg.name}: a consumer's bg-base-100 does not resolve to --color-base-100 through ${THEME_SHEET}`);
   }
-  if (!/--spacing/.test(rule('p-4') ?? '')) {
+  if (!/var\(--sp-4\)/.test(rule('p-4') ?? '')) {
     problems.push(`${pkg.name}: a consumer's p-4 does not resolve to Arena's spacing scale through ${THEME_SHEET}`);
+  }
+  if (!/var\(--fill-surface\)/.test(rule('bg-surface') ?? '')) {
+    problems.push(`${pkg.name}: a consumer's bg-surface does not read --fill-surface where it is painted through ${THEME_SHEET}, `
+      + 'so a utility would not follow the subtree that re-answers the role');
   }
   if (rule('bg-brand') === null) {
     problems.push(`${pkg.name}: a key a consumer declares below the import of ${THEME_SHEET} does not survive, `
