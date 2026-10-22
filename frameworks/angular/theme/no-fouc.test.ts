@@ -33,7 +33,7 @@ function run(code: string, storage: Record<string, string>, light = false): { cl
   const win = new Window();
   for (const [k, v] of Object.entries(storage)) win.localStorage.setItem(k, v);
   win.matchMedia = ((q: string) => ({ matches: light && q.includes('light') })) as never;
-  win.eval(code);
+  new Function('window', 'document', 'localStorage', code)(win, win.document, win.localStorage);
   const el = win.document.documentElement;
   const style: Record<string, string> = {};
   for (let i = 0; i < el.style.length; i++) {
