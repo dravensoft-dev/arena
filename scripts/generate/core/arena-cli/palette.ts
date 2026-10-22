@@ -46,7 +46,8 @@ function held(fn: string, data: unknown): Held {
 }
 
 function checked(input: unknown): ArenaPaletteInput {
-  const problems = paletteInputProblems('palette', (input ?? {}) as { polarity?: unknown; colors?: unknown });
+  if (!isRecord(input)) throw new Error('palette: not an object');
+  const problems = paletteInputProblems('palette', input);
   if (problems.length > 0) throw new Error(problems.join('\n'));
   const { polarity, colors } = input as ArenaPaletteInput;
   const lowered: Record<string, string> = {};

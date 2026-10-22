@@ -120,8 +120,8 @@ test('input refusals name the key', () => {
   fail(() => arenaCheckPalette({ polarity: 'dim', colors: ok }, data), 'polarity');
   const noHeat = Object.fromEntries(Object.entries(ok).filter(([k]) => !k.startsWith('heat-')));
   fail(() => arenaCheckPalette({ polarity: 'dark', colors: { ...noHeat, 'heat-1': '#aabbcc' } }, data), 'heat-1');
-  fail(() => arenaCheckPalette(undefined, data), 'palette');
-  for (const nonObject of [null, 'dark', [], 7]) fail(() => arenaCheckPalette(nonObject, data), 'palette.polarity');
+  fail(() => arenaCheckPalette(undefined, data), 'palette: not an object');
+  for (const nonObject of [null, 'dark', [], 7]) fail(() => arenaCheckPalette(nonObject, data), 'palette: not an object');
   for (const colorsOf of [null, 'x', [], 7]) {
     fail(() => arenaCheckPalette({ polarity: 'dark', colors: colorsOf }, data), 'palette.colors: not an object');
   }
