@@ -36,14 +36,23 @@ export const scopeKey = (root: string, selector: string) => `@scope (${root}) ${
 export const crossKeys = (className: string, selector: string) =>
   [scopeKey(className, selector), scopeKey(selector, className)];
 
-const rootDecls = (css: string) => {
-  const body = /:root\s*\{([^}]*)\}/.exec(css.replace(/\/\*[\s\S]*?\*\//g, ''))?.[1] ?? '';
-  return [...body.matchAll(/(--[\w-]+)\s*:\s*([^;]+);/g)].map((m) => ({ name: m[1] as string, value: (m[2] as string).trim() }));
+const HIGH_CONTRAST = /@media\s*\(prefers-contrast:\s*more\)\s*\{/;
+
+const rootDecls = (css: string, within?: RegExp) => {
+  const text = css.replace(/\/\*[\s\S]*?\*\//g, '');
+  const from = within ? within.exec(text) : null;
+  const scope = within ? (from ? text.slice(from.index + from[0].length) : '') : text;
+  const found = /:root\s*\{([^}]*)\}/.exec(scope);
+  if (!found && text.trim()) {
+    throw new Error(`rootOnlyFor: no :root block${within ? ' inside @media (prefers-contrast: more)' : ''} in a sheet that has `
+      + 'content, so the widths or the hero fit it computes would not reach a style plugin');
+  }
+  return [...(found?.[1] ?? '').matchAll(/(--[\w-]+)\s*:\s*([^;]+);/g)].map((m) => ({ name: m[1] as string, value: (m[2] as string).trim() }));
 };
 
 export function rootOnlyFor(className: string, sources: { contrast: string; environment: string }) {
   const lines = (decls: { name: string; value: string }[]) => decls.map((d) => `  ${d.name}:${d.value};`).join('\n');
-  const widened = rootDecls(sources.contrast);
+  const widened = rootDecls(sources.contrast, HIGH_CONTRAST);
   const fit = rootDecls(sources.environment).filter((d) => d.name === '--title-hero-fit');
   return [
     widened.length ? `@media (prefers-contrast: more) {\n${className}{\n${lines(widened)}\n}\n}` : '',

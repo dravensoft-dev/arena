@@ -184,3 +184,11 @@ test('rootOnlyFor restates the :root contrast rule in a media query and the hero
     + '.arena-x{\n  --title-hero-fit:clamp(1px, calc(2px - (3px - 100cqi) / 24), 4px);\n}');
   assert.equal(rootOnlyFor('.arena-x', { contrast: '', environment: '' }), '');
 });
+
+test('rootOnlyFor takes the :root inside the high-contrast query, not an earlier one, and refuses a sheet with none', () => {
+  const contrast = ':root { --early: 1; }\n@media (prefers-contrast: more) {\n  :root { --bw-surface: var(--bw-strong); }\n}\n';
+  assert.equal(rootOnlyFor('.arena-x', { contrast, environment: '' }),
+    '@media (prefers-contrast: more) {\n.arena-x{\n  --bw-surface:var(--bw-strong);\n}\n}');
+  assert.throws(() => rootOnlyFor('.arena-x', { contrast: '.a { --x: 1; }', environment: '' }), /no :root block inside @media/);
+  assert.throws(() => rootOnlyFor('.arena-x', { contrast: '', environment: '.a { --x: 1; }' }), /no :root block/);
+});

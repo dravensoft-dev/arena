@@ -36,6 +36,17 @@ const read = (at: string) => {
   try { return readFileSync(at, 'utf8'); } catch { return ''; }
 };
 
+class MissingSheet extends Error {}
+
+const required = (root: string, name: string) => {
+  const at = join(root, 'css', name);
+  if (!existsSync(at)) {
+    throw new MissingSheet(`${root} ships no css/${name}, so a style plugin written beside it would lose the `
+      + 'widths and the hero fit that sheet computes on :root. Reinstall the package.');
+  }
+  return readFileSync(at, 'utf8');
+};
+
 export function packageSheets(root: string): PackageSheets {
   try {
     const layers = [...readFileSync(join(root, 'arena.css'), 'utf8').matchAll(SHEET_IMPORT)]
@@ -70,12 +81,13 @@ export function packageSheets(root: string): PackageSheets {
       roleReferences: roleReferencesIn(catalogue),
       aliases: aliasesIn(catalogue),
       rootOnly: {
-        contrast: read(join(root, 'css', 'contrast.css')),
-        environment: read(join(root, 'css', 'environment.css')),
+        contrast: required(root, 'contrast.css'),
+        environment: required(root, 'environment.css'),
       },
       catalogue: catalogue ?? undefined,
     };
-  } catch {
+  } catch (error) {
+    if (error instanceof MissingSheet) throw error;
     return null;
   }
 }

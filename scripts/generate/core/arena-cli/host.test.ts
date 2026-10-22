@@ -27,6 +27,8 @@ function installed(barrel: string, components: string[]) {
   mkdirSync(join(root, 'css', 'components'), { recursive: true });
   writeFileSync(join(root, 'arena.css'), barrel);
   writeFileSync(join(root, 'css', 'colors.css'), ':root{--level-ink-muted:62%;}');
+  writeFileSync(join(root, 'css', 'contrast.css'), '');
+  writeFileSync(join(root, 'css', 'environment.css'), '');
   for (const name of components) writeFileSync(join(root, 'css', 'components', `${name}.css`), '');
   return root;
 }
@@ -44,6 +46,16 @@ test('the sheets a package ships are read from beside the command, so no copy of
     rootOnly: { contrast: '', environment: '' },
     catalogue: undefined,
   });
+  rmSync(root, { recursive: true });
+});
+
+test('a package without contrast.css or environment.css is reported and not read as empty', () => {
+  const root = installed("@import './css/reset.css';\n", ['button']);
+  rmSync(join(root, 'css', 'contrast.css'));
+  assert.throws(() => packageSheets(root), /ships no css\/contrast\.css/);
+  writeFileSync(join(root, 'css', 'contrast.css'), '');
+  rmSync(join(root, 'css', 'environment.css'));
+  assert.throws(() => packageSheets(root), /ships no css\/environment\.css/);
   rmSync(root, { recursive: true });
 });
 
