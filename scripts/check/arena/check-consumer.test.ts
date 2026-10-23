@@ -377,15 +377,21 @@ const refusal = (base: string, strict: string) => spawnSync(process.execPath, ['
   "console.log('went on');",
 ].join('\n')], { encoding: 'utf8' });
 
-test('a missing dist/ stops the gate before it runs anything: a SKIP, which a strict run turns into a failure', () => {
+test('a missing dist/ stops the gate before it runs anything: a SKIP', () => {
   const soft = refusal('/nowhere-at-all', '0');
   assert.equal(soft.status, 2, soft.stderr);
   assert.match(soft.stderr, /check:consumer: SKIPPED/);
   assert.match(soft.stderr, /bun run build:packages first/);
   assert.doesNotMatch(soft.stdout, /went on/);
+});
+
+test('a strict run turns the SKIP of a missing dist/ into a failure', () => {
   const strict = refusal('/nowhere-at-all', '1');
   assert.equal(strict.status, 1, strict.stderr);
   assert.match(strict.stderr, /FAILED \(strict\)/);
+});
+
+test('two assembled packages let a strict run go on', () => {
   const base = mkdtempSync(join(tmpdir(), 'check-consumer-assembled-'));
   try {
     for (const layer of ['react', 'angular']) {
