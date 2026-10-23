@@ -48,7 +48,7 @@ You do not need to run Tailwind. Every component's CSS ships compiled, and one `
 
 An icon is a glyph of Phosphor's, drawn by `ArenaIcon` (React) or `arena-icon` (Angular) as an `<svg>` that references one symbol of a sprite. Every `icon` prop in React and every `icon` input in Angular takes a Phosphor class list such as `"ph-bold ph-bell"`, and the component hands it to `ArenaIcon`. Every glyph a component draws goes through `ArenaIcon`, and so does yours.
 
-`arena build` writes the sprite as `icons-<hash>.svg`, holding the glyphs your sources draw and the ones Arena's components draw for you. `arena build` also writes `arena.icons.generated.js` with its declaration file, exporting `ARENA_SPRITE`, the sprite's file name. Your app serves the sprite and hands its URL over once, at the root of the tree. An `ArenaIcon` with no URL warns once and paints nothing.
+`arena build` writes the sprite as `icons-<hash>.svg`, holding the glyphs your sources draw and the ones Arena's components draw for you. `arena build` also writes `arena.icons.generated.js` with its declaration file, exporting `ARENA_SPRITE`, the sprite's file name. Your app serves the sprite and hands its URL over once, at the root of the tree. An `ArenaIcon` with no URL warns once and paints nothing. Neither Vite nor the Angular builder serves a file of `src/` at `/` on its own, so the next section says how each one serves it.
 
 In React, wrap the app in `ArenaIconsProvider` with the sprite's URL as `href`. The URL below is where your server serves the file:
 
@@ -70,11 +70,34 @@ bootstrapApplication(App, { providers: [provideArenaIcons(`/${ARENA_SPRITE}`)] }
 
 A raw `<i class="ph-bold ph-bell">` paints nothing, because Arena ships no icon font; it paints only when the project installs `@phosphor-icons/web` itself and links its sheets. `arena audit` reports one as `raw-glyph`, and the `--strict` list `arena init` writes holds it. A project does not import Phosphor's own stylesheet for Arena's glyphs. [`cli.md`](./cli.md) says how the sprite is built.
 
+## How does the toolchain serve the sprite?
+
+`arena build` writes `icons-<hash>.svg` into `-o`, which is `src` by default. The URL handed to the provider has to reach that file.
+
+**Vite** serves a file of `public/` at `/` under its own name, and copies it to the output unchanged. A file of `src/` imported as a URL is emitted with a name Vite hashes itself, and the import gives that name. A glob finds the one sprite whatever its hash is:
+
+```tsx
+const [sprite] = Object.values(import.meta.glob('./icons-*.svg', { query: '?url', import: 'default', eager: true }));
+
+<ArenaIconsProvider href={sprite as string}><App /></ArenaIconsProvider>
+```
+
+A file under `assetsInlineLimit` (4096 bytes by default) is inlined into the JavaScript as a `data:` URL, instead of being emitted as a file. Set `build.assetsInlineLimit` to a function that returns `false` for `.svg` and the sprite is always a file.
+
+**The Angular builder** copies only what its `assets` option names. Add an entry for the sprite to the build options in `angular.json`. The file then lands at the root of the output under the name `arena build` gave it, so `/${ARENA_SPRITE}` is its URL:
+
+```json
+"assets": [{ "glob": "icons-*.svg", "input": "src" }]
+```
+
+Another toolchain serves the file by its own rule. What matters is that `href` is a URL a browser can fetch.
+
 ## How do I import the stylesheets in React?
 
-Run `arena build` first. The command writes the theme sheet, the icon sprite with its module, and a plugin sheet when a style plugin of yours carries CSS. Import the generated files before your own rules, in your entry file. `arena.generated.css` imports the package stylesheet itself, and a sheet you import by hand under `--no-import` goes before them.
+Run `arena build` first. The command writes the package sheet, the theme sheet, the icon sprite with its module, and a plugin sheet when a style plugin of yours carries CSS. Import the generated files before your own rules, in your entry file. `arena.package.generated.css` comes first and `arena.generated.css` after it. Under `--no-import` the package sheet is not written, and the sheets you import by hand take its place, before `arena.generated.css`.
 
 ```js
+import './arena.package.generated.css';
 import './arena.generated.css';
 import './plugin.generated.css';   // only when a style plugin of yours carries CSS
 ```
@@ -83,16 +106,17 @@ The import happens in JavaScript. A bundler resolves each specifier as a stylesh
 
 ## How do I import the stylesheets in Angular?
 
-Import the generated files from `src/styles.css`. Import the generated files before your own rules. `arena.generated.css` imports the package stylesheet itself, and a sheet you import by hand under `--no-import` goes before them.
+Import the generated files from `src/styles.css`. Import the generated files before your own rules. `arena.package.generated.css` comes first and `arena.generated.css` after it. Under `--no-import` the package sheet is not written, and the sheets you import by hand take its place, before `arena.generated.css`.
 
 ```css
+@import './arena.package.generated.css';
 @import './arena.generated.css';
 @import './plugin.generated.css';   /* only when a style plugin of yours carries CSS */
 ```
 
-The CDK overlay sheet comes with them. `arena.css` imports `css/arena-cdk.css` itself, and a `stylesheet` block carries it too.
+The CDK overlay sheet comes with them: `arena.package.generated.css` imports `css/arena-cdk.css`, and so does `arena.css`.
 
-That sheet re-bases the CDK overlay onto Arena's `--z-*` scale. Without it a dialog's menu paints behind the dialog. Write the import yourself only under `--no-import`, which leaves the package import out of `arena.generated.css`. Import the generated sheet as well, because it alone holds the colours: `arena.css` by itself paints with no colour.
+That sheet re-bases the CDK overlay onto Arena's `--z-*` scale. Without it a dialog's menu paints behind the dialog. Write the import yourself only under `--no-import`, which writes no package sheet. Import `arena.generated.css` as well, because it alone holds the colours: `arena.css` by itself paints with no colour.
 
 ## How do I combine the sheets with Tailwind v4?
 
@@ -101,6 +125,7 @@ A project that compiles markup of its own with `tailwindcss` v4 keeps one entry 
 ```css
 @import 'tailwindcss';
 @import '@dravensoft/arena-react/css/tailwind-theme.css';
+@import './arena.package.generated.css';
 @import './arena.generated.css';
 @import './plugin.generated.css';   /* only when a style plugin of yours carries CSS */
 /* your own rules from here */

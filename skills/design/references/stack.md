@@ -108,7 +108,7 @@ Two of those rows carry more than a number.
 
 **No icon font is a peer.** Icons are Phosphor class-name strings that `ArenaIcon` draws from the
 sprite `arena build` writes, so no package asks for `@phosphor-icons/web`. A project that hands
-`ArenaIcon` no sprite URL gets a warning, once, and empty squares where the icons go;
+`ArenaIcon` no sprite URL gets a warning, once. Both layers render nothing where the icon goes;
 [`install.md`](./install.md) says how the URL is handed over.
 
 **Two peers are optional.** `@angular/router` and `@angular/forms` are declared in `peerDependenciesMeta` as optional, so no manager installs them for you. The router is needed once a project reaches the entry point that writes the document head, and the forms package once it reaches the forms entry point. A project that never reaches either never installs what it does not use. [`seo.md`](./seo.md) is where the router decision is made, and node 8 of [`cold-start.md`](./cold-start.md) is where it is reached. [`install.md`](./install.md) gives the install command per layer, optional peers included.
@@ -143,12 +143,11 @@ served. Keep React in a chunk of its own as well, since it changes on its own sc
 | Angular `application` builder | does not work | there is no `manualChunks`, and the layer is partially compiled, so Arena lands in `main`. The dictionary is the way out |
 | Turbopack | allowed by the manifest, not exercised | Turbopack exists inside Next.js, which picks its chunks itself. `next build --webpack` is the webpack row |
 
-**The package's sheet stays in a file apart from `arena.generated.css`.** The package's sheet changes
-only with Arena, and `arena.generated.css` holds your palettes and fonts and changes with your
-config. A bundler that joins the two in one file makes a change to either one a new download of the
-other. Every recipe above keeps them apart: run `arena build --no-import`, import the package's
-sheets from their own stylesheet, and import `arena.generated.css` after it, so that the two never
-share a source file. [`install.md`](./install.md) shows both imports.
+**The package's sheet stays in a file apart from `arena.generated.css`.** `arena.package.generated.css`
+changes only with Arena and the components you draw, and `arena.generated.css` holds your palettes and
+fonts and changes with your config. A bundler that joins the two in one output file makes a change to
+either one a new download of the other. `arena build` writes them as two source files, and a bundler that emits one CSS file for an entry joins them again. Which bundlers keep the two apart in the output is **not exercised**: no row above has been measured for its CSS output, so none claims it. Import the package sheet first and `arena.generated.css` after it, as [`install.md`](./install.md) shows. Under `--no-import` the package sheet is not written and the sheets you import by hand take
+its place.
 
 ## What this page does not decide
 

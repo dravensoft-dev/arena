@@ -80,7 +80,7 @@ Every key, with its type and its default:
 | `fonts.<role>.style` | string | no | `normal` |
 | `fonts.<role>.weight` | string | no | `400 900` |
 | `fonts.<role>.display` | string | no | `swap` |
-| `stylesheet.components` | array of sheet names, or `"auto"` | no | every component sheet |
+| `stylesheet.components` | array of sheet names, or `"auto"` | no | the closed list the build works out from your sources |
 | `stylesheet.preflight` | boolean | no | `true` |
 
 **`stylePlugins` is in that block because leaving it out is a decision and not a blank.** The value above is the appearance this package installs with, which is Dravensoft's. A project that means to look like itself replaces it with the path to a plugin directory of its own. Both

@@ -28,7 +28,7 @@ Typical and full figures are written typical / full. Arena is at the tree that b
 | webpack | 5.111.1 | yes, `splitChunks.cacheGroups` | 52.67 to 53.71 / 98.25 to 102.21 | 52.67 to 0.92 / 98.25 to 1.39 | 14.72 / 64.12 | 0.03 / 0.04 |
 | rspack | 2.2.8 | yes, `splitChunks.cacheGroups` | 52.45 to 53.70 / 97.88 to 102.19 | 52.45 to 0.99 / 97.88 to 1.44 | 14.61 / 63.95 | 0.02 / 0.04 |
 | Parcel | 2.16.4 | yes, `manualSharedBundles`, and only with `packageExports: true` | 53.29 to 55.94 / 98.82 to 108.75 | 53.29 to 39.18 / 98.82 to 40.12 | 55.97 / 108.69 | not measured: its two shared bundles share a name stem |
-| `@angular/build` `application` | 22.2.1 | no | 64.66 / 142.79 | 64.60 / 142.95 | 64.66 / 142.92 | 0.04 / 0.04 |
+| `@angular/build` `application` | 22.2.1 | no | 64.66 / 142.79 | 64.60 / 142.95 | 64.66 / 142.92 | 0.03 / 0.03 |
 
 "x to y" is the first visit or the release before and after Arena is apart. Keeping Arena apart costs a little on the first visit, for the extra request and the runtime. Keeping it apart saves almost all of an app release on every bundler that does it. Parcel keeps React with the app, so an app release there still downloads most of that bundle; Arena itself downloads nothing again. The Angular row is a single `main`, with Arena inside it: a release or a patch downloads `main` whole without a dictionary, and almost nothing with one.
 
@@ -44,4 +44,4 @@ A bundler that does not work for this purpose still builds the app. What it cann
 
 ## What was held fixed?
 
-Two apps and one Arena tree went through every bundler, on Node 26.7.0. The sprite, the cut fonts and the sheets came from one `arena build`. No row differs by what Arena writes; each differs by what the bundler does with it.
+Two apps and one Arena tree went through every bundler, on Node 26.7.0. Every row counts the JavaScript a bundler emits. The sprite, the cut fonts and the sheets are in no row, so no row differs by what Arena writes; each differs by what the bundler does with the JavaScript.
