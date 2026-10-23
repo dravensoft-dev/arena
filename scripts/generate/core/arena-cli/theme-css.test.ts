@@ -711,6 +711,14 @@ test('a ring that closes across the root answers and the light answers is refuse
     'one ring is named once, not once per role in it');
 });
 
+test('a ring wholly inside one group is reported once and not again from the merged answers', () => {
+  const problems = pluginProblems(listed(['console']), [total({
+    'fill-surface': { $type: 'color', $value: '{ink-eyebrow}' },
+    'ink-eyebrow': { $type: 'color', $value: '{fill-surface}' },
+  })]);
+  assert.equal(problems.filter((m) => /neither resolves/.test(m)).length, 1, problems.join('\n'));
+});
+
 test('resolvedPlugin follows a role alias to the colour the named role resolves to', () => {
   const plugin = readPlugin('p', { 'ink-muted': { $value: '{color.primary}' }, 'ink-key': { $value: '{ink-muted}' } });
   assert.equal(resolvedPlugin(plugin, ALIASED).get('ink-key'), 'var(--color-primary)');
