@@ -254,6 +254,30 @@ export function copyAgentPayload(dir: string, layer: string, name: string, root 
   return written;
 }
 
+export const FONTS_PACKAGE_DIR = 'fonts';
+
+export function copyFonts(dir: string, root = repoRoot) {
+  const record = readJson(join(root, 'assets', 'fonts', 'Fonts.generated.json')) as Record<string, unknown>;
+  const files = Object.keys(record);
+  const faces = files.filter((file) => file.endsWith('.woff2'));
+  if (faces.length === 0) {
+    throw new Error('package-assembly: the font record names no woff2, so the example config would point at fonts '
+      + 'the package does not carry and arena build could not cut any of them');
+  }
+  for (const face of faces) {
+    const licence = face.replace(/\.woff2$/, '.OFL.txt');
+    if (!files.includes(licence)) {
+      throw new Error(`package-assembly: ${face} has no ${licence} in the font record, and the package would `
+        + 'ship the font without the licence that lets anyone redistribute it');
+    }
+  }
+  return files.map((file) => {
+    const from = join(root, 'assets', 'fonts', file);
+    if (!existsSync(from)) throw new Error(`package-assembly: the font record names ${file} and assets/fonts holds none`);
+    return copy(from, dir, `${FONTS_PACKAGE_DIR}/${file}`);
+  });
+}
+
 export const BEHAVIOUR_DIR = 'contracts/behaviour';
 
 export function copyBehaviourContracts(dir: string, root = repoRoot) {

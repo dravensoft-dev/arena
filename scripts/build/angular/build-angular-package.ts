@@ -22,7 +22,7 @@ import {
   collectFiles, reset, write, copy, writeCssChain, componentSheets, copyCli, baseManifest, report,
   CATALOGUE_FILE, tokenCatalogue,
   writeComponentMap, writeIconManifest, CLI_BINS, keywords,
-  copyBehaviourContracts, PALETTE_ENTRY, ANGULAR_EXTRA,
+  copyBehaviourContracts, copyFonts, PALETTE_ENTRY, ANGULAR_EXTRA,
 } from '../../lib/arena/package-assembly.ts';
 import { PEERS, OPTIONAL_PEERS, CLI_DEPENDENCIES } from '../../lib/arena/support-matrix.ts';
 import { splitCompiledSheet } from '../../lib/tailwind/sheet-split.ts';
@@ -226,6 +226,7 @@ export async function buildAngularPackage(root = repoRoot) {
   written.push(write(dist, CATALOGUE_FILE, `${JSON.stringify(tokenCatalogue(root), null, 2)}\n`));
   written.push(copy(join(root, LAYER, 'PACKAGE.md'), dist, 'README.md'));
   written.push(...copyBehaviourContracts(dist, root));
+  written.push(...copyFonts(dist, root));
   written.push(copy(join(root, 'LICENSE'), dist, 'LICENSE'));
 
   const npmignore = join(dist, '.npmignore');
@@ -253,6 +254,7 @@ export function withAssets(emitted: NgPackage): NgPackage & { exports: Record<st
       './css/*': { default: './css/*' },
       './css/components/*': { default: './css/components/*' },
       './css/vocabulary/*': { default: './css/vocabulary/*' },
+      './fonts/*': { default: './fonts/*' },
       './arena.config.example.json': { default: './arena.config.example.json' },
       './arena.tokens.json': { default: './arena.tokens.json' },
       './arena.vocabulary.json': { default: './arena.vocabulary.json' },

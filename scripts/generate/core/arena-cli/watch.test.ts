@@ -265,3 +265,10 @@ test('abort closes every watcher, cancels the pending build and resolves 0', asy
   h.flush();
   assert.equal(h.builds(), 1);
 });
+
+test('watchTargets: a local font the config names is watched by its own file name', () => {
+  const root = pluginRoot();
+  writeFileSync(join(root, 'arena.config.json'), JSON.stringify({ fonts: { display: { family: 'A', src: './fonts/a.woff2' } } }));
+  const targets = watchTargets(optionsOf(root));
+  assert.ok(targets.some((one) => one.only === 'fonts' || one.only === 'a.woff2'));
+});

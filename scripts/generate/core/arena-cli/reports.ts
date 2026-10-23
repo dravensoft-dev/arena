@@ -13,7 +13,7 @@ export type StrictName = StrictKind | `${StrictKind}:${string}`;
 export const RULES_BY_KIND: Partial<Record<StrictKind, readonly string[]>> = { audit: RULE_TAGS };
 
 export const KINDS_BY_COMMAND = {
-  check: ['components', 'contrast', 'ramp', 'weight', 'glyph', 'markers', 'heat'],
+  check: ['components', 'contrast', 'ramp', 'weight', 'font', 'glyph', 'markers', 'heat'],
   audit: ['audit', 'restated'],
   doctor: ['environment'],
 } as const satisfies Record<string, readonly StrictKind[]>;

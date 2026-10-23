@@ -6,8 +6,10 @@
 
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { dirname, basename, join, resolve } from 'node:path';
+import { dirname, basename, join } from 'node:path';
 import { loadVocabulary } from './audit.ts';
+import { packageRoot } from './package-root.ts';
+import type { FontToolRoots } from './font-files.ts';
 import type { VocabularyIndex } from './audit.ts';
 import { inlineHues, levelDefaults, levelsIn, washesIn } from './levels.ts';
 import { SHEET_IMPORT, componentMap, packageCatalogue, aliasesIn, roleReferencesIn, scopesIn } from './sheets.ts';
@@ -94,23 +96,18 @@ export function packageSheets(root: string): PackageSheets {
 }
 
 export function phosphorRoot(from = process.cwd(), fallback = here) {
-  for (const start of [from, fallback]) {
-    let at = resolve(start);
-    for (;;) {
-      const candidate = join(at, 'node_modules', '@phosphor-icons', 'core');
-      if (existsSync(join(candidate, 'package.json'))) return candidate;
-      const up = dirname(at);
-      if (up === at) break;
-      at = up;
-    }
-  }
-  return null;
+  return packageRoot(['@phosphor-icons', 'core'], from, fallback);
+}
+
+export function fontToolRoots(from = process.cwd(), fallback = here) {
+  return { harfbuzz: packageRoot(['harfbuzzjs'], from, fallback), wawoff2: packageRoot(['wawoff2'], from, fallback) };
 }
 
 export type HostEnvironment = {
   packageName?: string;
   arena?: string | null;
   phosphor?: string | null;
+  fontTools?: FontToolRoots;
   sheets?: PackageSheets;
   map?: ComponentMap | null;
   vocabulary?: VocabularyIndex | null;
@@ -127,7 +124,8 @@ export function resolveEnvironment(environment: HostEnvironment = {}) {
   const vocabulary: VocabularyIndex | null = environment.vocabulary !== undefined
     ? environment.vocabulary : (arena ? loadVocabulary(arena) : null);
   const phosphor = ('phosphor' in environment ? environment.phosphor : phosphorRoot()) ?? null;
-  return { arena, packageName, sheets, map, vocabulary, phosphor };
+  const fontTools = environment.fontTools ?? fontToolRoots();
+  return { arena, packageName, sheets, map, vocabulary, phosphor, fontTools };
 }
 
 export function hostManifest(root: string | null): { name: string; version: string; engines?: { node?: string } } | null {

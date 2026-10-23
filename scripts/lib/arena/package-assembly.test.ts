@@ -7,7 +7,7 @@ import { relPosix } from '../../utils/posix-path.ts';
 import {
   EXCLUDED_NAMES, EXCLUDED_PATTERNS, CSS_CHAIN, arenaCssHeader, excluded,
   collectFiles, reset, write, copyTree, copyCli, emitDeclaration, declarationReach, CLI_BINS, PALETTE_ENTRY, CLI_SOURCES, baseManifest, pluginIdentity, version, repositoryBase, agentBases, componentSheets, writeCssChain, arenaCssLayers, ANGULAR_EXTRA,
-  writeComponentMap, keywords, SHARED_KEYWORDS, tokenCatalogue, aliasDeclarations, catalogueRole,
+  writeComponentMap, copyFonts, FONTS_PACKAGE_DIR, keywords, SHARED_KEYWORDS, tokenCatalogue, aliasDeclarations, catalogueRole,
 } from './package-assembly.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { MARKERS_FILE, markerAttributes } from './component-map.ts';
@@ -477,4 +477,22 @@ test('arenaCssLayers is the list of imports writeCssChain writes into arena.css,
     assert.ok(written.indexOf('css/vocabulary/zeta.css') > written.indexOf('css/vocabulary/align.css'), 'sorted by name');
   }
   rmSync(root, { recursive: true });
+});
+
+test('copyFonts carries every font and licence the record holds, byte for byte, under fonts/', () => {
+  const to = track(mkdtempSync(join(tmpdir(), 'arena-fonts-')));
+  const written = copyFonts(to, repoRoot);
+  const record = readJson(join(repoRoot, 'assets', 'fonts', 'Fonts.generated.json'));
+  assert.deepEqual(written.map((one) => relPosix(to, one)).sort(), Object.keys(record).map((file) => `${FONTS_PACKAGE_DIR}/${file}`).sort());
+  assert.ok(written.some((one) => one.endsWith('.OFL.txt')) && written.some((one) => one.endsWith('.woff2')));
+  for (const file of Object.keys(record)) {
+    assert.deepEqual(readFileSync(join(to, FONTS_PACKAGE_DIR, file)), readFileSync(join(repoRoot, 'assets', 'fonts', file)));
+  }
+});
+
+test('copyFonts stops when the record names a file that is not there, or a font has no licence', () => {
+  const root = tree({ 'assets/fonts/Fonts.generated.json': JSON.stringify({ 'a.woff2': { family: 'A', weights: [400, 700], sha256: 'x' } }) });
+  assert.throws(() => copyFonts(track(mkdtempSync(join(tmpdir(), 'arena-fonts-'))), root), /a\.woff2/);
+  writeFileSync(join(root, 'assets', 'fonts', 'a.woff2'), 'x');
+  assert.throws(() => copyFonts(track(mkdtempSync(join(tmpdir(), 'arena-fonts-'))), root), /a\.OFL\.txt/);
 });

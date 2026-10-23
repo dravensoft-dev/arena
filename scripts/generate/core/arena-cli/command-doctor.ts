@@ -46,7 +46,7 @@ function ignoresSheets(cwd: string) {
   });
 }
 
-export function run(argv: string[], io: Io): number {
+export async function run(argv: string[], io: Io): Promise<number> {
   const options = commandOptions('doctor', argv, io);
   if (typeof options === 'number') return options;
   const say = voice(io, 'doctor');
@@ -69,14 +69,14 @@ export function run(argv: string[], io: Io): number {
 
   if (env.phosphor) say.out(`@phosphor-icons/core at ${env.phosphor}`);
 
-  const planned = plan(options, env);
+  const planned = await plan(options, env);
   if (planned.fatal.length) {
     problems++;
     for (const line of planned.fatal) say.err(line);
     say.err('sheets not compared, since nothing can be built yet');
   } else {
     say.out(`config ${options.config} is valid`);
-    for (const { path, state } of sheetStates(planned.outputs)) {
+    for (const { path, state } of sheetStates([...planned.outputs, ...planned.binaries])) {
       if (state === 'current') say.out(`${path} is current`);
       else {
         problems++;

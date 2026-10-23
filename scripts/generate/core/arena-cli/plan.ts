@@ -1,9 +1,10 @@
-/* What a build would leave on disk, worked out without leaving anything. themeSheets and
- * spriteFiles are the theme and sprite steps with the writes taken out: they read the disk and
+/* What a build would leave on disk, worked out without leaving anything. themeSheets, fontFiles and
+ * spriteFiles are the theme, font and sprite steps with the writes taken out: they read the disk and
  * answer the files, their reports and the code a failure carries. plan runs them in order and answers
- * all the files or none, so a tree never pairs a new theme with an old sprite. A named
- * component list is closed against the same map before the config is validated, so a sheet its
- * components draw is never left out, and with no map it is used as written. */
+ * all the files or none, so a tree never pairs a new theme with an old sprite. The theme is worked
+ * out twice when a font is cut, once to learn the weights it paints and once to name the cut files.
+ * A named component list is closed against the same map before the config is validated, and with no
+ * map it is used as written. */
 
 import { readFileSync, existsSync } from 'node:fs';
 import { dirname, basename, join, resolve } from 'node:path';
@@ -19,30 +20,39 @@ import {
   THEME_SHEET, PLUGIN_SHEET, RUNTIME_DATA, PLUGIN_LAYER, ICON_MANIFEST, SPRITE_MODULE, SPRITE_TYPES, SPRITE_STEM,
   iconManifest, pluginCss, pluginSheets, readPlugins,
 } from './sheets.ts';
-import { OUTPUT_SHEETS, missingSource, sourceFiles, spriteFilesIn } from './sources.ts';
+import { OUTPUT_SHEETS, fontFilesIn, missingSource, sourceFiles, spriteFilesIn } from './sources.ts';
 import { contentName, glyphFile, spriteModule, spriteSvg } from './sprite.ts';
+import { cutFonts, importedSheets, loadFontTools } from './font-files.ts';
+import type { FontCuts, FontToolRoots } from './font-files.ts';
+import { fontToolRoots } from './host.ts';
+import { FONT_ROLES } from './palette-keys.ts';
 import { autoComponents, namedComponents, reportLines } from './steps.ts';
 import type { Options } from './args.ts';
+import type { CheckedConfig } from './theme-css.ts';
 import type { resolveEnvironment } from './host.ts';
 
 export type PlanOptions = Pick<Options, 'config' | 'paths' | 'out' | 'importHeader'>;
-export type PlanEnvironment = ReturnType<typeof resolveEnvironment>;
+export type PlanEnvironment = Omit<ReturnType<typeof resolveEnvironment>, 'fontTools'> & { fontTools?: FontToolRoots };
 export type ThemeEnvironment = { packageName: string; sheets: PackageSheets; map?: ComponentMap | null };
 export type SheetOutput = { name: string; path: string; content: string; summary: string };
+export type BinaryOutput = { name: string; path: string; content: Uint8Array; summary: string };
+export type FileOutput = SheetOutput | BinaryOutput;
 export type Plan = {
   code: 0 | 1 | 2;
   fatal: string[];
   reports: Report[];
   notes: string[];
   outputs: SheetOutput[];
+  binaries: BinaryOutput[];
   orphans: string[];
 };
 export type SheetState = { path: string; state: 'missing' | 'stale' | 'current' };
 
-export function themeSheets(options: PlanOptions, { packageName, sheets, map }: ThemeEnvironment):
-  { code: 0 | 1 | 2; fatal: string[]; reports: Report[]; notes: string[]; sheets: SheetOutput[]; components: string[] | null } {
+export function themeSheets(options: PlanOptions, { packageName, sheets, map }: ThemeEnvironment, cuts: FontCuts = {}):
+  { code: 0 | 1 | 2; fatal: string[]; reports: Report[]; notes: string[]; sheets: SheetOutput[]; components: string[] | null;
+    config: CheckedConfig | null } {
   const stop = (code: 1 | 2, fatal: string[]) => ({
-    code, fatal, reports: [] as Report[], notes: [] as string[], sheets: [] as SheetOutput[], components: null,
+    code, fatal, reports: [] as Report[], notes: [] as string[], sheets: [] as SheetOutput[], components: null, config: null,
   });
   let config;
   try {
@@ -88,9 +98,9 @@ export function themeSheets(options: PlanOptions, { packageName, sheets, map }: 
   if (completed.defaulted.length) closure.notes.push(defaultedNote(completed.defaulted));
   const reports = [...closure.reports,
     ...reportLines(paletteReports(config, sheets?.catalogue ?? null, completed.plugins, sheets?.levels ?? [], sheets?.washes ?? [])),
-    ...weightReports(config, sheets?.catalogue ?? null, completed.plugins)];
+    ...weightReports(config, sheets?.catalogue ?? null, completed.plugins, cuts)];
   const css = themeCss(config, {
-    packageName, importHeader: options.importHeader, source: basename(options.config), sheets, plugins: completed.plugins,
+    packageName, importHeader: options.importHeader, source: basename(options.config), sheets, plugins: completed.plugins, cuts,
   });
   const out: SheetOutput[] = [{ name: THEME_SHEET, path: join(options.out, THEME_SHEET), content: css, summary: `${css.length} bytes` }];
   const layered = pluginCss(pluginSheets(config, from));
@@ -107,7 +117,31 @@ export function themeSheets(options: PlanOptions, { packageName, sheets, map }: 
     out.push({ name: RUNTIME_DATA, path: join(options.out, RUNTIME_DATA), content: data, summary: `${data.length} bytes` });
   }
   const resolved = map && Array.isArray(config.stylesheet?.components) ? config.stylesheet.components as string[] : null;
-  return { code: 0, fatal: [], reports, notes: closure.notes, sheets: out, components: resolved };
+  return { code: 0, fatal: [], reports, notes: closure.notes, sheets: out, components: resolved, config };
+}
+
+export type FontEnvironment = ThemeEnvironment & { arena?: string | null; fontTools?: FontToolRoots };
+
+export async function fontFiles(options: PlanOptions, env: FontEnvironment, theme: ReturnType<typeof themeSheets>):
+  Promise<{ fatal: string[]; reports: Report[]; cuts: FontCuts; files: BinaryOutput[]; stems: string[] }> {
+  const none = { fatal: [] as string[], reports: [] as Report[], cuts: {} as FontCuts, files: [] as BinaryOutput[], stems: [] as string[] };
+  const config = theme.config;
+  if (!config) return none;
+  const generated = theme.sheets.find((one) => one.name === THEME_SHEET)?.content ?? '';
+  const done = await cutFonts({
+    fonts: config.fonts,
+    roles: Object.keys(FONT_ROLES),
+    from: dirname(resolve(options.config)),
+    css: `${importedSheets(String(generated), env.arena ?? null, env.packageName)}\n${generated}`,
+    tools: () => loadFontTools(env.fontTools ?? fontToolRoots()),
+  });
+  return {
+    fatal: done.fatal,
+    reports: done.reports,
+    cuts: done.cuts,
+    stems: done.stems,
+    files: done.files.map(({ name, content, summary }) => ({ name, path: join(options.out, name), content, summary })),
+  };
 }
 
 export type SpriteEnvironment = { arena: string | null; phosphor: string | null; map?: ComponentMap | null; packageName?: string };
@@ -204,35 +238,42 @@ export function spriteFiles(options: PlanOptions, { arena, phosphor, map = null,
 }
 
 const failed = (code: 1 | 2, fatal: string[], reports: Report[] = []): Plan =>
-  ({ code, fatal, reports, notes: [], outputs: [], orphans: [] });
+  ({ code, fatal, reports, notes: [], outputs: [], binaries: [], orphans: [] });
 
-export function plan(options: PlanOptions, env: PlanEnvironment): Plan {
+export async function plan(options: PlanOptions, env: PlanEnvironment): Promise<Plan> {
   const absent = missingSource(options.paths);
   if (absent !== null) return failed(2, [`${absent} is not there`]);
 
-  const theme = themeSheets(options, env);
+  let theme = themeSheets(options, env);
   if (theme.fatal.length) return failed(theme.code === 2 ? 2 : 1, theme.fatal, theme.reports);
 
+  const fonts = await fontFiles(options, env, theme);
+  if (fonts.fatal.length) return failed(2, fonts.fatal, theme.reports);
+  if (Object.keys(fonts.cuts).length > 0) theme = themeSheets(options, env, fonts.cuts);
+  const themeReports = [...theme.reports, ...fonts.reports];
+
   const icons = spriteFiles(options, env, theme.components);
-  if (icons.fatal.length) return failed(icons.code === 2 ? 2 : 1, icons.fatal, [...theme.reports, ...icons.reports]);
+  if (icons.fatal.length) return failed(icons.code === 2 ? 2 : 1, icons.fatal, [...themeReports, ...icons.reports]);
 
   const outputs = [...theme.sheets, ...icons.files];
-  const carried = new Set<string>(outputs.map((one) => one.name));
-  const orphans = [...OUTPUT_SHEETS, ...spriteFilesIn(options.out)]
+  const carried = new Set<string>([...outputs, ...fonts.files].map((one) => one.name));
+  const orphans = [...OUTPUT_SHEETS, ...spriteFilesIn(options.out), ...fontFilesIn(options.out, fonts.stems)]
     .filter((name) => !carried.has(name) && existsSync(join(options.out, name)));
   return {
     code: 0,
     fatal: [],
-    reports: [...theme.reports, ...icons.reports],
+    reports: [...themeReports, ...icons.reports],
     notes: theme.notes,
     outputs,
+    binaries: fonts.files,
     orphans,
   };
 }
 
-export function sheetStates(outputs: SheetOutput[]): SheetState[] {
+export function sheetStates(outputs: FileOutput[]): SheetState[] {
   return outputs.map(({ path, content }) => {
     if (!existsSync(path)) return { path, state: 'missing' };
-    return { path, state: readFileSync(path, 'utf8') === content ? 'current' : 'stale' };
+    const same = typeof content === 'string' ? readFileSync(path, 'utf8') === content : Buffer.from(content).equals(readFileSync(path));
+    return { path, state: same ? 'current' : 'stale' };
   });
 }

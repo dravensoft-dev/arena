@@ -527,6 +527,33 @@ test('fontFace writes ARENA_FONT_DEFAULTS for a font that names no style, weight
   assert.ok(css.includes(`font-display:${ARENA_FONT_DEFAULTS.display};`));
 });
 
+test('a local src is cut and named by content: one face per cut file, each with the Latin-1 unicode-range', () => {
+  const css = themeCss(config(), { importHeader: false, cuts: {
+    body: { faces: [{ name: 'b-0123456789.woff2', weight: '400 700' }] },
+    mono: { faces: [{ name: 'm-aaaaaaaaaa.woff2', weight: '400' }, { name: 'm-bbbbbbbbbb.woff2', weight: '700' }] },
+  } });
+  assert.ok(css.includes("src:url('./b-0123456789.woff2') format('woff2');"));
+  assert.equal(css.match(/font-family:'Spline Sans Mono';/g)?.length, 2, 'two pins, two faces');
+  assert.ok(css.includes('font-weight:400;') && css.includes('font-weight:700;'));
+  assert.equal(css.match(/unicode-range:U\+0020-007E,U\+00A0-00FF,U\+2013-2014,U\+2018-201A,U\+201C-201E,U\+20AC;/g)?.length, 3);
+  assert.ok(!css.includes('./fonts/b.woff2') && !css.includes('./fonts/m.woff2'), 'the cut replaces the source path');
+});
+
+test('a remote src stays as written, with no unicode-range', () => {
+  const css = themeCss(config(), { importHeader: false, cuts: {} });
+  assert.ok(css.includes("src:url('https://example.com/a.woff2') format('woff2');"));
+  assert.ok(!css.includes('unicode-range'));
+});
+
+test('a weight the cut lost is a weight report naming role, weight and font', () => {
+  const messages = weightReports(config(), null, null,
+    { body: { family: 'Familjen Grotesk', label: './fonts/b.woff2', axis: [400, 700], lost: [300, 900] } });
+  assert.equal(messages.length, 2);
+  assert.ok(messages.every((m) => m.kind === 'weight' && m.message.includes('fonts.body') && m.message.includes('Familjen Grotesk')
+    && m.message.includes('./fonts/b.woff2') && m.message.includes('400-700')));
+  assert.ok(messages[0]?.message.includes('paints 300') && messages[1]?.message.includes('paints 900'));
+});
+
 test('a component the package does not ship is fatal and the message lists what it does ship', () => {
   const [problem] = configProblems(config({ stylesheet: { components: ['buton'] } }), shipped);
   assert.match(problem ?? '', /"buton" is not a sheet this package ships, which are arena-button, arena-side-nav, arena-table/);

@@ -72,6 +72,7 @@ test('the assets are added to what ng-packagr wrote without losing its own entry
   assert.deepEqual(final.exports['.'], emitted.exports['.']);
   assert.deepEqual(final.exports['./arena.css'], { default: './arena.css' });
   assert.deepEqual(final.exports['./css/*'], { default: './css/*' });
+  assert.deepEqual(final.exports['./fonts/*'], { default: './fonts/*' });
   assert.deepEqual(final.bin, CLI_BINS, 'ng-packagr emits no bin, so this is the only place the commands survive');
 });
 

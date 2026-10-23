@@ -9,6 +9,7 @@
  * and requires that one package, as a publish job that assembles only its own does. */
 
 import { readFileSync, existsSync, readdirSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { join, dirname, basename } from 'node:path';
 import { globToRegExp } from '../../utils/text.ts';
 import { relPosix, toPosix } from '../../utils/posix-path.ts';
@@ -283,6 +284,29 @@ export function iconManifestProblems(pkg: { layer: string; name: string }, dir: 
   return [];
 }
 
+export function fontProblems(pkg: { layer: string; name: string }, dir: string, base = root) {
+  const at = join(dir, 'fonts');
+  if (!existsSync(at)) {
+    return [`${pkg.name}: no fonts/ directory, so the example config names fonts the package does not carry and `
+      + 'arena init has none to copy: run bun run build:packages'];
+  }
+  const record = readJson(join(base, 'assets', 'fonts', 'Fonts.generated.json')) as Record<string, { sha256: string }>;
+  const present = readdirSync(at);
+  const problems = [];
+  for (const [file, { sha256 }] of Object.entries(record)) {
+    if (!present.includes(file)) {
+      problems.push(`${pkg.name}: ${file}: recorded in assets/fonts/Fonts.generated.json and not in the package's fonts/`);
+      continue;
+    }
+    const actual = createHash('sha256').update(readFileSync(join(at, file))).digest('hex');
+    if (actual !== sha256) problems.push(`${pkg.name}: ${file}: sha256 ${actual} in the package, recorded ${sha256}`);
+  }
+  for (const file of present.filter((one) => !(one in record))) {
+    problems.push(`${pkg.name}: ${file}: in the package and not recorded in assets/fonts/Fonts.generated.json`);
+  }
+  return problems;
+}
+
 export const CARRIED_BY_PACKAGE = ['arena.tokens.json', BEHAVIOUR];
 
 export function payloadProblems(pkg: { layer: string; name: string }, dir: string) {
@@ -532,6 +556,7 @@ export function collect(base = root, dirOf = distDir, layers = LAYERS) {
     problems.push(...entryPointProblems(pkg, manifest));
     problems.push(...componentMapProblems(pkg, dir));
     problems.push(...iconManifestProblems(pkg, dir));
+    problems.push(...fontProblems(pkg, dir, base));
     problems.push(...componentReachProblems(pkg, dir, declared));
     problems.push(...payloadProblems(pkg, dir));
     problems.push(...styleProblems(pkg, dir).problems);

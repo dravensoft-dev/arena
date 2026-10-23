@@ -8,15 +8,15 @@ import { voice } from './io.ts';
 import type { Io } from './io.ts';
 import { resolveEnvironment } from './host.ts';
 import { plan, sheetStates } from './plan.ts';
-import type { PlanEnvironment, SheetOutput } from './plan.ts';
+import type { FileOutput, PlanEnvironment } from './plan.ts';
 import { systemWatch, watchBuild } from './watch.ts';
 import type { WatchDeps } from './watch.ts';
 
-export type WriteLog = { wrote(sheet: SheetOutput): void; removed(path: string): void };
+export type WriteLog = { wrote(sheet: FileOutput): void; removed(path: string): void };
 
-export function writeOutputs(outputs: SheetOutput[], orphans: string[], out = '', log: WriteLog = { wrote() {}, removed() {} }):
-  { written: SheetOutput[]; removed: string[] } {
-  const written: SheetOutput[] = [];
+export function writeOutputs(outputs: FileOutput[], orphans: string[], out = '', log: WriteLog = { wrote() {}, removed() {} }):
+  { written: FileOutput[]; removed: string[] } {
+  const written: FileOutput[] = [];
   const removed: string[] = [];
   const at = (path: string, change: () => void) => {
     try {
@@ -44,9 +44,9 @@ export function writeOutputs(outputs: SheetOutput[], orphans: string[], out = ''
   return { written, removed };
 }
 
-export function buildOnce(options: Options, env: PlanEnvironment, io: Io): number {
+export async function buildOnce(options: Options, env: PlanEnvironment, io: Io): Promise<number> {
   const say = voice(io, 'build');
-  const p = plan(options, env);
+  const p = await plan(options, env);
   if (p.fatal.length > 0) {
     for (const line of p.fatal) say.err(line);
     return p.code;
@@ -54,7 +54,7 @@ export function buildOnce(options: Options, env: PlanEnvironment, io: Io): numbe
   for (const note of p.notes) say.out(note);
   let result;
   try {
-    result = writeOutputs(p.outputs, p.orphans, options.out, {
+    result = writeOutputs([...p.outputs, ...p.binaries], p.orphans, options.out, {
       wrote: (sheet) => say.out(`wrote ${sheet.path} (${sheet.summary})`),
       removed: (at) => say.out(`removed ${at}, a sheet this config no longer produces`),
     });

@@ -14,12 +14,12 @@ import { CLI_BINS } from '../../lib/arena/package-assembly.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import {
   importedSheets, unknownSymbolProblems, listProblems, closedListProblems, spriteProblems, documented, CONFIG_REFERENCE,
-  palettesProblems, defaultListProblems, runtimeProblems, installedPalette, SOURCES, UNKNOWN, GLYPH, NAV_SYMBOL, GLYPH_SYMBOL, THIRD_PALETTE, CLI, snapshot, treeChanges, exitProblem, binProblems,
+  palettesProblems, defaultListProblems, fontCutProblems, runtimeProblems, installedPalette, SOURCES, UNKNOWN, GLYPH, NAV_SYMBOL, GLYPH_SYMBOL, THIRD_PALETTE, CLI, snapshot, treeChanges, exitProblem, binProblems,
 } from './check-consumer.ts';
 import type { CliRun, Shipped } from './check-consumer.ts';
 import { distDir, unassembled, assembled } from './check-packages.ts';
 
-const ok: CliRun = { status: 0, stdout: '', stderr: '', theme: null, sprites: {}, module: null, retired: false, plugin: null, runtime: null };
+const ok: CliRun = { status: 0, stdout: '', stderr: '', theme: null, sprites: {}, module: null, retired: false, plugin: null, runtime: null, fonts: {} };
 
 const sheetImports = (...names: string[]) => ({
   ...ok,
@@ -398,4 +398,55 @@ test('a missing dist/ stops the gate before it runs anything: a SKIP, which a st
   } finally {
     rmSync(base, { recursive: true, force: true });
   }
+});
+
+const FONT_BASE = (() => {
+  const base = mkdtempSync(join(tmpdir(), 'arena-fontbase-'));
+  const dist = join(base, 'frameworks', 'react', 'dist');
+  mkdirSync(join(dist, 'fonts'), { recursive: true });
+  const fonts: Record<string, { family: string; src: string }> = {};
+  for (const [role, stem] of [['display', 'archivo'], ['body', 'familjen-grotesk'], ['mono', 'spline-sans-mono']] as const) {
+    writeFileSync(join(dist, 'fonts', `${stem}.woff2`), 'x'.repeat(1000));
+    fonts[role] = { family: stem, src: `./fonts/${stem}.woff2` };
+  }
+  writeFileSync(join(dist, 'arena.config.example.json'), JSON.stringify({ fonts }));
+  after(() => rmSync(base, { recursive: true, force: true }));
+  return base;
+})();
+
+const SOURCE_SIZES: Record<string, number> = { archivo: 1000, 'familjen-grotesk': 1000, 'spline-sans-mono': 1000 };
+
+const cuts = (shrink = 0.5, drop: string[] = []): CliRun => {
+  const fonts: Record<string, number> = {};
+  let n = 0;
+  for (const [stem, size] of Object.entries(SOURCE_SIZES)) {
+    if (drop.includes(stem)) continue;
+    fonts[`${stem}-${String(n++).repeat(10).slice(0, 10)}.woff2`] = Math.floor(size * shrink);
+  }
+  return { ...ok, fonts, theme: Object.keys(fonts).map((name) => `src:url('./${name}') format('woff2');`).join('\n') };
+};
+
+test('the default fixture\'s build writes a content-hashed woff2 per font, each smaller than its source, and the theme names them', () => {
+    assert.deepEqual(fontCutProblems('react', cuts(), FONT_BASE), []);
+
+  const none = fontCutProblems('react', { ...ok }, FONT_BASE);
+  assert.equal(none.length, Object.keys(SOURCE_SIZES).length);
+  assert.match(none[0] ?? '', /wrote no .*-<hash>\.woff2/);
+
+  const bigger = fontCutProblems('react', cuts(1.2), FONT_BASE);
+  assert.equal(bigger.length, Object.keys(SOURCE_SIZES).length);
+  assert.match(bigger[0] ?? '', /is not smaller than its source/);
+
+  const stem = Object.keys(SOURCE_SIZES)[0] ?? '';
+  const missing = fontCutProblems('react', cuts(0.5, [stem]), FONT_BASE);
+  assert.equal(missing.length, 1);
+  assert.ok(missing[0]?.includes(stem));
+
+  const whole = fontCutProblems('react', { ...cuts(), theme: `${cuts().theme}\nfont-weight:100 900;` }, FONT_BASE);
+  assert.equal(whole.length, 1);
+  assert.match(whole[0] ?? '', /whole 100-900 axis/);
+
+  const unnamed = fontCutProblems('react', { ...cuts(), theme: "src:url('./fonts/archivo.woff2');" }, FONT_BASE);
+  assert.ok(unnamed.some((one) => /arena\.generated\.css does not name/.test(one)));
+  assert.ok(unnamed.some((one) => /still points at the source/.test(one)));
 });

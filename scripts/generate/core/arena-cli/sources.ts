@@ -44,6 +44,15 @@ export function spriteFilesIn(dir: string) {
   }
 }
 
+export function fontFilesIn(dir: string, stems: string[]) {
+  const mine = stems.map((stem) => new RegExp(`^${stem.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}-[0-9a-f]{10}\\.woff2$`));
+  try {
+    return readdirSync(dir).filter((name) => mine.some((one) => one.test(name))).sort(byCodeUnit);
+  } catch {
+    return [];
+  }
+}
+
 export function readSources(paths: string[]) {
   const sources = [];
   for (const path of paths) {

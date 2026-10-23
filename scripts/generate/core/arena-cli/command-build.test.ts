@@ -184,6 +184,7 @@ test('--watch hands over to watchBuild (6c)', async () => {
     signal: controller.signal,
   });
   const done = run([...flags(root), '--watch'], io, deps);
+  while (!out.some((line) => /watching \d+ location\(s\)/.test(line))) await new Promise((resume) => setImmediate(resume));
   assert.equal(existsSync(join(root, 'src', THEME_SHEET)), true);
   assert.ok(opened.includes(join(root, 'src')));
   assert.ok(out.some((line) => /watching \d+ location\(s\)/.test(line)));

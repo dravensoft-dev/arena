@@ -90,6 +90,7 @@ test('the stylesheet and the example config are reachable by subpath', () => {
   assert.equal(exports['./arena.css'], './arena.css');
   assert.equal(exports['./css/*'], './css/*');
   assert.ok('./arena.config.example.json' in exports);
+  assert.equal(exports['./fonts/*'], './fonts/*', 'the fonts the example config names are reachable by subpath');
 });
 
 test('every layer-root module the package needs is named, and Tokens is among them', () => {

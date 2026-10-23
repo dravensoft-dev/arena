@@ -21,7 +21,7 @@ import {
   collectFiles, reset, write, copy, writeCssChain, componentSheets, copyCli, baseManifest, report,
   CATALOGUE_FILE, tokenCatalogue,
   writeComponentMap, writeIconManifest, keywords,
-  copyBehaviourContracts, PALETTE_ENTRY,
+  copyBehaviourContracts, copyFonts, PALETTE_ENTRY,
 } from '../../lib/arena/package-assembly.ts';
 import { PEERS } from '../../lib/arena/support-matrix.ts';
 import { splitCompiledSheet } from '../../lib/tailwind/sheet-split.ts';
@@ -175,6 +175,7 @@ export function manifest(root = repoRoot) {
       './css/*': './css/*',
       './css/components/*': './css/components/*',
       './css/vocabulary/*': './css/vocabulary/*',
+      './fonts/*': './fonts/*',
       './arena.config.example.json': './arena.config.example.json',
       './arena.tokens.json': './arena.tokens.json',
       './arena.vocabulary.json': './arena.vocabulary.json',
@@ -212,6 +213,7 @@ export async function buildReactPackage(root = repoRoot) {
   written.push(write(dir, CATALOGUE_FILE, `${JSON.stringify(tokenCatalogue(root), null, 2)}\n`));
   written.push(copy(join(layer, 'PACKAGE.md'), dir, 'README.md'));
   written.push(...copyBehaviourContracts(dir, root));
+  written.push(...copyFonts(dir, root));
   written.push(copy(join(root, 'LICENSE'), dir, 'LICENSE'));
   written.push(write(dir, 'package.json', `${JSON.stringify(manifest(root), null, 2)}\n`));
 

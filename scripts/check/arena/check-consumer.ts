@@ -11,7 +11,7 @@
 import { spawnSync } from 'node:child_process';
 import {
   mkdtempSync, mkdirSync, writeFileSync, readFileSync, copyFileSync, existsSync, readdirSync, rmSync,
-  symlinkSync,
+  statSync, symlinkSync, cpSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -136,7 +136,7 @@ export function refuseUnassembled(base = root, env = arenaEnv()) {
 export type CliRun = {
   status: number | null; stdout: string; stderr: string;
   theme: string | null; sprites: Record<string, string>; module: string | null; retired: boolean;
-  plugin: string | null; runtime: string | null;
+  plugin: string | null; runtime: string | null; fonts: Record<string, number>;
 };
 
 export function fixture(
@@ -145,6 +145,8 @@ export function fixture(
   const dir = mkdtempSync(join(tmpdir(), `arena-consumer-${layer}-`));
   const example = readJson(join(distDir(layer, base), 'arena.config.example.json'));
   writeFileSync(join(dir, 'arena.config.json'), JSON.stringify(stylesheet === null ? example : { ...example, stylesheet }, null, 2));
+  const fonts = join(distDir(layer, base), 'fonts');
+  if (existsSync(fonts)) cpSync(fonts, join(dir, 'fonts'), { recursive: true });
   for (const [rel, body] of Object.entries(files) as [string, string][]) {
     mkdirSync(join(dir, rel, '..'), { recursive: true });
     writeFileSync(join(dir, rel), body);
@@ -479,10 +481,19 @@ export function runCli(
     retired: existsSync(join(dir, 'out', RETIRED_ICONS_SHEET)),
     plugin: read(PLUGIN_SHEET),
     runtime: read(RUNTIME_DATA),
+    fonts: cutFontsIn(join(dir, 'out')),
   };
 }
 
-const BARE: CliRun = { status: null, stdout: '', stderr: '', theme: null, sprites: {}, module: null, retired: false, plugin: null, runtime: null };
+export const CUT_FONT = /^[\w-]+-[0-9a-f]{10}\.woff2$/;
+
+export function cutFontsIn(out: string): Record<string, number> {
+  if (!existsSync(out)) return {};
+  return Object.fromEntries(readdirSync(out).filter((name) => CUT_FONT.test(name)).sort()
+    .map((name) => [name, statSync(join(out, name)).size]));
+}
+
+const BARE: CliRun = { status: null, stdout: '', stderr: '', theme: null, sprites: {}, module: null, retired: false, plugin: null, runtime: null, fonts: {} };
 
 export function snapshot(dir: string) {
   const seen = new Map<string, string>();
@@ -558,9 +569,10 @@ export function subcommandProblems(layer: string, base = root, dirs: string[] = 
   dirs.push(plugged);
   run(plugged, ['build']);
   writeFileSync(join(plugged, 'out', 'keep.txt'), 'not a sheet\n');
-  const sheets = [THEME_SHEET, PLUGIN_SHEET, SPRITE_MODULE, SPRITE_TYPES, ...spriteFilesIn(join(plugged, 'out'))];
+  const cutFonts = Object.keys(cutFontsIn(join(plugged, 'out')));
+  const sheets = [THEME_SHEET, PLUGIN_SHEET, SPRITE_MODULE, SPRITE_TYPES, ...spriteFilesIn(join(plugged, 'out')), ...cutFonts];
   const absent = sheets.filter((name) => !existsSync(join(plugged, 'out', name)));
-  if (sheets.length !== 5) problems.push(`${layer}: the build the clean case starts from wrote ${sheets.length - 4} sprite file(s) where it promises one`);
+  if (sheets.length - cutFonts.length !== 5) problems.push(`${layer}: the build the clean case starts from wrote ${sheets.length - cutFonts.length - 4} sprite file(s) where it promises one`);
   if (absent.length > 0) problems.push(`${layer}: the build the clean case starts from wrote no ${absent.join(', ')}`);
   const beforeClean = snapshot(plugged);
   problems.push(...exitProblem(layer, 'arena clean', run(plugged, ['clean']), 0));
@@ -661,6 +673,7 @@ export function mergeProblems(layer: string, result: CliRun, base = root) {
   }
   if (!result.theme) problems.push(`${layer}: one invocation wrote no ${THEME_SHEET}`);
   problems.push(...spriteProblems(layer, result));
+  problems.push(...fontCutProblems(layer, result, base));
   if (bins.length === 0) problems.push(`${layer}: bin/ ships no command`);
   return problems;
 }
@@ -697,6 +710,35 @@ export function spriteProblems(layer: string, run: CliRun) {
     if (named !== name) {
       problems.push(`${layer}: the module names ${named || 'no file'} and the sprite written is ${name}, so the app would fetch a file that is not there`);
     }
+  }
+  return problems;
+}
+
+export function fontCutProblems(layer: string, run: CliRun, base = root) {
+  const dist = distDir(layer, base);
+  const example = readJson(join(dist, 'arena.config.example.json')) as { fonts: Record<string, { src: string }> };
+  const problems = [];
+  for (const { src } of Object.values(example.fonts)) {
+    const stem = (src.split('/').pop() ?? '').replace(/\.woff2$/, '');
+    const source = statSync(join(dist, src.replace(/^\.\//, ''))).size;
+    const cut = Object.entries(run.fonts).filter(([name]) => name.startsWith(`${stem}-`) && CUT_FONT.test(name));
+    if (cut.length === 0) {
+      problems.push(`${layer}: one invocation wrote no ${stem}-<hash>.woff2, so the font the example config names is served uncut or not at all`);
+    }
+    for (const [name, size] of cut) {
+      if (size >= source) {
+        problems.push(`${layer}: ${name} is not smaller than its source (${size} bytes against ${source}), so the cut to Latin-1 and the painted weights saved nothing`);
+      }
+      if (!(run.theme ?? '').includes(`url('./${name}')`)) {
+        problems.push(`${layer}: ${THEME_SHEET} does not name ${name}, so the page would fetch a font that is not the one the build wrote`);
+      }
+    }
+  }
+  if (/font-weight:100 900;/.test(run.theme ?? '')) {
+    problems.push(`${layer}: ${THEME_SHEET} declares a face over the whole 100-900 axis, so a font nobody paints was not cut to the weights the config declares`);
+  }
+  if (/url\('\.\/fonts\//.test(run.theme ?? '')) {
+    problems.push(`${layer}: ${THEME_SHEET} still points at the source under ./fonts, so the build served the font it was meant to cut`);
   }
   return problems;
 }

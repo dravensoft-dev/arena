@@ -8,7 +8,7 @@
  * kind with rules is also held one rule at a time, as kind:rule, so a project can hold the rules
  * it has read and leave the ones it has not. */
 
-export const STRICT_KINDS = ['components', 'contrast', 'ramp', 'weight', 'glyph', 'markers',
+export const STRICT_KINDS = ['components', 'contrast', 'ramp', 'weight', 'font', 'glyph', 'markers',
   'audit', 'environment', 'restated', 'heat'] as const;
 
 export const UNHOLDABLE_KINDS = ['wash'] as const;

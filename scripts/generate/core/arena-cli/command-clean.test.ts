@@ -69,3 +69,14 @@ test('a sheet it cannot delete exits 2 naming it, after removing the ones it can
   assert.ok(err[0]!.startsWith(`arena clean: cannot delete ${join(dir, blocked!)}: `), err.join('\n'));
   for (const name of rest) assert.ok(out.includes(`arena clean: removed ${join(dir, name)}`));
 });
+
+test('removes the cut fonts whose stem the config names, and no other woff2', () => {
+  const dir = root();
+  writeFileSync(join(dir, 'arena.config.json'), JSON.stringify({ fonts: {
+    display: { family: 'A', src: './fonts/archivo.woff2' }, body: { family: 'B', src: 'https://example.com/b.woff2' },
+  } }));
+  for (const name of ['archivo-0123456789.woff2', 'other-0123456789.woff2', 'b-0123456789.woff2']) writeFileSync(join(dir, name), 'x');
+  const { io } = captureIo(dir);
+  assert.equal(run(['--out', '.'], io), 0);
+  assert.deepEqual(readdirSync(dir).sort(), ['arena.config.json', 'b-0123456789.woff2', 'other-0123456789.woff2']);
+});

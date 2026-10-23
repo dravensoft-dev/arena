@@ -7,6 +7,7 @@ import type { Options } from './args.ts';
 import { voice } from './io.ts';
 import type { Io } from './io.ts';
 import { toPosix } from './posix.ts';
+import { configFonts } from './font-files.ts';
 import { OUTPUT_SHEETS, SKIPPED_DIRECTORIES, SOURCE_EXTENSIONS, pluginDirs } from './sources.ts';
 
 export const SETTLE_MS = 100;
@@ -44,6 +45,7 @@ export function watchTargets(options: Pick<Options, 'config' | 'paths'>): WatchT
     else if (statSync(path).isDirectory()) add({ dir: resolve(path), recursive: true, only: null });
     else add({ dir: dirname(resolve(path)), recursive: false, only: basename(path) });
   }
+  for (const font of configFonts(config)) add(awaited(resolve(dirname(config), font.split('?')[0] as string)));
   for (const dir of pluginDirs(options)) add(existsSync(dir) ? { dir, recursive: true, only: null } : awaited(dir));
   return [...found.values()];
 }
@@ -74,7 +76,20 @@ export function systemWatch(): WatchDeps {
   };
 }
 
-export function watchBuild(options: Options, build: () => number, io: Io, deps: WatchDeps): Promise<number> {
+function guarded(build: () => number | Promise<number>, failed: (error: Error) => void, then: () => void) {
+  let result: number | Promise<number>;
+  try {
+    result = build();
+  } catch (error) {
+    failed(error as Error);
+    then();
+    return;
+  }
+  if (typeof result === 'number') { then(); return; }
+  result.then(then, (error) => { failed(error as Error); then(); });
+}
+
+export function watchBuild(options: Options, build: () => number | Promise<number>, io: Io, deps: WatchDeps): Promise<number> {
   const say = voice(io, 'build');
   const open = new Map<string, Watcher>();
   const stale = new Set<string>();
@@ -111,22 +126,13 @@ export function watchBuild(options: Options, build: () => number, io: Io, deps: 
   function rebuild() {
     pending = null;
     if (stopped) return;
-    try {
-      build();
-    } catch (error) {
-      say.err(`rebuild failed: ${(error as Error).message}`);
-    }
-    say.out('still watching');
-    reconcile();
+    guarded(build, (error) => say.err(`rebuild failed: ${error.message}`), () => {
+      if (stopped) return;
+      say.out('still watching');
+      reconcile();
+    });
   }
 
-  try {
-    build();
-  } catch (error) {
-    say.err(`build failed: ${(error as Error).message}`);
-  }
-  reconcile();
-  say.out(`watching ${open.size} location(s); Ctrl-C stops`);
   return new Promise((done) => {
     const stop = () => {
       stopped = true;
@@ -136,7 +142,13 @@ export function watchBuild(options: Options, build: () => number, io: Io, deps: 
       open.clear();
       done(0);
     };
-    if (deps.signal.aborted) stop();
-    else deps.signal.addEventListener('abort', stop, { once: true });
+    guarded(build, (error) => say.err(`build failed: ${error.message}`), () => {
+      if (!stopped) {
+        reconcile();
+        say.out(`watching ${open.size} location(s); Ctrl-C stops`);
+      }
+      if (deps.signal.aborted) stop();
+      else deps.signal.addEventListener('abort', stop, { once: true });
+    });
   });
 }

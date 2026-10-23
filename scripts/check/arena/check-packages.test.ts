@@ -8,6 +8,7 @@
 import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -15,7 +16,7 @@ import { pathToFileURL } from 'node:url';
 import { iconManifest } from '../../lib/arena/icon-manifest.ts';
 import {
   GENERATED_PALETTE, PACKAGES, collect, unassembled, layersOf, LAYERS, componentMapProblems, componentReachProblems, bundledCssProblems, declaredComponents, distDir, exportProblems, globMatches, manifestProblems, paletteEquivalenceProblems, stripAtStatements, styleProblems,
-  payloadProblems, CARRIED_BY_PACKAGE, iconManifestProblems, entryPointProblems, COMPILED_BY_CONSUMER, cssListProblems, CSS_HOMES, directiveProblems, themeSheetProblems, themeCompileProblems, unlayeredTokenProblems
+  payloadProblems, CARRIED_BY_PACKAGE, iconManifestProblems, fontProblems, entryPointProblems, COMPILED_BY_CONSUMER, cssListProblems, CSS_HOMES, directiveProblems, themeSheetProblems, themeCompileProblems, unlayeredTokenProblems
 } from './check-packages.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { budgetFor, deadline, type Deadline } from '../../lib/arena/deadline.ts';
@@ -642,4 +643,37 @@ test('a sheet only the other layer\'s section names does not count, and one nami
   assert.doesNotMatch(cssListProblems(pkg, dir, text('react')).join('\n'), /arena-cdk/);
   rmSync(dir, { recursive: true, force: true });
   rmSync(base, { recursive: true, force: true });
+});
+
+function fontsTree(files: Record<string, string>, record: Record<string, { sha256: string }>) {
+  const base = track(mkdtempSync(join(tmpdir(), 'arena-fontbase-')));
+  mkdirSync(join(base, 'assets', 'fonts'), { recursive: true });
+  writeFileSync(join(base, 'assets', 'fonts', 'Fonts.generated.json'), JSON.stringify(record));
+  const dir = track(mkdtempSync(join(tmpdir(), 'arena-pkg-')));
+  mkdirSync(join(dir, 'fonts'));
+  for (const [file, body] of Object.entries(files)) writeFileSync(join(dir, 'fonts', file), body);
+  return { base, dir };
+}
+
+const sha = (text: string) => createHash('sha256').update(text).digest('hex');
+
+test('a package carrying every recorded font and licence, byte for byte, has no font problem', () => {
+  const { base, dir } = fontsTree({ 'a.woff2': 'one', 'a.OFL.txt': 'two' }, { 'a.woff2': { sha256: sha('one') }, 'a.OFL.txt': { sha256: sha('two') } });
+  assert.deepEqual(fontProblems(PKG, dir, base), []);
+});
+
+test('a package missing a font, carrying a changed one or one the record does not name fails, naming the file', () => {
+  const record = { 'a.woff2': { sha256: sha('one') }, 'a.OFL.txt': { sha256: sha('two') } };
+  const missing = fontsTree({ 'a.woff2': 'one' }, record);
+  assert.match(fontProblems(PKG, missing.dir, missing.base).join('\n'), /a\.OFL\.txt: recorded in assets\/fonts\/Fonts\.generated\.json and not in the package/);
+  const changed = fontsTree({ 'a.woff2': 'other', 'a.OFL.txt': 'two' }, record);
+  assert.match(fontProblems(PKG, changed.dir, changed.base).join('\n'), /a\.woff2: sha256 .* in the package, recorded /);
+  const extra = fontsTree({ 'a.woff2': 'one', 'a.OFL.txt': 'two', 'b.woff2': 'x' }, record);
+  assert.match(fontProblems(PKG, extra.dir, extra.base).join('\n'), /b\.woff2: in the package and not recorded/);
+});
+
+test('a package with no fonts directory says so once, and the real packages carry the fonts they assemble', () => {
+  const bare = track(mkdtempSync(join(tmpdir(), 'arena-pkg-')));
+  assert.equal(fontProblems(PKG, bare, root).length, 1);
+  assert.match(fontProblems(PKG, bare, root)[0] ?? '', /no fonts\/ directory/);
 });

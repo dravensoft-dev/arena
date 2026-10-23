@@ -40,23 +40,23 @@ function tree(root: string): string[] {
     .map((name) => (statSync(join(root, name)).isFile() ? `${name}=${readFileSync(join(root, name), 'utf8')}` : name));
 }
 
-function check(root: string, argv: string[] = [], extra: Record<string, unknown> = {}) {
+async function check(root: string, argv: string[] = [], extra: Record<string, unknown> = {}) {
   const { core } = phosphor();
   const captured = captureIo(root, { arena: null, map: null, sheets: null, vocabulary: null, phosphor: core, ...extra });
-  const code = run(argv, captured.io);
+  const code = await run(argv, captured.io);
   return { code, out: captured.out, err: captured.err };
 }
 
-test('check writes nothing: the tree is byte-identical before and after', () => {
+test('check writes nothing: the tree is byte-identical before and after', async () => {
   const root = setup({ 'app.html': GLYPHS }, DIM);
   const before = tree(root);
-  check(root, ['--strict']);
+  await check(root, ['--strict']);
   assert.deepEqual(tree(root), before);
 });
 
-test('check prints each report with its kind, markers included', () => {
+test('check prints each report with its kind, markers included', async () => {
   const root = setup({ 'app.html': GLYPHS, 'dialog.ts': MARKED.replace('[ArenaDialog]', '[]') }, DIM);
-  const result = check(root, [], { map: MAP });
+  const result = await check(root, [], { map: MAP });
   const said = result.err.join('\n');
   assert.match(said, /\[contrast\] /);
   assert.ok(result.err.includes('arena check: [glyph] bold: ph-nope is not an icon Phosphor draws at that weight'), said);
@@ -64,46 +64,46 @@ test('check prints each report with its kind, markers included', () => {
   assert.match(result.out.join('\n'), /\d+ report\(s\)/);
 });
 
-test('a report without --strict exits 0', () => {
+test('a report without --strict exits 0', async () => {
   const root = setup({ 'app.html': GLYPHS }, DIM);
-  assert.equal(check(root).code, 0);
+  assert.equal((await check(root)).code, 0);
 });
 
-test('--strict holds a check kind and exits 1 with heldMessage', () => {
+test('--strict holds a check kind and exits 1 with heldMessage', async () => {
   const root = setup({ 'app.html': GLYPHS }, DIM);
-  const result = check(root, ['--strict']);
+  const result = await check(root, ['--strict']);
   assert.equal(result.code, 1);
   assert.match(result.err.join('\n'),
-    /--strict holds components, contrast, ramp, weight, glyph, markers, heat, and this run reports \d+ of them: contrast, glyph/);
+    /--strict holds components, contrast, ramp, weight, font, glyph, markers, heat, and this run reports \d+ of them: contrast, font, glyph/);
 });
 
-test('--strict=components does not hold a glyph report', () => {
+test('--strict=components does not hold a glyph report', async () => {
   const root = setup({ 'app.html': GLYPHS });
-  const result = check(root, ['--strict=components']);
+  const result = await check(root, ['--strict=components']);
   assert.match(result.err.join('\n'), /\[glyph\]/);
   assert.equal(result.code, 0);
 });
 
-test('a wash report is printed and never held', () => {
+test('a wash report is printed and never held', async () => {
   const root = setup({ 'app.html': '<i class="ph-bold ph-bell"></i>' });
-  const result = check(root, ['--strict=components,contrast,glyph,markers,ramp,weight'], { sheets: WASHED });
+  const result = await check(root, ['--strict=components,contrast,glyph,markers,ramp,weight'], { sheets: WASHED });
   assert.match(result.err.join('\n'), /\[wash\] /);
   assert.equal(result.code, 1);
   assert.doesNotMatch(result.err.join('\n'), /this run reports.*wash/);
 });
 
-test('a fatal config exits with the plan\'s code', () => {
+test('a fatal config exits with the plan\'s code', async () => {
   const missing = setup({ 'app.html': GLYPHS }, null);
-  const first = check(missing);
+  const first = await check(missing);
   assert.equal(first.code, 2);
   assert.match(first.err.join('\n'), /cannot read/);
   const invalid = setup({ 'app.html': GLYPHS }, { palettes: [] });
-  assert.equal(check(invalid).code, 1);
+  assert.equal((await check(invalid)).code, 1);
 });
 
-test('--strict=audit exits 2 naming arena audit', () => {
+test('--strict=audit exits 2 naming arena audit', async () => {
   const root = setup({ 'app.html': GLYPHS });
-  const result = check(root, ['--strict=audit']);
+  const result = await check(root, ['--strict=audit']);
   assert.equal(result.code, 2);
   assert.match(result.err.join('\n'), /arena audit/);
 });
@@ -114,31 +114,31 @@ const unpinned = (ink: string) => {
 };
 const LOW = unpinned('#6a6464');
 
-test('a low-contrast ink prints a heat report for each cramped pair of steps', () => {
+test('a low-contrast ink prints a heat report for each cramped pair of steps', async () => {
   const root = setup({ 'app.html': '<i class="ph-bold ph-bell"></i>' }, LOW);
-  const heat = check(root).err.filter((line) => line.startsWith('arena check: [heat] '));
+  const heat = (await check(root)).err.filter((line) => line.startsWith('arena check: [heat] '));
   assert.ok(heat.length > 0, 'a dim ink on a dark surface leaves the derived ladder cramped');
   assert.match(heat[0]!, /\[heat\] dark: heat, steps 1 and 2: lightness gap 0\.\d{3}, under the 0\.06 a reader needs/);
 });
 
-test('a palette with a readable ink and no heat step pinned prints no heat report', () => {
+test('a palette with a readable ink and no heat step pinned prints no heat report', async () => {
   const root = setup({ 'app.html': '<i class="ph-bold ph-bell"></i>' }, unpinned('#f3ede5'));
-  assert.doesNotMatch(check(root).err.join('\n'), /\[heat\]/);
+  assert.doesNotMatch((await check(root)).err.join('\n'), /\[heat\]/);
 });
 
-test('a palette that pins every heat step is not read for heat', () => {
+test('a palette that pins every heat step is not read for heat', async () => {
   const pinned = { ...LOW, palettes: [{ ...LOW.palettes[0]!, colors: { ...LOW.palettes[0]!.colors,
     'heat-1': '#101010', 'heat-2': '#111111', 'heat-3': '#121212', 'heat-4': '#131313', 'heat-5': '#141414' } }] };
   const root = setup({ 'app.html': '<i class="ph-bold ph-bell"></i>' }, pinned);
-  assert.doesNotMatch(check(root).err.join('\n'), /\[heat\]/);
+  assert.doesNotMatch((await check(root)).err.join('\n'), /\[heat\]/);
 });
 
-test('--strict and --strict=heat hold the heat report, and the list arena init writes does not', () => {
+test('--strict and --strict=heat hold the heat report, and the list arena init writes does not', async () => {
   const root = setup({ 'app.html': '<i class="ph-bold ph-bell"></i>' }, LOW);
-  assert.equal(check(root, ['--strict']).code, 1);
-  const named = check(root, ['--strict=heat']);
+  assert.equal((await check(root, ['--strict'])).code, 1);
+  const named = await check(root, ['--strict=heat']);
   assert.equal(named.code, 1);
   assert.match(named.err.join('\n'), /--strict holds heat, and this run reports \d+ of them: heat/);
   const initCheck = new Map(wiredScripts([])).get('arena:check')!.split(' ').slice(2);
-  assert.equal(check(root, initCheck).code, 0);
+  assert.equal((await check(root, initCheck)).code, 0);
 });

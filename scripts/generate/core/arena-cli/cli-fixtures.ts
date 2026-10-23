@@ -119,7 +119,10 @@ export function hostRoot(name: string, version: string, files: Record<string, st
   const root = track(mkdtempSync(join(tmpdir(), 'arena-host-root-')));
   writeFileSync(join(root, 'package.json'), JSON.stringify({ name, version }));
   writeFileSync(join(root, 'arena.config.example.json'), JSON.stringify({ palettes: [] }));
-  for (const [file, content] of Object.entries(files)) writeFileSync(join(root, file), content);
+  for (const [file, content] of Object.entries(files)) {
+    mkdirSync(dirname(join(root, file)), { recursive: true });
+    writeFileSync(join(root, file), content);
+  }
   return root;
 }
 

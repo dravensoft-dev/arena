@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { hostManifest, hostPackage, hostPackageName, packageSheets, phosphorRoot, resolveEnvironment } from './host.ts';
+import { hostManifest, hostPackage, hostPackageName, fontToolRoots, packageSheets, phosphorRoot, resolveEnvironment } from './host.ts';
 import { loadVocabulary, VOCABULARY_INDEX } from './audit.ts';
 import { hostRoot, phosphor, removeFixtures } from './cli-fixtures.ts';
 
@@ -128,6 +128,7 @@ test('an override a caller hands in wins over what the install would answer, and
   const none = resolveEnvironment({ arena: null, phosphor: null });
   assert.deepEqual(none, {
     arena: null, packageName: '@dravensoft/arena-react', sheets: null, map: null, vocabulary: null, phosphor: null,
+    fontTools: fontToolRoots(),
   });
   const named = resolveEnvironment({ arena: null, phosphor: '/p', packageName: '@dravensoft/arena-angular' });
   assert.equal(named.packageName, '@dravensoft/arena-angular');

@@ -1,13 +1,14 @@
-/* Downloads the three variable webfonts Arena self-hosts and writes the @font-face sheet
- * plus the record that holds each binary to its hash. A Face is one of them: the family,
- * the weight range the variable binary covers, and the file under assets/fonts/. */
+/* Downloads the three variable webfonts Arena self-hosts, with each family's OFL text, and writes
+ * the @font-face sheet plus the record that holds each binary and licence to its hash. A Face is
+ * one of them: the family, the weight range the variable binary covers, and the file under
+ * assets/fonts/. Both layer packages carry the files as fonts/, so the licence travels with them. */
 
 import { writeFileSync, mkdirSync, readFileSync, readdirSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { join } from 'node:path';
 import { readJson } from '../../utils/read-file.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
-import { fontWeights, googleFontsUrl } from '../../lib/core/arena-config.ts';
+import { FONT_RECORD, fontWeights, googleFontsUrl } from '../../lib/core/arena-config.ts';
 import { childEntries } from '../../lib/core/dtcg-shapes.ts';
 import { byKey } from '../../utils/compare.ts';
 
@@ -50,10 +51,21 @@ function latinFaces(cssText: string) {
   return faces;
 }
 
+export const licenceUrl = (family: string) =>
+  `https://raw.githubusercontent.com/google/fonts/main/ofl/${family.toLowerCase().replace(/\s+/g, '')}/OFL.txt`;
+
+export const licenceFile = (file: string) => file.replace(/\.woff2$/, '.OFL.txt');
+
 async function download(url: string) {
   const res = await fetch(url, { headers: { 'User-Agent': UA } });
   if (!res.ok) throw new Error(`binary fetch failed: ${url} ${res.status}`);
   return Buffer.from(await res.arrayBuffer());
+}
+
+async function text(url: string) {
+  const res = await fetch(url, { headers: { 'User-Agent': UA } });
+  if (!res.ok) throw new Error(`licence fetch failed: ${url} ${res.status}`);
+  return res.text();
 }
 
 export function fontsCss(faces: Face[]) {
@@ -76,7 +88,7 @@ export function fontsCss(faces: Face[]) {
   return `${header}\n${rules.join('\n\n')}\n`;
 }
 
-export const FONTS = 'assets/fonts/Fonts.generated.json';
+export const FONTS = FONT_RECORD;
 
 export function faceRecord(faces: Face[], root: string) {
   const out: Record<string, unknown> = {};
@@ -86,6 +98,10 @@ export function faceRecord(faces: Face[], root: string) {
       weights: weight,
       sha256: createHash('sha256').update(readFileSync(join(root, 'assets', 'fonts', file))).digest('hex'),
     };
+    out[licenceFile(file)] = {
+      family,
+      sha256: createHash('sha256').update(readFileSync(join(root, 'assets', 'fonts', licenceFile(file)))).digest('hex'),
+    };
   }
   return out;
 }
@@ -93,7 +109,7 @@ export function faceRecord(faces: Face[], root: string) {
 export function recordProblems(record: Record<string, unknown>, present: string[],
   hashOf: (file: string) => string) {
   const problems = [];
-  const recorded = Object.entries(record) as [string, { sha256: string; weights: [number, number] }][];
+  const recorded = Object.entries(record) as [string, { sha256: string; weights?: [number, number] }][];
   for (const [file, entry] of recorded) {
     if (!present.includes(file)) {
       problems.push(`${file}: recorded in ${FONTS} and not present in assets/fonts/ -- a clone behind a firewall cannot re-download it, so a missing binary is a broken checkout rather than a rebuildable one`);
@@ -101,6 +117,7 @@ export function recordProblems(record: Record<string, unknown>, present: string[
     }
     const actual = hashOf(file);
     if (actual !== entry.sha256) problems.push(`${file}: sha256 ${actual}, recorded ${entry.sha256} -- the binary on disk is not the one this repository shipped`);
+    if (entry.weights === undefined) continue;
     const [min, max] = entry.weights;
     if (!(Number.isInteger(min) && Number.isInteger(max) && min < max)) {
       problems.push(`${file}: records the weight range [${entry.weights}] -- a variable face needs a real min and max, and the CSS declares whatever is here`);
@@ -154,6 +171,7 @@ async function main() {
     const [face] = googleFaces;
     if (!face) throw new Error(`fetch-fonts: Google returned no @font-face for ${file}`);
     writeFileSync(join(fontsDir, file), await download(face.src));
+    writeFileSync(join(fontsDir, licenceFile(file)), await text(licenceUrl(fam.css)));
     const served = googleFaces.map((f) => Number(f.weight));
     faces.push({ family: fam.css, weight: weightRange(served), file });
     console.log(`${fam.css}: one variable file covering ${served.length} served weight(s)`);

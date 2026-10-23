@@ -21,6 +21,7 @@ import { serialize } from './serialize-token.ts';
 import { HEAT_MIN_DL, errorFill, heatCramped, heatLadder, toOklab } from './oklab.ts';
 import { axisReports, derivedLevels, emphasisReports, levelReports, onInkReports, paletteKey, raisedReports, washReports } from './levels.ts';
 import type { Level, Wash } from './levels.ts';
+import { unicodeRange } from './font-cut.ts';
 import { report } from './report.ts';
 import type { Report } from './report.ts';
 import type { SerializableToken } from './serialize-token.ts';
@@ -644,12 +645,22 @@ export function weightsCovered(font: ArenaFont): [number, number][] | null {
   return typeof font.src === 'string' ? googleWeights(font.src) : null;
 }
 
+export type CutLoss = { family: string; label: string; axis: [number, number] | null; lost: number[] };
+
 export function weightReports(
   config: CheckedConfig, catalogue: TokenCatalogue | null = null, plugins: ResolvedPlugins = null,
+  cuts: Record<string, CutLoss> = {},
 ) {
   const root = (plugins ?? [])[0] ?? null;
   const out: Report[] = [];
   const seen = new Set<string>();
+  for (const [role, cut] of Object.entries(cuts)) {
+    const reach = cut.axis ? `${cut.axis[0]}-${cut.axis[1]}` : 'its one weight';
+    for (const weight of cut.lost) {
+      out.push(report('weight', `fonts.${role} paints ${weight} and ${cut.family} (${cut.label}) does not reach it, `
+        + `its weights run ${reach}; the cut keeps what the file has, and the browser draws ${weight} from the nearest one`));
+    }
+  }
   for (const polarity of new Set(config.palettes.map((p) => p.polarity))) {
     const resolved = root
       ? resolvedPlugin(root, catalogue, polarity)
@@ -677,20 +688,27 @@ export function isStylesheet(src: string) {
   return path.endsWith('.css') || /^https?:\/\/fonts\.googleapis\.com\//.test(src);
 }
 
-function fontFace(font: CheckedFont) {
+export type FontFaces = { faces: { name: string; weight: string }[] };
+
+function fontFace(font: CheckedFont, cut?: FontFaces) {
   const src = font.src;
   const bare = src.split('?')[0] ?? '';
   const extension = Object.keys(SOURCE_FORMATS).find((e) => bare.endsWith(e));
   const format = extension ? ` format('${(SOURCE_FORMATS as Record<string, string>)[extension]}')` : '';
-  return [
+  const face = (url: string, weight: string, extra: string[], withFormat: string) => [
     '@font-face{',
     `  font-family:'${font.family}';`,
     `  font-style:${font.style ?? ARENA_FONT_DEFAULTS.style};`,
-    `  font-weight:${font.weight ?? ARENA_FONT_DEFAULTS.weight};`,
+    `  font-weight:${weight};`,
     `  font-display:${font.display ?? ARENA_FONT_DEFAULTS.display};`,
-    `  src:url('${font.src}')${format};`,
+    `  src:url('${url}')${withFormat};`,
+    ...extra,
     '}',
   ].join('\n');
+  if (!cut) return face(font.src, font.weight ?? ARENA_FONT_DEFAULTS.weight, [], format);
+  return cut.faces
+    .map(({ name, weight }) => face(`./${name}`, weight, [`  unicode-range:${unicodeRange()};`], " format('woff2')"))
+    .join('\n');
 }
 
 function block(selector: string, declarations: string[]) {
@@ -795,12 +813,13 @@ export type ThemeOptions = {
   source?: string;
   sheets?: PackageSheets;
   plugins?: ResolvedPlugins;
+  cuts?: Record<string, FontFaces>;
 };
 
 export function themeCss(config: CheckedConfig, options: ThemeOptions = {}) {
   const {
     packageName = '@dravensoft/arena-react', importHeader = true,
-    source = 'arena.config.json', sheets = null, plugins = null,
+    source = 'arena.config.json', sheets = null, plugins = null, cuts = {},
   } = options;
   const fonts = config.fonts ?? {};
   const fontFor = (role: string) => {
@@ -828,7 +847,7 @@ export function themeCss(config: CheckedConfig, options: ThemeOptions = {}) {
   const fontSheets = [...new Set(roles.map((r) => fontFor(r).src).filter(isStylesheet))];
   for (const sheet of fontSheets) parts.push(`@import url('${sheet}');`);
   for (const role of roles) {
-    if (!isStylesheet(fontFor(role).src)) parts.push(fontFace(fontFor(role)));
+    if (!isStylesheet(fontFor(role).src)) parts.push(fontFace(fontFor(role), cuts[role]));
   }
 
   const catalogue = sheets?.catalogue ?? null;
