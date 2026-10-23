@@ -11,7 +11,7 @@
 <link rel="stylesheet" href="../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor, glyph } from '../../Specimen.js';
 
 const button = await (await fetch('../../components/forms/arena-button/ArenaButton.manifest.json')).json();
 const iconButton = await (await fetch('../../components/forms/arena-icon-button/ArenaIconButton.manifest.json')).json();
@@ -42,7 +42,7 @@ function mark(extra = '') {
 function toggle(option) {
   const c = arenaClassesFor(switchManifest, { state: 'true' });
   const d = arenaSlotDataFor(switchManifest, { state: 'true' });
-  const knob = el('span', { class: c.knob, ...d.knob }, el('i', { class: `${c.icon} ph-bold ph-check`, ...d.icon }));
+  const knob = el('span', { class: c.knob, ...d.knob }, glyph(`${c.icon} ph-bold ph-check`, { ...d.icon }));
   const track = el('button', { type: 'button', role: 'switch', class: c.track, ...d.track, 'aria-checked': 'true', 'aria-label': 'Notify' }, knob);
   return el('span', { class: `${c.root} ${option}`, ...d.root }, track, el('span', { class: c.label, ...d.label }, 'Notify'));
 }
@@ -55,7 +55,7 @@ function toolbar(option, nearer = '') {
   bar.append(
     control(button, 'button', { type: 'button' }, 'Deploy'),
     control(button, 'button', { type: 'button' }, 'Roll back', nearer),
-    control(iconButton, 'button', { type: 'button', 'aria-label': 'More' }, el('i', { class: 'ph-bold ph-dots-three', 'aria-hidden': 'true' })),
+    control(iconButton, 'button', { type: 'button', 'aria-label': 'More' }, glyph('ph-bold ph-dots-three')),
     face('JH'),
     mark(),
   );

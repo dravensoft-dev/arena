@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor, glyph } from '../../../Specimen.js';
 
 const manifest = await (await fetch('./ArenaSplitButton.manifest.json')).json();
 
@@ -18,11 +18,11 @@ function split(label, opts = {}, { disabled = false, loading = false, open = fal
   const root = el('div', { role: 'group', 'aria-label': 'Deployment', class: `${c.root} ${cls}`.trim(), ...d.root });
   const primary = el('button', { class: c.primary, ...d.primary, type: 'button', disabled: (disabled || loading) || undefined });
   if (loading) primary.append(el('span', { class: c.spinner, ...d.spinner, 'aria-hidden': 'true' }));
-  else primary.append(el('i', { class: 'ph-bold ph-rocket-launch', 'aria-hidden': 'true' }));
+  else primary.append(glyph('ph-bold ph-rocket-launch'));
   primary.append(label);
   const caret = el('button', { class: c.caret, ...d.caret, type: 'button', 'aria-label': 'More deploy options',
     'aria-haspopup': 'menu', 'aria-expanded': String(open), disabled: disabled || undefined },
-    el('i', { class: 'ph-bold ph-caret-down', 'aria-hidden': 'true' }));
+    glyph('ph-bold ph-caret-down'));
   root.append(primary, caret);
   return root;
 }

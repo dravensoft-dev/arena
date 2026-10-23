@@ -10,7 +10,7 @@
 <link rel="stylesheet" href="../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor, glyph } from '../../Specimen.js';
 
 const switchManifest = await (await fetch('../../components/forms/arena-switch/ArenaSwitch.manifest.json')).json();
 const logo = await (await fetch('../../components/brand/arena-app-logo/ArenaAppLogo.manifest.json')).json();
@@ -19,7 +19,7 @@ const divider = await (await fetch('../../components/layout/arena-divider/ArenaD
 function toggle(label, cls) {
   const c = arenaClassesFor(switchManifest, { state: 'true' });
   const d = arenaSlotDataFor(switchManifest, { state: 'true' });
-  const knob = el('span', { class: c.knob, ...d.knob }, el('i', { class: `${c.icon} ph-bold ph-check`, ...d.icon }));
+  const knob = el('span', { class: c.knob, ...d.knob }, glyph(`${c.icon} ph-bold ph-check`, { ...d.icon }));
   const track = el('button', { type: 'button', role: 'switch', class: c.track, ...d.track, 'aria-checked': 'true', 'aria-label': label }, knob);
   return el('span', { class: `${c.root} ${cls}`, ...d.root }, track, el('span', { class: c.label, ...d.label }, label));
 }

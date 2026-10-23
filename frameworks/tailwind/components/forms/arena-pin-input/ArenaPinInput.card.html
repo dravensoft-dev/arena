@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor, glyph } from '../../../Specimen.js';
 
 const manifest = await (await fetch('./ArenaPinInput.manifest.json')).json();
 
@@ -27,8 +27,8 @@ function pin({ label, code = '', length = 6, hint, error, state = 'neutral', req
       value: code[i] ?? '', tabindex: i === Math.min(code.length, length - 1) ? '0' : '-1',
       'aria-label': `Character ${i + 1} of ${length}`, disabled: disabled || undefined }));
   }
-  if (state === 'error') group.append(el('i', { class: `${c.statusIcon} ph-fill ph-warning-circle`, ...d.statusIcon, 'aria-hidden': 'true' }));
-  if (state === 'valid') group.append(el('i', { class: `${c.statusIcon} ph-fill ph-check-circle`, ...d.statusIcon, 'aria-hidden': 'true' }));
+  if (state === 'error') group.append(glyph(`${c.statusIcon} ph-fill ph-warning-circle`, { ...d.statusIcon }));
+  if (state === 'valid') group.append(glyph(`${c.statusIcon} ph-fill ph-check-circle`, { ...d.statusIcon }));
   root.append(group);
   if (error) root.append(el('span', { class: c.error, ...d.error, text: error }));
   else if (hint) root.append(el('span', { class: c.hint, ...d.hint, text: hint }));

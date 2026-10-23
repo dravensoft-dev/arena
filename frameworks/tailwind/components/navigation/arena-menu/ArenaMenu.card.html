@@ -6,7 +6,7 @@
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor, glyph } from '../../../Specimen.js';
 
 const manifest = await (await fetch('./ArenaMenu.manifest.json')).json();
 const c = arenaClassesFor(manifest);
@@ -37,7 +37,7 @@ function menu() {
     const classes = arenaClassesFor(manifest, chosen).item;
     const data = arenaSlotDataFor(manifest, chosen).item;
     const row = el('button', { class: classes, ...data, type: 'button', role: 'menuitem', disabled: item.disabled },
-      el('span', { class: c.icon, ...d.icon }, el('i', { class: item.icon, 'aria-hidden': 'true' })),
+      el('span', { class: c.icon, ...d.icon }, glyph(item.icon)),
       el('span', { class: c.label, ...d.label, text: item.label }));
     if (item.shortcut) row.append(el('span', { class: c.shortcut, ...d.shortcut, text: item.shortcut }));
     panel.append(row);

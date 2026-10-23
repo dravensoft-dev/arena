@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor, glyph } from '../../Specimen.js';
 
 const manifest = await (await fetch('../../components/layout/arena-hero/ArenaHero.manifest.json')).json();
 
@@ -22,7 +22,7 @@ function hero(option) {
     el('div', {
       class: 'grid place-items-center bg-base-300 rounded-media aspect-square text-primary',
       style: { minHeight: 'calc(var(--sp-1) * 40)' },
-    }, el('i', { class: 'ph-bold ph-mountains text-[length:var(--fs-display)]' })));
+    }, glyph('ph-bold ph-mountains text-[length:var(--fs-display)]')));
   return el('section', { class: `${c.root} ${option}`, ...d.root }, words, figure);
 }
 

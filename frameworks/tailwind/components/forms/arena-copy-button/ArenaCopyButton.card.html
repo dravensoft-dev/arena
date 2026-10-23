@@ -9,7 +9,7 @@
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor, glyph as phGlyph } from '../../../Specimen.js';
 
 const manifest = await (await fetch('./ArenaCopyButton.manifest.json')).json();
 const iconButton = await (await fetch('../arena-icon-button/ArenaIconButton.manifest.json')).json();
@@ -24,7 +24,7 @@ const SAID = { rest: '', copied: 'Copied', failed: 'Could not copy' };
 function copyButton({ phase = 'rest', size = 'md', emphasis = 'ghost' } = {}) {
   return el('span', { class: `${c.root} arena-size-${size} arena-emphasis-${emphasis}`, ...d.root },
     el('button', { type: 'button', class: b.root, ...bd.root, 'aria-label': 'Copy the install command', title: 'Copy the install command' },
-      el('i', { class: GLYPH[phase], 'aria-hidden': 'true' })),
+      phGlyph(GLYPH[phase])),
     el('span', { class: c.announcement, ...d.announcement, role: 'status', text: SAID[phase] }));
 }
 

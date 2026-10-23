@@ -6,7 +6,7 @@
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor, glyph } from '../../../Specimen.js';
 
 const manifest = await (await fetch('./ArenaFieldset.manifest.json')).json();
 
@@ -31,7 +31,7 @@ function fieldset({ legend, hint, error, disabled }) {
   stack.append(body);
   if (error) {
     const line = el('span', { class: c.error, ...d.error });
-    line.append(el('i', { class: `${c.statusIcon} ph-fill ph-warning-circle`, ...d.statusIcon, 'aria-hidden': 'true' }), error);
+    line.append(glyph(`${c.statusIcon} ph-fill ph-warning-circle`, { ...d.statusIcon }), error);
     stack.append(line);
   } else if (hint) stack.append(el('span', { class: c.hint, ...d.hint, text: hint }));
   root.append(stack);

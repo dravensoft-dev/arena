@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor, glyph } from '../../../Specimen.js';
 
 const manifest = await (await fetch('./ArenaStepper.manifest.json')).json();
 const WORD = { complete: 'Completed', current: 'Current step', upcoming: 'Upcoming' };
@@ -27,8 +27,8 @@ function stepper(steps, index, { orientation = 'horizontal', interactive = false
     const trigger = el(reachable ? 'button' : 'div', { class: c.trigger, ...d.trigger, ...(reachable ? { type: 'button' } : {}) });
     const rail = el('span', { class: c.rail, ...d.rail, 'aria-hidden': 'true' });
     const marker = el('span', { class: c.marker, ...d.marker });
-    if (error) marker.append(el('i', { class: `${c.icon} ph-fill ph-warning-circle`, ...d.icon }));
-    else if (state === 'complete') marker.append(el('i', { class: `${c.icon} ph-bold ph-check`, ...d.icon }));
+    if (error) marker.append(glyph(`${c.icon} ph-fill ph-warning-circle`, { ...d.icon }));
+    else if (state === 'complete') marker.append(glyph(`${c.icon} ph-bold ph-check`, { ...d.icon }));
     else marker.textContent = String(i + 1);
     rail.append(marker);
     if (i < steps.length - 1) rail.append(el('span', { class: c.connector, ...d.connector }));

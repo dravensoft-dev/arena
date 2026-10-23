@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor, glyph } from '../../../Specimen.js';
 
 const manifest = await (await fetch('./ArenaFileInput.manifest.json')).json();
 const tag = await (await fetch('../../display/arena-tag/ArenaTag.manifest.json')).json();
@@ -22,7 +22,7 @@ function chip(name, tone) {
     el('span', { class: t.dot, ...td.dot, 'aria-hidden': 'true' }),
     el('span', { id: textId, 'data-arena-boundary': '', text: name }),
     el('button', { type: 'button', id: `${textId}-remove`, class: t.close, ...td.close, 'aria-labelledby': `${textId}-remove ${textId}` },
-      el('i', { class: 'ph-bold ph-x', 'aria-hidden': 'true' }), el('span', { class: t.closeLabel, ...td.closeLabel, text: 'Remove' })));
+      glyph('ph-bold ph-x'), el('span', { class: t.closeLabel, ...td.closeLabel, text: 'Remove' })));
 }
 
 function fileInput({ label, droppable, dragging, error, hint, required, disabled, held = [], refused = [], multiple }) {
@@ -40,7 +40,7 @@ function fileInput({ label, droppable, dragging, error, hint, required, disabled
   const zone = el('div', { class: c.zone, ...d.zone },
     el('button', { type: 'button', id, class: c.trigger, ...d.trigger, disabled: disabled || undefined,
       'aria-labelledby': named, 'aria-describedby': error || hint ? `${id}-note` : undefined },
-      el('i', { class: `${c.icon} ph-bold ph-upload-simple`, 'aria-hidden': 'true' }),
+      glyph(`${c.icon} ph-bold ph-upload-simple`),
       el('span', { id: `${id}-text`, text: multiple ? 'Choose files' : 'Choose file' })));
   if (droppable) zone.append(el('span', { class: c.prompt, ...d.prompt, text: 'or drop here' }));
   zone.append(el('input', { type: 'file', class: c.input, ...d.input, tabindex: '-1', 'aria-hidden': 'true' }));

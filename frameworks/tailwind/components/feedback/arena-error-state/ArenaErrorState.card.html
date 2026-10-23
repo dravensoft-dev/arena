@@ -6,14 +6,14 @@
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor } from '../../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, glyph } from '../../../Specimen.js';
 
 const manifest = await (await fetch('./ArenaErrorState.manifest.json')).json();
 const c = arenaClassesFor(manifest);
 
 function errorState({ icon, title, message, code, retryLabel }) {
   const root = el('div', { class: c.root, role: 'alert' },
-    el('div', { class: c.icon }, el('i', { class: icon, 'aria-hidden': 'true' })),
+    el('div', { class: c.icon }, glyph(icon)),
     el('div', { class: c.title, text: title }),
     el('div', { class: c.message, text: message }));
   if (code) root.append(el('code', { class: c.code, text: code }));

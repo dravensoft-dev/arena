@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor, glyph } from '../../../Specimen.js';
 
 const manifest = await (await fetch('./ArenaCombobox.manifest.json')).json();
 const tagManifest = await (await fetch('../../display/arena-tag/ArenaTag.manifest.json')).json();
@@ -22,7 +22,7 @@ function combobox({ label, text, rows, chosen, active }) {
   root.append(el('label', { class: c.label, ...d.label, text: label }));
   root.append(el('div', { class: c.field, ...d.field },
     el('input', { class: c.input, ...d.input, role: 'combobox', 'aria-label': label, 'aria-expanded': String(Boolean(rows)), value: text }),
-    el('i', { class: `ph-bold ph-caret-down ${c.caret}`, ...d.caret, 'aria-hidden': 'true' })));
+    glyph(`ph-bold ph-caret-down ${c.caret}`, { ...d.caret })));
   if (!rows) return root;
   const list = el('div', { class: c.list, ...d.list, role: 'listbox', 'aria-label': label });
   rows.forEach((row, index) => {
@@ -31,7 +31,7 @@ function combobox({ label, text, rows, chosen, active }) {
     const rd = arenaSlotDataFor(manifest, on);
     const option = el('div', { class: rc.option, ...rd.option, role: 'option', 'aria-selected': String(row === chosen) },
       el('span', { class: rc.optionLabel, ...rd.optionLabel, text: row }));
-    if (row === chosen) option.append(el('i', { class: `ph-bold ph-check ${c.optionMark}`, ...d.optionMark, 'aria-hidden': 'true' }));
+    if (row === chosen) option.append(glyph(`ph-bold ph-check ${c.optionMark}`, { ...d.optionMark }));
     list.append(option);
   });
   const panel = el('div', { class: c.panel, ...d.panel, 'data-arena-surface': 'floating' }, list);
@@ -54,13 +54,13 @@ function multiSelect({ label, chips, hidden }) {
     row.append(el('span', { class: t.root, ...td.root, 'data-arena-boundary': '' },
       el('span', { class: t.dot, ...td.dot, 'aria-hidden': 'true' }), el('span', { id: textId, 'data-arena-boundary': '', text: chip }),
       el('button', { type: 'button', id: `${textId}-remove`, class: t.close, ...td.close, tabindex: '-1', 'aria-labelledby': `${textId}-remove ${textId}` },
-        el('i', { class: 'ph-bold ph-x', 'aria-hidden': 'true' }), el('span', { class: t.closeLabel, ...td.closeLabel, text: 'Remove' }))));
+        glyph('ph-bold ph-x'), el('span', { class: t.closeLabel, ...td.closeLabel, text: 'Remove' }))));
   });
   if (hidden) row.append(el('span', { class: c.more, ...d.more, role: 'img', 'aria-label': `${hidden} more selected`, text: `+${hidden}` }));
   row.append(el('input', { class: c.input, ...d.input, role: 'combobox', 'aria-label': label }));
   root.append(el('div', { class: c.field, ...d.field }, row,
-    el('button', { type: 'button', class: c.clear, ...d.clear, tabindex: '-1', 'aria-label': 'Clear selection' }, el('i', { class: 'ph-bold ph-x-circle', 'aria-hidden': 'true' })),
-    el('i', { class: `ph-bold ph-caret-down ${c.caret}`, ...d.caret, 'aria-hidden': 'true' })));
+    el('button', { type: 'button', class: c.clear, ...d.clear, tabindex: '-1', 'aria-label': 'Clear selection' }, glyph('ph-bold ph-x-circle')),
+    glyph(`ph-bold ph-caret-down ${c.caret}`, { ...d.caret })));
   return root;
 }
 

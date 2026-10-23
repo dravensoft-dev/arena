@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor, glyph as phGlyph } from '../../../Specimen.js';
 
 const manifest = await (await fetch('./ArenaNumberField.manifest.json')).json();
 
@@ -23,13 +23,13 @@ function field({ label, value, hint, error, state = 'neutral', required, prefix,
   root.append(tag);
   const box = el('div', { class: c.field, ...d.field });
   const stepper = (glyph, name, off) => el('button', { type: 'button', tabindex: '-1', class: c.stepper, ...d.stepper, 'aria-label': name, disabled: off || disabled || readOnly || undefined },
-    el('i', { class: `ph-bold ${glyph}`, 'aria-hidden': 'true' }));
+    phGlyph(`ph-bold ${glyph}`));
   if (steppers) box.append(stepper('ph-minus', 'Decrease', atMin));
   if (prefix) box.append(el('span', { class: c.prefix, ...d.prefix, text: prefix }));
   box.append(el('input', { class: c.input, ...d.input, id, role: 'spinbutton', inputmode: 'decimal', value, readonly: readOnly || undefined, disabled: disabled || undefined }));
   if (suffix) box.append(el('span', { class: c.suffix, ...d.suffix, text: suffix }));
-  if (state === 'error') box.append(el('i', { class: `${c.statusIcon} ph-fill ph-warning-circle`, ...d.statusIcon, 'aria-hidden': 'true' }));
-  if (state === 'valid') box.append(el('i', { class: `${c.statusIcon} ph-fill ph-check-circle`, ...d.statusIcon, 'aria-hidden': 'true' }));
+  if (state === 'error') box.append(phGlyph(`${c.statusIcon} ph-fill ph-warning-circle`, { ...d.statusIcon }));
+  if (state === 'valid') box.append(phGlyph(`${c.statusIcon} ph-fill ph-check-circle`, { ...d.statusIcon }));
   if (steppers) box.append(stepper('ph-plus', 'Increase', atMax));
   root.append(box);
   if (error) root.append(el('span', { class: c.error, ...d.error, text: error }));

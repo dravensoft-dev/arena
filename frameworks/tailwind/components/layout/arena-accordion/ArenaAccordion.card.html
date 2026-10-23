@@ -6,7 +6,7 @@
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor, glyph } from '../../../Specimen.js';
 
 const manifest = await (await fetch('./ArenaAccordion.manifest.json')).json();
 
@@ -22,7 +22,7 @@ function accordion(items, { locked = false } = {}) {
     const trigger = el('button', { class: c.trigger, ...d.trigger, type: 'button', 'aria-expanded': String(open) });
     if (open && locked) trigger.setAttribute('aria-disabled', 'true');
     trigger.append(el('span', { class: c.triggerLabel, ...d.triggerLabel, text: label }));
-    trigger.append(el('i', { class: `${c.caret} ph-bold ${open ? 'ph-caret-down' : 'ph-caret-right'}`, ...d.caret, 'aria-hidden': 'true' }));
+    trigger.append(glyph(`${c.caret} ph-bold ${open ? 'ph-caret-down' : 'ph-caret-right'}`, { ...d.caret }));
     heading.append(trigger);
     item.append(heading);
     const panel = el('div', { class: c.panel, ...d.panel, role: 'group', text: body });

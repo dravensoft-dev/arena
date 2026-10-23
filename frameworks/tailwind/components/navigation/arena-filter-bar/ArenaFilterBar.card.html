@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor, glyph } from '../../../Specimen.js';
 
 const manifest = await (await fetch('./ArenaFilterBar.manifest.json')).json();
 const tag = await (await fetch('../../display/arena-tag/ArenaTag.manifest.json')).json();
@@ -20,7 +20,7 @@ function control(label, value) {
   root.style.width = '200px';
   root.append(el('label', { class: c.label, text: label }));
   const field = el('select', { class: c.field }, el('option', { text: value }));
-  root.append(el('div', { class: c.wrap }, field, el('span', { class: c.caret }, el('i', { class: 'ph-bold ph-caret-down', 'aria-hidden': 'true' }))));
+  root.append(el('div', { class: c.wrap }, field, el('span', { class: c.caret }, glyph('ph-bold ph-caret-down'))));
   return root;
 }
 
@@ -28,7 +28,7 @@ function chip(text) {
   const c = arenaClassesFor(tag, { tone: 'neutral', disabled: 'false' });
   return el('span', { class: c.root },
     el('span', { text }),
-    el('button', { type: 'button', class: c.close, 'aria-label': `Remove ${text}` }, el('i', { class: 'ph-bold ph-x', 'aria-hidden': 'true' })));
+    el('button', { type: 'button', class: c.close, 'aria-label': `Remove ${text}` }, glyph('ph-bold ph-x')));
 }
 
 function bar({ width, narrow, applied = [], clearable = true }) {

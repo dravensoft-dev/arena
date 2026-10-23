@@ -6,7 +6,7 @@
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor, glyph as phGlyph } from '../../../Specimen.js';
 
 const manifest = await (await fetch('./ArenaTreeView.manifest.json')).json();
 const c = arenaClassesFor(manifest);
@@ -29,8 +29,8 @@ function row({ label, icon, level, size, pos, open, selected, disabled }) {
     style: `--arena-tree-depth: ${level - 1}`,
   },
     el('span', { class: c.caret, ...d.caret, 'aria-hidden': 'true' },
-      branch ? el('i', { class: `ph-bold ${open ? 'ph-caret-down' : 'ph-caret-right'}` }) : ''),
-    el('i', { class: `${c.icon} ph-bold ${icon}`, ...d.icon, 'aria-hidden': 'true' }),
+      branch ? phGlyph(`ph-bold ${open ? 'ph-caret-down' : 'ph-caret-right'}`) : ''),
+    phGlyph(`${c.icon} ph-bold ${icon}`, { ...d.icon }),
     el('span', { class: c.label, ...d.label, text: label }));
 }
 

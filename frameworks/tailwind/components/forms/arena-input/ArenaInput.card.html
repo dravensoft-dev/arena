@@ -6,7 +6,7 @@
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor, glyph } from '../../../Specimen.js';
 
 const manifest = await (await fetch('./ArenaInput.manifest.json')).json();
 
@@ -22,12 +22,12 @@ function input({ label, value, placeholder, hint, error, state = 'neutral', requ
     root.append(tag);
   }
   const field = el('div', { class: c.field, ...d.field });
-  if (icon) field.append(el('span', { class: c.icon, ...d.icon }, el('i', { class: icon, 'aria-hidden': 'true' })));
+  if (icon) field.append(el('span', { class: c.icon, ...d.icon }, glyph(icon)));
   if (prefix) field.append(el('span', { class: c.prefix, ...d.prefix, text: prefix }));
   field.append(el('input', { class: c.input, ...d.input, id: inputId, value: value ?? '', placeholder, disabled: disabled || undefined,
     'aria-describedby': inputId && (error || hint) ? `${inputId}-note` : undefined }));
-  if (state === 'error') field.append(el('i', { class: `${c.statusIcon} ph-fill ph-warning-circle`, ...d.statusIcon, 'aria-hidden': 'true' }));
-  if (state === 'valid') field.append(el('i', { class: `${c.statusIcon} ph-fill ph-check-circle`, ...d.statusIcon, 'aria-hidden': 'true' }));
+  if (state === 'error') field.append(glyph(`${c.statusIcon} ph-fill ph-warning-circle`, { ...d.statusIcon }));
+  if (state === 'valid') field.append(glyph(`${c.statusIcon} ph-fill ph-check-circle`, { ...d.statusIcon }));
   root.append(field);
   if (error) root.append(el('span', { id: `${inputId}-note`, class: c.error, ...d.error, text: error }));
   else if (hint) root.append(el('span', { id: `${inputId}-note`, class: c.hint, ...d.hint, text: hint }));

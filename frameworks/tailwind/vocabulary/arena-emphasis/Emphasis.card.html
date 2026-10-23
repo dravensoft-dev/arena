@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor, glyph } from '../../Specimen.js';
 
 const button = await (await fetch('../../components/forms/arena-button/ArenaButton.manifest.json')).json();
 const iconButton = await (await fetch('../../components/forms/arena-icon-button/ArenaIconButton.manifest.json')).json();
@@ -23,7 +23,7 @@ function icon(label) {
   const c = arenaClassesFor(iconButton);
   const d = arenaSlotDataFor(iconButton);
   return el('button', { class: c.root, ...d.root, type: 'button', 'aria-label': label, title: label },
-    el('i', { class: 'ph-bold ph-dots-three', 'aria-hidden': 'true' }));
+    glyph('ph-bold ph-dots-three'));
 }
 
 function region(option) {

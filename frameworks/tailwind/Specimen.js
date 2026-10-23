@@ -22,6 +22,35 @@ export function el(tag, props = {}, ...children) {
   return node;
 }
 
+const SVG_NS = 'http://www.w3.org/2000/svg';
+const SPRITE = new URL('../../assets/Icons.generated.svg', import.meta.url).href;
+const WEIGHTS = { 'ph-thin': 'thin', 'ph-light': 'light', ph: 'regular', 'ph-bold': 'bold', 'ph-duotone': 'duotone', 'ph-fill': 'fill' };
+const SIZED = /^(?:[\w-]+:)*(?:size|w|h)-/;
+
+export function glyph(classList, props = {}) {
+  const tokens = String(classList).split(/\s+/).filter(Boolean);
+  const weight = tokens.map((t) => WEIGHTS[t]).find(Boolean) ?? 'regular';
+  const name = tokens.find((t) => t.startsWith('ph-') && !(t in WEIGHTS));
+  if (!name) throw new Error(`glyph: no glyph token in "${classList}"`);
+  const kept = tokens.filter((t) => !(t in WEIGHTS) && t !== name);
+  const { style, ...rest } = props;
+  const given = typeof style === 'object' && style
+    ? Object.entries(style).map(([k, v]) => `${k.replace(/[A-Z]/g, (m) => '-' + m.toLowerCase())}:${v}`).join(';')
+    : style || '';
+  const box = kept.some((t) => SIZED.test(t)) ? '' : 'width:1em;height:1em;';
+  const svg = el('svg', {
+    class: kept.join(' ') || undefined,
+    'aria-hidden': 'true',
+    focusable: 'false',
+    ...rest,
+    style: `${box}fill:currentColor${given ? ';' + given : ''}`,
+  });
+  const use = document.createElementNS(SVG_NS, 'use');
+  use.setAttribute('href', `${SPRITE}#ph-${weight}-${name.slice(3)}`);
+  svg.append(use);
+  return svg;
+}
+
 export function section(label, nodes, opts = {}) {
   return {
     label,

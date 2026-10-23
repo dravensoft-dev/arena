@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor, glyph } from '../../../Specimen.js';
 
 const manifest = await (await fetch('./ArenaTimeline.manifest.json')).json();
 const GLYPH = { success: 'ph-check-circle', warning: 'ph-warning', danger: 'ph-warning-octagon', info: 'ph-info' };
@@ -25,7 +25,7 @@ function timeline(items, index, orientation = 'vertical') {
     if (state === 'current') item.setAttribute('aria-current', 'step');
     const rail = el('span', { class: c.rail, ...d.rail, 'aria-hidden': 'true' });
     const dot = el('span', { class: c.dot, ...d.dot });
-    if (GLYPH[tone]) dot.append(el('i', { class: `${c.icon} ph-fill ${GLYPH[tone]}`, ...d.icon }));
+    if (GLYPH[tone]) dot.append(glyph(`${c.icon} ph-fill ${GLYPH[tone]}`, { ...d.icon }));
     rail.append(dot);
     if (i < items.length - 1) rail.append(el('span', { class: c.connector, ...d.connector }));
     const content = el('div', { class: c.content, ...d.content });

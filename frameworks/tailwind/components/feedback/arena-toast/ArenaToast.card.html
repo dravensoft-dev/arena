@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor, glyph } from '../../../Specimen.js';
 
 const manifest = await (await fetch('./ArenaToast.manifest.json')).json();
 
@@ -23,7 +23,7 @@ function toast({ tone = 'neutral', accent = '', title, message, action, persist 
     'aria-live': tone === 'danger' ? 'assertive' : 'polite',
     'data-persist': persist ? '' : undefined,
   }, body,
-    el('button', { class: c.close, ...d.close, type: 'button', 'aria-label': 'Close' }, el('i', { class: 'ph-bold ph-x', 'aria-hidden': 'true' })));
+    el('button', { class: c.close, ...d.close, type: 'button', 'aria-label': 'Close' }, glyph('ph-bold ph-x')));
 }
 
 mountSpecimen({ sections: [
