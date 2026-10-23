@@ -8,10 +8,10 @@ import { symbolId, glyphFile, spriteSvg, contentName, spriteModule } from './spr
 const svg = (inner: string) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor">${inner}</svg>`;
 const reader = (files: Record<string, string>) => (weight: string, name: string) => files[`${weight}/${name}`] ?? null;
 
-test('symbol ids name weight and glyph, and regular for ph', () => {
+test('symbol ids name weight and glyph, and regular for ph, the id every reader points at', () => {
   assert.equal(symbolId('bold', 'bell'), 'ph-bold-bell');
   assert.equal(symbolId('fill', 'x'), 'ph-fill-x');
-  assert.equal(symbolId('regular', 'bell'), 'ph-bell');
+  assert.equal(symbolId('regular', 'bell'), 'ph-regular-bell');
 });
 
 test('glyphFile follows the package layout', () => {
@@ -24,7 +24,7 @@ test('the sprite holds one symbol per glyph, sorted, and the same bytes twice', 
   const one = [{ weight: 'regular', glyphs: new Set(['c']) }, { weight: 'bold', glyphs: new Set(['b', 'a']) }];
   const out = spriteSvg(one, read);
   assert.equal(out.kept, 3);
-  assert.deepEqual([...out.svg.matchAll(/<symbol id="([^"]+)"/g)].map((m) => m[1]), ['ph-bold-a', 'ph-bold-b', 'ph-c']);
+  assert.deepEqual([...out.svg.matchAll(/<symbol id="([^"]+)"/g)].map((m) => m[1]), ['ph-bold-a', 'ph-bold-b', 'ph-regular-c']);
   assert.match(out.svg, /<symbol id="ph-bold-a" viewBox="0 0 256 256" fill="currentColor"><path d="A"\/><\/symbol>/);
   assert.ok(!out.svg.includes('xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill'));
   assert.equal(spriteSvg([...one].reverse(), read).svg, out.svg);

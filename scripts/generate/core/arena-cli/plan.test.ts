@@ -142,6 +142,18 @@ test('an old icons.generated.css and an old icons-*.svg are orphans, and the new
   cleanup(root, held);
 });
 
+test('a source drawing ph ph-bell writes a sprite holding ph-regular-bell, the id every reader points at', async () => {
+  const { root: held, core } = phosphor(['regular', 'bold', 'fill']);
+  const root = project(readable, { 'app.html': '<i class="ph ph-bell"></i><i class="ph-bold ph-moon"></i><i class="x" data-i="ph-sun"></i>' });
+  const result = await plan(options(root), environment(core));
+  assert.equal(result.code, 0);
+  const ids = symbolsOf(result);
+  assert.ok(ids.includes('ph-regular-bell'), `regular id in ${ids.join(' ')}`);
+  assert.ok(ids.includes('ph-regular-sun'), 'a weightless name draws regular');
+  assert.ok(!ids.includes('ph-bell'), 'no bare ph-<name> id');
+  cleanup(root, held);
+});
+
 test('a glyph Phosphor lacks at that weight is a glyph report naming weight and name, with no symbol and no throw', async () => {
   const { root: held, core } = phosphor();
   const root = project(readable, { 'app.html': '<i class="ph-fill ph-not-a-glyph"></i><i class="ph-bold ph-bell"></i>' });

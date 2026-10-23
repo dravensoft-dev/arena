@@ -23,10 +23,12 @@ test('fill takes fill pairs, loose names and the glyphs beside a fill-swapping c
   scan(nav, found);
   scan('<i class="ph-fill ph-info"></i> icon: "ph-rocket"', found);
   assert.deepEqual(list(found, fillSourceGlyphs([button], drawsFill)), [
+    ['regular', ['ph-rocket']],
     ['bold', ['ph-gear', 'ph-house', 'ph-rocket']],
     ['fill', ['ph-info', 'ph-rocket']],
   ]);
   assert.deepEqual(list(found, fillSourceGlyphs([button, nav], drawsFill)), [
+    ['regular', ['ph-rocket']],
     ['bold', ['ph-gear', 'ph-house', 'ph-rocket']],
     ['fill', ['ph-house', 'ph-info', 'ph-rocket']],
   ]);
@@ -63,6 +65,7 @@ test('a glyph with no weight beside it reaches every weight, because the weight 
   const found = scan('<i class="ph-bold ph-bell"></i>');
   scan("icon: 'ph-rocket-launch'", found);
   assert.deepEqual(list(found), [
+    ['regular', ['ph-rocket-launch']],
     ['bold', ['ph-bell', 'ph-rocket-launch']],
     ['fill', ['ph-rocket-launch']],
   ]);

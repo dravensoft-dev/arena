@@ -103,6 +103,10 @@ export function drawnGlyphs(found: IconScan, fillSources: Set<string>) {
       const glyphs = new Set([...(pair ?? []), ...found.loose, ...fillSources]);
       return glyphs.size ? [{ weight, glyphs }] : [];
     }
+    if (weight === 'regular') {
+      const glyphs = new Set([...(pair ?? []), ...found.loose]);
+      return glyphs.size ? [{ weight, glyphs }] : [];
+    }
     return pair ? [{ weight, glyphs: new Set([...pair, ...found.loose]) }] : [];
   });
 }

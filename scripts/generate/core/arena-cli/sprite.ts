@@ -7,7 +7,7 @@ import { createHash } from 'node:crypto';
 import { join } from 'node:path';
 
 export function symbolId(weight: string, name: string) {
-  return weight === 'regular' ? `ph-${name}` : `ph-${weight}-${name}`;
+  return `ph-${weight}-${name}`;
 }
 
 export function glyphFile(core: string, weight: string, name: string) {
