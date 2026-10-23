@@ -77,10 +77,10 @@ test('no glyph token renders nothing and warns once', () => {
   const { fixture, host } = render('ph-bold');
   try {
     assertNoNode(host.querySelector('svg'));
-    fixture.detectChanges();
-    fixture.componentInstance.icon = 'ph-bold';
-    fixture.componentRef.changeDetectorRef.markForCheck();
-    fixture.detectChanges();
+    const second = TestBed.createComponent(IconHost);
+    second.componentInstance.icon = 'ph-bold';
+    second.detectChanges();
+    second.destroy();
     assert.equal(warnings.length, 1);
     assert.match(warnings[0] ?? '', /no glyph/);
   } finally {

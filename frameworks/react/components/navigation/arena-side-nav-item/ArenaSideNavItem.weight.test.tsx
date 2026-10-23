@@ -19,8 +19,6 @@ function markup(active: string): string {
   );
 }
 
-const glyphClasses = symbols;
-
 test('arenaActiveWeight swaps the weight it finds, adds one where there is none, and repeats safely', () => {
   assert.equal(arenaActiveWeight('ph-bold ph-house'), 'ph-fill ph-house');
   assert.equal(arenaActiveWeight('ph-thin ph-house'), 'ph-fill ph-house');
@@ -31,14 +29,14 @@ test('arenaActiveWeight swaps the weight it finds, adds one where there is none,
 });
 
 test('the active row is filled and every other row keeps the weight it was given', () => {
-  const classes = glyphClasses(markup('home'));
-  assert.equal(classes.length, 2);
-  assert.equal(classes[0], 'fill-house', 'the active row draws its glyph filled, not bold');
-  assert.equal(classes[1], 'bold-receipt', 'an inactive row is untouched');
+  const ids = symbols(markup('home'));
+  assert.equal(ids.length, 2);
+  assert.equal(ids[0], 'fill-house', 'the active row draws its glyph filled, not bold');
+  assert.equal(ids[1], 'bold-receipt', 'an inactive row is untouched');
 });
 
 test('moving `active` moves the fill, so nothing is latched at first render', () => {
-  const classes = glyphClasses(markup('sales'));
-  assert.equal(classes[0], 'bold-house');
-  assert.equal(classes[1], 'fill-receipt');
+  const ids = symbols(markup('sales'));
+  assert.equal(ids[0], 'bold-house');
+  assert.equal(ids[1], 'fill-receipt');
 });

@@ -14,7 +14,7 @@ export function renderIcons(node: React.ReactNode): string {
 }
 
 export function symbols(html: string): string[] {
-  return [...html.matchAll(/<use href="[^"]*#ph-([a-z]+-[^"]+)"/g)].map((m) => m[1] ?? '');
+  return [...html.matchAll(/<svg\b[^>]*><use href="[^"]*#ph-([a-z]+-[^"]+)"/g)].map((m) => m[1] ?? '');
 }
 
 export function domSymbols(root: ParentNode): string[] {
