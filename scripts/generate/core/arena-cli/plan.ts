@@ -4,7 +4,8 @@
  * all the files or none, so a tree never pairs a new theme with an old sprite. The theme is worked
  * out twice when a font is cut, once to learn the weights it paints and once to name the cut files.
  * A named component list is closed against the same map before the config is validated, and with no
- * map it is used as written. */
+ * map it is used as written. A reports-only plan reads each font's weight axis and cuts nothing, so
+ * arena check uses it and arena doctor, which compares bytes, does not. */
 
 import { readFileSync, existsSync } from 'node:fs';
 import { dirname, basename, join, resolve } from 'node:path';
@@ -248,8 +249,6 @@ const failed = (code: 1 | 2, fatal: string[], reports: Report[] = []): Plan =>
 
 export type PlanMode = { reportsOnly?: boolean };
 
-/* A reports-only plan reads each font's weight axis for the reports and cuts nothing: its files are
- * not the files a build writes, so arena check uses it and arena doctor, which compares bytes, does not. */
 export async function plan(options: PlanOptions, env: PlanEnvironment, mode: PlanMode = {}): Promise<Plan> {
   const absent = missingSource(options.paths);
   if (absent !== null) return failed(2, [`${absent} is not there`]);

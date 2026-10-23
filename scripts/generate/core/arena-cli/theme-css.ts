@@ -1,5 +1,5 @@
-/* Turns a consumer's arena.config.json into the one stylesheet Arena cannot ship: the palette
- * blocks, the @font-face rules and the import that pulls the package's own sheet in. Everything
+/* Turns a consumer's arena.config.json into the stylesheet Arena cannot ship: the palette
+ * blocks and the @font-face rules (themeCss), and the package sheet's imports (packageCss). Everything
  * else about a token travels inside the package. It runs in the repository, where
  * check-packages.ts holds its output equivalent to Style Dictionary's, and inside both npm
  * packages, where it is the only emitter there is. It reads no file and touches no network, so a
@@ -809,9 +809,6 @@ export function runtimeData(config: CheckedConfig, sheets: PackageSheets, plugin
 
 export type PackageOptions = { packageName?: string; sheets?: PackageSheets };
 
-/* Arena's half of the stylesheet as @import lines: the closed list of sheets, the "default" root's
- * plugin slot among them. Null when the config names sheets or a root of its own and the package's
- * sheets were never read, which configProblems refuses. */
 export function packageImports(config: CheckedConfig, { packageName = '@dravensoft/arena-react', sheets = null }: PackageOptions) {
   const withDefault = rootIsDefault(config);
   if (!config.stylesheet && withDefault && !sheets) return [`@import '${packageName}/arena.css';`];
@@ -820,8 +817,6 @@ export function packageImports(config: CheckedConfig, { packageName = '@dravenso
   return scopedImports(packageName, stylesheet, sheets, withDefault);
 }
 
-/* The package sheet: only the imports, so its bytes follow the package and the components drawn and
- * nothing the app declares. arena.generated.css holds the app's half. */
 export function packageCss(config: CheckedConfig, options: PackageOptions = {}) {
   const lines = packageImports(config, options);
   if (lines === null) {

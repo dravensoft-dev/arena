@@ -55,8 +55,6 @@ export function fontFilesIn(dir: string, stems: string[]) {
 
 const WRITTEN_FONT = /url\(\s*'\.\/([^'/]+)-[0-9a-f]{10}\.woff2'\s*\)/g;
 
-/* The stems of the cut fonts the last build named in its theme sheet, so a font whose role has since
- * gone remote, or been removed from the config, is still found. */
 export function writtenFontStems(dir: string) {
   try {
     return [...new Set([...readFileSync(join(dir, THEME_SHEET), 'utf8').matchAll(WRITTEN_FONT)].map((m) => m[1] as string))];

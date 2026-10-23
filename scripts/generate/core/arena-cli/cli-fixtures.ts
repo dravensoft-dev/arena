@@ -157,8 +157,6 @@ function sfntTable(sfnt: Uint8Array, name: string) {
   return null;
 }
 
-/* The feature tags a font's GSUB and GPOS list, and how many records its name table holds: what
- * the cut test reads back from a cut font, so they live here and not in the shipped font-cut.ts. */
 export function layoutFeatures(sfnt: Uint8Array): string[] {
   const found = new Set<string>();
   for (const name of ['GSUB', 'GPOS']) {

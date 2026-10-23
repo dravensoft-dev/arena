@@ -29,8 +29,6 @@ const KEYWORDS: Record<string, number> = { normal: 400, bold: 700 };
 const INITIAL_WEIGHT = 400;
 const VAR = /^var\(\s*(--[\w-]+)\s*(?:,.*)?\)$/s;
 
-/* Every block's own declarations at every depth: a nested rule's parent keeps what it declares
- * outside its children, and a block named @font-face or @property declares nothing painted. */
 function ownDeclarations(css: string): { declarations: [string, string][] }[] {
   type Frame = { prelude: string; text: string };
   const stack: Frame[] = [{ prelude: '', text: '' }];
