@@ -28,7 +28,7 @@ import type { Options } from './args.ts';
 import type { resolveEnvironment } from './host.ts';
 
 export type PlanOptions = Pick<Options, 'config' | 'paths' | 'out' | 'importHeader'>;
-export type PlanEnvironment = ReturnType<typeof resolveEnvironment>;
+export type PlanEnvironment = Omit<ReturnType<typeof resolveEnvironment>, 'core'> & { core?: string | null };
 export type ThemeEnvironment = { packageName: string; sheets: PackageSheets; map?: ComponentMap | null };
 export type OutputSheet = typeof THEME_SHEET | typeof ICONS_SHEET | typeof PLUGIN_SHEET | typeof RUNTIME_DATA;
 export type SheetOutput = { name: OutputSheet; path: string; content: string; summary: string };

@@ -23,7 +23,7 @@ const CATALOGUED = {
 };
 
 function environment(web: string | null, extra: Record<string, unknown> = {}) {
-  return { arena: null, packageName: NAME, sheets: null, map: null, vocabulary: null, phosphor: web, ...extra };
+  return { arena: null, packageName: NAME, sheets: null, map: null, vocabulary: null, phosphor: web, core: null, ...extra };
 }
 
 function withPlugin(css: string) {
