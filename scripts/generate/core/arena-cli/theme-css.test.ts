@@ -747,6 +747,18 @@ test('a ring closed through a role a later plugin takes by default names that de
   assert.match(rings[0] ?? '', /"ink-key" carries Arena's default \{ink-eyebrow\}, so it takes that role's answer/);
 });
 
+test('a ring wholly inside the root plugin is not laid at a later plugin that did not write it', () => {
+  const problems = pluginProblems(listed(['console', 'marketing']), [
+    total({
+      'fill-surface': { $type: 'color', $value: '{ink-eyebrow}' },
+      'ink-eyebrow': { $type: 'color', $value: '{fill-surface}' },
+    }),
+    scoped(),
+  ]);
+  assert.ok(problems.some((m) => m.startsWith('stylePlugins.console:') && /neither resolves/.test(m)), problems.join('\n'));
+  assert.deepEqual(problems.filter((m) => m.startsWith('stylePlugins.marketing:') && /resolves/.test(m)), [], problems.join('\n'));
+});
+
 test('resolvedPlugin follows a role alias to the colour the named role resolves to', () => {
   const plugin = readPlugin('p', { 'ink-muted': { $value: '{color.primary}' }, 'ink-key': { $value: '{ink-muted}' } });
   assert.equal(resolvedPlugin(plugin, ALIASED).get('ink-key'), 'var(--color-primary)');

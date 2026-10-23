@@ -482,7 +482,8 @@ function resolvedProblems(
     const merged = answersIn(whole, polarity);
     const withRoot = under ? { ...answersIn(under, polarity), ...merged } : merged;
     const ordered = { ...merged, ...withRoot };
-    for (const { id, message } of [...ringsOf(merged, catalogue), ...ringsOf(ordered, catalogue)]) {
+    const crossing = ringsOf(ordered, catalogue).filter(({ id }) => id.split(' ').some((one) => Object.hasOwn(merged, one)));
+    for (const { id, message } of [...ringsOf(merged, catalogue), ...crossing]) {
       if (reported.has(id)) continue;
       reported.add(id);
       problems.push(`stylePlugins.${plugin.name}: ${message}${byDefault(id.split(' '))}.`);
