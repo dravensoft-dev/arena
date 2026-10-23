@@ -146,3 +146,35 @@ export function nodeImportsReachedFrom(file: string): string[] {
   visit(resolve(root, file));
   return found;
 }
+
+function sfntTable(sfnt: Uint8Array, name: string) {
+  const view = new DataView(sfnt.buffer, sfnt.byteOffset, sfnt.byteLength);
+  for (let i = 0; i < view.getUint16(4); i++) {
+    const record = 12 + i * 16;
+    const tag = String.fromCharCode(...sfnt.slice(record, record + 4));
+    if (tag === name) return { view, at: view.getUint32(record + 8) };
+  }
+  return null;
+}
+
+/* The feature tags a font's GSUB and GPOS list, and how many records its name table holds: what
+ * the cut test reads back from a cut font, so they live here and not in the shipped font-cut.ts. */
+export function layoutFeatures(sfnt: Uint8Array): string[] {
+  const found = new Set<string>();
+  for (const name of ['GSUB', 'GPOS']) {
+    const gsubOrGpos = sfntTable(sfnt, name);
+    if (!gsubOrGpos) continue;
+    const { view, at } = gsubOrGpos;
+    const list = at + view.getUint16(at + 6);
+    for (let i = 0; i < view.getUint16(list); i++) {
+      const record = list + 2 + i * 6;
+      found.add(String.fromCharCode(...Array.from({ length: 4 }, (_, k) => view.getUint8(record + k))));
+    }
+  }
+  return [...found].sort();
+}
+
+export function nameRecords(sfnt: Uint8Array): number {
+  const found = sfntTable(sfnt, 'name');
+  return found ? found.view.getUint16(found.at + 2) : 0;
+}

@@ -7,7 +7,7 @@
 export const LATIN_1: number[] = [
   ...Array.from({ length: 0x7e - 0x20 + 1 }, (_, i) => 0x20 + i),
   ...Array.from({ length: 0xff - 0xa0 + 1 }, (_, i) => 0xa0 + i),
-  0x2013, 0x2014, 0x2018, 0x2019, 0x201a, 0x201c, 0x201d, 0x201e, 0x20ac,
+  0x2013, 0x2014, 0x2018, 0x2019, 0x201a, 0x201c, 0x201d, 0x201e, 0x2026, 0x20ac,
 ];
 
 export const KEPT_FEATURES = ['kern', 'liga', 'calt', 'tnum', 'lnum'];
@@ -24,23 +24,50 @@ export function unicodeRange(codepoints: number[] = LATIN_1) {
   return runs.map(([lo, hi]) => (lo === hi ? `U+${hex(lo)}` : `U+${hex(lo)}-${hex(hi)}`)).join(',');
 }
 
-const BLOCK = /([^{}]*)\{([^{}]*)\}/g;
 const DECLARATION = /([\w-]+)\s*:\s*([^;]+)/g;
 const KEYWORDS: Record<string, number> = { normal: 400, bold: 700 };
 const INITIAL_WEIGHT = 400;
 const VAR = /^var\(\s*(--[\w-]+)\s*(?:,.*)?\)$/s;
 
+/* Every block's own declarations at every depth: a nested rule's parent keeps what it declares
+ * outside its children, and a block named @font-face or @property declares nothing painted. */
+function ownDeclarations(css: string): { declarations: [string, string][] }[] {
+  type Frame = { prelude: string; text: string };
+  const stack: Frame[] = [{ prelude: '', text: '' }];
+  const blocks: { declarations: [string, string][] }[] = [];
+  let buffer = '';
+  let parens = 0;
+  for (const char of css) {
+    const frame = stack[stack.length - 1] as Frame;
+    if (char === '(') parens++;
+    else if (char === ')') parens = Math.max(0, parens - 1);
+    if (parens === 0 && char === '{') {
+      const cut = buffer.lastIndexOf(';');
+      frame.text += buffer.slice(0, cut + 1);
+      stack.push({ prelude: buffer.slice(cut + 1).trim(), text: '' });
+      buffer = '';
+    } else if (parens === 0 && char === ';') {
+      frame.text += `${buffer};`;
+      buffer = '';
+    } else if (parens === 0 && char === '}' && stack.length > 1) {
+      frame.text += buffer;
+      buffer = '';
+      stack.pop();
+      if (frame.prelude.startsWith('@font-face') || frame.prelude.startsWith('@property')) continue;
+      const declarations = [...frame.text.matchAll(DECLARATION)].map((m): [string, string] => [m[1] as string, (m[2] as string).trim()]);
+      blocks.push({ declarations });
+    } else buffer += char;
+  }
+  return blocks;
+}
+
 export function paintedWeights(css: string, roles: string[]): Map<string, number[]> {
-  const blocks: { prelude: string; declarations: [string, string][] }[] = [];
   const variables = new Map<string, string[]>();
-  for (const [, prelude = '', body = ''] of css.replace(/\/\*[\s\S]*?\*\//g, '').matchAll(BLOCK)) {
-    const head = prelude.trim().split(/[;}]/).pop()?.trim() ?? '';
-    if (head.startsWith('@font-face') || head.startsWith('@property')) continue;
-    const declarations = [...body.matchAll(DECLARATION)].map((m): [string, string] => [m[1] as string, (m[2] as string).trim()]);
+  const blocks = ownDeclarations(css.replace(/\/\*[\s\S]*?\*\//g, ''));
+  for (const { declarations } of blocks) {
     for (const [name, value] of declarations) {
       if (name.startsWith('--')) variables.set(name, [...(variables.get(name) ?? []), value]);
     }
-    blocks.push({ prelude: head, declarations });
   }
 
   const values = (value: string, seen: string[] = []): string[] => {
@@ -127,36 +154,6 @@ export function fontAxes(sfnt: Uint8Array): FontAxis[] {
 export function weightAxis(sfnt: Uint8Array): [number, number] | null {
   const axis = fontAxes(sfnt).find((one) => one.tag === 'wght');
   return axis ? [axis.min, axis.max] : null;
-}
-
-function table(sfnt: Uint8Array, name: string) {
-  const view = new DataView(sfnt.buffer, sfnt.byteOffset, sfnt.byteLength);
-  for (let i = 0; i < view.getUint16(4); i++) {
-    const record = 12 + i * 16;
-    const tag = String.fromCharCode(...sfnt.slice(record, record + 4));
-    if (tag === name) return { view, at: view.getUint32(record + 8) };
-  }
-  return null;
-}
-
-export function layoutFeatures(sfnt: Uint8Array): string[] {
-  const found = new Set<string>();
-  for (const name of ['GSUB', 'GPOS']) {
-    const found_ = table(sfnt, name);
-    if (!found_) continue;
-    const { view, at } = found_;
-    const list = at + view.getUint16(at + 6);
-    for (let i = 0; i < view.getUint16(list); i++) {
-      const record = list + 2 + i * 6;
-      found.add(String.fromCharCode(...Array.from({ length: 4 }, (_, k) => view.getUint8(record + k))));
-    }
-  }
-  return [...found].sort();
-}
-
-export function nameRecords(sfnt: Uint8Array): number {
-  const found = table(sfnt, 'name');
-  return found ? found.view.getUint16(found.at + 2) : 0;
 }
 
 export type FontTools = {

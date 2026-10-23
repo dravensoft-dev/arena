@@ -7,10 +7,11 @@ import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Blob, Face } from 'harfbuzzjs';
-import { KEPT_FEATURES, LATIN_1, cutFont, cutPlan, cutSteps, fontAxes, layoutFeatures, nameRecords, paintedWeights, unicodeRange, weightAxis } from './font-cut.ts';
+import { KEPT_FEATURES, LATIN_1, cutFont, cutPlan, cutSteps, fontAxes, paintedWeights, unicodeRange, weightAxis } from './font-cut.ts';
 import type { CutPlan } from './font-cut.ts';
 import { loadFontTools } from './font-files.ts';
 import { fontToolRoots } from './host.ts';
+import { layoutFeatures, nameRecords } from './cli-fixtures.ts';
 
 const fonts = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..', '..', 'assets', 'fonts');
 const source = (name: string) => new Uint8Array(readFileSync(join(fonts, name)));
@@ -40,6 +41,22 @@ test('paintedWeights reads the roles\' weights from the sheets', () => {
   assert.deepEqual(out.get('body'), [400, 500, 700]);
 });
 
+test('a nested rule\'s own font-weight counts, whatever follows it inside the block', () => {
+  const css = `:root{--font-body:'F',sans-serif;--fw-control:600}
+    .a{font-family:var(--font-body);font-weight:var(--fw-control);&:hover{color:red}.b &{color:blue}}
+    @media (min-width:1px){.c{font-family:var(--font-body);font-weight:700;& .d{font-weight:300}}}
+    .e{color:red;&:hover{font-family:var(--font-body)}}`;
+  const out = paintedWeights(css, ROLES);
+  assert.deepEqual(out.get('body'), [300, 400, 600, 700]);
+});
+
+test('the real arena-button.css paints the body at its control weight', () => {
+  const dist = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..', '..', 'frameworks', 'react', 'dist', 'css');
+  const css = ['typography.css', 'style-plugin-default.css', 'base.css', 'prelude.css', 'components/arena-button.css']
+    .map((file) => readFileSync(join(dist, file), 'utf8')).join('\n');
+  assert.ok(paintedWeights(css, ROLES).get('body')!.includes(600), 'the button root names font-weight: var(--fw-control)');
+});
+
 test('a rule naming a role\'s family and no weight paints that role at 400', () => {
   const out = paintedWeights('.a{font-family:var(--font-mono)}.b{font-family:var(--font-mono);font-weight:700}.c{font-family:var(--font-display);font-weight:800}', ROLES);
   assert.deepEqual(out.get('mono'), [400, 700]);
@@ -61,8 +78,9 @@ test('cutPlan reproduces W7\'s choices', () => {
 });
 
 test('unicodeRange collapses the Latin-1 set into runs', () => {
-  assert.equal(unicodeRange(), 'U+0020-007E,U+00A0-00FF,U+2013-2014,U+2018-201A,U+201C-201E,U+20AC');
-  assert.equal(LATIN_1.length, 95 + 96 + 9);
+  assert.equal(unicodeRange(), 'U+0020-007E,U+00A0-00FF,U+2013-2014,U+2018-201A,U+201C-201E,U+2026,U+20AC');
+  assert.equal(LATIN_1.length, 95 + 96 + 10);
+  assert.ok(LATIN_1.includes(0x2026), 'the ellipsis is kept, as W7\'s set has it');
   assert.deepEqual(KEPT_FEATURES, ['kern', 'liga', 'calt', 'tnum', 'lnum']);
 });
 
