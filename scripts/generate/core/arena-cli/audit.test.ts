@@ -980,7 +980,7 @@ test('an element whose literal class is a glyph is reported once, with the liter
 
 test('in a file naming a ph-* literal, a lone ngClass object and a glyph-free literal class are not reported as bound', () => {
   const lone = glyphLines('<b class="ph-bold ph-sun"></b>\n<i [ngClass]="{ on: active }"></i>', 'src/a.html');
-  assert.equal(lone.filter((line) => line.includes('may hold')).length, 0);
+  assert.equal(lone.filter((line) => line.startsWith('src/a.html:2:')).length, 0);
   const literal = glyphLines('const A = "ph-bold ph-sun";\nconst B = () => <i className="tab__icon" />;');
   assert.equal(literal.length, 0);
 });
