@@ -3,14 +3,40 @@
  * scanner that matched it reported, or rewrote, a path the author never wrote. maskCode blanks
  * every character of code and keeps the length and the newlines, so an index in the masked text
  * is an index in the original; the two functions below match on the masked text and answer with
- * the original. It imports nothing and ships whole with the server, like posix.ts, so the
- * packaging jobs and the checks may read it. */
+ * the original. A backslash hides the character after it, so an escaped backtick opens no span,
+ * and a run of N backticks closes on the next run of exactly N or is literal text. It imports
+ * nothing and ships whole with the server, like posix.ts, so the packaging jobs and the checks
+ * may read it. */
 
 const OPEN = /^ {0,3}(`{3,}|~{3,})([^\r]*)\r?$/;
 const CLOSE = /^ {0,3}(`{3,}|~{3,})[ \t]*\r?$/;
-const SPAN = /`[^`\n]+`/g;
 
 const blank = (text: string) => text.replace(/[^\n]/g, ' ');
+
+function maskSpans(line: string) {
+  let out = '';
+  let at = 0;
+  while (at < line.length) {
+    const char = line[at];
+    if (char === '\\') { out += line.slice(at, at + 2); at += 2; continue; }
+    if (char !== '`') { out += char; at += 1; continue; }
+    let end = at;
+    while (line[end] === '`') end += 1;
+    const run = end - at;
+    let close = -1;
+    for (let from = end; from < line.length;) {
+      if (line[from] !== '`') { from += 1; continue; }
+      let stop = from;
+      while (line[stop] === '`') stop += 1;
+      if (stop - from === run) { close = from; break; }
+      from = stop;
+    }
+    if (close === -1) { out += line.slice(at, end); at = end; continue; }
+    out += blank(line.slice(at, close + run));
+    at = close + run;
+  }
+  return out;
+}
 
 export function maskCode(text: string) {
   let fence = '';
@@ -18,7 +44,7 @@ export function maskCode(text: string) {
     if (fence === '') {
       const open = OPEN.exec(line);
       if (open === null || (open[1]?.startsWith('`') && open[2]?.includes('`'))) {
-        return line.replace(SPAN, blank);
+        return maskSpans(line);
       }
       fence = open[1] ?? '';
       return blank(line);

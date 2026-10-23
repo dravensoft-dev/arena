@@ -45,3 +45,12 @@ test('a block with CRLF line ends masks its links, and the length and the newlin
   assert.equal(maskCode(text).length, text.length);
   assert.deepEqual(matchOutsideCode(text, LINK).map((one) => one[1]), ['d.md']);
 });
+
+test('a backslash-escaped backtick opens no span, so a real link after it survives', () => {
+  assert.deepEqual(matchOutsideCode('use \\` and [l](a.md) then \\` end', LINK).map((one) => one[1]), ['a.md']);
+});
+
+test('a run of backticks closes only on a run of exactly its length, and an unmatched run is literal', () => {
+  assert.deepEqual(matchOutsideCode('a `` b [l](a.md) `c`', LINK).map((one) => one[1]), ['a.md']);
+  assert.deepEqual(matchOutsideCode('a ``x`](y.md)`` [l](a.md)', LINK).map((one) => one[1]), ['a.md']);
+});
