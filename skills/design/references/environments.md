@@ -49,9 +49,9 @@ The typical React app imports `arena.package.generated.css`, then `arena.generat
 
 | bundler | alone | config that does it | after an app release |
 | --- | --- | --- | --- |
-| Vite 7.3.7 | yes | the `manualChunks` of [`stack.md`](./stack.md), matching `arena.package.generated.css` as well | the Arena file keeps its bytes and its name |
-| Vite 8.1.6 | yes | `codeSplitting.groups`, with the group matching `arena.package.generated.css` as well | the Arena file keeps its bytes and its name |
-| webpack 5.111.1 | yes | `experiments.css: true`, and the Arena cache group with `type: /^(javascript\|css)/` | the Arena file keeps its bytes and its name |
+| Vite 7.3.7 | yes | the `manualChunks` with the `arena` test that also matches `arena.package.generated.css`, in [`stack.md`](./stack.md) | the Arena file keeps its bytes and its name |
+| Vite 8.1.6 | yes | the `codeSplitting.groups` of [`stack.md`](./stack.md), whose `arena` test also matches `arena.package.generated.css` | the Arena file keeps its bytes and its name |
+| webpack 5.111.1 | yes | `experiments.css: true` and the `arena` cache group of [`stack.md`](./stack.md), with `type: /^(javascript\|css)/` | the Arena file keeps its bytes and its name |
 | rspack 2.2.8 | yes | the webpack config, and a `css/auto` rule for `.css` | the Arena file keeps its bytes and its name |
 | rollup 4.62 | not exercised | rollup alone imports no CSS and the probe installs no CSS plugin | not measured |
 | rolldown 1.2.12 | no | the build stops: bundling CSS is not supported | not applicable |
@@ -66,7 +66,7 @@ Without that config the same four bundlers emit one file as well.
 
 | environment | status | why |
 | --- | --- | --- |
-| Bun 1.4.0 `bun build` | does not work | splitting shares code between entries and has no way to pin a module to a chunk, so Arena stays in the app's bundle. One bundle, typical screen: 54.11 for a first visit and again for each release, 54.13 for a patch, 0.03 with a dictionary |
+| Bun 1.4.0 `bun build` | does not work | splitting shares code between entries and has no way to pin a module to a chunk, so Arena stays in the app's bundle. One bundle, typical screen, measured on the final tree. A first visit weighs 54.11, and so does each release. A patch weighs 54.13, or 0.03 with a dictionary |
 | esbuild 0.28 | does not work | esbuild splitting shares code between entries and cannot pin a module to a chunk |
 | Turbopack | not exercised | Turbopack exists only inside Next.js, which picks its chunks itself. `next build --webpack` is the webpack row |
 

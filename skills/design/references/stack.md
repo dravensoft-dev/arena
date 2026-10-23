@@ -150,10 +150,10 @@ either one a new download of the other. `arena build` writes them as two source 
 
 | Bundler | The package sheet in a file of its own | Evidence |
 |---|---|---|
-| Vite 7 | yes: the `manualChunks` above also returns `'arena'` for the module `arena.package.generated.css`; the file keeps its bytes and name when the app changes | measured on 2026-10-23 |
-| Vite 8 (rolldown) | yes: the `codeSplitting.groups` entry above also matches `arena.package.generated.css` | measured on 2026-10-23 |
-| webpack | yes: `experiments: { css: true }`, and the `arena` cache group with `type: /^(javascript\|css)/` and a `test` that also matches `arena.package.generated.css` | measured on 2026-10-23 |
-| rspack | yes: the webpack config, with `{ test: /\.css$/, type: 'css/auto' }` in `module.rules` | measured on 2026-10-23 |
+| Vite 7 | yes, with `build.rollupOptions.output.manualChunks: (id) => (/node_modules[\\/](react\|react-dom\|scheduler)[\\/]/.test(id) ? 'react' : /arena-react\|arena\.package\.generated\.css/.test(id) ? 'arena' : undefined)`. The second test also matches the sheet, which sits in the `-o` directory of `arena build`, outside `node_modules`. The file keeps its bytes and name when the app changes | measured on 2026-10-23 |
+| Vite 8 (rolldown) | yes, with `build.rollupOptions.output.codeSplitting.groups: [{ name: 'react', test: /node_modules[\\/](react\|react-dom\|scheduler)[\\/]/, priority: 20 }, { name: 'arena', test: /arena-react\|arena\.package\.generated\.css/, priority: 10 }]` | measured on 2026-10-23 |
+| webpack | yes, with `experiments: { css: true }` and `optimization.splitChunks: { chunks: 'all', cacheGroups: { default: false, defaultVendors: false, react: { test: /node_modules[\\/](react\|react-dom\|scheduler)[\\/]/, name: 'react', enforce: true, priority: 20 }, arena: { test: /arena-react\|arena\.package\.generated\.css/, name: 'arena', enforce: true, priority: 10, type: /^(javascript\|css)/ } } }`, with `[name]-[contenthash:8].css` as `output.cssFilename` and `cssChunkFilename` | measured on 2026-10-23 |
+| rspack | yes: the webpack config, with `{ test: /\.css$/, type: 'css/auto' }` added to `module.rules` | measured on 2026-10-23 |
 | rollup | not exercised: rollup alone imports no CSS, and a CSS plugin decides | not exercised |
 | rolldown | no: it refuses to bundle CSS | measured on 2026-10-23 |
 | Parcel | no: it cannot resolve the package specifiers of the sheet's `@import`s | measured on 2026-10-23 |
