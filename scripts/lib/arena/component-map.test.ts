@@ -42,8 +42,8 @@ for (const [layer, match] of [['angular', 'selector'], ['react', 'symbol']] as [
 
   test(`${layer} closes what Arena draws for the consumer, and a table is the case that proves it`, () => {
     const { needs } = componentMap(layer, repoRoot);
-    assert.deepEqual(needs['arena-table'], ['arena-pagination', 'arena-select'],
-      'a table renders both, and a subset naming table alone is a paginated table with no pagination');
+    assert.deepEqual(needs['arena-table'], ['arena-icon', 'arena-pagination', 'arena-select'],
+      'a table renders all three, and a subset naming table alone is a paginated table with no pagination or caret');
     for (const [sheet, pulled] of Object.entries(needs) as [string, string[]][]) {
       assert.ok(!pulled.includes(sheet), `${sheet} needs itself, so the closure did not drop the self edge`);
     }
@@ -70,8 +70,8 @@ test('a map is derived per layer, and the two agree where the two layers compose
   const angular = componentMap('angular', repoRoot);
   const react = componentMap('react', repoRoot);
   for (const map of [react, angular]) {
-    assert.deepEqual(map.needs['arena-confirm-dialog'], ['arena-button'],
-      'the cancel action IS an ArenaButton, so both layers render one and the sheet follows');
+    assert.deepEqual(map.needs['arena-confirm-dialog'], ['arena-button', 'arena-icon'],
+      'the cancel action IS an ArenaButton, which draws a glyph, so both layers render both and the sheet follows');
   }
 });
 
