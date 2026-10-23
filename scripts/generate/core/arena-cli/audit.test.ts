@@ -944,7 +944,7 @@ function glyphLines(source: string, path = 'src/a.tsx') {
 test('a glyph nested in a JSX prop is reported once, at its own element', () => {
   const found = glyphLines('<ArenaAppBar\n  brand={<a><i className="ph-fill ph-storefront" /></a>}\n/>');
   assert.equal(found.length, 1);
-  assert.match(found[0] ?? '', /:2\b|\b2\b/);
+  assert.ok((found[0] ?? '').startsWith('src/a.tsx:2:'), found[0]);
 });
 
 test('a nested element\'s emphasis class is not read as the outer tag\'s', () => {
@@ -976,4 +976,11 @@ test('an element whose literal class is a glyph is reported once, with the liter
   const found = glyphLines('<span className={`ph ph-bell ${open ? "a" : "b"}`} />');
   assert.equal(found.length, 1);
   assert.ok(!(found[0] ?? '').includes('may hold'));
+});
+
+test('in a file naming a ph-* literal, a lone ngClass object and a glyph-free literal class are not reported as bound', () => {
+  const lone = glyphLines('<b class="ph-bold ph-sun"></b>\n<i [ngClass]="{ on: active }"></i>', 'src/a.html');
+  assert.equal(lone.filter((line) => line.includes('may hold')).length, 0);
+  const literal = glyphLines('const A = "ph-bold ph-sun";\nconst B = () => <i className="tab__icon" />;');
+  assert.equal(literal.length, 0);
 });

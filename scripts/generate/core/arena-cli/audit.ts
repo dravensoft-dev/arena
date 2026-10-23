@@ -24,7 +24,7 @@ export const RULE_DESCRIPTIONS: Record<(typeof RULE_TAGS)[number], string> = {
   'one-primary': 'A second action in one view, or in one modal, takes the primary emphasis by class or by leaving a primary-default component without one.',
   'outline-gap': 'A source draws Arena headings at two levels with a level missing between them, such as an h1 and an h3 with no h2.',
   'own-class': 'A component carries a class outside its vocabulary or a computed one, or a stylesheet targets an `arena-` class anywhere or a `data-arena-part` hook outside a style plugin.',
-  'raw-glyph': 'An element other than `ArenaIcon` holds a Phosphor glyph class, or binds its class, in a file naming one; either paints nothing, as Arena ships no icon font.',
+  'raw-glyph': 'An element other than `ArenaIcon` holds a Phosphor glyph class, or binds its class in a file naming one and so may; Arena ships no icon font to paint it.',
   'raw-value': 'A style holds a hex, colour or bare pixel length, or a gradient outside a style plugin unless `gradientMark` is set, or a class holds a non-token bracket value.',
   'router-link': 'A link of your own, such as `a`, `Link` or `routerLink`, directly wraps an Arena card, side nav item, bottom nav item or table cell.',
   'stale-allowance': 'An `arena-audit allow` marker sits on a line with nothing to exempt.',
