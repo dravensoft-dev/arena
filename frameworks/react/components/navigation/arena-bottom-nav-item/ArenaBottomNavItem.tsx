@@ -1,6 +1,7 @@
 import React from 'react';
 import { isArenaPrimaryActivation } from '../../../AnchorActivation.ts';
 import { arenaActiveWeight, arenaBadgeCount } from '../NavRow.ts';
+import { arenaWarnOnce } from '../../../WarnOnce.ts';
 import type { ArenaBottomNavInjected } from '../arena-bottom-nav/BottomNavInject.tsx';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from '../arena-bottom-nav/ArenaBottomNav.classes.generated.ts';
@@ -41,6 +42,9 @@ export function ArenaBottomNavItem({ className,
   if (!id) throw new Error('ArenaBottomNavItem: `id` is required');
   if (!label) throw new Error('ArenaBottomNavItem: `label` is required');
   if (!icon) throw new Error('ArenaBottomNavItem: `icon` is required');
+  if (badge !== undefined && typeof badge !== 'number') {
+    arenaWarnOnce(`ArenaBottomNavItem: badge is a count and takes a number; a ${typeof badge} draws no badge`);
+  }
   const on = id === activeId;
   const tally = arenaBadgeCount(badge);
   const styles = arenaBottomNavStyles({ current: on });

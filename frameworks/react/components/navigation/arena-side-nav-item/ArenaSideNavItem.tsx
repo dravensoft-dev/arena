@@ -3,6 +3,7 @@ import { isArenaPrimaryActivation } from '../../../AnchorActivation.ts';
 import type { ArenaSideNavInjected } from '../arena-side-nav/SideNavInject.tsx';
 import { arenaIndentDepth } from '../arena-side-nav/SideNavInject.tsx';
 import { arenaActiveWeight, arenaBadgeCount } from '../NavRow.ts';
+import { arenaWarnOnce } from '../../../WarnOnce.ts';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from '../arena-side-nav/ArenaSideNav.classes.generated.ts';
 import { ArenaTooltip } from '../../feedback/arena-tooltip/ArenaTooltip.tsx';
@@ -45,6 +46,9 @@ export function ArenaSideNavItem({ className,
   if (!label) throw new Error('ArenaSideNavItem: `label` is required');
   if (collapsed && !icon) {
     throw new Error(`ArenaSideNavItem: \`icon\` is required while ArenaSideNav is collapsed, and the item "${id}" has none`);
+  }
+  if (badge !== undefined && typeof badge !== 'number') {
+    arenaWarnOnce(`ArenaSideNavItem: badge is a count and takes a number; a ${typeof badge} draws no badge`);
   }
   const on = id === activeId;
   const styles = arenaSideNavStyles({ current: on, collapsed });

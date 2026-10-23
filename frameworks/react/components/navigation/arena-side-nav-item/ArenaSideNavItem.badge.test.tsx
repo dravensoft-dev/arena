@@ -8,6 +8,7 @@ import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { ArenaSideNav } from '../arena-side-nav/ArenaSideNav.tsx';
 import { ArenaSideNavItem } from './ArenaSideNavItem.tsx';
+import { forgetArenaWarnings } from '../../../WarnOnce.ts';
 
 function drawn(badge: number | undefined): string {
   return renderToStaticMarkup(
@@ -40,4 +41,21 @@ test('the count is not hidden from assistive technology -- the row announces it'
   assert.match(html, /Orders/);
   assert.match(html, /12/, 'a count a screen-reader user cannot hear is a count that is not there');
   assert.doesNotMatch(html, /aria-hidden="true"[^>]*>12/);
+});
+
+test('a badge that is not a number draws nothing and warns once', () => {
+  const warnings: string[] = [];
+  const original = console.warn;
+  console.warn = (message: string) => { warnings.push(message); };
+  try {
+    forgetArenaWarnings();
+    const first = drawn('120' as unknown as number);
+    const second = drawn('120' as unknown as number);
+    for (const html of [first, second]) assert.doesNotMatch(html, /side-nav\.badge/);
+    assert.deepEqual(counts(first), []);
+    assert.equal(warnings.length, 1);
+    assert.match(warnings[0]!, /takes a number/);
+  } finally {
+    console.warn = original;
+  }
 });
