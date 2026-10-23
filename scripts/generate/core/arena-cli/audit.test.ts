@@ -8,7 +8,7 @@ import {
   paintedParts, sourceScope, outlineGap, kebabTag, HEADING_RUNGS, OWN_CLASS_ATTRIBUTE,
   LINKABLE_TAGS, WRAPPED_LINK_TAGS, statedRung, fillsWithDanger, namesAnAlias, RULE_TAGS, RULE_DESCRIPTIONS,
   UNMODELLED_UNITS, styleIdentifiers, styleObjectLines, unknownInputs,
-  ownClassFindings, RAW_COLOUR_MESSAGE, RAW_HEX_MESSAGE, GRADIENT_MESSAGE, primaryMessage, DANGER_FILL_MESSAGE, type VocabularyIndex,
+  ownClassFindings, classValues, RAW_GLYPH_BOUND_MESSAGE, RAW_COLOUR_MESSAGE, RAW_HEX_MESSAGE, GRADIENT_MESSAGE, primaryMessage, DANGER_FILL_MESSAGE, type VocabularyIndex,
 } from './audit.ts';
 import { vocabularyIndex } from '../../../lib/arena/vocabulary-index.ts';
 
@@ -935,4 +935,45 @@ test('every audit tag carries one description, in the register of a present-tens
     assert.doesNotMatch(text, banned, tag);
     assert.ok(text.split(/\s+/).length <= 30, `${tag} runs past 30 words`);
   }
+});
+
+function glyphLines(source: string, path = 'src/a.tsx') {
+  return auditText(path, source).filter((line) => line.includes('raw-glyph'));
+}
+
+test('a glyph nested in a JSX prop is reported once, at its own element', () => {
+  const found = glyphLines('<ArenaAppBar\n  brand={<a><i className="ph-fill ph-storefront" /></a>}\n/>');
+  assert.equal(found.length, 1);
+  assert.match(found[0] ?? '', /:2\b|\b2\b/);
+});
+
+test('a nested element\'s emphasis class is not read as the outer tag\'s', () => {
+  assert.equal(classValues(' actions={<ArenaButton className="arena-emphasis-secondary" />} '), '');
+});
+
+test('a brace inside a quoted class attribute is still the tag\'s own class', () => {
+  assert.match(classValues(' class="{{ x }} ph-bold ph-x"'), /ph-bold ph-x/);
+  assert.match(rules('<i [ngClass]="{ \'ph-bold ph-x\': on }"></i>', 'src/a.html'), /raw-glyph/);
+});
+
+test('a bound class in a file that names a ph-* literal may hold a Phosphor class', () => {
+  const tsx = glyphLines("const TABS = [{ icon: 'ph-bold ph-kanban' }];\nexport const A = () => <i className={TABS[0].icon} />;");
+  assert.equal(tsx.length, 1);
+  assert.ok((tsx[0] ?? '').includes('may hold a Phosphor class'));
+  assert.ok(RAW_GLYPH_BOUND_MESSAGE.includes('may hold a Phosphor class'));
+  const braces = glyphLines('<i class="{{ entry.icon }} tab__icon"></i>\n<b class="ph-bold ph-sun"></b>', 'src/a.html');
+  assert.equal(braces.filter((line) => line.includes('may hold')).length, 1);
+  const bound = glyphLines('<i [class]="themeIcon()"></i>\n<b class="ph-bold ph-sun"></b>', 'src/a.html');
+  assert.equal(bound.filter((line) => line.includes('may hold')).length, 1);
+});
+
+test('a bound class in a file with no ph-* literal reports nothing, and ArenaIcon is never reported', () => {
+  assert.equal(glyphLines('<i className={row.icon} />').length, 0);
+  assert.equal(glyphLines('const x = "ph-bold ph-x";\n<ArenaIcon className={x} />').length, 0);
+});
+
+test('an element whose literal class is a glyph is reported once, with the literal message', () => {
+  const found = glyphLines('<span className={`ph ph-bell ${open ? "a" : "b"}`} />');
+  assert.equal(found.length, 1);
+  assert.ok(!(found[0] ?? '').includes('may hold'));
 });

@@ -11,7 +11,7 @@
 
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { WEIGHT_CLASSES } from './icon-css.ts';
+import { WEIGHT_CLASSES, glyphNames, scan } from './icon-css.ts';
 
 export const RULE_TAGS = ['compat-alias', 'danger-fill', 'emoji', 'icon-element',
   'one-primary', 'outline-gap', 'own-class', 'raw-glyph', 'raw-value', 'router-link', 'stale-allowance', 'unknown-input', 'wrapped-link'] as const;
@@ -24,7 +24,7 @@ export const RULE_DESCRIPTIONS: Record<(typeof RULE_TAGS)[number], string> = {
   'one-primary': 'A second action in one view, or in one modal, takes the primary emphasis by class or by leaving a primary-default component without one.',
   'outline-gap': 'A source draws Arena headings at two levels with a level missing between them, such as an h1 and an h3 with no h2.',
   'own-class': 'A component carries a class outside its vocabulary or a computed one, or a stylesheet targets an `arena-` class anywhere or a `data-arena-part` hook outside a style plugin.',
-  'raw-glyph': 'An element other than `ArenaIcon` holds a Phosphor weight class and a `ph-*` glyph in its class, which paints nothing because Arena ships no icon font.',
+  'raw-glyph': 'An element other than `ArenaIcon` holds a Phosphor glyph class, or binds its class, in a file naming one; either paints nothing, as Arena ships no icon font.',
   'raw-value': 'A style holds a hex, colour or bare pixel length, or a gradient outside a style plugin unless `gradientMark` is set, or a class holds a non-token bracket value.',
   'router-link': 'A link of your own, such as `a`, `Link` or `routerLink`, directly wraps an Arena card, side nav item, bottom nav item or table cell.',
   'stale-allowance': 'An `arena-audit allow` marker sits on a line with nothing to exempt.',
@@ -338,6 +338,9 @@ const WEIGHT_TOKEN = /(?<![\w-])ph(?:-(?:thin|light|bold|fill|duotone))?(?![\w-]
 const GLYPH_TOKEN = new RegExp(`(?<![\\w-])ph-(?!(?:${WEIGHT_WORDS})(?![\\w-]))[a-z0-9]+(?:-[a-z0-9]+)*`);
 const RAW_GLYPH_MESSAGE = 'an element drawn with a Phosphor class, which paints nothing because Arena ships no icon '
   + 'font. Draw it through ArenaIcon (arena-icon in Angular), as icon="ph-bold ph-plus"';
+export const RAW_GLYPH_BOUND_MESSAGE = 'an element whose class is bound to a value, in a file that names a Phosphor glyph, so it may hold '
+  + 'a Phosphor class, which paints nothing because Arena ships no icon font. Draw it through ArenaIcon (arena-icon in Angular), '
+  + 'handing it the value as icon';
 const ICON_ELEMENT = /\bicon(?:Right)?\s*=\s*\{\s*</;
 
 const EMOJI = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}]/u;
@@ -572,8 +575,23 @@ export function elementEnd(text: string, name: string, ends: number) {
   return text.length;
 }
 
+function ownClassStarts(raw: string) {
+  return [...ownAttributes(raw).matchAll(CLASS_VALUE)].map((m) => {
+    let from = (m.index ?? 0) + m[0].trimEnd().length;
+    while (/\s/.test(raw[from] ?? '')) from += 1;
+    return { name: m[0], from };
+  });
+}
+
 export function classValues(raw: string) {
-  return [...raw.matchAll(CLASS_VALUE)].map((m) => attributeValueAt(raw, (m.index ?? 0) + m[0].length)).join(' ');
+  return ownClassStarts(raw).map(({ from }) => attributeValueAt(raw, from)).join(' ');
+}
+
+function bindsClass(raw: string) {
+  return ownClassStarts(raw).some(({ name, from }) => {
+    const value = attributeValueAt(raw, from);
+    return /\[class\]\s*=\s*$/.test(name) || value.startsWith('{') || value.includes('{{');
+  });
 }
 
 export function inBranch(text: string, start: number, attributes: string, openBranches: { name: string; end: number }[]) {
@@ -710,6 +728,7 @@ export function ownAttributes(attributes: string) {
 
 export function structuralFindings(text: string, vocabulary: VocabularyIndex | null = null, source = text): Finding[] {
   const found: Finding[] = [];
+  const namesGlyph = glyphNames(scan(text)).size > 0;
   const rungs: number[] = [];
   let firstRung = 0;
   const primaries: { scope: number; line: number }[] = [];
@@ -752,6 +771,8 @@ export function structuralFindings(text: string, vocabulary: VocabularyIndex | n
       const classes = classValues(raw);
       if (WEIGHT_TOKEN.test(classes) && GLYPH_TOKEN.test(classes))
         found.push(at(lineAt(text, start), 'raw-glyph', RAW_GLYPH_MESSAGE));
+      else if (namesGlyph && bindsClass(raw))
+        found.push(at(lineAt(text, start), 'raw-glyph', RAW_GLYPH_BOUND_MESSAGE));
     }
 
     if (ARENA_TAG.test(name) && STATED_PRIMARY.test(attributes)) primaries.push({ scope, line: lineAt(text, start) });
