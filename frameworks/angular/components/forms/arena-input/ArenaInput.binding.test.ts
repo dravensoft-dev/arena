@@ -7,6 +7,14 @@ import { TestBed } from '@angular/core/testing';
 import { ArenaControlBinding } from '../../../ControlBinding';
 import { ArenaInput } from './ArenaInput';
 
+function warnings(run: () => void): string[] {
+  const saved = console.warn;
+  const heard: string[] = [];
+  console.warn = (message: string) => { heard.push(message); };
+  try { run(); } finally { console.warn = saved; }
+  return heard;
+}
+
 function render() {
   const fixture = TestBed.createComponent(ArenaInput);
   fixture.componentRef.setInput('label', 'Name');
@@ -19,10 +27,14 @@ function render() {
 test('while bound, the control draws the binding\'s value and ignores its own', () => {
   const { fixture, binding, el } = render();
   try {
-    fixture.componentRef.setInput('value', 'own');
-    binding.bound.set(true);
-    binding.value.set('form');
-    fixture.detectChanges();
+    const heard = warnings(() => {
+      fixture.componentRef.setInput('value', 'own');
+      binding.bound.set(true);
+      binding.value.set('form');
+      fixture.detectChanges();
+    });
+    assert.equal(heard.length, 1);
+    assert.match(heard[0] ?? '', /ArenaInput: `value` is bound while a form directive binds the same control/);
     assert.equal(el.value, 'form');
   } finally { fixture.destroy(); }
 });

@@ -15,6 +15,7 @@ import { ArenaIconButton } from './ArenaIconButton';
 class Plain {}
 
 @Component({
+  selector: 'arena-icon-button-pressed-on',
   standalone: true,
   imports: [ArenaIconButton],
   template: `<arena-icon-button icon="ph-bold ph-plus" label="Add" [pressed]="true" />`,
@@ -22,6 +23,7 @@ class Plain {}
 class On {}
 
 @Component({
+  selector: 'arena-icon-button-pressed-off',
   standalone: true,
   imports: [ArenaIconButton],
   template: `<arena-icon-button icon="ph-bold ph-plus" label="Add" [pressed]="false" />`,

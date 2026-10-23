@@ -1,10 +1,11 @@
 import { ensureDom } from '../../../test/TestbedEnv';
 ensureDom();
 
-import test from 'node:test';
+import test, { beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
 import type { ArenaCommand } from '../../../Api.generated';
 import { assertNoNode, assertSameNode } from '../../../test/NodeAssert';
+import { disposeStrays } from '../../../test/Overlays';
 import {
   arenaActiveOptionId,
   arenaFilterCommands,
@@ -12,6 +13,8 @@ import {
   arenaOptionRowId,
   arenaScrollRowIntoView,
 } from './ArenaCommandPalette';
+
+beforeEach(() => disposeStrays(document));
 
 const COMMANDS: ArenaCommand[] = [
   { id: 'deploy', label: 'Deploy to production', hint: 'client portal', shortcut: '⌘D' },

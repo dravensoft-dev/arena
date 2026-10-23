@@ -86,7 +86,7 @@ test('a template slot renders its attribute through the directive', () => {
   fixture.detectChanges();
   const host = fixture.nativeElement as HTMLElement;
   assert.equal(host.getAttribute('data-arena-tone'), 'success');
-  assert.equal(host.querySelector('i')?.getAttribute('data-arena-tone'), 'success');
+  assert.equal(host.querySelector('[data-arena-part="alert.icon"]')?.getAttribute('data-arena-tone'), 'success');
   assert.equal(host.querySelector('[data-arena-part="alert.message"]')?.hasAttribute('data-arena-titled'), true);
 });
 

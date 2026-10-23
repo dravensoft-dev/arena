@@ -59,3 +59,35 @@ export function silenceOf(silence?: Silence) {
     + 'raised nothing rendered what it was asked to; one whose entry came back empty or 404 never '
     + 'ran, and the bundle beside the page is what to look at';
 }
+
+
+export const COLLECT_WARNINGS = `window.__arenaWarnings = [];
+(() => {
+  const warn = console.warn;
+  console.warn = function (...args) {
+    window.__arenaWarnings.push(args.map((one) => String(one)).join(' '));
+    return warn.apply(this, args);
+  };
+})();`;
+
+export const WARNINGS = '(window.__arenaWarnings || []).slice()';
+
+export function warningsProblem(name: string, lists: { react: string[]; angular: string[] }) {
+  const sorted = (list: string[]) => [...list].sort();
+  const a = sorted(lists.react);
+  const b = sorted(lists.angular);
+  if (a.length === b.length && a.every((one, index) => one === b[index])) return null;
+  const only = (from: string[], other: string[]) => {
+    const rest = [...other];
+    return from.filter((one) => {
+      const at = rest.indexOf(one);
+      if (at === -1) return true;
+      rest.splice(at, 1);
+      return false;
+    });
+  };
+  const show = (list: string[]) => (list.length === 0 ? ' none' : list.map((one) => `\n      ${one}`).join(''));
+  return `${name}: the two layers print different console warnings, so one of them runs a path the `
+    + `other skips. React printed:${show(lists.react)}\n    Angular printed:${show(lists.angular)}\n    `
+    + `Only in React:${show(only(a, b))}\n    Only in Angular:${show(only(b, a))}`;
+}

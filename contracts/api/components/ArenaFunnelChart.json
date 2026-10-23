@@ -1,0 +1,61 @@
+{
+  "component": "ArenaFunnelChart",
+  "description": "One ordered series narrowing stage by stage. Each stage is a centred bar whose width is its value from zero, joined to the next by a tinted connector that shows the loss. The conversion between stages is written by the chart. Dependency-free SVG with a visually-hidden table of the same numbers.",
+  "affordances": [
+    "hover",
+    "press"
+  ],
+  "api": {
+    "labels": {
+      "form": "array",
+      "of": "string",
+      "required": true,
+      "description": "One label per stage, in the same order as the series' `values`, running down the left edge. The chart does not reorder them: a funnel's order is a sequence in time or in a process, and sorting would invent one. A stage with no label has an empty name."
+    },
+    "series": {
+      "form": "array",
+      "of": "ArenaSeries",
+      "required": true,
+      "description": "Exactly one series, the count at each stage in order. A second series warns and is ignored, because two funnels are two charts. `colorIds` is per-stage identity. `tone`, when given, colours the whole series and never a position, because a later stage is not worse for being later."
+    },
+    "colorStart": {
+      "form": "enum",
+      "type": "ArenaCatSlot",
+      "default": 1,
+      "description": "The ramp slot the stages take when the series names no colour of its own. A stage past the end of `colorIds` takes the slot its position gives, counted from this one, and after the last slot the count starts again at the first. Absent, 1."
+    },
+    "label": {
+      "form": "primitive",
+      "type": "string",
+      "required": true,
+      "description": "Names the chart for its accessible name and for the caption of its data table. The label is the CHART's name, not a series': a series names itself. A fallback of the chart TYPE satisfies roles.label mechanically and tells a screen-reader user nothing, so two charts on one page announce identically. Required and guarded rather than defaulted for that reason."
+    },
+    "showConversion": {
+      "form": "primitive",
+      "type": "boolean",
+      "default": true,
+      "description": "Whether the conversion is drawn and tabled. On, each stage's share of the stage before it is written beside the loss between the two, the table gains the two conversion columns, and the tooltip reads both ratios. Off, the funnel is its marks and their counts."
+    },
+    "valueSuffix": {
+      "form": "primitive",
+      "type": "string",
+      "description": "Appended verbatim to every count the chart writes: the numbers beside the stages, the tooltip and the accessible table. The conversion is a percentage and takes no suffix."
+    },
+    "valuePrefix": {
+      "form": "primitive",
+      "type": "string",
+      "description": "Drawn verbatim before every count the chart writes, as valueSuffix is drawn after it. A currency that precedes its amount is the majority case worldwide, and a suffix alone cannot say it: \"1234.5 Bs.\" would disagree with the table beside it reading \"Bs. 1.234,50\", and the accessible table would inherit the disagreement."
+    },
+    "valueFormat": {
+      "form": "object",
+      "type": "ArenaNumberFormat",
+      "description": "How each count is written before the prefix and suffix are added: which locale, how many fraction digits, whether thousands are grouped, whether large numbers are compacted. Absent, the raw JavaScript number. The conversion takes only the locale and keeps at most one fraction digit, so 62.4% is never written 62%."
+    },
+    "height": {
+      "form": "primitive",
+      "type": "number",
+      "default": 280,
+      "description": "The plot's height in px, the --chart-height token by default. The height is the axis the stages run down, so a funnel of many stages wants more of it. Pass the room the data needs rather than letting the stages thin out. A number rather than a dimension string, because the chart does arithmetic with it to place every mark."
+    }
+  }
+}

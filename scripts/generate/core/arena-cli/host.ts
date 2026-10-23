@@ -1,15 +1,18 @@
 /* Where the command is running: the package around it, the sheets, catalogue, component map and
- * vocabulary that package carries, and the Phosphor install a project holds. hostPackage answers a
- * path rather than a name because the two steps want different things out of it. resolveEnvironment
- * is the one place an override a caller hands in wins over what the install would answer. */
+ * vocabulary that package carries, and the one Phosphor install the command reads: phosphorRoot is
+ * @phosphor-icons/core, whose assets/ the sprite is written from. hostPackage answers a path rather
+ * than a name because the two steps want different things out of it. resolveEnvironment is the one
+ * place an override a caller hands in wins over what the install would answer. */
 
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { dirname, basename, join, resolve } from 'node:path';
+import { dirname, basename, join } from 'node:path';
 import { loadVocabulary } from './audit.ts';
+import { packageRoot } from './package-root.ts';
+import type { FontToolRoots } from './font-files.ts';
 import type { VocabularyIndex } from './audit.ts';
 import { inlineHues, levelDefaults, levelsIn, washesIn } from './levels.ts';
-import { SHEET_IMPORT, componentMap, packageCatalogue, roleReferencesIn, scopesIn } from './sheets.ts';
+import { SHEET_IMPORT, componentMap, packageCatalogue, aliasesIn, roleReferencesIn, scopesIn } from './sheets.ts';
 import type { PackageSheets } from './theme-css.ts';
 import type { ComponentMap } from './components.ts';
 
@@ -34,6 +37,17 @@ export function hostPackageName(root: string) {
 
 const read = (at: string) => {
   try { return readFileSync(at, 'utf8'); } catch { return ''; }
+};
+
+class MissingSheet extends Error {}
+
+const required = (root: string, name: string) => {
+  const at = join(root, 'css', name);
+  if (!existsSync(at)) {
+    throw new MissingSheet(`${root} ships no css/${name}, so a style plugin written beside it would lose the `
+      + 'widths and the hero fit that sheet computes on :root. Reinstall the package.');
+  }
+  return readFileSync(at, 'utf8');
 };
 
 export function packageSheets(root: string): PackageSheets {
@@ -68,31 +82,32 @@ export function packageSheets(root: string): PackageSheets {
       washes,
       scopes: [...new Set([...layerCss, ...sheets].flatMap(scopesIn))].sort(),
       roleReferences: roleReferencesIn(catalogue),
+      aliases: aliasesIn(catalogue),
+      rootOnly: {
+        contrast: required(root, 'contrast.css'),
+        environment: required(root, 'environment.css'),
+      },
       catalogue: catalogue ?? undefined,
     };
-  } catch {
+  } catch (error) {
+    if (error instanceof MissingSheet) throw error;
     return null;
   }
 }
 
 export function phosphorRoot(from = process.cwd(), fallback = here) {
-  for (const start of [from, fallback]) {
-    let at = resolve(start);
-    for (;;) {
-      const candidate = join(at, 'node_modules', '@phosphor-icons', 'web');
-      if (existsSync(join(candidate, 'package.json'))) return candidate;
-      const up = dirname(at);
-      if (up === at) break;
-      at = up;
-    }
-  }
-  return null;
+  return packageRoot(['@phosphor-icons', 'core'], from, fallback);
+}
+
+export function fontToolRoots(from = process.cwd(), fallback = here) {
+  return { harfbuzz: packageRoot(['harfbuzzjs'], from, fallback), wawoff2: packageRoot(['wawoff2'], from, fallback) };
 }
 
 export type HostEnvironment = {
   packageName?: string;
   arena?: string | null;
   phosphor?: string | null;
+  fontTools?: FontToolRoots;
   sheets?: PackageSheets;
   map?: ComponentMap | null;
   vocabulary?: VocabularyIndex | null;
@@ -109,7 +124,8 @@ export function resolveEnvironment(environment: HostEnvironment = {}) {
   const vocabulary: VocabularyIndex | null = environment.vocabulary !== undefined
     ? environment.vocabulary : (arena ? loadVocabulary(arena) : null);
   const phosphor = ('phosphor' in environment ? environment.phosphor : phosphorRoot()) ?? null;
-  return { arena, packageName, sheets, map, vocabulary, phosphor };
+  const fontTools = environment.fontTools ?? fontToolRoots();
+  return { arena, packageName, sheets, map, vocabulary, phosphor, fontTools };
 }
 
 export function hostManifest(root: string | null): { name: string; version: string; engines?: { node?: string } } | null {

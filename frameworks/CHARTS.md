@@ -1,5 +1,7 @@
 # The chart family
 
+> **Building a screen with a chart?** This page is for whoever changes a chart. Read [exports.md](../skills/design/references/exports.md) instead.
+
 > **For whoever changes a chart.** This page sits at the `frameworks/` root, beside
 > [`AGENTS.md`](./AGENTS.md), for the reason that page gives for sitting there: a fact about the
 > layers belongs to none of them, and a copy per layer is a copy that can disagree. Every rule
@@ -8,7 +10,7 @@
 
 It is a page of its own rather than a section of the roof because a chart is one category of one
 kind of component, and the roof is read by whoever changes any component at all. What binds every
-layer is there; what binds the eight charts is here, and the route to it is one link.
+layer is there; what binds every chart is here, and the route to it is one link.
 
 `components/charts/` carries the worked example, and the rule that goes with it. Three modules
 sit there rather than inside a chart or at the layer root, because every chart reads them and
@@ -25,10 +27,13 @@ more" needs no minus sign and `arenaScaleZero(scale)` falls out of the same arit
 **A `role="img"` subtree is presentational, and that one fact splits the chart's keyboard story
 in two.** Nothing focusable inside the graphic reaches a screen reader however correct its ARIA,
 so the reader of a screen reader gets the hidden table, which is already there, and a sighted
-keyboard user gets a data cursor. **One tab stop for the whole plot, always**: the rail carries
-it whether it overflows or not, and the cursor moves inside the region rather than adding stops,
-which is what `focus.roving` means in `contracts/behaviour/figure-with-data-table.json`. Arrows
-clamp and never wrap, because an axis has ends and wrapping loses the reader's place.
+keyboard user gets a data cursor. **One tab stop for the whole plot, always, once the chart reads
+a cursor**: the rail carries it whether it overflows or not, and the cursor moves inside the
+region rather than adding stops, which is what `focus.roving` means in
+`contracts/behaviour/figure-with-data-table.json`. A static sparkline and a gauge read no cursor,
+so neither has a stop, and the `static` case of the sparkline's binding and the gauge's whole
+binding except every cursor requirement. Arrows clamp and never wrap, because an axis has ends and
+wrapping loses the reader's place.
 
 **Tap to read, drag to scroll.** `arenaPointerUpdates(pointerType, phase)` is the whole rule: a
 `pointerdown` always reads, and a `pointermove` reads for every pointer except touch, because a
@@ -45,8 +50,10 @@ nowhere to put the second. Its label is not decoration: it heads that series' ow
 so a reader of the table never has to work out which number belongs to which line. The
 component's own `label` is the chart's name and a different thing, and both are required and
 guarded for the reason `contracts/api/MemberForms.md` gives. A series with no identity of its
-own takes the ramp slot its POSITION gives it, so two series are never the same colour by
-accident, and the ramp still clamps rather than cycling. **A missing number is not a zero**: a
+own takes the ramp slot its POSITION gives it, counted from the chart's `colorStart` (slot 1 by
+default) through `arenaCatRotate(start, position)`, so two series are never the same colour by
+accident. After the last slot the count starts again, and an explicit slot still clamps through
+`arenaCatIndex(slot)`. **A missing number is not a zero**: a
 series shorter than the others stops there, leaves an empty cell in the table, and draws no
 mark, because inventing the difference is the one thing a chart may not do.
 
@@ -176,8 +183,9 @@ and with nothing else.
 rather than a gap.** `ArenaBarChart` overflows sideways when the points stop fitting, and sideways
 is a direction a page does not use. Down is the direction a page already scrolls, so a rail there
 would nest one scroller inside another and eat the gesture a reader was making to leave.
-`ArenaHorizontalBarChart` and `ArenaPyramidChart` take the room through `height` instead, which on
-that axis is what the data grows along. `chart.pad-category` is its own token rather than a wider
+`ArenaHorizontalBarChart`, `ArenaPyramidChart` and `ArenaFunnelChart` take the room through `height` instead, which on
+that axis is what the data grows along. `ArenaHeatmapChart` does both: its rows take `height`, and its
+columns scroll sideways in a rail when `minCellWidth` asks. `chart.pad-category` is its own token rather than a wider
 `chart.pad-left` because the two gutters hold different things, and sizing every chart's value
 gutter for the longest category name anybody might write would spend it on every vertical chart in
 the library.
@@ -222,7 +230,8 @@ vertex of a full-value polygon, which is what a screenshot showed and no gate co
 anchor by the side they point to, `start` on the right half and `end` on the left, because a
 centred label on a horizontal axis reaches back over the shape it names. `ChartPolar.ts` starts at
 12 o'clock and runs clockwise, the same as `arenaDoughnutSlices`, so two radial charts on one page
-never begin in different places.
+never begin in different places. That rule is about charts whose marks are categories around a
+ring, and the gauge's dial is the recorded exception, because a scale has two ends.
 
 **A pyramid negates its first series when it DRAWS it and nowhere else.** Both sides carry counts,
 the accessible table reads the numbers that were passed, and the axis is written in magnitudes,
@@ -240,6 +249,75 @@ count is the whole rule, which is why the charts that shipped before it draw the
 drew: `arenaLegendShows(count)` is the only place it is written. The strip comes OUT of the plot,
 so `--chart-height` stays the height of the whole component, the same trade the doughnut makes on
 the other axis when its legend column takes width from the ring.
+
+**A sparkline is scaled to the data's own range, because it has no axis to read a magnitude
+off.** `arenaSparkDomain(values)` spans the lowest value to the highest and puts a flat series on
+the middle, so the line shows direction and rhythm and the hidden table carries the numbers. Its
+step is the whole span and not a nice number: no tick is drawn, so no zero needs to land on one.
+`arenaSparkBox(width, height)` insets `chart.point-r` on every side instead of the pads, so the end
+dot and the stroke are never cut at an edge, and it returns `{ x, y, w, h }` for the reason
+`ArenaPlotBox` does. The binding has two cases, chosen by `interactive`. `static`, the default, is
+the figure and its table with no stop, no cursor and an inert pointer, because the common place of
+a sparkline is a table cell, where every stop is one more Tab press. `interactive` is the line
+chart's cursor, with two differences. The keyboard region is never shorter than `--dz-ctl-h-sm`,
+with the plot centred in it, because a 20px plot is under every density's target floor. The
+readout slides with the point, `arenaTooltipShift(x, box)` running from 0 on the first point to 1
+on the last, so it stays inside the frame where a centred readout overhangs it by half its width.
+One series is the whole member, so no legend is drawn, and a second warns through
+`arenaOneSeries` with the sparkline's own reason rather than the doughnut's.
+
+**A gauge is a dial because a scale has two ends, and a ring has none.** Starting at 12 o'clock
+would put the minimum and the maximum on one point, so `arenaGaugeAngle(fraction)` keeps the
+origin and the direction of `arenaPolarAngle` and adds an offset: 270 degrees clockwise, opening
+at the bottom, from the 7:30 position to the 4:30 position. The start and the sweep are constants
+of `ChartPolar.ts`, like the doughnut's hole ratio, because a multiplier deriving one dimension
+from another stays inline. `arenaGaugeFraction(value, min, max)` clamps to 0 to 1 and is the
+drawing's only floor and ceiling: the centre reading and the table write the number that was
+passed, so 130 on a scale of 0 to 100 draws a full arc and says 130, and a value that is not
+finite draws the empty track and writes nothing. The band a value is in is
+`arenaGaugeBand(bands, value)`, a lookup over the threshold primitive of `Thresholds.ts`, so a
+band includes its lower edge exactly as a meter's region does, and the tone and the label are the
+only layer the gauge adds. The arc takes that band's tone colour, the `colorStart` slot
+below the first band, or `colorId`, then `colorStart`, when there are no bands. The gauge reads no cursor
+and takes no tab stop, because the value, both ends and every band edge are drawn as text and are
+all in the table. The radius derives from `--chart-gauge-height` and the width through
+`arenaGaugeRadii(width, height)`, so the band ring, the track, the edge numbers and the centre
+reading move together.
+
+**A funnel's mark carries one number, and the loss between two stages is a different mark.** A stage
+is a rectangle centred on the plot whose width is `arenaFunnelWidth(scale, value)`, proportional to
+its value from zero and never from the smallest value, because a funnel compares widths. The classic
+trapezoid per stage is refused: its top says one number and its bottom another, and the last stage
+has no next. The loss is `arenaFunnelConnector(cx, a, b)`, a trapezoid in the line chart's area tint
+with no edge, drawn first so the stages sit over it, and it joins the bottom of one mark to the top of
+the next. A stage larger than its predecessor widens the connector and reads above 100%, a negative
+stage draws no width and is written as passed, and a missing stage draws no mark and breaks the
+connector on either side, so the picture and the table never disagree. Every stage owns one step of
+the plot's height, `arenaFunnelBands(count, start, span)` gives the mark two thirds of it and the
+connector the rest, and that 2:1 rhythm is the one inline ratio, as the doughnut's hole is. The
+conversion is Arena's: `arenaFunnelConversions(values)` returns each stage's ratio to the previous
+stage and to the first, `null` where the denominator is not above zero or not finite, and
+`arenaPercentWriter(format)` writes it with the locale of `valueFormat` and at most one fraction digit
+whatever the counts keep. No text lies over a mark: the names run down the left gutter and the counts
+and the conversions down a right gutter that `arenaTextGutter(texts)` sizes from the widest string,
+measured and never read from the DOM.
+
+**A heatmap's cell carries magnitude by lightness alone, and the ladder is five colour roles.** The
+fill is `var(--heat-step-N)`, written by `arenaHeatFill(step)` for the plot and the legend swatch
+alike, and the five roles are born at the palette's optional `heat-1` to `heat-5` keys, which Arena pins
+and the `arena` command derives for a palette that pins none. More is more contrast with the surface in
+both themes, so the order survives grey-scale and colour vision deficiency, and `check:ramp` holds the
+gap between steps. The bins are equal over round edges: `arenaHeatDomain(series)` takes five steps of
+`arenaNiceStep` from the rounded minimum with zero included, `arenaHeatStep(domain, value, steps)` puts
+an edge value in the higher bin, and a quantile ladder is refused because it would give the top step
+the same share of cells whatever the data says. Missing is not low: a missing or non-finite cell draws
+no fill and a hairline in `edge-separator`, which is why step 1 must stay visibly apart from the
+surface. Two category axes need two band scales over the same box, and `arenaCursorStep2d(current, key,
+rows, cols)` walks the grid with the four arrows, clamping and never wrapping, so while the plot has
+focus the arrows are its own and Tab leaves. Column labels thin with `arenaLabelStride(step, texts)`,
+the least stride that gives the widest label room, and the table keeps every column. The table is the
+transpose of `arenaChartTable`: `arenaHeatmapTable` heads each row with its series. No text lies over
+a cell, because ink over five fills is five contrast pairs nothing would check.
 
 **`ArenaPlotBox` spells its size `w` and `h` rather than `width` and `height`**, because
 `check-dimension-literals.ts` reads a property named `width` as a CSS dimension and follows the

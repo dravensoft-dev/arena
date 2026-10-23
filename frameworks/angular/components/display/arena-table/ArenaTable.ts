@@ -1,6 +1,6 @@
 import {
-  ChangeDetectionStrategy, Component, ElementRef, afterRenderEffect, booleanAttribute, computed,
-  contentChildren, effect, inject, input, output, untracked,
+  ChangeDetectionStrategy, Component, ElementRef, afterNextRender, afterRenderEffect, booleanAttribute, computed,
+  contentChildren, effect, inject, input, Injector, output, runInInjectionContext, untracked,
 } from '@angular/core';
 import type {
   ArenaSelectOption, ArenaTableColumn, ArenaTablePage, ArenaTablePageControl, ArenaTableSlice,
@@ -13,10 +13,12 @@ import { ArenaSelect } from '../../forms/arena-select/ArenaSelect';
 import { ArenaTableRow } from '../arena-table-row/ArenaTableRow';
 import { ArenaTableState } from './ArenaTableState';
 import { arenaColumnKey } from './ColumnKey';
+import { arenaWindowPageTarget } from './TableWindow';
 import { arenaTableStyles } from './ArenaTable.variants';
 import manifest from './ArenaTable.classes.generated';
 import { ARENA_LOCALE } from '../../../ArenaLocale';
 import { ArenaSlotAttributes } from '../../../SlotData';
+import { ArenaIcon } from '../arena-icon/ArenaIcon';
 
 export function arenaSortOptionValue(column: number, direction: ArenaTableSort['direction']): string {
   return `${column}:${direction}`;
@@ -34,7 +36,7 @@ export function arenaParseSortOption(value: string): ArenaTableSort | null {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [ArenaTableState],
-  imports: [ArenaSlotAttributes, ArenaPagination, ArenaSelect],
+  imports: [ArenaIcon, ArenaSlotAttributes, ArenaPagination, ArenaSelect],
   host: { '[class]': 'styles().root()',
     '[attr.data-arena-narrow]': "styles().$data.root()['data-arena-narrow'] ?? null",
     '[attr.data-arena-part]': 'parts.root', },
@@ -60,7 +62,7 @@ export function arenaParseSortOption(value: string): ArenaTableSort | null {
                   [attr.tabindex]="state.isStop(0, i) ? 0 : -1"
                   [attr.aria-sort]="sortStateOf(i)"
                   (focus)="moveTo(0, i)" (click)="onHeader(i)">{{ column.header }}@if (sortStateOf(i) !== null && sortStateOf(i) !== 'none') {
-                <i [class]="styles().sortCaret() + ' ' + caretOf(i)" [attr.data-arena-part]="parts.sortCaret" aria-hidden="true"></i>
+                <span [class]="styles().sortCaret()" [attr.data-arena-part]="parts.sortCaret" aria-hidden="true"><arena-icon [icon]="caretOf(i)" /></span>
               }</th>
             }
           </tr>
@@ -90,36 +92,39 @@ export class ArenaTable {
   readonly responsive = input(true, { transform: booleanAttribute });
   /** Which column the rows are ordered by and which way. Controlled: ArenaTable draws the caret and the aria-sort, and the consumer does the ordering, because ArenaTable does not hold the rows. Absent, no header is a sort target. */
   readonly sort = input<ArenaTableSort>();
-  /** How the sort affordance is reached in CARD MODE, where there is no header row to activate and a `sortable` column therefore has no control under it at all. 'auto' draws one compact select above the cards, listing every sortable column in each direction, which is the shape a phone has room for; 'none' leaves card mode unsorted by hand, for a table whose order is the document's rather than the reader's. Above --bp-md the header row is the control and this member draws nothing. The header row does NOT come back below the breakpoint, because card mode exists for the one reason a grid does not fit. It is a member rather than something a consumer draws for themselves because the state it edits, ArenaTableSort, is Arena's: left to each consumer, the label, the option order and the way a direction is worded are invented once per project over a model they did not define. */
+  /** How the sort affordance is reached in CARD MODE, where there is no header row to activate. A `sortable` column therefore has no control under it at all. 'auto' draws one compact select above the cards, listing every sortable column in each direction, which is the shape a phone has room for. 'none' leaves card mode unsorted by hand, for a table whose order is the document's rather than the reader's. Above --bp-md the header row is the control and this member draws nothing. The header row does NOT come back below the breakpoint, because card mode exists for the one reason a grid does not fit. The control is a member rather than something a consumer draws for themselves, because the state it edits, ArenaTableSort, is Arena's. Left to each consumer, the label, the option order and the way a direction is worded are invented once per project over a model they did not define. */
   readonly sortControl = input<ArenaTableSortControl, ArenaTableSortControl | undefined>(
     'auto',
     { transform: (value) => value ?? 'auto' },
   );
   /** Which page of a longer list is on screen. Present, ArenaTable draws its own ArenaPagination below the grid and names it from `label`, which is what gives that required name its uniqueness on a page with two paged tables. Absent, no pager is drawn and the projected rows are the whole list. */
   readonly page = input<ArenaTablePage>();
-  /** Where the projected rows sit inside a longer list, which is what `aria-rowcount` and `aria-rowindex` carry on the grid. Absent with `page` bound, both are derived from the page, so a paged table needs nothing here. Bind it when the projection is not a page: a window a scroller renders, an infinite list that grows, or a page inside which you render less again. It is a separate member from `page` because the two answer separate questions, the same split `page` and `pageControl` make: `page` is the model the pager draws, and this is where the rows in the DOM sit in the list they came from. Bound together, this one answers the two attributes whole rather than composing with the page, because a reader is told one position and two sources for it is how they disagree. */
+  /** Where the projected rows sit inside a longer list, which is what `aria-rowcount` and `aria-rowindex` carry on the grid. Absent with `page` bound, both are derived from the page, so a paged table needs nothing here. Bind it when the projection is not a page: a window a scroller renders, an infinite list that grows, or a page inside which you render less again. The member is separate from `page` because the two answer separate questions, the same split `page` and `pageControl` make. `page` is the model the pager draws. The slice member says where the rows in the DOM sit in the list they came from. Bound together, this member answers the two attributes whole rather than composing with the page. Composing is avoided because a reader is told one position, and two sources for it is how they disagree. */
   readonly slice = input<ArenaTableSlice>();
-  /** Whether ArenaTable draws the pager below the grid. 'auto' draws it whenever `page` is bound, which is what a table showing one list of its own wants; 'none' draws nothing and leaves the consumer to place an ArenaPagination themselves, over this table or over two of them at once. It is a separate member from `page` because the two are separate facts: `page` is what the table KNOWS about a longer list, and this is what it DRAWS about it. Bound together, a consumer who wants the control elsewhere would have to withhold `page` and leave the table knowing nothing about paging at all, which is a member deliberately unbound and a comment explaining why. The same split, and the same reasoning, as `sort` and `sortControl`. */
+  /** Whether ArenaTable draws the pager below the grid. 'auto' draws it whenever `page` is bound, which is what a table showing one list of its own wants. 'none' draws nothing and leaves the consumer to place an ArenaPagination themselves, over this table or over two of them at once. The member is separate from `page` because the two are separate facts. `page` is what the table KNOWS about a longer list, and this member is what it DRAWS about it. Bound together, a consumer who wants the control elsewhere would have to withhold `page` and leave the table knowing nothing about paging at all. The result is a member deliberately unbound and a comment explaining why. `sort` and `sortControl` make the same split, with the same reasoning. */
   readonly pageControl = input<ArenaTablePageControl, ArenaTablePageControl | undefined>(
     'auto',
     { transform: (value) => value ?? 'auto' },
   );
-  /** A sortable header was activated, carrying the column and the direction it should become: the same column flips, a different one starts ascending. ArenaTable never reorders anything itself, so a consumer who ignores this event gets a caret that moves and rows that do not, which is why the member is controlled rather than a starting value. */
+  /** A sortable header was activated, carrying the column and the direction it should become: the same column flips, a different one starts ascending. ArenaTable never reorders anything itself, so a consumer who ignores this event gets a caret that moves and rows that do not. For that reason the member is controlled rather than a starting value. */
   readonly sortChange = output<ArenaTableSort>();
-  /** A page was chosen, carrying the new 1-based page. It also fires with 1 when the current page has gone PAST THE END, which is the only reset ArenaTable performs; a filter that leaves the page in range is silent, so returning the reader to page one on a change of criterion stays the consumer's, beside the criterion they hold. */
+  /** A page was chosen, carrying the new 1-based page. The event also fires with 1 when the current page has gone PAST THE END, which is the only reset ArenaTable performs. A filter that leaves the page in range is silent, so returning the reader to page one on a change of criterion stays the consumer's, beside the criterion they hold. */
   readonly pageChange = output<number>();
+  /** The keyboard asked for a row that is not in the projected window, carrying its 0-based index in the whole list, counted as `ArenaTableSlice.offset` counts. The consumer scrolls so that row is projected, and the table focuses it when it arrives. The event never fires for a row already projected, and never fires without `slice.view`. */
+  readonly rowRequest = output<number>();
 
   protected readonly state = inject(ArenaTableState);
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly measured = arenaContainerWidth();
-  private readonly medium = arenaReadBreakpoint('md');
+  private readonly injector = inject(Injector);
 
   protected readonly rows = contentChildren(ArenaTableRow);
 
   protected readonly narrow = computed(() => {
     const width = this.measured();
-    return this.responsive() && width !== null && width < this.medium;
+    return this.responsive() && width !== null
+      && width < runInInjectionContext(this.injector, () => arenaReadBreakpoint('md'));
   });
 
   protected readonly gridLabel = computed(() => {
@@ -153,6 +158,8 @@ export class ArenaTable {
     const paging = this.page();
     return paging ? { total: paging.total, offset: (paging.index - 1) * paging.size } : null;
   });
+
+  protected readonly windowOffset = computed(() => (this.extent() === null ? 0 : (this.slice()?.offset ?? 0)));
 
   protected readonly rowCount = computed(() => {
     const sits = this.extent();
@@ -236,6 +243,7 @@ export class ArenaTable {
     this.state.narrow = this.narrow;
     this.state.rows = this.rows;
     this.state.extent = this.extent;
+    this.state.windowOffset = this.windowOffset;
 
     effect(() => {
       const paging = this.page();
@@ -258,20 +266,80 @@ export class ArenaTable {
     });
 
     afterRenderEffect(() => {
+      const offset = this.windowOffset();
+      const projected = this.rows().length;
+      const target = this.state.pending;
+      if (target === null || this.flat()) return;
+      if (target < offset || target - offset >= projected) return;
+      this.state.pending = null;
+      this.state.arrival = target + 1;
+      untracked(() => this.state.cursor.set({ row: target + 1, col: this.state.clamped().col }));
+      afterNextRender(() => this.arrive(), { injector: this.injector });
+    });
+
+    afterRenderEffect(() => {
       this.state.clamped();
+      this.windowOffset();
+      this.rows();
       if (this.flat()) return;
+      this.arrive();
       const grid = this.host.nativeElement.querySelector('table');
       if (!grid) return;
       const active = grid.ownerDocument.activeElement;
       if (!active || !grid.contains(active)) return;
       if (active.tagName !== 'TD' && active.tagName !== 'TH') return;
       const stop = grid.querySelector<HTMLElement>('td[tabindex="0"], th[tabindex="0"]');
-      if (stop && stop !== active) stop.focus();
+      if (stop && stop !== active) this.focusStop();
     });
   }
 
+  private lastOffset = 0;
+
+  private arrive(): void {
+    const settled = this.lastOffset === this.windowOffset();
+    this.lastOffset = this.windowOffset();
+    const row = this.state.arrival;
+    const grid = this.host.nativeElement.querySelector('table');
+    if (row === null || !grid || this.flat() || untracked(() => this.state.cursor().row) !== row) return;
+    const at = row - 1 - this.windowOffset();
+    if (at < 0 || at >= this.rows().length) return;
+    const stop = grid.querySelector<HTMLElement>('td[tabindex="0"], th[tabindex="0"]');
+    if (!stop || stop.closest('tr')?.getAttribute('aria-rowindex') !== String(row + 1)) return;
+    const active = grid.ownerDocument.activeElement;
+    if (active === stop) {
+      if (settled) this.state.arrival = null;
+      return;
+    }
+    if (active && active !== grid.ownerDocument.body && !grid.contains(active)) {
+      this.state.arrival = null;
+      return;
+    }
+    this.focusStop();
+  }
+
+  private focusStop(): void {
+    const stop = this.host.nativeElement.querySelector<HTMLElement>('table td[tabindex="0"], table th[tabindex="0"]');
+    if (!stop) return;
+    this.state.own = true;
+    stop.focus();
+    this.state.own = false;
+  }
+
+  private pageTarget(event: KeyboardEvent, row: number): number | null {
+    const sits = this.slice();
+    const extent = this.extent();
+    if (sits?.view === undefined || extent === null) return null;
+    if (event.altKey || event.metaKey || event.shiftKey) return null;
+    const key = event.key === 'PageUp' || event.key === 'PageDown'
+      ? (event.ctrlKey ? null : event.key)
+      : event.ctrlKey && (event.key === 'Home' || event.key === 'End') ? (`Control${event.key}` as const) : null;
+    if (key === null) return null;
+    const absolute = row === 0 ? 0 : row + this.windowOffset();
+    return arenaWindowPageTarget(Math.max(0, absolute - 1), key, sits.view, extent.total);
+  }
+
   protected moveTo(row: number, col: number): void {
-    if (!this.state.isStop(row, col)) this.state.cursor.set({ row, col });
+    this.state.moveTo(row, col);
   }
 
   protected onKeydown(event: KeyboardEvent): void {
@@ -283,17 +351,37 @@ export class ArenaTable {
     const at = this.state.clamped();
     let { row, col } = at;
 
+    const jump = this.pageTarget(event, at.row);
+    if (jump !== null) {
+      event.preventDefault();
+      const offset = this.windowOffset();
+      if (jump >= offset && jump - offset < this.rows().length) {
+        this.state.pending = null;
+        this.state.arrival = null;
+        this.state.cursor.set({ row: jump + 1, col });
+      } else {
+        this.state.arrival = null;
+        this.state.pending = jump;
+        this.rowRequest.emit(jump);
+      }
+      return;
+    }
+
     if (event.key === 'Enter' && at.row === 0) {
       event.preventDefault();
+      this.state.pending = null;
+      this.state.arrival = null;
       this.onHeader(at.col);
       return;
     }
     if (event.key === ' ' && at.row === 0) {
       event.preventDefault();
+      this.state.pending = null;
+      this.state.arrival = null;
       this.onHeader(at.col);
       return;
     }
-    if (event.key === 'ArrowUp') row = Math.max(0, row - 1);
+    if (event.key === 'ArrowUp') row = row === 1 && this.windowOffset() > 0 ? 1 : Math.max(0, row - 1);
     else if (event.key === 'ArrowDown') row = Math.min(lengths.length - 1, row + 1);
     else if (event.key === 'ArrowLeft') col = Math.max(0, col - 1);
     else if (event.key === 'ArrowRight') col = Math.min(Math.max((lengths[row] ?? 1) - 1, 0), col + 1);
@@ -301,10 +389,14 @@ export class ArenaTable {
     else if (event.key === 'End') col = Math.max((lengths[row] ?? 1) - 1, 0);
     else if (event.key === 'Enter') {
       event.preventDefault();
+      this.state.pending = null;
+      this.state.arrival = null;
       if (at.row > 0) this.state.activate(at.row);
       return;
     } else return;
 
+    this.state.pending = null;
+    this.state.arrival = null;
     col = Math.min(col, Math.max((lengths[row] ?? 1) - 1, 0));
     event.preventDefault();
     this.moveTo(row, col);

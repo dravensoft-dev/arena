@@ -47,11 +47,15 @@ and a divider or a header cannot be activated at all.
 and the caller names the glyph. What that costs is the general price of the single-icon convention. An entry carries no markup of a consumer's own, so a row with an avatar, a coloured dot or a two-line body has no expression here. `items` is required and throws when absent; an empty array is a caller
 saying "no entries right now" and renders.
 
+**The panel opens in the top layer**, so an `overflow: hidden` or transformed ancestor does not clip it. The panel flips above its trigger near the bottom of the window and follows the trigger on scroll. Tab from the last row closes the menu and returns focus to the trigger, as Escape does. Escape closes the topmost open panel, so a menu inside a popover or a dialog closes alone.
+
+**The server render carries the popup state.** An `ArenaButton` or `ArenaIconButton` trigger renders `aria-haspopup` and `aria-expanded` before hydration.
+
 **Do / Don't**
 - The trigger must have an accessible name (use `ArenaIconButton label`).
 - **The trigger must be a control, not a picture of one.** An `ArenaAvatar`, a `<span>` or anything else that takes no focus receives the handlers and answers no key. The menu opens on a pointer, and a reader on a keyboard never reaches it. Arena reports that once at runtime; pass an `ArenaIconButton`, an `ArenaButton`, or your own element carrying a button role and a tabindex.
 - Destructive actions go last and are marked `destructive`.
-- To choose a value from a form, use `ArenaSelect`, not an ArenaMenu.
+- To choose a value from a form, use `ArenaSelect`, not an ArenaMenu. A long list the user searches is `ArenaCombobox`.
 - Don't reach for a per-entry callback -- there is none. Read `onSelect`'s item.
 
 To fill a row, put `className="arena-fill"` on the menu or on a container above it. The trigger is not a boundary, so the class reaches the control inside and both take the row. On the control alone it fills the menu's own box, which fits the control.

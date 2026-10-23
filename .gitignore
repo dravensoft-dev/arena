@@ -43,10 +43,11 @@ node_modules/
 # fails an intro sheet whose @import the index does not hold.
 !/frameworks/tailwind/consume/vocabulary/Density.generated.css
 
-# The benches, checked out and built by the Pages workflow. actions/checkout writes only under
-# the workspace, so a second repository lands inside this one; nothing build:site or check:site
-# walks reaches the root, and this keeps a local rehearsal of those steps from dirtying the tree.
-/web-benches/
+# The adopter's repository, checked out and built by the Pages workflow. actions/checkout writes
+# only under the workspace, so a second repository lands inside this one; nothing build:site or
+# check:site walks reaches the root, and this keeps a local rehearsal of those steps from dirtying
+# the tree.
+/adopter/
 
 # Logs
 *.log

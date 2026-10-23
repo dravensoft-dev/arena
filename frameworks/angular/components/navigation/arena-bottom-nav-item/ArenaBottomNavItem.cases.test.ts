@@ -4,7 +4,7 @@
  * so the verdict is earned by clicking a disabled destination and reading what did not move.
  * The item injects ArenaBottomNavState from the nearest arena-bottom-nav, so every case mounts one. */
 
-import { useTestEnvironment } from '../../../test/TestbedEnv';
+import { useTestEnvironment, glyphIds, symbol } from '../../../test/TestbedEnv';
 useTestEnvironment();
 
 import test from 'node:test';
@@ -100,12 +100,12 @@ test('the active destination is filled and it is the only one, whatever weight t
   fixture.detectChanges();
   try {
     const host = fixture.nativeElement as Element;
-    const glyphs = Array.from(host.querySelectorAll('i')).map((i) => i.className);
-    assert.equal(glyphs.filter((c) => c.includes('ph-fill')).length, 1,
+    const glyphs = glyphIds(host);
+    assert.equal(glyphs.filter((c) => c.startsWith('ph-fill-')).length, 1,
       'exactly one destination is the current one, so exactly one glyph is filled');
-    assert.ok(glyphs[0].includes('ph-fill') && !glyphs[0].includes('ph-bold'),
+    assert.equal(glyphs[0], symbol('fill', 'house'),
       'the active glyph swaps the weight it was given rather than adding a second one');
-    assert.ok(glyphs[1].includes('ph-bold'), 'and an inactive destination keeps the weight it was given');
+    assert.equal(glyphs[1], symbol('bold', 'dots-three'), 'and an inactive destination keeps the weight it was given');
     assert.equal(host.querySelectorAll('[aria-current="page"]').length, 1);
   } finally {
     fixture.destroy();
@@ -166,7 +166,7 @@ test('the badge draws nothing at zero, caps at 99+, and is announced rather than
     assert.deepEqual(texts, ['None', '12Some', '99+Many'],
       'zero draws no mark, and a four-digit count reads 99+ so it cannot widen the column');
     for (const marked of host.querySelectorAll('[aria-hidden="true"]')) {
-      assert.equal(marked.tagName, 'I', 'only the glyph is hidden -- a count nobody can hear is a count that is not there');
+      assert.equal(marked.tagName, 'svg', 'only the glyph is hidden -- a count nobody can hear is a count that is not there');
     }
   } finally {
     fixture.destroy();

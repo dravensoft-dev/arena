@@ -22,9 +22,9 @@ import {
   collectFiles, reset, write, copy, writeCssChain, componentSheets, copyCli, baseManifest, report,
   CATALOGUE_FILE, tokenCatalogue,
   writeComponentMap, writeIconManifest, CLI_BINS, keywords,
-  copyBehaviourContracts,
+  copyBehaviourContracts, copyFonts, PALETTE_ENTRY, ANGULAR_EXTRA,
 } from '../../lib/arena/package-assembly.ts';
-import { PEERS, OPTIONAL_PEERS } from '../../lib/arena/support-matrix.ts';
+import { PEERS, OPTIONAL_PEERS, CLI_DEPENDENCIES } from '../../lib/arena/support-matrix.ts';
 import { splitCompiledSheet } from '../../lib/tailwind/sheet-split.ts';
 import { CONSUME } from '../tailwind/build-tailwind.ts';
 import { THEME_SOURCES, tailwindThemeSheet } from '../../lib/tailwind/theme-sheet.ts';
@@ -69,7 +69,7 @@ export function manifest(root = repoRoot) {
     ...baseManifest(root),
     peerDependencies: PEERS.angular,
     peerDependenciesMeta: OPTIONAL_PEERS.angular,
-    dependencies: RUNTIME_DEPENDENCIES,
+    dependencies: { ...RUNTIME_DEPENDENCIES, ...CLI_DEPENDENCIES },
   };
 }
 
@@ -113,7 +113,7 @@ export function ngPackageConfig() {
     $schema: fromStaging('node_modules/ng-packagr/ng-package.schema.json'),
     dest: fromStaging(`${LAYER}/dist`),
     lib: { entryFile: 'index.ts' },
-    allowedNonPeerDependencies: Object.keys(RUNTIME_DEPENDENCIES),
+    allowedNonPeerDependencies: [...Object.keys(RUNTIME_DEPENDENCIES), ...Object.keys(CLI_DEPENDENCIES)],
     assets: [] as string[],
   };
 }
@@ -212,7 +212,7 @@ export async function buildAngularPackage(root = repoRoot) {
   const sheet = readFileSync(join(root, 'frameworks/tailwind/Utilities.generated.css'), 'utf8');
   for (const to of writeCssChain(dist, NAME, [
     ...componentSheets(sheet, splitCompiledSheet),
-    { from: 'frameworks/angular/theme/arena-cdk.css', to: 'css/arena-cdk.css' },
+    ...ANGULAR_EXTRA,
   ], root)) written.push(join(dist, to));
   written.push(join(dist, 'arena.css'));
   written.push(write(dist, 'css/tailwind-theme.css', tailwindThemeSheet(root)));
@@ -226,6 +226,7 @@ export async function buildAngularPackage(root = repoRoot) {
   written.push(write(dist, CATALOGUE_FILE, `${JSON.stringify(tokenCatalogue(root), null, 2)}\n`));
   written.push(copy(join(root, LAYER, 'PACKAGE.md'), dist, 'README.md'));
   written.push(...copyBehaviourContracts(dist, root));
+  written.push(...copyFonts(dist, root));
   written.push(copy(join(root, 'LICENSE'), dist, 'LICENSE'));
 
   const npmignore = join(dist, '.npmignore');
@@ -248,10 +249,12 @@ export function withAssets(emitted: NgPackage): NgPackage & { exports: Record<st
     ...emitted,
     exports: {
       ...emitted.exports,
+      './palette': { types: PALETTE_ENTRY.types, default: PALETTE_ENTRY.module },
       './arena.css': { default: './arena.css' },
       './css/*': { default: './css/*' },
       './css/components/*': { default: './css/components/*' },
       './css/vocabulary/*': { default: './css/vocabulary/*' },
+      './fonts/*': { default: './fonts/*' },
       './arena.config.example.json': { default: './arena.config.example.json' },
       './arena.tokens.json': { default: './arena.tokens.json' },
       './arena.vocabulary.json': { default: './arena.vocabulary.json' },

@@ -40,13 +40,24 @@ that animates: `snap` lands on an item, `flow` lands wherever the reader left it
 **`label` is required and guarded after trimming.** Focus lands on the row itself, and a group
 announced as a group tells a reader that focus moved and nothing about where. The content slot is required and guarded too, because an empty row is a tab stop over nothing. The guard runs once the projected content is there rather than at construction, which is the only moment it can be counted.
 
+**A code readout uses this row too.** `arena-scroller` scrolls on the x axis only and pads its bottom edge for the scrollbar, so a long line stays one line. Put the line in a single `<pre>` with `behaviour="flow"`, and let `label` say which text it holds. The row keeps its one tab stop, however short the line.
+
+```html
+<arena-scroller label="Install command" behaviour="flow">
+  <pre>bun add @dravensoft/arena-angular</pre>
+</arena-scroller>
+<arena-copy-button text="bun add @dravensoft/arena-angular" label="Copy the install command" />
+```
+
+Place the copy button after the scroller as a sibling, so the button stays put. The [`arena-copy-button`](../../forms/arena-copy-button/ArenaCopyButton.prompt.md) page shows the element of yours that carries the sunken ground and the mono face.
+
 **Do / Don't**
 - **Do** give it a label that says what the row holds, not what it is. "Recently landed lots" is a
   name; "Scrolling row" is the role read twice.
 - **Do** leave the `arena-scroller-item` class off unless the row genuinely wants a different card from the page's
   grid. The default, `md`, is the width a card takes in a grid, so the two agree.
-- **Don't** reach for it when everything fits. A scroll container that never scrolls is a tab stop
-  the reader gains nothing from.
+- **Don't** reach for it when a row of cards fits. A scroll container that never scrolls is a tab stop
+  the reader gains nothing from. A command line is the exception, because the reader's screen sets how much of it fits.
 - **Don't** wrap the children in cells of your own other than `ArenaScrollerItem` to set their width. The width is what the `arena-scroller-item` class is, and a wrapper puts a box between the row and the card it is laying out.
 
 **By hand, in real Chromium.** Run `bun run demos` and open `/frameworks/angular/components/layout/arena-scroller/ArenaScroller.demo.generated.html`: - Tab into the row. The row takes focus as one stop and shows the focus ring, and the arrow keys scroll it.

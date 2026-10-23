@@ -1,0 +1,86 @@
+{
+  "component": "ArenaSlider",
+  "answers": [
+    {
+      "family": "size",
+      "options": [
+        "arena-size-sm",
+        "arena-size-md",
+        "arena-size-lg"
+      ],
+      "default": "arena-size-md"
+    },
+    {
+      "family": "accent",
+      "options": [
+        "arena-accent-plain",
+        "arena-accent-primary"
+      ],
+      "default": "arena-accent-primary"
+    }
+  ],
+  "slots": {
+    "root": "flex flex-col gap-1.5 w-full",
+    "head": "flex items-baseline justify-between gap-items",
+    "label": "font-body text-ctl-md text-ink-body/(--level-ink-body)",
+    "value": "font-mono tabular-nums text-ctl-sm text-ink-muted/(--level-ink-muted)",
+    "track": "relative h-ctl-h cursor-pointer touch-pan-y text-[color:var(--arena-accent-ink,var(--accent-primary-ink))]",
+    "rail": "absolute inset-x-0 top-1/2 -translate-y-1/2 h-[var(--arena-size-meter,var(--size-md-meter))] rounded-pill bg-track",
+    "fill": "absolute top-1/2 -translate-y-1/2 start-0 h-[var(--arena-size-meter,var(--size-md-meter))] w-[calc(var(--arena-slider-to,0)*(100%-var(--sp-5))+var(--sp-5)/2)] rounded-pill bg-current",
+    "thumb": "absolute top-1/2 -translate-y-1/2 start-[calc(var(--arena-slider-at,0)*(100%-var(--sp-5)))] size-5 rounded-pill bg-primary-content border-[length:var(--bw-control)] border-edge-control shadow-control-rest cursor-pointer touch-none outline-none transition-[box-shadow] duration-[var(--dur-hover)] ease-hover focus-visible:shadow-[0_0_0_var(--focus-width)_var(--focus-ring)] before:content-[''] before:absolute before:left-1/2 before:top-1/2 before:w-ctl-h-sm before:h-ctl-h-sm before:-translate-x-1/2 before:-translate-y-1/2",
+    "thumbLabel": "sr-only",
+    "hint": "font-body text-ctl-sm text-ink-muted/(--level-ink-muted)"
+  },
+  "kind": {
+    "root": "none",
+    "head": "none",
+    "label": "none",
+    "value": "none",
+    "track": "none",
+    "rail": "none",
+    "fill": "none",
+    "thumb": "control",
+    "thumbLabel": "none",
+    "hint": "none"
+  },
+  "variants": {
+    "orientation": {
+      "horizontal": {},
+      "vertical": {
+        "root": "h-full",
+        "track": "flex-1 self-start h-auto w-ctl-h min-h-[calc(var(--dz-ctl-h)*4)] touch-pan-x",
+        "rail": "inset-y-0 translate-y-0 mx-auto h-auto w-[var(--arena-size-meter,var(--size-md-meter))]",
+        "fill": "top-auto bottom-0 translate-y-0 start-0 end-0 mx-auto w-[var(--arena-size-meter,var(--size-md-meter))] h-[calc(var(--arena-slider-to,0)*(100%-var(--sp-5))+var(--sp-5)/2)]",
+        "thumb": "top-auto bottom-[calc(var(--arena-slider-at,0)*(100%-var(--sp-5)))] translate-y-0 start-0 end-0 mx-auto"
+      }
+    },
+    "range": {
+      "false": {},
+      "true": {
+        "fill": "start-[calc(var(--arena-slider-from,0)*(100%-var(--sp-5))+var(--sp-5)/2)] w-[calc((var(--arena-slider-to,0)-var(--arena-slider-from,0))*(100%-var(--sp-5)))]"
+      }
+    },
+    "disabled": {
+      "true": {
+        "root": "opacity-50",
+        "track": "cursor-not-allowed",
+        "thumb": "cursor-not-allowed"
+      },
+      "false": {}
+    }
+  },
+  "compoundVariants": [
+    {
+      "orientation": "vertical",
+      "range": true,
+      "class": {
+        "fill": "start-0 w-[var(--arena-size-meter,var(--size-md-meter))] bottom-[calc(var(--arena-slider-from,0)*(100%-var(--sp-5))+var(--sp-5)/2)] h-[calc((var(--arena-slider-to,0)-var(--arena-slider-from,0))*(100%-var(--sp-5)))]"
+      }
+    }
+  ],
+  "defaultVariants": {
+    "orientation": "horizontal",
+    "range": false,
+    "disabled": false
+  }
+}

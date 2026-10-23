@@ -87,8 +87,11 @@ it, do not remember it.
 answered for shape, air and depth, and what it leaves open. An entry chosen silently is the same
 failure as a screenshot read silently, with a better result and the same missing consent.
 
-**An entry is copied rather than cited.** The entry's `plugin.tokens.json` and `plugin.css` become
-your project's own under `design/<name>/`, and node 11 is where they land.
+**An entry is copied rather than cited.** An entry has three files: `plugin.tokens.json`, `plugin.css` and
+`arena.config.json`. The first two become your project's own under `design/<name>/` as they are, and
+node 11 is where they land. The config is a starting file for the root of your project. With no
+`arena.config.json` there, copy it and replace the palette and the fonts. With one already there,
+take only its `stylePlugins` entry and make it the first one in the list, since a catalogue entry answers every role.
 
 **The catalogue is on the site and in the repository, not the package.** Each entry's files sit
 beside its `ENTRY.md`.
@@ -100,12 +103,19 @@ beside its `ENTRY.md`.
 
 ## 5. Write the identity document, and stop
 
-Whatever route reached this node, the output is the same. The output is a page stating the palette in both polarities, the three faces, the character, the
-air, the media shape and the page shape, with the reason beside each. [`arena-from-scratch/identity.html`](../../../arena-from-scratch/identity.html) in the Arena repository is the template, and
-[`identity.example.html`](../../../arena-from-scratch/identity.example.html) beside it is one worked answer to read first; no package carries either.
+Whatever route reached this node, the output is the same. The output is a page stating the palette
+in both polarities, the three faces, the character, the air, the media shape and the page shape,
+with the reason beside each.
+[`arena-from-scratch/identity.html`](../../../arena-from-scratch/identity.html) in a clone of the
+Arena repository is the template, and
+[`identity.example.html`](../../../arena-from-scratch/identity.example.html) beside it is one worked
+answer to read first. Without a clone, fetch the template at
+`https://arena.dravensoft.org/arena-from-scratch/identity.html` and the worked answer at
+`https://arena.dravensoft.org/arena-from-scratch/identity.example.html`, or call `arena_read`, which [`mcp.md`](./mcp.md) describes, on
+`arena://identity/identity.html` and on `arena://identity/identity.example.html`.
 
 The output is a page rather than a list, because a palette described in prose is a palette nobody
-can approve. Serve it over HTTP, show it to the user, and change what they change.
+can approve. Save the filled document as `design/identity.html` in the project, and serve it over HTTP with `npx serve design`, so the web fonts it names load. Show it to the user, and change what they change.
 
 **Then stop.** The next node writes files, and files written against an unapproved appearance are
 the ones that get rewritten.
@@ -210,9 +220,11 @@ where you meant it, which is better than the package drawing it for you at every
 architecture-neutral. The stylesheet is not. The tokens are declared on `:root`, and the reset
 sets the box model on `*` and a line height on `html`. Loading Arena inside a host page changes that page and not only
 your subtree. Two different Arena versions on one document collide on `:root`, and
-the last stylesheet loaded wins. One thing works in your favour. A palette other than the
-default emits as a plain class, so your own subtree can carry its own theme without touching the
+the last stylesheet loaded wins. One thing works in your favour. Every palette
+emits as a plain class, and `ArenaPaletteScope` puts one on your own subtree, so the fragment can carry its own theme without touching the
 host. Take this row knowing the host is being changed, or give the fragment a document of its own.
+
+**Which bundler, and where Arena's JavaScript and stylesheet land.** [`stack.md`](./stack.md), section "How does Arena sit in the bundle?", says how to keep Arena's JS and package sheet in a chunk of their own. [`environments.md`](./environments.md) holds what each bundler measured, as a record and not a recommendation.
 
 ## 10. What does the code you write around Arena bring with it?
 
@@ -232,8 +244,7 @@ dependencies is the skill's to ask: past this table the stack is the project's o
 
 | Always | Which layer | Why |
 |---|---|---|
-| `@dravensoft/arena-react` **or** `@dravensoft/arena-angular` | one of them, never both | the layer nodes 8 and 9 settled. The package is Arena itself. Everything under it is a peer, and a list of peers with the package missing installs nothing that draws |
-| `@phosphor-icons/web` | both | icons are class-name strings a component renders, and the font is never bundled |
+| `@dravensoft/arena-react` **or** `@dravensoft/arena-angular` | one of them, never both | the layer nodes 8 and 9 settled. The package is Arena itself. Every package its components load is a peer, and a list of peers with the package missing installs nothing that draws |
 | `@angular/cdk` | Angular only | a peer of that layer, and **not** something a React project installs |
 | `@angular/core`, `@angular/common`, `@angular/platform-browser` | Angular only | the peers the layer is built on |
 | `react`, `react-dom` | React only | the peers that layer is built on |
@@ -263,6 +274,11 @@ Then, in this order, because each file is read by the next.
 - Run `arena build`, which writes the stylesheet no package can carry and the icon sheet for
   the glyphs your screens draw. Import what it wrote.
 - Then the first screen, through the per-screen route in [`../SKILL.md`](../SKILL.md).
+
+**A catalogue entry from node 4 answers part of this list.** The entry's `plugin.tokens.json` and
+`plugin.css` are the second and third bullets, copied as they are. The entry's `arena.config.json`
+is the starting file of the first bullet. With no config in the project, copy it and replace the
+palette and the fonts. With one already there, take only its `stylePlugins` entry and make it the first one in the list, since a catalogue entry answers every role.
 
 The identity document from node 5 is what each of these is checked against, and it stays in the
 project. The next agent to open the project starts at node 2 with the good answer instead of at

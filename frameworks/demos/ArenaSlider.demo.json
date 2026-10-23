@@ -1,0 +1,15 @@
+{
+  "component": "ArenaSlider",
+  "seed": {
+    "label": "Volume",
+    "value": 40,
+    "min": 0,
+    "max": 100,
+    "valueSuffix": "%"
+  },
+  "bind": {
+    "change": "value",
+    "changeEnd": "valueEnd"
+  },
+  "note": "Both thumbs write back, so turning range on shows the span with its end at the maximum; valueEnd is not seeded because a single slider warns about it. commit and commitEnd settle a move and are logged."
+}

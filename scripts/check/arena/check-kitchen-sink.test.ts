@@ -5,7 +5,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  PINNED, coverageProblems, pinnedProblems, emissionProblems,
+  PINNED, coverageProblems, pinnedProblems, emissionProblems, variantNames,
 } from './check-kitchen-sink.ts';
 import type { SinkFixture } from '../../lib/arena/kitchen-sink-model.ts';
 
@@ -81,4 +81,73 @@ test('an emitted page that is not a fresh run of the generator fails rather than
   const problems = emissionProblems(new Map([['frameworks/react/kitchen-sink/none/index.generated.html', 'moved']]));
   assert.equal(problems.length, 1);
   assert.match(problems[0] ?? '', /edited by hand|is not on disk/);
+});
+
+const VARIANTS = new Map([['ArenaGaugeChart', ['at-min', 'no-bands']], ['ArenaSparkline', ['flat']]]);
+
+const drawn = (...items: string[]): Map<string, SinkFixture> =>
+  new Map([['charts', { sink: 'charts', sections: [{ title: 'Charts', items }] }]]);
+
+test('an arrangement of variants needs no registry component and every variant a demo declares', () => {
+  const all = ['ArenaGaugeChart:at-min', 'ArenaGaugeChart:no-bands', 'ArenaSparkline:flat'];
+  assert.deepEqual(coverageProblems(drawn(...all), REGISTRY, VARIANTS), []);
+});
+
+test('a variant no arrangement places is named, because nothing would compare it', () => {
+  const problems = coverageProblems(drawn('ArenaGaugeChart:at-min', 'ArenaSparkline:flat'), REGISTRY, VARIANTS);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /ArenaGaugeChart:no-bands/);
+  assert.match(problems[0] ?? '', /in no variant arrangement/);
+});
+
+test('the variants may be split across arrangements of variants, each drawn in one of them', () => {
+  const split = new Map<string, SinkFixture>([
+    ['charts', { sink: 'charts', sections: [{ title: 'Charts', items: ['ArenaGaugeChart:at-min', 'ArenaGaugeChart:no-bands'] }] }],
+    ['palettes', { sink: 'palettes', sections: [{ title: 'Palettes', items: ['ArenaSparkline:flat'] }] }],
+  ]);
+  assert.deepEqual(coverageProblems(split, REGISTRY, VARIANTS), []);
+  split.delete('palettes');
+  const problems = coverageProblems(split, REGISTRY, VARIANTS);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /ArenaSparkline:flat/);
+});
+
+test('a variant drawn in two variant arrangements fails, since it is to be drawn once', () => {
+  const twice = new Map<string, SinkFixture>([
+    ['charts', { sink: 'charts', sections: [{ title: 'Charts', items: ['ArenaGaugeChart:at-min', 'ArenaGaugeChart:no-bands', 'ArenaSparkline:flat'] }] }],
+    ['palettes', { sink: 'palettes', sections: [{ title: 'Palettes', items: ['ArenaSparkline:flat'] }] }],
+  ]);
+  const problems = coverageProblems(twice, REGISTRY, VARIANTS);
+  assert.equal(problems.length, 2, 'each of the two arrangements names the variant');
+  assert.match(problems.join('\n'), /ArenaSparkline:flat, which another variant arrangement also draws/);
+});
+
+test('a variant no demo declares fails, since a typo silently draws one tile fewer', () => {
+  const problems = coverageProblems(drawn('ArenaGaugeChart:at-min', 'ArenaGaugeChart:no-bands',
+    'ArenaSparkline:flat', 'ArenaSparkline:typo'), REGISTRY, VARIANTS);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /ArenaSparkline:typo, which no demo declares/);
+});
+
+test('a variant placed twice fails', () => {
+  const problems = coverageProblems(drawn('ArenaGaugeChart:at-min', 'ArenaGaugeChart:at-min',
+    'ArenaGaugeChart:no-bands', 'ArenaSparkline:flat'), REGISTRY, VARIANTS);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /places ArenaGaugeChart:at-min more than once/);
+});
+
+test('a variant beside whole components fails, since the registry rule and the variant rule need one arrangement each', () => {
+  const mixed = new Map<string, SinkFixture>([['default', {
+    sink: 'default', sections: [{ title: 'All', items: [...REGISTRY, 'ArenaGaugeChart:at-min'] }],
+  }]]);
+  const problems = coverageProblems(mixed, REGISTRY, VARIANTS);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /a variant, beside whole components/);
+});
+
+test('the variants a demo declares are read by component, and a demo with none is absent', () => {
+  const names = variantNames(new Map([
+    ['ArenaGaugeChart', { variants: { 'at-min': {}, 'no-bands': {} } }], ['ArenaBadge', {}],
+  ]));
+  assert.deepEqual([...names], [['ArenaGaugeChart', ['at-min', 'no-bands']]]);
 });

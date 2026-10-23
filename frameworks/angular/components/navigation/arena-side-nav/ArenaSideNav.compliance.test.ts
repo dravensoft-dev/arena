@@ -133,7 +133,7 @@ test('an item with href renders an anchor and one without renders a button, and 
     assert.equal(button.getAttribute('type'), 'button');
     assert.equal(anchor.getAttribute('data-arena-current'), '',
       'the active row is inked');
-    assert.ok(anchor.querySelector('i[aria-hidden="true"]'), 'the icon is a glyph Arena draws, not projected content');
+    assert.ok(anchor.querySelector('svg[aria-hidden="true"]'), 'the icon is a glyph Arena draws, not projected content');
   } finally {
     fixture.destroy();
   }

@@ -11,7 +11,7 @@ documents; what a table here adds is which role a step plays, which is the thing
 choosing between two steps actually needs and the one thing the JSON cannot say.
 
 ## Type scale (`fs`)
-Editorial type, meaning prose and headings and never chrome (see the `dz` table above for the density scale that governs buttons, inputs and labels instead). Closed and semantic: each name is a role, the scale gains no in-between steps, and an off-scale editorial size snaps to its nearest neighbor rather than adding one. The ratio between steps accelerates through the reading range and into display:
+Editorial type, meaning prose and headings and never chrome (see the `dz` table below for the density scale that governs buttons, inputs and labels instead). Closed and semantic: each name is a role, the scale gains no in-between steps, and an off-scale editorial size snaps to its nearest neighbor rather than adding one. The ratio between steps accelerates through the reading range and into display:
 
 | Token | Value | Ratio from previous | Role |
 |---|---|---|---|
@@ -53,7 +53,7 @@ What covers what is a system-wide invariant, not a per-component choice, so it i
 | `--z-nav` | 800 | `ArenaBottomNav`, and the host's own fixed page chrome beside it: a sticky top bar, a second bar of its own. Below dropdown, so an `ArenaMenu` opened from the bar covers it |
 | `--z-skip` | 820 | `ArenaSkipLink`, while it holds focus. Above nav, so a link that exists to bypass a sticky header is never under it; below sheet, because every step from sheet upward is a surface that has taken the interaction, and a skip link over one is a way out of a trap meant to hold |
 | `--z-sheet` | 850 | `ArenaSheet`, and the host's own edge panels beside it: a cart, a filter drawer, a detail pane that leaves the page usable behind it. Above nav, because a sheet that slides over a fixed bar and lands under it is the failure; below dropdown, because an `ArenaMenu` opened from inside the sheet belongs over it |
-| `--z-dropdown` | 900 | `ArenaMenu`, a calendar event's panel |
+| `--z-dropdown` | 900 | `ArenaMenu`, `ArenaPopover`, a calendar event's panel |
 | `--z-tooltip` | 950 | `ArenaTooltip`, above dropdown, so a tooltip on a menu item wins over the menu itself |
 | `--z-modal` | 1000 | `ArenaDialog` |
 | `--z-modal-nested` | 1050 | `ArenaConfirmDialog`, which opens *from* an `ArenaDialog` and so must sit above one |
@@ -65,7 +65,7 @@ What covers what is a system-wide invariant, not a per-component choice, so it i
 
 **The family declares the order; the values only preserve it.** Every overlay reads its step from this table rather than declaring a number of its own, which is what makes the relationships above enforceable: a tooltip resolves above a menu item by design rather than by DOM order, and `ArenaConfirmDialog` sits above the `ArenaDialog` it opens from rather than by accident of mount order. A component that hardcodes a `z-index` outside this scale is a defect.
 
-Exposed in the Tailwind layer as `.z-nav` / `.z-skip` / `.z-sheet` / `.z-dropdown` / `.z-tooltip` / `.z-modal` / `.z-modal-nested` / `.z-palette` / `.z-onboarding` / `.z-toast` (`frameworks/tailwind/Theme.css`, `--z-index-*`). **A consumer embedding Arena inside an app that has its own stacking context should read this table rather than guess at a number**: Arena's overlay components render in place (not one of them uses a React portal), so the global order above governs any of them mounted as siblings. **A slot is not declared for the component that stands on it.** `--z-nav` and `--z-sheet` were both minted while Arena drew nothing at either step, and they were right then for the reason they are right now: the host's own chrome, a sticky header or a second bar, and the host's own edge panels have to interleave with Arena's overlays, and a slot they can name is the difference between an order by design and an order by DOM. `ArenaBottomNav` and `ArenaSheet` stand on them today; a host's own bar stands beside `ArenaBottomNav` on the same step, and that is the arrangement the slot exists to make orderly. `--z-sheet` is now the one step no Arena component would leave empty if it were removed, and it stays for the same reason `--z-nav` did before the bar arrived. **A sheet is not an `ArenaDialog` wearing a different placement**: it is not modal, it carries no scrim and it leaves the page usable behind it, which is why it sits two slots below the one that takes the whole interaction. Any other host `z-index` is chosen against this scale too, not against whatever the host already had lying around. `display/arena-calendar/ArenaCalendar.tsx`'s `zIndex: 1` is not part of this family: it is local stacking inside a positioned container, scoped entirely inside one component, and stays a hand-written literal.
+Exposed in the Tailwind layer as `.z-nav` / `.z-skip` / `.z-sheet` / `.z-dropdown` / `.z-tooltip` / `.z-modal` / `.z-modal-nested` / `.z-palette` / `.z-onboarding` / `.z-toast` (`frameworks/tailwind/Theme.css`, `--z-index-*`). **A consumer embedding Arena inside an app that has its own stacking context should read this table rather than guess at a number**: Arena's overlay components render in place (not one of them uses a React portal), so the global order above governs any of them mounted as siblings. **An anchored panel is the one exception**: where a layer shows it in the top layer, it stacks above every step here by the order it was shown, and where a layer attaches it to an overlay pane, the pane sits just under the toast step. **A slot is not declared for the component that stands on it.** `--z-nav` and `--z-sheet` were both minted while Arena drew nothing at either step, and they were right then for the reason they are right now: the host's own chrome, a sticky header or a second bar, and the host's own edge panels have to interleave with Arena's overlays, and a slot they can name is the difference between an order by design and an order by DOM. `ArenaBottomNav` and `ArenaSheet` stand on them today; a host's own bar stands beside `ArenaBottomNav` on the same step, and that is the arrangement the slot exists to make orderly. `--z-sheet` is now the one step no Arena component would leave empty if it were removed, and it stays for the same reason `--z-nav` did before the bar arrived. **A sheet is not an `ArenaDialog` wearing a different placement**: it is not modal, it carries no scrim and it leaves the page usable behind it, which is why it sits two slots below the one that takes the whole interaction. Any other host `z-index` is chosen against this scale too, not against whatever the host already had lying around. `display/arena-calendar/ArenaCalendar.tsx`'s `zIndex: 1` is not part of this family: it is local stacking inside a positioned container, scoped entirely inside one component, and stays a hand-written literal.
 
 ## Quantity invariants (`limit`)
 System-wide bounds on how much is shown, the twin of `z`: same `$type` (`number`), same character. `z` declares the stacking order; `limit` declares the invariant, and a component derives its own consequences from it. The source is `contracts/design/behaviour.json`, generated into `contracts/design-generated/effects.generated.css`.
@@ -73,8 +73,10 @@ System-wide bounds on how much is shown, the twin of `z`: same `$type` (`number`
 | Token | Value | Role |
 |---|---|---|
 | `--limit-pagination-siblings` | 1 | how many page numbers flank the current one before `ArenaPagination`'s list elides. The window's total width is a *consequence*, derived at the point of use as `first + last + (2 × siblings + 1) + two ellipses`, and never authored as a second number |
+| `--limit-window-overscan` | 6 | how many rows a windowed list mounts beyond the viewport on each side, so a focus move or a Tab press finds the next row already mounted. The mounted total is a *consequence*: the rows the viewport meets plus `2 × overscan`, and never authored as a second number |
+| `--limit-window-initial` | 30 | how many rows a windowed list projects before any row is measured, the window a server render and the first client render draw. Once a row is measured the window derives from the viewport |
 
-**Script-readable, not Tailwind-exposed**: unlike `z`, `limit`'s consumer is an array bound in JavaScript, not a CSS property, so it carries no utility class. It reaches React as the bare number `limitPaginationSiblings` (`frameworks/react/Tokens.generated.js`) and is named in `check:coverage`'s `EXCLUDED` map for that reason rather than reaching a utility.
+**Script-readable, not Tailwind-exposed**: unlike `z`, `limit`'s consumer is an array bound in JavaScript, not a CSS property, so it carries no utility class. It reaches React as the bare numbers `limitPaginationSiblings`, `limitWindowOverscan` and `limitWindowInitial` (`frameworks/react/Tokens.generated.js`) and is named in `check:coverage`'s `EXCLUDED` map for that reason rather than reaching a utility.
 
 ## Control density type scale (`dz`)
 Chrome text, meaning a button label, an input's value, a hint, a validation error, a badge or a table cell, is governed by how dense the surrounding controls are, not by the prose scale (`fs`). `dz` declares control heights, row padding, stack gap and its own text scale. The base is generated into `contracts/design-generated/spacing.generated.css` from `contracts/design/spacing.json`; the `.arena-compact` and `.arena-comfortable` overrides restate `contracts/design/density.compact.json` and `contracts/design/density.comfortable.json` in the density vocabulary sheet, which `frameworks/tailwind/vocabulary/arena-density/Density.family.json` compiles:
@@ -94,11 +96,11 @@ how much fits on a screen; comfortable has nothing to buy with the same trade, s
 goes to 48px, `--dz-ctl-h-sm` to 44px, `--dz-ctl-h-lg` to 56px, `--dz-row-py` to 16px,
 `--dz-row-px` to 20px and `--dz-stack` to 16px, while every step above stays where it is.
 
-48px is the number that matters: it clears the 44px WCAG 2.5.8 asks at its enhanced level, which
-the 40px base does not. This is the whole reason target size is density's axis and never a design
-style plugin's, since how large a control is answers who is pointing at it rather than what register the
-product speaks in. The two density classes are mutually exclusive with each other, because both
-set the same keys, and compose with a theme and with a style plugin, because those set others.
+48px is the number that matters: it clears WCAG 2.5.5's 44px target, which the 40px base does not.
+This is the whole reason target size is density's axis and never a design style plugin's, since how
+large a control is answers who is pointing at it rather than what register the product speaks in.
+The two density classes are mutually exclusive with each other, because both set the same keys, and
+compose with a theme and with a style plugin, because those set others.
 
 `--dz-text-lg` and `--dz-text-2xs` do not shrink in the compact scope. A readout is the content of its chart, so it keeps its size at any density. For `--dz-text-2xs`, −1px would land it at 9px, which the system treats as illegible drift and snaps away from everywhere else, so reintroducing it as a systemic compact value would undo that call one layer down. Every other step follows the `−1px` precedent `--dz-text` itself sets (14→13).
 
@@ -202,11 +204,13 @@ Two more `$type: duration` families, deliberately not part of `dur` or `loop` ab
 |---|---|---|
 | `--delay-open` | 400ms | rest time before `ArenaTooltip` appears, long enough that a pointer crossing a toolbar reveals nothing |
 | `--delay-close` | 120ms | grace period after the pointer leaves, so travelling between a trigger and its own tooltip does not dismiss it |
+| `--delay-typeahead` | 500ms | the window in which characters typed in succession accumulate into one prefix |
 | `--dismiss-default` | 4200ms | how long an `ArenaToast` that only has to be read stays before it auto-dismisses |
 | `--dismiss-actionable` | 7000ms | how long an `ArenaToast` carrying a button stays, per WCAG 2.2.1: it asks the reader to *decide*, not only to read |
+| `--dismiss-confirmation` | 2000ms | how long `ArenaCopyButton` shows its check or its warning before the copy glyph returns |
 
-`delay` applies to the **pointer only**: a keyboard focus must reveal its tooltip immediately, and routing that path through `--delay-open` would make an already-hard-to-reach control also feel broken. `dismiss` is run by the *host*, never by `ArenaToast` itself. `ArenaToast` renders and exposes `persist`, which overrides both values and never auto-dismisses, and which is mandatory in critical/error states so they are not missed (see the danger convention in [`AGENTS.md`](./AGENTS.md) beside this file).
+`delay` applies to the **pointer only**, except `--delay-typeahead`, which times typed characters: a keyboard focus must reveal its tooltip immediately, and routing that path through `--delay-open` would make an already-hard-to-reach control also feel broken. A toast's `dismiss` is run by the *host*, never by `ArenaToast` itself, while `ArenaCopyButton` runs `--dismiss-confirmation` on a clock of its own and clears it when it unmounts. `ArenaToast` renders and exposes `persist`, which overrides both toast values and never auto-dismisses, and which is mandatory in critical/error states so they are not missed (see the danger convention in [`AGENTS.md`](./AGENTS.md) beside this file).
 
-**Script-readable, not Tailwind-exposed**: both families' consumers are `setTimeout` arguments in JavaScript, not CSS properties, so neither carries a utility class. They reach React as `delayOpen`/`delayClose`/`dismissDefault`/`dismissActionable` (`frameworks/react/Tokens.generated.js`) and are named in `check:coverage`'s `EXCLUDED` map for that reason rather than reaching a utility.
+**Script-readable, not Tailwind-exposed**: both families' consumers are `setTimeout` arguments in JavaScript, not CSS properties, so neither carries a utility class. They reach React as `delayOpen`/`delayClose`/`delayTypeahead`/`dismissDefault`/`dismissActionable`/`dismissConfirmation` (`frameworks/react/Tokens.generated.js`) and are named in `check:coverage`'s `EXCLUDED` map for that reason rather than reaching a utility.
 
 

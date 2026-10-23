@@ -1,8 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  arenaLegendColumnWidth, arenaLegendPlotWidth, arenaLegendStacked, arenaLegendShows, arenaLegendStrip,
+  arenaLegendColumnWidth, arenaLegendPlotWidth, arenaLegendStacked, arenaLegendShows, arenaLegendStrip, arenaHeatLegendStrip,
 } from './ChartLegend';
+import { chartLegendStrip } from '../../Tokens.generated';
 
 test('the legend takes 34% of a mid-size container', () => {
   assert.ok(Math.abs(arenaLegendColumnWidth(400) - 136) < 1e-9);
@@ -90,4 +91,16 @@ test('the plot keeps a positive height even when the strip is taller than the ch
     const strip = arenaLegendStrip(height, 3);
     assert.ok(strip.plotH >= 1, `plot height was ${strip.plotH} at chart height ${height}`);
   }
+});
+
+test('the heat legend strip always comes out of the height, however few series the chart has', () => {
+  for (const height of [40, 100, 280, 1000]) {
+    const strip = arenaHeatLegendStrip(height);
+    assert.equal(strip.stripH, chartLegendStrip);
+    assert.equal(strip.plotH + strip.stripH, height, `at height ${height}`);
+  }
+});
+
+test('the heat legend strip leaves at least one pixel of plot at any height', () => {
+  for (const height of [0, 1, chartLegendStrip, chartLegendStrip + 1]) assert.ok(arenaHeatLegendStrip(height).plotH >= 1, `at height ${height}`);
 });

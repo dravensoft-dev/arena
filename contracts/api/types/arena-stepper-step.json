@@ -1,0 +1,13 @@
+{
+  "name": "ArenaStepperStep",
+  "kind": "object",
+  "description": "One step of an ArenaStepper. Whether it is complete, current or upcoming is not a field: the stepper derives it from its `index`, so two current steps cannot be written.",
+  "fields": {
+    "label": { "form": "primitive", "type": "string", "required": true,
+               "description": "What the step is called." },
+    "description": { "form": "primitive", "type": "string",
+                     "description": "A line under the label, in the muted ink." },
+    "error": { "form": "primitive", "type": "boolean", "default": false,
+               "description": "Whether the step needs attention. Position cannot say it, so a step ahead of the current one can carry it. Drawn as a danger outline with a warning glyph and spoken as a word." }
+  }
+}

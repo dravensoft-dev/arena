@@ -21,9 +21,9 @@ command also closes the palette. The search field is an ARIA 1.2 combobox wired 
 | `open*` | primitive | `boolean` |  | Whether the palette is shown. Closed renders nothing. |
 | `commands*` | array | `readonly ArenaCommand[]` |  | Every command the palette can find. Filtered by label and hint as the user types. |
 | `placeholder` | primitive | `string` |  | The search field's placeholder. Absent, the provided locale's commandPalettePlaceholder answers it. |
-| `maxResults` | primitive | `number` |  | How many matches the list shows at most. Absent, all of them. The ceiling applies AFTER the query has run over every command, which is what makes it different from the caller trimming `commands` before passing them: a trimmed list cannot match what was cut, and a capped one can, so the first rows are still the best the whole set has. It is the palette's rather than the domain's, because how many rows help before the list stops being an accelerator is a property of this control; a caller who caps their own collection has guessed at it once, for one collection, with no query in hand. It is not ranking: the order stays the order the caller passed, ungrouped first and then each group as it first appears. |
+| `maxResults` | primitive | `number` |  | How many matches the list shows at most. Absent, all of them. The ceiling applies AFTER the query has run over every command, which is what makes it different from the caller trimming `commands` before passing them. A trimmed list cannot match what was cut, and a capped one can, so the first rows are still the best the whole set has. The ceiling is the palette's rather than the domain's, because how many rows help before the list stops being an accelerator is a property of this control. A caller who caps their own collection has guessed at it once, for one collection, with no query in hand. The cap is not ranking: the order stays the order the caller passed, ungrouped first and then each group as it first appears. |
 | `close` | event |  |  | The palette asked to be closed: Escape, the scrim, or a command having been run. |
-| `run` | event | `ArenaCommand` |  | A command was activated, carrying which one. Emitted after close. For a command with `route` it fires for a primary click with no modifier and for Enter, both of which cancel the row's anchor first, so the two activations do the same thing and a host that routes here never navigates twice; a modified or middle click on such a row is the browser's, fires nothing and does not close the palette. |
+| `run` | event | `ArenaCommand` |  | A command was activated, carrying which one. Emitted after close. For a command with `route` the event fires for a primary click with no modifier and for Enter. Both cancel the row's anchor first, so the two activations do the same thing and a host that routes here never navigates twice. A modified or middle click on such a row is the browser's, fires nothing and does not close the palette. |
 
 <!-- @api end -->
 
@@ -48,6 +48,8 @@ command also closes the palette. The search field is an ARIA 1.2 combobox wired 
   component does not assume it for you.
 - Don't put destructive actions in the palette without a confirmation behind them. A
   palette entry is one Enter away from running.
+- Don't use the palette to choose a form value. A field the user searches is `arena-combobox`,
+  which holds a value, a label and an error.
 - Don't make the palette the only way to reach something. The palette is an accelerator, not navigation.
 - Don't express a condition as an attribute string. `open` carries the
   `booleanAttribute` transform, so a bare `open` and `[open]="true"` both

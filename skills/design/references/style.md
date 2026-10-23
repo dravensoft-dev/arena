@@ -17,9 +17,11 @@ the components that answer it. **The class nearest the component wins**, so `are
 button beats `arena-fit` on the container holding it, whatever order your stylesheets load in.
 **A box family stops at the content a component projects**: `arena-fill` on a container reaches a button
 beside the card and not the button inside the card's body. The trigger of a tooltip or a menu is
-the exception: a class on the tooltip reaches the control it wraps. **A surface a layer renders in an overlay leaves the subtree its trigger sits in**, so no class
-above the trigger reaches it. The Angular overlay does this. In React a menu panel renders
-inside its root, and a class above the trigger reaches it.
+the exception: a class on the tooltip reaches the control it wraps. **A surface a layer renders in an overlay leaves the subtree its trigger sits in**, so a class
+above the trigger does not reach it. The Angular overlay does this, and it takes the nearest
+palette, style plugin and density of its trigger; any other vocabulary class above the trigger
+does not reach it. In React a menu panel renders inside its root, and a class above the trigger
+reaches it.
 
 **A step class on the component beats the property.** `--arena-grid-min` on a container sets
 the cell width of every grid inside it, and `arena-grid-min-lg` on one grid keeps that grid at
@@ -168,4 +170,19 @@ Give the wrapper a display. The wrapper is the flex or grid item now, so it is w
 
 ## Density
 
-**`.arena-compact` and `.arena-comfortable` are the density family on the vocabulary page, `frameworks/VOCABULARY.md`.** The first re-densifies the controls. The second grows them to a 48px touch target. A container wearing both gets `.arena-comfortable`, as the vocabulary page states. Each re-answers the control and row sizes and nothing else. The rhythm above does not re-densify, so the air between two components stays where you spent it.
+**`.arena-compact` and `.arena-comfortable` are the density family on the vocabulary page, `frameworks/VOCABULARY.md`.** The first re-densifies the controls. The second grows them to a 48px touch target. A container wearing both gets `.arena-comfortable`, as the vocabulary page states. Each re-answers the control and row sizes and nothing else. Markup of your own follows the class when it takes its sizes from the `--dz-*` properties. [tokens.md](./tokens.md#what-does-each-density-class-change) lists each one, the value each class gives it and the Tailwind utility that reads it. The rhythm above does not re-densify, so the air between two components stays where you spent it.
+
+A row and a control of your own, once in CSS and once in the Tailwind utilities that table names:
+
+```css
+.my-row { padding: var(--dz-row-py) var(--dz-row-px); }
+.my-control { height: var(--dz-ctl-h); font-size: var(--dz-text); }
+```
+
+```html
+<div class="py-row-py px-row-px">
+  <button class="h-ctl-h text-ctl">Save</button>
+</div>
+```
+
+Both follow `.arena-compact` and `.arena-comfortable` on an ancestor.

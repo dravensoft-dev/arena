@@ -4,14 +4,21 @@
  * classes ArenaButton renders and is painted by the stylesheet the packages ship; each copy is
  * scoped to a style plugin out of the catalogue, compiled here by the builder that writes the two
  * plugins the site already loads, so a skin whose radius or weight moves moves the picture. The five
- * are the benches that differ most from each other in hue, radius, weight and face, and their
- * palettes are the ones those benches wear, copied from their own arena.config.json, because a
- * palette is the half Arena never ships and a made-up one would be Arena inventing the thing it says
- * it does not carry. Nothing holds them to those files; the benches are another repository. */
+ * are the catalogue entries that differ most from each other in hue, radius, weight and face, each
+ * wearing its own default palette, read from its arena.config.json, because a palette is the half
+ * Arena never ships and a made-up one would be Arena inventing what it says it
+ * does not carry. Chrome refuses an external use over file://, so the robot is drawn inline. */
 
+import { existsSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { repoRoot } from './repo-root.ts';
 import { block, PLUGIN_DIR } from '../../generate/arena/generate-tokens.ts';
 import { arenaClassesFor, arenaSlotDataFor } from '../tailwind/component-css.ts';
+import { SPRITE_FILE } from './playground-page.ts';
+import { symbolId } from '../../generate/core/arena-cli/sprite.ts';
 import { layerManifests } from '../tailwind/tailwind-compile.ts';
+
+const ROBOT = 'ph-duotone ph-robot';
 
 export const HERO_SHEET = 'hero.css';
 export const HERO_SOURCE = 'hero.html';
@@ -19,19 +26,30 @@ export const HERO_FILE = 'hero.png';
 export const HERO_WIDTH = 1400;
 export const HERO_HEIGHT = 860;
 
-export const HERO_SKINS = [
-  { name: 'project-tracker', primary: '#6c4ee3', content: '#ffffff' },
-  { name: 'language-course', primary: '#58cc02', content: '#ffffff' },
-  { name: 'storefront', primary: '#9c431b', content: '#ffffff' },
-  { name: 'photo-feed', primary: '#4a9eff', content: '#0b1a2b' },
-  { name: 'observability-console', primary: '#ff9243', content: '#1a1206' },
-];
+export const HERO_ENTRIES = ['project-tracker', 'language-course', 'storefront', 'photo-feed', 'observability-console'];
+
+export function heroSkins(base = repoRoot) {
+  return HERO_ENTRIES.map((name) => {
+    const file = join(base, 'plugin-style-store', 'catalogue', name, 'arena.config.json');
+    if (!existsSync(file)) throw new Error(`hero-page: ${file} is missing, so the hero cannot wear ${name}'s palette`);
+    const config = JSON.parse(readFileSync(file, 'utf8')) as {
+      palettes?: { default?: boolean; colors?: Record<string, string> }[];
+    };
+    const colors = config.palettes?.find((palette) => palette.default === true)?.colors;
+    const primary = colors?.primary;
+    const content = colors?.['primary-content'];
+    if (primary === undefined || content === undefined) {
+      throw new Error(`hero-page: ${file} declares no default palette with primary and primary-content`);
+    }
+    return { name, primary, content };
+  });
+}
 
 export const skinClass = (name: string) => `arena-${name}`;
 
 export async function heroStyles() {
   const blocks = [];
-  for (const { name } of HERO_SKINS) {
+  for (const { name } of heroSkins()) {
     blocks.push(await block({
       selector: `.${skinClass(name)}`,
       source: 'plugin.tokens.json',
@@ -47,7 +65,7 @@ function buttonOpening() {
   const root = `${arenaClassesFor(manifest).root} arena-size-lg`;
   const data = Object.entries(arenaSlotDataFor(manifest).root ?? {})
     .map(([name, value]) => ` ${name}="${value}"`).join('');
-  return `<button class="${root}"${data} data-arena-part="button" type="button">`;
+  return `<button class="${root}"${data} type="button">`;
 }
 
 const button = (label: string) => `${buttonOpening()}${label}</button>`;
@@ -61,7 +79,7 @@ const painted = (primary: string, content: string) => (primary === ''
   : ` style="--color-primary:${primary};--color-primary-content:${content}"`);
 
 function slices() {
-  return HERO_SKINS
+  return heroSkins()
     .map(({ name, primary, content }) =>
       `<div class="slice ${skinClass(name)}"${painted(primary, content)}>`
       + `${button(LABEL)}<span>${name}</span></div>`)
@@ -69,11 +87,22 @@ function slices() {
     .join('\n');
 }
 
-export function heroPage(drawn: number) {
+function robotId() {
+  const [weight, glyph] = ROBOT.split(' ');
+  return symbolId((weight ?? '').replace(/^ph-/, ''), (glyph ?? '').replace(/^ph-/, ''));
+}
+
+export function heroRobot(base: string): string {
+  const sprite = readFileSync(join(base, SPRITE_FILE), 'utf8');
+  const found = new RegExp(`<symbol id="${robotId()}"[\\s\\S]*?</symbol>`).exec(sprite);
+  if (found === null) throw new Error(`hero-page: ${SPRITE_FILE} holds no symbol ${robotId()}, so the hero draws no robot`);
+  return found[0];
+}
+
+export function heroPage(drawn: number, robot: string) {
   return `<!doctype html><html lang="en"><head><meta charset="utf-8">
 <link rel="stylesheet" href="intro/styles.css">
 <link rel="stylesheet" href="frameworks/tailwind/consume/Components.generated.css">
-<link rel="stylesheet" href="node_modules/@phosphor-icons/web/src/duotone/style.css">
 <link rel="stylesheet" href="${HERO_SHEET}">
 <style>
 html,body{margin:0;padding:0}
@@ -105,7 +134,7 @@ grid-template-columns:repeat(3,1fr);gap:26px 18px}
 justify-content:center;border:3px dashed var(--mute);border-radius:14px;background:transparent;
 font-family:var(--font-display);font-size:34px;font-weight:700;color:var(--mute)}
 .slice span{font-family:var(--font-mono);font-size:13px;color:var(--mute);white-space:nowrap}
-.robot{position:absolute;left:498px;top:644px;font-size:132px;color:var(--mute);line-height:1}
+.robot{position:absolute;left:498px;top:644px;width:1em;height:1em;font-size:132px;color:var(--mute);fill:currentColor}
 .reads{position:absolute;left:664px;top:662px;font-size:30px;color:var(--mute);max-width:648px;
 line-height:1.4;margin:0}
 .reads b{color:var(--text-strong);font-weight:600}
@@ -157,7 +186,7 @@ d="M125 62 74 182.6h20.4l10.9-27.3h39.4l10.9 27.3H176zm15.6 76.4h-31.2L125 100z"
 </svg><span>Angular</span></div>
 </div>
 
-<i class="robot ph-duotone ph-robot" aria-hidden="true"></i>
+<svg class="robot" aria-hidden="true" focusable="false">${robot}<use href="#${robotId()}"></use></svg>
 <p class="reads">The contracts say what it is. Your style plugin says what it looks like.
 <b>Arena carries the language and never the skin.</b></p>
 

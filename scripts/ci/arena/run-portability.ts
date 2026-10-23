@@ -13,7 +13,7 @@ import { GATES } from '../../check/arena/check-all.ts';
 
 export const PORTABILITY_GATES: Record<string, string> = {
   'check:portability': 'the rules themselves, so a leg that runs nothing else still says whether one was broken',
-  'check:consumer': 'spawns a resolved binary and builds a directory link into a fixture, which is a junction on Windows',
+  'check:consumer': 'spawns a resolved binary and builds a directory link into a fixture, which is a junction on Windows, and a real browser reading the high-contrast widening of a build',
   'check:script-types': 'reads a compiler line-wise, which is where a CRLF from a Windows-built tsc lands',
   'check:generated': 'asks git what it tracks, and holds the rule that no tracked text file carries a CR',
   'check:skills': 'the same question over the consumer index, through a separate spawn',

@@ -1,5 +1,5 @@
 import '@angular/compiler';
-import test from 'node:test';
+import test, { after, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { assertNoNode } from './NodeAssert';
 import { readFileSync, readdirSync } from 'node:fs';
@@ -8,7 +8,7 @@ import { pathToFileURL } from 'node:url';
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
-import { useTestEnvironment } from './TestbedEnv';
+import { useTestEnvironment, glyphIds, symbol } from './TestbedEnv';
 import { ANGULAR_COMPONENTS, LIB, TAILWIND_COMPONENTS, UTILS } from './Compliance';
 import { ArenaActivityFeed } from '../components/display/arena-activity-feed/ArenaActivityFeed';
 import { arenaActivityFeedStyles } from '../components/display/arena-activity-feed/ArenaActivityFeed.variants';
@@ -46,6 +46,14 @@ import { ArenaUnauthCard } from '../components/display/arena-unauth-card/ArenaUn
 import { arenaUnauthCardStyles } from '../components/display/arena-unauth-card/ArenaUnauthCard.variants';
 
 useTestEnvironment();
+
+const root = document.documentElement;
+before(() => {
+  root.style.setProperty('--bp-sm', '480px');
+});
+after(() => {
+  root.style.removeProperty('--bp-sm');
+});
 
 @Component({
   standalone: true,
@@ -571,7 +579,7 @@ test('arena-stat-card: a delta with a value renders the pill; a delta with a ton
   emptyValue.destroy();
 });
 
-test('arena-stat-card: an icon class name renders the <i> inside the aria-hidden wrapper', () => {
+test('arena-stat-card: an icon class name renders the glyph inside the aria-hidden wrapper', () => {
   const fixture = renderStatCard('Deploys', '128', undefined, 'ph-bold ph-rocket');
   fixture.detectChanges();
   const host = fixture.nativeElement as HTMLElement;
@@ -579,7 +587,7 @@ test('arena-stat-card: an icon class name renders the <i> inside the aria-hidden
   const iconSlot = host.querySelector(`.${iconClass}`);
   assert.ok(iconSlot, 'the icon wrapper element itself is missing');
   assert.equal(iconSlot?.getAttribute('aria-hidden'), 'true', 'the wrapper must stay aria-hidden');
-  assert.ok(iconSlot?.querySelector('i.ph-bold.ph-rocket'), 'the glyph <i> must carry the icon class name');
+  assert.deepEqual(glyphIds(iconSlot!), [symbol('bold', 'rocket')], 'the glyph must be the one the icon class name names');
   fixture.destroy();
 });
 
@@ -710,60 +718,42 @@ test('arena-error-state: retryLabel draws a real retry button carrying the manif
   fixture.destroy();
 });
 
-const BP_SM = '480px';
-
 test('arena-page-head: the root recipe classes land on the host element itself', async () => {
-  document.documentElement.style.setProperty('--bp-sm', BP_SM);
-  try {
-    const fixture = createPageHeadWithoutActionsFixture();
-    fixture.detectChanges();
-    await fixture.whenStable();
-    const host = fixture.nativeElement.querySelector('arena-page-head') as HTMLElement;
-    for (const cls of arenaPageHeadStyles().root().split(/\s+/))
-      assert.ok(host.classList.contains(cls), `host is missing root class "${cls}"`);
-    assert.ok(host.classList.contains('consumer-class'), `host lost the consumer's static class: "${host.className}"`);
-  } finally {
-    document.documentElement.style.removeProperty('--bp-sm');
-  }
+  const fixture = createPageHeadWithoutActionsFixture();
+  fixture.detectChanges();
+  await fixture.whenStable();
+  const host = fixture.nativeElement.querySelector('arena-page-head') as HTMLElement;
+  for (const cls of arenaPageHeadStyles().root().split(/\s+/))
+    assert.ok(host.classList.contains(cls), `host is missing root class "${cls}"`);
+  assert.ok(host.classList.contains('consumer-class'), `host lost the consumer's static class: "${host.className}"`);
 });
 
 test('arena-page-head: an unmeasured width renders the WIDE layout, so the narrow branch never flashes on first paint', async () => {
-  document.documentElement.style.setProperty('--bp-sm', BP_SM);
-  try {
-    const fixture = createPageHeadWithoutActionsFixture();
-    fixture.detectChanges();
-    await fixture.whenStable();
-    const host = fixture.nativeElement.querySelector('arena-page-head') as HTMLElement;
-    assert.equal(host.hasAttribute('data-arena-narrow'), false,
-      'an unmeasured page head must render as a row, and the narrow branch must not render before anything has been measured');
-    assert.equal(host.hasAttribute('data-arena-align'), false,
-      'the align is a class an adopter writes, so the head writes no attribute for it');
-  } finally {
-    document.documentElement.style.removeProperty('--bp-sm');
-  }
+  const fixture = createPageHeadWithoutActionsFixture();
+  fixture.detectChanges();
+  await fixture.whenStable();
+  const host = fixture.nativeElement.querySelector('arena-page-head') as HTMLElement;
+  assert.equal(host.hasAttribute('data-arena-narrow'), false,
+    'an unmeasured page head must render as a row, and the narrow branch must not render before anything has been measured');
+  assert.equal(host.hasAttribute('data-arena-align'), false,
+    'the align is a class an adopter writes, so the head writes no attribute for it');
 });
 
 test('arena-page-head: the actions wrapper is absent from the DOM when no [actions] content is projected', async () => {
-  document.documentElement.style.setProperty('--bp-sm', BP_SM);
-  try {
-    const fixture = createPageHeadWithoutActionsFixture();
-    fixture.detectChanges();
-    await fixture.whenStable();
-    const host = fixture.nativeElement.querySelector('arena-page-head') as HTMLElement;
-    assertNoNode(host.querySelector('button'), 'no actions were projected, so no action markup should exist at all');
-    const actionsClass = arenaPageHeadStyles().actions().split(/\s+/)[0];
-    assertNoNode(
-      host.querySelector(`:scope > .${actionsClass}`),
-      'the actions wrapper div must not render when the actions slot is empty',
-    );
-    assert.equal(host.children.length, 1, 'a page head with no actions renders the titles block and nothing else');
-  } finally {
-    document.documentElement.style.removeProperty('--bp-sm');
-  }
+  const fixture = createPageHeadWithoutActionsFixture();
+  fixture.detectChanges();
+  await fixture.whenStable();
+  const host = fixture.nativeElement.querySelector('arena-page-head') as HTMLElement;
+  assertNoNode(host.querySelector('button'), 'no actions were projected, so no action markup should exist at all');
+  const actionsClass = arenaPageHeadStyles().actions().split(/\s+/)[0];
+  assertNoNode(
+    host.querySelector(`:scope > .${actionsClass}`),
+    'the actions wrapper div must not render when the actions slot is empty',
+  );
+  assert.equal(host.children.length, 1, 'a page head with no actions renders the titles block and nothing else');
 });
 
 test('arena-page-head: a platform with no ResizeObserver still renders, on the wide layout', async () => {
-  document.documentElement.style.setProperty('--bp-sm', BP_SM);
   const globals = globalThis as { ResizeObserver?: typeof ResizeObserver };
   const saved = globals.ResizeObserver;
   delete globals.ResizeObserver;
@@ -776,7 +766,6 @@ test('arena-page-head: a platform with no ResizeObserver still renders, on the w
       'with no ResizeObserver the width stays null, which is the wide layout');
   } finally {
     globals.ResizeObserver = saved;
-    document.documentElement.style.removeProperty('--bp-sm');
   }
 });
 
@@ -794,9 +783,10 @@ function findManifestFile(componentsDir: string, filename: string): string | und
   return paths.find((p) => basename(p) === filename);
 }
 
-const OWN_HOST = new Set(['arena-bar-chart', 'arena-line-chart', 'arena-doughnut-chart', 'arena-horizontal-bar-chart', 'arena-pyramid-chart', 'arena-radar-chart', 'arena-scatter-chart']);
+const OWN_HOST = new Set(['arena-bar-chart', 'arena-line-chart', 'arena-doughnut-chart', 'arena-horizontal-bar-chart', 'arena-pyramid-chart', 'arena-radar-chart', 'arena-scatter-chart', 'arena-sparkline', 'arena-gauge-chart', 'arena-funnel-chart', 'arena-heatmap-chart']);
 
 const HOST_SLOT: Record<string, { manifest?: string; slot: string }> = {
+  'arena-accordion-item': { manifest: 'ArenaAccordion.manifest.json', slot: 'item' },
   'arena-bottom-nav-item': { manifest: 'ArenaBottomNav.manifest.json', slot: 'item' },
   'arena-calendar-event': { manifest: 'ArenaCalendar.manifest.json', slot: 'chip' },
   'arena-dialog': { slot: 'scrim' },
@@ -804,6 +794,8 @@ const HOST_SLOT: Record<string, { manifest?: string; slot: string }> = {
   'arena-people-list': { slot: 'root' },
   'arena-person-row': { manifest: 'ArenaPeopleList.manifest.json', slot: 'row' },
   'arena-radio-group': { manifest: 'ArenaRadio.manifest.json', slot: 'group' },
+  'arena-checkbox-group': { manifest: 'ArenaCheckbox.manifest.json', slot: 'group' },
+  'arena-multi-select': { manifest: 'ArenaCombobox.manifest.json', slot: 'root' },
   'arena-side-nav-collapsible': { manifest: 'ArenaSideNav.manifest.json', slot: 'section' },
   'arena-side-nav-item': { manifest: 'ArenaSideNav.manifest.json', slot: 'item' },
   'arena-side-nav-section': { manifest: 'ArenaSideNav.manifest.json', slot: 'section' },
@@ -837,8 +829,13 @@ test('every Angular primitive host-binds a slot that carries a display utility, 
     assert.ok(!('root' in ownerSlots), `OWN_HOST names "${owner}", but its manifest now carries a root slot -- the exclusion is stale and should be removed so this primitive is checked like every other one`);
   }
 
+  const onAdoptersElement = new Set(primitiveSources()
+    .filter(({ source }) => /selector:\s*'\[\w+\]'/.test(source))
+    .map(({ name }) => name.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase()));
+
   for (const name of names) {
     if (OWN_HOST.has(name)) continue;
+    if (onAdoptersElement.has(name)) continue;
     const override = HOST_SLOT[name];
     const slot = override?.slot ?? 'root';
     const manifestName = override?.manifest ?? `${kebabToPascal(name)}.manifest.json`;
@@ -989,7 +986,6 @@ class StrayAttributeHost {
 }
 
 test('the clearing binding removes a STATIC attribute and leaves the input holding its value', () => {
-  useTestEnvironment();
   const fixture = TestBed.createComponent(StrayAttributeHost);
   fixture.detectChanges();
   try {
@@ -1031,13 +1027,14 @@ test('arena-bar-chart: the numbers table is bound as a style object, not stringi
   await fixture.whenStable();
   const table = fixture.nativeElement.querySelector('arena-bar-chart table') as HTMLElement;
   assert.ok(table, 'the visually-hidden numbers table did not render');
+  const box = table.parentElement as HTMLElement;
 
-  assert.ok(!(table.getAttribute('style') ?? '').includes('[object Object]'),
-    `the style object was stringified: "${table.getAttribute('style')}"`);
-  assert.equal(table.style.position, 'absolute');
-  assert.equal(table.style.width, '1px');
-  assert.equal(table.style.height, '1px');
-  assert.equal(table.style.margin, '-1px');
+  assert.ok(!(box.getAttribute('style') ?? '').includes('[object Object]'),
+    `the style object was stringified: "${box.getAttribute('style')}"`);
+  assert.equal(box.style.position, 'absolute');
+  assert.equal(box.style.width, '1px');
+  assert.equal(box.style.height, '1px');
+  assert.equal(box.style.margin, '-1px');
 
 });
 
@@ -1082,13 +1079,14 @@ test('arena-line-chart: the numbers table is bound as a style object, not string
   await fixture.whenStable();
   const table = fixture.nativeElement.querySelector('arena-line-chart table') as HTMLElement;
   assert.ok(table, 'the visually-hidden numbers table did not render');
+  const box = table.parentElement as HTMLElement;
 
-  assert.ok(!(table.getAttribute('style') ?? '').includes('[object Object]'),
-    `the style object was stringified: "${table.getAttribute('style')}"`);
-  assert.equal(table.style.position, 'absolute');
-  assert.equal(table.style.width, '1px');
-  assert.equal(table.style.height, '1px');
-  assert.equal(table.style.margin, '-1px');
+  assert.ok(!(box.getAttribute('style') ?? '').includes('[object Object]'),
+    `the style object was stringified: "${box.getAttribute('style')}"`);
+  assert.equal(box.style.position, 'absolute');
+  assert.equal(box.style.width, '1px');
+  assert.equal(box.style.height, '1px');
+  assert.equal(box.style.margin, '-1px');
 
 });
 
@@ -1131,13 +1129,14 @@ test('arena-doughnut-chart: the numbers table is bound as a style object, not st
   await fixture.whenStable();
   const table = fixture.nativeElement.querySelector('arena-doughnut-chart table') as HTMLElement;
   assert.ok(table, 'the visually-hidden numbers table did not render');
+  const box = table.parentElement as HTMLElement;
 
-  assert.ok(!(table.getAttribute('style') ?? '').includes('[object Object]'),
-    `the style object was stringified: "${table.getAttribute('style')}"`);
-  assert.equal(table.style.position, 'absolute');
-  assert.equal(table.style.width, '1px');
-  assert.equal(table.style.height, '1px');
-  assert.equal(table.style.margin, '-1px');
+  assert.ok(!(box.getAttribute('style') ?? '').includes('[object Object]'),
+    `the style object was stringified: "${box.getAttribute('style')}"`);
+  assert.equal(box.style.position, 'absolute');
+  assert.equal(box.style.width, '1px');
+  assert.equal(box.style.height, '1px');
+  assert.equal(box.style.margin, '-1px');
 
 });
 

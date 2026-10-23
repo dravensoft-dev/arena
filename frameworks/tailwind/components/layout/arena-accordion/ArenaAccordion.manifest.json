@@ -1,0 +1,35 @@
+{
+  "component": "ArenaAccordion",
+  "slots": {
+    "root": "block w-full",
+    "item": "block border-b-[length:var(--bw-separator)] border-edge-separator",
+    "heading": "block m-0",
+    "trigger": "flex w-full items-center gap-row min-h-ctl-h px-row-x py-row-y rounded-control bg-transparent border-none cursor-pointer text-start font-body text-ctl text-ink-body/(--level-ink-body) hover:bg-hover aria-disabled:cursor-default aria-disabled:hover:bg-transparent focus-visible:outline-none focus-visible:ring-[length:var(--focus-width)] focus-visible:ring-[color:var(--focus-ring)]",
+    "triggerLabel": "flex-1 min-w-0 font-control",
+    "caret": "inline-flex flex-none text-[length:var(--icon-md)]",
+    "panel": "block px-row-x pb-row-y font-body text-ctl text-ink-body/(--level-ink-body)"
+  },
+  "kind": {
+    "root": "none",
+    "item": "none",
+    "heading": "none",
+    "trigger": "row",
+    "triggerLabel": "none",
+    "caret": "none",
+    "panel": "row"
+  },
+  "internal": {
+    "open": "the item's value is among the accordion's open values"
+  },
+  "variants": {
+    "open": {
+      "true": {},
+      "false": {
+        "panel": "hidden"
+      }
+    }
+  },
+  "defaultVariants": {
+    "open": false
+  }
+}

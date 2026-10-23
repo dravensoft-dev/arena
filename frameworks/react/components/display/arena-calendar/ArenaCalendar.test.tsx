@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { renderToStaticMarkup } from 'react-dom/server';
+import { renderIcons, symbols } from '../../../test/IconsHarness.tsx';
 import React from 'react';
 import { ArenaCalendar } from './ArenaCalendar.tsx';
 import { ArenaCalendarEvent } from '../arena-calendar-event/ArenaCalendarEvent.tsx';
@@ -14,7 +14,7 @@ const EVENTS: React.ComponentProps<typeof ArenaCalendarEvent>[] = [
 
 const chips = (eventExtra: Partial<React.ComponentProps<typeof ArenaCalendarEvent>> = {}) => EVENTS.map((e) => <ArenaCalendarEvent key={e.id} {...e} {...eventExtra} />);
 const render = (calendarExtra: Record<string, unknown> = {},
-  eventExtra: Partial<React.ComponentProps<typeof ArenaCalendarEvent>> = {}) => renderToStaticMarkup(
+  eventExtra: Partial<React.ComponentProps<typeof ArenaCalendarEvent>> = {}) => renderIcons(
   <ArenaCalendar timeZone="UTC" anchorDate="2026-07-20" view="week" {...calendarExtra}>{chips(eventExtra)}</ArenaCalendar>,
 );
 
@@ -26,7 +26,7 @@ test('the chip body is Arena own, and a consumer renderer reaches nothing', () =
 });
 
 test('an ArenaCalendar with no children renders an empty schedule rather than throwing', () => {
-  const html = renderToStaticMarkup(<ArenaCalendar timeZone="UTC" anchorDate="2026-07-20" view="week" />);
+  const html = renderIcons(<ArenaCalendar timeZone="UTC" anchorDate="2026-07-20" view="week" />);
   assert.match(html, /role="grid"/, 'an eventless ArenaCalendar drew no grid at all');
   assert.match(html, /role="gridcell"/, 'an eventless ArenaCalendar drew no hour cells');
   assert.doesNotMatch(html, /Standup/, 'the fixture leaked an event into an ArenaCalendar with no children');
@@ -37,7 +37,7 @@ test('an ArenaCalendarEvent missing a required member throws', () => {
   for (const missing of ['id', 'title', 'start', 'end']) {
     const props = { ...full, [missing]: undefined };
     assert.throws(
-      () => renderToStaticMarkup(<ArenaCalendarEvent {...props} />),
+      () => renderIcons(<ArenaCalendarEvent {...props} />),
       new RegExp(`ArenaCalendarEvent: \\\`${missing}\\\` is required`),
       `an ArenaCalendarEvent with no ${missing} rendered instead of failing hard`,
     );
@@ -55,10 +55,10 @@ test('an omitted timeZone resolves to the reader own zone, exactly', () => {
     return inst;
   };
   try {
-    const implicit = renderToStaticMarkup(
+    const implicit = renderIcons(
       <ArenaCalendar anchorDate="2026-07-20" view="week">{chips()}</ArenaCalendar>,
     );
-    const explicit = renderToStaticMarkup(
+    const explicit = renderIcons(
       <ArenaCalendar timeZone="Asia/Tokyo" anchorDate="2026-07-20" view="week">{chips()}</ArenaCalendar>,
     );
     assert.equal(implicit, explicit, 'the default is not the reader resolved zone');
@@ -69,10 +69,10 @@ test('an omitted timeZone resolves to the reader own zone, exactly', () => {
 });
 
 test('an explicit timeZone still decides the wall clock', () => {
-  const utc = renderToStaticMarkup(
+  const utc = renderIcons(
     <ArenaCalendar timeZone="UTC" anchorDate="2026-07-20" view="week">{chips()}</ArenaCalendar>,
   );
-  const tokyo = renderToStaticMarkup(
+  const tokyo = renderIcons(
     <ArenaCalendar timeZone="Asia/Tokyo" anchorDate="2026-07-20" view="week">{chips()}</ArenaCalendar>,
   );
   assert.match(utc, /09:00/, 'the UTC render does not start at the event hour');
@@ -108,7 +108,7 @@ test('an event colours its chip from colorId, not from a slot field', () => {
   assert.ok(html.includes(two), 'the second event did not take its ramp colour from colorId');
   // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
   const staleChip = <ArenaCalendarEvent id="c" title="Stale" start="2026-07-20T09:00:00Z" end="2026-07-20T10:00:00Z" slot={2} />;
-  const stale = renderToStaticMarkup(
+  const stale = renderIcons(
     <ArenaCalendar timeZone="UTC" anchorDate="2026-07-20" view="week">{staleChip}</ArenaCalendar>,
   );
   assert.ok(!stale.includes(two), 'the `slot` field picked a ramp colour');
@@ -133,14 +133,14 @@ test('the day affordance follows dayInteractive and never the listener -- R6', (
 });
 
 test('an ArenaCalendar grid renders exactly one roving tab stop, kebab or no kebab', () => {
-  const plain = renderToStaticMarkup(
+  const plain = renderIcons(
     <ArenaCalendar timeZone="UTC" anchorDate="2026-07-20" view="week">
       <ArenaCalendarEvent id="a" title="Standup" start="2026-07-20T09:00:00Z" end="2026-07-20T09:30:00Z" />
     </ArenaCalendar>,
   );
   assert.equal((plain.match(/tabindex="0"/g) || []).length, 1, 'an ArenaCalendar is not one tab stop');
 
-  const withKebab = renderToStaticMarkup(
+  const withKebab = renderIcons(
     <ArenaCalendar timeZone="UTC" anchorDate="2026-07-20" view="week">
       <ArenaCalendarEvent id="a" title="Standup" start="2026-07-20T09:00:00Z" end="2026-07-20T09:30:00Z"
         actionsEnabled actions={<button type="button">Delete</button>} />
@@ -151,26 +151,26 @@ test('an ArenaCalendar grid renders exactly one roving tab stop, kebab or no keb
 });
 
 test('the kebab renders only when actionsEnabled, and never as a tab stop', () => {
-  const off = renderToStaticMarkup(
+  const off = renderIcons(
     <ArenaCalendar timeZone="UTC" anchorDate="2026-07-20" view="week">
       <ArenaCalendarEvent id="a" title="Standup" start="2026-07-20T09:00:00Z" end="2026-07-20T09:30:00Z" />
     </ArenaCalendar>,
   );
-  assert.doesNotMatch(off, /ph-dots-three/, 'a chip that did not ask for actions drew a kebab');
+  assert.equal(symbols(off).includes('bold-dots-three-vertical'), false, 'a chip that did not ask for actions drew a kebab');
 
-  const on = renderToStaticMarkup(
+  const on = renderIcons(
     <ArenaCalendar timeZone="UTC" anchorDate="2026-07-20" view="week">
       <ArenaCalendarEvent id="a" title="Standup" start="2026-07-20T09:00:00Z" end="2026-07-20T09:30:00Z"
         actionsEnabled actions={<button type="button">Delete</button>} />
     </ArenaCalendar>,
   );
-  assert.match(on, /ph-dots-three/, 'actionsEnabled drew no kebab');
+  assert.equal(symbols(on).includes('bold-dots-three-vertical'), true, 'actionsEnabled drew no kebab');
   assert.match(on, /aria-label="Actions"[^>]*tabindex="-1"|tabindex="-1"[^>]*aria-label="Actions"/,
     'the kebab is not out of the Tab sequence');
 });
 
 test('the action panel content is absent while the panel is closed', () => {
-  const html = renderToStaticMarkup(
+  const html = renderIcons(
     <ArenaCalendar timeZone="UTC" anchorDate="2026-07-20" view="week">
       <ArenaCalendarEvent id="a" title="Standup" start="2026-07-20T09:00:00Z" end="2026-07-20T09:30:00Z"
         actionsEnabled actions={<button type="button">Delete</button>} />
@@ -180,7 +180,7 @@ test('the action panel content is absent while the panel is closed', () => {
 });
 
 test('a chip carrying a kebab is not a button inside a button', () => {
-  const html = renderToStaticMarkup(
+  const html = renderIcons(
     <ArenaCalendar timeZone="UTC" anchorDate="2026-07-20" view="week">
       <ArenaCalendarEvent id="a" title="Standup" start="2026-07-20T09:00:00Z" end="2026-07-20T09:30:00Z"
         interactive onClick={() => {}} actionsEnabled actions={<button type="button">Delete</button>} />
@@ -191,7 +191,7 @@ test('a chip carrying a kebab is not a button inside a button', () => {
 });
 
 test('a paneled chip carries a focusable body for Enter to land on', () => {
-  const html = renderToStaticMarkup(
+  const html = renderIcons(
     <ArenaCalendar timeZone="UTC" anchorDate="2026-07-20" view="week">
       <ArenaCalendarEvent id="a" title="Standup" start="2026-07-20T09:00:00Z" end="2026-07-20T09:30:00Z"
         interactive onClick={() => {}} actionsEnabled actions={<button type="button">Delete</button>} />
@@ -206,7 +206,7 @@ test('a paneled chip carries a focusable body for Enter to land on', () => {
 });
 
 test('a chip renders its colour id as an attribute, clamped and rounded, 1 without one, and paints nothing inline', () => {
-  const chip = (extra: Record<string, unknown> = {}) => renderToStaticMarkup(
+  const chip = (extra: Record<string, unknown> = {}) => renderIcons(
     <ArenaCalendarEvent id="a" title="Standup" start="2026-07-20T09:00:00Z" end="2026-07-20T09:30:00Z"
       box={{}} timeLabel="09:00 – 09:30" dateLabel="Monday 20 July" {...extra} />,
   );
@@ -217,7 +217,7 @@ test('a chip renders its colour id as an attribute, clamped and rounded, 1 witho
 });
 
 test('ArenaCalendarEvent renders its panel content when the panel is open', () => {
-  const html = renderToStaticMarkup(
+  const html = renderIcons(
     <ArenaCalendarEvent id="a" title="Standup" start="2026-07-20T09:00:00Z" end="2026-07-20T09:30:00Z"
       actionsEnabled actions={<button type="button">Delete</button>}
       box={{}} timeLabel="09:00 – 09:30" dateLabel="Monday 20 July"
@@ -227,7 +227,7 @@ test('ArenaCalendarEvent renders its panel content when the panel is open', () =
 });
 
 test('the chip lifts its clip while the panel is open, and only then', () => {
-  const chip = (extra: Record<string, unknown> = {}) => renderToStaticMarkup(
+  const chip = (extra: Record<string, unknown> = {}) => renderIcons(
     <ArenaCalendarEvent id="a" title="Standup" start="2026-07-20T09:00:00Z" end="2026-07-20T09:30:00Z"
       actionsEnabled actions={<button type="button">Delete</button>}
       box={{}} timeLabel="09:00 – 09:30" dateLabel="Monday 20 July"
@@ -319,7 +319,7 @@ test('the stacking threshold is inclusive, and an unmeasured container never sta
 });
 
 test('a stacked chip anchors its kebab to the bottom and reserves no lateral band', () => {
-  const stacked = renderToStaticMarkup(
+  const stacked = renderIcons(
     <ArenaCalendarEvent id="a" title="Client review — Northwind" start="2026-07-20T10:00:00Z" end="2026-07-20T11:30:00Z"
       actionsEnabled actions={<button type="button">Delete</button>} actionsBelow
       box={{}} timeLabel="10:00 – 11:30" dateLabel="Monday 20 July" />,
@@ -331,7 +331,7 @@ test('a stacked chip anchors its kebab to the bottom and reserves no lateral ban
 });
 
 test('an unstacked chip keeps the top-right kebab and its reserve', () => {
-  const plain = renderToStaticMarkup(
+  const plain = renderIcons(
     <ArenaCalendarEvent id="a" title="Release window" start="2026-07-20T15:00:00Z" end="2026-07-20T16:30:00Z"
       actionsEnabled actions={<button type="button">Delete</button>}
       box={{}} timeLabel="15:00 – 16:30" dateLabel="Monday 20 July" />,

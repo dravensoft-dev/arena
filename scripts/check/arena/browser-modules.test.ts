@@ -10,6 +10,7 @@ import assert from 'node:assert/strict';
 import { pathToFileURL } from 'node:url';
 import { readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
+import { spawnSync } from 'node:child_process';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { moduleEntries } from '../../build/arena/build-intro.ts';
 
@@ -46,6 +47,20 @@ for (const file of MODULES) {
     );
   });
 }
+
+test('intro/overview.js does nothing on a page that has no #sections, with a DOM registered', () => {
+  const code = `
+    import { GlobalRegistrator } from '@happy-dom/global-registrator';
+    GlobalRegistrator.register();
+    if (document.getElementById('sections')) throw new Error('the page has a host');
+    process.on('unhandledRejection', (reason) => { console.error(String(reason)); process.exit(3); });
+    await import(${JSON.stringify(pathToFileURL(join(root, 'intro/overview.js')).href)});
+    await new Promise((resolve) => setImmediate(resolve));
+    await GlobalRegistrator.unregister();
+  `;
+  const ran = spawnSync(process.execPath, ['--input-type=module', '--eval', code], { cwd: root, encoding: 'utf8' });
+  assert.equal(ran.status, 0, `a page module whose host is absent must not run, throw or reject, in a fresh process because the first import of a module is the one that runs it: ${ran.stderr}`);
+});
 
 test('what an intro page hands a browser is a bundle, never a module reaching into scripts/', () => {
   const entries = moduleEntries(root);

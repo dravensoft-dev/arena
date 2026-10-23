@@ -5,7 +5,25 @@
       "name": "wide",
       "when": "responsive is false, or the container is at least --bp-md -- the default shape, a real <table role=\"grid\"> the arrow keys walk",
       "pattern": "grid",
-      "exceptions": []
+      "exceptions": [],
+      "additions": [
+        {
+          "provides": "keyboard.PageUp",
+          "reason": "With `slice.view` set, the grid answers PageUp by moving the cursor up one viewport of rows. The grid asks the consumer for the row through `rowRequest` when the row is not projected. Without `slice.view`, the page handles the key."
+        },
+        {
+          "provides": "keyboard.PageDown",
+          "reason": "With `slice.view` set, the grid answers PageDown by moving the cursor down one viewport of rows. The grid asks the consumer for the row through `rowRequest` when the row is not projected. Without `slice.view`, the page handles the key."
+        },
+        {
+          "provides": "keyboard.ControlHome",
+          "reason": "With `slice.view` set, the grid answers Control plus Home by moving the cursor to the first record of the whole list. The grid asks the consumer for that record through `rowRequest` when the record is not projected. Without `slice.view`, the key acts as Home within the row."
+        },
+        {
+          "provides": "keyboard.ControlEnd",
+          "reason": "With `slice.view` set, the grid answers Control plus End by moving the cursor to the last record of the whole list. The grid asks the consumer for that record through `rowRequest` when the record is not projected. Without `slice.view`, the key acts as End within the row."
+        }
+      ]
     },
     {
       "name": "card",

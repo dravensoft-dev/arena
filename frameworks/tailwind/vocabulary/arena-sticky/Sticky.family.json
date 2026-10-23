@@ -1,0 +1,10 @@
+{
+  "family": "sticky",
+  "reach": "box",
+  "description": "Whether a table's header row stays at the top of the box that scrolls it or scrolls away with the rows. The header row is the table's own. Write this on the table, or on a container inside the box that scrolls. A header that sticks to the viewport slides under an app bar. The setting stops at the table it reaches.",
+  "default": "arena-sticky-none",
+  "variants": {
+    "arena-sticky-head": "[--arena-sticky-position:sticky] [--arena-sticky-isolation:isolate]",
+    "arena-sticky-none": "[--arena-sticky-position:static] [--arena-sticky-isolation:auto]"
+  }
+}

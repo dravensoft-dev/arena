@@ -14,9 +14,9 @@ import { hostBinary } from '../../lib/arena/host-binary.ts';
 import { join } from 'node:path';
 import { relPosix } from '../../utils/posix-path.ts';
 import { isMainModule } from '../../utils/main-module.ts';
-import { renderTarget, skillTargets, loadCategories } from '../../generate/arena/generate-skills.ts';
+import { renderTarget, skillTargets, loadCategories, node as skillsNode } from '../../generate/arena/generate-skills.ts';
 import {
-  TARGETS as NPM_TARGETS, renderTarget as renderNpmPage,
+  TARGETS as NPM_TARGETS, renderTarget as renderNpmPage, node as npmPagesNode,
 } from '../../generate/arena/generate-npm-pages.ts';
 import { NPM_QUESTIONS, githubSlug, type Section } from '../../lib/arena/npm-questions.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
@@ -28,6 +28,7 @@ export const node = {
     ...NPM_TARGETS, 'skills/design/**', '.claude-plugin/plugin.json',
     'frameworks/react/**', 'frameworks/angular/**',
     '!frameworks/angular/build/**', '!frameworks/react/dist/**', '!frameworks/angular/dist/**',
+    ...skillsNode.reads, ...skillsNode.writes, ...npmPagesNode.reads, 'frameworks/VOCABULARY.md',
   ],
   writes: [],
   feeds: [],

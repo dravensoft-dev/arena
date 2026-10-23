@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { ARENA_CHART_HEIGHT, ARENA_PAD } from '../../DataVisuals';
-import { arenaBarPath, arenaArcPath, arenaCurveTangents, arenaCurvePath, arenaCurveAreaPath, arenaLinePoints, arenaLineAreaPath } from './ChartMarks';
+import { arenaBarPath, arenaArcPath, arenaCurveTangents, arenaCurvePath, arenaCurveAreaPath, arenaLinePoints, arenaLineAreaPath, arenaFunnelRect, arenaFunnelConnector } from './ChartMarks';
 import { arenaDoughnutSlices } from './ChartScales';
 import { arenaDoughnutRadii } from './ChartAxis';
 
@@ -268,4 +268,25 @@ test('a curved area closes to the baseline at both ends, as the straight one doe
   const area = arenaCurveAreaPath(points, 200);
   assert.ok(area.startsWith('M0,200 L0,10'), `got ${area}`);
   assert.ok(area.endsWith('L50,200 Z'), `got ${area}`);
+});
+
+const edge = (y: number, size: number) => ({ y, width: size });
+const box = (x: number, y: number, size: number, high: number) => [x, y, size, high].join(' ');
+
+test('a funnel rectangle is centred on the axis and keeps the width and height it is given', () => {
+  const rect = arenaFunnelRect(300, 40, 24, 100);
+  assert.equal([rect.x, rect.y, rect.width, rect.height].join(' '), box(250, 40, 100, 24));
+  assert.equal(arenaFunnelRect(300, 40, 24, 0).x, 300, 'a zero width sits on the axis');
+});
+
+test('a funnel connector\'s four corners sit at the two edges\' ends', () => {
+  const d = arenaFunnelConnector(300, edge(64, 200), edge(80, 60));
+  assert.equal(d, 'M200,64 L400,64 L330,80 L270,80 Z');
+  const points = [...d.matchAll(/(-?[\d.]+),(-?[\d.]+)/g)].map((m) => [Number(m[1]), Number(m[2])]);
+  assert.equal(points.length, 4);
+  assert.deepEqual(points.map(([x]) => (x as number) - 300), [-100, 100, 30, -30], 'symmetric about the axis');
+});
+
+test('a connector to a zero-width edge closes to a point on the axis', () => {
+  assert.equal(arenaFunnelConnector(100, edge(0, 40), edge(10, 0)), 'M80,0 L120,0 L100,10 L100,10 Z');
 });

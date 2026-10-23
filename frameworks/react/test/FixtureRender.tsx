@@ -9,7 +9,10 @@ const registry = Arena as unknown as Record<string, React.ComponentType<Record<s
 export function element(node: FixtureChild, key?: number): React.ReactNode {
   if (node === null || typeof node !== 'object') return null;
   if (typeof node.text === 'string' && !node.element) return node.text;
-  if (node.element !== undefined) return React.createElement(node.element, { key, ...(node.attrs ?? {}) }, node.text);
+  if (node.element !== undefined) {
+    const children = Array.isArray(node.children) ? node.children.map((one, i) => element(one, i)) : node.text;
+    return React.createElement(node.element, { key, ...(node.attrs ?? {}) }, children);
+  }
   const Component = registry[node.component ?? ''];
   if (!Component) throw new Error(`${node.component} is not exported by the React barrel`);
   const props: Record<string, unknown> = { key, ...(node.members ?? {}) };

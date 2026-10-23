@@ -8,6 +8,7 @@ import { useArenaLocale } from '../../../ArenaLocale.ts';
 import { arenaPhraseParts } from '../../../Phrase.ts';
 import type { ArenaBulkActionBarClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
+import { ArenaIcon } from '../../display/arena-icon/ArenaIcon.tsx';
 
 export type { ArenaBulkAction };
 
@@ -27,7 +28,7 @@ export interface ArenaBulkActionBarProps {
   /** An action was activated, carrying which one. */
   onRun?: (action: ArenaBulkAction) => void;
 
-  /** Whether the bar may stack. 'auto' measures its OWN container, not the viewport, and drops the count, the actions and Clear onto separate rows when one row does not fit; 'inline' keeps the single row at every width, for a bar in a place the consumer knows is wide. It is a member rather than something a consumer reaches in with CSS because the alternative is what happens without it: reordering the bar's own children by position, which puts focus order out of step with visual order and breaks the next time anything inside moves. Stacking here reorders nothing, so the tab order and the reading order stay the same order they are wide. */
+  /** Whether the bar may stack. 'auto' measures its OWN container, not the viewport, and drops the count, the actions and Clear onto separate rows when one row does not fit. 'inline' keeps the single row at every width, for a bar in a place the consumer knows is wide. The layout is a member rather than something a consumer reaches in with CSS, because the alternative is what happens without it: reordering the bar's own children by position. Reordering by position puts focus order out of step with visual order and breaks the next time anything inside moves. Stacking here reorders nothing, so the tab order and the reading order stay the same order they are wide. */
   layout?: ArenaBulkActionBarLayout;
 
   /** Whether the Clear control is drawn. Every layer gates on this member and never on whether anything listens for `onClear`, because Arena never derives what it draws from what a consumer listens for. */
@@ -74,7 +75,7 @@ export function ArenaBulkActionBar({ className, count, noun, actions, layout = '
   return (
     <div role="toolbar" aria-label={locale.bulkActionBarLabel}
       ref={barRef} onKeyDown={onKeyDown}
-      className={arenaClassName('ArenaBulkActionBar', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+      className={arenaClassName('ArenaBulkActionBar', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
       <span className={styles.count()} data-arena-part={manifest.parts.count} {...styles.$data.count()}>
         {arenaPhraseParts(locale.bulkActionBarCount).map((part, i) => ('slot' in part && part.slot === 'count'
           ? <b key={i} className={styles.number()} data-arena-part={manifest.parts.number} {...styles.$data.number()}>{count}</b>
@@ -88,7 +89,7 @@ export function ArenaBulkActionBar({ className, count, noun, actions, layout = '
           <button key={i} onClick={() => onRun && onRun(a)}
             tabIndex={i === at ? 0 : -1} onFocus={() => setCursor(i)}
             className={barStyles({ narrow, open: true, destructive: Boolean(a.destructive) }).action()} data-arena-part={manifest.parts.action} {...barStyles({ narrow, open: true, destructive: Boolean(a.destructive) }).$data.action()}>
-            {a.icon && <span className={styles.actionIcon()} data-arena-part={manifest.parts.actionIcon} {...styles.$data.actionIcon()}><i className={a.icon} aria-hidden="true" /></span>}{a.label}
+            {a.icon && <span className={styles.actionIcon()} data-arena-part={manifest.parts.actionIcon} {...styles.$data.actionIcon()}><ArenaIcon icon={a.icon} /></span>}{a.label}
           </button>
         ))}
       </div>

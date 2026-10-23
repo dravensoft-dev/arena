@@ -20,6 +20,7 @@ import type { GraphNode } from './graph.ts';
 import { ALIASES, NOT_YET_SUBSCRIBED, allNodes, collectedScripts, isBuildStep, neverSubscribesReason } from './nodes.ts';
 import { POOLS } from './pools.ts';
 import { handoffProblems, trackedPaths, workflowTexts } from './handoff.ts';
+import { suiteReadRule } from './suite-reads.ts';
 
 export function remembering<T>(answer: (specs: string[]) => T) {
   const said = new Map<string, T>();
@@ -235,6 +236,7 @@ export async function graphProblems(
     ...handoffProblems(nodes, workflowTexts(base), trackedPaths(base)),
     ...poolProblems(nodes, declaredIn),
     ...peerReadProblems(nodes, declaredIn, paths).problems,
+    ...await suiteReadRule(base, nodes, declaredIn),
   ];
 
   return {

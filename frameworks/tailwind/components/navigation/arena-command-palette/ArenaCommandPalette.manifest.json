@@ -6,7 +6,7 @@
     "search": "flex items-center gap-2.5 px-4 py-3.5 border-b-[length:var(--bw-separator)] border-edge-field",
     "searchIcon": "text-ink-muted/(--level-ink-muted) text-[length:var(--icon-lg)]",
     "input": "flex-1 bg-transparent border-none outline-none text-ink-body placeholder:text-ink-muted/(--level-ink-muted) font-body text-ctl",
-    "esc": "font-mono text-ctl-xs text-ink-muted/(--level-ink-muted) border-[length:var(--bw-marker)] border-edge-control-quiet rounded-marker px-marker-x py-0.5",
+    "esc": "font-face-key text-ctl-xs case-key text-ink-key/(--level-ink-muted) border-[length:var(--bw-marker)] border-edge-control-quiet rounded-marker px-marker-x py-key-y",
     "list": "max-h-80 overflow-auto p-1.5",
     "empty": "px-3 py-4.5 font-body text-md text-ink-muted/(--level-ink-muted)",
     "group": "flex flex-col",
@@ -14,7 +14,7 @@
     "row": "flex items-center gap-row w-full min-h-ctl-h text-left px-row-x py-row-y rounded-control border-none cursor-pointer no-underline shadow-control-rest active:scale-[var(--press-scale)] motion-reduce:active:scale-100",
     "rowIcon": "inline-flex text-[length:var(--icon-lg)]",
     "rowLabel": "flex-1 font-body text-ctl",
-    "shortcut": "font-mono text-ctl-xs text-ink-muted/(--level-ink-muted)"
+    "shortcut": "font-face-key text-ctl-xs text-ink-key/(--level-ink-muted)"
   },
   "kind": {
     "root": "none",

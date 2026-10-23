@@ -1,0 +1,20 @@
+{
+  "component": "ArenaPopover",
+  "transparent": {
+    "root": "the trigger is the adopter's own control and the wrapper draws nothing around it, so a box class on the wrapper or above it decides the trigger's box as it decides the wrapper's"
+  },
+  "answers": [
+    "fill"
+  ],
+  "slots": {
+    "root": "inline-flex w-[var(--arena-fill-width,fit-content)]",
+    "panel": "z-dropdown w-max max-w-[92vw] overflow-visible px-floating-x py-floating-y bg-surface-floating border-[length:var(--bw-surface)] border-edge-surface-floating rounded-surface-floating shadow-surface-floating font-body text-md text-ink-body/(--level-ink-body)"
+  },
+  "kind": {
+    "root": "none",
+    "panel": "floating"
+  },
+  "floating": {
+    "panel": "a popover floats over the page, so the region holding its trigger does not decide what it holds"
+  }
+}

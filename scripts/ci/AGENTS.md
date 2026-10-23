@@ -26,3 +26,6 @@ other four domains exist and are empty, the way they are under every phase.
 
 [`../../.github/workflows/AGENTS.md`](../../.github/workflows/AGENTS.md) is where the jobs
 that call them are described.
+
+[`arena/AGENTS.md`](./arena/AGENTS.md) says how to run a job's commands on a clean clone built
+the way the job builds.

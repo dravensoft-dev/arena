@@ -16,8 +16,8 @@ Action button. The main action is the default emphasis, `arena-emphasis-primary`
 |---|---|---|---|---|
 | `children` | slot |  |  | The button's label. Sits between the two icons when both are given. |
 | `destructive` | primitive | `boolean` | `false` | Whether the action destroys or removes something. Destructive draws the danger outline whatever emphasis the button is given: danger is never filled outside ArenaConfirmDialog's final confirmation. |
-| `icon` | primitive | `string` |  | Phosphor class name drawn before the label. Replaced by the spinner while loading. |
-| `iconRight` | primitive | `string` |  | Phosphor class name drawn after the label: a caret on a menu trigger, an arrow on a next action. |
+| `icon` | primitive | `string` |  | Phosphor class name drawn before the label through ArenaIcon. Replaced by the spinner while loading. |
+| `iconRight` | primitive | `string` |  | Phosphor class name drawn after the label through ArenaIcon: a caret on a menu trigger, an arrow on a next action. |
 | `loading` | primitive | `boolean` | `false` | Replaces the leading icon with a spinner and blocks activation. The spin slows under reduced motion rather than stopping: a frozen spinner reads as a hung process. |
 | `disabled` | primitive | `boolean` | `false` | Blocks activation and dims the control. Implied by loading. |
 | `type` | enum | `ArenaButtonType` | `"button"` | Native button behaviour. Defaults to 'button' so a button inside a form does not submit it by accident. |
@@ -25,7 +25,7 @@ Action button. The main action is the default emphasis, `arena-emphasis-primary`
 | `value` | primitive | `string` |  | The value submitted under `name`. |
 | `autoFocus` | primitive | `boolean` | `false` | Focused on mount. |
 | `form` | primitive | `string` |  | The id of the form this button belongs to, when it is not a descendant of it. |
-| `tabStop` | primitive | `boolean` | `true` | Whether the control is reached from the page's Tab sequence. Set false when it lives inside a composite that manages its own focus (a grid with a roving tab stop, a menu), where reaching it by Tab would be a second way in. Arena writes tabindex="-1" and the control stays programmatically focusable; a positive tab order is not expressible and never should be. Arena's own table is NOT that composite: its grid deliberately has no step-in, so a control in a cell keeps its place in the page Tab sequence and setting this false there takes away its only keyboard route, since the cursor moves by cell and Enter activates the row. |
+| `tabStop` | primitive | `boolean` | `true` | Whether the control is reached from the page's Tab sequence. Set false when it lives inside a composite that manages its own focus (a grid with a roving tab stop, a menu). Reaching it by Tab there would be a second way in. Arena writes tabindex="-1" and the control stays programmatically focusable; a positive tab order is not expressible and never should be. Arena's own table is NOT that composite: its grid deliberately has no step-in, so a control in a cell keeps its place in the page Tab sequence. Setting this false there takes away its only keyboard route, since the cursor moves by cell and Enter activates the row. |
 | `onClick` | event |  |  | The button was activated, by pointer or by keyboard. |
 
 <!-- @api end -->
@@ -50,6 +50,8 @@ The `arena-emphasis-*` classes pick primary, secondary or ghost, and `destructiv
 - Pass `icon` and `iconRight` as Phosphor class names: `icon="ph-bold ph-plus"`. Arena draws each `<i>` and hides it from assistive technology; `icon` sits before the label, `iconRight` after it. While `loading`, the spinner replaces the leading icon.
 - Keyboard focus draws Arena's own gold ring at every emphasis, including `arena-emphasis-ghost`, whose border is transparent, and the ring draws over any hover shadow. The treatment comes from the manifest, so nothing you write turns it on and no `className` of yours is how to change it.
 - Don't pass an element as `icon` or `iconRight`. A single icon is a class name in Arena, which keeps the glyph inside Arena's own iconography and inside the markup Arena is answerable for.
+
+**Four ARIA props pass through, for Arena's popover, menu and tooltip.** `aria-haspopup`, `aria-expanded`, `aria-controls` and `aria-describedby` reach the `<button>`. Every other `aria-*` prop is dropped.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

@@ -326,7 +326,11 @@ async function main() {
   document.addEventListener('arena:density', paint);
 }
 
-main().catch((err) => {
-  host.append(el('p', 'note', `Overview failed to load: ${err.message}`));
-  throw err;
-});
+/* A page without the host has nothing to render into, and a module that ran anyway would throw
+ * on the null it then tried to report to. */
+if (host) {
+  main().catch((err) => {
+    host.append(el('p', 'note', `Overview failed to load: ${err.message}`));
+    throw err;
+  });
+}

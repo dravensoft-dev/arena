@@ -19,8 +19,8 @@ enables. `destructive` turns the eyebrow red and gives the confirm button Arena'
 
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
-| `open*` | primitive | `boolean` |  | Whether the dialog is shown. The host owns it, as in the other three modals: defaulting it would let an ArenaConfirmDialog whose open was never wired render nothing forever and look like a working closed dialog. |
-| `title*` | primitive | `string` |  | The dialog heading, and the name the panel's aria-labelledby points at. Required: nothing can derive a name for a confirmation, because its subject is editorial, and a modal announcing only its role is worse than none at all. Required whatever open is, since a required member absent is a caller bug rather than a state to render: render the component when there is something to confirm, and hold on to the subject across a cancel so it still has a name while it closes. |
+| `open*` | primitive | `boolean` |  | Whether the dialog is shown. The host owns it, as in the other three modals. Defaulting it would let an ArenaConfirmDialog whose open was never wired render nothing forever and look like a working closed dialog. |
+| `title*` | primitive | `string` |  | The dialog heading, and the name the panel's aria-labelledby points at. Required: nothing can derive a name for a confirmation, because its subject is editorial, and a modal announcing only its role is worse than none at all. Required whatever open is, since a required member absent is a caller bug rather than a state to render. Render the component when there is something to confirm, and hold on to the subject across a cancel so it still has a name while it closes. |
 | `eyebrow` | primitive | `string` |  | Small uppercase label above the title. Absent, the provided locale's confirmDialogEyebrow answers it. |
 | `content` | slot |  |  | The dialog body: the question and any detail. |
 | `confirmLabel` | primitive | `string` |  | The confirm button's label. Absent, the provided locale's confirmDialogConfirm answers it. |

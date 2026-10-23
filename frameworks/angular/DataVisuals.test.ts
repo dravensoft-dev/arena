@@ -2,8 +2,10 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   ARENA_CAT_SLOTS, ARENA_CHART_HEIGHT, ARENA_INK_BODY, ARENA_INK_MUTED, ARENA_PAD, ARENA_SR_ONLY,
-  arenaCatColor, arenaCatSlotFor, arenaCatSurface, arenaAreaFill, arenaToneColor,
+  arenaCatColor, arenaCatRotate, arenaCatSlotFor, arenaCatSurface, arenaAreaFill, arenaToneColor,
+  arenaPercentWriter, arenaValueWriter, ARENA_HEAT_STEPS, arenaHeatFill,
 } from './DataVisuals';
+import { forgetArenaWarnings } from './WarnOnce';
 import type { ArenaSeriesTone, ArenaTone } from './Api.generated';
 
 test('arenaCatColor reads the ramp token for an in-range slot', () => {
@@ -104,4 +106,60 @@ test('the neutral tone is the body ink constant, and the muted ink is the body i
   assert.equal(arenaToneColor('neutral'), ARENA_INK_BODY);
   assert.equal(ARENA_INK_BODY, 'color-mix(in oklab,var(--ink-body) var(--level-ink-body),transparent)');
   assert.equal(ARENA_INK_MUTED, 'color-mix(in oklab,var(--ink-muted) var(--level-ink-muted),transparent)');
+});
+
+function warnings(body: () => void): string[] {
+  const captured: string[] = [];
+  const original = console.warn;
+  console.warn = (...args: unknown[]) => { captured.push(args.map(String).join(' ')); };
+  try { body(); } finally { console.warn = original; }
+  return captured;
+}
+
+test('the raw percent writer keeps one digit and never rounds a ratio to a whole percent', () => {
+  const write = arenaPercentWriter();
+  assert.equal(write(0.624), '62.4%');
+  assert.equal(write(1), '100%');
+  assert.equal(write(1.5), '150%', 'a ratio above one is written as it is');
+  assert.equal(write(0), '0%');
+  assert.equal(write(-0.05), '-5%');
+});
+
+test('a formatted percent writer keeps one fraction digit whatever the number format asks', () => {
+  const write = arenaPercentWriter({ locale: 'en-US', fractionDigits: 0 });
+  assert.equal(write(0.624), '62.4%', 'the count\'s fraction digits never reach the conversion');
+  assert.equal(write(0.5), '50%');
+  assert.equal(arenaPercentWriter({ locale: 'en-US', fractionDigits: 3, compact: true, grouping: false })(0.6249), '62.5%');
+  assert.match(arenaPercentWriter({ locale: 'de-DE' })(0.624), /^62,4\s%$/, 'the locale decides the separator');
+});
+
+test('an invalid locale warns once with the value writer\'s message and writes the raw percent', () => {
+  forgetArenaWarnings();
+  const seen = warnings(() => {
+    const percent = arenaPercentWriter({ locale: 'not a locale' });
+    assert.equal(percent(0.624), '62.4%');
+    arenaPercentWriter({ locale: 'not a locale' });
+    arenaValueWriter({ format: { locale: 'not a locale' } });
+  });
+  assert.equal(seen.length, 1, 'the two writers share one message, so it prints once');
+  assert.match(seen[0] as string, /number format: the locale "not a locale" is not a tag Intl accepts/);
+});
+
+test('the heat ladder has five steps and each step fills with its own role', () => {
+  assert.equal(ARENA_HEAT_STEPS, 5);
+  const fills = Array.from({ length: ARENA_HEAT_STEPS }, (_, index) => arenaHeatFill(index + 1));
+  assert.deepEqual(fills, ['var(--heat-step-1)', 'var(--heat-step-2)', 'var(--heat-step-3)', 'var(--heat-step-4)', 'var(--heat-step-5)']);
+  assert.equal(new Set(fills).size, ARENA_HEAT_STEPS, 'no two steps share a fill');
+});
+
+test('arenaCatRotate counts from the start slot and wraps after the last', () => {
+  assert.deepEqual([0, 1, 2, 3].map((p) => arenaCatRotate(6, p)), [6, 7, 8, 1]);
+  assert.equal(arenaCatRotate(1, ARENA_CAT_SLOTS), 1);
+  assert.equal(arenaCatRotate(1, 8 + 2), 3);
+});
+
+test('arenaCatRotate clamps the start before counting', () => {
+  assert.equal(arenaCatRotate(0, 0), 1);
+  assert.equal(arenaCatRotate(99, 0), ARENA_CAT_SLOTS);
+  assert.equal(arenaCatRotate(99, 1), 1);
 });

@@ -22,7 +22,7 @@ export function ArenaSkeleton({ className, lines }: ArenaSkeletonProps) {
     const count = Number.isFinite(lines) ? Math.max(0, Math.floor(lines)) : 0;
     const last = arenaSkeletonStyles({ last: true });
     return (
-      <div role="status" aria-label={locale.skeletonLabel} className={arenaClassName('ArenaSkeleton', styles.stack(), className)}
+      <div role="status" aria-label={locale.skeletonLabel} className={arenaClassName('ArenaSkeleton', styles.stack(), className, manifest.vocabulary)}
         data-arena-part={manifest.parts.stack} {...styles.$data.stack()}>
         {Array.from({ length: count }).map((_, i) => {
           const row = i === count - 1 && count > 1 ? last : styles;
@@ -32,7 +32,7 @@ export function ArenaSkeleton({ className, lines }: ArenaSkeletonProps) {
     );
   }
   return (
-    <div className={arenaClassName('ArenaSkeleton', styles.root(), className)} data-arena-part={manifest.parts.root}
+    <div className={arenaClassName('ArenaSkeleton', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root}
       {...styles.$data.root()} role="status" aria-label={locale.skeletonLabel} />
   );
 }

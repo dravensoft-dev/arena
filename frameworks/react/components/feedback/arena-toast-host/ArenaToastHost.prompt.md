@@ -21,7 +21,7 @@ the id `raise` returned.
 
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
-| `children` | slot |  |  | The notices, in the order they are read. The stack is a plain column and the visual order is the source order, whatever the corner: a reversed one would put the newest notice first on screen and last in the reading order, and the two must agree. Nothing here caps the count or times a dismissal, because the queue that produced these notices already holds their identity and their order, and a cap applied by the box that draws them would fight the queue that owns them. |
+| `children` | slot |  |  | The notices, in the order they are read. The stack is a plain column and the visual order is the source order, whatever the corner. A reversed one would put the newest notice first on screen and last in the reading order, and the two must agree. Nothing here caps the count or times a dismissal, because the queue that produced these notices already holds their identity and their order. A cap applied by the box that draws them would fight the queue that owns them. |
 
 <!-- @api end -->
 

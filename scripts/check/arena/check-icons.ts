@@ -1,9 +1,10 @@
 /* Nine contracts take an icon as a string, and nothing checked that the string names a glyph.
  * A typo is an empty box: no error, no failing gate, and no way to see it except by looking at
- * the page. The truth is read out of the installed @phosphor-icons/web rather than typed here,
+ * the page. The truth is read out of the installed @phosphor-icons/core rather than typed here,
  * because a hand-written list of 1500 names ages the first time the package does. EXEMPT is
  * empty and is meant to stay that way: a name Phosphor does not have is a typo, not a case. */
 
+import { spawnSync } from 'node:child_process';
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { relPosix } from '../../utils/posix-path.ts';
@@ -11,6 +12,8 @@ import { isMainModule } from '../../utils/main-module.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { repoRoot as ROOT } from '../../lib/arena/repo-root.ts';
 import { withForeignTrees } from '../../lib/arena/foreign-trees.ts';
+import { SYMBOL_REF } from '../../generate/core/arena-cli/icon-css.ts';
+import { hostBinary } from '../../lib/arena/host-binary.ts';
 
 export const node = {
   name: 'check:icons',
@@ -24,9 +27,9 @@ export const node = {
 };
 
 
-export const PHOSPHOR = 'node_modules/@phosphor-icons/web/src';
+export const GLYPH_ASSETS = 'node_modules/@phosphor-icons/core/assets';
 
-export const SCANNED_ROOTS = ['frameworks', 'intro', 'contracts', 'docs'];
+export const SCANNED_ROOTS = ['frameworks', 'intro', 'contracts'];
 export const SCANNED_EXTENSIONS = ['.ts', '.tsx', '.js', '.jsx', '.html', '.json', '.md', '.css'];
 export const SKIPPED_DIRECTORIES = withForeignTrees('dist', 'build', 'vendor');
 
@@ -35,17 +38,16 @@ export const ICON_TOKEN = /\bph(?:-[a-z0-9]+)+\b/g;
 export const EXEMPT = new Map<string, string>();
 
 export function weightsFrom(root = ROOT) {
-  const base = join(root, PHOSPHOR);
-  const weights = new Map();
+  const base = join(root, GLYPH_ASSETS);
+  const weights = new Map<string, Set<string>>();
   for (const entry of readdirSync(base, { withFileTypes: true })) {
     if (!entry.isDirectory()) continue;
-    const sheet = join(base, entry.name, 'style.css');
-    if (!existsSync(sheet)) continue;
-    const css = readFileSync(sheet, 'utf8');
     const prefix = entry.name === 'regular' ? 'ph' : `ph-${entry.name}`;
-    const escaped = prefix.replace(/-/g, '\\-');
-    const rx = new RegExp(`^\\.${escaped}\\.(ph-[a-z0-9-]+)`, 'gm');
-    const glyphs = new Set([...css.matchAll(rx)].map((m) => m[1]));
+    const suffix = entry.name === 'regular' ? '.svg' : `-${entry.name}.svg`;
+    const glyphs = new Set<string>();
+    for (const file of readdirSync(join(base, entry.name))) {
+      if (file.endsWith(suffix) && file.length > suffix.length) glyphs.add(`ph-${file.slice(0, -suffix.length)}`);
+    }
     if (glyphs.size > 0) weights.set(prefix, glyphs);
   }
   return weights;
@@ -54,8 +56,8 @@ export function weightsFrom(root = ROOT) {
 export function zeroWeightProblems(weights: Map<string, Set<string>>) {
   if (weights.size > 0) return [];
   return [
-    `no weight stylesheet under ${PHOSPHOR}: a gate iterating nothing reports every name valid, `
-    + 'which is the vacuous pass this check exists to avoid. Install @phosphor-icons/web.',
+    `no weight directory under ${GLYPH_ASSETS}: a gate iterating nothing reports every name valid, `
+    + 'which is the vacuous pass this check exists to avoid. Install @phosphor-icons/core.',
   ];
 }
 
@@ -69,7 +71,17 @@ export function tokenProblems(text: string, where: string, weights: Map<string, 
   const glyphs = everyGlyph(weights);
   const problems = [];
   for (const line of text.split('\n').entries()) {
-    const [index, source] = line;
+    const [index, text_line] = line;
+    for (const [, weight = '', name = ''] of text_line.matchAll(SYMBOL_REF)) {
+      const forWeight = weights.get(weight === 'regular' ? 'ph' : `ph-${weight}`);
+      if (!forWeight?.has(`ph-${name}`) && !EXEMPT.has(`ph-${name}`)) {
+        problems.push(
+          `${where}:${index + 1}: "ph-${name}" is not a Phosphor glyph in the "${weight}" weight, `
+          + 'so this sprite symbol reference draws nothing.',
+        );
+      }
+    }
+    const source = text_line.replace(SYMBOL_REF, '');
     const found = [...source.matchAll(ICON_TOKEN)].map((m) => m[0]);
     if (found.length === 0) continue;
     const weight = found.find((token) => weights.has(token));
@@ -93,10 +105,24 @@ export function tokenProblems(text: string, where: string, weights: Map<string, 
   return problems;
 }
 
-export function scannedFiles(root = ROOT) {
+export function untrackedRoots(root = ROOT) {
+  const present = SCANNED_ROOTS.filter((name) => existsSync(join(root, name)));
+  if (present.length === 0) return new Set<string>();
+  const git = hostBinary('git', 'to ask which scanned roots hold a tracked file, so a local directory '
+    + 'no clone holds never reaches a verdict');
+  const asked = spawnSync(git, ['ls-files', '-z', '--', ...present], { cwd: root, encoding: 'utf8' });
+  if (asked.status !== 0) {
+    throw new Error(`git ls-files exited ${asked.status} in ${root}: ${asked.stderr}`);
+  }
+  const held = new Set((asked.stdout ?? '').split('\0').filter(Boolean).map((path) => path.split('/')[0]));
+  return new Set(present.filter((name) => !held.has(name)));
+}
+
+export function scannedFiles(root = ROOT, ignored = untrackedRoots(root)) {
   const skip = (name: string) => name.startsWith('.') || SKIPPED_DIRECTORIES.has(name);
   const found: string[] = [];
   for (const name of SCANNED_ROOTS) {
+    if (ignored.has(name)) continue;
     const dir = join(root, name);
     if (!existsSync(dir) || !statSync(dir).isDirectory()) continue;
     found.push(...walkFiles(dir, { skip }).filter((p) => SCANNED_EXTENSIONS.some((e) => p.endsWith(e))));

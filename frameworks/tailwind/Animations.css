@@ -103,7 +103,7 @@
 }
 
 /* A ring with no percentage turns, where a bar sweeps, and for the reason the bar states:
-   a meter that stops reads as a hung process, so this slows rather than freezing. The arc
+   a ring that stops reads as a hung process, so this slows rather than freezing. The arc
    it turns is the dash the manifest holds; only the rotation is here. */
 @utility arena-prog-ring {
   transform-origin: 50% 50%;

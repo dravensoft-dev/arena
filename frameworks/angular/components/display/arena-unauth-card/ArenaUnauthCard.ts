@@ -48,7 +48,7 @@ export class ArenaUnauthCard {
   readonly eyebrow = input<string>();
   /** The task. "Welcome back", "Check your inbox". */
   readonly title = input<string>();
-  /** Which rung of the document outline the title takes. Only the element changes: the title's class is the same at every value, so the render is identical and no appearance follows from it. It defaults to `h2` because this title is drawn in the section register rather than the card one, so the outline follows the register the same way every other title on the ladder does. A signed-out screen whose only title is this one says `h1` and gets the page's one heading, which is the case the member exists for. `none` takes the title out of the outline entirely; with no title there is no heading either way. */
+  /** Which rung of the document outline the title takes. Only the element changes: the title's class is the same at every value, so the render is identical and no appearance follows from it. The member defaults to `h2` because this title is drawn in the section register rather than the card one. The outline therefore follows the register the same way every other title on the ladder does. A signed-out screen whose only title is this one says `h1` and gets the page's one heading, which is the case the member exists for. `none` takes the title out of the outline entirely; with no title there is no heading either way. */
   readonly headingLevel = input<ArenaHeadingLevel, ArenaHeadingLevel | undefined>(
     'h2', { transform: (value) => value ?? 'h2' },
   );

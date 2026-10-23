@@ -13,7 +13,7 @@ export interface ArenaChartCardProps {
   /** The card heading. Absent renders no head unless `actions` is present. */
   title?: string;
 
-  /** Which rung of the document outline the title takes. Only the element changes: the title's class is the same at every value, so the render is identical and no appearance follows from it, the micro register this title is drawn in included. It is the one title on the ladder that defaults to `none`, because the ordinary chart card is a tile in a dashboard grid and a dozen tiles each opening a rung invents an outline where a page has one region; the chart inside carries its own accessible name, so nothing goes unnamed. A tile that genuinely IS a region of the page says which rung it takes, and `h3` is the card rung a chart card inside a section would want. */
+  /** Which rung of the document outline the title takes. Only the element changes: the title's class is the same at every value, so the render is identical and no appearance follows from it. The micro register this title is drawn in stays the same at every value too. This title is the one on the ladder that defaults to `none`. The default exists because the ordinary chart card is a tile in a dashboard grid. A dozen tiles each opening a rung invents an outline where a page has one region. The chart inside carries its own accessible name, so nothing goes unnamed. A tile that genuinely IS a region of the page says which rung it takes, and `h3` is the card rung a chart card inside a section would want. */
   headingLevel?: ArenaHeadingLevel;
 
   /** Controls in the head row, right-aligned beside the title. */
@@ -29,7 +29,7 @@ export function ArenaChartCard({ className, title, headingLevel = 'none', action
   const styles = arenaChartCardStyles();
   const Heading = headingLevel === 'none' ? 'span' : headingLevel;
   return (
-    <div className={arenaClassName('ArenaChartCard', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()} data-arena-boundary="">
+    <div className={arenaClassName('ArenaChartCard', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()} data-arena-boundary="">
       {(title || actions) && (
         <div className={styles.head()} data-arena-part={manifest.parts.head} {...styles.$data.head()}>
           {title && <Heading className={styles.title()} data-arena-part={manifest.parts.title} {...styles.$data.title()}>{title}</Heading>}

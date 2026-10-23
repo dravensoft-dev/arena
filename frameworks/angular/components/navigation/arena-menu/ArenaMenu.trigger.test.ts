@@ -16,6 +16,7 @@ import type { ArenaMenuItem } from '../../../Api.generated';
 const ITEMS: readonly ArenaMenuItem[] = [{ label: 'Rename' }];
 
 @Component({
+  selector: 'arena-menu-trigger-presentational-trigger',
   standalone: true,
   imports: [ArenaMenu],
   template: `<arena-menu [items]="items"><span trigger>More</span></arena-menu>`,

@@ -71,7 +71,8 @@ Five things at once, from the same tree:
   stylesheets, the behaviour contracts a consumer's own markup answers, the `arena`
   command, and none of the language;
 - `@dravensoft/arena-contracts` and `@dravensoft/arena-mcp`, assembled by the same command into
-  `dist/`. The second is the only package here with a runtime dependency, and it is where the
+  `dist/`. The second is the only package here whose code imports a runtime dependency (the layer
+  packages declare three, which only their `arena` command reads at build), and it is where the
   corpus travels: one under `agent/<layer>/` per layer, and it serves the one a project installed;
 - a standalone **Agent Skill**, `skills/design/SKILL.md`.
 

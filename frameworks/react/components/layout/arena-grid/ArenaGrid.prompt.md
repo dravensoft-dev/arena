@@ -17,7 +17,7 @@ short last page is as wide as one on a full page.
 
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
-| `children` | slot |  |  | The cells, one per child. Nothing is wrapped and nothing is measured: a child is a grid item exactly as it was written, so a card, a chart or a definition list all lay out the same way. |
+| `children` | slot |  |  | The cells, one per child. Nothing is wrapped and nothing is measured. A child is a grid item exactly as it was written, so a card, a chart or a definition list all lay out the same way. |
 
 <!-- @api end -->
 

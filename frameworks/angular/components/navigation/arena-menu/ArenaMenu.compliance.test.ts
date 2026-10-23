@@ -10,7 +10,7 @@ useTestEnvironment();
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { join } from 'node:path';
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { assertNoNode, assertSameNode } from '../../../test/NodeAssert';
 import { assertPattern, ANGULAR_COMPONENTS } from '../../../test/Compliance';
@@ -18,6 +18,7 @@ import { disposeOverlays } from '../../../test/Overlays';
 import type { ArenaMenuItem } from '../../../Api.generated';
 import { ArenaButton } from '../../forms/arena-button/ArenaButton';
 import { ArenaMenu } from './ArenaMenu';
+import { ArenaPopover } from '../../feedback/arena-popover/ArenaPopover';
 
 const BINDING = join(ANGULAR_COMPONENTS, 'navigation/arena-menu/ArenaMenu.behaviour.json');
 
@@ -40,6 +41,7 @@ class MenuHost {
 }
 
 @Component({
+  selector: 'arena-menu-compliance-wrapped-trigger-host',
   standalone: true,
   imports: [ArenaButton, ArenaMenu],
   template: `<arena-menu [items]="items"><arena-button trigger>More actions</arena-button></arena-menu>`,
@@ -212,6 +214,79 @@ test('the trigger is resolved to the focusable control, never to a display:conte
       'a click on the wrapped control must open the menu -- arena-button stops the native click bubbling, ' +
       'so a listener on the host would never hear it');
     assert.equal(control.getAttribute('aria-expanded'), 'true');
+  } finally {
+    fixture.destroy();
+    disposeOverlays();
+  }
+});
+
+test('Tab from the last row closes the menu and returns focus to the trigger', () => {
+  const { fixture, trigger } = render();
+  try {
+    trigger.click();
+    fixture.detectChanges();
+    const rows = [...panel()!.querySelectorAll<HTMLElement>('[role="menuitem"]')];
+    const last = rows[rows.length - 1]!;
+    last.focus();
+    assert.equal(press(last, 'Tab').defaultPrevented, true);
+    fixture.detectChanges();
+    assertNoNode(panel(), 'Tab from the last row left the menu open');
+    assertSameNode(document.activeElement, trigger, 'Tab out did not return focus to the trigger');
+  } finally {
+    fixture.destroy();
+    disposeOverlays();
+  }
+});
+
+@Component({
+  standalone: true,
+  imports: [ArenaPopover, ArenaMenu],
+  template: `
+    <arena-popover label="Filters" [open]="open()" (openChange)="open.set($event)">
+      <button trigger type="button" class="filters">Filters</button>
+      <arena-menu [items]="[{ label: 'Reset' }]"><button trigger type="button" class="more">More</button></arena-menu>
+    </arena-popover>
+  `,
+})
+class MenuInPopoverHost {
+  readonly open = signal(false);
+}
+
+test('a menu inside a popover closes alone on Escape, and a press on its row stays inside the popover', () => {
+  const fixture = TestBed.createComponent(MenuInPopoverHost);
+  const dialog = () => document.body.querySelector<HTMLElement>('.cdk-overlay-container [role="dialog"]');
+  try {
+    fixture.detectChanges();
+    (fixture.nativeElement.querySelector('.filters') as HTMLElement).click();
+    fixture.detectChanges();
+    const more = dialog()!.querySelector<HTMLElement>('.more')!;
+    more.click();
+    fixture.detectChanges();
+    const row = panel()!.querySelector<HTMLElement>('[role="menuitem"]')!;
+    row.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+    assert.ok(dialog(), 'a press on a row of the nested menu closed the popover');
+    press(row, 'Escape');
+    fixture.detectChanges();
+    assertNoNode(panel(), 'Escape did not close the menu');
+    assert.ok(dialog(), 'Escape closed the popover under the menu as well');
+    assertSameNode(document.activeElement, more, 'closing the menu did not return focus to its own trigger');
+    press(more, 'Escape');
+    fixture.detectChanges();
+    assertNoNode(dialog(), 'the second Escape did not reach the popover');
+  } finally {
+    fixture.destroy();
+    disposeOverlays();
+  }
+});
+
+test('a shortcut hint is a kbd, so a reader meets keyboard input rather than loose text', () => {
+  const { fixture, trigger } = render();
+  try {
+    press(trigger, 'Enter');
+    fixture.detectChanges();
+    const hint = panel()!.querySelector<HTMLElement>('[data-arena-part="menu.shortcut"]')!;
+    assert.equal(hint.tagName, 'KBD', 'the hint is printed as a span, the same fact the palette and arena-kbd print as a kbd');
+    assert.equal(hint.textContent, 'P', 'the string is printed as given, never split into keys');
   } finally {
     fixture.destroy();
     disposeOverlays();

@@ -1,9 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { ANGULAR_EMIT, SUITES, suiteSteps, testStep } from '../../check/arena/check-all.ts';
+import { ANGULAR_EMIT, JIT_SUITES, SUITES, suiteSteps, testStep } from '../../check/arena/check-all.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
+import { runSuite } from './run-suite.ts';
 
 const manifest = () => JSON.parse(readFileSync(join(repoRoot, 'package.json'), 'utf8'));
 
@@ -54,5 +56,80 @@ test('no suite argument carries a quote, since it is the thing that had drifted'
     for (const arg of SUITES[name]?.args ?? []) {
       assert.ok(!/['"]/.test(arg), `${name} passes ${arg}, and spawnSync has no shell to strip it`);
     }
+  }
+});
+
+test('the JIT run reads the layer sources through its preload and no emit, and is no suite a gate or CI runs', () => {
+  const [step, ...more] = suiteSteps('angular-jit');
+  assert.deepEqual(more, [], 'the JIT run is one step');
+  assert.notDeepEqual(step, ANGULAR_EMIT, 'the JIT run exists so a task pays for no ngc emit');
+  const args = step?.args ?? [];
+  const preload = args[args.indexOf('--preload') + 1] ?? '';
+  assert.ok(existsSync(join(repoRoot, preload)), `the preload ${preload} is not there`);
+  assert.ok(args.includes('frameworks/angular') && !args.includes('frameworks/angular/build/test'),
+    'the JIT run reads the sources, never the emitted tree');
+  for (const name of Object.keys(JIT_SUITES)) {
+    assert.ok(!(name in SUITES), `${name} would reach verify.yml and check-all, where the emitted tree is the verdict`);
+  }
+  assert.ok(!testStep({ isBun: true, testFiles: [] }).some((s) => s.args.includes(preload)),
+    'bun run check runs the emitted suite, never the JIT one');
+});
+
+test('each step runs under a temp root of its own, and the root is gone when the step ends, pass or fail', () => {
+  const log = mkdtempSync(join(tmpdir(), 'arena-run-suite-log-'));
+  try {
+    const step = (name: string, code: number) => ({
+      name,
+      args: ['-e', [
+        "const { appendFileSync } = require('node:fs');",
+        `appendFileSync(${JSON.stringify(join(log, 'seen'))}, process.env.TMPDIR + '\\n');`,
+        `process.exit(${code});`,
+      ].join('\n')],
+    });
+    const seen = () => readFileSync(join(log, 'seen'), 'utf8').trim().split('\n');
+
+    assert.equal(runSuite('probe', [step('first', 0), step('second', 0)]), 0);
+    const [first, second] = seen();
+    assert.ok(first && second && first !== second, 'two steps share one temp root');
+    assert.equal(existsSync(first), false, 'a step that passed left its temp root behind');
+    assert.equal(existsSync(second), false, 'the last step left its temp root behind');
+
+    assert.equal(runSuite('probe', [step('broken', 3), step('never', 0)]), 3);
+    const failed = seen().slice(2);
+    assert.equal(failed.length, 1, 'a step ran after the one that failed');
+    assert.equal(existsSync(failed[0] ?? ''), false, 'a step that failed left its temp root behind');
+  } finally {
+    rmSync(log, { recursive: true, force: true });
+  }
+});
+
+test('a step that passes and leaves something in its temp root fails, naming the entry, and the root is gone', () => {
+  const log = mkdtempSync(join(tmpdir(), 'arena-run-suite-log-'));
+  const lines: string[] = [];
+  const original = console.error;
+  try {
+    const step = (name: string, code: number) => ({
+      name,
+      args: ['-e', [
+        "const { appendFileSync, writeFileSync } = require('node:fs');",
+        "const { join } = require('node:path');",
+        "writeFileSync(join(process.env.TMPDIR, 'arena-leak-probe'), 'x');",
+        `appendFileSync(${JSON.stringify(join(log, 'seen'))}, process.env.TMPDIR + '\\n');`,
+        `process.exit(${code});`,
+      ].join('\n')],
+    });
+    console.error = (text: string) => { lines.push(String(text)); };
+    assert.equal(runSuite('probe', [step('test (leaks)', 0), step('never', 0)]), 1);
+    assert.equal(runSuite('probe', [step('test (fails and leaks)', 3)]), 3, 'a failed step keeps its own status');
+    console.error = original;
+    assert.equal(lines.length, 2);
+    assert.match(lines[0] ?? '', /test \(leaks\) left 1 entry in its temp root: arena-leak-probe/);
+    assert.match(lines[1] ?? '', /test \(fails and leaks\) left 1 entry in its temp root: arena-leak-probe/);
+    const seen = readFileSync(join(log, 'seen'), 'utf8').trim().split('\n');
+    assert.equal(seen.length, 2, 'the step after the leaking one never ran: one root per runSuite call');
+    for (const root of seen) assert.equal(existsSync(root), false, 'a step that left something kept its temp root');
+  } finally {
+    console.error = original;
+    rmSync(log, { recursive: true, force: true });
   }
 });

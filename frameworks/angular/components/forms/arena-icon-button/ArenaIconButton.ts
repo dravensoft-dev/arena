@@ -6,11 +6,12 @@ import type { ArenaButtonType } from '../../../Api.generated';
 import { arenaIconButtonStyles } from './ArenaIconButton.variants';
 import manifest from './ArenaIconButton.classes.generated';
 import { ArenaSlotAttributes } from '../../../SlotData';
+import { ArenaIcon } from '../../display/arena-icon/ArenaIcon';
 
 @Component({
   selector: 'arena-icon-button',
   standalone: true,
-  imports: [ArenaSlotAttributes],
+  imports: [ArenaIcon, ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     style: 'display: contents',
@@ -23,7 +24,7 @@ import { ArenaSlotAttributes } from '../../../SlotData';
             [attr.aria-label]="label()" [attr.title]="showLabel() ? null : label()"
             [attr.aria-pressed]="pressed() === undefined ? null : pressed()"
             (click)="onClick($event)">
-      <i [class]="icon()" aria-hidden="true"></i>
+      <arena-icon [icon]="icon()" />
       @if (showLabel()) {
         <span [class]="styles().label()" [attr.data-arena-part]="parts.label">{{ label() }}</span>
       }
@@ -33,11 +34,11 @@ import { ArenaSlotAttributes } from '../../../SlotData';
 export class ArenaIconButton {
   protected readonly parts = manifest.parts;
 
-  /** Phosphor class name, e.g. 'ph-bold ph-plus'. Arena draws the <i> and hides it from assistive technology; `label` is the accessible name. */
+  /** Phosphor class name, e.g. 'ph-bold ph-plus'. ArenaIcon draws the glyph and hides it from assistive technology; `label` is the accessible name. */
   readonly icon = input.required<string>();
   /** The accessible name, present in every state. Also the visible text when showLabel is set, and the title attribute when it is not. */
   readonly label = input.required<string>();
-  /** Whether this control is a toggle, and whether it is currently on. Present, Arena writes aria-pressed and draws the on state with the same accent tint a current ArenaSideNav item takes, so "this one is on" is one statement across the library; absent, the control is not a toggle at all. The tri-state is the point and a default of false would destroy it: aria-pressed="false" on a plain button announces a toggle that is off rather than a button, so every ArenaIconButton in the system would announce as an unpressed toggle. The label does NOT change with the state, which is what the button pattern means by a toggle: a control that renames itself is announced as a different control rather than as the same one in another state. */
+  /** Whether this control is a toggle, and whether it is currently on. Present, Arena writes aria-pressed and draws the on state with the same accent tint a current ArenaSideNav item takes, so "this one is on" is one statement across the library. Absent, the control is not a toggle at all. The tri-state is the point and a default of false would destroy it. aria-pressed="false" on a plain button announces a toggle that is off rather than a button, so every ArenaIconButton in the system would announce as an unpressed toggle. The label does NOT change with the state, which is what the button pattern means by a toggle. A control that renames itself is announced as a different control rather than as the same one in another state. */
   readonly pressed = input<boolean | undefined>();
   /** Shows the label as text beside the icon (H6). Don't rely on the title alone on touch or keyboard surfaces. */
   readonly showLabel = input(false, { transform: booleanAttribute });
@@ -56,7 +57,7 @@ export class ArenaIconButton {
   readonly autoFocus = input(false, { transform: booleanAttribute });
   /** The id of the form this button belongs to, when it is not a descendant of it. */
   readonly form = input<string>();
-  /** Whether the control is reached from the page's Tab sequence. Set false when it lives inside a composite that manages its own focus (a grid with a roving tab stop, a menu), where reaching it by Tab would be a second way in. Arena writes tabindex="-1" and the control stays programmatically focusable; a positive tab order is not expressible and never should be. */
+  /** Whether the control is reached from the page's Tab sequence. Set false when the control lives inside a composite that manages its own focus, such as a grid with a roving tab stop or a menu. Reaching it by Tab there would be a second way in. Arena writes tabindex="-1" and the control stays programmatically focusable; a positive tab order is not expressible and never should be. */
   readonly tabStop = input(true, { transform: booleanAttribute });
   /** The button was activated, by pointer or by keyboard. */
   readonly click = output<void>();

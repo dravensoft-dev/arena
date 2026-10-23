@@ -4,20 +4,22 @@
 <link rel="stylesheet" href="../../consume/Preflight.generated.css">
 <link rel="stylesheet" href="../../consume/components/forms/arena-switch/ArenaSwitch.styles.generated.css">
 <link rel="stylesheet" href="../../consume/components/brand/arena-app-logo/ArenaAppLogo.styles.generated.css">
+<link rel="stylesheet" href="../../consume/components/layout/arena-divider/ArenaDivider.styles.generated.css">
 <link rel="stylesheet" href="../../consume/vocabulary/Size.generated.css">
 <link rel="stylesheet" href="../../consume/vocabulary/Orientation.generated.css">
 <link rel="stylesheet" href="../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor, glyph } from '../../Specimen.js';
 
 const switchManifest = await (await fetch('../../components/forms/arena-switch/ArenaSwitch.manifest.json')).json();
 const logo = await (await fetch('../../components/brand/arena-app-logo/ArenaAppLogo.manifest.json')).json();
+const divider = await (await fetch('../../components/layout/arena-divider/ArenaDivider.manifest.json')).json();
 
 function toggle(label, cls) {
   const c = arenaClassesFor(switchManifest, { state: 'true' });
   const d = arenaSlotDataFor(switchManifest, { state: 'true' });
-  const knob = el('span', { class: c.knob, ...d.knob }, el('i', { class: `${c.icon} ph-bold ph-check`, ...d.icon }));
+  const knob = el('span', { class: c.knob, ...d.knob }, glyph(`${c.icon} ph-bold ph-check`, { ...d.icon }));
   const track = el('button', { type: 'button', role: 'switch', class: c.track, ...d.track, 'aria-checked': 'true', 'aria-label': label }, knob);
   return el('span', { class: `${c.root} ${cls}`, ...d.root }, track, el('span', { class: c.label, ...d.label }, label));
 }
@@ -30,12 +32,21 @@ function mark(cls) {
     el('span', { class: c.name, ...d.name }, 'Draven', el('span', { class: c.dim, ...d.dim, text: 'soft' })));
 }
 
+function rule(cls) {
+  const c = arenaClassesFor(divider, { labelled: false });
+  const d = arenaSlotDataFor(divider, { labelled: false });
+  const hr = el('hr', { class: `${c.root} ${cls}`, ...d.root });
+  if (cls === 'arena-orientation-horizontal') return el('span', { style: { display: 'block', width: '120px' } }, hr);
+  return el('span', { style: { display: 'flex', alignItems: 'center', gap: '8px', height: '40px' } },
+    el('span', { text: 'A' }), hr, el('span', { text: 'B' }));
+}
+
 mountSpecimen({ sections: [
   section('arena-orientation-horizontal, the default: along the line', [
-    toggle('Horizontal', 'arena-orientation-horizontal'), mark('arena-orientation-horizontal'),
+    toggle('Horizontal', 'arena-orientation-horizontal'), mark('arena-orientation-horizontal'), rule('arena-orientation-horizontal'),
   ], { gap: 'loose' }),
   section('arena-orientation-vertical: across it, operated the same way', [
-    toggle('Vertical', 'arena-orientation-vertical'), mark('arena-orientation-vertical'),
+    toggle('Vertical', 'arena-orientation-vertical'), mark('arena-orientation-vertical'), rule('arena-orientation-vertical'),
   ], { gap: 'loose' }),
 ]});
 </script></body></html>

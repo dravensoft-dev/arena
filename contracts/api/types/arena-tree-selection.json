@@ -1,0 +1,13 @@
+{
+  "name": "ArenaTreeSelection",
+  "kind": "object",
+  "description": "Which nodes of an ArenaTreeView are selected. An object holds the array, because an event's payload is a declared type or a primitive and never an array. The consumer holds this set and writes back what `selectionChange` carries.",
+  "fields": {
+    "ids": {
+      "form": "array",
+      "of": "string",
+      "required": true,
+      "description": "The ids of the selected nodes, each once. Without `multiple` the set holds at most one id. An id matching no node is kept."
+    }
+  }
+}

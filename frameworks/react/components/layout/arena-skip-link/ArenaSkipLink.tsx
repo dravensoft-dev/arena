@@ -9,7 +9,7 @@ export interface ArenaSkipLinkProps {
   className?: ArenaSkipLinkClass;
 
 
-  /** The words a reader reads when the link appears. Required, and guarded at runtime after trimming, the shape ArenaSideNav.ariaLabel carries for the same reason: this is text a person reads and nothing can derive it, and the guard trims first because the value it exists to catch is a present and useless one rather than an absent one, which the type already refuses. There is a defensible default in English and it is deliberately not given, because a default in one language is a wrong answer everywhere else and it is wrong silently. */
+  /** The words a reader reads when the link appears. Required, and guarded at runtime after trimming, the shape ArenaSideNav.ariaLabel carries for the same reason. The label is text a person reads and nothing can derive it. The guard trims first because the value it exists to catch is a present and useless one rather than an absent one, which the type already refuses. There is a defensible default in English and it is deliberately not given, because a default in one language is a wrong answer everywhere else and it is wrong silently. */
   label: string;
 }
 
@@ -21,7 +21,7 @@ export function ArenaSkipLink({ className, label }: ArenaSkipLinkProps) {
   }
   return (
     <a href={`#${ARENA_MAIN_ID}`}
-      className={arenaClassName('ArenaSkipLink', arenaSkipLinkStyles().root(), className)} data-arena-part={manifest.parts.root} {...arenaSkipLinkStyles().$data.root()}>
+      className={arenaClassName('ArenaSkipLink', arenaSkipLinkStyles().root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...arenaSkipLinkStyles().$data.root()}>
       {label}
     </a>
   );

@@ -21,12 +21,14 @@ import { blindFallbacks, repeatedSupports } from '../../lib/tailwind/supports-bl
 import { PREFLIGHT, PRELUDE, sheetPath } from '../../build/tailwind/build-tailwind.ts';
 import { CONSUME, MANIFESTS } from '../../build/tailwind/build-tailwind.ts';
 
+export const ANIMATIONS = 'frameworks/tailwind/Animations.css';
+
 export const node = {
   name: 'check:component-css',
   reads: [
     MANIFESTS, `${CONSUME}/**/*.css`, `${VOCABULARY_DIR}/**`, 'frameworks/tailwind/components/**/*.card.html',
     'contracts/design/environment.css', 'contracts/design/colors.css',
-    'contracts/design-generated/*.generated.css',
+    'contracts/design-generated/*.generated.css', ANIMATIONS,
   ],
   writes: [],
   feeds: [],
@@ -51,6 +53,20 @@ export const EXTERNAL_PROPERTIES = new Map([
     + 'depth, in both layers, while the nav is expanded, because a row insets itself by the indent role times its '
     + 'depth and a class string cannot name the depth. It is a component\'s own channel to what it holds, and '
     + 'its var() fallback of zero is the unindented row'],
+  ['arena-tree-depth', 'written by ArenaTreeView onto each item as a unitless count of the levels above it, in both '
+    + 'layers, because a row insets itself by the indent role times its depth and a class string cannot name the depth. '
+    + 'It is a component\'s own channel to what it holds, and its var() fallback of zero is the unindented row'],
+  ['arena-slider-at', 'written by ArenaSlider onto each thumb as the fraction of the range the thumb stands at, 0 to 1, '
+    + 'in both layers, because the thumb is placed along the track by that fraction and a class string cannot name a '
+    + 'number a person is dragging. Its var() fallback of zero is the minimum'],
+  ['arena-slider-from', 'written by ArenaSlider onto its track as the fraction the start thumb of a range stands at, in '
+    + 'both layers, so the painted span begins under that thumb. Zero, its fallback, is a single slider\'s own start'],
+  ['arena-slider-to', 'written by ArenaSlider onto its track as the fraction the thumb, or the end thumb of a range, '
+    + 'stands at, in both layers, so the painted fill ends under that thumb. Its fallback of zero is an empty fill'],
+  ['arena-sparkline-shift', 'written by ArenaSparkline onto its tooltip as the fraction of the plot the cursor stands '
+    + 'at, 0 on the first point to 1 on the last, in both layers, so the readout slides with the point and stays inside '
+    + 'the frame, and a class string cannot name the point under the cursor. Its fallback of zero starts the readout at '
+    + 'its anchor'],
 ]);
 
 export function selectorsIn(css: string) {
@@ -146,8 +162,6 @@ export function sheetProblems(manifests: Manifests, base = root) {
   problems.push(...staleThemeNamedProblems(readNames));
   return problems;
 }
-
-export const ANIMATIONS = 'frameworks/tailwind/Animations.css';
 
 export function keyframeDepths(css: string) {
   const found = [];

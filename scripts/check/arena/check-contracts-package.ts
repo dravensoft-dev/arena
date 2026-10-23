@@ -23,6 +23,7 @@ export const node = {
   reads: [
     'contracts/design/*.json', 'contracts/api/components/*.json', 'contracts/api/types/*.json',
     'contracts/behaviour/*.json', 'contracts/NPM.md', `${DIST}/**`, '.claude-plugin/plugin.json',
+    'frameworks/Components.json',
   ],
   writes: [],
   feeds: [],

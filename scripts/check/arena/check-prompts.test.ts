@@ -4,10 +4,11 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 import {
-  promptProblems, regionOf, rulesRegionOf, answersRegionOf, answersProblem, zeroScanProblems, keysProblem,
+  promptProblems, regionOf, rulesRegionOf, answersRegionOf, answersProblem, zeroScanProblems, keysProblem, markersProblem,
 } from './check-prompts.ts';
 import {
   openLine, CLOSE_LINE, renderAnswersRegion, answeredFamilies, RULES_OPEN, RULES_CLOSE_LINE, ROUTER_FROM_PROMPT, renderKeysRegion,
+  renderMarkersRegion,
 } from '../../generate/arena/generate-prompt-api.ts';
 
 test('every committed prompt carries the region its contract emits', () => {
@@ -96,4 +97,13 @@ test('a prompt whose keys region is missing or stale is a problem, and a fresh o
   assert.match(keysProblem('p.md', 'x\n', { pattern: 'tabs' }, pattern)[0] ?? '', /carries no @keys region/);
   assert.match(keysProblem('p.md', fresh.replace('moves left', 'moves right'), { pattern: 'tabs' }, pattern)[0] ?? '',
     /does not match/);
+});
+
+test('a marker region that is missing, stale or owed by no marker is reported, and a held one is not', () => {
+  const region = renderMarkersRegion(['nav'], { nav: 'ArenaNav' });
+  assert.deepEqual(markersProblem('p.md', `x\n\n${region}\n`, region), []);
+  assert.deepEqual(markersProblem('p.md', 'x\n', null), []);
+  assert.match(markersProblem('p.md', 'x\n', region)[0] ?? '', /carries no @markers region/);
+  assert.match(markersProblem('p.md', `x\n\n${region.replace('ArenaNav', 'ArenaOld')}\n`, region)[0] ?? '', /does not match/);
+  assert.match(markersProblem('p.md', `x\n\n${region}\n`, null)[0] ?? '', /queries no projection marker/);
 });

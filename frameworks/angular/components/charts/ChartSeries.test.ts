@@ -2,13 +2,16 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { ARENA_CAT_SLOTS } from '../../DataVisuals';
 import { forgetArenaWarnings } from '../../WarnOnce';
+import { arenaLinearScale, arenaScaleValue, arenaNiceStep } from './ChartScales';
 import {
   arenaChartTable, arenaOneSeries, arenaSeriesColors, arenaSeriesDomain, arenaSeriesPointCount,
   arenaStackSegments, arenaStackDomain, arenaMirrorDomain, arenaTwoSeries,
   arenaPointCount, arenaPointSeriesDomain, arenaPointSeriesColor, arenaPointTable,
-  arenaPointSized, arenaPointSizeRange, arenaSwatchChoice,
+  arenaPointSized, arenaPointSizeRange, arenaSwatchChoice, arenaSparkDomain,
+  arenaGaugeBands, arenaGaugeBand, arenaGaugeTicks, arenaGaugeColor, arenaGaugeTable,
+  arenaFunnelConversions, arenaFunnelMax, arenaFunnelTable, arenaHeatDomain, arenaHeatmapTable,
 } from './ChartSeries';
-import type { ArenaPointSeries, ArenaSeries } from '../../Api.generated';
+import type { ArenaGaugeBand, ArenaPointSeries, ArenaSeries } from '../../Api.generated';
 import type { ArenaSeriesTone } from '../../Api.generated';
 
 const write = (value: number) => `${value} ms`;
@@ -27,45 +30,67 @@ function captureWarnings(body: () => void): string[] {
 
 test('arenaSeriesColors always returns exactly `count` colours', () => {
   for (const count of [0, 1, 3, 25]) {
-    assert.equal(arenaSeriesColors(series(), count, 1).length, count);
-    assert.equal(arenaSeriesColors(series({ colorId: 3 }), count, 1).length, count);
-    assert.equal(arenaSeriesColors(series({ colorIds: [1, 2] }), count, 1).length, count);
-    assert.equal(arenaSeriesColors(series({ tone: 'danger' }), count, 1).length, count);
+    assert.equal(arenaSeriesColors(series(), count, 1, 'ArenaLineChart').length, count);
+    assert.equal(arenaSeriesColors(series({ colorId: 3 }), count, 1, 'ArenaLineChart').length, count);
+    assert.equal(arenaSeriesColors(series({ colorIds: [1, 2] }), count, 1, 'ArenaLineChart').length, count);
+    assert.equal(arenaSeriesColors(series({ tone: 'danger' }), count, 1, 'ArenaLineChart').length, count);
   }
 });
 
 test('a series with no identity of its own takes the slot its POSITION gives it', () => {
 
-  assert.deepEqual(arenaSeriesColors(series(), 2, 1), ['var(--color-cat-1)', 'var(--color-cat-1)']);
-  assert.deepEqual(arenaSeriesColors(series(), 2, 3), ['var(--color-cat-3)', 'var(--color-cat-3)']);
+  assert.deepEqual(arenaSeriesColors(series(), 2, 1, 'ArenaLineChart'), ['var(--color-cat-1)', 'var(--color-cat-1)']);
+  assert.deepEqual(arenaSeriesColors(series(), 2, 3, 'ArenaLineChart'), ['var(--color-cat-3)', 'var(--color-cat-3)']);
 });
 
 test('`colorId` paints the whole series one identity colour, whatever its position', () => {
-  assert.deepEqual(arenaSeriesColors(series({ colorId: 4 }), 2, 7), ['var(--color-cat-4)', 'var(--color-cat-4)']);
+  assert.deepEqual(arenaSeriesColors(series({ colorId: 4 }), 2, 7, 'ArenaLineChart'), ['var(--color-cat-4)', 'var(--color-cat-4)']);
 });
 
 test('`colorIds` maps per mark, falling back to the mark index where it runs short', () => {
 
-  assert.deepEqual(arenaSeriesColors(series({ colorIds: [5, 2] }), 4, 1), [
+  assert.deepEqual(arenaSeriesColors(series({ colorIds: [5, 2] }), 4, 1, 'ArenaLineChart'), [
     'var(--color-cat-5)', 'var(--color-cat-2)', 'var(--color-cat-3)', 'var(--color-cat-4)',
   ]);
 });
 
-test('`colorIds` shorter than `count` still never cycles past the ramp', () => {
-  const colours = arenaSeriesColors(series({ colorIds: [] }), 12, 1);
-  assert.equal(colours[11], `var(--color-cat-${ARENA_CAT_SLOTS})`);
-  assert.equal(new Set(colours).size, ARENA_CAT_SLOTS, 'the ramp clamps rather than wrapping');
+test('`colorIds` shorter than `count` falls back to the rotated position, which wraps after the last slot', () => {
+  const colours = arenaSeriesColors(series({ colorIds: [] }), 12, 1, 'ArenaLineChart', 1);
+  assert.equal(colours[8], 'var(--color-cat-1)');
+  assert.equal(colours[11], 'var(--color-cat-4)');
+});
+
+test('the colorIds fallback counts from `start`', () => {
+  assert.deepEqual(arenaSeriesColors(series({ colorIds: [5] }), 3, 1, 'ArenaLineChart', 6),
+    ['var(--color-cat-5)', 'var(--color-cat-7)', 'var(--color-cat-8)']);
+});
+
+test('an explicit colorId ignores `start` and still clamps', () => {
+  assert.deepEqual(arenaSeriesColors(series({ colorId: 9 }), 1, 1, 'ArenaLineChart', 3), [`var(--color-cat-${ARENA_CAT_SLOTS})`]);
+});
+
+test('the swatch counts the colorIds fallback from `start`', () => {
+  assert.deepEqual(arenaSwatchChoice({ colorIds: [] }, 1, 2, 6), { colorId: '8' });
+});
+
+test('without bands the arc takes colorId, then start', () => {
+  assert.equal(arenaGaugeColor([], -1, undefined, 'ArenaGaugeChart', 4), 'var(--color-cat-4)');
+  assert.equal(arenaGaugeColor([], -1, 2, 'ArenaGaugeChart', 4), 'var(--color-cat-2)');
+});
+
+test('a value in no band takes start', () => {
+  assert.equal(arenaGaugeColor(BANDS, -1, undefined, 'ArenaGaugeChart', 4), 'var(--color-cat-4)');
 });
 
 test('`tone` paints the whole series the semantic colour', () => {
-  assert.deepEqual(arenaSeriesColors(series({ tone: 'warning' }), 2, 1), ['var(--warning)', 'var(--warning)']);
+  assert.deepEqual(arenaSeriesColors(series({ tone: 'warning' }), 2, 1, 'ArenaLineChart'), ['var(--warning)', 'var(--warning)']);
 });
 
 test('`tone` wins over `colorId` and over `colorIds`, and passing both warns', () => {
   forgetArenaWarnings();
   const warnings = captureWarnings(() => {
-    assert.deepEqual(arenaSeriesColors(series({ tone: 'danger', colorId: 3 }), 1, 1), ['var(--danger)']);
-    assert.deepEqual(arenaSeriesColors(series({ tone: 'danger', colorIds: [3] }), 1, 1), ['var(--danger)']);
+    assert.deepEqual(arenaSeriesColors(series({ tone: 'danger', colorId: 3 }), 1, 1, 'ArenaLineChart'), ['var(--danger)']);
+    assert.deepEqual(arenaSeriesColors(series({ tone: 'danger', colorIds: [3] }), 1, 1, 'ArenaLineChart'), ['var(--danger)']);
   });
   assert.ok(warnings.length <= 1, 'arenaWarnOnce must not warn twice for one message');
   forgetArenaWarnings();
@@ -74,31 +99,42 @@ test('`tone` wins over `colorId` and over `colorIds`, and passing both warns', (
 test('the mutually-exclusive warning fires once, and only when both are passed', () => {
   forgetArenaWarnings();
   const clean = captureWarnings(() => {
-    arenaSeriesColors(series({ tone: 'danger' }), 1, 1);
-    arenaSeriesColors(series({ colorId: 2 }), 1, 1);
-    arenaSeriesColors(series(), 1, 1);
+    arenaSeriesColors(series({ tone: 'danger' }), 1, 1, 'ArenaLineChart');
+    arenaSeriesColors(series({ colorId: 2 }), 1, 1, 'ArenaLineChart');
+    arenaSeriesColors(series(), 1, 1, 'ArenaLineChart');
   });
   assert.deepEqual(clean, [], 'identity alone and meaning alone are both legal, and silent');
 
   const warnings = captureWarnings(() => {
-    arenaSeriesColors(series({ tone: 'danger', colorId: 3 }), 1, 1);
-    arenaSeriesColors(series({ tone: 'info', colorIds: [2] }), 1, 1);
+    arenaSeriesColors(series({ tone: 'danger', colorId: 3 }), 1, 1, 'ArenaLineChart');
+    arenaSeriesColors(series({ tone: 'info', colorIds: [2] }), 1, 1, 'ArenaLineChart');
   });
   assert.equal(warnings.length, 1, 'warned once for the two offending calls');
-  assert.match(warnings[0] as string, /^\[arena\] chart:/);
+  assert.match(warnings[0] as string, /^\[arena\] ArenaLineChart:/);
   assert.match(warnings[0] as string, /mutually exclusive/);
+  forgetArenaWarnings();
+});
+
+test('the mutually-exclusive warning names the chart that drew it, so a second chart is heard too', () => {
+  forgetArenaWarnings();
+  const warnings = captureWarnings(() => {
+    arenaSeriesColors(series({ tone: 'danger', colorId: 3 }), 1, 1, 'ArenaLineChart');
+    arenaSeriesColors(series({ tone: 'danger', colorId: 3 }), 1, 1, 'ArenaSparkline');
+    arenaPointSeriesColor({ label: 'T', x: [], y: [], tone: 'danger', colorId: 3 }, 1, 'ArenaScatterChart');
+  });
+  assert.deepEqual(warnings.map((line) => /^\[arena\] (\w+):/.exec(line)?.[1]), ['ArenaLineChart', 'ArenaSparkline', 'ArenaScatterChart']);
   forgetArenaWarnings();
 });
 
 test('a tone outside the union falls back to slot 1 instead of yielding undefined', () => {
 
   const rogue = 'critical' as unknown as ArenaSeriesTone;
-  assert.deepEqual(arenaSeriesColors(series({ tone: rogue }), 2, 4), ['var(--color-cat-1)', 'var(--color-cat-1)']);
+  assert.deepEqual(arenaSeriesColors(series({ tone: rogue }), 2, 4, 'ArenaLineChart'), ['var(--color-cat-1)', 'var(--color-cat-1)']);
 });
 
 test('`colorId: 0` is still an identity, not an absent one', () => {
 
-  assert.deepEqual(arenaSeriesColors(series({ colorId: 0 }), 1, 5), ['var(--color-cat-1)']);
+  assert.deepEqual(arenaSeriesColors(series({ colorId: 0 }), 1, 5, 'ArenaLineChart'), ['var(--color-cat-1)']);
 });
 
 test('the point count is the longest series, so a short one does not truncate the axis', () => {
@@ -119,6 +155,44 @@ test('the domain reaches below zero when any series does', () => {
   assert.ok(domain.min <= -40, `the axis stopped at ${domain.min}`);
 });
 
+test('a spark domain is the data\'s own range, so 120 to 180 fills the box instead of a strip at its top', () => {
+  assert.deepEqual(arenaSparkDomain([150, 120, 180, 160]), { min: 120, max: 180, step: 60 });
+  const zeroBased = arenaSeriesDomain([series({ values: [150, 120, 180, 160] })]);
+  assert.equal(zeroBased.min, 0, 'the axis-bearing charts keep zero, which is why the sparkline has its own domain');
+});
+
+test('a flat spark series is drawn on the middle of the box, never on an edge', () => {
+  for (const value of [0, 42, -7]) {
+    const domain = arenaSparkDomain([value, value, value]);
+    const scale = arenaLinearScale(domain.min, domain.max, 20, 0);
+    assert.equal(arenaScaleValue(scale, value), 10, `a flat run of ${value}`);
+  }
+});
+
+test('one point is a flat series, drawn on the middle', () => {
+  const domain = arenaSparkDomain([9]);
+  assert.equal(arenaScaleValue(arenaLinearScale(domain.min, domain.max, 20, 0), 9), 10);
+});
+
+test('a spark domain below zero is the data\'s range there too, and zero is not pulled in', () => {
+  assert.deepEqual(arenaSparkDomain([-30, -10, -20]), { min: -30, max: -10, step: 20 });
+  assert.deepEqual(arenaSparkDomain([-5, 5]), { min: -5, max: 5, step: 10 });
+});
+
+test('a missing number is not a zero: a gap or a non-number leaves the range the numbers give', () => {
+  const sparse = [120, 180];
+  sparse[3] = 150;
+  assert.deepEqual(arenaSparkDomain(sparse), { min: 120, max: 180, step: 60 });
+  assert.deepEqual(arenaSparkDomain([120, Number.NaN, 180, Number.POSITIVE_INFINITY]), { min: 120, max: 180, step: 60 });
+});
+
+test('a spark series with no number at all still yields a domain the scale can draw on', () => {
+  for (const values of [[], [Number.NaN]]) {
+    const domain = arenaSparkDomain(values);
+    assert.ok(domain.max > domain.min, `the span was ${domain.max - domain.min}`);
+  }
+});
+
 test('arenaOneSeries takes the first and warns about the rest, rather than drawing a sunburst', () => {
 
   forgetArenaWarnings();
@@ -128,6 +202,17 @@ test('arenaOneSeries takes the first and warns about the rest, rather than drawi
   });
   assert.equal(warnings.length, 1);
   assert.match(warnings[0] as string, /sunburst/);
+  forgetArenaWarnings();
+});
+
+test('arenaOneSeries warns with the reason its chart gives, so a sparkline never speaks of a ring', () => {
+  forgetArenaWarnings();
+  const warnings = captureWarnings(() => {
+    arenaOneSeries([series({ label: 'A' }), series({ label: 'B' })], 'ArenaSparkline', 'A sparkline has no legend to tell two lines apart');
+  });
+  assert.equal(warnings.length, 1);
+  assert.match(warnings[0] as string, /^\[arena\] ArenaSparkline: reads one series and was given 2\. A sparkline has no legend to tell two lines apart; the rest are ignored\.$/);
+  assert.doesNotMatch(warnings[0] as string, /sunburst/);
   forgetArenaWarnings();
 });
 
@@ -363,8 +448,8 @@ test('the table lists a row per pair with the series named on every one, in the 
 });
 
 test('a point series takes its colour by position when it declares none', () => {
-  assert.notEqual(arenaPointSeriesColor(PAIRS[0] as ArenaPointSeries, 1),
-    arenaPointSeriesColor(PAIRS[1] as ArenaPointSeries, 2),
+  assert.notEqual(arenaPointSeriesColor(PAIRS[0] as ArenaPointSeries, 1, 'ArenaScatterChart'),
+    arenaPointSeriesColor(PAIRS[1] as ArenaPointSeries, 2, 'ArenaScatterChart'),
     'two clouds that were never told apart must not come out the same colour');
 });
 
@@ -376,7 +461,7 @@ test('tone still wins over colorId on a point series, and still warns', () => {
   console.warn = (message: string) => { warnings.push(message); };
   try {
     const both: ArenaPointSeries = { label: 'Both', x: [1], y: [1], colorId: 4, tone: 'danger' };
-    assert.equal(arenaPointSeriesColor(both, 1), arenaPointSeriesColor({ label: 'T', x: [], y: [], tone: 'danger' }, 1));
+    assert.equal(arenaPointSeriesColor(both, 1, 'ArenaScatterChart'), arenaPointSeriesColor({ label: 'T', x: [], y: [], tone: 'danger' }, 1, 'ArenaScatterChart'));
     assert.ok(warnings.some((w) => w.includes('mutually exclusive')), `no warning, got ${JSON.stringify(warnings)}`);
   } finally {
     console.warn = real;
@@ -429,4 +514,217 @@ test('a swatch choice is the tone of a toned series and otherwise a clamped colo
   assert.deepEqual(arenaSwatchChoice(series({ colorIds: [5] }), 7, 1), { colorId: '2' });
   assert.deepEqual(arenaSwatchChoice(series({ colorIds: [5], colorId: 4 }), 7), { colorId: '5' }, 'colorIds wins, colorId is ignored');
   assert.deepEqual(arenaSwatchChoice(series({ colorId: 9 as never }), 1), { colorId: '8' });
+});
+
+const BANDS: ArenaGaugeBand[] = [
+  { from: 0, tone: 'success', label: 'Healthy' },
+  { from: 60, tone: 'warning', label: 'Elevated' },
+  { from: 85, tone: 'danger', label: 'Critical' },
+];
+const WORDS = { measure: 'Measure', value: 'Value', minimum: 'Minimum', maximum: 'Maximum', range: '{from} – {to}' };
+
+test('a band includes its own from edge and stops short of the next band\'s', () => {
+  assert.equal(arenaGaugeBand(BANDS, 0), 0);
+  assert.equal(arenaGaugeBand(BANDS, 59.9), 0);
+  assert.equal(arenaGaugeBand(BANDS, 60), 1, 'a value equal to from is in that band');
+  assert.equal(arenaGaugeBand(BANDS, 85), 2);
+  assert.equal(arenaGaugeBand(BANDS, 130), 2, 'the last band runs on past max, because the words do not clamp');
+});
+
+test('a value below the first band, or not a number, is in no band', () => {
+  assert.equal(arenaGaugeBand(BANDS.slice(1), 10), -1);
+  assert.equal(arenaGaugeBand(BANDS, Number.NaN), -1);
+  assert.equal(arenaGaugeBand([], 50), -1, 'no bands, no band');
+});
+
+test('unsorted bands are sorted ascending and warn, because their order is configuration', () => {
+  forgetArenaWarnings();
+  const shuffled = [BANDS[2], BANDS[0], BANDS[1]] as ArenaGaugeBand[];
+  let sorted: ArenaGaugeBand[] = [];
+  const warned = captureWarnings(() => { sorted = arenaGaugeBands(shuffled, 'ArenaGaugeChart'); });
+  assert.deepEqual(sorted.map((band) => band.from), [0, 60, 85]);
+  assert.equal(warned.length, 1);
+  assert.match(warned[0] as string, /ArenaGaugeChart: reads its bands in ascending order/);
+  forgetArenaWarnings();
+  assert.deepEqual(captureWarnings(() => arenaGaugeBands(BANDS, 'ArenaGaugeChart')), [], 'sorted bands say nothing');
+});
+
+test('the ticks are both ends and every band edge inside the scale, once each', () => {
+  assert.deepEqual(arenaGaugeTicks(BANDS, 0, 100, 'ArenaGaugeChart'), [0, 60, 85, 100], 'a band starting at min is not a second tick');
+  assert.deepEqual(arenaGaugeTicks([{ from: -10, tone: 'info', label: 'Low' }, { from: 140, tone: 'danger', label: 'Off' }], 0, 100, 'ArenaGaugeChart'),
+    [0, 100], 'an edge outside the scale draws no tick');
+  assert.deepEqual(arenaGaugeTicks([], 0, 100, 'ArenaGaugeChart'), [0, 100]);
+});
+
+test('a scale whose max is not above its min warns once and draws no tick', () => {
+  forgetArenaWarnings();
+  const warned = captureWarnings(() => {
+    assert.deepEqual(arenaGaugeTicks(BANDS, 100, 100, 'ArenaGaugeChart'), []);
+    assert.deepEqual(arenaGaugeTicks(BANDS, 100, 100, 'ArenaGaugeChart'), []);
+  });
+  assert.equal(warned.length, 1);
+  assert.match(warned[0] as string, /ArenaGaugeChart: `max` \(100\) is not greater than `min` \(100\)/);
+});
+
+test('the arc takes the hue of the band the value is in, and the identity slot without bands', () => {
+  assert.equal(arenaGaugeColor(BANDS, 2, undefined, 'ArenaGaugeChart'), 'var(--danger)');
+  assert.equal(arenaGaugeColor(BANDS, 0, undefined, 'ArenaGaugeChart'), 'var(--success)');
+  assert.equal(arenaGaugeColor(BANDS, -1, undefined, 'ArenaGaugeChart'), 'var(--color-cat-1)', 'below the first band is the identity default');
+  assert.equal(arenaGaugeColor([], -1, undefined, 'ArenaGaugeChart'), 'var(--color-cat-1)');
+  assert.equal(arenaGaugeColor([], -1, 3, 'ArenaGaugeChart'), 'var(--color-cat-3)');
+  assert.equal(arenaGaugeColor([], -1, 99, 'ArenaGaugeChart'), `var(--color-cat-${ARENA_CAT_SLOTS})`, 'clamped to the ramp');
+});
+
+test('a colorId beside bands is ignored and warns, because a chart carries identity or meaning', () => {
+  forgetArenaWarnings();
+  const warned = captureWarnings(() => assert.equal(arenaGaugeColor(BANDS, 1, 4, 'ArenaGaugeChart'), 'var(--warning)'));
+  assert.equal(warned.length, 1);
+  assert.match(warned[0] as string, /ArenaGaugeChart: `colorId` is ignored while `bands` is given/);
+});
+
+test('the gauge table holds the whole scale: the value, both ends and every band\'s range', () => {
+  const table = arenaGaugeTable(WORDS, 130, 0, 100, BANDS, (value) => `${value} %`);
+  assert.deepEqual(table.columns, ['Measure', 'Value']);
+  assert.deepEqual(table.rows.map((row) => [row.header, ...row.cells]), [
+    ['Value', '130 %'],
+    ['Minimum', '0 %'],
+    ['Maximum', '100 %'],
+    ['Healthy', '0 % – 60 %'],
+    ['Elevated', '60 % – 85 %'],
+    ['Critical', '85 % – 100 %'],
+  ], 'the words say what was passed, 130 and not 100');
+});
+
+test('a non-number leaves the value cell empty rather than writing a zero', () => {
+  const table = arenaGaugeTable(WORDS, Number.NaN, 0, 100, [], String);
+  assert.deepEqual(table.rows.map((row) => [row.header, ...row.cells]), [['Value', ''], ['Minimum', '0'], ['Maximum', '100']]);
+});
+
+const FUNNEL_WORDS = { stage: 'Stage', step: 'Of previous stage', total: 'Of first stage' };
+const percent = (ratio: number) => `${Math.round(ratio * 1000) / 10}%`;
+
+test('a conversion is the share of the previous stage and of the first, and the first stage has no previous', () => {
+  const [first, second, third] = arenaFunnelConversions([200, 100, 25]);
+  assert.deepEqual(first, { step: null, total: 1 });
+  assert.deepEqual(second, { step: 0.5, total: 0.5 });
+  assert.deepEqual(third, { step: 0.25, total: 0.125 });
+  assert.deepEqual(arenaFunnelConversions([]), [], 'no stage, no conversion');
+});
+
+test('a zero, negative, missing or non-finite denominator gives no ratio rather than a zero', () => {
+  assert.deepEqual(arenaFunnelConversions([0, 5]), [{ step: null, total: null }, { step: null, total: null }]);
+  assert.deepEqual(arenaFunnelConversions([-4, 5]), [{ step: null, total: null }, { step: null, total: null }]);
+  assert.deepEqual(arenaFunnelConversions([Number.NaN, 5])[1], { step: null, total: null });
+  assert.deepEqual(arenaFunnelConversions([100, Number.POSITIVE_INFINITY, 50])[2], { step: null, total: 0.5 }, 'an infinite predecessor is no denominator');
+  assert.deepEqual(arenaFunnelConversions([100, 0, 50])[2], { step: null, total: 0.5 }, 'a zero predecessor leaves the step empty and the total whole');
+});
+
+test('a non-finite numerator gives no ratio, and a stage that is zero gives zero percent', () => {
+  assert.deepEqual(arenaFunnelConversions([100, Number.NaN])[1], { step: null, total: null });
+  assert.deepEqual(arenaFunnelConversions([100, 0])[1], { step: 0, total: 0 });
+});
+
+test('a stage above its predecessor gives a ratio above one, uncorrected', () => {
+  const [, second] = arenaFunnelConversions([100, 150]);
+  assert.equal(second?.step, 1.5);
+  assert.equal(second?.total, 1.5);
+});
+
+test('a negative stage over a positive denominator gives a negative ratio, as passed', () => {
+  assert.equal(arenaFunnelConversions([100, -5])[1]?.step, -0.05);
+});
+
+test('the funnel max is the largest finite value floored at zero', () => {
+  assert.equal(arenaFunnelMax([3, 9, 4]), 9);
+  assert.equal(arenaFunnelMax([3, Number.NaN, Number.POSITIVE_INFINITY, 4]), 4, 'a non-finite value never sets the scale');
+  assert.equal(arenaFunnelMax([-3, -9]), 0);
+  assert.equal(arenaFunnelMax([]), 0);
+});
+
+test('the funnel table has the conversion columns only when asked, one row per stage and the first step cell empty', () => {
+  const one = series({ label: 'Accounts', values: [200, 100, 25] });
+  const full = arenaFunnelTable(FUNNEL_WORDS, one, ['Visits', 'Sign-ups', 'Active'], write, percent, true);
+  assert.deepEqual(full.columns, ['Stage', 'Accounts', 'Of previous stage', 'Of first stage']);
+  assert.deepEqual(full.rows.map((row) => [row.header, ...row.cells]), [
+    ['Visits', '200 ms', '', '100%'],
+    ['Sign-ups', '100 ms', '50%', '50%'],
+    ['Active', '25 ms', '25%', '12.5%'],
+  ]);
+  const bare = arenaFunnelTable(FUNNEL_WORDS, one, ['Visits', 'Sign-ups', 'Active'], write, percent, false);
+  assert.deepEqual(bare.columns, ['Stage', 'Accounts']);
+  assert.ok(bare.rows.every((row) => row.cells.length === 1), 'no conversion cell');
+});
+
+test('the funnel table writes a negative stage as passed and leaves a missing or non-finite one empty', () => {
+  const table = arenaFunnelTable(FUNNEL_WORDS, series({ label: 'A', values: [100, -5, Number.NaN] }), ['a', 'b', 'c', 'd'], write, percent, true);
+  assert.equal(table.rows.length, 4, 'the longer of the labels and the values');
+  assert.deepEqual(table.rows[1]?.cells, ['-5 ms', '-5%', '-5%']);
+  assert.deepEqual(table.rows[2]?.cells, ['', '', '']);
+  assert.deepEqual(table.rows[3]?.cells, ['', '', ''], 'a label with no value is an empty row');
+  const longer = arenaFunnelTable(FUNNEL_WORDS, series({ label: 'A', values: [4, 2, 1] }), ['a'], write, percent, true);
+  assert.deepEqual(longer.rows.map((row) => row.header), ['a', '', ''], 'a value with no label has an empty header');
+});
+
+test('the heat domain covers every value, holds exactly five steps and lands every edge on a multiple of the step', () => {
+  const samples = [[7], [1, 2, 3], [0.3, 0.9], [499, 12, 240], [1000000, 3], [-3, 8], [-250, -10], [0.004, 0.0071], [4.4, 99.9]];
+  for (const values of samples) {
+    const domain = arenaHeatDomain([series({ values })]);
+    const label = `values ${values.join(', ')}`;
+    assert.ok(domain.min <= Math.min(0, ...values) + 1e-9, `${label}: covers the minimum`);
+    assert.ok(domain.max >= Math.max(0, ...values) - 1e-9, `${label}: covers the maximum`);
+    assert.ok(Math.abs((domain.max - domain.min) / domain.step - 5) < 1e-6, `${label}: five steps`);
+    const edge = domain.min / domain.step;
+    assert.ok(Math.abs(edge - Math.round(edge)) < 1e-6, `${label}: the lower edge is a multiple of the step`);
+    assert.ok(domain.min <= 0 && domain.max >= 0, `${label}: zero is inside`);
+    assert.equal(arenaNiceStep(domain.step), domain.step, `${label}: the step is a nice step`);
+  }
+});
+
+test('the heat domain of a maximum of 7 is 0 to 10 in steps of 2, and of all zeros is 0 to 5', () => {
+  assert.deepEqual(arenaHeatDomain([series({ values: [7, 3] })]), { min: 0, max: 10, step: 2 });
+  assert.deepEqual(arenaHeatDomain([series({ values: [0, 0] })]), { min: 0, max: 5, step: 1 });
+  assert.deepEqual(arenaHeatDomain([]), { min: 0, max: 5, step: 1 });
+});
+
+test('the heat domain skips a non-finite value and reads every series', () => {
+  assert.deepEqual(arenaHeatDomain([series({ values: [Number.NaN, Number.POSITIVE_INFINITY, 3] })]), arenaHeatDomain([series({ values: [3] })]));
+  assert.deepEqual(arenaHeatDomain([series({ values: [1] }), series({ values: [7] })]), { min: 0, max: 10, step: 2 });
+});
+
+test('the heat table has the heading and one column per label, and one row per series headed by its label', () => {
+  const rows = [series({ label: 'Mon', values: [1, 2, 3] }), series({ label: 'Tue', values: [4, 5, 6] })];
+  const table = arenaHeatmapTable('Row', rows, ['a', 'b', 'c'], write);
+  assert.deepEqual(table.columns, ['Row', 'a', 'b', 'c']);
+  assert.deepEqual(table.rows.map((row) => [row.header, ...row.cells]), [['Mon', '1 ms', '2 ms', '3 ms'], ['Tue', '4 ms', '5 ms', '6 ms']]);
+});
+
+test('a short heat row and a non-finite value leave empty cells', () => {
+  const table = arenaHeatmapTable('Row', [series({ label: 'Mon', values: [1] }), series({ label: 'Tue', values: [Number.NaN, 2, Number.POSITIVE_INFINITY] })], ['a', 'b', 'c'], write);
+  assert.deepEqual(table.rows[0]?.cells, ['1 ms', '', '']);
+  assert.deepEqual(table.rows[1]?.cells, ['', '2 ms', '']);
+  assert.ok(table.rows.every((row) => row.cells.length === 3), 'every row is as wide as the columns');
+});
+
+test('a series longer than the labels adds a blank-headed column, and a label with no value stays a column', () => {
+  const longer = arenaHeatmapTable('Row', [series({ label: 'Mon', values: [1, 2, 3] })], ['a'], write);
+  assert.deepEqual(longer.columns, ['Row', 'a', '', '']);
+  assert.deepEqual(longer.rows[0]?.cells, ['1 ms', '2 ms', '3 ms']);
+  const wider = arenaHeatmapTable('Row', [series({ label: 'Mon', values: [1] })], ['a', 'b'], write);
+  assert.deepEqual(wider.columns, ['Row', 'a', 'b']);
+  assert.deepEqual(arenaHeatmapTable('Row', [], ['a'], write).rows, [], 'no series, no rows');
+});
+
+test('the heat table is the transpose of the chart table over the same data', () => {
+  const rows = [series({ label: 'Mon', values: [1, 2] }), series({ label: 'Tue', values: [3, 4] })];
+  const heat = arenaHeatmapTable('Row', rows, ['a', 'b'], write);
+  const flat = arenaChartTable('Row', rows, ['a', 'b'], write);
+  for (const [r, row] of heat.rows.entries()) {
+    for (const [c, cell] of row.cells.entries()) assert.equal(flat.rows[c]?.cells[r], cell);
+  }
+});
+
+test('the heat domain of decimal data has round edges', () => {
+  assert.deepEqual(arenaHeatDomain([series({ values: [-0.7] })]), { min: -0.8, max: 0.2, step: 0.2 });
+  assert.deepEqual(arenaHeatDomain([series({ values: [0.7, 0.1] })]), { min: 0, max: 1, step: 0.2 });
+  assert.deepEqual(arenaHeatDomain([series({ values: [0.3] })]), { min: 0, max: 0.5, step: 0.1 });
 });

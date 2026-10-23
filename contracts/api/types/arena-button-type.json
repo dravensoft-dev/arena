@@ -1,6 +1,6 @@
 {
   "name": "ArenaButtonType",
   "kind": "enum",
-  "description": "The native button behaviour. 'button' does nothing on its own and is the right default outside a form; 'submit' is what a bare <button> silently defaults to inside one, which is the footgun this member exists to make explicit.",
+  "description": "The native button behaviour. 'button' does nothing on its own and is the right default outside a form. 'submit' is what a bare <button> silently defaults to inside one. This member exists to make that footgun explicit.",
   "values": ["button", "submit", "reset"]
 }

@@ -54,6 +54,7 @@ export const node = {
     'check:dimensions',
     'check:duplicate-constants',
     'check:focus-trap',
+    'check:anchoring',
     'check:generated',
     'check:icons',
     'check:layer-independence',
@@ -65,6 +66,7 @@ export const node = {
     'check:skills',
     'check:states',
     'build:site',
+    'check:site',
   ],
 };
 

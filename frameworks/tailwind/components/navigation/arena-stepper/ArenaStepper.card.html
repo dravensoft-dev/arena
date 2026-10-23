@@ -1,0 +1,53 @@
+<!-- @dsCard group="Tailwind" viewport="760x620" name="ArenaStepper" subtitle="Complete, current, upcoming and error steps, across and down, rendered from ArenaStepper.manifest.json" -->
+<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../../../../intro/styles.css">
+<link rel="stylesheet" href="../../../consume/Preflight.generated.css">
+<link rel="stylesheet" href="../../../consume/components/navigation/arena-stepper/ArenaStepper.styles.generated.css">
+<link rel="stylesheet" href="../../../consume/hues/navigation/arena-stepper/ArenaStepper.hues.generated.css">
+<link rel="stylesheet" href="../../../consume/vocabulary/Orientation.generated.css">
+<link rel="stylesheet" href="../../../Specimen.css">
+</head><body><div id="root"></div>
+<script type="module">
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor, glyph } from '../../../Specimen.js';
+
+const manifest = await (await fetch('./ArenaStepper.manifest.json')).json();
+const WORD = { complete: 'Completed', current: 'Current step', upcoming: 'Upcoming' };
+
+function stepper(steps, index, { orientation = 'horizontal', interactive = false } = {}) {
+  const root = el('ol', { class: `${arenaClassesFor(manifest).root} arena-orientation-${orientation}`, ...arenaSlotDataFor(manifest).root, role: 'list', 'aria-label': 'Checkout' });
+  root.style.width = orientation === 'horizontal' ? '640px' : '320px';
+  steps.forEach(([label, description, error], i) => {
+    const state = i < index ? 'complete' : i === index ? 'current' : 'upcoming';
+    const reachable = interactive && i < index;
+    const v = { state, error: String(Boolean(error)), reachable: String(reachable) };
+    const c = arenaClassesFor(manifest, v);
+    const d = arenaSlotDataFor(manifest, v);
+    const step = el('li', { class: c.step, ...d.step });
+    if (state === 'current') step.setAttribute('aria-current', 'step');
+    const trigger = el(reachable ? 'button' : 'div', { class: c.trigger, ...d.trigger, ...(reachable ? { type: 'button' } : {}) });
+    const rail = el('span', { class: c.rail, ...d.rail, 'aria-hidden': 'true' });
+    const marker = el('span', { class: c.marker, ...d.marker });
+    if (error) marker.append(glyph(`${c.icon} ph-fill ph-warning-circle`, { ...d.icon }));
+    else if (state === 'complete') marker.append(glyph(`${c.icon} ph-bold ph-check`, { ...d.icon }));
+    else marker.textContent = String(i + 1);
+    rail.append(marker);
+    if (i < steps.length - 1) rail.append(el('span', { class: c.connector, ...d.connector }));
+    const text = el('span', { class: c.text, ...d.text });
+    text.append(el('span', { class: c.name, ...d.name, text: error ? `${WORD[state]}, Error` : WORD[state] }));
+    text.append(el('span', { class: c.label, ...d.label, text: label }));
+    if (description) text.append(el('span', { class: c.description, ...d.description, text: description }));
+    trigger.append(rail, text);
+    step.append(trigger);
+    root.append(step);
+  });
+  return root;
+}
+
+const CHECKOUT = [['Account'], ['Shipping', 'Two addresses on file'], ['Payment', null, true], ['Review']];
+
+mountSpecimen({ sections: [
+  section('Across, the steps behind the current one chosen by a press', [stepper(CHECKOUT, 1, { interactive: true })], { stack: true }),
+  section('Down, an error on a step ahead', [stepper(CHECKOUT, 3, { orientation: 'vertical' })], { stack: true }),
+  section('A finished process: every step complete', [stepper(CHECKOUT.map(([l]) => [l]), 4)], { stack: true }),
+]});
+</script></body></html>

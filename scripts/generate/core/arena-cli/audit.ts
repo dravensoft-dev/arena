@@ -6,15 +6,35 @@
  * visible from outside, and a filled danger surface is visible only where a project paints one
  * of its own. A line carrying an allow marker is exempt, and a marker over a line with nothing
  * to exempt is stale. Every rule is read in a SCOPE: a declared plugin directory may select a
- * part hook and paint a gradient, and a source may not. */
+ * part hook and paint a gradient, and a source may not. A bracket may also carry em, which has no
+ * token to name; the dimension gate still reports it, because tracking is expressed in em. */
 
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { WEIGHT_CLASSES } from './icon-css.ts';
 
 export const RULE_TAGS = ['compat-alias', 'danger-fill', 'emoji', 'icon-element',
-  'one-primary', 'outline-gap', 'own-class', 'raw-value', 'router-link', 'stale-allowance', 'unknown-input'] as const;
+  'one-primary', 'outline-gap', 'own-class', 'raw-glyph', 'raw-value', 'router-link', 'stale-allowance', 'unknown-input', 'wrapped-link'] as const;
+
+export const RULE_DESCRIPTIONS: Record<(typeof RULE_TAGS)[number], string> = {
+  'compat-alias': 'A stylesheet in a style plugin directory reads one of Arena\'s compatibility aliases through `var()`, which names a step of the ramp instead of a role.',
+  'danger-fill': 'A background declaration outside a style plugin directory reads a danger token not mixed with transparent, which fills a surface where Arena draws danger as an outline.',
+  emoji: 'A line of a source holds an emoji character.',
+  'icon-element': 'An `icon` or `iconRight` attribute is given an element in braces, where Arena takes a Phosphor class-name string.',
+  'one-primary': 'A second action in one view, or in one modal, takes the primary emphasis by class or by leaving a primary-default component without one.',
+  'outline-gap': 'A source draws Arena headings at two levels with a level missing between them, such as an h1 and an h3 with no h2.',
+  'own-class': 'A component carries a class outside its vocabulary or a computed one, or a stylesheet targets an `arena-` class anywhere or a `data-arena-part` hook outside a style plugin.',
+  'raw-glyph': 'An element other than `ArenaIcon` holds a Phosphor weight class and a `ph-*` glyph in its class, which paints nothing because Arena ships no icon font.',
+  'raw-value': 'A style holds a hex, colour or bare pixel length, or a gradient outside a style plugin unless `gradientMark` is set, or a class holds a non-token bracket value.',
+  'router-link': 'A link of your own, such as `a`, `Link` or `routerLink`, directly wraps an Arena card, side nav item, bottom nav item or table cell.',
+  'stale-allowance': 'An `arena-audit allow` marker sits on a line with nothing to exempt.',
+  'unknown-input': 'A static attribute on an `arena-` element in an Angular template names no input or output of that component.',
+  'wrapped-link': 'A link of your own, such as `a`, `Link` or `routerLink`, directly wraps an Arena link, which is already an anchor.',
+};
 
 export const UNMODELLED_UNITS = ['%', 'ch', 'fr', 'vh', 'vw', 'vmin', 'vmax', 'deg'];
+
+const BRACKET_UNITS = [...UNMODELLED_UNITS, 'em'];
 
 export const ALLOW_MARKER = /arena-audit allow\b/;
 
@@ -22,7 +42,7 @@ const CANDIDATE = /(?<![\w-])(-?[a-z][a-z0-9]*(?:-[a-z0-9]+)*-\[([^\]\s"']+)\])/
 const MARKER = /<!--\s*check-arbitrary-values allow:\s*([^>]*?)\s*-->/g;
 const HINT = /^(?:length|color|number|percentage|integer|angle|time|url|image|family-name):/;
 const TOKEN = /var\(\s*--[a-z0-9-]+\s*\)/g;
-const UNMODELLED = new RegExp(`^-?\\d*\\.?\\d+(?:${UNMODELLED_UNITS.join('|')})$`);
+const UNMODELLED = new RegExp(`^-?\\d*\\.?\\d+(?:${BRACKET_UNITS.join('|')})$`);
 const UNIT_LITERAL = /\d*\.?\d+\s*([a-z%]+)\b(?!\()/g;
 const ZERO_RUN = /(?<![\w.])-?0(?:px|rem|em|%)?(?![\w.])/g;
 const BARE_NUMBER = /(?<![\w.])-?\d*\.?\d+(?![\w.%])/g;
@@ -80,7 +100,7 @@ export function isLegalBracket(content: string) {
 
   const rest = value.replace(TOKEN, ' ').replace(ZERO_RUN, ' ');
   for (const m of rest.matchAll(UNIT_LITERAL))
-    if (!UNMODELLED_UNITS.includes(group(m))) return false;
+    if (!BRACKET_UNITS.includes(group(m))) return false;
 
   for (const m of rest.matchAll(BARE_NUMBER))
     if (!insideMathParens(rest, m.index)) return false;
@@ -238,7 +258,7 @@ export const COMPAT_ALIASES = [
   'gold-strong', 'gold-soft', 'success', 'success-soft', 'warning', 'warning-soft', 'danger',
   'danger-strong', 'danger-soft', 'danger-fill', 'info', 'info-soft', 'bg', 'bg-raised',
   'surface-card', 'surface-input', 'text-strong', 'text-body', 'text-muted', 'border',
-  'border-strong', 'accent', 'accent-press', 'accent-soft', 'focus-ring', 'on-accent',
+  'border-strong', 'accent', 'accent-press', 'accent-soft', 'focus-ring', 'on-accent', 'scrim',
 ];
 
 export const COMPAT_ALIAS_MESSAGE = 'a value read through one of Arena\'s own compatibility '
@@ -313,6 +333,11 @@ export function paintedParts(css: string) {
   return [...new Set([...css.matchAll(PAINTED_PART)].map((m) => group(m)))].sort();
 }
 
+const WEIGHT_WORDS = Object.values(WEIGHT_CLASSES).map((token) => token.replace(/^ph-?/, '')).filter(Boolean).join('|');
+const WEIGHT_TOKEN = /(?<![\w-])ph(?:-(?:thin|light|bold|fill|duotone))?(?![\w-])/;
+const GLYPH_TOKEN = new RegExp(`(?<![\\w-])ph-(?!(?:${WEIGHT_WORDS})(?![\\w-]))[a-z0-9]+(?:-[a-z0-9]+)*`);
+const RAW_GLYPH_MESSAGE = 'an element drawn with a Phosphor class, which paints nothing because Arena ships no icon '
+  + 'font. Draw it through ArenaIcon (arena-icon in Angular), as icon="ph-bold ph-plus"';
 const ICON_ELEMENT = /\bicon(?:Right)?\s*=\s*\{\s*</;
 
 const EMOJI = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}]/u;
@@ -445,6 +470,10 @@ export const ROUTER_LINK_MESSAGE = 'an Arena component wrapped in a link of your
   + 'an anchor inside an anchor and in Angular does not bind at all. Pass the href to the '
   + 'component and route from the event it reports';
 
+export const WRAPPED_LINK_MESSAGE = 'an ArenaLink wrapped in a link of your own, which nests an anchor inside '
+  + 'an anchor, and in Angular the outer link swallows the click. ArenaLink is already the anchor: pass the href to '
+  + 'it and route from its navigate event';
+
 export const UNKNOWN_INPUT_MESSAGE = (name: string, tag: string) => `an attribute ${name} that ${tag} takes as no input `
   + 'or output, so no Arena component reads it. Write the class or input the component reads instead, or mark the '
   + 'line arena-audit allow when a directive of your own reads it';
@@ -471,6 +500,7 @@ export const HEADING_RUNGS: Record<string, number> = {
   'arena-page-head': 1,
   'arena-section': 2,
   'arena-unauth-card': 2,
+  'arena-accordion': 3,
   'arena-board-column': 3,
   'arena-card': 3,
   'arena-empty-state': 3,
@@ -598,6 +628,8 @@ export const LINKABLE_TAGS = new Set([
   'arena-bottom-nav-item', 'arena-card', 'arena-side-nav-item', 'arena-table-cell',
 ]);
 
+export const WRAPPED_LINK_TAGS = new Set(['arena-link']);
+
 export function outlineGap(drawn: number[]): [number, number] | null {
   const rungs = [...new Set(drawn)].sort((a, b) => a - b);
   for (let i = 1; i < rungs.length; i += 1) {
@@ -716,6 +748,12 @@ export function structuralFindings(text: string, vocabulary: VocabularyIndex | n
     for (const attribute of unknownInputs(name, attributes, vocabulary))
       found.push(at(lineAt(text, start), 'unknown-input', UNKNOWN_INPUT_MESSAGE(attribute, name)));
 
+    if (kebabTag(name) !== 'arena-icon') {
+      const classes = classValues(raw);
+      if (WEIGHT_TOKEN.test(classes) && GLYPH_TOKEN.test(classes))
+        found.push(at(lineAt(text, start), 'raw-glyph', RAW_GLYPH_MESSAGE));
+    }
+
     if (ARENA_TAG.test(name) && STATED_PRIMARY.test(attributes)) primaries.push({ scope, line: lineAt(text, start) });
     const emphasis = EMPHASIS_OPTION.test(attributes) || EMPHASIS_OPTION.test(classValues(raw));
     if (ARENA_TAG.test(name) || emphasis) {
@@ -739,6 +777,8 @@ export function structuralFindings(text: string, vocabulary: VocabularyIndex | n
     const wrapped = /^<(Arena[A-Za-z0-9]*|arena-[a-z0-9-]+)\b/.exec(inside)?.[1];
     if (wrapped !== undefined && LINKABLE_TAGS.has(kebabTag(wrapped)))
       found.push(at(lineAt(text, start), 'router-link', ROUTER_LINK_MESSAGE));
+    if (wrapped !== undefined && WRAPPED_LINK_TAGS.has(kebabTag(wrapped)))
+      found.push(at(lineAt(text, start), 'wrapped-link', WRAPPED_LINK_MESSAGE));
   }
   const gap = outlineGap(rungs);
   if (gap) found.push(at(firstRung, 'outline-gap', outlineMessage(gap[0], gap[1])));

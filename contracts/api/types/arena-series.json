@@ -1,16 +1,16 @@
 {
   "name": "ArenaSeries",
   "kind": "object",
-  "description": "One plotted series: what it is called, its numbers in order, and the colour it carries. It stands for what five loose members (values, seriesLabel, colorId, colorIds and tone) would otherwise describe on every chart, because those five describe ONE series and a chart that draws two would have nowhere to put the second. The name is not decoration: it heads the series' own column in the accessible table and names the series in a legend, so a chart of three series says which is which without the reader guessing from colour alone.",
+  "description": "One plotted series: what it is called, its numbers in order, and the colour it carries. A series stands for what five loose members (values, seriesLabel, colorId, colorIds and tone) would otherwise describe on every chart. Those five describe ONE series, and a chart that draws two would have nowhere to put the second. The name is not decoration, because it heads the series' own column in the accessible table and names the series in a legend. A chart of three series says which is which without the reader guessing from colour alone.",
   "fields": {
     "label": { "form": "primitive", "type": "string", "required": true,
-               "description": "Names this series, for its column in the accessible table and for a legend. Required and guarded rather than defaulted: \"Series 2\" satisfies a heading mechanically and tells a screen-reader user nothing, and nothing can derive what a series is about, which is the same reason ArenaTable.label is required." },
+               "description": "Names this series, for its column in the accessible table and for a legend. Required and guarded rather than defaulted: \"Series 2\" satisfies a heading mechanically and tells a screen-reader user nothing. Nothing can derive what a series is about, which is the same reason ArenaTable.label is required." },
     "values": { "form": "array", "of": "number", "required": true,
                 "description": "The plotted numbers, in order, one per point or category. A series shorter than the labels stops early rather than padding, because a missing number and a zero are different facts and a chart may not invent the difference." },
     "colorId": { "form": "primitive", "type": "number",
-              "description": "One identity colour from the categorical ramp for the whole series. 1-based, clamped to the ramp, never cycled. Absent, the chart assigns the series its position in the list, which is the rule rather than a starting point." },
+              "description": "One identity colour from the categorical ramp for the whole series, 1-based and clamped to the ramp. Absent, the series takes the slot its position gives, counted from the chart's `colorStart`." },
     "colorIds": { "form": "array", "of": "number",
-               "description": "Per-mark identity override, one ramp slot each. Wins over `colorId`. For a chart whose marks are the identities rather than the series, which is what a single-series bar chart and a doughnut both are." },
+               "description": "Per-mark identity override, one ramp slot each. Wins over `colorId`. For a chart whose marks are the identities rather than the series, which is what a single-series bar chart and a doughnut both are. An entry past the end of the list takes the slot its position gives, counted from the chart's `colorStart`." },
     "tone": { "form": "enum", "type": "ArenaSeriesTone",
               "description": "Semantic colour, for a series that IS a state. Mutually exclusive with colorId/colorIds; passing both warns in development and tone wins, because a chart carries identity or meaning, never both." }
   }

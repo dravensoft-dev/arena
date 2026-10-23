@@ -87,6 +87,10 @@
     "$type": "fontFamily",
     "$value": "{font.body}"
   },
+  "ff-key": {
+    "$type": "fontFamily",
+    "$value": "{font.mono}"
+  },
   "fw-eyebrow": {
     "$type": "fontWeight",
     "$value": "{fw.medium}"
@@ -100,6 +104,10 @@
     "$value": "none"
   },
   "tt-label": {
+    "$type": "keyword",
+    "$value": "none"
+  },
+  "tt-key": {
     "$type": "keyword",
     "$value": "none"
   },
@@ -290,6 +298,10 @@
       "unit": "px"
     }
   },
+  "timeline-dot": {
+    "$type": "dimension",
+    "$value": "{sp.5}"
+  },
   "container-max": {
     "$type": "dimension",
     "$value": {
@@ -352,6 +364,10 @@
   "pad-marker-y": {
     "$type": "dimension",
     "$value": "{sp.1}"
+  },
+  "pad-key-y": {
+    "$type": "dimension",
+    "$value": "{sp.0-5}"
   },
   "pad-row-x": {
     "$type": "dimension",
@@ -452,6 +468,14 @@
     "$type": "color",
     "$value": "{color.base-content}"
   },
+  "ink-key": {
+    "$type": "color",
+    "$value": "{color.base-content}"
+  },
+  "ink-link": {
+    "$type": "color",
+    "$value": "{color.base-content}"
+  },
   "edge-surface": {
     "$type": "color",
     "$value": "{color.base-300}"
@@ -483,6 +507,26 @@
   "edge-axis": {
     "$type": "color",
     "$value": "{color.base-content}"
+  },
+  "heat-step-1": {
+    "$type": "color",
+    "$value": "{color.heat-1}"
+  },
+  "heat-step-2": {
+    "$type": "color",
+    "$value": "{color.heat-2}"
+  },
+  "heat-step-3": {
+    "$type": "color",
+    "$value": "{color.heat-3}"
+  },
+  "heat-step-4": {
+    "$type": "color",
+    "$value": "{color.heat-4}"
+  },
+  "heat-step-5": {
+    "$type": "color",
+    "$value": "{color.heat-5}"
   },
   "bw-surface": {
     "$type": "dimension",

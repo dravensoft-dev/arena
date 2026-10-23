@@ -1,9 +1,9 @@
-/* The one imperative handle in the layer, and the reason it is not a member: none of the nine
+/* The input's imperative handle, and the reason it is not a member: none of the nine
  * contract forms is imperative, and returning focus after each completed transaction is the
  * gesture a point of sale is built on. autoFocus fires once at mount and the caller needs it
  * again every time, so the declarative alternative answers a different question.
  * IMPERATIVE_HANDLES in scripts/lib/arena/api-surface.ts is what lets check:api read a public
- * method here at all, and it names this one and no other. */
+ * method here at all, and it names each one with its reason. */
 
 import { useTestEnvironment } from '../../../test/TestbedEnv';
 useTestEnvironment();

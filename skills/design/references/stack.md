@@ -37,7 +37,7 @@ need one of those rows to be certain, run it early and small rather than late an
 | You may choose | Evidence | What is true |
 |---|---|---|
 | npm | verified by hand once | the packages declare their peers rather than assuming a flat tree, so no hoisting flag is needed |
-| pnpm | verified by hand once | the strict layout is the one worth naming, because it is the one that would break a package assuming otherwise. Installed under pnpm, the command still resolves the icon font through the symlinked store |
+| pnpm | verified by hand once | the strict layout is the one worth naming, because it is the one that would break a package assuming otherwise. Installed under pnpm, the command still resolves the three packages it reads at build through the symlinked store |
 | bun | verified by hand once | the install npm takes, unchanged. Bun is also what Arena is built with, which is a fact about Arena rather than a requirement on you |
 | yarn | allowed by the manifest, not exercised | nothing here works against it: the peers are declared, there is no install script to trust, and no flat tree is assumed. Nobody has run it, which is why it says allowed rather than yes |
 
@@ -95,26 +95,72 @@ installs nothing that draws**, and an Arena package with a peer missing fails at
 |---|---|---|---|
 | `@dravensoft/arena-react` | `react` | `^18 \|\| ^19` | required |
 | `@dravensoft/arena-react` | `react-dom` | `^18 \|\| ^19` | required |
-| `@dravensoft/arena-react` | `@phosphor-icons/web` | `^2.1.2` | required |
 | `@dravensoft/arena-angular` | `@angular/core` | `>=20` | required |
 | `@dravensoft/arena-angular` | `@angular/common` | `>=20` | required |
 | `@dravensoft/arena-angular` | `@angular/platform-browser` | `>=20` | required |
 | `@dravensoft/arena-angular` | `@angular/cdk` | `>=20` | required |
 | `@dravensoft/arena-angular` | `@angular/router` | `>=20` | optional, add it when you reach what needs it |
 | `@dravensoft/arena-angular` | `@angular/forms` | `>=20` | optional, add it when you reach what needs it |
-| `@dravensoft/arena-angular` | `@phosphor-icons/web` | `^2.1.2` | required |
 
 <!-- @support peers end -->
 
 Two of those rows carry more than a number.
 
-**The icon font is a peer in both layers.** Icons are Phosphor class-name strings a component
-renders, and no package bundles the font. A project that skips this peer renders components with
-empty squares where the icons go, and nothing reports it.
+**No icon font is a peer.** Icons are Phosphor class-name strings that `ArenaIcon` draws from the
+sprite `arena build` writes, so no package asks for `@phosphor-icons/web`. A project that hands
+`ArenaIcon` no sprite URL gets a warning, once. Both layers render nothing where the icon goes;
+[`install.md`](./install.md) says how the URL is handed over.
 
 **Two peers are optional.** `@angular/router` and `@angular/forms` are declared in `peerDependenciesMeta` as optional, so no manager installs them for you. The router is needed once a project reaches the entry point that writes the document head, and the forms package once it reaches the forms entry point. A project that never reaches either never installs what it does not use. [`seo.md`](./seo.md) is where the router decision is made, and node 8 of [`cold-start.md`](./cold-start.md) is where it is reached. [`install.md`](./install.md) gives the install command per layer, optional peers included.
 
-**The framework is the project's.** A peer named with a range on the command line is an explicit install. So [`install.md`](./install.md) names the package and the add-ons a project lacks: the icon font, and `@angular/cdk` at your Angular major.
+**The framework is the project's.** A peer named with a range on the command line is an explicit install. So [`install.md`](./install.md) names the package and the add-on a project lacks: `@angular/cdk` at your Angular major.
+
+## How does Arena sit in the bundle?
+
+**Arena's own JS belongs in a chunk of its own, under a content-hashed name.** The modules of
+`@dravensoft/arena-react` or `@dravensoft/arena-angular` change when the Arena version changes and
+never when your app does. In one bundle, every release of your app makes a returning visitor
+download Arena again. In a chunk of its own, the file keeps its name until Arena changes, and a
+visitor's cache serves it. No bundler is required, and a bundler that cannot do this still builds
+the app; the row says what it costs. [`environments.md`](./environments.md) holds the figures each
+row was measured with.
+
+Name the chunk with a stem of its own, such as `arena`. The next version's file then matches the
+dictionary of the previous one, and [`stylesheets.md`](./stylesheets.md) says how a dictionary is
+served. Keep React in a chunk of its own as well, since it changes on its own schedule.
+
+| Bundler | Evidence | The recipe |
+|---|---|---|
+| rollup | held by a gate | `output.manualChunks: (id) => (id.includes('/node_modules/@dravensoft/arena-') ? 'arena' : undefined)`, with `[name]-[hash].js` file names. Arena's own board bundles this way on every run |
+| Vite 7 | verified by hand once | `build.rollupOptions.output.manualChunks`, as in the rollup row |
+| Vite 8 (rolldown) | verified by hand once | `build.rollupOptions.output.codeSplitting.groups: [{ name: 'arena', test: /node_modules[\\/]@dravensoft[\\/]arena-/, priority: 10 }]`. `advancedChunks` is deprecated |
+| rolldown | verified by hand once | `output.codeSplitting.groups`, as in the Vite 8 row |
+| webpack | verified by hand once | `optimization.splitChunks.cacheGroups.arena: { test: /node_modules[\\/]@dravensoft[\\/]arena-/, name: 'arena', enforce: true }`, with `chunks: 'all'` and `[name]-[contenthash:8].js` |
+| rspack | verified by hand once | the webpack recipe, unchanged |
+| Parcel | verified by hand once | `"@parcel/bundler-default": { "manualSharedBundles": [{ "name": "arena", "root": "<your entry>", "assets": ["**/node_modules/@dravensoft/arena-react/**"] }] }` in `package.json`, and `"@parcel/resolver-default": { "packageExports": true }` beside it, because the first import fails without it. A dictionary cannot serve it, because Parcel names its two shared bundles with one stem |
+| Bun | does not work | `bun build` shares code between entries and has no way to pin a module to a chunk, so Arena stays in the app's bundle |
+| esbuild | does not work | esbuild splitting shares code between entries and cannot pin a module |
+| Angular `application` builder | does not work | there is no `manualChunks`, and the layer is partially compiled, so Arena lands in `main`. The dictionary is the way out |
+| Turbopack | allowed by the manifest, not exercised | Turbopack exists inside Next.js, which picks its chunks itself. `next build --webpack` is the webpack row |
+
+**The package's sheet stays in a file apart from `arena.generated.css`.** `arena.package.generated.css`
+changes only with Arena and the components you draw, and `arena.generated.css` holds your palettes and
+fonts and changes with your config. A bundler that joins the two in one output file makes a change to
+either one a new download of the other. `arena build` writes them as two source files, and a bundler that emits one CSS file for an entry joins them again. Measured on 2026-10-23, with the typical React screen and an app change:
+
+| Bundler | The package sheet in a file of its own | Evidence |
+|---|---|---|
+| Vite 7 | yes, with `build.rollupOptions.output.manualChunks: (id) => (/node_modules[\\/](react\|react-dom\|scheduler)[\\/]/.test(id) ? 'react' : /arena-react\|arena\.package\.generated\.css/.test(id) ? 'arena' : undefined)`. The second test also matches the sheet, which sits in the `-o` directory of `arena build`, outside `node_modules`. The file keeps its bytes and name when the app changes | measured on 2026-10-23 |
+| Vite 8 (rolldown) | yes, with `build.rollupOptions.output.codeSplitting.groups: [{ name: 'react', test: /node_modules[\\/](react\|react-dom\|scheduler)[\\/]/, priority: 20 }, { name: 'arena', test: /arena-react\|arena\.package\.generated\.css/, priority: 10 }]` | measured on 2026-10-23 |
+| webpack | yes, with `experiments: { css: true }` and `optimization.splitChunks: { chunks: 'all', cacheGroups: { default: false, defaultVendors: false, react: { test: /node_modules[\\/](react\|react-dom\|scheduler)[\\/]/, name: 'react', enforce: true, priority: 20 }, arena: { test: /arena-react\|arena\.package\.generated\.css/, name: 'arena', enforce: true, priority: 10, type: /^(javascript\|css)/ } } }`, with `[name]-[contenthash:8].css` as `output.cssFilename` and `cssChunkFilename` | measured on 2026-10-23 |
+| rspack | yes: the webpack config, with `{ test: /\.css$/, type: 'css/auto' }` added to `module.rules` | measured on 2026-10-23 |
+| rollup | not exercised: rollup alone imports no CSS, and a CSS plugin decides | not exercised |
+| rolldown | no: it refuses to bundle CSS | measured on 2026-10-23 |
+| Parcel | no: it cannot resolve the package specifiers of the sheet's `@import`s | measured on 2026-10-23 |
+| Bun, esbuild, Angular `application` | no: one CSS file for the entry | measured on 2026-10-23 |
+
+Import the package sheet first and `arena.generated.css` after it, as [`install.md`](./install.md) shows. Under `--no-import` the package sheet is not written and the sheets you import by hand take
+its place.
 
 ## What this page does not decide
 

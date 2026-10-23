@@ -9,7 +9,7 @@
  * every descendant's, putting this where bootstrapApplication().then() already puts Angular's. */
 
 import { kitchenSinkPage, KS, bodyClass, varsStyle, MOUNT_ID, READY_SIGNAL, entryFile } from '../arena/kitchen-sink-page.ts';
-import { UP as COMPONENT_UP } from '../arena/playground-page.ts';
+import { UP as COMPONENT_UP, spriteHref } from '../arena/playground-page.ts';
 import { renderNode } from './playground-react.ts';
 import { placeOf } from '../arena/playground-model.ts';
 import type { Place, Places } from '../arena/playground-model.ts';
@@ -24,7 +24,7 @@ export function importPath(place: Place) {
 export function tile(item: SinkModel['sections'][number]['items'][number], places: Places, depth: number) {
   const pad = '  '.repeat(depth);
   return `${pad}<div className="${KS.tile}">\n`
-    + `${pad}  <span className="${KS.label}">${item.component}</span>\n`
+    + `${pad}  <span className="${KS.label}">${item.label}</span>\n`
     + `${pad}  <div className="${bodyClass(item.staged)}"${varsStyle(item.vars) ? ` style={${JSON.stringify(item.vars)} as React.CSSProperties}` : ''}>\n`
     + `${renderNode(item.node, places, depth + 2)}\n`
     + `${pad}  </div>\n`
@@ -58,6 +58,7 @@ export function reactSinkEntry(model: SinkModel, places: Places, banner: string)
   return `${banner}
 import React from 'react';
 import { createRoot } from 'react-dom/client';
+import { ArenaIconsProvider } from '../../ArenaIcons.ts';
 ${imports.join('\n')}
 
 function Sink() {
@@ -70,7 +71,11 @@ ${model.sections.map((one) => section(one, places, 3)).join('\n')}
   );
 }
 
-createRoot(document.getElementById('${MOUNT_ID}')!).render(<Sink />);
+createRoot(document.getElementById('${MOUNT_ID}')!).render(
+  <ArenaIconsProvider href="${spriteHref(UP)}">
+    <Sink />
+  </ArenaIconsProvider>,
+);
 `;
 }
 

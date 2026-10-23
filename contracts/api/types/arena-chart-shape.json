@@ -1,6 +1,6 @@
 {
   "name": "ArenaChartShape",
   "kind": "enum",
-  "description": "Whether a ring chart keeps its hole or fills to the centre. An enum rather than an inner-radius ratio, because the ratio is a design decision the chart already owns: chart.ring-inset is a token and the 0.62 hole beside it deliberately is not, on the recorded ground that a multiplier deriving one dimension from another stays inline. A number here would hand that decision to the caller one value at a time.",
+  "description": "Whether a ring chart keeps its hole or fills to the centre. An enum rather than an inner-radius ratio, because the ratio is a design decision the chart already owns. chart.ring-inset is a token and the 0.62 hole beside it deliberately is not, on the recorded ground that a multiplier deriving one dimension from another stays inline. A number here would hand that decision to the caller one value at a time.",
   "values": ["doughnut", "pie"]
 }

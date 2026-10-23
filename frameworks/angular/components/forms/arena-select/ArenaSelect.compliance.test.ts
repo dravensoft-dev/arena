@@ -4,7 +4,7 @@
  * containment — `change` is an Arena output whose name a native <select> event already
  * carries, so the second test measures that the native one never leaves the host
  * instead of arguing that it cannot. */
-import { useTestEnvironment } from '../../../test/TestbedEnv';
+import { useTestEnvironment, glyphIds, symbol } from '../../../test/TestbedEnv';
 useTestEnvironment();
 
 import test from 'node:test';
@@ -197,12 +197,22 @@ test('placeholder is a disabled empty first option, so "nothing chosen" is not t
   }
 });
 
+test('a placeholder with no value starts the select on the placeholder and submits an empty value', () => {
+  const { fixture, field } = noted({ placeholder: 'Any region' });
+  try {
+    assert.equal(field.selectedOptions[0]?.textContent?.trim(), 'Any region');
+    assert.equal(field.value, '');
+  } finally {
+    fixture.destroy();
+  }
+});
+
 test('icon is drawn hidden and pushes the text clear of it', () => {
   const { fixture, host, field } = noted({ icon: 'ph-bold ph-user' });
   try {
-    const glyph = host.querySelector('i') as HTMLElement;
-    assert.ok(glyph, 'no <i> was drawn for the icon');
-    assert.match(glyph.getAttribute('class') ?? '', /ph-bold ph-user/);
+    const glyph = host.querySelector('svg') as SVGElement;
+    assert.ok(glyph, 'no glyph was drawn for the icon');
+    assert.deepEqual(glyphIds(host).slice(0, 1), [symbol('bold', 'user')]);
     assert.equal(glyph.getAttribute('aria-hidden'), 'true');
     assert.equal(field.getAttribute('data-arena-has-icon'), '', 'the text runs under the glyph');
   } finally {

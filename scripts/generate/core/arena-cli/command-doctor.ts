@@ -1,6 +1,6 @@
 /* arena doctor: it compares the tree with what arena build would leave and names every difference,
- * then the environment around it. It writes nothing. A plan fatal, a missing, stale or orphan sheet
- * and a held environment report exit 1; notes never change the exit. */
+ * then the environment around it. It writes nothing. A plan fatal, a missing, stale or orphan file
+ * (a sheet, the sprite or its module) and a held environment report exit 1; notes never change the exit. */
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { commandOptions } from './args.ts';
@@ -8,6 +8,8 @@ import { under, voice } from './io.ts';
 import type { Io } from './io.ts';
 import { hostManifest, resolveEnvironment } from './host.ts';
 import { plan, sheetStates } from './plan.ts';
+import { readSources } from './sources.ts';
+import { PACKAGE_SHEET } from './sheets.ts';
 import { heldMessage, report, reported } from './reports.ts';
 import type { Report } from './reports.ts';
 
@@ -46,7 +48,7 @@ function ignoresSheets(cwd: string) {
   });
 }
 
-export function run(argv: string[], io: Io): number {
+export async function run(argv: string[], io: Io): Promise<number> {
   const options = commandOptions('doctor', argv, io);
   if (typeof options === 'number') return options;
   const say = voice(io, 'doctor');
@@ -67,16 +69,16 @@ export function run(argv: string[], io: Io): number {
     else environment.push(report('environment', `engines.node reads ${range}, which this command does not compare`));
   }
 
-  if (env.phosphor) say.out(`phosphor at ${env.phosphor}`);
+  if (env.phosphor) say.out(`@phosphor-icons/core at ${env.phosphor}`);
 
-  const planned = plan(options, env);
+  const planned = await plan(options, env);
   if (planned.fatal.length) {
     problems++;
     for (const line of planned.fatal) say.err(line);
     say.err('sheets not compared, since nothing can be built yet');
   } else {
     say.out(`config ${options.config} is valid`);
-    for (const { path, state } of sheetStates(planned.outputs)) {
+    for (const { path, state } of sheetStates([...planned.outputs, ...planned.binaries])) {
       if (state === 'current') say.out(`${path} is current`);
       else {
         problems++;
@@ -85,7 +87,7 @@ export function run(argv: string[], io: Io): number {
     }
     for (const name of planned.orphans) {
       problems++;
-      say.err(`${join(options.out, name)} is a sheet this config no longer produces; arena build removes it`);
+      say.err(`${join(options.out, name)} is a file this config does not produce; arena build removes it`);
     }
   }
 
@@ -94,11 +96,15 @@ export function run(argv: string[], io: Io): number {
   const others = planned.reports.filter((one) => one.kind !== 'environment').length;
   if (others > 0) say.err(`${others} report(s): arena check names them`);
 
+  if (!planned.fatal.length && planned.outputs.some((one) => one.name === PACKAGE_SHEET)
+    && !readSources(options.paths).some((text) => text.includes(PACKAGE_SHEET))) {
+    say.out(`note: no source imports ${PACKAGE_SHEET}, so the app renders with no Arena CSS; add @import './${PACKAGE_SHEET}'; before the import of arena.generated.css, in the stylesheet beside it`);
+  }
   if (!runsBuild(io.cwd)) {
     say.out('note: no script in package.json runs arena build, so the sheets go stale as the config and sources change; arena init wires one');
   }
   if (!ignoresSheets(io.cwd)) {
-    say.out('note: .gitignore does not cover *.generated.css; add that line, since every sheet is rebuilt from the config and your sources');
+    say.out('note: .gitignore does not cover *.generated.css; add that line, with icons-*.svg and <stem>-*.woff2 for the sprite and the cut fonts, since every file the build writes is rebuilt from the config and your sources');
   }
 
   if (problems > 0) return 1;

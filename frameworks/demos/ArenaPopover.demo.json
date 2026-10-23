@@ -1,0 +1,44 @@
+{
+  "component": "ArenaPopover",
+  "seed": {
+    "label": "Filters",
+    "open": false
+  },
+  "slots": {
+    "trigger": [
+      {
+        "component": "ArenaButton",
+        "class": "arena-emphasis-secondary",
+        "slots": {
+          "content": [
+            {
+              "text": "Filters"
+            }
+          ]
+        }
+      }
+    ],
+    "content": [
+      {
+        "component": "ArenaInput",
+        "members": {
+          "label": "Branch"
+        }
+      },
+      {
+        "component": "ArenaButton",
+        "slots": {
+          "content": [
+            {
+              "text": "Apply"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "bind": {
+    "openChange": "open"
+  },
+  "note": "The panel is the consumer's to open and close: it asks through openChange, and moves when open does."
+}

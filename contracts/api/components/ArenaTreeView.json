@@ -1,0 +1,60 @@
+{
+  "component": "ArenaTreeView",
+  "description": "A hierarchy of nodes that opens and closes, with one tab stop and a four-way keyboard. The tree is one flat array in which each node names its parent. ArenaTreeView draws the visible nodes in order, each with its level, set size and position, and owns the arrows, Home, End and type-ahead. The consumer owns the open set and the selection: a tree with no `expandedChange` handler does not open. The component binds the `tree` pattern. Unlike ArenaSideNavCollapsible, which is a stack of disclosures, it answers a hierarchy read as one widget.",
+  "affordances": [
+    "focus",
+    "hover",
+    "press"
+  ],
+  "api": {
+    "label": {
+      "form": "primitive",
+      "type": "string",
+      "required": true,
+      "description": "Names the tree for assistive technology. Required and guarded at runtime: nothing can derive what the tree is of, and two trees on one page must not announce alike. Say what the nodes are, never \"ArenaTreeView\"."
+    },
+    "nodes": {
+      "form": "array",
+      "of": "ArenaTreeNode",
+      "required": true,
+      "description": "The whole tree, flat. Each node names its parent, and sibling order is array order."
+    },
+    "expanded": {
+      "form": "object",
+      "type": "ArenaTreeExpansion",
+      "description": "Which branches are open. Controlled: ArenaTreeView draws the caret and `aria-expanded`, and the consumer holds the open set and writes it back from `expandedChange`. A tree with no handler does not open. Absent, every branch is closed."
+    },
+    "expandedChange": {
+      "form": "event",
+      "payload": "ArenaTreeExpansion",
+      "description": "A branch was opened or closed by the keyboard or the pointer, carrying the whole new open set. Write it back to `expanded` in the handler. The tree draws only the set it is given, and a tree with no handler never opens."
+    },
+    "selection": {
+      "form": "object",
+      "type": "ArenaTreeSelection",
+      "description": "Which nodes are selected. Controlled: the consumer holds the set and writes it back from `selectionChange`. Absent, no item carries `aria-selected`, and the tree reports `activate` only, as a navigation tree does."
+    },
+    "selectionChange": {
+      "form": "event",
+      "payload": "ArenaTreeSelection",
+      "description": "The selection changed, carrying the whole new set. The event fires only when the set changes, and never when `selection` is absent. Write it back to `selection` in the handler."
+    },
+    "multiple": {
+      "form": "primitive",
+      "type": "boolean",
+      "default": false,
+      "description": "Whether more than one node can be selected. With it a press on a selected node unselects it, and the root carries `aria-multiselectable`. Without it a press replaces the selection."
+    },
+    "windowed": {
+      "form": "primitive",
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the root scrolls inside the height its container gives it and draws only the rows near its viewport. The keyboard still reaches every visible node. Without it every visible node is drawn and the root does not scroll."
+    },
+    "activate": {
+      "form": "event",
+      "payload": "string",
+      "description": "A node was activated by Enter or by a press on its row, carrying its `id`. A disabled node is never activated. The caret's press opens or closes a branch and does not activate."
+    }
+  }
+}

@@ -1,14 +1,22 @@
 /* arena init: the config it copies, the scripts it wires, and what it leaves alone. */
-import { test } from 'node:test';
+import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
-import { chmodSync, existsSync, mkdtempSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
+import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { run } from './command-init.ts';
-import { captureIo, hostRoot } from './cli-fixtures.ts';
+import { captureIo, hostRoot, removeFixtures } from './cli-fixtures.ts';
 import { RULE_TAGS } from './audit.ts';
 import { parseArgs } from './args.ts';
 import { strictNames } from './reports.ts';
+
+after(removeFixtures);
+
+const made: string[] = [];
+const track = (dir: string) => { made.push(dir); return dir; };
+after(() => {
+  for (const dir of made) rmSync(dir, { recursive: true, force: true });
+});
 
 const REACT = '@dravensoft/arena-react';
 const ANGULAR = '@dravensoft/arena-angular';
@@ -17,7 +25,7 @@ const EXAMPLE = '{\n  "palettes": [],\n  "x": 1\n}\n';
 
 function setup(name = REACT, pkg: string | null = '{}\n') {
   const arena = hostRoot(name, '1.0.0', { 'arena.config.example.json': EXAMPLE });
-  const cwd = mkdtempSync(join(tmpdir(), 'arena-init-'));
+  const cwd = track(mkdtempSync(join(tmpdir(), 'arena-init-')));
   if (pkg !== null) writeFileSync(join(cwd, 'package.json'), pkg);
   const captured = captureIo(cwd, { arena });
   return { arena, cwd, ...captured };
@@ -269,4 +277,41 @@ test('a project wired with the bare switch keeps it on a second init', () => {
   assert.equal(run([], io), 0);
   assert.equal(scriptsOf(cwd)['arena:audit'], 'arena audit --strict');
   assert.ok(out.includes('arena init: kept arena:audit, which reads "arena audit --strict"'), out.join('\n'));
+});
+
+const FONT_FILES = { 'fonts/a.woff2': 'wOF2 a', 'fonts/a.OFL.txt': 'licence a', 'fonts/b.woff2': 'wOF2 b' };
+
+function withFonts(files: Record<string, string> = FONT_FILES) {
+  const arena = hostRoot(REACT, '1.0.0', { 'arena.config.example.json': EXAMPLE, ...files });
+  const cwd = track(mkdtempSync(join(tmpdir(), 'arena-init-')));
+  writeFileSync(join(cwd, 'package.json'), '{}\n');
+  return { arena, cwd, ...captureIo(cwd, { arena }) };
+}
+
+test('init copies the example\'s fonts beside the config, with their licence, and says so', () => {
+  const { cwd, io, out } = withFonts();
+  assert.equal(run([], io), 0);
+  assert.deepEqual(readdirSync(join(cwd, 'fonts')).sort(), ['a.OFL.txt', 'a.woff2', 'b.woff2']);
+  assert.equal(readFileSync(join(cwd, 'fonts', 'a.woff2'), 'utf8'), 'wOF2 a');
+  assert.ok(out.some((line) => /^arena init: wrote 3 file\(s\) under .*fonts, the fonts the example config names$/.test(line)));
+});
+
+test('the fonts go beside a config that is not at the project root, and a file the project holds stays', () => {
+  const { cwd, io } = withFonts();
+  mkdirSync(join(cwd, 'config', 'fonts'), { recursive: true });
+  writeFileSync(join(cwd, 'config', 'fonts', 'a.woff2'), 'mine');
+  assert.equal(run(['--config', 'config/arena.json'], io), 0);
+  assert.equal(readFileSync(join(cwd, 'config', 'fonts', 'a.woff2'), 'utf8'), 'mine');
+  assert.deepEqual(readdirSync(join(cwd, 'config', 'fonts')).sort(), ['a.OFL.txt', 'a.woff2', 'b.woff2']);
+  assert.equal(existsSync(join(cwd, 'fonts')), false);
+});
+
+test('a config the project already has gets no fonts, and a package with none writes none', () => {
+  const kept = withFonts();
+  writeFileSync(join(kept.cwd, 'arena.config.json'), '{}\n');
+  assert.equal(run([], kept.io), 0);
+  assert.equal(existsSync(join(kept.cwd, 'fonts')), false);
+  const bare = setup();
+  assert.equal(run([], bare.io), 0);
+  assert.equal(existsSync(join(bare.cwd, 'fonts')), false);
 });

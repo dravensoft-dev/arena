@@ -3,7 +3,7 @@
  * convention reimplemented once per project. The swap is idempotent, so a caller who already
  * passes ph-fill gets exactly what they passed. */
 
-import { useTestEnvironment } from '../../../test/TestbedEnv';
+import { useTestEnvironment, glyphIds, symbol } from '../../../test/TestbedEnv';
 useTestEnvironment();
 
 import test from 'node:test';
@@ -45,20 +45,18 @@ test('arenaActiveWeight swaps the weight it finds, adds one where there is none,
 test('the active row is filled and every other row keeps the weight it was given', () => {
   const fixture = render('home');
   try {
-    const glyphs = [...(fixture.nativeElement as Element).querySelectorAll('i')];
+    const glyphs = glyphIds(fixture.nativeElement as Element);
     assert.equal(glyphs.length, 2);
-    assert.match(glyphs[0]!.className, /\bph-fill\b/, 'the active row draws its glyph filled');
-    assert.doesNotMatch(glyphs[0]!.className, /\bph-bold\b/, 'and carried the bold weight');
-    assert.match(glyphs[1]!.className, /\bph-bold\b/, 'an inactive row is untouched');
-    assert.doesNotMatch(glyphs[1]!.className, /\bph-fill\b/);
+    assert.equal(glyphs[0], symbol('fill', 'house'), 'the active row draws its glyph filled, where it carried the bold weight');
+    assert.equal(glyphs[1], symbol('bold', 'receipt'), 'an inactive row is untouched');
   } finally { fixture.destroy(); }
 });
 
 test('moving `active` moves the fill, so nothing is latched at first render', () => {
   const fixture = render('sales');
   try {
-    const glyphs = [...(fixture.nativeElement as Element).querySelectorAll('i')];
-    assert.doesNotMatch(glyphs[0]!.className, /\bph-fill\b/);
-    assert.match(glyphs[1]!.className, /\bph-fill\b/);
+    const glyphs = glyphIds(fixture.nativeElement as Element);
+    assert.equal(glyphs[0], symbol('bold', 'house'));
+    assert.equal(glyphs[1], symbol('fill', 'receipt'));
   } finally { fixture.destroy(); }
 });

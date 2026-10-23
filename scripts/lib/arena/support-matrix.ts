@@ -24,11 +24,16 @@ export type Axis = { axis: string; question: string; neutral: boolean; rows: Row
 
 export const NODE_ENGINE = '>=22';
 
+export const CLI_DEPENDENCIES: Readonly<Record<string, string>> = {
+  '@phosphor-icons/core': '^2.1.1',
+  harfbuzzjs: '^1.6.4',
+  wawoff2: '^2.0.1',
+};
+
 export const PEERS = {
   react: {
     react: '^18 || ^19',
     'react-dom': '^18 || ^19',
-    '@phosphor-icons/web': '^2.1.2',
   },
   angular: {
     '@angular/core': '>=20',
@@ -37,7 +42,6 @@ export const PEERS = {
     '@angular/cdk': '>=20',
     '@angular/router': '>=20',
     '@angular/forms': '>=20',
-    '@phosphor-icons/web': '^2.1.2',
   },
 } satisfies Record<string, Record<string, string>>;
 
@@ -60,7 +64,7 @@ export const AXES: Axis[] = [
       { answer: 'npm', evidence: 'verified',
         note: 'the packages declare their peers rather than assuming a flat tree, so no hoisting flag is needed' },
       { answer: 'pnpm', evidence: 'verified',
-        note: 'the strict layout is the one worth naming, because it is the one that would break a package assuming otherwise. Installed under pnpm, the command still resolves the icon font through the symlinked store' },
+        note: 'the strict layout is the one worth naming, because it is the one that would break a package assuming otherwise. Installed under pnpm, the command still resolves the three packages it reads at build through the symlinked store' },
       { answer: 'bun', evidence: 'verified',
         note: 'the install npm takes, unchanged. Bun is also what Arena is built with, which is a fact about Arena rather than a requirement on you' },
       { answer: 'yarn', evidence: 'allowed',

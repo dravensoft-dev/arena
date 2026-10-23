@@ -27,9 +27,9 @@ exists, a bare error state ships no dead space for a retry it does not offer.
 
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
-| `icon` | primitive | `string` |  | A Phosphor class name for the danger glyph Arena draws. |
+| `icon` | primitive | `string` |  | A Phosphor class name for the danger glyph ArenaIcon draws. |
 | `title` | primitive | `string` |  | The headline: what failed. Absent, the provided locale's errorStateTitle answers it. |
-| `headingLevel` | enum | `ArenaHeadingLevel` | `"h3"` | Which rung of the document outline the title takes. Only the element changes: the title's class is the same at every value, so the render is identical and no appearance follows from it. It defaults to `h3`, the card rung of the title ladder, for the reason an empty state does: a failure fills the body of a region something above it already names. `none` takes the headline out of the outline, which is what a failure inside a small surface wants, and it is available here because `title` carries a default rather than being required. |
+| `headingLevel` | enum | `ArenaHeadingLevel` | `"h3"` | Which rung of the document outline the title takes. Only the element changes: the title's class is the same at every value, so the render is identical and no appearance follows from it. The default is `h3`, the card rung of the title ladder, for the reason an empty state does. A failure fills the body of a region something above it already names. `none` takes the headline out of the outline, which is what a failure inside a small surface wants. The value is available here because `title` carries a default rather than being required. |
 | `message` | primitive | `string` |  | A sentence of detail under the title. |
 | `code` | primitive | `string` |  | A diagnostic/support code, shown monospaced. |
 | `retryLabel` | primitive | `string` |  | The label of the retry button Arena draws. Absent renders no retry. |
@@ -48,7 +48,14 @@ exists, a bare error state ships no dead space for a retry it does not offer.
 **Keys:** none (`alert`).
 <!-- @keys end -->
 
-Import `ArenaSecondaryAction` from `@dravensoft/arena-angular` alongside `ArenaErrorState` in the host component's `imports`. `secondaryAction` is a directive rather than a plain attribute, because it is how the error state detects that a secondary action was projected at all.
+<!-- @markers GENERATED from the projection markers the component queries. -->
+**Markers**, one directive per slot:
+- `[secondaryAction]` is `ArenaSecondaryAction`.
+
+Put each marker your template writes in your own component's `imports`. An un-imported marker leaves its slot empty with no error, and `arena check` reports it. [Which markers must I import?](../../../../../skills/design/references/exports.md#which-angular-projection-markers-must-i-import)
+<!-- @markers end -->
+
+`secondaryAction` is a directive rather than a plain attribute, because it is how the error state detects that a secondary action was projected at all.
 
 **Do / Don't**
 - Always pass `retryLabel` when a retry could work. An error state with no retry is a
@@ -58,9 +65,6 @@ Import `ArenaSecondaryAction` from `@dravensoft/arena-angular` alongside `ArenaE
 - Don't put the raw exception in `message`. The code chip is where a machine-readable
   detail goes; the message is for a person.
 - Don't use this for a validation failure on a field: that belongs on the field.
-- Don't forget to import `ArenaSecondaryAction` when projecting a secondary action,
-  without it, the `secondaryAction` attribute is inert and the content silently fails
-  to render.
 
 **Words.** `title` answers first; when it is absent, the locale's `errorStateTitle` does.
 

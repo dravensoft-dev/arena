@@ -89,7 +89,7 @@ test('none aside, exactly the patterns with no APG pattern page cite something e
     .filter(([stem, p]) => stem !== 'none' && !p.source.includes('/ARIA/apg/'))
     .map(([stem]) => stem)
     .sort();
-  assert.deepEqual(nonApg, ['absent', 'figure-with-data-table', 'progressbar', 'scrollable-region', 'select', 'status', 'structured-data', 'textbox']);
+  assert.deepEqual(nonApg, ['absent', 'dialog-nonmodal', 'figure-with-data-table', 'group', 'progressbar', 'scrollable-region', 'select', 'status', 'structured-data', 'textbox']);
 });
 
 const patterns = new Map([
@@ -198,7 +198,7 @@ test('an angular binding that names its counterpart is valid', () => {
 
 test('the React inventory finds every component, no category and no loose file', () => {
   const found = reactComponents('.');
-  assert.equal(found.length, 73);
+  assert.equal(found.length, 100);
   assert.ok(found.includes('ArenaDialog'));
   assert.ok(found.includes('ArenaCalendarEvent'));
   assert.ok(found.includes('ArenaTableRow'));
@@ -218,7 +218,7 @@ test('the React inventory finds every component, no category and no loose file',
 
 test('the Angular inventory finds every component, no category and no bare module', () => {
   const found = angularPrimitives('.');
-  assert.equal(found.length, 73);
+  assert.equal(found.length, 100);
   assert.ok(found.includes('arena-tag'));
   assert.ok(found.includes('arena-bar-chart'));
   assert.ok(found.includes('arena-button'));

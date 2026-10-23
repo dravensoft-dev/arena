@@ -36,7 +36,7 @@ export function namedComponents(named: unknown[], map: ComponentMap) {
 }
 
 export function autoComponents(config: ArenaConfig, options: StepOptions,
-  map: ComponentMap, packageName: string) {
+  map: ComponentMap, packageName: string, required = true) {
   const sources = [];
   for (const path of options.paths) {
     for (const file of sourceFiles(path) ?? []) sources.push(readFileSync(file, 'utf8'));
@@ -46,6 +46,9 @@ export function autoComponents(config: ArenaConfig, options: StepOptions,
   if (!found) {
     return { fatal: [`"components": "${AUTO}" cannot be read against a map keyed by ${JSON.stringify(map.match)}, `
       + 'which this command does not know how to scan for; name the sheets instead'] };
+  }
+  if (found.components.length === 0 && !required) {
+    return { components: [] as string[], reports: [] as string[], note: 'no Arena component drawn, so no component sheet is imported' };
   }
   if (found.components.length === 0) {
     return { fatal: [`"components": "${AUTO}" found no Arena component under ${options.paths.join(', ')}, `

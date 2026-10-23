@@ -5,22 +5,18 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import React from 'react';
-import { renderToStaticMarkup } from 'react-dom/server';
+import { renderIcons, symbols } from '../../../test/IconsHarness.tsx';
 import { ArenaSideNav } from '../arena-side-nav/ArenaSideNav.tsx';
 import { ArenaSideNavItem } from './ArenaSideNavItem.tsx';
 import { arenaActiveWeight } from '../NavRow.ts';
 
 function markup(active: string): string {
-  return renderToStaticMarkup(
+  return renderIcons(
     <ArenaSideNav ariaLabel="Primary" active={active}>
       <ArenaSideNavItem id="home" label="Home" icon="ph-bold ph-house" />
       <ArenaSideNavItem id="sales" label="Sales" icon="ph-bold ph-receipt" />
     </ArenaSideNav>,
   );
-}
-
-function glyphClasses(html: string): string[] {
-  return [...html.matchAll(/<i class="([^"]*)"/g)].map((m) => m[1] ?? '');
 }
 
 test('arenaActiveWeight swaps the weight it finds, adds one where there is none, and repeats safely', () => {
@@ -33,16 +29,14 @@ test('arenaActiveWeight swaps the weight it finds, adds one where there is none,
 });
 
 test('the active row is filled and every other row keeps the weight it was given', () => {
-  const classes = glyphClasses(markup('home'));
-  assert.equal(classes.length, 2);
-  assert.match(classes[0]!, /\bph-fill\b/, 'the active row draws its glyph filled');
-  assert.doesNotMatch(classes[0]!, /\bph-bold\b/, 'and carried the bold weight');
-  assert.match(classes[1]!, /\bph-bold\b/, 'an inactive row is untouched');
-  assert.doesNotMatch(classes[1]!, /\bph-fill\b/);
+  const ids = symbols(markup('home'));
+  assert.equal(ids.length, 2);
+  assert.equal(ids[0], 'fill-house', 'the active row draws its glyph filled, not bold');
+  assert.equal(ids[1], 'bold-receipt', 'an inactive row is untouched');
 });
 
 test('moving `active` moves the fill, so nothing is latched at first render', () => {
-  const classes = glyphClasses(markup('sales'));
-  assert.doesNotMatch(classes[0]!, /\bph-fill\b/);
-  assert.match(classes[1]!, /\bph-fill\b/);
+  const ids = symbols(markup('sales'));
+  assert.equal(ids[0], 'bold-house');
+  assert.equal(ids[1], 'fill-receipt');
 });

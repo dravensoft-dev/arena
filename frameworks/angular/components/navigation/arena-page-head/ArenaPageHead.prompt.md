@@ -16,7 +16,7 @@ head lays out controls the consumer wrote rather than declaring a second button 
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
 | `title*` | primitive | `string` |  | The page title. Required: a page head with no title is a bug, not a state. |
-| `headingLevel` | enum | `ArenaHeadingLevel` | `"h1"` | Which rung of the document outline the title takes. Only the element changes: the title's class is the same at every value, so the render is identical and no appearance follows from it. It defaults to `h1` because a page head is the page's own title and the screen it heads carries no other. Under a hero, the one rung above it on the title ladder, it takes `h2` and leaves the page's single `h1` to the hero; that is the one arrangement where the default is wrong, and it is a member rather than something read off the page, because what a component renders is never derived from what sits above it. `none` is refused at runtime, the rule every component whose `title` is required follows: a title required because it names the thing it draws cannot also be told that the name is not one. |
+| `headingLevel` | enum | `ArenaHeadingLevel` | `"h1"` | Which rung of the document outline the title takes. Only the element changes: the title's class is the same at every value, so the render is identical and no appearance follows from it. The member defaults to `h1` because a page head is the page's own title and the screen it heads carries no other. Under a hero, the one rung above it on the title ladder, the page head takes `h2` and leaves the page's single `h1` to the hero. That arrangement is the one where the default is wrong. The level is a member rather than something read off the page, because what a component renders is never derived from what sits above it. The value `none` is refused at runtime, as it is for every component whose `title` is required. This title is required, since it names the thing it draws. Such a title cannot also be told that its name is not one. |
 | `subtitle` | primitive | `string` |  | A muted line under the title. |
 | `actions` | slot |  |  | Page-level controls, right-aligned in the head. |
 
@@ -32,12 +32,18 @@ head lays out controls the consumer wrote rather than declaring a second button 
 **Keys:** none.
 <!-- @keys end -->
 
+<!-- @markers GENERATED from the projection markers the component queries. -->
+**Markers**, one directive per slot:
+- `[actions]` is `ArenaActions`.
+
+Put each marker your template writes in your own component's `imports`. An un-imported marker leaves its slot empty with no error, and `arena check` reports it. [Which markers must I import?](../../../../../skills/design/references/exports.md#which-angular-projection-markers-must-i-import)
+<!-- @markers end -->
+
 `title` is required: a page head with no title is a bug, not a state. `arena-align-start` (the default) keeps the actions top-aligned with a tall title, and `arena-align-center` centers them against it.
 Both govern only the wide layout; below `--bp-sm` the row always stacks and the align class has no effect. `arena-page-head`
 applies no outer bottom margin; the parent composes that spacing.
 
-Import `ArenaActions` from `@dravensoft/arena-angular` alongside `ArenaPageHead` in the host component's `imports`. `actions` is a directive rather than a plain attribute, because it is how the page head detects that actions were projected at all. Without it the attribute is inert, the
-actions wrapper never renders, and the buttons silently disappear. `ArenaActions` is
+`actions` is a directive rather than a plain attribute, because it is how the page head detects that actions were projected at all. `ArenaActions` is
 shared: every primitive with a plural, toolbar-shaped projected slot imports the same
 directive rather than declaring its own.
 

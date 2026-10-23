@@ -72,7 +72,22 @@ export function emittedTypes(root = repoRoot) {
   return types;
 }
 
-export function defaultProblems(roles: Record<string, Role>, emitted: ReadonlyMap<string, string>) {
+export function emittedWords(root = repoRoot) {
+  const dir = join(root, 'contracts', 'design');
+  const words = new Map<string, string>();
+  for (const file of readdirSync(dir).filter((f) => f.endsWith('.json') && !EXCLUDED.has(f)).sort()) {
+    const tree = readJson(join(dir, file)) as DtcgNode;
+    for (const token of flattenTokens(tree)) {
+      if (token.$type !== 'keyword') continue;
+      const leaf = token.path.reduce<DtcgNode | undefined>((node, key) => node?.[key] as DtcgNode | undefined, tree);
+      if (typeof leaf?.$value === 'string') words.set(token.name, leaf.$value);
+    }
+  }
+  return words;
+}
+
+export function defaultProblems(roles: Record<string, Role>, emitted: ReadonlyMap<string, string>,
+  words: ReadonlyMap<string, string> = new Map()) {
   const problems: string[] = [];
   for (const [name, role] of Object.entries(roles)) {
     const alias = role.$extensions?.[ARENA_EXT]?.default;
@@ -97,6 +112,12 @@ export function defaultProblems(roles: Record<string, Role>, emitted: ReadonlyMa
       continue;
     }
     const allowed = role.$extensions?.[ARENA_EXT]?.values;
+    const word = isRole ? undefined : words.get(target);
+    if (Array.isArray(allowed) && word !== undefined && !allowed.includes(word)) {
+      problems.push(`${name}: its kernel default ${alias} is the word ${word}, outside ${allowed.join(', ')}. `
+        + 'A keyword token names one word, and a default may not answer with a word the role refuses.');
+      continue;
+    }
     const offered = isRole ? roles[target]?.$extensions?.[ARENA_EXT]?.values : undefined;
     if (Array.isArray(allowed) && Array.isArray(offered)) {
       const outside = offered.filter((word) => !allowed.includes(word));
@@ -153,7 +174,7 @@ export function collect(root = repoRoot) {
   if (zero.length) return zero;
   return [
     ...declarationProblems(roles),
-    ...defaultProblems(roles, emittedTypes(root)),
+    ...defaultProblems(roles, emittedTypes(root), emittedWords(root)),
     ...rosterProblems(roles, readJson(join(root, ROSTER))),
   ];
 }

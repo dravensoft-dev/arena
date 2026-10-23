@@ -7,6 +7,10 @@
     ],
     "sha256": "8f704806dbedeaaeca334b11ec348bc3ac3a439d6431544b3afb54f534ee4967"
   },
+  "archivo.OFL.txt": {
+    "family": "Archivo",
+    "sha256": "108b4e57c9c796d3d38d0428ca7ee39de47ad93187302718d9b2d8864b9b716b"
+  },
   "familjen-grotesk.woff2": {
     "family": "Familjen Grotesk",
     "weights": [
@@ -15,6 +19,10 @@
     ],
     "sha256": "414d5dfe5f3d02a327f99ad9121bd77ae931b5b754565578fb0ce4fede2de268"
   },
+  "familjen-grotesk.OFL.txt": {
+    "family": "Familjen Grotesk",
+    "sha256": "9708dd560d1f8aa1f006461aa447a31fda7b9aff662d152837654a388e0eb2ee"
+  },
   "spline-sans-mono.woff2": {
     "family": "Spline Sans Mono",
     "weights": [
@@ -22,5 +30,9 @@
       700
     ],
     "sha256": "46b7dcafe3e51dbe87be1bafaac3fed7646db1fe0a146647a6ffce3699f2752d"
+  },
+  "spline-sans-mono.OFL.txt": {
+    "family": "Spline Sans Mono",
+    "sha256": "4abb88162e4c0c5f9fc6c2f15d7085f7b7e27fd89f541a13488e1bcb829bde3f"
   }
 }

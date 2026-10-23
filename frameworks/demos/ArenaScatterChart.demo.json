@@ -60,5 +60,24 @@
     "sizeLabel": "Requests served",
     "sizeLegend": true
   },
+  "variants": {
+    "no-size": {
+      "sizeLabel": null,
+      "sizeLegend": null,
+      "series": [{"label": "Staging", "x": [12, 19, 24, 31, 38, 45], "y": [240, 310, 290, 420, 390, 510]}, {"label": "Production", "x": [15, 22, 29, 36, 44], "y": [180, 205, 260, 255, 330]}]
+    },
+    "single-point": {
+      "series": [{"label": "Staging", "x": [12], "y": [240], "r": [120]}]
+    },
+    "negative": {
+      "series": [{"label": "Staging", "x": [-12, -4, 6, 14], "y": [-240, 60, -90, 180], "r": [120, 340, 210, 480]}]
+    },
+    "flat-y": {
+      "series": [{"label": "Staging", "x": [12, 19, 24, 31], "y": [300, 300, 300, 300], "r": [120, 340, 210, 480]}]
+    },
+    "tone-and-color-id": {
+      "series": [{"label": "Staging", "x": [12, 19, 24, 31], "y": [240, 310, 290, 420], "r": [120, 340, 210, 480], "tone": "success", "colorId": 2}]
+    }
+  },
   "note": "Three quantities: two on the axes and one as the size of the mark, mapped by area so the blot is comparable."
 }

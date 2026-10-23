@@ -1,0 +1,65 @@
+{
+  "component": "ArenaSparkline",
+  "cases": [
+    {
+      "name": "static",
+      "when": "interactive is false, the default: a named figure and its hidden table, with no tab stop, no cursor, no tooltip and an inert pointer",
+      "pattern": "figure-with-data-table",
+      "exceptions": [
+        {
+          "requirement": "focus.roving",
+          "reason": "The static sparkline has no tab stop, so nothing receives a key: the figure is a named picture and its numbers are all in the hidden table. The pattern asks for a cursor so that a tooltip's numbers are not reachable by pointer alone (WCAG 2.1.1); this case draws no tooltip and answers no pointer, so no number is reachable by pointer at all, and a column of these in a table stays one stop for the table rather than one per cell."
+        },
+        {
+          "requirement": "keyboard.ArrowLeft",
+          "reason": "The static sparkline has no tab stop, so nothing receives a key: the figure is a named picture and its numbers are all in the hidden table. The pattern asks for a cursor so that a tooltip's numbers are not reachable by pointer alone (WCAG 2.1.1); this case draws no tooltip and answers no pointer, so no number is reachable by pointer at all, and a column of these in a table stays one stop for the table rather than one per cell."
+        },
+        {
+          "requirement": "keyboard.ArrowRight",
+          "reason": "The static sparkline has no tab stop, so nothing receives a key: the figure is a named picture and its numbers are all in the hidden table. The pattern asks for a cursor so that a tooltip's numbers are not reachable by pointer alone (WCAG 2.1.1); this case draws no tooltip and answers no pointer, so no number is reachable by pointer at all, and a column of these in a table stays one stop for the table rather than one per cell."
+        },
+        {
+          "requirement": "keyboard.ArrowUp",
+          "reason": "The static sparkline has no tab stop, so nothing receives a key: the figure is a named picture and its numbers are all in the hidden table. The pattern asks for a cursor so that a tooltip's numbers are not reachable by pointer alone (WCAG 2.1.1); this case draws no tooltip and answers no pointer, so no number is reachable by pointer at all, and a column of these in a table stays one stop for the table rather than one per cell."
+        },
+        {
+          "requirement": "keyboard.ArrowDown",
+          "reason": "The static sparkline has no tab stop, so nothing receives a key: the figure is a named picture and its numbers are all in the hidden table. The pattern asks for a cursor so that a tooltip's numbers are not reachable by pointer alone (WCAG 2.1.1); this case draws no tooltip and answers no pointer, so no number is reachable by pointer at all, and a column of these in a table stays one stop for the table rather than one per cell."
+        },
+        {
+          "requirement": "keyboard.Home",
+          "reason": "The static sparkline has no tab stop, so nothing receives a key: the figure is a named picture and its numbers are all in the hidden table. The pattern asks for a cursor so that a tooltip's numbers are not reachable by pointer alone (WCAG 2.1.1); this case draws no tooltip and answers no pointer, so no number is reachable by pointer at all, and a column of these in a table stays one stop for the table rather than one per cell."
+        },
+        {
+          "requirement": "keyboard.End",
+          "reason": "The static sparkline has no tab stop, so nothing receives a key: the figure is a named picture and its numbers are all in the hidden table. The pattern asks for a cursor so that a tooltip's numbers are not reachable by pointer alone (WCAG 2.1.1); this case draws no tooltip and answers no pointer, so no number is reachable by pointer at all, and a column of these in a table stays one stop for the table rather than one per cell."
+        },
+        {
+          "requirement": "keyboard.Escape",
+          "reason": "The static sparkline has no tab stop, so nothing receives a key: the figure is a named picture and its numbers are all in the hidden table. The pattern asks for a cursor so that a tooltip's numbers are not reachable by pointer alone (WCAG 2.1.1); this case draws no tooltip and answers no pointer, so no number is reachable by pointer at all, and a column of these in a table stays one stop for the table rather than one per cell."
+        }
+      ]
+    },
+    {
+      "name": "interactive",
+      "when": "interactive is true: the plot is one tab stop whose data cursor drives the crosshair, the enlarged dot and the tooltip, as a line chart's does",
+      "pattern": "figure-with-data-table",
+      "exceptions": [
+        {
+          "requirement": "keyboard.ArrowUp",
+          "reason": "This chart's points run across the plot, so the cursor answers ArrowLeft and ArrowRight and leaves the vertical pair to the page. A chart that consumed ArrowUp would take the page scroll away from a keyboard reader who only wanted to leave it, which is the same reasoning that keeps touch-action off the rail."
+        },
+        {
+          "requirement": "keyboard.ArrowDown",
+          "reason": "This chart's points run across the plot, so the cursor answers ArrowLeft and ArrowRight and leaves the vertical pair to the page. A chart that consumed ArrowUp would take the page scroll away from a keyboard reader who only wanted to leave it, which is the same reasoning that keeps touch-action off the rail."
+        }
+      ],
+      "additions": [
+        {
+          "provides": "keyboard.data-cursor",
+          "reason": "The plot is one keyboard region and the data cursor rides inside it: the region carries tabindex=\"0\", role=\"group\" and the sparkline's name, and the arrow keys, Home, End and Escape move a cursor that drives exactly what hover drives."
+        }
+      ]
+    }
+  ]
+}

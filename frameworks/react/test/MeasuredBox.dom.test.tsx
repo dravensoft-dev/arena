@@ -13,6 +13,7 @@ import { ArenaCalendar } from '../components/display/arena-calendar/ArenaCalenda
 import { ArenaDialog } from '../components/feedback/arena-dialog/ArenaDialog.tsx';
 import { ArenaBulkActionBar } from '../components/navigation/arena-bulk-action-bar/ArenaBulkActionBar.tsx';
 import { ArenaPageHead } from '../components/navigation/arena-page-head/ArenaPageHead.tsx';
+import { ArenaFilterBar } from '../components/navigation/arena-filter-bar/ArenaFilterBar.tsx';
 
 afterEach(cleanup);
 
@@ -22,6 +23,7 @@ const MOUNTS: Record<string, () => React.ReactElement> = {
   ArenaDialog: () => <ArenaDialog open title="Rename" onClose={() => {}} />,
   ArenaBulkActionBar: () => <ArenaBulkActionBar count={2} actions={[{ id: 'archive', label: 'Archive' }]} />,
   ArenaPageHead: () => <ArenaPageHead title="Orders" />,
+  ArenaFilterBar: () => <ArenaFilterBar label="Order filters"><select aria-label="Status" /></ArenaFilterBar>,
 };
 
 const slotClass = (name: string, slot: string) => `arena-${kebab(name.replace(/^Arena/, ''))}__${kebab(slot)}`;

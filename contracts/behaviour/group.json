@@ -1,0 +1,9 @@
+{
+  "name": "group",
+  "source": "https://www.w3.org/TR/wai-aria-1.2/#group",
+  "description": "A set of related controls a reader enters and leaves as one: the fields of an address, the choices of a notification preference. APG has no pattern page for it -- confirmed against the pattern index, not assumed -- so ARIA 1.2's role reference is the pattern's source instead. The role reference requires no accessible name for a group, so this pattern requires none; a component that names its group proves the name in its own suite. A group has no keyboard model of its own: each control inside keeps its own tab stop and its own keys. That separates a group from a radiogroup and from a scrollable region.",
+  "element": "group",
+  "requires": {
+    "roles.element": "group"
+  }
+}

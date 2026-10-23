@@ -5,8 +5,8 @@
     "value": "staging",
     "options": [
       {
-        "value": "dev",
-        "label": "Dev"
+        "value": "all",
+        "label": "All"
       },
       {
         "value": "staging",

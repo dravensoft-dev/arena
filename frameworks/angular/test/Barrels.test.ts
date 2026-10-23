@@ -25,6 +25,10 @@ const PRIVATE = new Map([
    'the token a person row provides to the avatar it draws, so the avatar binds its size channel to '
    + 'the list\'s face; an adopter never provides it, and it is typechecked through the avatar that '
    + 'injects it.'],
+  ['navigation/arena-menu/MenuAnchor.ts',
+   'the token a composer that draws a menu inside a wider control provides, so the panel lines up with '
+   + 'that control while the trigger stays the menu\'s own; an adopter never provides it, and it is '
+   + 'typechecked through the menu that injects it.'],
   ['feedback/arena-tooltip/TooltipName.ts',
    'the redundancy test the tooltip runs on its own trigger when it opens; nothing outside the '
    + 'component calls it, and it is typechecked through the tooltip that imports it.'],
@@ -33,10 +37,49 @@ const PRIVATE = new Map([
    + 'reads event times through it and `arena-calendar-event` reads its two fit thresholds. A '
    + 'consumer drives the view through `anchorDate` and `view`, never by computing a week '
    + 'boundary. It is typechecked through the components that import it.'],
+  ['forms/arena-combobox/ComboboxRules.ts',
+   'the filter, the cursor, the set and the chip arithmetic `arena-combobox` and `arena-multi-select` '
+   + 'share; the combobox re-exports `arenaFilterOptions`, which is the one name in it a consumer '
+   + 'may call, and the rest is each component\'s own behaviour and not a member of its API.'],
+  ['forms/arena-file-input/FileRules.ts',
+   'the rules that decide which files a file input holds, how a size is written and what it announces, '
+   + 'authored once for both layers and compared by check:shared-arithmetic; `arena-file-input` runs '
+   + 'them on every pick and drop, and a consumer reads the result through its events and its two '
+   + 'methods, never by calling them.'],
+  ['forms/arena-pin-input/PinRules.ts',
+   'the rules that edit a pin input\'s code, the filter, the insert, Backspace and Delete, the moves '
+   + 'and the tab stop, authored once for both layers and compared by check:shared-arithmetic; '
+   + '`arena-pin-input` runs them on every key, input and paste, and a consumer reads the code through '
+   + 'its outputs, never by calling them.'],
+  ['navigation/arena-link/LinkRules.ts',
+   'the attributes an anchor writes for the members `arena-link` takes, the target, the merged rel and '
+   + 'whether a primary click is a router\'s, authored once for both layers and compared by '
+   + 'check:shared-arithmetic; a consumer reads the result on the anchor, never by calling them.'],
+  ['navigation/arena-filter-bar/FilterBarFocus.ts',
+   'where a filter bar sends focus once the host answers a removal, and the first tab stop among its '
+   + 'controls, authored once for both layers and compared by check:shared-arithmetic; `arena-filter-bar` '
+   + 'runs it after each change of its applied list, and a consumer sees where focus lands, never calls it.'],
+  ['feedback/arena-meter/MeterStanding.ts',
+   'the range, the clamp, the share and the standing `arena-meter` derives from its thresholds, authored once '
+   + 'for both layers and compared by check:shared-arithmetic; a consumer reads the standing the meter draws '
+   + 'and says, never by calling them.'],
+  ['display/arena-timeline/TimelineGlyphs.ts',
+   'the glyph each tone draws in a milestone\'s dot and the state a milestone takes from the index, kept '
+   + 'apart so both layers hold one copy '
+   + 'check:shared-arithmetic can compare; an adopter passes a tone or an icon, never calls it, and it is '
+   + 'typechecked through the timeline that imports it.'],
+  ['navigation/arena-stepper/StepperState.ts',
+   'the rule that derives each step\'s state and reach from the index, kept apart so both layers hold one '
+   + 'copy check:shared-arithmetic can compare; an adopter reads a step\'s state from the list, never calls '
+   + 'it, and it is typechecked through the stepper that imports it.'],
   ['navigation/arena-pagination/PaginationWindow.ts',
    'the same shape one category over, and the standing precedent for it: `arenaPageWindow` decides '
    + 'which page numbers elide, which is `arena-pagination`\'s own arithmetic and not a member '
    + 'of its API.'],
+  ['display/arena-table/TableWindow.ts',
+   'the row starts, the window a scroll position meets and the page key targets of a long list, authored '
+   + 'once for both layers and compared by check:shared-arithmetic; `arena-table` takes the result through '
+   + '`slice` and a consumer never calls it.'],
 ]);
 
 const ROOT_PRIVATE = new Map([
@@ -66,6 +109,29 @@ const ROOT_PRIVATE = new Map([
    'the factory that composes a component\'s own class names, emitted per layer so nothing '
    + 'imports across one. A consumer has no '
    + 'reason to call it: they render a component, not a recipe.'],
+  ['AnchoredOverlay.ts',
+   'the overlay wiring a menu, a tooltip and a popover share: it attaches a panel through the CDK, '
+   + 'keeps the stack Escape and an outside press consult, and moves focus where a component asks. '
+   + 'A consumer renders one of those components and never attaches a panel, and it is typechecked '
+   + 'through its own suite and the components that construct it.'],
+  ['AnchoredPanel.ts',
+   'the rules every anchored panel follows: which side it opens on, where it lines up, which panel '
+   + 'of the stack Escape reaches, what counts as a press inside and where Tab leaves. A consumer '
+   + 'opens a menu, a tooltip or a popover and never places one, and it is typechecked through the '
+   + 'suite beside it.'],
+  ['Thresholds.ts',
+   'the one rule every component that reads a value against thresholds shares: a region holds its lower '
+   + 'edge, authored once for both layers and compared by check:shared-arithmetic. A consumer reads the '
+   + 'standing a component draws and never counts edges, and it is typechecked through the suite beside it.'],
+  ['TypeAhead.ts',
+   'the rule that finds the next label starting with the typed prefix and the rule that grows the prefix, authored '
+   + 'once for both layers and compared by check:shared-arithmetic. A consumer types into a component that holds a '
+   + 'list and never matches a prefix, and it is typechecked through the suite beside it.'],
+  ['RowWindowMeasure.ts',
+   'the rules a measured row window follows: what a row or a card extends, when readings of rows that left the '
+   + 'window are dropped, how a late measurement moves the scroll position and where a requested row is aimed. '
+   + 'Authored once and compared by check:shared-arithmetic. A consumer binds the window directive '
+   + 'and never measures a row, and it is typechecked through the suite of the directive that imports it.'],
   ['ArenaIds.ts',
    'the generator behind the ids a component uses to point one of its own elements at another, '
    + 'through aria-controls or aria-labelledby. None of those ids is a member, by the convention '

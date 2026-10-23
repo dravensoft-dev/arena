@@ -14,7 +14,7 @@ Text field with validation (H5). Focus = gold ring, error = crimson with icon, v
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
 | `label` | primitive | `string` |  | Field label above the control. |
-| `id` | primitive | `string` |  | The control's id, and what the label's `for` points at. Generated from `label` when omitted, as `in-` followed by the label with each run of whitespace replaced by a single hyphen and the whole lowercased. The derivation is normative, and the prefix differs per component on purpose: the same markup must get the same id in every layer, and an ArenaInput and an ArenaTextarea sharing a label must not collide. |
+| `id` | primitive | `string` |  | The control's id, and what the label's `for` points at. Generated from `label` when omitted, as `in-` followed by the label with each run of whitespace replaced by a single hyphen and the whole lowercased. The derivation is normative, and the prefix differs per component on purpose. Identical markup must get an identical id in every layer, and an ArenaInput and an ArenaTextarea sharing a label must not collide. The hint or the error takes it followed by `-note`. |
 | `hint` | primitive | `string` |  | A line of help under the field. |
 | `error` | primitive | `string` |  | Controlled error message; wins over `validate`. |
 | `valid` | primitive | `boolean` | `false` | Force the valid (green check) state. |
@@ -22,7 +22,7 @@ Text field with validation (H5). Focus = gold ring, error = crimson with icon, v
 | `validate` | functionInput | `(value: string) => string` |  | Called on the value; returns the error message, or empty for valid. |
 | `validateOn` | enum | `ArenaValidateOn` | `"blur"` | When `validate` runs. |
 | `type` | enum | `ArenaInputType` | `"text"` | Native input type. |
-| `icon` | primitive | `string` |  | Phosphor class name drawn at the field's start. |
+| `icon` | primitive | `string` |  | Phosphor class name drawn at the field's start through ArenaIcon. |
 | `prefix` | primitive | `string` |  | Static text Arena draws before the value, e.g. `git@`. |
 | `value` | primitive | `string` |  | The controlled text. |
 | `disabled` | primitive | `boolean` | `false` | Blocks editing and dims it. |
@@ -74,7 +74,7 @@ Use the native types. Arena deliberately ships **no `DatePicker` and no `TimePic
 <ArenaInput label="Cutover" type="datetime-local" error="Pick a date in the future" />
 ```
 
-`type` is the `ArenaInputType` enum: `text`, `email`, `password`, `search`, `tel`, `url`, `number`, `date`, `time`, `datetime-local`. `checkbox` and `radio` are not among them: those are `ArenaCheckbox` and `ArenaRadio`, their own components.
+`type` is the `ArenaInputType` enum: `text`, `email`, `password`, `search`, `tel`, `url`, `number`, `date`, `time`, `datetime-local`. `checkbox` and `radio` are not among them: those are `ArenaCheckbox` and `ArenaRadio`, their own components. `file` is not among them: that is `ArenaFileInput`, because a chosen file is a platform object and no member or event of this component can carry one. `range` is not among them: that is `ArenaSlider`. `number` stays a type here: it keeps the browser's spinner and a string value, and `ArenaNumberField` is a number Arena owns.
 
 **Do**
 - Use `type="date"` / `"time"` / `"datetime-local"`. Label, focus ring, error and valid states all work on them.

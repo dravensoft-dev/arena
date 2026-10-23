@@ -2,7 +2,7 @@ One tab in an `ArenaTabs` strip, and the panel it shows. The tab draws the butto
 panel `ArenaTabs` renders below the strip.
 
 ```tsx
-<ArenaTabs defaultValue="overview" onChange={setView}>
+<ArenaTabs defaultValue="overview" onValueChange={setView}>
   <ArenaTab value="overview" label="Overview"><ServiceHealth /></ArenaTab>
   <ArenaTab value="activity" label="Activity"><ArenaActivityFeed items={items} /></ArenaTab>
 </ArenaTabs>
@@ -14,7 +14,7 @@ panel `ArenaTabs` renders below the strip.
 
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
-| `value*` | primitive | `string` |  | What this tab selects, and what the `onChange` event of ArenaTabs carries. |
+| `value*` | primitive | `string` |  | What this tab selects, and what the `onValueChange` event of ArenaTabs carries. |
 | `label*` | primitive | `string` |  | What the tab reads. Arena draws the button; the consumer names it. |
 | `children` | slot |  |  | What the panel shows while this tab is selected. ArenaTabs places it; ArenaTab never renders it, because a tabpanel may not sit inside a tablist. |
 

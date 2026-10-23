@@ -51,6 +51,7 @@ Arena checkbox, one independent choice, checked showing a crimson fill with a ti
   forwards a click to the input, and a second handler double-toggles.
 - Don't use a checkbox for an immediate effect. A checkbox reads as a pending form value; a
   setting that applies the moment it flips is `<arena-switch>`.
+- Inside an `<arena-checkbox-group>` the group owns the box. The box needs a `value` and throws without one. The group's `value` decides whether the box is ticked, and the group's form name replaces the box's. A `checked` bound on the box is ignored, with a warning, once. The box's own `(change)` still fires, before the group's.
 - There is no indeterminate state. `aria-checked="mixed"` is in the pattern and not in this
   contract, so a partially-selected parent row needs a different control, not this one.
 

@@ -31,10 +31,12 @@ Where two layers answer the same question differently, **the contract is what ma
 comparable**. A cross-layer *gate* under `scripts/check/arena/` reading several layers is that
 mechanism rather than an instance of the coupling, which is why `scripts/` is outside the gate's
 scope. **A fact only recorded as "matching the other layer" is a fact missing from a contract.**
-`anchored` on `ArenaTooltip` and `ArenaMenu` is the one attribute the layers build from different
-values: React leaves it unset and positions in CSS, Angular passes `true` and positions with the CDK
-overlay. It is an internal group of the recipe that no contract declares as a member and the pixels
-agree, so no gate sees it, and each layer's page states its own side.
+**An anchored panel is the one surface the layers place by different mechanisms**: React shows it
+as a manual `popover` in the top layer and places it by script, and Angular attaches it to a CDK
+overlay pane. The rules both answer, which side a panel opens on, where it lines up, which panel
+Escape reaches and where Tab leaves, are one module written twice and held equal by
+`check:shared-arithmetic`; a manifest carries no positioning for either. Each layer's page states
+its own mechanism, and `check:anchoring` opens each one it declares, in both, in real Chromium.
 
 This page sits at the `frameworks/` root rather than inside a layer, which is why it may name
 all three. So does `Components.json`, and so do `demos/` and `kitchen-sink/`: each is a fact
@@ -87,8 +89,8 @@ found by adding a component and reading what went red rather than by a list anyb
 `scripts/lib/tailwind/manifest-surfaces.test.ts` holds both the `HAND_DRAWN` roster and the count
 of everything else, `scripts/check/arena/check-manifest-states.test.ts` holds that roster a second
 time, `scripts/check/arena/check-playgrounds.test.ts` counts emitted pages once in total and once
-per layer, and `frameworks/angular/test/HostClassBinding.test.ts` carries `NO_MANIFEST`, which is
-the one nothing points at from anywhere. `arena-cli/style-plugin-rules.ts:RESERVED` fails a name
+per layer, and `frameworks/angular/test/HostClassBinding.test.ts` carries `OWN_HOST` for a host
+with no root slot and `HOST_SLOT` for a host drawn from another manifest's slot. `arena-cli/style-plugin-rules.ts:RESERVED` fails a name
 the tree ships, so a component that ships one deletes its entry.
 
 **Two of those assert an ORDER and not a number, which fails in a shape that reads like a
@@ -188,8 +190,8 @@ a layer that disagrees with it is wrong.
 
 ## Two rules a component author reaches for constantly
 
-**The single-icon convention.** A component's icon is a Phosphor class-name string Arena draws,
-never a slot, so `ArenaIconButton` presents no slot at all and a per-item or single icon is one
+**The single-icon convention.** A component's icon is a Phosphor class-name string Arena draws through
+`ArenaIcon`, never a slot, so `ArenaIconButton` presents no slot at all and a per-item or single icon is one
 system across the library. The price is recorded rather than hidden: flattening each
 `<button>`'s heritage clause drops the five `form*` overrides and every global or ARIA attribute
 a `{...rest}` spread would forward, with no gate behind the loss. `check:api` reads the `.tsx`,
@@ -295,6 +297,7 @@ each layer's knob model to the other's. It opens none of them.
 | a component's measured box is the same in every branch its width selects | `check:measured-box`, `MEASURED` |
 | an inline component declares its own width on every branch | `check:intrinsic-width`, `EXEMPT` empty |
 | a modal traps Tab in a real browser | `check:focus-trap` |
+| a hidden native control refused by the browser hands focus to the trigger it lies under | `check:focus-trap`, `HANDOFFS` |
 | **a manifest's colors, sizes or slot structure still match its contract** | **nothing. Read both when either moves** |
 | the emitted pages match a fresh run, and each layer's knob model matches the other's | `check:playgrounds`, over source |
 | **that any page mounts and draws** | **nothing. Open it** |

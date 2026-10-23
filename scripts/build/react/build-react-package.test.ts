@@ -11,8 +11,9 @@ import { platform } from '../../lib/arena/platform.ts';
 import { budgetFor } from '../../lib/arena/deadline.ts';
 import { TERM_GRACE } from '../../lib/arena/child-output.ts';
 import { TSC_SPAWN } from '../../lib/arena/typecheck.ts';
-import { PROBE_ENDED, PROBE_SPAWNED, assertCompilerEnded, probeInterrupt } from '../../lib/arena/forwarding-probe.ts';
-import { version, CLI_BINS } from '../../lib/arena/package-assembly.ts';
+import { PROBE_ENDED, PROBE_IMPORTED, PROBE_SPAWNED, assertCompilerEnded, probeInterrupt } from '../../lib/arena/forwarding-probe.ts';
+import { CLI_DEPENDENCIES } from '../../lib/arena/support-matrix.ts';
+import { version, CLI_BINS, PALETTE_ENTRY } from '../../lib/arena/package-assembly.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 
 test('a relative source specifier becomes .js, because the package holds no JSX and no TypeScript', () => {
@@ -65,13 +66,19 @@ test('the version is stamped from plugin.json rather than written here', () => {
   assert.equal(manifest(repoRoot).version, version(repoRoot));
 });
 
-test('react, react-dom and Phosphor are the peers, and nothing at all is a dependency', () => {
+test('react and react-dom are the peers, Phosphor is none, and the three of the arena command are the dependencies', () => {
   const m = manifest(repoRoot);
-  assert.deepEqual(Object.keys(m.peerDependencies).sort(), ['@phosphor-icons/web', 'react', 'react-dom']);
+  assert.deepEqual(Object.keys(m.peerDependencies).sort(), ['react', 'react-dom']);
   assert.equal(m.peerDependencies.react, '^18 || ^19',
     'the range is the two majors a real tarball install was rendered under; an open >=18 would promise React 20');
-  assert.ok(!('dependencies' in m),
-    'a component composes its own class names, so no recipe library ships with it');
+  assert.deepEqual(m.dependencies, CLI_DEPENDENCIES,
+    'a component imports none of them; they are the arena command\'s, and a component composes its own class names');
+});
+
+test('the React manifest carries a module field pointing at the root entry', () => {
+  const m = manifest(repoRoot) as Record<string, any>;
+  assert.equal(m.module, m.exports['.'].import);
+  assert.equal(m.main, undefined);
 });
 
 test('the command the package ships is declared, and it is the one both packages declare', () => {
@@ -83,6 +90,7 @@ test('the stylesheet and the example config are reachable by subpath', () => {
   assert.equal(exports['./arena.css'], './arena.css');
   assert.equal(exports['./css/*'], './css/*');
   assert.ok('./arena.config.example.json' in exports);
+  assert.equal(exports['./fonts/*'], './fonts/*', 'the fonts the example config names are reachable by subpath');
 });
 
 test('every layer-root module the package needs is named, and Tokens is among them', () => {
@@ -170,7 +178,7 @@ test('a declaration is not mistaken for a source to compile', () => {
 });
 
 test('an interrupt of the React package step ends the tsc it spawned and prints what it wrote', {
-  timeout: budgetFor(PROBE_SPAWNED, PROBE_ENDED, TERM_GRACE, TSC_SPAWN),
+  timeout: budgetFor(PROBE_IMPORTED, PROBE_SPAWNED, PROBE_ENDED, TERM_GRACE, TSC_SPAWN),
   skip: platform === 'win32' ? 'a signal sent to a process is a POSIX idea' : false,
 }, async () => {
   const probed = await probeInterrupt({
@@ -179,4 +187,10 @@ test('an interrupt of the React package step ends the tsc it spawned and prints 
     body: 'await step.emitDeclarations(root, "");',
   });
   assertCompilerEnded(probed, true);
+});
+
+test('the react manifest exports ./palette', () => {
+  const entry = manifest(repoRoot).exports['./palette'];
+  assert.deepEqual(entry, { types: PALETTE_ENTRY.types, import: PALETTE_ENTRY.module });
+  assert.equal(Object.keys(entry)[0], 'types', 'types leads the conditions, or a resolver takes the module first');
 });

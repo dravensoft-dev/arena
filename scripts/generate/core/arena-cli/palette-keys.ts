@@ -18,9 +18,12 @@ export const PALETTE_KEYS = [
   'warning', 'warning-content',
   'error', 'error-content', 'error-fill',
   'cat-1', 'cat-2', 'cat-3', 'cat-4', 'cat-5', 'cat-6', 'cat-7', 'cat-8',
+  'heat-1', 'heat-2', 'heat-3', 'heat-4', 'heat-5',
 ];
 
-export const OPTIONAL_KEYS = new Set(['error-fill', 'primary-fill']);
+export const OPTIONAL_KEYS = new Set([
+  'error-fill', 'primary-fill', 'heat-1', 'heat-2', 'heat-3', 'heat-4', 'heat-5',
+]);
 
 export const FILL_PAIRS = [
   { fill: 'primary-fill', content: 'primary-content' },
@@ -41,6 +44,8 @@ export const SURFACE_PAIRS = [
 export const TEXT_MIN = 4.5;
 
 export const ARENA_CAT_SLOTS = 8;
+
+export const ARENA_HEAT_STEPS = 5;
 
 export const POLARITIES = ['dark', 'light'];
 
@@ -66,5 +71,7 @@ export const SOURCE_FORMATS = {
 };
 
 export const catKeys = () => PALETTE_KEYS.filter((k) => /^cat-\d+$/.test(k));
+
+export const heatKeys = () => PALETTE_KEYS.filter((k) => /^heat-\d+$/.test(k));
 
 export const requiredKeys = () => PALETTE_KEYS.filter((k) => !OPTIONAL_KEYS.has(k));

@@ -1,11 +1,14 @@
-import { test } from 'node:test';
+import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
-import { hostManifest, hostPackage, hostPackageName, packageSheets, phosphorRoot, resolveEnvironment } from './host.ts';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { hostManifest, hostPackage, hostPackageName, fontToolRoots, packageSheets, phosphorRoot, resolveEnvironment } from './host.ts';
 import { loadVocabulary, VOCABULARY_INDEX } from './audit.ts';
-import { hostRoot, phosphor } from './cli-fixtures.ts';
+import { hostRoot, phosphor, removeFixtures } from './cli-fixtures.ts';
+
+after(removeFixtures);
 
 test('the package around the command is found by its name, and nothing else is', () => {
   const root = mkdtempSync(join(tmpdir(), 'arena-host-'));
@@ -25,6 +28,8 @@ function installed(barrel: string, components: string[]) {
   mkdirSync(join(root, 'css', 'components'), { recursive: true });
   writeFileSync(join(root, 'arena.css'), barrel);
   writeFileSync(join(root, 'css', 'colors.css'), ':root{--level-ink-muted:62%;}');
+  writeFileSync(join(root, 'css', 'contrast.css'), '');
+  writeFileSync(join(root, 'css', 'environment.css'), '');
   for (const name of components) writeFileSync(join(root, 'css', 'components', `${name}.css`), '');
   return root;
 }
@@ -38,8 +43,20 @@ test('the sheets a package ships are read from beside the command, so no copy of
     washes: [],
     scopes: [],
     roleReferences: [],
+    aliases: [],
+    rootOnly: { contrast: '', environment: '' },
     catalogue: undefined,
   });
+  rmSync(root, { recursive: true });
+});
+
+test('a package without contrast.css or environment.css is reported and not read as empty', () => {
+  const root = installed("@import './css/reset.css';\n", ['button']);
+  rmSync(join(root, 'css', 'contrast.css'));
+  assert.throws(() => packageSheets(root), /ships no css\/contrast\.css/);
+  writeFileSync(join(root, 'css', 'contrast.css'), '');
+  rmSync(join(root, 'css', 'environment.css'));
+  assert.throws(() => packageSheets(root), /ships no css\/environment\.css/);
   rmSync(root, { recursive: true });
 });
 
@@ -76,11 +93,21 @@ test('no package around the command means no sheet list rather than an empty one
 });
 
 test('Phosphor is looked for upwards, which is where a package manager puts it', () => {
-  const { root, web } = phosphor();
+  const { root, core } = phosphor();
   const deep = join(root, 'apps', 'web', 'src');
   mkdirSync(deep, { recursive: true });
-  assert.equal(phosphorRoot(deep, deep), web);
+  assert.equal(phosphorRoot(deep, deep), core);
   assert.equal(phosphorRoot(tmpdir(), tmpdir()), null);
+  rmSync(root, { recursive: true });
+});
+
+test('the one Phosphor install the command reads is @phosphor-icons/core, and a web install is not it', () => {
+  const root = mkdtempSync(join(tmpdir(), 'arena-web-only-'));
+  const web = join(root, 'node_modules', '@phosphor-icons', 'web');
+  mkdirSync(web, { recursive: true });
+  writeFileSync(join(web, 'package.json'), JSON.stringify({ name: '@phosphor-icons/web' }));
+  assert.equal(phosphorRoot(root, root), null);
+  assert.equal('core' in resolveEnvironment({ arena: null, phosphor: null }), false);
   rmSync(root, { recursive: true });
 });
 
@@ -102,6 +129,7 @@ test('an override a caller hands in wins over what the install would answer, and
   const none = resolveEnvironment({ arena: null, phosphor: null });
   assert.deepEqual(none, {
     arena: null, packageName: '@dravensoft/arena-react', sheets: null, map: null, vocabulary: null, phosphor: null,
+    fontTools: fontToolRoots(),
   });
   const named = resolveEnvironment({ arena: null, phosphor: '/p', packageName: '@dravensoft/arena-angular' });
   assert.equal(named.packageName, '@dravensoft/arena-angular');
@@ -118,4 +146,23 @@ test('hostManifest reads name, version and engines, and null for no package.json
   assert.equal(hostManifest(root), null);
   assert.equal(hostManifest(null), null);
   rmSync(root, { recursive: true });
+});
+
+test('the command\'s own dependencies win over a project\'s copy of the same name', () => {
+  const here = dirname(fileURLToPath(import.meta.url));
+  const decoy = join(here, '..', '..', '..', '..', '.cache', 'plan-1.29', 'decoy-project');
+  rmSync(decoy, { recursive: true, force: true });
+  for (const name of ['harfbuzzjs', 'wawoff2', '@phosphor-icons/core']) {
+    mkdirSync(join(decoy, 'node_modules', ...name.split('/')), { recursive: true });
+    writeFileSync(join(decoy, 'node_modules', ...name.split('/'), 'package.json'), JSON.stringify({ name }));
+  }
+  try {
+    const roots = fontToolRoots(decoy, here);
+    assert.ok(roots.harfbuzz !== null && !roots.harfbuzz.startsWith(decoy), `harfbuzzjs from ${roots.harfbuzz}`);
+    assert.ok(roots.wawoff2 !== null && !roots.wawoff2.startsWith(decoy), `wawoff2 from ${roots.wawoff2}`);
+    assert.ok(!(phosphorRoot(decoy, here) ?? decoy).startsWith(decoy));
+    assert.equal(phosphorRoot(decoy, tmpdir())?.startsWith(decoy), true, 'the project\'s copy answers when the command has none');
+  } finally {
+    rmSync(decoy, { recursive: true, force: true });
+  }
 });

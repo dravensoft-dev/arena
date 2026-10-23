@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useArenaContainerWidth } from '../../../UseArenaContainerWidth.ts';
-import { ARENA_CHART_HEIGHT, ARENA_INK_MUTED, arenaSrOnly, arenaAreaFill, arenaPlotWidth, arenaRailStyle, arenaValueWriter } from '../../../DataVisuals.ts';
+import { ARENA_CHART_HEIGHT, ARENA_INK_MUTED, arenaSrOnly, arenaAreaFill, arenaPlotWidth, arenaRailStyle, arenaValueWriter, arenaCatRotate } from '../../../DataVisuals.ts';
 import { arenaWarnOnce } from '../../../WarnOnce.ts';
 import {
   arenaLinearScale, arenaPointScale, arenaPointAt, arenaScaleValue, arenaNearestPointIndex,
@@ -9,11 +9,12 @@ import { arenaLinePoints, arenaLineAreaPath, arenaCurvePath, arenaCurveAreaPath 
 import { arenaPlotBox, arenaAxisModel, arenaTickLabelX, arenaCategoryLabelY, arenaValueGutter } from '../ChartAxis.ts';
 import { arenaChartTable, arenaSeriesColors, arenaSwatchHue, arenaSeriesDomain, arenaSeriesPointCount } from '../ChartSeries.ts';
 import { arenaLegendStrip } from '../ChartLegend.ts';
-import { arenaTooltipAnchor } from '../ChartTooltip.ts';
+import { arenaRailAnchorX, arenaTooltipAnchor } from '../ChartTooltip.ts';
+import { arenaRailReveal, useArenaRailView } from '../ChartRailView.ts';
 import { arenaCursorHandles, arenaCursorStep, arenaPointerClears, arenaPointerUpdates } from '../ChartPointer.ts';
 import { chartPointR, chartPointRHover } from '../../../Tokens.generated.js';
 
-import type { ArenaNumberFormat, ArenaSeries } from '../../../Api.generated';
+import type { ArenaCatSlot, ArenaNumberFormat, ArenaSeries } from '../../../Api.generated';
 import { useArenaLocale } from '../../../ArenaLocale.ts';
 import { arenaPhrase } from '../../../Phrase.ts';
 import type { ArenaLineChartClass } from '../../../Vocabulary.generated.ts';
@@ -31,13 +32,16 @@ export interface ArenaLineChartProps {
   /** The plotted series, drawn as one polyline each over the same ordered sequence. One series is the common case and draws exactly what it drew before. The area fill is refused past one series, because two fills occlude each other and the reader cannot tell which value either edge belongs to. */
   series: readonly ArenaSeries[];
 
-  /** Names the chart for its accessible name and for the caption of its data table. This is the CHART's name, not a series': a series names itself. Required and guarded rather than defaulted, because a fallback of the chart TYPE satisfies roles.label mechanically and tells a screen-reader user nothing, so two charts on one page announce identically. */
+  /** The ramp slot the first series takes when it names no colour of its own. Each later series takes the next slot, and after the last slot the count starts again at the first. A series' `colorId` or `colorIds` keeps the slot it names. Absent, 1. */
+  colorStart?: ArenaCatSlot;
+
+  /** Names the chart for its accessible name and for the caption of its data table. The name is the CHART's, not a series': a series names itself. Required and guarded rather than defaulted, because a fallback of the chart TYPE satisfies roles.label mechanically and tells a screen-reader user nothing. Two charts on one page would announce identically. */
   label: string;
 
   /** Fill under the line at 18% of the series colour: a tint, never a gradient. For a single series; two fills occlude each other. */
   area?: boolean;
 
-  /** Draw the series as a smooth curve rather than straight segments between points. The interpolation is monotone cubic, not Catmull-Rom, and that is the whole of the decision: a Catmull-Rom curve overshoots, so between two measured points it draws a peak or a trough nobody measured, and a chart that draws data which does not exist is the one thing a chart may not do. A monotone curve stays inside the band its own two points define, keeps a flat tangent at a turning point, and never crosses zero unless the values do. It changes the path string and nothing else: the points, the crosshair, the tooltip and the data cursor read the same numbers at the same places. */
+  /** Draw the series as a smooth curve rather than straight segments between points. The interpolation is monotone cubic, not Catmull-Rom, and that is the whole of the decision. A Catmull-Rom curve overshoots, so between two measured points it draws a peak or a trough nobody measured. A chart that draws data which does not exist is the one thing a chart may not do. A monotone curve stays inside the band its own two points define, keeps a flat tangent at a turning point, and never crosses zero unless the values do. The curve changes the path string and nothing else: the points, the crosshair, the tooltip and the data cursor read the same numbers at the same places. */
   curve?: boolean;
 
   /** Appended verbatim to every number the chart draws: the axis ticks, the tooltip and the accessible table. Carries its own leading space if one is wanted. */
@@ -49,10 +53,10 @@ export interface ArenaLineChartProps {
   /** How each number is written before the prefix and suffix are added: which locale, how many fraction digits, whether thousands are grouped, whether large numbers are compacted. Absent, the raw JavaScript number, which is what this chart drew before the member existed. */
   valueFormat?: ArenaNumberFormat;
 
-  /** The plot's height in px, the --chart-height token by default. A number rather than a dimension string, because the chart does arithmetic with it to place every mark, and a caller-supplied "20rem" is neither a token nor a derivation of one. */
+  /** The plot's height in px, the --chart-height token by default. A number rather than a dimension string, because the chart does arithmetic with it to place every mark. A caller-supplied "20rem" is neither a token nor a derivation of one. */
   height?: number;
 
-  /** The narrowest gap, in px, the chart draws between two adjacent points. Below it the chart stops compressing and overflows its container horizontally instead, scrolled and anchored to the most recent point: marker spacing is a legibility constant, not something that yields to the viewport, and thirty days in 390px is unreadable at any font size. Absent, the chart fits whatever width it is given. The rail it scrolls in is the same region the data cursor lives in, and it is keyboard-reachable whether it overflows or not. */
+  /** The narrowest gap, in px, the chart draws between two adjacent points. Below it the chart stops compressing and overflows its container horizontally instead, scrolled and anchored to the most recent point. Marker spacing is a legibility constant, not something that yields to the viewport, and thirty days in 390px is unreadable at any font size. Absent, the chart fits whatever width it is given. The rail it scrolls in is the same region the data cursor lives in, and it is keyboard-reachable whether it overflows or not. */
   minPointSpacing?: number;
 }
 
@@ -60,7 +64,7 @@ export interface ArenaLineChartProps {
 const arenaLineChartStyles = arenaStyles(manifest);
 
 export function ArenaLineChart({ className, 
-  labels, series, label, area = false, curve = false, valueSuffix, valuePrefix, valueFormat,
+  labels, series, colorStart = 1, label, area = false, curve = false, valueSuffix, valuePrefix, valueFormat,
   height = ARENA_CHART_HEIGHT, minPointSpacing,
 }: ArenaLineChartProps) {
   const locale = useArenaLocale();
@@ -76,12 +80,14 @@ export function ArenaLineChart({ className,
   const n = arenaSeriesPointCount(series);
   const width = arenaPlotWidth(available, n, minPointSpacing);
   const scrolls = width > available;
+  const [view, syncView] = useArenaRailView(rail, [measured, scrolls, width]);
   const fmt = arenaValueWriter({ prefix: valuePrefix, suffix: valueSuffix, format: valueFormat });
 
   useEffect(() => {
     const box = rail.current;
     if (!box || !scrolls) return;
     box.scrollLeft = box.scrollWidth - box.clientWidth;
+    syncView();
   }, [scrolls, width]);
 
   if (area && series.length > 1) {
@@ -95,8 +101,17 @@ export function ArenaLineChart({ className,
   const box = arenaPlotBox(width, strip.plotH, gutter);
   const yScale = arenaLinearScale(domain.min, domain.max, box.y + box.h, box.y);
   const xScale = arenaPointScale(n, box.x, box.w);
+
+  useEffect(() => {
+    const region = rail.current;
+    if (!region || !scrolls || hover === null || hover >= n) return;
+    const x = arenaPointAt(xScale, hover);
+    const to = arenaRailReveal(Math.max(0, x - xScale.step / 2), Math.min(width, x + xScale.step / 2), region.scrollLeft, region.clientWidth);
+    if (to !== region.scrollLeft) region.scrollLeft = to;
+    syncView();
+  }, [hover, scrolls, xScale.step, measured]);
   const axis = arenaAxisModel(yScale, domain, fmt);
-  const colors = series.map((one, s) => arenaSeriesColors(one, 1, s + 1)[0] as string);
+  const colors = series.map((one, s) => arenaSeriesColors(one, 1, arenaCatRotate(colorStart, s), 'ArenaLineChart', colorStart)[0] as string);
   const table = arenaChartTable(locale.chartTablePoint, series, labels, fmt);
 
   const plotted = series.map(
@@ -121,8 +136,8 @@ export function ArenaLineChart({ className,
   };
 
   return (
-    <div className={arenaClassName('ArenaLineChart', styles.frame(), className)} ref={ref} data-arena-part={manifest.parts.frame} {...styles.$data.frame()} style={{ height }}>
-      <div ref={rail} style={arenaRailStyle} tabIndex={0} role="group" aria-label={name} onKeyDown={onKeyDown}>
+    <div className={arenaClassName('ArenaLineChart', styles.frame(), className, manifest.vocabulary)} ref={ref} data-arena-part={manifest.parts.frame} {...styles.$data.frame()} style={{ height }}>
+      <div ref={rail} style={arenaRailStyle} tabIndex={0} role="group" aria-label={name} onKeyDown={onKeyDown} onScroll={syncView}>
       <svg width={scrolls ? width : '100%'} height={strip.plotH} role="img" aria-label={name} style={{ display: 'block', overflow: 'visible' }}>
         {axis.ticks.map((tick, i) => (
           <g key={i}>
@@ -178,7 +193,7 @@ export function ArenaLineChart({ className,
         <div aria-hidden="true" className={styles.legend()} data-arena-part={manifest.parts.legend} {...styles.$data.legend()} style={{ height: strip.stripH }}>
           {series.map((one, s) => (
             <span key={s} className={styles.legendItem()} data-arena-part={manifest.parts.legendItem} {...styles.$data.legendItem()}>
-              <span className={arenaLineChartStyles(arenaSwatchHue(one, 0, s + 1)).legendSwatch()} data-arena-part={manifest.parts.legendSwatch} {...arenaLineChartStyles(arenaSwatchHue(one, 0, s + 1)).$data.legendSwatch()} />
+              <span className={arenaLineChartStyles(arenaSwatchHue(one, 0, arenaCatRotate(colorStart, s), colorStart)).legendSwatch()} data-arena-part={manifest.parts.legendSwatch} {...arenaLineChartStyles(arenaSwatchHue(one, 0, arenaCatRotate(colorStart, s), colorStart)).$data.legendSwatch()} />
               <span className={styles.legendLabel()} data-arena-part={manifest.parts.legendLabel} {...styles.$data.legendLabel()}>{one.label}</span>
             </span>
           ))}
@@ -187,7 +202,7 @@ export function ArenaLineChart({ className,
 
       {hover !== null && hover < n && (
         <div className={styles.tooltip()} data-arena-part={manifest.parts.tooltip} {...styles.$data.tooltip()} style={{
-          ...arenaTooltipAnchor(arenaPointAt(xScale, hover),
+          ...arenaTooltipAnchor(arenaRailAnchorX(arenaPointAt(xScale, hover), scrolls, view, available),
             Math.min(...series.map((one) => arenaScaleValue(yScale, one.values[hover] ?? 0)))),
         }}>
           <div className={styles.tooltipLabel()} data-arena-part={manifest.parts.tooltipLabel} {...styles.$data.tooltipLabel()}>{labels[hover]}</div>
@@ -199,15 +214,17 @@ export function ArenaLineChart({ className,
         </div>
       )}
 
-      <table style={arenaSrOnly}>
-        <caption>{name}</caption>
-        <thead><tr>{table.columns.map((column, i) => <th key={i}>{column}</th>)}</tr></thead>
-        <tbody>
-          {table.rows.map((row, i) => (
-            <tr key={i}><th scope="row">{row.header}</th>{row.cells.map((cell, j) => <td key={j}>{cell}</td>)}</tr>
-          ))}
-        </tbody>
-      </table>
+      <div style={arenaSrOnly}>
+        <table>
+          <caption>{name}</caption>
+          <thead><tr>{table.columns.map((column, i) => <th key={i}>{column}</th>)}</tr></thead>
+          <tbody>
+            {table.rows.map((row, i) => (
+              <tr key={i}><th scope="row">{row.header}</th>{row.cells.map((cell, j) => <td key={j}>{cell}</td>)}</tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

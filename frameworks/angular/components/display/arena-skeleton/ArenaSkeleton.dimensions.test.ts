@@ -9,8 +9,10 @@ import { ArenaSkeleton } from './ArenaSkeleton';
 
 useTestEnvironment();
 
+let mounted = 0;
+
 function mount(template: string) {
-  const Host = Component({ standalone: true, imports: [ArenaSkeleton], template })(class { readonly nan = NaN; readonly infinity = Infinity; });
+  const Host = Component({ selector: `skeleton-dimensions-host-${mounted++}`, standalone: true, imports: [ArenaSkeleton], template })(class { readonly nan = NaN; readonly infinity = Infinity; });
   const fixture = TestBed.createComponent(Host);
   fixture.detectChanges();
   return fixture;

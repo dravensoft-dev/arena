@@ -1,0 +1,24 @@
+{
+  "component": "ArenaMultiSelect",
+  "seed": {
+    "label": "Regions",
+    "placeholder": "Search regions",
+    "value": ["europe-west", "us-east", "asia-south"],
+    "maxVisible": 2,
+    "clearable": true,
+    "options": [
+      { "value": "europe-west", "label": "Europe West" },
+      { "value": "europe-north", "label": "Europe North" },
+      { "value": "europe-south", "label": "Europe South" },
+      { "value": "us-east", "label": "US East" },
+      { "value": "us-west", "label": "US West" },
+      { "value": "asia-south", "label": "Asia South" },
+      { "value": "asia-east", "label": "Asia East" },
+      { "value": "australia-east", "label": "Australia East" }
+    ]
+  },
+  "bind": {
+    "change": { "value": { "$field": "values" } }
+  },
+  "note": "Controlled: the value knob is the set chosen, in the order chosen, written back from the event's values."
+}

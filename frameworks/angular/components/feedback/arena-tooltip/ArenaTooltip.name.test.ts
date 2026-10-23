@@ -54,3 +54,17 @@ test('a tooltip that says something new describes as it always has', () => {
     assertNoNode(bubble.querySelector('[aria-hidden]'), 'a tooltip saying something new hides nothing');
   } finally { fixture.destroy(); }
 });
+
+test('the bubble\'s pane carries the palette of the tooltip it belongs to', () => {
+  const fixture = TestBed.createComponent(Host);
+  try {
+    fixture.detectChanges();
+    const tooltip = (fixture.nativeElement as HTMLElement).querySelector('arena-tooltip') as HTMLElement;
+    tooltip.style.setProperty('--arena-palette', 'light');
+    const trigger = tooltip.querySelector('button') as HTMLButtonElement;
+    trigger.dispatchEvent(new FocusEvent('focusin', { bubbles: true }));
+    fixture.detectChanges();
+    const pane = bubbleFor(trigger)?.closest('.cdk-overlay-pane');
+    assert.ok(pane?.classList.contains('arena-light'), 'the bubble pane did not take the palette of its trigger');
+  } finally { fixture.destroy(); }
+});

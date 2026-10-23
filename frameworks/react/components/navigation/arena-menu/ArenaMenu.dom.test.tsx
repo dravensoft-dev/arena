@@ -1,18 +1,18 @@
-/* `DropsProps` below is the load-bearing fixture: Arena's own components forward
- * the props they DECLARE and drop the rest, since the API contract flattened
- * their {...rest} spreads, so `onClick` arrives and aria-haspopup does not.
- * That is the DEFAULT usage on the demo page, where the trigger is <ArenaButton>,
- * and every other assertion here uses a raw <button> -- the one shape a
+/* `DropsProps` below is the load-bearing fixture: it stands for a consumer's own component
+ * that drops the props, so `onClick` arrives and aria-haspopup does not.
+ * Every other assertion here uses a raw <button> -- the one shape a
  * cloneElement injection reaches. It fails without the DOM guarantee. */
 import test, { afterEach } from 'node:test';
 import assert from 'node:assert/strict';
-import React from 'react';
+import React, { useState } from 'react';
 import { join } from 'node:path';
 import { readFileSync } from 'node:fs';
 import { mount, cleanup, act } from '../../../test/Harness.tsx';
+import { withIcons, domSymbols } from '../../../test/IconsHarness.tsx';
 import { assertPattern, REACT_COMPONENTS } from '../../../test/AssertPattern.tsx';
 import { isFocusable } from '../../../../../scripts/lib/core/behaviour-compliance.ts';
 import { ArenaMenu } from './ArenaMenu.tsx';
+import { ArenaPopover } from '../../feedback/arena-popover/ArenaPopover.tsx';
 
 afterEach(cleanup);
 
@@ -53,16 +53,15 @@ test('a disabled entry reports nothing', () => {
 });
 
 test('icon is a class name Arena draws, and never reaches the page as text', () => {
-  const root = mount(
+  const root = mount(withIcons(
     <ArenaMenu trigger={<button type="button">Open</button>} items={[{ label: 'View logs', icon: 'ph-bold ph-scroll' }]} />,
-  );
+  ));
   const panel = open(root);
-  const glyph = panel.querySelector('i');
-  assert.notEqual(glyph, null, 'no <i> was drawn for the entry icon');
-  const drawn = glyph!.getAttribute('class')!.split(/\s+/);
-  assert.ok(drawn.includes('ph-bold') && drawn.includes('ph-scroll'),
-    'the Phosphor class the consumer named is drawn verbatim rather than re-derived');
-  assert.ok(drawn.includes('arena-menu__icon'), 'and the manifest\'s icon slot sizes it');
+  const glyph = panel.querySelector('svg');
+  assert.notEqual(glyph, null, 'no svg was drawn for the entry icon');
+  assert.deepEqual(domSymbols(panel), ['bold-scroll'],
+    'the Phosphor class the consumer named is drawn as its sprite symbol rather than re-derived');
+  assert.ok(glyph!.parentElement!.getAttribute('class')!.split(/\s+/).includes('arena-menu__icon'), 'inside the manifest\'s icon slot, which sizes it');
   assert.equal(glyph!.getAttribute('aria-hidden'), 'true');
   assert.equal(panel.textContent, 'View logs', 'the icon class name was drawn as text');
 });
@@ -187,14 +186,72 @@ test('a row takes one of three branches of the item recipe, and hover is a modif
 
 const SHEET = new URL('../../../../tailwind/consume/components/navigation/arena-menu/ArenaMenu.styles.generated.css', import.meta.url);
 
-test('an end-aligned panel carries its alignment and the sheet gives it left: auto after the in-flow left: 0', () => {
-  const root = mount(<ArenaMenu align="end" trigger={<button type="button">Open</button>} items={[{ label: 'Rename' }]} />);
-  assert.equal(open(root).getAttribute('data-arena-align'), 'end');
-  const start = mount(<ArenaMenu trigger={<button type="button">Open</button>} items={[{ label: 'Rename' }]} />);
-  assert.equal(open(start).getAttribute('data-arena-align'), 'start');
+test('the sheet positions the panel at neither edge, because the layer places it', () => {
   const css = readFileSync(SHEET, 'utf8');
-  const inFlow = css.indexOf('.arena-menu__panel:where(:not([data-arena-anchored]))');
-  const end = css.indexOf('.arena-menu__panel:where([data-arena-align="end"])');
-  assert.ok(inFlow !== -1 && end > inFlow, 'the anchored-false left rule would take precedence over the alignment rule');
-  assert.match(css.slice(end, css.indexOf('}', end)), /left: auto/);
+  assert.doesNotMatch(css, /data-arena-anchored|data-arena-align/, 'the sheet still carries a rule that positions the panel in flow');
+  assert.doesNotMatch(css, /\.arena-menu__panel[^{]*\{[^}]*(?:^|[\s;])(?:position|left|right|top|bottom|inset|margin-top|transform|translate):/m,
+    'a panel rule positions the panel, which the layer does by script');
+});
+
+test('the open panel is a manual popover, shown and placed by script', () => {
+  const root = mount(<ArenaMenu trigger={<button type="button">Open</button>} items={[{ label: 'Rename' }]} />);
+  const panel = open(root);
+  assert.equal(panel.getAttribute('popover'), 'manual');
+  assert.equal(panel.style.position, 'fixed', 'the panel was left in flow, where an overflow: hidden ancestor clips it');
+});
+
+test('Tab from the last row closes the menu and returns focus to the trigger', () => {
+  const root = mount(<ArenaMenu trigger={<button type="button">Open</button>} items={[{ label: 'Rename' }, { label: 'Archive' }]} />);
+  const rows = [...open(root).querySelectorAll<HTMLElement>('[role="menuitem"]')];
+  rows[1]!.focus();
+  assert.equal(press(rows[1]!, 'Tab').defaultPrevented, true);
+  assert.equal(root.querySelector('[role="menu"]'), null);
+  assert.equal(document.activeElement, root.querySelector('button'));
+});
+
+test('a menu inside a popover closes alone on Escape, and the popover stays', () => {
+  function Host() {
+    const [shown, setShown] = useState(false);
+    return (
+      <ArenaPopover label="Filters" open={shown} onOpenChange={setShown} trigger={<button type="button">Filters</button>}>
+        <ArenaMenu trigger={<button type="button">More</button>} items={[{ label: 'Reset' }]} />
+      </ArenaPopover>
+    );
+  }
+  const root = mount(<Host />);
+  act(() => { root.querySelector<HTMLElement>('button')!.click(); });
+  const dialog = () => document.querySelector('[role="dialog"]');
+  const more = dialog()!.querySelector<HTMLElement>('button')!;
+  act(() => { more.click(); });
+  press(document.querySelector<HTMLElement>('[role="menuitem"]')!, 'Escape');
+  assert.equal(document.querySelector('[role="menu"]'), null, 'Escape did not close the menu');
+  assert.ok(dialog(), 'Escape closed the popover under the menu as well');
+  assert.equal(document.activeElement, more, 'closing the menu did not return focus to its own trigger');
+  press(more, 'Escape');
+  assert.equal(dialog(), null, 'the second Escape did not reach the popover');
+});
+
+test('a press inside a menu opened from a popover is inside the popover too', () => {
+  function Host() {
+    const [shown, setShown] = useState(false);
+    return (
+      <ArenaPopover label="Filters" open={shown} onOpenChange={setShown} trigger={<button type="button">Filters</button>}>
+        <ArenaMenu trigger={<button type="button">More</button>} items={[{ label: 'Reset' }]} />
+      </ArenaPopover>
+    );
+  }
+  const root = mount(<Host />);
+  act(() => { root.querySelector<HTMLElement>('button')!.click(); });
+  act(() => { document.querySelector('[role="dialog"]')!.querySelector<HTMLElement>('button')!.click(); });
+  act(() => { document.querySelector('[role="menuitem"]')!.dispatchEvent(new MouseEvent('mousedown', { bubbles: true })); });
+  assert.ok(document.querySelector('[role="dialog"]'), 'a press on a row of the nested menu closed the popover');
+  assert.ok(document.querySelector('[role="menu"]'), 'a press on a row of the nested menu closed the menu');
+});
+
+test('a shortcut hint is a kbd, so a reader meets keyboard input rather than loose text', () => {
+  const root = mount(<ArenaMenu trigger={<button type="button">Open</button>} items={[{ label: 'Duplicate', shortcut: '⌘D' }]} />);
+  const panel = open(root);
+  const hint = panel.querySelector<HTMLElement>('[data-arena-part="menu.shortcut"]')!;
+  assert.equal(hint.tagName, 'KBD', 'the hint is printed as a span, the same fact the palette and ArenaKbd print as a kbd');
+  assert.equal(hint.textContent, '⌘D', 'the string is printed as given, never split into keys');
 });

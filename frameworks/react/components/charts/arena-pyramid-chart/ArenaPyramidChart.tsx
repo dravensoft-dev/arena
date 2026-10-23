@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useArenaContainerWidth } from '../../../UseArenaContainerWidth.ts';
-import { ARENA_CHART_HEIGHT, ARENA_INK_MUTED, arenaSrOnly, arenaValueWriter } from '../../../DataVisuals.ts';
+import { ARENA_CHART_HEIGHT, ARENA_INK_MUTED, arenaSrOnly, arenaValueWriter, arenaCatRotate } from '../../../DataVisuals.ts';
 import {
   arenaLinearScale, arenaBandScale, arenaBandCenter, arenaBandIndex, arenaBandMark, arenaScaleValue,
 } from '../ChartScales.ts';
@@ -14,7 +14,7 @@ import { arenaTooltipAnchor } from '../ChartTooltip.ts';
 import { arenaCursorHandles, arenaCursorStep, arenaPointerClears, arenaPointerUpdates } from '../ChartPointer.ts';
 import { chartBarGap, chartBarRadius } from '../../../Tokens.generated.js';
 
-import type { ArenaNumberFormat, ArenaSeries } from '../../../Api.generated';
+import type { ArenaCatSlot, ArenaNumberFormat, ArenaSeries } from '../../../Api.generated';
 import { useArenaLocale } from '../../../ArenaLocale.ts';
 import { arenaPhrase } from '../../../Phrase.ts';
 import type { ArenaPyramidChartClass } from '../../../Vocabulary.generated.ts';
@@ -26,13 +26,16 @@ export interface ArenaPyramidChartProps {
   className?: ArenaPyramidChartClass;
 
 
-  /** One label per band, in the same order as both series' `values`, running down the left edge. On a population pyramid these are the age brackets, oldest first or youngest first as the data is given: the chart does not reorder them, because which end is the top is a decision about the population and not about the drawing. */
+  /** One label per band, in the same order as both series' `values`, running down the left edge. On a population pyramid the labels are the age brackets, oldest first or youngest first as the data is given. The chart does not reorder them, because which end is the top is a decision about the population and not about the drawing. */
   labels: readonly string[];
 
-  /** Exactly two series, one for each side of the centre line, in order: the first is drawn to the left and the second to the right. Both carry counts rather than signed values, and the chart negates the first when it draws it, so the accessible table reads the numbers that were passed and the picture reads the shape they make. A third series has nowhere to go and warns; a single one is a horizontal bar chart and should be one. */
+  /** Exactly two series, one for each side of the centre line, in order: the first is drawn to the left and the second to the right. Both carry counts rather than signed values, and the chart negates the first when it draws it. The accessible table therefore reads the numbers that were passed, and the picture reads the shape they make. A third series has nowhere to go and warns; a single one is a horizontal bar chart and should be one. */
   series: readonly ArenaSeries[];
 
-  /** Names the chart for its accessible name and for the caption of its data table. This is the CHART's name, not a series': a series names itself. Required and guarded rather than defaulted, because a fallback of the chart TYPE satisfies roles.label mechanically and tells a screen-reader user nothing, so two charts on one page announce identically. */
+  /** The ramp slot the first series takes when it names no colour of its own. Each later series takes the next slot, and after the last slot the count starts again at the first. A series' `colorId` or `colorIds` keeps the slot it names. Absent, 1. */
+  colorStart?: ArenaCatSlot;
+
+  /** Names the chart for its accessible name and for the caption of its data table. The CHART gets the name, and a series names itself. Required and guarded rather than defaulted, because a fallback of the chart TYPE satisfies roles.label mechanically and tells a screen-reader user nothing. Two charts on one page would announce identically. */
   label: string;
 
   /** Appended verbatim to every number the chart draws: the axis ticks, the tooltip and the accessible table. The ticks carry the magnitude, never the minus sign the left side is drawn with, because both sides count upward from the centre. */
@@ -44,7 +47,7 @@ export interface ArenaPyramidChartProps {
   /** How each number is written before the prefix and suffix are added: which locale, how many fraction digits, whether thousands are grouped, whether large numbers are compacted. Absent, the raw JavaScript number, which is what this chart drew before the member existed. */
   valueFormat?: ArenaNumberFormat;
 
-  /** The plot's height in px, the --chart-height token by default. It is the axis the bands run down, so a pyramid of many brackets wants more of it: pass the room the data needs rather than letting the bands thin out. A number rather than a dimension string, because the chart does arithmetic with it to place every mark. */
+  /** The plot's height in px, the --chart-height token by default. The height is the axis the bands run down, so a pyramid of many brackets wants more of it. Pass the room the data needs rather than letting the bands thin out. A number rather than a dimension string, because the chart does arithmetic with it to place every mark. */
   height?: number;
 }
 
@@ -52,7 +55,7 @@ export interface ArenaPyramidChartProps {
 const arenaPyramidChartStyles = arenaStyles(manifest);
 
 export function ArenaPyramidChart({ className, 
-  labels, series, label, valueSuffix, valuePrefix, valueFormat,
+  labels, series, colorStart = 1, label, valueSuffix, valuePrefix, valueFormat,
   height = ARENA_CHART_HEIGHT,
 }: ArenaPyramidChartProps) {
   const locale = useArenaLocale();
@@ -75,7 +78,7 @@ export function ArenaPyramidChart({ className,
   const xScale = arenaLinearScale(domain.min, domain.max, box.x, box.x + box.w);
   const bands = arenaBandScale(n, box.y, box.h, chartBarGap);
   const axis = arenaAxisModelX(xScale, domain, away);
-  const colors = sides.map((one, s) => arenaSeriesColors(one, n, s + 1));
+  const colors = sides.map((one, s) => arenaSeriesColors(one, n, arenaCatRotate(colorStart, s), 'ArenaPyramidChart', colorStart));
   const table = arenaChartTable(locale.chartTableCategory, sides, labels, fmt);
 
   const name = arenaPhrase(locale.pyramidChartName, { label });
@@ -95,7 +98,7 @@ export function ArenaPyramidChart({ className,
   };
 
   return (
-    <div className={arenaClassName('ArenaPyramidChart', styles.frame(), className)} ref={ref} data-arena-part={manifest.parts.frame} {...styles.$data.frame()} style={{ height }}>
+    <div className={arenaClassName('ArenaPyramidChart', styles.frame(), className, manifest.vocabulary)} ref={ref} data-arena-part={manifest.parts.frame} {...styles.$data.frame()} style={{ height }}>
       <div tabIndex={0} role="group" aria-label={name} onKeyDown={onKeyDown}
         style={{ display: 'block', outlineOffset: 'var(--focus-offset)' }}>
       <svg width="100%" height={strip.plotH} role="img" aria-label={name}
@@ -143,7 +146,7 @@ export function ArenaPyramidChart({ className,
         <div aria-hidden="true" className={styles.legend()} data-arena-part={manifest.parts.legend} {...styles.$data.legend()} style={{ height: strip.stripH }}>
           {sides.map((one, s) => (
             <span key={s} className={styles.legendItem()} data-arena-part={manifest.parts.legendItem} {...styles.$data.legendItem()}>
-              <span className={arenaPyramidChartStyles(arenaSwatchHue(one, 0, s + 1)).legendSwatch()} data-arena-part={manifest.parts.legendSwatch} {...arenaPyramidChartStyles(arenaSwatchHue(one, 0, s + 1)).$data.legendSwatch()} />
+              <span className={arenaPyramidChartStyles(arenaSwatchHue(one, 0, arenaCatRotate(colorStart, s), colorStart)).legendSwatch()} data-arena-part={manifest.parts.legendSwatch} {...arenaPyramidChartStyles(arenaSwatchHue(one, 0, arenaCatRotate(colorStart, s), colorStart)).$data.legendSwatch()} />
               <span className={styles.legendLabel()} data-arena-part={manifest.parts.legendLabel} {...styles.$data.legendLabel()}>{one.label}</span>
             </span>
           ))}
@@ -163,15 +166,17 @@ export function ArenaPyramidChart({ className,
         </div>
       )}
 
-      <table style={arenaSrOnly}>
-        <caption>{name}</caption>
-        <thead><tr>{table.columns.map((column, i) => <th key={i}>{column}</th>)}</tr></thead>
-        <tbody>
-          {table.rows.map((row, i) => (
-            <tr key={i}><th scope="row">{row.header}</th>{row.cells.map((cell, j) => <td key={j}>{cell}</td>)}</tr>
-          ))}
-        </tbody>
-      </table>
+      <div style={arenaSrOnly}>
+        <table>
+          <caption>{name}</caption>
+          <thead><tr>{table.columns.map((column, i) => <th key={i}>{column}</th>)}</tr></thead>
+          <tbody>
+            {table.rows.map((row, i) => (
+              <tr key={i}><th scope="row">{row.header}</th>{row.cells.map((cell, j) => <td key={j}>{cell}</td>)}</tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

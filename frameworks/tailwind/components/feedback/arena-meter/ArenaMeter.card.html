@@ -1,0 +1,47 @@
+<!-- @dsCard group="Tailwind" viewport="760x330" name="ArenaMeter" subtitle="Three standings, the accent with no thresholds, and three sizes, rendered from ArenaMeter.manifest.json" -->
+<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../../../../intro/styles.css">
+<link rel="stylesheet" href="../../../consume/Preflight.generated.css">
+<link rel="stylesheet" href="../../../consume/components/feedback/arena-meter/ArenaMeter.styles.generated.css">
+<link rel="stylesheet" href="../../../consume/vocabulary/Accent.generated.css">
+<link rel="stylesheet" href="../../../consume/vocabulary/Size.generated.css">
+<link rel="stylesheet" href="../../../Specimen.css">
+</head><body><div id="root"></div>
+<script type="module">
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
+
+const manifest = await (await fetch('./ArenaMeter.manifest.json')).json();
+const WORD = { optimum: 'Good', fair: 'Fair', poor: 'Poor' };
+
+function meter({ label, value, reading, standing = 'none', accent = 'primary', size = 'md', showLabel = true }) {
+  const c = arenaClassesFor(manifest, { standing });
+  const d = arenaSlotDataFor(manifest, { standing });
+  const root = el('div', { class: `${c.root} arena-size-${size} arena-accent-${accent}`, ...d.root });
+  root.style.width = '260px';
+  const head = el('div', { class: c.head, ...d.head });
+  if (showLabel) head.append(el('span', { class: c.label, ...d.label, text: label }));
+  head.append(el('span', { class: c.value, ...d.value, text: reading ?? String(value) }));
+  if (standing !== 'none') head.append(el('span', { class: c.standing, ...d.standing, text: WORD[standing] }));
+  root.append(head);
+  const track = el('div', {
+    class: c.track, ...d.track, role: 'meter', 'aria-label': label,
+    'aria-valuenow': value, 'aria-valuemin': 0, 'aria-valuemax': 100,
+    'aria-valuetext': standing === 'none' ? (reading ?? String(value)) : `${reading ?? value}, ${WORD[standing]}`,
+  });
+  const fill = el('span', { class: c.fill, ...d.fill });
+  fill.style.width = `${value}%`;
+  track.append(fill);
+  root.append(track);
+  return root;
+}
+
+mountSpecimen({ sections: [
+  section('Standings: a word beside the reading and a hue on the fill, never the hue alone', [
+    meter({ label: 'Storage used', value: 30, reading: '30 of 100 GB', standing: 'optimum' }),
+    meter({ label: 'Storage used', value: 72, reading: '72 of 100 GB', standing: 'fair' }),
+    meter({ label: 'Storage used', value: 91, reading: '91 of 100 GB', standing: 'poor' }),
+  ]),
+  section('No thresholds: the fill paints the accent and no word is drawn', [meter({ label: 'Seats taken', value: 64 }), meter({ label: 'Seats taken', value: 64, accent: 'gold' })]),
+  section('Sizes move the track alone', [meter({ label: 'Small', value: 60, size: 'sm' }), meter({ label: 'Medium', value: 60 }), meter({ label: 'Large', value: 60, size: 'lg' })]),
+]});
+</script></body></html>

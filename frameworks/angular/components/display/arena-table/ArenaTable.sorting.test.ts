@@ -7,7 +7,7 @@
 import { useTestEnvironment } from '../../../test/TestbedEnv';
 useTestEnvironment();
 
-import test from 'node:test';
+import test, { after, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { Component, signal } from '@angular/core';
 import { TestBed, type ComponentFixture } from '@angular/core/testing';
@@ -15,6 +15,14 @@ import type { ArenaTableColumn, ArenaTableSort } from '../../../Api.generated';
 import { ArenaTable } from './ArenaTable';
 import { ArenaTableRow } from '../arena-table-row/ArenaTableRow';
 import { ArenaTableCell } from '../arena-table-cell/ArenaTableCell';
+
+const root = document.documentElement;
+before(() => {
+  root.style.setProperty('--bp-md', '768px');
+});
+after(() => {
+  root.style.removeProperty('--bp-md');
+});
 
 const LABEL = 'Recent deployments';
 const COLUMNS: ArenaTableColumn[] = [

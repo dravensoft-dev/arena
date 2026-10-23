@@ -33,10 +33,12 @@ export const node = {
   feeds: [
     'check:angular-demos',
     'check:focus-trap',
-    'check:pixel-parity',
+    'check:anchoring',
+    'check:pixel-parity', 'check:palette-islands',
     'check:target-size',
     'check:playgrounds',
     'build:site',
+    'check:site',
   ],
 };
 

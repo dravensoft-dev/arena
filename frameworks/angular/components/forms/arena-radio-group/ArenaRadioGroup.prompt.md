@@ -20,7 +20,7 @@ the accessible name and the column layout, so there is no wrapper inside it.
 | `ariaLabel*` | primitive | `string` |  | Names the group: what is being chosen, not that it is a choice. Required, and guarded at runtime: a radiogroup with no accessible name is announced unlabelled, and each option's own label says what that option is, never what the set is for. "Deployment target", not "Options". Distinct from `name`, which is the radios' shared form name and never reaches a screen reader. |
 | `content` | slot |  |  | The Radios. An option never holds a selected state of its own -- the group owns it, and how the two are wired is each layer's business rather than this contract's. |
 | `value` | primitive | `string` |  | The selected option's value. |
-| `name` | primitive | `string` |  | Shared name for the underlying radios; generated when omitted. |
+| `name` | primitive | `string` |  | Shared name for the underlying radios; generated when omitted or blank. |
 | `disabled` | primitive | `boolean` | `false` | Whether the whole group is unavailable. Every radio it holds is disabled whatever its own disabled says, and the group reflects aria-disabled. |
 | `change` | event | `string` |  | A different option was chosen; carries its value. |
 

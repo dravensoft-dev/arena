@@ -30,7 +30,7 @@ because a slot means the same thing in every chart on the screen.
 
 ## The page it assumes
 
-A rail at the sidebar width and a board taking the rest, inside `container-max` with a narrow
+A rail in a column of the project's own width and a board taking the rest, inside `container-max` with a narrow
 gutter. The board is a stat row on `auto-fit`, then a panel grid of **three fixed columns** falling
 to two under the large breakpoint, with the widest panel spanning the row.
 

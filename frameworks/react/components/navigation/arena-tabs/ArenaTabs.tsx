@@ -4,7 +4,7 @@ import manifest from './ArenaTabs.classes.generated.ts';
 
 export interface ArenaTabsProps {
 
-  /** The tabs. Which one is selected, which is the strip's tab stop, the ids wiring each to its panel and how the choice is reported are the strip's to settle, and none of it is a member here. EVERY tab's content mounts: one panel per tab is rendered and the inactive ones are hidden, because each tab's aria-controls must reference a tabpanel that exists. So a panel's side effects run immediately rather than on first selection. */
+  /** The tabs. Which one is selected, which is the strip's tab stop, the ids wiring each to its panel and how the choice is reported are the strip's to settle. None of it is a member here. EVERY tab's content mounts: one panel per tab is rendered and the inactive ones are hidden, because each tab's aria-controls must reference a tabpanel that exists. So a panel's side effects run immediately rather than on first selection. */
   children?: React.ReactNode;
 
   /** The selected tab's value. Omit and pass `defaultValue` to let it govern itself. */
@@ -14,7 +14,7 @@ export interface ArenaTabsProps {
   defaultValue?: string;
 
   /** A different tab was chosen; carries its value. */
-  onChange?: (value: string) => void;
+  onValueChange?: (value: string) => void;
 }
 
 
@@ -32,7 +32,7 @@ interface ArenaTabInjected {
 
 const arenaTabsStyles = arenaStyles(manifest);
 
-export function ArenaTabs({ children, value, defaultValue, onChange }: ArenaTabsProps) {
+export function ArenaTabs({ children, value, defaultValue, onValueChange }: ArenaTabsProps) {
 
   const base = `tabs-${useId().replace(/:/g, '')}`;
 
@@ -44,7 +44,7 @@ export function ArenaTabs({ children, value, defaultValue, onChange }: ArenaTabs
   const at = items.findIndex((c) => c.props.value === active);
   const stop = at === -1 ? 0 : at;
   const listRef = useRef<HTMLDivElement | null>(null);
-  const select = (v: string) => { setInternal(v); onChange && onChange(v); };
+  const select = (v: string) => { setInternal(v); onValueChange && onValueChange(v); };
 
   const tabId = (i: number) => `${base}-tab-${i}`;
   const panelId = (i: number) => `${base}-panel-${i}`;

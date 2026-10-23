@@ -4,10 +4,10 @@
  * what `bun run check` gets. A gate whose runtime dependency is missing exits 2 and is reported
  * SKIP, making the run INCOMPLETE. Each step prints as one block when it ends, and the summary
  * lists the steps in the order planned with what each took, so --jobs=1 is the serial run.
- * testStep() is the single authority for how the suites are invoked: --preload installs
- * happy-dom PROCESS-wide and replaces Bun's own fetch, which turns static-server.test.ts's fetch
- * assertion into a cross-origin failure, so scripts/ rides a DOM-free invocation. Read the args
- * here, never reconstruct them. */
+ * testStep() is the single authority for how the suites are invoked, so read its args and never
+ * reconstruct them: --preload installs happy-dom PROCESS-wide and replaces Bun's fetch, so
+ * scripts/ rides a DOM-free invocation. A test step runs in a temp root of its own and fails when
+ * that root holds anything as it ends. */
 
 import { availableParallelism, freemem } from 'node:os';
 import { fileURLToPath } from 'node:url';
@@ -24,6 +24,8 @@ import {
   type Finished, type Outcome, type Pool, type Slots, type Step,
 } from '../../graph/scheduler.ts';
 import { stepBlock } from '../../graph/step-block.ts';
+import { leftoverLine, suiteTmp } from '../../lib/arena/suite-tmp.ts';
+import { deadline, type Deadline } from '../../lib/arena/deadline.ts';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const checkRoot = join(here, '..');
@@ -33,7 +35,7 @@ export { DOMAINS };
 export type Gate = { name: string; file: string; pool?: Pool | undefined; cost?: number | undefined };
 export type TestStep = { name: string; args: string[]; pool?: Pool | undefined; cost?: number | undefined; after?: string[] | undefined };
 export type Result = { name: string; status: 'pass' | 'fail' | 'skip' | 'cached'; note?: string | undefined; ms?: number | undefined };
-export type Planned = { name: string; command: string; args: string[]; pool?: Pool | undefined; cost?: number | undefined; after?: string[] | undefined; reason?: string | null | undefined };
+export type Planned = { name: string; command: string; args: string[]; pool?: Pool | undefined; cost?: number | undefined; after?: string[] | undefined; reason?: string | null | undefined; scratch?: boolean | undefined };
 
 export const GATES: Gate[] = [
   { name: 'check:docs', file: 'arena/check-docs.ts' },
@@ -57,6 +59,7 @@ export const GATES: Gate[] = [
   { name: 'check:catalogue', file: 'core/check-catalogue.ts' },
   { name: 'check:style-plugin', file: 'core/check-style-plugin.ts' },
   { name: 'check:style-plugin-coverage', file: 'core/check-style-plugin-coverage.ts' },
+  { name: 'check:plugin-css', file: 'core/check-plugin-css.ts' },
   { name: 'check:role-contract', file: 'core/check-role-contract.ts' },
   { name: 'check:compat-aliases', file: 'core/check-compat-aliases.ts' },
   { name: 'check:polarity', file: 'core/check-polarity.ts' },
@@ -112,12 +115,15 @@ export const GATES: Gate[] = [
   { name: 'check:script-types', file: 'arena/check-script-types.ts', pool: 'compiler', cost: 13.5 },
   { name: 'check:script-reach', file: 'arena/check-script-reach.ts' },
   { name: 'check:focus-trap', file: 'arena/check-focus-trap.ts', pool: 'browser', cost: 4.1 },
-  { name: 'check:target-size', file: 'arena/check-target-size.ts', pool: 'browser', cost: 11.9 },
-  { name: 'check:pixel-parity', file: 'arena/check-pixel-parity.ts', pool: 'browser', cost: 34 },
+  { name: 'check:anchoring', file: 'arena/check-anchoring.ts', pool: 'browser', cost: 6.3 },
+  { name: 'check:target-size', file: 'arena/check-target-size.ts', pool: 'browser', cost: 20.3 },
+  { name: 'check:pixel-parity', file: 'arena/check-pixel-parity.ts', pool: 'browser', cost: 52 },
   { name: 'check:proximity', file: 'arena/check-proximity.ts', pool: 'browser', cost: 10.2 },
+  { name: 'check:palette-islands', file: 'arena/check-palette-islands.ts', pool: 'browser', cost: 4.7 },
   { name: 'check:shared-arithmetic', file: 'arena/check-shared-arithmetic.ts' },
   { name: 'check:packages', file: 'arena/check-packages.ts' },
-  { name: 'check:consumer', file: 'arena/check-consumer.ts' },
+  { name: 'check:consumer', file: 'arena/check-consumer.ts', pool: 'browser', cost: 15.3 },
+  { name: 'check:weight', file: 'arena/check-weight.ts' },
   { name: 'check:exports', file: 'arena/check-exports.ts' },
   { name: 'check:classes', file: 'arena/check-classes.ts' },
   { name: 'check:angular-demos', file: 'angular/check-angular-demos.ts' },
@@ -167,11 +173,22 @@ export function parseCheckArgs(argv: string[]) {
 
 export const ANGULAR_EMIT: TestStep = { name: 'build (ngc emit of the Angular layer)', args: ['run', 'build:angular-tests'], pool: 'compiler', cost: 21.2 };
 
+export const TEST_CASE: Deadline = deadline('check-all:test-case', 30_000,
+  'bun ends a case after five seconds, and under two or three heavy slots a different case of the '
+  + 'scripts suite runs past that each sweep while it passes alone in well under one; thirty seconds '
+  + 'holds a loaded host and still ends a case that hangs');
+const cased = (args: string[]) => [...args, `--timeout=${TEST_CASE.ms}`];
+
 export const SUITES: Record<string, { emit: boolean; args: string[] }> = {
-  scripts: { emit: false, args: ['test', 'scripts'] },
-  react: { emit: false, args: ['test', 'frameworks/react', '--path-ignore-patterns=**/*.dom.test.*'] },
-  'react-dom': { emit: false, args: ['test', '--preload', './frameworks/react/test/Preload.js', '.dom.test.'] },
-  angular: { emit: true, args: ['test', 'frameworks/angular/build/test'] },
+  scripts: { emit: false, args: cased(['test', 'scripts']) },
+  react: { emit: false, args: cased(['test', 'frameworks/react', '--path-ignore-patterns=**/*.dom.test.*']) },
+  'react-dom': { emit: false, args: cased(['test', '--preload', './frameworks/react/test/Preload.js', '.dom.test.']) },
+  angular: { emit: true, args: cased(['test', 'frameworks/angular/build/test']) },
+};
+
+export const JIT_SUITES: Record<string, { args: string[] }> = {
+  'angular-jit': { args: cased(['test', '--preload', './scripts/lib/angular/jit-preload.ts', 'frameworks/angular',
+    '--path-ignore-patterns=frameworks/angular/build/**', '--path-ignore-patterns=frameworks/angular/dist/**']) },
 };
 
 const suiteArgs = (name: string) => {
@@ -198,9 +215,11 @@ export function typeSteps(domains: string[]): TestStep[] {
 
 export function suiteSteps(name: string) {
   if (name === 'all') return testStep({ isBun: true, testFiles: [] });
+  const jit = JIT_SUITES[name];
+  if (jit) return [{ name: `test (${name})`, args: jit.args }];
   const suite = SUITES[name];
   if (!suite) {
-    throw new Error(`run-suite: no suite called "${name}"; it takes all, ${Object.keys(SUITES).join(', ')}`);
+    throw new Error(`run-suite: no suite called "${name}"; it takes all, ${[...Object.keys(SUITES), ...Object.keys(JIT_SUITES)].join(', ')}`);
   }
   return [...(suite.emit ? [ANGULAR_EMIT] : []), { name: `test (${name})`, args: suite.args }];
 }
@@ -274,7 +293,8 @@ export function planSteps(
     planned.push({ name, command, args: [join(checkRoot, file)], pool, cost, reason: decided?.reason ?? null });
   }
   for (const step of tests) {
-    planned.push({ name: step.name, command, args: step.args, pool: step.pool, cost: step.cost, after: step.after });
+    planned.push({ name: step.name, command, args: step.args, pool: step.pool, cost: step.cost, after: step.after,
+      ...(step.name.startsWith('test (') ? { scratch: true } : {}) });
   }
   return { kept, planned };
 }
@@ -312,7 +332,9 @@ export function block(step: { name: string; reason?: string | null | undefined }
 export async function runSteps(
   planned: Planned[],
   slots: Slots,
-  options: { signal?: AbortSignal; print?: (text: string) => void; finished?: (one: Finished) => void; cwd?: string } = {},
+  options: {
+    signal?: AbortSignal; print?: (text: string) => void; finished?: (one: Finished) => void; cwd?: string;
+  } = {},
 ) {
   const print = options.print ?? ((text: string) => { process.stdout.write(text); });
   const steps: Step[] = planned.map((one) => ({
@@ -321,9 +343,24 @@ export async function runSteps(
     cost: one.cost,
     after: one.after,
     run: async () => {
-      const ended = await childOutputAsync(one.command, one.args, { cwd: options.cwd ?? repoRoot, signal: options.signal });
-      const outcome = stepOutcome(ended);
-      print(block(one, ended.output, outcome));
+      const scratch = one.scratch ? suiteTmp() : null;
+      let ended;
+      let left: string[] = [];
+      try {
+        ended = await childOutputAsync(one.command, one.args,
+          { cwd: options.cwd ?? repoRoot, signal: options.signal, env: scratch?.env });
+        left = scratch?.left() ?? [];
+      } finally {
+        scratch?.remove();
+      }
+      let outcome = stepOutcome(ended);
+      let output = ended.output;
+      if (left.length > 0) {
+        const line = leftoverLine(one.name, left);
+        if (outcome.status === 'fail') output += `${output.endsWith('\n') || output === '' ? '' : '\n'}${line}\n`;
+        else outcome = { status: 'fail', note: line };
+      }
+      print(block(one, output, outcome));
       return outcome;
     },
   }));

@@ -1,0 +1,24 @@
+{
+  "component": "ArenaTreeView",
+  "seed": {
+    "label": "Project files",
+    "nodes": [
+      { "id": "project", "label": "Project", "icon": "ph-bold ph-folder" },
+      { "id": "src", "label": "src", "icon": "ph-bold ph-folder", "parent": "project" },
+      { "id": "components", "label": "components", "icon": "ph-bold ph-folder", "parent": "src", "disabled": true },
+      { "id": "tokens", "label": "tokens", "icon": "ph-bold ph-folder", "parent": "src" },
+      { "id": "docs", "label": "docs", "icon": "ph-bold ph-folder", "parent": "project" },
+      { "id": "button", "label": "Button.tsx", "icon": "ph-bold ph-file-code", "parent": "components" },
+      { "id": "card", "label": "Card.tsx", "icon": "ph-bold ph-file-code", "parent": "components" },
+      { "id": "colors", "label": "colors.json", "icon": "ph-bold ph-file", "parent": "tokens" },
+      { "id": "guide", "label": "guide.md", "icon": "ph-bold ph-file-text", "parent": "docs" }
+    ],
+    "expanded": { "ids": ["project", "src"] },
+    "selection": { "ids": ["tokens"] }
+  },
+  "bind": {
+    "expandedChange": "expanded",
+    "selectionChange": "selection"
+  },
+  "note": "The open set and the selection are the consumer's: the tree draws the ones it is given and reports the next ones."
+}

@@ -12,7 +12,6 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
-import { walkFiles } from '../../utils/walk-files.ts';
 import { relPosix } from '../../utils/posix-path.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import {
@@ -20,7 +19,7 @@ import {
   isImportDeclaration, isStringLiteral, type Node,
 } from 'typescript';
 import { scriptClosure } from '../../graph/script-closure.ts';
-import { jobBlocks, jobShapeProblems } from './check-portability.ts';
+import { jobBlocks, jobShapeProblems, workflowFiles } from './check-portability.ts';
 import { isPathSpecifier } from '../../utils/module-graph.ts';
 
 export const node = {
@@ -79,10 +78,6 @@ export function entryScripts(command: string, scripts: Record<string, string>) {
   };
   walk(command);
   return [...found].sort();
-}
-
-export function workflowFiles(base = root) {
-  return walkFiles(join(base, WORKFLOWS)).filter((p) => p.endsWith('.yml') || p.endsWith('.yaml'));
 }
 
 export function jobProblems(workflow: string, text: string, scripts: Record<string, string>, base = root) {

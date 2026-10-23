@@ -10,20 +10,10 @@ import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { expectedCarried } from './check-contracts-package.ts';
-import { axesOf, readFamilies } from '../../lib/tailwind/vocabulary.ts';
+import { axesOf, readFamilies, VOCABULARY_DIR, FAMILY_SUFFIX } from '../../lib/tailwind/vocabulary.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { COMPAT_ALIASES } from '../../generate/core/arena-cli/audit.ts';
 import type { ContractCandidate, TypeContract } from '../../lib/arena/contract-shapes.ts';
-
-export const node = {
-  name: 'check:contracts-neutrality',
-  reads: [
-    'contracts/design/*.json', 'contracts/api/components/*.json', 'contracts/api/types/*.json',
-    'contracts/behaviour/*.json',
-  ],
-  writes: [],
-  feeds: [],
-};
 
 export const PROSE_KEYS = new Set(['description', '$description', 'reason', 'why']);
 
@@ -208,8 +198,16 @@ export const COMPUTED = new Map<string, { reads: string; why: string }>([
     why: 'the render draws a different tree for a ring: an SVG track and arc whose offset is the percentage',
   }],
   [at('ArenaMenu', 'align'), {
-    reads: 'frameworks/angular/components/navigation/arena-menu/ArenaMenu.ts:attach()',
-    why: 'the render positions the panel from it, choosing the connected positions that line the panel up with that edge of the trigger',
+    reads: 'frameworks/react/components/navigation/arena-menu/ArenaMenu.tsx:ArenaMenu(props)',
+    why: 'the render places the panel from it, lining the panel up with that edge of the trigger before it is shown',
+  }],
+  [at('ArenaSplitButton', 'align'), {
+    reads: 'frameworks/react/components/forms/arena-split-button/ArenaSplitButton.tsx:ArenaSplitButton(props)',
+    why: 'the render hands it to the menu it composes, which lines the panel up with that edge of the whole split before it is shown',
+  }],
+  [at('ArenaPopover', 'align'), {
+    reads: 'frameworks/react/components/feedback/arena-popover/ArenaPopover.tsx:ArenaPopover(props)',
+    why: 'the render places the panel from it, lining the panel up with that edge of the trigger before it is shown',
   }],
   [at('ArenaTextarea', 'rows'), {
     reads: 'frameworks/react/components/forms/arena-textarea/ArenaTextarea.tsx:ArenaTextarea(props)',
@@ -235,11 +233,26 @@ export const COMPUTED = new Map<string, { reads: string; why: string }>([
     reads: 'frameworks/react/components/feedback/arena-dialog/ArenaDialog.tsx:DialogFrame(props)',
     why: 'the render compares the measured container with the breakpoint it names and fills the viewport below it',
   }],
+  [at('ArenaSlider', 'orientation'), {
+    reads: 'frameworks/react/components/forms/arena-slider/ArenaSlider.tsx:ArenaSlider(props)',
+    why: 'the render writes aria-orientation on each thumb and reads a pointer along the axis it names, so the member changes what the slider says and does',
+  }],
   [at('ArenaBadge', 'dot'), {
     reads: 'frameworks/react/components/display/arena-badge/ArenaBadge.tsx:ArenaBadge(props)',
     why: 'the render adds the dot element only when it is set',
   }],
 ]);
+
+export const node = {
+  name: 'check:contracts-neutrality',
+  reads: [
+    'contracts/design/*.json', 'contracts/api/components/*.json', 'contracts/api/types/*.json',
+    'contracts/behaviour/*.json', `${VOCABULARY_DIR}/**/*${FAMILY_SUFFIX}`,
+    ...new Set([...COMPUTED.values()].map(({ reads }) => reads.split(':')[0] as string)),
+  ],
+  writes: [],
+  feeds: [],
+};
 
 export const NOT_GEOMETRY = new Map<string, string>([
   [at('ArenaInput', 'min'), 'the lower bound of the value a number or date input accepts, which the browser validates'],

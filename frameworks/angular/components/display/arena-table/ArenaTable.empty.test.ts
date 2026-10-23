@@ -1,11 +1,19 @@
 import { useTestEnvironment } from '../../../test/TestbedEnv';
 useTestEnvironment();
-import test from 'node:test';
+import test, { after, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import type { ArenaTableColumn } from '../../../Api.generated';
 import { ArenaTable } from './ArenaTable';
+
+const root = document.documentElement;
+before(() => {
+  root.style.setProperty('--bp-md', '768px');
+});
+after(() => {
+  root.style.removeProperty('--bp-md');
+});
 
 @Component({
   standalone: true, imports: [ArenaTable],

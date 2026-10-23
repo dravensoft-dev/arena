@@ -6,7 +6,7 @@
 import { useTestEnvironment } from './TestbedEnv';
 useTestEnvironment();
 
-import test from 'node:test';
+import test, { after, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -18,7 +18,18 @@ import { ArenaTable } from '../components/display/arena-table/ArenaTable';
 import { ArenaCalendar } from '../components/display/arena-calendar/ArenaCalendar';
 import { ArenaDialog } from '../components/feedback/arena-dialog/ArenaDialog';
 import { ArenaBulkActionBar } from '../components/navigation/arena-bulk-action-bar/ArenaBulkActionBar';
+import { ArenaFilterBar } from '../components/navigation/arena-filter-bar/ArenaFilterBar';
 import { ArenaPageHead } from '../components/navigation/arena-page-head/ArenaPageHead';
+
+const root = document.documentElement;
+before(() => {
+  root.style.setProperty('--bp-md', '768px');
+  root.style.setProperty('--bp-sm', '480px');
+});
+after(() => {
+  root.style.removeProperty('--bp-md');
+  root.style.removeProperty('--bp-sm');
+});
 
 type Measured = { slot: string | null; decides: readonly string[]; why: string };
 const { MEASURED } = await import(pathToFileURL(join(CHECKS, 'arena', 'check-measured-box.ts')).href) as
@@ -28,7 +39,7 @@ const { kebab } = await import(pathToFileURL(join(UTILS, 'case.ts')).href) as { 
 @Component({ standalone: true, imports: [ArenaTable], template: `<arena-table label="Orders" [columns]="[{ header: 'Order' }]" />` })
 class TableHost {}
 
-@Component({ standalone: true, imports: [ArenaCalendar], template: '<arena-calendar />' })
+@Component({ selector: 'measured-box-calendar-host', standalone: true, imports: [ArenaCalendar], template: '<arena-calendar />' })
 class CalendarHost {}
 
 @Component({ standalone: true, imports: [ArenaDialog], template: '<arena-dialog [open]="true" title="Rename" />' })
@@ -40,9 +51,12 @@ class BarHost { actions = [{ id: 'archive', label: 'Archive' }]; }
 @Component({ standalone: true, imports: [ArenaPageHead], template: '<arena-page-head title="Orders" />' })
 class HeadHost {}
 
+@Component({ selector: 'measured-box-filter-bar-host', standalone: true, imports: [ArenaFilterBar], template: '<arena-filter-bar label="Order filters"><select aria-label="Status"></select></arena-filter-bar>' })
+class FilterBarHost {}
+
 const MOUNTS: Record<string, Type<unknown>> = {
   ArenaTable: TableHost, ArenaCalendar: CalendarHost, ArenaDialog: DialogHost,
-  ArenaBulkActionBar: BarHost, ArenaPageHead: HeadHost,
+  ArenaBulkActionBar: BarHost, ArenaPageHead: HeadHost, ArenaFilterBar: FilterBarHost,
 };
 
 const slotClass = (name: string, slot: string) => `arena-${kebab(name.replace(/^Arena/, ''))}__${kebab(slot)}`;

@@ -1,11 +1,13 @@
 import {
-  chartHeight, chartPadTop, chartPadRight, chartPadBottom, chartPadLeft, catSlots,
+  chartHeight, chartPadTop, chartPadRight, chartPadBottom, chartPadLeft, catSlots, heatSteps,
   tintArea, tintSoft, tintEdge,
 } from './Tokens.generated';
 import type { ArenaNumberFormat, ArenaSeriesTone, ArenaTone } from './Api.generated';
 import { arenaWarnOnce } from './WarnOnce';
 
 export const ARENA_CAT_SLOTS = catSlots;
+
+export const ARENA_HEAT_STEPS = heatSteps;
 
 export const ARENA_CHART_HEIGHT = chartHeight;
 
@@ -24,6 +26,10 @@ export function arenaCatIndex(slot: number): number {
 
 export function arenaCatColor(slot: number): string {
   return `var(--color-cat-${arenaCatIndex(slot)})`;
+}
+
+export function arenaCatRotate(start: number, position: number): number {
+  return ((arenaCatIndex(start) - 1 + position) % ARENA_CAT_SLOTS) + 1;
 }
 
 export function arenaCatSlotFor(key: string): number {
@@ -69,6 +75,10 @@ export function arenaToneColor(tone: ArenaTone): string {
   return TONE_VARS[tone];
 }
 
+const INVALID_LOCALE = (locale: string | undefined): string => `number format: the locale "${locale}" is not a tag Intl accepts,`
+  + ' so every number written with it falls back to the raw JavaScript one. A chart\'s ticks, a field\'s value and a'
+  + ' readout all read differently from the text beside them until it is a BCP-47 tag.';
+
 export interface ArenaValueWriterOptions {
   prefix?: string;
   suffix?: string;
@@ -92,11 +102,25 @@ export function arenaValueWriter({ prefix, suffix, format }: ArenaValueWriterOpt
   try {
     intl = new Intl.NumberFormat(format.locale, options);
   } catch {
-    arenaWarnOnce(`chart: valueFormat.locale "${format.locale}" is not a tag Intl accepts, so every number`
-      + ' the chart writes falls back to the raw JavaScript one. A tick, a tooltip and the accessible'
-      + ' table all read differently from the table beside them until it is a BCP-47 tag.');
+    arenaWarnOnce(INVALID_LOCALE(format.locale));
   }
   return (value) => `${head}${intl ? intl.format(value) : value}${tail}`;
+}
+
+export function arenaPercentWriter(format?: ArenaNumberFormat): (ratio: number) => string {
+  const raw = (ratio: number): string => `${Math.round(ratio * 1000) / 10}%`;
+  if (!format) return raw;
+  try {
+    const intl = new Intl.NumberFormat(format.locale, { style: 'percent', maximumFractionDigits: 1 });
+    return (ratio) => intl.format(ratio);
+  } catch {
+    arenaWarnOnce(INVALID_LOCALE(format.locale));
+    return raw;
+  }
+}
+
+export function arenaHeatFill(step: number): string {
+  return `var(--heat-step-${step})`;
 }
 
 export function arenaPlotWidth(available: number, count: number, minPointSpacing: number | undefined): number {

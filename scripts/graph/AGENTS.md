@@ -16,11 +16,12 @@ judging.
 | `state.ts` | what the last green run left behind, under `.cache/`: `readFiles`, `writeFiles`, `readState`, `writeState`, `recordGreen`, `forget`. It records the machine as well as the version, and discards on either. A file is replaced whole, through a rename (`scripts/utils/write-atomic.ts:writeAtomic`). |
 | `plan.ts` | whether a node runs and the sentence saying why: `decide(node, current, previous, onDisk)`. |
 | `run-build.ts` | the build, in the order the graph derives and on `scheduler.ts:schedule`: `selectSteps(nodes, declaredIn, options)` decides which steps, `--target=<step>` selects that step's upstream closure instead, and `runGraph` runs them side by side, each step once every step it reads from has ended. `--jobs=<n>` caps every pool, as in `check-all`. |
-| `scheduler.ts` | steps side by side within pools sized from the machine: `schedule(steps, slots, hooks)` starts a step once every step in its `after` has finished, `slotsFor(jobs)` sizes the light, heavy and browser slots, `parseJobs` reads `--jobs=<n>`, `interruptOn()` turns SIGINT and SIGTERM into an abort, and a step still running `ABORT_GRACE` after one is a FAIL and is left. `describeSlots` says what bounded each pool and the order steps start in: with one slot the listed order, with more the steps that declare a `cost` first, longest first. `check-all` and `run-build` run on it. |
+| `scheduler.ts` | steps side by side within pools sized from the machine: `schedule(steps, slots, hooks)` starts a step once every step in its `after` has finished, `slotsFor(jobs)` sizes the light, heavy and browser slots (heavy slots are free memory less `HEADROOM` divided by `HEAVY_PEAK`, capped by the cores and `--jobs`, and browser slots are capped at `BROWSER_CAP`), `parseJobs` reads `--jobs=<n>`, `interruptOn()` turns SIGINT and SIGTERM into an abort, and a step still running `ABORT_GRACE` after one is a FAIL and is left. `describeSlots` says what bounded each pool and the order steps start in: with one slot the listed order, with more the steps that declare a `cost` first, longest first. `check-all` and `run-build` run on it. |
 | `pools.ts` | `POOLS` and `Pool`, the pools a heavy step can name, kept apart from the scheduler so a declaration is typed and judged without importing the deadlines the scheduler carries. |
 | `step-block.ts` | `stepBlock(runner, step, output, outcome)`, the block a runner prints for a step when it ends: the reason it ran, its `> <name>` header, its whole output and its outcome's note, so steps that run side by side never interleave. |
 | `graph-problems.ts` | everything `check:graph` asserts, so the gate under `check/arena/` is a print and an exit. |
 | `handoff.ts` | what a build hands to a job or a run that did not make it: `BUILD_HANDOFF_PATHS`, and `handoffProblems(nodes, workflows, tracked)`, which holds every `arena-build-` cache or artifact step in every workflow to that list, an `UPLOAD` among them to `include-hidden-files: true`, and that list to every artifact a clone lacks, plus `handoffSteps`, `workflowTexts`, `sampleOf` and `trackedPaths`. |
+| `suite-reads.ts` | what a suite may read: `assemblyRoots(nodes)` cuts each `releaseOnly` node's `writes` at its first glob, and `suiteReadProblems(base, roots, exceptions)` reads every tracked suite as text, through the literal and comment lexer, and refuses a `join` or `resolve` from the repository root that spells one of those roots, a gate's `collect` run over the repository root, and a `skip` that asks the disk with `existsSync`. A root a suite makes in a temp directory is the sanctioned shape. An imported segment is settled by importing its module (never a suite), and one that cannot be settled is a problem; a segment the suite computes stands for any one segment. `SUITE_READ_EXCEPTIONS` is keyed by path, with a reason, and an entry whose file no longer matches is stale. |
 | `fs-trace.ts`, `trace-preload.ts` | what a run actually opens: the preload wraps the read entry points before the script's own imports run. |
 | `audit.ts` | `auditProblems(node, script)`, which compares a traced run against the declaration. `UNTRACEABLE` names what spawns a process the tracer cannot enter. |
 | `gate-plan.ts` | what `check-all.ts` asks the graph, kept out of the runner so that file stays the single authority for how the suite is invoked. |
@@ -105,9 +106,20 @@ find a `reads` that is too narrow: a file no node claims is a file every declara
 nobody's business, and there is no disagreement to detect. Only a run is a witness, so `--audit`
 runs each node under a tracer and reports what it opened and does not declare.
 
-It found real gaps in declarations that had already passed the gate and a planted-defect test:
-`generate:playgrounds` read `frameworks/Components.json` without declaring it, `check:cdk` read the
-generated token sheets, and `check:react-barrel` probed a `.jsx` its spec did not reach.
+**Every traced node declares what it opens that is an input**, and the `audit` job of `verify.yml`
+holds it on the tree the build made (`scripts/ci/arena/verify-workflow.ts:verifySelection`).
+`scripts/graph/audit.ts:NOT_AN_INPUT` exempts `.cache`, `node_modules`, `.git` and `scripts/`. A
+declaration the gate passes can still omit a file, and the audit reports it: a generator reading
+`frameworks/Components.json` undeclared, a gate reading the generated token sheets, a gate probing a
+`.jsx` its spec does not reach.
+
+**The limits no run can witness.** A probe on a path absent from the tree opens nothing, so the audit
+(`scripts/graph/audit.ts:undeclaredReads` keeps only what is on disk) cannot see a gate that looks for a file
+nobody has written yet; the cost is that the file's later arrival moves no fingerprint, and the
+declaration has to name it from the code. The `UNTRACEABLE` nodes are another: the audit names
+them unaudited, and whatever they open beyond their declaration is not seen by it. `--release`
+reruns the gates, so it reports the consequence of such a read and never the read, and
+`build:release` forces the `build:*` nodes.
 
 **Nothing under `fs-trace.ts` imports `node:fs` through ESM**, and that rule is load-bearing rather
 than tidy. The first ESM import of a builtin fixes the bindings every later importer gets, so a
@@ -162,9 +174,9 @@ beside it and what they write is theirs to measure.
 
 The rule is applied to every node, not to those two. For a node whose writes miss its reads, before
 and after are the same value and nothing changes. It works because those generators converge, which
-is what the `git diff --exit-code` in every verify workflow already proves; one that did not
-converge would run every time, which is what the build did before any of this and not a wrong
-answer kept.
+is what the `git diff --exit-code` in the `build` and `audit` jobs of `verify.yml` and in the
+`portable` legs of `develop.yml` already proves; one that did not
+converge would run every time, which costs a rerun and keeps no wrong answer.
 
 ## Only a green run writes an entry
 

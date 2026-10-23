@@ -1,0 +1,97 @@
+{
+  "component": "ArenaCombobox",
+  "description": "A text field that filters a list of options as the user types, holding the value of the one chosen. The searchable form control for a long list: the value is always an option's value or empty, never the typed text. The validation vocabulary is ArenaSelect's, so swapping one for the other edits one tag. Focus stays in the field while the list is open, and the arrow keys move a cursor over the rows. Running an action is a command palette's job, not this one's.",
+  "affordances": [
+    "focus"
+  ],
+  "api": {
+    "label": {
+      "form": "primitive",
+      "type": "string",
+      "required": true,
+      "description": "The control's accessible name. Required, and guarded at runtime after trimming: a combobox with no name is announced as an unlabelled edit field."
+    },
+    "showLabel": {
+      "form": "primitive",
+      "type": "boolean",
+      "default": true,
+      "description": "Whether the label is drawn above the field. False keeps the name for assistive technology and draws nothing, for a filter row with no room for a label."
+    },
+    "placeholder": {
+      "form": "primitive",
+      "type": "string",
+      "description": "Shown in the empty field. A hint about what to type, never an option."
+    },
+    "options": {
+      "form": "array",
+      "of": "ArenaSelectOption",
+      "default": [],
+      "description": "The choices, in the order the list draws them."
+    },
+    "value": {
+      "form": "primitive",
+      "type": "string",
+      "description": "The chosen option's value. A value that neither the options nor an earlier choice holds draws an empty field with the placeholder and posts the empty string."
+    },
+    "loading": {
+      "form": "primitive",
+      "type": "boolean",
+      "default": false,
+      "description": "Options are being fetched. The list reports itself busy and draws a status line in place of the empty one. Declared, never inferred from the options."
+    },
+    "filter": {
+      "form": "enum",
+      "type": "ArenaComboboxFilter",
+      "default": "local",
+      "description": "Who narrows the options by the typed text: the control itself, or the host, which listens to search and passes the options it found. A declared member rather than a reading of whether search is listened to."
+    },
+    "disabled": {
+      "form": "primitive",
+      "type": "boolean",
+      "default": false,
+      "description": "Blocks the control and dims it."
+    },
+    "required": {
+      "form": "primitive",
+      "type": "boolean",
+      "default": false,
+      "description": "Must have a value for the form to submit. An emptied field on a required control restores the chosen label instead of clearing it."
+    },
+    "hint": {
+      "form": "primitive",
+      "type": "string",
+      "description": "A line of help under the field."
+    },
+    "error": {
+      "form": "primitive",
+      "type": "string",
+      "description": "Controlled error message, and the whole validation surface: the value is always an option's, so there is nothing for a validator to reject that the options did not already prevent."
+    },
+    "valid": {
+      "form": "primitive",
+      "type": "boolean",
+      "default": false,
+      "description": "Forces the valid state, drawn with a check glyph at the field's end."
+    },
+    "icon": {
+      "form": "primitive",
+      "type": "string",
+      "description": "Phosphor class name drawn at the field's start through ArenaIcon."
+    },
+    "name": {
+      "form": "primitive",
+      "type": "string",
+      "description": "Submitted with the form. The chosen value is submitted, never the label, through a hidden input drawn only when a name is given."
+    },
+    "change": {
+      "form": "event",
+      "payload": "string",
+      "description": "A different option was chosen; carries its value. An emptied field committed on a control that is not required reports the empty string."
+    },
+    "search": {
+      "form": "event",
+      "payload": "string",
+      "description": "The text the list is filtered by changed; carries the new text, empty after a choice, Escape or a blur. The hook a remote search listens to."
+    }
+  }
+}

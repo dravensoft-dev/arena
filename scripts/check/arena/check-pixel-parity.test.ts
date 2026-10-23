@@ -281,3 +281,14 @@ test('a page that lost requests to a network change says the host changed, and a
   });
   assert.match(threw ?? '', /threw while the gate was reading it/);
 });
+
+test('the console warnings are collected before the page runs and compared between the layers', () => {
+  const source = readFileSync(new URL('./check-pixel-parity.ts', import.meta.url), 'utf8');
+  const capture = source.slice(source.indexOf('async function captureIn('), source.indexOf('export function paintProblem'));
+  assert.ok(capture.includes('source: COLLECT_WARNINGS'),
+    'registered after the document starts, the first components to mount have already warned unheard');
+  assert.ok(capture.includes('warnings: await ev(WARNINGS)'));
+  const main = source.slice(source.indexOf('async function main()'));
+  assert.ok(main.includes('warningsProblem(name, { react: react.warnings, angular: angular.warnings })'),
+    'collected and never compared, a warning one layer prints passes every page it is printed on');
+});

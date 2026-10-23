@@ -24,7 +24,7 @@ the column its parent lays out. The control is a real `<input>`, named by a real
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
 | `label` | primitive | `string` |  | Field label above the control. |
-| `id` | primitive | `string` |  | The control's id, and what the label's `for` points at. Generated from `label` when omitted, as `in-` followed by the label with each run of whitespace replaced by a single hyphen and the whole lowercased. The derivation is normative, and the prefix differs per component on purpose: the same markup must get the same id in every layer, and an ArenaInput and an ArenaTextarea sharing a label must not collide. |
+| `id` | primitive | `string` |  | The control's id, and what the label's `for` points at. Generated from `label` when omitted, as `in-` followed by the label with each run of whitespace replaced by a single hyphen and the whole lowercased. The derivation is normative, and the prefix differs per component on purpose. Identical markup must get an identical id in every layer, and an ArenaInput and an ArenaTextarea sharing a label must not collide. The hint or the error takes it followed by `-note`. |
 | `hint` | primitive | `string` |  | A line of help under the field. |
 | `error` | primitive | `string` |  | Controlled error message; wins over `validate`. |
 | `valid` | primitive | `boolean` | `false` | Force the valid (green check) state. |
@@ -32,7 +32,7 @@ the column its parent lays out. The control is a real `<input>`, named by a real
 | `validate` | functionInput | `(value: string) => string` |  | Called on the value; returns the error message, or empty for valid. |
 | `validateOn` | enum | `ArenaValidateOn` | `"blur"` | When `validate` runs. |
 | `type` | enum | `ArenaInputType` | `"text"` | Native input type. |
-| `icon` | primitive | `string` |  | Phosphor class name drawn at the field's start. |
+| `icon` | primitive | `string` |  | Phosphor class name drawn at the field's start through ArenaIcon. |
 | `prefix` | primitive | `string` |  | Static text Arena draws before the value, e.g. `git@`. |
 | `value` | primitive | `string` |  | The controlled text. |
 | `disabled` | primitive | `boolean` | `false` | Blocks editing and dims it. |
@@ -96,7 +96,11 @@ Return the message, or the empty string when the value is good.
 - The error line **replaces** the hint rather than stacking under it. Two lines of guidance under
   one field is one too many.
 - `type` is the `ArenaInputType` enum. `checkbox` and `radio` are not among them: those are
-  `<arena-checkbox>` and `ArenaRadio`, their own components.
+  `<arena-checkbox>` and `ArenaRadio`, their own components. `file` is not among them: that is
+  `<arena-file-input>`, because a chosen file is a platform object and no input or output of this
+  component can carry one. `range` is not among them: that is `<arena-slider>`. `number` stays a
+  type here: it keeps the browser's spinner and a string value, and `<arena-number-field>` is a
+  number Arena owns.
 - Don't reach for `change` to run an expensive query. The output fires per keystroke by design. Debounce in the consumer, where the interval is a decision about that query rather than about the field.
 
 **By hand, in real Chromium**: none of these is provable in happy-dom. Run `bun run demos` and

@@ -14,18 +14,16 @@ script writes under `frameworks/` is ignored. `check:generated` holds both halve
 
 ## What the machine needs
 
-Five things, and the list is declared in `../lib/arena/host-binaries.ts` rather than only here,
-so `check:portability` fails when this section and that file disagree. It was never written in
-one place before: `bun` came from `packageManager`, `git` and `node` from whichever gate spawned
-them, a browser from a candidate table, and the networked step from a `.gitignore` comment. A
-contributor found each by hitting it.
+The table below is the list, and it is declared in `../lib/arena/host-binaries.ts` rather than only
+here, so `check:portability` fails when this section and that file disagree. Each entry has one
+place that names it, whichever gate or build step spawns it.
 
 | needs | probe | why |
 | --- | --- | --- |
 | `bun` | `bun --version` | the runtime and the package manager. `package.json` pins the version and every workflow pins the same one. |
 | `git` | `git --version` | `check:generated`, `check:skills` and `check:citations` ask it what the tree tracks, which no other tool can answer. |
 | `node` | `node --version` | `check:consumer` runs the shipped CLI the way a consumer runs it, under node rather than bun. It is the one place the two are not interchangeable. |
-| a Chromium-family browser | `bun run check:focus-trap` | the one gate that measures a real render drives Chrome, Chromium or Edge over CDP. Discovery is keyed by platform, so an install in the usual place needs no configuration; `CHROME_PATH` names one anywhere else and is **terminal**, so pointing it at nothing reports that rather than falling back. |
+| a Chromium-family browser | `bun run check:focus-trap` | the gates that measure a real render (`check:focus-trap`, `check:anchoring`, `check:target-size`, `check:pixel-parity`, `check:proximity`, `check:palette-islands`, `check:consumer`) drive Chrome, Chromium or Edge over CDP. Discovery is keyed by platform, so an install in the usual place needs no configuration; `CHROME_PATH` names one anywhere else and is **terminal**, so pointing it at nothing reports that rather than falling back. |
 | the network, once | `bun scripts/generate/core/fetch-fonts.ts` | only to rebuild the webfonts. Their outputs are tracked precisely because a clone cannot reproduce them, so a normal build never needs it. |
 
 **On macOS** that is the whole list: nothing here is Linux-shaped.
@@ -90,6 +88,12 @@ to nothing, and every gate in that table reports its subject missing. **That is 
 signal, not a failure**: the message each prints names the command to run. `bun run demos`
 builds first for exactly this reason.
 
+**A fresh clone runs `bun run build:packages`, or `bun run build:release`, before `check:consumer`
+and `check:graph`.** `bun run build` assembles no package: `check:consumer`, `check:packages` and
+`check:mcp` refuse a package that is not assembled, and `check:graph` reads what the package steps
+write, so on a clone that ran only `bun run build` each reports its subject missing. The commands
+of a CI job run on a clone built like the job are in [`../ci/arena/AGENTS.md`](../ci/arena/AGENTS.md).
+
 `bun run build` is idempotent: running it on a clean tree leaves `git status` empty. If it does
 not, a generator and a committed file disagree, which is what `check:tokens` and `check:fonts`
 exist to say out loud.
@@ -110,9 +114,9 @@ The blocking is transitive. `generate:tokens` does not feed `build:demos` direct
 through `build:tailwind`, and a single hop would let a step compile against tokens that were never
 written. A blocked step records nothing: it did not run, so there is no green to write down.
 
-**`bun run build:release` is the full run**, and it is what every workflow that verifies uses. It
+**`bun run build:release` is the full run**, and it is what the `build` job of `verify.yml` runs. It
 passes `--force --assert-full`: every step runs, and a run that kept anything fails on its own.
-That is not belt and braces. The step after the build in each workflow proves it idempotent with
+That is not belt and braces. The step after the build in that job proves it idempotent with
 `git diff --exit-code`, and a build that skipped everything satisfies that by doing nothing, which
 is the one way this whole arrangement could turn a real failure green.
 
@@ -124,7 +128,9 @@ emit cost more than a development loop should pay for an artefact only a release
 `bun run build` is the loop, keeping what has not moved. `bun run build:packages` is the same plus
 the packages, still keeping what has not moved. `bun run build:release` is
 `--assemble --force --assert-full`: every step run, and a run that kept anything fails on its own.
-Every workflow that verifies uses the last one.
+The `build` job of `verify.yml` uses the last one, the `portable` legs of `develop.yml` run
+`bun run build:packages`, and a publish workflow or the site that misses its cache runs
+`--force --assert-full` over its own `--target`.
 
 **`--jobs=<n>` caps every pool at `n`, and `--jobs=1` runs one step at a time in the derived
 order**, which is how a failure that shows only beside another step is told from one that shows

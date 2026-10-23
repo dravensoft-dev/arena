@@ -12,7 +12,7 @@
 import { useTestEnvironment } from '../../../test/TestbedEnv';
 useTestEnvironment();
 
-import test from 'node:test';
+import test, { after, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { join } from 'node:path';
 import { Component } from '@angular/core';
@@ -25,12 +25,19 @@ import { ArenaTableRow } from '../arena-table-row/ArenaTableRow';
 import { ArenaTableCell } from '../arena-table-cell/ArenaTableCell';
 import { assertPattern, assertPatternCases, ANGULAR_COMPONENTS } from '../../../test/Compliance';
 
+const root = document.documentElement;
+before(() => {
+  root.style.setProperty('--bp-md', '768px');
+});
+after(() => {
+  root.style.removeProperty('--bp-md');
+});
+
 const BINDING = join(ANGULAR_COMPONENTS, 'display/arena-table/ArenaTable.behaviour.json');
 const CELL_BINDING = join(ANGULAR_COMPONENTS, 'display/arena-table-cell/ArenaTableCell.behaviour.json');
 
 const LABEL = 'Recent deployments';
 const COLUMNS: ArenaTableColumn[] = [{ header: 'Service' }, { header: 'Status' }];
-const BP_MD = '768px';
 const NARROW_WIDTH = 400;
 
 @Component({
@@ -135,7 +142,6 @@ function assertOneStop(root: Element): void {
 }
 
 test('arena-table meets both of its declared shapes', async () => {
-  document.documentElement.style.setProperty('--bp-md', BP_MD);
   const restore = stubResize(NARROW_WIDTH);
   let wide: ComponentFixture<TableHost> | null = null;
   let card: ComponentFixture<TableHost> | null = null;
@@ -251,7 +257,6 @@ test('arena-table meets both of its declared shapes', async () => {
     card?.destroy();
     bare?.destroy();
     restore();
-    document.documentElement.style.removeProperty('--bp-md');
   }
 });
 

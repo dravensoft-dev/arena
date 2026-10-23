@@ -9,7 +9,7 @@
 import { useTestEnvironment } from '../../../test/TestbedEnv';
 useTestEnvironment();
 
-import test from 'node:test';
+import test, { after, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { join } from 'node:path';
 import { Component, signal } from '@angular/core';
@@ -20,6 +20,14 @@ import { assertPatternCases, ANGULAR_COMPONENTS } from '../../../test/Compliance
 import type { ArenaCatSlot } from '../../../Api.generated';
 import { ArenaCalendar } from '../arena-calendar/ArenaCalendar';
 import { ArenaCalendarEvent } from './ArenaCalendarEvent';
+
+const root = document.documentElement;
+before(() => {
+  root.style.setProperty('--bp-md', '768px');
+});
+after(() => {
+  root.style.removeProperty('--bp-md');
+});
 
 const BINDING = join(ANGULAR_COMPONENTS, 'display/arena-calendar-event/ArenaCalendarEvent.behaviour.json');
 

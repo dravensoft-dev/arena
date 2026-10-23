@@ -8,25 +8,74 @@ The command ships inside both component packages, so installing Arena installs i
 
 | command | what it does | writes | flags |
 | --- | --- | --- | --- |
-| `arena build` | Writes the theme, icon and plugin sheets from your config and sources. | the sheets | `--config`, `--src`, `-o`, `--out`, `--no-import`, `--watch` |
-| `arena check` | Names what the sheets a build would write, and your sources, get wrong: contrast, ramp, weight, glyph, component and marker reports. | nothing | `--config`, `--src`, `--strict` |
+| `arena build` | Writes the package, theme and plugin sheets, the icon sprite and its module, and each local font cut to what the build paints, from your config and sources. | the sheets, the sprite, the cut fonts | `--config`, `--src`, `-o`, `--out`, `--no-import`, `--watch` |
+| `arena check` | Names what the sheets a build would write, and your sources, get wrong: contrast, ramp, heat, weight, glyph, component and marker reports. | nothing | `--config`, `--src`, `--strict` |
 | `arena audit` | Reads your sources and style plugins against the rules of the language. | nothing | `--config`, `--src`, `--strict` |
 | `arena usage` | Names the components the package ships that your sources draw nowhere, and the parts your style plugins paint. A component Arena draws on your behalf counts as undrawn, because you never wrote it. | nothing | `--config`, `--src` |
 | `arena init` | Copies the example config and wires the scripts below into `package.json`. | the config and `package.json`, only what is absent | `--config` |
-| `arena doctor` | Says whether the project is set up: package, Node against `engines.node`, the config, and whether every sheet on disk is what a build would write. | nothing | `--config`, `--src`, `-o`, `--out`, `--no-import`, `--strict` |
-| `arena clean` | Deletes the sheets `arena build` writes, by name, inside `-o`. Clean never deletes another file or the directory. | removes the sheets | `-o`, `--out` |
+| `arena doctor` | Says whether the project is set up: package, Node against `engines.node`, the config, and whether every sheet on disk is what a build would write. The command notes when no source imports `arena.package.generated.css`. | nothing | `--config`, `--src`, `-o`, `--out`, `--no-import`, `--strict` |
+| `arena clean` | Deletes the sheets, the sprite with its module and the cut fonts `arena build` writes, by name, inside `-o`. Clean never deletes another file or the directory. | removes those files | `-o`, `--out` |
 
-`arena --help` and `arena help` list the commands; `arena help <command>` and `arena <command> --help` print one command's flags; `arena --version` names the package and its version. `--config` defaults to `arena.config.json`. `--src` defaults to `src`, takes a file or a directory, and repeats for more trees. `-o` defaults to `src`.
+`arena --help` and `arena help` list the commands; `arena help <command>` and `arena <command> --help` print one command's flags; `arena --version` names the package and its version. `--config` defaults to `arena.config.json`. `--src` defaults to `src`, takes a file or a directory, and repeats for more trees. `-o` and `--out` are one flag and default to `src`.
 
 ## What does `arena build` write?
 
-**`arena.generated.css`** holds your palettes and your `@font-face` rules. The sheet leads with an `@import` of the package stylesheet; `--no-import` leaves that out, for a project that imports `@dravensoft/arena-react/arena.css` or `@dravensoft/arena-angular/arena.css` itself. Every colour comes from this file: the package declares no `--color-*`, only the rules that read them. The font roles are the half that overrides: the package declares them, and your later file wins at equal specificity in `:root`.
+**`arena.package.generated.css`** is Arena's half of the stylesheet: one `@import` for each package sheet in the closed list the build works out, and nothing else. The sheet's bytes move with the Arena version, the components your sources draw, the `stylesheet` keys of your config and the root style plugin, and never with palettes or fonts. `--no-import` does not write it, for a project that imports that list itself, and a copy left on disk is a file this config does not produce. A project that does not run the CLI imports `@dravensoft/arena-react/arena.css` or `@dravensoft/arena-angular/arena.css`.
 
-**`icons.generated.css`** holds the class rules, in `woff2` alone, for every glyph your sources draw and every glyph Arena's components draw for you. Your sources are read as text; Arena's half is the package's `icons.json`, computed from its renders. Every glyph you name also reaches the filled weight, since an active navigation item draws filled. The `@font-face` points at the whole font Phosphor ships; subset it to this glyph list if the bytes matter.
+**`arena.generated.css`** is your half: your palettes, your `@font-face` rules and the font-stylesheet `@import`s. The sheet imports nothing of the package, so the app imports `arena.package.generated.css` first and this file after it. Every colour comes from this file: the package declares no `--color-*`, only the rules that read them. The font roles are the half that overrides: the package declares them, and your later file wins at equal specificity in `:root`.
+
+One rule holds for every root. A `--no-import` project imports the list `arena build` would have written for that config, then `arena.generated.css` last. The list is the components the sources draw and the ones Arena draws for them. The `"default"` root adds `css/style-plugin-default.css` in its slot, and a root style plugin of the project's own leaves that sheet out.
+
+<!-- @shared noImport GENERATED by bun run generate:npm-pages. Edit that script, not this copy. -->
+
+**React:**
+
+```css
+@import '@dravensoft/arena-react/css/reset.css';
+@import '@dravensoft/arena-react/css/typography.css';
+@import '@dravensoft/arena-react/css/spacing.css';
+@import '@dravensoft/arena-react/css/effects.css';
+@import '@dravensoft/arena-react/css/colors.css';
+@import '@dravensoft/arena-react/css/contrast.css';
+@import '@dravensoft/arena-react/css/environment.css';
+@import '@dravensoft/arena-react/css/base.css';
+@import '@dravensoft/arena-react/css/prelude.css';
+@import '@dravensoft/arena-react/css/components/<component>.css';
+@import '@dravensoft/arena-react/css/vocabulary/<family>.css';
+```
+
+**Angular:**
+
+```css
+@import '@dravensoft/arena-angular/css/reset.css';
+@import '@dravensoft/arena-angular/css/typography.css';
+@import '@dravensoft/arena-angular/css/spacing.css';
+@import '@dravensoft/arena-angular/css/effects.css';
+@import '@dravensoft/arena-angular/css/colors.css';
+@import '@dravensoft/arena-angular/css/contrast.css';
+@import '@dravensoft/arena-angular/css/environment.css';
+@import '@dravensoft/arena-angular/css/base.css';
+@import '@dravensoft/arena-angular/css/prelude.css';
+@import '@dravensoft/arena-angular/css/components/<component>.css';
+@import '@dravensoft/arena-angular/css/vocabulary/<family>.css';
+@import '@dravensoft/arena-angular/css/arena-cdk.css';
+```
+
+Each `<component>` stands for a sheet in the closed list `arena build` works out, for every root. That list is what `arena.package.generated.css` holds when a build writes it: the components the sources draw and the ones Arena draws for them. The `"default"` root adds `css/style-plugin-default.css` in its slot. Each `<family>` is a vocabulary sheet. `css/base.css` is left out when `stylesheet.preflight` is `false`. `arena.generated.css` goes in a stylesheet of its own, imported after the list, so the package's sheets and yours never share a file.
+
+<!-- @shared noImport end -->
+
+**`arena.runtime.generated.json`** is written when the config sets `"runtimePalettes": true`. The file holds the level list, the washes and the style plugin's roles for each polarity, which `arenaRuntimePalette`, `arenaCheckPalette` and `arenaPaletteDeclarations` read as their `data`. [`theme.md`](./theme.md) covers them.
+
+**`icons-<hash>.svg`** is the Phosphor sprite: one `<symbol>` per glyph your sources draw and every glyph Arena's components draw for you, each cut from `@phosphor-icons/core`, the official 256-unit SVGs. Your sources are read as text; Arena's half is the package's `icons.json`, computed from its renders. Every glyph you name also reaches the filled weight, since an active navigation item draws filled. The name carries a hash of the file's bytes, so it changes exactly when the sprite does, and a sprite from an earlier build is removed. A glyph Phosphor does not draw at that weight is a `glyph` report and gets no symbol.
+
+**`arena.icons.generated.js`** and its declaration file export `ARENA_SPRITE`, the sprite's file name, under a fixed name. The app serves the sprite and hands its URL over once, to `ArenaIconsProvider` in React or `provideArenaIcons(href)` in Angular. [`install.md`](./install.md) shows both.
+
+**`<stem>-<hash>.woff2`** is each font whose `src` in `arena.config.json` is a file on disk, cut to Latin-1 and the weights your sheets paint. `<stem>` is the source file's name without its extension, so `fonts/archivo.woff2` becomes `archivo-<hash>.woff2`. The `@font-face` rule in `arena.generated.css` names the cut file and carries a `unicode-range`, so a browser fetches it only for text in that range. A variable face keeps its weight axis cut to the range painted, and a static face keeps the weights painted. The name carries a hash of the file's bytes, and a cut from an earlier build is removed. A `src` that is a stylesheet URL or a remote file is left as written, with a `font` report. A weight the build paints that the cut lost is a `weight` report. The packages carry `fonts/` with Archivo, Familjen Grotesk and Spline Sans Mono, each beside its OFL text. The example config names them by local path, and `arena init` copies them beside the config.
 
 **`plugin.generated.css`** is written when a style plugin carries a `plugin.css`. The sheet holds that CSS in the reserved cascade layer and leads with the layer order itself, so where a bundler places it cannot change what wins.
 
-A sheet is written only when its bytes change, so a bundler watching an untouched sheet does not rebuild. A sheet this config no longer produces is removed. A build prints how many reports it saw and exits 0 on them; `arena check` names them. Keep every generated file out of version control.
+A sheet is written only when its bytes change, so a bundler watching an untouched sheet does not rebuild. A sheet this config does not produce is removed. A build prints how many reports it saw and exits 0 on them; `arena check` names them. Keep every generated file out of version control: the sheets, the sprite with its module and the cut fonts.
 
 **`--watch`** builds once, then rebuilds after each burst of changes to the config, a source under `--src` or a style plugin directory. A path that is not there yet is awaited. A build that cannot run prints why, and the next change builds again. Ctrl-C stops the watch and exits 0. The watch never reacts to the sheets it writes, or to anything under `node_modules`, `dist`, `.git`, `.angular` or `coverage`. Name your source trees with `--src`: a `--src .` holding another build directory rebuilds on its churn.
 
@@ -36,29 +85,55 @@ A report never changes the exit until `--strict` holds it. Bare, `--strict` hold
 
 | command | kinds |
 | --- | --- |
-| `arena check --strict` | `components`, `contrast`, `ramp`, `weight`, `glyph`, `markers` |
+| `arena check --strict` | `components`, `contrast`, `ramp`, `weight`, `font`, `glyph`, `markers`, `heat` |
 | `arena audit --strict` | `audit`, `restated` |
 | `arena doctor --strict` | `environment` |
 
 | kind | rules `--strict=<kind>:<rule>` names |
 | --- | --- |
-| `audit` | `compat-alias`, `danger-fill`, `emoji`, `icon-element`, `one-primary`, `outline-gap`, `own-class`, `raw-value`, `router-link`, `stale-allowance`, `unknown-input` |
+| `audit` | one per tag, tabled with the rule each reports in [the next section](#what-does-each-audit-tag-report) |
 
-**`arena init` writes the names that exist when it runs.** The `arena:audit` script it writes names every audit rule and `restated`. A rule a later package adds is reported there, and changes no exit until you add its name. A bare `--strict`, or `--strict=audit`, holds every rule, later ones included. An audit finding ends in its rule, such as `(raw-value)`. The one without a tag is `stale-allowance`: an `arena-audit allow` marker on a line with nothing left to exempt.
+**`arena init` writes the names that exist when it runs.** The `arena:audit` script it writes names every audit rule and `restated`. A rule a later package adds is reported there, and changes no exit until you add its name. A bare `--strict`, or `--strict=audit`, holds every rule, later ones included. An audit finding ends in its rule, such as `(raw-value)`. A `stale-allowance` finding ends in no tag: it names an `arena-audit allow` marker on a line with nothing to exempt, and `--strict=audit:stale-allowance` holds it.
 
 `unknown-input` names a static attribute on an Arena element in an Angular template that the component takes as no input or output. A forms attribute such as `formControlName` is never named. When a directive of your own reads the attribute, mark the line `arena-audit allow`.
 
 `contrast` also reports a chart axis answered lighter than the grid (`--edge-axis` against `--edge-separator` on base-100). `contrast` reports a status hue whose `--hue-<hue>-on-ink` measures under 4.5:1 over `--hue-<hue>-ink`, the label of a solid badge over its fill, in either polarity.
 
-**Name the kinds when one of them is a decision you already made.** A brand under 4.5:1 can be deliberate, and one switch would make it the price of holding the rest in CI. `weight` says a role asks for a weight the face you loaded does not carry. `glyph` is a name Phosphor does not draw. `markers` is an Angular projection marker, such as `[footer]`, written in a template that does not import its directive. That marker renders nothing, and neither the build nor `ngc --strictTemplates` reports it; [`exports.md`](./exports.md) lists every marker. `restated` is a plugin rule restating the value its part's slot already paints. `environment` says Arena's own icons went uncounted, outside an Arena package or without its `icons.json`. In `arena doctor` it also says Node misses `engines.node`, or that range is one it cannot compare. `wash` is reported and never held: a token on a wash of its own colour clears AA at no percentage, and a gate nobody can fix is not a gate.
+`contrast` reports a palette whose `base-100` sits on the other side of its declared polarity. A dark palette wants an OKLab lightness under 0.5 and a light one wants 0.5 or more. The message reads `polarity, base-100 #fafafa reads as light, and the palette declares dark`, for a declared palette and for a runtime one alike.
+
+**Name the kinds when one of them is a decision you already made.** A brand under 4.5:1 can be deliberate, and one switch would make it the price of holding the rest in CI. `weight` says a role asks for a weight the face you loaded does not carry. `font` says a font was not cut because its `src` is not a file on disk or is not one of the formats the cut reads (woff2, ttf and otf). `glyph` is a name Phosphor does not draw. `markers` is an Angular projection marker, such as `[footer]`, written in a template that does not import its directive. That marker renders nothing, and neither the build nor `ngc --strictTemplates` reports it; [`exports.md`](./exports.md) lists every marker. `heat` says two neighbouring heat steps Arena derives sit under 0.06 of lightness apart, or the five are out of order, so a reader cannot tell them apart. A palette that pins `heat-1` to `heat-5` is not read. `heat` also names a root plugin that answers `heat-step-1` to `heat-step-5` with a step no further from the surface than the one before, whatever the palette pins. Raise the ink contrast on `base-200`, or pin the steps. `arena init` leaves `heat` out of `arena:check`, so name it there to hold it. `restated` is a plugin rule restating the value its part's slot already paints. `environment` says Arena's own icons went uncounted, outside an Arena package or without its `icons.json`. In `arena doctor` it also says Node misses `engines.node`, or that range is one it cannot compare. `wash` is reported and never held: a token on a wash of its own colour clears AA at no percentage, and a gate nobody can fix is not a gate.
 
 ## What does an exit code mean?
 
 | code | meaning |
 | --- | --- |
 | `0` | The command did its job. Reports may print. |
-| `1` | A project problem: a config that parses and is invalid, a `stylesheet` name the package does not ship, or a report `--strict` holds. `arena doctor` exits 1 on anything that stops a build, and on a sheet that is missing, stale or no longer produced. |
-| `2` | The command cannot run: an unknown, refused or repeated flag, a config it cannot read as JSON, a missing `--src` or Phosphor not installed. So is a file it cannot write or delete, or `arena init` with no `package.json`. |
+| `1` | A project problem: a config that parses and is invalid, a `stylesheet` name the package does not ship, an unanswered root role, or a report `--strict` holds. `arena doctor` exits 1 on anything that stops a build, and on a sheet that is missing, stale or no longer produced. |
+| `2` | The command cannot run: an unknown, refused or repeated flag, a config it cannot read as JSON, or a missing `--src`. A missing `@phosphor-icons/core`, `harfbuzzjs` or `wawoff2` is a 2, as is a file it cannot write or delete, or `arena init` with no `package.json`. |
+
+## What does each audit tag report?
+
+The middle column is the rule of [the rules section of `SKILL.md`](../SKILL.md) that the tag reports.
+
+<!-- @shared audit GENERATED by bun run generate:npm-pages. Edit that script, not this copy. -->
+
+| tag | the rule it reports | what fires it |
+| --- | --- | --- |
+| `compat-alias` | none of the language rules | A stylesheet in a style plugin directory reads one of Arena's compatibility aliases through `var()`, which names a step of the ramp instead of a role. |
+| `danger-fill` | Danger is outline, never filled. | A background declaration outside a style plugin directory reads a danger token not mixed with transparent, which fills a surface where Arena draws danger as an outline. |
+| `emoji` | No emoji, in product or in copy. | A line of a source holds an emoji character. |
+| `icon-element` | Icons are Phosphor class-name strings, drawn by Arena's components or by ArenaIcon; a raw ph-* element paints nothing. | An `icon` or `iconRight` attribute is given an element in braces, where Arena takes a Phosphor class-name string. |
+| `one-primary` | One primary accent per view. | A second action in one view, or in one modal, takes the primary emphasis by class or by leaving a primary-default component without one. |
+| `outline-gap` | none of the language rules | A source draws Arena headings at two levels with a level missing between them, such as an h1 and an h3 with no h2. |
+| `own-class` | Only a class of the vocabulary goes on an Arena component. | A component carries a class outside its vocabulary or a computed one, or a stylesheet targets an `arena-` class anywhere or a `data-arena-part` hook outside a style plugin. |
+| `raw-glyph` | Icons are Phosphor class-name strings, drawn by Arena's components or by ArenaIcon; a raw ph-* element paints nothing. | An element other than `ArenaIcon` holds a Phosphor weight class and a `ph-*` glyph in its class, which paints nothing because Arena ships no icon font. |
+| `raw-value` | Tokens are the only styling layer. No gradients, on any surface. | A style holds a hex, colour or bare pixel length, or a gradient outside a style plugin unless `gradientMark` is set, or a class holds a non-token bracket value. |
+| `router-link` | Never wrap an Arena component in your router's own link. | A link of your own, such as `a`, `Link` or `routerLink`, directly wraps an Arena card, side nav item, bottom nav item or table cell. |
+| `stale-allowance` | none of the language rules | An `arena-audit allow` marker sits on a line with nothing to exempt. |
+| `unknown-input` | none of the language rules | A static attribute on an `arena-` element in an Angular template names no input or output of that component. |
+| `wrapped-link` | none of the language rules | A link of your own, such as `a`, `Link` or `routerLink`, directly wraps an Arena link, which is already an anchor. |
+
+<!-- @shared audit end -->
 
 ## What does the audit read?
 
@@ -68,16 +143,20 @@ The rules it reports, and the ones nothing reads, are the router's: [the rules s
 
 Run `arena init` once. In a project on `@dravensoft/arena-react` it adds these scripts, and the config when it is absent:
 
+<!-- @shared scriptsReact GENERATED by bun run generate:npm-pages. Edit that script, not this copy. -->
+
 ```json
 {
   "scripts": {
     "prebuild": "arena build",
     "predev": "arena build",
     "arena:check": "arena check --strict=components,glyph,markers",
-    "arena:audit": "arena audit --strict=audit:compat-alias,audit:danger-fill,audit:emoji,audit:icon-element,audit:one-primary,audit:outline-gap,audit:own-class,audit:raw-value,audit:router-link,audit:stale-allowance,audit:unknown-input,restated"
+    "arena:audit": "arena audit --strict=audit:compat-alias,audit:danger-fill,audit:emoji,audit:icon-element,audit:one-primary,audit:outline-gap,audit:own-class,audit:raw-glyph,audit:raw-value,audit:router-link,audit:stale-allowance,audit:unknown-input,audit:wrapped-link,restated"
   }
 }
 ```
+
+<!-- @shared scriptsReact end -->
 
 A `--config` other than the default is carried into every script it writes. `arena:check` holds the kinds a project decides nothing about and leaves `contrast` and `ramp` to the brand's owner. Run both in the job that runs your tests.
 
@@ -85,16 +164,20 @@ A `--config` other than the default is carried into every script it writes. `are
 
 The same, on `@dravensoft/arena-angular`, with `prestart` in place of `predev`.
 
+<!-- @shared scriptsAngular GENERATED by bun run generate:npm-pages. Edit that script, not this copy. -->
+
 ```json
 {
   "scripts": {
     "prebuild": "arena build",
     "prestart": "arena build",
     "arena:check": "arena check --strict=components,glyph,markers",
-    "arena:audit": "arena audit --strict=audit:compat-alias,audit:danger-fill,audit:emoji,audit:icon-element,audit:one-primary,audit:outline-gap,audit:own-class,audit:raw-value,audit:router-link,audit:stale-allowance,audit:unknown-input,restated"
+    "arena:audit": "arena audit --strict=audit:compat-alias,audit:danger-fill,audit:emoji,audit:icon-element,audit:one-primary,audit:outline-gap,audit:own-class,audit:raw-glyph,audit:raw-value,audit:router-link,audit:stale-allowance,audit:unknown-input,audit:wrapped-link,restated"
   }
 }
 ```
+
+<!-- @shared scriptsAngular end -->
 
 ## What if a script is already there?
 

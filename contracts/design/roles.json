@@ -82,6 +82,15 @@
     "$type": "fontFamily",
     "$description": "Which face the LABEL register takes: a field's label, a column header, a section\nlabel, a group header, a badge, a keyboard cap. Born in the mono face, and that is a measurement\nrather than a guess: every slot in this register is set in mono and in capitals, without one\nexception across the whole system.\n\nSplit from ff-eyebrow although the two are the same face today, and the split IS the point. The\nlabel register is a console's register and reads as the machine talking; an eyebrow is the line\nabove a title and reads as the page talking. A style plugin for a shop takes the eyebrow out of that\nregister and leaves its column headers exactly where they are, which is not expressible while\none role answers for both."
   },
+  "ff-key": {
+    "$type": "fontFamily",
+    "$description": "Which face a KEY takes: an ArenaKbd cap, the escape cap beside a command palette's search, and the shortcut a menu row or a palette row prints at its trailing edge. Born in the mono face, the face every one of them is set in, and defaulting to it, so a project whose root plugin is silent on this role keeps its keys exactly as they were.\n\nSplit from ff-label because a key is spelled as it is pressed rather than read as a label: a plugin that sets its labels in the body face can keep its keys in mono, and one that dresses its labels up leaves a key the face of a keyboard.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "default": "{font.mono}"
+      }
+    }
+  },
   "fw-eyebrow": {
     "$type": "fontWeight",
     "$description": "The weight of an eyebrow. Born at fw.regular because no eyebrow slot declares a\nweight at all and every one of them therefore inherits 400: the role is born at what they already\ncompute to, not at what would look better.\n\nSeparate from fw-control, which weights the text a user presses. An eyebrow is read and not\npressed, and a style plugin that sets its eyebrows in the display face usually wants them lighter at the\nsame moment it wants them larger."
@@ -115,6 +124,21 @@
           "lowercase",
           "capitalize"
         ]
+      }
+    }
+  },
+  "tt-key": {
+    "$type": "keyword",
+    "$description": "Whether a key is set in capitals. Born at none, because a key shows its own spelling: Esc, Ctrl and the command glyph are written the way the keyboard prints them, and the capitals the label register takes would rewrite them. Read by an ArenaKbd cap and the escape cap; a trailing shortcut prints its string as written and reads no transform.\n\nIts kernel default is the keyword token case.none, so a root plugin silent on the role draws its caps as written.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "values": [
+          "none",
+          "uppercase",
+          "lowercase",
+          "capitalize"
+        ],
+        "default": "{case.none}"
       }
     }
   },
@@ -247,6 +271,15 @@
     "$type": "dimension",
     "$description": "The width of the panel of ArenaDialog at arena-dialog-width-lg, read by ArenaDialog. An option of a family is a question by construction, so the plugin answers it."
   },
+  "timeline-dot": {
+    "$type": "dimension",
+    "$description": "The diameter of an ArenaTimeline milestone's dot, which holds the glyph that says the milestone's tone. Born at 20px, the smallest circle a 16px glyph sits in with air around it, and defaulting to sp.5.\n\nA role rather than a fixed step, because a plugin that opens its rows up or sets its glyphs larger moves the dot with them, and the connector joins the dots' centres at whatever size they take.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "default": "{sp.5}"
+      }
+    }
+  },
   "container-max": {
     "$type": "dimension",
     "$description": "The widest the page's content column gets. Promoted here from spacing.json, where\nit sat among the scales without being one: nothing else steps off it and no second use shares it,\nso it was already a role wearing a scale's file.\n\nIt keeps its name, so --container-max and Tailwind's max-w-page are untouched by the move; what\nchanges is that a style plugin may now re-answer it. A style plugin for reading wants a narrower page than\na style plugin for a dashboard, and that was unreachable before.\n\nEmitted into effects.generated.css beside the other roles rather than into spacing.generated.css,\nbecause arena-tokens.ts reads a fixed list of four generated files and the roles all live in one\nof them."
@@ -295,6 +328,15 @@
     "$type": "dimension",
     "$description": "The room a marker gives the label it encloses down. Split from pad-marker-x because a style plugin widens a marker without making it taller."
   },
+  "pad-key-y": {
+    "$type": "dimension",
+    "$description": "The room a key cap gives its label down: an ArenaKbd cap and the escape cap. Born at 2px, the half step under the grid, so the cap reads as a key on the line rather than as a chip, and defaulting to sp.0-5.\n\nSplit from pad-marker-y because a cap sits inside running text and help lines where a tag sits in a row of chips: a plugin that opens its markers up leaves its caps the height of the line.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "default": "{sp.0-5}"
+      }
+    }
+  },
   "pad-row-x": {
     "$type": "dimension",
     "$description": "The room a row in a list, menu, feed, side nav, tab list or palette gives its content across. The theme multiplies it by the row factor density sets, which is why a row re-densifies and a control's air does not. It is cut from pad-control-x because a row is one of many in a column and a control stands alone."
@@ -309,11 +351,11 @@
   },
   "pad-row-floating-x": {
     "$type": "dimension",
-    "$description": "The room on the sides of a row in a floating list, read by the items and headers of ArenaMenu. Density scales it by the row factor, the way it scales pad-row-x."
+    "$description": "The room on the sides of a row in a floating list, read by the items and headers of ArenaMenu and by the rows of ArenaCombobox and ArenaMultiSelect. Density scales it by the row factor, the way it scales pad-row-x."
   },
   "pad-row-floating-y": {
     "$type": "dimension",
-    "$description": "The room above and below a row in a floating list, read by the items of ArenaMenu. Density scales it by the row factor."
+    "$description": "The room above and below a row in a floating list, read by the items of ArenaMenu and by the rows of ArenaCombobox and ArenaMultiSelect. Density scales it by the row factor."
   },
   "pad-nav-row-x": {
     "$type": "dimension",
@@ -361,7 +403,7 @@
   },
   "gap-row-floating": {
     "$type": "dimension",
-    "$description": "The gap between the icon, the label and the shortcut of a row in a floating list, read by ArenaMenu."
+    "$description": "The gap between the parts of a row in a floating list, such as an icon, a label and a shortcut, read by ArenaMenu, ArenaCombobox and ArenaMultiSelect."
   },
   "gap-actions": {
     "$type": "dimension",
@@ -397,7 +439,7 @@
   },
   "fill-track": {
     "$type": "color",
-    "$description": "The ground a value runs along or a set of segments sits in, drawn as a strip\nacross a surface rather than as a region something is placed inside: a progress bar's track, a\nsegmented control's track, the head row of a table. Born at base-300, which all three slots name\noutright.\n\nSeparate from fill-surface-sunken, whose own description claims a track among its uses and reaches\nnone: a sunken region is a well inside a surface that the reader looks at, and it is answered a\nstep lighter, so pointing a track at it would lighten every track and moving its answer would\ndarken every well. Both exits are a change of appearance dressed as a binding.\n\nWhat asks for it: a style plugin that makes a bar read as a measure rather than as a control, and\none that takes the frame off a table and leaves its head row on the page. Both were measured\npainting it by hand, through progress-bar.track and table.head-row.\n\nAn assignment and never a value, like every colour role: WHICH of the consumer's colours, never\nwhat that colour is."
+    "$description": "The ground a value runs along or a set of segments sits in, drawn as a strip\nacross a surface rather than as a region something is placed inside: a progress bar's track, a\nsegmented control's track, the head row of a table. Born at base-300, which all three slots name\noutright.\n\nSeparate from fill-surface-sunken, whose own description claims a track among its uses and reaches\nnone: a sunken region is a well inside a surface that the reader looks at, and it is answered a\nstep lighter, so pointing a track at it would lighten every track and moving its answer would\ndarken every well. Both exits are a change of appearance dressed as a binding.\n\nWhat asks for it: a style plugin that makes a bar read as a measure rather than as a control, and\none that takes the frame off a table and leaves its head row on the page. Both were measured\npainting it by hand, through progress-bar.track and table.th.\n\nAn assignment and never a value, like every colour role: WHICH of the consumer's colours, never\nwhat that colour is."
   },
   "ink-heading": {
     "$type": "color",
@@ -433,6 +475,24 @@
       }
     }
   },
+  "ink-key": {
+    "$type": "color",
+    "$description": "The colour of a key: an ArenaKbd cap, the escape cap and a trailing shortcut. Born at base-content and held back at the muted level, the ink every one of them is drawn in, and defaulting to ink-muted.\n\nSplit from ink-muted because a key is an instruction rather than a caption: a plugin that greys its captions further leaves its keys legible, and one that inks its keys in an accent owes the 4.5:1 every ink owes, which check:text-contrast measures at the muted level.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "default": "{ink-muted}"
+      }
+    }
+  },
+  "ink-link": {
+    "$type": "color",
+    "$description": "The colour of a link set in running text: an ArenaLink in a sentence, a help line, a card body. Born at base-content, the ink every palette already holds to 4.5:1 on its surfaces, and defaulting to ink-body, so a link reads as the prose it sits in and the permanent underline is the cue that it is one.\n\nA role rather than ink-body itself, because a plugin that colours its links is making a decision about prose and not about every word: a document tool tints its links, a console leaves them in the body ink. A plugin that raises an accent to it owes the 4.5:1 every ink owes, measured at the body level.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "default": "{ink-body}"
+      }
+    }
+  },
   "edge-surface": {
     "$type": "color",
     "$description": "The colour of the line that encloses a surface. Standing to bw-surface exactly as\nfill-surface stands to it: one says how thick the enclosure is, this says what colour it is, and\na style plugin needs both because a hairline in the page's own ramp and a hairline in neutral are two\ndifferent statements about how hard the region is.\n\nBorn at base-300, which thirty-four slots name outright. It was dropped once with the stroke\nroles for want of a style plugin that asked, and those thirty-four uses are the measurement of what not\nhaving it cost."
@@ -463,7 +523,52 @@
   },
   "edge-axis": {
     "$type": "color",
-    "$description": "Which colour the axis lines, the zero line and the crosshair of a chart are drawn in, read by the line, bar, horizontal bar, scatter, radar and pyramid charts, and not by the doughnut, which has no axis. It is heavier than edge-separator, which draws the grid rules behind the marks."
+    "$description": "Which colour the axis lines, the zero line and the crosshair of a chart are drawn in, read by the line, bar, horizontal bar, scatter, radar and pyramid charts, by the crosshair of an interactive sparkline and by the band-edge ticks of a gauge, and not by the doughnut, which has no axis. It is heavier than edge-separator, which draws the grid rules behind the marks."
+  },
+  "heat-step-1": {
+    "$type": "color",
+    "$description": "The fill of a heatmap cell, and of its legend swatch, whose value falls in step 1 of five equal bins. More is more contrast with the surface, in both themes. The steps are read by magnitude only, so a plugin that answers them keeps their order and the 0.06 OKLab L gap check:ramp holds on Arena's own answer. Born at the palette's heat-1.\n\nA missing cell is drawn with no fill, so step 1 must stay visibly apart from the surface: the 2:1 floor check:ramp holds on the lightest end.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "default": "{color.heat-1}"
+      }
+    }
+  },
+  "heat-step-2": {
+    "$type": "color",
+    "$description": "The fill of a heatmap cell, and of its legend swatch, whose value falls in step 2 of five equal bins. More is more contrast with the surface, in both themes. The steps are read by magnitude only, so a plugin that answers them keeps their order and the 0.06 OKLab L gap check:ramp holds on Arena's own answer. Born at the palette's heat-2.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "default": "{color.heat-2}"
+      }
+    }
+  },
+  "heat-step-3": {
+    "$type": "color",
+    "$description": "The fill of a heatmap cell, and of its legend swatch, whose value falls in step 3 of five equal bins. More is more contrast with the surface, in both themes. The steps are read by magnitude only, so a plugin that answers them keeps their order and the 0.06 OKLab L gap check:ramp holds on Arena's own answer. Born at the palette's heat-3.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "default": "{color.heat-3}"
+      }
+    }
+  },
+  "heat-step-4": {
+    "$type": "color",
+    "$description": "The fill of a heatmap cell, and of its legend swatch, whose value falls in step 4 of five equal bins. More is more contrast with the surface, in both themes. The steps are read by magnitude only, so a plugin that answers them keeps their order and the 0.06 OKLab L gap check:ramp holds on Arena's own answer. Born at the palette's heat-4.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "default": "{color.heat-4}"
+      }
+    }
+  },
+  "heat-step-5": {
+    "$type": "color",
+    "$description": "The fill of a heatmap cell, and of its legend swatch, whose value falls in step 5 of five equal bins. More is more contrast with the surface, in both themes. The steps are read by magnitude only, so a plugin that answers them keeps their order and the 0.06 OKLab L gap check:ramp holds on Arena's own answer. Born at the palette's heat-5.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "default": "{color.heat-5}"
+      }
+    }
   },
   "bw-surface": {
     "$type": "dimension",
@@ -802,27 +907,27 @@
   },
   "size-sm-meter": {
     "$type": "dimension",
-    "$description": "The weight of a meter: a bar's thickness and a ring's band at arena-size-sm, read by ArenaProgressBar. An option of a family is a question by construction, so the plugin answers it."
+    "$description": "The weight of a bar: a progress bar's, a meter's or a slider's track and a progress ring's band at arena-size-sm, read by ArenaProgressBar, ArenaMeter and ArenaSlider. An option of a family is a question by construction, so the plugin answers it."
   },
   "size-md-meter": {
     "$type": "dimension",
-    "$description": "The weight of a meter: a bar's thickness and a ring's band at arena-size-md, read by ArenaProgressBar. An option of a family is a question by construction, so the plugin answers it."
+    "$description": "The weight of a bar: a progress bar's, a meter's or a slider's track and a progress ring's band at arena-size-md, read by ArenaProgressBar, ArenaMeter and ArenaSlider. An option of a family is a question by construction, so the plugin answers it."
   },
   "size-lg-meter": {
     "$type": "dimension",
-    "$description": "The weight of a meter: a bar's thickness and a ring's band at arena-size-lg, read by ArenaProgressBar. An option of a family is a question by construction, so the plugin answers it."
+    "$description": "The weight of a bar: a progress bar's, a meter's or a slider's track and a progress ring's band at arena-size-lg, read by ArenaProgressBar, ArenaMeter and ArenaSlider. An option of a family is a question by construction, so the plugin answers it."
   },
   "size-sm-ring": {
     "$type": "dimension",
-    "$description": "The diameter of a radial meter at arena-size-sm, read by ArenaProgressBar. An option of a family is a question by construction, so the plugin answers it."
+    "$description": "The diameter of a progress ring at arena-size-sm, read by ArenaProgressBar. An option of a family is a question by construction, so the plugin answers it."
   },
   "size-md-ring": {
     "$type": "dimension",
-    "$description": "The diameter of a radial meter at arena-size-md, read by ArenaProgressBar. An option of a family is a question by construction, so the plugin answers it."
+    "$description": "The diameter of a progress ring at arena-size-md, read by ArenaProgressBar. An option of a family is a question by construction, so the plugin answers it."
   },
   "size-lg-ring": {
     "$type": "dimension",
-    "$description": "The diameter of a radial meter at arena-size-lg, read by ArenaProgressBar. An option of a family is a question by construction, so the plugin answers it."
+    "$description": "The diameter of a progress ring at arena-size-lg, read by ArenaProgressBar. An option of a family is a question by construction, so the plugin answers it."
   },
   "size-xs-avatar": {
     "$type": "dimension",
@@ -1073,19 +1178,19 @@
   },
   "accent-plain-ink": {
     "$type": "color",
-    "$description": "The ink of a figure, a meter, an activity dot or a spinner at arena-accent-plain, read by ArenaStatCard. An option of a family is a question by construction, so the plugin answers it."
+    "$description": "The ink of a figure, a bar, an activity dot or a spinner at arena-accent-plain, read by ArenaStatCard. An option of a family is a question by construction, so the plugin answers it."
   },
   "accent-primary-ink": {
     "$type": "color",
-    "$description": "The ink of a figure, a meter, an activity dot or a spinner at arena-accent-primary, read by ArenaStatCard, ArenaProgressBar, ArenaActivityFeed, ArenaSpinner. An option of a family is a question by construction, so the plugin answers it."
+    "$description": "The ink of a figure, a bar, an activity dot or a spinner at arena-accent-primary, read by ArenaStatCard, ArenaProgressBar, ArenaMeter, ArenaActivityFeed, ArenaSpinner. An option of a family is a question by construction, so the plugin answers it."
   },
   "accent-gold-ink": {
     "$type": "color",
-    "$description": "The ink of a figure, a meter, an activity dot or a spinner at arena-accent-gold, read by ArenaStatCard, ArenaProgressBar, ArenaActivityFeed, ArenaSpinner. An option of a family is a question by construction, so the plugin answers it."
+    "$description": "The ink of a figure, a bar, an activity dot or a spinner at arena-accent-gold, read by ArenaStatCard, ArenaProgressBar, ArenaMeter, ArenaActivityFeed, ArenaSpinner. An option of a family is a question by construction, so the plugin answers it."
   },
   "accent-muted-ink": {
     "$type": "color",
-    "$description": "The ink of a figure, a meter, an activity dot or a spinner at arena-accent-muted, read by ArenaSpinner. An option of a family is a question by construction, so the plugin answers it."
+    "$description": "The ink of a figure, a bar, an activity dot or a spinner at arena-accent-muted, read by ArenaSpinner. An option of a family is a question by construction, so the plugin answers it."
   },
   "accent-plain-quiet-ink": {
     "$type": "color",

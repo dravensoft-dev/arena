@@ -59,11 +59,11 @@ export function arenaResolveActivityFeedRows(items: readonly ArenaActivityItem[]
 export class ArenaActivityFeed {
   protected readonly parts = manifest.parts;
 
-  /** Names the feed for assistive technology. Required, and guarded at runtime: nothing can derive it, and a feed is a landmark a reader navigates BY, so say what the events are about ("Deployment activity"), never "Activity feed". */
+  /** Names the feed for assistive technology. Required, and guarded at runtime: nothing can derive it. A feed is a landmark a reader navigates BY, so say what the events are about ("Deployment activity"), never "Activity feed". */
   readonly label = input.required<string>();
   /** The events, newest first by convention. Each row is drawn by Arena; there is no per-item projection. */
   readonly items = input.required<readonly ArenaActivityItem[]>();
-  /** Whether a multi-step update to the feed is in progress, reflected as `aria-busy`. Set it while rows are being loaded or replaced and clear it once they settle, so a screen reader announces the settled feed rather than each intermediate state. It is an input rather than something Arena infers: only the host knows when its own loading has finished. */
+  /** Whether a multi-step update to the feed is in progress, reflected as `aria-busy`. Set it while rows are being loaded or replaced and clear it once they settle, so a screen reader announces the settled feed rather than each intermediate state. The flag is an input rather than something Arena infers: only the host knows when its own loading has finished. */
   readonly busy = input(false, { transform: booleanAttribute });
 
   protected readonly labelText = computed(() => {

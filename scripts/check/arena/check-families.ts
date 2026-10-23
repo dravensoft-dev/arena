@@ -19,7 +19,8 @@ import { classesManifest } from '../../lib/tailwind/component-css.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { relPosix } from '../../utils/posix-path.ts';
 import { kebab } from '../../utils/case.ts';
-import { NOT_WRITTEN, SHEETS, classesIn, themeUtilities } from './check-classes.ts';
+import { NOT_WRITTEN, SHEETS, UTILITIES, classesIn, themeUtilities } from './check-classes.ts';
+import { THEME_SOURCES } from '../../lib/tailwind/theme-sheet.ts';
 import {
   REACHES, TARGETS, VOCABULARY_DIR, answerOf, answeredFamilies, axesOf, axisWrapped, channelPrefix, channelReads, declarations, familyFiles,
   optionDeclarations, readFamilies, slotClassStrings, type Family,
@@ -30,7 +31,9 @@ import { readHues } from '../../lib/tailwind/hue-sheet.ts';
 export const node = {
   name: 'check:families',
   reads: [`${VOCABULARY_DIR}/**`, 'frameworks/tailwind/components/**/*.manifest.json',
-    'frameworks/react/components/**', 'frameworks/angular/components/**', VOCABULARY_TARGET, ...SHEETS, 'frameworks/tailwind/consume/**/*.css'],
+    'frameworks/react/components/**', 'frameworks/angular/components/**', VOCABULARY_TARGET, ...SHEETS, 'frameworks/tailwind/consume/**/*.css',
+    'contracts/api/components/*.json', 'contracts/api/types/*.json', 'contracts/design/density.*.json',
+    UTILITIES, ...THEME_SOURCES.theme, ...THEME_SOURCES.utilities, 'frameworks/tailwind/Hues.json'],
   writes: [],
   feeds: [],
 };

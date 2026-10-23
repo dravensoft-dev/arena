@@ -25,7 +25,8 @@ export const node = {
   reads: ['contracts/api/components', 'frameworks/Components.json', ...COMPONENT_SOURCES],
   writes: COMPONENT_SOURCES,
   feeds: [
-    'check:families',
+    'generate:prompt-api', 'check:prompts', 'build:sprite',
+    'check:families', 'check:kitchen-sink', 'check:contracts-neutrality',
     'check:architecture',
     'build:angular-package',
     'build:angular-tests',
@@ -36,6 +37,7 @@ export const node = {
     'check:api',
     'check:appearance',
     'check:parts',
+    'check:portability',
     'check:arbitrary',
     'check:behaviour',
     'check:boolean-inputs',
@@ -44,6 +46,7 @@ export const node = {
     'check:dimensions',
     'check:duplicate-constants',
     'check:focus-trap',
+    'check:anchoring',
     'check:generated',
     'check:icons',
     'check:layer-independence',
@@ -59,6 +62,7 @@ export const node = {
     'check:measured-box',
     'generate:playgrounds',
     'build:site',
+    'check:site',
   ],
 };
 

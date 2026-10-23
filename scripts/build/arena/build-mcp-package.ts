@@ -56,12 +56,13 @@ export const node = {
     `${SOURCE}/**`, `!${SOURCE}/*.test.ts`, AUDIT_SOURCE, NPM_PAGE,
     '.claude-plugin/plugin.json', 'LICENSE',
     'skills/design/SKILL.md', 'skills/design/references/*.md',
-    'frameworks/INDEX.md', 'frameworks/VOCABULARY.md', 'contracts/design/roles.json', 'contracts/behaviour/*.json',
+    'frameworks/INDEX.md', 'frameworks/VOCABULARY.md', 'contracts/design/*.json', 'contracts/api/components/*.json', 'contracts/behaviour/*.json',
+    'frameworks/angular/ProjectionMarkers.ts', 'frameworks/angular/forms/*.ts',
     'frameworks/*/INDEX.md', 'frameworks/*/components/*/INDEX.md',
     'frameworks/*/components/**/*.prompt.md',
     'frameworks/*/components/**/*.behaviour.json',
     'plugin-style-store/default/*', 'plugin-style-store/complete/*', 'plugin-style-store/catalogue/INDEX.md',
-    'plugin-style-store/catalogue/*/*',
+    'plugin-style-store/catalogue/*/*', 'arena-from-scratch/identity*.html',
     'frameworks/tailwind/vocabulary/**', 'frameworks/tailwind/components/**/*.json',
   ],
   writes: [`${DIST}/**`],
@@ -105,8 +106,7 @@ export function servedPackages() {
   return PACKAGES;
 }
 
-export function buildMcpPackage(root = repoRoot) {
-  const dir = join(root, DIST);
+export function buildMcpPackage(root = repoRoot, dir = join(root, DIST)) {
   reset(dir);
   const written = [];
 

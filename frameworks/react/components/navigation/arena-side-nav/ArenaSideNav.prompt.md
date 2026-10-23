@@ -21,10 +21,10 @@ the same shape as `ArenaTable`/`ArenaTableRow` and `ArenaRadioGroup`/`ArenaRadio
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
 | `active` | primitive | `string` |  | The id of the current destination. The ArenaSideNavItem whose id matches is marked aria-current="page", and no item is marked when it names none of them. |
-| `ariaLabel*` | primitive | `string` |  | Names this navigation landmark. Required, and guarded at runtime: the guard trims before it decides, so a blank name is refused as well as an absent one, because ariaLabel="" renders a landmark with no accessible name, which is the defect arriving through a value that is present. Guarded rather than defaulted: the navigation pattern asks each landmark on a page for a UNIQUE name, and a constant default satisfies the existence half while two sidebars on one page stay indistinguishable. Nothing can derive it either; what a nav is FOR is editorial. Say what it navigates -- "Primary", "Project settings" -- the ArenaTable.label and ArenaSegmentedControl.ariaLabel shape. |
-| `children` | slot |  |  | The navigation tree. One ArenaSideNavItem per destination, optionally grouped by ArenaSideNavSection and ArenaSideNavCollapsible; where each child sits, which id is active and how it reports `onNav` are the parent's to settle, and none of it is a member here. |
-| `collapsed` | primitive | `boolean` | `false` | Whether the list is an icon rail. Each item draws its icon alone and shows its label as a tooltip, which stays its accessible name; a badge becomes a dot whose count joins the name; a section's label is hidden and stays the group's name; a collapsible's items render at the rail level and its trigger is not drawn. An item with no icon is refused while collapsed. The frame around the list stays the consumer's. |
-| `onNav` | event | `string` |  | An item was activated, carrying its id. It carries the id alone, on the ArenaBreadcrumbs precedent that the platform event leaves the payload and the item travels by itself, and under the compound shape there is no item datum left to carry either, because the consumer wrote the element and already holds everything on it. Where the item has an href, Arena has already cancelled the anchor by the time this fires, so a listener routes and does not double-navigate; ctrl-click, middle-click and open-in-new-tab are the browser's and fire nothing, so a consumer who wires no listener still has a working column of real links. |
+| `ariaLabel*` | primitive | `string` |  | Names this navigation landmark. Required, and guarded at runtime: the guard trims before it decides, so a blank name is refused as well as an absent one. A blank name matters because ariaLabel="" renders a landmark with no accessible name, which is the defect arriving through a value that is present. Guarded rather than defaulted: the navigation pattern asks each landmark on a page for a UNIQUE name. A constant default satisfies the existence half while two sidebars on one page stay indistinguishable. Nothing can derive the name either; what a nav is FOR is editorial. Say what it navigates -- "Primary", "Project settings" -- the ArenaTable.label and ArenaSegmentedControl.ariaLabel shape. |
+| `children` | slot |  |  | The navigation tree. One ArenaSideNavItem per destination, optionally grouped by ArenaSideNavSection and ArenaSideNavCollapsible. Where each child sits, which id is active and how it reports `onNav` are the parent's to settle, and none of it is a member here. |
+| `collapsed` | primitive | `boolean` | `false` | Whether the list is an icon rail. Each item draws its icon alone and shows its label as a tooltip, which stays its accessible name. A badge becomes a dot whose count joins the name. A section's label is hidden and stays the group's name. A collapsible's items render at the rail level and its trigger is not drawn. An item with no icon is refused while collapsed. The frame around the list stays the consumer's. |
+| `onNav` | event | `string` |  | An item was activated, carrying its id. The event carries the id alone, on the ArenaBreadcrumbs precedent that the platform event leaves the payload and the item travels by itself. Under the compound shape there is no item datum left to carry either, because the consumer wrote the element and already holds everything on it. Where the item has an href, Arena has already cancelled the anchor by the time this fires, so a listener routes and does not double-navigate. Ctrl-click, middle-click and open-in-new-tab are the browser's and fire nothing, so a consumer who wires no listener still has a working column of real links. |
 
 <!-- @api end -->
 
@@ -107,8 +107,11 @@ Compute the active id yourself. Whatever bridges your router to a signal or to s
 yours in either design; what is left is one comparison:
 
 ```tsx
-const active = DESTINATIONS.find((d) => pathname.startsWith(d.href))?.id;
+const isAt = (href: string) => href === '/' ? pathname === '/' : pathname === href || pathname.startsWith(`${href}/`);
+const active = DESTINATIONS.find((d) => isAt(d.href))?.id;
 ```
+
+A Home at `/` compared with `startsWith` is active on every route.
 
 ### The active row is filled, and you pass one string
 
@@ -122,7 +125,7 @@ and a class that matches no glyph is not an error. Nothing on your side catches 
 so check a name against the `@phosphor-icons/web` you installed if a wrong one would be
 expensive.
 
-**As a rail.** `collapsed` narrows the list to an icon rail and leaves the frame around it to you: the drawer, the button that collapses it and the page column are yours. Every item needs an `icon` while collapsed, and one without is refused. Each label stays the item's accessible name and shows as a tooltip on hover and on focus. A badge becomes a dot, and its count joins the name. Section labels are hidden but still name their groups, and a collapsible lays its items out in the rail with no trigger of its own. Which of the two is on screen is the viewport's question: mark the rail `max-md:hidden` and the drawer `md:hidden` with the theme sheet's variants, or branch on `useArenaViewportBelow('md')`.
+**As a rail.** `collapsed` narrows the list to an icon rail and leaves the frame around it to you: the drawer, the button that collapses it and the page column are yours. Every item needs an `icon` while collapsed, and one without is refused. Each label stays the item's accessible name and shows as a tooltip on hover and on focus. A badge becomes a dot, and its count joins the name. Section labels are hidden but still name their groups, and a collapsible lays its items out in the rail with no trigger of its own. Which of the two is on screen is the viewport's question. Put `max-md:hidden` on an element of your own around the rail and `md:hidden` on one around the drawer, or branch on `useArenaViewportBelow('md')`.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

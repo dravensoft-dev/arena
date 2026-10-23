@@ -15,8 +15,8 @@ const TONES = ['neutral', 'success', 'warning', 'danger', 'info'];
 function badge(tone, option, dot = false) {
   const c = arenaClassesFor(manifest, { tone });
   const d = arenaSlotDataFor(manifest, { tone });
-  const node = el('span', { class: `${c.root} ${option}`, 'data-arena-part': 'badge', 'data-arena-boundary': '', ...d.root });
-  if (dot) node.append(el('span', { class: c.dot, 'data-arena-part': 'badge.dot', ...d.dot }));
+  const node = el('span', { class: `${c.root} ${option}`, 'data-arena-boundary': '', ...d.root });
+  if (dot) node.append(el('span', { class: c.dot, ...d.dot }));
   node.append(tone);
   return node;
 }

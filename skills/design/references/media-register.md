@@ -117,6 +117,17 @@ galleries and shops. If your product is media, those four are not a detail of yo
 The four are most of what a viewer will notice, so answer them first and look at the result
 before you answer anything else.
 
+```json
+{
+  "aspect-media":  { "$type": "number",    "$value": 0.8 },
+  "fit-media":     { "$type": "keyword",   "$value": "cover" },
+  "r-media":       { "$type": "dimension", "$value": { "value": 0, "unit": "px" } },
+  "overlay-media": { "$type": "color",     "$value": "{color.base-100}" }
+}
+```
+
+The fragment goes in `design/<name>/plugin.tokens.json`. Each `$type` is the one `contracts/design/roles.json` gives the role.
+
 `r-media` is also where the boundary is stated in the kernel's own words. A card is a container
 the reader looks past, and a figure is the thing being looked at. If your post is the thing being
 looked at, it is not a card.
@@ -124,6 +135,10 @@ looked at, it is not a card.
 **Two component names will look like your answer and are not.** `ArenaActivityFeed` is an event
 log with a fixed row, and `ArenaCard` is the container above. Both are the first thing a search for your screen returns. Reaching for either is how a product in
 this register ends up fighting a component instead of writing six lines.
+
+## Video and illustration
+
+A video and an illustration sit in `ArenaFigure` and take the four roles above. A wall of clips and a wall of photographs then share one shape, one corner and one wash. The controls, the captions and the art stay the project's.
 
 ## The viewer that opens a picture at full size
 

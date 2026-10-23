@@ -1,0 +1,13 @@
+{
+  "name": "ArenaTreeExpansion",
+  "kind": "object",
+  "description": "Which branches of an ArenaTreeView are open. An object holds the array, because an event's payload is a declared type or a primitive and never an array. The consumer holds this set and writes back what `expandedChange` carries.",
+  "fields": {
+    "ids": {
+      "form": "array",
+      "of": "string",
+      "required": true,
+      "description": "The ids of the open branches. A branch opened is appended and a branch closed is removed, and an id matching no node is kept."
+    }
+  }
+}

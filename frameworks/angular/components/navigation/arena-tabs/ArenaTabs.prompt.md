@@ -3,7 +3,7 @@ for steps in a flow. Standalone, `OnPush`, signal I/O. A compound family: write 
 view and `arena-tabs` draws the tablist, places the panels, and owns the keyboard.
 
 ```html
-<arena-tabs [value]="view()" (change)="view.set($event)">
+<arena-tabs [value]="view()" (valueChange)="view.set($event)">
   <arena-tab value="overview" label="Overview">…</arena-tab>
   <arena-tab value="deployments" label="Deployments">…</arena-tab>
   <arena-tab value="settings" label="Settings">…</arena-tab>
@@ -21,10 +21,10 @@ view and `arena-tabs` draws the tablist, places the panels, and owns the keyboar
 
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
-| `content` | slot |  |  | The tabs. Which one is selected, which is the strip's tab stop, the ids wiring each to its panel and how the choice is reported are the strip's to settle, and none of it is a member here. EVERY tab's content mounts: one panel per tab is rendered and the inactive ones are hidden, because each tab's aria-controls must reference a tabpanel that exists. So a panel's side effects run immediately rather than on first selection. |
+| `content` | slot |  |  | The tabs. Which one is selected, which is the strip's tab stop, the ids wiring each to its panel and how the choice is reported are the strip's to settle. None of it is a member here. EVERY tab's content mounts: one panel per tab is rendered and the inactive ones are hidden, because each tab's aria-controls must reference a tabpanel that exists. So a panel's side effects run immediately rather than on first selection. |
 | `value` | primitive | `string` |  | The selected tab's value. Omit and pass `defaultValue` to let it govern itself. |
 | `defaultValue` | primitive | `string` |  | The initially selected value when uncontrolled. Defaults to the first tab. |
-| `change` | event | `string` |  | A different tab was chosen; carries its value. |
+| `valueChange` | event | `string` |  | A different tab was chosen; carries its value. |
 
 <!-- @api end -->
 
@@ -52,7 +52,8 @@ is expensive, guard it inside the view rather than expecting the tab to defer it
   draws the button, the consumer names it.
 - Controlled or not: pass `value` and it is yours, or pass `defaultValue` and the strip remembers
   its own choice. With neither, **the first tab wins**, so a panel is always showing.
-- `change` fires only when a **different** tab is chosen. Re-selecting the active tab reports
+- Reading `value` and emitting `valueChange` makes `[(value)]` bind both ways.
+- `valueChange` fires only when a **different** tab is chosen. Re-selecting the active tab reports
   nothing.
 - **The panels sit outside the tablist**, which is why `arena-tab` renders its content into its own
   host rather than into the row. A tabpanel inside a tablist is invalid, and the compliance suite

@@ -1,10 +1,12 @@
-import { test } from 'node:test';
+import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { undrawnStep, auditStep, reportLines, paintedBy, namedComponents, drawsForYou } from './steps.ts';
 import { report } from './reports.ts';
-import { auto, MAP, options, project, readable } from './cli-fixtures.ts';
+import { auto, MAP, options, project, readable, removeFixtures } from './cli-fixtures.ts';
+
+after(removeFixtures);
 
 test('a report line names the palette it came from, and keeps the kind it is', () => {
   assert.deepEqual(

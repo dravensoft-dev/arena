@@ -23,6 +23,11 @@ test('a name written in prose above a block is not a definition', () => {
     + 'the rule to a list the file does not carry');
 });
 
+test('only the arena-palette channel is exempt, so another arena- name is an alias', () => {
+  const found = aliasesIn(':root{--arena-palette:x;--arena-x:y;--mute:z;}');
+  assert.deepEqual(found, ['arena-x', 'mute']);
+});
+
 test('an empty result set is a failure rather than a clean pass', () => {
   assert.deepEqual(zeroAliasProblems(1), []);
   assert.equal(zeroAliasProblems(0).length, 1,

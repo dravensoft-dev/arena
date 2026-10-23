@@ -1,0 +1,5 @@
+{
+  "pattern": "menu-button",
+  "reason": "The pattern is bound on the caret half, which is where its requirements live: a native <button> carrying aria-haspopup and aria-expanded, opened by Enter and Space with focus on the first entry, and closed by Escape with focus back on the caret. The primary half is a plain native <button>, and it is not claimed by a second pattern: a flat binding names one, and a button adds no requirement the platform does not already meet. The root is a group named by the required label, and its role and name are asserted by hand in the suites, because the group pattern is not additive and one render binds one pattern.",
+  "exceptions": []
+}

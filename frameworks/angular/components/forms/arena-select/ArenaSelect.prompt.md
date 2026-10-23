@@ -22,15 +22,15 @@ So the component binds the `select` pattern rather than `combobox`, and `aria-ex
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
 | `label` | primitive | `string` |  | Field label above the control. |
-| `placeholder` | primitive | `string` |  | An empty-valued first option, drawn before the choices and unselectable once a real one is made -- "Choose a customer". It is an option rather than an attribute because a native select has no placeholder, and it is what makes "nothing chosen yet" distinguishable from "the first choice". |
+| `placeholder` | primitive | `string` |  | An empty-valued first option, drawn before the choices and unselectable once a real one is made -- "Choose a customer". The placeholder is an option rather than an attribute, because a native select has no placeholder. The option makes "nothing chosen yet" distinguishable from "the first choice". |
 | `options` | array | `readonly ArenaSelectOption[]` | `[]` | The choices, drawn as native options. |
 | `value` | primitive | `string` |  | The selected option's value. |
 | `disabled` | primitive | `boolean` | `false` | Blocks the control and dims it. |
 | `required` | primitive | `boolean` | `false` | Must have a value for the form to submit. |
 | `hint` | primitive | `string` |  | A line of help under the field. |
-| `error` | primitive | `string` |  | Controlled error message. It is the whole validation surface here, unlike ArenaInput, which also takes a `validate` function: a native select offers a closed list, so there is no value to parse and nothing for a validator to reject that the options did not already prevent. |
+| `error` | primitive | `string` |  | Controlled error message. The message is the whole validation surface here, unlike ArenaInput, which also takes a `validate` function. A native select offers a closed list, so there is no value to parse and nothing for a validator to reject that the options did not already prevent. |
 | `valid` | primitive | `boolean` | `false` | Force the valid (green check) state. |
-| `icon` | primitive | `string` |  | Phosphor class name drawn at the field's start. |
+| `icon` | primitive | `string` |  | Phosphor class name drawn at the field's start through ArenaIcon. |
 | `name` | primitive | `string` |  | Submitted with the form. |
 | `change` | event | `string` |  | A different option was chosen; carries its value. |
 
@@ -77,9 +77,9 @@ pointing at the control's own generated id. The member is optional in the contra
   control, never on `<arena-select>`.
 - **There is no `multiple`, and that is a decision rather than an omission.** A multi-selection is a *set* of values and `change` carries one `string`. The member could only ever have set an attribute whose result the event could not report. A native multi-select is a list box shown
   open, a different control from the styled dropdown this is.
-- **Don't** put more than a handful of options in it. A long or searchable list is
-  `arena-command-palette`'s job, and a set of three or four mutually exclusive choices already
-  visible on the page is `arena-segmented-control`'s.
+- **Don't** put more than a handful of options in it. A long list a user searches for a form value
+  is `arena-combobox`'s job. A set of three or four mutually exclusive choices already visible on
+  the page is `arena-segmented-control`'s. Running an action is `arena-command-palette`'s.
 
 **By hand, in real Chromium**: the popup is the browser's and happy-dom has none, so nothing
 below is provable by a suite. Run `bun run demos` and open `/frameworks/angular/components/forms/arena-select/ArenaSelect.demo.generated.html`: - The popup opens on click and on Space, walks with the arrow keys and type-ahead, and commits on Enter. All of that is the platform's and none of it is Arena's.

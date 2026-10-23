@@ -527,7 +527,9 @@ test('a non-literal default is not compared, because the gate reads source and d
 });
 
 test('IMPERATIVE_HANDLES names each allowed method by literal value, with a reason', () => {
-  assert.deepEqual([...IMPERATIVE_HANDLES.keys()].sort(), ['ArenaInput.focus', 'ArenaInput.select'],
+  assert.deepEqual([...IMPERATIVE_HANDLES.keys()].sort(),
+    ['ArenaFileInput.clear', 'ArenaFileInput.files', 'ArenaInput.focus', 'ArenaInput.select', 'ArenaNumberField.focus',
+      'ArenaNumberField.select', 'ArenaPinInput.focus'],
     'a public method on a component class is an undeclared surface unless it is one of these, '
     + 'and widening the set is a decision rather than an oversight');
   for (const [name, reason] of IMPERATIVE_HANDLES) {
@@ -571,4 +573,17 @@ test('angularImplementation answers the defaults a class declares and skips what
     + '}';
   const { defaults } = angularImplementation(source, 'X');
   assert.deepEqual([...defaults], [['gap', "'md'"], ['lines', '3']]);
+});
+
+test('a quoted member is read by its name, with its doc', () => {
+  const src = "export interface XProps {\n  /** Shown. */\n  label?: string;\n  /** Written by a composer. */\n  'aria-expanded'?: boolean;\n}";
+  const { members, docs } = reactSurface(src, 'XProps');
+  assert.deepEqual(members.map((m) => m.name), ['label', 'aria-expanded']);
+  assert.equal(docs.get('aria-expanded'), 'Written by a composer.');
+  assert.equal(docs.get('label'), 'Shown.');
+});
+
+test('a quoted destructuring entry is read by its key', () => {
+  const impl = reactImplementation("function X({ label, 'aria-expanded': ariaExpanded }: XProps) { return null; }", 'X');
+  assert.ok(impl.defaults.has('aria-expanded'));
 });

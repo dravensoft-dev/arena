@@ -13,7 +13,7 @@ import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { readJson } from '../../utils/read-file.ts';
-import { buildApiModules } from '../../generate/arena/generate-api-types.ts';
+import { buildApiModules, LOCALE_TARGETS } from '../../generate/arena/generate-api-types.ts';
 import { PREFIX } from './check-structure.ts';
 import {
   reactSurface, angularSurface, reactImplementation, angularImplementation, defaultProblems,
@@ -40,6 +40,7 @@ export const node = {
     'frameworks/react/components/**/*.tsx', 'frameworks/angular/components/**/*.ts',
     'frameworks/tailwind/components/**/*.manifest.json',
     'frameworks/react/Api.generated.ts', 'frameworks/angular/Api.generated.ts',
+    ...LOCALE_TARGETS, 'frameworks/tailwind/Hues.json',
   ],
   writes: [],
   feeds: [],
@@ -62,7 +63,26 @@ export function zeroContractProblems({ contracts, types }: { contracts: number; 
 
 export { bindingName };
 
-export function docProblems(contract: ContractCandidate, docs: Map<string, string>, layer: string) {
+export const TRIGGER_ARIA = new Map<string, { names: readonly string[]; why: string }>(
+  ['ArenaButton', 'ArenaIconButton'].map((component) => [component, {
+    names: ['aria-haspopup', 'aria-expanded', 'aria-controls', 'aria-describedby'],
+    why: 'Arena\'s composers write a trigger\'s popup state and description onto it by clone (ArenaPopover, '
+      + 'ArenaMenu, ArenaTooltip), and a server render draws only what the button forwards. ARIA is no member '
+      + '(contracts/api/MemberForms.md), so the contract stays as it is and this names the four the '
+      + 'implementation forwards.',
+  }]),
+);
+
+export function staleTriggerProblems(allowed: Set<string>, trigger = TRIGGER_ARIA) {
+  return [...trigger.entries()].flatMap(([component, { names }]) => names
+    .filter((name) => !allowed.has(`${component}.${name}`))
+    .map((name) => `TRIGGER_ARIA names ${component}.${name}, and the React surface declares no such prop. `
+      + 'A stale allowance reads as a decision somebody made about code that is there.'));
+}
+
+export function docProblems(
+  contract: ContractCandidate, docs: Map<string, string>, layer: string, trigger = TRIGGER_ARIA,
+) {
   const problems = [];
   const where = `${layer}/${contract.component}`;
   const wanted = new Map();
@@ -93,6 +113,7 @@ export function docProblems(contract: ContractCandidate, docs: Map<string, strin
 
   for (const bound of docs.keys()) {
     if (wanted.has(bound)) continue;
+    if (layer === 'react' && trigger.get(contract.component ?? '')?.names.includes(bound)) continue;
     problems.push(
       `${where}.${bound}: carries a /** */ doc and is no contracted member. Only a contract-derived doc is `
       + 'allowed here, because only that one is held equal to something',
@@ -263,7 +284,7 @@ export function vocabularyMemberProblems(
   const wanted = `${component}Class`;
   if (!member) {
     problems.push(`${where}: takes no className, so no vocabulary class reaches its root. Declare className?: ${wanted}, `
-      + 'apply it through arenaClassName on the root, or name the component in OWN_ELEMENTLESS with why it has no root');
+      + 'apply it through arenaClassName(…, manifest.vocabulary) on the root, or name the component in OWN_ELEMENTLESS with why it has no root');
   } else if (member.form !== 'named' || member.type !== wanted) {
     problems.push(`${where}.className: typed ${member.type ?? member.form}, and only the generated ${wanted} keeps a utility out`);
   } else if (member.required) {
@@ -274,6 +295,7 @@ export function vocabularyMemberProblems(
 
 export function compareSurface(
   contract: ContractCandidate, members: SurfaceMember[], layer: string, types = new Map(),
+  trigger = TRIGGER_ARIA, allowed = new Set<string>(),
 ) {
   const problems = [];
   const where = `${layer}/${contract.component}`;
@@ -302,6 +324,10 @@ export function compareSurface(
       problems.push(`${where}.${m.name}: declared twice in this layer's own surface -- a slot mentioned in a doc comment as well as the real template is the known case`);
     } else {
       rawSeen.add(m.name);
+    }
+    if (layer === 'react' && trigger.get(contract.component ?? '')?.names.includes(m.name) && !expected.has(m.name)) {
+      allowed.add(`${contract.component}.${m.name}`);
+      continue;
     }
     if (m.form === 'platform') {
       problems.push(`${where}.${m.name}: "${m.type}" is a platform type and none of the nine forms — R4`);
@@ -429,6 +455,16 @@ const THE_PLOT_HEIGHT_IS_A_TOKEN = 'the plot height a chart renders at is --char
   + 'value a consumer observes is a token\'s, so a default written into the contract would be a '
   + 'second copy of it that goes stale the day contracts/design/chart.json moves and fails nothing.';
 
+const THE_SPARKLINE_HEIGHT_IS_A_TOKEN = 'the plot height a sparkline renders at is --chart-sparkline-height, '
+  + 'which both layers import from their generated Tokens module. The value a consumer observes is a '
+  + 'token\'s, so a default written into the contract would be a second copy of it that goes stale the '
+  + 'day contracts/design/chart.json moves and fails nothing.';
+
+const THE_GAUGE_HEIGHT_IS_A_TOKEN = 'the dial height a gauge renders at is --chart-gauge-height, '
+  + 'which both layers import from their generated Tokens module. The value a consumer observes is a '
+  + 'token\'s, so a default written into the contract would be a second copy of it that goes stale the '
+  + 'day contracts/design/chart.json moves and fails nothing.';
+
 export const DERIVED_DEFAULT = new Map<string, string>([
   ['ArenaBarChart.height', THE_PLOT_HEIGHT_IS_A_TOKEN],
   ['ArenaHorizontalBarChart.height', THE_PLOT_HEIGHT_IS_A_TOKEN],
@@ -436,6 +472,9 @@ export const DERIVED_DEFAULT = new Map<string, string>([
   ['ArenaPyramidChart.height', THE_PLOT_HEIGHT_IS_A_TOKEN],
   ['ArenaRadarChart.height', THE_PLOT_HEIGHT_IS_A_TOKEN],
   ['ArenaScatterChart.height', THE_PLOT_HEIGHT_IS_A_TOKEN],
+  ['ArenaSparkline.height', THE_SPARKLINE_HEIGHT_IS_A_TOKEN],
+  ['ArenaGaugeChart.height', THE_GAUGE_HEIGHT_IS_A_TOKEN],
+  ['ArenaFunnelChart.height', THE_PLOT_HEIGHT_IS_A_TOKEN],
 ]);
 
 export function implementationDefaultProblems(
@@ -678,6 +717,7 @@ function main() {
   const angularLayer = angularImplementations();
   problems.push(...angularLayer.problems);
   const derivedSeen = new Set<string>();
+  const triggerSeen = new Set<string>();
   let layersChecked = 0;
 
   for (const file of files) {
@@ -710,7 +750,7 @@ function main() {
       }
       problems.push(...vocabularyMemberProblems(contract.component, surface.members, layer, contractNames));
       const members = surface.members.filter((m: SurfaceMember) => m.name !== VOCABULARY_MEMBER);
-      problems.push(...compareSurface(contract, members, layer, typesByName));
+      problems.push(...compareSurface(contract, members, layer, typesByName, TRIGGER_ARIA, triggerSeen));
       problems.push(...docProblems(contract, surface.docs ?? new Map(), layer));
       if (layer === 'react') problems.push(...reactImplementationProblems(contract, path, derivedSeen));
       else problems.push(...angularImplementationProblems(contract, path, derivedSeen));
@@ -718,6 +758,7 @@ function main() {
   }
 
   problems.push(...staleDerivedProblems(derivedSeen));
+  problems.push(...staleTriggerProblems(triggerSeen));
 
   const manifests = layerManifests();
   const contractsByName = new Map<string, ContractCandidate>(files.map((f) => {

@@ -11,14 +11,14 @@ import { arenaClassName } from '../../../VocabularyClass.ts';
 export interface ArenaConfirmDialogProps {
   className?: ArenaConfirmDialogClass;
 
-  /** Whether the dialog is shown. The host owns it, as in the other three modals: defaulting it would let an ArenaConfirmDialog whose open was never wired render nothing forever and look like a working closed dialog. */
+  /** Whether the dialog is shown. The host owns it, as in the other three modals. Defaulting it would let an ArenaConfirmDialog whose open was never wired render nothing forever and look like a working closed dialog. */
   open: boolean;
   /** The dialog was dismissed -- by the Cancel action or by the Escape key, in both layers. A scrim click is deliberately NOT one of them: this component never closes on click-outside. No payload. */
   onCancel?: () => void;
   /** The action was confirmed. */
   onConfirm?: () => void;
 
-  /** The dialog heading, and the name the panel's aria-labelledby points at. Required: nothing can derive a name for a confirmation, because its subject is editorial, and a modal announcing only its role is worse than none at all. Required whatever open is, since a required member absent is a caller bug rather than a state to render: render the component when there is something to confirm, and hold on to the subject across a cancel so it still has a name while it closes. */
+  /** The dialog heading, and the name the panel's aria-labelledby points at. Required: nothing can derive a name for a confirmation, because its subject is editorial, and a modal announcing only its role is worse than none at all. Required whatever open is, since a required member absent is a caller bug rather than a state to render. Render the component when there is something to confirm, and hold on to the subject across a cancel so it still has a name while it closes. */
   title: string;
   /** Small uppercase label above the title. Absent, the provided locale's confirmDialogEyebrow answers it. */
   eyebrow?: string;
@@ -56,7 +56,7 @@ export function ArenaConfirmDialog({ className, open, onCancel, onConfirm, title
   const locked = requireText ? typed.trim() !== requireText : false;
   const styles = confirmStyles({ destructive, invalid: locked && typed !== '', open: true });
   return (
-    <div className={arenaClassName('ArenaConfirmDialog', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()} data-arena-surface="floating">
+    <div className={arenaClassName('ArenaConfirmDialog', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()} data-arena-surface="floating">
       <div role="alertdialog" aria-modal="true"
         ref={panelRef} tabIndex={-1} onKeyDown={onKeyDown} aria-labelledby={titleId}
         className={styles.panel()} data-arena-part={manifest.parts.panel} {...styles.$data.panel()}>

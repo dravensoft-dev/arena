@@ -1,0 +1,13 @@
+{
+  "name": "ArenaFileRejection",
+  "kind": "object",
+  "description": "The files the last pick or drop refused, by reason, each a list of names. A file is refused for one reason: a wrong type is reported before a size, and surplus counts only files that passed both.",
+  "fields": {
+    "tooLarge": { "form": "array", "of": "string", "required": true,
+                  "description": "Names of the files larger than `maxSize`." },
+    "wrongType": { "form": "array", "of": "string", "required": true,
+                   "description": "Names of the files `accept` does not match." },
+    "surplus": { "form": "array", "of": "string", "required": true,
+                 "description": "Names of the accepted files that did not fit: every one after the first in a single drop on a field that holds one file." }
+  }
+}

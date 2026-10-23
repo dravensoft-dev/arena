@@ -1,8 +1,10 @@
-import { arenaCatColor, arenaCatIndex, arenaToneColor } from '../../DataVisuals.ts';
+import { ARENA_HEAT_STEPS, arenaCatColor, arenaCatIndex, arenaCatRotate, arenaToneColor } from '../../DataVisuals.ts';
 import { arenaWarnOnce } from '../../WarnOnce.ts';
-import { arenaNiceDomain } from './ChartScales.ts';
+import { arenaPhrase } from '../../Phrase.ts';
+import { arenaRegionIndex } from '../../Thresholds.ts';
+import { arenaHeatEdge, arenaNiceDomain, arenaNiceStep } from './ChartScales.ts';
 import type { ArenaDomain } from './ChartScales.ts';
-import type { ArenaPointSeries, ArenaSeries, ArenaSeriesTone } from '../../Api.generated';
+import type { ArenaGaugeBand, ArenaPointSeries, ArenaSeries, ArenaSeriesTone } from '../../Api.generated';
 
 export interface ArenaChartTableRow {
   header: string;
@@ -21,27 +23,29 @@ export interface ArenaStackSegment {
   outer: boolean;
 }
 
-export function arenaSeriesColors(series: ArenaSeries, count: number, fallbackSlot: number): string[] {
+export function arenaSeriesColors(
+  series: ArenaSeries, count: number, fallbackSlot: number, chart: string, start = 1,
+): string[] {
   const { colorId, colorIds, tone } = series;
   if (tone && (colorId !== undefined || colorIds !== undefined)) {
-    arenaWarnOnce('chart: `tone` and `colorId`/`colorIds` are mutually exclusive — a series carries identity or meaning, never both. `tone` wins; remove the other.');
+    arenaWarnOnce(`${chart}: \`tone\` and \`colorId\`/\`colorIds\` are mutually exclusive — a series carries identity or meaning, never both. \`tone\` wins; remove the other.`);
   }
   if (tone) {
     const colour = arenaToneColor(tone) || arenaCatColor(1);
     return Array.from({ length: count }, () => colour);
   }
-  if (colorIds) return Array.from({ length: count }, (_, index) => arenaCatColor(colorIds[index] ?? index + 1));
+  if (colorIds) return Array.from({ length: count }, (_, index) => arenaCatColor(colorIds[index] ?? arenaCatRotate(start, index)));
   return Array.from({ length: count }, () => arenaCatColor(colorId ?? fallbackSlot));
 }
 
 export type ArenaSwatchHue = { tone: ArenaSeriesTone } | { colorId: string };
 
 export function arenaSwatchHue(
-  series: { tone?: ArenaSeriesTone; colorId?: number; colorIds?: readonly number[] }, index: number, fallbackSlot: number,
+  series: { tone?: ArenaSeriesTone; colorId?: number; colorIds?: readonly number[] }, index: number, fallbackSlot: number, start = 1,
 ): ArenaSwatchHue {
   const { tone, colorId, colorIds } = series;
   if (tone) return arenaToneColor(tone) ? { tone } : { colorId: '1' };
-  if (colorIds) return { colorId: String(arenaCatIndex(colorIds[index] ?? index + 1)) };
+  if (colorIds) return { colorId: String(arenaCatIndex(colorIds[index] ?? arenaCatRotate(start, index))) };
   return { colorId: String(arenaCatIndex(colorId ?? fallbackSlot)) };
 }
 
@@ -63,9 +67,24 @@ export function arenaSeriesDomain(series: readonly ArenaSeries[], count = 4): Ar
   return arenaNiceDomain(min, max, count);
 }
 
-export function arenaOneSeries(series: readonly ArenaSeries[], chart: string): ArenaSeries {
+export function arenaSparkDomain(values: readonly number[]): ArenaDomain {
+  let min = Infinity;
+  let max = -Infinity;
+  for (const value of values) {
+    if (!Number.isFinite(value)) continue;
+    if (value < min) min = value;
+    if (value > max) max = value;
+  }
+  if (min > max) return { min: -1, max: 1, step: 1 };
+  if (min === max) return { min: min - 1, max: max + 1, step: 1 };
+  return { min, max, step: max - min };
+}
+
+export function arenaOneSeries(
+  series: readonly ArenaSeries[], chart: string, why = 'A ring of two series is a sunburst, which is a different chart',
+): ArenaSeries {
   if (series.length > 1) {
-    arenaWarnOnce(`${chart}: reads one series and was given ${series.length}. A ring of two series is a sunburst, which is a different chart; the rest are ignored.`);
+    arenaWarnOnce(`${chart}: reads one series and was given ${series.length}. ${why}; the rest are ignored.`);
   }
   return series[0] ?? { label: '', values: [] };
 }
@@ -83,6 +102,153 @@ export function arenaChartTable(
       header: labels[index] ?? '',
       cells: series.map((one) => (index < one.values.length ? write(one.values[index] as number) : '')),
     })),
+  };
+}
+
+export function arenaHeatDomain(series: readonly ArenaSeries[]): ArenaDomain {
+  let min = 0;
+  let max = 0;
+  for (const one of series) {
+    for (const value of one.values) {
+      if (!Number.isFinite(value)) continue;
+      if (value < min) min = value;
+      if (value > max) max = value;
+    }
+  }
+  let step = arenaNiceStep((max - min) / ARENA_HEAT_STEPS);
+  let lo = arenaHeatEdge({ min: 0, step }, Math.floor(Number((min / step).toPrecision(12))));
+  while (arenaHeatEdge({ min: lo, step }, ARENA_HEAT_STEPS) < max) {
+    step = arenaNiceStep(step * (1 + 1e-9));
+    lo = arenaHeatEdge({ min: 0, step }, Math.floor(Number((min / step).toPrecision(12))));
+  }
+  return { min: lo, max: arenaHeatEdge({ min: lo, step }, ARENA_HEAT_STEPS), step };
+}
+
+export function arenaHeatmapTable(
+  heading: string, series: readonly ArenaSeries[], labels: readonly string[], write: (value: number) => string,
+): ArenaChartTable {
+  const cols = Math.max(labels.length, arenaSeriesPointCount(series));
+  return {
+    columns: [heading, ...Array.from({ length: cols }, (_, index) => labels[index] ?? '')],
+    rows: series.map((one) => ({
+      header: one.label,
+      cells: Array.from({ length: cols }, (_, index) => {
+        const value = one.values[index];
+        return value !== undefined && Number.isFinite(value) ? write(value) : '';
+      }),
+    })),
+  };
+}
+
+export interface ArenaGaugeWords {
+  measure: string;
+  value: string;
+  minimum: string;
+  maximum: string;
+  range: string;
+}
+
+export function arenaGaugeBands(bands: readonly ArenaGaugeBand[], chart: string): ArenaGaugeBand[] {
+  const sorted = [...bands].sort((a, b) => a.from - b.from);
+  if (sorted.some((band, index) => band !== bands[index])) {
+    arenaWarnOnce(`${chart}: reads its bands in ascending order of \`from\` and was given them out of order. `
+      + 'They are sorted before drawing; pass them sorted, because the order is configuration and not data.');
+  }
+  return sorted;
+}
+
+export function arenaGaugeBand(bands: readonly ArenaGaugeBand[], value: number): number {
+  if (!Number.isFinite(value)) return -1;
+  return arenaRegionIndex(value, bands.map((band) => band.from)) - 1;
+}
+
+export function arenaGaugeTicks(bands: readonly ArenaGaugeBand[], min: number, max: number, chart: string): number[] {
+  if (!(max > min)) {
+    arenaWarnOnce(`${chart}: \`max\` (${max}) is not greater than \`min\` (${min}), so the scale has no length. `
+      + 'The empty track is drawn and no value or band is placed on it.');
+    return [];
+  }
+  const ticks = [min];
+  for (const band of bands) if (band.from > min && band.from < max && !ticks.includes(band.from)) ticks.push(band.from);
+  ticks.push(max);
+  return ticks;
+}
+
+export function arenaGaugeColor(
+  bands: readonly ArenaGaugeBand[], index: number, colorId: number | undefined, chart: string, start = 1,
+): string {
+  if (bands.length === 0) return arenaCatColor(colorId ?? start);
+  if (colorId !== undefined) {
+    arenaWarnOnce(`${chart}: \`colorId\` is ignored while \`bands\` is given. A chart carries identity or meaning,`
+      + ' never both, and the bands are the meaning.');
+  }
+  const band = bands[index];
+  return band ? arenaToneColor(band.tone) : arenaCatColor(start);
+}
+
+export function arenaGaugeTable(
+  words: ArenaGaugeWords, value: number, min: number, max: number, bands: readonly ArenaGaugeBand[],
+  write: (value: number) => string,
+): ArenaChartTable {
+  return {
+    columns: [words.measure, words.value],
+    rows: [
+      { header: words.value, cells: [Number.isFinite(value) ? write(value) : ''] },
+      { header: words.minimum, cells: [write(min)] },
+      { header: words.maximum, cells: [write(max)] },
+      ...bands.map((band, index) => ({
+        header: band.label,
+        cells: [arenaPhrase(words.range, { from: write(band.from), to: write(bands[index + 1]?.from ?? max) })],
+      })),
+    ],
+  };
+}
+
+export interface ArenaFunnelConversion {
+  step: number | null;
+  total: number | null;
+}
+
+export interface ArenaFunnelWords {
+  stage: string;
+  step: string;
+  total: string;
+}
+
+function arenaFunnelRatio(numerator: number, denominator: number | undefined): number | null {
+  if (!Number.isFinite(numerator) || denominator === undefined || !Number.isFinite(denominator) || !(denominator > 0)) {
+    return null;
+  }
+  return numerator / denominator;
+}
+
+export function arenaFunnelConversions(values: readonly number[]): ArenaFunnelConversion[] {
+  return values.map((value, index) => ({
+    step: index === 0 ? null : arenaFunnelRatio(value, values[index - 1]),
+    total: arenaFunnelRatio(value, values[0]),
+  }));
+}
+
+export function arenaFunnelMax(values: readonly number[]): number {
+  return values.reduce((widest, value) => (Number.isFinite(value) && value > widest ? value : widest), 0);
+}
+
+export function arenaFunnelTable(
+  words: ArenaFunnelWords, series: ArenaSeries, labels: readonly string[],
+  write: (value: number) => string, percent: (ratio: number) => string, conversion: boolean,
+): ArenaChartTable {
+  const conversions = arenaFunnelConversions(series.values);
+  const ratio = (value: number | null | undefined): string => (value === null || value === undefined ? '' : percent(value));
+  return {
+    columns: conversion ? [words.stage, series.label, words.step, words.total] : [words.stage, series.label],
+    rows: Array.from({ length: Math.max(labels.length, series.values.length) }, (_, index) => {
+      const value = series.values[index];
+      const cell = value !== undefined && Number.isFinite(value) ? write(value) : '';
+      return {
+        header: labels[index] ?? '',
+        cells: conversion ? [cell, ratio(conversions[index]?.step), ratio(conversions[index]?.total)] : [cell],
+      };
+    }),
   };
 }
 
@@ -189,10 +355,10 @@ export function arenaPointSeriesDomain(series: readonly ArenaPointSeries[], coun
   return { x: arenaNiceDomain(minX, maxX, count), y: arenaNiceDomain(minY, maxY, count) };
 }
 
-export function arenaPointSeriesColor(series: ArenaPointSeries, fallbackSlot: number): string {
+export function arenaPointSeriesColor(series: ArenaPointSeries, fallbackSlot: number, chart: string): string {
   const { colorId, tone } = series;
   if (tone && colorId !== undefined) {
-    arenaWarnOnce('chart: `tone` and `colorId` are mutually exclusive — a series carries identity or meaning, never both. `tone` wins; remove the other.');
+    arenaWarnOnce(`${chart}: \`tone\` and \`colorId\` are mutually exclusive — a series carries identity or meaning, never both. \`tone\` wins; remove the other.`);
   }
   if (tone) return arenaToneColor(tone) || arenaCatColor(1);
   return arenaCatColor(colorId ?? fallbackSlot);

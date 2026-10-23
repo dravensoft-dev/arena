@@ -26,13 +26,13 @@ slots higher, and the scrim is how it says so.
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
 | `open*` | primitive | `boolean` |  | Whether the panel is on the page at all. The host owns it, the same way it owns a dialog's. Closed renders nothing, which is what distinguishes it from collapsed. |
-| `title*` | primitive | `string` |  | Names the panel for assistive technology and heads it visually. It is also the accessible name of the fold control, so a reader hears which panel is being folded rather than the word Toggle. Required and **guarded at runtime** rather than defaulted: what this panel is showing is editorial, and a constant fallback would satisfy the pattern mechanically while telling a screen-reader user nothing. |
-| `collapsed` | primitive | `boolean` | `false` | Whether the body is folded away. The header stays visible either way: a collapsed panel is still on the page and still says what it is, which is why folding is not the same act as closing. The body is hidden rather than removed, so the fold control's reference to it never points at nothing. |
+| `title*` | primitive | `string` |  | Names the panel for assistive technology and heads it visually. The title is also the accessible name of the fold control, so a reader hears which panel is being folded rather than the word Toggle. Required and **guarded at runtime** rather than defaulted: what this panel is showing is editorial, and a constant fallback would satisfy the pattern mechanically while telling a screen-reader user nothing. |
+| `collapsed` | primitive | `boolean` | `false` | Whether the body is folded away. The header stays visible either way. A collapsed panel is still on the page and still says what it is, which is why folding is not the same act as closing. The body is hidden rather than removed, so the fold control's reference to it never points at nothing. |
 | `collapsedChange` | event | `boolean` |  | The fold control was pressed, carrying the state it moved to. Arena never folds the panel by itself, so a host that ignores this gets a control that reports and a body that does not move. |
 | `dismissible` | primitive | `boolean` | `false` | Whether the close control is shown. Every layer gates it on this member and never on whether anything listens for `close`, because Arena never derives what it draws from what a consumer listens for. |
-| `close` | event |  |  | The panel was dismissed, by the close control or by Escape. No payload. Escape reports here rather than adding a member of its own, and it is the only key the panel takes: a non-modal panel leaves every other key to the page behind it. |
+| `close` | event |  |  | The panel was dismissed, by the close control or by Escape. No payload. Escape reports here rather than adding a member of its own. Escape is the only key the panel takes: a non-modal panel leaves every other key to the page behind it. |
 | `content` | slot |  |  | The panel's body, which is what folds away. |
-| `footer` | slot |  |  | A row that stays put while the body scrolls: a total and its action, a pair of filters buttons. It is outside the folding body on purpose, so a folded panel can still carry the one action it exists for. |
+| `footer` | slot |  |  | A row that stays put while the body scrolls: a total and its action, a pair of filters buttons. The footer sits outside the folding body on purpose, so a folded panel can still carry the one action it exists for. |
 
 <!-- @api end -->
 
@@ -47,6 +47,13 @@ slots higher, and the scrim is how it says so.
 - `Enter`: activates the button and toggles the region.
 - `Space`: activates the button and toggles the region.
 <!-- @keys end -->
+
+<!-- @markers GENERATED from the projection markers the component queries. -->
+**Markers**, one directive per slot:
+- `[footer]` is `ArenaFooter`.
+
+Put each marker your template writes in your own component's `imports`. An un-imported marker leaves its slot empty with no error, and `arena check` reports it. [Which markers must I import?](../../../../../skills/design/references/exports.md#which-angular-projection-markers-must-i-import)
+<!-- @markers end -->
 
 **Closed and collapsed are two different states, and both exist.** `open` decides whether the panel is on the page at all. `collapsed` folds the body away and leaves the header and the footer where they were. The two states are what the pattern buys. A reader can put the cart out of the way, still see what it is and still check out, without losing it. The body is hidden rather than removed, so the
 fold control's `aria-controls` never points at nothing.

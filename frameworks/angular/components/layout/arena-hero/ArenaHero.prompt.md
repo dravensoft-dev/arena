@@ -21,11 +21,11 @@ hero, so `<arena-hero>` is the element you place. The hero's title takes the her
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
 | `title*` | primitive | `string` |  | The one line the page is built around. Required, and guarded at runtime after trimming: a hero is that line plus its setting, and a hero without it is a figure with buttons under it. The guard trims first because the value it exists to catch is a present and useless one, not an absent one, which the type already refuses. |
-| `headingLevel` | enum | `ArenaHeadingLevel` | `"h1"` | Which rung of the document outline the title takes. Only the element changes: the title's class is the same at every value, so the render is identical and no appearance follows from it. It defaults to `h1` because a hero opens the page it sits on and a landing page carries no other title. A page carrying a hero AND a page head has two candidates for one rung, and the ladder settles which yields rather than the markup order: the hero is the rung above, so it keeps the `h1` and the page head is what steps down. Nothing here reads the page to work that out, because what a component renders is never derived from what sits above it. `none` is refused at runtime, the rule every component whose `title` is required follows: a title required because it names the thing it draws cannot also be told that the name is not one. |
+| `headingLevel` | enum | `ArenaHeadingLevel` | `"h1"` | Which rung of the document outline the title takes. Only the element changes: the title's class is the same at every value, so the render is identical and no appearance follows from it. The member defaults to `h1` because a hero opens the page it sits on and a landing page carries no other title. A page carrying a hero AND a page head has two candidates for one rung, and the ladder settles which yields rather than the markup order. The hero is the rung above, so it keeps the `h1` and the page head is what steps down. Nothing here reads the page to work that out, because what a component renders is never derived from what sits above it. `none` is refused at runtime, following the rule of every component whose `title` is required. The title is required because it names the thing it draws. That name cannot also be declared absent. |
 | `eyebrow` | primitive | `string` |  | A line above the title saying what kind of page this is. Same register as every other eyebrow in the system, so a style plugin that takes them out of the console's mono capitals takes this one with them. |
 | `lede` | primitive | `string` |  | The paragraph under the title, held to a reading width rather than to the column's, because a line that runs the whole width of a hero loses its return sweep. Named lede and not description, since this is the sentence that carries the page and not a note about the heading. |
 | `actions` | slot |  |  | What the page asks the reader to do, in a wrapping row under the lede. Arena draws the row; the consumer draws what sits in it, and one primary action beside one secondary is the shape this is sized for. |
-| `figure` | slot |  |  | The picture, the mark or the shape beside the words, or behind them under the bleed layout. It is a slot rather than a source, so an ArenaFigure, an illustration or a single glyph all land the same way. |
+| `figure` | slot |  |  | The picture, the mark or the shape beside the words, or behind them under the bleed layout. The figure is a slot rather than a source, so an ArenaFigure, an illustration or a single glyph all land the same way. |
 
 <!-- @api end -->
 
@@ -41,7 +41,15 @@ hero, so `<arena-hero>` is the element you place. The hero's title takes the her
 **Keys:** none.
 <!-- @keys end -->
 
-**The two slots are attributes**, `actions` and `figure`, projected through the marker directives.
+<!-- @markers GENERATED from the projection markers the component queries. -->
+**Markers**, one directive per slot:
+- `[actions]` is `ArenaActions`.
+- `[figure]` is `ArenaFigureSlot`.
+
+Put each marker your template writes in your own component's `imports`. An un-imported marker leaves its slot empty with no error, and `arena check` reports it. [Which markers must I import?](../../../../../skills/design/references/exports.md#which-angular-projection-markers-must-i-import)
+<!-- @markers end -->
+
+**The two slots are attributes**, `actions` and `figure`.
 The actions slot takes one element, so wrap your buttons in a container of your own if there is
 more than one.
 

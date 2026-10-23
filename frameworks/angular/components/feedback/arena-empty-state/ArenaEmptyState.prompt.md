@@ -23,9 +23,9 @@ Arena draws itself, not projected content.
 
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
-| `icon` | primitive | `string` |  | A Phosphor class name for the glyph Arena draws, muted. |
+| `icon` | primitive | `string` |  | A Phosphor class name for the glyph ArenaIcon draws, muted. |
 | `title*` | primitive | `string` |  | The headline: what is empty. |
-| `headingLevel` | enum | `ArenaHeadingLevel` | `"h3"` | Which rung of the document outline the title takes. Only the element changes: the title's class is the same at every value, so the render is identical and no appearance follows from it. It defaults to `h3`, the card rung of the title ladder, because an empty state fills the body of a region something above it already names, so its headline sits under that name rather than beside it. `none` is refused at runtime, the rule every component whose `title` is required follows: a title required because it names the thing it draws cannot also be told that the name is not one. |
+| `headingLevel` | enum | `ArenaHeadingLevel` | `"h3"` | Which rung of the document outline the title takes. Only the element changes: the title's class is the same at every value, so the render is identical and no appearance follows from it. The default is `h3`, the card rung of the title ladder, because an empty state fills the body of a region something above it already names. The headline sits under that name rather than beside it. `none` is refused at runtime, the rule every component whose `title` is required follows. A title required because it names the thing it draws cannot also be told that the name is not one. |
 | `message` | primitive | `string` |  | A sentence of guidance under the title. |
 | `action` | slot |  |  | A single call-to-action control, centred under the message. |
 
@@ -41,7 +41,14 @@ Arena draws itself, not projected content.
 **Keys:** none.
 <!-- @keys end -->
 
-Import `ArenaAction` from `@dravensoft/arena-angular` alongside `ArenaEmptyState` in the host component's `imports`. `action` is a directive rather than a plain attribute, because it is how the empty state detects that an action was projected at all. `ArenaAction` is shared: every
+<!-- @markers GENERATED from the projection markers the component queries. -->
+**Markers**, one directive per slot:
+- `[action]` is `ArenaAction`.
+
+Put each marker your template writes in your own component's `imports`. An un-imported marker leaves its slot empty with no error, and `arena check` reports it. [Which markers must I import?](../../../../../skills/design/references/exports.md#which-angular-projection-markers-must-i-import)
+<!-- @markers end -->
+
+`action` is a directive rather than a plain attribute, because it is how the empty state detects that an action was projected at all. `ArenaAction` is shared: every
 primitive that projects a single action through `[action]` (`ArenaEmptyState`,
 `ArenaErrorState`) imports the same directive rather than declaring its own.
 
@@ -52,8 +59,6 @@ primitive that projects a single action through `[action]` (`ArenaEmptyState`,
   user has no information to make.
 - Don't use an empty state for a failed load: that is `arena-error-state`, and the
   difference matters: one invites, the other apologises and offers a retry.
-- Don't forget to import `ArenaAction` when projecting an action. Without it, the
-  `action` attribute is inert and the action silently fails to render.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

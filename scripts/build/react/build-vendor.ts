@@ -41,14 +41,16 @@ export const node = {
     'check:dimensions',
     'check:duplicate-constants',
     'check:focus-trap',
+    'check:anchoring',
     'check:generated',
-    'check:pixel-parity',
+    'check:pixel-parity', 'check:palette-islands',
     'check:target-size',
     'check:layer-independence',
     'check:script-tokens',
     'check:skills',
     'check:vendor',
     'build:site',
+    'check:site',
   ],
 };
 

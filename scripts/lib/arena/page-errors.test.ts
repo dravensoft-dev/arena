@@ -7,7 +7,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { deadline } from './deadline.ts';
-import { paintedProblem, silenceOf, threwProblem, type Silence } from './page-errors.ts';
+import {
+  paintedProblem, silenceOf, threwProblem, warningsProblem, COLLECT_WARNINGS, WARNINGS, type Silence,
+} from './page-errors.ts';
 
 const BOUND = deadline('probe:painted', 40_000, 'the page mounts every component the library ships');
 
@@ -49,4 +51,33 @@ test('a throw is its own finding and never a slow render', () => {
 
 test('silenceOf says nothing when it was handed nothing', () => {
   assert.equal(silenceOf(undefined), '');
+});
+
+test('two layers printing the same warnings, in any order, are no finding', () => {
+  assert.equal(warningsProblem('charts:dark', { react: ['[arena] a', '[arena] b'], angular: ['[arena] b', '[arena] a'] }), null);
+  assert.equal(warningsProblem('charts:dark', { react: [], angular: [] }), null);
+});
+
+test('a warning one layer prints and the other does not is a finding that prints both lists', () => {
+  const problem = warningsProblem('charts:dark', { react: ['[arena] colorId is ignored'], angular: [] });
+
+  assert.match(problem ?? '', /charts:dark: the two layers print different console warnings/);
+  assert.match(problem ?? '', /React printed:\n\s+\[arena\] colorId is ignored/);
+  assert.match(problem ?? '', /Angular printed: none/);
+  assert.match(problem ?? '', /Only in React:\n\s+\[arena\] colorId is ignored/);
+  assert.match(problem ?? '', /Only in Angular: none/);
+});
+
+test('a warning printed once by one layer and twice by the other is still a difference', () => {
+  const problem = warningsProblem('charts:light', { react: ['[arena] a'], angular: ['[arena] a', '[arena] a'] });
+  assert.match(problem ?? '', /Only in Angular:\n\s+\[arena\] a/);
+});
+
+test('warnings are collected by wrapping console.warn before the page runs, and still reach the console', () => {
+  const kept: string[] = [];
+  const page = { console: { warn: (...args: unknown[]) => { kept.push(args.join(' ')); } } } as any;
+  new Function('window', 'console', COLLECT_WARNINGS)(page, page.console);
+  page.console.warn('[arena]', 'x');
+  assert.deepEqual(new Function('window', `return ${WARNINGS}`)(page), ['[arena] x']);
+  assert.deepEqual(kept, ['[arena] x']);
 });

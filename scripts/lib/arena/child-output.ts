@@ -79,7 +79,7 @@ export const TERM_GRACE: Deadline = deadline('child-output:term-grace', 3_000,
 export async function childOutputAsync(
   command: string,
   args: string[],
-  options: { cwd?: string | undefined; signal?: AbortSignal | undefined } = {},
+  options: { cwd?: string | undefined; signal?: AbortSignal | undefined; env?: NodeJS.ProcessEnv | undefined } = {},
 ): Promise<StepOutput> {
   const file = outputFile();
   const { fd } = file;
@@ -87,7 +87,7 @@ export async function childOutputAsync(
     const ended = await new Promise<Ended>((resolve) => {
       let child: ChildProcess;
       try {
-        child = spawn(command, args, { cwd: options.cwd, stdio: ['ignore', fd, fd] });
+        child = spawn(command, args, { cwd: options.cwd, env: options.env, stdio: ['ignore', fd, fd] });
       } catch (err) {
         resolve({ code: null, signal: null, error: err as Error });
         return;

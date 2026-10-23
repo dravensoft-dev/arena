@@ -1,15 +1,15 @@
 {
   "name": "ArenaNumberFormat",
   "kind": "object",
-  "description": "How a chart writes each number before the prefix and the suffix are added. Every field is a primitive, so this stays a datum the component renders from rather than a function it calls, which is why a chart takes a format and never a formatter. It exists because \"format the numbers before binding them\" is not possible: what a chart is handed is number[], and the formatting has to reach the axis ticks, the tooltip and the accessible table, which the chart writes afterwards. Every field being absent is the raw JavaScript number, which is what a chart draws without this type.",
+  "description": "How a chart, a number field or a slider's readout writes each number before the prefix and the suffix are added. Every field is a primitive, so the type stays a datum the component renders from rather than a function it calls. For that reason none of the three takes a formatter. The type exists because \"format the numbers before binding them\" is not possible. A chart is handed number[], and the formatting has to reach the axis ticks, the tooltip and the accessible table, which the chart writes afterwards. Every field being absent is the raw JavaScript number, which is what a chart draws without this type. A number field reads its own typed text back through the same locale, so what it writes it can parse.",
   "fields": {
     "locale": { "form": "primitive", "type": "string",
-                "description": "A BCP-47 tag, such as \"es-BO\". Absent, the runtime's own default, which on a server is the SERVER's locale and on a client the reader's: pass it explicitly wherever a server render must match its hydration, the same hazard ArenaCalendar.timeZone carries." },
+                "description": "A BCP-47 tag, such as \"es-BO\". Absent, a number field and a slider follow `ArenaLocale.locale` and a chart follows the runtime's own default. On a server that default is the SERVER's locale, and on a client it is the reader's. Pass the tag explicitly wherever a server render must match its hydration. ArenaCalendar.timeZone carries the same hazard." },
     "fractionDigits": { "form": "primitive", "type": "number",
-                        "description": "How many digits after the decimal separator, fixed. Absent, the locale decides. This is where a chart stops needing its data rounded before it is bound: rounding in the model to make a label read well loses the value everywhere else it is used." },
+                        "description": "How many digits after the decimal separator, fixed. Absent, the locale decides. Here a chart stops needing its data rounded before it is bound. Rounding in the model to make a label read well loses the value everywhere else it is used." },
     "grouping": { "form": "primitive", "type": "boolean", "default": true,
                   "description": "Whether thousands are separated. True by default because a five-digit tick is unreadable without it; false for a year, an identifier, or anything whose digits are not a quantity." },
     "compact": { "form": "primitive", "type": "boolean", "default": false,
-                 "description": "Writes 48.2K rather than 48200. For an axis over a wide range, where a full number is wider than the space between two ticks. it applies to every number the chart writes, ticks and tooltip and table alike, because a tooltip disagreeing with the tick above it is worse than a long label." }
+                 "description": "Writes 48.2K rather than 48200. For an axis over a wide range, where a full number is wider than the space between two ticks. The field applies to every number the chart writes, ticks and tooltip and table alike, because a tooltip disagreeing with the tick above it is worse than a long label. A number field ignores the field, because 48.2K cannot be read back. A slider's readout honours the field, because nobody types into a readout." }
   }
 }

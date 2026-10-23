@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { DECLARED, arenaEnv, cannotRun, skipExitCode } from './arena-scripts-vars.ts';
+import { DECLARED, arenaEnv, cannotRun, refuseWhen, skipExitCode } from './arena-scripts-vars.ts';
 
 test('a declared value fills a variable the environment does not carry', () => {
   assert.equal(arenaEnv({}).ARENA_CHECK_STRICT, DECLARED.ARENA_CHECK_STRICT);
@@ -19,12 +19,12 @@ test('CHROME_PATH is recognised and never declared, so the candidate list stays 
   assert.equal(arenaEnv({ CHROME_PATH: '/opt/other' }).CHROME_PATH, '/opt/other');
 });
 
-test('ARENA_BENCHES is recognised and never declared, so a run with no benches looks like one', () => {
-  assert.equal(Object.hasOwn(DECLARED, 'ARENA_BENCHES'), false,
-    'a declared directory would not be an override but a claim that sixteen built applications sit '
-    + 'on this machine, and the site without benches is what every clone builds');
-  assert.equal(arenaEnv({}).ARENA_BENCHES, undefined);
-  assert.equal(arenaEnv({ ARENA_BENCHES: '/tmp/benches' }).ARENA_BENCHES, '/tmp/benches');
+test('ARENA_ADOPTER_BUILD is recognised and never declared, so a run without an adopter looks like a clone', () => {
+  assert.equal(Object.hasOwn(DECLARED, 'ARENA_ADOPTER_BUILD'), false,
+    'a declared directory would not be an override but a claim that a built adopter sits on this '
+    + 'machine, and the site without one is what every clone builds');
+  assert.equal(arenaEnv({}).ARENA_ADOPTER_BUILD, undefined);
+  assert.equal(arenaEnv({ ARENA_ADOPTER_BUILD: '/tmp/adopter' }).ARENA_ADOPTER_BUILD, '/tmp/adopter');
 });
 
 test('a variable the repository does not declare passes through untouched', () => {
@@ -93,4 +93,16 @@ test('cannotRun skips where an environment has asked for it, and says what that 
   assert.match(said, /INCOMPLETE/,
     'a soft skip that does not say the run proves less than it looks like is the failure the '
     + 'strict default exists to prevent');
+});
+
+test('refuseWhen returns on a null reason and exits through cannotRun on a string one', () => {
+  const none = captureExit(() => refuseWhen('check-cards', null, arenaEnv({})));
+  assert.equal(none.code, undefined);
+  assert.equal(none.said, '');
+  const some = captureExit(() => refuseWhen('check-cards', 'no browser', arenaEnv({})));
+  assert.equal(some.code, 1);
+  assert.match(some.said, /check-cards: FAILED \(strict\) — no browser/);
+  const soft = captureExit(() => refuseWhen('check-cards', 'no browser', arenaEnv({ ARENA_CHECK_STRICT: '0' })));
+  assert.equal(soft.code, 2);
+  assert.equal(captureExit(() => refuseWhen('check-cards', '', arenaEnv({}))).code, undefined);
 });

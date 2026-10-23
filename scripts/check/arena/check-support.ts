@@ -11,16 +11,23 @@ import { isMainModule } from '../../utils/main-module.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { relPosix } from '../../utils/posix-path.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
-import { isConsumerDocument } from './check-docs.ts';
+import {
+  isConsumerDocument, CONSUMER_VOCABULARY, CONSUMER_CATALOGUE, CONSUMER_INDEX, CONSUMER_CATALOGUE_CARD,
+} from './check-docs.ts';
 import { skips } from './check-routes.ts';
 import { AXES, EVIDENCE, PEERS, NODE_ENGINE } from '../../lib/arena/support-matrix.ts';
 import { TARGET, TARGETS, emit } from '../../generate/arena/generate-support.ts';
 
+export const ALSO_CONSUMER_FACING = ['README.md'];
+
 export const node = {
   name: 'check:support',
   reads: [
-    ...TARGETS.map(([target]) => target), 'skills/**', 'frameworks/*/PACKAGE.md', 'frameworks/*/INDEX.md',
+    ...TARGETS.map(([target]) => target), 'skills/**', 'frameworks/*/PACKAGE.md', 'frameworks/**/INDEX.md',
     'frameworks/*/components/**/*.prompt.md', 'scripts/lib/arena/support-matrix.ts',
+    ...ALSO_CONSUMER_FACING, CONSUMER_VOCABULARY, `${CONSUMER_CATALOGUE}${CONSUMER_INDEX}`,
+    `${CONSUMER_CATALOGUE}*/${CONSUMER_CATALOGUE_CARD}`,
+    '!frameworks/angular/build/**', '!frameworks/react/dist/**', '!frameworks/angular/dist/**',
   ],
   writes: [],
   feeds: [],
@@ -37,8 +44,6 @@ export const RUNNER_EXEMPT = new Map([
   ['bun run', 'the form a prompt uses to open a demo page, which is a command in this repository '
     + 'rather than one a consumer runs, and the pages carrying it are generated from the tree'],
 ]);
-
-export const ALSO_CONSUMER_FACING = ['README.md'];
 
 export function documents(base = root) {
   return walkFiles(base, { skip: (name) => skips(name) })

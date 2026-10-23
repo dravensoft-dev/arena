@@ -26,9 +26,10 @@ Take this entry when the screen is a list against a reading column, and the read
 
 ## The page it assumes
 
-Three columns that fill the window: the rail at the sidebar width, the conversation list between a
-phone's width and a little over, and the reading column taking the rest. The rail and the list are
-sticky at full height and scroll inside themselves, so only the reading column moves.
+Three columns fill the window. The rail sits in a column of the project's own width, the
+conversation list runs between a phone's width and a little over, and the reading column takes the
+rest. The rail and the list are sticky at full height and scroll inside themselves, so only the
+reading column moves.
 
 Air is the group step almost everywhere, because a component step between two rows would halve the
 list. The reading column stops at the prose measure plus a margin, and nothing else on the screen

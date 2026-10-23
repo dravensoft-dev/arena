@@ -10,14 +10,14 @@
  * REDECLARED_GROUPS restates some of those per scope, and check:proximity's step-* cases hold it. */
 
 import StyleDictionary from 'style-dictionary';
-import { writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import nodePath, { join } from 'node:path';
 import { toPosix } from '../../utils/posix-path.ts';
 import type { PathModule } from '../../utils/posix-path.ts';
 import { camel } from '../../utils/case.ts';
 import { isMainModule } from '../../utils/main-module.ts';
 import { serialize } from '../core/arena-cli/serialize-token.ts';
-import { scopeOn } from '../core/arena-cli/style-plugin-rules.ts';
+import { rootOnlyFor, scopeOn } from '../core/arena-cli/style-plugin-rules.ts';
 import { serializeScript } from '../../lib/core/serialize-script.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { ARENA_EXT, childEntries, isStamped, isToken } from '../../lib/core/dtcg-shapes.ts';
@@ -32,6 +32,7 @@ export const DESIGN_DIR = 'contracts/design';
 export const FILES = [
   { out: 'palette.generated.css', blocks: [
     { selector: ':root', source: 'palette.dark.json' },
+    { selector: '.arena-dark', source: 'palette.dark.json' },
     { selector: '.arena-light', source: 'palette.light.json' },
   ] },
   { out: 'typography.generated.css', blocks: [
@@ -52,8 +53,8 @@ export const FILES = [
     { selector: ':root', source: 'plugin.tokens.json', dir: `${PLUGIN_DIR}/default` },
   ] },
   { out: 'style-plugin.complete.generated.css', blocks: [
-    { selector: '.arena-complete', source: 'plugin.tokens.json', dir: `${PLUGIN_DIR}/complete` },
-  ] },
+    { selector: '.arena-complete', source: 'plugin.tokens.json', dir: `${PLUGIN_DIR}/complete`, plugin: 'complete' },
+  ], rootOnly: '.arena-complete' },
 ];
 
 export const RESOLVES_AGAINST = {
@@ -61,18 +62,19 @@ export const RESOLVES_AGAINST = {
   'plugin.tokens.json': ['effects.json', 'palette.dark.json', 'spacing.json', 'typography.json'],
 };
 
-export const THEME_SCOPES = new Map<string, (selector: string) => string>([
+export const THEME_SCOPES = new Map<string, (selector: string, body: string) => string>([
+  ['dark', scopeOn('.arena-dark')],
   ['light', scopeOn('.arena-light')],
 ]);
 
-export const SCOPE_SELECTORS = new Map<string, (selector: string) => string>([
+export const SCOPE_SELECTORS = new Map<string, (selector: string, body: string) => string>([
   ...THEME_SCOPES,
   ['compact', scopeOn('.arena-compact')],
   ['comfortable', scopeOn('.arena-comfortable')],
 ]);
 
 export const REDECLARED_GROUPS = new Map<string, string[]>([
-  ['color', ['light']],
+  ['color', ['dark', 'light']],
   ['dz', ['compact', 'comfortable']],
 ]);
 
@@ -118,11 +120,14 @@ export const SOURCES = [...new Set(FILES.flatMap((file) =>
 
 export const CSS_TARGETS = FILES.map((file) => `contracts/design-generated/${file.out}`);
 
+export const ROOT_ONLY_SOURCES = [`${DESIGN_DIR}/contrast.css`, `${DESIGN_DIR}/environment.css`];
+
 export const node = {
   name: 'generate:tokens',
   reads: [...new Set([
     ...SOURCES,
     ...Object.values(RESOLVES_AGAINST).flat().map((source) => `${DESIGN_DIR}/${source}`),
+    ...ROOT_ONLY_SOURCES,
   ])],
   writes: [...CSS_TARGETS, ...SCRIPT_TARGETS, BREAKPOINT_TARGET],
   feeds: [
@@ -150,7 +155,7 @@ export const node = {
     'check:icons',
     'check:layer-independence',
     'check:packages',
-    'check:target-size', 'check:pixel-parity',
+    'check:target-size', 'check:pixel-parity', 'check:palette-islands',
     'check:ramp',
     'check:script-tokens',
     'check:shared-arithmetic',
@@ -161,6 +166,7 @@ export const node = {
     'check:token-collisions',
     'check:tokens',
     'build:site',
+    'check:site',
   ],
 };
 
@@ -224,6 +230,14 @@ async function catSlotCount() {
   return n;
 }
 
+async function heatStepCount() {
+  let n = 0;
+  for (const item of walk(await load('palette.dark.json'))) {
+    if (isTokenItem(item) && /^color-heat-\d+$/.test(item.token.name)) n += 1;
+  }
+  return n;
+}
+
 export async function buildScriptModules() {
   const tokens = await collectScriptTokens();
   const lines = [SCRIPT_HEADER, ''];
@@ -241,9 +255,14 @@ export async function buildScriptModules() {
   lines.push(
     '',
     '/* Derived, not authored: the number of --color-cat-* slots in',
-    ' * contracts/design/palette.dark.json. Assigned in order and NEVER cycled -- a 9th',
-    ' * series folds to "Other", small multiples, or direct labels. */',
+    ' * contracts/design/palette.dark.json. A chart assigns the slots by position',
+    ' * from its colorStart and wraps; a 9th series still folds to "Other", small',
+    ' * multiples, or direct labels. */',
     `export const catSlots = ${await catSlotCount()};`,
+    '',
+    '/* Derived, not authored: the number of --color-heat-* steps in',
+    ' * contracts/design/palette.dark.json, the bins a heatmap sorts its values into. */',
+    `export const heatSteps = ${await heatStepCount()};`,
   );
   const body = `${lines.join('\n')}\n`;
   return new Map(SCRIPT_TARGETS.map((path) => [path, body]));
@@ -318,32 +337,33 @@ function renderLines(items: Emitted[]) {
   return lines;
 }
 
-export async function block({ selector, source, dir = DESIGN_DIR }:
-{ selector: string; source: string; dir?: string }) {
+export async function block({ selector, source, dir = DESIGN_DIR, plugin }:
+{ selector: string; source: string; dir?: string; plugin?: string }) {
   const buckets = new Map<string, Emitted[]>([['', []]]);
   for (const item of walk(await load(source, dir))) {
     const theme = isTokenItem(item) ? themeOf(item.token) : '';
     buckets.set(theme, [...(buckets.get(theme) ?? []), item]);
   }
-  const base = buckets.get('') ?? [];
+  const base = [...(buckets.get('') ?? []), ...(buckets.get('dark') ?? [])];
   const restatedIn = (name: string) => base.filter((item) =>
     isTokenItem(item) && scopesRedeclaring(item.token).includes(name));
-  const out = base.length ? [`${selector}{\n${renderLines(base).join('\n')}\n}`] : [];
+  const named = plugin === undefined ? [] : [`  --arena-plugin:${plugin};`];
+  const out = base.length ? [`${selector}{\n${[...named, ...renderLines(base)].join('\n')}\n}`] : [];
 
   for (const [theme, scope] of THEME_SCOPES) {
     const references = restatedIn(theme);
     const restated = references.length
-      ? [`${scope(selector)}{\n${renderLines(references).join('\n')}\n}`] : [];
+      ? [scope(selector, `\n${renderLines(references).join('\n')}\n`)] : [];
     const themed = buckets.get(theme) ?? [];
     const overrides = themed.length
-      ? [`${scope(selector)}{\n${renderLines(themed).join('\n')}\n}`] : [];
+      ? [scope(selector, `\n${renderLines(themed).join('\n')}\n`)] : [];
     out.push(...restated, ...overrides);
   }
 
   for (const [name, scope] of SCOPE_SELECTORS) {
     if (THEME_SCOPES.has(name)) continue;
     const references = restatedIn(name);
-    if (references.length) out.push(`${scope(selector)}{\n${renderLines(references).join('\n')}\n}`);
+    if (references.length) out.push(scope(selector, `\n${renderLines(references).join('\n')}\n`));
   }
   return out.join('\n');
 }
@@ -353,6 +373,11 @@ export async function buildAll() {
   for (const file of FILES) {
     const blocks = [];
     for (const b of file.blocks) blocks.push(await block(b));
+    const rootOnly = (file as { rootOnly?: string }).rootOnly;
+    if (rootOnly) {
+      const [contrast, environment] = ROOT_ONLY_SOURCES.map((at) => readFileSync(join(root, at), 'utf8'));
+      blocks.push(rootOnlyFor(rootOnly, { contrast: contrast as string, environment: environment as string }));
+    }
     out.set(file.out, `${HEADER}\n${blocks.join('\n')}\n`);
   }
   return out;

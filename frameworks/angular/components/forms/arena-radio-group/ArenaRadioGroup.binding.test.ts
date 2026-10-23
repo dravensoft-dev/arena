@@ -12,14 +12,26 @@ import { ArenaRadio } from '../arena-radio/ArenaRadio';
 @Component({
   standalone: true,
   imports: [ArenaRadioGroup, ArenaRadio],
-  template: `<arena-radio-group ariaLabel="Plan" value="basic">
+  template: `<arena-radio-group ariaLabel="Plan" [value]="initial">
     <arena-radio value="basic" label="Basic" /><arena-radio value="pro" label="Pro" />
   </arena-radio-group>`,
 })
-class Host { readonly group = viewChild.required(ArenaRadioGroup); }
+class Host {
+  initial: string | undefined;
+  readonly group = viewChild.required(ArenaRadioGroup);
+}
 
-function render() {
+function warnings(run: () => void): string[] {
+  const saved = console.warn;
+  const heard: string[] = [];
+  console.warn = (message: string) => { heard.push(message); };
+  try { run(); } finally { console.warn = saved; }
+  return heard;
+}
+
+function render(initial?: string) {
   const fixture = TestBed.createComponent(Host);
+  fixture.componentInstance.initial = initial;
   fixture.detectChanges();
   const groupEl = fixture.debugElement.query((node) => node.componentInstance instanceof ArenaRadioGroup);
   const binding = groupEl.injector.get(ArenaControlBinding);
@@ -28,11 +40,15 @@ function render() {
 }
 
 test('while bound, the group draws the binding\'s value and ignores its own', () => {
-  const { fixture, binding, radios } = render();
+  const { fixture, binding, radios } = render('basic');
   try {
-    binding.bound.set(true);
-    binding.value.set('pro');
-    fixture.detectChanges();
+    const heard = warnings(() => {
+      binding.bound.set(true);
+      binding.value.set('pro');
+      fixture.detectChanges();
+    });
+    assert.equal(heard.length, 1);
+    assert.match(heard[0] ?? '', /ArenaRadioGroup: `value` is bound while a form directive binds the same control/);
     assert.equal(radios[1]?.checked, true);
     assert.equal(radios[0]?.checked, false);
   } finally { fixture.destroy(); }

@@ -1,13 +1,12 @@
-/* Holds every prompt's four generated regions equal to a fresh emit. A prompt is the consumer's
- * last stop, and the rest of it is hand-written prose no gate can judge; these are the parts
+/* Holds every prompt's generated regions equal to a fresh emit. A prompt is the consumer's last
+ * stop, and the rest of it is hand-written prose no gate can judge; these are the parts
  * something can hold. @api comes from the component's contract, so a member renamed, retyped or
- * given a new default surfaces as a stale table rather than as silence, and the fix is always the
- * contract and then bun run generate:api, never the table. @answers names the families the component's manifest answers, so a family added to a manifest
- * surfaces as a stale prompt. @keys names the keys the binding's pattern requires. @rules is the note pointing back at
- * the router, owed to every prompt whether contracted or not: it is the last stop's only path
- * back to the rules, and a prompt that has lost it is a page an agent can read to the end and
- * drift off. Whether a component is contracted at all is check:api's question, so an uncontracted
- * one is counted here rather than failed. */
+ * given a new default surfaces as a stale table, and the fix is the contract and then
+ * bun run generate:api, never the table. @answers names the families the component's manifest
+ * answers. @keys names the keys the binding's pattern requires. @markers names the directive
+ * behind each marker an Angular component queries. @rules points back at the router, owed to
+ * every prompt. Whether a component is contracted at all is check:api's question, so an
+ * uncontracted one is counted here rather than failed. */
 
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -15,9 +14,10 @@ import { isMainModule } from '../../utils/main-module.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { readFamilies } from '../../lib/tailwind/vocabulary.ts';
 import { readManifests } from './check-measured-box.ts';
+import { angularComponentMap } from '../../lib/arena/component-map.ts';
 import { loadContract } from '../../generate/arena/generate-skills.ts';
 import {
-  renderRegion, renderRulesRegion, renderKeysRegion, keysOf, KEYS_OPEN_LINE, KEYS_CLOSE_LINE,
+  renderRegion, renderRulesRegion, renderKeysRegion, keysOf, KEYS_OPEN_LINE, KEYS_CLOSE_LINE, markersRegionOf, MARKERS_OPEN_LINE, MARKERS_CLOSE_LINE,
   renderAnswersRegion, answeredFamilies, promptPaths,
   OPEN_LINE, CLOSE_LINE, RULES_OPEN_LINE, RULES_CLOSE_LINE, ANSWERS_OPEN_LINE, ANSWERS_CLOSE_LINE,
   type Family, type Binding, type Pattern,
@@ -30,6 +30,8 @@ export const node = {
     'frameworks/tailwind/vocabulary', 'frameworks/tailwind/components', 'contracts/behaviour',
     'frameworks/react/components/**/*.behaviour.json', 'frameworks/angular/components/**/*.behaviour.json',
     'frameworks/react/components/**/*.prompt.md', 'frameworks/angular/components/**/*.prompt.md',
+    'frameworks/angular/ProjectionMarkers.ts', 'frameworks/angular/components/**/*.ts',
+    '!frameworks/angular/components/**/*.generated.ts', '!frameworks/angular/components/**/*.test.ts',
   ],
   writes: [],
   feeds: [],
@@ -85,6 +87,23 @@ export function keysProblem(path: string, source: string, binding: Binding | nul
   return [];
 }
 
+export function markersProblem(path: string, source: string, expected: string | null) {
+  const found = sliceRegion(source, MARKERS_OPEN_LINE, MARKERS_CLOSE_LINE);
+  if (expected === null) {
+    return found === null ? [] : [`${path}: carries a @markers region, and its component queries no projection marker. `
+      + 'Run bun run generate:api'];
+  }
+  if (found === null) {
+    return [`${path}: carries no @markers region, so it names no directive its component queries. `
+      + 'Run bun run generate:api, which places one after the @keys region'];
+  }
+  if (found !== expected) {
+    return [`${path}: its @markers region does not match the markers its component queries. `
+      + 'Run bun run generate:api'];
+  }
+  return [];
+}
+
 export function promptProblems(base = root, prompts = promptPaths(base)) {
   const problems = [];
   let held = 0;
@@ -93,6 +112,7 @@ export function promptProblems(base = root, prompts = promptPaths(base)) {
   let uncontracted = 0;
   const families = readFamilies(base);
   const manifests = readManifests(base);
+  const markerMap = angularComponentMap(base);
 
   for (const { component, layer, path } of prompts) {
     const source = readFileSync(join(base, path), 'utf8');
@@ -116,6 +136,7 @@ export function promptProblems(base = root, prompts = promptPaths(base)) {
     const keys = keysProblem(path, source, binding, patterns);
     if (keys.length === 0) keyed += 1;
     problems.push(...keys);
+    problems.push(...markersProblem(path, source, markersRegionOf(path, layer, markerMap)));
 
     const contract = loadContract(component, base);
     if (!contract) { uncontracted += 1; continue; }

@@ -35,6 +35,7 @@ export const node = {
     'check:icons',
     'check:intro',
     'build:site',
+    'check:site',
   ],
 };
 

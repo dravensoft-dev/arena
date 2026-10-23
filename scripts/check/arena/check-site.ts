@@ -17,14 +17,17 @@ import { relPosix, isInside } from '../../utils/posix-path.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { cannotRun } from '../../lib/arena/arena-scripts-vars.ts';
 import {
-  DOMAIN, SITE_DIR, LAYERS, BENCHES_DIR, pages, benchPages, indexedDirectories, missingPlaygrounds,
+  DOMAIN, SITE_DIR, LAYERS, pages, indexedDirectories, missingPlaygrounds,
   missingModules, modules, url, directoryUrl,
 } from '../../lib/arena/site-pages.ts';
+import { matchOutsideCode } from '../../generate/core/arena-mcp/code-spans.ts';
+import { MARKERS_FILE } from '../../lib/arena/component-map.ts';
+import { node as siteBuildNode } from '../../build/arena/build-site.ts';
 import { LLMS_INDEX, ROUTER, layerFile, prompts, summary } from '../../lib/arena/llms-index.ts';
 
 export const node = {
   name: 'check:site',
-  reads: [`${SITE_DIR}/**`],
+  reads: [`${SITE_DIR}/**`, ...siteBuildNode.reads, MARKERS_FILE],
   writes: [],
   feeds: [],
 };
@@ -93,7 +96,7 @@ export function markdownFiles(out: string) {
 }
 
 export function markdownLinks(text: string) {
-  return [...text.matchAll(MARKDOWN_LINK)]
+  return matchOutsideCode(text, MARKDOWN_LINK)
     .map((match) => match[1] ?? '')
     .filter((target) => target && !OFF_SITE.test(target));
 }
@@ -140,29 +143,6 @@ export function missingModuleProblems(out: string, base = root) {
       + 'answers 200 at all of them, and renders nothing at all');
 }
 
-export function benchProblems(out: string) {
-  const declared = benchPages(out);
-  const dir = join(out, BENCHES_DIR);
-  const half = new RegExp(`^${BENCHES_DIR}/[^/]+/[^/]+/index\\.html$`);
-  const carried = existsSync(dir)
-    ? walkFiles(dir).map((path) => relPosix(out, path)).filter((rel) => half.test(rel))
-    : [];
-  const problems = [];
-  for (const rel of declared) {
-    if (carried.includes(rel)) continue;
-    problems.push(`${rel} is a half the manifest beside it declares and the output does not carry. `
-      + 'A pair is the comparison, so a gallery published with one half of one missing is a '
-      + 'comparison with nothing to compare');
-  }
-  for (const rel of carried) {
-    if (declared.includes(rel)) continue;
-    problems.push(`${rel} is a half the output carries and the manifest beside it does not `
-      + 'declare, so the index links every pair it knows and this one is reachable from nothing. '
-      + 'An artifact copied in without its manifest is this in sixteen lines');
-  }
-  return problems;
-}
-
 export function missingPageProblems(out: string, base = root) {
   return pages(base, out)
     .filter((rel) => !existsSync(join(out, rel)))
@@ -186,7 +166,7 @@ export function domainProblems(out: string) {
   return named === DOMAIN ? [] : [`CNAME names ${named} and the site is built for ${DOMAIN}`];
 }
 
-export function located(base = root, out = join(root, SITE_DIR)) {
+export function located(base: string, out: string) {
   return [...indexedDirectories(base, out).map(directoryUrl), ...pages(base, out).map(url)];
 }
 
@@ -313,7 +293,6 @@ function main() {
     ...missingPageProblems(out),
     ...missingModuleProblems(out),
     ...orphanProblems(out, root, files),
-    ...benchProblems(out),
     ...missingPlaygrounds(),
     ...missingModules(),
     ...domainProblems(out),

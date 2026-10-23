@@ -22,7 +22,7 @@ export const SKIPPED_SOURCE = /\.(test|spec|demo|entry|prompt|card)\.|\.generate
 
 export const MANIFEST_IMPORT = /import manifest from '[^']*?([A-Za-z0-9]+)\.classes\.generated[^']*'/;
 export const VARIANTS_IMPORT = /from '(\.[^']*\.variants)'/;
-export const SELECTOR = /selector: '[a-z]*\[?(arena-[a-z0-9-]+)\]?'/g;
+export const SELECTOR = /selector: '[a-z]*\[?(arena(?:-[a-z0-9-]+|[A-Z][A-Za-z0-9]*))\]?'/g;
 export const DECORATOR_IMPORTS = /imports: \[([^\]]*)\]/g;
 export const EXPORTED = /export (?:function|const) ([A-Za-z0-9_]+)/g;
 export const COMPONENT_NAME = /^[A-Z][A-Za-z0-9]*[a-z][A-Za-z0-9]*$/;
@@ -118,9 +118,8 @@ function mapFrom(
   return { match: edges, draws, needs: close(needs), markers };
 }
 
-export function angularComponentMap(root = repoRoot) {
-  const attributes = markerAttributes(root);
-  const entries = componentFiles('angular', '.ts', root).map(({ file, symbol }) => {
+function angularEntries(root: string, attributes: Map<string, string>) {
+  return componentFiles('angular', '.ts', root).map(({ file, symbol }) => {
     const source = readFileSync(file, 'utf8');
     return {
       symbol,
@@ -134,6 +133,16 @@ export function angularComponentMap(root = repoRoot) {
         .filter((attribute): attribute is string => Boolean(attribute)))],
     };
   });
+}
+
+export function shippedComponents(layer: string, root = repoRoot): string[] {
+  if (layer !== 'angular') return Object.keys(componentMap(layer, root).draws);
+  return angularEntries(root, markerAttributes(root)).filter((e) => e.keys.length).map((e) => e.symbol);
+}
+
+export function angularComponentMap(root = repoRoot) {
+  const attributes = markerAttributes(root);
+  const entries = angularEntries(root, attributes);
   const map = mapFrom(entries.filter((e) => e.keys.length), 'selector');
   return { ...map, markerDirectives: Object.fromEntries([...attributes].map(([c, a]) => [a, c])) };
 }
@@ -149,6 +158,18 @@ export function reactComponentMap(root = repoRoot) {
     };
   });
   return mapFrom(entries.filter((e) => e.keys.length), 'symbol');
+}
+
+export function keysByDirectory(layer: string, root = repoRoot) {
+  const react = layer === 'react';
+  const pattern = react ? EXPORTED : SELECTOR;
+  const byDirectory = new Map<string, string[]>();
+  for (const { at, file } of componentFiles(layer, react ? '.tsx' : '.ts', root)) {
+    const keys = [...readFileSync(file, 'utf8').matchAll(pattern)].map((m) => captured(m))
+      .filter((name) => !react || COMPONENT_NAME.test(name));
+    if (keys.length) byDirectory.set(at, [...(byDirectory.get(at) ?? []), ...keys]);
+  }
+  return byDirectory;
 }
 
 export type ComponentSheetMap = {

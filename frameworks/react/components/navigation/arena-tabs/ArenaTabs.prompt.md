@@ -1,7 +1,7 @@
 A row of tabs and the one panel they switch between. The active tab has a crimson underline.
 
 ```tsx
-<ArenaTabs defaultValue="overview" onChange={setView}>
+<ArenaTabs defaultValue="overview" onValueChange={setView}>
   <ArenaTab value="overview" label="Overview"><ServiceHealth /></ArenaTab>
   <ArenaTab value="deployments" label="Deployments"><DeployTable /></ArenaTab>
 </ArenaTabs>
@@ -13,10 +13,10 @@ A row of tabs and the one panel they switch between. The active tab has a crimso
 
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
-| `children` | slot |  |  | The tabs. Which one is selected, which is the strip's tab stop, the ids wiring each to its panel and how the choice is reported are the strip's to settle, and none of it is a member here. EVERY tab's content mounts: one panel per tab is rendered and the inactive ones are hidden, because each tab's aria-controls must reference a tabpanel that exists. So a panel's side effects run immediately rather than on first selection. |
+| `children` | slot |  |  | The tabs. Which one is selected, which is the strip's tab stop, the ids wiring each to its panel and how the choice is reported are the strip's to settle. None of it is a member here. EVERY tab's content mounts: one panel per tab is rendered and the inactive ones are hidden, because each tab's aria-controls must reference a tabpanel that exists. So a panel's side effects run immediately rather than on first selection. |
 | `value` | primitive | `string` |  | The selected tab's value. Omit and pass `defaultValue` to let it govern itself. |
 | `defaultValue` | primitive | `string` |  | The initially selected value when uncontrolled. Defaults to the first tab. |
-| `onChange` | event | `string` |  | A different tab was chosen; carries its value. |
+| `onValueChange` | event | `string` |  | A different tab was chosen; carries its value. |
 
 <!-- @api end -->
 
@@ -44,7 +44,7 @@ A row of tabs and the one panel they switch between. The active tab has a crimso
   panel's effects run on mount, not on first selection.
 - **Don't put a cost you only want to pay on selection inside a `<ArenaTab>`'s children**: a fetch, a
   chart that measures itself, a subscription. Guard it on the value you already have from
-  `onChange`, or render that view's body only once its tab has been chosen. Arena cannot make this
+  `onValueChange`, or render that view's body only once its tab has been chosen. Arena cannot make this
   decision for you: deferring the mount is what dangles the other tabs' `aria-controls`.
 - Don't reach for `style` to space the strip. The component takes none, because the panel already carries the gap below the underline.
 

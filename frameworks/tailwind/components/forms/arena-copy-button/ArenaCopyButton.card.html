@@ -1,0 +1,36 @@
+<!-- @dsCard group="Tailwind" viewport="760x300" name="ArenaCopyButton" subtitle="At rest, confirmed and refused, at three sizes and two emphases, rendered from ArenaCopyButton.manifest.json" -->
+<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../../../../intro/styles.css">
+<link rel="stylesheet" href="../../../consume/Preflight.generated.css">
+<link rel="stylesheet" href="../../../consume/components/forms/arena-copy-button/ArenaCopyButton.styles.generated.css">
+<link rel="stylesheet" href="../../../consume/components/forms/arena-icon-button/ArenaIconButton.styles.generated.css">
+<link rel="stylesheet" href="../../../consume/vocabulary/Emphasis.generated.css">
+<link rel="stylesheet" href="../../../consume/vocabulary/Size.generated.css">
+<link rel="stylesheet" href="../../../Specimen.css">
+</head><body><div id="root"></div>
+<script type="module">
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor, glyph as phGlyph } from '../../../Specimen.js';
+
+const manifest = await (await fetch('./ArenaCopyButton.manifest.json')).json();
+const iconButton = await (await fetch('../arena-icon-button/ArenaIconButton.manifest.json')).json();
+const c = arenaClassesFor(manifest, {});
+const d = arenaSlotDataFor(manifest, {});
+const b = arenaClassesFor(iconButton, { showLabel: 'false' });
+const bd = arenaSlotDataFor(iconButton, { showLabel: 'false' });
+
+const GLYPH = { rest: 'ph-bold ph-copy', copied: 'ph-bold ph-check', failed: 'ph-bold ph-warning' };
+const SAID = { rest: '', copied: 'Copied', failed: 'Could not copy' };
+
+function copyButton({ phase = 'rest', size = 'md', emphasis = 'ghost' } = {}) {
+  return el('span', { class: `${c.root} arena-size-${size} arena-emphasis-${emphasis}`, ...d.root },
+    el('button', { type: 'button', class: b.root, ...bd.root, 'aria-label': 'Copy the install command', title: 'Copy the install command' },
+      phGlyph(GLYPH[phase])),
+    el('span', { class: c.announcement, ...d.announcement, role: 'status', text: SAID[phase] }));
+}
+
+mountSpecimen({ sections: [
+  section('At rest, confirmed and refused: the glyph swaps and the name stays', [copyButton(), copyButton({ phase: 'copied' }), copyButton({ phase: 'failed' })]),
+  section('Sizes, written on the wrapper and reaching the button inside it', [copyButton({ size: 'sm' }), copyButton(), copyButton({ size: 'lg' })]),
+  section('Emphasis: ghost by default, solid where the button stands alone', [copyButton(), copyButton({ emphasis: 'solid' })]),
+]});
+</script></body></html>

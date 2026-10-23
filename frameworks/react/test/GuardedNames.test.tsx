@@ -12,7 +12,15 @@ import { REACT_COMPONENTS } from './AssertPattern.tsx';
 import { ArenaSideNav } from '../components/navigation/arena-side-nav/ArenaSideNav.tsx';
 import { ArenaSideNavItem } from '../components/navigation/arena-side-nav-item/ArenaSideNavItem.tsx';
 import { ArenaSideNavSection } from '../components/navigation/arena-side-nav-section/ArenaSideNavSection.tsx';
+import { ArenaFileInput } from '../components/forms/arena-file-input/ArenaFileInput.tsx';
+import { ArenaNumberField } from '../components/forms/arena-number-field/ArenaNumberField.tsx';
+import { ArenaPinInput } from '../components/forms/arena-pin-input/ArenaPinInput.tsx';
+import { ArenaFilterBar } from '../components/navigation/arena-filter-bar/ArenaFilterBar.tsx';
+import { ArenaSplitButton } from '../components/forms/arena-split-button/ArenaSplitButton.tsx';
+import { ArenaTreeView } from '../components/navigation/arena-tree-view/ArenaTreeView.tsx';
+import { ArenaSlider } from '../components/forms/arena-slider/ArenaSlider.tsx';
 import { ArenaRadioGroup } from '../components/forms/arena-radio-group/ArenaRadioGroup.tsx';
+import { ArenaCheckboxGroup } from '../components/forms/arena-checkbox-group/ArenaCheckboxGroup.tsx';
 import { ArenaBreadcrumbs } from '../components/navigation/arena-breadcrumbs/ArenaBreadcrumbs.tsx';
 import { ArenaActivityFeed } from '../components/display/arena-activity-feed/ArenaActivityFeed.tsx';
 import { ArenaPeopleList } from '../components/display/arena-people-list/ArenaPeopleList.tsx';
@@ -22,11 +30,20 @@ import { ArenaPersonRow } from '../components/display/arena-person-row/ArenaPers
 import { ArenaTable } from '../components/display/arena-table/ArenaTable.tsx';
 import { ArenaScroller } from '../components/layout/arena-scroller/ArenaScroller.tsx';
 import { ArenaSection } from '../components/layout/arena-section/ArenaSection.tsx';
+import { ArenaFieldset } from '../components/forms/arena-fieldset/ArenaFieldset.tsx';
+import { ArenaCombobox } from '../components/forms/arena-combobox/ArenaCombobox.tsx';
+import { ArenaMultiSelect } from '../components/forms/arena-multi-select/ArenaMultiSelect.tsx';
 import { ArenaSkipLink } from '../components/layout/arena-skip-link/ArenaSkipLink.tsx';
+import { ArenaAccordionItem } from '../components/layout/arena-accordion-item/ArenaAccordionItem.tsx';
+import { ArenaLink } from '../components/navigation/arena-link/ArenaLink.tsx';
+import { ArenaMeter } from '../components/feedback/arena-meter/ArenaMeter.tsx';
 import { ArenaHero } from '../components/layout/arena-hero/ArenaHero.tsx';
 import { ArenaPagination } from '../components/navigation/arena-pagination/ArenaPagination.tsx';
+import { ArenaStepper } from '../components/navigation/arena-stepper/ArenaStepper.tsx';
+import { ArenaTimeline } from '../components/display/arena-timeline/ArenaTimeline.tsx';
 import { ArenaBottomNav } from '../components/navigation/arena-bottom-nav/ArenaBottomNav.tsx';
 import { ArenaSheet } from '../components/feedback/arena-sheet/ArenaSheet.tsx';
+import { ArenaPopover } from '../components/feedback/arena-popover/ArenaPopover.tsx';
 
 interface MemberSpec { form?: string; type?: string; required?: boolean; description?: string }
 const CONTRACTS = join(REACT_COMPONENTS, '../../../contracts/api/components');
@@ -36,6 +53,9 @@ const WITH_A_BLANK_NAME = new Map([
   ['ArenaSideNav', () => <ArenaSideNav ariaLabel={BLANK}><ArenaSideNavItem id="a" label="Alpha" /></ArenaSideNav>],
   ['ArenaSideNavSection', () => <ArenaSideNavSection label={BLANK}><ArenaSideNavItem id="a" label="Alpha" /></ArenaSideNavSection>],
   ['ArenaRadioGroup', () => <ArenaRadioGroup ariaLabel={BLANK} value="a" />],
+  ['ArenaCheckboxGroup', () => <ArenaCheckboxGroup ariaLabel={BLANK} />],
+  ['ArenaCombobox', () => <ArenaCombobox label={BLANK} options={[]} />],
+  ['ArenaMultiSelect', () => <ArenaMultiSelect label={BLANK} options={[]} />],
   ['ArenaBreadcrumbs', () => <ArenaBreadcrumbs ariaLabel={BLANK} items={[{ label: 'Home' }]} />],
   ['ArenaActivityFeed', () => <ArenaActivityFeed label={BLANK} items={[]} />],
   ['ArenaPeopleList', () => <ArenaPeopleList label={BLANK}><ArenaPersonRow name="Ada" /></ArenaPeopleList>],
@@ -45,11 +65,25 @@ const WITH_A_BLANK_NAME = new Map([
   ['ArenaTable', () => <ArenaTable label={BLANK} columns={[{ header: 'A' }]} />],
   ['ArenaScroller', () => <ArenaScroller label={BLANK}><span>One</span></ArenaScroller>],
   ['ArenaSection', () => <ArenaSection title={BLANK}><span>One</span></ArenaSection>],
+  ['ArenaFieldset', () => <ArenaFieldset legend={BLANK}><span>One</span></ArenaFieldset>],
   ['ArenaHero', () => <ArenaHero title={BLANK} />],
   ['ArenaPagination', () => <ArenaPagination ariaLabel={BLANK} page={1} pageCount={3} />],
+  ['ArenaPopover', () => <ArenaPopover label={BLANK} trigger={<button type="button">Filters</button>}><p>Only failing builds.</p></ArenaPopover>],
   ['ArenaSheet', () => <ArenaSheet open title={BLANK}>Two line items.</ArenaSheet>],
   ['ArenaBottomNav', () => <ArenaBottomNav ariaLabel={BLANK} />],
   ['ArenaSkipLink', () => <ArenaSkipLink label={BLANK} />],
+  ['ArenaFileInput', () => <ArenaFileInput label={BLANK} />],
+  ['ArenaNumberField', () => <ArenaNumberField label={BLANK} />],
+  ['ArenaSlider', () => <ArenaSlider label={BLANK} />],
+  ['ArenaPinInput', () => <ArenaPinInput label={BLANK} />],
+  ['ArenaFilterBar', () => <ArenaFilterBar label={BLANK}><select aria-label="Region" /></ArenaFilterBar>],
+  ['ArenaLink', () => <ArenaLink href={BLANK}>Release notes</ArenaLink>],
+  ['ArenaMeter', () => <ArenaMeter label={BLANK} value={1} />],
+  ['ArenaAccordionItem', () => <ArenaAccordionItem value={BLANK} label={BLANK} />],
+  ['ArenaStepper', () => <ArenaStepper ariaLabel={BLANK} steps={[]} />],
+  ['ArenaTimeline', () => <ArenaTimeline label={BLANK} items={[]} />],
+  ['ArenaSplitButton', () => <ArenaSplitButton label={BLANK} menuLabel={BLANK} items={[]}>Deploy</ArenaSplitButton>],
+  ['ArenaTreeView', () => <ArenaTreeView label={BLANK} nodes={[]} />],
 ]);
 
 export function guardedNames(dir: string, read = readFileSync, list = readdirSync) {

@@ -1,11 +1,15 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useContext } from 'react';
 import { arenaWarnOnce } from '../../../WarnOnce.ts';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaMenu.classes.generated.ts';
+import { sp1 } from '../../../Tokens.generated.js';
+import { ARENA_PANEL_POPOVER, useArenaAnchoredPanel } from '../../../UseAnchoredPanel.ts';
+import { ArenaMenuAnchor } from './MenuAnchor.ts';
 
 import type { ArenaMenuItem, ArenaMenuAlign } from '../../../Api.generated';
 import type { ArenaMenuClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
+import { ArenaIcon } from '../../display/arena-icon/ArenaIcon.tsx';
 
 export type { ArenaMenuItem };
 
@@ -44,6 +48,7 @@ export function ArenaMenu({ className, trigger, items, align = 'start', onSelect
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement | null>(null);
   const panelRef = useRef<HTMLDivElement | null>(null);
+  const composed = useContext(ArenaMenuAnchor);
 
   const triggerEl = (): HTMLElement | null =>
     (ref.current?.firstElementChild instanceof HTMLElement ? ref.current.firstElementChild : null);
@@ -53,23 +58,12 @@ export function ArenaMenu({ className, trigger, items, align = 'start', onSelect
     if (restoreFocus && el) el.focus();
   };
 
-  useEffect(() => {
-    if (!open) return;
-    const onDoc = (e: MouseEvent) => {
-      if (ref.current && e.target instanceof Node && !ref.current.contains(e.target)) setOpen(false);
-    };
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') close(true); };
-    document.addEventListener('mousedown', onDoc);
-    document.addEventListener('keydown', onKey);
-    return () => { document.removeEventListener('mousedown', onDoc); document.removeEventListener('keydown', onKey); };
-  }, [open]);
-
-  useEffect(() => {
-    if (!open) return;
-    const first = panelRef.current
-      ?.querySelector<HTMLElement>('[role="menuitem"]:not([disabled])');
-    if (first) first.focus();
-  }, [open]);
+  const present = useArenaAnchoredPanel({
+    open, align, anchor: composed ?? ref, panel: panelRef, trigger: triggerEl, offset: sp1 * 1.5,
+    focusOnOpen: (panel) => panel.querySelector<HTMLElement>('[role="menuitem"]:not([disabled])'),
+    restoreFocus: true, tabOut: true, anchorPressDismisses: composed !== null,
+    onDismiss: () => setOpen(false),
+  });
 
   const run = (it: ArenaMenuItem) => { if (it.disabled) return; close(true); onSelect && onSelect(it); };
 
@@ -85,12 +79,12 @@ export function ArenaMenu({ className, trigger, items, align = 'start', onSelect
       );
     }
     el.setAttribute('aria-haspopup', 'menu');
-    el.setAttribute('aria-expanded', String(open));
-  }, [open]);
+    el.setAttribute('aria-expanded', String(present));
+  }, [present]);
 
   const decoratedTrigger = React.cloneElement(trigger, {
     'aria-haspopup': 'menu',
-    'aria-expanded': open,
+    'aria-expanded': present,
     onClick: (e: React.MouseEvent) => {
       const own = (trigger.props as { onClick?: (event: React.MouseEvent) => void }).onClick;
       if (own) own(e);
@@ -98,15 +92,15 @@ export function ArenaMenu({ className, trigger, items, align = 'start', onSelect
     },
   });
 
-  const styles = arenaMenuStyles({ align });
+  const styles = arenaMenuStyles();
 
   return (
-    <div ref={ref} className={arenaClassName('ArenaMenu', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+    <div ref={ref} className={arenaClassName('ArenaMenu', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
       {decoratedTrigger}
-      {open && (
+      {present && (
         <div role="menu" ref={panelRef}
           className={styles.panel()}
-          data-arena-part={manifest.parts.panel} {...styles.$data.panel()} data-arena-surface="floating">
+          data-arena-part={manifest.parts.panel} {...styles.$data.panel()} data-arena-surface="floating" {...ARENA_PANEL_POPOVER}>
           {items.map((it, i) => {
             if (it.divider) return <div key={i} className={styles.divider()} data-arena-part={manifest.parts.divider} {...styles.$data.divider()} />;
             if (it.header) return <div key={i} className={styles.header()} data-arena-part={manifest.parts.header} {...styles.$data.header()}>{it.header}</div>;
@@ -125,9 +119,9 @@ function MenuRow({ item, onRun }: { item: ArenaMenuItem; onRun: () => void }) {
   return (
     <button role="menuitem" onClick={onRun} disabled={item.disabled}
       className={styles.item()} data-arena-part={manifest.parts.item} {...styles.$data.item()}>
-      {item.icon && <i className={`${item.icon} ${styles.icon()}`} data-arena-part={manifest.parts.icon} {...styles.$data.icon()} aria-hidden="true" />}
+      {item.icon && <span className={styles.icon()} data-arena-part={manifest.parts.icon} {...styles.$data.icon()} aria-hidden="true"><ArenaIcon icon={item.icon} /></span>}
       <span className={styles.label()} data-arena-part={manifest.parts.label} {...styles.$data.label()}>{item.label}</span>
-      {item.shortcut && <span className={styles.shortcut()} data-arena-part={manifest.parts.shortcut} {...styles.$data.shortcut()}>{item.shortcut}</span>}
+      {item.shortcut && <kbd className={styles.shortcut()} data-arena-part={manifest.parts.shortcut} {...styles.$data.shortcut()}>{item.shortcut}</kbd>}
     </button>
   );
 }

@@ -133,6 +133,10 @@ thing to hold true:
   puts `a` before `B` under en-US and after it by code unit, so a generator emits two different
   files on two machines and the `git diff --exit-code` in every workflow calls the second one a
   generator out of step. That rule's owner list is **empty**, and the emptiness is the claim.
+- **A path from a `file:` URL is `fileURLToPath`, never its `.pathname`.** On Windows the
+  `.pathname` of `file:///D:/a/x` is `/D:/a/x`, which no fs call reads, and the same line passes
+  on Linux. One rule, `file-url-pathname`, reaches scripts, suites and the `frameworks/` sources;
+  the owner is `lib/arena/static-server.ts`, whose URL is an http request.
 - **A directory link is `linkDir`**, a junction on Windows, which needs neither Developer Mode
   nor elevation where a symlink needs both.
 - **A gate that cannot run FAILS, in one spelling.** `cannotRun` in `lib/arena/arena-scripts-vars.ts`.
@@ -195,8 +199,8 @@ first reason above. `check:generated` scans no `.md` at all, and `check:skills` 
 freshness and their tracking instead.
 
 So **a fresh clone runs `bun run build` first**, and until it has, part of the tree does not
-exist. [`build/AGENTS.md`](./build/AGENTS.md) is the first-compile document and names what
-notices each missing piece.
+exist. [`build/AGENTS.md`](./build/AGENTS.md) is the first-compile document, names what
+notices each missing piece and says which gates need the packages assembled too.
 
 ## Adding a gate
 
@@ -219,7 +223,9 @@ over a tree it never opened, and the SKIP protocol.
 ## Running them
 
 `bun run check` runs every gate plus the test suite, without stopping at the first failure, so
-one sweep reports every problem rather than the first.
+one sweep reports every problem rather than the first. A scheduler runs the steps side by side,
+`--jobs=<n>` caps it, and `--jobs=1` is the serial run;
+[`check/AGENTS.md`](./check/AGENTS.md) has the section on the sweep running side by side.
 
 **When it is expected: once, when a plan's implementation is finished, and not before every
 commit.** The individual gates are cheap and stay available per commit, `check:dimensions` after
@@ -229,6 +235,13 @@ per-commit toll. Stating that is what lets a gate be expensive enough to be wort
 opens two real pages per component per arrangement in Chromium and compares them pixel for pixel, which
 no repository can afford once per commit.
 
+**The Angular suites have two runs, and the emitted one is the verdict.** `bun run test:angular`
+compiles the layer with `ngc` and runs the emitted tree, which is what `bun run check` and CI run.
+`bun run test:angular-jit` runs the same suites from source through
+`lib/angular/jit-preload.ts`, with no emit, for a task's loop and a mutation. It checks no template
+type, and a component is defined when it is first used rather than when its class loads, so a task
+ends on the emitted run.
+
 **Some gates are not runtime-portable**, needing a headless browser, `Bun.build` or
 `Bun.Transpiler`. Where the dependency is missing the gate exits 2 and is reported `SKIP`,
 **except that the repository declares itself strict**, so it fails instead. Count them and read
@@ -236,7 +249,10 @@ each one's dependency in [`check/AGENTS.md`](./check/AGENTS.md), which also has 
 every environment variable the scripts read; all of them are declared in
 `lib/arena/arena-scripts-vars.ts`, and a real one wins over the declared value.
 
-**CI narrows that run by domain, never by gate name.** `check-all.ts` takes `--domain=` and
-`--no-tests`, four jobs partition `GATES`, and `check-all.test.ts` asserts the partition, so a
-gate cannot join `GATES` and then run in no job.
-[`../.github/workflows/AGENTS.md`](../.github/workflows/AGENTS.md) has the four workflows.
+**CI narrows that run by domain, never by gate name.** `check-all.ts` takes `--domain=`,
+`--no-tests`, `--force`, `--release` and `--jobs=`. One `gates` job in `verify.yml` runs every gate
+of the domains its caller selects, and `check-all.test.ts` asserts through
+`ci/arena/verify-workflow.ts` that one job runs the gates, that some caller selects every domain
+and that each suite runs in one job gated by its domain. A gate cannot join `GATES` and then run in
+no job.
+[`../.github/workflows/AGENTS.md`](../.github/workflows/AGENTS.md) has the workflows and their callers.

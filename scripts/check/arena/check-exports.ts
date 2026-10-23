@@ -55,12 +55,18 @@ export const INTERNAL = new Map<string, string>([
   ['ARENA_RAIL_STYLE', CHART_GEOMETRY],
   ['arenaAreaFill', CHART_GEOMETRY],
   ['arenaValueWriter', CHART_GEOMETRY],
+  ['arenaPercentWriter', CHART_GEOMETRY],
+  ['ARENA_HEAT_STEPS', CHART_GEOMETRY],
+  ['arenaHeatFill', CHART_GEOMETRY],
   ['ARENA_INTERACTIVE_DESCENDANT', 'the selector string behind the rule that a press starting on '
     + 'a control inside an activation target keeps to that control. The rule is what a consumer '
     + 'holds; this is how Arena finds the descendants, and a consumer matching on it by hand is '
     + 'writing against a list that moves'],
   ['arenaThemeClass', THE_DOCUMENTED_SURFACE_IS_ABOVE_IT],
   ['ARENA_DEFAULT_THEMES', THE_DOCUMENTED_SURFACE_IS_ABOVE_IT],
+  ['RUNTIME_CACHE_KEY', 'the localStorage key the theme surface writes the active runtime palette\'s '
+    + 'cache under. theme.md names the key as the string `arena-runtime-palette`, which is what the '
+    + 'no-flash snippet reads, so a consumer holds the string and not this constant'],
   ['arenaToastPersists', THE_DOCUMENTED_SURFACE_IS_ABOVE_IT],
   ['arenaActiveWeight', 'how the Angular layer picks the filled weight of a Phosphor glyph for a '
     + 'selected nav row. A consumer writes the class string themselves and picks their own weight'],

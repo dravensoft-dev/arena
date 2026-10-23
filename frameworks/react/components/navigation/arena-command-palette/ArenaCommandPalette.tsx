@@ -9,6 +9,7 @@ import { useArenaLocale } from '../../../ArenaLocale.ts';
 import { arenaPhrase } from '../../../Phrase.ts';
 import type { ArenaCommandPaletteClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
+import { ArenaIcon } from '../../display/arena-icon/ArenaIcon.tsx';
 
 export type { ArenaCommand };
 
@@ -25,13 +26,13 @@ export interface ArenaCommandPaletteProps {
   /** The search field's placeholder. Absent, the provided locale's commandPalettePlaceholder answers it. */
   placeholder?: string;
 
-  /** How many matches the list shows at most. Absent, all of them. The ceiling applies AFTER the query has run over every command, which is what makes it different from the caller trimming `commands` before passing them: a trimmed list cannot match what was cut, and a capped one can, so the first rows are still the best the whole set has. It is the palette's rather than the domain's, because how many rows help before the list stops being an accelerator is a property of this control; a caller who caps their own collection has guessed at it once, for one collection, with no query in hand. It is not ranking: the order stays the order the caller passed, ungrouped first and then each group as it first appears. */
+  /** How many matches the list shows at most. Absent, all of them. The ceiling applies AFTER the query has run over every command, which is what makes it different from the caller trimming `commands` before passing them. A trimmed list cannot match what was cut, and a capped one can, so the first rows are still the best the whole set has. The ceiling is the palette's rather than the domain's, because how many rows help before the list stops being an accelerator is a property of this control. A caller who caps their own collection has guessed at it once, for one collection, with no query in hand. The cap is not ranking: the order stays the order the caller passed, ungrouped first and then each group as it first appears. */
   maxResults?: number;
 
   /** The palette asked to be closed: Escape, the scrim, or a command having been run. */
   onClose?: () => void;
 
-  /** A command was activated, carrying which one. Emitted after close. For a command with `route` it fires for a primary click with no modifier and for Enter, both of which cancel the row's anchor first, so the two activations do the same thing and a host that routes here never navigates twice; a modified or middle click on such a row is the browser's, fires nothing and does not close the palette. */
+  /** A command was activated, carrying which one. Emitted after close. For a command with `route` the event fires for a primary click with no modifier and for Enter. Both cancel the row's anchor first, so the two activations do the same thing and a host that routes here never navigates twice. A modified or middle click on such a row is the browser's, fires nothing and does not close the palette. */
   onRun?: (command: ArenaCommand) => void;
 }
 
@@ -106,18 +107,18 @@ export function ArenaCommandPalette({ className, open, commands, placeholder, ma
   };
   const styles = paletteStyles({ open: true });
   return (
-    <div onClick={onClose} className={arenaClassName('ArenaCommandPalette', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()} data-arena-surface="floating">
+    <div onClick={onClose} className={arenaClassName('ArenaCommandPalette', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()} data-arena-surface="floating">
       <div ref={panelRef} onKeyDown={onPanelKeyDown}
         onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-label={locale.commandPaletteDialog}
         className={styles.panel()} data-arena-part={manifest.parts.panel} {...styles.$data.panel()}>
         <div className={styles.search()} data-arena-part={manifest.parts.search} {...styles.$data.search()}>
-          <i className={`ph-bold ph-magnifying-glass ${styles.searchIcon()}`} data-arena-part={manifest.parts.searchIcon} {...styles.$data.searchIcon()} aria-hidden="true" />
+          <span className={styles.searchIcon()} data-arena-part={manifest.parts.searchIcon} {...styles.$data.searchIcon()} aria-hidden="true"><ArenaIcon icon="ph-bold ph-magnifying-glass" /></span>
           <input ref={inputRef} value={q} onChange={(e) => setQ(e.target.value)} onKeyDown={onKey} placeholder={hint}
             role="combobox" aria-autocomplete="list" aria-haspopup="listbox" aria-expanded="true"
             aria-controls={listboxId} aria-label={hint || locale.commandPaletteSearch}
             aria-activedescendant={i >= 0 && i < filtered.length ? optionId(i) : undefined}
             className={styles.input()} data-arena-part={manifest.parts.input} {...styles.$data.input()} />
-          <span className={styles.esc()} data-arena-part={manifest.parts.esc} {...styles.$data.esc()}>{locale.commandPaletteEscape}</span>
+          <kbd className={styles.esc()} data-arena-part={manifest.parts.esc} {...styles.$data.esc()}>{locale.commandPaletteEscape}</kbd>
         </div>
         <div ref={listRef} id={listboxId} role="listbox" aria-label={locale.commandPaletteList} className={styles.list()} data-arena-part={manifest.parts.list} {...styles.$data.list()}>
           {filtered.length === 0 && <div className={styles.empty()} data-arena-part={manifest.parts.empty} {...styles.$data.empty()}>{arenaPhrase(locale.commandPaletteEmpty, { query: q })}</div>}
@@ -149,10 +150,10 @@ export function ArenaCommandPalette({ className, open, commands, placeholder, ma
                 };
                 const body = (
                   <>
-                    {c.icon && <span className={styles.rowIcon()} data-arena-part={manifest.parts.rowIcon} {...styles.$data.rowIcon()}><i className={c.icon} aria-hidden="true" /></span>}
+                    {c.icon && <span className={styles.rowIcon()} data-arena-part={manifest.parts.rowIcon} {...styles.$data.rowIcon()}><ArenaIcon icon={c.icon} /></span>}
                     <span className={rowStyles.rowLabel()}
                       data-arena-part={manifest.parts.rowLabel} {...rowStyles.$data.rowLabel()}>{c.label}</span>
-                    {c.shortcut && <span className={styles.shortcut()} data-arena-part={manifest.parts.shortcut} {...styles.$data.shortcut()}>{c.shortcut}</span>}
+                    {c.shortcut && <kbd className={styles.shortcut()} data-arena-part={manifest.parts.shortcut} {...styles.$data.shortcut()}>{c.shortcut}</kbd>}
                   </>
                 );
                 return c.route

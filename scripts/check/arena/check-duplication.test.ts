@@ -4,9 +4,9 @@
  * in made every prompt overlap every other one through the same emitted line, which read as 24
  * findings and was one. */
 
-import { test } from 'node:test';
+import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
@@ -15,10 +15,16 @@ import {
   documents, duplicationProblems, zeroScanProblems,
 } from './check-duplication.ts';
 
+const made: string[] = [];
+const track = (dir: string) => { made.push(dir); return dir; };
+after(() => {
+  for (const dir of made) rmSync(dir, { recursive: true, force: true });
+});
+
 const long = (word: string) => `${`${word} `.repeat(MIN_WORDS).trim()}.`;
 
 function tree(files: Record<string, string>) {
-  const base = mkdtempSync(join(tmpdir(), 'arena-duplication-'));
+  const base = track(mkdtempSync(join(tmpdir(), 'arena-duplication-')));
   for (const [rel, text] of Object.entries(files)) {
     const path = join(base, rel);
     mkdirSync(join(path, '..'), { recursive: true });

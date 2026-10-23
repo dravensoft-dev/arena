@@ -2,13 +2,19 @@
  * an option writing a foreign channel, a channel nobody reads, an answers naming no family, a
  * manifest reading a channel it does not answer, a fallback that is not the family's default,
  * a transparent slot the manifest does not have, and an empty vocabulary. */
-import test from 'node:test';
+import test, { after } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { familyProblems, pageDriftProblems, strayClassProblems, utilityProblems, sweptProblems, collect, treeSource } from './check-families.ts';
 import type { Family } from '../../lib/tailwind/vocabulary.ts';
+
+const made: string[] = [];
+const track = (dir: string) => { made.push(dir); return dir; };
+after(() => {
+  for (const dir of made) rmSync(dir, { recursive: true, force: true });
+});
 
 const FILL: Family = { family: 'fill', reach: 'box', description: 'Whether a component takes its container\'s width.',
   default: 'arena-fit', variants: { 'arena-fill': '[--arena-fill-width:100%]', 'arena-fit': '[--arena-fill-width:fit-content]' } };
@@ -24,7 +30,7 @@ const runWith = (family: Family, manifest: Record<string, unknown>) =>
   familyProblems(new Map([[family.family, family]]), [`frameworks/tailwind/vocabulary/arena-${family.family}/${family.family[0]?.toUpperCase()}${family.family.slice(1)}.family.json`],
     new Map<string, any>([[manifest.component as string, manifest]]));
 const typed = (field: string | null, unrelated: string | null = null) => {
-  const root = mkdtempSync(join(tmpdir(), 'arena-keyed-'));
+  const root = track(mkdtempSync(join(tmpdir(), 'arena-keyed-')));
   mkdirSync(join(root, 'contracts/api/types'), { recursive: true });
   mkdirSync(join(root, 'contracts/api/components'), { recursive: true });
   writeFileSync(join(root, 'contracts/api/components/ArenaTable.json'),
@@ -154,7 +160,7 @@ test('a keyed family reads its key from a field some type declares, and two fami
 });
 
 test('the keyed reader takes the directories of the component, and not those that merely start like it', () => {
-  const root = mkdtempSync(join(tmpdir(), 'arena-tree-'));
+  const root = track(mkdtempSync(join(tmpdir(), 'arena-tree-')));
   const put = (rel: string, text: string) => {
     mkdirSync(join(root, 'frameworks/react/components', rel.split('/').slice(0, -1).join('/')), { recursive: true });
     writeFileSync(join(root, 'frameworks/react/components', rel), text);
@@ -302,7 +308,7 @@ test('an @utility arena- name the theme sheet ships fails unless it is an option
 });
 
 test('the sweep reads the utilities a theme sheet ships, so an unnamed one fails through the gate', () => {
-  const root = mkdtempSync(join(tmpdir(), 'arena-sweep-'));
+  const root = track(mkdtempSync(join(tmpdir(), 'arena-sweep-')));
   mkdirSync(join(root, 'frameworks/tailwind/consume'), { recursive: true });
   writeFileSync(join(root, 'frameworks/tailwind/consume/A.css'), '.arena-fill { color: red; }\n');
   writeFileSync(join(root, 'frameworks/tailwind/Utilities.generated.css'), '@utility arena-x {\n  color: red;\n}\n@utility arena-spinner {\n  color: red;\n}\n');

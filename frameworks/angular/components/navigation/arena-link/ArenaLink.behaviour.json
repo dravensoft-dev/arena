@@ -1,0 +1,6 @@
+{
+  "component": "ArenaLink",
+  "pattern": "none",
+  "reason": "It renders a real <a href>, so a link's role, its keyboard activation and its focusability come from the platform the moment the element exists, and there is no link pattern to bind. Binding button would name a role the element does not have and lose what an address is for: open in a new tab, copy it, hear it announced as a link. What the component adds is the drawing, the hidden hint of an external link and the anchor convention a router uses, and none of them is a role, a key, a focus move or a dismissal.",
+  "exceptions": []
+}

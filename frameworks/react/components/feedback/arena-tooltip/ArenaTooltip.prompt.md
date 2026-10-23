@@ -62,13 +62,11 @@ focus, but the description never reaches anyone.
 
 **How `aria-describedby` reaches the trigger, and the one shape it still cannot.** The attribute is written twice on purpose. `cloneElement` puts it in the server-rendered HTML before hydration, and an effect writes it onto the **resolved node** afterwards. The effect is what covers a child
 that accepts the prop and drops it, invisible to a clone, and perfectly visible in the DOM.
-Arena's own components forward the props they *declare* and drop the rest, so every suite
-assertion using a raw `<button>` proved a case the demo pages did not have. Two failing shapes now throw outright: a bare string, and a **fragment**. The fragment is the trap, because `React.isValidElement` is true for one. The clone succeeded and the attribute reached nothing at all, in silence.
+Arena's own components drop every prop they do not declare. `ArenaButton` and `ArenaIconButton` declare four ARIA props for Arena's composers, `aria-describedby` among them. A tooltip around either button reaches the `<button>` by clone and by effect, like a raw `<button>`. Two failing shapes throw outright: a bare string and a **fragment**. The fragment is the trap, because `React.isValidElement` is true for one. A clone of a fragment succeeds and the attribute reaches nothing, in silence.
 **Unpromised:** a child rendering no DOM node of its own at the wrapper's first position, or one
 that re-parents its content, is outside what an effect reading `firstElementChild` can reach.
 
-**The bubble is in flow, so an ancestor with `overflow: hidden` clips it** and it cannot leave a
-scroll container. Nothing in `contracts/behaviour/tooltip.json` requires it to escape one, so this is a bounded capability limit rather than a defect. Fixing it means a portal or a popover, which is a new capability. Place a tooltip where its trigger is not inside a clipping ancestor.
+**The bubble opens in the top layer**, over its trigger, so an `overflow: hidden` or transformed ancestor does not clip it. The bubble flips below its trigger near the top of the window and follows the trigger on scroll. Escape closes the topmost open panel, so a tooltip inside a popover or a dialog closes alone.
 
 **When the label repeats the name.** A trigger whose accessible name already says the label, such as an icon button named by that word, still references the tooltip. The bubble draws the same text and contributes no description, so a screen reader does not announce the word twice.
 

@@ -53,4 +53,7 @@
   --ls-field-label:0.14em; /* form field label */
   --ls-label:0.22em; /* mono uppercase labels: section eyebrows */
   --ls-wide:0.34em; /* eyebrows */
+
+  /* Text transforms a role can name as its kernel default. A keyword token is a word the package emits, so a keyword role silent in a root plugin follows it the way a dimension role follows an sp step. */
+  --case-none:none; /* No transform: the text is drawn as written. tt-key names it, because a key cap shows the key's own spelling. */
 }

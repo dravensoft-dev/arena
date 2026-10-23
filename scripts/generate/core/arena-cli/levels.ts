@@ -12,8 +12,8 @@ import { contrast } from './validate-palette.mjs';
 import { parseBlocks, selectorPath, COLOUR_VAR, MIXED_VAR } from './css-blocks.ts';
 import type { CssBlock } from './css-blocks.ts';
 import { composite } from './oklab.ts';
-import { report } from './reports.ts';
-import type { Report } from './reports.ts';
+import { report } from './report.ts';
+import type { Report } from './report.ts';
 
 export type Level = {
   selector: string;

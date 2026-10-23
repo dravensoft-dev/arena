@@ -1,0 +1,13 @@
+{
+  "name": "meter",
+  "source": "https://www.w3.org/WAI/ARIA/apg/patterns/meter/",
+  "description": "A graphical display of a numeric value inside a known range: disk used, a quota, a score against a target. A meter is a static measurement and not work under way, which is what separates it from progressbar: nothing is going anywhere, so a meter has no live region and announces nothing when it renders or changes. It takes no keyboard and no focus, because it is read and never operated; a meter a person can drag is a slider. aria-valuetext is optional in APG and so is not a requirement here, though a component may add it to say the value in words.",
+  "element": "meter",
+  "requires": {
+    "roles.element": "meter",
+    "roles.label": "an accessible name from aria-label or aria-labelledby, naming what is measured",
+    "states.valuenow": "aria-valuenow set to the measured value, inside the range",
+    "states.valuemin": "aria-valuemin set to the lower bound of the range",
+    "states.valuemax": "aria-valuemax set to the upper bound of the range"
+  }
+}

@@ -39,13 +39,24 @@ that animates: `snap` lands on an item, `flow` lands wherever the reader left it
 announced as a group tells a reader that focus moved and nothing about where. `children` is
 required and guarded too: an empty row is a tab stop over nothing.
 
+**The scroller is also the row of a code readout.** The row scrolls along x alone and keeps bottom padding for its scrollbar, so a long command never wraps into two. Hold the command in one `<pre>` under `behaviour="flow"`, and make `label` name the text, such as "Install command". A short command still takes the row's one tab stop.
+
+```tsx
+<ArenaScroller label="Install command" behaviour="flow">
+  <pre>bun add @dravensoft/arena-react</pre>
+</ArenaScroller>
+<ArenaCopyButton text="bun add @dravensoft/arena-react" label="Copy the install command" />
+```
+
+The copy button sits after the row, outside it, so scrolling never carries it away. [`ArenaCopyButton`](../../forms/arena-copy-button/ArenaCopyButton.prompt.md) shows the sunken ground and the mono face around the pair.
+
 **Do / Don't**
 - **Do** give it a label that says what the row holds, not what it is. "Recently landed lots" is a
   name; "Scrolling row" is the role read twice.
 - **Do** leave the `arena-scroller-item` class off unless the row genuinely wants a different card from the page's
   grid. The default, `md`, is the width a card takes in a grid, so the two agree.
-- **Don't** reach for it when everything fits. A scroll container that never scrolls is a tab stop
-  the reader gains nothing from.
+- **Don't** reach for it when a row of cards fits. A scroll container that never scrolls is a tab stop
+  the reader gains nothing from. A command is the exception. The reader's screen decides how much of a command fits, and the page cannot know that screen.
 - **Don't** wrap the children in cells of your own other than `ArenaScrollerItem` to set their width. The width is what the `arena-scroller-item` class is, and a wrapper puts a box between the row and the card it is laying out.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->

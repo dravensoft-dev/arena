@@ -3,6 +3,8 @@ import assert from 'node:assert/strict';
 import { renderToStaticMarkup } from 'react-dom/server';
 import React from 'react';
 import { ArenaMenu } from './ArenaMenu.tsx';
+import { ArenaButton } from '../../forms/arena-button/ArenaButton.tsx';
+import { ArenaIconButton } from '../../forms/arena-icon-button/ArenaIconButton.tsx';
 
 test('a closed ArenaMenu draws its trigger and no panel', () => {
   const html = renderToStaticMarkup(
@@ -57,10 +59,22 @@ test('a trigger that cannot carry attributes throws rather than silently losing 
   );
 });
 
-test('an item selects the disabled and destructive groups, and align end the panel group', async () => {
+test('an item selects the disabled and destructive groups, and the panel carries no group at all', async () => {
   const { arenaMenuStyles } = await import('../../../ArenaStyles.generated.ts').then(async (m) => ({ arenaMenuStyles: m.arenaStyles((await import('./ArenaMenu.classes.generated.ts')).default) }));
-  assert.equal(arenaMenuStyles({ align: 'end' }).$data.panel()['data-arena-align'], 'end');
-  assert.equal(arenaMenuStyles().$data.panel()['data-arena-align'], 'start');
+  assert.deepEqual(arenaMenuStyles().$data.panel(), {}, 'the panel is placed by the layer, so no variant group touches it');
   assert.deepEqual(arenaMenuStyles({ disabled: true }).$data.item(), { 'data-arena-disabled': '' });
   assert.deepEqual(arenaMenuStyles({ destructive: true }).$data.item(), { 'data-arena-destructive': '' });
 });
+
+for (const [name, trigger] of [
+  ['ArenaButton', <ArenaButton>Actions</ArenaButton>],
+  ['ArenaIconButton', <ArenaIconButton icon="ph-dots-three" label="Actions" />],
+] as const) {
+  test(`a closed menu's ${name} trigger carries the popup state in a server render`, () => {
+    const html = renderToStaticMarkup(<ArenaMenu trigger={trigger} items={[{ label: 'Rename' }]} />);
+    const button = html.match(/<button\b[^>]*>/)?.[0] ?? '';
+    assert.match(button, /aria-haspopup="menu"/);
+    assert.match(button, /aria-expanded="false"/);
+    assert.doesNotMatch(button, /aria-controls/);
+  });
+}

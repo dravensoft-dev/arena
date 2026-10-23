@@ -6,3 +6,7 @@ export * from './arena-line-chart';
 export * from './arena-pyramid-chart';
 export * from './arena-radar-chart';
 export * from './arena-scatter-chart';
+export * from './arena-sparkline';
+export * from './arena-gauge-chart';
+export * from './arena-funnel-chart';
+export * from './arena-heatmap-chart';

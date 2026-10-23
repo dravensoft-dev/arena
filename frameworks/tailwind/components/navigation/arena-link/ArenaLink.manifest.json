@@ -1,0 +1,11 @@
+{
+  "component": "ArenaLink",
+  "slots": {
+    "root": "inline w-fit text-ink-link/(--level-ink-body) underline underline-offset-2 cursor-pointer transition-[color] duration-[var(--dur-hover)] ease-hover hover:text-ink-heading hover:decoration-2 focus-visible:outline-none focus-visible:shadow-[inset_0_0_0_var(--focus-width)_var(--focus-ring)]",
+    "external": "sr-only"
+  },
+  "kind": {
+    "root": "none",
+    "external": "none"
+  }
+}

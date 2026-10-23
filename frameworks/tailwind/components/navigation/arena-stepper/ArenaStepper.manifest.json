@@ -1,0 +1,108 @@
+{
+  "component": "ArenaStepper",
+  "answers": [
+    {
+      "family": "orientation",
+      "options": [
+        "arena-orientation-horizontal",
+        "arena-orientation-vertical"
+      ],
+      "default": "arena-orientation-horizontal"
+    }
+  ],
+  "slots": {
+    "root": "flex [flex-direction:var(--arena-orientation-direction,row)] gap-inline list-none m-0 p-0",
+    "step": "block flex-1 min-w-0",
+    "trigger": "flex flex-wrap items-start gap-control w-full min-h-ctl-h-sm min-w-ctl-h-sm rounded-control text-start font-body focus-visible:outline-none focus-visible:ring-[length:var(--focus-width)] focus-visible:ring-[color:var(--focus-ring)]",
+    "rail": "flex [flex-direction:var(--arena-orientation-direction,row)] items-center self-stretch gap-inline shrink-0 basis-[var(--arena-orientation-rule-w,100%)]",
+    "marker": "inline-flex flex-none items-center justify-center size-ctl-h-sm rounded-pill border-[length:var(--bw-control)] font-mono tabular-nums text-ctl-xs",
+    "icon": "inline-flex text-[length:var(--icon-sm)]",
+    "text": "flex flex-col justify-center min-w-0 min-h-ctl-h-sm grow basis-[var(--arena-orientation-rule-w,100%)]",
+    "label": "font-face-label text-ctl-xs tracking-label-role case-label",
+    "description": "font-body text-ctl-sm text-ink-muted/(--level-ink-muted)",
+    "name": "sr-only",
+    "connector": "grow basis-6 w-[var(--arena-orientation-rule-w,100%)] h-[var(--arena-orientation-rule-h,var(--bw-separator))] bg-edge-separator"
+  },
+  "kind": {
+    "root": "none",
+    "step": "none",
+    "trigger": "control",
+    "rail": "none",
+    "marker": "none",
+    "icon": "none",
+    "text": "none",
+    "label": "none",
+    "description": "none",
+    "name": "none",
+    "connector": "none"
+  },
+  "internal": {
+    "state": "complete, current or upcoming, derived from index: the steps before it are complete and the ones after it upcoming",
+    "reachable": "the step is a button: the stepper is interactive and the step lies behind the current one"
+  },
+  "variants": {
+    "state": {
+      "complete": {
+        "label": "text-ink-body/(--level-ink-body)"
+      },
+      "current": {
+        "label": "font-bold text-ink-heading"
+      },
+      "upcoming": {
+        "label": "text-ink-muted/(--level-ink-muted)"
+      }
+    },
+    "error": {
+      "true": {},
+      "false": {}
+    },
+    "reachable": {
+      "true": {
+        "trigger": "cursor-pointer hover:bg-hover"
+      },
+      "false": {
+        "trigger": "cursor-default"
+      }
+    }
+  },
+  "compoundVariants": [
+    {
+      "error": true,
+      "class": {
+        "marker": "bg-transparent border-[color:var(--arena-hue-edge)] text-[color:var(--arena-hue-ink)]"
+      }
+    },
+    {
+      "error": false,
+      "state": "complete",
+      "class": {
+        "marker": "bg-transparent border-edge-control-quiet text-ink-body/(--level-ink-body)"
+      }
+    },
+    {
+      "error": false,
+      "state": "current",
+      "class": {
+        "marker": "bg-primary-fill border-primary-fill text-primary-content"
+      }
+    },
+    {
+      "error": false,
+      "state": "upcoming",
+      "class": {
+        "marker": "bg-transparent border-edge-control-quiet text-ink-muted/(--level-ink-muted)"
+      }
+    }
+  ],
+  "defaultVariants": {
+    "state": "upcoming",
+    "error": false,
+    "reachable": false
+  },
+  "hues": {
+    "error": {
+      "true": "danger",
+      "false": null
+    }
+  }
+}

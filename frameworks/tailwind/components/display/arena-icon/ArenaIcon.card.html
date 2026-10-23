@@ -1,0 +1,30 @@
+<!-- @dsCard group="Tailwind" viewport="700x163" name="ArenaIcon" subtitle="A glyph sized by the font-size it sits in, rendered from ArenaIcon.manifest.json" -->
+<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../../../../intro/styles.css">
+<link rel="stylesheet" href="../../../consume/Preflight.generated.css">
+<link rel="stylesheet" href="../../../consume/components/display/arena-icon/ArenaIcon.styles.generated.css">
+<link rel="stylesheet" href="../../../Specimen.css">
+</head><body><div id="root"></div>
+<script type="module">
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor, glyph } from '../../../Specimen.js';
+
+const manifest = await (await fetch('./ArenaIcon.manifest.json')).json();
+
+// A glyph is a symbol of the repo sprite, drawn by a use element and sized by the font-size around it.
+function star() {
+  const c = arenaClassesFor(manifest);
+  const d = arenaSlotDataFor(manifest);
+  return glyph(`${c.root} ph-bold ph-star`, d.root);
+}
+
+mountSpecimen({ sections: [
+  section('Sized by the font-size it sits in', [
+    el('span', { style: 'font-size: 1rem' }, star()),
+    el('span', { style: 'font-size: 1.5rem' }, star()),
+    el('span', { style: 'font-size: 2.5rem' }, star()),
+  ]),
+  section('Coloured by the text colour it sits in', [
+    el('span', { style: 'font-size: 2rem; color: var(--accent-primary-ink)' }, star()),
+  ]),
+]});
+</script></body></html>

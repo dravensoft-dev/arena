@@ -1,17 +1,18 @@
 import { booleanAttribute, ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
 import type { ArenaToastTone } from '../../../Api.generated';
-import { dismissDefault, dismissActionable } from '../../../Tokens.generated';
+import { ARENA_TOAST_DISMISS } from '../../../ToastClock';
 import { arenaToastStyles } from './ArenaToast.variants';
 import manifest from './ArenaToast.classes.generated';
 import { ARENA_LOCALE } from '../../../ArenaLocale';
 import { ArenaSlotAttributes } from '../../../SlotData';
+import { ArenaIcon } from '../../display/arena-icon/ArenaIcon';
 
-export const ARENA_TOAST_DISMISS = { default: dismissDefault, actionable: dismissActionable } as const;
+export { ARENA_TOAST_DISMISS };
 
 @Component({
   selector: 'arena-toast',
   standalone: true,
-  imports: [ArenaSlotAttributes],
+  imports: [ArenaIcon, ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'styles().root()',
@@ -38,7 +39,7 @@ export const ARENA_TOAST_DISMISS = { default: dismissDefault, actionable: dismis
     </div>
     @if (dismissible()) {
       <button type="button" [class]="styles().close()" [attr.data-arena-part]="parts.close" [attr.aria-label]="locale.toastClose" (click)="close.emit()">
-        <i class="ph-bold ph-x" aria-hidden="true"></i>
+        <arena-icon icon="ph-bold ph-x" />
       </button>
     }
   `,
@@ -60,7 +61,7 @@ export class ArenaToast {
   readonly actionLabel = input<string>();
   /** The inline action was activated. */
   readonly action = output<void>();
-  /** Disables the host's auto-dismiss and shows the Pinned marker. **Implied by `tone: "danger"`, which ignores `false`**: a critical message that vanishes on a timer is one a user can miss entirely, so an error state makes the pin mandatory and the layers enforce it rather than leave it to documentation. Set it explicitly for any other tone that must not disappear on its own. */
+  /** Disables the host's auto-dismiss and shows the Pinned marker. **Implied by `tone: "danger"`, which ignores `false`.** A critical message that vanishes on a timer is one a user can miss entirely. An error state therefore makes the pin mandatory, and the layers enforce it rather than leave it to documentation. Set it explicitly for any other tone that must not disappear on its own. */
   readonly persist = input(false, { transform: booleanAttribute });
   /** Whether the × is shown. Every layer gates the × on this member and never on whether anything listens for `close`, because Arena never derives what it draws from what a consumer listens for. */
   readonly dismissible = input(false, { transform: booleanAttribute });

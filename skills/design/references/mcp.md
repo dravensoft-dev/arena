@@ -12,12 +12,14 @@ Arena over the Model Context Protocol serves the router, the references and ever
 npm i -D @dravensoft/arena-mcp        # or: bun add -d / pnpm add -D / yarn add -D
 ```
 
-The server serves the layer your project installed. `@dravensoft/arena-react` or `@dravensoft/arena-angular` in the project tells the server which layer that is. The server resolves whichever it finds above the working directory. With neither
+The dev dependency pins the version of the server, and `npx` runs that installed copy. The `-y` in the next section only answers the prompt for a package that is not installed.
+
+The server serves the layer your project installed. `@dravensoft/arena-react` or `@dravensoft/arena-angular` in the project tells the server which layer that is. The server resolves whichever it finds above the working directory, and that is the directory the client starts the server in. With neither
 installed, `--layer react` or `--layer angular` names the half you want.
 
 ## How do I point my editor at the server?
 
-The configuration file differs per editor and the command does not.
+The configuration file differs per editor and the command does not. Every client takes the shape below, and VS Code names the top key `servers`.
 
 ```json
 {
@@ -26,6 +28,25 @@ The configuration file differs per editor and the command does not.
   }
 }
 ```
+
+| client | where the entry goes | evidence |
+| --- | --- | --- |
+| Claude Code | `claude mcp add arena -- npx -y @dravensoft/arena-mcp`, or `<project>/.mcp.json` under `mcpServers` | allowed, untested |
+| Claude Desktop | `claude_desktop_config.json` under `mcpServers` | allowed, untested |
+| Cursor | `.cursor/mcp.json` under `mcpServers` | allowed, untested |
+| VS Code | `.vscode/mcp.json` under `servers` | allowed, untested |
+
+A project holding neither layer, or both, adds the layer to `args`:
+
+```json
+{
+  "mcpServers": {
+    "arena": { "command": "npx", "args": ["-y", "@dravensoft/arena-mcp", "--layer", "react"] }
+  }
+}
+```
+
+No test starts one of these clients. A row says "works" only when a test has exercised that client against the server.
 
 ## What do `--layer` and `--payload` do?
 
@@ -45,11 +66,25 @@ not installed anywhere.
 
 ## Which arena:// resources does the server offer?
 
-Every document is also offered as an MCP resource under an `arena://` URI. The resources are the router, one per reference, the component indexes, one per component, the vocabulary, one per family and the style roles. The rules of the language and the support record are resources too.
+Every document is also offered as an MCP resource under an `arena://` URI.
+
+| Resource | URI |
+|---|---|
+| The router | `arena://router` |
+| One reference | `arena://reference/<name>` |
+| The layer's component index and the layer-neutral catalogue | `arena://index` and `arena://index/all` |
+| One component category | `arena://category/<category>` |
+| One component | `arena://component/<Name>` |
+| The vocabulary and one family | `arena://vocabulary` and `arena://family/<name>` |
+| The style roles | `arena://roles` |
+| The rules of the language | `arena://rules` |
+| The support record | `arena://support` |
 
 The values travel too. Every JSON file of `contracts/design/` is one group at `arena://tokens/<group>`, such as `arena://tokens/spacing` for the `--sp-*` scale or `arena://tokens/palette.dark`. The group `arena://tokens/behaviour` holds the motion delays and is not a behaviour pattern. `arena://behaviour/<pattern>` is one behaviour contract: the roles, keys and focus a pattern requires.
 
 The style plugins Arena renders and the catalogue are served too, at the path they have under `plugin-style-store/`. `arena://style/default/plugin.tokens.json` is the default plugin, and `arena://style/complete/` holds the second worked answer, `plugin.tokens.json` and `plugin.css`. `arena://style/catalogue/INDEX.md` is the catalogue's index, and the links in it are `arena://style/catalogue/<entry>/ENTRY.md` and each file you copy beside it, `plugin.tokens.json`, `plugin.css` and `arena.config.json`. Call `arena_read` with one of these URIs, and `arena_find` with the name of a register to reach its entry. JSON and CSS arrive as text with their own mime type.
+
+The identity template and its worked answer are served as `arena://identity/identity.html` and `arena://identity/identity.example.html`. Both arrive as HTML with the `text/html` mime type, and a copy of the first is where a project without an appearance writes its identity document.
 
 Read the router first. The router carries the rules of the language and routes every other question. The route past it is one component at a time, and never a corpus read whole.
 

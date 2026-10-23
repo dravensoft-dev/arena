@@ -212,8 +212,8 @@ answers are true of two different designs. These are the ones already settled, s
 contract cites the convention rather than re-deriving it, and a reader of the contracts is
 never asked to remember which components are which.
 
-**A single icon is a primitive `string` carrying a Phosphor class name, never a slot.** Arena
-draws the `<i class="…">`; the consumer names the glyph. This keeps the glyph inside what
+**A single icon is a primitive `string` carrying a Phosphor class name, never a slot.** ArenaIcon
+draws the glyph from the sprite the project serves; the consumer names it. This keeps the glyph inside what
 `check:compliance` can judge, keeps the icon inside Arena's own iconography, and, the decisive
 reason, lets each layer gate the wrapper on the value's presence. Angular cannot
 detect a filled slot without a `contentChild` query on a marker directive, so an icon *slot*
@@ -278,17 +278,19 @@ consumer's hands, and taken with it the only path to an external `<label>`, an
 `ArenaTextarea` declare it; the generated value stays the fallback, so the member is `id?: string` and
 never required. A component that generates no id has no such gap and adds no such member.
 
-`tabStop` is a member on `ArenaButton` and `ArenaIconButton` because the rule's own justification, that a
-consumer writes it on the host directly, does not reach either. Neither has a host a consumer
-writes on: both render their own `<button>` inside a host that is `display: contents`, in both
-layers, so a `tabindex` written on `<arena-button>` reaches a node that lays nothing out and
-takes no focus. The member is how a consumer holds one out of the tab order at all.
-And for a component whose focusable element is a **descendant**
-of its host rather than the host itself, the justification fails even where a host exists:
-`tabindex="-1"` written on `<arena-icon-button>` would land on the custom element, not on the
-`<button>` inside it, and the button would stay exactly as reachable as before. That makes
-**`tabStop`** a member for exactly these two components, and confirms that `tabIndex` itself
-stays off the list above for everyone, these two included, whose member is `tabStop` and never
+`tabStop` is a member on `ArenaButton`, `ArenaIconButton` and `ArenaTag` because the rule's own
+justification, that a consumer writes it on the host directly, does not reach any of them. The
+two buttons have no host a consumer writes on: both render their own `<button>` inside a host
+that is `display: contents`, in both layers, so a `tabindex` written on `<arena-button>` reaches a
+node that lays nothing out and takes no focus. The member is how a consumer holds one out of the
+tab order at all. And for a component whose focusable element is a **descendant** of its host
+rather than the host itself, the justification fails even where a host exists: `tabindex="-1"`
+written on `<arena-icon-button>` would land on the custom element, not on the `<button>` inside
+it, and the button would stay exactly as reachable as before. `ArenaTag` is that case with a real
+host: the host is the chip, and the focusable element is the remove `<button>` inside it, which a
+composite holding chips under one tab stop has to take out of the tab order. That makes
+**`tabStop`** a member for exactly these three components, and confirms that `tabIndex` itself
+stays off the list above for everyone, these three included, whose member is `tabStop` and never
 the attribute. Everywhere else a component's root is its own focusable element and the host
 escape genuinely applies. The member is a boolean rather than a raw `tabIndex?: number`: `-1` is the
 only value the problem needs, and a numeric member would legalise a positive tab order, which
@@ -314,8 +316,8 @@ stay the browser's, and nothing is emitted for any of them: the reader asked for
 the address, and answering with an in-app route would be the defect the convention exists to
 avoid. So a handler that routes fires for exactly the activation it should answer, and the keyboard
 agrees with the mouse, because Enter on such a row takes the same path a primary click does. This is
-the rule `RouterLink` applies, and it is here for the same reason. Four members carry it:
-`ArenaCard.href`, `ArenaCommand.route`, `ArenaCrumb.href` and `ArenaSideNavItem.href`.
+the rule `RouterLink` applies, and it is here for the same reason. The members that carry it are
+listed by the `router-link` rule in `scripts/lib/arena/language-rules.ts`.
 
 **Leaving it to the router instead is not available, and the reason is mechanical rather than
 doctrinal.** `RouterLink` decides whether it sits on an anchor by `tagName` and by
@@ -352,10 +354,11 @@ object form, and that is the price.
 }
 ```
 
-`form` takes eight values (`primitive`, `enum`, `object`, `array`, `consumerData`,
-`functionInput`, `slot`, `event`) and `array` is discriminated by `of`: a primitive type name
-(`"string"`) makes it an array of primitives, a declared type name (`"ArenaCrumb"`) makes it an array
-of predefined objects, and the form name `"consumerData"` makes it a list of consumer data.
+`form` takes one value per form: `primitive`, `enum`, `object`, `array`, `consumerData`,
+`functionInput`, `slot` or `event`. The two array forms share `array`, which is discriminated by
+`of`: a primitive type name (`"string"`) makes it an array of primitives, a declared type name
+(`"ArenaCrumb"`) makes it an array of predefined objects, and the form name `"consumerData"` makes
+it a list of consumer data.
 
 A slot declares its parameters, or none:
 

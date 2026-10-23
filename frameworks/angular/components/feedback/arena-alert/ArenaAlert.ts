@@ -4,6 +4,7 @@ import manifest from './ArenaAlert.classes.generated';
 import type { ArenaAlertTone } from '../../../Api.generated';
 import { ARENA_LOCALE } from '../../../ArenaLocale';
 import { ArenaSlotAttributes } from '../../../SlotData';
+import { ArenaIcon } from '../../display/arena-icon/ArenaIcon';
 
 const TONE_ICONS: Record<ArenaAlertTone, string> = {
   info: 'ph-fill ph-info',
@@ -16,7 +17,7 @@ const TONE_ICONS: Record<ArenaAlertTone, string> = {
 @Component({
   selector: 'arena-alert',
   standalone: true,
-  imports: [ArenaSlotAttributes],
+  imports: [ArenaIcon, ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'styles().root()',
@@ -26,7 +27,7 @@ const TONE_ICONS: Record<ArenaAlertTone, string> = {
     '[attr.title]': 'null',
   },
   template: `
-    <i [class]="styles().icon() + ' ' + (icon() ?? toneIcon())" [arenaSlotData]="styles().$data.icon()" [attr.data-arena-part]="parts.icon" aria-hidden="true"></i>
+    <span [class]="styles().icon()" [arenaSlotData]="styles().$data.icon()" [attr.data-arena-part]="parts.icon" aria-hidden="true"><arena-icon [icon]="icon() ?? toneIcon()" /></span>
     <div [class]="styles().body()" [attr.data-arena-part]="parts.body">
       @if (title(); as heading) {
         <div [class]="styles().title()" [attr.data-arena-part]="parts.title">{{ heading }}</div>
@@ -38,7 +39,7 @@ const TONE_ICONS: Record<ArenaAlertTone, string> = {
     </div>
     @if (dismissible()) {
       <button type="button" [class]="styles().close()" [attr.data-arena-part]="parts.close" [attr.aria-label]="locale.alertDismiss" (click)="close.emit()">
-        <i class="ph-bold ph-x" aria-hidden="true"></i>
+        <arena-icon icon="ph-bold ph-x" />
       </button>
     }
   `,
@@ -54,7 +55,7 @@ export class ArenaAlert {
   );
   /** An optional bold lead line above the message. */
   readonly title = input<string>();
-  /** A Phosphor class name overriding the tone's default glyph. Arena draws it. */
+  /** A Phosphor class name overriding the tone's default glyph. ArenaIcon draws it. */
   readonly icon = input<string>();
   /** The label of a single inline action button. Absent renders no action. */
   readonly actionLabel = input<string>();

@@ -1,0 +1,50 @@
+{
+  "component": "ArenaFunnelChart",
+  "seed": {
+    "label": "Trial conversion",
+    "labels": [
+      "Visits",
+      "Sign-ups",
+      "Activated",
+      "Subscribed",
+      "Retained"
+    ],
+    "series": [
+      {
+        "label": "Accounts",
+        "values": [
+          12480,
+          3120,
+          1904,
+          702,
+          518
+        ]
+      }
+    ],
+    "valueFormat": {
+      "grouping": true
+    }
+  },
+  "variants": {
+    "no-conversion": {
+      "showConversion": false
+    },
+    "zero-stage": {
+      "series": [{"label": "Accounts", "values": [12480, 3120, 0, 0, 0]}]
+    },
+    "rising": {
+      "series": [{"label": "Accounts", "values": [1200, 3120, 1904, 2700, 518]}]
+    },
+    "single-stage": {
+      "labels": ["Visits"],
+      "series": [{"label": "Accounts", "values": [12480]}]
+    },
+    "two-series": {
+      "series": [{"label": "Accounts", "values": [12480, 3120, 1904, 702, 518]}, {"label": "Last month", "values": [11000, 2900, 1700, 650, 480]}]
+    },
+    "tone-and-color-id": {
+      "series": [{"label": "Accounts", "values": [12480, 3120, 1904, 702, 518], "tone": "success", "colorId": 2}]
+    }
+  },
+  "note": "Each stage is as wide as its count from zero, and the share of the stage before it is written by the chart, so the drawing and the table never disagree on rounding."
+}

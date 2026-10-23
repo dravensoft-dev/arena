@@ -25,7 +25,7 @@ is actually for, and a footer. The panel knows nothing about credentials, so one
 | `brand` | slot |  |  | The brand lock-up above the panel's content. An ArenaAppLogo, in practice. |
 | `eyebrow` | primitive | `string` |  | Mono crimson microlabel: the product, not the task. |
 | `title` | primitive | `string` |  | The task. "Welcome back", "Check your inbox". |
-| `headingLevel` | enum | `ArenaHeadingLevel` | `"h2"` | Which rung of the document outline the title takes. Only the element changes: the title's class is the same at every value, so the render is identical and no appearance follows from it. It defaults to `h2` because this title is drawn in the section register rather than the card one, so the outline follows the register the same way every other title on the ladder does. A signed-out screen whose only title is this one says `h1` and gets the page's one heading, which is the case the member exists for. `none` takes the title out of the outline entirely; with no title there is no heading either way. |
+| `headingLevel` | enum | `ArenaHeadingLevel` | `"h2"` | Which rung of the document outline the title takes. Only the element changes: the title's class is the same at every value, so the render is identical and no appearance follows from it. The member defaults to `h2` because this title is drawn in the section register rather than the card one. The outline therefore follows the register the same way every other title on the ladder does. A signed-out screen whose only title is this one says `h1` and gets the page's one heading, which is the case the member exists for. `none` takes the title out of the outline entirely; with no title there is no heading either way. |
 | `content` | slot |  |  | The fields, composed from ArenaInput and ArenaButton. |
 | `footer` | slot |  |  | Centred muted line below the content: a recovery link, a legal note. |
 
@@ -41,7 +41,15 @@ is actually for, and a footer. The panel knows nothing about credentials, so one
 **Keys:** none.
 <!-- @keys end -->
 
-Import `ArenaBrand` and `ArenaFooter` from `@dravensoft/arena-angular` alongside `ArenaUnauthCard` in the host component's `imports`. `brand` and `footer` are directives rather than plain attributes, because they are how the panel detects that something was actually projected into each slot. Both wrappers carry their
+<!-- @markers GENERATED from the projection markers the component queries. -->
+**Markers**, one directive per slot:
+- `[brand]` is `ArenaBrand`.
+- `[footer]` is `ArenaFooter`.
+
+Put each marker your template writes in your own component's `imports`. An un-imported marker leaves its slot empty with no error, and `arena check` reports it. [Which markers must I import?](../../../../../skills/design/references/exports.md#which-angular-projection-markers-must-i-import)
+<!-- @markers end -->
+
+`brand` and `footer` are directives rather than plain attributes, because they are how the panel detects that something was actually projected into each slot. Both wrappers carry their
 own margin, so a card that omits one ships no dead space for it.
 
 **Do / Don't**
@@ -51,9 +59,6 @@ own margin, so a card that omits one ships no dead space for it.
   the screen; this is the frame around them.
 - Don't override the width. 454px is the figure this panel has always rendered at, and it
   is arithmetic, content, padding and both hairlines added back together.
-- Don't forget to import `ArenaBrand` / `ArenaFooter` when projecting into `[brand]` /
-  `[footer]`, without them, the attribute is inert and the content silently fails to
-  render inside its wrapper.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

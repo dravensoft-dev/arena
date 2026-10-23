@@ -13,7 +13,11 @@ import type { PlaygroundModel } from './playground-model.ts';
 
 export const UP = '../../../../../';
 
-export const PHOSPHOR_WEIGHTS = ['bold', 'fill', 'duotone'];
+export const SPRITE_FILE = 'assets/Icons.generated.svg';
+
+export function spriteHref(up: string) {
+  return `${up}${SPRITE_FILE}`;
+}
 
 export function surfacesDrawn(model: Pick<PlaygroundModel, 'component' | 'uses'>,
   graph = composedGraph(), root?: string) {
@@ -61,9 +65,6 @@ export function playgroundPage({ component, banner, mount, head = '', script }: 
     `<link rel="stylesheet" href="${UP}intro/styles.css">`,
     `<link rel="stylesheet" href="${UP}intro/toggle.css">`,
     `<link rel="stylesheet" href="${UP}intro/playground.css">`,
-    ...PHOSPHOR_WEIGHTS.map(
-      (weight) => `<link rel="stylesheet" href="${UP}node_modules/@phosphor-icons/web/src/${weight}/style.css">`,
-    ),
   ];
 
   return `${banner}<!doctype html>

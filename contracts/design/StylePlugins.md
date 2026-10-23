@@ -34,9 +34,9 @@ with no `$value` is not a DTCG token, so it leaves `check:dtcg` by name and
 for a keyword, and no value. That is the statement rather than a side effect. It holds the one
 answer a role may carry as well: `$extensions["com.dravensoft.arena"].default` is a `{…}` alias to
 a role or to a token the package emits, of the role's own `$type`, and
-`scripts/check/core/check-role-contract.ts:defaultProblems(roles, emitted)` fails a literal, an
-alias naming nothing, a type that disagrees, a keyword whose target can take a word outside its
-set, and a chain that leads back to itself. **The question belongs to the kernel and the answer
+`scripts/check/core/check-role-contract.ts:defaultProblems(roles, emitted, words)` fails a literal,
+an alias naming nothing, a type that disagrees, a keyword whose target can take a word outside its
+set, a keyword token whose word the role refuses, and a chain that leads back to itself. **The question belongs to the kernel and the answer
 never does.**
 
 The scales stay, and they stay with values, because a manifest never names one. They reach a page
@@ -151,7 +151,7 @@ describes. A plugin answers each role once and every slot of the kind follows.
 | `floating` | `pad-floating-x`, `pad-floating-y`, `pad-floating-edge-x` | the kind-free rhythm, `gap-actions` | `rounded-surface-floating` |
 | `control` | `pad-control-x`, `pad-control-y`, `pad-control-text-y` | `gap-control` | `rounded-control`, `rounded-control-sm` |
 | `field` | `pad-control-x`, `pad-control-y`, `pad-control-text-y` | `gap-control` | `rounded-field` |
-| `marker` | `pad-marker-x`, `pad-marker-y` | `gap-marker` | `rounded-marker` |
+| `marker` | `pad-marker-x`, `pad-marker-y`, and `pad-key-y` on a key cap | `gap-marker` | `rounded-marker` |
 | `status` | `pad-status-x`, `pad-status-y` | the kind-free rhythm | `rounded-surface-floating` |
 | `row` | `pad-row-x`, `pad-row-y`, `pad-nav-row-x`, `pad-nav-row-y`, `pad-row-indent`, `pad-row-floating-x`, `pad-row-floating-y`, and the table's `--dz-row-px` and `--dz-row-py` | `gap-row`, `gap-row-floating` | `rounded-control` |
 | `band` | `pad-band-y`, and `pad-band-x` inside the band's ceiling of 7% of its width | the kind-free rhythm | the kind-free shapes only |

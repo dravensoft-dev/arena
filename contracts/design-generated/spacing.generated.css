@@ -14,6 +14,7 @@
   --sp-16:64px;
   --sp-20:80px;
   --sp-24:96px;
+  --sp-0-5:2px; /* Half a step, the air a key cap gives its label down. It is the one step under the grid, kept so the cap reads as a key rather than a chip, and pad-key-y names it as its kernel default. */
 
   /*
      Page rhythm: the air BETWEEN two components, which Arena itself never
@@ -70,8 +71,8 @@
      instead of hard-coded px so a single scope switch re-densifies rows and controls.
    */
   --dz-ctl-h:40px; /* control height (buttons, inputs, switches row) */
-  --dz-ctl-h-sm:32px;
-  --dz-ctl-h-lg:48px;
+  --dz-ctl-h-sm:32px; /* small control height (buttons and icon buttons at arena-size-sm, the least height of a sparkline's keyboard region) */
+  --dz-ctl-h-lg:48px; /* large control height (buttons and icon buttons at arena-size-lg) */
   --dz-row-py:12px; /* table/list row vertical padding */
   --dz-row-px:16px; /* row horizontal padding */
   --dz-stack:12px; /* gap between stacked items */

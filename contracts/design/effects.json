@@ -20,12 +20,8 @@
     "2": { "$value": { "offsetX": { "value": 0, "unit": "px" }, "offsetY": { "value": 12, "unit": "px" }, "blur": { "value": 28, "unit": "px" }, "spread": { "value": -12, "unit": "px" }, "color": { "colorSpace": "srgb", "components": [0, 0, 0], "alpha": 0.6 } } },
     "3": { "$value": { "offsetX": { "value": 0, "unit": "px" }, "offsetY": { "value": 30, "unit": "px" }, "blur": { "value": 60, "unit": "px" }, "spread": { "value": -20, "unit": "px" }, "color": { "colorSpace": "srgb", "components": [0, 0, 0], "alpha": 0.7 } } }
   },
-  "scrim": {
-    "$type": "color",
-    "$value": { "colorSpace": "srgb", "components": [0.0784, 0.0627, 0.0627], "alpha": 0.6 },
-    "$description": "Overlay scrim: backdrop for anything that covers the app (ArenaDialog,\nConfirmDialog, ArenaCommandPalette, ArenaOnboarding). The blur is what separates a\nmodal from a coachmark: ArenaDialog/ArenaConfirmDialog/ArenaCommandPalette pair the scrim\nwith --scrim-blur, ArenaOnboarding uses the scrim alone, because a tour that\nblurs the product it is touring defeats itself."
-  },
-  "scrim-blur": { "$type": "dimension", "$extensions": { "com.dravensoft.arena": { "userScale": "fixed" } }, "$value": { "value": 6, "unit": "px" } },
+  "scrim-blur": { "$type": "dimension", "$extensions": { "com.dravensoft.arena": { "userScale": "fixed" } }, "$value": { "value": 6, "unit": "px" },
+    "$description": "The blur behind an overlay scrim (the scrim's colour is --scrim in colors.css, the palette's base-100 at 60%). The blur is what separates a\nmodal from a coachmark: ArenaDialog/ArenaConfirmDialog/ArenaCommandPalette pair the scrim\nwith --scrim-blur, ArenaOnboarding uses the scrim alone, because a tour that\nblurs the product it is touring defeats itself." },
   "focus": {
     "$type": "dimension",
     "$extensions": { "com.dravensoft.arena": { "userScale": "fixed" } },

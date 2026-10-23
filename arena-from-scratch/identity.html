@@ -6,16 +6,16 @@
 <title>Identity document</title>
 
 <!-- The one sheet this page reads, and the only line in it you change by hand.
-     Working inside the Arena repository, point it at ../intro/styles.css.
-     Working inside a project that already ran arena build, point it at that project's
-     arena.generated.css instead, and the page draws that project's own answers.
-     Serve this over HTTP. Opened from file:// the sheet does not load and every swatch is blank.
+     The hosted sheet renders this page from a local file and over HTTP alike.
+     A project that has run arena build may point the link at its own arena.generated.css
+     instead, and the page then draws that project's own answers.
+     A local sheet loads from a file and over HTTP alike, and the web fonts it names load only over HTTP.
 
      The polarity is a class on <html>, not a palette. A page whose palette is light and whose
      html carries no class reads the dark theme's ink over the light theme's paper, which is white
      text on white. Put class="arena-light" on <html> when the palette this document declares is
      the light one, and leave it off when it is the dark one. -->
-<link rel="stylesheet" href="../intro/styles.css">
+<link rel="stylesheet" href="https://arena.dravensoft.org/intro/styles.css">
 
 <style>
   /* Every colour here is a role rather than a palette step, so this page follows whatever skin
@@ -27,7 +27,7 @@
   h1, h2 { font-family: var(--ff-heading); color: var(--ink-heading);
            letter-spacing: var(--track-heading); }
   h1 { font-size: var(--fs-display); line-height: var(--lh-heading); margin-block: 0 var(--sp-2); }
-  h2 { font-size: var(--fs-xl); margin-block: var(--sp-10) var(--sp-2); }
+  h2 { font-size: var(--fs-h2); margin-block: var(--sp-10) var(--sp-2); }
   p  { line-height: var(--lh-prose); }
   .ask { color: var(--ink-muted); font-style: italic; }
   .fill { display: block; border: var(--bw-separator) dashed var(--edge-separator);
@@ -38,7 +38,7 @@
   .chip i { display: block; block-size: calc(var(--sp-1) * 14);
             border: var(--bw-surface) solid var(--edge-surface);
             border-radius: var(--r-surface); }
-  .chip span, .swatch { display: block; font-family: var(--ff-mono); font-size: var(--fs-xs);
+  .chip span, .swatch { display: block; font-family: var(--font-mono); font-size: var(--fs-xs);
                color: var(--ink-muted); margin-block-start: var(--sp-1); }
   .box { inline-size: calc(var(--sp-1) * 26); block-size: calc(var(--sp-1) * 18);
          background: var(--fill-surface-sunken);
@@ -48,7 +48,7 @@
            border-block-end: var(--bw-separator) solid var(--edge-separator);
            vertical-align: top; font-size: var(--fs-sm); }
   th { color: var(--ink-muted); font-weight: var(--fw-heading); }
-  code { font-family: var(--ff-mono); font-size: var(--fs-xs); color: var(--ink-muted); }
+  code { font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--ink-muted); }
 </style>
 </head>
 <body>
@@ -117,8 +117,8 @@
 <p class="ask">Which three faces: the display face, the body face, the mono face.</p>
 <div class="fill">The three families, and where each one is served from.</div>
 <div style="font-family: var(--ff-heading); font-weight: var(--fw-heading); font-size: var(--fs-display); line-height: var(--lh-heading); letter-spacing: var(--track-heading); color: var(--ink-heading)">Display</div>
-<div style="font-family: var(--ff-body); font-size: var(--fs-md); color: var(--ink-body)">Body, which is what a paragraph of this product reads like at the size it is read at.</div>
-<div style="font-family: var(--ff-mono); font-size: var(--fs-sm); color: var(--ink-muted)">Mono 0123456789</div>
+<div style="font-family: var(--font-body); font-size: var(--fs-md); color: var(--ink-body)">Body, which is what a paragraph of this product reads like at the size it is read at.</div>
+<div style="font-family: var(--font-mono); font-size: var(--fs-sm); color: var(--ink-muted)">Mono 0123456789</div>
 
 <h2>The character</h2>
 <p class="ask">

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useArenaContainerWidth } from '../../../UseArenaContainerWidth.ts';
-import { ARENA_CHART_HEIGHT, ARENA_INK_BODY, ARENA_INK_MUTED, arenaSrOnly, arenaValueWriter } from '../../../DataVisuals.ts';
+import { ARENA_CHART_HEIGHT, ARENA_INK_BODY, ARENA_INK_MUTED, arenaSrOnly, arenaValueWriter, arenaCatRotate } from '../../../DataVisuals.ts';
 import {
   arenaLinearScale, arenaScaleValue, arenaNearestPoint, arenaRadiusScale, arenaRadiusAt,
 } from '../ChartScales.ts';
@@ -15,7 +15,7 @@ import { arenaCursorHandles, arenaCursorStep, arenaPointerClears, arenaPointerUp
 import { chartPointR, chartPointRHover } from '../../../Tokens.generated.js';
 
 import type { ArenaLinePoint } from '../ChartScales.ts';
-import type { ArenaNumberFormat, ArenaPointSeries } from '../../../Api.generated';
+import type { ArenaCatSlot, ArenaNumberFormat, ArenaPointSeries } from '../../../Api.generated';
 import { useArenaLocale } from '../../../ArenaLocale.ts';
 import { arenaPhrase } from '../../../Phrase.ts';
 import type { ArenaScatterChartClass } from '../../../Vocabulary.generated.ts';
@@ -27,25 +27,28 @@ export interface ArenaScatterChartProps {
   className?: ArenaScatterChartClass;
 
 
-  /** The plotted series, drawn as one cloud of marks each. Each carries pairs rather than indexed values, because a scatter has no categories to index against: that is what ArenaPointSeries is for and why it is a separate type from ArenaSeries. The ramp clamps at its last slot rather than cycling. */
+  /** The plotted series, drawn as one cloud of marks each. Each carries pairs rather than indexed values, because a scatter has no categories to index against. Pairs are what ArenaPointSeries is for, and the reason it is a separate type from ArenaSeries. After the last slot the positional count starts again at the first, so fold a ninth series into "Other" upstream. */
   series: readonly ArenaPointSeries[];
 
-  /** Names the chart for its accessible name and for the caption of its data table. This is the CHART's name, not a series': a series names itself. Required and guarded rather than defaulted, because a fallback of the chart TYPE satisfies roles.label mechanically and tells a screen-reader user nothing. */
+  /** The ramp slot the first series takes when it names no colour of its own. Each later series takes the next slot, and after the last slot the count starts again at the first. A series' `colorId` keeps the slot it names. Absent, 1. */
+  colorStart?: ArenaCatSlot;
+
+  /** Names the chart for its accessible name and for the caption of its data table. The name belongs to the CHART and not to a series, because a series names itself. Required and guarded rather than defaulted: a fallback of the chart TYPE satisfies roles.label mechanically and tells a screen-reader user nothing. */
   label: string;
 
-  /** Names the horizontal quantity, for the accessible table's column. Required, because unlike every other chart here both axes carry a quantity a reader cannot derive: a bar chart's categories name themselves through `labels` and its value axis is the one thing being measured, while a scatter measures two things and a table of bare X and Y columns says which is which to nobody. */
+  /** Names the horizontal quantity, for the accessible table's column. Required, because unlike every other chart here both axes carry a quantity a reader cannot derive. A bar chart's categories name themselves through `labels` and its value axis is the one thing being measured. A scatter measures two things, and a table of bare X and Y columns says which is which to nobody. */
   xLabel: string;
 
   /** Names the vertical quantity, for the accessible table's column. Required for the reason xLabel is. */
   yLabel: string;
 
-  /** Names the quantity a series' `r` carries, for the accessible table's third column. Required as soon as any series carries one, and guarded at render rather than declared required, because a scatter with no sizes has no third quantity to name and a member that is required only sometimes cannot say so in a contract. A column headed "Size" would satisfy the table mechanically and tell a reader nothing, which is the same reason `label` is guarded. */
+  /** Names the quantity a series' `r` carries, for the accessible table's third column. Required as soon as any series carries one. The member is guarded at render rather than declared required, because a scatter with no sizes has no third quantity to name. A member that is required only sometimes cannot say so in a contract. A column headed "Size" would satisfy the table mechanically and tell a reader nothing, which is the same reason `label` is guarded. */
   sizeLabel?: string;
 
-  /** Draw a key of three sample bubbles, at the smallest, middle and largest size the data carries, under the series names. Without it a reader can see that one blot is bigger and cannot say by how much, because area is the one encoding nobody reads off a scale by eye. It costs plot height, like the series strip and for the same reason, and it is off by default so a scatter with no sizes never pays for it. */
+  /** Draw a key of three sample bubbles, at the smallest, middle and largest size the data carries, under the series names. Without it a reader can see that one blot is bigger and cannot say by how much, because area is the one encoding nobody reads off a scale by eye. The key costs plot height, like the series strip and for the same reason, and is off by default so a scatter with no sizes never pays for it. */
   sizeLegend?: boolean;
 
-  /** Appended verbatim to every number the chart draws: both axes' ticks, the tooltip and the accessible table. Carries its own leading space if one is wanted. It reaches BOTH axes, so leave it off when the two quantities are not in the same unit, which on a scatter is the common case. */
+  /** Appended verbatim to every number the chart draws: both axes' ticks, the tooltip and the accessible table. Carries its own leading space if one is wanted. The suffix reaches BOTH axes. Leave it off when the two quantities are not in the same unit, which on a scatter is the common case. */
   valueSuffix?: string;
 
   /** Drawn verbatim before every number the chart writes, as valueSuffix is drawn after it, and on both axes for the same reason. */
@@ -62,7 +65,7 @@ export interface ArenaScatterChartProps {
 const arenaScatterChartStyles = arenaStyles(manifest);
 
 export function ArenaScatterChart({ className, 
-  series, label, xLabel, yLabel, sizeLabel, sizeLegend = false, valueSuffix, valuePrefix, valueFormat,
+  series, colorStart = 1, label, xLabel, yLabel, sizeLabel, sizeLegend = false, valueSuffix, valuePrefix, valueFormat,
   height = ARENA_CHART_HEIGHT,
 }: ArenaScatterChartProps) {
   const locale = useArenaLocale();
@@ -93,7 +96,7 @@ export function ArenaScatterChart({ className,
   const xAxis = arenaAxisModelX(xScale, domains.x, fmt);
   const yAxis = arenaAxisModel(yScale, domains.y, fmt);
 
-  const colors = series.map((one, s) => arenaPointSeriesColor(one, s + 1));
+  const colors = series.map((one, s) => arenaPointSeriesColor(one, arenaCatRotate(colorStart, s), 'ArenaScatterChart'));
   const table = arenaPointTable(locale.chartTableSeries, series, xLabel, yLabel, sizeLabel ?? '', fmt);
   const n = arenaPointCount(series);
 
@@ -132,7 +135,7 @@ export function ArenaScatterChart({ className,
   const active = hover === null ? null : marks[hover] ?? null;
 
   return (
-    <div className={arenaClassName('ArenaScatterChart', styles.frame(), className)} ref={ref} data-arena-part={manifest.parts.frame} {...styles.$data.frame()} style={{ height }}>
+    <div className={arenaClassName('ArenaScatterChart', styles.frame(), className, manifest.vocabulary)} ref={ref} data-arena-part={manifest.parts.frame} {...styles.$data.frame()} style={{ height }}>
       <div tabIndex={0} role="group" aria-label={name} onKeyDown={onKeyDown}
         style={{ display: 'block', outlineOffset: 'var(--focus-offset)' }}>
       <svg width="100%" height={strip.plotH} role="img" aria-label={name}
@@ -174,7 +177,7 @@ export function ArenaScatterChart({ className,
         <div aria-hidden="true" className={styles.legend()} data-arena-part={manifest.parts.legend} {...styles.$data.legend()} style={{ height: strip.stripH }}>
           {series.map((one, s) => (
             <span key={s} className={styles.legendItem()} data-arena-part={manifest.parts.legendItem} {...styles.$data.legendItem()}>
-              <span className={arenaScatterChartStyles(arenaSwatchHue(one, 0, s + 1)).legendSwatch()} data-arena-part={manifest.parts.legendSwatch} {...arenaScatterChartStyles(arenaSwatchHue(one, 0, s + 1)).$data.legendSwatch()} />
+              <span className={arenaScatterChartStyles(arenaSwatchHue(one, 0, arenaCatRotate(colorStart, s), colorStart)).legendSwatch()} data-arena-part={manifest.parts.legendSwatch} {...arenaScatterChartStyles(arenaSwatchHue(one, 0, arenaCatRotate(colorStart, s), colorStart)).$data.legendSwatch()} />
               <span className={styles.legendLabel()} data-arena-part={manifest.parts.legendLabel} {...styles.$data.legendLabel()}>{one.label}</span>
             </span>
           ))}
@@ -216,15 +219,17 @@ export function ArenaScatterChart({ className,
         </div>
       )}
 
-      <table style={arenaSrOnly}>
-        <caption>{name}</caption>
-        <thead><tr>{table.columns.map((column, i) => <th key={i}>{column}</th>)}</tr></thead>
-        <tbody>
-          {table.rows.map((row, i) => (
-            <tr key={i}><th scope="row">{row.header}</th>{row.cells.map((cell, j) => <td key={j}>{cell}</td>)}</tr>
-          ))}
-        </tbody>
-      </table>
+      <div style={arenaSrOnly}>
+        <table>
+          <caption>{name}</caption>
+          <thead><tr>{table.columns.map((column, i) => <th key={i}>{column}</th>)}</tr></thead>
+          <tbody>
+            {table.rows.map((row, i) => (
+              <tr key={i}><th scope="row">{row.header}</th>{row.cells.map((cell, j) => <td key={j}>{cell}</td>)}</tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

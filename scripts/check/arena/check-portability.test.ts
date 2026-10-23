@@ -6,14 +6,16 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  CLONE_ROOT_BUDGET, MATRIX_WORKFLOW, MAX_PATH, PR_WORKFLOW, REQUIRED_JOB, RULES, SUITE_RULES,
+  CLONE_ROOT_BUDGET, EVERY_RULES, MATRIX_WORKFLOW, MAX_PATH, PR_WORKFLOW, REQUIRED_JOB, RULES, SUITE_RULES,
   WORKFLOWS, browserNamingProblems, browserPathProblems, browserWorkflows, checkoutProblems, declaredNeeds, gateProblems,
   inScope, inSuiteScope, jobBlocks, jobShapeProblems, matrixLegs, matrixProblems, needsProblems,
-  portabilityProblems, setupProblems, staleOwners, trackedPaths, violations,
+  portabilityProblems, setupProblems, staleOwners, timeoutProblems, trackedPaths, violations, workflowFiles,
 } from './check-portability.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
-import { join } from 'node:path';
-import { readFileSync, readdirSync } from 'node:fs';
+import { basename, join } from 'node:path';
+import { mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
+import { tmpdir } from 'node:os';
 
 const PLANTED: Record<string, string> = {
   'platform-branch': 'const win = process.platform === "win32";\n',
@@ -30,6 +32,7 @@ const PLANTED: Record<string, string> = {
   'host-separator': "import { join, sep } from 'node:path';\n",
   'sliced-relative': 'const rel = path.slice(root.length + 1);\n',
   'slash-index': "const dir = path.slice(0, path.lastIndexOf('/'));\n",
+  'file-url-pathname': "const file = new URL('./x.json', import.meta.url).pathname;\n",
 };
 
 test('every rule has a planted case, so a rule added without one fails here', () => {
@@ -104,6 +107,60 @@ test('the separator rules read a suite as well, and the rest still leave one alo
   assert.equal(violations(suite, PLANTED['native-relative'] ?? '', SUITE_RULES).length, 1,
     'a native path in a suite becomes an expected value spelled for one operating system, and '
     + 'the assertion then passes on the machine that wrote it and nowhere else');
+});
+
+test('file-url-pathname fires on any file URL, not only import.meta.url', () => {
+  const found = violations('scripts/build/arena/made-up.ts', 'const p = pathToFileURL(x).pathname;\n');
+  assert.equal(found.length, 1);
+  assert.equal(found[0]?.line, 1);
+});
+
+test('file-url-pathname leaves location.pathname alone', () => {
+  assert.deepEqual(violations('frameworks/react/made-up.ts',
+    "history.replaceState(null, '', window.location.pathname);\n"), []);
+});
+
+test('file-url-pathname leaves an optional-chained location.pathname alone', () => {
+  assert.deepEqual(violations('frameworks/react/made-up.ts',
+    'const here = window.location?.pathname;\n'), []);
+});
+
+test('file-url-pathname exempts the static server, whose URL is an http request', () => {
+  const source = 'const path = new URL(request.url).pathname;\n';
+  assert.deepEqual(violations('scripts/lib/arena/static-server.ts', source), []);
+  assert.equal(violations('scripts/lib/arena/other-server.ts', source).length, 1);
+});
+
+test('file-url-pathname leaves fileURLToPath alone', () => {
+  assert.deepEqual(violations('scripts/build/arena/made-up.ts',
+    "const p = fileURLToPath(new URL('./x', import.meta.url));\n"), []);
+});
+
+test('file-url-pathname skips a template literal', () => {
+  assert.deepEqual(violations('scripts/build/arena/made-up.ts',
+    'const doc = `new URL(r.name).pathname`;\n'), []);
+});
+
+test('file-url-pathname reaches the framework layers, suites and scripts', () => {
+  const rule = RULES.find((one) => one.id === 'file-url-pathname');
+  assert.equal(rule?.reaches, 'every tracked source');
+  assert.ok(EVERY_RULES.includes(rule as never));
+  const base = mkdtempSync(join(tmpdir(), 'arena-layer-'));
+  try {
+    mkdirSync(join(base, 'scripts'), { recursive: true });
+    mkdirSync(join(base, 'frameworks/react/dist'), { recursive: true });
+    mkdirSync(join(base, WORKFLOWS), { recursive: true });
+    writeFileSync(join(base, 'frameworks/react/made-up.test.tsx'), PLANTED['file-url-pathname'] ?? '');
+    writeFileSync(join(base, 'frameworks/react/dist/built.ts'), PLANTED['file-url-pathname'] ?? '');
+    writeFileSync(join(base, 'frameworks/react/Index.generated.ts'), PLANTED['file-url-pathname'] ?? '');
+    writeFileSync(join(base, 'scripts/one.test.ts'), PLANTED['file-url-pathname'] ?? '');
+    const mine = portabilityProblems(base).problems.filter((one) => one.includes(' breaks file-url-pathname'));
+    assert.equal(mine.length, 2, mine.join('\n'));
+    assert.ok(mine.some((one) => one.startsWith('frameworks/react/made-up.test.tsx:1:')), mine.join('\n'));
+    assert.ok(mine.some((one) => one.startsWith('scripts/one.test.ts:1:')), mine.join('\n'));
+  } finally {
+    rmSync(base, { recursive: true, force: true });
+  }
 });
 
 test('the tree itself is clean, and the gate scanned enough of it to mean something', () => {
@@ -335,59 +392,200 @@ test('the real pr.yml reads whole, and so does every workflow the gate opens', (
 
 const named = (file: string, line: string) => ({ file, text: `name: x\nenv:\n${line}\njobs:\n  a:\n    runs-on: x\n` });
 
-test('exactly one workflow names a browser, by its own CHROME_PATH or by the chrome-path it passes', () => {
+const CONDUIT_LINE = '      - run: echo "CHROME_PATH=${{ steps.chrome.outputs.chrome-path }}" >> "$GITHUB_ENV"';
+const NAMES = '      name-browser: true';
+
+test('exactly one workflow names a browser, by its own CHROME_PATH or by the name-browser it passes', () => {
   assert.deepEqual(browserNamingProblems([named('main.yml', '  CHROME_PATH: /usr/bin/google-chrome'), named('pr.yml', '')]), []);
   assert.deepEqual(browserNamingProblems([
-    named('main.yml', '      chrome-path: /usr/bin/google-chrome'),
-    named('verify.yml', '  CHROME_PATH: ${{ inputs.chrome-path }}'),
+    named('main.yml', NAMES),
+    named('verify.yml', `${CONDUIT_LINE}\n        if: \${{ inputs.name-browser }}`),
     named('pr.yml', ''),
-  ]), [], 'the workflow that hands the input on as CHROME_PATH names no browser of its own');
+  ]), [], 'the workflow that writes the installed browser to the environment names none of its own');
   assert.match(browserNamingProblems([named('pr.yml', '')]).join('\n'), /no workflow names a browser/);
-  assert.match(browserNamingProblems([named('verify.yml', '  CHROME_PATH: ${{ inputs.chrome-path }}')]).join('\n'),
-    /no workflow names a browser/);
+  assert.match(browserNamingProblems([named('verify.yml', CONDUIT_LINE)]).join('\n'), /no workflow names a browser/);
   assert.match(browserNamingProblems([
-    named('main.yml', '      chrome-path: /usr/bin/google-chrome'),
+    named('main.yml', NAMES),
     named('pages.yml', '  CHROME_PATH: /usr/bin/chromium'),
-    named('verify.yml', '  CHROME_PATH: ${{ inputs.chrome-path }}'),
+    named('verify.yml', CONDUIT_LINE),
   ]).join('\n'), /main\.yml, pages\.yml all name a browser/);
 });
 
-test('an empty chrome-path names nothing, and one passed with no workflow handing it on reaches no gate', () => {
-  for (const empty of ["      chrome-path: ''", '      chrome-path:', '      chrome-path: # none']) {
-    assert.match(browserNamingProblems([named('pr.yml', empty), named('verify.yml', '  CHROME_PATH: ${{ inputs.chrome-path }}')])
+test('a false or empty name-browser names nothing, and one passed with no workflow writing it reaches no gate', () => {
+  for (const empty of ['      name-browser: false', "      name-browser: 'false'", '      name-browser:', '      name-browser: # none']) {
+    assert.match(browserNamingProblems([named('pr.yml', empty), named('verify.yml', CONDUIT_LINE)])
       .join('\n'), /no workflow names a browser/, empty);
   }
-  const lost = browserNamingProblems([named('main.yml', '      chrome-path: /usr/bin/google-chrome')]);
+  const lost = browserNamingProblems([named('main.yml', NAMES)]);
   assert.equal(lost.length, 1);
-  assert.match(lost[0] ?? '', /main\.yml pass chrome-path and no workflow hands it on as CHROME_PATH/);
+  assert.match(lost[0] ?? '', /main\.yml pass name-browser and no workflow writes the browser/);
 });
 
 test('a browser named by an input default, or in a shape the gate cannot read, is not a skipped line', () => {
-  const conduit = named('verify.yml', '  CHROME_PATH: ${{ inputs.chrome-path }}');
+  const conduit = named('verify.yml', CONDUIT_LINE);
   const declared = (value: string) => ({
     file: 'verify.yml',
-    text: `name: x\non:\n  workflow_call:\n    inputs:\n      chrome-path:\n        type: string\n        default: ${value}\n`
-      + 'env:\n  CHROME_PATH: ${{ inputs.chrome-path }}\njobs:\n  a:\n    runs-on: x\n',
+    text: `name: x\non:\n  workflow_call:\n    inputs:\n      name-browser:\n        type: boolean\n        default: ${value}\n`
+      + `jobs:\n  a:\n    runs-on: x\n    steps:\n${CONDUIT_LINE}\n`,
   });
-  const main = named('main.yml', '      chrome-path: /usr/bin/google-chrome');
-  assert.deepEqual(browserNamingProblems([main, declared("''"), named('pr.yml', '')]), []);
-  assert.match(browserNamingProblems([main, declared('/usr/bin/chromium')]).join('\n'), /main\.yml, verify\.yml all name a browser/);
-  assert.match(browserNamingProblems([declared('"/usr/bin/chromium"'), main]).join('\n'), /all name a browser/);
+  const main = named('main.yml', NAMES);
+  assert.deepEqual(browserNamingProblems([main, declared('false'), named('pr.yml', '')]), []);
+  assert.match(browserNamingProblems([main, declared('true')]).join('\n'), /main\.yml, verify\.yml all name a browser/);
+  assert.match(browserNamingProblems([declared('"true"'), main]).join('\n'), /all name a browser/);
   const shapes: Record<string, string> = {
-    'a flow with:': '    with: { chrome-path: /usr/bin/google-chrome }',
-    'a quoted input key': '      "chrome-path": /usr/bin/google-chrome',
+    'a flow with:': '    with: { name-browser: true }',
+    'a quoted input key': '      "name-browser": true',
     'a quoted env key': '  "CHROME_PATH": /usr/bin/google-chrome',
-    'a use in an expression': '    if: inputs.chrome-path != \'\'',
+    'a use in an expression': '    if: inputs.name-browser',
+    'a second write': '      - run: echo "CHROME_PATH=/usr/bin/chromium" >> "$GITHUB_ENV"',
   };
   for (const [name, line] of Object.entries(shapes)) {
-    assert.match(browserNamingProblems([named('main.yml', '      chrome-path: /usr/bin/google-chrome'), conduit, named('pr.yml', line)])
+    assert.match(browserNamingProblems([named('main.yml', NAMES), conduit, named('pr.yml', line)])
       .join('\n'), /pr\.yml:3: .* names the browser in a shape this gate cannot read/, name);
   }
-  assert.deepEqual(browserNamingProblems([named('main.yml', '      chrome-path: /usr/bin/google-chrome'), conduit,
+  assert.deepEqual(browserNamingProblems([named('main.yml', NAMES), conduit,
     named('pr.yml', '  # CHROME_PATH is not exported here\n      - name: a browser, and CHROME_PATH is deliberately not exported')]), []);
 });
 
 test('the real workflows name one browser between them, and the gate read every one of them', () => {
   assert.deepEqual(browserPathProblems(), []);
   assert.deepEqual(browserWorkflows().map((one) => one.file.split('/').pop()).sort(), realWorkflows());
+});
+
+const job = (body: string) => `name: x\njobs:\n  a:\n${body}`;
+const STEPS = '    steps:\n      - run: true\n';
+
+test('a job that runs steps declares a literal number of minutes, and nothing else passes', () => {
+  assert.deepEqual(timeoutProblems('w.yml', job(`    runs-on: ubuntu-latest\n    timeout-minutes: 20\n${STEPS}`)), []);
+  assert.deepEqual(timeoutProblems('w.yml', job(`    runs-on: \${{ matrix.os }}\n    timeout-minutes: 45 # slow leg\n${STEPS}`)), []);
+  const bad: [string, string, RegExp][] = [
+    ['no key', `    runs-on: ubuntu-latest\n${STEPS}`, /w\.yml: job a does not declare timeout-minutes/],
+    ['a matrix job with no key', `    runs-on: \${{ matrix.os }}\n${STEPS}`, /does not declare timeout-minutes/],
+    ['an expression', `    runs-on: ubuntu-latest\n    timeout-minutes: \${{ inputs.t }}\n${STEPS}`, /a literal number of minutes/],
+    ['zero', `    runs-on: ubuntu-latest\n    timeout-minutes: 0\n${STEPS}`, /a literal number of minutes/],
+    ['too many', `    runs-on: ubuntu-latest\n    timeout-minutes: 400\n${STEPS}`, /a literal number of minutes/],
+    ['a decimal', `    runs-on: ubuntu-latest\n    timeout-minutes: 2.5\n${STEPS}`, /a literal number of minutes/],
+    ['a key only in a step', `    runs-on: ubuntu-latest\n    steps:\n      - run: true\n        timeout-minutes: 5\n`, /does not declare timeout-minutes/],
+    ['neither runs-on nor uses', STEPS, /cannot classify/],
+  ];
+  for (const [name, body, pattern] of bad) {
+    const problems = timeoutProblems('w.yml', job(body));
+    assert.equal(problems.length, 1, name);
+    assert.match(problems[0] ?? '', pattern, name);
+  }
+});
+
+test('a reusable-workflow caller is exempt, and a sibling job is still read', () => {
+  const text = 'jobs:\n  verify:\n    uses: ./.github/workflows/verify.yml\n    with:\n      x: 1\n'
+    + '  gate:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v7\n';
+  const problems = timeoutProblems('w.yml', text);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /job gate does not declare/);
+});
+
+test('every real workflow job declares its time limit, and the sweep read each file', () => {
+  const files = realWorkflows();
+  assert.ok(files.length > 1);
+  let jobs = 0;
+  for (const file of files) {
+    const text = readFileSync(join(repoRoot, WORKFLOWS, file), 'utf8');
+    jobs += jobBlocks(text).size;
+    assert.deepEqual(timeoutProblems(file, text), [], file);
+  }
+  assert.ok(jobs > files.length);
+  assert.deepEqual(workflowFiles().map((file) => basename(file)).sort(), files);
+});
+
+test('portabilityProblems reports a workflow with no time limit, read off a temporary root', () => {
+  const base = mkdtempSync(join(tmpdir(), 'arena-timeout-'));
+  try {
+    mkdirSync(join(base, WORKFLOWS), { recursive: true });
+    mkdirSync(join(base, 'scripts'), { recursive: true });
+    writeFileSync(join(base, WORKFLOWS, 'bad.yml'), job(`    runs-on: ubuntu-latest\n${STEPS}`));
+    const { problems } = portabilityProblems(base);
+    assert.ok(problems.some((one) => /bad\.yml: job a does not declare timeout-minutes/.test(one)), problems.join('\n'));
+  } finally {
+    rmSync(base, { recursive: true, force: true });
+  }
+});
+
+test('a layout the reader cannot read is a problem, never a skipped file', () => {
+  const ok = 'runs-on: ubuntu-latest\n    timeout-minutes: 5\n';
+  const shapes: Record<string, [string, RegExp]> = {
+    'a quoted job head': [`jobs:\n  'a':\n    ${ok}  b:\n    ${ok}`, /sits where a job key goes/],
+    'a flow-style jobs map': ['jobs: { a: { runs-on: ubuntu-latest, timeout-minutes: 5 } }\n', /no top-level jobs: line/],
+    'no jobs at all': ['name: x\n', /no top-level jobs: line/],
+    'an empty jobs map': ['jobs:\n', /declares no job this gate can read/],
+    'both uses and runs-on': [`jobs:\n  a:\n    uses: ./x.yml\n    ${ok}`, /both uses: and runs-on:/],
+    'two limits': [`jobs:\n  a:\n    ${ok}    timeout-minutes: 6\n`, /more than once/],
+  };
+  for (const [name, [text, pattern]] of Object.entries(shapes)) {
+    const problems = timeoutProblems('w.yml', text);
+    assert.ok(problems.length > 0, name);
+    assert.match(problems.join('\n'), pattern, name);
+  }
+});
+
+test('a root with no workflow, or one with an unreadable workflow, is reported by portabilityProblems', () => {
+  const base = mkdtempSync(join(tmpdir(), 'arena-timeout-'));
+  try {
+    mkdirSync(join(base, 'scripts'), { recursive: true });
+    assert.deepEqual(workflowFiles(base), []);
+    assert.match(portabilityProblems(base).problems.join('\n'), /holds no \.yml or \.yaml workflow/);
+    mkdirSync(join(base, WORKFLOWS), { recursive: true });
+    writeFileSync(join(base, WORKFLOWS, 'flow.yml'), 'jobs: { a: { runs-on: x } }\n');
+    assert.match(portabilityProblems(base).problems.join('\n'), /flow\.yml has no top-level jobs: line/);
+  } finally {
+    rmSync(base, { recursive: true, force: true });
+  }
+});
+
+const GATE = join(repoRoot, 'scripts/check/arena/check-portability.ts');
+
+const planted = (workflow: string, text: string) => {
+  const base = mkdtempSync(join(tmpdir(), 'arena-timeout-'));
+  mkdirSync(join(base, WORKFLOWS), { recursive: true });
+  mkdirSync(join(base, 'scripts'), { recursive: true });
+  writeFileSync(join(base, 'scripts/one.ts'), 'export const one = 1;\n');
+  writeFileSync(join(base, WORKFLOWS, workflow), text);
+  return base;
+};
+
+test('a .yaml workflow with no time limit is read and reported, as a .yml one is', () => {
+  const base = planted('extra.yaml', job(`    runs-on: ubuntu-latest\n${STEPS}`));
+  try {
+    assert.deepEqual(workflowFiles(base).map((file) => basename(file)), ['extra.yaml']);
+    assert.match(portabilityProblems(base).problems.join('\n'), /extra\.yaml: job a does not declare timeout-minutes/);
+  } finally {
+    rmSync(base, { recursive: true, force: true });
+  }
+});
+
+test('the gate exits 1 on a job with no time limit, and names the file on stderr', () => {
+  const base = planted('extra.yaml', job(`    runs-on: ubuntu-latest\n${STEPS}`));
+  try {
+    const run = spawnSync(process.execPath, [GATE, base], { encoding: 'utf8' });
+    assert.equal(run.status, 1, run.stdout + run.stderr);
+    assert.match(run.stderr, /extra\.yaml: job a does not declare timeout-minutes/);
+  } finally {
+    rmSync(base, { recursive: true, force: true });
+  }
+});
+
+test('the gate exits 0 on the tree and its success line says how many workflows and jobs it read', () => {
+  const run = spawnSync(process.execPath, [GATE], { encoding: 'utf8' });
+  assert.equal(run.status, 0, run.stdout + run.stderr);
+  const { workflows, jobs } = portabilityProblems();
+  assert.ok(workflows > 1 && jobs > workflows);
+  assert.ok(run.stdout.includes(`${workflows} workflow(s) and their ${jobs} job(s) were read for a time limit`), run.stdout);
+});
+
+test('pr.yml with a layout the reader cannot read is reported once, not once per rule', () => {
+  const base = planted(PR_WORKFLOW, 'name: x\njobs: { a: { runs-on: x } }\n');
+  try {
+    const hits = portabilityProblems(base).problems.filter((one) => /pr\.yml has no top-level jobs: line/.test(one));
+    assert.equal(hits.length, 1, hits.join('\n'));
+  } finally {
+    rmSync(base, { recursive: true, force: true });
+  }
 });

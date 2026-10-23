@@ -5,6 +5,7 @@ import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaButton.classes.generated.ts';
 import type { ArenaButtonClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
+import { ArenaIcon } from '../../display/arena-icon/ArenaIcon.tsx';
 
 export interface ArenaButtonProps {
   className?: ArenaButtonClass;
@@ -15,10 +16,10 @@ export interface ArenaButtonProps {
   /** Whether the action destroys or removes something. Destructive draws the danger outline whatever emphasis the button is given: danger is never filled outside ArenaConfirmDialog's final confirmation. */
   destructive?: boolean;
 
-  /** Phosphor class name drawn before the label. Replaced by the spinner while loading. */
+  /** Phosphor class name drawn before the label through ArenaIcon. Replaced by the spinner while loading. */
   icon?: string;
 
-  /** Phosphor class name drawn after the label: a caret on a menu trigger, an arrow on a next action. */
+  /** Phosphor class name drawn after the label through ArenaIcon: a caret on a menu trigger, an arrow on a next action. */
   iconRight?: string;
 
   /** Replaces the leading icon with a spinner and blocks activation. The spin slows under reduced motion rather than stopping: a frozen spinner reads as a hung process. */
@@ -42,11 +43,20 @@ export interface ArenaButtonProps {
   /** The id of the form this button belongs to, when it is not a descendant of it. */
   form?: string;
 
-  /** Whether the control is reached from the page's Tab sequence. Set false when it lives inside a composite that manages its own focus (a grid with a roving tab stop, a menu), where reaching it by Tab would be a second way in. Arena writes tabindex="-1" and the control stays programmatically focusable; a positive tab order is not expressible and never should be. Arena's own table is NOT that composite: its grid deliberately has no step-in, so a control in a cell keeps its place in the page Tab sequence and setting this false there takes away its only keyboard route, since the cursor moves by cell and Enter activates the row. */
+  /** Whether the control is reached from the page's Tab sequence. Set false when it lives inside a composite that manages its own focus (a grid with a roving tab stop, a menu). Reaching it by Tab there would be a second way in. Arena writes tabindex="-1" and the control stays programmatically focusable; a positive tab order is not expressible and never should be. Arena's own table is NOT that composite: its grid deliberately has no step-in, so a control in a cell keeps its place in the page Tab sequence. Setting this false there takes away its only keyboard route, since the cursor moves by cell and Enter activates the row. */
   tabStop?: boolean;
 
   /** The button was activated, by pointer or by keyboard. */
   onClick?: () => void;
+
+  /** Written by Arena's popover and menu when this button is their trigger: what it opens. */
+  'aria-haspopup'?: React.AriaAttributes['aria-haspopup'];
+  /** Written by Arena's popover and menu when this button is their trigger: whether that is open. */
+  'aria-expanded'?: boolean;
+  /** Written by Arena's popover while its panel exists: the panel's id. */
+  'aria-controls'?: string;
+  /** Written by Arena's tooltip around this button: the bubble's id, after any the consumer gave. */
+  'aria-describedby'?: string;
 }
 
 
@@ -56,12 +66,13 @@ export function ArenaButton({ className,
   children, destructive = false, icon, iconRight,
   disabled = false, loading = false,
   type = 'button', name, value, autoFocus = false, form, onClick, tabStop = true,
+  'aria-haspopup': ariaHasPopup, 'aria-expanded': ariaExpanded, 'aria-controls': ariaControls, 'aria-describedby': ariaDescribedBy,
 }: ArenaButtonProps) {
   const styles = arenaButtonStyles({ destructive });
 
   return (
     <button
-      className={arenaClassName('ArenaButton', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()} data-arena-boundary=""
+      className={arenaClassName('ArenaButton', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()} data-arena-boundary=""
       type={type}
       name={name}
       value={value}
@@ -70,12 +81,13 @@ export function ArenaButton({ className,
       onClick={onClick}
       tabIndex={tabStop ? undefined : -1}
       disabled={disabled || loading}
+      aria-haspopup={ariaHasPopup} aria-expanded={ariaExpanded} aria-controls={ariaControls} aria-describedby={ariaDescribedBy}
     >
       {loading
         ? <span className={styles.spinner()} data-arena-part={manifest.parts.spinner} {...styles.$data.spinner()} aria-hidden="true" />
-        : icon && <i className={icon} aria-hidden="true" />}
+        : icon && <ArenaIcon icon={icon} />}
       {children}
-      {iconRight && <i className={iconRight} aria-hidden="true" />}
+      {iconRight && <ArenaIcon icon={iconRight} />}
     </button>
   );
 }

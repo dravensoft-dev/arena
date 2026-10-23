@@ -10,11 +10,15 @@ import {
 } from './theme-css.ts';
 import type { ArenaConfig, ResolvedPlugins, TokenCatalogue } from './theme-css.ts';
 import type { ComponentMap } from './components.ts';
-import type { ShippedIcons } from './icon-css.ts';
+import type { ShippedIconMap } from './icon-css.ts';
 
 export const THEME_SHEET = 'arena.generated.css';
-export const ICONS_SHEET = 'icons.generated.css';
+export const PACKAGE_SHEET = 'arena.package.generated.css';
+export const SPRITE_STEM = 'icons';
+export const SPRITE_MODULE = 'arena.icons.generated.js';
+export const SPRITE_TYPES = 'arena.icons.generated.d.ts';
 export const PLUGIN_SHEET = 'plugin.generated.css';
+export const RUNTIME_DATA = 'arena.runtime.generated.json';
 export const PLUGIN_CSS = 'plugin.css';
 export const PLUGIN_LAYER = 'arena-plugin';
 export const PLUGIN_LAYER_ORDER = '@layer properties;\n@layer theme, base, components, utilities, arena-plugin;\n';
@@ -40,6 +44,10 @@ export function roleReferencesIn(catalogue: TokenCatalogue | null): string[] {
   return Object.entries(catalogue.tokens ?? {})
     .map(([name, value]) => `--${name}:${value};`)
     .filter((d) => REFERENCE_DECLARATION.test(d.replace(/;$/, '')));
+}
+
+export function aliasesIn(catalogue: TokenCatalogue | null): string[] {
+  return Object.entries(catalogue?.aliases ?? {}).map(([name, value]) => `--${name}:${value};`);
 }
 
 const CSS_COMMENT = /\/\*[\s\S]*?\*\//g;
@@ -89,10 +97,10 @@ export function readPlugins(config: ArenaConfig, from: string) {
   return { plugins, fatal };
 }
 
-export function iconManifest(root: string): ShippedIcons | null {
+export function iconManifest(root: string): ShippedIconMap | null {
   try {
     const manifest = JSON.parse(readFileSync(join(root, ICON_MANIFEST), 'utf8'));
-    return manifest && typeof manifest === 'object' && manifest.pairs ? manifest : null;
+    return manifest && typeof manifest === 'object' && manifest.components && Array.isArray(manifest.fills) ? manifest : null;
   } catch {
     return null;
   }

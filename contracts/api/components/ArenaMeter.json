@@ -1,0 +1,25 @@
+{
+  "component": "ArenaMeter",
+  "description": "A measurement inside a known range: disk used, a quota, a score against a target. A bar that does not move as a task proceeds, so it announces nothing. Thresholds derive a standing, drawn as a word and a hue.",
+  "affordances": [],
+  "api": {
+    "label": { "form": "primitive", "type": "string", "required": true,
+               "description": "Names what is measured. Drawn above the track and the meter's accessible name. Required, and guarded at runtime after trimming: nothing can derive what is measured, and a fallback of Meter tells a reader only what the component is." },
+    "value": { "form": "primitive", "type": "number", "required": true,
+               "description": "The measurement, in the range's own unit. The drawing and aria-valuenow clamp it into the range, and a value that is not a finite number reads as min. The readout shows the number as passed." },
+    "min": { "form": "primitive", "type": "number", "default": 0,
+             "description": "The lower bound of the range." },
+    "max": { "form": "primitive", "type": "number", "default": 100,
+             "description": "The upper bound of the range. A max below min reads as min, so the range is never inverted." },
+    "low": { "form": "primitive", "type": "number",
+             "description": "The top of the low region, clamped into the range. Absent, it is min. A value equal to it is in the region above it." },
+    "high": { "form": "primitive", "type": "number",
+              "description": "The bottom of the high region, clamped into the range and never below low. Absent, it is max. A value equal to it is in the high region, except at max, where no high region opens and the value stays in the middle." },
+    "optimum": { "form": "primitive", "type": "number",
+                 "description": "Where the best reading sits, which decides which region is good. Absent, it is the midpoint. With none of low, high and optimum given, no standing is derived and the fill paints the accent." },
+    "showLabel": { "form": "primitive", "type": "boolean", "default": true,
+                   "description": "Draws the label above the track. False keeps the accessible name on the meter and hides the drawn label, for a cell whose row already says what is measured." },
+    "valueText": { "form": "primitive", "type": "string",
+                   "description": "The reading as a person says it, such as 62 of 100 GB. The drawn readout shows this text, and aria-valuetext starts with it. Absent, the readout is the value written as a plain number." }
+  }
+}

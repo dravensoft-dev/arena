@@ -26,6 +26,11 @@ export const MANIFEST_COVERS = new Map([
     reason: 'The tablist and its tab buttons are ArenaTabs\'; the panel is ArenaTab\'s. The roving stop that '
       + 'carries the focus ring sits on a tab, which is the member ArenaTab contracts.',
   }],
+  ['ArenaAccordion', {
+    covers: ['ArenaAccordion', 'ArenaAccordionItem'],
+    reason: 'The stack is ArenaAccordion\'s; each heading, its button and the panel it shows are '
+      + 'ArenaAccordionItem\'s. The item has no surface of its own: it IS a section of the stack.',
+  }],
   ['ArenaBottomNav', {
     covers: ['ArenaBottomNav', 'ArenaBottomNavItem'],
     reason: 'One manifest draws the whole bar -- the fixed row is ArenaBottomNav\'s and the equal '
@@ -54,11 +59,24 @@ export const MANIFEST_COVERS = new Map([
       + 'set against it, so the size the list hands down reaches the face, the name and the figure '
       + 'through one recipe rather than through two that could disagree about a step.',
   }],
+  ['ArenaCombobox', {
+    covers: ['ArenaCombobox', 'ArenaMultiSelect'],
+    reason: 'One manifest draws the field and the list for both controls: the field, its rows and its '
+      + 'panel are one surface whether the value is one option or a set, and a second manifest would '
+      + 'paint it twice and give a style plugin two sets of parts for one look. The chips, the count '
+      + 'and the clear control are the slots only ArenaMultiSelect draws.',
+  }],
   ['ArenaRadio', {
     covers: ['ArenaRadio', 'ArenaRadioGroup'],
-    reason: 'One manifest draws the whole group -- the fieldset and the legend naming it are '
-      + 'ArenaRadioGroup\'s and every control in it is ArenaRadio\'s. The group carries no manifest of its '
-      + 'own because it has no surface of its own: it IS the frame around a set of radios.',
+    reason: 'One manifest draws the whole group -- the frame around the options is ArenaRadioGroup\'s '
+      + 'and every option in it is ArenaRadio\'s. The group carries no manifest of its own because it has '
+      + 'no surface of its own: it IS the frame around a set of radios.',
+  }],
+  ['ArenaCheckbox', {
+    covers: ['ArenaCheckbox', 'ArenaCheckboxGroup'],
+    reason: 'One manifest draws the whole set -- the frame around the boxes is ArenaCheckboxGroup\'s and '
+      + 'every box in it is ArenaCheckbox\'s. The group carries no manifest of its own because it has no '
+      + 'surface of its own: it IS the frame around a set of checkboxes.',
   }],
   ['ArenaConfirmDialog', {
     covers: ['ArenaConfirmDialog', 'ArenaButton'],
@@ -82,6 +100,10 @@ export const HAND_DRAWN = new Map([
   ['ArenaBarChart', 'draws its plot by hand: the bar rectangles are positioned from the data\'s own range against a measured inner height, so a class string cannot describe a shape whose coordinates ARE the data. The frame, the legend and the tooltip are drawn from the chart\'s manifest.'],
   ['ArenaDoughnutChart', 'draws its plot by hand: the arc paths are swept from each slice\'s share of the total, so a class string cannot describe a shape whose coordinates ARE the data. The frame and the legend are drawn from the chart\'s manifest.'],
   ['ArenaLineChart', 'draws its plot by hand: the polyline points are the series projected onto the measured plot area, so a class string cannot describe a shape whose coordinates ARE the data. The frame, the legend and the tooltip are drawn from the chart\'s manifest.'],
+  ['ArenaFunnelChart', 'draws its plot by hand: each stage\'s rectangle is as wide as its value from zero and each connector joins the edges of two of them, so a class string cannot describe a shape whose coordinates ARE the data. The frame and the tooltip are drawn from the chart\'s manifest.'],
+  ['ArenaHeatmapChart', 'draws its plot by hand: each cell\'s rectangle sits at the crossing of its row and its column and takes the fill of the bin its value falls in, so a class string cannot describe a shape whose coordinates and colour ARE the data. The frame, the legend and the tooltip are drawn from the chart\'s manifest.'],
+  ['ArenaGaugeChart', 'draws its dial by hand: the arc paths are swept from the value\'s fraction of the scale and each band\'s stretch of it, so a class string cannot describe a shape whose coordinates ARE the data. The frame is drawn from the chart\'s manifest.'],
+  ['ArenaSparkline', 'draws its plot by hand: the polyline points are the series projected onto the data\'s own range in a measured box, so a class string cannot describe a shape whose coordinates ARE the data. The frame and the tooltip are drawn from the chart\'s manifest.'],
 ]);
 
 const COMPONENTS_JSON = join(repoRoot, 'frameworks/Components.json');

@@ -47,6 +47,22 @@ class OptionSectionHost {}
 })
 class ChildlessHost {}
 
+@Component({
+  standalone: true,
+  imports: [ArenaSection],
+  selector: 'arena-section-false-conditional-host',
+  template: `<arena-section title="Landed recently">@if (false) { <p>x</p> }</arena-section>`,
+})
+class FalseConditionalHost {}
+
+@Component({
+  standalone: true,
+  imports: [ArenaSection],
+  selector: 'arena-section-true-conditional-host',
+  template: `<arena-section title="Landed recently">@if (true) { <p>x</p> }</arena-section>`,
+})
+class TrueConditionalHost {}
+
 function render(patch: Partial<SectionHost> = {}) {
   const fixture = TestBed.createComponent(SectionHost);
   Object.assign(fixture.componentInstance, patch);
@@ -97,6 +113,21 @@ test('a section with no children is refused, because its heading would name noth
   const fixture = TestBed.createComponent(ChildlessHost);
   try {
     assert.throws(() => fixture.detectChanges(), /not a legal shape/);
+  } finally { fixture.destroy(); }
+});
+
+test('a section whose only child is a false conditional counts as childless', () => {
+  const fixture = TestBed.createComponent(FalseConditionalHost);
+  try {
+    assert.throws(() => fixture.detectChanges(), /not a legal shape/);
+  } finally { fixture.destroy(); }
+});
+
+test('a section whose only child is a true conditional renders it', () => {
+  const fixture = TestBed.createComponent(TrueConditionalHost);
+  try {
+    assert.doesNotThrow(() => fixture.detectChanges());
+    assert.equal((fixture.nativeElement as HTMLElement).querySelector('arena-section p')?.textContent, 'x');
   } finally { fixture.destroy(); }
 });
 

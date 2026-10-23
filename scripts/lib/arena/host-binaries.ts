@@ -12,7 +12,7 @@ export const HOST_BINARIES: Record<string, HostBinary> = {
   bun: {
     probe: 'bun --version',
     why: 'the runtime and the package manager. package.json pins the version under '
-      + 'packageManager, and every workflow pins the same one.',
+      + 'packageManager, and every workflow pins the same one, beside the Node and the Chrome it installs.',
   },
   git: {
     probe: 'git --version',
@@ -26,7 +26,7 @@ export const HOST_BINARIES: Record<string, HostBinary> = {
   },
   chrome: {
     probe: 'bun run check:focus-trap',
-    why: 'the four gates that measure a real render drive a headless Chrome, Chromium or Edge '
+    why: 'the gates that measure a real render drive a headless Chrome, Chromium or Edge '
       + 'over CDP. Discovery is keyed by platform, so an install in the usual place needs no '
       + 'configuration; CHROME_PATH names one anywhere else, and is terminal.',
   },

@@ -1,0 +1,22 @@
+{
+  "component": "ArenaLink",
+  "seed": {
+    "href": "#release-notes"
+  },
+  "slots": {
+    "content": [
+      {
+        "text": "the release notes"
+      }
+    ]
+  },
+  "host": {
+    "element": "p",
+    "children": [
+      { "text": "Read " },
+      "$subject",
+      { "text": " before you upgrade." }
+    ]
+  },
+  "note": "A link in a sentence: the underline is always on. Turn on external to hear the hidden hint, and click it to see navigate fire for a plain link only."
+}

@@ -1,0 +1,31 @@
+{
+  "component": "ArenaSplitButton",
+  "description": "One action with a menu of alternatives at its end, drawn as one control. The primary half runs the action; the caret half opens the menu. Both halves sit in a named group, and each is a tab stop.",
+  "affordances": ["focus", "hover", "press"],
+  "api": {
+    "content": { "form": "slot", "required": true,
+                 "description": "The primary half's label, such as \"Deploy\". Required, and guarded at runtime: a primary half with no label names no action." },
+    "icon": { "form": "primitive", "type": "string",
+              "description": "Phosphor class name drawn before the label through ArenaIcon. Replaced by the spinner while loading." },
+    "destructive": { "form": "primitive", "type": "boolean", "default": false,
+                     "description": "Whether the primary action destroys or removes something. Both halves draw the danger outline whatever emphasis the split is given: danger is never filled." },
+    "loading": { "form": "primitive", "type": "boolean", "default": false,
+                 "description": "Replaces the leading icon with a spinner and blocks the primary half. The caret stays usable, so another action can start while this one runs." },
+    "disabled": { "form": "primitive", "type": "boolean", "default": false,
+                  "description": "Blocks both halves and dims the control." },
+    "type": { "form": "enum", "type": "ArenaButtonType", "default": "button",
+              "description": "The primary half's native button behaviour. Defaults to 'button' so a split inside a form does not submit it by accident." },
+    "label": { "form": "primitive", "type": "string", "required": true,
+               "description": "Names the group of both halves, such as \"Deployment\". Required, and guarded at runtime after trimming: a group with no name announces only that a group began." },
+    "menuLabel": { "form": "primitive", "type": "string", "required": true,
+                   "description": "Names the caret half, such as \"More deploy options\". Required, and guarded at runtime after trimming: a caret is a glyph, so this name is all a screen reader hears." },
+    "items": { "form": "array", "of": "ArenaMenuItem", "required": true,
+               "description": "The menu's entries, in order: activatable rows, dividers and group headers." },
+    "align": { "form": "enum", "type": "ArenaMenuAlign", "default": "end",
+               "description": "Which edge of the whole split the panel lines up with: start is the primary half's outer edge, end the caret's outer edge." },
+    "click": { "form": "event",
+               "description": "The primary half was activated, by pointer or by keyboard. Never reported while loading or disabled." },
+    "select": { "form": "event", "payload": "ArenaMenuItem",
+                "description": "A menu entry was activated; carries the whole item. A disabled entry reports nothing, and a divider or a header cannot be activated at all." }
+  }
+}

@@ -101,7 +101,7 @@ test('a flag given twice is refused unless it repeats, and --src repeats', () =>
 
 test('--strict with a kind of another command names that command', () => {
   assert.equal(error('check', ['--strict=audit']),
-    '--strict=audit belongs to arena audit; arena check holds components, contrast, ramp, weight, glyph, markers');
+    '--strict=audit belongs to arena audit; arena check holds components, contrast, ramp, weight, font, glyph, markers, heat');
   assert.equal(error('audit', ['--strict=contrast']),
     '--strict=contrast belongs to arena check; arena audit holds audit, restated');
   assert.equal(error('doctor', ['--strict=contrast']),
@@ -110,14 +110,14 @@ test('--strict with a kind of another command names that command', () => {
 
 test('--strict=wash says it is never held', () => {
   assert.equal(error('check', ['--strict=wash']),
-    'wash is reported and never held, since no configuration can clear it; arena check holds components, contrast, ramp, weight, glyph, markers');
+    'wash is reported and never held, since no configuration can clear it; arena check holds components, contrast, ramp, weight, font, glyph, markers, heat');
 });
 
 test('--strict with an unknown kind lists what the command holds', () => {
   assert.equal(error('audit', ['--strict=nonsense']),
     '--strict does not report on nonsense; arena audit holds audit, restated');
   assert.equal(error('check', ['--strict=glyph,nonsense,audit']),
-    '--strict does not report on nonsense; arena check holds components, contrast, ramp, weight, glyph, markers');
+    '--strict does not report on nonsense; arena check holds components, contrast, ramp, weight, font, glyph, markers, heat');
 });
 
 test('--help and -h win over anything after them, on every command', () => {

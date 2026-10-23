@@ -1,0 +1,5 @@
+{
+  "component": "ArenaIcon",
+  "seed": { "icon": "ph-bold ph-star" },
+  "note": "One glyph from the sprite, sized by the text around it."
+}

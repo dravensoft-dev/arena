@@ -1,12 +1,11 @@
 /* Arena's own skin and the plugin it plugs in, expressed as the arena.config.json a consumer
- * writes. Two things read it: check-packages.ts, which runs the CLI over it and holds the result
- * equivalent to the Style Dictionary output, and the assembly, which writes it into each package
- * as the example a consumer starts from. Deriving it beats writing it twice, because the example
- * a reader copies is then the palette the gate proved.
- * A weight query is a list and never a `min..max` range: Google serves a range only when it
- * lies inside that family's own wght axis and answers 400 otherwise, and Arena declares
- * weights up to 900 across families whose axes stop at 700. A list is clamped to the
- * nearest weight the family has, so one query holds for every family. */
+ * writes. check-packages.ts runs the CLI over it and holds the result equivalent to the Style
+ * Dictionary output, and the assembly writes it into each package as the example a consumer
+ * starts from. Deriving it beats writing it twice, because the example a reader copies is then
+ * the palette the gate proved. The fonts are the woff2 files of assets/fonts, which both packages
+ * carry as fonts/ and arena init copies beside the config, so each src is a path the build cuts.
+ * googleFontsUrl stays for fetch-fonts.ts: a weight query is a list and never a min..max range,
+ * because Google answers 400 for a range outside the family's own axis. */
 
 import { join } from 'node:path';
 import { readJson } from '../../utils/read-file.ts';
@@ -38,13 +37,19 @@ export function googleFontsUrl(family: string, weights: number[]) {
   return `${GOOGLE_FONTS}?family=${family.replace(/ /g, '+')}:wght@${weights.join(';')}&display=swap`;
 }
 
-export function fontEntries(root: string) {
-  const weights = fontWeights(root);
+export const FONT_RECORD = 'assets/fonts/Fonts.generated.json';
 
-  const out: Record<string, { family: string; src: string }> = {};
+export const FONTS_DIR = 'fonts';
+
+export function fontEntries(root: string) {
+  const record = readJson(join(root, ...FONT_RECORD.split('/'))) as Record<string, { family: string; weights: [number, number] }>;
+  const out: Record<string, { family: string; src: string; weight: string }> = {};
   for (const [role, token] of childEntries(typographyContract(root).font)) {
     const family = (token.$value as string[])[0] ?? '';
-    out[role] = { family, src: googleFontsUrl(family, weights) };
+    const file = `${family.toLowerCase().replace(/\s+/g, '-')}.woff2`;
+    const held = record[file];
+    if (!held) throw new Error(`arena-config: ${FONT_RECORD} holds no ${file} for fonts.${role} (${family}); run fetch-fonts.ts`);
+    out[role] = { family, src: `./${FONTS_DIR}/${file}`, weight: held.weights.join(' ') };
   }
   return out;
 }

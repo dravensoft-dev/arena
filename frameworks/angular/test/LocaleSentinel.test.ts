@@ -7,7 +7,7 @@
 import { useTestEnvironment } from './TestbedEnv';
 useTestEnvironment();
 
-import test from 'node:test';
+import test, { after, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -28,11 +28,24 @@ import { ArenaToast } from '../components/feedback/arena-toast/ArenaToast';
 import { ArenaSheet } from '../components/feedback/arena-sheet/ArenaSheet';
 import { ArenaAlert } from '../components/feedback/arena-alert/ArenaAlert';
 import { ArenaTag } from '../components/display/arena-tag/ArenaTag';
+import { ArenaLink } from '../components/navigation/arena-link/ArenaLink';
+import { ArenaCopyButton } from '../components/forms/arena-copy-button/ArenaCopyButton';
+import { ArenaMeter } from '../components/feedback/arena-meter/ArenaMeter';
+import { ArenaStepper } from '../components/navigation/arena-stepper/ArenaStepper';
+import { ArenaTimeline } from '../components/display/arena-timeline/ArenaTimeline';
 import { ArenaSkeleton } from '../components/display/arena-skeleton/ArenaSkeleton';
 import { ArenaSpinner } from '../components/feedback/arena-spinner/ArenaSpinner';
 import { ArenaSwitch } from '../components/forms/arena-switch/ArenaSwitch';
+import { ArenaFileInput } from '../components/forms/arena-file-input/ArenaFileInput';
+import { ArenaNumberField } from '../components/forms/arena-number-field/ArenaNumberField';
+import { ArenaPinInput } from '../components/forms/arena-pin-input/ArenaPinInput';
+import { ArenaFilterBar } from '../components/navigation/arena-filter-bar/ArenaFilterBar';
+import { ArenaSlider } from '../components/forms/arena-slider/ArenaSlider';
 import { ArenaBulkActionBar } from '../components/navigation/arena-bulk-action-bar/ArenaBulkActionBar';
 import { ArenaCommandPalette } from '../components/navigation/arena-command-palette/ArenaCommandPalette';
+import { ArenaCombobox } from '../components/forms/arena-combobox/ArenaCombobox';
+import { ArenaMultiSelect } from '../components/forms/arena-multi-select/ArenaMultiSelect';
+import { disposeOverlays } from './Overlays';
 import { ArenaOnboarding } from '../components/feedback/arena-onboarding/ArenaOnboarding';
 import { ArenaConfirmDialog } from '../components/feedback/arena-confirm-dialog/ArenaConfirmDialog';
 import { ArenaErrorState } from '../components/feedback/arena-error-state/ArenaErrorState';
@@ -41,9 +54,23 @@ import { ArenaLineChart } from '../components/charts/arena-line-chart/ArenaLineC
 import { ArenaBarChart } from '../components/charts/arena-bar-chart/ArenaBarChart';
 import { ArenaHorizontalBarChart } from '../components/charts/arena-horizontal-bar-chart/ArenaHorizontalBarChart';
 import { ArenaPyramidChart } from '../components/charts/arena-pyramid-chart/ArenaPyramidChart';
+import { ArenaSparkline } from '../components/charts/arena-sparkline/ArenaSparkline';
+import { ArenaGaugeChart } from '../components/charts/arena-gauge-chart/ArenaGaugeChart';
+import { ArenaFunnelChart } from '../components/charts/arena-funnel-chart/ArenaFunnelChart';
+import { ArenaHeatmapChart } from '../components/charts/arena-heatmap-chart/ArenaHeatmapChart';
 import { ArenaDoughnutChart } from '../components/charts/arena-doughnut-chart/ArenaDoughnutChart';
 import { ArenaRadarChart } from '../components/charts/arena-radar-chart/ArenaRadarChart';
 import { ArenaScatterChart } from '../components/charts/arena-scatter-chart/ArenaScatterChart';
+
+const root = document.documentElement;
+before(() => {
+  root.style.setProperty('--bp-md', '768px');
+  root.style.setProperty('--bp-sm', '480px');
+});
+after(() => {
+  root.style.removeProperty('--bp-md');
+  root.style.removeProperty('--bp-sm');
+});
 
 export function sentinelLocale(base: ArenaLocale = ARENA_DEFAULT_LOCALE): ArenaLocale {
   const out: Record<string, string> = {};
@@ -56,7 +83,7 @@ export function sentinelLocale(base: ArenaLocale = ARENA_DEFAULT_LOCALE): ArenaL
 }
 
 const SENTINEL = /⟦\w+⟧/g;
-const NEUTRAL = /^[\d\s.,:;%+\-/()‒-―↑↓▾−·…"'?!]*$/;
+const NEUTRAL = /^[\d\s.,:;%+\-/()‒-―↑↓▾−·…"'?!*]*$/;
 const NAMED = ['aria-label', 'aria-roledescription', 'title'];
 
 export function strayWords(host: Element, allowed: readonly string[]): string[] {
@@ -146,20 +173,100 @@ class AlertHost {}
 @Component({ standalone: true, imports: [ArenaTag], template: `<arena-tag [removable]="true">Beta</arena-tag>` })
 class TagHost {}
 
+@Component({ selector: 'locale-sentinel-link-host', standalone: true, imports: [ArenaLink], template: `<arena-link href="/notes" [external]="true">Release notes</arena-link>` })
+class LinkHost {}
+
 @Component({ standalone: true, imports: [ArenaSkeleton], template: `<arena-skeleton /><arena-skeleton [lines]="2" />` })
 class SkeletonHost {}
 
-@Component({ standalone: true, imports: [ArenaSpinner], template: `<arena-spinner />` })
+@Component({ selector: 'locale-sentinel-copy-button-host', standalone: true, imports: [ArenaCopyButton], template: `<arena-copy-button text="bun add @dravensoft/arena-angular" />` })
+class CopyButtonHost {}
+
+@Component({
+  selector: 'locale-sentinel-meter-host',
+  standalone: true,
+  imports: [ArenaMeter],
+  template: `@for (value of [30, 72, 91]; track value) {
+    <arena-meter label="Storage used" [value]="value" [valueText]="value + ' of 100 GB'" [low]="50" [high]="80" [optimum]="0" />
+  }`,
+})
+class MeterHost {}
+
+@Component({
+  selector: 'locale-sentinel-stepper-host',
+  standalone: true,
+  imports: [ArenaStepper],
+  template: `@for (index of [1, 9]; track index) {
+    <arena-stepper ariaLabel="Checkout" [index]="index" interactive [steps]="[{ label: 'Account' }, { label: 'Shipping', description: 'Two addresses' }, { label: 'Payment', error: true }]" />
+  }`,
+})
+class StepperHost {}
+
+@Component({
+  selector: 'locale-sentinel-timeline-host',
+  standalone: true,
+  imports: [ArenaTimeline],
+  template: `<arena-timeline label="Order 4821" [index]="1" [items]="[{ title: 'Placed', time: 'Mar 3' }, { title: 'Shipped', tone: 'info' }, { title: 'Delivered' }]" />`,
+})
+class TimelineHost {}
+
+@Component({ selector: 'locale-sentinel-spinner-host', standalone: true, imports: [ArenaSpinner], template: `<arena-spinner />` })
 class SpinnerHost {}
 
 @Component({ standalone: true, imports: [ArenaSwitch], template: `<arena-switch label="Auto deploy" [confirm]="true" />` })
 class SwitchHost {}
+@Component({ standalone: true, imports: [ArenaFileInput], template: `<arena-file-input label="Passport scan" />` })
+class FileInputHost {}
+@Component({ standalone: true, imports: [ArenaFileInput], template: `<arena-file-input label="Passport scan" droppable multiple required />` })
+class FileInputDropHost {}
+@Component({ selector: 'locale-sentinel-number-field-host', standalone: true, imports: [ArenaNumberField], template: `<arena-number-field label="Replicas" [value]="3" [min]="1" [max]="20" hint="Between 1 and 20." />` })
+class NumberFieldHost {}
+@Component({ selector: 'locale-sentinel-number-field-affix-host', standalone: true, imports: [ArenaNumberField], template: `<arena-number-field label="Weight" prefix="~" suffix="kg" required />` })
+class NumberFieldAffixHost {}
+@Component({ selector: 'locale-sentinel-pin-input-host', standalone: true, imports: [ArenaPinInput], template: `<arena-pin-input label="Verification code" hint="Sent to your phone." required />` })
+class PinInputHost {}
+@Component({ selector: 'locale-sentinel-pin-input-masked-host', standalone: true, imports: [ArenaPinInput], template: `<arena-pin-input label="Device PIN" [length]="4" masked error="Wrong PIN." />` })
+class PinInputMaskedHost {}
+@Component({ selector: 'locale-sentinel-filter-bar-host', standalone: true, imports: [ArenaFilterBar], template: `<arena-filter-bar label="Deployment filters" [applied]="[{ id: 'region', label: 'Region: Europe West' }]"><select aria-label="Region"></select></arena-filter-bar>` })
+class FilterBarHost {}
+@Component({ selector: 'locale-sentinel-filter-bar-held-host', standalone: true, imports: [ArenaFilterBar], template: `<arena-filter-bar label="Deployment filters" [applied]="[{ id: 'region', label: 'Region: Europe West' }]" [clearable]="false"><select aria-label="Region"></select></arena-filter-bar>` })
+class FilterBarHeldHost {}
+@Component({ selector: 'locale-sentinel-slider-host', standalone: true, imports: [ArenaSlider], template: `<arena-slider label="Volume" [value]="40" valueSuffix="%" hint="Applies to every output." />` })
+class SliderHost {}
+@Component({ selector: 'locale-sentinel-slider-range-host', standalone: true, imports: [ArenaSlider], template: `<arena-slider label="Price" range [value]="20" [valueEnd]="75" valuePrefix="~" [showLabel]="false" />` })
+class SliderRangeHost {}
 
 @Component({ standalone: true, imports: [ArenaBulkActionBar], template: `<arena-bulk-action-bar [count]="3" [actions]="[{ id: 'archive', label: 'Archive' }]" />` })
 class BulkHost {}
 
 @Component({ standalone: true, imports: [ArenaCommandPalette], template: `<arena-command-palette [open]="true" [commands]="[{ id: 'deploy', label: 'Deploy' }]" />` })
 class PaletteHost {}
+
+@Component({ standalone: true, imports: [ArenaCombobox], template: `<arena-combobox label="Region" placeholder="Search regions" [options]="[]" />` })
+class ComboboxEmptyHost {}
+
+@Component({ standalone: true, imports: [ArenaCombobox], template: `<arena-combobox label="Region" placeholder="Search regions" [options]="[]" [loading]="true" />` })
+class ComboboxLoadingHost {}
+
+@Component({ standalone: true, imports: [ArenaCombobox], template: `<arena-combobox label="Region" placeholder="Search regions" [options]="[{ value: 'eu-west', label: 'Europe West' }]" />` })
+class ComboboxCountHost {}
+
+@Component({ standalone: true, imports: [ArenaMultiSelect], template: `<arena-multi-select label="Regions" placeholder="Search regions" [options]="[]" />` })
+class MultiSelectEmptyHost {}
+
+@Component({ standalone: true, imports: [ArenaMultiSelect], template: `<arena-multi-select label="Regions" placeholder="Search regions" [options]="[]" [loading]="true" />` })
+class MultiSelectLoadingHost {}
+
+@Component({ standalone: true, imports: [ArenaMultiSelect], template: `<arena-multi-select label="Regions" placeholder="Search regions" [options]="[{ value: 'eu-west', label: 'Europe West' }]" />` })
+class MultiSelectCountHost {}
+
+@Component({
+  standalone: true,
+  imports: [ArenaMultiSelect],
+  template: `<arena-multi-select label="Regions" [options]="[{ value: 'eu-north', label: 'Europe North' }, { value: 'eu-west', label: 'Europe West' }]"
+                                 [value]="['eu-west']" [max]="1" [maxVisible]="0" [clearable]="true" />`,
+})
+class MultiSelectCapHost {}
 
 @Component({
   standalone: true,
@@ -184,10 +291,22 @@ class AvatarHost {}
 @Component({ standalone: true, imports: [ArenaLineChart], template: `<arena-line-chart label="Latency" [labels]="['Mon', 'Tue']" [series]="[{ label: 'p95', values: [1, 2] }]" />` })
 class LineHost {}
 
-@Component({ standalone: true, imports: [ArenaBarChart], template: `<arena-bar-chart label="Builds" [labels]="['Mon', 'Tue']" [series]="[{ label: 'ok', values: [1, 2] }]" />` })
+@Component({ selector: 'locale-sentinel-sparkline-host', standalone: true, imports: [ArenaSparkline], template: `<arena-sparkline label="Latency" [labels]="['Mon', 'Tue']" [series]="[{ label: 'p95', values: [1, 2] }]" />` })
+class SparklineHost {}
+
+@Component({ selector: 'locale-sentinel-gauge-host', standalone: true, imports: [ArenaGaugeChart], template: `<arena-gauge-chart label="CPU load" [value]="72" [bands]="[{ from: 0, tone: 'success', label: 'Healthy' }, { from: 60, tone: 'warning', label: 'Elevated' }]" />` })
+class GaugeHost {}
+
+@Component({ selector: 'locale-sentinel-funnel-host', standalone: true, imports: [ArenaFunnelChart], template: `<arena-funnel-chart label="Trial conversion" [labels]="['Visits', 'Sign-ups']" [series]="[{ label: 'Accounts', values: [100, 40] }]" />` })
+class FunnelHost {}
+
+@Component({ selector: 'locale-sentinel-heatmap-host', standalone: true, imports: [ArenaHeatmapChart], template: `<arena-heatmap-chart label="Sign-ups by hour" [labels]="['00', '01']" [series]="[{ label: 'Mon', values: [4, 9] }]" />` })
+class HeatmapHost {}
+
+@Component({ selector: 'locale-sentinel-bar-host', standalone: true, imports: [ArenaBarChart], template: `<arena-bar-chart label="Builds" [labels]="['Mon', 'Tue']" [series]="[{ label: 'ok', values: [1, 2] }]" />` })
 class BarHost {}
 
-@Component({ standalone: true, imports: [ArenaHorizontalBarChart], template: `<arena-horizontal-bar-chart label="Builds" [labels]="['Mon', 'Tue']" [series]="[{ label: 'ok', values: [1, 2] }]" />` })
+@Component({ selector: 'locale-sentinel-horizontal-bar-host', standalone: true, imports: [ArenaHorizontalBarChart], template: `<arena-horizontal-bar-chart label="Builds" [labels]="['Mon', 'Tue']" [series]="[{ label: 'ok', values: [1, 2] }]" />` })
 class HorizontalBarHost {}
 
 @Component({
@@ -220,10 +339,22 @@ const CASES: Record<string, Case> = {
   ArenaSheet: { hosts: [SheetHost], consumer: ['Filters', 'Body'] },
   ArenaAlert: { hosts: [AlertHost], consumer: ['Heads up', 'Body'] },
   ArenaTag: { hosts: [TagHost], consumer: ['Beta'] },
+  ArenaLink: { hosts: [LinkHost], consumer: ['Release notes'] },
   ArenaSkeleton: { hosts: [SkeletonHost], consumer: [] },
+  ArenaTimeline: { hosts: [TimelineHost], consumer: ['Order 4821', 'Placed', 'Mar 3', 'Shipped', 'Delivered'] },
+  ArenaStepper: { hosts: [StepperHost], consumer: ['Checkout', 'Account', 'Shipping', 'Two addresses', 'Payment'] },
+  ArenaMeter: { hosts: [MeterHost], consumer: ['Storage used', '30 of 100 GB', '72 of 100 GB', '91 of 100 GB'] },
   ArenaSpinner: { hosts: [SpinnerHost], consumer: [] },
   ArenaSwitch: { hosts: [SwitchHost], consumer: ['Auto deploy'] },
+  ArenaFileInput: { hosts: [FileInputHost, FileInputDropHost], consumer: ['Passport scan'] },
+  ArenaNumberField: { hosts: [NumberFieldHost, NumberFieldAffixHost], consumer: ['Replicas', 'Between 1 and 20.', 'Weight', '~', 'kg'] },
+  ArenaPinInput: { hosts: [PinInputHost, PinInputMaskedHost], consumer: ['Verification code', 'Sent to your phone.', 'Device PIN', 'Wrong PIN.'] },
+  ArenaFilterBar: { hosts: [FilterBarHost, FilterBarHeldHost], consumer: ['Deployment filters', 'Region: Europe West', 'Region'], narrow: true },
+  ArenaSlider: { hosts: [SliderHost, SliderRangeHost], consumer: ['Volume', 'Applies to every output.', 'Price', '~'] },
   ArenaBulkActionBar: { hosts: [BulkHost], consumer: ['Archive'] },
+  ArenaCopyButton: { hosts: [CopyButtonHost], consumer: [] },
+  ArenaCombobox: { hosts: [ComboboxEmptyHost, ComboboxLoadingHost, ComboboxCountHost], consumer: ['Region', 'Search regions', 'Europe West', 'Eur'] },
+  ArenaMultiSelect: { hosts: [MultiSelectEmptyHost, MultiSelectLoadingHost, MultiSelectCountHost, MultiSelectCapHost], consumer: ['Regions', 'Search regions', 'Europe West', 'Europe North', 'Eur'] },
   ArenaCommandPalette: { hosts: [PaletteHost], consumer: ['Deploy', 'zzz'] },
   ArenaOnboarding: { hosts: [OnboardingHost], consumer: ['One', 'Two', 'Three'] },
   ArenaConfirmDialog: { hosts: [ConfirmHost], consumer: ['Delete project', 'atlas', 'Gone for good'] },
@@ -236,6 +367,10 @@ const CASES: Record<string, Case> = {
   ArenaDoughnutChart: { hosts: [DoughnutHost], consumer: ['Share', 'share', 'A', 'B'] },
   ArenaRadarChart: { hosts: [RadarHost], consumer: ['Skills', 'Go', 'TS', 'SQL', 'Ada'] },
   ArenaScatterChart: { hosts: [ScatterHost], consumer: ['Load', 'Requests', 'Latency', 'Staging'] },
+  ArenaSparkline: { hosts: [SparklineHost], consumer: ['Latency', 'Mon', 'Tue', 'p95'] },
+  ArenaGaugeChart: { hosts: [GaugeHost], consumer: ['CPU load', 'Healthy', 'Elevated'] },
+  ArenaFunnelChart: { hosts: [FunnelHost], consumer: ['Trial conversion', 'Visits', 'Sign-ups', 'Accounts'] },
+  ArenaHeatmapChart: { hosts: [HeatmapHost], consumer: ['Sign-ups by hour', '00', '01', 'Mon'] },
 };
 
 const DRAWS_MEMBERS = 'every string it renders is a member, a slot or a datum the consumer supplies';
@@ -244,6 +379,8 @@ const DRAWN_BY_TOAST = 'the words it shows are ArenaToast\'s, which has its own 
 
 const NO_WORDS: Record<string, string> = {
   ArenaCalendarEvent: DRAWN_BY_A_CASE,
+  ArenaAccordion: DRAWS_MEMBERS,
+  ArenaAccordionItem: DRAWS_MEMBERS,
   ArenaActivityFeed: DRAWS_MEMBERS,
   ArenaAppBar: DRAWS_MEMBERS,
   ArenaAppLogo: DRAWS_MEMBERS,
@@ -257,19 +394,26 @@ const NO_WORDS: Record<string, string> = {
   ArenaCard: DRAWS_MEMBERS,
   ArenaChartCard: DRAWS_MEMBERS,
   ArenaCheckbox: DRAWS_MEMBERS,
+  ArenaCheckboxGroup: DRAWS_MEMBERS,
   ArenaDialog: DRAWS_MEMBERS,
+  ArenaDivider: DRAWS_MEMBERS,
   ArenaEmptyState: DRAWS_MEMBERS,
+  ArenaFieldset: DRAWS_MEMBERS,
   ArenaFigure: DRAWS_MEMBERS,
   ArenaGrid: DRAWS_MEMBERS,
   ArenaHero: DRAWS_MEMBERS,
   ArenaIconButton: DRAWS_MEMBERS,
   ArenaInput: DRAWS_MEMBERS,
+  ArenaIcon: DRAWS_MEMBERS,
+  ArenaKbd: DRAWS_MEMBERS,
   ArenaKeyValue: DRAWS_MEMBERS,
   ArenaMain: DRAWS_MEMBERS,
   ArenaMenu: DRAWS_MEMBERS,
   ArenaPageHead: DRAWS_MEMBERS,
+  ArenaPaletteScope: DRAWS_MEMBERS,
   ArenaPeopleList: DRAWS_MEMBERS,
   ArenaPersonRow: DRAWS_MEMBERS,
+  ArenaPopover: DRAWS_MEMBERS,
   ArenaProgressBar: DRAWS_MEMBERS,
   ArenaRadio: DRAWS_MEMBERS,
   ArenaRadioGroup: DRAWS_MEMBERS,
@@ -284,6 +428,7 @@ const NO_WORDS: Record<string, string> = {
   ArenaSideNavSection: DRAWS_MEMBERS,
   ArenaSiteFooter: DRAWS_MEMBERS,
   ArenaSkipLink: DRAWS_MEMBERS,
+  ArenaSplitButton: DRAWS_MEMBERS,
   ArenaStatCard: DRAWS_MEMBERS,
   ArenaTab: DRAWS_MEMBERS,
   ArenaTableCell: DRAWS_MEMBERS,
@@ -292,6 +437,7 @@ const NO_WORDS: Record<string, string> = {
   ArenaTextarea: DRAWS_MEMBERS,
   ArenaToastHost: DRAWN_BY_TOAST,
   ArenaTooltip: DRAWS_MEMBERS,
+  ArenaTreeView: DRAWS_MEMBERS,
   ArenaUnauthCard: DRAWS_MEMBERS,
 };
 
@@ -313,6 +459,36 @@ async function wordsOf(host: Type<unknown>, name: string, allowed: string[]): Pr
     await fixture.whenStable();
     fixture.detectChanges();
     const root = fixture.nativeElement as HTMLElement;
+    if (name === 'ArenaCombobox' || name === 'ArenaMultiSelect') {
+      const input = root.querySelector<HTMLInputElement>('[role="combobox"]');
+      if (input) { input.focus(); input.value = 'Eur'; input.dispatchEvent(new Event('input', { bubbles: true })); }
+      fixture.detectChanges();
+      const cursor = root.ownerDocument.getElementById(input?.getAttribute('aria-activedescendant') ?? '');
+      if (input && cursor?.getAttribute('aria-disabled') === 'true') {
+        input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true }));
+        fixture.detectChanges();
+      }
+      const pane = root.ownerDocument.querySelector<HTMLElement>('.cdk-overlay-container');
+      return [...strayWords(root, allowed), ...(pane ? strayWords(pane, allowed) : [])];
+    }
+    if (name === 'ArenaCopyButton') {
+      const realClipboard = Object.getOwnPropertyDescriptor(navigator, 'clipboard');
+      const found: string[] = [...strayWords(root, allowed)];
+      try {
+        for (const [writeText, word] of [[async () => {}, '⟦copyButtonCopied⟧'], [null, '⟦copyButtonFailed⟧']] as const) {
+          Object.defineProperty(navigator, 'clipboard', { configurable: true, value: writeText ? { writeText } : undefined });
+          root.querySelector('button')?.click();
+          for (let i = 0; i < 3; i += 1) await Promise.resolve();
+          fixture.detectChanges();
+          assert.equal(root.querySelector('[role="status"]')?.textContent, word, 'the press said nothing, so this case reached no word');
+          found.push(...strayWords(root, allowed));
+        }
+      } finally {
+        if (realClipboard) Object.defineProperty(navigator, 'clipboard', realClipboard);
+        else delete (navigator as { clipboard?: unknown }).clipboard;
+      }
+      return found;
+    }
     if (name === 'ArenaCommandPalette') {
       const input = root.querySelector('input');
       if (input) { input.value = 'zzz'; input.dispatchEvent(new Event('input', { bubbles: true })); }
@@ -321,6 +497,7 @@ async function wordsOf(host: Type<unknown>, name: string, allowed: string[]): Pr
     return strayWords(root, allowed);
   } finally {
     fixture.destroy();
+    disposeOverlays();
     TestBed.resetTestingModule();
   }
 }
@@ -329,13 +506,11 @@ for (const [name, one] of Object.entries(CASES)) {
   test(`${name} draws no word the locale does not answer`, async () => {
     const allowed = [...one.consumer, ...(one.accept?.() ?? [])];
     const restore = one.narrow ? stubResize(320) : () => {};
-    if (one.narrow) document.documentElement.style.setProperty('--bp-md', '768px');
     const found: string[] = [];
     try {
       for (const host of one.hosts) found.push(...(await wordsOf(host, name, allowed)));
     } finally {
       restore();
-      if (one.narrow) document.documentElement.style.removeProperty('--bp-md');
     }
     assert.deepEqual(found, [], `${name} still draws: ${found.join(' | ')}`);
   });

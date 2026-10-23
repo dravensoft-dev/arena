@@ -18,8 +18,8 @@ signal I/O. The host stays bare and unstyled, and Arena's own styling lands on a
 |---|---|---|---|---|
 | `content` | slot |  |  | The button's label. Sits between the two icons when both are given. |
 | `destructive` | primitive | `boolean` | `false` | Whether the action destroys or removes something. Destructive draws the danger outline whatever emphasis the button is given: danger is never filled outside ArenaConfirmDialog's final confirmation. |
-| `icon` | primitive | `string` |  | Phosphor class name drawn before the label. Replaced by the spinner while loading. |
-| `iconRight` | primitive | `string` |  | Phosphor class name drawn after the label: a caret on a menu trigger, an arrow on a next action. |
+| `icon` | primitive | `string` |  | Phosphor class name drawn before the label through ArenaIcon. Replaced by the spinner while loading. |
+| `iconRight` | primitive | `string` |  | Phosphor class name drawn after the label through ArenaIcon: a caret on a menu trigger, an arrow on a next action. |
 | `loading` | primitive | `boolean` | `false` | Replaces the leading icon with a spinner and blocks activation. The spin slows under reduced motion rather than stopping: a frozen spinner reads as a hung process. |
 | `disabled` | primitive | `boolean` | `false` | Blocks activation and dims the control. Implied by loading. |
 | `type` | enum | `ArenaButtonType` | `"button"` | Native button behaviour. Defaults to 'button' so a button inside a form does not submit it by accident. |
@@ -27,7 +27,7 @@ signal I/O. The host stays bare and unstyled, and Arena's own styling lands on a
 | `value` | primitive | `string` |  | The value submitted under `name`. |
 | `autoFocus` | primitive | `boolean` | `false` | Focused on mount. |
 | `form` | primitive | `string` |  | The id of the form this button belongs to, when it is not a descendant of it. |
-| `tabStop` | primitive | `boolean` | `true` | Whether the control is reached from the page's Tab sequence. Set false when it lives inside a composite that manages its own focus (a grid with a roving tab stop, a menu), where reaching it by Tab would be a second way in. Arena writes tabindex="-1" and the control stays programmatically focusable; a positive tab order is not expressible and never should be. Arena's own table is NOT that composite: its grid deliberately has no step-in, so a control in a cell keeps its place in the page Tab sequence and setting this false there takes away its only keyboard route, since the cursor moves by cell and Enter activates the row. |
+| `tabStop` | primitive | `boolean` | `true` | Whether the control is reached from the page's Tab sequence. Set false when it lives inside a composite that manages its own focus (a grid with a roving tab stop, a menu). Reaching it by Tab there would be a second way in. Arena writes tabindex="-1" and the control stays programmatically focusable; a positive tab order is not expressible and never should be. Arena's own table is NOT that composite: its grid deliberately has no step-in, so a control in a cell keeps its place in the page Tab sequence. Setting this false there takes away its only keyboard route, since the cursor moves by cell and Enter activates the row. |
 | `click` | event |  |  | The button was activated, by pointer or by keyboard. |
 
 <!-- @api end -->
@@ -47,6 +47,8 @@ signal I/O. The host stays bare and unstyled, and Arena's own styling lands on a
 - `Space`: activate.
 - `Enter`: activate.
 <!-- @keys end -->
+
+**Arena's popover and menu write the popup state onto the inner `<button>`.** ARIA written on `<arena-button>` itself names nothing, since the host draws no box.
 
 **Do / Don't**
 - Use `destructive` for a destructive action, at every emphasis: transparent background, border and text in

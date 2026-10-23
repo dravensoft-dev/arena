@@ -1,12 +1,12 @@
 import { ChangeDetectionStrategy, Component, computed, ElementRef, inject, input, output, signal, viewChild } from '@angular/core';
 import { arenaContainerWidth } from '../../../ContainerSize';
-import { ARENA_CHART_HEIGHT, ARENA_SR_ONLY, arenaValueWriter } from '../../../DataVisuals';
+import { ARENA_CHART_HEIGHT, ARENA_SR_ONLY, arenaValueWriter, arenaCatRotate } from '../../../DataVisuals';
 import { arenaDoughnutSlices } from '../ChartScales';
 import { arenaArcPath } from '../ChartMarks';
 import { arenaDoughnutRadii } from '../ChartAxis';
 import { arenaLegendPlotWidth, arenaLegendStacked } from '../ChartLegend';
 import { arenaChartTable, arenaOneSeries, arenaSeriesColors, arenaSwatchChoice } from '../ChartSeries';
-import type { ArenaChartLegendLayout, ArenaChartShape, ArenaNumberFormat, ArenaSeries } from '../../../Api.generated';
+import type { ArenaCatSlot, ArenaChartLegendLayout, ArenaChartShape, ArenaNumberFormat, ArenaSeries } from '../../../Api.generated';
 import { arenaDoughnutChartStyles } from './ArenaDoughnutChart.variants';
 import manifest from './ArenaDoughnutChart.classes.generated';
 import { ARENA_LOCALE } from '../../../ArenaLocale';
@@ -66,15 +66,17 @@ const CENTRE_LABEL_STYLE = { fontSize: 'var(--dz-text-lg)' } as const satisfies 
       }
     </div>
 
-    <table [style]="arenaSrOnly">
-      <caption>{{ name() }}</caption>
-      <thead><tr>@for (column of table().columns; track $index) { <th>{{ column }}</th> }</tr></thead>
-      <tbody>
-        @for (row of table().rows; track $index) {
-          <tr><th scope="row">{{ row.header }}</th>@for (cell of row.cells; track $index) { <td>{{ cell }}</td> }</tr>
-        }
-      </tbody>
-    </table>
+    <div [style]="arenaSrOnly">
+      <table>
+        <caption>{{ name() }}</caption>
+        <thead><tr>@for (column of table().columns; track $index) { <th>{{ column }}</th> }</tr></thead>
+        <tbody>
+          @for (row of table().rows; track $index) {
+            <tr><th scope="row">{{ row.header }}</th>@for (cell of row.cells; track $index) { <td>{{ cell }}</td> }</tr>
+          }
+        </tbody>
+      </table>
+    </div>
     </div>
   `,
 })
@@ -82,9 +84,15 @@ export class ArenaDoughnutChart {
   protected readonly locale = inject(ARENA_LOCALE);
   /** One label per slice, in the same order as the series' `values`. A label with no value at its index is dropped. */
   readonly labels = input.required<readonly string[]>();
-  /** The parts, as one series whose values are read as shares of their own total. Exactly one series: a ring of two series is a sunburst, which is a different chart and not this one, so a second warns in development and is ignored. Per-slice identity goes in that series' `colorIds`. */
+  /** The parts, as one series whose values are read as shares of their own total. Exactly one series: a ring of two series is a sunburst, which is a different chart and not this one. A second series warns in development and is ignored. Per-slice identity goes in that series' `colorIds`. */
   readonly series = input.required<readonly ArenaSeries[]>();
-  /** Names the chart for its accessible name and for the caption of its data table. Required and guarded rather than defaulted, because a fallback of the chart TYPE satisfies roles.label mechanically and tells a screen-reader user nothing, so two charts on one page announce identically. */
+
+  /** The ramp slot the first slice takes when the series gives no `colorIds`. Each later slice takes the next slot, and after the last slot the count starts again at the first. A slice past the end of `colorIds` takes the slot its position gives, counted the same way. Absent, 1. */
+  readonly colorStart = input<ArenaCatSlot, ArenaCatSlot | undefined>(
+    1,
+    { transform: (value) => value ?? 1 },
+  );
+  /** Names the chart for its accessible name and for the caption of its data table. Required and guarded rather than defaulted, because a fallback of the chart TYPE would satisfy roles.label mechanically and tell a screen-reader user nothing. Two doughnuts on one page would then announce identically. */
   readonly label = input.required<string>();
   /** Appended verbatim to every number the chart draws: the legend value and the accessible table. Not the centre label, which is a percentage rather than a value. */
   readonly valueSuffix = input<string>();
@@ -92,17 +100,17 @@ export class ArenaDoughnutChart {
   readonly valuePrefix = input<string>();
   /** How each number is written before the prefix and suffix are added: which locale, how many fraction digits, whether thousands are grouped, whether large numbers are compacted. Absent, the raw JavaScript number, which is what this chart drew before the member existed. */
   readonly valueFormat = input<ArenaNumberFormat>();
-  /** Whether the ring keeps its hole or fills to the centre. 'pie' is the same chart with the same slices, the same legend and the same table, drawn solid. It costs the centre percentage, which has nowhere to go once the hole is gone: over a wedge it would put the heading ink on a --color-cat slot, a pair nothing checks for contrast because nothing else draws it. The figure is not lost, it is in the legend row and in the accessible table, which is where every other number the chart writes already is. */
+  /** Whether the ring keeps its hole or fills to the centre. 'pie' is the same chart with the same slices, the same legend and the same table, drawn solid. The pie costs the centre percentage, which has nowhere to go once the hole is gone. Over a wedge it would put the heading ink on a --color-cat slot, a pair nothing checks for contrast because nothing else draws it. The figure is not lost, it is in the legend row and in the accessible table, which is where every other number the chart writes already is. */
   readonly shape = input<ArenaChartShape, ArenaChartShape | undefined>(
     'doughnut',
     { transform: (value) => value ?? 'doughnut' },
   );
-  /** How each legend row arranges its label and its figure. 'inline' puts them on one line, which is what fits a wide tile; 'stacked' puts the label above the figure; 'auto' measures the legend column and stacks when the row does not give. It exists because the two do not degrade equally: on one line the figure does not yield, so the label is what gets truncated, and a legend of numbers with nothing saying what they count is the opposite of a legend. The threshold is already declared, as the chart-legend-min and chart-legend-max tokens the ring width is clamped between; what was missing was the behaviour. */
+  /** How each legend row arranges its label and its figure. 'inline' puts them on one line, which is what fits a wide tile. 'stacked' puts the label above the figure. 'auto' measures the legend column and stacks when the row does not give. The member exists because the two do not degrade equally: on one line the figure does not yield, so the label is what gets truncated. A legend of numbers with nothing saying what they count is the opposite of a legend. The threshold is already declared, as the chart-legend-min and chart-legend-max tokens the ring width is clamped between; what was missing was the behaviour. */
   readonly legendLayout = input<ArenaChartLegendLayout, ArenaChartLegendLayout | undefined>(
     'auto',
     { transform: (value) => value ?? 'auto' },
   );
-  /** A slice was activated, by pointer on the arc or on its legend row, or by keyboard on that row, which is a real button and answers Enter and Space without the component binding either. It carries the slice's index in the series' `values`. **In `values`, never in the drawn paths**, and that is the whole member: a slice worth zero paints nothing, so the shapes on screen and the entries in the array are two different lists, and a consumer indexing the SVG has to reproduce that omission from outside to translate one into the other. It is reverse engineering of a component's own DOM, which the next release breaks in silence. */
+  /** A slice was activated, by pointer on the arc or on its legend row, or by keyboard on that row. The row is a real button and answers Enter and Space without the component binding either. The event carries the slice's index in the series' `values`. **In `values`, never in the drawn paths**: that is the whole member. A slice worth zero paints nothing, so the shapes on screen and the entries in the array are two different lists. A consumer indexing the SVG has to reproduce that omission from outside to translate one into the other. Indexing the drawn paths is reverse engineering of a component's own DOM, which the next release breaks in silence. */
   readonly sliceActivate = output<number>();
 
   protected readonly parts = manifest.parts;
@@ -129,7 +137,9 @@ export class ArenaDoughnutChart {
   protected readonly styles = computed(() => arenaDoughnutChartStyles({ stacked: this.stacked() }));
 
   protected readonly name = computed(() => {
-    return arenaPhrase(this.shape() === 'pie' ? this.locale.doughnutChartPieName : this.locale.doughnutChartName, { label: this.label() });
+    const label = this.label();
+    if (!label) throw new Error('ArenaDoughnutChart: `label` is required (it names the chart for the accessible name, and nothing can derive that)');
+    return arenaPhrase(this.shape() === 'pie' ? this.locale.doughnutChartPieName : this.locale.doughnutChartName, { label });
   });
 
   protected readonly arenaPlotWidth = computed(() => arenaLegendPlotWidth(this.width()));
@@ -144,9 +154,8 @@ export class ArenaDoughnutChart {
     const only = this.only();
     const values = only.values;
 
-    const colors = arenaSeriesColors(
-      { ...only, colorIds: only.colorIds ?? values.map((_, index) => index + 1) }, values.length, 1,
-    );
+    const coloured = only.tone ? only : { ...only, colorIds: only.colorIds ?? values.map((_, index) => arenaCatRotate(this.colorStart(), index)) };
+    const colors = arenaSeriesColors(coloured, values.length, arenaCatRotate(this.colorStart(), 0), 'ArenaDoughnutChart', this.colorStart());
     const write = this.write();
     const centreX = this.centreX();
     const centreY = this.centreY();
@@ -154,7 +163,7 @@ export class ArenaDoughnutChart {
     return arenaDoughnutSlices(values).map((slice) => ({
       ...slice,
       color: colors[slice.index],
-      swatch: arenaDoughnutChartStyles(arenaSwatchChoice({ ...only, colorIds: only.colorIds ?? values.map((_, at) => at + 1) }, 1, slice.index)).$data.legendSwatch(),
+      swatch: arenaDoughnutChartStyles(arenaSwatchChoice(coloured, arenaCatRotate(this.colorStart(), 0), slice.index, this.colorStart())).$data.legendSwatch(),
       label: this.labels()[slice.index] ?? '',
       formatted: write(values[slice.index]),
       path: slice.to > slice.from ? arenaArcPath(centreX, centreY, outer, inner, slice.from, slice.to) : '',

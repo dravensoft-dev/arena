@@ -2,7 +2,7 @@ import {
   booleanAttribute, ChangeDetectionStrategy, Component, computed, ElementRef, inject, input, signal, viewChild,
 } from '@angular/core';
 import { arenaContainerWidth } from '../../../ContainerSize';
-import { ARENA_CHART_HEIGHT, ARENA_INK_MUTED, ARENA_SR_ONLY, arenaAreaFill, arenaValueWriter } from '../../../DataVisuals';
+import { ARENA_CHART_HEIGHT, ARENA_INK_MUTED, ARENA_SR_ONLY, arenaAreaFill, arenaValueWriter, arenaCatRotate } from '../../../DataVisuals';
 import { arenaLinearScale, arenaScaleValue } from '../ChartScales';
 import { arenaLinePoints } from '../ChartMarks';
 import {
@@ -16,7 +16,7 @@ import { arenaTooltipAnchor } from '../ChartTooltip';
 import { arenaCursorHandles, arenaCursorStep, arenaPointerClears, arenaPointerUpdates } from '../ChartPointer';
 import { arenaRadarChartStyles } from './ArenaRadarChart.variants';
 import manifest from './ArenaRadarChart.classes.generated';
-import type { ArenaNumberFormat, ArenaSeries } from '../../../Api.generated';
+import type { ArenaCatSlot, ArenaNumberFormat, ArenaSeries } from '../../../Api.generated';
 import { chartPointR, chartPointRHover } from '../../../Tokens.generated';
 import { ARENA_LOCALE } from '../../../ArenaLocale';
 import { ArenaSlotAttributes } from '../../../SlotData';
@@ -107,15 +107,17 @@ const SERIES_STROKE_STYLE = { strokeWidth: 'var(--bw-strong)' } as const satisfi
       </div>
     }
 
-    <table [style]="arenaSrOnly">
-      <caption>{{ name() }}</caption>
-      <thead><tr>@for (column of table().columns; track $index) { <th>{{ column }}</th> }</tr></thead>
-      <tbody>
-        @for (row of table().rows; track $index) {
-          <tr><th scope="row">{{ row.header }}</th>@for (cell of row.cells; track $index) { <td>{{ cell }}</td> }</tr>
-        }
-      </tbody>
-    </table>
+    <div [style]="arenaSrOnly">
+      <table>
+        <caption>{{ name() }}</caption>
+        <thead><tr>@for (column of table().columns; track $index) { <th>{{ column }}</th> }</tr></thead>
+        <tbody>
+          @for (row of table().rows; track $index) {
+            <tr><th scope="row">{{ row.header }}</th>@for (cell of row.cells; track $index) { <td>{{ cell }}</td> }</tr>
+          }
+        </tbody>
+      </table>
+    </div>
     </div>
   `,
 })
@@ -123,9 +125,14 @@ export class ArenaRadarChart {
   protected readonly locale = inject(ARENA_LOCALE);
   /** One label per axis, in the same order as every series' `values`, running clockwise from 12 o'clock. Keep the count small: past eight or so the labels collide and the shape stops being readable, which is a limit of the form rather than of the drawing. */
   readonly labels = input.required<readonly string[]>();
-  /** The plotted series, drawn as one closed polygon each over the same axes. The shape is the reading, so two or three series is the useful case and more is a tangle. The ramp clamps at its last slot rather than cycling. */
+  /** The plotted series, drawn as one closed polygon each over the same axes. The shape is the reading, so two or three series is the useful case and more is a tangle. After the last slot the positional count starts again at the first, so fold a ninth series into "Other" upstream. */
   readonly series = input.required<readonly ArenaSeries[]>();
-  /** Names the chart for its accessible name and for the caption of its data table. This is the CHART's name, not a series': a series names itself. Required and guarded rather than defaulted, because a fallback of the chart TYPE satisfies roles.label mechanically and tells a screen-reader user nothing. */
+  /** The ramp slot the first series takes when it names no colour of its own. Each later series takes the next slot, and after the last slot the count starts again at the first. A series' `colorId` or `colorIds` keeps the slot it names. Absent, 1. */
+  readonly colorStart = input<ArenaCatSlot, ArenaCatSlot | undefined>(
+    1,
+    { transform: (value) => value ?? 1 },
+  );
+  /** Names the chart for its accessible name and for the caption of its data table. The CHART's name is wanted here, not a series': a series names itself. Required and guarded rather than defaulted, because a fallback of the chart TYPE satisfies roles.label mechanically and tells a screen-reader user nothing. */
   readonly label = input.required<string>();
   /** Fill each polygon at 18% of its series colour: a tint, never a gradient. Useful for one series, where the filled area reads as a footprint. Past one the fills overlap and the reader cannot tell which polygon an overlap belongs to, so leave it off and let the outlines carry the shape. */
   readonly fill = input(false, { transform: booleanAttribute });
@@ -163,7 +170,9 @@ export class ArenaRadarChart {
   private readonly width = computed(() => this.measured() ?? ASSUMED_WIDTH);
 
   protected readonly name = computed(() => {
-    return arenaPhrase(this.locale.radarChartName, { label: this.label() });
+    const label = this.label();
+    if (!label) throw new Error('ArenaRadarChart: `label` is required (it names the chart for the accessible name, and nothing can derive that)');
+    return arenaPhrase(this.locale.radarChartName, { label });
   });
 
   private readonly axes = computed(() => arenaSeriesPointCount(this.series()));
@@ -184,7 +193,7 @@ export class ArenaRadarChart {
   });
 
   protected readonly colors = computed(
-    () => this.series().map((one, index) => arenaSeriesColors(one, 1, index + 1)[0] as string),
+    () => this.series().map((one, index) => arenaSeriesColors(one, 1, arenaCatRotate(this.colorStart(), index), 'ArenaRadarChart', this.colorStart())[0] as string),
   );
 
   protected readonly rings = computed(() => {
@@ -248,7 +257,7 @@ export class ArenaRadarChart {
   protected readonly legend = computed(() => {
     if (this.strip().stripH === 0) return null;
     return this.series().map((one, index) => ({
-      index, label: one.label, swatch: arenaRadarChartStyles(arenaSwatchChoice(one, index + 1)).$data.legendSwatch(),
+      index, label: one.label, swatch: arenaRadarChartStyles(arenaSwatchChoice(one, arenaCatRotate(this.colorStart(), index), 0, this.colorStart())).$data.legendSwatch(),
     }));
   });
 

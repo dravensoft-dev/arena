@@ -1,0 +1,47 @@
+<!-- @dsCard group="Tailwind" viewport="700x420" name="ArenaAccordion" subtitle="Sections under headings, one open or several, rendered from ArenaAccordion.manifest.json" -->
+<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../../../../intro/styles.css">
+<link rel="stylesheet" href="../../../consume/Preflight.generated.css">
+<link rel="stylesheet" href="../../../consume/components/layout/arena-accordion/ArenaAccordion.styles.generated.css">
+<link rel="stylesheet" href="../../../Specimen.css">
+</head><body><div id="root"></div>
+<script type="module">
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor, glyph } from '../../../Specimen.js';
+
+const manifest = await (await fetch('./ArenaAccordion.manifest.json')).json();
+
+function accordion(items, { locked = false } = {}) {
+  const c0 = arenaClassesFor(manifest);
+  const root = el('div', { class: c0.root, ...arenaSlotDataFor(manifest).root });
+  root.style.width = '560px';
+  for (const [label, body, open] of items) {
+    const c = arenaClassesFor(manifest, { open: String(open) });
+    const d = arenaSlotDataFor(manifest, { open: String(open) });
+    const item = el('div', { class: c.item, ...d.item });
+    const heading = el('h3', { class: c.heading, ...d.heading });
+    const trigger = el('button', { class: c.trigger, ...d.trigger, type: 'button', 'aria-expanded': String(open) });
+    if (open && locked) trigger.setAttribute('aria-disabled', 'true');
+    trigger.append(el('span', { class: c.triggerLabel, ...d.triggerLabel, text: label }));
+    trigger.append(glyph(`${c.caret} ph-bold ${open ? 'ph-caret-down' : 'ph-caret-right'}`, { ...d.caret }));
+    heading.append(trigger);
+    item.append(heading);
+    const panel = el('div', { class: c.panel, ...d.panel, role: 'group', text: body });
+    if (!open) panel.setAttribute('hidden', '');
+    item.append(panel);
+    root.append(item);
+  }
+  return root;
+}
+
+mountSpecimen({ sections: [
+  section('One open, the others closed', [accordion([
+    ['What ships in this build', 'Build 4821 carries the new checkout flow and two fixes to billing.', true],
+    ['How the rollout runs', 'One region an hour.', false],
+    ['When it rolls back', 'Any region whose error rate doubles.', false],
+  ])], { stack: true }),
+  section('Not collapsible: the open header takes no hover and says it is disabled', [accordion([
+    ['Shipping address', 'Where the order goes.', true],
+    ['Payment', 'How it is paid for.', false],
+  ], { locked: true })], { stack: true }),
+]});
+</script></body></html>

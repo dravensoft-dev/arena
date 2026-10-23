@@ -16,13 +16,19 @@
       "form": "array",
       "of": "ArenaSeries",
       "required": true,
-      "description": "The plotted series, drawn as one closed polygon each over the same axes. The shape is the reading, so two or three series is the useful case and more is a tangle. The ramp clamps at its last slot rather than cycling."
+      "description": "The plotted series, drawn as one closed polygon each over the same axes. The shape is the reading, so two or three series is the useful case and more is a tangle. After the last slot the positional count starts again at the first, so fold a ninth series into \"Other\" upstream."
+    },
+    "colorStart": {
+      "form": "enum",
+      "type": "ArenaCatSlot",
+      "default": 1,
+      "description": "The ramp slot the first series takes when it names no colour of its own. Each later series takes the next slot, and after the last slot the count starts again at the first. A series' `colorId` or `colorIds` keeps the slot it names. Absent, 1."
     },
     "label": {
       "form": "primitive",
       "type": "string",
       "required": true,
-      "description": "Names the chart for its accessible name and for the caption of its data table. This is the CHART's name, not a series': a series names itself. Required and guarded rather than defaulted, because a fallback of the chart TYPE satisfies roles.label mechanically and tells a screen-reader user nothing."
+      "description": "Names the chart for its accessible name and for the caption of its data table. The CHART's name is wanted here, not a series': a series names itself. Required and guarded rather than defaulted, because a fallback of the chart TYPE satisfies roles.label mechanically and tells a screen-reader user nothing."
     },
     "fill": {
       "form": "primitive",

@@ -249,8 +249,8 @@ export function normaliseDoc(text: string) {
 
 export function memberDocs(body: string) {
   const docs = new Map();
-  const re = /\/\*\*([\s\S]*?)\*\/\s*(?:readonly\s+|protected\s+|public\s+)*([A-Za-z_$][\w$]*)/g;
-  for (const match of body.matchAll(re)) docs.set(captured(match, 2), normaliseDoc(captured(match)));
+  const re = /\/\*\*([\s\S]*?)\*\/\s*(?:readonly\s+|protected\s+|public\s+)*(?:([A-Za-z_$][\w$]*)|'([^']*)'|"([^"]*)")/g;
+  for (const match of body.matchAll(re)) docs.set(match[2] ?? match[3] ?? match[4] ?? '', normaliseDoc(captured(match)));
   return docs;
 }
 
@@ -281,6 +281,8 @@ export function reactImplementation(source: string, componentName: string) {
     const entry = raw.trim();
     if (!entry) continue;
     if (entry.startsWith('...')) { rest = entry.slice(3).trim(); continue; }
+    const quoted = /^(?:'([^']*)'|"([^"]*)")\s*:\s*[A-Za-z_$][\w$]*(?:\s*=\s*([\s\S]+))?$/.exec(entry);
+    if (quoted) { defaults.set(quoted[1] ?? quoted[2] ?? '', quoted[3]?.trim() ?? null); continue; }
     const named = /^([A-Za-z_$][\w$]*)\s*=\s*([\s\S]+)$/.exec(entry);
     if (named) { defaults.set(captured(named), captured(named, 2).trim()); continue; }
     if (/^[A-Za-z_$][\w$]*$/.test(entry)) { defaults.set(entry, null); continue; }
@@ -322,9 +324,9 @@ function interfaceMembers(body: string) {
   for (const raw of splitTopLevel(stripComments(body), ';', { brackets: '(){}[]' })) {
     const text = raw.trim();
     if (!text) continue;
-    const m = /^([A-Za-z_$][\w$]*)(\?)?\s*:\s*([\s\S]+)$/.exec(text);
+    const m = /^(?:([A-Za-z_$][\w$]*)|'([^']*)'|"([^"]*)")(\?)?\s*:\s*([\s\S]+)$/.exec(text);
     if (!m) throw new UnrecognisedShape(`unreadable interface member: ${text}`);
-    members.push({ name: captured(m), required: !m[2], ...classify(captured(m, 3)) });
+    members.push({ name: m[1] ?? m[2] ?? m[3] ?? '', required: !m[4], ...classify(captured(m, 5)) });
   }
   return members;
 }
@@ -333,9 +335,26 @@ export const IMPERATIVE_HANDLES = new Map([
   ['ArenaInput.focus', 'None of the nine contract forms is imperative, and returning focus to a field '
     + 'after the transaction it belongs to is settled is a gesture no declarative member expresses: '
     + 'autoFocus fires once at mount, and the caller needs it again on every completion. It is a '
-    + 'method on the class rather than a member, in both layers, and each layer README says so.'],
+    + 'method on the class rather than a member, in both layers, and each layer\'s AGENTS.md says so.'],
   ['ArenaInput.select', 'The same handle, for the case that follows it: focusing a field holding a value '
     + 'the caller expects to be replaced is one keystroke short of useful without it.'],
+  ['ArenaFileInput.files', 'A File is a platform type, so no member and no payload may carry it. The files '
+    + 'reach a host that submits a form through `name`; a host that uploads without a form reads them '
+    + 'here. It is a method because the answer is a snapshot the caller asks for at a moment of their '
+    + 'own choosing, which none of the nine forms expresses.'],
+  ['ArenaFileInput.clear', 'After an upload completes the selection must be emptied, and no controlled '
+    + 'value can say so, because a file selection cannot be set from outside: the platform forbids it. '
+    + 'It fires nothing, since the caller asked.'],
+  ['ArenaNumberField.focus', 'The reason ArenaInput.focus carries, for the field beside it: returning focus '
+    + 'to a number after the step of a wizard it belongs to is settled is a gesture no declarative member '
+    + 'expresses, and autoFocus fires once at mount. A method on the class in both layers, and each '
+    + 'layer\'s AGENTS.md says so.'],
+  ['ArenaNumberField.select', 'The same handle, for the case that follows it: a number the caller expects '
+    + 'to be replaced is selected so the next keystroke replaces it.'],
+  ['ArenaPinInput.focus', 'The reason ArenaInput.focus carries, restated for a code: after a wrong code the '
+    + 'host empties value and needs the first cell focused again, a gesture autoFocus, which fires once at mount, '
+    + 'cannot express and no declarative member does. A method on the class in both layers, and each layer\'s '
+    + 'AGENTS.md says so.'],
 ]);
 
 export function classMembers(source: string, className: string) {

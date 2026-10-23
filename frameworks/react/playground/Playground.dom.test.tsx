@@ -152,6 +152,22 @@ test('a patch bind writes literals, and $delta steps rather than replaces', () =
   assert.equal(held(applyBind(stepped, { index: { $delta: -1 } }, undefined), 'index'), 0);
 });
 
+test('a $field bind copies one payload field, and leaves the knob alone when the payload has none', () => {
+  const payload = { values: ['deploys', 'incidents'] };
+  const after = applyBind(baseState(model), { tags: { $field: 'values' } }, payload);
+  assert.deepEqual(held(after, 'tags'), ['deploys', 'incidents']);
+  assert.notEqual(held(after, 'tags'), payload.values, 'the held array is a copy, never the payload\'s own');
+  assert.equal(after.bound['tags'], true);
+  for (const missing of [undefined, null, {}, 'values']) {
+    const kept = applyBind(baseState(model), { tags: { $field: 'values' } }, missing);
+    assert.equal(held(kept, 'tags'), undefined, String(missing));
+    assert.equal(kept.bound['tags'], undefined, String(missing));
+  }
+  const malformed = applyBind(baseState(model), { tags: { $field: 3 } }, { values: ['deploys'], 3: 'x' });
+  assert.equal(held(malformed, 'tags'), undefined, 'a directive whose field name is no string is never written as a literal');
+  assert.equal(malformed.bound['tags'], undefined);
+});
+
 function Probe({ onReady }: { onReady: (play: ReturnType<typeof usePlayground>) => void }) {
   const play = usePlayground(model);
   onReady(play);

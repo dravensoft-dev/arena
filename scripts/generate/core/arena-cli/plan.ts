@@ -1,50 +1,60 @@
-/* What a build would leave on disk, worked out without leaving anything. themeSheets and
- * iconsSheet are the theme and icons steps with the writes taken out: they read the disk and answer
- * the sheets, their reports and the code a failure carries. plan runs them in order and answers
- * all the sheets or none, so a tree never pairs a new theme with an old icon subset. A named
- * component list is closed against the same map before the config is validated, so a sheet its
- * components draw is never left out, and with no map it is used as written. */
+/* What a build would leave on disk, worked out without leaving anything. themeSheets, fontFiles and
+ * spriteFiles are the theme, font and sprite steps with the writes taken out: they read the disk and
+ * answer the files, their reports and the code a failure carries. plan runs them in order and answers
+ * all the files or none, so a tree never pairs a new theme with an old sprite. The theme is worked
+ * out twice when a font is cut, once to learn the weights it paints and once to name the cut files.
+ * A named component list is closed against the same map before the config is validated, and with no
+ * map it is used as written. A reports-only plan reads each font's weight axis and cuts nothing, so
+ * arena check uses it and arena doctor, which compares bytes, does not. */
 
 import { readFileSync, existsSync } from 'node:fs';
 import { dirname, basename, join, resolve } from 'node:path';
-import { relativeFrom } from './posix.ts';
-import { configProblems, defaultedNote, paletteReports, rootWithDefaults, themeCss, weightReports } from './theme-css.ts';
+import { configProblems, defaultedNote, packageCss, packageImports, paletteReports, rootWithDefaults, runtimeData, themeCss, weightReports } from './theme-css.ts';
 import type { PackageSheets } from './theme-css.ts';
-import { AUTO } from './components.ts';
+import { AUTO, resolve as resolveComponents } from './components.ts';
 import type { ComponentMap } from './components.ts';
-import {
-  scan, drawn, glyphNames, iconsCss, mergeShipped, shippedNames, woff2Source, WEIGHT_CLASSES,
-} from './icon-css.ts';
+import { scan, drawnGlyphs, fillSourceGlyphs, glyphNames, mergeShipped, shippedNames, WEIGHT_CLASSES } from './icon-css.ts';
 import type { IconScan } from './icon-css.ts';
 import { report } from './reports.ts';
 import type { Report } from './reports.ts';
 import {
-  THEME_SHEET, ICONS_SHEET, PLUGIN_SHEET, PLUGIN_LAYER, ICON_MANIFEST,
+  THEME_SHEET, PACKAGE_SHEET, PLUGIN_SHEET, RUNTIME_DATA, PLUGIN_LAYER, ICON_MANIFEST, SPRITE_MODULE, SPRITE_TYPES, SPRITE_STEM,
   iconManifest, pluginCss, pluginSheets, readPlugins,
 } from './sheets.ts';
-import { OUTPUT_SHEETS, missingSource, sourceFiles } from './sources.ts';
+import { OUTPUT_SHEETS, fontFilesIn, missingSource, sourceFiles, spriteFilesIn, writtenFontStems } from './sources.ts';
+import { contentName, glyphFile, spriteModule, spriteSvg } from './sprite.ts';
+import { cutFonts, importedSheets, loadDecoder, loadFontTools } from './font-files.ts';
+import type { FontCuts, FontToolRoots } from './font-files.ts';
+import { fontToolRoots } from './host.ts';
+import { FONT_ROLES } from './palette-keys.ts';
 import { autoComponents, namedComponents, reportLines } from './steps.ts';
 import type { Options } from './args.ts';
+import type { CheckedConfig } from './theme-css.ts';
 import type { resolveEnvironment } from './host.ts';
 
 export type PlanOptions = Pick<Options, 'config' | 'paths' | 'out' | 'importHeader'>;
-export type PlanEnvironment = ReturnType<typeof resolveEnvironment>;
+export type PlanEnvironment = Omit<ReturnType<typeof resolveEnvironment>, 'fontTools'> & { fontTools?: FontToolRoots };
 export type ThemeEnvironment = { packageName: string; sheets: PackageSheets; map?: ComponentMap | null };
-export type OutputSheet = typeof THEME_SHEET | typeof ICONS_SHEET | typeof PLUGIN_SHEET;
-export type SheetOutput = { name: OutputSheet; path: string; content: string; summary: string };
+export type SheetOutput = { name: string; path: string; content: string; summary: string };
+export type BinaryOutput = { name: string; path: string; content: Uint8Array; summary: string };
+export type FileOutput = SheetOutput | BinaryOutput;
 export type Plan = {
   code: 0 | 1 | 2;
   fatal: string[];
   reports: Report[];
   notes: string[];
   outputs: SheetOutput[];
+  binaries: BinaryOutput[];
   orphans: string[];
 };
 export type SheetState = { path: string; state: 'missing' | 'stale' | 'current' };
 
-export function themeSheets(options: PlanOptions, { packageName, sheets, map }: ThemeEnvironment):
-  { code: 0 | 1 | 2; fatal: string[]; reports: Report[]; notes: string[]; sheets: SheetOutput[] } {
-  const stop = (code: 1 | 2, fatal: string[]) => ({ code, fatal, reports: [] as Report[], notes: [] as string[], sheets: [] as SheetOutput[] });
+export function themeSheets(options: PlanOptions, { packageName, sheets, map }: ThemeEnvironment, cuts: FontCuts = {}):
+  { code: 0 | 1 | 2; fatal: string[]; reports: Report[]; notes: string[]; sheets: SheetOutput[]; components: string[] | null;
+    config: CheckedConfig | null; imports: string[] } {
+  const stop = (code: 1 | 2, fatal: string[]) => ({
+    code, fatal, reports: [] as Report[], notes: [] as string[], sheets: [] as SheetOutput[], components: null, config: null, imports: [] as string[],
+  });
   let config;
   try {
     config = JSON.parse(readFileSync(options.config, 'utf8'));
@@ -53,14 +63,23 @@ export function themeSheets(options: PlanOptions, { packageName, sheets, map }: 
   }
 
   const closure = { reports: [] as Report[], notes: [] as string[] };
-  if (config.stylesheet?.components === AUTO) {
-    if (!map) {
-      return stop(1, [`"components": "${AUTO}" reads the component map this package carries, and it is not `
-        + 'beside this command, so nothing can be resolved; name the sheets instead']);
-    }
-    const resolved = autoComponents(config, { paths: options.paths, config: options.config }, map, packageName);
+  const byDefault = config.stylesheet?.components === undefined;
+  let drawn: string[] | null = null;
+  if (byDefault && sheets && !map) {
+    closure.reports.push(report('environment', 'the component map is not beside this package, so every component sheet '
+      + 'is imported instead of the ones the sources draw'));
+  }
+  const asksForAuto = config.stylesheet?.components === AUTO;
+  if (asksForAuto && !map) {
+    return stop(1, [`"components": "${AUTO}" reads the component map this package carries, and it is not `
+      + 'beside this command, so nothing can be resolved; name the sheets instead']);
+  }
+  const resolvesFromMap = asksForAuto || (byDefault && sheets);
+  if (map && resolvesFromMap) {
+    const resolved = autoComponents(config, { paths: options.paths, config: options.config }, map, packageName, !byDefault);
     if (resolved.fatal) return stop(1, resolved.fatal);
-    config = { ...config, stylesheet: { ...config.stylesheet, components: resolved.components } };
+    if (byDefault) drawn = resolved.components;
+    else config = { ...config, stylesheet: { ...config.stylesheet, components: resolved.components } };
     closure.reports.push(...resolved.reports.map((line) => report('components', line)));
     closure.notes.push(resolved.note);
   } else if (Array.isArray(config.stylesheet?.components) && map) {
@@ -76,15 +95,20 @@ export function themeSheets(options: PlanOptions, { packageName, sheets, map }: 
   const problems = configProblems(config, sheets, plugins);
   if (problems.length) return stop(1, problems);
 
+  if (drawn) config = { ...config, stylesheet: { ...config.stylesheet, components: drawn } };
+
   const completed = rootWithDefaults(plugins, sheets?.catalogue ?? null);
   if (completed.defaulted.length) closure.notes.push(defaultedNote(completed.defaulted));
   const reports = [...closure.reports,
     ...reportLines(paletteReports(config, sheets?.catalogue ?? null, completed.plugins, sheets?.levels ?? [], sheets?.washes ?? [])),
-    ...weightReports(config, sheets?.catalogue ?? null, completed.plugins)];
-  const css = themeCss(config, {
-    packageName, importHeader: options.importHeader, source: basename(options.config), sheets, plugins: completed.plugins,
-  });
+    ...weightReports(config, sheets?.catalogue ?? null, completed.plugins, cuts)];
+  const css = themeCss(config, { source: basename(options.config), sheets, plugins: completed.plugins, cuts });
   const out: SheetOutput[] = [{ name: THEME_SHEET, path: join(options.out, THEME_SHEET), content: css, summary: `${css.length} bytes` }];
+  const imports = packageImports(config, { packageName, sheets }) ?? [];
+  if (options.importHeader) {
+    const pack = packageCss(config, { packageName, sheets });
+    out.push({ name: PACKAGE_SHEET, path: join(options.out, PACKAGE_SHEET), content: pack, summary: `${pack.length} bytes` });
+  }
   const layered = pluginCss(pluginSheets(config, from));
   if (layered !== null) {
     out.push({
@@ -94,116 +118,171 @@ export function themeSheets(options: PlanOptions, { packageName, sheets, map }: 
       summary: `${layered.length} bytes, wrapped in @layer ${PLUGIN_LAYER}`,
     });
   }
-  return { code: 0, fatal: [], reports, notes: closure.notes, sheets: out };
+  if (config.runtimePalettes === true) {
+    const data = `${JSON.stringify(runtimeData(config, sheets, completed.plugins), null, 2)}\n`;
+    out.push({ name: RUNTIME_DATA, path: join(options.out, RUNTIME_DATA), content: data, summary: `${data.length} bytes` });
+  }
+  const resolved = map && Array.isArray(config.stylesheet?.components) ? config.stylesheet.components as string[] : null;
+  return { code: 0, fatal: [], reports, notes: closure.notes, sheets: out, components: resolved, config, imports };
 }
 
-export function iconsSheet(options: PlanOptions, { arena, phosphor }: { arena: string | null; phosphor: string | null }):
-  { code: 0 | 1 | 2; fatal: string[]; reports: Report[]; sheet: SheetOutput | null } {
+export type FontEnvironment = ThemeEnvironment & { arena?: string | null; fontTools?: FontToolRoots };
+
+export async function fontFiles(options: PlanOptions, env: FontEnvironment, theme: ReturnType<typeof themeSheets>, dry = false):
+  Promise<{ fatal: string[]; reports: Report[]; cuts: FontCuts; files: BinaryOutput[]; stems: string[] }> {
+  const none = { fatal: [] as string[], reports: [] as Report[], cuts: {} as FontCuts, files: [] as BinaryOutput[], stems: [] as string[] };
+  const config = theme.config;
+  if (!config) return none;
+  const generated = theme.sheets.find((one) => one.name === THEME_SHEET)?.content ?? '';
+  const done = await cutFonts({
+    fonts: config.fonts,
+    roles: Object.keys(FONT_ROLES),
+    from: dirname(resolve(options.config)),
+    css: `${importedSheets(theme.imports.join('\n'), env.arena ?? null, env.packageName)}\n${generated}`,
+    tools: () => (dry ? loadDecoder : loadFontTools)(env.fontTools ?? fontToolRoots()),
+    dry,
+  });
+  return {
+    fatal: done.fatal,
+    reports: done.reports,
+    cuts: done.cuts,
+    stems: done.stems,
+    files: done.files.map(({ name, content, summary }) => ({ name, path: join(options.out, name), content, summary })),
+  };
+}
+
+export type SpriteEnvironment = { arena: string | null; phosphor: string | null; map?: ComponentMap | null; packageName?: string };
+
+const bare = (glyph: string) => glyph.replace(/^ph-/, '');
+
+export function spriteFiles(options: PlanOptions, { arena, phosphor, map = null, packageName = '' }: SpriteEnvironment,
+  drawn: string[] | null = null):
+  { code: 0 | 1 | 2; fatal: string[]; reports: Report[]; files: SheetOutput[] } {
   if (!phosphor) {
-    return { code: 2, reports: [], sheet: null, fatal: ['cannot find @phosphor-icons/web; it is a peer of this package, so install it'] };
+    return { code: 2, reports: [], files: [], fatal: ['cannot find @phosphor-icons/core; it is a dependency of this package, so install the package again'] };
   }
 
   const found: IconScan = { pairs: new Map(), loose: new Set() };
   const reports: Report[] = [];
 
   const shipped = arena ? iconManifest(arena) : null;
+  const counted = shipped && map && drawn
+    ? new Set(Object.entries(map.draws).filter(([, sheet]) => sheet && drawn.includes(sheet)).map(([key]) => key))
+    : null;
   if (shipped) {
-    mergeShipped(shipped, found);
+    mergeShipped(shipped, found, counted);
+    if (!map) {
+      reports.push(report('environment', 'the component map is not beside this package, so every component\'s '
+        + 'glyphs are in the sprite instead of the ones the sources draw'));
+    }
   } else if (arena) {
     reports.push(report('environment', `${ICON_MANIFEST} is not beside this package, so the icons Arena `
-      + 'draws itself were not counted and your sheet carries only what your own sources name'));
+      + 'draws itself were not counted and your sprite carries only what your own sources name'));
   } else {
     reports.push(report('environment', 'not running from inside an Arena package, so the icons Arena draws itself were not counted'));
   }
 
   const yours: IconScan = { pairs: new Map(), loose: new Set() };
+  const swapping = new Set(shipped?.fills ?? []);
+  const sources: string[] = [];
   for (const path of options.paths) {
     const files = sourceFiles(path);
-    if (!files) return { code: 2, reports, sheet: null, fatal: [`${path} is not there`] };
+    if (!files) return { code: 2, reports, files: [], fatal: [`${path} is not there`] };
     for (const file of files) {
       const source = readFileSync(file, 'utf8');
       scan(source, found);
       scan(source, yours);
+      sources.push(source);
     }
   }
 
-  const wanted = drawn(found);
-  if (wanted.length === 0) {
+  const drawsFill = (source: string) => !map
+    ? true
+    : resolveComponents(map, [source], packageName)?.keys.some((key) => swapping.has(String(key))) ?? true;
+  const wanted = drawnGlyphs(found, fillSourceGlyphs(sources, drawsFill));
+  if (wanted.length === 0 && !shipped) {
     return {
       code: 1,
       reports,
-      sheet: null,
-      fatal: ['no Phosphor weight class was found beside a glyph, so no rule can be written; '
-        + `a class list reads ${WEIGHT_CLASSES.bold} ph-bell, and the weight is what names the font`],
+      files: [],
+      fatal: ['no Phosphor weight class was found beside a glyph, so no symbol can be written; '
+        + `a class list reads ${WEIGHT_CLASSES.bold} ph-bell, and the weight is what names the glyph`],
     };
   }
 
-  const path = join(options.out, ICONS_SHEET);
-  const outDir = dirname(resolve(path));
-  const weights = [];
-  for (const { weight, glyphs } of wanted) {
-    const dir = join(phosphor, 'src', weight);
-    const sheet = join(dir, 'style.css');
-    if (!existsSync(sheet)) {
-      return { code: 2, reports, sheet: null, fatal: [`${sheet} is not there, so the ${weight} weight cannot be subset`] };
-    }
-    const css = readFileSync(sheet, 'utf8');
-    const woff2 = woff2Source(css, weight);
-    if (!woff2 || !existsSync(join(dir, woff2))) {
-      return { code: 2, reports, sheet: null, fatal: [`the ${weight} sheet names no woff2 this package has, so its @font-face would be dead`] };
-    }
-    weights.push({ weight, css, glyphs, fontPath: relativeFrom(outDir, join(dir, woff2)) });
-  }
-
-  const { css, missing, kept } = iconsCss(weights, options.paths.join(', '));
+  const { svg, missing, kept } = spriteSvg(
+    wanted.map(({ weight, glyphs }) => ({ weight, glyphs: new Set([...glyphs].map(bare)) })),
+    (weight, name) => {
+      try {
+        return readFileSync(glyphFile(phosphor, weight, name), 'utf8');
+      } catch {
+        return null;
+      }
+    },
+  );
   for (const [weight, names] of missing) {
-    for (const name of names) reports.push(report('glyph', `${weight}: ${name} is not an icon Phosphor draws at that weight`));
+    for (const name of names) reports.push(report('glyph', `${weight}: ph-${name} is not an icon Phosphor draws at that weight`));
   }
 
+  const name = contentName(SPRITE_STEM, 'svg', svg);
+  const module = spriteModule(name);
+  const empty = kept === 0;
+  const summary = empty
+    ? `0 symbol(s), no weight drawn by your sources or by the Arena components they draw, ${svg.length} bytes`
+    : `${kept} symbol(s), ${glyphNames(yours).size} named by your sources and `
+      + `${shipped ? shippedNames(shipped, counted).size : 0} drawn by Arena's own components, `
+      + `${wanted.length} weight(s), ${svg.length} bytes`;
   return {
     code: 0,
     reports,
     fatal: [],
-    sheet: {
-      name: ICONS_SHEET,
-      path,
-      content: css,
-      summary: `${kept} glyph(s), ${glyphNames(yours).size} named by your sources and `
-        + `${shipped ? shippedNames(shipped).size : 0} drawn by Arena's own components, `
-        + `${weights.length} weight(s), ${css.length} bytes`,
-    },
+    files: [
+      { name, path: join(options.out, name), content: svg, summary },
+      { name: SPRITE_MODULE, path: join(options.out, SPRITE_MODULE), content: module.js, summary: `exports ${name}` },
+      { name: SPRITE_TYPES, path: join(options.out, SPRITE_TYPES), content: module.dts, summary: `${module.dts.length} bytes` },
+    ],
   };
 }
 
 const failed = (code: 1 | 2, fatal: string[], reports: Report[] = []): Plan =>
-  ({ code, fatal, reports, notes: [], outputs: [], orphans: [] });
+  ({ code, fatal, reports, notes: [], outputs: [], binaries: [], orphans: [] });
 
-export function plan(options: PlanOptions, env: PlanEnvironment): Plan {
+export type PlanMode = { reportsOnly?: boolean };
+
+export async function plan(options: PlanOptions, env: PlanEnvironment, mode: PlanMode = {}): Promise<Plan> {
   const absent = missingSource(options.paths);
   if (absent !== null) return failed(2, [`${absent} is not there`]);
 
-  const theme = themeSheets(options, env);
+  let theme = themeSheets(options, env);
   if (theme.fatal.length) return failed(theme.code === 2 ? 2 : 1, theme.fatal, theme.reports);
 
-  const icons = iconsSheet(options, env);
-  if (icons.fatal.length || !icons.sheet) return failed(icons.code === 2 ? 2 : 1, icons.fatal, [...theme.reports, ...icons.reports]);
+  const fonts = await fontFiles(options, env, theme, mode.reportsOnly === true);
+  if (fonts.fatal.length) return failed(2, fonts.fatal, theme.reports);
+  if (Object.keys(fonts.cuts).length > 0) theme = themeSheets(options, env, fonts.cuts);
+  const themeReports = [...theme.reports, ...fonts.reports];
 
-  const outputs = [...theme.sheets, icons.sheet];
-  const carried = new Set<string>(outputs.map((one) => one.name));
-  const orphans = [...OUTPUT_SHEETS].filter((name) => !carried.has(name) && existsSync(join(options.out, name)));
+  const icons = spriteFiles(options, env, theme.components);
+  if (icons.fatal.length) return failed(icons.code === 2 ? 2 : 1, icons.fatal, [...themeReports, ...icons.reports]);
+
+  const outputs = [...theme.sheets, ...icons.files];
+  const carried = new Set<string>([...outputs, ...fonts.files].map((one) => one.name));
+  const orphans = [...OUTPUT_SHEETS, ...spriteFilesIn(options.out), ...fontFilesIn(options.out, [...fonts.stems, ...writtenFontStems(options.out)])]
+    .filter((name) => !carried.has(name) && existsSync(join(options.out, name)));
   return {
     code: 0,
     fatal: [],
-    reports: [...theme.reports, ...icons.reports],
+    reports: [...themeReports, ...icons.reports],
     notes: theme.notes,
     outputs,
+    binaries: fonts.files,
     orphans,
   };
 }
 
-export function sheetStates(outputs: SheetOutput[]): SheetState[] {
+export function sheetStates(outputs: FileOutput[]): SheetState[] {
   return outputs.map(({ path, content }) => {
     if (!existsSync(path)) return { path, state: 'missing' };
-    return { path, state: readFileSync(path, 'utf8') === content ? 'current' : 'stale' };
+    const same = typeof content === 'string' ? readFileSync(path, 'utf8') === content : Buffer.from(content).equals(readFileSync(path));
+    return { path, state: same ? 'current' : 'stale' };
   });
 }

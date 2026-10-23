@@ -5,11 +5,12 @@
  * the clone works for. Timings come from --delay-open, never from a literal. */
 import test, { afterEach } from 'node:test';
 import assert from 'node:assert/strict';
-import React from 'react';
+import React, { useState } from 'react';
 import { join } from 'node:path';
 import { mount, cleanup, act } from '../../../test/Harness.tsx';
 import { assertPattern, REACT_COMPONENTS } from '../../../test/AssertPattern.tsx';
 import { ArenaTooltip } from './ArenaTooltip.tsx';
+import { ArenaPopover } from '../arena-popover/ArenaPopover.tsx';
 import { delayOpen } from '../../../Tokens.generated.js';
 
 afterEach(cleanup);
@@ -185,4 +186,31 @@ test('the bubble takes the shared fade utility rather than a keyframe of its own
   assert.match(bubble(root).getAttribute('class') ?? '', /\barena-tooltip__bubble\b/);
   assert.equal(document.querySelector('style[data-arena-tooltip]'), null,
     'nothing injects keyframes any more; the compiled sheet carries arena-fade');
+});
+
+test('the bubble is a manual popover, shown and placed by script', () => {
+  const root = mount(one());
+  focusIn(root);
+  assert.equal(bubble(root).getAttribute('popover'), 'manual');
+  assert.equal(bubble(root).style.position, 'fixed', 'the bubble was left in flow, where an overflow: hidden ancestor clips it');
+});
+
+test('a tooltip inside a popover is the topmost panel, so Escape closes it and leaves the popover', () => {
+  function Host() {
+    const [shown, setShown] = useState(false);
+    return (
+      <ArenaPopover label="Filters" open={shown} onOpenChange={setShown} trigger={<button type="button">Filters</button>}>
+        <ArenaTooltip label="Rebuilds the index"><button type="button">Reindex</button></ArenaTooltip>
+      </ArenaPopover>
+    );
+  }
+  const root = mount(<Host />);
+  act(() => { root.querySelector<HTMLElement>('button')!.click(); });
+  const dialog = () => document.querySelector('[role="dialog"]');
+  const inner = dialog()!.querySelector<HTMLElement>('button')!;
+  act(() => { inner.dispatchEvent(new window.FocusEvent('focusin', { bubbles: true })); });
+  assert.ok(document.querySelector('[role="tooltip"]'), 'focus did not reveal the tooltip');
+  act(() => { inner.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true })); });
+  assert.equal(document.querySelector('[role="tooltip"]'), null, 'Escape did not close the tooltip');
+  assert.ok(dialog(), 'Escape closed the popover under the tooltip as well');
 });

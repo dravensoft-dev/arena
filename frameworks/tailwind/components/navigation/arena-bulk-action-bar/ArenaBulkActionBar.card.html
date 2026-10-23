@@ -6,7 +6,7 @@
 <link rel="stylesheet" href="../../../Specimen.css">
 </head><body><div id="root"></div>
 <script type="module">
-import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor, glyph } from '../../../Specimen.js';
 
 const manifest = await (await fetch('./ArenaBulkActionBar.manifest.json')).json();
 const base = arenaClassesFor(manifest, { open: true });
@@ -18,7 +18,7 @@ function bar(count, noun, actions) {
     const c = arenaClassesFor(manifest, { destructive: !!action.destructive });
     const d = arenaSlotDataFor(manifest, { destructive: !!action.destructive });
     const button = el('button', { class: c.action, ...d.action, type: 'button' });
-    if (action.icon) button.append(el('span', { class: base.actionIcon, ...dBase.actionIcon }, el('i', { class: action.icon, 'aria-hidden': 'true' })));
+    if (action.icon) button.append(el('span', { class: base.actionIcon, ...dBase.actionIcon }, glyph(action.icon)));
     button.append(action.label);
     list.append(button);
   }

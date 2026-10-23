@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { declarationProblems, defaultProblems, emittedTypes, rosterProblems, zeroRoleProblems, collect, ROLES } from './check-role-contract.ts';
+import { declarationProblems, defaultProblems, emittedTypes, emittedWords, rosterProblems, zeroRoleProblems, collect, ROLES } from './check-role-contract.ts';
 import { join } from 'node:path';
 import { readJson } from '../../utils/read-file.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
@@ -81,6 +81,17 @@ test('a keyword default may not offer a word outside the role\'s set', () => {
   assert.match(problems[0] ?? '', /^tt-chip: its kernel default \{tt-label\} can take lowercase, outside none, uppercase/);
 });
 
+test('a keyword default may name an emitted keyword token, and only one whose word the role takes', () => {
+  const words = new Map([['case-none', 'none'], ['case-loud', 'uppercase']]);
+  const emitted = new Map([...EMITTED, ['case-none', 'keyword'], ['case-loud', 'keyword']]);
+  const problems = defaultProblems({
+    'tt-key': defaulted('keyword', '{case.none}', ['none', 'capitalize']),
+    'tt-pill': defaulted('keyword', '{case.loud}', ['none', 'capitalize']),
+  }, emitted, words);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /^tt-pill: its kernel default \{case\.loud\} is the word uppercase, outside none, capitalize/);
+});
+
 test('defaults that lead back to themselves are refused on every role of the cycle', () => {
   const problems = defaultProblems({
     a: defaulted('color', '{b}'), b: defaulted('color', '{a}'), self: defaulted('color', '{self}'),
@@ -106,6 +117,12 @@ test('the emitted tokens are the scales, typed, and never a role', () => {
   assert.equal(emitted.get('color-primary'), 'color');
   assert.equal(emitted.has('r-surface'), false);
   assert.ok(emitted.size > 100, `found ${emitted.size} emitted tokens`);
+});
+
+test('the package emits a keyword token and a half spacing step a role can default to', () => {
+  assert.equal(emittedTypes().get('case-none'), 'keyword');
+  assert.equal(emittedWords().get('case-none'), 'none');
+  assert.equal(emittedTypes().get('sp-0-5'), 'dimension');
 });
 
 test('the side nav row and app bar band padding roles default to what they read', () => {

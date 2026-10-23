@@ -6,7 +6,7 @@ import { repoRoot } from '../../../lib/arena/repo-root.ts';
 import {
   auditText, auditFindings, findings, lineFindings, isLegalBracket, scanText, scanFile, markerAllowlist,
   paintedParts, sourceScope, outlineGap, kebabTag, HEADING_RUNGS, OWN_CLASS_ATTRIBUTE,
-  LINKABLE_TAGS, statedRung, fillsWithDanger, namesAnAlias, RULE_TAGS,
+  LINKABLE_TAGS, WRAPPED_LINK_TAGS, statedRung, fillsWithDanger, namesAnAlias, RULE_TAGS, RULE_DESCRIPTIONS,
   UNMODELLED_UNITS, styleIdentifiers, styleObjectLines, unknownInputs,
   ownClassFindings, RAW_COLOUR_MESSAGE, RAW_HEX_MESSAGE, GRADIENT_MESSAGE, primaryMessage, DANGER_FILL_MESSAGE, type VocabularyIndex,
 } from './audit.ts';
@@ -37,6 +37,14 @@ test('an Arena component inside a link of your own is reported, which Angular wo
   assert.match(rules('<a href="/x"><arena-card></arena-card></a>', 'src/a.html'), /router-link/);
   assert.match(rules('<a routerLink="/x"><arena-card></arena-card></a>', 'src/a.html'), /router-link/);
   assert.equal(rules('<ArenaCard href="/x">c</ArenaCard>'), '');
+});
+
+test('an ArenaLink inside a link of your own is a rule of its own, so a project holding router-link is not newly held', () => {
+  const react = auditText('src/a.tsx', '<Link to="/notes"><ArenaLink href="/notes">notes</ArenaLink></Link>').join('\n');
+  assert.match(react, /wrapped-link/);
+  assert.doesNotMatch(react, /router-link/, 'the link joined what router-link reads, which holds a project that never named it');
+  assert.match(auditText('src/a.html', '<a routerLink="/notes"><arena-link href="/notes">notes</arena-link></a>').join('\n'), /wrapped-link/);
+  assert.doesNotMatch(auditText('src/a.tsx', '<p>Read <ArenaLink href="/notes">notes</ArenaLink>.</p>').join('\n'), /wrapped-link/);
 });
 
 test('a raw value is reported where it styles something, and not where it is only a string', () => {
@@ -111,6 +119,29 @@ test('an icon as an element and an emoji are each reported', () => {
   assert.match(rules('<ArenaButton iconRight={<Down />}>Go</ArenaButton>'), /icon-element/);
   assert.match(rules('<p>Deploy 🚀</p>'), /emoji/);
   assert.equal(rules('<ArenaButton icon="ph-bold ph-plus">Go</ArenaButton>'), '');
+});
+
+test('a raw <i class="ph-bold ph-x"> is reported as raw-glyph, and ArenaIcon, ArenaButton and ArenaIconButton icons are not', () => {
+  const raw = rules('<i className="ph-bold ph-x"></i>');
+  assert.match(raw, /raw-glyph/);
+  assert.match(raw, /^src\/App\.tsx:1: /);
+  assert.match(rules('<span className={`ph ph-bell ${open ? "a" : "b"}`} />'), /raw-glyph/);
+  assert.match(rules('<i class="ph-fill ph-x"></i>', 'src/a.html'), /raw-glyph/);
+  assert.match(rules('<i class="x ph-duotone ph-arrow-left y"></i>', 'src/a.html'), /raw-glyph/);
+  assert.equal(rules('<ArenaIcon icon="ph-bold ph-x" />'), '');
+  assert.equal(rules('<ArenaButton icon="ph-bold ph-x">Go</ArenaButton>'), '');
+  assert.equal(rules('<ArenaIconButton icon="ph-bold ph-x" label="Close" />'), '');
+  assert.equal(rules('<i className="ph-bold"></i>'), '', 'a weight with no glyph names nothing to draw');
+  assert.equal(rules('<i className="mine ph-x"></i>'), '', 'a glyph with no weight is not a pair the font drew');
+  assert.doesNotMatch(rules('<ArenaIcon className="ph-bold ph-x" />'), /raw-glyph/, 'the icon element is never reported as a raw glyph');
+});
+
+test('the Angular template shape of a raw glyph is reported, and arena-icon and a component icon are not', () => {
+  assert.match(rules('<i class="ph-bold ph-x" aria-hidden="true"></i>', 'src/app.component.html'), /raw-glyph/);
+  assert.match(rules('<i [class]="open ? \'ph-bold ph-x\' : \'ph-bold ph-y\'"></i>', 'src/app.component.html'), /raw-glyph/);
+  assert.match(rules('<span [ngClass]="\'ph-bold ph-x\'"></span>', 'src/app.component.html'), /raw-glyph/);
+  assert.equal(rules('<arena-icon icon="ph-bold ph-x"></arena-icon>', 'src/app.component.html'), '');
+  assert.equal(rules('<arena-button icon="ph-bold ph-x">Go</arena-button>', 'src/app.component.html'), '');
 });
 
 test('an arbitrary Tailwind bracket is reported unless it resolves through a token', () => {
@@ -386,7 +417,7 @@ test('the components a link may wrap are the ones whose contract takes an href, 
   for (const file of readdirSync(dir)) {
     if (!file.endsWith('.json')) continue;
     const contract = JSON.parse(readFileSync(join(dir, file), 'utf8'));
-    if (contract.api?.href !== undefined) declared.add(kebabTag(contract.component));
+    if (contract.api?.href !== undefined && !WRAPPED_LINK_TAGS.has(kebabTag(contract.component))) declared.add(kebabTag(contract.component));
   }
 
   assert.ok(declared.size > 0, 'no contract declares an href, so this checked nothing');
@@ -693,11 +724,11 @@ test('no-vocabulary: with no index nothing new is counted, so the check never fi
     'src/App.tsx', null), []);
 });
 
-test('the shipped vocabulary makes ArenaButton default to primary and no other component', () => {
+test('the shipped vocabulary makes ArenaButton and ArenaSplitButton default to primary and no other component', () => {
   const index = vocabularyIndex();
   const primary = Object.entries(index.defaults ?? {})
     .filter(([, families]) => families.emphasis === 'arena-emphasis-primary').map(([name]) => name);
-  assert.deepEqual(primary, ['ArenaButton']);
+  assert.deepEqual(primary, ['ArenaButton', 'ArenaSplitButton']);
 });
 
 test('Angular interpolation and attr.class in a class attribute are a computed class, not a bare button', () => {
@@ -893,4 +924,15 @@ test('an arena-audit allow on the line exempts it', () => {
 
 test('without an index of inputs nothing is reported', () => {
   assert.doesNotMatch(rules('<arena-button variant="x">Go</arena-button>', 'src/app.html'), /unknown-input/);
+});
+
+test('every audit tag carries one description, in the register of a present-tense builder page, and nothing else does', () => {
+  assert.deepEqual(Object.keys(RULE_DESCRIPTIONS).sort(), [...RULE_TAGS].sort());
+  const banned = /\b(?:since|now|no longer|today|used to|anymore|previously|formerly|newly|recently|became|was|were|once|replaced|raised|lowered)\b|v?12\.|\u2014/i;
+  for (const [tag, text] of Object.entries(RULE_DESCRIPTIONS)) {
+    assert.ok(text.trim().length > 0, tag);
+    assert.ok(text.endsWith('.') && text.split('. ').length === 1, `${tag} is one sentence`);
+    assert.doesNotMatch(text, banned, tag);
+    assert.ok(text.split(/\s+/).length <= 30, `${tag} runs past 30 words`);
+  }
 });

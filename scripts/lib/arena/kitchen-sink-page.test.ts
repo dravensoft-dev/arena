@@ -5,16 +5,18 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { READY, READY_SIGNAL, kitchenSinkPage, entryFile, bodyClass, varsStyle, KS } from './kitchen-sink-page.ts';
+import { READY, READY_SIGNAL, SPRITE, kitchenSinkPage, entryFile, bodyClass, varsStyle, KS } from './kitchen-sink-page.ts';
 
 type Fonts = { status: string; ready: Promise<void> };
+type Use = { ownerSVGElement: { getClientRects: () => unknown[] }; getBBox: () => { width: number; height: number } };
 
 const FRAME_BUDGET = 500;
 
-function harness(fonts: Fonts) {
+function harness(fonts: Fonts, uses: Use[] = []) {
   const marks = new Set<string>();
   const document = {
     fonts,
+    querySelectorAll: () => uses,
     documentElement: {
       setAttribute: (name: string) => { marks.add(name); },
       hasAttribute: (name: string) => marks.has(name),
@@ -81,6 +83,7 @@ test('the page carries the theme control the query parameter needs, and the scop
   assert.match(page, /class="dtoggle themebtn"/,
     'intro/theme.js applies nothing until it finds one, so a page without it ignores ?theme=');
   assert.match(page, /<html lang="en" class="arena-editorial">/);
+  assert.doesNotMatch(page, /phosphor-icons/, 'a glyph is drawn from the sprite, so the page links no web font');
 });
 
 test('an entry file is named for its arrangement and its layer, so one page never loads the other\'s', () => {
@@ -98,7 +101,8 @@ test('a fixture\'s vars are written as the style of the wrapper, and a fixture w
   const { angularSinkEntry } = await import('../angular/kitchen-sink-angular.ts');
   const vars = { '--arena-column-status-align': 'right', '--arena-column-status-width': '8rem' };
   const node = { text: 'x' };
-  const item = (own?: Record<string, string>) => ({ component: 'ArenaTable', node, staged: false, ...(own ? { vars: own } : {}) });
+  const item = (own?: Record<string, string>, label = 'ArenaTable') =>
+    ({ component: 'ArenaTable', label, node, staged: false, ...(own ? { vars: own } : {}) });
   assert.equal(varsStyle(vars), '--arena-column-status-align: right; --arena-column-status-width: 8rem');
   assert.equal(varsStyle(undefined), '');
   const react = tile(item(vars), new Map(), 0);
@@ -108,4 +112,36 @@ test('a fixture\'s vars are written as the style of the wrapper, and a fixture w
     { sink: 's', note: '', uses: [], sections: [{ title: 't', items: [item(own)] }] }, new Map(), new Map(), '', '');
   assert.ok(entry(vars).includes(`<div class="${KS.body}" style="${varsStyle(vars)}">`));
   assert.doesNotMatch(entry(), new RegExp(`class="${KS.body}" style=`));
+});
+
+test('a tile is labelled with its item as the arrangement spells it, a variant included, in both layers', async () => {
+  const { tile } = await import('../react/kitchen-sink-react.ts');
+  const { angularSinkEntry } = await import('../angular/kitchen-sink-angular.ts');
+  const item = { component: 'ArenaGaugeChart', variant: 'at-min', label: 'ArenaGaugeChart:at-min', node: { text: 'x' }, staged: false };
+  assert.ok(tile(item, new Map(), 0).includes(`<span className="${KS.label}">ArenaGaugeChart:at-min</span>`));
+  const entry = angularSinkEntry(
+    { sink: 'charts', note: '', uses: [], sections: [{ title: 't', items: [item] }] }, new Map(), new Map(), '', '');
+  assert.ok(entry.includes(`<span class="${KS.label}">ArenaGaugeChart:at-min</span>`), entry);
+});
+
+test('the kitchen-sink ready signal waits for the sprite', async () => {
+  const use = {
+    box: 0,
+    ownerSVGElement: { getClientRects: () => [{}] },
+    getBBox() { return { width: this.box, height: this.box }; },
+  };
+  const hidden = {
+    ownerSVGElement: { getClientRects: () => [] },
+    getBBox() { return { width: 0, height: 0 }; },
+  };
+  const fonts: Fonts = { status: 'loaded', ready: Promise.resolve() };
+  const { painted } = harness(fonts, [use, hidden]);
+  await turns();
+  assert.equal(painted(), false, 'an svg use with no box has not fetched its symbol, and a capture would show nothing');
+  assert.ok(SPRITE.ms > 0 && SPRITE.why.length > 0, 'the wait is bounded by a deadline that carries its reason');
+
+  use.box = 24;
+  await turns();
+  assert.equal(painted(), true,
+    'once every rendered use has a box the page has painted; a use in a collapsed subtree never gets one');
 });

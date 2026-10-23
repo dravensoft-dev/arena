@@ -10,7 +10,8 @@ import { join } from 'node:path';
 import { readJson } from '../../utils/read-file.ts';
 import {
   TRAPS, FOCUSABLE, walkProblems, PANEL_HELD, NAVIGATE, FOCUS_MOVED, heldExpression, movedExpression,
-  armExpression, BEFORE,
+  armExpression, BEFORE, HANDOFFS, HANDOFF_SEEN, HANDOFF_INPUT, HANDOFF_TRIGGER, ALIGN_PX, handoffExpression,
+  handoffProblems, type Handoff, openPage, summaryLine,
 } from './check-focus-trap.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 
@@ -170,4 +171,67 @@ test('a panel never seen after the network changed says the host changed, and a 
 
   const plain = walkProblems('Palette:react', { panel: false, expired: true, waitedMs: PANEL_HELD.ms, changed: [] });
   assert.match(plain[0] ?? '', /was not seen within/);
+});
+
+const BOX = { left: 10, top: 20, width: 120, height: 40 };
+const HELD: Handoff = { seen: true, input: BOX, trigger: BOX, pointerEvents: 'none', opacity: '0', hit: true, valid: false, landed: true };
+
+test('the handoff table names both layers and pages that are there, each asking for a required field', () => {
+  assert.ok(HANDOFFS.some((one) => one.name.endsWith(':react')));
+  assert.ok(HANDOFFS.some((one) => one.name.endsWith(':angular')));
+  for (const one of HANDOFFS) {
+    assert.ok(existsSync(join(repoRoot, one.page)), `${one.name} names ${one.page}, and nothing is there`);
+    assert.equal(one.query, '?required=1', `${one.name} walks a field that is not required, so nothing is refused`);
+  }
+});
+
+test('the handoff walk waits for the field and for focus to settle, each by its own deadline', () => {
+  const source = handoffExpression(HANDOFF_SEEN, FOCUS_MOVED);
+  assert.ok(source.includes(String(HANDOFF_SEEN.ms)) && source.includes(String(FOCUS_MOVED.ms)));
+  assert.ok(source.includes(JSON.stringify(HANDOFF_INPUT)) && source.includes(JSON.stringify(HANDOFF_TRIGGER)));
+  assert.match(source, /reportValidity\(\)/, 'the refusal is the browser\'s own, so its focus step is what is measured');
+  assert.match(source, /blur\(\)/, 'focus is taken off the trigger first, or a refusal that moved nothing would read as one that landed');
+});
+
+test('a hidden input lying under its trigger that hands it focus is clean', () => {
+  assert.deepEqual(handoffProblems('X', HELD), []);
+  assert.deepEqual(handoffProblems('X', { ...HELD, input: { ...BOX, left: BOX.left + ALIGN_PX } }), []);
+});
+
+test('each broken rule of the handoff is reported on its own', () => {
+  const cases: [Partial<Handoff>, RegExp][] = [
+    [{ input: { ...BOX, width: 0, height: 0 } }, /does not lie over the trigger \(width, height differ/],
+    [{ pointerEvents: 'auto' }, /takes pointer events \(auto\)/],
+    [{ opacity: '1' }, /is painted \(opacity 1\)/],
+    [{ hit: false }, /centre is not the trigger/],
+    [{ valid: true }, /required never reached the hidden input/],
+    [{ landed: false }, /focus was not on the trigger/],
+  ];
+  for (const [broken, said] of cases) {
+    const problems = handoffProblems('X', { ...HELD, ...broken });
+    assert.equal(problems.length, 1, JSON.stringify(broken));
+    assert.match(problems[0] ?? '', said);
+  }
+});
+
+test('a field never seen is reported as not seen in time, with what the page fetched', () => {
+  const problems = handoffProblems('X', { seen: false, expired: true, silence: { readyState: 'complete', elements: 3, errors: [], scripts: ['x.js 404 0B'] } });
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', new RegExp(`${HANDOFF_SEEN.ms}ms`));
+  assert.match(problems[0] ?? '', /404/);
+});
+
+test('the summary prints each table\'s slowest against that table\'s own deadline', () => {
+  const line = summaryLine(6, 2, 111, 222, { ...PANEL_HELD, ms: 1000 }, { ...HANDOFF_SEEN, ms: 2000 });
+  assert.ok(line.includes('held after 111ms of the 1000ms allowed'), line);
+  assert.ok(line.includes('seen after 222ms of the 2000ms allowed'), line);
+});
+
+test('one page setup opens every walk: the viewport, the error collector, then the navigation', async () => {
+  const asked: string[] = [];
+  const cdp = { send: async (method: string, params?: Record<string, unknown>) => { asked.push(method + (method === 'Page.navigate' ? ` ${params?.url}` : '')); return {}; } };
+  await openPage(cdp as never, 'session-1', 'http://127.0.0.1:1/p.html');
+  assert.deepEqual(asked, [
+    'Emulation.setDeviceMetricsOverride', 'Page.enable', 'Page.addScriptToEvaluateOnNewDocument', 'Page.navigate http://127.0.0.1:1/p.html',
+  ]);
 });

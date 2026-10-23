@@ -1,5 +1,5 @@
 /* arena build --watch: the loop is driven with a fake watch and a fake schedule, never real time. */
-import { test } from 'node:test';
+import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -7,7 +7,9 @@ import { commandOptions } from './args.ts';
 import type { Options } from './args.ts';
 import { relevant, watchBuild, watchTargets, SETTLE_MS } from './watch.ts';
 import type { WatchDeps, WatchEvent, WatchTarget } from './watch.ts';
-import { captureIo, project } from './cli-fixtures.ts';
+import { captureIo, project, removeFixtures } from './cli-fixtures.ts';
+
+after(removeFixtures);
 
 function optionsOf(root: string, extra: string[] = []): Options {
   const { io } = captureIo(root);
@@ -22,7 +24,7 @@ function pluginRoot() {
   return root;
 }
 
-function harness(build: () => number = () => 0) {
+function harness(build: () => number | Promise<number> = () => 0) {
   const opened: { dir: string; recursive: boolean; changed: (f: string | null) => void; failed: (e: Error) => void; closed: boolean }[] = [];
   const pending: { run: () => void; ms: number; live: boolean }[] = [];
   const controller = new AbortController();
@@ -123,6 +125,38 @@ test('a burst of relevant events schedules one build (each cancels the previous)
   assert.equal(h.builds(), 2);
   h.controller.abort();
   await done;
+});
+
+test('a change during a rebuild waits for it and then builds once more, never two builds at once', async () => {
+  const root = project();
+  let open = 0;
+  let overlapped = false;
+  const releases: (() => void)[] = [];
+  const h = harness(() => {
+    if (h.builds() === 1) return 0;
+    open += 1;
+    if (open > 1) overlapped = true;
+    return new Promise<number>((resolve) => releases.push(() => { open -= 1; resolve(0); }));
+  });
+  const { io } = captureIo(root);
+  const done = watchBuild(optionsOf(root), h.counted, io, h.deps);
+  const src = () => h.live().find((one) => one.dir === join(root, 'src'))!;
+  src().changed('a.ts'); h.flush();
+  assert.equal(h.builds(), 2, 'the first change starts a build');
+  src().changed('b.ts'); h.flush();
+  src().changed('c.ts'); h.flush();
+  assert.equal(h.builds(), 2, 'a change while it runs starts none');
+  releases.shift()!();
+  await new Promise((resolve) => setImmediate(resolve));
+  h.flush();
+  assert.equal(h.builds(), 3, 'the build that finished schedules exactly one more');
+  releases.shift()!();
+  await new Promise((resolve) => setImmediate(resolve));
+  h.flush();
+  assert.equal(h.builds(), 3);
+  assert.equal(overlapped, false);
+  h.controller.abort();
+  assert.equal(await done, 0);
 });
 
 test('an irrelevant event schedules nothing', async () => {
@@ -262,4 +296,11 @@ test('abort closes every watcher, cancels the pending build and resolves 0', asy
   assert.equal(h.pending.every((one) => !one.live), true);
   h.flush();
   assert.equal(h.builds(), 1);
+});
+
+test('watchTargets: a local font the config names is watched by its own file name', () => {
+  const root = pluginRoot();
+  writeFileSync(join(root, 'arena.config.json'), JSON.stringify({ fonts: { display: { family: 'A', src: './fonts/a.woff2' } } }));
+  const targets = watchTargets(optionsOf(root));
+  assert.ok(targets.some((one) => one.only === 'fonts' || one.only === 'a.woff2'));
 });

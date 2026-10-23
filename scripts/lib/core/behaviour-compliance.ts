@@ -76,7 +76,7 @@ export const elementRoles = memoBy(
   },
 );
 
-export const LABEL_ACCEPTS_TEXT = new Set(['button', 'checkbox', 'disclosure', 'switch']);
+export const LABEL_ACCEPTS_TEXT = new Set(['accordion', 'button', 'checkbox', 'disclosure', 'switch']);
 
 export function roleOf(el: GenericElement, resolveId?: IdResolver) {
   const explicit = el.getAttribute('role');
@@ -143,6 +143,7 @@ export const ATTRIBUTE_FOR: Record<string, string> = {
   'roles.activedescendant': 'aria-activedescendant',
   'roles.describedby': 'aria-describedby',
   'states.selected': 'aria-selected',
+  'states.level': 'aria-level',
 };
 
 export const IDREF_ATTRIBUTES = new Map([
@@ -192,6 +193,8 @@ const ROLE_NAMED_BY_KEY: Record<string, string | string[]> = {
   'roles.group': ['group', 'radiogroup'],
   'roles.item': ['radio', 'menuitem', 'option'],
   'roles.graphic': 'img',
+  'roles.heading': 'heading',
+  'roles.treeitem': 'treeitem',
 };
 
 export const DECIDABLE = new Set([
@@ -222,8 +225,8 @@ export const BEHAVIOURAL = new Set([
   'alternative.table', 'alternative.jsonLd',
 
   'states.disabled', 'states.required', 'states.readonly',
-  'states.multiselectable', 'states.busy', 'states.posinset',
-  'states.valuenow', 'states.valuemin', 'states.valuemax',
+  'states.multiselectable', 'states.busy', 'states.posinset', 'states.setsize',
+  'states.valuenow', 'states.valuemin', 'states.valuemax', 'states.valuetext', 'states.orientation',
 ]);
 
 export function evaluate(
@@ -304,6 +307,8 @@ export function evaluate(
 }
 
 export const QUANTIFIED = new Map([
+  ['accordion:roles.controls',
+    'each header button references its own panel, and every panel mounts whether shown or not, so a header whose panel id drifted is unmet however correct the first header is -- the idiom tabs:roles.controls states.'],
   ['feed:roles.article',
     'one article per unit of content, so a feed whose third row lost its role is unmet however correct the first row is. Decidable per element through ROLE_NAMED_BY_KEY, and quantified over elements the component renders itself -- which is what separates it from the two entries in NOT_QUANTIFIED below.'],
   ['listbox:states.selected',
@@ -314,6 +319,12 @@ export const QUANTIFIED = new Map([
     'each tab references its own tabpanel; checking only the selected one is exactly the defect 8C6 shipped.'],
   ['tabs:states.selected',
     'true on the active tab and false on the rest -- the same quantification listbox states, written as "the rest".'],
+  ['tree:roles.treeitem',
+    'every node the tree draws is a treeitem, so a tree whose fourth row lost its role is unmet however correct the first row is -- the idiom feed:roles.article states, one requirement key over.'],
+  ['tree:states.level',
+    'aria-level is written on every node, 1 for a root, so a tree whose fourth row lost its level is unmet however correct the first row is -- the idiom feed:roles.article states, one requirement key over.'],
+  ['tree:states.selected',
+    'aria-selected is true on each selected node and false on the rest, so one node cannot answer for the tree -- verbatim the idiom listbox:states.selected states.'],
 ]);
 
 export const NOT_QUANTIFIED = new Map([

@@ -10,6 +10,7 @@ import { paletteBlock, readHex, THEMES } from '../../lib/core/palette-read.ts';
 import { isMainModule } from '../../utils/main-module.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { resolvedFor } from './check-style-plugin.ts';
+import { parseDecls } from '../../lib/arena/css-decls.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { HUE_SHEETS } from '../../lib/tailwind/hue-sheet.ts';
 import { PALETTE_KEYS } from '../../generate/core/arena-cli/palette-keys.ts';
@@ -78,7 +79,24 @@ function tryHex(body: string, name: string) {
 }
 const MISSING = 'not declared in contracts/design-generated/palette.generated.css — every theme block must define it';
 
-export const structureOf = (colors: string) => block(colors, ':root,\\s*\\.arena-light', 'colors.css');
+export const paletteSelectors = (palette: string) =>
+  [...parseDecls(palette).keys()].filter((key) => !key.startsWith('@'));
+
+const ALIAS_ANCHOR = /--text-strong\s*:/;
+
+export function structureOf(colors: string, selectors: string[]) {
+  for (const [, head, body] of colors.matchAll(/([^{}]+)\{([^}]*)\}/g)) {
+    if (head === undefined || body === undefined || !ALIAS_ANCHOR.test(body)) continue;
+    const carried = head.replace(/\/\*[\s\S]*?\*\//g, '').split(',').map((one) => one.trim());
+    for (const selector of selectors) {
+      if (carried.includes(selector)) continue;
+      throw new Error(`colors.css: the alias block's selector does not carry ${selector}, a palette `
+        + `palette.generated.css declares. Every palette that block does not name is left without --text-strong and its siblings.`);
+    }
+    return body;
+  }
+  throw new Error('colors.css: no block declares the aliases (--text-strong)');
+}
 
 export function resolvePercent(structure: string, name: string, seen = new Set()): number | null {
   if (seen.has(name)) throw new Error(`colors.css: --${name} is a circular reference`);
@@ -211,7 +229,7 @@ export function scopesToMeasure(effects: string, theme: string, plugins: string[
 
 function main() {
   const palette = readFileSync(join(root, PALETTE), 'utf8');
-  const structure = structureOf(readFileSync(join(root, COLORS), 'utf8'));
+  const structure = structureOf(readFileSync(join(root, COLORS), 'utf8'), paletteSelectors(palette));
   const effects = ROLE_SHEETS.map((sheet) => readFileSync(join(root, sheet), 'utf8')).join('\n');
   const scoped = SCOPED_PLUGINS;
   let ok = true;

@@ -16,14 +16,15 @@ import { readJson } from '../../utils/read-file.ts';
 import { relPosix } from '../../utils/posix-path.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { LAYERS } from '../../lib/arena/layers.ts';
-import { playgroundModel, SUBJECT } from '../../lib/arena/playground-model.ts';
-import { buildPlaygrounds } from '../../generate/arena/generate-playgrounds.ts';
+import { playgroundModel, variantSeed, SUBJECT } from '../../lib/arena/playground-model.ts';
+import { buildPlaygrounds, PLAYGROUND_LAYERS } from '../../generate/arena/generate-playgrounds.ts';
 import { memberEntries, fieldEntries } from '../../lib/arena/contract-shapes.ts';
 import type { ComponentContract, MemberSpec, TypeContract } from '../../lib/arena/contract-shapes.ts';
 import type { Fixture, FixtureChild } from '../../lib/arena/playground-model.ts';
 import { captured } from '../../utils/captures.ts';
 import { withForeignTrees } from '../../lib/arena/foreign-trees.ts';
-import { answerOf, readFamilies } from '../../lib/tailwind/vocabulary.ts';
+import { answerOf, readFamilies, VOCABULARY_DIR, FAMILY_SUFFIX } from '../../lib/tailwind/vocabulary.ts';
+import { MARKERS_FILE } from '../../lib/arena/component-map.ts';
 import type { Family } from '../../lib/tailwind/vocabulary.ts';
 import { manifestFor } from '../../lib/tailwind/manifest-surfaces.ts';
 import { manifestPath } from '../../lib/arena/kitchen-sink-model.ts';
@@ -35,7 +36,10 @@ export const node = {
     'contracts/api', 'frameworks/demos/**', 'frameworks/Components.json',
     'frameworks/react/components/**', 'frameworks/angular/components/**',
     'frameworks/tailwind/components/**', 'frameworks/tailwind/consume/**',
-    'frameworks/angular/build/demo/**',
+    'frameworks/angular/build/demo/**', MARKERS_FILE,
+    ...PLAYGROUND_LAYERS.map((layer) => `frameworks/${layer}/playground/PlaygroundCodec.generated.ts`),
+    ...LAYERS.map((layer) => `frameworks/${layer}/AGENTS.md`),
+    `${VOCABULARY_DIR}/**/*${FAMILY_SUFFIX}`,
   ],
   writes: [],
   feeds: [],
@@ -158,6 +162,35 @@ export function seedProblems(name: string, contract: ComponentContract,
   return problems;
 }
 
+export const SEED_REPEATS: Record<string, { variant: string; reason: string }> = {
+  ArenaPaletteScope: {
+    variant: 'light',
+    reason: 'the palettes arrangement draws an island of each polarity and a variant is how an '
+      + 'arrangement names a seed, and the one member the component has takes either polarity, so '
+      + 'whichever the seed holds, the variant of that polarity repeats it',
+  },
+};
+
+export function variantProblems(name: string, contract: ComponentContract,
+  fixture: Pick<Fixture, 'component' | 'seed' | 'variants'>, types: Types) {
+  const problems: string[] = [];
+  for (const [variant, partial] of Object.entries(fixture.variants ?? {})) {
+    if (partial === null || typeof partial !== 'object' || Array.isArray(partial)) continue;
+    const merged = variantSeed(fixture, variant);
+    const repeats = JSON.stringify(merged) === JSON.stringify(fixture.seed ?? {});
+    const allowed = SEED_REPEATS[name]?.variant === variant;
+    if (allowed && !repeats) {
+      problems.push(`${name}.variants.${variant}: SEED_REPEATS allows it to repeat the seed and it no longer does, `
+        + `so the allowance outlived what it was written for: ${SEED_REPEATS[name]?.reason}`);
+    }
+    if (repeats && !allowed) {
+      problems.push(`${name}.variants.${variant}: draws the seed unchanged, so the variant compares nothing the seed does not`);
+    }
+    problems.push(...seedProblems(`${name}.variants.${variant}`, contract, { seed: merged }, types));
+  }
+  return problems;
+}
+
 export type ClassSource = {
   families: Map<string, Family>;
   manifest: (component: string) => ComponentManifest | null;
@@ -215,12 +248,19 @@ export function nodeProblems(where: string, node: FixtureChild, contracts: Contr
     return [`${where}: a node is "${SUBJECT}", a text node or a component node, and this is ${Array.isArray(node) ? 'an array' : typeof node}`];
 
   if (typeof node.text === 'string') {
+    if ('children' in node)
+      return [`${where}: a node carries text or children, never both, because a text node is a leaf and an element holding children spells its text as text nodes among them`];
     const unknown = Object.keys(node).filter((k) => !['text', 'element', 'attrs'].includes(k));
     return unknown.map((k) => `${where}: a text node carries text, element and attrs, never ${k}`);
   }
   if (typeof node.element === 'string') {
-    const unknown = Object.keys(node).filter((k) => !['element', 'attrs', 'text'].includes(k));
-    return unknown.map((k) => `${where}: an element node carries element, attrs and text, never ${k}`);
+    const unknown = Object.keys(node).filter((k) => !['element', 'attrs', 'text', 'children'].includes(k));
+    const problems = unknown.map((k) => `${where}: an element node carries element, attrs and text or children, never ${k}`);
+    if ('children' in node) {
+      if (!Array.isArray(node.children)) return [...problems, `${where}.children: an element holds a list of nodes and this is ${typeof node.children}`];
+      problems.push(...listProblems(`${where}.children`, node.children, contracts, types, { allowSubject, source }));
+    }
+    return problems;
   }
   if (typeof node.component !== 'string')
     return [`${where}: a node names neither text, element nor component`];
@@ -307,6 +347,10 @@ export function bindProblems(name: string, contract: Pick<ComponentContract, 'ap
     for (const [member, value] of Object.entries(target)) {
       const knob = api[member];
       if (!knob) { problems.push(`${name}.bind.${event}: patches ${member}, which the contract does not declare`); continue; }
+      if (value !== null && typeof value === 'object' && '$field' in value) {
+        problems.push(...fieldProblems(`${name}.bind.${event}`, event, spec, member, knob, value, types));
+        continue;
+      }
       if (value !== null && typeof value === 'object' && '$delta' in value) {
         if (knob.form !== 'primitive' || knob.type !== 'number')
           problems.push(`${name}.bind.${event}: $delta steps a number and ${member} is ${knob.form}<${knob.type ?? ''}>`);
@@ -320,6 +364,22 @@ export function bindProblems(name: string, contract: Pick<ComponentContract, 'ap
   return problems;
 }
 
+const shapeOf = (spec: MemberSpec) => (spec.form === 'array' ? `array<${spec.of ?? ''}>` : `${spec.form}<${spec.type ?? ''}>`);
+
+export function fieldProblems(where: string, event: string, eventSpec: MemberSpec, member: string,
+  knob: MemberSpec, directive: Record<string, unknown>, types: Types): string[] {
+  const field = directive.$field;
+  if (Object.keys(directive).length !== 1) return [`${where}: ${member} holds a $field directive and nothing else`];
+  if (typeof field !== 'string') return [`${where}: $field holds the name of a payload field and this holds ${typeof field}`];
+  if (!eventSpec.payload) return [`${where}: ${event} carries no payload, so $field has nothing to read`];
+  const payload = types.get(eventSpec.payload);
+  if (payload?.kind !== 'object') return [`${where}: $field reads a field of an object and ${event} carries ${eventSpec.payload}`];
+  const held = (payload.fields ?? {})[field];
+  if (!held) return [`${where}: ${eventSpec.payload} declares no field called ${field}`];
+  const same = held.form === knob.form && (held.form === 'array' ? held.of === knob.of : held.type === knob.type);
+  return same ? [] : [`${where}: $field ${field} is ${shapeOf(held)} and ${member} is ${shapeOf(knob)}`];
+}
+
 export function hostProblems(name: string, fixture: Pick<Fixture, 'host'> & { component?: string },
   contracts: Contracts, types: Types) {
   if (!('host' in fixture) || fixture.host === null || fixture.host === undefined) return [];
@@ -330,9 +390,13 @@ export function shapeProblems(name: string, fixture: Fixture & Record<string, un
   const problems: string[] = [];
   if (fixture.component !== name)
     problems.push(`${name}${FIXTURE_SUFFIX}: declares component "${fixture.component}", and the file name says ${name}`);
-  const known = ['component', 'seed', 'class', 'slots', 'bind', 'host', 'note', 'vars'];
+  const known = ['component', 'seed', 'class', 'slots', 'bind', 'host', 'note', 'vars', 'variants'];
   for (const key of Object.keys(fixture))
     if (!known.includes(key)) problems.push(`${name}${FIXTURE_SUFFIX}: carries ${key}, and a fixture holds ${known.join(', ')}`);
+  for (const [variant, partial] of Object.entries(fixture.variants ?? {})) {
+    if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(variant)) problems.push(`${name}${FIXTURE_SUFFIX}: variants names "${variant}", and a variant is named in lower-case words joined by hyphens, since a kitchen-sink arrangement spells it after a colon`);
+    if (partial === null || typeof partial !== 'object' || Array.isArray(partial)) problems.push(`${name}${FIXTURE_SUFFIX}: variants.${variant} is a partial seed, an object of members`);
+  }
   const vars = fixture.vars;
   if (vars !== undefined && (vars === null || typeof vars !== 'object' || Array.isArray(vars)))
     problems.push(`${name}${FIXTURE_SUFFIX}: vars is a map of --arena-* names to string values`);
@@ -349,6 +413,7 @@ export function fixtureProblems(name: string, contract: ComponentContract, fixtu
   const problems = [
     ...shapeProblems(name, fixture),
     ...seedProblems(name, contract, fixture, types),
+    ...variantProblems(name, contract, fixture, types),
     ...classProblems(`${name}.class`, name, fixture.class),
     ...slotProblems(name, contract, fixture, contracts, types),
     ...bindProblems(name, contract, fixture, types),

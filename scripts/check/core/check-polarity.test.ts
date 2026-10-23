@@ -89,3 +89,10 @@ test('a theme names the scope it answers to as a pattern, and the pattern is wha
   assert.equal(scopeOf(blocks, { selector: ':root' }), ':root');
   assert.equal(scopeOf(blocks, { selector: '\\.arena-sepia' }), null);
 });
+
+test('a selector list answers a theme through any one of its selectors', () => {
+  const blocks = blocksIn(':root,.arena-dark{ --picker-invert:1; color-scheme:dark; }\n.arena-light{ --picker-invert:0; color-scheme:light; }\n');
+  assert.equal(scopeOf(blocks, { selector: ':root' }), ':root,.arena-dark');
+  assert.deepEqual(declaredProblems(blocks, THEMES), []);
+  assert.deepEqual(strayProblems(blocks, THEMES), []);
+});

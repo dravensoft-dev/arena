@@ -1,13 +1,14 @@
 /* The floors a reader is owed and the shape a moved token takes, stated once and run in two
- * places. Arena runs it over what it ships; a consumer's build runs it over what they wrote, and
- * the two have to agree or one would be held to a weaker rule than the other. It lives inside the
- * command's own directory because that is the only tree a package carries: a module under scripts/
- * is a specifier that resolves here and to nothing beside a consumer's node_modules, so the shared
- * half goes in and the gates import upward, which is what audit.ts and palette-keys.ts already do.
- * Everything here is a function of plain data, reads no file and knows no path, since the
- * repository hands it CSS off disk and the CLI hands it CSS out of a package. scopeOn spells how
- * a scope class crosses a selector, and it is here for the same reason: the generator and the
- * emitter both write that selector, and two spellings of one cascade rule drift. */
+ * places: Arena runs it over what it ships, a consumer's build over what they wrote, and the two
+ * must agree. It lives inside the command's own directory because that is the only tree a package
+ * carries; the gates import upward, as audit.ts and palette-keys.ts do. Everything here is a
+ * function of plain data and reads no file. scopeOn, scopeKey and crossKeys spell how a scope class
+ * crosses a selector and where a reader finds it, since generator and emitter both write that rule.
+ * rootOnlyFor restates what :root alone computes (the contrast widths, the hero fit) on a plugin's
+ * class after its own block: both weigh the same, so order wins. highContrastFor does the same for
+ * the widths alone, on :root, after a project's own root answers. */
+
+import { POLARITIES } from './palette-keys.ts';
 
 export const ARENA_EXT = 'com.dravensoft.arena';
 
@@ -27,36 +28,49 @@ export const MAX_PROSE_MEASURE = 90;
 
 export const DANGER_FLOOR = 'hue-danger-fill-strong';
 
-export const RESERVED = new Map<string, string>([
-  ['divider', 'ArenaDivider, a rule between two regions (spec 01)'],
-  ['kbd', 'ArenaKbd, a key or a key combination (spec 02)'],
-  ['fieldset', 'ArenaFieldset, a labelled group of form controls (spec 03)'],
-  ['link', 'ArenaLink, an inline link (spec 04)'],
-  ['copy-button', 'ArenaCopyButton, a button that copies a value (spec 05)'],
-  ['meter', 'ArenaMeter, a value inside a known range (spec 06)'],
-  ['accordion', 'ArenaAccordion, a stack of disclosure sections (spec 10)'],
-  ['stepper', 'ArenaStepper, the steps of a process and where it stands (spec 11)'],
-  ['timeline', 'ArenaTimeline, milestones in order (spec 12)'],
-  ['number-field', 'ArenaNumberField, a formatted number input (spec 13)'],
-  ['pin-input', 'ArenaPinInput, a code entered one character per cell (spec 14)'],
-  ['file-input', 'ArenaFileInput, a file picker with a drop zone (spec 15)'],
-  ['slider', 'ArenaSlider, a number chosen inside a range (spec 16)'],
-  ['sparkline', 'ArenaSparkline, a small inline trend chart (spec 17)'],
-  ['gauge-chart', 'ArenaGaugeChart, one value against banded thresholds (spec 18)'],
-  ['filter-bar', 'ArenaFilterBar, the filters applied to a collection (spec 19)'],
-  ['funnel-chart', 'ArenaFunnelChart, the stages a count narrows through (spec 20)'],
-  ['popover', 'ArenaPopover, an anchored panel (spec 21)'],
-  ['combobox', 'ArenaCombobox, a text input that filters a list of options (spec 22)'],
-  ['split-button', 'ArenaSplitButton, an action with a menu of alternatives (spec 24)'],
-  ['tree-view', 'ArenaTreeView, a hierarchy that expands and collapses (spec 25)'],
-  ['heatmap-chart', 'ArenaHeatmapChart, values on a grid of two categories (spec 26)'],
-  ['sticky-head', 'the sticky family option that keeps a table head in view (spec 27)'],
-  ['sticky-none', 'the sticky family option that lets a table head scroll away (spec 27)'],
-]);
+export const RESERVED = new Map<string, string>();
 
-export const scopeOn = (className: string) => (selector: string) => (selector === ':root'
-  ? className
-  : `${className}${selector}, ${className} ${selector}, ${selector} ${className}`);
+export const POLARITY_HOOKS: ReadonlySet<string> = new Set(POLARITIES.map((polarity) => `polarity-${polarity}`));
+
+export const scopeOn = (className: string) => (selector: string, body: string) => (selector === ':root'
+  ? `${className}{${body}}`
+  : `@scope (${className}) {\n:where(:scope)${selector}, ${selector}{${body}}\n}\n@scope (${selector}) {\n${className}{${body}}\n}`);
+
+export const scopeKey = (root: string, selector: string) => `@scope (${root}) ${selector}`;
+
+export const crossKeys = (className: string, selector: string) =>
+  [scopeKey(className, selector), scopeKey(selector, className)];
+
+const HIGH_CONTRAST = /@media\s*\(prefers-contrast:\s*more\)\s*\{/;
+
+const rootDecls = (css: string, within?: RegExp) => {
+  const text = css.replace(/\/\*[\s\S]*?\*\//g, '');
+  const from = within ? within.exec(text) : null;
+  const scope = within ? (from ? text.slice(from.index + from[0].length) : '') : text;
+  const found = /:root\s*\{([^}]*)\}/.exec(scope);
+  if (!found && text.trim()) {
+    throw new Error(`rootOnlyFor: no :root block${within ? ' inside @media (prefers-contrast: more)' : ''} in a sheet that has `
+      + 'content, so the widths or the hero fit it computes would not reach a style plugin');
+  }
+  return [...(found?.[1] ?? '').matchAll(/(--[\w-]+)\s*:\s*([^;]+);/g)].map((m) => ({ name: m[1] as string, value: (m[2] as string).trim() }));
+};
+
+const linesOf = (decls: { name: string; value: string }[]) => decls.map((d) => `  ${d.name}:${d.value};`).join('\n');
+
+export const highContrastNames = (contrast: string) => rootDecls(contrast, HIGH_CONTRAST).map((d) => d.name);
+
+export function highContrastFor(className: string, sources: { contrast: string; environment: string }) {
+  const widened = rootDecls(sources.contrast, HIGH_CONTRAST);
+  return widened.length ? `@media (prefers-contrast: more) {\n${className}{\n${linesOf(widened)}\n}\n}` : '';
+}
+
+export function rootOnlyFor(className: string, sources: { contrast: string; environment: string }) {
+  const fit = rootDecls(sources.environment).filter((d) => d.name === '--title-hero-fit');
+  return [
+    highContrastFor(className, sources),
+    fit.length ? `${className}{\n${linesOf(fit)}\n}` : '',
+  ].filter(Boolean).join('\n');
+}
 
 export type RoleShape = { $type?: string; $extensions?: Record<string, { values?: unknown }> };
 
@@ -165,6 +179,9 @@ export function withDefaults<P extends Answers>(
 }
 
 export function reservedProblems(name: string, where: string) {
+  if (POLARITY_HOOKS.has(name))
+    return [`${where}: "${name}" is the polarity hook a runtime palette wears, the class .arena-${name} every `
+      + 'build with "runtimePalettes": true emits, so a palette or plugin of that name would collide with it.'];
   const reason = RESERVED.get(name);
   if (reason === undefined) return [];
   return [`${where}: "${name}" is held for ${reason}, which Arena is going to ship as the class .arena-${name}. `

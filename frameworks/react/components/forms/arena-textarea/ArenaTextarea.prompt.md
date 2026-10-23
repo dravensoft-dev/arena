@@ -13,7 +13,7 @@ Multi-line text input. Shares the same visual states as `ArenaInput`.
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
 | `label` | primitive | `string` |  | Field label; the counter and error sit under the field. |
-| `id` | primitive | `string` |  | The control's id, and what the label's `for` points at. Generated from `label` when omitted, as `ta-` followed by the label with each run of whitespace replaced by a single hyphen and the whole lowercased: the derivation ArenaInput.id states, under this component's own prefix. |
+| `id` | primitive | `string` |  | The control's id, and what the label's `for` points at. Generated from `label` when omitted, as `ta-` followed by the label with each run of whitespace replaced by a single hyphen and the whole lowercased. The derivation is the one ArenaInput.id states, under this component's own prefix. The hint or the error takes it followed by `-note`. |
 | `hint` | primitive | `string` |  | A line of help under the field. |
 | `error` | primitive | `string` |  | Error message; turns the border crimson and shows below. |
 | `required` | primitive | `boolean` | `false` | Marks the label and the control required. |

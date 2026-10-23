@@ -22,8 +22,9 @@ test('this gate and the shipped command hold the same fills legible', () => {
     + 'is the half nobody reads');
 });
 
+const SELECTORS = [':root', '.arena-dark', '.arena-light'];
 const structure = structureOf([
-  ':root, .arena-light {',
+  ':root, .arena-dark, .arena-light {',
   '  --text-strong: var(--color-base-content);',
   '  --text-body: color-mix(in oklab, var(--color-base-content) 82%, transparent);',
   '  --text-muted: var(--mute);',
@@ -32,7 +33,13 @@ const structure = structureOf([
   '  --loop-b: var(--loop-a);',
   '  --painted: #ff0000;',
   '}',
-].join('\n'));
+].join('\n'), SELECTORS);
+
+test('an alias block whose selector lacks a palette the palette sheet declares is refused, naming it', () => {
+  assert.throws(() => structureOf(':root, .arena-light { --text-strong: var(--color-base-content); }', SELECTORS),
+    /does not carry \.arena-dark/);
+  assert.throws(() => structureOf(':root,.arena-dark{ --picker-invert:1; }', SELECTORS), /no block declares the aliases/);
+});
 
 test('a level that is base-content itself is the whole of it', () => {
   assert.equal(resolvePercent(structure, 'text-strong'), 100);

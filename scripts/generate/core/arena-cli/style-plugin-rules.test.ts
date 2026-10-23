@@ -1,12 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { basename, dirname, join } from 'node:path';
-import { DANGER_FLOOR, KEBAB, RESERVED, floorProblems, nameProblems, reservedProblems, withDefaults } from './style-plugin-rules.ts';
+import { DANGER_FLOOR, KEBAB, POLARITY_HOOKS, RESERVED, floorProblems, highContrastFor, nameProblems, reservedProblems, rootOnlyFor, withDefaults } from './style-plugin-rules.ts';
 import { scopesIn } from './sheets.ts';
 import { POLARITIES } from './palette-keys.ts';
 import { walkFiles } from '../../../utils/walk-files.ts';
 import { repoRoot } from '../../../lib/arena/repo-root.ts';
 import { readFamilies } from '../../../lib/tailwind/vocabulary.ts';
+import { whileHeld } from './cli-fixtures.ts';
 
 const reading = { 'lh-prose': '1.6', 'lh-heading': '1.15', 'measure-prose': '72ch' };
 
@@ -53,8 +54,13 @@ test('a reserved name is never a class the tree ships, so a component that lands
   assert.deepEqual(stale(new Map([...RESERVED, ['table', 'ArenaTable, a planted entry (spec 00)']]), shipped), ['table']);
 });
 
+test('no class is held ahead, and a held entry is gone when the case that planted it ends', async () => {
+  assert.equal(RESERVED.size, 0);
+  await whileHeld('held-name', () => assert.equal(RESERVED.size, 1));
+  assert.equal(RESERVED.size, 0);
+});
+
 test('every reserved name is kebab, is no polarity, and carries a reason naming its spec and no version', () => {
-  assert.equal(RESERVED.size, 24);
   for (const [name, reason] of RESERVED) {
     assert.match(name, KEBAB, name);
     assert.ok(!POLARITIES.includes(name), `${name} is a polarity, and a palette may always take its own`);
@@ -63,23 +69,36 @@ test('every reserved name is kebab, is no polarity, and carries a reason naming 
   }
 });
 
-test('a reserved name is refused as a style plugin, naming the component that holds it', () => {
-  assert.deepEqual(nameProblems('popover', POLARITIES, 'stylePlugins[1]'), [
-    'stylePlugins[1]: "popover" is held for ArenaPopover, an anchored panel (spec 21), which Arena is going to '
-    + 'ship as the class .arena-popover. A build naming it would fail on the release that ships that class, so '
-    + 'the name is refused while renaming costs nothing.',
+test('a reserved name is refused as a style plugin, naming the component that holds it', () => whileHeld('held-name', () => {
+  assert.deepEqual(nameProblems('held-name', POLARITIES, 'stylePlugins[1]'), [
+    'stylePlugins[1]: "held-name" is held for ArenaHeld, a name held for one case (spec 00), which '
+    + 'Arena is going to ship as the class .arena-held-name. A build naming it would fail on the release that ships '
+    + 'that class, so the name is refused while renaming costs nothing.',
   ]);
-  assert.equal(nameProblems('sticky-head', POLARITIES, 'at').length, 1);
-  assert.equal(nameProblems('popover', POLARITIES, 'at', ['popover']).length, 1,
+  assert.equal(nameProblems('held-name', POLARITIES, 'at').length, 1);
+  assert.equal(nameProblems('held-name', POLARITIES, 'at', ['held-name']).length, 1,
     'a name both shipped and held reports once, as shipped');
-  assert.match(nameProblems('popover', POLARITIES, 'at', ['popover'])[0] ?? '', /already a class this package ships/);
+  assert.match(nameProblems('held-name', POLARITIES, 'at', ['held-name'])[0] ?? '', /already a class this package ships/);
+}));
+
+test('the polarity hooks are refused as a palette name and as a style plugin name', () => {
+  assert.deepEqual([...POLARITY_HOOKS], ['polarity-dark', 'polarity-light']);
+  for (const name of POLARITY_HOOKS) {
+    assert.match(reservedProblems(name, 'at')[0] ?? '', /is the polarity hook a runtime palette wears/, name);
+    assert.equal(nameProblems(name, POLARITIES, 'stylePlugins[1]').length, 1, name);
+  }
+  assert.deepEqual(reservedProblems('polarity', 'at'), [], 'only the two hooks are named');
+});
+
+test('a name held by nobody is not refused', () => {
+  assert.deepEqual(nameProblems('tree-view', POLARITIES, 'at'), []);
 });
 
 test('a polarity, a near miss and an odd spelling are not reserved', () => {
-  for (const name of ['light', 'dark', 'popovers', 'my-popover', 'sticky', 'checkbox-group', 'multi-select',
+  for (const name of ['light', 'dark', 'tree-views', 'my-tree-view', 'sticky', 'checkbox-group', 'multi-select',
     'accordion-item', 'brand', 'constructor', '__proto__'])
     assert.deepEqual(reservedProblems(name, 'at'), [], name);
-  const odd = nameProblems('Popover', POLARITIES, 'at');
+  const odd = nameProblems('TreeView', POLARITIES, 'at');
   assert.equal(odd.length, 1);
   assert.match(odd[0] ?? '', /not kebab-case/);
 });
@@ -164,4 +183,31 @@ test('with no default declared the plugin comes back as it was, in the same key 
   assert.deepEqual(defaulted, []);
   assert.deepEqual(Object.keys(plugin.tokens), Object.keys(tokens));
   assert.equal(plugin.name, 'console');
+});
+
+test('rootOnlyFor restates the :root contrast rule in a media query and the hero fit, and reads only its text', () => {
+  const contrast = '/* :root { --no: 1; } */\n@media (prefers-contrast: more) {\n  :root {\n    --bw-surface: var(--bw-strong);\n    --focus-width: var(--sp-1);\n  }\n}\n';
+  const environment = ':root {\n  --pad-safe-top: max(var(--sp-0), env(safe-area-inset-top));\n  --title-hero-fit: clamp(1px, calc(2px - (3px - 100cqi) / 24), 4px);\n}\n';
+  assert.equal(rootOnlyFor('.arena-x', { contrast, environment }),
+    '@media (prefers-contrast: more) {\n.arena-x{\n  --bw-surface:var(--bw-strong);\n  --focus-width:var(--sp-1);\n}\n}\n'
+    + '.arena-x{\n  --title-hero-fit:clamp(1px, calc(2px - (3px - 100cqi) / 24), 4px);\n}');
+  assert.equal(rootOnlyFor('.arena-x', { contrast: '', environment: '' }), '');
+});
+
+test('rootOnlyFor\'s media half is highContrastFor', () => {
+  const sources = {
+    contrast: '@media (prefers-contrast: more) {\n  :root {\n    --bw-surface: var(--bw-strong);\n  }\n}\n',
+    environment: ':root {\n  --title-hero-fit: clamp(1px, 2px, 3px);\n}\n',
+  };
+  assert.ok(highContrastFor('.arena-x', sources).length > 0);
+  assert.ok(rootOnlyFor('.arena-x', sources).startsWith(highContrastFor('.arena-x', sources)));
+  assert.equal(highContrastFor('.arena-x', { contrast: '', environment: '' }), '');
+});
+
+test('rootOnlyFor takes the :root inside the high-contrast query, not an earlier one, and refuses a sheet with none', () => {
+  const contrast = ':root { --early: 1; }\n@media (prefers-contrast: more) {\n  :root { --bw-surface: var(--bw-strong); }\n}\n';
+  assert.equal(rootOnlyFor('.arena-x', { contrast, environment: '' }),
+    '@media (prefers-contrast: more) {\n.arena-x{\n  --bw-surface:var(--bw-strong);\n}\n}');
+  assert.throws(() => rootOnlyFor('.arena-x', { contrast: '.a { --x: 1; }', environment: '' }), /no :root block inside @media/);
+  assert.throws(() => rootOnlyFor('.arena-x', { contrast: '', environment: '.a { --x: 1; }' }), /no :root block/);
 });

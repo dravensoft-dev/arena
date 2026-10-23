@@ -17,9 +17,10 @@ import { THEME_SCOPES } from '../../generate/arena/generate-tokens.ts';
 import {
   ARENA_EXT, FS_STEP, KEBAB, MAX_PROSE_MEASURE, MIN_HEADING_LEADING, MIN_PROSE_LEADING,
   MIN_PROSE_MEASURE, RHYTHM_STEP, floorProblems, keyProblems, nameProblems, totalityProblems,
-  valueProblems, withDefaults,
+  crossKeys, valueProblems, withDefaults,
 } from '../../generate/core/arena-cli/style-plugin-rules.ts';
 import { readPlugin } from '../../generate/core/arena-cli/theme-css.ts';
+import { emittedWords } from './check-role-contract.ts';
 
 export {
   ARENA_EXT, FS_STEP, KEBAB, MAX_PROSE_MEASURE, MIN_HEADING_LEADING, MIN_PROSE_LEADING,
@@ -41,22 +42,22 @@ export const RESOLVED = [
 
 export const node = {
   name: 'check:style-plugin',
-  reads: [ROLES, ROOT_PLUGIN, 'scripts/generate/arena/generate-tokens.ts', ...RESOLVED],
+  reads: [ROLES, ROOT_PLUGIN, 'contracts/design/*.json', 'scripts/generate/arena/generate-tokens.ts', ...RESOLVED],
   writes: [],
   feeds: [],
 };
 
 type Token = { $type?: string; $value?: unknown; $description?: string };
 
-export const SCOPES = ['dark', ...THEME_SCOPES.keys()];
+export const SCOPES = [...THEME_SCOPES.keys()];
 
 export function resolvedFor(css: string, name: string, scope = 'dark') {
   const decls = parseDecls(css);
-  const themed = THEME_SCOPES.get(scope)?.(`.arena-${name}`);
+  const themed = THEME_SCOPES.has(scope) ? crossKeys(`.arena-${scope}`, `.arena-${name}`) : [];
   return new Map<string, string>([
     ...(decls.get(':root') ?? new Map()),
     ...(decls.get(`.arena-${name}`) ?? new Map()),
-    ...((themed && decls.get(themed)) || new Map()),
+    ...themed.flatMap((key) => [...(decls.get(key) ?? new Map())]),
   ]);
 }
 
@@ -90,7 +91,10 @@ type KernelRole = { $extensions?: Record<string, { default?: unknown }> };
 const without = (record: Record<string, unknown>, key: string) =>
   Object.fromEntries(Object.entries(record).filter(([one]) => one !== key));
 
-export function defaultAnswerProblems(roles: Record<string, KernelRole>, answers: Record<string, unknown>) {
+const WORD_ALIAS = /^\{([a-z][\w-]*(?:\.[\w-]+)*)\}$/;
+
+export function defaultAnswerProblems(roles: Record<string, KernelRole>, answers: Record<string, unknown>,
+  words: ReadonlyMap<string, string> = new Map()) {
   const kernel = Object.fromEntries(Object.entries(roles)
     .map(([name, role]) => [name, { default: role.$extensions?.[ARENA_EXT]?.default }]));
   const plugin = readPlugin('default', answers);
@@ -100,7 +104,11 @@ export function defaultAnswerProblems(roles: Record<string, KernelRole>, answers
   for (const [name, { default: alias }] of Object.entries(kernel)) {
     if (typeof alias !== 'string' || !Object.hasOwn(plugin.tokens, name)) continue;
     const completed = withDefaults({ tokens: without(plugin.tokens, name), light: without(plugin.light, name) }, kernel).plugin;
-    const want = [completed.tokens[name], completed.light[name]];
+    const word = (value: unknown) => {
+      const at = typeof value === 'string' ? WORD_ALIAS.exec(value.trim())?.[1]?.replace(/\./g, '-') : undefined;
+      return at !== undefined && words.has(at) ? words.get(at) : value;
+    };
+    const want = [word(completed.tokens[name]), word(completed.light[name])];
     const got = [plugin.tokens[name], plugin.light[name]];
     if (want[0] !== got[0] || want[1] !== got[1])
       problems.push(`${ROOT_PLUGIN}: --${name} is ${said(got)} and its kernel default ${alias} comes to ${said(want)}. `
@@ -126,6 +134,7 @@ export function collect(sheets?: string) {
   problems.push(...defaultAnswerProblems(
     readJson(join(repoRoot, ROLES)) as Record<string, KernelRole>,
     readJson(join(repoRoot, ROOT_PLUGIN)) as Record<string, unknown>,
+    emittedWords(repoRoot),
   ));
   return problems;
 }

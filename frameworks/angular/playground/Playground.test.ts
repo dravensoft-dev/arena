@@ -150,6 +150,22 @@ test('$delta steps rather than replaces', () => {
   assert.equal(held(stepped, 'index'), 1);
 });
 
+test('a $field bind copies one payload field, and leaves the knob alone when the payload has none', () => {
+  const payload = { values: ['deploys', 'incidents'] };
+  const after = applyBind(baseState(model), { tags: { $field: 'values' } }, payload);
+  assert.deepEqual(held(after, 'tags'), ['deploys', 'incidents']);
+  assert.notEqual(held(after, 'tags'), payload.values, 'the held array is a copy, never the payload\'s own');
+  assert.equal(after.bound['tags'], true);
+  for (const missing of [undefined, null, {}, 'values']) {
+    const kept = applyBind(baseState(model), { tags: { $field: 'values' } }, missing);
+    assert.equal(held(kept, 'tags'), undefined, String(missing));
+    assert.equal(kept.bound['tags'], undefined, String(missing));
+  }
+  const malformed = applyBind(baseState(model), { tags: { $field: 3 } }, { values: ['deploys'], 3: 'x' });
+  assert.equal(held(malformed, 'tags'), undefined, 'a directive whose field name is no string is never written as a literal');
+  assert.equal(malformed.bound['tags'], undefined);
+});
+
 test('the panel draws one row per knob and the stage draws its projected content', () => {
   const fixture = render();
   try {
@@ -240,9 +256,11 @@ test('reset returns every knob to what the fixture and the contract said', () =>
 
 test('the stage carries the model\'s vars as its style, and a model without any leaves it bare', () => {
   const vars = { '--arena-column-status-align': 'right', '--arena-column-status-width': '8rem' };
+  let owned = 0;
   const draw = (shown: KnobModel) => {
-    @Component({ standalone: true, imports: [Playground], template: '<demo-playground [play]="play">x</demo-playground>' })
-    class Own { play = new PlaygroundStore(shown); }
+    const Own = Component({ selector: `playground-own-${owned++}`, standalone: true, imports: [Playground], template: '<demo-playground [play]="play">x</demo-playground>' })(
+      class { play = new PlaygroundStore(shown); },
+    );
     const fixture = TestBed.createComponent(Own);
     fixture.detectChanges();
     return fixture;
