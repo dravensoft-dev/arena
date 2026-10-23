@@ -464,7 +464,7 @@ function resolvedProblems(
       + 'command, so a style plugin cannot be checked against it'];
   }
 
-  const whole = withDefaults(plugin, catalogue.roles ?? {}, isRoot ? undefined : { root }).plugin;
+  const { plugin: whole, defaulted } = withDefaults(plugin, catalogue.roles ?? {}, isRoot ? undefined : { root });
   problems.push(...pluginTokenProblems(plugin.name, plugin.tokens, catalogue));
   problems.push(...pluginTokenProblems(`${plugin.name}.${THEME_GROUP}`, plugin.light, catalogue));
   if (isRoot) {
@@ -473,12 +473,19 @@ function resolvedProblems(
   }
   const reported = new Set([plugin.tokens, plugin.light]
     .flatMap((group) => ringsOf(group, catalogue).map((ring) => ring.id)));
+  const under = isRoot || !root ? null : withDefaults(root, catalogue.roles ?? {}).plugin;
+  const answersIn = (one: { tokens: Record<string, unknown>; light: Record<string, unknown> }, polarity: string) =>
+    (polarity === 'dark' ? one.tokens : { ...one.tokens, ...one.light });
+  const byDefault = (members: string[]) => members.filter((one) => defaulted.includes(one))
+    .map((one) => `; "${one}" carries Arena's default ${catalogue.roles?.[one]?.default}, so it takes that role's answer`).join('');
   for (const polarity of POLARITIES) {
-    const merged = polarity === 'dark' ? whole.tokens : { ...whole.tokens, ...whole.light };
-    for (const { id, message } of ringsOf(merged, catalogue)) {
+    const merged = answersIn(whole, polarity);
+    const withRoot = under ? { ...answersIn(under, polarity), ...merged } : merged;
+    const ordered = { ...merged, ...withRoot };
+    for (const { id, message } of [...ringsOf(merged, catalogue), ...ringsOf(ordered, catalogue)]) {
       if (reported.has(id)) continue;
       reported.add(id);
-      problems.push(`stylePlugins.${plugin.name}: ${message}.`);
+      problems.push(`stylePlugins.${plugin.name}: ${message}${byDefault(id.split(' '))}.`);
     }
   }
   if (problems.length) return problems;

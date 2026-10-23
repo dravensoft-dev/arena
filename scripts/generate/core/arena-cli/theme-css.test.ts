@@ -725,6 +725,28 @@ test('a colour role naming another colour role is restated under a palette, as a
     'a later plugin\'s role alias that is not restated loses to the palette block under the same element');
 });
 
+test('a ring that closes between the root plugin and a later one is refused', () => {
+  const problems = pluginProblems(listed(['console', 'marketing']), [
+    total({ 'fill-surface': { $type: 'color', $value: '{ink-eyebrow}' } }),
+    scoped({ 'ink-eyebrow': { $type: 'color', $value: '{fill-surface}' } }),
+  ]);
+  const rings = problems.filter((m) => /neither resolves/.test(m));
+  assert.equal(rings.length, 1, problems.join('\n'));
+  assert.match(rings[0] ?? '', /"ink-eyebrow" is "\{fill-surface\}", and "fill-surface" leads back to "ink-eyebrow"/);
+});
+
+test('a ring closed through a role a later plugin takes by default names that default', () => {
+  const sheets = { ...SHEETS_FULL, catalogue: { ...SHEETS_FULL.catalogue, roles: {
+    ...SHEETS_FULL.catalogue.roles, 'ink-key': { type: 'color', default: '{ink-eyebrow}' },
+  } } };
+  const problems = configProblems(listed(['console', 'marketing']), sheets, [
+    total(), scoped({ 'ink-eyebrow': { $type: 'color', $value: '{ink-key}' } }),
+  ]).filter((m) => m.includes('stylePlugins'));
+  const rings = problems.filter((m) => /never resolves|neither resolves/.test(m));
+  assert.equal(rings.length, 1, problems.join('\n'));
+  assert.match(rings[0] ?? '', /"ink-key" carries Arena's default \{ink-eyebrow\}, so it takes that role's answer/);
+});
+
 test('resolvedPlugin follows a role alias to the colour the named role resolves to', () => {
   const plugin = readPlugin('p', { 'ink-muted': { $value: '{color.primary}' }, 'ink-key': { $value: '{ink-muted}' } });
   assert.equal(resolvedPlugin(plugin, ALIASED).get('ink-key'), 'var(--color-primary)');
