@@ -54,7 +54,7 @@ jobs:
       # browser. CHROME_PATH is deliberately not exported: check:portability fails when a second
       # workflow names it, and Arena main is the one that may, so this exercises the PATH branch.
       - name: a browser, and CHROME_PATH is deliberately not exported
-        uses: browser-actions/setup-chrome@v1
+        uses: browser-actions/setup-chrome@v2
         with:
           chrome-version: ${{ env.CHROME_VERSION }}
 

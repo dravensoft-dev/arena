@@ -46,7 +46,7 @@ jobs:
       - run: bun install --frozen-lockfile
       - name: a browser, and CHROME_PATH is set to it only when the caller names one
         id: chrome
-        uses: browser-actions/setup-chrome@v1
+        uses: browser-actions/setup-chrome@v2
         with:
           chrome-version: ${{ env.CHROME_VERSION }}
       # Unset, CHROME_PATH leaves findChromium to its candidate list, which is what a caller that
@@ -101,7 +101,7 @@ jobs:
       - run: bun install --frozen-lockfile
       - name: a browser, and CHROME_PATH is set to it only when the caller names one
         id: chrome
-        uses: browser-actions/setup-chrome@v1
+        uses: browser-actions/setup-chrome@v2
         with:
           chrome-version: ${{ env.CHROME_VERSION }}
       # Unset, CHROME_PATH leaves findChromium to its candidate list, which is what a caller that
@@ -168,7 +168,7 @@ jobs:
       - run: bun install --frozen-lockfile
       - name: a browser, and CHROME_PATH is set to it only when the caller names one
         id: chrome
-        uses: browser-actions/setup-chrome@v1
+        uses: browser-actions/setup-chrome@v2
         with:
           chrome-version: ${{ env.CHROME_VERSION }}
       # Unset, CHROME_PATH leaves findChromium to its candidate list, which is what a caller that

@@ -96,7 +96,7 @@ jobs:
         run: bun install --frozen-lockfile
 
       - name: a browser, and CHROME_PATH is deliberately not exported
-        uses: browser-actions/setup-chrome@v1
+        uses: browser-actions/setup-chrome@v2
         with:
           chrome-version: ${{ env.CHROME_VERSION }}
 
