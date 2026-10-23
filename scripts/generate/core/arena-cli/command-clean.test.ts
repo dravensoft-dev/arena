@@ -80,3 +80,14 @@ test('removes the cut fonts whose stem the config names, and no other woff2', ()
   assert.equal(run(['--out', '.'], io), 0);
   assert.deepEqual(readdirSync(dir).sort(), ['arena.config.json', 'b-0123456789.woff2', 'other-0123456789.woff2']);
 });
+
+test('removes the cut fonts the last build wrote even when the config no longer names them', () => {
+  const dir = root();
+  writeFileSync(join(dir, 'arena.config.json'), JSON.stringify({ fonts: { display: { family: 'A', src: 'https://example.com/a.woff2' } } }));
+  writeFileSync(join(dir, 'arena.generated.css'), "@font-face{src:url('./archivo-0123456789.woff2') format('woff2');}");
+  writeFileSync(join(dir, 'archivo-0123456789.woff2'), 'x');
+  writeFileSync(join(dir, 'archivo-mine.woff2'), 'x');
+  const { io } = captureIo(dir);
+  assert.equal(run(['-o', '.'], io), 0);
+  assert.deepEqual(readdirSync(dir).sort(), ['archivo-mine.woff2', 'arena.config.json']);
+});

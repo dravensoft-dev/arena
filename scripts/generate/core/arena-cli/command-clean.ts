@@ -1,12 +1,12 @@
 /* arena clean: it deletes the sheets, the sprite and its module arena build writes, and the cut
- * fonts whose stem the config names, by name, inside --out. It never deletes
+ * fonts whose stem the config names or the last theme sheet references, by name, inside --out. It never deletes
  * another file or the directory, so it is safe to run in a source tree. */
 import { existsSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { commandOptions } from './args.ts';
 import { voice } from './io.ts';
 import type { Io } from './io.ts';
-import { OUTPUT_SHEETS, fontFilesIn, spriteFilesIn } from './sources.ts';
+import { OUTPUT_SHEETS, fontFilesIn, spriteFilesIn, writtenFontStems } from './sources.ts';
 import { configFonts, fontStem } from './font-files.ts';
 
 export function run(argv: string[], io: Io): number {
@@ -15,7 +15,7 @@ export function run(argv: string[], io: Io): number {
   const say = voice(io, 'clean');
   let removed = 0;
   let failed = 0;
-  for (const name of [...OUTPUT_SHEETS, ...spriteFilesIn(options.out), ...fontFilesIn(options.out, configFonts(options.config).map(fontStem))]) {
+  for (const name of [...OUTPUT_SHEETS, ...spriteFilesIn(options.out), ...fontFilesIn(options.out, [...configFonts(options.config).map(fontStem), ...writtenFontStems(options.out)])]) {
     const at = join(options.out, name);
     if (!existsSync(at)) continue;
     try {

@@ -20,7 +20,7 @@ import {
   THEME_SHEET, PACKAGE_SHEET, PLUGIN_SHEET, RUNTIME_DATA, PLUGIN_LAYER, ICON_MANIFEST, SPRITE_MODULE, SPRITE_TYPES, SPRITE_STEM,
   iconManifest, pluginCss, pluginSheets, readPlugins,
 } from './sheets.ts';
-import { OUTPUT_SHEETS, fontFilesIn, missingSource, sourceFiles, spriteFilesIn } from './sources.ts';
+import { OUTPUT_SHEETS, fontFilesIn, missingSource, sourceFiles, spriteFilesIn, writtenFontStems } from './sources.ts';
 import { contentName, glyphFile, spriteModule, spriteSvg } from './sprite.ts';
 import { cutFonts, importedSheets, loadDecoder, loadFontTools } from './font-files.ts';
 import type { FontCuts, FontToolRoots } from './font-files.ts';
@@ -265,7 +265,7 @@ export async function plan(options: PlanOptions, env: PlanEnvironment, mode: Pla
 
   const outputs = [...theme.sheets, ...icons.files];
   const carried = new Set<string>([...outputs, ...fonts.files].map((one) => one.name));
-  const orphans = [...OUTPUT_SHEETS, ...spriteFilesIn(options.out), ...fontFilesIn(options.out, fonts.stems)]
+  const orphans = [...OUTPUT_SHEETS, ...spriteFilesIn(options.out), ...fontFilesIn(options.out, [...fonts.stems, ...writtenFontStems(options.out)])]
     .filter((name) => !carried.has(name) && existsSync(join(options.out, name)));
   return {
     code: 0,

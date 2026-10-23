@@ -667,6 +667,20 @@ test('a font changed on disk is named anew, and the name it had becomes an orpha
   cleanup(root, held, arena);
 });
 
+test('a cut font of a role now remote or gone is an orphan, found through the references in the sheet the last build wrote', async () => {
+  const { root, held, arena, env } = fontProject();
+  const first = await plan(options(root), env);
+  for (const one of [...first.outputs, ...first.binaries]) writeFileSync(one.path, one.content);
+  const written = first.binaries.map((one) => one.name);
+  const config = JSON.parse(readFileSync(join(root, 'arena.config.json'), 'utf8'));
+  config.fonts.display = { family: 'Archivo', src: 'https://example.com/archivo.woff2' };
+  writeFileSync(join(root, 'arena.config.json'), JSON.stringify(config));
+  const second = await plan(options(root), env);
+  assert.deepEqual(second.orphans.filter((name) => name.endsWith('.woff2')), written.filter((name) => name.startsWith('archivo-')));
+  assert.ok(!second.orphans.some((name) => name.startsWith('familjen-grotesk-')), 'a role still local keeps its cut');
+  cleanup(root, held, arena);
+});
+
 test('a painted weight outside the face\'s axis is a weight report naming role, weight and font', async () => {
   const { root, held, arena, env } = fontProject(LOCAL, `${PAINT}.x{font-family:var(--font-body);font-weight:900}`);
   const result = await plan(options(root), env);
