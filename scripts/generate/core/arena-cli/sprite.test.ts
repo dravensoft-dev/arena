@@ -25,10 +25,18 @@ test('the sprite holds one symbol per glyph, sorted, and the same bytes twice', 
   const out = spriteSvg(one, read);
   assert.equal(out.kept, 3);
   assert.deepEqual([...out.svg.matchAll(/<symbol id="([^"]+)"/g)].map((m) => m[1]), ['ph-bold-a', 'ph-bold-b', 'ph-c']);
-  assert.match(out.svg, /<symbol id="ph-bold-a" viewBox="0 0 256 256"><path d="A"\/><\/symbol>/);
+  assert.match(out.svg, /<symbol id="ph-bold-a" viewBox="0 0 256 256" fill="currentColor"><path d="A"\/><\/symbol>/);
   assert.ok(!out.svg.includes('xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill'));
   assert.equal(spriteSvg([...one].reverse(), read).svg, out.svg);
   assert.equal(spriteSvg(one, read).svg, out.svg);
+});
+
+test('each symbol carries the fill of the source root, since a use inherits from itself and not from the file', () => {
+  const read = reader({ 'bold/a': svg('<path d="A"/>'), 'regular/c': svg('<path d="C"/>') });
+  const out = spriteSvg([{ weight: 'bold', glyphs: new Set(['a']) }, { weight: 'regular', glyphs: new Set(['c']) }], read);
+  const symbols = [...out.svg.matchAll(/<symbol [^>]*>/g)].map((m) => m[0]);
+  assert.equal(symbols.length, 2);
+  for (const tag of symbols) assert.match(tag, / fill="currentColor"/);
 });
 
 test('a glyph the weight lacks is reported, not drawn', () => {

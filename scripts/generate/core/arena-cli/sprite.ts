@@ -16,6 +16,8 @@ export function glyphFile(core: string, weight: string, name: string) {
 
 const inner = (source: string) => source.replace(/^[\s\S]*?<svg\b[^>]*>/, '').replace(/<\/svg>[\s\S]*$/, '').trim();
 
+const rootFill = (source: string) => /<svg\b[^>]*\sfill="([^"]*)"/.exec(source)?.[1] ?? 'currentColor';
+
 export function spriteSvg(
   glyphs: { weight: string; glyphs: Set<string> }[],
   read: (weight: string, name: string) => string | null,
@@ -30,7 +32,7 @@ export function spriteSvg(
         continue;
       }
       const id = symbolId(weight, name);
-      symbols.set(id, `<symbol id="${id}" viewBox="0 0 256 256">${inner(source)}</symbol>`);
+      symbols.set(id, `<symbol id="${id}" viewBox="0 0 256 256" fill="${rootFill(source)}">${inner(source)}</symbol>`);
     }
   }
   const body = [...symbols.entries()].sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)).map(([, symbol]) => symbol);
