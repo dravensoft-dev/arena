@@ -5,7 +5,7 @@ import { brotliCompressSync, constants } from 'node:zlib';
 import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { repoRoot } from './repo-root.ts';
-import { brotliKB, reactBundle, typicalScreen, weightProblems } from './weight-measure.ts';
+import { brotliKB, reactBundle, redownloadKB, typicalScreen, weightProblems } from './weight-measure.ts';
 
 const BUDGETS = [{ figure: 'a', kb: 1, reason: 'start × 1.05' }, { figure: 'b', kb: 0, reason: 'start × 1.05' }];
 const CEILINGS = [{ figure: 'total', kb: 5, reason: 'acceptance' }];
@@ -54,4 +54,12 @@ test('reactBundle keeps Arena in its own chunk', async () => {
   } finally {
     rmSync(dist, { recursive: true, force: true });
   }
+});
+
+test('a half that moves with the app costs its whole brotli size, and an unmoved half costs nothing', () => {
+  const half = Buffer.from(Array.from({ length: 300 }, (_, i) => `.arena-x${i} { margin: ${i}px; }`).join('\n'));
+  const moved = Buffer.concat([half, Buffer.from('\n.app { color: red; }')]);
+  assert.equal(redownloadKB(half, Buffer.from(half)), 0);
+  assert.equal(redownloadKB(half, moved), brotliKB(moved));
+  assert.ok(redownloadKB(half, moved) > 0);
 });

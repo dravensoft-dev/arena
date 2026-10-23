@@ -1,7 +1,7 @@
 // check-weight: the budget table's shape and the one-line patch; the measuring is weight-measure.test.ts.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { BUDGETS, CEILINGS, oneLine } from './check-weight.ts';
+import { BUDGETS, CEILINGS, PAINTED_FACES, assertStartInputs, oneLine } from './check-weight.ts';
 
 test('every budget states the start commit and its multiplier, and each ceiling sits at or over its budget', () => {
   for (const { figure, reason } of BUDGETS) {
@@ -22,4 +22,11 @@ test('a one-line patch changes only its file, and says so when its line is not t
   assert.throws(() => one.applied(), /found nothing to change in a\.js/);
   assert.equal(one.patch('a.js', 'let x = 1;'), 'let x = 2;');
   assert.doesNotThrow(() => one.applied());
+});
+
+test('the fixture must reproduce the start\'s sprite and cut weights, or the gate stops', () => {
+  const glyphs = [...Array.from({ length: 17 }, (_, i) => `ph-bold-b${i}`), ...Array.from({ length: 6 }, (_, i) => `ph-fill-f${i}`)];
+  assert.doesNotThrow(() => assertStartInputs({ glyphs, faces: PAINTED_FACES }));
+  assert.throws(() => assertStartInputs({ glyphs: glyphs.slice(1), faces: PAINTED_FACES }), /16 bold and 6 fill/);
+  assert.throws(() => assertStartInputs({ glyphs, faces: PAINTED_FACES.slice(1) }), /cut fonts carry/);
 });

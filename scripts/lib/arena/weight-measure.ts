@@ -174,6 +174,7 @@ export async function reactBundle(
 
 export type CssFigures = {
   arena: Uint8Array; app: Uint8Array; theme: Uint8Array; sprite: Uint8Array; fonts: Uint8Array[];
+  glyphs: string[]; faces: string[];
 };
 
 const PACKAGE_IMPORT = /^@import '@dravensoft\/[^']+';$/;
@@ -209,8 +210,10 @@ export async function cssFigures(dist: string, entry: 'typical' | 'full', patch?
     writeFileSync(join(dir, 'arena.config.json'), JSON.stringify({ ...example, stylesheet: { components: 'auto' } }, null, 2));
     mkdirSync(join(dir, 'fonts'), { recursive: true });
     for (const f of readdirSync(join(dist, 'fonts'))) if (f.endsWith('.woff2')) writeFileSync(join(dir, 'fonts', f), readFileSync(join(dist, 'fonts', f)));
-    writeFileSync(join(dir, 'src', 'App.jsx'), `import { ${names.join(', ')} } from '@dravensoft/arena-react';\n`
-      + `export function App() { return <main>${names.map((n) => `<${n} />`).join('')}</main>; }\n`);
+    const edit = (file: string, text: string) => (patch ? patch(file, text) : text);
+    writeFileSync(join(dir, 'src', 'App.jsx'), edit('App.jsx', `import { ${names.join(', ')} } from '@dravensoft/arena-react';\n`
+      + `export function App() { return <main title="Sales dashboard">${names.map((n) => `<${n} />`).join('')}</main>; }\n`));
+    writeFileSync(join(dir, 'src', 'app.css'), edit('app.css', ".sales-dashboard::before { content: 'Sales dashboard'; color: rebeccapurple; }\n"));
     const ran = spawnSync(hostBinary('node', 'to run the CLI a consumer installs'),
       [join(dir, 'node_modules', '@dravensoft', 'arena-react', 'bin', 'arena.mjs'), 'build', '--config', 'arena.config.json', '--src', 'src', '-o', 'out'],
       { cwd: dir, encoding: 'utf8', timeout: ARENA_BUILD.ms });
@@ -219,7 +222,8 @@ export async function cssFigures(dist: string, entry: 'typical' | 'full', patch?
     const generated = readFileSync(join(out, 'arena.generated.css'), 'utf8');
     writeFileSync(join(dir, 'src', 'theme.css'), generated);
     writeFileSync(join(dir, 'src', 'arena-half.css'), generated.split('\n').filter((l) => PACKAGE_IMPORT.test(l)).join('\n'));
-    writeFileSync(join(dir, 'src', 'app-half.css'), generated.split('\n').filter((l) => !PACKAGE_IMPORT.test(l)).join('\n'));
+    writeFileSync(join(dir, 'src', 'app-half.css'),
+      `@import './app.css';\n${generated.split('\n').filter((l) => !PACKAGE_IMPORT.test(l)).join('\n')}\n`);
     const files = readdirSync(out);
     const one = (re: RegExp, what: string) => {
       const found = files.find((f) => re.test(f));
@@ -231,11 +235,20 @@ export async function cssFigures(dist: string, entry: 'typical' | 'full', patch?
       app: await sheet(dir, 'app-half.css', patch, dist),
       theme: await sheet(dir, 'theme.css', patch, dist),
       sprite: one(/^icons-[0-9a-f]+\.svg$/, 'sprite'),
+      glyphs: [...one(/^icons-[0-9a-f]+\.svg$/, 'sprite').toString().matchAll(/<symbol[^>]*\sid="([^"]+)"/g)].map((m) => m[1] ?? ''),
+      faces: [...generated.matchAll(/@font-face\s*\{([^}]*)\}/g)].map((m) => {
+        const body = m[1] ?? '';
+        return `${/font-family:\s*([^;]+);/.exec(body)?.[1]?.replace(/["']/g, '').trim()} ${/font-weight:\s*([^;]+);/.exec(body)?.[1]?.trim()}`;
+      }),
       fonts: files.filter((f) => /^[\w-]+-[0-9a-f]{10}\.woff2$/.test(f)).map((f) => readFileSync(join(out, f))),
     };
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
+}
+
+export function redownloadKB(before: Uint8Array, after: Uint8Array): number {
+  return Buffer.compare(before, after) === 0 ? 0 : brotliKB(after);
 }
 
 export type Figure = { figure: string; kb: number };

@@ -3,7 +3,8 @@
  * own, runs the dist's `arena build` for the sheets, the sprite and the cut fonts, and reads brotli q11 beside
  * the previous build as dictionary. A figure over its budget, or a total over its ceiling, fails. Budgets are
  * start × 1.05; the maintainer raises one, this gate never does. A missing dist stops it, as check:consumer.
- * oneLine is the patch: one line of one file, and an error when that line is not there. */
+ * The sprite and fonts are the start's post-lever figures for every glyph Arena draws and every weight its theme
+ * paints (W6, W7), so assertStartInputs fails when the fixture drifts. oneLine is the patch: one line of one file, and an error when that line is not there. */
 
 import { rmSync } from 'node:fs';
 import { join } from 'node:path';
@@ -12,7 +13,7 @@ import { arenaEnv } from '../../lib/arena/arena-scripts-vars.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { distDir, refuseUnassembled as refuseUnassembledPackages } from './check-packages.ts';
 import {
-  brotliKB, cssFigures, reactBundle, weightProblems, type Budget, type Ceiling, type Figure, type Patch,
+  brotliKB, cssFigures, reactBundle, redownloadKB, weightProblems, type Budget, type Ceiling, type Figure, type Patch,
 } from '../../lib/arena/weight-measure.ts';
 
 export const node = {
@@ -65,7 +66,21 @@ export function oneLine(target: string, from: string, to: string): { patch: Patc
 }
 
 const sum = (...parts: Uint8Array[]) => Math.round(parts.reduce((total, one) => total + brotliKB(one), 0) * 100) / 100;
-const same = (a: Uint8Array, b: Uint8Array) => Buffer.compare(a, b) === 0;
+
+export const SPRITE_GLYPHS = 23;
+export const PAINTED_FACES = ['Archivo 800 900', 'Familjen Grotesk 400 700', 'Spline Sans Mono 400', 'Spline Sans Mono 700'];
+
+export function assertStartInputs(css: { glyphs: string[]; faces: string[] }): void {
+  const bold = css.glyphs.filter((g) => g.startsWith('ph-bold-')).length;
+  const fill = css.glyphs.filter((g) => g.startsWith('ph-fill-')).length;
+  if (css.glyphs.length !== SPRITE_GLYPHS || bold !== 17 || fill !== 6) {
+    throw new Error(`check-weight: the fixture's sprite holds ${bold} bold and ${fill} fill glyphs, not the start's 17 and 6; `
+      + 'a figure measured on other inputs would loosen the budget');
+  }
+  if (JSON.stringify([...css.faces].sort()) !== JSON.stringify([...PAINTED_FACES].sort())) {
+    throw new Error(`check-weight: the cut fonts carry ${css.faces.join(', ')}, not the start's ${PAINTED_FACES.join(', ')}`);
+  }
+}
 
 export async function measure(dist: string): Promise<Figure[]> {
   const release: Patch = (file, text) => (file === 'app-logic.js' ? text.replace('Sales dashboard', 'Panel de ventas') : text);
@@ -77,23 +92,26 @@ export async function measure(dist: string): Promise<Figure[]> {
   js.applied();
 
   const css = await cssFigures(dist, 'typical');
-  const cssAgain = await cssFigures(dist, 'typical');
+  const cssFull = await cssFigures(dist, 'full');
+  const cssRelease = await cssFigures(dist, 'typical', (file, text) => (/^(App\.jsx|app\.css)$/.test(file)
+    ? text.replaceAll('Sales dashboard', 'Panel de ventas') : text));
+  assertStartInputs(cssFull);
   const sheet = oneLine('css/components/arena-button.css', 'display: inline-flex;', 'display: flex;');
   const patchedCss = await cssFigures(dist, 'typical', sheet.patch);
   sheet.applied();
 
-  const fonts = sum(...css.fonts);
+  const fonts = sum(...cssFull.fonts);
   const theme = brotliKB(css.theme);
-  const sprite = brotliKB(css.sprite);
+  const sprite = brotliKB(cssFull.sprite);
   const js1 = sum(typical.app, typical.react, typical.arena);
   return [
     { figure: 'react-js-first-visit', kb: js1 },
     { figure: 'react-js-first-visit-full', kb: sum(full.app, full.react, full.arena) },
-    { figure: 'react-js-app-release', kb: same(typical.arena, released.arena) ? 0 : brotliKB(released.arena) },
+    { figure: 'react-js-app-release', kb: redownloadKB(typical.arena, released.arena) },
     { figure: 'react-js-patch', kb: brotliKB(patchedJs.arena, typical.arena) },
     { figure: 'css-arena-half', kb: brotliKB(css.arena) },
     { figure: 'css-theme', kb: theme },
-    { figure: 'css-app-release', kb: same(css.arena, cssAgain.arena) ? 0 : brotliKB(cssAgain.arena) },
+    { figure: 'css-app-release', kb: redownloadKB(css.arena, cssRelease.arena) },
     { figure: 'css-patch', kb: brotliKB(patchedCss.arena, css.arena) },
     { figure: 'sprite', kb: sprite },
     { figure: 'fonts', kb: fonts },
