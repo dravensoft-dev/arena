@@ -8,7 +8,7 @@ import {
   paintedParts, sourceScope, outlineGap, kebabTag, HEADING_RUNGS, OWN_CLASS_ATTRIBUTE,
   LINKABLE_TAGS, WRAPPED_LINK_TAGS, statedRung, fillsWithDanger, namesAnAlias, RULE_TAGS, RULE_DESCRIPTIONS,
   UNMODELLED_UNITS, styleIdentifiers, styleObjectLines, unknownInputs,
-  ownClassFindings, classValues, RAW_GLYPH_BOUND_MESSAGE, RAW_COLOUR_MESSAGE, RAW_HEX_MESSAGE, GRADIENT_MESSAGE, primaryMessage, DANGER_FILL_MESSAGE, type VocabularyIndex,
+  iconMemberGlyphs, ownClassFindings, classValues, RAW_GLYPH_BOUND_MESSAGE, RAW_COLOUR_MESSAGE, RAW_HEX_MESSAGE, GRADIENT_MESSAGE, primaryMessage, DANGER_FILL_MESSAGE, type VocabularyIndex,
 } from './audit.ts';
 import { vocabularyIndex } from '../../../lib/arena/vocabulary-index.ts';
 
@@ -983,4 +983,16 @@ test('in a file naming a ph-* literal, a lone ngClass object and a glyph-free li
   assert.equal(lone.filter((line) => line.startsWith('src/a.html:2:')).length, 0);
   const literal = glyphLines('const A = "ph-bold ph-sun";\nconst B = () => <i className="tab__icon" />;');
   assert.equal(literal.length, 0);
+});
+
+test('iconMemberGlyphs reads ArenaIcon, an icon attribute of an Arena tag and a symbol reference, and nothing else', () => {
+  const text = [
+    '<ArenaIcon icon="ph-bold ph-x" />',
+    '<ArenaButton icon="ph ph-plus" />',
+    '<arena-side-nav-item [icon]="\'ph-bold ph-house\'">',
+    '<use href="/s.svg#ph-fill-heart" />',
+  ].join('\n');
+  assert.deepEqual([...iconMemberGlyphs(text)].sort(), ['ph-heart', 'ph-house', 'ph-plus', 'ph-x']);
+  assert.equal(iconMemberGlyphs("const T = [{ icon: 'ph-bold ph-kanban' }]").size, 0);
+  assert.equal(iconMemberGlyphs('<i className="ph-bold ph-y" />').size, 0);
 });

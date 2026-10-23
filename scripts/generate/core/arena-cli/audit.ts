@@ -11,7 +11,7 @@
 
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { WEIGHT_CLASSES, glyphNames, scan } from './icon-css.ts';
+import { SYMBOL_REF, WEIGHT_CLASSES, glyphNames, scan } from './icon-css.ts';
 
 export const RULE_TAGS = ['compat-alias', 'danger-fill', 'emoji', 'icon-element',
   'one-primary', 'outline-gap', 'own-class', 'raw-glyph', 'raw-value', 'router-link', 'stale-allowance', 'unknown-input', 'wrapped-link'] as const;
@@ -948,4 +948,26 @@ export function auditFindings(relPath: string, text: string, scope: Scope = 'app
 export function auditText(relPath: string, text: string, scope: Scope = 'app',
   gradientMark = false, vocabulary: VocabularyIndex | null = null): string[] {
   return auditFindings(relPath, text, scope, gradientMark, vocabulary).map((one) => one.text);
+}
+
+const ICON_TAG = /^(?:ArenaIcon|arena-icon)$/;
+const ICON_ATTRIBUTE = /(?:^|\s)\[?(?:icon|iconRight)\]?\s*=\s*/g;
+
+export function iconMemberGlyphs(text: string): Set<string> {
+  const found = scan(text.match(new RegExp(SYMBOL_REF.source, 'g'))?.join(' ') ?? '');
+  for (const m of text.matchAll(OPEN_TAG)) {
+    const name = m[1] ?? '';
+    const start = m.index ?? 0;
+    if (start > 0 && TAG_LEAD.test(text[start - 1] ?? '')) continue;
+    const ends = tagEnd(text, start);
+    if (ends === -1) continue;
+    const raw = text.slice(start + name.length + 1, ends - 1);
+    const attributes = ownAttributes(raw);
+    if (ICON_TAG.test(name)) { scan(attributes, found); continue; }
+    if (!ARENA_TAG.test(name)) continue;
+    for (const one of attributes.matchAll(ICON_ATTRIBUTE)) {
+      scan(attributeValueAt(attributes, (one.index ?? 0) + one[0].length), found);
+    }
+  }
+  return glyphNames(found);
 }

@@ -15,6 +15,7 @@ import { AUTO, resolve as resolveComponents } from './components.ts';
 import type { ComponentMap } from './components.ts';
 import { scan, drawnGlyphs, fillSourceGlyphs, glyphNames, mergeShipped, shippedNames, WEIGHT_CLASSES } from './icon-css.ts';
 import type { IconScan } from './icon-css.ts';
+import { iconMemberGlyphs } from './audit.ts';
 import { report } from './reports.ts';
 import type { Report } from './reports.ts';
 import {
@@ -222,6 +223,14 @@ export function spriteFiles(options: PlanOptions, { arena, phosphor, map = null,
   );
   for (const [weight, names] of missing) {
     for (const name of names) reports.push(report('glyph', `${weight}: ph-${name} is not an icon Phosphor draws at that weight`));
+  }
+
+  const missingNames = new Set([...missing.values()].flatMap((names) => [...names].map((one) => `ph-${one}`)));
+  const drawnByMembers = new Set(sources.flatMap((source) => [...iconMemberGlyphs(source)]));
+  for (const glyph of glyphNames(yours)) {
+    if (drawnByMembers.has(glyph) || missingNames.has(glyph)) continue;
+    reports.push(report('glyph', `${glyph} is in the sprite, and no ArenaIcon, arena-icon or icon attribute in your sources draws it; `
+      + 'an element that draws it through a class of its own paints nothing, so hand it to ArenaIcon as icon'));
   }
 
   const name = contentName(SPRITE_STEM, 'svg', svg);

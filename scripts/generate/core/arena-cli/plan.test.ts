@@ -15,7 +15,7 @@ import type { SheetOutput } from './plan.ts';
 import { RETIRED_ICONS_SHEET as ICONS_SHEET } from './sources.ts';
 import { THEME_SHEET, PACKAGE_SHEET, PLUGIN_SHEET, RUNTIME_DATA, ICON_MANIFEST, SPRITE_MODULE, SPRITE_TYPES, SPRITE_STEM } from './sheets.ts';
 import type { ComponentMap } from './components.ts';
-import { auto, hostRoot, MAP, SHEETS, options, phosphor, project, readable, removeFixtures } from './cli-fixtures.ts';
+import { auto, hostRoot, MAP, PHOSPHOR_GLYPHS, SHEETS, options, phosphor, project, readable, removeFixtures } from './cli-fixtures.ts';
 
 after(removeFixtures);
 
@@ -162,7 +162,7 @@ test('a glyph Phosphor lacks at that weight is a glyph report naming weight and 
   const result = await plan(options(root), environment(core));
   assert.equal(result.code, 0);
   const glyph = result.reports.filter((one) => one.kind === 'glyph');
-  assert.equal(glyph.length, 1);
+  assert.equal(glyph.length, 2, 'the missing glyph, and the bell an element draws through a class of its own');
   assert.match(glyph[0]!.message, /fill: ph-not-a-glyph is not an icon Phosphor draws at that weight/);
   assert.deepEqual(symbolsOf(result), ['ph-bold-bell', 'ph-fill-bell'], 'with no map every glyph also gets the filled weight');
   assert.ok(!spriteOf(result)!.content.includes('not-a-glyph'));
@@ -366,7 +366,7 @@ test('running outside an Arena package reports the environment and nothing else'
   const outside = result.reports.filter((one) => one.message.includes('not running from inside an Arena package'));
   assert.equal(outside.length, 1);
   assert.equal(outside[0]!.kind, 'environment');
-  assert.deepEqual(result.reports.filter((one) => one.kind === 'environment' || one.kind === 'glyph').map((one) => one.kind), ['environment']);
+  assert.deepEqual(result.reports.filter((one) => one.kind === 'environment').map((one) => one.kind), ['environment']);
   cleanup(root, held);
 });
 
@@ -793,4 +793,21 @@ test('a static font declaring no weight is served as 400, not as a range it lack
   const theme = (await plan(options(root), env)).outputs.find((one) => one.name === THEME_SHEET)?.content ?? '';
   assert.match(theme, /font-family:'Archivo';\s*font-style:normal;\s*font-weight:400;/);
   cleanup(root, held, arena);
+});
+
+async function glyphReportsFor(source: string) {
+  const { root: held, core } = phosphor(['bold', 'fill'], [...PHOSPHOR_GLYPHS, 'kanban']);
+  const arena = hostRoot('@dravensoft/arena-react', '11.1.0', { [ICON_MANIFEST]: SHIPPED });
+  const root = project(readable, { 'App.tsx': source });
+  const result = await plan(options(root), environment(core, { arena, sheets: DRAW_SHEETS, map: DRAWS }));
+  cleanup(root, held, arena);
+  return result.reports.filter((one) => one.kind === 'glyph');
+}
+
+test('a glyph your sources name that no icon member draws is a glyph report, once per glyph', async () => {
+  const held = await glyphReportsFor('const TABS = [{ icon: \'ph-bold ph-kanban\' }];\nexport const A = () => <i className={TABS[0].icon} />;\n');
+  assert.equal(held.length, 1);
+  assert.match(held[0]?.message ?? '', /ph-kanban/);
+  assert.deepEqual(await glyphReportsFor('export const A = () => <ArenaIcon icon="ph-bold ph-kanban" />;\n'), []);
+  assert.deepEqual(await glyphReportsFor('export const A = () => <svg><use href="/s.svg#ph-bold-kanban" /></svg>;\n'), []);
 });
