@@ -8,6 +8,8 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { fontToolRoots } from './host.ts';
+import { LATIN_1, cutFont } from './font-cut.ts';
+import { loadFontTools } from './font-files.ts';
 import { plan, sheetStates } from './plan.ts';
 import type { SheetOutput } from './plan.ts';
 import { RETIRED_ICONS_SHEET as ICONS_SHEET } from './sources.ts';
@@ -711,5 +713,16 @@ test('a role declaring no weight and painted nowhere is cut to 400', async () =>
   const { root, held, arena, env } = fontProject(LOCAL, '.x{color:red}');
   const theme = (await plan(options(root), env)).outputs.find((one) => one.name === THEME_SHEET)?.content ?? '';
   assert.deepEqual([...theme.matchAll(/font-weight:([^;]+);/g)].map((m) => m[1]), ['400', '400', '400']);
+  cleanup(root, held, arena);
+});
+
+test('a static font declaring no weight is served as 400, not as a range it lacks', async () => {
+  const { root, held, arena, env } = fontProject({ ...LOCAL, display: { family: 'Archivo', src: './fonts/static.woff2' } });
+  const loaded = loadFontTools(fontToolRoots());
+  if (!('tools' in loaded)) throw new Error('tools');
+  const fixed = await cutFont(new Uint8Array(readFileSync(join(FONTS, 'archivo.woff2'))), { kind: 'pins', at: [700] }, LATIN_1, loaded.tools);
+  writeFileSync(join(root, 'fonts', 'static.woff2'), fixed.bytes);
+  const theme = (await plan(options(root), env)).outputs.find((one) => one.name === THEME_SHEET)?.content ?? '';
+  assert.match(theme, /font-family:'Archivo';\s*font-style:normal;\s*font-weight:400;/);
   cleanup(root, held, arena);
 });

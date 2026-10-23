@@ -7,7 +7,7 @@ import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Blob, Face } from 'harfbuzzjs';
-import { KEPT_FEATURES, LATIN_1, cutFont, cutPlan, cutSteps, fontAxes, paintedWeights, unicodeRange, weightAxis } from './font-cut.ts';
+import { KEPT_FEATURES, LATIN_1, cutFont, cutPlan, cutSteps, fontAxes, layoutFeatures, nameRecords, paintedWeights, unicodeRange, weightAxis } from './font-cut.ts';
 import type { CutPlan } from './font-cut.ts';
 import { loadFontTools } from './font-files.ts';
 import { fontToolRoots } from './host.ts';
@@ -121,4 +121,21 @@ test('a weight outside the axis is reported as lost, and the cut keeps what exis
 
 test('cutFont refuses to run with no tools installed', async () => {
   await assert.rejects(() => cutFont(source('archivo.woff2'), { kind: 'range', lo: 400, hi: 900 }, LATIN_1, null), /no font tools/);
+});
+
+test('a cut keeps the layout features KEPT_FEATURES names and drops the others harfbuzz would keep', async () => {
+  const input = source('archivo.woff2');
+  const before = layoutFeatures(await tools.decompress(input));
+  assert.ok(before.includes('tnum') && before.includes('mark'), `the source holds tnum and mark: ${before.join(',')}`);
+  const { bytes } = await cutFont(input, { kind: 'range', lo: 400, hi: 900 }, LATIN_1, tools);
+  const after = layoutFeatures(await tools.decompress(bytes));
+  assert.ok(after.includes('tnum'), `tnum survives: ${after.join(',')}`);
+  assert.ok(after.includes('kern'));
+  assert.ok(after.every((tag) => KEPT_FEATURES.includes(tag)), `only KEPT_FEATURES remain: ${after.join(',')}`);
+});
+
+test('a cut keeps the name table\'s records', async () => {
+  const input = source('archivo.woff2');
+  const { bytes } = await cutFont(input, { kind: 'range', lo: 400, hi: 900 }, LATIN_1, tools);
+  assert.ok(nameRecords(await tools.decompress(bytes)) > 0);
 });

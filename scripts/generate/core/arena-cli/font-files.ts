@@ -125,7 +125,7 @@ export async function cutFonts(input: {
       const plan = painted.length > 0 ? cutPlan(painted, axis) : pinned(declared.length > 0 ? declared : [400], axis);
       const steps: CutPlan[] = axis === null ? [{ kind: 'pins', at: [] }] : cutSteps(plan);
       const faces: FontCut['faces'] = [];
-      const declaredFace = font.weight ?? '400 900';
+      const declaredFace = font.weight ?? '400';
       for (const step of steps) {
         const { bytes } = await cutFont(source, step, LATIN_1, loaded.tools);
         const name = contentName(fontStem(src), 'woff2', bytes);

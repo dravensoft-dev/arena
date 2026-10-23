@@ -129,6 +129,36 @@ export function weightAxis(sfnt: Uint8Array): [number, number] | null {
   return axis ? [axis.min, axis.max] : null;
 }
 
+function table(sfnt: Uint8Array, name: string) {
+  const view = new DataView(sfnt.buffer, sfnt.byteOffset, sfnt.byteLength);
+  for (let i = 0; i < view.getUint16(4); i++) {
+    const record = 12 + i * 16;
+    const tag = String.fromCharCode(...sfnt.slice(record, record + 4));
+    if (tag === name) return { view, at: view.getUint32(record + 8) };
+  }
+  return null;
+}
+
+export function layoutFeatures(sfnt: Uint8Array): string[] {
+  const found = new Set<string>();
+  for (const name of ['GSUB', 'GPOS']) {
+    const found_ = table(sfnt, name);
+    if (!found_) continue;
+    const { view, at } = found_;
+    const list = at + view.getUint16(at + 6);
+    for (let i = 0; i < view.getUint16(list); i++) {
+      const record = list + 2 + i * 6;
+      found.add(String.fromCharCode(...Array.from({ length: 4 }, (_, k) => view.getUint8(record + k))));
+    }
+  }
+  return [...found].sort();
+}
+
+export function nameRecords(sfnt: Uint8Array): number {
+  const found = table(sfnt, 'name');
+  return found ? found.view.getUint16(found.at + 2) : 0;
+}
+
 export type FontTools = {
   subset: WebAssembly.Module;
   compress(bytes: Uint8Array): Promise<Uint8Array>;
@@ -144,7 +174,7 @@ export function installFontTools(tools: FontTools | null) {
 const tagInt = (tag: string) => (tag.charCodeAt(0) << 24 | tag.charCodeAt(1) << 16 | tag.charCodeAt(2) << 8 | tag.charCodeAt(3)) >>> 0;
 
 const NO_HINTING = 1;
-const LAYOUT_FEATURE_TAG = 5;
+const LAYOUT_FEATURE_TAG = 6;
 const DUPLICATE = 0;
 
 export async function cutFont(source: Uint8Array, plan: CutPlan, codepoints: number[], tools: FontTools | null = installed):
