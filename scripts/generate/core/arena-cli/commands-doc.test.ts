@@ -7,7 +7,7 @@
 
 import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
+import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -17,6 +17,7 @@ import type { FlagName } from './args.ts';
 import { KINDS_BY_COMMAND, RULES_BY_KIND } from './reports.ts';
 import { OUTPUT_SHEETS } from './sources.ts';
 import { MAP, SHEETS, captureIo, hostRoot, phosphor, project, readable, removeFixtures } from './cli-fixtures.ts';
+import { fontToolRoots } from './host.ts';
 import type { HostEnvironment } from './host.ts';
 
 const made: string[] = [];
@@ -150,6 +151,21 @@ function at(label: string, argv: string[], cwd: string, extra: HostEnvironment =
   return { label, argv, cwd, environment: environment(extra) };
 }
 
+function localFonts() {
+  const fonts = fileURLToPath(new URL('../../../../assets/fonts/', import.meta.url));
+  const root = project({
+    ...readable,
+    fonts: {
+      display: { family: 'Archivo', src: './fonts/archivo.woff2' },
+      body: { family: 'Familjen Grotesk', src: './fonts/familjen-grotesk.woff2' },
+      mono: { family: 'Spline Sans Mono', src: './fonts/spline-sans-mono.woff2' },
+    },
+  });
+  mkdirSync(join(root, 'fonts'));
+  for (const name of ['archivo', 'familjen-grotesk', 'spline-sans-mono']) copyFileSync(join(fonts, `${name}.woff2`), join(root, 'fonts', `${name}.woff2`));
+  return root;
+}
+
 function brokenConfig() {
   const root = project(null);
   writeFileSync(join(root, 'arena.config.json'), BROKEN);
@@ -198,9 +214,11 @@ const CAUSES: Cause[] = [
   ]) },
   { code: 2, phrase: 'a missing `--src`', runs: () => READING.map((command) =>
     at(command, [command, '--src', 'nowhere'], project())) },
-  { code: 2, phrase: 'Phosphor not installed', runs: () => [
+  { code: 2, phrase: 'A missing `@phosphor-icons/core`, `harfbuzzjs` or `wawoff2` is a 2', runs: () => [
     at('build', ['build'], project(), { phosphor: null }),
     at('check', ['check'], project(), { phosphor: null }),
+    at('build with harfbuzzjs missing', ['build'], localFonts(), { fontTools: { harfbuzz: null, wawoff2: fontToolRoots().wawoff2 } }),
+    at('build with wawoff2 missing', ['build'], localFonts(), { fontTools: { harfbuzz: fontToolRoots().harfbuzz, wawoff2: null } }),
   ] },
   { code: 2, phrase: 'a file it cannot write or delete', runs: () => {
     const build = project();
