@@ -23,6 +23,7 @@ import { budgetFor, deadline, type Deadline } from '../../lib/arena/deadline.ts'
 import { TERM_GRACE } from '../../lib/arena/child-output.ts';
 import { referenceText } from '../../lib/arena/consumer-references.ts';
 import { CLI_DEPENDENCIES } from '../../lib/arena/support-matrix.ts';
+import { RUNTIME_DEPENDENCIES as ANGULAR_RUNTIME_DEPENDENCIES } from '../../build/angular/build-angular-package.ts';
 import { toPosix } from '../../utils/posix-path.ts';
 
 const made: string[] = [];
@@ -144,8 +145,19 @@ test('a layer manifest declares exactly the CLI\'s dependencies', () => {
   assert.deepEqual(extra, ['@dravensoft/arena-react: dependencies hold lodash, which is not one of the arena command\'s']);
 
   assert.deepEqual(manifestProblems(REACT_PACKAGE, manifest({ dependencies: { ...CLI_DEPENDENCIES } }), '4.1.0'), []);
-  assert.deepEqual(manifestProblems({ layer: 'angular', name: '@dravensoft/arena-angular' },
-    manifest({ name: '@dravensoft/arena-angular', dependencies: { ...CLI_DEPENDENCIES, tslib: '^2.8.1' } }), '4.1.0'), []);
+  assert.deepEqual(manifestProblems(ANGULAR_PACKAGE,
+    manifest({ name: ANGULAR_PACKAGE.name, dependencies: { ...CLI_DEPENDENCIES, ...ANGULAR_RUNTIME_DEPENDENCIES } }), '4.1.0'), []);
+
+  const [name, range] = Object.entries(CLI_DEPENDENCIES)[0] as [string, string];
+  assert.deepEqual(manifestProblems(REACT_PACKAGE, manifest({ dependencies: { ...CLI_DEPENDENCIES, [name]: '^0.0.1' } }), '4.1.0'),
+    [`@dravensoft/arena-react: dependencies hold ${name} at ^0.0.1, and Arena pins ${range}`]);
+  const [runtimeName, runtimeRange] = Object.entries(ANGULAR_RUNTIME_DEPENDENCIES)[0] as [string, string];
+  assert.deepEqual(manifestProblems(ANGULAR_PACKAGE,
+    manifest({ name: ANGULAR_PACKAGE.name, dependencies: { ...CLI_DEPENDENCIES } }), '4.1.0'),
+    [`${ANGULAR_PACKAGE.name}: dependencies lack ${runtimeName}, which the layer's own code imports at run time`]);
+  assert.deepEqual(manifestProblems(ANGULAR_PACKAGE,
+    manifest({ name: ANGULAR_PACKAGE.name, dependencies: { ...CLI_DEPENDENCIES, [runtimeName]: '^0.0.1' } }), '4.1.0'),
+    [`${ANGULAR_PACKAGE.name}: dependencies hold ${runtimeName} at ^0.0.1, and Arena pins ${runtimeRange}`]);
 });
 
 test('an Arena package is always a peer, never a dependency', () => {

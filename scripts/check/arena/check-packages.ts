@@ -27,7 +27,7 @@ import { iconManifest, MANIFEST_FILE } from '../../lib/arena/icon-manifest.ts';
 import { shippedNames } from '../../generate/core/arena-cli/icon-css.ts';
 import { AGENT_DIR, BEHAVIOUR, matchesSpec } from '../../lib/arena/agent-payload.ts';
 import { blindFallbacks, repeatedSupports } from '../../lib/tailwind/supports-blocks.ts';
-import { SECONDARY_ENTRY_POINTS } from '../../build/angular/build-angular-package.ts';
+import { SECONDARY_ENTRY_POINTS, RUNTIME_DEPENDENCIES as ANGULAR_RUNTIME_DEPENDENCIES } from '../../build/angular/build-angular-package.ts';
 import { THEME_SOURCES, tailwindThemeSheet, topLevelBlocks } from '../../lib/tailwind/theme-sheet.ts';
 import { compileEntry } from '../../lib/tailwind/tailwind-compile.ts';
 import { REFERENCES, referenceText } from '../../lib/arena/consumer-references.ts';
@@ -155,12 +155,18 @@ export function manifestProblems(pkg: { layer: string; name: string }, manifest:
     if (name.startsWith('@dravensoft/')) problems.push(`${at}: ${name} is a dependency; an Arena package is always a peer`);
   }
   const declared = manifest.dependencies ?? {};
-  const allowed = new Set([...Object.keys(CLI_DEPENDENCIES), ...(pkg.layer === 'angular' ? ['tslib'] : [])]);
-  for (const name of Object.keys(CLI_DEPENDENCIES)) {
-    if (!Object.hasOwn(declared, name)) problems.push(`${at}: dependencies lack ${name}, which the arena command needs at build time`);
+  const wanted: Record<string, string> = { ...CLI_DEPENDENCIES, ...(pkg.layer === 'angular' ? ANGULAR_RUNTIME_DEPENDENCIES : {}) };
+  for (const [name, range] of Object.entries(wanted)) {
+    if (!Object.hasOwn(declared, name)) {
+      problems.push(Object.hasOwn(CLI_DEPENDENCIES, name)
+        ? `${at}: dependencies lack ${name}, which the arena command needs at build time`
+        : `${at}: dependencies lack ${name}, which the layer's own code imports at run time`);
+    } else if (declared[name] !== range) {
+      problems.push(`${at}: dependencies hold ${name} at ${declared[name]}, and Arena pins ${range}`);
+    }
   }
   for (const name of Object.keys(declared)) {
-    if (!allowed.has(name)) problems.push(`${at}: dependencies hold ${name}, which is not one of the arena command's`);
+    if (!Object.hasOwn(wanted, name)) problems.push(`${at}: dependencies hold ${name}, which is not one of the arena command's`);
   }
   for (const field of ['dependencies', 'peerDependencies', 'devDependencies', 'optionalDependencies', 'peerDependenciesMeta'] as const) {
     if (Object.hasOwn(manifest[field] ?? {}, '@phosphor-icons/web')) {
