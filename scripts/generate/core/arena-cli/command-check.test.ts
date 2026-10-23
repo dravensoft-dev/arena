@@ -91,6 +91,7 @@ test('a wash report is printed and never held', async () => {
   assert.match(result.err.join('\n'), /\[wash\] /);
   assert.equal(result.code, 1);
   assert.doesNotMatch(result.err.join('\n'), /this run reports.*wash/);
+  assert.match(result.err.join('\n'), /this run reports \d+ of them: contrast$/m);
 });
 
 test('a fatal config exits with the plan\'s code', async () => {
