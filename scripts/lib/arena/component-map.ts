@@ -147,6 +147,24 @@ export function angularComponentMap(root = repoRoot) {
   return { ...map, markerDirectives: Object.fromEntries([...attributes].map(([c, a]) => [a, c])) };
 }
 
+export const REACT_INDEX = 'frameworks/react/Index.generated.ts';
+
+export function reactSheetless(draws: Record<string, string | null>, root = repoRoot): string[] {
+  const index = readFileSync(join(root, REACT_INDEX), 'utf8');
+  const found = new Set<string>();
+  for (const m of index.matchAll(/export \* from '\.\/([^']+)'/g)) {
+    const path = captured(m);
+    if (path.startsWith('components/')) continue;
+    const file = join(root, 'frameworks', 'react', path);
+    if (!existsSync(file)) continue;
+    for (const name of readFileSync(file, 'utf8').matchAll(EXPORTED)) {
+      const one = captured(name);
+      if (COMPONENT_NAME.test(one) && !(one in draws)) found.add(one);
+    }
+  }
+  return [...found].sort();
+}
+
 export function reactComponentMap(root = repoRoot) {
   const entries = componentFiles('react', '.tsx', root).map(({ file, symbol }) => {
     const source = readFileSync(file, 'utf8');
@@ -157,7 +175,8 @@ export function reactComponentMap(root = repoRoot) {
       uses: [...source.matchAll(LAYER_IMPORT)].map((m) => captured(m)),
     };
   });
-  return mapFrom(entries.filter((e) => e.keys.length), 'symbol');
+  const map = mapFrom(entries.filter((e) => e.keys.length), 'symbol');
+  return { ...map, sheetless: reactSheetless(map.draws, root) };
 }
 
 export function keysByDirectory(layer: string, root = repoRoot) {
@@ -178,6 +197,7 @@ export type ComponentSheetMap = {
   needs: Record<string, string[]>;
   markers: Record<string, string[]>;
   markerDirectives?: Record<string, string>;
+  sheetless?: string[];
 };
 
 export function componentMap(layer: string, root = repoRoot): ComponentSheetMap {

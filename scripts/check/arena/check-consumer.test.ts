@@ -14,7 +14,7 @@ import { CLI_BINS } from '../../lib/arena/package-assembly.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import {
   importedSheets, packageSheetProblems, REGULAR_SYMBOL, unknownSymbolProblems, listProblems, closedListProblems, spriteProblems, documented, CONFIG_REFERENCE,
-  palettesProblems, defaultListProblems, fontCutProblems, runtimeProblems, installedPalette, SOURCES, UNKNOWN, GLYPH, NAV_SYMBOL, GLYPH_SYMBOL, THIRD_PALETTE, CLI, snapshot, treeChanges, exitProblem, binProblems,
+  palettesProblems, defaultListProblems, fontCutProblems, runtimeProblems, installedPalette, SOURCES, UNKNOWN, GLYPH, NAV_SYMBOL, GLYPH_SYMBOL, THIRD_PALETTE, CLI, snapshot, treeChanges, exitProblem, binProblems, unplacedProblems,
 } from './check-consumer.ts';
 import type { CliRun, Shipped } from './check-consumer.ts';
 import { distDir, unassembled, assembled } from './check-packages.ts';
@@ -478,4 +478,13 @@ test('the sprite must also carry a glyph named without a weight, drawn regular',
   const missing = spriteProblems('react', written({ [NAME]: sprite(GLYPH_SYMBOL, NAV_SYMBOL) }));
   assert.match(missing.join('\n'), new RegExp(`holds no #${REGULAR_SYMBOL}`));
   assert.deepEqual(spriteProblems('react', written({ [NAME]: sprite(GLYPH_SYMBOL, NAV_SYMBOL, REGULAR_SYMBOL) })), []);
+});
+
+test('a provider the run reports as a component it does not ship is a problem, a typo reported is not', () => {
+  const reported = (name: string): CliRun => ({ ...ok, stderr: `${name} is not a component this package ships\n` });
+  assert.deepEqual(unplacedProblems('react', reported('ArenaWidget'), 'ArenaWidget'), []);
+  const provider = unplacedProblems('react', reported('ArenaIconsProvider'), 'ArenaWidget');
+  assert.equal(provider.length, 1);
+  assert.match(provider[0] ?? '', /ArenaIconsProvider is a provider this package exports/);
+  assert.equal(unplacedProblems('react', ok, 'ArenaWidget').length, 1, 'silence about a typo is still a problem');
 });

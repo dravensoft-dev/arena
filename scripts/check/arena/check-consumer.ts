@@ -69,8 +69,8 @@ export const SOURCES: Record<string, Record<string, string>> = {
 export const UNPLACED: Record<string, { files: Record<string, string>; name: string }> = {
   react: {
     files: {
-      'src/App.tsx': "import { ArenaButton, ArenaWidget } from '@dravensoft/arena-react';\n"
-        + 'export const App = () => (<><ArenaButton>Go</ArenaButton><ArenaWidget /></>);\n',
+      'src/App.tsx': "import { ArenaButton, ArenaIconsProvider, ArenaWidget } from '@dravensoft/arena-react';\n"
+        + 'export const App = () => (<ArenaIconsProvider href="/icons.svg"><ArenaButton>Go</ArenaButton><ArenaWidget /></ArenaIconsProvider>);\n',
     },
     name: 'ArenaWidget',
   },
@@ -800,6 +800,9 @@ export function stemProblems(layer: string, result: CliRun, expected: string[], 
 
 export function unplacedProblems(layer: string, result: CliRun, name: string) {
   if (result.status !== 0) return [`${layer}: the run naming ${name} exited ${result.status} instead of reporting it`];
+  if (result.stderr.includes('ArenaIconsProvider is not a component')) {
+    return [`${layer}: ArenaIconsProvider is a provider this package exports, and the run reported it as a component it does not ship`];
+  }
   if (result.stderr.includes(`${name} is not a component this package ships`)) return [];
   return [`${layer}: a source names ${name}, which this package does not ship, and the run said nothing `
     + 'about it. A name the scan cannot place is the one warning that separates a typo from a component '

@@ -116,3 +116,12 @@ test('a marker whose class is not its attribute capitalised is carried, not gues
     'ArenaFigure is the component that holds the slot, so guessing the directive from the '
     + 'attribute names the wrong symbol');
 });
+
+test('the React map names the index exports a consumer opens as a tag and that draw no sheet', () => {
+  const map = componentMap('react', repoRoot);
+  assert.deepEqual(map.sheetless, ['ArenaIconsProvider', 'ArenaLocaleProvider']);
+  assert.deepEqual((map.sheetless ?? []).filter((name) => name in map.draws), [],
+    'a name that draws a sheet is a component, and is placed by draws');
+  assert.equal('sheetless' in componentMap('angular', repoRoot), false,
+    'Angular exports no element selector outside its components');
+});

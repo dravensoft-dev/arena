@@ -21,6 +21,7 @@ export type ComponentMap = {
   needs: Record<string, string[]>;
   markers?: Record<string, string[]>;
   markerDirectives?: Record<string, string>;
+  sheetless?: string[];
 };
 
 export function selectorKeys(map: ComponentMap, sources: string[]) {
@@ -62,10 +63,11 @@ export function symbolKeys(map: ComponentMap, sources: string[], packageName: st
       opened.add(name);
     }
   }
+  const sheetless = new Set(map.sheetless ?? []);
   return {
     drawn: [...written].filter((key) => key in map.draws).sort(),
     unplaced: [...imported]
-      .filter((key) => opened.has(key) && !(key in map.draws))
+      .filter((key) => opened.has(key) && !(key in map.draws) && !sheetless.has(key))
       .sort(),
   };
 }

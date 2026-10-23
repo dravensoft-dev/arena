@@ -185,3 +185,12 @@ test('a hook is read from an attribute name and never from inside a quoted value
   const unknown = selectorKeys(ANGULAR, ['<div class="arena-stack" arena-algo></div>']);
   assert.deepEqual(unknown.unplaced, ['arena-algo'], 'an attribute the package does not ship is still reported');
 });
+
+test('a provider the map lists as sheetless is neither drawn nor unplaced, and a typo still is', () => {
+  const map: ComponentMap = { ...REACT, sheetless: ['ArenaIconsProvider'] };
+  const source = "import { ArenaButton, ArenaIconsProvider, ArenaButon } from '@dravensoft/arena-react';\n"
+    + '<ArenaIconsProvider href="/x.svg"><ArenaButton /><ArenaButon /></ArenaIconsProvider>';
+  const found = symbolKeys(map, [source], '@dravensoft/arena-react');
+  assert.deepEqual(found.unplaced, ['ArenaButon']);
+  assert.ok(!found.drawn.includes('ArenaIconsProvider'));
+});
