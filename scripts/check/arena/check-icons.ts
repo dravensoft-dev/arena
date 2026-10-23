@@ -12,6 +12,7 @@ import { isMainModule } from '../../utils/main-module.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { repoRoot as ROOT } from '../../lib/arena/repo-root.ts';
 import { withForeignTrees } from '../../lib/arena/foreign-trees.ts';
+import { SYMBOL_REF } from '../../generate/core/arena-cli/icon-css.ts';
 import { hostBinary } from '../../lib/arena/host-binary.ts';
 
 export const node = {
@@ -33,8 +34,6 @@ export const SCANNED_EXTENSIONS = ['.ts', '.tsx', '.js', '.jsx', '.html', '.json
 export const SKIPPED_DIRECTORIES = withForeignTrees('dist', 'build', 'vendor');
 
 export const ICON_TOKEN = /\bph(?:-[a-z0-9]+)+\b/g;
-
-export const SYMBOL_REF = /#ph-(thin|light|regular|bold|duotone|fill)-([a-z0-9]+(?:-[a-z0-9]+)*)/g;
 
 export const EXEMPT = new Map<string, string>();
 
@@ -74,9 +73,9 @@ export function tokenProblems(text: string, where: string, weights: Map<string, 
   const problems = [];
   for (const line of text.split('\n').entries()) {
     const [index, text_line] = line;
-    for (const [, weight, name] of text_line.matchAll(SYMBOL_REF)) {
-      const glyphs = weights.get(weight === 'regular' ? 'ph' : `ph-${weight}`);
-      if (!glyphs?.has(`ph-${name}`) && !EXEMPT.has(`ph-${name}`)) {
+    for (const [, weight = '', name = ''] of text_line.matchAll(SYMBOL_REF)) {
+      const forWeight = weights.get(weight === 'regular' ? 'ph' : `ph-${weight}`);
+      if (!forWeight?.has(`ph-${name}`) && !EXEMPT.has(`ph-${name}`)) {
         problems.push(
           `${where}:${index + 1}: "ph-${name}" is not a Phosphor glyph in the "${weight}" weight, `
           + 'so this sprite symbol reference draws nothing.',

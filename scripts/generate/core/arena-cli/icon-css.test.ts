@@ -80,11 +80,17 @@ test('one scan accumulates across sources, which is how two trees become one set
 
 test('the module keeps the scan and the merge and carries nothing that cuts a font sheet', async () => {
   const names = Object.keys(await import('./icon-css.ts')).sort();
-  assert.deepEqual(names, ['ARENA_WEIGHTS', 'WEIGHT_CLASSES', 'drawnGlyphs', 'fillSourceGlyphs', 'glyphNames',
+  assert.deepEqual(names, ['ARENA_WEIGHTS', 'SYMBOL_REF', 'WEIGHT_CLASSES', 'drawnGlyphs', 'fillSourceGlyphs', 'glyphNames',
     'iconNames', 'mergeShipped', 'scan', 'shippedNames']);
 });
 
 test('the class a weight is written with is the one Phosphor ships, and regular carries no suffix', () => {
   assert.equal(WEIGHT_CLASSES.regular, 'ph');
   assert.equal(WEIGHT_CLASSES.duotone, 'ph-duotone');
+});
+
+test('a sprite symbol reference is read as its weight and glyph, and never as a loose name', () => {
+  const found = scan('<svg><use href="x.svg#ph-bold-house"></use></svg><use href="#ph-regular-bell"></use>');
+  assert.deepEqual(list(found), [['regular', ['ph-bell']], ['bold', ['ph-house']]]);
+  assert.deepEqual([...found.loose], []);
 });

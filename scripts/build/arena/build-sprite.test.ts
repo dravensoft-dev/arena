@@ -94,3 +94,11 @@ test('every glyph the page modules write has a symbol in the repo sprite', () =>
     }
   }
 });
+
+test('a sprite symbol reference in an intro page keeps its glyph and reports nothing missing', () => {
+  const { root, core } = fixture('reference');
+  put(root, 'intro/guidelines/ref.html', '<svg><use href="../assets/Icons.generated.svg#ph-bold-squares-four"></use></svg>');
+  const { svg, missing } = repoSprite(root, core);
+  assert.equal(missing.size, 0);
+  assert.ok(svg.includes('id="ph-bold-squares-four"'));
+});

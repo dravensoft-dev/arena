@@ -19,11 +19,18 @@ export const ARENA_WEIGHTS = Object.keys(WEIGHT_CLASSES);
 const CLASS_TOKENS = new Set(Object.values(WEIGHT_CLASSES));
 const GROUP = /(?<![\w-])ph(?:-[a-z0-9]+)*(?:\s+ph(?:-[a-z0-9]+)*)*(?![\w-])/g;
 
+export const SYMBOL_REF = /#ph-(thin|light|regular|bold|duotone|fill)-([a-z0-9]+(?:-[a-z0-9]+)*)/g;
+
 export type IconScan = { pairs: Map<string, Set<string>>; loose: Set<string> };
 
 export function scan(source: string,
   found: IconScan = { pairs: new Map(), loose: new Set() }) {
-  for (const [group] of source.matchAll(GROUP)) {
+  for (const [, weight = '', name = ''] of source.matchAll(SYMBOL_REF)) {
+    let bucket = found.pairs.get(weight);
+    if (!bucket) { bucket = new Set(); found.pairs.set(weight, bucket); }
+    bucket.add(`ph-${name}`);
+  }
+  for (const [group] of source.replace(SYMBOL_REF, '').matchAll(GROUP)) {
     const weights = [];
     const glyphs = [];
     for (const token of group.split(/\s+/)) {
