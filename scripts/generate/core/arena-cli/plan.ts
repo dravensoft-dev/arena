@@ -68,12 +68,14 @@ export function themeSheets(options: PlanOptions, { packageName, sheets, map }: 
     closure.reports.push(report('environment', 'the component map is not beside this package, so every component sheet '
       + 'is imported instead of the ones the sources draw'));
   }
-  if (config.stylesheet?.components === AUTO || (byDefault && sheets && map)) {
-    if (!map && !byDefault) {
-      return stop(1, [`"components": "${AUTO}" reads the component map this package carries, and it is not `
-        + 'beside this command, so nothing can be resolved; name the sheets instead']);
-    }
-    const resolved = autoComponents(config, { paths: options.paths, config: options.config }, map!, packageName, !byDefault);
+  const asksForAuto = config.stylesheet?.components === AUTO;
+  if (asksForAuto && !map) {
+    return stop(1, [`"components": "${AUTO}" reads the component map this package carries, and it is not `
+      + 'beside this command, so nothing can be resolved; name the sheets instead']);
+  }
+  const resolvesFromMap = asksForAuto || (byDefault && sheets);
+  if (map && resolvesFromMap) {
+    const resolved = autoComponents(config, { paths: options.paths, config: options.config }, map, packageName, !byDefault);
     if (resolved.fatal) return stop(1, resolved.fatal);
     if (byDefault) drawn = resolved.components;
     else config = { ...config, stylesheet: { ...config.stylesheet, components: resolved.components } };
