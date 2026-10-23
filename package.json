@@ -154,6 +154,7 @@
     "check:shared-arithmetic": "bun scripts/check/arena/check-shared-arithmetic.ts",
     "check:packages": "bun scripts/check/arena/check-packages.ts",
     "check:consumer": "bun scripts/check/arena/check-consumer.ts",
+    "check:weight": "bun scripts/check/arena/check-weight.ts",
     "check:exports": "bun scripts/check/arena/check-exports.ts",
     "check:classes": "bun scripts/check/arena/check-classes.ts",
     "check": "bun scripts/check/arena/check-all.ts",
