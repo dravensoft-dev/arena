@@ -818,7 +818,8 @@ export function paletteDeclarations(
 }
 
 export function restatedBy(plugin: StylePlugin, catalogue: TokenCatalogue | null, polarity: string) {
-  return pluginBlocks(plugin, catalogue, polarity).filter((d) => d.includes('var(--color-'));
+  const namesColourRole = (d: string) => catalogue?.roles?.[/:var\(--([\w-]+)\);$/.exec(d)?.[1] ?? '']?.type === 'color';
+  return pluginBlocks(plugin, catalogue, polarity).filter((d) => d.includes('var(--color-') || namesColourRole(d));
 }
 
 export type PolarityContext = {

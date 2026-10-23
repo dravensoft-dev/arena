@@ -719,6 +719,12 @@ test('a ring wholly inside one group is reported once and not again from the mer
   assert.equal(problems.filter((m) => /neither resolves/.test(m)).length, 1, problems.join('\n'));
 });
 
+test('a colour role naming another colour role is restated under a palette, as a palette colour is', () => {
+  const plugin = readPlugin('p', { 'ink-key': { $value: '{ink-muted}' }, 'tt-key': { $value: '{case.none}' } });
+  assert.deepEqual(restatedBy(plugin, ALIASED, 'dark'), ['--ink-key:var(--ink-muted);'],
+    'a later plugin\'s role alias that is not restated loses to the palette block under the same element');
+});
+
 test('resolvedPlugin follows a role alias to the colour the named role resolves to', () => {
   const plugin = readPlugin('p', { 'ink-muted': { $value: '{color.primary}' }, 'ink-key': { $value: '{ink-muted}' } });
   assert.equal(resolvedPlugin(plugin, ALIASED).get('ink-key'), 'var(--color-primary)');
