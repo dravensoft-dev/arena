@@ -76,6 +76,7 @@ export const UNTRACKED = {
   'frameworks/react/ThemeState.generated.js': 'the same, for the state the theme helper and the palette scope share.',
   'frameworks/react/WarnOnce.generated.js': 'the same, for the once-per-message console warning '
     + 'the charts and ArenaTable share.',
+  'frameworks/react/ToastClock.generated.js': 'the same, for the toast dismissal constant and the delay a notice waits.',
   'frameworks/react/UseArenaContainerWidth.generated.js': 'the same, for the container-width hook.',
   'frameworks/react/UseDialogModal.generated.js': 'the same, for the modal focus helper.',
   'frameworks/react/AnchoredPanel.generated.js': 'the same, for the rules every anchored panel follows.',

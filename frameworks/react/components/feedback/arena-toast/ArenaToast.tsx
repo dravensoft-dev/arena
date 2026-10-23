@@ -3,7 +3,6 @@ import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaToast.classes.generated.ts';
 
 import type { ArenaToastTone } from '../../../Api.generated';
-import { dismissDefault, dismissActionable } from '../../../Tokens.generated.js';
 import { useArenaLocale } from '../../../ArenaLocale.ts';
 import type { ArenaToastClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
@@ -37,7 +36,7 @@ export interface ArenaToastProps {
   onClose?: () => void;
 }
 
-export const ARENA_TOAST_DISMISS = { default: dismissDefault, actionable: dismissActionable } as const;
+export { ARENA_TOAST_DISMISS } from '../../../ToastClock.ts';
 
 const arenaToastStyles = arenaStyles(manifest);
 const TONES: readonly string[] = manifest.values.tone;

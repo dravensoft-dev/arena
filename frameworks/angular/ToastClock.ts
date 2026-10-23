@@ -1,4 +1,7 @@
 import type { ArenaToastNotice } from './Api.generated';
+import { dismissDefault, dismissActionable } from './Tokens.generated';
+
+export const ARENA_TOAST_DISMISS = { default: dismissDefault, actionable: dismissActionable } as const;
 
 export function arenaToastPersists(notice: ArenaToastNotice): boolean {
   return notice.persist === true || notice.tone === 'danger';

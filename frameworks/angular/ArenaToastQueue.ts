@@ -1,7 +1,6 @@
 import { DestroyRef, Injectable, Signal, computed, inject, signal } from '@angular/core';
-import { ARENA_TOAST_DISMISS } from './components/feedback/arena-toast/ArenaToast';
 import type { ArenaToastNotice } from './Api.generated';
-import { arenaToastDelay } from './ToastClock';
+import { ARENA_TOAST_DISMISS, arenaToastDelay } from './ToastClock';
 
 export interface ArenaToastEntry extends ArenaToastNotice {
   id: number;

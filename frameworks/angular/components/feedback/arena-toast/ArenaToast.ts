@@ -1,12 +1,12 @@
 import { booleanAttribute, ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
 import type { ArenaToastTone } from '../../../Api.generated';
-import { dismissDefault, dismissActionable } from '../../../Tokens.generated';
+import { ARENA_TOAST_DISMISS } from '../../../ToastClock';
 import { arenaToastStyles } from './ArenaToast.variants';
 import manifest from './ArenaToast.classes.generated';
 import { ARENA_LOCALE } from '../../../ArenaLocale';
 import { ArenaSlotAttributes } from '../../../SlotData';
 
-export const ARENA_TOAST_DISMISS = { default: dismissDefault, actionable: dismissActionable } as const;
+export { ARENA_TOAST_DISMISS };
 
 @Component({
   selector: 'arena-toast',
