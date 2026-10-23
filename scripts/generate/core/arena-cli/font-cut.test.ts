@@ -50,6 +50,16 @@ test('a nested rule\'s own font-weight counts, whatever follows it inside the bl
   assert.deepEqual(out.get('body'), [300, 400, 600, 700]);
 });
 
+test('a quoted brace or semicolon does not end a declaration or open a rule', () => {
+  const css = `:root{--font-body:'F',sans-serif}
+    .a::before{content:'{;}';font-family:var(--font-body);font-weight:700}
+    .b::before{content:'}';font-family:var(--font-body);font-weight:300}
+    .c::after{font-family:var(--font-body);font-weight:500;content:";{"}
+    .d::after{content:"\\"}";font-family:var(--font-body);font-weight:200}
+    .e{font-family:var(--font-body);font-weight:900}`;
+  assert.deepEqual(paintedWeights(css, ROLES).get('body'), [200, 300, 500, 700, 900]);
+});
+
 test('the real arena-button.css paints the body at its control weight', () => {
   const dist = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..', '..', 'frameworks', 'react', 'dist', 'css');
   const css = ['typography.css', 'style-plugin-default.css', 'base.css', 'prelude.css', 'components/arena-button.css']

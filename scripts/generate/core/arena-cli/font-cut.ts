@@ -35,8 +35,22 @@ function ownDeclarations(css: string): { declarations: [string, string][] }[] {
   const blocks: { declarations: [string, string][] }[] = [];
   let buffer = '';
   let parens = 0;
+  let quote = '';
+  let escaped = false;
   for (const char of css) {
     const frame = stack[stack.length - 1] as Frame;
+    if (quote !== '') {
+      buffer += char;
+      if (escaped) escaped = false;
+      else if (char === '\\') escaped = true;
+      else if (char === quote) quote = '';
+      continue;
+    }
+    if (char === '"' || char === "'") {
+      quote = char;
+      buffer += char;
+      continue;
+    }
     if (char === '(') parens++;
     else if (char === ')') parens = Math.max(0, parens - 1);
     if (parens === 0 && char === '{') {
