@@ -25,7 +25,7 @@ import {
 import { arenaEnv } from '../../lib/arena/arena-scripts-vars.ts';
 import { renderPageImage } from '../../lib/arena/page-image.ts';
 import {
-  HERO_SHEET, HERO_SOURCE, HERO_FILE, HERO_WIDTH, HERO_HEIGHT, heroPage, heroStyles,
+  HERO_SHEET, HERO_SOURCE, HERO_FILE, HERO_WIDTH, HERO_HEIGHT, heroPage, heroRobot, heroStyles,
 } from '../../lib/arena/hero-page.ts';
 import { LLMS_INDEX, layerFile, index, corpus, servedDocs } from '../../lib/arena/llms-index.ts';
 import { retarget } from '../../lib/arena/agent-payload.ts';
@@ -361,7 +361,7 @@ export async function buildSite(base = repoRoot, out = join(base, SITE_DIR)) {
   written.push(write(out, 'CNAME', `${DOMAIN}\n`));
 
   written.push(write(out, HERO_SHEET, await heroStyles()));
-  written.push(write(out, HERO_SOURCE, heroPage(components('react', base).length)));
+  written.push(write(out, HERO_SOURCE, heroPage(components('react', base).length, heroRobot(base))));
 
   const png = await renderPageImage(join(out, OG_SOURCE), OG_WIDTH, OG_HEIGHT);
   writeFileSync(join(out, OG_FILE), png);

@@ -9,6 +9,8 @@
  * palette is the half Arena never ships and a made-up one would be Arena inventing the thing it says
  * it does not carry. Nothing holds them to those files; the benches are another repository. */
 
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { block, PLUGIN_DIR } from '../../generate/arena/generate-tokens.ts';
 import { arenaClassesFor, arenaSlotDataFor } from '../tailwind/component-css.ts';
 import { SPRITE_FILE } from './playground-page.ts';
@@ -78,7 +80,16 @@ function robotId() {
   return symbolId((weight ?? '').replace(/^ph-/, ''), (glyph ?? '').replace(/^ph-/, ''));
 }
 
-export function heroPage(drawn: number) {
+/* Chrome refuses an external use over file://, and the picture is rendered from a file, so the robot's
+ * symbol is read out of the sprite and drawn inline. */
+export function heroRobot(base: string): string {
+  const sprite = readFileSync(join(base, SPRITE_FILE), 'utf8');
+  const found = new RegExp(`<symbol id="${robotId()}"[\\s\\S]*?</symbol>`).exec(sprite);
+  if (found === null) throw new Error(`hero-page: ${SPRITE_FILE} holds no symbol ${robotId()}, so the hero draws no robot`);
+  return found[0];
+}
+
+export function heroPage(drawn: number, robot: string) {
   return `<!doctype html><html lang="en"><head><meta charset="utf-8">
 <link rel="stylesheet" href="intro/styles.css">
 <link rel="stylesheet" href="frameworks/tailwind/consume/Components.generated.css">
@@ -165,7 +176,7 @@ d="M125 62 74 182.6h20.4l10.9-27.3h39.4l10.9 27.3H176zm15.6 76.4h-31.2L125 100z"
 </svg><span>Angular</span></div>
 </div>
 
-<svg class="robot" aria-hidden="true" focusable="false"><use href="${SPRITE_FILE}#${robotId()}"></use></svg>
+<svg class="robot" aria-hidden="true" focusable="false">${robot}<use href="#${robotId()}"></use></svg>
 <p class="reads">The contracts say what it is. Your style plugin says what it looks like.
 <b>Arena carries the language and never the skin.</b></p>
 
