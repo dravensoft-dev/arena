@@ -944,7 +944,7 @@ function glyphLines(source: string, path = 'src/a.tsx') {
 test('a glyph nested in a JSX prop is reported once, at its own element', () => {
   const found = glyphLines('<ArenaAppBar\n  brand={<a><i className="ph-fill ph-storefront" /></a>}\n/>');
   assert.equal(found.length, 1);
-  assert.ok((found[0] ?? '').startsWith('src/a.tsx:2:'), found[0]);
+  assert.ok((found[0] ?? '').startsWith('src/a.tsx:2:'), found[0] ?? 'no finding');
 });
 
 test('a nested element\'s emphasis class is not read as the outer tag\'s', () => {

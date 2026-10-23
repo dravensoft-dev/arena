@@ -187,7 +187,7 @@ test('an output git does not ignore is named in the note', { skip: gitSkip }, as
   assert.equal(await run([], io), 0);
   const notes = ignoreNote(out);
   assert.equal(notes.length, 1);
-  assert.ok(notes[0]!.includes(`git does not ignore ${sprite};`), notes[0]);
+  assert.ok(notes[0]!.includes(`git does not ignore ${sprite};`), notes[0]!);
   assert.ok(notes[0]!.includes('add them to .gitignore'));
   for (const one of paths.filter((one) => one !== sprite)) assert.ok(!notes[0]!.includes(one), one);
 });
@@ -239,9 +239,15 @@ test('an ignored output with a non-ASCII path is not reported as unignored', { s
   } finally { rmSync(root, { recursive: true, force: true }); }
 });
 
-test('a failing git falls back to the text reading', () => {
+test('a git that fails or is absent, and an empty list, give null, the answer run reads as the text reading', () => {
   assert.equal(unignoredOutputs(join(tmpdir(), 'arena-no-such-root-0'), ['src/a.css']), null);
   assert.equal(unignoredOutputs(tmpdir(), []), null);
+  if (!gitOk) return;
+  const tree = process.cwd();
+  assert.notEqual(unignoredOutputs(tree, ['package.json']), null, 'the suite runs inside a work tree git answers for');
+  const held = process.env.PATH;
+  process.env.PATH = join(tmpdir(), 'arena-no-such-path-0');
+  try { assert.equal(unignoredOutputs(tree, ['package.json']), null, 'no git on the PATH'); } finally { process.env.PATH = held; }
 });
 
 test('a build that writes the package sheet no source imports is a note naming the sheet, and an import clears it', async () => {
