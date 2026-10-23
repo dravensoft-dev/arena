@@ -138,3 +138,22 @@ test('the installed package yields every weight, each with a real glyph set', ()
     assert.ok(glyphs.has('ph-house'), `${name} is missing a glyph every weight has`);
   }
 });
+
+test('a sprite symbol reference is checked as its glyph at its weight', () => {
+  assert.deepEqual(tokenProblems('<use href="../a.svg#ph-bold-house"></use>', 'a.html', ARENA_WEIGHTS), []);
+  assert.deepEqual(tokenProblems('<use href="#ph-regular-acorn"></use>', 'a.html', ARENA_WEIGHTS), []);
+  const missing = tokenProblems('<use href="a.svg#ph-fill-not-a-glyph"></use>', 'a.html', ARENA_WEIGHTS);
+  assert.equal(missing.length, 1);
+  assert.match(missing[0] ?? '', /a\.html:1/);
+  assert.match(missing[0] ?? '', /"ph-not-a-glyph" is not a Phosphor glyph in the "fill" weight/);
+  const wrongWeight = tokenProblems('<use href="a.svg#ph-fill-acorn"></use>', 'a.html', ARENA_WEIGHTS);
+  assert.equal(wrongWeight.length, 1);
+  assert.match(wrongWeight[0] ?? '', /"ph-acorn" is not a Phosphor glyph in the "fill" weight/);
+});
+
+test('a symbol id is not read as the bare glyph weight-name', () => {
+  const problems = tokenProblems('<use href="a.svg#ph-bold-house"></use>', 'a.html', ARENA_WEIGHTS);
+  assert.deepEqual(problems, []);
+  assert.doesNotMatch(tokenProblems('<use href="#ph-bold-nope"></use>', 'a.html', ARENA_WEIGHTS).join('\n'),
+    /"ph-bold-nope"/);
+});

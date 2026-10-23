@@ -34,6 +34,8 @@ export const SKIPPED_DIRECTORIES = withForeignTrees('dist', 'build', 'vendor');
 
 export const ICON_TOKEN = /\bph(?:-[a-z0-9]+)+\b/g;
 
+export const SYMBOL_REF = /#ph-(thin|light|regular|bold|duotone|fill)-([a-z0-9]+(?:-[a-z0-9]+)*)/g;
+
 export const EXEMPT = new Map<string, string>();
 
 export function weightsFrom(root = ROOT) {
@@ -71,7 +73,17 @@ export function tokenProblems(text: string, where: string, weights: Map<string, 
   const glyphs = everyGlyph(weights);
   const problems = [];
   for (const line of text.split('\n').entries()) {
-    const [index, source] = line;
+    const [index, text_line] = line;
+    for (const [, weight, name] of text_line.matchAll(SYMBOL_REF)) {
+      const glyphs = weights.get(weight === 'regular' ? 'ph' : `ph-${weight}`);
+      if (!glyphs?.has(`ph-${name}`) && !EXEMPT.has(`ph-${name}`)) {
+        problems.push(
+          `${where}:${index + 1}: "ph-${name}" is not a Phosphor glyph in the "${weight}" weight, `
+          + 'so this sprite symbol reference draws nothing.',
+        );
+      }
+    }
+    const source = text_line.replace(SYMBOL_REF, '');
     const found = [...source.matchAll(ICON_TOKEN)].map((m) => m[0]);
     if (found.length === 0) continue;
     const weight = found.find((token) => weights.has(token));
