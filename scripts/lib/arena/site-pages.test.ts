@@ -15,6 +15,7 @@ import {
   modules, missingModules, titleOf, url, directoryUrl,
   BENCHES_DIR, BENCHES_MANIFEST, benchPairs, benchDrops, benchPages, benchDirectories, treePages,
   COPIED_FILES, variantSinkNames, COPIED, SPRITE_FILE,
+  adopterVerdict, publishedAdopter, adopterPages, adopterDirectories,
 } from './site-pages.ts';
 
 const made: string[] = [];
@@ -257,4 +258,70 @@ test('pages and indexedDirectories take the output they read, so none defaults t
 test('the site copies the repo sprite, since a page hands it to ArenaIcon by a path relative to itself', () => {
   assert.equal(SPRITE_FILE, 'assets/Icons.generated.svg');
   assert.ok(COPIED.some((tree) => SPRITE_FILE.startsWith(`${tree}/`)), 'no copied tree holds the sprite');
+});
+
+const adopterManifest = (over: object = {}) => ({
+  arena: '12.1.1', name: 'gallery', title: 'Gallery', description: 'A gallery', repository: 'https://example.org/gallery',
+  sections: [{ heading: 'Pages', links: [{ label: 'First', href: 'first/' }] }], ...over,
+});
+
+function adopterOut(manifest: object | null, name = 'gallery') {
+  const out = track(mkdtempSync(join(tmpdir(), 'arena-adopter-')));
+  mkdirSync(join(out, name), { recursive: true });
+  if (manifest !== null) writeFileSync(join(out, name, 'arena-adopter.json'), JSON.stringify(manifest));
+  return out;
+}
+
+test('an adopter build declaring this tree\'s version is published, and one declaring another is not', () => {
+  const dir = join(adopterOut(adopterManifest()), 'gallery');
+  assert.equal(adopterVerdict(dir, '12.1.1').publish, true);
+  const other = adopterVerdict(dir, '13.0.0');
+  assert.equal(other.publish, false);
+  assert.match(other.line, /12\.1\.1/);
+  assert.match(other.line, /13\.0\.0/);
+});
+
+test('no manifest, broken JSON or a missing field is a refusal with a line, never a throw', () => {
+  const none = join(adopterOut(null), 'gallery');
+  const broken = track(mkdtempSync(join(tmpdir(), 'arena-adopter-')));
+  writeFileSync(join(broken, 'arena-adopter.json'), '{ not json');
+  const { title: _title, ...missing } = adopterManifest();
+  const lacking = join(adopterOut(missing), 'gallery');
+  for (const dir of [none, broken, lacking]) {
+    const verdict = adopterVerdict(dir, '12.1.1');
+    assert.equal(verdict.publish, false);
+    assert.ok(verdict.line.includes(dir), verdict.line);
+  }
+});
+
+test('an href outside the adopter\'s own directory is refused', () => {
+  for (const href of ['/abs/', '../up/', 'x', 'a/./', 'a?b/']) {
+    const dir = join(adopterOut(adopterManifest({ sections: [{ heading: 'Pages', links: [{ label: 'L', href }] }] })), 'gallery');
+    assert.equal(adopterVerdict(dir, '12.1.1').publish, false, href);
+  }
+});
+
+test('a name that is not a plain directory name is refused', () => {
+  for (const name of ['Web Gallery', 'a/b', '']) {
+    const dir = join(adopterOut(adopterManifest({ name })), 'gallery');
+    assert.equal(adopterVerdict(dir, '12.1.1').publish, false, name);
+  }
+});
+
+test('the published adopter is read off the output alone', () => {
+  assert.equal(publishedAdopter(adopterOut(adopterManifest()))?.name, 'gallery');
+  assert.equal(publishedAdopter(adopterOut(adopterManifest({ name: 'other' }))), null);
+  assert.equal(publishedAdopter(track(mkdtempSync(join(tmpdir(), 'arena-adopter-')))), null);
+  assert.equal(publishedAdopter(join(tmpdir(), 'arena-adopter-absent')), null);
+});
+
+test('an adopter\'s declared pages are its links under its name', () => {
+  const out = adopterOut(adopterManifest({
+    sections: [{ heading: 'Pages', links: [{ label: 'B', href: 'second/deep/' }, { label: 'A', href: 'first/' }, { label: 'A again', href: 'first/' }] }],
+  }));
+  assert.deepEqual(adopterPages(out), ['gallery/first/index.html', 'gallery/second/deep/index.html']);
+  assert.deepEqual(adopterDirectories(out), ['gallery']);
+  const empty = track(mkdtempSync(join(tmpdir(), 'arena-adopter-')));
+  assert.deepEqual(adopterPages(empty), []);
+  assert.deepEqual(adopterDirectories(empty), []);
 });

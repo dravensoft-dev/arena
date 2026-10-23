@@ -178,6 +178,86 @@ export function benchDirectories(out: string) {
   return benchPairs(out).length === 0 ? [] : [BENCHES_DIR];
 }
 
+export const ADOPTER_MANIFEST = 'arena-adopter.json';
+export const ADOPTER_NAME = /^[a-z0-9-]+$/;
+const ADOPTER_HREF = /^(?:[A-Za-z0-9._-]+\/)+$/;
+
+export type AdopterLink = { label: string; href: string };
+export type AdopterSection = { heading: string; links: AdopterLink[] };
+export type AdopterManifest = {
+  arena: string; name: string; title: string; description: string; repository: string; sections: AdopterSection[];
+};
+export type AdopterVerdict = { publish: true; manifest: AdopterManifest; line: string } | { publish: false; line: string };
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null && !Array.isArray(value);
+
+function adopterShape(raw: unknown): AdopterManifest | string {
+  if (!isRecord(raw)) return 'the manifest is not an object';
+  for (const field of ['arena', 'name', 'title', 'description', 'repository']) {
+    if (typeof raw[field] !== 'string') return `${field} is missing or not a string`;
+  }
+  if (!Array.isArray(raw.sections)) return 'sections is missing or not an array';
+  for (const section of raw.sections as unknown[]) {
+    if (!isRecord(section) || typeof section.heading !== 'string' || !Array.isArray(section.links)) {
+      return 'a section lacks a heading or its links';
+    }
+    for (const link of section.links as unknown[]) {
+      if (!isRecord(link) || typeof link.label !== 'string' || typeof link.href !== 'string') {
+        return 'a link lacks a label or an href';
+      }
+      if (!ADOPTER_HREF.test(link.href) || link.href.split('/').some((part) => part === '.' || part === '..')) {
+        return `the href ${JSON.stringify(link.href)} is not a directory under the adopter's own`;
+      }
+    }
+  }
+  return raw as unknown as AdopterManifest;
+}
+
+export function adopterVerdict(dir: string, version: string): AdopterVerdict {
+  const refuse = (why: string): AdopterVerdict => ({ publish: false, line: `${dir}: not published, ${why}` });
+  const path = join(dir, ADOPTER_MANIFEST);
+  if (!existsSync(path)) return refuse(`it carries no ${ADOPTER_MANIFEST}`);
+  let raw: unknown;
+  try {
+    raw = JSON.parse(readFileSync(path, 'utf8'));
+  } catch {
+    return refuse(`${ADOPTER_MANIFEST} is not JSON`);
+  }
+  const manifest = adopterShape(raw);
+  if (typeof manifest === 'string') return refuse(manifest);
+  if (!ADOPTER_NAME.test(manifest.name)) return refuse(`the name ${JSON.stringify(manifest.name)} is not a plain directory name`);
+  if (manifest.arena !== version) return refuse(`it declares Arena ${manifest.arena} and this tree is ${version}`);
+  return { publish: true, manifest, line: `${dir}: published for Arena ${version} at /${manifest.name}/` };
+}
+
+export function publishedAdopter(out: string): AdopterManifest | null {
+  if (!existsSync(out)) return null;
+  for (const entry of readdirSync(out, { withFileTypes: true }).filter((e) => e.isDirectory()).sort(byKey((e) => e.name))) {
+    const path = join(out, entry.name, ADOPTER_MANIFEST);
+    if (!existsSync(path)) continue;
+    try {
+      const manifest = adopterShape(JSON.parse(readFileSync(path, 'utf8')));
+      if (typeof manifest !== 'string' && manifest.name === entry.name) return manifest;
+    } catch {
+      continue;
+    }
+  }
+  return null;
+}
+
+export function adopterPages(out: string) {
+  const adopter = publishedAdopter(out);
+  if (adopter === null) return [];
+  const hrefs = adopter.sections.flatMap(({ links }) => links.map(({ href }) => `${adopter.name}/${href}index.html`));
+  return [...new Set(hrefs)].sort(byCodeUnit);
+}
+
+export function adopterDirectories(out: string) {
+  const adopter = publishedAdopter(out);
+  return adopter === null ? [] : [adopter.name];
+}
+
 export function pages(base: string, out: string) {
   return [...treePages(base), ...benchPages(out)];
 }
