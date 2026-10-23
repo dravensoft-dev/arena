@@ -436,10 +436,12 @@ async function main() {
   document.querySelector(".themebtn").addEventListener("click", paint);
   document.addEventListener("arena:density", paint);
 }
-main().catch((err) => {
-  host.append(el("p", "note", `Overview failed to load: ${err.message}`));
-  throw err;
-});
+if (host) {
+  main().catch((err) => {
+    host.append(el("p", "note", `Overview failed to load: ${err.message}`));
+    throw err;
+  });
+}
 export {
   renderSection
 };
