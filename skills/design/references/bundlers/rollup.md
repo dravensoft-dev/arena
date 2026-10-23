@@ -70,3 +70,11 @@ With either config, the Arena CSS file keeps its bytes and its name when the app
 - **Vite 8 separates the sheet and rolldown alone refuses it**, although Vite 8 bundles with rolldown. A project that needs the package sheet in a file of its own and wants rolldown's output takes Vite 8.
 - **A resolver plugin of your own skips the package's `sideEffects` field.** The React package declares `"sideEffects": ["*.css"]` and the Angular package `false`, and a bundler that resolves `@dravensoft/arena-*` through `node_modules` reads that field. A `resolveId` hook returning a path for them bypasses it, and rollup then keeps every component you did not import. Pass `treeshake.moduleSideEffects` back for those modules. Arena's own board bundles this way, with `moduleSideEffects` returning `false` for Arena's JS; verified by hand once.
 - **The sprite under Vite** is served from `public/` or imported as a URL, and a small one is inlined unless `build.assetsInlineLimit` says otherwise. [`install.md`](../install.md), section "How does the toolchain serve the sprite?", gives the line.
+
+## How is the sprite served?
+
+**Vite** takes the glob `?url` import and the `assetsInlineLimit` setting that [`install.md`](../install.md) gives, in its section "How does the toolchain serve the sprite?". That recipe is the one line of this page with a measured path behind it.
+
+**Plain rollup and rolldown** copy `icons-*.svg` from the `-o` directory into the output directory after the bundle, with a copy step of your own. Neither bundler moves a file it does not import. Not exercised.
+
+The provider takes an absolute URL: `/${ARENA_SPRITE}` under a root deploy, with the base path in front under another. Vite's `base` is that prefix. A bare file name resolves against the address of the page, so a route below `/` fetches a path that does not exist and paints no icon.

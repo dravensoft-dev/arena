@@ -246,7 +246,7 @@ export const ROUTES: Route[] = [
       + 'of that bundler\'s family',
     entry: 'consumer',
     stops: ['skills/design/references/bundlers/index.md', 'skills/design/references/bundlers/rollup.md'],
-    budget: 10_300,
+    budget: 11_300,
     reason:
       'paid once per project, when the bundler config is written, and measured on the rollup family, '
       + 'the largest page a reader takes from the index. What it buys is that a reader stops '
@@ -254,7 +254,8 @@ export const ROUTES: Route[] = [
       + 'Arena\'s JS and its package sheet can sit in files of their own for every bundler measured, '
       + 'so most readers stop there, and the family page carries the config that does it and each '
       + 'behaviour that differs, which a reader cannot rebuild from a hint. The other family pages '
-      + 'are smaller. What moves this number is a bundler measured, or a behaviour found.',
+      + 'are smaller. What moves this number is a bundler measured, or a behaviour found, or a question '
+      + 'every page answers: how the sprite is served, which a reader cannot guess from the bundler\'s name.',
   },
   {
     name: 'consumer-page',

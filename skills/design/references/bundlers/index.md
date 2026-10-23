@@ -32,4 +32,6 @@ No bundler is required. A bundler that cannot keep Arena apart still builds the 
 
 ## What each page holds
 
-Each page answers the same questions in the same order. Which versions were measured, and how sure is each answer? How is Arena's JS kept in a chunk of its own, and the package sheet in a file of its own? What does that bundler do differently? The sprite is served by the toolchain's own rule. [`install.md`](../install.md) states that rule for Vite and the Angular builder, in its section "How does the toolchain serve the sprite?". Elsewhere, the `href` handed to the provider has to be a URL a browser can fetch.
+Each page answers the same questions in the same order. Which versions were measured, and how sure is each answer? How is Arena's JS kept in a chunk of its own, and the package sheet in a file of its own? What does that bundler do differently? How is the sprite served?
+
+**The sprite is served by the toolchain's own rule, and the provider takes an absolute URL.** `/${ARENA_SPRITE}` is that URL under a root deploy, with the base path in front of it under another. A bare file name resolves against the page and paints nothing once the route sits below `/`. [`install.md`](../install.md) gives the recipe for Vite and the Angular builder, in its section "How does the toolchain serve the sprite?". Each page here gives its own, with the evidence it has.

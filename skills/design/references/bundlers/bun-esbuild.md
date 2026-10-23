@@ -21,6 +21,14 @@ Both bundlers split code to share it between entries, and neither has an option 
 
 Both emit one CSS file for the entry, holding the package sheet, `arena.generated.css` and your own rules, under a new name with every release. Import them in the order [`install.md`](../install.md) gives.
 
+## How is the sprite served?
+
+Copy `icons-*.svg` into the outdir after `bun build` or esbuild, with a step of your own. Neither bundler copies a file the entry does not import. Not exercised.
+
+Under `Bun.serve`, a route answers `/${ARENA_SPRITE}` with `Bun.file` of the sprite. Not exercised.
+
+Give the provider that same absolute path, with your base path in front of it under a deploy that is not at the root. A bare name resolves against the page, which paints nothing once the page sits below `/`.
+
 ## What differs from the other bundlers?
 
 - **`bun build` does not empty its output directory.** Every earlier hashed bundle stays beside the new one, and a deploy that copies the directory publishes them all. Clear the directory before each build.

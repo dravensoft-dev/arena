@@ -90,7 +90,7 @@ A file under `assetsInlineLimit` (4096 bytes by default) is inlined into the Jav
 "assets": [{ "glob": "icons-*.svg", "input": "src" }]
 ```
 
-Another toolchain serves the file by its own rule. What matters is that `href` is a URL a browser can fetch.
+Every other toolchain has a recipe on its page of [the bundler index](./bundlers/index.md). What matters is that `href` is an absolute URL a browser can fetch.
 
 ## How do I import the stylesheets in React?
 
