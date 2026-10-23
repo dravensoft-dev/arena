@@ -6,8 +6,8 @@
  * the original. It imports nothing and ships whole with the server, like posix.ts, so the
  * packaging jobs and the checks may read it. */
 
-const OPEN = /^ {0,3}(`{3,}|~{3,})(.*)$/;
-const CLOSE = /^ {0,3}(`{3,}|~{3,})[ \t]*$/;
+const OPEN = /^ {0,3}(`{3,}|~{3,})([^\r]*)\r?$/;
+const CLOSE = /^ {0,3}(`{3,}|~{3,})[ \t]*\r?$/;
 const SPAN = /`[^`\n]+`/g;
 
 const blank = (text: string) => text.replace(/[^\n]/g, ' ');

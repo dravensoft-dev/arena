@@ -39,3 +39,9 @@ test('a block closes only on its own character, at least as long, with nothing a
   assert.deepEqual(matchOutsideCode('````\n```\n[a](b.md)\n````\n[c](d.md)', LINK).map((one) => one[1]), ['d.md']);
   assert.deepEqual(matchOutsideCode('```\n``` x\n[a](b.md)\n```\n[c](d.md)', LINK).map((one) => one[1]), ['d.md']);
 });
+
+test('a block with CRLF line ends masks its links, and the length and the newlines hold', () => {
+  const text = '```js\r\n[a](b.md)\r\n```\r\n[c](d.md)\r\n';
+  assert.equal(maskCode(text).length, text.length);
+  assert.deepEqual(matchOutsideCode(text, LINK).map((one) => one[1]), ['d.md']);
+});
