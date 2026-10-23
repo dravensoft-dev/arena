@@ -146,7 +146,20 @@ served. Keep React in a chunk of its own as well, since it changes on its own sc
 **The package's sheet stays in a file apart from `arena.generated.css`.** `arena.package.generated.css`
 changes only with Arena and the components you draw, and `arena.generated.css` holds your palettes and
 fonts and changes with your config. A bundler that joins the two in one output file makes a change to
-either one a new download of the other. `arena build` writes them as two source files, and a bundler that emits one CSS file for an entry joins them again. Which bundlers keep the two apart in the output is **not exercised**: no row above has been measured for its CSS output, so none claims it. Import the package sheet first and `arena.generated.css` after it, as [`install.md`](./install.md) shows. Under `--no-import` the package sheet is not written and the sheets you import by hand take
+either one a new download of the other. `arena build` writes them as two source files, and a bundler that emits one CSS file for an entry joins them again. Measured on 2026-10-23, with the typical React screen and an app change:
+
+| Bundler | The package sheet in a file of its own | Evidence |
+|---|---|---|
+| Vite 7 | yes: the `manualChunks` above also returns `'arena'` for the module `arena.package.generated.css`; the file keeps its bytes and name when the app changes | measured on 2026-10-23 |
+| Vite 8 (rolldown) | yes: the `codeSplitting.groups` entry above also matches `arena.package.generated.css` | measured on 2026-10-23 |
+| webpack | yes: `experiments: { css: true }`, and the `arena` cache group with `type: /^(javascript\|css)/` and a `test` that also matches `arena.package.generated.css` | measured on 2026-10-23 |
+| rspack | yes: the webpack config, with `{ test: /\.css$/, type: 'css/auto' }` in `module.rules` | measured on 2026-10-23 |
+| rollup | not exercised: rollup alone imports no CSS, and a CSS plugin decides | not exercised |
+| rolldown | no: it refuses to bundle CSS | measured on 2026-10-23 |
+| Parcel | no: it cannot resolve the package specifiers of the sheet's `@import`s | measured on 2026-10-23 |
+| Bun, esbuild, Angular `application` | no: one CSS file for the entry | measured on 2026-10-23 |
+
+Import the package sheet first and `arena.generated.css` after it, as [`install.md`](./install.md) shows. Under `--no-import` the package sheet is not written and the sheets you import by hand take
 its place.
 
 ## What this page does not decide

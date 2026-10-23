@@ -228,7 +228,7 @@ export const ROUTES: Route[] = [
       + 'each of those answers has',
     entry: 'consumer',
     stops: ['skills/design/references/stack.md'],
-    budget: 14_700,
+    budget: 15_700,
     reason:
       'paid once per project like the surface, skin, register and seo routes, and taken beside the '
       + 'cold start tree rather than after it, because a toolchain settled after the first screen is '
@@ -238,8 +238,10 @@ export const ROUTES: Route[] = [
       + 'page costs and all of what makes it usable. What it does not carry is the layer decision and '
       + 'the render architecture, which are nodes of the cold start tree. The peers table says which '
       + 'peer is required and which optional, and why a command names no framework peer. Each bundler '
-      + 'row carries its own recipe for a chunk of Arena\'s own, and the package sheet paragraph says '
-      + 'its separation in the output is not exercised.',
+      + 'row carries its own recipe for a chunk of Arena\'s own, and the package sheet paragraph holds '
+      + 'one row per bundler saying whether the package sheet lands in an output file of its own, '
+      + 'with the evidence level of each, which is what a project on that bundler needs to keep a '
+      + 'release of its app from downloading Arena\'s sheet again.',
   },
   {
     name: 'consumer-page',
