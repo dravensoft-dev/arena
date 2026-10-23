@@ -1,15 +1,15 @@
 /* Assembles the published site out of the built tree. It copies, and rewrites only the Markdown
- * links the site does not carry to the repository at this release's tag: a page names its assets
- * by a relative href counting directories, so the output holds the same shape under the same
- * names. The icon sprite travels with assets/, so no font does. copyAll, not package-assembly's
- * copyTree, whose exclusions differ. An adopter build declaring this Arena is copied as is.
- * A page's JavaScript is copied by following it: the React pages load unbundled ES modules, so
- * publishing the entry beside the page and stopping there put up pages answering 200 at every href
- * with an empty root. What it authors is what serve.ts answers at request time and a static host
- * cannot: an index per directory a visitor lands on, the landing page, the sitemap, robots.txt, a
- * 404 and the preview card, each derived from the map the packages ship. */
+ * links the site does not carry to the repository at this release's tag: a page names its assets by
+ * a relative href counting directories, so the output holds the same shape under the same names.
+ * The icon sprite travels with assets/, so no font does. copyAll, not package-assembly's copyTree,
+ * whose exclusions differ. An adopter build declaring this Arena is copied whole but for the tool
+ * directories, after the rewrite. A page's JavaScript is copied by following it: the React pages
+ * load unbundled ES modules, so the entry alone put up pages answering 200 at every href with an
+ * empty root. It authors what serve.ts answers at request time and a static host cannot: an index
+ * per directory a visitor lands on, the landing page, the sitemap, robots.txt, a 404 and the
+ * preview card, each derived from the map the packages ship. */
 
-import { appendFileSync, existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { appendFileSync, existsSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
@@ -103,6 +103,26 @@ export function adopterClash(out: string, dir: string, name: string) {
     return `${dir}: not published, it carries an index.html, which the page this site writes at /${name}/ would replace`;
   }
   return null;
+}
+
+export function placeAdopter(out: string, env = arenaEnv(), base = repoRoot) {
+  const adopter = adopterBuild(env, base);
+  if (adopter === null) return [];
+  const { dir, verdict } = adopter;
+  const clash = verdict.publish ? adopterClash(out, dir, verdict.manifest.name) : null;
+  console.log(`build-site: ${clash ?? verdict.line}`);
+  let written: string[] = [];
+  if (verdict.publish && clash === null) {
+    const name = verdict.manifest.name;
+    try {
+      written = copyAll(dir, out, name);
+    } catch (error) {
+      rmSync(join(out, name), { recursive: true, force: true });
+      console.log(`build-site: ${dir}: not published, copying it failed: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+  if (env.GITHUB_OUTPUT) appendFileSync(env.GITHUB_OUTPUT, `adopter=${written.length > 0 ? 'published' : 'refused'}\n`);
+  return written;
 }
 
 export const BODY = 'body{margin:0;background:var(--bg);color:var(--text-strong);'
@@ -338,13 +358,7 @@ export async function buildSite(base = repoRoot, out = join(base, SITE_DIR)) {
 
   retargetPages(out, written, base);
 
-  const adopter = adopterBuild();
-  if (adopter !== null) {
-    const { dir, verdict } = adopter;
-    const clash = verdict.publish ? adopterClash(out, dir, verdict.manifest.name) : null;
-    console.log(`build-site: ${clash ?? verdict.line}`);
-    if (verdict.publish && clash === null) written.push(...copyAll(dir, out, verdict.manifest.name));
-  }
+  written.push(...placeAdopter(out, arenaEnv(), base));
 
   for (const directory of indexedDirectories(base, out)) {
     const depth = directory === '' ? 0 : directory.split('/').length;

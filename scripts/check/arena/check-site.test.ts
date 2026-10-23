@@ -228,7 +228,7 @@ test('a property read with a fallback is a property that resolves, so the gate s
   });
   assert.deepEqual(tokenProblems(base), [],
     'Tailwind emits var(--x, <value>) on purpose and the fallback IS the value, so the page this '
-    + 'reports renders exactly as drawn; the sixteen foreign halves are what brought the shape in');
+    + 'reports renders exactly as drawn; an adopter build compiled by Tailwind brings that shape in');
 
   const bare = out({
     'index.html': '<main style="font-family:var(--default-font-family)">x</main>',
@@ -237,7 +237,7 @@ test('a property read with a fallback is a property that resolves, so the gate s
   assert.equal(tokenProblems(bare).length, 1, 'without a fallback it still resolves to nothing');
 });
 
-test('located takes the output it reads, so none defaults to the adopter output', () => {
+test('located requires the output it reads and defaults to none', () => {
   assert.equal(located.length, 2);
 });
 

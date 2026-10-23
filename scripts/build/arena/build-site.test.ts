@@ -1,10 +1,10 @@
 import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync, existsSync, symlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
-import { retargetPages, adopterBuild, adopterSection, adopterClash, adopterDeclares, landingPage } from './build-site.ts';
+import { retargetPages, adopterBuild, adopterSection, adopterClash, adopterDeclares, landingPage, placeAdopter } from './build-site.ts';
 import { repositoryBase, version } from '../../lib/arena/package-assembly.ts';
 
 test('a published Markdown page points what the output lacks at the release tag and keeps the rest', () => {
@@ -76,8 +76,10 @@ test('the adopter section names the title and every link, and is empty without a
 });
 
 test('the landing page links no adopter repository when no adopter is published', () => {
-  assert.ok(!landingPage(repoRoot, adopterOut(null)).includes('github.com/dravensoft-dev/arena-web'));
-  assert.ok(landingPage(repoRoot, adopterOut()).includes('./gallery/first/'));
+  const without = landingPage(repoRoot, adopterOut(null));
+  assert.ok(!without.includes('./gallery/') && !without.includes('example.org/gallery'));
+  const withOne = landingPage(repoRoot, adopterOut());
+  assert.ok(withOne.includes('./gallery/first/') && withOne.includes('href="https://example.org/gallery"'));
 });
 
 test('an adopter whose name an Arena entry already holds, or that carries its own index, is refused', () => {
@@ -106,4 +108,55 @@ test('an empty, missing or option-shaped directory is a refusal and never reads 
     assert.match(verdict.line, /needs a directory/);
   }
   assert.equal(readFileSync(file, 'utf8'), 'publish=false\npublish=false\npublish=false\n');
+});
+
+function placed() {
+  const out = track(mkdtempSync(join(tmpdir(), 'arena-site-')));
+  mkdirSync(join(out, 'intro'), { recursive: true });
+  const page = join(out, 'intro', 'AGENTS.md');
+  writeFileSync(page, '[a](../AGENTS.md)\n');
+  const dir = join(adopterOut(), 'gallery');
+  writeFileSync(join(dir, 'notes.md'), '[a](../AGENTS.md)\n');
+  return { out, page, dir };
+}
+
+test('an adopter\'s Markdown is placed byte for byte, after the pages that are rewritten', () => {
+  const { out, page, dir } = placed();
+  const arena = [page];
+  retargetPages(out, arena);
+  const mine = placeAdopter(out, { ARENA_ADOPTER_BUILD: dir });
+  assert.equal(readFileSync(join(out, 'gallery', 'notes.md'), 'utf8'), '[a](../AGENTS.md)\n');
+  assert.notEqual(readFileSync(page, 'utf8'), '[a](../AGENTS.md)\n', 'Arena\'s own page is rewritten');
+  assert.ok(mine.includes(join(out, 'gallery', 'notes.md')));
+  assert.ok(mine.every((file) => !arena.includes(file)), 'the adopter\'s files are never in the list retargetPages reads');
+  retargetPages(out, arena);
+  assert.equal(readFileSync(join(out, 'gallery', 'notes.md'), 'utf8'), '[a](../AGENTS.md)\n');
+});
+
+test('an adopter whose name the site holds leaves the site unchanged', () => {
+  const { out, dir } = placed();
+  const manifestPath = join(dir, 'arena-adopter.json');
+  writeFileSync(manifestPath, JSON.stringify(manifest({ name: 'intro' })));
+  writeFileSync(join(out, 'intro', 'x'), 'kept');
+  assert.deepEqual(placeAdopter(out, { ARENA_ADOPTER_BUILD: dir }), []);
+  assert.equal(readFileSync(join(out, 'intro', 'x'), 'utf8'), 'kept');
+  assert.ok(!existsSync(join(out, 'intro', 'notes.md')));
+});
+
+test('a copy that throws leaves nothing of the adopter and does not stop the build', () => {
+  const { out, dir } = placed();
+  symlinkSync(join(dir, 'absent'), join(dir, 'dangling'));
+  assert.deepEqual(placeAdopter(out, { ARENA_ADOPTER_BUILD: dir }), []);
+  assert.ok(!existsSync(join(out, 'gallery')));
+});
+
+test('the output file is told published, or refused, and nothing when no adopter is named', () => {
+  const file = join(track(mkdtempSync(join(tmpdir(), 'arena-adopter-'))), 'output');
+  const { out, dir } = placed();
+  placeAdopter(out, { GITHUB_OUTPUT: file });
+  assert.ok(!existsSync(file), 'no adopter named, no line');
+  placeAdopter(out, { ARENA_ADOPTER_BUILD: dir, GITHUB_OUTPUT: file });
+  placeAdopter(out, { ARENA_ADOPTER_BUILD: dir, GITHUB_OUTPUT: file });
+  placeAdopter(out, { ARENA_ADOPTER_BUILD: join(tmpdir(), 'arena-adopter-absent'), GITHUB_OUTPUT: file });
+  assert.equal(readFileSync(file, 'utf8'), 'adopter=published\nadopter=refused\nadopter=refused\n');
 });

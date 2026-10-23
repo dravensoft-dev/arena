@@ -182,13 +182,6 @@ test('an adopter\'s own subdirectories are not indexed, or the build overwrites 
   }
 });
 
-test('the module graph is walked from the tree alone, since an adopter build arrives only in CI', () => {
-  for (const rel of modules()) {
-    assert.ok(!rel.startsWith('gallery/'),
-      'moduleGraph is memoised by base, so a declaration varying with the output cannot enter it');
-  }
-});
-
 test('the identity template and its worked answer are pages the site declares, and no other file beside them', () => {
   assert.deepEqual(COPIED_FILES, [
     'arena-from-scratch/identity.html', 'arena-from-scratch/identity.example.html',
@@ -214,7 +207,7 @@ test('the arrangement of chart variants is told from the style plugins by its it
   assert.ok(sinkNames().includes('charts') && sinkNames().includes('default'));
 });
 
-test('pages and indexedDirectories take the output they read, so none defaults to the adopter output', () => {
+test('pages and indexedDirectories require the output they read and default to none', () => {
   assert.equal(pages.length, 2);
   assert.equal(indexedDirectories.length, 2);
 });
@@ -235,6 +228,15 @@ function adopterOut(manifest: object | null, name = 'gallery') {
   if (manifest !== null) writeFileSync(join(out, name, 'arena-adopter.json'), JSON.stringify(manifest));
   return out;
 }
+
+test('the module graph is walked from the tree alone, so an adopter page loading a module changes nothing', () => {
+  const before = [...modules()];
+  const out = adopterOut(adopterManifest());
+  mkdirSync(join(out, 'gallery', 'first'), { recursive: true });
+  writeFileSync(join(out, 'gallery', 'first', 'index.html'), '<script type="module" src="./entry.js"></script>');
+  assert.ok(pages(repoRoot, out).includes('gallery/first/index.html'), 'the output holds the adopter');
+  assert.deepEqual(modules(), before);
+});
 
 test('an adopter build declaring this tree\'s version is published, and one declaring another is not', () => {
   const dir = join(adopterOut(adopterManifest()), 'gallery');
