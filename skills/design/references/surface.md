@@ -79,11 +79,12 @@ it instead of waiting for it.
 - **No route into a component's own box.** A component takes only vocabulary classes, never a
   style of yours, and its class names are compiler output. Lay out on a container you
   own. React types `className` to those classes; `arena audit` checks Angular's `class`.
-- **No icon font bundled.** Icons are Phosphor class-name strings a component renders, and the
-  font arrives as a peer dependency rather than inside the package.
-- **No runtime dependency and no CSS toolchain.** Every component's CSS ships compiled against
-  Arena's own class names and tokens, so a project running its own utility framework cannot
-  collide with it in either direction.
+- **No icon font bundled.** Icons are Phosphor class-name strings that `ArenaIcon` draws from the
+  sprite `arena build` writes, and the font is neither in the package nor a peer of it.
+- **No runtime dependency a component reaches, and no CSS toolchain.** The `arena` command reads
+  three packages at build, and no component imports them. Every component's CSS ships compiled
+  against Arena's own class names and tokens, so a project running its own utility framework
+  cannot collide with it in either direction.
 - **One pattern has no export.** The feed pattern is bound inside a component that is an event
   log with a fixed row, so it is not a feed of yours to reuse. Read how it binds the pattern and
   write the same thing around your own article.

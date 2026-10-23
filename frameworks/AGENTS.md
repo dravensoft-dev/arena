@@ -190,8 +190,8 @@ a layer that disagrees with it is wrong.
 
 ## Two rules a component author reaches for constantly
 
-**The single-icon convention.** A component's icon is a Phosphor class-name string Arena draws,
-never a slot, so `ArenaIconButton` presents no slot at all and a per-item or single icon is one
+**The single-icon convention.** A component's icon is a Phosphor class-name string Arena draws through
+`ArenaIcon`, never a slot, so `ArenaIconButton` presents no slot at all and a per-item or single icon is one
 system across the library. The price is recorded rather than hidden: flattening each
 `<button>`'s heritage clause drops the five `form*` overrides and every global or ARIA attribute
 a `{...rest}` spread would forward, with no gate behind the loss. `check:api` reads the `.tsx`,

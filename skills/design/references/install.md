@@ -18,7 +18,7 @@ npm i '@angular/router@<angular-major>' '@angular/forms@<angular-major>'   # opt
 
 <!-- @support install end -->
 
-Swap `npm i` for `pnpm add`, `yarn add` or `bun add`. Under pnpm the layout is strict, and every peer is declared rather than assumed. The command that ships with the package resolves the icon font through the symlinked store like any other dependency. No hoisting flag is needed.
+Swap `npm i` for `pnpm add`, `yarn add` or `bun add`. Under pnpm the layout is strict, and every peer is declared rather than assumed. The command that ships with the package resolves the three packages it reads at build through the symlinked store like any other dependency. No hoisting flag is needed.
 
 A required peer is one the package cannot load without. npm 7 and later, pnpm 8 and later and bun install a missing one on their own. Yarn reports it and leaves the install to you.
 
@@ -28,17 +28,17 @@ The package declares `engines: { node: ">=22" }`, the oldest line Node still sup
 
 ## What comes down with the React package?
 
-The required peers are `react`, `react-dom` and `@phosphor-icons/web`. The first two are already in the project. The third is the icon font, and a project that has not installed it gets it from the command above.
+The required peers are `react` and `react-dom`, which the project already has. `@phosphor-icons/web` is no peer: Arena ships no icon font.
 
-Arena's icons are Phosphor class names that a component renders. No SVG is bundled. The font is installed beside the package and never inside it.
+The package declares three `dependencies`: `@phosphor-icons/core`, `harfbuzzjs` and `wawoff2`. No component imports them, so none reaches a bundle. The `arena` command reads them at build, to cut the sprite from Phosphor's SVGs and to cut each local font.
 
-The package has no runtime dependency and needs no CSS toolchain. Every component's CSS ships compiled against Arena's own class names and tokens. A project running its own utility framework cannot collide with it in either direction.
+The package needs no CSS toolchain. Every component's CSS ships compiled against Arena's own class names and tokens. A project running its own utility framework cannot collide with it in either direction.
 
 ## What comes down with the Angular package?
 
 The required peers are `@angular/core`, `@angular/common` and `@angular/platform-browser`, which the project already has. `@angular/cdk` is required as well. A primitive that anchors a surface to a trigger uses its overlay, and `arena-tabs` uses its roving-focus key manager. The CDK supplies position only. The roles, the keys and the focus are Arena's own.
 
-`@phosphor-icons/web` is the last required peer. `@angular/router` and `@angular/forms` are optional peers, which no manager installs for you. Add them when you reach `@dravensoft/arena-angular/metadata` or `@dravensoft/arena-angular/forms`. The font is installed beside the package. `tslib` is the only runtime dependency the package declares.
+`@angular/router` and `@angular/forms` are optional peers, which no manager installs for you. Add them when you reach `@dravensoft/arena-angular/metadata` or `@dravensoft/arena-angular/forms`. `@phosphor-icons/web` is no peer. The package declares `tslib` and the same three `dependencies` as the React package (`@phosphor-icons/core`, `harfbuzzjs` and `wawoff2`), which only the `arena` command reads, at build.
 
 Angular's own Node floor is the stricter of the two, so Angular decides which Node the project runs. Arena never refuses a Node that the framework accepts.
 
@@ -46,9 +46,29 @@ You do not need to run Tailwind. Every component's CSS ships compiled, and one `
 
 ## What is an icon in Arena?
 
-An icon is a class name and never an element. Every `icon` prop in React and every `icon` input in Angular takes a Phosphor class list such as `"ph-bold ph-bell"`. The component renders it.
+An icon is a glyph of Phosphor's, drawn by `ArenaIcon` (React) or `arena-icon` (Angular) as an `<svg>` that references one symbol of a sprite. Every `icon` prop in React and every `icon` input in Angular takes a Phosphor class list such as `"ph-bold ph-bell"`, and the component hands it to `ArenaIcon`. Every glyph a component draws goes through `ArenaIcon`, and so does yours.
 
-The sprite `arena build` writes holds the glyphs you draw, so a project does not import Phosphor's own stylesheet; only a static page with no build links it. [`cli.md`](./cli.md) says how the sprite is built.
+`arena build` writes the sprite as `icons-<hash>.svg`, holding the glyphs your sources draw and the ones Arena's components draw for you. `arena build` also writes `arena.icons.generated.js` with its declaration file, exporting `ARENA_SPRITE`, the sprite's file name. Your app serves the sprite and hands its URL over once, at the root of the tree. An `ArenaIcon` with no URL warns once and paints nothing.
+
+In React, wrap the app in `ArenaIconsProvider` with the sprite's URL as `href`. The URL below is where your server serves the file:
+
+```tsx
+import { ArenaIconsProvider } from '@dravensoft/arena-react';
+import { ARENA_SPRITE } from './arena.icons.generated.js';
+
+<ArenaIconsProvider href={`/${ARENA_SPRITE}`}><App /></ArenaIconsProvider>
+```
+
+In Angular, add `provideArenaIcons(href)` to the application's providers:
+
+```ts
+import { provideArenaIcons } from '@dravensoft/arena-angular';
+import { ARENA_SPRITE } from './arena.icons.generated.js';
+
+bootstrapApplication(App, { providers: [provideArenaIcons(`/${ARENA_SPRITE}`)] });
+```
+
+A raw `<i class="ph-bold ph-bell">` paints nothing, because Arena ships no icon font; it paints only when the project installs `@phosphor-icons/web` itself and links its sheets. `arena audit` reports one as `raw-glyph`, and the `--strict` list `arena init` writes holds it. A project does not import Phosphor's own stylesheet for Arena's glyphs. [`cli.md`](./cli.md) says how the sprite is built.
 
 ## How do I import the stylesheets in React?
 

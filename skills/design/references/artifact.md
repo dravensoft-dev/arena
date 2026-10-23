@@ -6,7 +6,7 @@ page is the document to start from.** Read this when you build a slide, a mock o
 
 ## The document
 
-Every URL below is served by `https://arena.dravensoft.org`, so the file works on a machine with no clone.
+Arena's stylesheet is served by `https://arena.dravensoft.org` and Phosphor's two sheets by a CDN, so the file works on a machine with no clone. A static file has no build, and a raw `ph-*` element on it paints through Phosphor's own web font, which Arena never bundles. A project with a build draws every glyph through `ArenaIcon` instead, and [`install.md`](./install.md) says how.
 
 ```html
 <!doctype html>
@@ -16,8 +16,8 @@ Every URL below is served by `https://arena.dravensoft.org`, so the file works o
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Release review</title>
   <link rel="stylesheet" href="https://arena.dravensoft.org/intro/styles.css">
-  <link rel="stylesheet" href="https://arena.dravensoft.org/node_modules/@phosphor-icons/web/src/bold/style.css">
-  <link rel="stylesheet" href="https://arena.dravensoft.org/node_modules/@phosphor-icons/web/src/fill/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/bold/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/fill/style.css">
   <style>
     body { margin: 0; background: var(--fill-page); color: var(--ink-body); font-family: var(--font-body); }
     main { max-width: var(--measure-prose); margin: 0 auto; padding: var(--sp-10) var(--sp-6); }
@@ -57,7 +57,7 @@ The sizes are four custom properties that `intro/styles.css` defines. Set one as
 
 An icon takes `currentColor`. Colour it with `--accent-primary-ink` only when the icon is interactive or active.
 
-A page with no network needs the glyph sheets locally. Install `@phosphor-icons/web`, copy its `src/bold` and `src/fill` folders next to the file, and link `bold/style.css` and `fill/style.css` from there. Each folder holds its sheet and the font files that sheet names, so copy the whole folder. A prototype with a network can take the CDN sheet instead, such as `https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/bold/style.css`.
+A page with no network needs the glyph sheets locally. Install `@phosphor-icons/web` yourself, copy its `src/bold` and `src/fill` folders next to the file, and link `bold/style.css` and `fill/style.css` from there. Each folder holds its sheet and the font files that sheet names, so copy the whole folder. The page above takes the CDN sheets, pinned to a version.
 
 ## What the stylesheet carries
 

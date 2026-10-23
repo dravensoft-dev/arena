@@ -42,6 +42,7 @@ carry. That command reads a project's configuration and its source tree and
 writes CSS, so anything it can be made to read or write outside its output is in
 scope.
 
-Two dependencies are part of the adoption contract and are not Arena's to fix:
-Phosphor Icons and Tailwind. A vulnerability in either belongs upstream, and a
+Some dependencies are part of the adoption contract and are not Arena's to fix:
+Phosphor Icons and Tailwind, and the two WebAssembly libraries the `arena` command reads to cut
+fonts, `harfbuzzjs` and `wawoff2`. A vulnerability in any of them belongs upstream, and a
 report here is still worth sending if Arena's use of it is what exposes you.

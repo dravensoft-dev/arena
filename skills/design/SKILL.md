@@ -126,8 +126,9 @@ source text cannot show, is `arena://rules` on the MCP server.
 - **Icons are Phosphor class-name strings, drawn by Arena's components or by ArenaIcon; a raw ph-*
   element paints nothing.** Write `icon="ph-bold ph-plus"`. Arena draws each glyph from the sprite
   `arena build` writes, and a raw `ph-*` element needs the project's own `@phosphor-icons/web`,
-  which Arena never bundles. A static page links the weight sheets instead, as
-  `references/artifact.md` shows. **`arena audit` reports this one, as `icon-element`.**
+  which Arena never bundles. A static page has no build, so it links the weight sheets for its raw
+  `ph-*` elements, as `references/artifact.md` shows. **`arena audit` reports this one, as
+  `icon-element`.**
 - **Never wrap an Arena component in your router's own link.** That nests an anchor inside an
   anchor, and in Angular it does not bind at all. Pass the href to the component and route from
   the event it reports. An `ArenaLink` inside a link of your own is reported as `wrapped-link`.
@@ -168,6 +169,7 @@ source text cannot show, is `arena://rules` on the MCP server.
 | I am starting a project that has no appearance yet. What do I ask, and in what order? | [`references/cold-start.md`](./references/cold-start.md): the tree, its five questions, the catalogue of measured style plugins, and the identity document every branch converges on |
 | Which layer, which architecture, and what do I have to install? | [`references/cold-start.md`](./references/cold-start.md), at its last four nodes. How much the product has to be found decides the layer and a peer. What the product is assembled on is answered per architecture, with the evidence for each. The dependency list follows from the answers |
 | What may I build this with, and how sure is Arena about each answer? | [`references/stack.md`](./references/stack.md): the package manager, the runner, the module format, the bundler and the framework version, each answer carrying the evidence it actually has. Arena is built with bun, React 18 and Angular 22, and none of that is a requirement on you |
+| Which bundlers, and which Angular builder, was Arena tested on, with what figures? | [`references/environments.md`](./references/environments.md): one row per bundler with its version, what was measured, the date and the Arena version, and the two that cannot keep Arena in a chunk of its own. A record, not a recommendation |
 | How do I make Arena look like my own product? | [`references/style-kernel.md`](./references/style-kernel.md), once per project and before the first screen |
 | Which of those answers actually change how it looks? | the table in [`references/style-kernel.md`](./references/style-kernel.md), measured over eight products built on this kernel |
 | Does what I am building have to be found from outside it? | [`references/seo.md`](./references/seo.md), once per project: what Arena writes into the `<head>`, and which layer writes it |
@@ -205,7 +207,7 @@ answers a question in the table above.
 
 **A visual artifact** (a slide, a mock, a throwaway prototype): copy the assets you need out
 of `assets/`, and write static HTML that links `intro/styles.css` and Phosphor's sheets. Neither
-ships in a package; https://arena.dravensoft.org serves both ([artifact](./references/artifact.md)).
+ships in a package; https://arena.dravensoft.org serves the first and a CDN the second ([artifact](./references/artifact.md)).
 
 **Production code**: use the component library for the consumer's framework, import from
 `@dravensoft/arena-react` or `@dravensoft/arena-angular`, and follow the prompts. The rules above

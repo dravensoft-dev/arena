@@ -22,8 +22,8 @@ implementation is the other's record. `bun run check:layer-independence` fails a
 cites a sibling layer, by import or in prose.
 
 **It also reaches nothing outside `react`, `react-dom` and the two vendored styling utilities**,
-and `check:architecture` holds that list. The manifest therefore declares no runtime dependency at
-all, which is the whole of why a consumer may drop this layer into a single-page application, a
+and `check:architecture` holds that list. The components therefore import no runtime dependency (the manifest declares three that the
+`arena` command reads at build), which is the whole of why a consumer may drop this layer into a single-page application, a
 server-rendered one, a static build or a fragment of somebody else's page without being handed a
 framework decision. A router, a store or a data client imported here is that decision made for
 them, and they meet it as a package they did not choose. Where a capability seems to need one,

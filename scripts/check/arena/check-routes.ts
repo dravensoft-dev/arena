@@ -51,7 +51,7 @@ export const ENTRIES: Entry[] = [
   {
     name: 'consumer',
     router: 'skills/design/SKILL.md',
-    budget: 20_950,
+    budget: 21_300,
     reason:
       'the page every consumer route opens with, declared once, not as the first stop of '
       + 'each route. What a route pays past it is its own, and each is argued where spent. '
@@ -72,7 +72,7 @@ export const ENTRIES: Entry[] = [
   {
     name: 'contributor',
     router: 'AGENTS.md',
-    budget: 24_000,
+    budget: 24_100,
     reason:
       'the same argument on the other branch, and it is allowed to cost more because it is paid by '
       + 'whoever changes Arena and never by whoever uses it. It carries a routing table rather than a '
@@ -124,7 +124,7 @@ export const ROUTES: Route[] = [
       'skills/design/references/config.md',
       'skills/design/references/cli.md',
     ],
-    budget: 41_500,
+    budget: 44_500,
     reason:
       'paid once per project rather than per screen, so it carries what the build route may not: '
       + 'the install, the config file and the command. The package carries none of the language, so a '
@@ -132,7 +132,7 @@ export const ROUTES: Route[] = [
       + 'and the install reference gives the evidence behind each package manager and the Tailwind v4 '
       + 'entry sheet. The command reference quotes whole the scripts `arena init` writes, tables every '
       + 'audit tag with the rule it reports, says how to mark a line a '
-      + 'directive reads, names the sprite the build writes, names '
+      + 'directive reads, names the sprite and the cut fonts the build writes, names '
       + 'what the contrast (axis, solid badge, polarity) and heat kinds report, '
       + 'and lists the sheets a `--no-import` project imports under one rule for every root, generated from '
       + 'the layer list `scopedImports` reads, and says which names the placeholder stands for, when the base sheet drops out of it and where the default root adds its plugin sheet. The config reference tables every key, says that a project naming no list gets the one the build works out and how that differs from spelling auto, and lists the '
@@ -207,7 +207,7 @@ export const ROUTES: Route[] = [
       + 'every part Arena ships, the three steps a project can stop at, and where Arena stops',
     entry: 'consumer',
     stops: ['skills/design/references/surface.md'],
-    budget: 11_500,
+    budget: 11_650,
     reason:
       'paid once per project and taken before the skin, register and seo routes, because each of '
       + 'them asks how much of a thing nobody has shown the reader yet. What it buys is that a '
@@ -228,7 +228,7 @@ export const ROUTES: Route[] = [
       + 'each of those answers has',
     entry: 'consumer',
     stops: ['skills/design/references/stack.md'],
-    budget: 11_000,
+    budget: 14_400,
     reason:
       'paid once per project like the surface, skin, register and seo routes, and taken beside the '
       + 'cold start tree rather than after it, because a toolchain settled after the first screen is '
@@ -241,7 +241,7 @@ export const ROUTES: Route[] = [
       + 'nodes of the cold start tree: naming them here would give a project two places to answer one '
       + 'thing, and the tree is where the answer reaches a peer dependency rather than a preference. '
       + 'The peers table says which peer is required and which optional, as the manifests do, and why '
-      + 'a command names no framework peer.',
+      + 'a command names no framework peer. Each bundler row carries its own recipe for a chunk of Arena\'s own, because that is a requirement stated per bundler.',
   },
   {
     name: 'consumer-page',
@@ -419,7 +419,7 @@ export const ROUTES: Route[] = [
       + 'package is, and what CI does with the tag once it exists',
     entry: 'contributor',
     stops: ['versioning_steps.md', 'frameworks/PACKAGING.md', '.github/workflows/AGENTS.md'],
-    budget: 75_495,
+    budget: 76_100,
     reason:
       'the least frequent route on the branch and the most expensive one to get wrong, because '
       + 'each of its failures publishes nothing and errors nowhere. The sequence is the first stop '

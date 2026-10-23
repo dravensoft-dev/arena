@@ -242,8 +242,7 @@ dependencies is the skill's to ask: past this table the stack is the project's o
 
 | Always | Which layer | Why |
 |---|---|---|
-| `@dravensoft/arena-react` **or** `@dravensoft/arena-angular` | one of them, never both | the layer nodes 8 and 9 settled. The package is Arena itself. Everything under it is a peer, and a list of peers with the package missing installs nothing that draws |
-| `@phosphor-icons/web` | both | icons are class-name strings a component renders, and the font is never bundled |
+| `@dravensoft/arena-react` **or** `@dravensoft/arena-angular` | one of them, never both | the layer nodes 8 and 9 settled. The package is Arena itself. Every package its components load is a peer, and a list of peers with the package missing installs nothing that draws |
 | `@angular/cdk` | Angular only | a peer of that layer, and **not** something a React project installs |
 | `@angular/core`, `@angular/common`, `@angular/platform-browser` | Angular only | the peers the layer is built on |
 | `react`, `react-dom` | React only | the peers that layer is built on |

@@ -346,8 +346,8 @@ ${fieldTable(base, CONFIRM_REQUEST_CONTRACT)}`,
   },
 
   noImport: (base = root) => {
-    const fence = (name: string, extra: CssChainEntry[]) => ['```css', ...noImportSheets(name, base, extra), "@import './arena.generated.css';", '```'].join('\n');
-    return `**React:**\n\n${fence('@dravensoft/arena-react', [])}\n\n**Angular:**\n\n${fence('@dravensoft/arena-angular', ANGULAR_EXTRA)}\n\nEach \`<component>\` stands for a sheet in the closed list \`arena build\` works out, for every root. That list is the components the sources draw and the ones Arena draws for them. The \`"default"\` root adds \`css/style-plugin-default.css\` in its slot. Each \`<family>\` is a vocabulary sheet. \`css/base.css\` is left out when \`stylesheet.preflight\` is \`false\`.`;
+    const fence = (name: string, extra: CssChainEntry[]) => ['```css', ...noImportSheets(name, base, extra), '```'].join('\n');
+    return `**React:**\n\n${fence('@dravensoft/arena-react', [])}\n\n**Angular:**\n\n${fence('@dravensoft/arena-angular', ANGULAR_EXTRA)}\n\nEach \`<component>\` stands for a sheet in the closed list \`arena build\` works out, for every root. That list is the components the sources draw and the ones Arena draws for them. The \`"default"\` root adds \`css/style-plugin-default.css\` in its slot. Each \`<family>\` is a vocabulary sheet. \`css/base.css\` is left out when \`stylesheet.preflight\` is \`false\`. \`arena.generated.css\` goes in a stylesheet of its own, imported after the list, so the package's sheets and yours never share a file.`;
   },
 
   scriptsReact: () => initFence('@dravensoft/arena-react'),

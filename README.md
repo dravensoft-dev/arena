@@ -104,8 +104,8 @@ bun add @dravensoft/arena-react     # or @dravensoft/arena-angular
 ```
 
 **That is the whole install.** Bun installs the peers a project lacks. A manager that
-installs no peer, Yarn among them, needs them named, as the commands in `install.md` do. Phosphor is a peer rather than a second
-command, because Arena renders icon class names and never SVG.
+installs no peer, Yarn among them, needs them named, as the commands in `install.md` do. No icon font is a peer: `arena build`
+writes the sprite that `ArenaIcon` draws from.
 [`install.md`](./skills/design/references/install.md#how-do-i-install-a-package) lists the
 commands per layer, and the layer page below says which peers each package declares.
 
@@ -192,11 +192,13 @@ component ships under both names and the two documents are not interchangeable.
   `contracts/design-generated/fonts.generated.css` declares them with
   `@font-face`, so they load from the same origin as the page that reads them. A
   package consumer names their own three families in `arena.config.json`, where
-  `src` is either a stylesheet URL or a binary they host.
-- **Icons are [Phosphor Icons](https://phosphoricons.com) (MIT)**, and are not
-  bundled. Install `@phosphor-icons/web`: every component takes a Phosphor class
-  string, and that webfont draws it. The CDN is a prototype-only convenience, not the
-  default. See [Iconography](./contracts/design/AGENTS.md#iconography).
+  `src` is either a font file, which `arena build` cuts to what the product paints, or a
+  stylesheet URL.
+- **Icons are [Phosphor Icons](https://phosphoricons.com) (MIT)**, and no icon font is
+  bundled. Every component takes a Phosphor class string and draws the glyph through
+  `ArenaIcon`, from the sprite `arena build` writes. A raw `ph-*` element needs
+  `@phosphor-icons/web` installed by the project. See
+  [Iconography](./contracts/design/AGENTS.md#iconography).
 
 ## Which version am I getting
 

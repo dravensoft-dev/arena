@@ -86,7 +86,7 @@ export const RULES: LanguageRule[] = [
     id: 'icons-are-strings',
     short: 'Icons are Phosphor class-name strings, drawn by Arena\'s components or by ArenaIcon; a raw ph-* element paints nothing.',
     body: 'Write `icon="ph-bold ph-plus"`. Arena draws each glyph from the sprite `arena build` writes, '
-      + 'and a raw `ph-*` element needs the project\'s own `@phosphor-icons/web`, which Arena never bundles. A static page links the weight sheets instead, as '
+      + 'and a raw `ph-*` element needs the project\'s own `@phosphor-icons/web`, which Arena never bundles. A static page has no build, so it links the weight sheets for its raw `ph-*` elements, as '
       + '`references/artifact.md` shows.',
     held: 'icon-element',
     unheld: null,

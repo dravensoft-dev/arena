@@ -415,7 +415,7 @@ test('each fenced arena:audit script is what arena init writes for that layer', 
   }
 });
 
-test('the noImport region lists what each package arena.css imports less the default plugin sheet, in order, and ends with the generated sheet', () => {
+test('the noImport region lists what each package arena.css imports less the default plugin sheet, in order, and leaves the generated sheet to a file of its own', () => {
   assert.ok(regionsOf(CLI_PAGE).includes('noImport'), `${CLI_PAGE} carries noImport`);
   for (const [layer, extra] of [['react', []], ['angular', ANGULAR_EXTRA]] as [string, CssChainEntry[]][]) {
     const name = `@dravensoft/arena-${layer}`;
@@ -427,7 +427,8 @@ test('the noImport region lists what each package arena.css imports less the def
     assert.deepEqual(names.slice(chain.length), ['css/base.css', 'css/prelude.css', 'css/components/<component>.css', 'css/vocabulary/<family>.css', ...extra.map(({ to }) => to)]);
   }
   const region = renderRegion('noImport', repoRoot, CLI_PAGE);
-  assert.equal(region.split("@import './arena.generated.css';\n```").length, 3);
+  assert.ok(!region.includes("@import './arena.generated.css'"));
+  assert.match(region, /`arena\.generated\.css` goes in a stylesheet of its own, imported after the list/);
   assert.match(region, /The `"default"` root adds `css\/style-plugin-default\.css` in its slot/);
   assert.doesNotMatch(region, /every component sheet when the config names none/);
 });

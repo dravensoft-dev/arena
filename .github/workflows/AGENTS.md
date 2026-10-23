@@ -240,7 +240,7 @@ version, so nothing errors and the update is never offered.
 `versioning_steps.md` is the order the moves are made in.
 
 **The fourth is where the language publishes.** `@dravensoft/arena-mcp` is a server, and it is the
-one package here that declares a runtime dependency: the component libraries promise none, and a
+one package here whose code imports a runtime dependency: no component of the libraries does (they declare three that their `arena` command reads at build), and a
 server nobody imports into a screen has no business putting one inside them. It carries the corpus,
 one per layer, which `check:mcp` asserts. So a prompt moving republishes this package and no other.
 Packed from `dist/mcp` for the same reason the contracts package is: nothing is assembled under

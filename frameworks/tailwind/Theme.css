@@ -388,8 +388,8 @@
      asks how wide a layout gets and this asks how long a LINE gets, which is why one is a length
      and the other tracks the font size. */
   --container-prose: var(--measure-prose);
-  /* icon size → contracts/design-generated/spacing.generated.css. A glyph rendered as a webfont is an icon,
-     not type, so it does not live in the --text-* namespace — that argument
+  /* icon size → contracts/design-generated/spacing.generated.css. A glyph drawn as an SVG sized by its
+     font-size is an icon, not type, so it does not live in the --text-* namespace — that argument
      is Rule 2's, made one level up at the classification stage. `--size-*`
      is what an icon *is*: `.size-icon-md` sets both width and height. */
   --size-icon-sm: var(--icon-sm);

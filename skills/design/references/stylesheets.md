@@ -30,3 +30,56 @@ The two halves are the token layer and `css/components.css`. Importing them in p
 ## Does Angular need a Tailwind `@source` for Arena?
 
 No. There is nothing to compile either way. No file in the Angular package carries a Tailwind class. Pointing a `@source` at the package produces an empty sheet.
+
+## What is each file Arena writes, and how long does a cache keep it?
+
+A file is cached as long as its name is the same, so the rule is one question per file: does the name change exactly when the bytes do?
+
+| file | name | cache |
+| --- | --- | --- |
+| the document (`index.html`, or the HTML your server renders) | fixed, `no-cache` | revalidate every time, so a visitor always reads the names of the other files as they are now |
+| the bundler's JS and CSS output | your bundler's content hash, in `[name]-[hash]` | `Cache-Control: public, max-age=31536000, immutable` |
+| `icons-<hash>.svg`, the sprite | the hash of the file's bytes | `Cache-Control: public, max-age=31536000, immutable` |
+| `<stem>-<hash>.woff2`, each cut font | the hash of the file's bytes | `Cache-Control: public, max-age=31536000, immutable` |
+| `arena.generated.css`, `plugin.generated.css`, `arena.icons.generated.js` | fixed, because your bundler imports them and names its own output by content | none: they are inputs to the build and reach the page inside the bundler's output |
+
+**The sprite and the cut fonts are the files the page fetches by URL**, and they carry a content hash for that reason. The sheets and the module keep fixed names, since the bundler reads them and writes its output under a name of its own. A header of `immutable` on the bundler's output is safe for the same reason: a new build writes a new name.
+
+The document is the one file whose name never changes, so it is the one that must not be cached for long. `no-cache` lets a browser keep a copy and ask the server whether it is still current, which costs a request and no body.
+
+## How do I keep Arena's JS apart and serve updates of it through a dictionary?
+
+Keep every module of `@dravensoft/arena-*` in one chunk of its own, under a content-hashed name with a stem such as `arena`. [`stack.md`](./stack.md) gives the recipe per bundler. An app release that does not change Arena then leaves that file's name alone, and a visitor's cache serves it.
+
+**Compression Dictionary Transport** shrinks the download when Arena itself changes. The server answers the Arena chunk with `Use-As-Dictionary`, and a browser that supports the feature keeps the file as a dictionary. The next request for a file matching the pattern carries `Available-Dictionary` and an `Accept-Encoding` naming `dcb` (brotli) or `dcz` (zstd). The server answers with the new chunk compressed against the old one, as `Content-Encoding: dcb` or `dcz`, and only what changed crosses the wire.
+
+```http
+Cache-Control: public, max-age=31536000, immutable
+Use-As-Dictionary: match="/assets/arena-*.js"
+Vary: Accept-Encoding, Available-Dictionary
+```
+
+- The `match` pattern has to cover the next version's name, so the stem stays the same and the hash changes. Two chunks that share a stem confuse the match, which is why Parcel is not served this way.
+- The server needs the previous file when it compresses. Compress the new chunk against each previous version you still serve, at deploy time, and answer with the file that matches `Available-Dictionary`.
+- A browser without the feature, or a first visit, downloads the chunk whole with an ordinary encoding. Nothing breaks.
+- On 2026-10-23, Chrome and Edge from version 130 support it, and so do the browsers built on their engine. Firefox and Safari do not. The support is a fact of the browsers and moves without Arena, so check a compatibility table before relying on it.
+
+**Angular takes Arena's updates through the dictionary too.** The Angular `application` builder has no way to keep Arena in a chunk of its own, so Arena sits in `main`. Serve `main` with the headers above and its previous version as the dictionary, and an update of Arena downloads what changed in `main`, which includes your app's code. The first visit does not grow.
+
+## How do I keep a chart off the screens that do not draw one?
+
+A screen that draws no chart should not download the chart code. In React, load the chart with `import()` in a lazy boundary:
+
+```tsx
+const SalesChart = lazy(() => import('./SalesChart'));   // SalesChart.tsx imports ArenaLineChart
+```
+
+In Angular, put the chart under a `@defer` block, which the builder turns into a chunk of its own:
+
+```html
+@defer (on viewport) {
+  <arena-line-chart [series]="series" />
+} @placeholder {
+  <div class="chart-slot"></div>
+}
+```

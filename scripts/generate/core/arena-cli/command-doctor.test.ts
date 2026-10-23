@@ -164,6 +164,9 @@ test('.gitignore with *.generated.css is covered, src/*.generated.css is covered
     return out.some((line) => line.includes('.gitignore does not cover *.generated.css'));
   };
   assert.equal(await noted(null), true);
+  const named = captureIo(root, environment);
+  await run([], named.io);
+  assert.ok(named.out.some((line) => line.includes('icons-*.svg') && line.includes('-*.woff2')));
   assert.equal(await noted('# *.generated.css\n*.generated.css\n'), false);
   assert.equal(await noted('src/*.generated.css\n'), false);
   assert.equal(await noted('node_modules\n!*.generated.css\n'), true);

@@ -122,5 +122,5 @@ test('the icon rule sends a static page to the weight sheets and a build to the 
   const icons = RULES.find((one) => one.id === 'icons-are-strings');
   assert.ok(icons, 'icons-are-strings is declared');
   assert.match(icons.body, /a raw `ph-\*` element needs the project's own `@phosphor-icons\/web`/);
-  assert.match(icons.body, /static page links the weight sheets[^.]*references\/artifact\.md/);
+  assert.match(icons.body, /static page has no build[^.]*weight sheets[^.]*references\/artifact\.md/);
 });

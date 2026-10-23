@@ -77,17 +77,19 @@ It does the two jobs a project always did together, and a failure in the first s
   [`scripts/lib/arena/component-map.ts`](../scripts/lib/arena/component-map.ts) derives from the
   layer: what a consumer writes is not what dresses it, since there are fewer sheets than components, and
   the closure matters more than the mapping because Arena draws components nobody named.
-- **The icons** write the Phosphor subset a project draws, `icons.generated.css`, reading the
-  consumer's sources and the package it ships in, since a component renders icons the consumer
-  never names.
+- **The icons** write the Phosphor subset a project draws, `icons-<hash>.svg` with
+  `arena.icons.generated.js` naming it, reading the consumer's sources and the package it ships
+  in, since a component renders icons the consumer never names.
+- **The fonts** write each local `src` cut to Latin-1 and the weights the build paints, as
+  `<stem>-<hash>.woff2`, so the name changes exactly when the bytes do.
 
 **Import order is what makes it work.** The consumer's generated file comes last, and its
 first line is an `@import` of the package's own `arena.css`. Both files declare into `:root`,
 equal specificity, so source order decides and the consumer's values win.
 
-**Phosphor is never bundled.** Arena's single-icon convention is a class name a component
-renders, so the icons are a peer dependency in both packages. Bundling them would ship a
-font the consumer may already have and cannot swap.
+**The Phosphor web font is never bundled.** Arena's single-icon convention is a class name a
+component hands to `ArenaIcon`, which draws a symbol of the sprite the consumer's build
+writes. No font reaches a page through Arena, and `@phosphor-icons/web` is no peer.
 
 ## One coupling, and it is part of the contract
 
@@ -95,9 +97,11 @@ font the consumer may already have and cannot swap.
 quietly swaps, and it is worth saying plainly, because an adopter budgets for a dependency they
 were told about and resents one they find.
 
-- **Phosphor** travels as a **peer dependency** of both packages. Every `icon` member is a
-  class name the consumer supplies and a component renders, so the font has to be installed
-  and the names have to be Phosphor's. `check:icons` holds the names Arena itself writes.
+- **Phosphor** travels as a **dependency of the `arena` command**, in both packages:
+  `@phosphor-icons/core`, whose SVGs the build cuts into the sprite, beside `harfbuzzjs` and
+  `wawoff2`, which cut the fonts. No component imports them, so none reaches a bundle. Every
+  `icon` member is a class name the consumer supplies and `ArenaIcon` draws, so the names have
+  to be Phosphor's. `check:icons` holds the names Arena itself writes.
 
 **Two more peers exist and both are optional, which is a different kind of thing.** The Angular
 package declares `@angular/router` and `@angular/forms` under `peerDependenciesMeta` as optional,
@@ -128,8 +132,9 @@ package's `exports` map.
 **Tailwind is not one.** It is how Arena's CSS is *authored*, and it stops there: a
 manifest's class string is compiled through `@apply`, stripped of every Tailwind theme
 indirection, and emitted as plain declarations under Arena's own class names. Nothing a package
-ships names a Tailwind utility, and neither package declares a runtime dependency of any kind
-except `tslib`, which is Angular's own helper import. A project that runs its own Tailwind can
+ships names a Tailwind utility, and no component of either package imports a runtime dependency. The
+manifests declare the three the `arena` command reads at build, and the Angular one
+`tslib`, which is Angular's own helper import. A project that runs its own Tailwind can
 declare whatever `--spacing` it likes and nothing of Arena's moves.
 
 **That indirection is the reason the strip exists rather than an optimisation.** A key Theme.css
@@ -332,7 +337,7 @@ at nothing is an explicit failure, not a vacuous pass.
 
 **That an assembled package is registry-standard.** The version comes from `plugin.json`,
 every `exports` target was actually emitted, there is no install script, there is a README,
-and Phosphor is a peer rather than a dependency. `dist/` is ignored, so on a fresh clone that
+and Phosphor is a dependency of the command and no peer. `dist/` is ignored, so on a fresh clone that
 half is skipped and the run says which.
 
 The palette half runs anywhere. Neither half says anything about whether a component behaves

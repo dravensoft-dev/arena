@@ -119,6 +119,9 @@ The package is the code. The server, the plugin and the repository are the langu
 | What does an agent decide before the first screen? | [cold-start.md → Before the first screen](https://github.com/dravensoft-dev/arena/blob/v12.1.1/skills/design/references/cold-start.md#before-the-first-screen) |
 | What may I build this with, and how sure is Arena about each answer? | [stack.md → What you may choose](https://github.com/dravensoft-dev/arena/blob/v12.1.1/skills/design/references/stack.md#what-you-may-choose) |
 | What does each layer require? | [stack.md → What each layer requires](https://github.com/dravensoft-dev/arena/blob/v12.1.1/skills/design/references/stack.md#what-each-layer-requires) |
+| Which bundlers was Arena tested on? | [environments.md → The environments Arena was tested on](https://github.com/dravensoft-dev/arena/blob/v12.1.1/skills/design/references/environments.md#the-environments-arena-was-tested-on) |
+| How long do I cache each file Arena writes? | [stylesheets.md → What is each file Arena writes, and how long does a cache keep it?](https://github.com/dravensoft-dev/arena/blob/v12.1.1/skills/design/references/stylesheets.md#what-is-each-file-arena-writes-and-how-long-does-a-cache-keep-it) |
+| How do I keep Arena in a chunk of its own and serve it with a dictionary? | [stylesheets.md → How do I keep Arena's JS apart and serve updates of it through a dictionary?](https://github.com/dravensoft-dev/arena/blob/v12.1.1/skills/design/references/stylesheets.md#how-do-i-keep-arenas-js-apart-and-serve-updates-of-it-through-a-dictionary) |
 | How do I serve Arena to my editor? | [mcp.md → Serving Arena to your editor over MCP](https://github.com/dravensoft-dev/arena/blob/v12.1.1/skills/design/references/mcp.md#serving-arena-to-your-editor-over-mcp) |
 
 ## Versions and licence

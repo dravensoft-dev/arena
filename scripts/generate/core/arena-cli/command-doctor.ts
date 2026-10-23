@@ -98,7 +98,7 @@ export async function run(argv: string[], io: Io): Promise<number> {
     say.out('note: no script in package.json runs arena build, so the sheets go stale as the config and sources change; arena init wires one');
   }
   if (!ignoresSheets(io.cwd)) {
-    say.out('note: .gitignore does not cover *.generated.css; add that line, since every sheet is rebuilt from the config and your sources');
+    say.out('note: .gitignore does not cover *.generated.css; add that line, with icons-*.svg and <stem>-*.woff2 for the sprite and the cut fonts, since every file the build writes is rebuilt from the config and your sources');
   }
 
   if (problems > 0) return 1;
