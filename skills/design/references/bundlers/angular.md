@@ -20,14 +20,13 @@ The builder has no `manualChunks` or equivalent option, and the layer is partial
 
 The `styles` option emits one CSS file. The package sheet and `arena.generated.css` join in it, 13.72 KB on the typical screen, under a new name with every release. Import them from `src/styles.css` in the order [`install.md`](../install.md) gives, section "How do I import the stylesheets in Angular?". The CDK overlay sheet comes with the package sheet.
 
-## How is the sprite served?
-
-The `assets` entry that [`install.md`](../install.md) gives, in its section "How does the toolchain serve the sprite?", copies the file to the root of the output. The entry in that section is the only recipe this page holds.
-
-The provider takes `/${ARENA_SPRITE}` under a root deploy, and the builder's `baseHref` in front of it under another. A name without the slash is read against the current route, and the Angular router's nested routes then request the sprite from a folder that does not hold it.
-
 ## What differs from the other bundlers?
 
-- **The sprite is copied only when `assets` names it.** [`install.md`](../install.md), section "How does the toolchain serve the sprite?", gives the entry for `angular.json`.
 - **The Angular package declares `"sideEffects": false`**, so a component you do not import is not in `main`.
 - **Bundling the Angular layer outside the CLI** sets what the CLI sets for you. An esbuild bundle of it was built with `define: { ngDevMode: 'false' }`, which strips Angular's dev-mode branches as a production build of the CLI does; verified by hand once. [Bun and esbuild](./bun-esbuild.md) say what else esbuild does with Arena.
+
+## How is the sprite served?
+
+The `assets` entry that [`install.md`](../install.md) gives, in its section "How does the toolchain serve the sprite?", copies the file to the root of the output. The builder copies only what `assets` names.
+
+The provider takes `/${ARENA_SPRITE}` under a root deploy, and the builder's `baseHref` in front of it under another. A name without the slash is read against the current route, and the Angular router's nested routes then request the sprite from a folder that does not hold it.

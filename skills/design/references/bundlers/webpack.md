@@ -46,14 +46,6 @@ module: { rules: [{ test: /\.css$/, type: 'css/auto' }] },
 
 With either config, the Arena CSS file keeps its bytes and its name when the app changes, measured on 2026-10-23 by changing the app's text and its own sheet. Without it, both emit one CSS file for the entry.
 
-## How is the sprite served?
-
-**webpack** copies the file with `copy-webpack-plugin`, which takes `{ from: 'src/icons-*.svg', to: '[name][ext]' }` in its `patterns`. The sprite then sits at the root of the output under the name `arena build` gave it. Not exercised.
-
-**rspack** uses `rspack.CopyRspackPlugin` with the same pattern. Not exercised.
-
-Hand the provider `/${ARENA_SPRITE}` under a root deploy, and put `output.publicPath` in front of it under another. Browsers read a bare name against the current route, which fails on every page deeper than the root and leaves the icons blank.
-
 ## What differs between them?
 
 - **The CSS half needs webpack's own CSS support.** The measured config turns on `experiments: { css: true }`. A setup that extracts CSS through a loader and a plugin of its own instead was not exercised.
@@ -61,3 +53,11 @@ Hand the provider `/${ARENA_SPRITE}` under a root deploy, and put `output.public
 - **The default groups are off** in the sheet config, so the `react` and `arena` groups decide alone where each module goes.
 - **The sheet is matched by its name, not by `node_modules`.** `arena build` writes `arena.package.generated.css` into its `-o` directory, inside your project, so the `arena` test carries a second pattern for it.
 - **rspack needs the `css/auto` rule** for a `.css` file, which webpack's experiment supplies by itself.
+
+## How is the sprite served?
+
+**webpack** copies the file with `copy-webpack-plugin`, which takes `{ from: 'src/icons-*.svg', to: '[name][ext]' }` in its `patterns`. The sprite then sits at the root of the output under the name `arena build` gave it. Not exercised.
+
+**rspack** uses `rspack.CopyRspackPlugin` with the same pattern. Not exercised.
+
+Hand the provider `/${ARENA_SPRITE}` under a root deploy, and put `output.publicPath` in front of it under another. Browsers read a bare name against the current route, which fails on every page deeper than the root and leaves the icons blank.

@@ -27,14 +27,14 @@ Both options sit in `package.json`:
 
 The package sheet cannot be kept apart, measured on 2026-10-23: the build stops on the sheet's first `@import` of a package specifier, which Parcel resolves from the `src` directory. Link the sheets `arena build` writes from your page instead, the package sheet first and `arena.generated.css` after it. That path is not exercised.
 
-## How is the sprite served?
-
-Copy `icons-*.svg` into the dist directory after `parcel build`, with a script of your own. Parcel emits only what an entry reaches, so the sprite is not there unless you put it. The dev server serves that directory. Not exercised.
-
-The provider wants an absolute URL: `/${ARENA_SPRITE}` under a root deploy, or the `--public-url` you build with in front of it under another. A relative name follows the route in the address bar, and a nested route then asks for a file that is not there.
-
 ## What differs from the other bundlers?
 
 - **The first import fails without `packageExports: true`**, because Arena's package is reached through its `exports` field and Parcel's resolver reads that field only when told to.
 - **React stays with the app.** An app release downloads most of the app's bundle again, 39.18 KB on the typical screen, while Arena itself downloads nothing again. Every other bundler that keeps Arena apart downloads under 1 KB.
 - **No dictionary can serve the Arena bundle.** Parcel names its two shared bundles with one stem, so a `Use-As-Dictionary` match covering the next Arena bundle also covers the other one. [`stylesheets.md`](../stylesheets.md) says how a dictionary is served elsewhere.
+
+## How is the sprite served?
+
+Copy `icons-*.svg` into the dist directory after `parcel build`, with a script of your own. Parcel emits only what an entry reaches, so the sprite is not there unless you put it. The dev server serves that directory. Not exercised.
+
+The provider wants an absolute URL: `/${ARENA_SPRITE}` under a root deploy, or the `--public-url` you build with in front of it under another. A relative name follows the route in the address bar, and a nested route then asks for a file that is not there.
