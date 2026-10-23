@@ -13,21 +13,21 @@ import { pathToFileURL } from 'node:url';
 import { CLI_BINS } from '../../lib/arena/package-assembly.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import {
-  importedSheets, unknownSymbolProblems, listProblems, closedListProblems, spriteProblems, documented, CONFIG_REFERENCE,
+  importedSheets, packageSheetProblems, REGULAR_SYMBOL, unknownSymbolProblems, listProblems, closedListProblems, spriteProblems, documented, CONFIG_REFERENCE,
   palettesProblems, defaultListProblems, fontCutProblems, runtimeProblems, installedPalette, SOURCES, UNKNOWN, GLYPH, NAV_SYMBOL, GLYPH_SYMBOL, THIRD_PALETTE, CLI, snapshot, treeChanges, exitProblem, binProblems,
 } from './check-consumer.ts';
 import type { CliRun, Shipped } from './check-consumer.ts';
 import { distDir, unassembled, assembled } from './check-packages.ts';
 
-const ok: CliRun = { status: 0, stdout: '', stderr: '', theme: null, sprites: {}, module: null, retired: false, plugin: null, runtime: null, fonts: {} };
+const ok: CliRun = { status: 0, stdout: '', stderr: '', theme: null, pkg: null, sprites: {}, module: null, retired: false, plugin: null, runtime: null, fonts: {} };
 
 const sheetImports = (...names: string[]) => ({
   ...ok,
-  theme: names.map((n) => `@import '@dravensoft/arena-react/css/components/${n}.css';`).join('\n'),
+  pkg: names.map((n) => `@import '@dravensoft/arena-react/css/components/${n}.css';`).join('\n'),
 });
 
 test('the emitted sheet list is read from the imports the command wrote, not from the config', () => {
-  assert.deepEqual(importedSheets(sheetImports('arena-table', 'arena-button').theme), ['arena-button', 'arena-table']);
+  assert.deepEqual(importedSheets(sheetImports('arena-table', 'arena-button').pkg), ['arena-button', 'arena-table']);
   assert.deepEqual(importedSheets(null), []);
   assert.deepEqual(importedSheets("@import '@dravensoft/arena-react/css/base.css';"), [],
     'a layer sheet is not a component sheet, or preflight would read as a component');
@@ -66,18 +66,18 @@ const written = (sprites: Record<string, string>, module: string | null = `expor
   ({ ...ok, sprites, module });
 
 test('the sprite must carry the button glyph bold and the nav glyph filled, and its module must name the file', () => {
-  const good = written({ [NAME]: sprite(GLYPH_SYMBOL, NAV_SYMBOL, 'ph-bold-house') });
+  const good = written({ [NAME]: sprite(GLYPH_SYMBOL, NAV_SYMBOL, REGULAR_SYMBOL, 'ph-bold-house') });
   assert.deepEqual(spriteProblems('angular', good), []);
   assert.equal(GLYPH, 'ph-bell');
   assert.equal(GLYPH_SYMBOL, 'ph-bold-bell');
   assert.equal(NAV_SYMBOL, 'ph-fill-house');
 
-  const boldAlone = spriteProblems('angular', written({ [NAME]: sprite(GLYPH_SYMBOL, 'ph-bold-house') }));
+  const boldAlone = spriteProblems('angular', written({ [NAME]: sprite(GLYPH_SYMBOL, REGULAR_SYMBOL, 'ph-bold-house') }));
   assert.equal(boldAlone.length, 1);
   assert.match(boldAlone[0] ?? '', /missing symbol|no #ph-fill-house/);
   assert.match(boldAlone[0] ?? '', /the item the user just pressed/);
 
-  const buttonFilled = spriteProblems('angular', written({ [NAME]: sprite(GLYPH_SYMBOL, NAV_SYMBOL, 'ph-fill-bell') }));
+  const buttonFilled = spriteProblems('angular', written({ [NAME]: sprite(GLYPH_SYMBOL, NAV_SYMBOL, REGULAR_SYMBOL, 'ph-fill-bell') }));
   assert.equal(buttonFilled.length, 1);
   assert.match(buttonFilled[0] ?? '', /cannot draw filled/);
 
@@ -90,20 +90,20 @@ test('the sprite must carry the button glyph bold and the nav glyph filled, and 
 });
 
 test('a leftover icons.generated.css, a second sprite and a module naming another file are each a problem', () => {
-  const good = written({ [NAME]: sprite(GLYPH_SYMBOL, NAV_SYMBOL) });
+  const good = written({ [NAME]: sprite(GLYPH_SYMBOL, NAV_SYMBOL, REGULAR_SYMBOL) });
   const leftover = spriteProblems('react', { ...good, retired: true });
   assert.equal(leftover.length, 1);
   assert.match(leftover[0] ?? '', /icons\.generated\.css is still there/);
 
-  const two = spriteProblems('react', written({ [NAME]: sprite(GLYPH_SYMBOL, NAV_SYMBOL), 'icons-abcdef0123.svg': sprite('ph-bold-moon') }));
+  const two = spriteProblems('react', written({ [NAME]: sprite(GLYPH_SYMBOL, NAV_SYMBOL, REGULAR_SYMBOL), 'icons-abcdef0123.svg': sprite('ph-bold-moon') }));
   assert.equal(two.length, 1);
   assert.match(two[0] ?? '', /2 icons-\*\.svg/);
 
-  const other = spriteProblems('react', written({ [NAME]: sprite(GLYPH_SYMBOL, NAV_SYMBOL) }, "export const ARENA_SPRITE = 'icons-ffffffffff.svg';\n"));
+  const other = spriteProblems('react', written({ [NAME]: sprite(GLYPH_SYMBOL, NAV_SYMBOL, REGULAR_SYMBOL) }, "export const ARENA_SPRITE = 'icons-ffffffffff.svg';\n"));
   assert.equal(other.length, 1);
   assert.match(other[0] ?? '', /module names icons-ffffffffff\.svg/);
 
-  const noModule = spriteProblems('react', written({ [NAME]: sprite(GLYPH_SYMBOL, NAV_SYMBOL) }, null));
+  const noModule = spriteProblems('react', written({ [NAME]: sprite(GLYPH_SYMBOL, NAV_SYMBOL, REGULAR_SYMBOL) }, null));
   assert.equal(noModule.length, 1);
   assert.match(noModule[0] ?? '', /arena\.icons\.generated\.js/);
 });
@@ -352,7 +352,7 @@ test('a config naming no stylesheet is worked out like auto, so it imports the d
   const drawn = sheetImports('arena-button', 'arena-table');
   assert.deepEqual(defaultListProblems('react', drawn), []);
 
-  const barrel = defaultListProblems('react', { ...drawn, theme: `@import '@dravensoft/arena-react/arena.css';\n${drawn.theme}` });
+  const barrel = defaultListProblems('react', { ...drawn, pkg: `@import '@dravensoft/arena-react/arena.css';\n${drawn.pkg}` });
   assert.equal(barrel.length, 1);
   assert.match(barrel[0] ?? '', /imports the barrel/);
 
@@ -449,4 +449,33 @@ test('the default fixture\'s build writes a content-hashed woff2 per font, each 
   const unnamed = fontCutProblems('react', { ...cuts(), theme: "src:url('./fonts/archivo.woff2');" }, FONT_BASE);
   assert.ok(unnamed.some((one) => /arena\.generated\.css does not name/.test(one)));
   assert.ok(unnamed.some((one) => /still points at the source/.test(one)));
+});
+
+const HEAD = "/* GENERATED by arena build. */\n";
+const PKG_NAME = '@dravensoft/arena-react';
+const closedSheet = [HEAD, ...['colors', 'prelude', 'style-plugin-default'].map((n) => `@import '${PKG_NAME}/css/${n}.css';`),
+  `@import '${PKG_NAME}/css/vocabulary/stack.css';`].join('\n');
+
+test('the package sheet holds the closed list, the theme sheet imports none of it, and an app-only edit leaves its bytes', () => {
+  const built: CliRun = { ...ok, pkg: closedSheet, theme: ':root{--arena-palette:dark;}\n' };
+  assert.deepEqual(packageSheetProblems('react', built, built, PKG_NAME), []);
+
+  const none = packageSheetProblems('react', { ...built, pkg: null }, built, PKG_NAME);
+  assert.match(none.join('\n'), /wrote no arena\.package\.generated\.css/);
+
+  const short = packageSheetProblems('react', { ...built, pkg: closedSheet.replace(/.*css\/colors\.css.*\n/, '') }, built, PKG_NAME);
+  assert.match(short.join('\n'), /imports no .*css\/colors\.css/);
+
+  const leaky = packageSheetProblems('react', { ...built, theme: `@import '${PKG_NAME}/css/colors.css';\n${built.theme}` }, built, PKG_NAME);
+  assert.match(leaky.join('\n'), /arena\.generated\.css imports the package/);
+
+  const moved = packageSheetProblems('react', built, { ...built, pkg: `${closedSheet}\n/* x */` }, PKG_NAME);
+  assert.match(moved.join('\n'), /edit that touched only the app changed the package sheet/);
+});
+
+test('the sprite must also carry a glyph named without a weight, drawn regular', () => {
+  assert.equal(REGULAR_SYMBOL, 'ph-regular-star');
+  const missing = spriteProblems('react', written({ [NAME]: sprite(GLYPH_SYMBOL, NAV_SYMBOL) }));
+  assert.match(missing.join('\n'), new RegExp(`holds no #${REGULAR_SYMBOL}`));
+  assert.deepEqual(spriteProblems('react', written({ [NAME]: sprite(GLYPH_SYMBOL, NAV_SYMBOL, REGULAR_SYMBOL) })), []);
 });

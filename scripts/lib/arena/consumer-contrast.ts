@@ -11,7 +11,7 @@
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { startStaticServer } from './static-server.ts';
-import { THEME_SHEET } from '../../generate/core/arena-cli/sheets.ts';
+import { THEME_SHEET, PACKAGE_SHEET } from '../../generate/core/arena-cli/sheets.ts';
 import { evaluate, type Cdp } from './cdp.ts';
 import { withTimeout } from '../../utils/with-timeout.ts';
 import { deadline } from './deadline.ts';
@@ -76,7 +76,7 @@ export function pageFor(css: string, packageName: string, scope: string) {
 const painted = (reading: { root: string }) => parseFloat(reading.root) > 0;
 
 export async function readContrast(dir: string, packageName: string, cdp: Cdp, scope: string) {
-  const { css, html } = pageFor(readFileSync(join(dir, PAGE, THEME_SHEET), 'utf8'), packageName, scope);
+  const { css, html } = pageFor(`${readFileSync(join(dir, PAGE, PACKAGE_SHEET), 'utf8')}\n${readFileSync(join(dir, PAGE, THEME_SHEET), 'utf8')}`, packageName, scope);
   const roles = widenedRoles(readFileSync(join(dir, 'node_modules', packageName, CONTRAST_SHEET), 'utf8'));
   mkdirSync(join(dir, PAGE), { recursive: true });
   writeFileSync(join(dir, PAGE, 'entry.css'), css);
