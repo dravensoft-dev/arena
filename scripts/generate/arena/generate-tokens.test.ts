@@ -187,7 +187,7 @@ test('the default palette wears a class: .arena-dark carries the :root block, an
   assert.equal(body(palette, '.arena-dark'), body(palette, ':root'));
   const plugin = built.get('style-plugin.default.generated.css') as string;
   const names = (selector: string) => [...(body(plugin, selector) ?? '').matchAll(/^\s*--([\w-]+):/gm)].map((m) => m[1]);
-  assert.equal(names('.arena-dark').length, 75);
+  assert.equal(names('.arena-dark').length, 70);
   assert.deepEqual(names('.arena-dark'), names('.arena-light'));
   const rootValue = (name: string) => new RegExp(`--${name}:([^;]+);`).exec(body(plugin, ':root') ?? '')?.[1];
   for (const line of (body(plugin, '.arena-dark') ?? '').split('\n').filter(Boolean)) {

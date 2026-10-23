@@ -113,7 +113,7 @@ export function arenaPercentWriter(format?: ArenaNumberFormat): (ratio: number) 
 }
 
 export function arenaHeatFill(step: number): string {
-  return `var(--heat-step-${step})`;
+  return `var(--color-heat-${step})`;
 }
 
 export function arenaPlotWidth(available: number, count: number, minPointSpacing: number | undefined): number {

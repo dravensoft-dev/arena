@@ -160,7 +160,7 @@ test('ArenaFunnelChart draws its tooltip from the manifest once the cursor lands
 test('ArenaHeatmapChart paints each legend swatch inline from the step it keys, the one colour the render computes', () => {
   const root = mount(<ArenaHeatmapChart labels={LABELS} series={TWO} label="Deliveries" />);
   const swatches = [...root.querySelectorAll<HTMLElement>('[data-arena-part="heatmap-chart.legend-swatch"]')];
-  assert.deepEqual(swatches.map((one) => one.style.background), [1, 2, 3, 4, 5].map((n) => `var(--heat-step-${n})`));
+  assert.deepEqual(swatches.map((one) => one.style.background), [1, 2, 3, 4, 5].map((n) => `var(--color-heat-${n})`));
   for (const one of swatches) {
     assert.equal(one.hasAttribute('data-arena-tone'), false, 'a step is not a state');
     assert.equal(one.hasAttribute('data-arena-color-id'), false, 'a step is not an identity');

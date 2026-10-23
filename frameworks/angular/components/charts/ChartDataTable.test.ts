@@ -1476,7 +1476,7 @@ const heatTable = (host: Element) => ({
   rows: [...host.querySelectorAll('tbody tr')]
     .map((row) => [...row.querySelectorAll('th, td')].map((c) => (c.textContent ?? '').trim())),
 });
-const heatStep = (n: number) => `var(--heat-step-${n})`;
+const heatStep = (n: number) => `var(--color-heat-${n})`;
 
 function heatCell(host: Element): string | null {
   const column = host.querySelector('[data-arena-part="heatmap-chart.tooltip-label"]');

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { declarationProblems, defaultProblems, emittedTypes, emittedWords, rosterProblems, zeroRoleProblems, collect, ROLES } from './check-role-contract.ts';
+import { declarationProblems, defaultProblems, singleAnswerProblems, emittedTypes, emittedWords, rosterProblems, zeroRoleProblems, collect, ROLES } from './check-role-contract.ts';
 import { join } from 'node:path';
 import { readJson } from '../../utils/read-file.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
@@ -141,4 +141,19 @@ test('a badge at arena-size-sm defaults to a smaller label and tighter padding t
   assert.deepEqual(defaults, {
     'size-sm-badge-pad-x': '{sp.1}', 'size-sm-badge-pad-y': '{sp.0}', 'size-sm-badge-step': '{dz.text-2xs}',
   });
+});
+
+test('no role has only its default as a valid answer', () => {
+  const one = singleAnswerProblems({ 'x-one': defaulted('keyword', '{case.none}', ['none']) });
+  assert.equal(one.length, 1);
+  assert.match(one[0] ?? '', /x-one/);
+  const heat = singleAnswerProblems({ 'x-heat': defaulted('color', '{color.heat-1}') });
+  assert.equal(heat.length, 1);
+  assert.match(heat[0] ?? '', /x-heat/);
+  assert.deepEqual(singleAnswerProblems({
+    'x-two': defaulted('keyword', '{case.none}', ['none', 'uppercase']),
+    'x-ink': defaulted('color', '{ink-muted}'),
+    'x-floor': { ...typed('keyword'), $extensions: { [ARENA]: { values: ['transparent'] } } },
+  }), []);
+  assert.deepEqual(singleAnswerProblems(readJson(join(repoRoot, ROLES)) as any), []);
 });

@@ -19,9 +19,7 @@ export const node = {
 };
 import { captured } from '../../utils/captures.ts';
 
-const HEAT_STEP_REASON = 'read inline by the heatmap\'s SVG and legend swatch, never through a utility';
-const HEAT_KEY_REASON = 'the default a heat-step role is born at, so it reaches a page through that role, read inline by the '
-  + 'heatmap\'s SVG and legend swatch, never through a utility';
+const HEAT_KEY_REASON = 'read inline by the heatmap\'s SVG and legend swatch, never through a utility';
 
 export const EXCLUDED = new Map([
   ['arena-plugin', 'names the style plugin a subtree wears, so an overlay lifted out of that subtree can find the one to '
@@ -128,11 +126,6 @@ export const EXCLUDED = new Map([
   ['limit-pagination-siblings', 'script-readable: an array bound, and the elision threshold derives from it in JS'],
   ['limit-window-overscan', 'script-readable: a row count the window arithmetic widens its range by in JS, never a utility'],
   ['limit-window-initial', 'script-readable: a row count the window arithmetic projects before a measure in JS, never a utility'],
-  ['heat-step-1', HEAT_STEP_REASON],
-  ['heat-step-2', HEAT_STEP_REASON],
-  ['heat-step-3', HEAT_STEP_REASON],
-  ['heat-step-4', HEAT_STEP_REASON],
-  ['heat-step-5', HEAT_STEP_REASON],
   ['color-heat-1', HEAT_KEY_REASON],
   ['color-heat-2', HEAT_KEY_REASON],
   ['color-heat-3', HEAT_KEY_REASON],

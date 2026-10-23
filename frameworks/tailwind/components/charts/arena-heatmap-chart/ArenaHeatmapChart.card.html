@@ -12,7 +12,7 @@ const manifest = await (await fetch('./ArenaHeatmapChart.manifest.json')).json()
 const c = arenaClassesFor(manifest);
 
 /* The plot is hand drawn and is not rendered here; the placeholder stands where it goes. */
-const STEPS = [['0', 'var(--heat-step-1)'], ['100', 'var(--heat-step-2)'], ['200', 'var(--heat-step-3)'], ['300', 'var(--heat-step-4)'], ['400', 'var(--heat-step-5)']];
+const STEPS = [['0', 'var(--color-heat-1)'], ['100', 'var(--color-heat-2)'], ['200', 'var(--color-heat-3)'], ['300', 'var(--color-heat-4)'], ['400', 'var(--color-heat-5)']];
 
 function legend() {
   const strip = el('div', { class: c.legend });

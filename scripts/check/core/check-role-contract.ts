@@ -141,6 +141,24 @@ export function defaultProblems(roles: Record<string, Role>, emitted: ReadonlyMa
   return problems;
 }
 
+const HEAT_DEFAULT = /^\{color\.heat-\d+\}$/;
+
+export function singleAnswerProblems(roles: Record<string, Role>) {
+  const problems: string[] = [];
+  for (const [name, role] of Object.entries(roles)) {
+    const ext = role.$extensions?.[ARENA_EXT];
+    if (role.$type === 'keyword' && ext?.default !== undefined && Array.isArray(ext.values) && ext.values.length < 2) {
+      problems.push(`${name}: its closed set holds ${ext.values.length} word(s), so its default is the only answer `
+        + 'it can take and a plugin has nothing to decide. Widen the set or drop the role.');
+    }
+    if (role.$type === 'color' && typeof ext?.default === 'string' && HEAT_DEFAULT.test(ext.default.trim())) {
+      problems.push(`${name}: its default ${ext.default} is a step of the heat ladder, which belongs to the palette `
+        + 'and is pinned there; a role echoing it holds one answer.');
+    }
+  }
+  return problems;
+}
+
 export function rosterProblems(roles: Record<string, Role>, roster: unknown) {
   if (!Array.isArray(roster) || roster.some((one) => typeof one !== 'string'))
     return [`${ROSTER} is not a list of role names, so no role can be told apart from one born with a default.`];
@@ -175,6 +193,7 @@ export function collect(root = repoRoot) {
   return [
     ...declarationProblems(roles),
     ...defaultProblems(roles, emittedTypes(root), emittedWords(root)),
+    ...singleAnswerProblems(roles),
     ...rosterProblems(roles, readJson(join(root, ROSTER))),
   ];
 }

@@ -65,14 +65,14 @@ A role entry in `contracts/design/roles.json` is one question the style kernel a
   "$description": "Whether a key is set in capitals. ...",
   "$extensions": { "com.dravensoft.arena": { "values": ["none", "uppercase", "lowercase", "capitalize"], "default": "{case.none}" } }
 },
-"heat-step-1": {
+"ink-key": {
   "$type": "color",
-  "$description": "The fill of a heatmap cell ...",
-  "$extensions": { "com.dravensoft.arena": { "default": "{color.heat-1}" } }
+  "$description": "The ink of a key ...",
+  "$extensions": { "com.dravensoft.arena": { "default": "{ink-muted}" } }
 }
 ```
 
-A default in braces is an alias: the first segment is the group and the rest is the token. `{color.heat-1}` is `color["heat-1"]` in the palette of the polarity you resolve for. In `palette.light.json` that token's `$value` is `{ "colorSpace": "srgb", "components": [0.6196, 0.6, 0.7922], "hex": "#9e99ca" }`, so the light default of `heat-step-1` is `#9e99ca`. In `palette.dark.json` the same alias resolves to `#55488e`. A keyword alias such as `{case.none}` resolves the same way, to a bare word. [`style-kernel.md`](./style-kernel.md) says what a style plugin may answer a role with.
+A default in braces is an alias: the first segment is the group and the rest is the token. `{color.base-content}` is `color["base-content"]` in the palette of the polarity you resolve for. In `palette.light.json` that token's `$value` is `{ "colorSpace": "srgb", "components": [0.102, 0.102, 0.102], "hex": "#1a1a1a" }`, so the light value of that alias is `#1a1a1a`. In `palette.dark.json` the same alias resolves to `#f3ede5`. An alias to another role, such as `{ink-muted}`, follows that role's answer. A keyword alias such as `{case.none}` resolves the same way, to a bare word. [`style-kernel.md`](./style-kernel.md) says what a style plugin may answer a role with.
 
 A target decides some things for itself, because a value and a unit cannot say them.
 

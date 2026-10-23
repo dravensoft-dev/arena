@@ -19,7 +19,7 @@ import {
 } from './style-plugin-rules.ts';
 import { serialize } from './serialize-token.ts';
 import { HEAT_MIN_DL, errorFill, heatCramped, heatLadder, toOklab } from './oklab.ts';
-import { axisReports, derivedLevels, emphasisReports, levelReports, onInkReports, paletteKey, raisedReports, washReports } from './levels.ts';
+import { axisReports, derivedLevels, emphasisReports, levelReports, onInkReports, raisedReports, washReports } from './levels.ts';
 import type { Level, Wash } from './levels.ts';
 import { unicodeRange } from './font-cut.ts';
 import { report } from './report.ts';
@@ -599,7 +599,7 @@ export function heatOrderReports(steps: readonly string[], surface: string): Rep
   reach.slice(1).forEach((far, i) => {
     if (far > reach[i]!) return;
     out.push(report('heat', `heat, steps ${i + 1} and ${i + 2}: step ${i + 2} is no further from the surface than step ${i + 1}, `
-      + 'and roles.json orders the steps by magnitude'));
+      + 'and the heatmap reads the steps by magnitude'));
   });
   return out;
 }
@@ -618,7 +618,7 @@ export function polarityReports(polarity: string, ground: string | undefined): R
 
 export function paletteMessages(
   palette: { polarity: string; colors: Record<string, string> }, roles: Map<string, string>,
-  levels: Level[], washes: Wash[], hasRoot: boolean,
+  levels: Level[], washes: Wash[], _hasRoot: boolean,
 ) {
   const mode = palette.polarity;
   const colors = derivedColours(palette.colors, mode);
@@ -634,9 +634,9 @@ export function paletteMessages(
   }
 
   messages.push(...heatReports(palette.colors, colors));
-  if (hasRoot && surface) {
-    const answers = heatKeys().map((_, i) => colors[paletteKey(roles.get(`heat-step-${i + 1}`)) ?? '']);
-    if (answers.every((hex) => hex !== undefined)) messages.push(...heatOrderReports(answers as string[], surface));
+  if (surface && heatKeys().every((key) => palette.colors[key] !== undefined)) {
+    const steps = heatKeys().map((key) => colors[key]);
+    if (steps.every((hex) => hex !== undefined)) messages.push(...heatOrderReports(steps as string[], surface));
   }
 
   const text = [

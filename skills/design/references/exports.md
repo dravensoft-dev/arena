@@ -397,7 +397,7 @@ D3 draws an SVG heat cell scale over the heat array.
 ```ts
 import { scaleQuantize, select } from 'd3';
 
-const heat = (el: Element) => [1, 2, 3, 4, 5].map((step) => read(el, `--heat-step-${step}`));
+const heat = (el: Element) => [1, 2, 3, 4, 5].map((step) => read(el, `--color-heat-${step}`));
 const cells = [{ x: 0, y: 0, value: 3 }, { x: 1, y: 0, value: 8 }, { x: 2, y: 0, value: 14 }];
 
 function drawHeat(svg: SVGSVGElement) {
@@ -456,12 +456,12 @@ export class ChartPanel {
 
 [`theme.md`](./theme.md) covers both layers.
 
-The sequential ramp is the heat ladder, `--heat-step-1` to `--heat-step-5`. `ArenaHeatmapChart` paints those roles. Order is magnitude: step 1 is the least and each step is further from the surface, in a light palette and in a dark one. The palette's `--color-heat-1` to `--color-heat-5` is what the roles take by default, and a style plugin may answer them with other colours, in the same order of magnitude. A chart reads the roles. A change of palette or of plugin redraws the same way.
+The sequential ramp is the palette's heat ladder, `--color-heat-1` to `--color-heat-5`. `ArenaHeatmapChart` paints those colours. Order is magnitude: step 1 is the least and each step is further from the surface, in a light palette and in a dark one. A palette pins the five in `arena.config.json`, and `arena` derives them for one that pins none. A chart reads the colours. A change of palette redraws the same way.
 
 ```ts
 function readHeat(el: Element) {
   const style = getComputedStyle(el);
-  return [1, 2, 3, 4, 5].map((step) => style.getPropertyValue(`--heat-step-${step}`).trim());
+  return [1, 2, 3, 4, 5].map((step) => style.getPropertyValue(`--color-heat-${step}`).trim());
 }
 ```
 

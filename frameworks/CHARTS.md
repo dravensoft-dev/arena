@@ -302,9 +302,9 @@ whatever the counts keep. No text lies over a mark: the names run down the left 
 and the conversions down a right gutter that `arenaTextGutter(texts)` sizes from the widest string,
 measured and never read from the DOM.
 
-**A heatmap's cell carries magnitude by lightness alone, and the ladder is five colour roles.** The
-fill is `var(--heat-step-N)`, written by `arenaHeatFill(step)` for the plot and the legend swatch
-alike, and the five roles are born at the palette's optional `heat-1` to `heat-5` keys, which Arena pins
+**A heatmap's cell carries magnitude by lightness alone, and the ladder is five palette colours.** The
+fill is `var(--color-heat-N)`, written by `arenaHeatFill(step)` for the plot and the legend swatch
+alike, and the five colours are the palette's optional `heat-1` to `heat-5` keys, which Arena pins
 and the `arena` command derives for a palette that pins none. More is more contrast with the surface in
 both themes, so the order survives grey-scale and colour vision deficiency, and `check:ramp` holds the
 gap between steps. The bins are equal over round edges: `arenaHeatDomain(series)` takes five steps of

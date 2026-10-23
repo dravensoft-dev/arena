@@ -129,7 +129,7 @@ test('a palette with a readable ink and no heat step pinned prints no heat repor
 
 test('a palette that pins every heat step is not read for heat', async () => {
   const pinned = { ...LOW, palettes: [{ ...LOW.palettes[0]!, colors: { ...LOW.palettes[0]!.colors,
-    'heat-1': '#101010', 'heat-2': '#111111', 'heat-3': '#121212', 'heat-4': '#131313', 'heat-5': '#141414' } }] };
+    'heat-1': '#202020', 'heat-2': '#303030', 'heat-3': '#404040', 'heat-4': '#505050', 'heat-5': '#606060' } }] };
   const root = setup({ 'app.html': '<i class="ph-bold ph-bell"></i>' }, pinned);
   assert.doesNotMatch((await check(root)).err.join('\n'), /\[heat\]/);
 });

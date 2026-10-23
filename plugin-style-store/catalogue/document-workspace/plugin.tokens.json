@@ -508,26 +508,6 @@
     "$type": "color",
     "$value": "{color.base-content}"
   },
-  "heat-step-1": {
-    "$type": "color",
-    "$value": "{color.heat-1}"
-  },
-  "heat-step-2": {
-    "$type": "color",
-    "$value": "{color.heat-2}"
-  },
-  "heat-step-3": {
-    "$type": "color",
-    "$value": "{color.heat-3}"
-  },
-  "heat-step-4": {
-    "$type": "color",
-    "$value": "{color.heat-4}"
-  },
-  "heat-step-5": {
-    "$type": "color",
-    "$value": "{color.heat-5}"
-  },
   "bw-surface": {
     "$type": "dimension",
     "$value": {

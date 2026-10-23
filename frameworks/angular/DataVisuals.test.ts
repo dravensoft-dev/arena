@@ -148,7 +148,7 @@ test('an invalid locale warns once with the value writer\'s message and writes t
 test('the heat ladder has five steps and each step fills with its own role', () => {
   assert.equal(ARENA_HEAT_STEPS, 5);
   const fills = Array.from({ length: ARENA_HEAT_STEPS }, (_, index) => arenaHeatFill(index + 1));
-  assert.deepEqual(fills, ['var(--heat-step-1)', 'var(--heat-step-2)', 'var(--heat-step-3)', 'var(--heat-step-4)', 'var(--heat-step-5)']);
+  assert.deepEqual(fills, ['var(--color-heat-1)', 'var(--color-heat-2)', 'var(--color-heat-3)', 'var(--color-heat-4)', 'var(--color-heat-5)']);
   assert.equal(new Set(fills).size, ARENA_HEAT_STEPS, 'no two steps share a fill');
 });
 

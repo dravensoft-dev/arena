@@ -35,9 +35,12 @@ export async function whileHeld<T>(name: string, body: () => T | Promise<T>): Pr
   }
 }
 
+const HEAT_LADDER = ['#2a2020', '#443838', '#665858', '#8c7e7e', '#b8aaaa'];
+
 export const colors = (overrides: Record<string, string> = {}): Record<string, string> => {
   const out: Record<string, string> = {};
   for (const key of PALETTE_KEYS) out[key] = '#141010';
+  HEAT_LADDER.forEach((hex, i) => { out[`heat-${i + 1}`] = hex; });
   return { ...out, ...overrides };
 };
 

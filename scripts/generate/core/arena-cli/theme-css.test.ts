@@ -1206,26 +1206,36 @@ const HEAT_ROLES = {
   tokens: Object.fromEntries(['base-100', 'base-content', ...heatKeys()].map((key) => [`color-${key}`, `var(--color-${key})`])),
 };
 
-const heatRoot = (order: string[]) => readPlugin('heated',
-  Object.fromEntries(order.map((key, i) => [`heat-step-${i + 1}`, { $type: 'color', $value: `{color.${key}}` }])));
-
 const heatLadderColours = (polarity: 'light' | 'dark') => polarity === 'light'
   ? { 'base-100': '#ffffff', 'base-200': '#f4f4f4', 'base-content': '#111111',
     'heat-1': '#e0e0e0', 'heat-2': '#b0b0b0', 'heat-3': '#808080', 'heat-4': '#505050', 'heat-5': '#202020' }
   : { 'base-100': '#000000', 'base-200': '#0a0a0a', 'base-content': '#f0f0f0',
     'heat-1': '#202020', 'heat-2': '#505050', 'heat-3': '#808080', 'heat-4': '#b0b0b0', 'heat-5': '#e0e0e0' };
 
-const heatMessages = (polarity: 'light' | 'dark', order: string[]) =>
-  paletteReports(config({ palettes: [{ name: polarity, default: true, polarity, colors: colors(heatLadderColours(polarity)) }] }),
-    HEAT_ROLES as any, [heatRoot(order)])[0]?.messages.filter((m) => m.kind === 'heat').map((m) => m.message) ?? [];
+const heatMessages = (polarity: 'light' | 'dark', order: string[], root: boolean) => {
+  const ladder = heatLadderColours(polarity) as Record<string, string>;
+  const pinned = Object.fromEntries(order.map((key, i) => [`heat-${i + 1}`, ladder[key]!]));
+  return paletteReports(config({ palettes: [{ name: polarity, default: true, polarity, colors: colors({ ...ladder, ...pinned }) }] }),
+    HEAT_ROLES as any, root ? [total()] : [])[0]?.messages.filter((m) => m.kind === 'heat').map((m) => m.message) ?? [];
+};
 
-test('arena check reports the heat order of a root plugin that answers the steps reversed', () => {
-  const reversed = ['heat-5', 'heat-4', 'heat-3', 'heat-2', 'heat-1'];
+test('a pinned heat ladder out of order is reported from the palette itself', () => {
+  const swapped = ['heat-1', 'heat-3', 'heat-2', 'heat-4', 'heat-5'];
   const forward = ['heat-1', 'heat-2', 'heat-3', 'heat-4', 'heat-5'];
   for (const polarity of ['light', 'dark'] as const) {
-    assert.equal(heatMessages(polarity, reversed).length, 4, `${polarity}: every reversed pair is named`);
-    assert.deepEqual(heatMessages(polarity, forward), [], `${polarity}: the palette's own order is not reported`);
+    const out = heatMessages(polarity, swapped, false);
+    assert.equal(out.length, 1, `${polarity}: the swapped pair is named once`);
+    assert.match(out[0] ?? '', /heat, steps 2 and 3: step 3 is no further from the surface than step 2, and the heatmap reads the steps by magnitude/);
+    assert.deepEqual(heatMessages(polarity, forward, false), [], `${polarity}: the palette's own order is not reported`);
+    assert.equal(heatMessages(polarity, swapped, true).length, 1, `${polarity}: a root plugin changes nothing`);
   }
+});
+
+test('a plugin writing a heat-step role is refused as a role the package does not ship', () => {
+  const problems = pluginProblems(listed(['console']),
+    [total({ 'heat-step-1': { $type: 'color', $value: '{color.heat-1}' } })]);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /"heat-step-1" is neither a role this package ships nor an fs or rhythm step/);
 });
 
 const shippedPalette = (polarity: 'light' | 'dark'): Record<string, string> => {

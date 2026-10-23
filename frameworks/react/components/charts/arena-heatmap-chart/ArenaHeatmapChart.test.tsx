@@ -71,29 +71,29 @@ test('ArenaHeatmapChart draws a NaN cell as an outline and never as the lowest s
   const drawn = cells(html);
   assert.equal(attr(drawn[1] as string, 'fill'), 'none');
   assert.equal(attr(drawn[1] as string, 'stroke'), 'var(--edge-separator)');
-  assert.equal(drawn.filter((tag) => attr(tag, 'fill') === 'var(--heat-step-1)').length, 1, 'only the real zero is step 1');
+  assert.equal(drawn.filter((tag) => attr(tag, 'fill') === 'var(--color-heat-1)').length, 1, 'only the real zero is step 1');
   assert.deepEqual(table(html).rows[0], ['Row', '0', '', '100']);
 });
 
 test('ArenaHeatmapChart paints a 0-to-max ramp in steps 1 to 5, in order', () => {
   const html = draw({ labels: ['a', 'b', 'c', 'd', 'e'], series: [{ label: 'Row', values: [0, 25, 45, 65, 100] }] });
-  assert.deepEqual(fills(html), [1, 2, 3, 4, 5].map((n) => `var(--heat-step-${n})`));
+  assert.deepEqual(fills(html), [1, 2, 3, 4, 5].map((n) => `var(--color-heat-${n})`));
 });
 
 test('ArenaHeatmapChart puts a value on a bin edge in the higher bin and the maximum in the top one', () => {
   const html = draw({ labels: ['a', 'b', 'c', 'd'], series: [{ label: 'Row', values: [19, 20, 99, 100] }] });
-  assert.deepEqual(fills(html), [1, 2, 5, 5].map((n) => `var(--heat-step-${n})`));
+  assert.deepEqual(fills(html), [1, 2, 5, 5].map((n) => `var(--color-heat-${n})`));
 });
 
 test('ArenaHeatmapChart puts a decimal value on an edge in the higher step and writes round legend edges', () => {
   const html = draw({ labels: ['a', 'b', 'c'], series: [{ label: 'Row', values: [0.1, 0.6, 0.7] }] });
-  assert.deepEqual(fills(html), [1, 4, 4].map((n) => `var(--heat-step-${n})`));
+  assert.deepEqual(fills(html), [1, 4, 4].map((n) => `var(--color-heat-${n})`));
   assert.deepEqual(legendLabels(html), ['0', '0.2', '0.4', '0.6', '0.8']);
 });
 
 test('ArenaHeatmapChart keys its legend with five swatches and the lower edge of each step, written by the value writer', () => {
   const html = draw({ labels: ['a', 'b'], series: [{ label: 'Row', values: [0, 5000] }], valueFormat: { grouping: true }, valueSuffix: ' hits' });
-  assert.deepEqual(legend(html), [1, 2, 3, 4, 5].map((n) => `var(--heat-step-${n})`));
+  assert.deepEqual(legend(html), [1, 2, 3, 4, 5].map((n) => `var(--color-heat-${n})`));
   assert.deepEqual(legendLabels(html), ['0 hits', '1,000 hits', '2,000 hits', '3,000 hits', '4,000 hits']);
   assert.match(html, /<div aria-hidden="true"[^>]*heatmap-chart\.legend"/);
 });
