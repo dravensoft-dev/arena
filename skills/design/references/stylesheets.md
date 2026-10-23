@@ -49,7 +49,7 @@ The document is the one file whose name never changes, so it is the one that mus
 
 ## How do I keep Arena's JS apart and serve updates of it through a dictionary?
 
-Keep every module of `@dravensoft/arena-*` in one chunk of its own, under a content-hashed name with a stem such as `arena`. [`stack.md`](./stack.md) gives the recipe per bundler. An app release that does not change Arena then leaves that file's name alone, and a visitor's cache serves it.
+Keep every module of `@dravensoft/arena-*` in one chunk of its own, under a content-hashed name with a stem such as `arena`. [`bundlers/index.md`](./bundlers/index.md) names the page holding the config for each bundler. An app release that does not change Arena then leaves that file's name alone, and a visitor's cache serves it.
 
 **Compression Dictionary Transport** shrinks the download when Arena itself changes. The server answers the Arena chunk with `Use-As-Dictionary`, and a browser that supports the feature keeps the file as a dictionary. The next request for a file matching the pattern carries `Available-Dictionary` and an `Accept-Encoding` naming `dcb` (brotli) or `dcz` (zstd). The server answers with the new chunk compressed against the old one, as `Content-Encoding: dcb` or `dcz`, and only what changed crosses the wire.
 

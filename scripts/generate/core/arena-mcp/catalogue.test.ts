@@ -4,7 +4,7 @@ import { mkdtempSync, mkdirSync, writeFileSync, rmSync, readFileSync } from 'nod
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
-  entries, catalogue, search, nameOf, categoryOf, words, textOf, withUris, relIndex,
+  entries, catalogue, search, nameOf, categoryOf, referenceName, words, textOf, withUris, relIndex,
   ROUTER_URI, SUPPORT_URI, RULES_URI, ROLES_URI, LAYER_INDEX_URI, CATALOGUE_URI, VOCABULARY_URI, SCHEME,
   extractFamilies, STYLE_PREFIX, IDENTITY_PREFIX, TOKENS_PREFIX, BEHAVIOUR_PREFIX, FAMILY_PREFIX,
   REFERENCE_PREFIX, CATEGORY_PREFIX, COMPONENT_PREFIX,
@@ -123,6 +123,12 @@ test('a name is the document and a category is the directory holding it', () => 
   assert.equal(nameOf('frameworks/react/components/forms/arena-input/ArenaInput.prompt.md'), 'ArenaInput');
   assert.equal(nameOf('skills/design/references/page.md'), 'page');
   assert.equal(categoryOf('frameworks/react/components/forms/INDEX.md'), 'forms');
+});
+
+test('a reference in a section is named by its path, and the section index by the section', () => {
+  assert.equal(referenceName('skills/design/references/page.md'), 'page');
+  assert.equal(referenceName('skills/design/references/bundlers/index.md'), 'bundlers');
+  assert.equal(referenceName('skills/design/references/bundlers/rollup.md'), 'bundlers/rollup');
 });
 
 test('search ranks by how many words of the question a document answers', () => {

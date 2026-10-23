@@ -51,7 +51,7 @@ export const ENTRIES: Entry[] = [
   {
     name: 'consumer',
     router: 'skills/design/SKILL.md',
-    budget: 21_300,
+    budget: 21_700,
     reason:
       'the page every consumer route opens with, declared once, not as the first stop of '
       + 'each route. What a route pays past it is its own, and each is argued where spent. '
@@ -66,7 +66,7 @@ export const ENTRIES: Entry[] = [
       + 'extends, as wrapped-link stands beside router-link. The vocabulary families name which '
       + 'style decision reaches which component owner and answer the route\'s questions about '
       + 'appearance sources at the decision layer. The tokens-only rule names the bracket values '
-      + 'audit holds. A row routes a mock to artifact and a toolchain to its record. The router-link rule names each member '
+      + 'audit holds. Rows route a mock, a toolchain and a bundler to their pages. The router-link rule names each member '
       + 'with an href, and the icon rule names production code and the component that draws a glyph.',
   },
   {
@@ -228,7 +228,7 @@ export const ROUTES: Route[] = [
       + 'each of those answers has',
     entry: 'consumer',
     stops: ['skills/design/references/stack.md'],
-    budget: 16_400,
+    budget: 12_300,
     reason:
       'paid once per project like the surface, skin, register and seo routes, and taken beside the '
       + 'cold start tree rather than after it, because a toolchain settled after the first screen is '
@@ -238,8 +238,23 @@ export const ROUTES: Route[] = [
       + 'page costs and all of what makes it usable. What it does not carry is the layer decision and '
       + 'the render architecture, which are nodes of the cold start tree. The peers table says which '
       + 'peer is required and which optional, and why a command names no framework peer. Each bundler '
-      + 'row carries its own recipe for a chunk of Arena\'s own, and the package sheet table gives the '
-      + 'measured config of each bundler that can keep the sheet apart, which a reader cannot rebuild from a hint.',
+      + 'row names its evidence and the family page holding its config, which the bundler route pays for.',
+  },
+  {
+    name: 'consumer-bundler',
+    who: 'a project writing its bundler config: the router, then the bundler index, then the one page '
+      + 'of that bundler\'s family',
+    entry: 'consumer',
+    stops: ['skills/design/references/bundlers/index.md', 'skills/design/references/bundlers/rollup.md'],
+    budget: 10_300,
+    reason:
+      'paid once per project, when the bundler config is written, and measured on the rollup family, '
+      + 'the largest page a reader takes from the index. What it buys is that a reader stops '
+      + 'discovering in their own build what a bundler does with Arena: the index answers whether '
+      + 'Arena\'s JS and its package sheet can sit in files of their own for every bundler measured, '
+      + 'so most readers stop there, and the family page carries the config that does it and each '
+      + 'behaviour that differs, which a reader cannot rebuild from a hint. The other family pages '
+      + 'are smaller. What moves this number is a bundler measured, or a behaviour found.',
   },
   {
     name: 'consumer-page',

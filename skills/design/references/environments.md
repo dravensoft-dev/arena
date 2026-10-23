@@ -2,11 +2,11 @@
 
 Which bundlers was Arena measured with, and in which versions? What did each one download, and which cannot keep Arena in a chunk of its own? Does the Angular builder work? Read this to see what is known about your toolchain before you rely on it. **This page is a record and not a recommendation**: no bundler is required, and a row here says what happened when somebody ran it.
 
-[`stack.md`](./stack.md) gives the recipe that keeps Arena in a chunk of its own for each bundler. [`stylesheets.md`](./stylesheets.md) says how long to cache each file, and how to serve that chunk with a dictionary.
+[`bundlers/index.md`](./bundlers/index.md) names the page holding each bundler's config, and what each one does differently. [`stylesheets.md`](./stylesheets.md) says how long to cache each file, and how to serve that chunk with a dictionary.
 
 ## How was each row measured?
 
-Every figure is in KB of 1024 bytes, compressed with brotli at quality 11 and a 24-bit window. The screens are two React apps. The typical one draws AppBar, SideNav, Button, Input, Card, Table, Dialog, ToastHost, StatCard, LineChart, Select and Tabs. The full one imports every component by name. Arena's package is copied into `node_modules/@dravensoft/arena-react` of each project, as in an app. "Arena apart" means the bundler's own way of keeping a module in a chunk of its own, named in [`stack.md`](./stack.md).
+Every figure is in KB of 1024 bytes, compressed with brotli at quality 11 and a 24-bit window. The screens are two React apps. The typical one draws AppBar, SideNav, Button, Input, Card, Table, Dialog, ToastHost, StatCard, LineChart, Select and Tabs. The full one imports every component by name. Arena's package is copied into `node_modules/@dravensoft/arena-react` of each project, as in an app. "Arena apart" means the bundler's own way of keeping a module in a chunk of its own, named on that bundler's page under [`bundlers/`](./bundlers/index.md).
 
 | column | what it measures |
 | --- | --- |
@@ -49,9 +49,9 @@ The typical React app imports `arena.package.generated.css`, then `arena.generat
 
 | bundler | alone | config that does it | after an app release |
 | --- | --- | --- | --- |
-| Vite 7.3.7 | yes | the `manualChunks` with the `arena` test that also matches `arena.package.generated.css`, in [`stack.md`](./stack.md) | the Arena file keeps its bytes and its name |
-| Vite 8.1.6 | yes | the `codeSplitting.groups` of [`stack.md`](./stack.md), whose `arena` test also matches `arena.package.generated.css` | the Arena file keeps its bytes and its name |
-| webpack 5.111.1 | yes | `experiments.css: true` and the `arena` cache group of [`stack.md`](./stack.md), with `type: /^(javascript\|css)/` | the Arena file keeps its bytes and its name |
+| Vite 7.3.7 | yes | the `manualChunks` with the `arena` test that also matches `arena.package.generated.css`, in [the rollup family page](./bundlers/rollup.md) | the Arena file keeps its bytes and its name |
+| Vite 8.1.6 | yes | the `codeSplitting.groups` of [the rollup family page](./bundlers/rollup.md), whose `arena` test also matches `arena.package.generated.css` | the Arena file keeps its bytes and its name |
+| webpack 5.111.1 | yes | `experiments.css: true` and the `arena` cache group of [the webpack family page](./bundlers/webpack.md), with `type: /^(javascript\|css)/` | the Arena file keeps its bytes and its name |
 | rspack 2.2.8 | yes | the webpack config, and a `css/auto` rule for `.css` | the Arena file keeps its bytes and its name |
 | rollup 4.62 | not exercised | rollup alone imports no CSS and the probe installs no CSS plugin | not measured |
 | rolldown 1.2.12 | no | the build stops: bundling CSS is not supported | not applicable |

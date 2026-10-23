@@ -8,7 +8,7 @@ import assert from 'node:assert/strict';
 import {
   LLMS_INDEX, ROUTER, INDEX, REFERENCE_DIR, LAYER_INDEX, BUILD_INTERMEDIATE, layerFile, docUrl,
   summary, categoryIndexes, prompts, layerDocs, servedDocs, references, headline, blurb, index,
-  corpus, nameOf, categoryOf, opening, when, sentenceEnd, balance, lift, onSite,
+  corpus, nameOf, categoryOf, opening, when, sentenceEnd, balance, lift, onSite, sectionPages,
 } from './llms-index.ts';
 import { DOMAIN, LAYERS } from './site-pages.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
@@ -93,6 +93,14 @@ test('a reference the router does not link is a reference nothing serves, so the
     .sort();
   assert.deepEqual([...references()].sort(), onDisk,
     'a reference off the router is published nowhere, and one the router names and the tree lacks is a dead link');
+});
+
+test('a section the router links by its index is served whole, the index first and its pages after it', () => {
+  const section = `${REFERENCE_DIR}/bundlers`;
+  const pages = sectionPages(`${section}/index.md`);
+  assert.equal(pages[0], `${section}/index.md`);
+  assert.ok(pages.length > 1 && pages.slice(1).every((rel) => rel.startsWith(`${section}/`) && !rel.endsWith('/index.md')));
+  assert.deepEqual(sectionPages(`${REFERENCE_DIR}/page.md`), [`${REFERENCE_DIR}/page.md`]);
 });
 
 test('a reference names itself and says when it is read, so no second copy of either is written here', () => {

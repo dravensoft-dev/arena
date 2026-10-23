@@ -91,6 +91,10 @@ export function nameOf(rel: string) {
   return last.replace(PROMPT_SUFFIX, '').replace(/\.md$/, '');
 }
 
+export function referenceName(rel: string) {
+  return relPosix(REFERENCE_DIR, rel).replace(/\.md$/, '').replace(/\/index$/, '');
+}
+
 export function categoryOf(rel: string) {
   return rel.split('/').at(-2) ?? '';
 }
@@ -167,8 +171,8 @@ export function entries(payload: string, manifest: Manifest): Entry[] {
       continue;
     }
     if (rel.startsWith(`${REFERENCE_DIR}/`) && rel.endsWith('.md')) {
-      found.push({ uri: `${REFERENCE_PREFIX}${nameOf(rel)}`, rel, mime: 'text/markdown',
-        title: `Reference: ${nameOf(rel)}` });
+      found.push({ uri: `${REFERENCE_PREFIX}${referenceName(rel)}`, rel, mime: 'text/markdown',
+        title: `Reference: ${referenceName(rel)}` });
       continue;
     }
     if (rel.endsWith(`/${INDEX}`) && rel.includes('/components/')) {

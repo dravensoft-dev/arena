@@ -31,6 +31,7 @@ export const IDENTITY_PAGES = [`${IDENTITY_DIR}/identity.html`, `${IDENTITY_DIR}
 
 export const CARRIED_SHARED = [
   `${REFERENCE_DIR}/*.md`,
+  `${REFERENCE_DIR}/*/*.md`,
   LAYER_NEUTRAL_INDEX,
   'frameworks/VOCABULARY.md',
   ROLES,

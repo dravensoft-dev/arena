@@ -1,0 +1,27 @@
+# Bun and esbuild
+
+`bun build` and esbuild both build an app with Arena, and neither can keep Arena in a file of its own. An app release downloads Arena again, and a dictionary is what makes that download small. Read this when your project builds with `bun build` or esbuild, after [the bundler index](./index.md).
+
+## Which versions, and how sure is each answer?
+
+| Bundler | Version | Arena's JS apart | Evidence | The package sheet apart | Evidence |
+| --- | --- | --- | --- | --- | --- |
+| Bun `bun build` | 1.4.0 | no | does not work | no: one CSS file for the entry | measured on 2026-10-23 |
+| esbuild | 0.28 | no | does not work | no: one CSS file for the entry, with splitting too | measured on 2026-10-23 |
+
+Bun is also a package manager and a runtime. Installing Arena with bun is a different row, in [`stack.md`](../stack.md), which also names the runners that reach the `arena` command. This page is `bun build` only.
+
+## Why can Arena not sit in a file of its own?
+
+Both bundlers split code to share it between entries, and neither has an option that pins a module to a chunk. With one entry, Arena stays in the app's bundle. On the typical screen with `bun build`, a first visit downloads 54.11 KB, and so does every app release. An Arena patch downloads 54.13 KB, or 0.03 KB with the previous bundle as the dictionary.
+
+**The way out is the dictionary.** Serve the bundle with `Use-As-Dictionary` and its previous version as the dictionary, as [`stylesheets.md`](../stylesheets.md) shows. Each release then downloads what changed, Arena or your app.
+
+## Where do the sheets land?
+
+Both emit one CSS file for the entry, holding the package sheet, `arena.generated.css` and your own rules, under a new name with every release. Import them in the order [`install.md`](../install.md) gives.
+
+## What differs from the other bundlers?
+
+- **`bun build` does not empty its output directory.** Every earlier hashed bundle stays beside the new one, and a deploy that copies the directory publishes them all. Clear the directory before each build.
+- **An esbuild bundle of the Angular layer defines `ngDevMode`** itself, as `define: { ngDevMode: 'false' }`, which a production build of the Angular CLI sets for you; verified by hand once. [The Angular builder page](./angular.md) covers the builder a project normally runs.

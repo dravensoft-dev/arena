@@ -34,7 +34,7 @@ import { withForeignTrees } from '../../lib/arena/foreign-trees.ts';
 export const node = {
   name: 'build:site',
   reads: [
-    'skills/design/SKILL.md', 'skills/design/references/*.md', 'frameworks/**/INDEX.md', 'frameworks/VOCABULARY.md', 'frameworks/**/*.prompt.md',
+    'skills/design/SKILL.md', 'skills/design/references/*.md', 'skills/design/references/*/*.md', 'frameworks/**/INDEX.md', 'frameworks/VOCABULARY.md', 'frameworks/**/*.prompt.md',
     '!frameworks/*/build/package/**', '!frameworks/*/dist/**',
     'intro/**', 'arena-from-scratch/identity*.html', 'contracts/behaviour/**', 'contracts/design/**', 'contracts/design-generated/**', 'assets/**',
     'plugin-style-store/**/plugin.css', 'plugin-style-store/catalogue/*/plugin.tokens.json', 'plugin-style-store/catalogue/*/arena.config.json',

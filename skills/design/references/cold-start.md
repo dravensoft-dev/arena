@@ -224,7 +224,7 @@ the last stylesheet loaded wins. One thing works in your favour. Every palette
 emits as a plain class, and `ArenaPaletteScope` puts one on your own subtree, so the fragment can carry its own theme without touching the
 host. Take this row knowing the host is being changed, or give the fragment a document of its own.
 
-**Which bundler, and where Arena's JavaScript and stylesheet land.** [`stack.md`](./stack.md), section "How does Arena sit in the bundle?", says how to keep Arena's JS and package sheet in a chunk of their own. [`environments.md`](./environments.md) holds what each bundler measured, as a record and not a recommendation.
+**Which bundler, and where Arena's JavaScript and stylesheet land.** [`bundlers/index.md`](./bundlers/index.md) says how to keep Arena's JS and package sheet in files of their own, with one page per bundler family. [`environments.md`](./environments.md) holds what each bundler measured, as a record and not a recommendation.
 
 ## 10. What does the code you write around Arena bring with it?
 
