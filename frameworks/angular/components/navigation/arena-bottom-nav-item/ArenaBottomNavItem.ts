@@ -5,11 +5,12 @@ import { arenaBottomNavStyles } from '../arena-bottom-nav/ArenaBottomNav.variant
 import manifest from '../arena-bottom-nav/ArenaBottomNav.classes.generated';
 import { arenaActiveWeight, arenaBadgeCount } from '../../../NavRow';
 import { ArenaSlotAttributes } from '../../../SlotData';
+import { ArenaIcon } from '../../display/arena-icon/ArenaIcon';
 
 @Component({
   selector: 'arena-bottom-nav-item',
   standalone: true,
-  imports: [ArenaSlotAttributes],
+  imports: [ArenaIcon, ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     style: 'display: contents',
@@ -21,7 +22,7 @@ import { ArenaSlotAttributes } from '../../../SlotData';
          [attr.aria-current]="current()" [attr.aria-disabled]="off()"
          (click)="activateAnchor($event)">
         <span [class]="styles().glyph()" [attr.data-arena-part]="parts.glyph">
-          <i [class]="glyphClass()" aria-hidden="true"></i>
+          <arena-icon [icon]="glyphClass()" />
           @if (count(); as tally) {
             <span [class]="styles().badge()" [attr.data-arena-part]="parts.badge">{{ tally }}</span>
           }
@@ -33,7 +34,7 @@ import { ArenaSlotAttributes } from '../../../SlotData';
               [attr.aria-current]="current()" [attr.aria-disabled]="off()"
               (click)="activate($event)">
         <span [class]="styles().glyph()" [attr.data-arena-part]="parts.glyph">
-          <i [class]="glyphClass()" aria-hidden="true"></i>
+          <arena-icon [icon]="glyphClass()" />
           @if (count(); as tally) {
             <span [class]="styles().badge()" [attr.data-arena-part]="parts.badge">{{ tally }}</span>
           }

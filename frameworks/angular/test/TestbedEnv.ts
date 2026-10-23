@@ -4,15 +4,17 @@
  * the noise, and a thrown one at load fails a whole file as an unhandled error between tests, so its
  * cases never run. Recording it lets the afterEach of the file that called useTestEnvironment() fail
  * the one test that defined the colliding component, with the site that defined it.
- * An `[arena]` warning no test captured is recorded the same way and fails the test that provoked it.
- * A warning a test means to provoke is captured by that test and asserted. The deduplication of
- * `arenaWarnOnce` and `warnUnresolved` is process-wide, so a beforeEach forgets both and no site hides
- * behind the file that reached it first. Breakpoints are set by each suite, never here. */
+ * An `[arena]` warning no test captured is recorded the same way and fails the test that provoked it;
+ * one a test provokes is captured and asserted. The deduplication of `arenaWarnOnce` and `warnUnresolved`
+ * is process-wide, so a beforeEach forgets both. Breakpoints are set by each suite, never here.
+ * Every environment serves one sprite at TEST_ICONS_HREF; glyphIds and symbol read and build ph-<weight>-<name>. */
 import { GlobalRegistrator } from '@happy-dom/global-registrator';
 import '@angular/compiler';
 import { afterEach, beforeEach } from 'node:test';
 import { TestBed } from '@angular/core/testing';
+import { NgModule } from '@angular/core';
 import { BrowserTestingModule, platformBrowserTesting } from '@angular/platform-browser/testing';
+import { provideArenaIcons } from '../ArenaIcons';
 import { forgetArenaWarnings } from '../WarnOnce';
 import { forgetArenaBreakpoints } from '../ContainerSize';
 
@@ -71,6 +73,19 @@ function guard(): void {
   });
 }
 
+export const TEST_ICONS_HREF = '/test/icons.svg';
+
+export function glyphIds(root: ParentNode): string[] {
+  return Array.from(root.querySelectorAll('svg > use')).map((use) => (use.getAttribute('href') ?? '').split('#')[1] ?? '');
+}
+
+export function symbol(weight: string, name: string): string {
+  return ['ph', weight, name].join('-');
+}
+
+@NgModule({ exports: [BrowserTestingModule], providers: [provideArenaIcons(TEST_ICONS_HREF)] })
+class ArenaTestingModule {}
+
 let claimed = false;
 
 export function useTestEnvironment(): void {
@@ -78,5 +93,5 @@ export function useTestEnvironment(): void {
   guard();
   if (claimed) return;
   claimed = true;
-  TestBed.initTestEnvironment(BrowserTestingModule, platformBrowserTesting());
+  TestBed.initTestEnvironment(ArenaTestingModule, platformBrowserTesting());
 }

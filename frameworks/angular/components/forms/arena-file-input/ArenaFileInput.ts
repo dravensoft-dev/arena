@@ -13,6 +13,7 @@ import {
   arenaFileAnnouncement, arenaFileInputIds, arenaFileRejection, arenaFileSelection, arenaFileSize,
   arenaMergeFiles, arenaRejectionLines, arenaWriteInputFiles,
 } from './FileRules';
+import { ArenaIcon } from '../../display/arena-icon/ArenaIcon';
 
 interface Shown {
   files: File[];
@@ -24,7 +25,7 @@ const NOTHING: Shown = { files: [], rejection: null };
 @Component({
   selector: 'arena-file-input',
   standalone: true,
-  imports: [ArenaSlotAttributes, ArenaTag],
+  imports: [ArenaIcon, ArenaSlotAttributes, ArenaTag],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [ArenaControlBinding],
   host: {
@@ -46,7 +47,7 @@ const NOTHING: Shown = { files: [], rejection: null };
       <button #trigger type="button" [id]="ids().trigger" [attr.aria-labelledby]="named()"
               [attr.aria-describedby]="error() || hint() ? noteId() : null" [disabled]="off()"
               [class]="styles().trigger()" [arenaSlotData]="styles().$data.trigger()" [attr.data-arena-part]="parts.trigger" (click)="open()">
-        <i [class]="iconClass()" [attr.data-arena-part]="parts.icon" aria-hidden="true"></i>
+        <span [class]="styles().icon()" [attr.data-arena-part]="parts.icon" aria-hidden="true"><arena-icon icon="ph-bold ph-upload-simple" /></span>
         <span [id]="ids().text">{{ multiple() ? locale.fileInputChooseMultiple : locale.fileInputChoose }}</span>
       </button>
       @if (droppable()) {
@@ -151,7 +152,6 @@ export class ArenaFileInput {
     disabled: this.off(),
   }));
 
-  protected readonly iconClass = computed(() => `ph-bold ph-upload-simple ${this.styles().icon()}`);
 
   private readonly control = viewChild<ElementRef<HTMLInputElement>>('control');
   private readonly trigger = viewChild<ElementRef<HTMLButtonElement>>('trigger');

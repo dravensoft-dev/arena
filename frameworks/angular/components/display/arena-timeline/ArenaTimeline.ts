@@ -5,11 +5,12 @@ import { ArenaSlotAttributes } from '../../../SlotData';
 import { arenaTimelineGlyph, arenaTimelineState, arenaTimelineTone } from './TimelineGlyphs';
 import { arenaTimelineStyles } from './ArenaTimeline.variants';
 import manifest from './ArenaTimeline.classes.generated';
+import { ArenaIcon } from '../arena-icon/ArenaIcon';
 
 @Component({
   selector: 'arena-timeline',
   standalone: true,
-  imports: [ArenaSlotAttributes],
+  imports: [ArenaIcon, ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { style: 'display: contents' },
   template: `
@@ -18,7 +19,7 @@ import manifest from './ArenaTimeline.classes.generated';
         @for (row of rows(); track row.item.id ?? $index) {
           <li [attr.aria-current]="row.state === 'current' ? 'step' : null" [class]="row.styles.item()" [arenaSlotData]="row.styles.$data.item()" [attr.data-arena-part]="parts.item">
             <span aria-hidden="true" [class]="row.styles.rail()" [arenaSlotData]="row.styles.$data.rail()" [attr.data-arena-part]="parts.rail">
-              <span [class]="row.styles.dot()" [arenaSlotData]="row.styles.$data.dot()" [attr.data-arena-part]="parts.dot">@if (row.glyph) {<i [class]="row.glyph + ' ' + row.styles.icon()" [arenaSlotData]="row.styles.$data.icon()" [attr.data-arena-part]="parts.icon"></i>}</span>
+              <span [class]="row.styles.dot()" [arenaSlotData]="row.styles.$data.dot()" [attr.data-arena-part]="parts.dot">@if (row.glyph) {<span [class]="row.styles.icon()" [arenaSlotData]="row.styles.$data.icon()" [attr.data-arena-part]="parts.icon"><arena-icon [icon]="row.glyph" /></span>}</span>
               @if (!row.last) {
                 <span [class]="row.styles.connector()" [arenaSlotData]="row.styles.$data.connector()" [attr.data-arena-part]="parts.connector"></span>
               }

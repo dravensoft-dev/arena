@@ -8,13 +8,19 @@ import test, { afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { createApplication } from '@angular/platform-browser';
 import { TestBed } from '@angular/core/testing';
 import { ARENA_ICONS, provideArenaIcons } from './ArenaIcons';
 
 afterEach(() => TestBed.resetTestingModule());
 
-test('with no provider ARENA_ICONS is null', () => {
-  assert.equal(TestBed.inject(ARENA_ICONS), null);
+test('with no provider ARENA_ICONS is null', async () => {
+  const app = await createApplication();
+  try {
+    assert.equal(app.injector.get(ARENA_ICONS), null);
+  } finally {
+    app.destroy();
+  }
 });
 
 test('provideArenaIcons hands the href it was given', () => {

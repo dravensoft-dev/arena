@@ -5,13 +5,14 @@ import { arenaToastStyles } from './ArenaToast.variants';
 import manifest from './ArenaToast.classes.generated';
 import { ARENA_LOCALE } from '../../../ArenaLocale';
 import { ArenaSlotAttributes } from '../../../SlotData';
+import { ArenaIcon } from '../../display/arena-icon/ArenaIcon';
 
 export { ARENA_TOAST_DISMISS };
 
 @Component({
   selector: 'arena-toast',
   standalone: true,
-  imports: [ArenaSlotAttributes],
+  imports: [ArenaIcon, ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'styles().root()',
@@ -38,7 +39,7 @@ export { ARENA_TOAST_DISMISS };
     </div>
     @if (dismissible()) {
       <button type="button" [class]="styles().close()" [attr.data-arena-part]="parts.close" [attr.aria-label]="locale.toastClose" (click)="close.emit()">
-        <i class="ph-bold ph-x" aria-hidden="true"></i>
+        <arena-icon icon="ph-bold ph-x" />
       </button>
     }
   `,

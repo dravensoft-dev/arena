@@ -1,6 +1,6 @@
 /* What arena-timeline draws from its items and its index: the states and their words, the glyphs,
  * the time element, the connectors and the guard. */
-import { useTestEnvironment } from '../../../test/TestbedEnv';
+import { useTestEnvironment, glyphIds, symbol } from '../../../test/TestbedEnv';
 useTestEnvironment();
 
 import test from 'node:test';
@@ -66,10 +66,10 @@ test('a toned dot carries its glyph, an icon replaces it, and a neutral dot is p
   const { fixture, root } = render();
   try {
     const dots = Array.from(root.querySelectorAll('[data-arena-part="timeline.dot"]'));
-    assertNoNode(dots[0]!.querySelector('i'), 'a neutral dot draws no glyph');
-    assert.ok(dots[1]!.querySelector('i')!.classList.contains('ph-check-circle'));
-    assert.ok(dots[2]!.querySelector('i')!.classList.contains('ph-warning'));
-    assert.ok(dots[3]!.querySelector('i')!.classList.contains('ph-truck'));
+    assertNoNode(dots[0]!.querySelector('svg'), 'a neutral dot draws no glyph');
+    assert.deepEqual(glyphIds(dots[1]!), [symbol('fill', 'check-circle')]);
+    assert.deepEqual(glyphIds(dots[2]!), [symbol('fill', 'warning')]);
+    assert.deepEqual(glyphIds(dots[3]!), [symbol('bold', 'truck')]);
     assert.equal(root.querySelectorAll('[data-arena-part="timeline.connector"]').length, 3, 'the last milestone has no connector');
   } finally {
     fixture.destroy();

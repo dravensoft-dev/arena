@@ -125,7 +125,7 @@ test('the hint is the set\'s description, and the error replaces it with the gly
     const fieldset = fieldsetOf(failed);
     const line = fieldset.querySelector(`[id="${fieldset.getAttribute('aria-describedby')}"]`)!;
     assert.equal(line.textContent?.trim(), 'Choose at least one.');
-    assert.equal(line.querySelector('i')?.getAttribute('aria-hidden'), 'true');
+    assert.equal(line.querySelector('svg')?.getAttribute('aria-hidden'), 'true');
     assert.equal(fieldset.textContent?.includes('At most once a day.'), false, 'the error wins over the hint');
     assert.equal(fieldset.hasAttribute('aria-invalid'), false);
   } finally { failed.destroy(); }

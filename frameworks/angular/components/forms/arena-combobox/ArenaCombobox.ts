@@ -16,6 +16,7 @@ import {
 } from './ComboboxRules';
 import { arenaComboboxStyles } from './ArenaCombobox.variants';
 import manifest from './ArenaCombobox.classes.generated';
+import { ArenaIcon } from '../../display/arena-icon/ArenaIcon';
 
 export { arenaFilterOptions } from './ComboboxRules';
 
@@ -24,7 +25,7 @@ export const ARENA_COMBOBOX_POSITIONS = arenaConnectedPositions('start', 'below'
 @Component({
   selector: 'arena-combobox',
   standalone: true,
-  imports: [ArenaSlotAttributes],
+  imports: [ArenaIcon, ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [ArenaControlBinding],
   host: {
@@ -39,7 +40,7 @@ export const ARENA_COMBOBOX_POSITIONS = arenaConnectedPositions('start', 'below'
     }
     <div #field (mousedown)="onFieldPress($event)" [class]="styles().field()" [arenaSlotData]="styles().$data.field()" [attr.data-arena-part]="parts.field">
       @if (icon(); as glyph) {
-        <i [class]="glyph + ' ' + styles().icon()" [attr.data-arena-part]="parts.icon" aria-hidden="true"></i>
+        <span [class]="styles().icon()" [attr.data-arena-part]="parts.icon" aria-hidden="true"><arena-icon [icon]="glyph" /></span>
       }
       <input #input [id]="uid" type="text" [value]="shown()" [attr.placeholder]="placeholder() ?? null" [disabled]="off()"
              [required]="required()" role="combobox" aria-autocomplete="list" aria-haspopup="listbox"
@@ -50,11 +51,11 @@ export const ARENA_COMBOBOX_POSITIONS = arenaConnectedPositions('start', 'below'
              (input)="onInput($event)" (change)="$event.stopPropagation()" (keydown)="onKey($event)" (click)="openList()"
              (blur)="commit()" (compositionstart)="composing = true" (compositionend)="onCompositionEnd($event)" />
       @if (hasError()) {
-        <i [class]="'ph-fill ph-warning-circle ' + styles().statusIcon()" [arenaSlotData]="styles().$data.statusIcon()" [attr.data-arena-part]="parts.statusIcon" aria-hidden="true"></i>
+        <span [class]="styles().statusIcon()" [arenaSlotData]="styles().$data.statusIcon()" [attr.data-arena-part]="parts.statusIcon" aria-hidden="true"><arena-icon icon="ph-fill ph-warning-circle" /></span>
       } @else if (valid()) {
-        <i [class]="'ph-fill ph-check-circle ' + styles().statusIcon()" [arenaSlotData]="styles().$data.statusIcon()" [attr.data-arena-part]="parts.statusIcon" aria-hidden="true"></i>
+        <span [class]="styles().statusIcon()" [arenaSlotData]="styles().$data.statusIcon()" [attr.data-arena-part]="parts.statusIcon" aria-hidden="true"><arena-icon icon="ph-fill ph-check-circle" /></span>
       }
-      <i [class]="'ph-bold ph-caret-down ' + styles().caret()" [attr.data-arena-part]="parts.caret" aria-hidden="true"></i>
+      <span [class]="styles().caret()" [attr.data-arena-part]="parts.caret" aria-hidden="true"><arena-icon icon="ph-bold ph-caret-down" /></span>
     </div>
     @if (name(); as field) {
       <input type="hidden" [attr.name]="field" [value]="posted()" [disabled]="off()" />
@@ -76,7 +77,7 @@ export const ARENA_COMBOBOX_POSITIONS = arenaConnectedPositions('start', 'below'
                  (mouseenter)="active.set(i)" (click)="choose(row)">
               <span [class]="rowStyles(i, row).optionLabel()" [arenaSlotData]="rowStyles(i, row).$data.optionLabel()" [attr.data-arena-part]="parts.optionLabel">{{ row.label }}</span>
               @if (row.value === drawn()) {
-                <i [class]="'ph-bold ph-check ' + styles().optionMark()" [attr.data-arena-part]="parts.optionMark" aria-hidden="true"></i>
+                <span [class]="styles().optionMark()" [attr.data-arena-part]="parts.optionMark" aria-hidden="true"><arena-icon icon="ph-bold ph-check" /></span>
               }
             </div>
           }

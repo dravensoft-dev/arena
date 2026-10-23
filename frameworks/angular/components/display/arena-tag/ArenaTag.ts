@@ -6,11 +6,12 @@ import manifest from './ArenaTag.classes.generated';
 import { ARENA_LOCALE } from '../../../ArenaLocale';
 import { ArenaIdGenerator } from '../../../ArenaIds';
 import { ArenaSlotAttributes } from '../../../SlotData';
+import { ArenaIcon } from '../arena-icon/ArenaIcon';
 
 @Component({
   selector: 'arena-tag',
   standalone: true,
-  imports: [ArenaSlotAttributes],
+  imports: [ArenaIcon, ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     'data-arena-boundary': '', '[class]': 'styles().root()',
@@ -25,7 +26,7 @@ import { ArenaSlotAttributes } from '../../../SlotData';
       <button type="button" [id]="closeId" [class]="styles().close()" [arenaSlotData]="styles().$data.close()" [attr.data-arena-part]="parts.close"
               [attr.aria-labelledby]="closeId + ' ' + textId" [attr.aria-disabled]="disabled() ? 'true' : null"
               [attr.tabindex]="tabStop() ? null : -1" (click)="onRemove()">
-        <i class="ph-bold ph-x" aria-hidden="true"></i><span [class]="styles().closeLabel()" [attr.data-arena-part]="parts.closeLabel">{{ locale.tagRemove }}</span>
+        <arena-icon icon="ph-bold ph-x" /><span [class]="styles().closeLabel()" [attr.data-arena-part]="parts.closeLabel">{{ locale.tagRemove }}</span>
       </button>
     }
   `,

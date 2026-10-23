@@ -5,10 +5,12 @@ import {
 import { ArenaSideNavState, arenaIndentDepth } from '../arena-side-nav/ArenaSideNavState';
 import { arenaSideNavStyles } from '../arena-side-nav/ArenaSideNav.variants';
 import manifest from '../arena-side-nav/ArenaSideNav.classes.generated';
+import { ArenaIcon } from '../../display/arena-icon/ArenaIcon';
 
 @Component({
   selector: 'arena-side-nav-collapsible',
   standalone: true,
+  imports: [ArenaIcon],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [ArenaSideNavState],
   host: {
@@ -25,10 +27,10 @@ import manifest from '../arena-side-nav/ArenaSideNav.classes.generated';
               [attr.aria-expanded]="expanded()" [attr.aria-controls]="regionId()"
               (click)="press()" (keydown)="onKeydown($event)">
         @if (icon(); as glyph) {
-          <i [class]="styles().icon() + ' ' + glyph" [attr.data-arena-part]="parts.icon" aria-hidden="true"></i>
+          <span [class]="styles().icon()" [attr.data-arena-part]="parts.icon" aria-hidden="true"><arena-icon [icon]="glyph" /></span>
         }
         <span [class]="styles().triggerLabel()" [attr.data-arena-part]="parts.triggerLabel">{{ heading() }}</span>
-        <i [class]="styles().caret() + ' ' + caretGlyph()" [attr.data-arena-part]="parts.caret" aria-hidden="true"></i>
+        <span [class]="styles().caret()" [attr.data-arena-part]="parts.caret" aria-hidden="true"><arena-icon [icon]="caretGlyph()" /></span>
       </button>
     }
     <div [id]="regionId()" [class]="styles().region()" [attr.data-arena-part]="parts.region" data-arena-boundary role="group"

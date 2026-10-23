@@ -18,6 +18,7 @@ import { arenaTableStyles } from './ArenaTable.variants';
 import manifest from './ArenaTable.classes.generated';
 import { ARENA_LOCALE } from '../../../ArenaLocale';
 import { ArenaSlotAttributes } from '../../../SlotData';
+import { ArenaIcon } from '../arena-icon/ArenaIcon';
 
 export function arenaSortOptionValue(column: number, direction: ArenaTableSort['direction']): string {
   return `${column}:${direction}`;
@@ -35,7 +36,7 @@ export function arenaParseSortOption(value: string): ArenaTableSort | null {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [ArenaTableState],
-  imports: [ArenaSlotAttributes, ArenaPagination, ArenaSelect],
+  imports: [ArenaIcon, ArenaSlotAttributes, ArenaPagination, ArenaSelect],
   host: { '[class]': 'styles().root()',
     '[attr.data-arena-narrow]': "styles().$data.root()['data-arena-narrow'] ?? null",
     '[attr.data-arena-part]': 'parts.root', },
@@ -61,7 +62,7 @@ export function arenaParseSortOption(value: string): ArenaTableSort | null {
                   [attr.tabindex]="state.isStop(0, i) ? 0 : -1"
                   [attr.aria-sort]="sortStateOf(i)"
                   (focus)="moveTo(0, i)" (click)="onHeader(i)">{{ column.header }}@if (sortStateOf(i) !== null && sortStateOf(i) !== 'none') {
-                <i [class]="styles().sortCaret() + ' ' + caretOf(i)" [attr.data-arena-part]="parts.sortCaret" aria-hidden="true"></i>
+                <span [class]="styles().sortCaret()" [attr.data-arena-part]="parts.sortCaret" aria-hidden="true"><arena-icon [icon]="caretOf(i)" /></span>
               }</th>
             }
           </tr>

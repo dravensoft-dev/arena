@@ -3,11 +3,12 @@ import { arenaStatCardStyles } from './ArenaStatCard.variants';
 import manifest from './ArenaStatCard.classes.generated';
 import type { ArenaTone, ArenaStatDelta } from '../../../Api.generated';
 import { ArenaSlotAttributes } from '../../../SlotData';
+import { ArenaIcon } from '../arena-icon/ArenaIcon';
 
 @Component({
   selector: 'arena-stat-card',
   standalone: true,
-  imports: [ArenaSlotAttributes],
+  imports: [ArenaIcon, ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { '[class]': 'styles().root()',
     '[attr.data-arena-part]': 'parts.root', },
@@ -15,13 +16,13 @@ import { ArenaSlotAttributes } from '../../../SlotData';
     <div [class]="styles().head()" [attr.data-arena-part]="parts.head">
       <span [class]="styles().label()" [attr.data-arena-part]="parts.label">{{ label() }}</span>
       @if (icon(); as glyph) {
-        <span [class]="styles().icon()" [attr.data-arena-part]="parts.icon" aria-hidden="true"><i [class]="glyph"></i></span>
+        <span [class]="styles().icon()" [attr.data-arena-part]="parts.icon" aria-hidden="true"><arena-icon [icon]="glyph" /></span>
       }
     </div>
     <div [class]="styles().value()" [arenaSlotData]="styles().$data.value()" [attr.data-arena-part]="parts.value">{{ value() }}</div>
     @if (delta()?.value; as amount) {
       <span [class]="styles().delta()" [arenaSlotData]="styles().$data.delta()" [attr.data-arena-part]="parts.delta">
-        <i [class]="delta()?.direction === 'down' ? 'ph-bold ph-arrow-down' : 'ph-bold ph-arrow-up'" aria-hidden="true"></i>
+        <arena-icon [icon]="delta()?.direction === 'down' ? 'ph-bold ph-arrow-down' : 'ph-bold ph-arrow-up'" />
         {{ amount }}
       </span>
     }

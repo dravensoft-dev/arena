@@ -2,7 +2,8 @@
  * The render swaps the DOM adapter for domino's, which replaces Event and its siblings on
  * globalThis. Every later suite in this process would then dispatch into the wrong DOM, so the
  * suite snapshots the globals before the render and restores them, and the adapter, afterwards. */
-import { useTestEnvironment } from './TestbedEnv';
+import { useTestEnvironment, TEST_ICONS_HREF } from './TestbedEnv';
+import { provideArenaIcons } from '../ArenaIcons';
 useTestEnvironment();
 
 import test from 'node:test';
@@ -53,7 +54,7 @@ async function renderOnServer(root: typeof ServerRenderHost | typeof IconRenderH
   console.log = (...args: unknown[]) => { logged.push(args.map(String).join(' ')); };
   try {
     const html = await renderApplication(
-      (context) => bootstrapApplication(root, { providers: [provideServerRendering()] }, context),
+      (context) => bootstrapApplication(root, { providers: root === IconRenderHost ? [provideServerRendering()] : [provideServerRendering(), provideArenaIcons(TEST_ICONS_HREF)] }, context),
       { document: PAGE, url: '/' },
     );
     return { html, logged };

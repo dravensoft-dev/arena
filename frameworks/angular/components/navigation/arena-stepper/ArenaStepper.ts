@@ -6,13 +6,14 @@ import { ArenaSlotAttributes } from '../../../SlotData';
 import { arenaStepIndex, arenaStepReachable, arenaStepState } from './StepperState';
 import { arenaStepperStyles } from './ArenaStepper.variants';
 import manifest from './ArenaStepper.classes.generated';
+import { ArenaIcon } from '../../display/arena-icon/ArenaIcon';
 
 export const ARENA_STEP_GLYPHS = { complete: 'ph-bold ph-check', error: 'ph-fill ph-warning-circle' } as const;
 
 @Component({
   selector: 'arena-stepper',
   standalone: true,
-  imports: [NgTemplateOutlet, ArenaSlotAttributes],
+  imports: [ArenaIcon, NgTemplateOutlet, ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { style: 'display: contents' },
   template: `
@@ -35,7 +36,7 @@ export const ARENA_STEP_GLYPHS = { complete: 'ph-bold ph-check', error: 'ph-fill
     }
     <ng-template #body let-row>
       <span aria-hidden="true" [class]="row.styles.rail()" [arenaSlotData]="row.styles.$data.rail()" [attr.data-arena-part]="parts.rail">
-        <span [class]="row.styles.marker()" [arenaSlotData]="row.styles.$data.marker()" [attr.data-arena-part]="parts.marker">@if (row.glyph) {<i [class]="row.glyph + ' ' + row.styles.icon()" [arenaSlotData]="row.styles.$data.icon()" [attr.data-arena-part]="parts.icon"></i>} @else {{{ row.index + 1 }}}</span>
+        <span [class]="row.styles.marker()" [arenaSlotData]="row.styles.$data.marker()" [attr.data-arena-part]="parts.marker">@if (row.glyph) {<span [class]="row.styles.icon()" [arenaSlotData]="row.styles.$data.icon()" [attr.data-arena-part]="parts.icon"><arena-icon [icon]="row.glyph" /></span>} @else {{{ row.index + 1 }}}</span>
         @if (!row.last) {
           <span [class]="row.styles.connector()" [arenaSlotData]="row.styles.$data.connector()" [attr.data-arena-part]="parts.connector"></span>
         }

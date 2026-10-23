@@ -23,6 +23,7 @@ import { ArenaIdGenerator } from '../../../ArenaIds';
 import { ARENA_LOCALE } from '../../../ArenaLocale';
 import { arenaPhrase } from '../../../Phrase';
 import { ArenaSlotAttributes } from '../../../SlotData';
+import { ArenaIcon } from '../../display/arena-icon/ArenaIcon';
 
 export function arenaFilterCommands(commands: readonly ArenaCommand[], query: string): ArenaCommand[] {
   const needle = query.toLowerCase();
@@ -87,7 +88,7 @@ export function arenaActiveOptionId(uid: string, active: number, rowCount: numbe
 @Component({
   selector: 'arena-command-palette',
   standalone: true,
-  imports: [ArenaSlotAttributes],
+  imports: [ArenaIcon, ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'styles().root()',
@@ -101,7 +102,7 @@ export function arenaActiveOptionId(uid: string, active: number, rowCount: numbe
       <div #panel [class]="styles().panel()" [attr.data-arena-part]="parts.panel" role="dialog" aria-modal="true" [attr.aria-label]="locale.commandPaletteDialog"
            (click)="$event.stopPropagation()">
         <div [class]="styles().search()" [attr.data-arena-part]="parts.search">
-          <i [class]="styles().searchIcon() + ' ph-bold ph-magnifying-glass'" [attr.data-arena-part]="parts.searchIcon" aria-hidden="true"></i>
+          <span [class]="styles().searchIcon()" [attr.data-arena-part]="parts.searchIcon" aria-hidden="true"><arena-icon icon="ph-bold ph-magnifying-glass" /></span>
           <input [class]="styles().input()" [attr.data-arena-part]="parts.input" [value]="query()" [attr.placeholder]="hint()"
                  role="combobox" aria-autocomplete="list" aria-haspopup="listbox" aria-expanded="true"
                  [attr.aria-controls]="listboxId" [attr.aria-activedescendant]="activeId()"
@@ -126,7 +127,7 @@ export function arenaActiveOptionId(uid: string, active: number, rowCount: numbe
                  [attr.data-arena-part]="parts.row"
                  (mouseenter)="onHover(i)" (click)="onRouteClick(command, $event)">
                 @if (command.icon; as glyph) {
-                  <span [class]="styles().rowIcon()" [attr.data-arena-part]="parts.rowIcon"><i [class]="glyph" aria-hidden="true"></i></span>
+                  <span [class]="styles().rowIcon()" [attr.data-arena-part]="parts.rowIcon"><arena-icon [icon]="glyph" /></span>
                 }
                 <span [class]="rowStyles(i).rowLabel()" [arenaSlotData]="rowStyles(i).$data.rowLabel()"
                       [attr.data-arena-part]="parts.rowLabel">{{ command.label }}</span>
@@ -140,7 +141,7 @@ export function arenaActiveOptionId(uid: string, active: number, rowCount: numbe
                  [attr.data-arena-part]="parts.row"
                     (mouseenter)="onHover(i)" (click)="onRun(command)">
               @if (command.icon; as glyph) {
-                <span [class]="styles().rowIcon()" [attr.data-arena-part]="parts.rowIcon"><i [class]="glyph" aria-hidden="true"></i></span>
+                <span [class]="styles().rowIcon()" [attr.data-arena-part]="parts.rowIcon"><arena-icon [icon]="glyph" /></span>
               }
               <span [class]="rowStyles(i).rowLabel()" [arenaSlotData]="rowStyles(i).$data.rowLabel()"
                       [attr.data-arena-part]="parts.rowLabel">{{ command.label }}</span>

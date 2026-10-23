@@ -1,7 +1,8 @@
 /* The first render runs through @angular/platform-server. The render swaps the DOM adapter for
  * domino's, which replaces Event and its siblings on globalThis, so each render snapshots the
  * globals first and restores them, and the adapter, afterwards (as test/ServerRender.test.ts does). */
-import { useTestEnvironment } from '../../../test/TestbedEnv';
+import { useTestEnvironment, TEST_ICONS_HREF } from '../../../test/TestbedEnv';
+import { provideArenaIcons } from '../../../ArenaIcons';
 useTestEnvironment();
 
 import test from 'node:test';
@@ -50,7 +51,7 @@ async function renderOnServer(host: Type<unknown>): Promise<string> {
   console.log = () => {};
   try {
     return await renderApplication(
-      (context) => bootstrapApplication(host, { providers: [provideServerRendering()] }, context),
+      (context) => bootstrapApplication(host, { providers: [provideServerRendering(), provideArenaIcons(TEST_ICONS_HREF)] }, context),
       { document: PAGE, url: '/' },
     );
   } finally {

@@ -1,6 +1,6 @@
 /* What the accordion settles from its members: the mode, the pair of members each mode reads, the
  * controlled value and the press that reports, the caret, and the guards. */
-import { useTestEnvironment } from '../../../test/TestbedEnv';
+import { useTestEnvironment, glyphIds, symbol } from '../../../test/TestbedEnv';
 useTestEnvironment();
 
 import test from 'node:test';
@@ -160,7 +160,7 @@ test('the caret swaps glyph with the state', () => {
   const { fixture, root } = render({ defaultValue: 'roll' });
   try {
     const carets = Array.from(root.querySelectorAll('[data-arena-part="accordion.caret"]'));
-    assert.deepEqual(carets.map((c) => c.classList.contains('ph-caret-down')), [false, true, false]);
+    assert.deepEqual(carets.map((c) => glyphIds(c)[0]), [symbol('bold', 'caret-right'), symbol('bold', 'caret-down'), symbol('bold', 'caret-right')]);
     assert.ok(carets.every((c) => c.getAttribute('aria-hidden') === 'true'));
   } finally {
     fixture.destroy();

@@ -6,10 +6,12 @@ import { arenaSheetStyles } from './ArenaSheet.variants';
 import manifest from './ArenaSheet.classes.generated';
 import { ArenaIdGenerator } from '../../../ArenaIds';
 import { ARENA_LOCALE } from '../../../ArenaLocale';
+import { ArenaIcon } from '../../display/arena-icon/ArenaIcon';
 
 @Component({
   selector: 'arena-sheet',
   standalone: true,
+  imports: [ArenaIcon],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'styles().root()',
@@ -26,11 +28,11 @@ import { ARENA_LOCALE } from '../../../ArenaLocale';
                 [attr.aria-expanded]="!collapsed()" [attr.aria-controls]="bodyId"
                 (click)="fold()" (keydown)="onTriggerKeydown($event)">
           <span>{{ heading() }}</span>
-          <i [class]="styles().caret() + ' ' + caretGlyph()" [attr.data-arena-part]="parts.caret" aria-hidden="true"></i>
+          <span [class]="styles().caret()" [attr.data-arena-part]="parts.caret" aria-hidden="true"><arena-icon [icon]="caretGlyph()" /></span>
         </button>
         @if (dismissible()) {
           <button type="button" [class]="styles().close()" [attr.data-arena-part]="parts.close" [attr.aria-label]="locale.sheetClose" (click)="close.emit()">
-            <i class="ph-bold ph-x" aria-hidden="true"></i>
+            <arena-icon icon="ph-bold ph-x" />
           </button>
         }
       </div>

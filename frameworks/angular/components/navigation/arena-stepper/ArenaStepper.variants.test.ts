@@ -1,6 +1,6 @@
 /* What arena-stepper draws for each index: the states, the words, the glyphs, the buttons and the
  * index a press reports. */
-import { useTestEnvironment } from '../../../test/TestbedEnv';
+import { useTestEnvironment, glyphIds, symbol } from '../../../test/TestbedEnv';
 useTestEnvironment();
 
 import test from 'node:test';
@@ -75,9 +75,9 @@ test('a complete marker draws a check, an error marker a warning glyph, and the 
   const { fixture, root, markers } = render({ steps });
   try {
     const drawn = markers();
-    assert.ok(drawn[0]!.querySelector('i')!.classList.contains('ph-check'));
+    assert.deepEqual(glyphIds(drawn[0]!), [symbol('bold', 'check')]);
     assert.equal(drawn[1]!.textContent, '2');
-    assert.ok(drawn[2]!.querySelector('i')!.classList.contains('ph-warning-circle'));
+    assert.deepEqual(glyphIds(drawn[2]!), [symbol('fill', 'warning-circle')]);
     assert.equal(drawn[3]!.textContent, '4');
     assert.equal(root.querySelectorAll('[data-arena-part="stepper.connector"]').length, 3, 'the last step has no connector');
     assert.ok(Array.from(root.querySelectorAll('[data-arena-part="stepper.rail"]')).every((r) => r.getAttribute('aria-hidden') === 'true'));

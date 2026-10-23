@@ -11,6 +11,7 @@ import { arenaMenuStyles } from './ArenaMenu.variants';
 import manifest from './ArenaMenu.classes.generated';
 import { ArenaSlotAttributes } from '../../../SlotData';
 import { ARENA_MENU_ANCHOR } from './MenuAnchor';
+import { ArenaIcon } from '../../display/arena-icon/ArenaIcon';
 
 const TRIGGER_SELECTOR =
   'button:not([tabindex="-1"]), a[href]:not([tabindex="-1"]), [role="button"]:not([tabindex="-1"]), [tabindex]:not([tabindex="-1"])';
@@ -27,7 +28,7 @@ export function isArenaActivatable(item: ArenaMenuItem): boolean {
 @Component({
   selector: 'arena-menu',
   standalone: true,
-  imports: [ArenaSlotAttributes],
+  imports: [ArenaIcon, ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'styles().root()',
@@ -47,7 +48,7 @@ export function isArenaActivatable(item: ArenaMenuItem): boolean {
             <button type="button" role="menuitem" [class]="rowStyles(item).item()" [arenaSlotData]="rowStyles(item).$data.item()" [attr.data-arena-part]="parts.item" [disabled]="item.disabled"
                     (click)="run(item)">
               @if (item.icon; as glyph) {
-                <i [class]="styles().icon() + ' ' + glyph" [attr.data-arena-part]="parts.icon" aria-hidden="true"></i>
+                <span [class]="styles().icon()" [attr.data-arena-part]="parts.icon" aria-hidden="true"><arena-icon [icon]="glyph" /></span>
               }
               <span [class]="styles().label()" [attr.data-arena-part]="parts.label">{{ item.label }}</span>
               @if (item.shortcut; as keys) {

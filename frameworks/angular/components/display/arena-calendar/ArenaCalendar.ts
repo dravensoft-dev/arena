@@ -17,13 +17,14 @@ import {
 import { arenaCalendarStyles } from './ArenaCalendar.variants';
 import manifest from './ArenaCalendar.classes.generated';
 import { ArenaSlotAttributes } from '../../../SlotData';
+import { ArenaIcon } from '../arena-icon/ArenaIcon';
 
 const MINUTE = 60000;
 
 @Component({
   selector: 'arena-calendar',
   standalone: true,
-  imports: [ArenaSlotAttributes],
+  imports: [ArenaIcon, ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [ArenaCalendarState],
   host: { style: 'display: contents' },
@@ -31,11 +32,11 @@ const MINUTE = 60000;
     <section #frame [class]="styles().root()" [attr.data-arena-part]="parts.root" [attr.aria-label]="regionName()">
       <div [class]="styles().toolbar()" [attr.data-arena-part]="parts.toolbar">
         <button type="button" [class]="styles().nav()" [attr.data-arena-part]="parts.nav" [attr.aria-label]="locale.calendarPrevious" (click)="step(-1)">
-          <i class="ph-bold ph-caret-left" aria-hidden="true"></i>
+          <arena-icon icon="ph-bold ph-caret-left" />
         </button>
         <button type="button" [class]="styles().today()" [attr.data-arena-part]="parts.today" (click)="goto(today())">{{ locale.calendarToday }}</button>
         <button type="button" [class]="styles().nav()" [attr.data-arena-part]="parts.nav" [attr.aria-label]="locale.calendarNext" (click)="step(1)">
-          <i class="ph-bold ph-caret-right" aria-hidden="true"></i>
+          <arena-icon icon="ph-bold ph-caret-right" />
         </button>
         <div [class]="styles().heading()" [attr.data-arena-part]="parts.heading">{{ title() }}</div>
         @if (actionsSlot()) {

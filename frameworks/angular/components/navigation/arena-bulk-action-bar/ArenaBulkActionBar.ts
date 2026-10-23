@@ -6,11 +6,12 @@ import type { ArenaBulkAction, ArenaBulkActionBarLayout } from '../../../Api.gen
 import { ARENA_LOCALE } from '../../../ArenaLocale';
 import { arenaPhraseParts } from '../../../Phrase';
 import { ArenaSlotAttributes } from '../../../SlotData';
+import { ArenaIcon } from '../../display/arena-icon/ArenaIcon';
 
 @Component({
   selector: 'arena-bulk-action-bar',
   standalone: true,
-  imports: [ArenaSlotAttributes],
+  imports: [ArenaIcon, ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'styles().root()',
@@ -32,7 +33,7 @@ import { ArenaSlotAttributes } from '../../../SlotData';
           <button type="button" [class]="classesFor(action).action()" [arenaSlotData]="classesFor(action).$data.action()" [attr.data-arena-part]="parts.action" (click)="run.emit(action)"
                   [attr.tabindex]="i === at() ? 0 : -1" (focus)="cursor.set(i)">
             @if (action.icon; as glyph) {
-              <span [class]="styles().actionIcon()" [attr.data-arena-part]="parts.actionIcon"><i [class]="glyph" aria-hidden="true"></i></span>
+              <span [class]="styles().actionIcon()" [attr.data-arena-part]="parts.actionIcon"><arena-icon [icon]="glyph" /></span>
             }
             {{ action.label }}
           </button>

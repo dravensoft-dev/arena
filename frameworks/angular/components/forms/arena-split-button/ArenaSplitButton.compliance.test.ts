@@ -4,7 +4,7 @@
  * `clicks` counts what the consumer hears and `emitted` the output, and a caret press reaching the
  * consumer as a primary activation is the defect the caret's own stopped click prevents. */
 
-import { useTestEnvironment } from '../../../test/TestbedEnv';
+import { useTestEnvironment, glyphIds, symbol } from '../../../test/TestbedEnv';
 useTestEnvironment();
 
 import test from 'node:test';
@@ -105,8 +105,9 @@ test('the primary half honours a native type override', () => {
 test('the caret glyph is the only trailing glyph, hidden from assistive technology', () => {
   const { fixture, root } = render({ icon: 'ph-bold ph-rocket-launch' });
   try {
-    const glyphs = [...root.querySelectorAll('i')].map((one) => [one.getAttribute('class'), one.getAttribute('aria-hidden')]);
-    assert.deepEqual(glyphs, [['ph-bold ph-rocket-launch', 'true'], ['ph-bold ph-caret-down', 'true']]);
+    const drawn = [...root.querySelectorAll('svg')];
+    assert.deepEqual(drawn.map((one) => one.getAttribute('aria-hidden')), ['true', 'true']);
+    assert.deepEqual(glyphIds(root), [symbol('bold', 'rocket-launch'), symbol('bold', 'caret-down')]);
   } finally { fixture.destroy(); }
 });
 
@@ -162,7 +163,7 @@ test('loading draws the spinner on the primary half and blocks it alone', () => 
     assert.equal(primary.disabled, true);
     assert.equal(caret.disabled, false, 'loading blocked the caret as well');
     assert.ok(primary.querySelector('[data-arena-part="split-button.spinner"]'), 'loading drew no spinner');
-    assertNoNode(primary.querySelector('.ph-rocket-launch'), 'the leading icon stayed beside the spinner');
+    assert.deepEqual(glyphIds(primary).filter((id) => id.endsWith('rocket-launch')), [], 'the leading icon stayed beside the spinner');
     primary.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     fixture.detectChanges();
     assert.deepEqual([emitted.count, host.clicks], [0, 0], 'a loading primary half reported a click');

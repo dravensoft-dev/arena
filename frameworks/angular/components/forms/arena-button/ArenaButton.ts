@@ -6,11 +6,12 @@ import type { ArenaButtonType } from '../../../Api.generated';
 import { arenaButtonStyles } from './ArenaButton.variants';
 import manifest from './ArenaButton.classes.generated';
 import { ArenaSlotAttributes } from '../../../SlotData';
+import { ArenaIcon } from '../../display/arena-icon/ArenaIcon';
 
 @Component({
   selector: 'arena-button',
   standalone: true,
-  imports: [ArenaSlotAttributes],
+  imports: [ArenaIcon, ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     style: 'display: contents',
@@ -23,11 +24,11 @@ import { ArenaSlotAttributes } from '../../../SlotData';
       @if (loading()) {
         <span [class]="styles().spinner()" [attr.data-arena-part]="parts.spinner" aria-hidden="true"></span>
       } @else if (icon(); as glyph) {
-        <i [class]="glyph" aria-hidden="true"></i>
+        <arena-icon [icon]="glyph" />
       }
       <ng-content />
       @if (iconRight(); as glyph) {
-        <i [class]="glyph" aria-hidden="true"></i>
+        <arena-icon [icon]="glyph" />
       }
     </button>
   `,

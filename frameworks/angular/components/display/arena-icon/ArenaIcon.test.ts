@@ -9,7 +9,7 @@ import assert from 'node:assert/strict';
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { forgetArenaWarnings } from '../../../WarnOnce';
-import { provideArenaIcons } from '../../../ArenaIcons';
+import { ARENA_ICONS, provideArenaIcons } from '../../../ArenaIcons';
 import { ArenaIcon } from './ArenaIcon';
 import manifest from './ArenaIcon.classes.generated';
 
@@ -41,7 +41,7 @@ afterEach(() => {
 });
 
 function render(icon: string, href: string | null = '/a/icons-1.svg') {
-  if (href !== null) TestBed.configureTestingModule({ providers: [provideArenaIcons(href)] });
+  TestBed.configureTestingModule({ providers: [href === null ? { provide: ARENA_ICONS, useValue: null } : provideArenaIcons(href)] });
   const fixture = TestBed.createComponent(IconHost);
   fixture.componentInstance.icon = icon;
   fixture.detectChanges();

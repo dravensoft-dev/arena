@@ -4,7 +4,7 @@
  * assertion is that the control is a native button carrying role="switch" -- the one shape that
  * gets the activation from the platform and the state from the role. */
 
-import { useTestEnvironment } from '../../../test/TestbedEnv';
+import { useTestEnvironment, glyphIds, symbol } from '../../../test/TestbedEnv';
 useTestEnvironment();
 
 import test from 'node:test';
@@ -93,11 +93,8 @@ test('the knob is decoration and says so, and the per-state glyph rides inside i
     const knob = control.querySelector('span') as HTMLElement;
     assert.equal(knob.getAttribute('aria-hidden'), 'true',
       'the knob carries the state visually; aria-checked is what carries it to assistive technology');
-    const glyph = knob.querySelector('i') as HTMLElement;
-    assert.ok(glyph, 'iconOn was set and no glyph was drawn');
-    assert.match(glyph.getAttribute('class') ?? '', /ph-check/);
-    assert.doesNotMatch(glyph.getAttribute('class') ?? '', /ph-x\b/,
-      'the off glyph must not be in the DOM while the switch is on');
+    assert.deepEqual(glyphIds(knob), [symbol('bold', 'check')],
+      'the on glyph is drawn and the off glyph is not in the DOM while the switch is on');
   } finally {
     fixture.destroy();
   }
@@ -209,16 +206,16 @@ test('disabled reflects onto the native attribute and blocks activation', () => 
 test('the confirm guard is drawn only under confirm, and it is decoration', () => {
   const plain = render();
   try {
-    assertNoNode(plain.host.querySelector('i'), 'an unguarded switch with no icons drew a glyph');
+    assertNoNode(plain.host.querySelector('svg'), 'an unguarded switch with no icons drew a glyph');
   } finally {
     plain.fixture.destroy();
   }
 
   const guarded = render({ confirm: true });
   try {
-    const shield = guarded.host.querySelector('i') as HTMLElement;
+    const shield = guarded.host.querySelector('svg') as SVGElement;
     assert.ok(shield, 'confirm drew no shield');
-    assert.match(shield.getAttribute('class') ?? '', /ph-shield-check/);
+    assert.match(glyphIds(guarded.host).join(' '), /ph-\w+-shield-check/);
     assert.equal(shield.getAttribute('aria-hidden'), 'true');
   } finally {
     guarded.fixture.destroy();

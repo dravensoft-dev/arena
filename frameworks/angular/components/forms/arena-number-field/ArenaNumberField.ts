@@ -13,6 +13,7 @@ import {
   arenaCanonicalNumber, arenaClampNumber, arenaDraftText, arenaFieldFormat, arenaNumberBaseline, arenaNumberFieldIds,
   arenaNumberKey, arenaNumberSeparators, arenaParseNumber, arenaStepNumber,
 } from '../NumberRules';
+import { ArenaIcon } from '../../display/arena-icon/ArenaIcon';
 
 type Commit = 'blur' | 'enter' | 'step';
 
@@ -22,7 +23,7 @@ const numberOrUndefined = (value: number | null | undefined): number | undefined
 @Component({
   selector: 'arena-number-field',
   standalone: true,
-  imports: [ArenaSlotAttributes],
+  imports: [ArenaIcon, ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [ArenaControlBinding],
   host: {
@@ -42,7 +43,7 @@ const numberOrUndefined = (value: number | null | undefined): number | undefined
       @if (steppers()) {
         <button type="button" tabindex="-1" [attr.aria-label]="locale.numberFieldDecrease" [disabled]="frozen() || atMin()"
                 [class]="styles().stepper()" [attr.data-arena-part]="parts.stepper" (mousedown)="$event.preventDefault()" (click)="stepBy(-1)">
-          <i class="ph-bold ph-minus" aria-hidden="true"></i>
+          <arena-icon icon="ph-bold ph-minus" />
         </button>
       }
       @if (prefix(); as text) {
@@ -61,14 +62,14 @@ const numberOrUndefined = (value: number | null | undefined): number | undefined
         <span [class]="styles().suffix()" [attr.data-arena-part]="parts.suffix" aria-hidden="true">{{ text }}</span>
       }
       @if (hasError()) {
-        <i [class]="statusIconClass('ph-fill ph-warning-circle')" [arenaSlotData]="styles().$data.statusIcon()" [attr.data-arena-part]="parts.statusIcon" aria-hidden="true"></i>
+        <span [class]="styles().statusIcon()" [arenaSlotData]="styles().$data.statusIcon()" [attr.data-arena-part]="parts.statusIcon" aria-hidden="true"><arena-icon icon="ph-fill ph-warning-circle" /></span>
       } @else if (isValid()) {
-        <i [class]="statusIconClass('ph-fill ph-check-circle')" [arenaSlotData]="styles().$data.statusIcon()" [attr.data-arena-part]="parts.statusIcon" aria-hidden="true"></i>
+        <span [class]="styles().statusIcon()" [arenaSlotData]="styles().$data.statusIcon()" [attr.data-arena-part]="parts.statusIcon" aria-hidden="true"><arena-icon icon="ph-fill ph-check-circle" /></span>
       }
       @if (steppers()) {
         <button type="button" tabindex="-1" [attr.aria-label]="locale.numberFieldIncrease" [disabled]="frozen() || atMax()"
                 [class]="styles().stepper()" [attr.data-arena-part]="parts.stepper" (mousedown)="$event.preventDefault()" (click)="stepBy(1)">
-          <i class="ph-bold ph-plus" aria-hidden="true"></i>
+          <arena-icon icon="ph-bold ph-plus" />
         </button>
       }
     </div>
@@ -202,10 +203,6 @@ export class ArenaNumberField {
     disabled: this.off(),
     readOnly: this.readOnly(),
   }));
-
-  protected statusIconClass(glyph: string): string {
-    return `${glyph} ${this.styles().statusIcon()}`;
-  }
 
   private readonly control = viewChild<ElementRef<HTMLInputElement>>('control');
 

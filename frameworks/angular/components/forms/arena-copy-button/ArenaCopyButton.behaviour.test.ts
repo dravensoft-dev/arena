@@ -3,7 +3,7 @@
  * from the confirmation token reverts both. The name stays the same throughout, a second press
  * restarts the window, and a destroyed button leaves no timer behind. The framework schedules
  * timers of its own with no delay, so a window is the timer set for the confirmation token. */
-import { useTestEnvironment } from '../../../test/TestbedEnv';
+import { useTestEnvironment, glyphIds, symbol } from '../../../test/TestbedEnv';
 useTestEnvironment();
 
 import test, { afterEach } from 'node:test';
@@ -77,7 +77,7 @@ function render(patch: Partial<CopyButtonHost> = {}) {
     await settled();
     fixture.detectChanges();
   };
-  return { fixture, button, region, press, glyph: () => button.querySelector('i')?.className };
+  return { fixture, button, region, press, glyph: () => glyphIds(button)[0] };
 }
 
 test('the three glyphs are Arena\'s, and the window is the confirmation token', () => {
@@ -91,10 +91,10 @@ test('a copy that lands swaps the glyph, says the word once, reports copied and 
   clipboard(async (text) => { written.push(text); });
   const { fixture, button, region, press, glyph } = render();
   try {
-    assert.equal(glyph(), 'ph-bold ph-copy');
+    assert.equal(glyph(), symbol('bold', 'copy'));
     await press();
     assert.deepEqual(written, ['bun add @dravensoft/arena-angular']);
-    assert.equal(glyph(), 'ph-bold ph-check');
+    assert.equal(glyph(), symbol('bold', 'check'));
     assert.equal(region.textContent, 'Copied');
     assert.equal(region.childNodes.length, 1, 'the region holds one text run, so a reader hears one word');
     assert.equal(fixture.componentInstance.copied, 1, 'one press is one copied, whatever listens to the button inside');
@@ -103,7 +103,7 @@ test('a copy that lands swaps the glyph, says the word once, reports copied and 
     assert.equal(clocks().length, 1, 'one press starts one window');
     clocks()[0]?.fire();
     fixture.detectChanges();
-    assert.equal(glyph(), 'ph-bold ph-copy');
+    assert.equal(glyph(), symbol('bold', 'copy'));
     assert.equal(region.textContent, '', 'the region empties when the glyph reverts');
   } finally {
     fixture.destroy();
@@ -116,7 +116,7 @@ test('a refused write says the failure, reports copyFailed and never copied', as
   const { fixture, region, press, glyph } = render();
   try {
     await press();
-    assert.equal(glyph(), 'ph-bold ph-warning');
+    assert.equal(glyph(), symbol('bold', 'warning'));
     assert.equal(region.textContent, 'Could not copy');
     assert.equal(fixture.componentInstance.failed, 1);
     assert.equal(fixture.componentInstance.copied, 0);
@@ -132,7 +132,7 @@ test('a page with no clipboard reports the failure the same way, and never prete
   const { fixture, region, press, glyph } = render();
   try {
     await press();
-    assert.equal(glyph(), 'ph-bold ph-warning');
+    assert.equal(glyph(), symbol('bold', 'warning'));
     assert.equal(region.textContent, 'Could not copy');
     assert.equal(fixture.componentInstance.failed, 1);
     assert.equal(fixture.componentInstance.copied, 0);

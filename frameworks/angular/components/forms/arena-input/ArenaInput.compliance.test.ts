@@ -4,7 +4,7 @@
  * not aria-required and aria-readonly, are what the accessibility tree reads from a native
  * control, and writing both would be two claims that could disagree. */
 
-import { useTestEnvironment } from '../../../test/TestbedEnv';
+import { useTestEnvironment, glyphIds, symbol } from '../../../test/TestbedEnv';
 useTestEnvironment();
 
 import test from 'node:test';
@@ -235,9 +235,9 @@ test('the error replaces the hint rather than stacking under it', () => {
 test('the status glyphs are decoration -- the message beside them is what is announced', () => {
   const bad = render({ error: 'Already taken' });
   try {
-    const glyph = bad.host.querySelector('i') as HTMLElement;
+    const glyph = bad.host.querySelector('svg') as SVGElement;
     assert.ok(glyph, 'an error drew no status glyph');
-    assert.match(glyph.getAttribute('class') ?? '', /ph-warning-circle/);
+    assert.deepEqual(glyphIds(bad.host), [symbol('fill', 'warning-circle')]);
     assert.equal(glyph.getAttribute('aria-hidden'), 'true',
       'a Phosphor ligature announced beside its own message reads the state twice');
   } finally {
@@ -246,8 +246,8 @@ test('the status glyphs are decoration -- the message beside them is what is ann
 
   const good = render({ valid: true });
   try {
-    const glyph = good.host.querySelector('i') as HTMLElement;
-    assert.match(glyph.getAttribute('class') ?? '', /ph-check-circle/);
+    const glyph = good.host.querySelector('svg') as SVGElement;
+    assert.deepEqual(glyphIds(good.host), [symbol('fill', 'check-circle')]);
     assert.equal(glyph.getAttribute('aria-hidden'), 'true');
   } finally {
     good.fixture.destroy();
@@ -257,8 +257,8 @@ test('the status glyphs are decoration -- the message beside them is what is ann
 test('the leading icon and the prefix are drawn before the control and neither is announced', () => {
   const { fixture, host, control } = render({ icon: 'ph-bold ph-globe', prefix: 'git@' });
   try {
-    const glyph = host.querySelector('i') as HTMLElement;
-    assert.match(glyph.getAttribute('class') ?? '', /ph-globe/);
+    const glyph = host.querySelector('svg') as SVGElement;
+    assert.deepEqual(glyphIds(host), [symbol('bold', 'globe')]);
     assert.equal(glyph.getAttribute('aria-hidden'), 'true');
     assert.equal(host.textContent?.includes('git@'), true);
     assert.ok(glyph.compareDocumentPosition(control) & Node.DOCUMENT_POSITION_FOLLOWING,

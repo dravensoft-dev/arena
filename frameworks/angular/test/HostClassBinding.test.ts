@@ -8,7 +8,7 @@ import { pathToFileURL } from 'node:url';
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
-import { useTestEnvironment } from './TestbedEnv';
+import { useTestEnvironment, glyphIds, symbol } from './TestbedEnv';
 import { ANGULAR_COMPONENTS, LIB, TAILWIND_COMPONENTS, UTILS } from './Compliance';
 import { ArenaActivityFeed } from '../components/display/arena-activity-feed/ArenaActivityFeed';
 import { arenaActivityFeedStyles } from '../components/display/arena-activity-feed/ArenaActivityFeed.variants';
@@ -579,7 +579,7 @@ test('arena-stat-card: a delta with a value renders the pill; a delta with a ton
   emptyValue.destroy();
 });
 
-test('arena-stat-card: an icon class name renders the <i> inside the aria-hidden wrapper', () => {
+test('arena-stat-card: an icon class name renders the glyph inside the aria-hidden wrapper', () => {
   const fixture = renderStatCard('Deploys', '128', undefined, 'ph-bold ph-rocket');
   fixture.detectChanges();
   const host = fixture.nativeElement as HTMLElement;
@@ -587,7 +587,7 @@ test('arena-stat-card: an icon class name renders the <i> inside the aria-hidden
   const iconSlot = host.querySelector(`.${iconClass}`);
   assert.ok(iconSlot, 'the icon wrapper element itself is missing');
   assert.equal(iconSlot?.getAttribute('aria-hidden'), 'true', 'the wrapper must stay aria-hidden');
-  assert.ok(iconSlot?.querySelector('i.ph-bold.ph-rocket'), 'the glyph <i> must carry the icon class name');
+  assert.deepEqual(glyphIds(iconSlot!), [symbol('bold', 'rocket')], 'the glyph must be the one the icon class name names');
   fixture.destroy();
 });
 

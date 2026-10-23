@@ -5,11 +5,12 @@ import { ArenaIdGenerator } from '../../../ArenaIds';
 import { ArenaSlotAttributes } from '../../../SlotData';
 import { arenaAccordionItemStyles } from './ArenaAccordionItem.variants';
 import manifest from '../arena-accordion/ArenaAccordion.classes.generated';
+import { ArenaIcon } from '../../display/arena-icon/ArenaIcon';
 
 @Component({
   selector: 'arena-accordion-item',
   standalone: true,
-  imports: [NgTemplateOutlet, ArenaSlotAttributes],
+  imports: [ArenaIcon, NgTemplateOutlet, ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'styles().item()',
@@ -21,7 +22,7 @@ import manifest from '../arena-accordion/ArenaAccordion.classes.generated';
               [attr.aria-disabled]="locked() ? 'true' : null" (click)="accordion.toggle(name())"
               [class]="styles().trigger()" [arenaSlotData]="styles().$data.trigger()" [attr.data-arena-part]="parts.trigger">
         <span [class]="styles().triggerLabel()" [arenaSlotData]="styles().$data.triggerLabel()" [attr.data-arena-part]="parts.triggerLabel">{{ text() }}</span>
-        <i [class]="(isOpen() ? 'ph-bold ph-caret-down ' : 'ph-bold ph-caret-right ') + styles().caret()" [arenaSlotData]="styles().$data.caret()" [attr.data-arena-part]="parts.caret" aria-hidden="true"></i>
+        <span [class]="styles().caret()" [arenaSlotData]="styles().$data.caret()" [attr.data-arena-part]="parts.caret" aria-hidden="true"><arena-icon [icon]="isOpen() ? 'ph-bold ph-caret-down' : 'ph-bold ph-caret-right'" /></span>
       </button>
     </ng-template>
     @switch (accordion.level()) {

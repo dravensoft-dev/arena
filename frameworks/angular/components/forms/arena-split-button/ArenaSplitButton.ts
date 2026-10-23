@@ -7,11 +7,12 @@ import manifest from './ArenaSplitButton.classes.generated';
 import { ArenaSlotAttributes } from '../../../SlotData';
 import { ArenaMenu } from '../../navigation/arena-menu/ArenaMenu';
 import { ARENA_MENU_ANCHOR } from '../../navigation/arena-menu/MenuAnchor';
+import { ArenaIcon } from '../../display/arena-icon/ArenaIcon';
 
 @Component({
   selector: 'arena-split-button',
   standalone: true,
-  imports: [ArenaSlotAttributes, ArenaMenu],
+  imports: [ArenaIcon, ArenaSlotAttributes, ArenaMenu],
   changeDetection: ChangeDetectionStrategy.OnPush,
   viewProviders: [{
     provide: ARENA_MENU_ANCHOR,
@@ -31,14 +32,14 @@ import { ARENA_MENU_ANCHOR } from '../../navigation/arena-menu/MenuAnchor';
         @if (loading()) {
           <span [class]="styles().spinner()" [arenaSlotData]="styles().$data.spinner()" [attr.data-arena-part]="parts.spinner" aria-hidden="true"></span>
         } @else if (icon(); as glyph) {
-          <i [class]="glyph" aria-hidden="true"></i>
+          <arena-icon [icon]="glyph" />
         }
         <ng-content />
       </button>
       <arena-menu class="arena-fit" [items]="items()" [align]="align()" (select)="select.emit($event)">
         <button trigger type="button" [attr.aria-label]="caretName()" [disabled]="disabled()" [class]="styles().caret()"
                 [arenaSlotData]="styles().$data.caret()" [attr.data-arena-part]="parts.caret" (click)="$event.stopPropagation()">
-          <i class="ph-bold ph-caret-down" aria-hidden="true"></i>
+          <arena-icon icon="ph-bold ph-caret-down" />
         </button>
       </arena-menu>
     </div>

@@ -22,6 +22,7 @@ import {
 } from '../../../RowWindowMeasure';
 import { arenaTreeViewStyles } from './ArenaTreeView.variants';
 import manifest from './ArenaTreeView.classes.generated';
+import { ArenaIcon } from '../../display/arena-icon/ArenaIcon';
 
 const TREE_KEYS = new Set<string>(['ArrowDown', 'ArrowUp', 'ArrowRight', 'ArrowLeft', 'Home', 'End']);
 
@@ -59,7 +60,7 @@ interface ArenaTreeRow {
 @Component({
   selector: 'arena-tree-view',
   standalone: true,
-  imports: [ArenaSlotAttributes, NgTemplateOutlet],
+  imports: [ArenaIcon, ArenaSlotAttributes, NgTemplateOutlet],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     role: 'tree',
@@ -87,11 +88,11 @@ interface ArenaTreeRow {
         <span aria-hidden="true" [class]="styles().caret()" [attr.data-arena-part]="parts.caret"
               (click)="caretPress($event, row)">
           @if (row.branch) {
-            <i [class]="row.open ? 'ph-bold ph-caret-down' : 'ph-bold ph-caret-right'"></i>
+            <arena-icon [icon]="row.open ? 'ph-bold ph-caret-down' : 'ph-bold ph-caret-right'" />
           }
         </span>
         @if (row.icon; as glyph) {
-          <i aria-hidden="true" [class]="glyph + ' ' + styles().icon()" [attr.data-arena-part]="parts.icon"></i>
+          <span aria-hidden="true" [class]="styles().icon()" [attr.data-arena-part]="parts.icon"><arena-icon [icon]="glyph" /></span>
         }
         <span [class]="styles().label()" [attr.data-arena-part]="parts.label">{{ row.label }}</span>
       </div>

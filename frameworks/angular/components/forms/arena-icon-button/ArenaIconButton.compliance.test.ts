@@ -8,7 +8,7 @@
  * is the only passing number. `emitted` counts the OUTPUT, on the component instance, because
  * the sum alone cannot tell an emit from a bubble. Both are asserted; either alone is blind. */
 
-import { useTestEnvironment } from '../../../test/TestbedEnv';
+import { useTestEnvironment, glyphIds, symbol } from '../../../test/TestbedEnv';
 useTestEnvironment();
 
 import test from 'node:test';
@@ -78,11 +78,11 @@ test('the host stays bare and out of layout -- the recipe classes land on the <b
 test('the glyph is drawn and hidden, and the accessible name comes from label rather than from it', () => {
   const { fixture, control } = render();
   try {
-    const glyph = control.querySelector('i') as HTMLElement;
-    assert.ok(glyph, 'no <i> was drawn for the icon');
-    assert.equal(glyph.getAttribute('class'), 'ph-bold ph-trash');
+    const glyph = control.querySelector('svg') as SVGElement;
+    assert.ok(glyph, 'no glyph was drawn for the icon');
+    assert.deepEqual(glyphIds(control), [symbol('bold', 'trash')]);
     assert.equal(glyph.getAttribute('aria-hidden'), 'true',
-      'a Phosphor glyph is a font ligature; announced, it reads as noise');
+      'a glyph announced beside the label reads as noise');
     assert.equal(control.getAttribute('aria-label'), 'Delete project');
     assert.equal(control.textContent?.trim(), '',
       'with showLabel unset the control has no text, which is exactly why aria-label is required here');

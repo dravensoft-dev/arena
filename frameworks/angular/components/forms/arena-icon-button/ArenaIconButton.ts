@@ -6,11 +6,12 @@ import type { ArenaButtonType } from '../../../Api.generated';
 import { arenaIconButtonStyles } from './ArenaIconButton.variants';
 import manifest from './ArenaIconButton.classes.generated';
 import { ArenaSlotAttributes } from '../../../SlotData';
+import { ArenaIcon } from '../../display/arena-icon/ArenaIcon';
 
 @Component({
   selector: 'arena-icon-button',
   standalone: true,
-  imports: [ArenaSlotAttributes],
+  imports: [ArenaIcon, ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     style: 'display: contents',
@@ -23,7 +24,7 @@ import { ArenaSlotAttributes } from '../../../SlotData';
             [attr.aria-label]="label()" [attr.title]="showLabel() ? null : label()"
             [attr.aria-pressed]="pressed() === undefined ? null : pressed()"
             (click)="onClick($event)">
-      <i [class]="icon()" aria-hidden="true"></i>
+      <arena-icon [icon]="icon()" />
       @if (showLabel()) {
         <span [class]="styles().label()" [attr.data-arena-part]="parts.label">{{ label() }}</span>
       }

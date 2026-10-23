@@ -4,7 +4,7 @@
  * plus one and the leaf pulls from the nearest ancestor. That is the whole design, no gate can
  * see it, and every indent assertion below is what stands in for one. keyboard.Enter and
  * keyboard.Space are earned by the interception test; the rest of `disclosure` is decidable. */
-import { useTestEnvironment } from '../../../test/TestbedEnv';
+import { useTestEnvironment, glyphIds, symbol } from '../../../test/TestbedEnv';
 useTestEnvironment();
 
 import test from 'node:test';
@@ -188,19 +188,19 @@ test('a press moves the attribute, the hidden region and the caret together, and
   try {
     const trigger = rowFor(nav, 'Deployments');
     const region = nav.querySelector(`#${trigger.getAttribute('aria-controls')}`) as HTMLElement;
-    const caret = trigger.querySelectorAll('i')[trigger.querySelectorAll('i').length - 1];
+    const caret = () => glyphIds(trigger).at(-1);
 
     trigger.click();
     fixture.detectChanges();
     assert.equal(trigger.getAttribute('aria-expanded'), 'true');
     assert.equal(region.hasAttribute('hidden'), false);
-    assert.match(caret.className, /ph-caret-down/);
+    assert.equal(caret(), symbol('bold', 'caret-down'));
 
     trigger.click();
     fixture.detectChanges();
     assert.equal(trigger.getAttribute('aria-expanded'), 'false');
     assert.equal(region.hasAttribute('hidden'), true);
-    assert.match(caret.className, /ph-caret-right/);
+    assert.equal(caret(), symbol('bold', 'caret-right'));
     assert.deepEqual(fixture.componentInstance.toggles, [true, false]);
   } finally {
     fixture.destroy();

@@ -5,6 +5,7 @@ import { ArenaSecondaryAction } from '../../../ProjectionMarkers';
 import { arenaErrorStateStyles } from './ArenaErrorState.variants';
 import manifest from './ArenaErrorState.classes.generated';
 import { ARENA_LOCALE } from '../../../ArenaLocale';
+import { ArenaIcon } from '../../display/arena-icon/ArenaIcon';
 
 @Component({
   selector: 'arena-error-state',
@@ -16,10 +17,10 @@ import { ARENA_LOCALE } from '../../../ArenaLocale';
     role: 'alert',
     '[attr.title]': 'null',
   },
-  imports: [ArenaButton],
+  imports: [ArenaIcon, ArenaButton],
   template: `
     @if (icon(); as glyph) {
-      <div [class]="styles().icon()" [attr.data-arena-part]="parts.icon"><i [class]="glyph" aria-hidden="true"></i></div>
+      <div [class]="styles().icon()" [attr.data-arena-part]="parts.icon"><arena-icon [icon]="glyph" /></div>
     }
     @switch (headingLevel()) {
       @case ('h1') { <h1 [class]="styles().title()" [attr.data-arena-part]="parts.title">{{ heading() }}</h1> }

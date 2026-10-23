@@ -17,13 +17,14 @@ import {
 } from '../arena-combobox/ComboboxRules';
 import { arenaMultiSelectStyles } from './ArenaMultiSelect.variants';
 import manifest from '../arena-combobox/ArenaCombobox.classes.generated';
+import { ArenaIcon } from '../../display/arena-icon/ArenaIcon';
 
 const CLOSE = '[data-arena-part="tag.close"]';
 
 @Component({
   selector: 'arena-multi-select',
   standalone: true,
-  imports: [ArenaSlotAttributes, ArenaTag],
+  imports: [ArenaIcon, ArenaSlotAttributes, ArenaTag],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [ArenaControlBinding],
   host: {
@@ -38,7 +39,7 @@ const CLOSE = '[data-arena-part="tag.close"]';
     }
     <div #field (mousedown)="onFieldPress($event)" [class]="styles().field()" [arenaSlotData]="styles().$data.field()" [attr.data-arena-part]="parts.field">
       @if (icon(); as glyph) {
-        <i [class]="glyph + ' ' + styles().icon()" [attr.data-arena-part]="parts.icon" aria-hidden="true"></i>
+        <span [class]="styles().icon()" [attr.data-arena-part]="parts.icon" aria-hidden="true"><arena-icon [icon]="glyph" /></span>
       }
       <div #chips [class]="styles().chips()" [attr.data-arena-part]="parts.chips" (keydown)="onChipKey($event)">
         @for (one of window().shown; track one; let i = $index) {
@@ -60,15 +61,15 @@ const CLOSE = '[data-arena-part="tag.close"]';
       @if (clearable() && chosen().length > 0 && !off()) {
         <button type="button" tabindex="-1" [attr.aria-label]="locale.multiSelectClear" [class]="styles().clear()" [attr.data-arena-part]="parts.clear"
                 (mousedown)="$event.preventDefault()" (click)="clearAll()">
-          <i class="ph-bold ph-x-circle" aria-hidden="true"></i>
+          <arena-icon icon="ph-bold ph-x-circle" />
         </button>
       }
       @if (hasError()) {
-        <i [class]="'ph-fill ph-warning-circle ' + styles().statusIcon()" [arenaSlotData]="styles().$data.statusIcon()" [attr.data-arena-part]="parts.statusIcon" aria-hidden="true"></i>
+        <span [class]="styles().statusIcon()" [arenaSlotData]="styles().$data.statusIcon()" [attr.data-arena-part]="parts.statusIcon" aria-hidden="true"><arena-icon icon="ph-fill ph-warning-circle" /></span>
       } @else if (valid()) {
-        <i [class]="'ph-fill ph-check-circle ' + styles().statusIcon()" [arenaSlotData]="styles().$data.statusIcon()" [attr.data-arena-part]="parts.statusIcon" aria-hidden="true"></i>
+        <span [class]="styles().statusIcon()" [arenaSlotData]="styles().$data.statusIcon()" [attr.data-arena-part]="parts.statusIcon" aria-hidden="true"><arena-icon icon="ph-fill ph-check-circle" /></span>
       }
-      <i [class]="'ph-bold ph-caret-down ' + styles().caret()" [attr.data-arena-part]="parts.caret" aria-hidden="true"></i>
+      <span [class]="styles().caret()" [attr.data-arena-part]="parts.caret" aria-hidden="true"><arena-icon icon="ph-bold ph-caret-down" /></span>
     </div>
     @if (name(); as field) {
       @for (one of chosen(); track one) {
@@ -93,7 +94,7 @@ const CLOSE = '[data-arena-part="tag.close"]';
                  (mouseenter)="active.set(i)" (click)="toggle(row)">
               <span [class]="rowStyles(i, row).optionLabel()" [arenaSlotData]="rowStyles(i, row).$data.optionLabel()" [attr.data-arena-part]="parts.optionLabel">{{ row.label }}</span>
               @if (isChosen(row)) {
-                <i [class]="'ph-bold ph-check ' + styles().optionMark()" [attr.data-arena-part]="parts.optionMark" aria-hidden="true"></i>
+                <span [class]="styles().optionMark()" [attr.data-arena-part]="parts.optionMark" aria-hidden="true"><arena-icon icon="ph-bold ph-check" /></span>
               }
             </div>
           }

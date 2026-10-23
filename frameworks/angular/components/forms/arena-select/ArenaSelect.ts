@@ -7,11 +7,12 @@ import manifest from './ArenaSelect.classes.generated';
 import { ArenaIdGenerator } from '../../../ArenaIds';
 import { ArenaControlBinding, arenaWarnDoubleBinding } from '../../../ControlBinding';
 import { ArenaSlotAttributes } from '../../../SlotData';
+import { ArenaIcon } from '../../display/arena-icon/ArenaIcon';
 
 @Component({
   selector: 'arena-select',
   standalone: true,
-  imports: [ArenaSlotAttributes],
+  imports: [ArenaIcon, ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [ArenaControlBinding],
   host: {
@@ -26,7 +27,7 @@ import { ArenaSlotAttributes } from '../../../SlotData';
     }
     <div [class]="styles().wrap()" [attr.data-arena-part]="parts.wrap">
       @if (icon(); as glyph) {
-        <i [class]="styles().iconWrap() + ' ' + glyph" [attr.data-arena-part]="parts.iconWrap" aria-hidden="true"></i>
+        <span [class]="styles().iconWrap()" [attr.data-arena-part]="parts.iconWrap" aria-hidden="true"><arena-icon [icon]="glyph" /></span>
       }
       <select [class]="styles().field()" [arenaSlotData]="styles().$data.field()" [attr.data-arena-part]="parts.field" [attr.id]="selectId" [disabled]="off()"
               [required]="required()" [attr.name]="name()"

@@ -14,6 +14,7 @@ import {
   arenaPinBackspace, arenaPinCode, arenaPinCompletes, arenaPinDelete, arenaPinFilter, arenaPinInputMode, arenaPinInsert, arenaPinKey,
   arenaPinLength, arenaPinMoveTo, arenaPinPattern, arenaPinTabStop, arenaPinTyped, type ArenaPinEdit,
 } from './PinRules';
+import { ArenaIcon } from '../../display/arena-icon/ArenaIcon';
 
 const mirroredAt = (element: Element) => {
   const dir = element.closest('[dir]')?.getAttribute('dir');
@@ -23,7 +24,7 @@ const mirroredAt = (element: Element) => {
 @Component({
   selector: 'arena-pin-input',
   standalone: true,
-  imports: [ArenaSlotAttributes],
+  imports: [ArenaIcon, ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [ArenaControlBinding],
   host: {
@@ -49,9 +50,9 @@ const mirroredAt = (element: Element) => {
                (keydown)="onKeyDown(index, $event)" (paste)="onPaste(index, $event)" />
       }
       @if (hasError()) {
-        <i [class]="statusIconClass('ph-fill ph-warning-circle')" [arenaSlotData]="styles().$data.statusIcon()" [attr.data-arena-part]="parts.statusIcon" aria-hidden="true"></i>
+        <span [class]="styles().statusIcon()" [arenaSlotData]="styles().$data.statusIcon()" [attr.data-arena-part]="parts.statusIcon" aria-hidden="true"><arena-icon icon="ph-fill ph-warning-circle" /></span>
       } @else if (isValid()) {
-        <i [class]="statusIconClass('ph-fill ph-check-circle')" [arenaSlotData]="styles().$data.statusIcon()" [attr.data-arena-part]="parts.statusIcon" aria-hidden="true"></i>
+        <span [class]="styles().statusIcon()" [arenaSlotData]="styles().$data.statusIcon()" [attr.data-arena-part]="parts.statusIcon" aria-hidden="true"><arena-icon icon="ph-fill ph-check-circle" /></span>
       }
     </div>
     @if (name(); as field) {
@@ -144,10 +145,6 @@ export class ArenaPinInput {
   }));
 
   private readonly cells = viewChildren<ElementRef<HTMLInputElement>>('cell');
-
-  protected statusIconClass(glyph: string): string {
-    return `${glyph} ${this.styles().statusIcon()}`;
-  }
 
   protected cellName(index: number): string {
     return arenaPhrase(this.locale.pinInputCell, { index: index + 1, total: this.total() });

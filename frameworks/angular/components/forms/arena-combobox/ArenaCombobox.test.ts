@@ -1,7 +1,7 @@
 /* The closed control: a named field with the combobox roles and no list anywhere in the document, the
  * chosen label in the field and its value in a hidden input that exists only with a name, and a label
  * of nothing but spaces refused. */
-import { useTestEnvironment } from '../../../test/TestbedEnv';
+import { useTestEnvironment, glyphIds, symbol } from '../../../test/TestbedEnv';
 useTestEnvironment();
 
 import test from 'node:test';
@@ -82,11 +82,11 @@ test('error marks the field invalid, describes it and draws the warning glyph; v
     assert.equal(failed.input.getAttribute('aria-invalid'), 'true');
     const note = failed.host.querySelector(`#${failed.input.getAttribute('aria-describedby')}`);
     assert.equal(note?.textContent?.trim(), 'Pick a region');
-    assert.ok(failed.host.querySelector('.ph-warning-circle'));
+    assert.ok(glyphIds(failed.host).includes(symbol('fill', 'warning-circle')));
   } finally { failed.fixture.destroy(); }
   const valid = render({ valid: true });
   try {
-    assert.ok(valid.host.querySelector('.ph-check-circle'));
+    assert.ok(glyphIds(valid.host).includes(symbol('fill', 'check-circle')));
   } finally { valid.fixture.destroy(); }
 });
 

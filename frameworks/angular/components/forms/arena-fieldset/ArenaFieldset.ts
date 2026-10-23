@@ -5,11 +5,12 @@ import { arenaFieldsetStyles } from './ArenaFieldset.variants';
 import manifest from './ArenaFieldset.classes.generated';
 import { ArenaIdGenerator } from '../../../ArenaIds';
 import { ArenaSlotAttributes } from '../../../SlotData';
+import { ArenaIcon } from '../../display/arena-icon/ArenaIcon';
 
 @Component({
   selector: 'arena-fieldset',
   standalone: true,
-  imports: [ArenaSlotAttributes],
+  imports: [ArenaIcon, ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { style: 'display: contents', '[attr.disabled]': 'null' },
   template: `
@@ -19,7 +20,7 @@ import { ArenaSlotAttributes } from '../../../SlotData';
       <div [class]="styles().stack()" [attr.data-arena-part]="parts.stack">
         <div #body [class]="styles().body()" [attr.data-arena-part]="parts.body" data-arena-boundary><ng-content /></div>
         @if (error(); as message) {
-          <span [class]="styles().error()" [arenaSlotData]="styles().$data.error()" [attr.data-arena-part]="parts.error" [attr.id]="noteId"><i [class]="statusIconClass()" [arenaSlotData]="styles().$data.statusIcon()" [attr.data-arena-part]="parts.statusIcon" aria-hidden="true"></i>{{ message }}</span>
+          <span [class]="styles().error()" [arenaSlotData]="styles().$data.error()" [attr.data-arena-part]="parts.error" [attr.id]="noteId"><span [class]="styles().statusIcon()" [arenaSlotData]="styles().$data.statusIcon()" [attr.data-arena-part]="parts.statusIcon" aria-hidden="true"><arena-icon icon="ph-fill ph-warning-circle" /></span>{{ message }}</span>
         } @else if (hint(); as text) {
           <span [class]="styles().hint()" [attr.data-arena-part]="parts.hint" [attr.id]="noteId">{{ text }}</span>
         }
@@ -56,7 +57,6 @@ export class ArenaFieldset {
     state: this.error() ? 'error' : 'neutral', disabled: this.disabled(),
   }));
 
-  protected readonly statusIconClass = computed(() => `ph-fill ph-warning-circle ${this.styles().statusIcon()}`);
 
   protected ngAfterContentInit(): void {
     if (this.projected().length === 0) {

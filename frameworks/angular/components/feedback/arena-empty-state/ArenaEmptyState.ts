@@ -3,10 +3,12 @@ import type { ArenaHeadingLevel } from '../../../Api.generated';
 import { ArenaAction } from '../../../ProjectionMarkers';
 import { arenaEmptyStateStyles } from './ArenaEmptyState.variants';
 import manifest from './ArenaEmptyState.classes.generated';
+import { ArenaIcon } from '../../display/arena-icon/ArenaIcon';
 
 @Component({
   selector: 'arena-empty-state',
   standalone: true,
+  imports: [ArenaIcon],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'styles().root()',
@@ -15,7 +17,7 @@ import manifest from './ArenaEmptyState.classes.generated';
   },
   template: `
     @if (icon(); as glyph) {
-      <div [class]="styles().icon()" [attr.data-arena-part]="parts.icon"><i [class]="glyph" aria-hidden="true"></i></div>
+      <div [class]="styles().icon()" [attr.data-arena-part]="parts.icon"><arena-icon [icon]="glyph" /></div>
     }
     @if (title(); as heading) {
       @switch (level()) {

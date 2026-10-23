@@ -9,11 +9,12 @@ import manifest from '../arena-side-nav/ArenaSideNav.classes.generated';
 import { NgTemplateOutlet } from '@angular/common';
 import { ArenaTooltip } from '../../feedback/arena-tooltip/ArenaTooltip';
 import { ArenaSlotAttributes } from '../../../SlotData';
+import { ArenaIcon } from '../../display/arena-icon/ArenaIcon';
 
 @Component({
   selector: 'arena-side-nav-item',
   standalone: true,
-  imports: [ArenaSlotAttributes, NgTemplateOutlet, ArenaTooltip],
+  imports: [ArenaIcon, ArenaSlotAttributes, NgTemplateOutlet, ArenaTooltip],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     style: 'display: contents',
@@ -26,7 +27,7 @@ import { ArenaSlotAttributes } from '../../../SlotData';
            [attr.aria-current]="current()" [attr.aria-disabled]="off()"
            (click)="activateAnchor($event)">
           @if (glyphClass(); as glyph) {
-            <i [class]="glyph" [attr.data-arena-part]="parts.icon" aria-hidden="true"></i>
+            <span [class]="styles().icon()" [attr.data-arena-part]="parts.icon" aria-hidden="true"><arena-icon [icon]="glyph" /></span>
           }
           @if (rail()) {
             <span [class]="styles().itemLabel()" [arenaSlotData]="styles().$data.itemLabel()" [attr.data-arena-part]="parts.itemLabel">{{ shownName() }}</span>
@@ -45,7 +46,7 @@ import { ArenaSlotAttributes } from '../../../SlotData';
                 [attr.aria-current]="current()" [attr.aria-disabled]="off()"
                 (click)="activate($event)">
           @if (glyphClass(); as glyph) {
-            <i [class]="glyph" [attr.data-arena-part]="parts.icon" aria-hidden="true"></i>
+            <span [class]="styles().icon()" [attr.data-arena-part]="parts.icon" aria-hidden="true"><arena-icon [icon]="glyph" /></span>
           }
           @if (rail()) {
             <span [class]="styles().itemLabel()" [arenaSlotData]="styles().$data.itemLabel()" [attr.data-arena-part]="parts.itemLabel">{{ shownName() }}</span>
@@ -112,7 +113,7 @@ export class ArenaSideNavItem {
       }
       return null;
     }
-    return `${this.styles().icon()} ${this.on() ? arenaActiveWeight(glyph) : glyph}`;
+    return this.on() ? arenaActiveWeight(glyph) : glyph;
   });
 
   protected readonly current = computed(() => (this.on() ? 'page' : null));

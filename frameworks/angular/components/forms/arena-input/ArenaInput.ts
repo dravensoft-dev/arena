@@ -7,6 +7,7 @@ import { arenaInputStyles } from './ArenaInput.variants';
 import manifest from './ArenaInput.classes.generated';
 import { ArenaControlBinding, arenaWarnDoubleBinding } from '../../../ControlBinding';
 import { ArenaSlotAttributes } from '../../../SlotData';
+import { ArenaIcon } from '../../display/arena-icon/ArenaIcon';
 
 export function arenaInputIdFor(id: string | undefined, label: string | undefined): string | null {
   if (id) return id;
@@ -16,7 +17,7 @@ export function arenaInputIdFor(id: string | undefined, label: string | undefine
 @Component({
   selector: 'arena-input',
   standalone: true,
-  imports: [ArenaSlotAttributes],
+  imports: [ArenaIcon, ArenaSlotAttributes],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [ArenaControlBinding],
   host: {
@@ -34,7 +35,7 @@ export function arenaInputIdFor(id: string | undefined, label: string | undefine
     }
     <div [class]="styles().field()" [arenaSlotData]="styles().$data.field()" [attr.data-arena-part]="parts.field">
       @if (icon()) {
-        <i [class]="iconClass()" [attr.data-arena-part]="parts.icon" aria-hidden="true"></i>
+        <span [class]="styles().icon()" [attr.data-arena-part]="parts.icon" aria-hidden="true"><arena-icon [icon]="icon()!" /></span>
       }
       @if (prefix(); as text) {
         <span [class]="styles().prefix()" [attr.data-arena-part]="parts.prefix">{{ text }}</span>
@@ -47,9 +48,9 @@ export function arenaInputIdFor(id: string | undefined, label: string | undefine
              [attr.step]="step()" [attr.maxlength]="maxLength()" [attr.pattern]="pattern()"
              (input)="onInput($event)" (change)="onNativeChange($event)" (blur)="onBlur($event)" />
       @if (hasError()) {
-        <i [class]="statusIconClass('ph-fill ph-warning-circle')" [arenaSlotData]="styles().$data.statusIcon()" [attr.data-arena-part]="parts.statusIcon" aria-hidden="true"></i>
+        <span [class]="styles().statusIcon()" [arenaSlotData]="styles().$data.statusIcon()" [attr.data-arena-part]="parts.statusIcon" aria-hidden="true"><arena-icon icon="ph-fill ph-warning-circle" /></span>
       } @else if (isValid()) {
-        <i [class]="statusIconClass('ph-fill ph-check-circle')" [arenaSlotData]="styles().$data.statusIcon()" [attr.data-arena-part]="parts.statusIcon" aria-hidden="true"></i>
+        <span [class]="styles().statusIcon()" [arenaSlotData]="styles().$data.statusIcon()" [attr.data-arena-part]="parts.statusIcon" aria-hidden="true"><arena-icon icon="ph-fill ph-check-circle" /></span>
       }
     </div>
     @if (shownError(); as message) {
@@ -148,12 +149,6 @@ export class ArenaInput {
     disabled: this.off(),
     readOnly: this.readOnly(),
   }));
-
-  protected readonly iconClass = computed(() => `${this.styles().icon()} ${this.icon() ?? ''}`.trim());
-
-  protected statusIconClass(glyph: string): string {
-    return `${glyph} ${this.styles().statusIcon()}`;
-  }
 
   protected onInput(event: Event): void {
     const text = (event.target as HTMLInputElement).value;
