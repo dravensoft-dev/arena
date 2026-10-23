@@ -365,7 +365,7 @@ test('a src with no recognised extension is emitted with no format hint rather t
 test('the package sheet names the package, and the theme sheet imports none of it', () => {
   assert.match(packageCss(config(), { packageName: '@dravensoft/arena-angular' }),
     /@import '@dravensoft\/arena-angular\/arena\.css';/);
-  assert.doesNotMatch(themeCss(config(), { packageName: '@dravensoft/arena-angular' }), /@import '@dravensoft/);
+  assert.doesNotMatch(themeCss(config()), /@import '@dravensoft/);
   assert.doesNotMatch(themeCss(config()), /arena\.css/);
 });
 
