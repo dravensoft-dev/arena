@@ -23,6 +23,7 @@ permissions:
 env:
   BUN_VERSION: 1.4.0
   NODE_VERSION: 26.7.0
+  CHROME_VERSION: 155.0.8059.79
   # An empty value is no value to findChromium, so a caller that names no browser proves discovery.
   CHROME_PATH: ${{ inputs.chrome-path }}
 
@@ -45,6 +46,10 @@ jobs:
           key: bun-cache-${{ runner.os }}-${{ hashFiles('bun.lock') }}
           restore-keys: bun-cache-${{ runner.os }}-
       - run: bun install --frozen-lockfile
+      - name: a browser, and CHROME_PATH is whatever the caller named
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: ${{ env.CHROME_VERSION }}
 
       - name: build and assemble, every step run
         run: bun run build:release
@@ -91,6 +96,10 @@ jobs:
           key: bun-cache-${{ runner.os }}-${{ hashFiles('bun.lock') }}
           restore-keys: bun-cache-${{ runner.os }}-
       - run: bun install --frozen-lockfile
+      - name: a browser, and CHROME_PATH is whatever the caller named
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: ${{ env.CHROME_VERSION }}
       - name: the build this run made
         uses: actions/download-artifact@v8
         with:
@@ -149,6 +158,10 @@ jobs:
           key: bun-cache-${{ runner.os }}-${{ hashFiles('bun.lock') }}
           restore-keys: bun-cache-${{ runner.os }}-
       - run: bun install --frozen-lockfile
+      - name: a browser, and CHROME_PATH is whatever the caller named
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: ${{ env.CHROME_VERSION }}
       - name: the build this run made
         uses: actions/download-artifact@v8
         with:

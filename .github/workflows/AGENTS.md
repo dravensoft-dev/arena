@@ -502,7 +502,7 @@ where a job installs a browser, `CHROME_VERSION` sit in each workflow's `env`, a
 names the same Bun. Every job that runs Arena's tooling installs Node through `actions/setup-node`,
 because the gates read what Node and Bun do (the brotli dictionary `check:weight` measures with, the
 bytes `bun build` emits) and an image's Node moves without a commit. Chrome for Testing serves the
-exact build to `setup-chrome` on every runner. The three move together.
+exact build on every runner, and the three `verify.yml` jobs that launch a browser install it.
 
 **Chromium.** The gates that measure a real render drive a browser, and `CHROME_PATH` is terminal:
 set and pointing at nothing, they report that rather than falling back to the candidate list.

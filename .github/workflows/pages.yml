@@ -23,7 +23,7 @@ concurrency:
 env:
   BUN_VERSION: 1.4.0
   NODE_VERSION: 26.7.0
-  CHROME_VERSION: 155.0.8059.84
+  CHROME_VERSION: 155.0.8059.79
 
 jobs:
   build:
