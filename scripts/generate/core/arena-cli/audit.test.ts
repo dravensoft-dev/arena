@@ -1007,3 +1007,8 @@ test('iconMemberGlyphs reads a glyph handed over in a JSX expression, and not on
   ].join('\n');
   assert.deepEqual([...iconMemberGlyphs(text)].sort(), ['ph-q', 'ph-r', 'ph-s']);
 });
+
+test('iconMemberGlyphs does not count a glyph an icon attribute draws through a nested element', () => {
+  assert.deepEqual([...iconMemberGlyphs('<ArenaButton icon={<i className="ph-bold ph-n" />} />')], []);
+  assert.deepEqual([...iconMemberGlyphs('<ArenaButton icon={ <i className="ph-bold ph-n" />} />')], []);
+});

@@ -965,7 +965,11 @@ export function iconMemberGlyphs(text: string): Set<string> {
     const raw = text.slice(start + name.length + 1, ends - 1);
     const named = ICON_TAG.test(name) ? ANY_ATTRIBUTE : ARENA_TAG.test(name) ? ICON_ATTRIBUTE : null;
     if (named === null) continue;
-    for (const { from } of ownAttributeStarts(raw, named)) scan(attributeValueAt(raw, from), found);
+    for (const { from } of ownAttributeStarts(raw, named)) {
+      const value = attributeValueAt(raw, from);
+      if (named === ICON_ATTRIBUTE && /^\{\s*</.test(value)) continue;
+      scan(value, found);
+    }
   }
   return glyphNames(found);
 }
