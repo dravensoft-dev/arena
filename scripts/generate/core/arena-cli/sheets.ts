@@ -10,7 +10,7 @@ import {
 } from './theme-css.ts';
 import type { ArenaConfig, ResolvedPlugins, TokenCatalogue } from './theme-css.ts';
 import type { ComponentMap } from './components.ts';
-import type { ShippedIcons } from './icon-css.ts';
+import type { ShippedIconMap } from './icon-css.ts';
 
 export const THEME_SHEET = 'arena.generated.css';
 export const ICONS_SHEET = 'icons.generated.css';
@@ -94,10 +94,10 @@ export function readPlugins(config: ArenaConfig, from: string) {
   return { plugins, fatal };
 }
 
-export function iconManifest(root: string): ShippedIcons | null {
+export function iconManifest(root: string): ShippedIconMap | null {
   try {
     const manifest = JSON.parse(readFileSync(join(root, ICON_MANIFEST), 'utf8'));
-    return manifest && typeof manifest === 'object' && manifest.pairs ? manifest : null;
+    return manifest && typeof manifest === 'object' && manifest.components && Array.isArray(manifest.fills) ? manifest : null;
   } catch {
     return null;
   }

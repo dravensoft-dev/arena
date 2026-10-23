@@ -265,6 +265,11 @@ export function iconManifestProblems(pkg: { layer: string; name: string }, dir: 
     return [`${pkg.name}: a fresh read of the renders under frameworks/${pkg.layer}/components names no `
       + 'glyph at all, and an empty result is a failure rather than a clean pass'];
   }
+  const keyed = shipped as { components?: unknown; fills?: unknown };
+  if (!keyed || typeof keyed.components !== 'object' || !Array.isArray(keyed.fills)) {
+    return [`${pkg.name}: ${MANIFEST_FILE} is not keyed by component, so a build cannot carry only the glyphs of `
+      + 'the components it draws or give the filled weight only what can draw filled: run bun run build:packages'];
+  }
   if (JSON.stringify(shipped) !== JSON.stringify(fresh)) {
     return [`${pkg.name}: ${MANIFEST_FILE} is not what the renders say today. It carries `
       + `${shippedNames(shipped as never).size} glyph(s) and the components draw ${shippedNames(fresh).size}. `

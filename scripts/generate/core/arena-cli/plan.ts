@@ -10,10 +10,10 @@ import { dirname, basename, join, resolve } from 'node:path';
 import { relativeFrom } from './posix.ts';
 import { configProblems, defaultedNote, paletteReports, rootWithDefaults, runtimeData, themeCss, weightReports } from './theme-css.ts';
 import type { PackageSheets } from './theme-css.ts';
-import { AUTO } from './components.ts';
+import { AUTO, resolve as resolveComponents } from './components.ts';
 import type { ComponentMap } from './components.ts';
 import {
-  scan, drawn, glyphNames, iconsCss, mergeShipped, shippedNames, woff2Source, WEIGHT_CLASSES,
+  scan, drawnGlyphs, fillSourceGlyphs, glyphNames, iconsCss, mergeShipped, shippedNames, woff2Source, WEIGHT_CLASSES,
 } from './icon-css.ts';
 import type { IconScan } from './icon-css.ts';
 import { report } from './reports.ts';
@@ -43,8 +43,10 @@ export type Plan = {
 export type SheetState = { path: string; state: 'missing' | 'stale' | 'current' };
 
 export function themeSheets(options: PlanOptions, { packageName, sheets, map }: ThemeEnvironment):
-  { code: 0 | 1 | 2; fatal: string[]; reports: Report[]; notes: string[]; sheets: SheetOutput[] } {
-  const stop = (code: 1 | 2, fatal: string[]) => ({ code, fatal, reports: [] as Report[], notes: [] as string[], sheets: [] as SheetOutput[] });
+  { code: 0 | 1 | 2; fatal: string[]; reports: Report[]; notes: string[]; sheets: SheetOutput[]; components: string[] | null } {
+  const stop = (code: 1 | 2, fatal: string[]) => ({
+    code, fatal, reports: [] as Report[], notes: [] as string[], sheets: [] as SheetOutput[], components: null,
+  });
   let config;
   try {
     config = JSON.parse(readFileSync(options.config, 'utf8'));
@@ -107,10 +109,14 @@ export function themeSheets(options: PlanOptions, { packageName, sheets, map }: 
     const data = `${JSON.stringify(runtimeData(config, sheets, completed.plugins), null, 2)}\n`;
     out.push({ name: RUNTIME_DATA, path: join(options.out, RUNTIME_DATA), content: data, summary: `${data.length} bytes` });
   }
-  return { code: 0, fatal: [], reports, notes: closure.notes, sheets: out };
+  const resolved = map && Array.isArray(config.stylesheet?.components) ? config.stylesheet.components as string[] : null;
+  return { code: 0, fatal: [], reports, notes: closure.notes, sheets: out, components: resolved };
 }
 
-export function iconsSheet(options: PlanOptions, { arena, phosphor }: { arena: string | null; phosphor: string | null }):
+export type IconEnvironment = { arena: string | null; phosphor: string | null; map?: ComponentMap | null; packageName?: string };
+
+export function iconsSheet(options: PlanOptions, { arena, phosphor, map = null, packageName = '' }: IconEnvironment,
+  drawn: string[] | null = null):
   { code: 0 | 1 | 2; fatal: string[]; reports: Report[]; sheet: SheetOutput | null } {
   if (!phosphor) {
     return { code: 2, reports: [], sheet: null, fatal: ['cannot find @phosphor-icons/web; it is a peer of this package, so install it'] };
@@ -120,8 +126,15 @@ export function iconsSheet(options: PlanOptions, { arena, phosphor }: { arena: s
   const reports: Report[] = [];
 
   const shipped = arena ? iconManifest(arena) : null;
+  const counted = shipped && map && drawn
+    ? new Set(Object.entries(map.draws).filter(([, sheet]) => sheet && drawn.includes(sheet)).map(([key]) => key))
+    : null;
   if (shipped) {
-    mergeShipped(shipped, found);
+    mergeShipped(shipped, found, counted);
+    if (!map) {
+      reports.push(report('environment', 'the component map is not beside this package, so every component\'s '
+        + 'glyphs are in the sheet instead of the ones the sources draw'));
+    }
   } else if (arena) {
     reports.push(report('environment', `${ICON_MANIFEST} is not beside this package, so the icons Arena `
       + 'draws itself were not counted and your sheet carries only what your own sources name'));
@@ -130,6 +143,8 @@ export function iconsSheet(options: PlanOptions, { arena, phosphor }: { arena: s
   }
 
   const yours: IconScan = { pairs: new Map(), loose: new Set() };
+  const swapping = new Set(shipped?.fills ?? []);
+  const sources: string[] = [];
   for (const path of options.paths) {
     const files = sourceFiles(path);
     if (!files) return { code: 2, reports, sheet: null, fatal: [`${path} is not there`] };
@@ -137,10 +152,28 @@ export function iconsSheet(options: PlanOptions, { arena, phosphor }: { arena: s
       const source = readFileSync(file, 'utf8');
       scan(source, found);
       scan(source, yours);
+      sources.push(source);
     }
   }
 
-  const wanted = drawn(found);
+  const drawsFill = (source: string) => !map
+    ? true
+    : resolveComponents(map, [source], packageName)?.keys.some((key) => swapping.has(String(key))) ?? true;
+  const wanted = drawnGlyphs(found, fillSourceGlyphs(sources, drawsFill));
+  if (wanted.length === 0 && shipped) {
+    const empty = iconsCss([], options.paths.join(', ')).css;
+    return {
+      code: 0,
+      reports,
+      fatal: [],
+      sheet: {
+        name: ICONS_SHEET,
+        path: join(options.out, ICONS_SHEET),
+        content: empty,
+        summary: `0 glyph(s), no weight drawn by your sources or by the Arena components they draw, ${empty.length} bytes`,
+      },
+    };
+  }
   if (wanted.length === 0) {
     return {
       code: 1,
@@ -182,7 +215,7 @@ export function iconsSheet(options: PlanOptions, { arena, phosphor }: { arena: s
       path,
       content: css,
       summary: `${kept} glyph(s), ${glyphNames(yours).size} named by your sources and `
-        + `${shipped ? shippedNames(shipped).size : 0} drawn by Arena's own components, `
+        + `${shipped ? shippedNames(shipped, counted).size : 0} drawn by Arena's own components, `
         + `${weights.length} weight(s), ${css.length} bytes`,
     },
   };
@@ -198,7 +231,7 @@ export function plan(options: PlanOptions, env: PlanEnvironment): Plan {
   const theme = themeSheets(options, env);
   if (theme.fatal.length) return failed(theme.code === 2 ? 2 : 1, theme.fatal, theme.reports);
 
-  const icons = iconsSheet(options, env);
+  const icons = iconsSheet(options, env, theme.components);
   if (icons.fatal.length || !icons.sheet) return failed(icons.code === 2 ? 2 : 1, icons.fatal, [...theme.reports, ...icons.reports]);
 
   const outputs = [...theme.sheets, icons.sheet];

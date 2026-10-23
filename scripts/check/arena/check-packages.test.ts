@@ -514,7 +514,24 @@ test('an icons.json that does not parse says so rather than reading as an empty 
 
 test('an icons.json that outlived its renders fails, which is what keeps the list honest', () => {
   const dir = track(mkdtempSync(join(tmpdir(), 'arena-pkg-')));
-  writeFileSync(join(dir, 'icons.json'), JSON.stringify({ pairs: { bold: ['ph-ghost'] }, loose: [] }));
+  writeFileSync(join(dir, 'icons.json'),
+    JSON.stringify({ components: { ArenaGhost: { pairs: { bold: ['ph-ghost'] }, loose: [] } }, fills: [] }));
+  const problems = iconManifestProblems(PKG, dir);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /is not what the renders say today/);
+});
+
+test('an icons.json that is one list for the whole package is not keyed by component and fails', () => {
+  const dir = track(mkdtempSync(join(tmpdir(), 'arena-pkg-')));
+  writeFileSync(join(dir, 'icons.json'), JSON.stringify({ pairs: { bold: ['ph-bell'] }, loose: [] }));
+  const problems = iconManifestProblems(PKG, dir);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /not keyed by component/);
+});
+
+test('an icons.json whose filled components drifted from the renders fails', () => {
+  const dir = track(mkdtempSync(join(tmpdir(), 'arena-pkg-')));
+  writeFileSync(join(dir, 'icons.json'), JSON.stringify({ ...iconManifest('react'), fills: [] }));
   const problems = iconManifestProblems(PKG, dir);
   assert.equal(problems.length, 1);
   assert.match(problems[0] ?? '', /is not what the renders say today/);

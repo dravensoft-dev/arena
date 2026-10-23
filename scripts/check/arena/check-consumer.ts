@@ -48,15 +48,19 @@ export const node = {
 export const CLI = 'bin/arena.mjs';
 export const GLYPH = 'ph-bell';
 export const FILL = `.${WEIGHT_CLASSES.fill}`;
+export const NAV_GLYPH = 'ph-house';
 
 export const SOURCES: Record<string, Record<string, string>> = {
   react: {
     'src/App.tsx': "import { ArenaButton, ArenaTable } from '@dravensoft/arena-react';\n"
       + "export const App = () => <ArenaButton icon=\"ph-bold ph-bell\">Go</ArenaButton>;\n",
+    'src/Nav.tsx': "import { ArenaSideNavItem } from '@dravensoft/arena-react';\n"
+      + "export const Nav = () => <ArenaSideNavItem icon=\"ph-bold ph-house\" active />;\n",
     'src/Old.txt': 'not a source extension, so the walk never reads it\n',
   },
   angular: {
     'src/app.html': '<arena-button icon="ph-bold ph-bell">Go</arena-button>\n<arena-table></arena-table>\n',
+    'src/nav.html': '<arena-side-nav-item icon="ph-bold ph-house" [active]="true"></arena-side-nav-item>\n',
   },
 };
 
@@ -660,10 +664,14 @@ export function iconProblems(layer: string, icons: string | null) {
   if (!icons.includes(GLYPH)) {
     problems.push(`${layer}: ${ICONS_SHEET} names no ${GLYPH}, so the icon scan stopped reading consumer sources`);
   }
-  if (!icons.includes(`${FILL}.${GLYPH}`)) {
-    problems.push(`${layer}: the source names ${GLYPH} beside the bold weight alone and ${ICONS_SHEET} carries `
-      + `no ${FILL}.${GLYPH} rule. The navigation swaps its active destination to the filled weight with no `
-      + 'member for it, so a sheet without that rule loses the icon of the item the user just pressed');
+  if (icons.includes(`${FILL}.${GLYPH}`)) {
+    problems.push(`${layer}: ${ICONS_SHEET} carries ${FILL}.${GLYPH}, a glyph named beside a button, which cannot `
+      + 'draw filled. The filled weight takes only what a component that swaps to it can ask for');
+  }
+  if (!icons.includes(`${FILL}.${NAV_GLYPH}`)) {
+    problems.push(`${layer}: the source names ${NAV_GLYPH} beside the bold weight on a navigation item and ${ICONS_SHEET} `
+      + `carries no ${FILL}.${NAV_GLYPH} rule. The navigation swaps its active destination to the filled weight `
+      + 'with no member for it, so a sheet without that rule loses the icon of the item the user just pressed');
   }
   return problems;
 }

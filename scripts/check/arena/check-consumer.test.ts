@@ -14,7 +14,7 @@ import { CLI_BINS } from '../../lib/arena/package-assembly.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import {
   importedSheets, unknownSymbolProblems, listProblems, closedListProblems, iconProblems, documented, CONFIG_REFERENCE,
-  palettesProblems, defaultListProblems, runtimeProblems, installedPalette, SOURCES, UNKNOWN, FILL, GLYPH, THIRD_PALETTE, CLI, snapshot, treeChanges, exitProblem, binProblems,
+  palettesProblems, defaultListProblems, runtimeProblems, installedPalette, SOURCES, UNKNOWN, FILL, GLYPH, NAV_GLYPH, THIRD_PALETTE, CLI, snapshot, treeChanges, exitProblem, binProblems,
 } from './check-consumer.ts';
 import type { CliRun, Shipped } from './check-consumer.ts';
 import { distDir, unassembled, assembled } from './check-packages.ts';
@@ -59,13 +59,18 @@ test('the documented sheet list must pass and an unknown one must fail, naming w
   assert.match(silentRefusal[0] ?? '', /does not list the sheets/);
 });
 
-test('the subset must carry the fixture glyph in the weight it was named beside and in the filled one', () => {
-  const both = `.ph-bold.${GLYPH}:before{content:"\\e0ce"}\n${FILL}.${GLYPH}:before{content:"\\e0ce"}`;
+test('the subset must carry the nav glyph filled and the button glyph only in the weight it was named beside', () => {
+  const bold = `.ph-bold.${GLYPH}:before{content:"\\e0ce"}\n.ph-bold.${NAV_GLYPH}:before{content:"\\e2c2"}`;
+  const both = `${bold}\n${FILL}.${NAV_GLYPH}:before{content:"\\e2c2"}`;
   assert.deepEqual(iconProblems('angular', both), []);
 
-  const boldAlone = iconProblems('angular', `.ph-bold.${GLYPH}:before{content:"\\e0ce"}`);
+  const boldAlone = iconProblems('angular', bold);
   assert.equal(boldAlone.length, 1);
   assert.match(boldAlone[0] ?? '', /the item the user just pressed/);
+
+  const buttonFilled = iconProblems('angular', `${both}\n${FILL}.${GLYPH}:before{content:"\\e0ce"}`);
+  assert.equal(buttonFilled.length, 1);
+  assert.match(buttonFilled[0] ?? '', /cannot draw filled/);
 
   const empty = iconProblems('angular', '');
   assert.equal(empty.length, 1, 'a sheet that was never written is one problem rather than three');

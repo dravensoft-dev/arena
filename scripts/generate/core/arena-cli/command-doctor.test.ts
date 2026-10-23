@@ -12,15 +12,17 @@ import { MAP, SHEETS, captureIo, hostRoot, options, phosphor, project, readable,
 
 after(removeFixtures);
 
+const NO_COMPONENTS = { match: 'selector', draws: {}, needs: {} };
+
 function setup(extra: Record<string, unknown> = {}) {
   const root = project();
   const { web } = phosphor();
-  const environment = { arena: null, phosphor: web, sheets: null, map: null, vocabulary: null, ...extra };
+  const environment = { arena: null, phosphor: web, sheets: null, map: NO_COMPONENTS, vocabulary: null, ...extra };
   return { root, web, environment };
 }
 
 function build(root: string, web: string, arena: string | null = null) {
-  const built = plan(options(root), { arena, packageName: '@dravensoft/arena-react', sheets: null, map: null, vocabulary: null, phosphor: web });
+  const built = plan(options(root), { arena, packageName: '@dravensoft/arena-react', sheets: null, map: NO_COMPONENTS, vocabulary: null, phosphor: web });
   for (const one of built.outputs) writeFileSync(one.path, one.content);
   return built;
 }
@@ -98,7 +100,7 @@ test('satisfies reads >=22 against v22.0.0, v21.9.9 and v23.1.0, >=22.11 against
 
 const withEngines = (range: string) => hostRoot('@dravensoft/arena-react', '1.2.3', {
   'package.json': JSON.stringify({ name: '@dravensoft/arena-react', version: '1.2.3', engines: { node: range } }),
-  [ICON_MANIFEST]: JSON.stringify({ pairs: {}, loose: [] }),
+  [ICON_MANIFEST]: JSON.stringify({ components: {}, fills: [] }),
 });
 
 test('Node below engines is an environment report, held only by --strict=environment', () => {

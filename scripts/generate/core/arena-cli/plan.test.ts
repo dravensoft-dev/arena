@@ -9,6 +9,7 @@ import { join } from 'node:path';
 import { plan, sheetStates } from './plan.ts';
 import type { SheetOutput } from './plan.ts';
 import { THEME_SHEET, ICONS_SHEET, PLUGIN_SHEET, RUNTIME_DATA, ICON_MANIFEST } from './sheets.ts';
+import type { ComponentMap } from './components.ts';
 import { auto, hostRoot, MAP, SHEETS, options, phosphor, project, readable, removeFixtures } from './cli-fixtures.ts';
 
 after(removeFixtures);
@@ -267,7 +268,7 @@ test('a fatal plan keeps the reports gathered before it, with no outputs and no 
 test('the icons Arena draws itself come from the list the package ships, not from reading it as text', () => {
   const { root: held, web } = phosphor();
   const arena = hostRoot('@dravensoft/arena-react', '11.1.0', {
-    [ICON_MANIFEST]: JSON.stringify({ pairs: { bold: ['ph-sun'] }, loose: [] }),
+    [ICON_MANIFEST]: JSON.stringify({ components: { 'arena-button': { pairs: { bold: ['ph-sun'] }, loose: [] } }, fills: [] }),
     'index.d.ts': '/** Phosphor class name, e.g. \'ph-bold ph-moon\'. */',
   });
   const root = project();
@@ -418,4 +419,67 @@ test('turning the key off removes the data file', () => {
   writeFileSync(join(root, 'src', RUNTIME_DATA), '{}');
   assert.deepEqual(plan(options(root), environment(web)).orphans, [RUNTIME_DATA]);
   cleanup(root, held);
+});
+
+const DRAWS: ComponentMap = {
+  match: 'selector',
+  draws: { 'arena-button': 'button', 'arena-alert': 'alert', 'arena-side-nav-item': 'side-nav-item' },
+  needs: {},
+};
+const DRAW_SHEETS = { layers: ['css/base.css'], components: ['alert', 'button', 'side-nav-item'] };
+const SHIPPED = JSON.stringify({
+  components: {
+    'arena-alert': { pairs: { fill: ['ph-moon'] }, loose: [] },
+    'arena-button': { pairs: { bold: ['ph-sun'] }, loose: [] },
+  },
+  fills: ['arena-side-nav-item'],
+});
+
+function icons(files: Record<string, string>, extra: Record<string, unknown> = {}, config: object = auto) {
+  const { root: held, web } = phosphor();
+  const arena = hostRoot('@dravensoft/arena-react', '11.1.0', { [ICON_MANIFEST]: SHIPPED });
+  const root = project(config, files);
+  const result = plan(options(root), environment(web, { arena, sheets: DRAW_SHEETS, map: DRAWS, ...extra }));
+  cleanup(root, held, arena);
+  return result;
+}
+
+const sheetOf = (result: ReturnType<typeof plan>) => result.outputs.find((one) => one.name === ICONS_SHEET)?.content ?? '';
+
+test('the glyph list follows the drawn components', () => {
+  const button = sheetOf(icons({ 'app.html': '<arena-button></arena-button>' }));
+  assert.match(button, /ph-sun/, 'the button the source draws brings its own glyph');
+  assert.doesNotMatch(button, /ph-moon/, 'the alert it does not draw brings none');
+  const alert = sheetOf(icons({ 'app.html': '<arena-button></arena-button><arena-alert></arena-alert>' }));
+  assert.match(alert, /\.ph-fill\.ph-moon:before/, 'the alert it draws brings its filled glyph');
+});
+
+test('the filled weight takes the glyphs named beside a component that swaps to it, and nothing else', () => {
+  const css = sheetOf(icons({
+    'a.html': '<arena-button icon="ph-bold ph-sun"></arena-button>',
+    'b.html': '<arena-side-nav-item icon="ph-bold ph-bell"></arena-side-nav-item>',
+  }));
+  assert.match(css, /\.ph-fill\.ph-bell:before/);
+  assert.doesNotMatch(css, /\.ph-fill\.ph-sun:before/);
+  assert.match(css, /\.ph-bold\.ph-sun:before/);
+});
+
+test('with no map the sheet carries every component and says the map is missing', () => {
+  const result = icons({ 'app.html': '<arena-button></arena-button>' }, { map: null, sheets: null }, readable);
+  assert.match(sheetOf(result), /ph-moon/);
+  assert.ok(result.reports.some((one) => one.kind === 'environment'));
+});
+
+test('sources that draw no glyph and components that carry none still build, with a sheet holding no rule', () => {
+  const none = icons({ 'app.html': '<arena-nothing></arena-nothing>' }, { sheets: { ...DRAW_SHEETS, components: [...DRAW_SHEETS.components] } });
+  assert.equal(none.code, 1, 'a source drawing no Arena component at all still stops where auto finds nothing');
+  const { root: held, web } = phosphor();
+  const arena = hostRoot('@dravensoft/arena-react', '11.1.0', {
+    [ICON_MANIFEST]: JSON.stringify({ components: { 'arena-alert': { pairs: { fill: ['ph-moon'] }, loose: [] } }, fills: [] }),
+  });
+  const root = project(readable, { 'app.html': '<h1>no icons</h1>' });
+  const result = plan(options(root), environment(web, { arena, sheets: DRAW_SHEETS, map: DRAWS }));
+  assert.equal(result.code, 0);
+  assert.doesNotMatch(sheetOf(result), /ph-moon|@font-face/);
+  cleanup(root, held, arena);
 });

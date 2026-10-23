@@ -160,6 +160,18 @@ export function reactComponentMap(root = repoRoot) {
   return mapFrom(entries.filter((e) => e.keys.length), 'symbol');
 }
 
+export function keysByDirectory(layer: string, root = repoRoot) {
+  const react = layer === 'react';
+  const pattern = react ? EXPORTED : SELECTOR;
+  const byDirectory = new Map<string, string[]>();
+  for (const { at, file } of componentFiles(layer, react ? '.tsx' : '.ts', root)) {
+    const keys = [...readFileSync(file, 'utf8').matchAll(pattern)].map((m) => captured(m))
+      .filter((name) => !react || COMPONENT_NAME.test(name));
+    if (keys.length) byDirectory.set(at, [...(byDirectory.get(at) ?? []), ...keys]);
+  }
+  return byDirectory;
+}
+
 export type ComponentSheetMap = {
   match: string;
   draws: Record<string, string | null>;

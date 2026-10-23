@@ -1,13 +1,9 @@
-/* Cuts a Phosphor weight sheet down to the glyphs a project draws, the whole sheet being the
- * largest single thing an Arena consumer sends that nothing on screen reads. This module reads
- * no file: the sheet arrives as text and the font path already resolved, because only the
- * command around it knows where a consumer's node_modules is. A sheet's rules are flat, one
- * selector and one body with no nesting, which is why a brace scan is enough here and would not
- * be for CSS in general. An IconScan is what a scan of the sources found: the glyphs each weight
- * draws, plus the ones named beside no weight, which every weight in use carries. The fill
- * weight carries every glyph named anywhere, whatever weight it was written beside, because the
- * navigation components swap their active destination to fill on their own and the sheet has to
- * hold what a component can ask for. WeightRules is one sheet parsed, per glyph. */
+/* Cuts a Phosphor weight sheet down to the glyphs a project draws. This module reads no file: the
+ * sheet arrives as text and the font path already resolved. A sheet's rules are flat, so a brace
+ * scan is enough. An IconScan is the glyphs each weight draws, plus the ones named beside no
+ * weight, which every weight in use carries. The fill weight carries the fill pairs, the loose
+ * names and the glyphs named in a source that draws a component swapping its active destination
+ * to fill. The package ships its glyphs per component, and a build merges only the drawn ones. */
 
 
 export const WEIGHT_CLASSES = {
@@ -61,18 +57,32 @@ export function scan(source: string,
 
 export type ShippedIcons = { pairs: Record<string, string[]>; loose: string[] };
 
-export function mergeShipped(manifest: ShippedIcons, into: IconScan) {
-  for (const [weight, glyphs] of Object.entries(manifest.pairs ?? {})) {
-    let bucket = into.pairs.get(weight);
-    if (!bucket) { bucket = new Set<string>(); into.pairs.set(weight, bucket); }
-    for (const glyph of glyphs) bucket.add(glyph);
+export type ShippedIconMap = { components: Record<string, ShippedIcons>; fills: string[] };
+
+export function mergeShipped(manifest: ShippedIconMap, into: IconScan, components: Set<string> | null = null) {
+  for (const [key, icons] of Object.entries(manifest.components ?? {})) {
+    if (components && !components.has(key)) continue;
+    for (const [weight, glyphs] of Object.entries(icons.pairs ?? {})) {
+      let bucket = into.pairs.get(weight);
+      if (!bucket) { bucket = new Set<string>(); into.pairs.set(weight, bucket); }
+      for (const glyph of glyphs) bucket.add(glyph);
+    }
+    for (const glyph of icons.loose ?? []) into.loose.add(glyph);
   }
-  for (const glyph of manifest.loose ?? []) into.loose.add(glyph);
   return into;
 }
 
-export function shippedNames(manifest: ShippedIcons) {
-  return new Set([...(manifest.loose ?? []), ...Object.values(manifest.pairs ?? {}).flat()]);
+export function iconNames(icons: ShippedIcons) {
+  return new Set([...(icons.loose ?? []), ...Object.values(icons.pairs ?? {}).flat()]);
+}
+
+export function shippedNames(manifest: ShippedIconMap, components: Set<string> | null = null) {
+  const names = new Set<string>();
+  for (const [key, icons] of Object.entries(manifest.components ?? {})) {
+    if (components && !components.has(key)) continue;
+    for (const name of iconNames(icons)) names.add(name);
+  }
+  return names;
 }
 
 export function glyphNames(found: IconScan) {
@@ -81,12 +91,22 @@ export function glyphNames(found: IconScan) {
   return names;
 }
 
-export function drawn(found: IconScan) {
+export function fillSourceGlyphs(sources: string[], drawsFill: (source: string) => boolean) {
+  const names = new Set<string>();
+  for (const source of sources) {
+    if (drawsFill(source)) for (const glyph of glyphNames(scan(source))) names.add(glyph);
+  }
+  return names;
+}
+
+export function drawnGlyphs(found: IconScan, fillSources: Set<string>) {
   if (found.pairs.size === 0) return [];
-  const filled = glyphNames(found);
   return ARENA_WEIGHTS.flatMap((weight) => {
-    if (weight === 'fill') return [{ weight, glyphs: filled }];
     const pair = found.pairs.get(weight);
+    if (weight === 'fill') {
+      const glyphs = new Set([...(pair ?? []), ...found.loose, ...fillSources]);
+      return glyphs.size ? [{ weight, glyphs }] : [];
+    }
     return pair ? [{ weight, glyphs: new Set([...pair, ...found.loose]) }] : [];
   });
 }

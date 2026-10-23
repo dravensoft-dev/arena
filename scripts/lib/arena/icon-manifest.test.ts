@@ -5,8 +5,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { withoutComments, serialise, iconManifest, MANIFEST_FILE } from './icon-manifest.ts';
+import { kebab } from '../../utils/case.ts';
 import { scan } from '../../generate/core/arena-cli/icon-css.ts';
-import { shippedNames } from '../../generate/core/arena-cli/icon-css.ts';
+import { shippedNames, iconNames } from '../../generate/core/arena-cli/icon-css.ts';
 
 const scanned = (source: string) => serialise(scan(withoutComments(source, 'A.ts')));
 
@@ -31,10 +32,23 @@ test('the shape is sorted, so a file walked in another order emits the same byte
   assert.deepEqual(once.pairs.bold, ['ph-bell', 'ph-sun']);
 });
 
+test('the manifest is keyed by component', () => {
+  const react = iconManifest('react');
+  assert.ok(react.components['ArenaAlert']?.pairs['fill']?.includes('ph-info'));
+  assert.deepEqual(react.components['ArenaTag']?.pairs['bold'], ['ph-x']);
+  assert.ok(!('ArenaButton' in react.components && react.components['ArenaButton']?.pairs['fill']?.includes('ph-info')));
+  assert.deepEqual(react.fills, ['ArenaBottomNavItem', 'ArenaSideNavItem']);
+  const angular = iconManifest('angular');
+  assert.ok(angular.components['arena-alert']?.pairs['fill']?.includes('ph-info'));
+  assert.deepEqual(angular.fills, ['arena-bottom-nav-item', 'arena-side-nav-item']);
+});
+
 test('both layers draw the same glyphs, which is the claim a consumer sheet rests on', () => {
   const react = iconManifest('react');
   const angular = iconManifest('angular');
-  assert.deepEqual(react, angular,
+  const byName = (map: ReturnType<typeof iconManifest>) => Object.fromEntries(Object.entries(map.components)
+    .map(([key, icons]) => [kebab(key), icons]));
+  assert.deepEqual(byName(react), byName(angular),
     'a glyph one layer draws and the other does not is a component that differs, and a consumer '
     + 'swapping layers would be sent a different subset for the same screens');
   assert.ok(shippedNames(react).size > 0, 'an empty manifest is a failure rather than a clean pass');
@@ -42,7 +56,7 @@ test('both layers draw the same glyphs, which is the claim a consumer sheet rest
 
 test('Arena names a weight beside every glyph it draws, so loose is the consumer\'s alone', () => {
   for (const layer of ['react', 'angular']) {
-    assert.deepEqual(iconManifest(layer).loose, [],
+    assert.deepEqual(Object.values(iconManifest(layer).components).flatMap((one) => one.loose), [],
       `${layer}: a render here spells the weight class beside the glyph, which is what lets a `
       + 'consumer\'s own loose names stay the only ones broadcast into every weight in use');
   }
