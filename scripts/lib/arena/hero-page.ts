@@ -6,8 +6,8 @@
  * plugins the site already loads, so a skin whose radius or weight moves moves the picture. The five
  * are the benches that differ most from each other in hue, radius, weight and face, and their
  * palettes are the ones those benches wear, copied from their own arena.config.json, because a
- * palette is the half Arena never ships and a made-up one would be Arena inventing the thing it says
- * it does not carry. Nothing holds them to those files; the benches are another repository. */
+ * palette is the half Arena never ships and a made-up one would be Arena inventing what it says it
+ * does not carry. Chrome refuses an external use over file://, so the robot is drawn inline. */
 
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -80,8 +80,6 @@ function robotId() {
   return symbolId((weight ?? '').replace(/^ph-/, ''), (glyph ?? '').replace(/^ph-/, ''));
 }
 
-/* Chrome refuses an external use over file://, and the picture is rendered from a file, so the robot's
- * symbol is read out of the sprite and drawn inline. */
 export function heroRobot(base: string): string {
   const sprite = readFileSync(join(base, SPRITE_FILE), 'utf8');
   const found = new RegExp(`<symbol id="${robotId()}"[\\s\\S]*?</symbol>`).exec(sprite);
