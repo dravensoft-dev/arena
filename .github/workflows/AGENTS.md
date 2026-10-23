@@ -504,10 +504,7 @@ because the gates read what Node and Bun do (the brotli dictionary `check:weight
 bytes `bun build` emits) and an image's Node moves without a commit. Chrome for Testing serves the
 exact build on every runner, and the three `verify.yml` jobs that launch a browser install it.
 
-The pins name what Arena's tooling runs on, and they are not the runtime of an action: `NODE_VERSION`
-is Node 26.7.0 through `actions/setup-node`, while GitHub offers an action only `node20` or `node24`
-as its own runtime, so `browser-actions/setup-chrome@v2` runs on `node24` and still installs the
-pinned `CHROME_VERSION`, an exact version and not a channel.
+An action runs on GitHub's own `node24`, whatever `NODE_VERSION` gives the tooling.
 
 **Chromium.** The gates that measure a real render drive a browser, and `CHROME_PATH` is terminal:
 set and pointing at nothing, they report that rather than falling back to the candidate list.
