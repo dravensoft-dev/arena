@@ -14,7 +14,7 @@ export async function run(argv: string[], io: Io): Promise<number> {
   const say = voice(io, 'check');
   const env = resolveEnvironment(io.environment);
 
-  const planned = await plan({ ...options, out: under(io.cwd, DEFAULT_OUT), importHeader: true }, env);
+  const planned = await plan({ ...options, out: under(io.cwd, DEFAULT_OUT), importHeader: true }, env, { reportsOnly: true });
   if (planned.fatal.length > 0) {
     for (const line of planned.fatal) say.err(line);
     return planned.code;

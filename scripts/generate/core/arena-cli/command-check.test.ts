@@ -7,6 +7,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { run } from './command-check.ts';
 import { wiredScripts } from './command-init.ts';
+import { fontToolRoots } from './host.ts';
 import { captureIo, colors, phosphor, readable, removeFixtures } from './cli-fixtures.ts';
 import type { ComponentMap } from './components.ts';
 
@@ -141,4 +142,22 @@ test('--strict and --strict=heat hold the heat report, and the list arena init w
   assert.match(named.err.join('\n'), /--strict holds heat, and this run reports \d+ of them: heat/);
   const initCheck = new Map(wiredScripts([])).get('arena:check')!.split(' ').slice(2);
   assert.equal((await check(root, initCheck)).code, 0);
+});
+
+test('check reads a local font\'s axis without harfbuzzjs, since it cuts nothing', async () => {
+  const fonts = join(import.meta.dirname, '..', '..', '..', '..', 'assets', 'fonts');
+  const root = setup({ 'a.html': '<i class="ph-bold ph-bell"></i>' }, {
+    ...readable,
+    fonts: {
+      display: { family: 'Archivo', src: './fonts/archivo.woff2' },
+      body: { family: 'Familjen Grotesk', src: './fonts/familjen-grotesk.woff2' },
+      mono: { family: 'Spline Sans Mono', src: './fonts/spline-sans-mono.woff2' },
+    },
+  });
+  mkdirSync(join(root, 'fonts'));
+  for (const name of ['archivo', 'familjen-grotesk', 'spline-sans-mono']) {
+    writeFileSync(join(root, 'fonts', `${name}.woff2`), readFileSync(join(fonts, `${name}.woff2`)));
+  }
+  const { code, err } = await check(root, [], { fontTools: { harfbuzz: null, wawoff2: fontToolRoots().wawoff2 } });
+  assert.equal(code, 0, err.join('\n'));
 });

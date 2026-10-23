@@ -28,6 +28,11 @@ export function loadFontTools(roots: FontToolRoots): { tools: FontTools } | { mi
   } };
 }
 
+export function loadDecoder(roots: FontToolRoots): { tools: Pick<FontTools, 'decompress'> } | { missing: string } {
+  if (roots.wawoff2 === null) return { missing: 'wawoff2' };
+  return { tools: { decompress: createRequire(join(roots.wawoff2, 'package.json'))(roots.wawoff2).decompress } };
+}
+
 const IMPORT = /@import\s+(?:url\(\s*)?['"]([^'"]+)['"]/g;
 
 export function importedSheets(theme: string, arena: string | null, packageName: string) {
@@ -87,7 +92,8 @@ export async function cutFonts(input: {
   roles: string[];
   from: string;
   css: string;
-  tools: () => { tools: FontTools } | { missing: string };
+  tools: () => { tools: Pick<FontTools, 'decompress'> } | { missing: string };
+  dry?: boolean;
 }): Promise<{ cuts: FontCuts; files: CutFile[]; reports: Report[]; fatal: string[]; stems: string[] }> {
   const reports: Report[] = [];
   const cuts: FontCuts = {};
@@ -128,7 +134,11 @@ export async function cutFonts(input: {
       const faces: FontCut['faces'] = [];
       const declaredFace = font.weight ?? '400';
       for (const step of steps) {
-        const { bytes } = await cutFont(source, step, LATIN_1, loaded.tools);
+        if (input.dry) {
+          faces.push({ name: `${fontStem(src)}-0000000000.woff2`, weight: axis === null ? declaredFace : faceWeight(step, declaredFace) });
+          continue;
+        }
+        const { bytes } = await cutFont(source, step, LATIN_1, loaded.tools as FontTools);
         const name = contentName(fontStem(src), 'woff2', bytes);
         files.set(name, { name, content: bytes, summary: `${bytes.length} bytes, cut from ${source.length}` });
         faces.push({ name, weight: axis === null ? declaredFace : faceWeight(step, declaredFace) });

@@ -678,6 +678,20 @@ test('a painted weight outside the face\'s axis is a weight report naming role, 
   cleanup(root, held, arena);
 });
 
+test('a reports-only plan reads the axis for the weight report and needs neither harfbuzzjs nor the subset and encode', async () => {
+  const { root, held, arena, env } = fontProject(LOCAL, `${PAINT}.x{font-family:var(--font-body);font-weight:900}`);
+  const decoderOnly = { harfbuzz: null, wawoff2: fontToolRoots().wawoff2 };
+  const full = await plan(options(root), { ...env, fontTools: decoderOnly });
+  assert.equal(full.code, 2, 'a build cuts, so it needs harfbuzzjs');
+  const dry = await plan(options(root), { ...env, fontTools: decoderOnly }, { reportsOnly: true });
+  assert.equal(dry.code, 0);
+  assert.deepEqual(dry.binaries, [], 'nothing is cut');
+  assert.equal(dry.reports.filter((one) => one.kind === 'weight').length, 1);
+  assert.deepEqual(dry.reports.filter((one) => one.kind === 'weight'),
+    (await plan(options(root), env)).reports.filter((one) => one.kind === 'weight'));
+  cleanup(root, held, arena);
+});
+
 test('a remote src stays as written, the build is code 0 and each remote role reports once that it was not cut', async () => {
   const { root, held, arena, env } = fontProject({
     display: { family: 'Archivo', src: 'https://fonts.googleapis.com/css2?family=Archivo' },

@@ -22,7 +22,7 @@ import {
 } from './sheets.ts';
 import { OUTPUT_SHEETS, fontFilesIn, missingSource, sourceFiles, spriteFilesIn } from './sources.ts';
 import { contentName, glyphFile, spriteModule, spriteSvg } from './sprite.ts';
-import { cutFonts, importedSheets, loadFontTools } from './font-files.ts';
+import { cutFonts, importedSheets, loadDecoder, loadFontTools } from './font-files.ts';
 import type { FontCuts, FontToolRoots } from './font-files.ts';
 import { fontToolRoots } from './host.ts';
 import { FONT_ROLES } from './palette-keys.ts';
@@ -125,7 +125,7 @@ export function themeSheets(options: PlanOptions, { packageName, sheets, map }: 
 
 export type FontEnvironment = ThemeEnvironment & { arena?: string | null; fontTools?: FontToolRoots };
 
-export async function fontFiles(options: PlanOptions, env: FontEnvironment, theme: ReturnType<typeof themeSheets>):
+export async function fontFiles(options: PlanOptions, env: FontEnvironment, theme: ReturnType<typeof themeSheets>, dry = false):
   Promise<{ fatal: string[]; reports: Report[]; cuts: FontCuts; files: BinaryOutput[]; stems: string[] }> {
   const none = { fatal: [] as string[], reports: [] as Report[], cuts: {} as FontCuts, files: [] as BinaryOutput[], stems: [] as string[] };
   const config = theme.config;
@@ -136,7 +136,8 @@ export async function fontFiles(options: PlanOptions, env: FontEnvironment, them
     roles: Object.keys(FONT_ROLES),
     from: dirname(resolve(options.config)),
     css: `${importedSheets(theme.imports.join('\n'), env.arena ?? null, env.packageName)}\n${generated}`,
-    tools: () => loadFontTools(env.fontTools ?? fontToolRoots()),
+    tools: () => (dry ? loadDecoder : loadFontTools)(env.fontTools ?? fontToolRoots()),
+    dry,
   });
   return {
     fatal: done.fatal,
@@ -243,14 +244,18 @@ export function spriteFiles(options: PlanOptions, { arena, phosphor, map = null,
 const failed = (code: 1 | 2, fatal: string[], reports: Report[] = []): Plan =>
   ({ code, fatal, reports, notes: [], outputs: [], binaries: [], orphans: [] });
 
-export async function plan(options: PlanOptions, env: PlanEnvironment): Promise<Plan> {
+export type PlanMode = { reportsOnly?: boolean };
+
+/* A reports-only plan reads each font's weight axis for the reports and cuts nothing: its files are
+ * not the files a build writes, so arena check uses it and arena doctor, which compares bytes, does not. */
+export async function plan(options: PlanOptions, env: PlanEnvironment, mode: PlanMode = {}): Promise<Plan> {
   const absent = missingSource(options.paths);
   if (absent !== null) return failed(2, [`${absent} is not there`]);
 
   let theme = themeSheets(options, env);
   if (theme.fatal.length) return failed(theme.code === 2 ? 2 : 1, theme.fatal, theme.reports);
 
-  const fonts = await fontFiles(options, env, theme);
+  const fonts = await fontFiles(options, env, theme, mode.reportsOnly === true);
   if (fonts.fatal.length) return failed(2, fonts.fatal, theme.reports);
   if (Object.keys(fonts.cuts).length > 0) theme = themeSheets(options, env, fonts.cuts);
   const themeReports = [...theme.reports, ...fonts.reports];
