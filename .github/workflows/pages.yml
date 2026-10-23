@@ -115,17 +115,25 @@ jobs:
         run: echo "::warning::the adopter build did not arrive, so the site is published without it"
 
       # An unset ARENA_ADOPTER_BUILD is the site a clone builds: the directory is named only when
-      # the adopter built.
+      # the adopter built. build:site then writes adopter=published or adopter=refused to this
+      # step's outputs, the refusal being its own (a version it does not hold, a path the site
+      # already holds, an index.html of its own, a copy that failed), and writes nothing when no
+      # adopter was named.
       - name: assemble what gets served
+        id: assemble
         run: bun run build:site
         env:
           ARENA_ADOPTER_BUILD: ${{ steps.adopter-build.outcome == 'success' && format('{0}/adopter/dist', github.workspace) || '' }}
+
+      - name: an adopter the site refused leaves it without
+        if: steps.assemble.outputs.adopter == 'refused'
+        run: echo "::warning::build:site refused the adopter build, so the site is published without it"
 
       # With the adopter in, a red here is not the end: the next step publishes the site without
       # it and holds that one to the same gate. Without it, a red stops the run.
       - name: hold every link, every declared page and the domain it is built for
         id: check
-        continue-on-error: ${{ steps.adopter-build.outcome == 'success' }}
+        continue-on-error: ${{ steps.assemble.outputs.adopter == 'published' }}
         run: bun run check:site
 
       - name: a site the adopter broke goes out without it
