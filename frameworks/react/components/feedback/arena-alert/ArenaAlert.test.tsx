@@ -36,3 +36,8 @@ test('icon overrides the tone default glyph', () => {
   assert.deepEqual(symbols(html).filter((id) => id !== 'bold-x'), ['fill-rocket'], 'the icon the consumer named is drawn');
   assert.doesNotMatch(html, /check-circle/);
 });
+
+test('the wrapper of the tone glyph is hidden from assistive technology', () => {
+  const html = renderIcons(<ArenaAlert tone="info">All good</ArenaAlert>);
+  assert.match(html, /<span[^>]*data-arena-part="alert\.icon"[^>]*aria-hidden="true"|<span[^>]*aria-hidden="true"[^>]*data-arena-part="alert\.icon"/);
+});
