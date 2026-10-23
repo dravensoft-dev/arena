@@ -122,7 +122,7 @@ you import it beside the other two. The sheet declares the cascade layer order i
 
 ## Build to production
 
-A project pays only for what it renders by default. With no `stylesheet.components`, the command reads your sources and works the list out, the same as `"components": "auto"`. Name a list of your own to replace that.
+A project pays only for what it renders by default. With no `stylesheet.components`, the command reads your sources and works the list out. A source that draws no Arena component imports no component sheet, and a build with no component map beside the command imports every component sheet and reports it. Spelling `"components": "auto"` asks for the same list and exits 1 in both of those cases. Name a list of your own to replace it.
 
 ```json
 { "stylesheet": { "components": "auto", "preflight": false } }
