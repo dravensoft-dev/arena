@@ -192,7 +192,15 @@ test('an output git does not ignore is named in the note', { skip: gitSkip }, as
   for (const one of paths.filter((one) => one !== sprite)) assert.ok(!notes[0]!.includes(one), one);
 });
 
-test('outside a git work tree the .gitignore is read as text, as before', async () => {
+async function outsideAnyWorkTree<T>(body: () => Promise<T>) {
+  const held = process.env.GIT_CEILING_DIRECTORIES;
+  process.env.GIT_CEILING_DIRECTORIES = tmpdir();
+  try { return await body(); } finally {
+    if (held === undefined) delete process.env.GIT_CEILING_DIRECTORIES; else process.env.GIT_CEILING_DIRECTORIES = held;
+  }
+}
+
+test('outside a git work tree the .gitignore is read as text, as before', () => outsideAnyWorkTree(async () => {
   const { root, core, environment } = setup();
   await build(root, core);
   const noted = async (content: string | null) => {
@@ -208,12 +216,41 @@ test('outside a git work tree the .gitignore is read as text, as before', async 
   assert.equal(await noted('# *.generated.css\n*.generated.css\n'), false);
   assert.equal(await noted('src/*.generated.css\n'), false);
   assert.equal(await noted('node_modules\n!*.generated.css\n'), true);
+}));
+
+test('an output leaving the work tree falls back to the text reading and does not throw', { skip: gitSkip }, async () => {
+  const { root, core, environment } = setup();
+  assert.equal(spawnSync('git', ['init', '-q'], { cwd: root }).status, 0);
+  const away = mkdtempSync(join(tmpdir(), 'arena-away-'));
+  const { io, out } = captureIo(root, environment);
+  const code = await run(['-o', away], io);
+  rmSync(away, { recursive: true, force: true });
+  assert.ok(code === 0 || code === 1);
+  assert.ok(out.some((line) => line.includes('.gitignore does not cover *.generated.css')));
+  assert.ok(!out.some((line) => line.includes('note: git does not ignore')));
+});
+
+test('an ignored output with a non-ASCII path is not reported as unignored', { skip: gitSkip }, () => {
+  const root = mkdtempSync(join(tmpdir(), 'arena-ascii-'));
+  try {
+    assert.equal(spawnSync('git', ['init', '-q'], { cwd: root }).status, 0);
+    writeFileSync(join(root, '.gitignore'), '/\u00e9.css\n');
+    assert.deepEqual(unignoredOutputs(root, ['\u00e9.css', 'plain.css']), ['plain.css']);
+  } finally { rmSync(root, { recursive: true, force: true }); }
 });
 
 test('a failing git falls back to the text reading', () => {
   assert.equal(unignoredOutputs(join(tmpdir(), 'arena-no-such-root-0'), ['src/a.css']), null);
   assert.equal(unignoredOutputs(tmpdir(), []), null);
 });
+
+test('with git answering nothing for the tree, run keeps the old note', () => outsideAnyWorkTree(async () => {
+  const { root, core, environment } = setup();
+  await build(root, core);
+  const { io, out } = captureIo(root, environment);
+  assert.equal(await run([], io), 0);
+  assert.ok(out.some((line) => line.includes('.gitignore does not cover *.generated.css')));
+}));
 
 test('a build that writes the package sheet no source imports is a note naming the sheet, and an import clears it', async () => {
   const { root, core, environment } = setup();

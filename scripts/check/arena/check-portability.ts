@@ -84,9 +84,10 @@ export const RULES: Rule[] = [
   {
     id: 'bare-name-spawn',
     pattern: /\b(?:spawnSync|spawn|execFileSync|execFile|execSync|exec)\(\s*(?:'|")[^'"/\\]+(?:'|")/g,
-    owners: ['scripts/lib/arena/host-binary.ts'],
+    owners: ['scripts/lib/arena/host-binary.ts', 'scripts/generate/core/arena-cli/command-doctor.ts'],
     why: 'a binary is spawned by resolved path: there is no git on Windows, there is git.exe, '
-      + 'and which suffixes count is PATHEXT answer rather than node one',
+      + 'and which suffixes count is PATHEXT answer rather than node one; the shipped CLI imports only '
+      + 'node: built-ins, so it cannot reach host-binary.ts, and Node\'s spawn finds git.exe through its own PATH search',
   },
   {
     id: 'dot-bin-shim',

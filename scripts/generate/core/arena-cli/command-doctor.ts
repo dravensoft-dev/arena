@@ -1,6 +1,7 @@
 /* arena doctor: it compares the tree with what arena build would leave and names every difference,
  * then the environment around it. It writes nothing. A plan fatal, a missing, stale or orphan file
- * (a sheet, the sprite or its module) and a held environment report exit 1; notes never change the exit. */
+ * (a sheet, the sprite or its module) and a held environment report exit 1; notes never change the exit.
+ * unignoredOutputs answers null for an empty list, since git has nothing to answer, which is no answer rather than "all ignored". */
 import { spawnSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -40,13 +41,11 @@ function runsBuild(cwd: string) {
   }
 }
 
-const GIT = 'git';
-
 export function unignoredOutputs(cwd: string, paths: string[]): string[] | null {
   if (paths.length === 0) return null;
-  const asked = spawnSync(GIT, ['-C', cwd, 'check-ignore', '--', ...paths], { encoding: 'utf8' });
+  const asked = spawnSync('git', ['-C', cwd, 'check-ignore', '-z', '--stdin'], { encoding: 'utf8', input: `${paths.join('\0')}\0` });
   if (asked.error || (asked.status !== 0 && asked.status !== 1)) return null;
-  const ignored = new Set(asked.stdout.split(/\r?\n/).filter((line) => line !== ''));
+  const ignored = new Set(asked.stdout.split('\0').filter((one) => one !== ''));
   return paths.filter((one) => !ignored.has(one));
 }
 
