@@ -1220,6 +1220,12 @@
   outline-offset: var(--sp-1);
 }
 
+.arena-complete [data-arena-part="icon"] {
+  border-radius: var(--r-media);
+  outline: var(--bw-surface) dashed var(--edge-surface);
+  outline-offset: var(--sp-1);
+}
+
 .arena-complete [data-arena-part="icon-button"] {
   border-radius: var(--r-media);
   outline: var(--bw-surface) dashed var(--edge-surface);

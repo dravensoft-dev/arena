@@ -212,8 +212,8 @@ answers are true of two different designs. These are the ones already settled, s
 contract cites the convention rather than re-deriving it, and a reader of the contracts is
 never asked to remember which components are which.
 
-**A single icon is a primitive `string` carrying a Phosphor class name, never a slot.** Arena
-draws the `<i class="…">`; the consumer names the glyph. This keeps the glyph inside what
+**A single icon is a primitive `string` carrying a Phosphor class name, never a slot.** ArenaIcon
+draws the glyph from the sprite the project serves; the consumer names it. This keeps the glyph inside what
 `check:compliance` can judge, keeps the icon inside Arena's own iconography, and, the decisive
 reason, lets each layer gate the wrapper on the value's presence. Angular cannot
 detect a filled slot without a `contentChild` query on a marker directive, so an icon *slot*

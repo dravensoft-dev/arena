@@ -13,7 +13,7 @@
     {
       "title": "Display",
       "items": [
-        "ArenaCard", "ArenaKeyValue", "ArenaStatCard", "ArenaUnauthCard", "ArenaBadge", "ArenaKbd", "ArenaTag", "ArenaAvatar", "ArenaPeopleList", "ArenaPersonRow",
+        "ArenaCard", "ArenaKeyValue", "ArenaStatCard", "ArenaUnauthCard", "ArenaBadge", "ArenaKbd", "ArenaIcon", "ArenaTag", "ArenaAvatar", "ArenaPeopleList", "ArenaPersonRow",
         "ArenaSkeleton", "ArenaTable", "ArenaTableRow", "ArenaTableCell", "ArenaActivityFeed", "ArenaTimeline",
         "ArenaCalendar", "ArenaCalendarEvent"
       ]

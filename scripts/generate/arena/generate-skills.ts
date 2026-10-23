@@ -100,7 +100,7 @@ import { ArenaButton, ArenaTag } from '${PACKAGES.react}';
 \`\`\`
 
 A member is a prop. The main slot is \`children\`, a named slot is a prop taking a node, and an
-event is an \`on\`-prefixed handler. An icon is a Phosphor class-name string, never an element.`,
+event is an \`on\`-prefixed handler. An icon is a Phosphor class-name string, drawn by Arena's components or by ArenaIcon; a raw ph-* element paints nothing.`,
   angular: `\`\`\`ts
 import { ArenaButton, ArenaTag } from '${PACKAGES.angular}';
 \`\`\`
@@ -108,7 +108,7 @@ import { ArenaButton, ArenaTag } from '${PACKAGES.angular}';
 Every component is standalone: put its class in the host component's \`imports\`, then write its
 \`arena-\` element. A member is a signal input, an event is an output under the name the contract
 gives it, and the main slot is content projection. A named slot is a marker directive, and it goes
-in \`imports\` as well. A component cannot tell an un-imported marker from an unfilled slot. An icon is a Phosphor class-name string, never an element.`,
+in \`imports\` as well. A component cannot tell an un-imported marker from an unfilled slot. An icon is a Phosphor class-name string, drawn by Arena's components or by ArenaIcon; a raw ph-* element paints nothing.`,
 };
 
 const INDEX_HEADER = `${GENERATED}

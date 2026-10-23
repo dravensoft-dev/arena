@@ -18,7 +18,7 @@ import { ArenaButton, ArenaTag } from '@dravensoft/arena-angular';
 Every component is standalone: put its class in the host component's `imports`, then write its
 `arena-` element. A member is a signal input, an event is an output under the name the contract
 gives it, and the main slot is content projection. A named slot is a marker directive, and it goes
-in `imports` as well. A component cannot tell an un-imported marker from an unfilled slot. An icon is a Phosphor class-name string, never an element.
+in `imports` as well. A component cannot tell an un-imported marker from an unfilled slot. An icon is a Phosphor class-name string, drawn by Arena's components or by ArenaIcon; a raw ph-* element paints nothing.
 
 - Every other category this layer ships: [`../../INDEX.md`](../../INDEX.md).
 - Installing the package, declaring your skin, and what it exports besides components:

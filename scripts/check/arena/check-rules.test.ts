@@ -121,6 +121,6 @@ test('the router-link rule names every component audit.ts holds', () => {
 test('the icon rule sends a static page to the weight sheets and a build to the package', () => {
   const icons = RULES.find((one) => one.id === 'icons-are-strings');
   assert.ok(icons, 'icons-are-strings is declared');
-  assert.match(icons.body, /In a project with a build, install `@phosphor-icons\/web`/);
+  assert.match(icons.body, /a raw `ph-\*` element needs the project's own `@phosphor-icons\/web`/);
   assert.match(icons.body, /static page links the weight sheets[^.]*references\/artifact\.md/);
 });

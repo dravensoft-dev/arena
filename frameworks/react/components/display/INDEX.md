@@ -16,7 +16,7 @@ import { ArenaButton, ArenaTag } from '@dravensoft/arena-react';
 ```
 
 A member is a prop. The main slot is `children`, a named slot is a prop taking a node, and an
-event is an `on`-prefixed handler. An icon is a Phosphor class-name string, never an element.
+event is an `on`-prefixed handler. An icon is a Phosphor class-name string, drawn by Arena's components or by ArenaIcon; a raw ph-* element paints nothing.
 
 - Every other category this layer ships: [`../../INDEX.md`](../../INDEX.md).
 - Installing the package, declaring your skin, and what it exports besides components:
@@ -38,6 +38,7 @@ event is an `on`-prefixed handler. An icon is a Phosphor class-name string, neve
 | `ArenaCalendar` | Week or day schedule on a time grid. Colour is identity, never state. | `children` `timeZone` `anchorDate` `view` `dayStart` `dayEnd` `weekStartsOn` `hideEmptyWeekend` `dayInteractive` `onDateClick` `onRangeChange` `actions` | [`ArenaCalendar.prompt.md`](./arena-calendar/ArenaCalendar.prompt.md) |
 | `ArenaCalendarEvent` | One event on an ArenaCalendar's schedule. Times are ISO datetimes read in the calendar's timeZone, never the reader's. ArenaCalendar draws the chip; the consumer writes one of these per event and ArenaCalendar settles where it goes. | `id*` `title*` `start*` `end*` `colorId` `details` `interactive` `actionsEnabled` `actions` `disabled` `onClick` | [`ArenaCalendarEvent.prompt.md`](./arena-calendar-event/ArenaCalendarEvent.prompt.md) |
 | `ArenaCard` | Surface container. Hairline border on the base surface scale; depth comes from the shadow, never a gradient. | `children` `interactive` `disabled` `href` `action` `title` `headingLevel` `eyebrow` `onClick` | [`ArenaCard.prompt.md`](./arena-card/ArenaCard.prompt.md) |
+| `ArenaIcon` | Draws one glyph from the sprite the project serves and hides it from assistive technology, so the component that draws it owns the name. Absent a sprite or a glyph it renders nothing. | `icon*` | [`ArenaIcon.prompt.md`](./arena-icon/ArenaIcon.prompt.md) |
 | `ArenaKbd` | A key, or a combination of keys, named in running text: help, an empty state, a tooltip. The combination is one <kbd> holding one <kbd> per key, which is how HTML spells a key as it appears on a keyboard. The cap is drawn in the key register the escape cap of ArenaCommandPalette draws in, so a plugin answers every cap at once. A key is text: a symbol such as the command glyph is a character in keys, never an icon. ArenaKbd binds no key; a shortcut stays the host's. | `keys*` `separator` `label` | [`ArenaKbd.prompt.md`](./arena-kbd/ArenaKbd.prompt.md) |
 | `ArenaKeyValue` | A list of terms and the values against them, with an optional summed row ruled off at the bottom. The list suits a basket summary, an order, an invoice, or a panel of facts about a resource. The component renders a real definition list, so the association between a term and its value is the platform's rather than a class name's. | `rows*` `total` | [`ArenaKeyValue.prompt.md`](./arena-key-value/ArenaKeyValue.prompt.md) |
 | `ArenaPeopleList` | A list of people, each row a face with a name and, where the list is about a quantity, a figure beside it. Standings, assignees, members, suggestions. The list owns the semantics and the row size; a row owns what it says. | `label*` `ordered` `children` | [`ArenaPeopleList.prompt.md`](./arena-people-list/ArenaPeopleList.prompt.md) |
@@ -51,4 +52,4 @@ event is an `on`-prefixed handler. An icon is a Phosphor class-name string, neve
 | `ArenaTimeline` | The stages one thing moves through, in order and joined by a line: an order shipped, a release train, a case history. A row is a milestone with a title, a time and a meaning; it is not an event someone performed, which is ArenaActivityFeed. Nothing in it is operated. | `label*` `items*` `index` | [`ArenaTimeline.prompt.md`](./arena-timeline/ArenaTimeline.prompt.md) |
 | `ArenaUnauthCard` | The panel a signed-out screen needs: sign in, check your inbox, this link expired, a two-factor code. The card knows nothing about credentials on purpose, and the fields are composed inside it. | `brand` `eyebrow` `title` `headingLevel` `children` `footer` | [`ArenaUnauthCard.prompt.md`](./arena-unauth-card/ArenaUnauthCard.prompt.md) |
 
-18 display components in this layer.
+19 display components in this layer.

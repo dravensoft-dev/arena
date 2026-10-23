@@ -16,7 +16,7 @@ name in every state regardless. Standalone, `OnPush`, signal I/O. The host stays
 
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
-| `icon*` | primitive | `string` |  | Phosphor class name, e.g. 'ph-bold ph-plus'. Arena draws the <i> and hides it from assistive technology; `label` is the accessible name. |
+| `icon*` | primitive | `string` |  | Phosphor class name, e.g. 'ph-bold ph-plus'. ArenaIcon draws the glyph and hides it from assistive technology; `label` is the accessible name. |
 | `label*` | primitive | `string` |  | The accessible name, present in every state. Also the visible text when showLabel is set, and the title attribute when it is not. |
 | `showLabel` | primitive | `boolean` | `false` | Shows the label as text beside the icon (H6). Don't rely on the title alone on touch or keyboard surfaces. |
 | `pressed` | primitive | `boolean` |  | Whether this control is a toggle, and whether it is currently on. Present, Arena writes aria-pressed and draws the on state with the same accent tint a current ArenaSideNav item takes, so "this one is on" is one statement across the library. Absent, the control is not a toggle at all. The tri-state is the point and a default of false would destroy it. aria-pressed="false" on a plain button announces a toggle that is off rather than a button, so every ArenaIconButton in the system would announce as an unpressed toggle. The label does NOT change with the state, which is what the button pattern means by a toggle. A control that renames itself is announced as a different control rather than as the same one in another state. |

@@ -46,9 +46,9 @@ export class ArenaSwitch {
 
   /** The current on/off value. Controlled: the consumer owns it and pushes it each render. */
   readonly state = input(false, { transform: booleanAttribute });
-  /** A Phosphor class name for the glyph shown while on. Arena draws the aria-hidden `<i>`. */
+  /** A Phosphor class name for the glyph shown while on. ArenaIcon draws it, hidden from assistive technology. */
   readonly iconOn = input<string>();
-  /** A Phosphor class name for the glyph shown while off. */
+  /** A Phosphor class name for the glyph shown while off, drawn through ArenaIcon. */
   readonly iconOff = input<string>();
   /** The accessible name for the switch, also drawn beside it. */
   readonly label = input.required<string>();

@@ -10,7 +10,7 @@ export interface ArenaIconButtonProps {
   className?: ArenaIconButtonClass;
 
 
-  /** Phosphor class name, e.g. 'ph-bold ph-plus'. Arena draws the <i> and hides it from assistive technology; `label` is the accessible name. */
+  /** Phosphor class name, e.g. 'ph-bold ph-plus'. ArenaIcon draws the glyph and hides it from assistive technology; `label` is the accessible name. */
   icon: string;
 
   /** The accessible name, present in every state. Also the visible text when showLabel is set, and the title attribute when it is not. */

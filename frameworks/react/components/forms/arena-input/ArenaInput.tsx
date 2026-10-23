@@ -37,7 +37,7 @@ export interface ArenaInputProps {
   /** Native input type. */
   type?: ArenaInputType;
 
-  /** Phosphor class name drawn at the field's start. */
+  /** Phosphor class name drawn at the field's start through ArenaIcon. */
   icon?: string;
 
   /** Static text Arena draws before the value, e.g. `git@`. */

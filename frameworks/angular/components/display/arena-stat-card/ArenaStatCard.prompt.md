@@ -42,7 +42,7 @@ protected readonly incidents: ArenaStatDelta = { value: '2', direction: 'up', to
 | `tone` | enum | `ArenaTone` | `"neutral"` | What state the number IS in right now, as against how it moved. ArenaBadge's vocabulary: neutral says nothing about state. |
 | `delta` | object | `ArenaStatDelta` |  | How the number moved. Absent renders no marker. |
 | `sub` | primitive | `string` |  | Small muted line under the value: context, e.g. "vs last week". |
-| `icon` | primitive | `string` |  | A Phosphor class name for a small glyph beside the label, drawn muted. Arena renders the aria-hidden wrapper and the `<i>`. |
+| `icon` | primitive | `string` |  | A Phosphor class name for a small glyph beside the label, drawn muted. ArenaIcon draws it, hidden from assistive technology. |
 
 <!-- @api end -->
 

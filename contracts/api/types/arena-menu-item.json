@@ -6,7 +6,7 @@
     "label": { "form": "primitive", "type": "string",
                "description": "What the row reads." },
     "icon": { "form": "primitive", "type": "string",
-              "description": "A Phosphor class name drawn before the label -- Arena draws the <i>, the consumer names the glyph." },
+              "description": "A Phosphor class name drawn before the label -- ArenaIcon draws it, the consumer names the glyph." },
     "shortcut": { "form": "primitive", "type": "string",
                   "description": "The keyboard hint drawn right-aligned in the mono face. Display only: ArenaMenu binds no key for it." },
     "destructive": { "form": "primitive", "type": "boolean", "default": false,

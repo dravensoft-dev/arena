@@ -38,7 +38,7 @@ export interface ArenaSelectProps {
   /** Force the valid (green check) state. */
   valid?: boolean;
 
-  /** Phosphor class name drawn at the field's start. */
+  /** Phosphor class name drawn at the field's start through ArenaIcon. */
   icon?: string;
 
   /** Submitted with the form. */

@@ -149,7 +149,7 @@ export class ArenaMultiSelect {
   readonly error = input<string>();
   /** Forces the valid state, drawn with a check glyph at the field's end. */
   readonly valid = input(false, { transform: booleanAttribute });
-  /** Phosphor class name drawn at the field's start. */
+  /** Phosphor class name drawn at the field's start through ArenaIcon. */
   readonly icon = input<string>();
   /** Submitted with the form. Each chosen value is submitted under it as a hidden input, so a form posts a repeated field; nothing is drawn without a name. */
   readonly name = input<string>();

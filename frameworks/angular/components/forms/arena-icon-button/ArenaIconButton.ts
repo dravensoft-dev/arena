@@ -33,7 +33,7 @@ import { ArenaSlotAttributes } from '../../../SlotData';
 export class ArenaIconButton {
   protected readonly parts = manifest.parts;
 
-  /** Phosphor class name, e.g. 'ph-bold ph-plus'. Arena draws the <i> and hides it from assistive technology; `label` is the accessible name. */
+  /** Phosphor class name, e.g. 'ph-bold ph-plus'. ArenaIcon draws the glyph and hides it from assistive technology; `label` is the accessible name. */
   readonly icon = input.required<string>();
   /** The accessible name, present in every state. Also the visible text when showLabel is set, and the title attribute when it is not. */
   readonly label = input.required<string>();

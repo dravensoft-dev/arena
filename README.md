@@ -83,7 +83,8 @@ full and says which of them a gate reads your own sources for.
 - One primary accent per view.
 - No gradients, on any surface.
 - No emoji, in product or in copy.
-- Icons are Phosphor class-name strings, never elements and never SVG.
+- Icons are Phosphor class-name strings, drawn by Arena's components or
+  by ArenaIcon; a raw ph-* element paints nothing.
 - Never wrap an Arena component in your router's own link.
 - An anchor Arena draws splits its activations.
 - A press that starts on a control keeps to that control.

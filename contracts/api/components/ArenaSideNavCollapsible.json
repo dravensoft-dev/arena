@@ -21,7 +21,7 @@
     "icon": {
       "form": "primitive",
       "type": "string",
-      "description": "A Phosphor class name drawn before the label. The caret that reports expanded-ness is Arena's own and is not this member."
+      "description": "A Phosphor class name drawn before the label through ArenaIcon. The caret that reports expanded-ness is Arena's own and is not this member."
     },
     "defaultExpanded": {
       "form": "primitive",

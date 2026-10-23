@@ -32,7 +32,7 @@ the column its parent lays out. The control is a real `<input>`, named by a real
 | `validate` | functionInput | `(value: string) => string` |  | Called on the value; returns the error message, or empty for valid. |
 | `validateOn` | enum | `ArenaValidateOn` | `"blur"` | When `validate` runs. |
 | `type` | enum | `ArenaInputType` | `"text"` | Native input type. |
-| `icon` | primitive | `string` |  | Phosphor class name drawn at the field's start. |
+| `icon` | primitive | `string` |  | Phosphor class name drawn at the field's start through ArenaIcon. |
 | `prefix` | primitive | `string` |  | Static text Arena draws before the value, e.g. `git@`. |
 | `value` | primitive | `string` |  | The controlled text. |
 | `disabled` | primitive | `boolean` | `false` | Blocks editing and dims it. |

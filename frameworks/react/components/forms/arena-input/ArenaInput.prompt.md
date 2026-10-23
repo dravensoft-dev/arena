@@ -22,7 +22,7 @@ Text field with validation (H5). Focus = gold ring, error = crimson with icon, v
 | `validate` | functionInput | `(value: string) => string` |  | Called on the value; returns the error message, or empty for valid. |
 | `validateOn` | enum | `ArenaValidateOn` | `"blur"` | When `validate` runs. |
 | `type` | enum | `ArenaInputType` | `"text"` | Native input type. |
-| `icon` | primitive | `string` |  | Phosphor class name drawn at the field's start. |
+| `icon` | primitive | `string` |  | Phosphor class name drawn at the field's start through ArenaIcon. |
 | `prefix` | primitive | `string` |  | Static text Arena draws before the value, e.g. `git@`. |
 | `value` | primitive | `string` |  | The controlled text. |
 | `disabled` | primitive | `boolean` | `false` | Blocks editing and dims it. |

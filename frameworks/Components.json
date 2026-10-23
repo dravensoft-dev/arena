@@ -23,6 +23,7 @@
     "ArenaCalendar",
     "ArenaCalendarEvent",
     "ArenaCard",
+    "ArenaIcon",
     "ArenaKbd",
     "ArenaKeyValue",
     "ArenaPeopleList",

@@ -6,7 +6,7 @@
     "content": { "form": "slot", "required": true,
                  "description": "The primary half's label, such as \"Deploy\". Required, and guarded at runtime: a primary half with no label names no action." },
     "icon": { "form": "primitive", "type": "string",
-              "description": "Phosphor class name drawn before the label. Replaced by the spinner while loading." },
+              "description": "Phosphor class name drawn before the label through ArenaIcon. Replaced by the spinner while loading." },
     "destructive": { "form": "primitive", "type": "boolean", "default": false,
                      "description": "Whether the primary action destroys or removes something. Both halves draw the danger outline whatever emphasis the split is given: danger is never filled." },
     "loading": { "form": "primitive", "type": "boolean", "default": false,

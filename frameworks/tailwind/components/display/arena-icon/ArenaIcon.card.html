@@ -1,0 +1,37 @@
+<!-- @dsCard group="Tailwind" viewport="700x163" name="ArenaIcon" subtitle="A glyph sized by the font-size it sits in, rendered from ArenaIcon.manifest.json" -->
+<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../../../../intro/styles.css">
+<link rel="stylesheet" href="../../../consume/Preflight.generated.css">
+<link rel="stylesheet" href="../../../consume/components/display/arena-icon/ArenaIcon.styles.generated.css">
+<link rel="stylesheet" href="../../../Specimen.css">
+</head><body><div id="root"></div>
+<script type="module">
+import { mountSpecimen, section, el, arenaClassesFor, arenaSlotDataFor } from '../../../Specimen.js';
+
+const manifest = await (await fetch('./ArenaIcon.manifest.json')).json();
+
+// A glyph is a symbol of the sprite, drawn by a use element and sized by the font-size around it.
+function glyph() {
+  const c = arenaClassesFor(manifest);
+  const d = arenaSlotDataFor(manifest);
+  const NS = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(NS, 'svg');
+  svg.setAttribute('class', c.root);
+  for (const [k, v] of Object.entries(d.root)) svg.setAttribute(k, v);
+  svg.setAttribute('aria-hidden', 'true');
+  svg.setAttribute('focusable', 'false');
+  svg.innerHTML = '<path d="M12 3l2.7 5.9 6.3.7-4.7 4.3 1.3 6.3L12 17l-5.6 3.2 1.3-6.3L3 9.6l6.3-.7z"/>';
+  return svg;
+}
+
+mountSpecimen({ sections: [
+  section('Sized by the font-size it sits in', [
+    el('span', { style: 'font-size: 1rem' }, glyph()),
+    el('span', { style: 'font-size: 1.5rem' }, glyph()),
+    el('span', { style: 'font-size: 2.5rem' }, glyph()),
+  ]),
+  section('Coloured by the text colour it sits in', [
+    el('span', { style: 'font-size: 2rem; color: var(--accent-primary-ink)' }, glyph()),
+  ]),
+]});
+</script></body></html>

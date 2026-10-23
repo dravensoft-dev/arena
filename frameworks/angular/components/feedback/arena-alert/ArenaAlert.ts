@@ -54,7 +54,7 @@ export class ArenaAlert {
   );
   /** An optional bold lead line above the message. */
   readonly title = input<string>();
-  /** A Phosphor class name overriding the tone's default glyph. Arena draws it. */
+  /** A Phosphor class name overriding the tone's default glyph. ArenaIcon draws it. */
   readonly icon = input<string>();
   /** The label of a single inline action button. Absent renders no action. */
   readonly actionLabel = input<string>();

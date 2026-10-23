@@ -16,6 +16,6 @@
     "tone": { "form": "enum", "type": "ArenaTone", "default": "neutral",
               "description": "The milestone's meaning, which is not its progress: a complete milestone can be danger. A toned dot carries the tone's glyph, so the tone is never colour alone; neutral draws a plain dot. Tone is not spoken: the title says what happened." },
     "icon": { "form": "primitive", "type": "string",
-              "description": "A Phosphor class name drawn in the dot in place of the tone's glyph." }
+              "description": "A Phosphor class name drawn in the dot in place of the tone's glyph, through ArenaIcon." }
   }
 }

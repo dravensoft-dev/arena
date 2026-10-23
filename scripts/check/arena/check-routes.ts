@@ -51,7 +51,7 @@ export const ENTRIES: Entry[] = [
   {
     name: 'consumer',
     router: 'skills/design/SKILL.md',
-    budget: 20_800,
+    budget: 20_950,
     reason:
       'the page every consumer route opens with, declared once, not as the first stop of '
       + 'each route. What a route pays past it is its own, and each is argued where spent. '
@@ -59,7 +59,7 @@ export const ENTRIES: Entry[] = [
       + 'situation: whether a component exists, how much of Arena a project takes, what it '
       + 'installs Arena with, where the appearance comes from, whether anybody outside the product '
       + 'has to find it, how a page is assembled, and where a defect goes once it is proved to be '
-      + 'Arena\'s. Everything asked later belongs to the node that asks it. The rules list is '
+      + 'Arena\'s. The rules list is '
       + 'emitted from one declaration, so each rule names its audit tag, or says why '
       + 'none reads it. What moves this number is a new question, or a helper '
       + 'a reader cannot ask for by name, or a tag beside the one it '
@@ -67,7 +67,7 @@ export const ENTRIES: Entry[] = [
       + 'style decision reaches which component owner and answer the route\'s questions about '
       + 'appearance sources at the decision layer. The tokens-only rule names the bracket values '
       + 'audit holds. A row routes a mock to the artifact page. The router-link rule names each member '
-      + 'with an href, and the icon rule names production code.',
+      + 'with an href, and the icon rule names production code and the component that draws a glyph.',
   },
   {
     name: 'contributor',
@@ -343,7 +343,7 @@ export const ROUTES: Route[] = [
       + 'and the shape a token is authored in',
     entry: 'contributor',
     stops: ['contracts/AGENTS.md', 'contracts/design/AGENTS.md', 'contracts/design/TokenTypes.md'],
-    budget: 70_900,
+    budget: 71_000,
     reason:
       'the normative half of the tree, where a stop is read for what a value means rather than for '
       + 'how to write one, so it is bounded by what a person can hold rather than by what an agent '
@@ -353,11 +353,10 @@ export const ROUTES: Route[] = [
       + 'obliges on each platform, and the shapes in the type map that read one way on the web and '
       + 'another elsewhere. The specification states the muted levels as floors a palette moves up '
       + 'and never down, target size as the axis density answers, and what DTCG deliberately does not '
-      + 'model. The route moves when the level describes something bigger, never when it describes '
-      + 'the same thing at more length. It states the frame shapes and the roles a kind answers, and '
+      + 'model. It states the frame shapes and the roles a kind answers, and '
       + 'names the filled status mark beside the presence dot. The type map names the keyword tokens a '
       + 'role may default to and the half spacing step. The ramp paragraph states how a chart '
-      + 'counts a positional slot, which is part of what a slot means.',
+      + 'counts a positional slot, which is part of what a slot means. It names the glyph component and its sprite.',
   },
   {
     name: 'contributor-gate',

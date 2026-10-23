@@ -26,7 +26,7 @@ Arena multi-select, a text field that filters a list of options and holds a set 
 | `hint` | primitive | `string` |  | A line of help under the field. |
 | `error` | primitive | `string` |  | Controlled error message, and the whole validation surface: every value is an option's or one the consumer supplied, so there is nothing for a validator to parse. |
 | `valid` | primitive | `boolean` | `false` | Forces the valid state, drawn with a check glyph at the field's end. |
-| `icon` | primitive | `string` |  | Phosphor class name drawn at the field's start. |
+| `icon` | primitive | `string` |  | Phosphor class name drawn at the field's start through ArenaIcon. |
 | `name` | primitive | `string` |  | Submitted with the form. Each chosen value is submitted under it as a hidden input, so a form posts a repeated field; nothing is drawn without a name. |
 | `change` | event | `ArenaValueSet` |  | The chosen set changed, by a row, a chip or the clear control; carries the whole new set, never a difference. |
 | `search` | event | `string` |  | The text the list is filtered by changed; carries the new text, empty after a pick, Escape or a blur. The hook a remote search listens to. |

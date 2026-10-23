@@ -15,6 +15,10 @@ import { ArenaButton } from '../components/forms/arena-button/ArenaButton';
 import { ArenaIconButton } from '../components/forms/arena-icon-button/ArenaIconButton';
 import { ArenaMenu } from '../components/navigation/arena-menu/ArenaMenu';
 import { ArenaPopover } from '../components/feedback/arena-popover/ArenaPopover';
+import { ArenaIcon } from '../components/display/arena-icon/ArenaIcon';
+import { forgetArenaWarnings } from '../WarnOnce';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 
 const PAGE = '<!doctype html><html><head></head><body><server-render-host></server-render-host></body></html>';
 
@@ -33,7 +37,15 @@ class ServerRenderHost {
   readonly items: ArenaMenuItem[] = [{ label: 'Promote' }];
 }
 
-async function renderOnServer(): Promise<{ html: string; logged: string[] }> {
+@Component({
+  selector: 'server-render-host',
+  standalone: true,
+  imports: [ArenaIcon],
+  template: `<arena-icon icon="ph-bold ph-plus" /><arena-icon icon="ph ph-bell" />`,
+})
+class IconRenderHost {}
+
+async function renderOnServer(root: typeof ServerRenderHost | typeof IconRenderHost = ServerRenderHost): Promise<{ html: string; logged: string[] }> {
   const saved = new Map(Object.getOwnPropertyNames(globalThis)
     .map((key) => [key, Object.getOwnPropertyDescriptor(globalThis, key)] as const));
   const log = console.log;
@@ -41,7 +53,7 @@ async function renderOnServer(): Promise<{ html: string; logged: string[] }> {
   console.log = (...args: unknown[]) => { logged.push(args.map(String).join(' ')); };
   try {
     const html = await renderApplication(
-      (context) => bootstrapApplication(ServerRenderHost, { providers: [provideServerRendering()] }, context),
+      (context) => bootstrapApplication(root, { providers: [provideServerRendering()] }, context),
       { document: PAGE, url: '/' },
     );
     return { html, logged };
@@ -75,4 +87,23 @@ test('the server render hands the document back to happy-dom', async () => {
   assert.ok(new Event('probe') instanceof window.Event);
   const target = document.createElement('div');
   assert.doesNotThrow(() => target.dispatchEvent(new Event('probe')));
+});
+
+test('the server render holds no use and reads no document', async () => {
+  forgetArenaWarnings();
+  const warned: string[] = [];
+  const warn = console.warn;
+  console.warn = (...args: unknown[]) => { warned.push(args.map(String).join(' ')); };
+  try {
+    const { html } = await renderOnServer(IconRenderHost);
+    assert.doesNotMatch(html, /<svg|<use/);
+    assert.equal(warned.length, 1);
+    assert.match(warned[0] ?? '', /ArenaIcon has no sprite/);
+  } finally {
+    console.warn = warn;
+  }
+  const layer = join(import.meta.dirname, '..');
+  for (const file of ['ArenaIcons.ts', 'components/display/arena-icon/ArenaIcon.ts']) {
+    assert.doesNotMatch(readFileSync(join(layer, file), 'utf8'), /\b(document|window|fetch)\b/, `${file} reads the browser`);
+  }
 });

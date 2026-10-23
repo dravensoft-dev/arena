@@ -42,6 +42,7 @@ export const OWN_WIDTH = new Map<string, string>([
   ['ArenaLink', 'a run of text inside a sentence, whose width is the words; it wraps with the line it sits in'],
   ['ArenaCopyButton', 'a wrapper around one icon button and a hidden region, whose width is the button; the fill family is a box family it does not answer, so it never stretches'],
   ['ArenaSpinner', 'a glyph, whose box is the glyph'],
+  ['ArenaIcon', 'a glyph, whose box is the glyph'],
   ['ArenaCheckbox', 'a tick and its label; stretching it widens the pressable area to the whole row'],
   ['ArenaRadio', 'a dot and its label; stretching it widens the pressable area to the whole row'],
   ['ArenaSwitch', 'a track and its label; stretching it widens the pressable area to the whole row'],

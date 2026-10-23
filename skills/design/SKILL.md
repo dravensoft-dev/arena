@@ -123,10 +123,11 @@ source text cannot show, is `arena://rules` on the MCP server.
   the one exception. A brand whose mark is a gradient sets `gradientMark` in `arena.config.json`.
   **`arena audit` reports this one, as `raw-value`.**
 - **No emoji, in product or in copy.** **`arena audit` reports this one, as `emoji`.**
-- **Icons are Phosphor class-name strings, never elements and never SVG.** Write `icon="ph-bold
-  ph-plus"`. In a project with a build, install `@phosphor-icons/web`, because Arena never bundles
-  it. A static page links the weight sheets instead, as `references/artifact.md` shows. **`arena
-  audit` reports this one, as `icon-element`.**
+- **Icons are Phosphor class-name strings, drawn by Arena's components or by ArenaIcon; a raw ph-*
+  element paints nothing.** Write `icon="ph-bold ph-plus"`. Arena draws each glyph from the sprite
+  `arena build` writes, and a raw `ph-*` element needs the project's own `@phosphor-icons/web`,
+  which Arena never bundles. A static page links the weight sheets instead, as
+  `references/artifact.md` shows. **`arena audit` reports this one, as `icon-element`.**
 - **Never wrap an Arena component in your router's own link.** That nests an anchor inside an
   anchor, and in Angular it does not bind at all. Pass the href to the component and route from
   the event it reports. An `ArenaLink` inside a link of your own is reported as `wrapped-link`.

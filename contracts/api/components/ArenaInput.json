@@ -15,7 +15,7 @@
                   "description": "Called on the value; returns the error message, or empty for valid." },
     "validateOn": { "form": "enum", "type": "ArenaValidateOn", "default": "blur", "description": "When `validate` runs." },
     "type": { "form": "enum", "type": "ArenaInputType", "default": "text", "description": "Native input type." },
-    "icon": { "form": "primitive", "type": "string", "description": "Phosphor class name drawn at the field's start." },
+    "icon": { "form": "primitive", "type": "string", "description": "Phosphor class name drawn at the field's start through ArenaIcon." },
     "prefix": { "form": "primitive", "type": "string", "description": "Static text Arena draws before the value, e.g. `git@`." },
     "value": { "form": "primitive", "type": "string", "description": "The controlled text." },
     "disabled": { "form": "primitive", "type": "boolean", "default": false, "description": "Blocks editing and dims it." },

@@ -21,7 +21,7 @@
     "icon": {
       "form": "primitive",
       "type": "string",
-      "description": "A Phosphor class name drawn before the label -- Arena draws the <i>, the consumer names the glyph. **The ACTIVE row is drawn in the filled weight, and there is no member for it.** The item whose id matches ArenaSideNav.active swaps whatever weight the string carries for `ph-fill`, so a consumer passes one string per destination rather than two and a conditional. The filled weight is Arena's convention, so Arena applies it. This convention follows the judgement that inverted ArenaPageHead's guidance rather than adding a boolean whose false nobody wants. Pass `ph-fill` yourself and nothing changes, since the swap is idempotent."
+      "description": "A Phosphor class name drawn before the label -- ArenaIcon draws it, the consumer names the glyph. **The ACTIVE row is drawn in the filled weight, and there is no member for it.** The item whose id matches ArenaSideNav.active swaps whatever weight the string carries for `ph-fill`, so a consumer passes one string per destination rather than two and a conditional. The filled weight is Arena's convention, so Arena applies it. This convention follows the judgement that inverted ArenaPageHead's guidance rather than adding a boolean whose false nobody wants. Pass `ph-fill` yourself and nothing changes, since the swap is idempotent."
     },
     "disabled": {
       "form": "primitive",

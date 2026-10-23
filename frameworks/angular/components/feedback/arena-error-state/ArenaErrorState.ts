@@ -49,7 +49,7 @@ export class ArenaErrorState {
   protected readonly locale = inject(ARENA_LOCALE);
   protected readonly heading = computed(() => this.title() ?? this.locale.errorStateTitle);
 
-  /** A Phosphor class name for the danger glyph Arena draws. */
+  /** A Phosphor class name for the danger glyph ArenaIcon draws. */
   readonly icon = input<string>();
   /** The headline: what failed. Absent, the provided locale's errorStateTitle answers it. */
   readonly title = input<string>();

@@ -1,0 +1,9 @@
+{
+  "component": "ArenaIcon",
+  "slots": {
+    "root": "inline-block size-[1em] shrink-0 fill-current align-[-0.125em]"
+  },
+  "kind": {
+    "root": "none"
+  }
+}

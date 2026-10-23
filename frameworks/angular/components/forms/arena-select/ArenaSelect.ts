@@ -78,7 +78,7 @@ export class ArenaSelect {
   readonly error = input<string>();
   /** Force the valid (green check) state. */
   readonly valid = input(false, { transform: booleanAttribute });
-  /** Phosphor class name drawn at the field's start. */
+  /** Phosphor class name drawn at the field's start through ArenaIcon. */
   readonly icon = input<string>();
   /** Submitted with the form. */
   readonly name = input<string>();

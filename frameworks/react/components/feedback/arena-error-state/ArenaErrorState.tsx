@@ -11,7 +11,7 @@ import { arenaClassName } from '../../../VocabularyClass.ts';
 export interface ArenaErrorStateProps {
   className?: ArenaErrorStateClass;
 
-  /** A Phosphor class name for the danger glyph Arena draws. */
+  /** A Phosphor class name for the danger glyph ArenaIcon draws. */
   icon?: string;
   /** The headline: what failed. Absent, the provided locale's errorStateTitle answers it. */
   title?: string;

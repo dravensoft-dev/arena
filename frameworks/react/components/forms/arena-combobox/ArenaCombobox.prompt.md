@@ -23,7 +23,7 @@ A text field that filters a list of options as the user types, for a form value 
 | `hint` | primitive | `string` |  | A line of help under the field. |
 | `error` | primitive | `string` |  | Controlled error message, and the whole validation surface: the value is always an option's, so there is nothing for a validator to reject that the options did not already prevent. |
 | `valid` | primitive | `boolean` | `false` | Forces the valid state, drawn with a check glyph at the field's end. |
-| `icon` | primitive | `string` |  | Phosphor class name drawn at the field's start. |
+| `icon` | primitive | `string` |  | Phosphor class name drawn at the field's start through ArenaIcon. |
 | `name` | primitive | `string` |  | Submitted with the form. The chosen value is submitted, never the label, through a hidden input drawn only when a name is given. |
 | `onChange` | event | `string` |  | A different option was chosen; carries its value. An emptied field committed on a control that is not required reports the empty string. |
 | `onSearch` | event | `string` |  | The text the list is filtered by changed; carries the new text, empty after a choice, Escape or a blur. The hook a remote search listens to. |

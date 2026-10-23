@@ -8,7 +8,7 @@
     "label": { "form": "primitive", "type": "string", "required": true,
                "description": "The button's text." },
     "icon": { "form": "primitive", "type": "string",
-              "description": "A Phosphor class name for the leading glyph Arena draws." },
+              "description": "A Phosphor class name for the leading glyph ArenaIcon draws." },
     "destructive": { "form": "primitive", "type": "boolean",
                      "description": "Renders the action outlined in the danger hue's edge and ink, transparent at rest, rather than in the quiet control edge and body ink." }
   }

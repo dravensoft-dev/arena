@@ -45,7 +45,7 @@ export class ArenaSideNavCollapsible {
   readonly id = input.required<string>();
   /** What the trigger reads, and the accessible name of both the trigger and the region it controls. Required and falsy-guarded. */
   readonly label = input.required<string>();
-  /** A Phosphor class name drawn before the label. The caret that reports expanded-ness is Arena's own and is not this member. */
+  /** A Phosphor class name drawn before the label through ArenaIcon. The caret that reports expanded-ness is Arena's own and is not this member. */
   readonly icon = input<string>();
   /** Whether the group starts open. The value is a seed, not a control: after the first render the state is the component's. The group also opens itself when it comes to hold the active destination. */
   readonly defaultExpanded = input(false, { transform: booleanAttribute });

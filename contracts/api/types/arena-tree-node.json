@@ -23,7 +23,7 @@
     "icon": {
       "form": "primitive",
       "type": "string",
-      "description": "A Phosphor class name drawn before the label. The icon is decorative: the name of the node is its label."
+      "description": "A Phosphor class name drawn before the label through ArenaIcon. The icon is decorative: the name of the node is its label."
     },
     "disabled": {
       "form": "primitive",

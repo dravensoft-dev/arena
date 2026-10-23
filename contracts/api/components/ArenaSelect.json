@@ -57,7 +57,7 @@
     "icon": {
       "form": "primitive",
       "type": "string",
-      "description": "Phosphor class name drawn at the field's start."
+      "description": "Phosphor class name drawn at the field's start through ArenaIcon."
     },
     "name": {
       "form": "primitive",

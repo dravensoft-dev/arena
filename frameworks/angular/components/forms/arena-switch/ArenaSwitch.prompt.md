@@ -25,8 +25,8 @@ supplies the state.
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
 | `state` | primitive | `boolean` | `false` | The current on/off value. Controlled: the consumer owns it and pushes it each render. |
-| `iconOn` | primitive | `string` |  | A Phosphor class name for the glyph shown while on. Arena draws the aria-hidden `<i>`. |
-| `iconOff` | primitive | `string` |  | A Phosphor class name for the glyph shown while off. |
+| `iconOn` | primitive | `string` |  | A Phosphor class name for the glyph shown while on. ArenaIcon draws it, hidden from assistive technology. |
+| `iconOff` | primitive | `string` |  | A Phosphor class name for the glyph shown while off, drawn through ArenaIcon. |
 | `label*` | primitive | `string` |  | The accessible name for the switch, also drawn beside it. |
 | `disabled` | primitive | `boolean` | `false` | Whether the switch is inoperable. |
 | `confirm` | primitive | `boolean` | `false` | When set, a change is not applied on the fly; it is requested through `requestChange` so the host can confirm it first. |

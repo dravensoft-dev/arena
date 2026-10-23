@@ -16,7 +16,7 @@ import { ArenaButton, ArenaTag } from '@dravensoft/arena-react';
 ```
 
 A member is a prop. The main slot is `children`, a named slot is a prop taking a node, and an
-event is an `on`-prefixed handler. An icon is a Phosphor class-name string, never an element.
+event is an `on`-prefixed handler. An icon is a Phosphor class-name string, drawn by Arena's components or by ArenaIcon; a raw ph-* element paints nothing.
 
 - Every other category this layer ships: [`../../INDEX.md`](../../INDEX.md).
 - Installing the package, declaring your skin, and what it exports besides components:

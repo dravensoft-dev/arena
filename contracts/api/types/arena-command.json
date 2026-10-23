@@ -10,7 +10,7 @@
     "hint": { "form": "primitive", "type": "string",
               "description": "Searched but never shown: a synonym that finds the command." },
     "icon": { "form": "primitive", "type": "string",
-              "description": "A Phosphor class name for the leading glyph Arena draws." },
+              "description": "A Phosphor class name for the leading glyph ArenaIcon draws." },
     "group": { "form": "primitive", "type": "string",
                "description": "A heading the command is listed under, such as \"Actions\" or \"Customers\". Commands with no group list first and ungrouped, then each group in the order its first command appears, so the caller decides the running order by the order they pass. A flat list is what a caller concatenates four collections into, and the headings are the only thing that says which collection a row came from." },
     "route": { "form": "primitive", "type": "string",

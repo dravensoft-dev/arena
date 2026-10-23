@@ -120,7 +120,7 @@ The middle column is the rule of [the rules section of `SKILL.md`](../SKILL.md) 
 | `compat-alias` | none of the language rules | A stylesheet in a style plugin directory reads one of Arena's compatibility aliases through `var()`, which names a step of the ramp instead of a role. |
 | `danger-fill` | Danger is outline, never filled. | A background declaration outside a style plugin directory reads a danger token not mixed with transparent, which fills a surface where Arena draws danger as an outline. |
 | `emoji` | No emoji, in product or in copy. | A line of a source holds an emoji character. |
-| `icon-element` | Icons are Phosphor class-name strings, never elements and never SVG. | An `icon` or `iconRight` attribute is given an element in braces, where Arena takes a Phosphor class-name string. |
+| `icon-element` | Icons are Phosphor class-name strings, drawn by Arena's components or by ArenaIcon; a raw ph-* element paints nothing. | An `icon` or `iconRight` attribute is given an element in braces, where Arena takes a Phosphor class-name string. |
 | `one-primary` | One primary accent per view. | A second action in one view, or in one modal, takes the primary emphasis by class or by leaving a primary-default component without one. |
 | `outline-gap` | none of the language rules | A source draws Arena headings at two levels with a level missing between them, such as an h1 and an h3 with no h2. |
 | `own-class` | Only a class of the vocabulary goes on an Arena component. | A component carries a class outside its vocabulary or a computed one, or a stylesheet targets an `arena-` class anywhere or a `data-arena-part` hook outside a style plugin. |

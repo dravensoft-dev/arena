@@ -6,7 +6,8 @@
  * visible from outside, and a filled danger surface is visible only where a project paints one
  * of its own. A line carrying an allow marker is exempt, and a marker over a line with nothing
  * to exempt is stale. Every rule is read in a SCOPE: a declared plugin directory may select a
- * part hook and paint a gradient, and a source may not. */
+ * part hook and paint a gradient, and a source may not. A bracket may also carry em, which has no
+ * token to name; the dimension gate still reports it, because tracking is expressed in em. */
 
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -33,13 +34,15 @@ export const RULE_DESCRIPTIONS: Record<(typeof RULE_TAGS)[number], string> = {
 
 export const UNMODELLED_UNITS = ['%', 'ch', 'fr', 'vh', 'vw', 'vmin', 'vmax', 'deg'];
 
+const BRACKET_UNITS = [...UNMODELLED_UNITS, 'em'];
+
 export const ALLOW_MARKER = /arena-audit allow\b/;
 
 const CANDIDATE = /(?<![\w-])(-?[a-z][a-z0-9]*(?:-[a-z0-9]+)*-\[([^\]\s"']+)\])/g;
 const MARKER = /<!--\s*check-arbitrary-values allow:\s*([^>]*?)\s*-->/g;
 const HINT = /^(?:length|color|number|percentage|integer|angle|time|url|image|family-name):/;
 const TOKEN = /var\(\s*--[a-z0-9-]+\s*\)/g;
-const UNMODELLED = new RegExp(`^-?\\d*\\.?\\d+(?:${UNMODELLED_UNITS.join('|')})$`);
+const UNMODELLED = new RegExp(`^-?\\d*\\.?\\d+(?:${BRACKET_UNITS.join('|')})$`);
 const UNIT_LITERAL = /\d*\.?\d+\s*([a-z%]+)\b(?!\()/g;
 const ZERO_RUN = /(?<![\w.])-?0(?:px|rem|em|%)?(?![\w.])/g;
 const BARE_NUMBER = /(?<![\w.])-?\d*\.?\d+(?![\w.%])/g;
@@ -97,7 +100,7 @@ export function isLegalBracket(content: string) {
 
   const rest = value.replace(TOKEN, ' ').replace(ZERO_RUN, ' ');
   for (const m of rest.matchAll(UNIT_LITERAL))
-    if (!UNMODELLED_UNITS.includes(group(m))) return false;
+    if (!BRACKET_UNITS.includes(group(m))) return false;
 
   for (const m of rest.matchAll(BARE_NUMBER))
     if (!insideMathParens(rest, m.index)) return false;

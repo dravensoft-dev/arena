@@ -4,7 +4,7 @@
   "affordances": ["hover", "press"],
   "api": {
     "icon": { "form": "primitive", "type": "string", "required": true,
-              "description": "Phosphor class name, e.g. 'ph-bold ph-plus'. Arena draws the <i> and hides it from assistive technology; `label` is the accessible name." },
+              "description": "Phosphor class name, e.g. 'ph-bold ph-plus'. ArenaIcon draws the glyph and hides it from assistive technology; `label` is the accessible name." },
     "label": { "form": "primitive", "type": "string", "required": true,
                "description": "The accessible name, present in every state. Also the visible text when showLabel is set, and the title attribute when it is not." },
     "showLabel": { "form": "primitive", "type": "boolean", "default": false,

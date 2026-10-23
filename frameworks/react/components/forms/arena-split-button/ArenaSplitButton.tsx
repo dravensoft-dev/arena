@@ -14,7 +14,7 @@ export interface ArenaSplitButtonProps {
   /** The primary half's label, such as "Deploy". Required, and guarded at runtime: a primary half with no label names no action. */
   children: React.ReactNode;
 
-  /** Phosphor class name drawn before the label. Replaced by the spinner while loading. */
+  /** Phosphor class name drawn before the label through ArenaIcon. Replaced by the spinner while loading. */
   icon?: string;
 
   /** Whether the primary action destroys or removes something. Both halves draw the danger outline whatever emphasis the split is given: danger is never filled. */

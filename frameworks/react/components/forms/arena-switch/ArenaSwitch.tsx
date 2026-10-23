@@ -11,9 +11,9 @@ export interface ArenaSwitchProps {
 
   /** The current on/off value. Controlled: the consumer owns it and pushes it each render. */
   state?: boolean;
-  /** A Phosphor class name for the glyph shown while on. Arena draws the aria-hidden `<i>`. */
+  /** A Phosphor class name for the glyph shown while on. ArenaIcon draws it, hidden from assistive technology. */
   iconOn?: string;
-  /** A Phosphor class name for the glyph shown while off. */
+  /** A Phosphor class name for the glyph shown while off, drawn through ArenaIcon. */
   iconOff?: string;
   /** The accessible name for the switch, also drawn beside it. */
   label: string;

@@ -46,7 +46,7 @@ export class ArenaStatCard {
   readonly delta = input<ArenaStatDelta>();
   /** Small muted line under the value: context, e.g. "vs last week". */
   readonly sub = input<string>();
-  /** A Phosphor class name for a small glyph beside the label, drawn muted. Arena renders the aria-hidden wrapper and the `<i>`. */
+  /** A Phosphor class name for a small glyph beside the label, drawn muted. ArenaIcon draws it, hidden from assistive technology. */
   readonly icon = input<string>();
 
   protected readonly styles = computed(() => arenaStatCardStyles({ tone: this.tone(), deltaTone: this.delta()?.tone ?? 'neutral' }));

@@ -16,7 +16,7 @@ exposed as a mono chip.
 
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
-| `icon` | primitive | `string` |  | A Phosphor class name for the danger glyph Arena draws. |
+| `icon` | primitive | `string` |  | A Phosphor class name for the danger glyph ArenaIcon draws. |
 | `title` | primitive | `string` |  | The headline: what failed. Absent, the provided locale's errorStateTitle answers it. |
 | `headingLevel` | enum | `ArenaHeadingLevel` | `"h3"` | Which rung of the document outline the title takes. Only the element changes: the title's class is the same at every value, so the render is identical and no appearance follows from it. The default is `h3`, the card rung of the title ladder, for the reason an empty state does. A failure fills the body of a region something above it already names. `none` takes the headline out of the outline, which is what a failure inside a small surface wants. The value is available here because `title` carries a default rather than being required. |
 | `message` | primitive | `string` |  | A sentence of detail under the title. |

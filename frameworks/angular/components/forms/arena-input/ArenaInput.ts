@@ -92,7 +92,7 @@ export class ArenaInput {
     'text',
     { transform: (value) => value ?? 'text' },
   );
-  /** Phosphor class name drawn at the field's start. */
+  /** Phosphor class name drawn at the field's start through ArenaIcon. */
   readonly icon = input<string>();
   /** Static text Arena draws before the value, e.g. `git@`. */
   readonly prefix = input<string>();

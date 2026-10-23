@@ -47,7 +47,7 @@ import { ARENA_MENU_ANCHOR } from '../../navigation/arena-menu/MenuAnchor';
 export class ArenaSplitButton {
   protected readonly parts = manifest.parts;
 
-  /** Phosphor class name drawn before the label. Replaced by the spinner while loading. */
+  /** Phosphor class name drawn before the label through ArenaIcon. Replaced by the spinner while loading. */
   readonly icon = input<string>();
   /** Whether the primary action destroys or removes something. Both halves draw the danger outline whatever emphasis the split is given: danger is never filled. */
   readonly destructive = input(false, { transform: booleanAttribute });

@@ -67,7 +67,7 @@ export interface ArenaMultiSelectProps {
   /** Forces the valid state, drawn with a check glyph at the field's end. */
   valid?: boolean;
 
-  /** Phosphor class name drawn at the field's start. */
+  /** Phosphor class name drawn at the field's start through ArenaIcon. */
   icon?: string;
 
   /** Submitted with the form. Each chosen value is submitted under it as a hidden input, so a form posts a repeated field; nothing is drawn without a name. */

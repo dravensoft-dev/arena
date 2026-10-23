@@ -101,6 +101,9 @@ export const UNTRACKED = {
   'frameworks/react/ArenaLocale.generated.js':
     'the compiled sibling of ArenaLocale.ts, which the demo pages load; build:demos writes it and '
     + 'check:demos holds it to the source.',
+  'frameworks/react/ArenaIcons.generated.js':
+    'the compiled sibling of ArenaIcons.ts, which the demo pages load; build:demos writes it and '
+    + 'check:demos holds it to the source.',
   'frameworks/react/LocaleDefaults.generated.js':
     'the compiled sibling of LocaleDefaults.generated.ts, which the demo pages load.',
   'frameworks/react/Phrase.generated.js':

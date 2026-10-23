@@ -4,7 +4,7 @@
   "affordances": [],
   "api": {
     "icon": { "form": "primitive", "type": "string",
-              "description": "A Phosphor class name for the glyph Arena draws, muted." },
+              "description": "A Phosphor class name for the glyph ArenaIcon draws, muted." },
     "title": { "form": "primitive", "type": "string", "required": true,
                "description": "The headline: what is empty." },
     "headingLevel": { "form": "enum", "type": "ArenaHeadingLevel", "default": "h3",

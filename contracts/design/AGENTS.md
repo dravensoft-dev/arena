@@ -65,8 +65,8 @@ To tell **destructive / risk actions and indicators** apart from the primary act
   - **Bold** (`.ph-bold`): default weight across the UI. Presence and legibility at high contrast.
   - **Fill** (`.ph-fill`): active/selected state (e.g. the active navigation item, a toggle that's on).
   - **Duotone** (`.ph-duotone`): only to highlight features/onboarding, with the crimson accent on the primary layer. Premium two-tone effect; use sparingly.
-- **Loading (the default is to install the package):** install `@phosphor-icons/web` and import its weight stylesheets, or `@phosphor-icons/react` (`<Rocket weight="bold"/>`), then apply the weight class plus the icon class: `<i class="ph-bold ph-rocket-launch"></i>`. **Prototype-only:** the CDN, e.g. `https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/bold/style.css`.
-- **Sizes** are a token family, `icon` (`contracts/design/icon.json`, generated into `contracts/design-generated/spacing.generated.css`), applied via `fontSize` since Phosphor renders as a webfont:
+- **Drawing:** a glyph is an SVG symbol of a sprite the project serves, drawn by `ArenaIcon` with the weight class plus the icon class as its one string (`ph-bold ph-rocket-launch`). Every Arena component that takes an `icon` draws it through `ArenaIcon`. A raw `ph-*` element paints nothing, since Arena ships no icon font; a glyph outside Arena's components needs the project's own `@phosphor-icons/web`, or `@phosphor-icons/react` (`<Rocket weight="bold"/>`).
+- **Sizes** are a token family, `icon` (`contracts/design/icon.json`, generated into `contracts/design-generated/spacing.generated.css`), applied via `font-size`, which the glyph reads through `1em` because an SVG symbol is sized by the text around it:
 
   | Token | Value | Role |
   |---|---|---|
@@ -75,8 +75,8 @@ To tell **destructive / risk actions and indicators** apart from the primary act
   | `--icon-lg` | 18px | prominent standalone icon: a tone icon, a search glyph |
   | `--icon-xl` | 34px | illustration-scale icon: `ArenaEmptyState`, `ArenaErrorState` |
 
-  A glyph rendered as a webfont is still an icon rather than type, since an icon at 15px beside a label at 15px is not the same design decision as an icon at 16px, so these stay out of the `fs` scale. Exposed in the Tailwind layer under `--size-*`, not `--text-*`: `.size-icon-md` sets both width and height, since an icon is a size, not a font size. Color: inherits `currentColor`; accent only when interactive/active.
-- **Do not** override `font-family/weight/style` on `.ph-*` classes (breaks the glyphs).
+  A glyph sized by the font-size around it is still an icon rather than type, since an icon at 15px beside a label at 15px is not the same design decision as an icon at 16px, so these stay out of the `fs` scale. Exposed in the Tailwind layer under `--size-*`, not `--text-*`: `.size-icon-md` sets both width and height, since an icon is a size, not a font size. Color: inherits `currentColor`; accent only when interactive/active.
+- **Do not** size a glyph with `width` or `height`: the figure is the `font-size` of the part that holds it, and the glyph follows through `1em`.
 - **No emoji.** No arbitrary unicode as an icon. The **Rotor** (`assets/rotor-*.svg`) is brand, not a UI icon: don't use it as a functional glyph, and Arena ships no component that wraps it. The lock-up is `ArenaAppLogo`, which takes the mark as its `mark` node.
 
 ---

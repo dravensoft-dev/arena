@@ -22,7 +22,7 @@ export const ROOT_MODULES = [
   'frameworks/react/AnchorActivation.ts', 'frameworks/react/DataVisuals.ts',
   'frameworks/react/StructuredData.ts', 'frameworks/react/Theme.ts', 'frameworks/react/ThemeState.ts',
   'frameworks/react/UseArenaContainerWidth.ts', 'frameworks/react/UseDialogModal.ts',
-  'frameworks/react/WarnOnce.ts', 'frameworks/react/VocabularyClass.ts', 'frameworks/react/Vocabulary.generated.ts', 'frameworks/react/Phrase.ts', 'frameworks/react/Thresholds.ts', 'frameworks/react/ArenaLocale.ts', 'frameworks/react/LocaleDefaults.generated.ts',
+  'frameworks/react/WarnOnce.ts', 'frameworks/react/VocabularyClass.ts', 'frameworks/react/Vocabulary.generated.ts', 'frameworks/react/Phrase.ts', 'frameworks/react/Thresholds.ts', 'frameworks/react/ArenaLocale.ts', 'frameworks/react/ArenaIcons.ts', 'frameworks/react/LocaleDefaults.generated.ts',
   'frameworks/react/ArenaStyles.generated.ts',
   'frameworks/react/AnchoredPanel.ts', 'frameworks/react/UseAnchoredPanel.ts',
   'frameworks/react/TypeAhead.ts', 'frameworks/react/RowWindowMeasure.ts', 'frameworks/react/ToastClock.ts',

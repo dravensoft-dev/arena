@@ -10,7 +10,7 @@ export interface ArenaEmptyStateProps {
   className?: ArenaEmptyStateClass;
 
 
-  /** A Phosphor class name for the glyph Arena draws, muted. */
+  /** A Phosphor class name for the glyph ArenaIcon draws, muted. */
   icon?: string;
 
   /** The headline: what is empty. */

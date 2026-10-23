@@ -20,7 +20,7 @@ One action with a menu of its alternatives, drawn as one control. The primary ha
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
 | `children*` | slot |  |  | The primary half's label, such as "Deploy". Required, and guarded at runtime: a primary half with no label names no action. |
-| `icon` | primitive | `string` |  | Phosphor class name drawn before the label. Replaced by the spinner while loading. |
+| `icon` | primitive | `string` |  | Phosphor class name drawn before the label through ArenaIcon. Replaced by the spinner while loading. |
 | `destructive` | primitive | `boolean` | `false` | Whether the primary action destroys or removes something. Both halves draw the danger outline whatever emphasis the split is given: danger is never filled. |
 | `loading` | primitive | `boolean` | `false` | Replaces the leading icon with a spinner and blocks the primary half. The caret stays usable, so another action can start while this one runs. |
 | `disabled` | primitive | `boolean` | `false` | Blocks both halves and dims the control. |

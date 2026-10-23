@@ -57,7 +57,7 @@ export interface ArenaComboboxProps {
   /** Forces the valid state, drawn with a check glyph at the field's end. */
   valid?: boolean;
 
-  /** Phosphor class name drawn at the field's start. */
+  /** Phosphor class name drawn at the field's start through ArenaIcon. */
   icon?: string;
 
   /** Submitted with the form. The chosen value is submitted, never the label, through a hidden input drawn only when a name is given. */

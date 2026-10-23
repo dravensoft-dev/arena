@@ -5,6 +5,7 @@ export * from './arena-calendar';
 export * from './arena-calendar-event';
 export * from './arena-card';
 export * from './arena-kbd';
+export * from './arena-icon';
 export * from './arena-key-value';
 export * from './arena-people-list';
 export * from './arena-person-row';

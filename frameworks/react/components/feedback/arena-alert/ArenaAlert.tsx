@@ -16,7 +16,7 @@ export interface ArenaAlertProps {
   title?: string;
   /** The message body. */
   children?: React.ReactNode;
-  /** A Phosphor class name overriding the tone's default glyph. Arena draws it. */
+  /** A Phosphor class name overriding the tone's default glyph. ArenaIcon draws it. */
   icon?: string;
   /** The label of a single inline action button. Absent renders no action. */
   actionLabel?: string;

@@ -6,7 +6,9 @@
  * a chart draws its plot by hand and owns a manifest for its legend and tooltip only, so its root is held to one element without a part on it. */
 import test, { afterEach } from 'node:test';
 import assert from 'node:assert/strict';
+import React from 'react';
 import { mount, cleanup } from './Harness.tsx';
+import { ArenaIconsProvider } from '../ArenaIcons.ts';
 import { element } from './FixtureRender.tsx';
 import { readdirSync } from 'node:fs';
 import { join } from 'node:path';
@@ -44,7 +46,7 @@ for (const [component, fixture] of demos) {
     const before = [...list];
     list.splice(0, list.length, PROBE);
     try {
-      const root = mount(element(instanceNode({ ...fixture, seed: { ...(fixture.seed ?? {}), className: PROBE } })));
+      const root = mount(<ArenaIconsProvider href="/icons.svg">{element(instanceNode({ ...fixture, seed: { ...(fixture.seed ?? {}), className: PROBE } }))}</ArenaIconsProvider>);
       const carriers = [...root.querySelectorAll(`.${PROBE}`)];
       assert.equal(carriers.length, 1, `${component} put the class on ${carriers.length} element(s)`);
       if (manifestFor(component) && !HAND_DRAWN.has(component)) assert.ok(carriers[0]?.hasAttribute('data-arena-part'), `${component} put the class on an element that is no drawn part`);

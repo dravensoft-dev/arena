@@ -125,7 +125,7 @@ export class ArenaCombobox {
   readonly error = input<string>();
   /** Forces the valid state, drawn with a check glyph at the field's end. */
   readonly valid = input(false, { transform: booleanAttribute });
-  /** Phosphor class name drawn at the field's start. */
+  /** Phosphor class name drawn at the field's start through ArenaIcon. */
   readonly icon = input<string>();
   /** Submitted with the form. The chosen value is submitted, never the label, through a hidden input drawn only when a name is given. */
   readonly name = input<string>();

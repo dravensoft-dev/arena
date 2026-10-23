@@ -36,7 +36,7 @@ import manifest from './ArenaEmptyState.classes.generated';
 export class ArenaEmptyState {
   protected readonly parts = manifest.parts;
 
-  /** A Phosphor class name for the glyph Arena draws, muted. */
+  /** A Phosphor class name for the glyph ArenaIcon draws, muted. */
   readonly icon = input<string>();
   /** The headline: what is empty. */
   readonly title = input.required<string>();
