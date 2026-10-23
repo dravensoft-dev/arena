@@ -4,8 +4,10 @@ import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
+import { spawnSync } from 'node:child_process';
 import { join } from 'node:path';
-import { run, satisfies } from './command-doctor.ts';
+import { relPosix } from './posix.ts';
+import { run, satisfies, unignoredOutputs } from './command-doctor.ts';
 import { plan } from './plan.ts';
 import { ICON_MANIFEST, PACKAGE_SHEET, PLUGIN_SHEET, THEME_SHEET } from './sheets.ts';
 import { MAP, SHEETS, captureIo, hostRoot, options, phosphor, project, readable, removeFixtures } from './cli-fixtures.ts';
@@ -154,7 +156,43 @@ test('no script running arena build is a note and leaves the exit 0', async () =
   assert.ok(!wired.out.some((line) => line.includes('no script in package.json')));
 });
 
-test('.gitignore with *.generated.css is covered, src/*.generated.css is covered, a missing one is a note, and !*.generated.css does not cover', async () => {
+const gitOk = spawnSync('git', ['--version']).status === 0;
+const gitSkip = gitOk ? false : 'git is not installed';
+const ignoreNote = (out: string[]) => out.filter((line) => line.includes('note: git does not ignore'));
+
+async function builtRoot() {
+  const { root, core, environment } = setup();
+  const built = await build(root, core);
+  const paths = [...built.outputs, ...built.binaries].map((one) => relPosix(root, one.path));
+  return { root, environment, paths };
+}
+
+test('a .gitignore listing every output by path gets no note', { skip: gitSkip }, async () => {
+  const { root, environment, paths } = await builtRoot();
+  assert.equal(spawnSync('git', ['init', '-q'], { cwd: root }).status, 0);
+  writeFileSync(join(root, '.gitignore'), `${paths.map((one) => `/${one}`).join('\n')}\n`);
+  const { io, out } = captureIo(root, environment);
+  assert.equal(await run([], io), 0);
+  assert.deepEqual(ignoreNote(out), []);
+  assert.ok(!out.some((line) => line.includes('.gitignore does not cover')));
+});
+
+test('an output git does not ignore is named in the note', { skip: gitSkip }, async () => {
+  const { root, environment, paths } = await builtRoot();
+  assert.equal(spawnSync('git', ['init', '-q'], { cwd: root }).status, 0);
+  const sprite = paths.find((one) => /(^|\/)icons-[0-9a-f]{10}\.svg$/.test(one))!;
+  assert.ok(sprite);
+  writeFileSync(join(root, '.gitignore'), `${paths.filter((one) => one !== sprite).map((one) => `/${one}`).join('\n')}\n`);
+  const { io, out } = captureIo(root, environment);
+  assert.equal(await run([], io), 0);
+  const notes = ignoreNote(out);
+  assert.equal(notes.length, 1);
+  assert.ok(notes[0]!.includes(`git does not ignore ${sprite};`), notes[0]);
+  assert.ok(notes[0]!.includes('add them to .gitignore'));
+  for (const one of paths.filter((one) => one !== sprite)) assert.ok(!notes[0]!.includes(one), one);
+});
+
+test('outside a git work tree the .gitignore is read as text, as before', async () => {
   const { root, core, environment } = setup();
   await build(root, core);
   const noted = async (content: string | null) => {
@@ -170,6 +208,11 @@ test('.gitignore with *.generated.css is covered, src/*.generated.css is covered
   assert.equal(await noted('# *.generated.css\n*.generated.css\n'), false);
   assert.equal(await noted('src/*.generated.css\n'), false);
   assert.equal(await noted('node_modules\n!*.generated.css\n'), true);
+});
+
+test('a failing git falls back to the text reading', () => {
+  assert.equal(unignoredOutputs(join(tmpdir(), 'arena-no-such-root-0'), ['src/a.css']), null);
+  assert.equal(unignoredOutputs(tmpdir(), []), null);
 });
 
 test('a build that writes the package sheet no source imports is a note naming the sheet, and an import clears it', async () => {

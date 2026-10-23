@@ -1,10 +1,12 @@
 /* arena doctor: it compares the tree with what arena build would leave and names every difference,
  * then the environment around it. It writes nothing. A plan fatal, a missing, stale or orphan file
  * (a sheet, the sprite or its module) and a held environment report exit 1; notes never change the exit. */
+import { spawnSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { commandOptions } from './args.ts';
 import { under, voice } from './io.ts';
+import { relPosix } from './posix.ts';
 import type { Io } from './io.ts';
 import { hostManifest, resolveEnvironment } from './host.ts';
 import { plan, sheetStates } from './plan.ts';
@@ -36,6 +38,16 @@ function runsBuild(cwd: string) {
   } catch {
     return false;
   }
+}
+
+const GIT = 'git';
+
+export function unignoredOutputs(cwd: string, paths: string[]): string[] | null {
+  if (paths.length === 0) return null;
+  const asked = spawnSync(GIT, ['-C', cwd, 'check-ignore', '--', ...paths], { encoding: 'utf8' });
+  if (asked.error || (asked.status !== 0 && asked.status !== 1)) return null;
+  const ignored = new Set(asked.stdout.split(/\r?\n/).filter((line) => line !== ''));
+  return paths.filter((one) => !ignored.has(one));
 }
 
 function ignoresSheets(cwd: string) {
@@ -103,7 +115,13 @@ export async function run(argv: string[], io: Io): Promise<number> {
   if (!runsBuild(io.cwd)) {
     say.out('note: no script in package.json runs arena build, so the sheets go stale as the config and sources change; arena init wires one');
   }
-  if (!ignoresSheets(io.cwd)) {
+  const asked = planned.fatal.length ? [] : [...planned.outputs, ...planned.binaries].map((one) => relPosix(io.cwd, one.path));
+  const unignored = unignoredOutputs(io.cwd, asked);
+  if (unignored !== null) {
+    if (unignored.length > 0) {
+      say.out(`note: git does not ignore ${unignored.join(', ')}; every file arena build writes is rebuilt from the config and your sources, so add them to .gitignore`);
+    }
+  } else if (!ignoresSheets(io.cwd)) {
     say.out('note: .gitignore does not cover *.generated.css; add that line, with icons-*.svg and <stem>-*.woff2 for the sprite and the cut fonts, since every file the build writes is rebuilt from the config and your sources');
   }
 
