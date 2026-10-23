@@ -36,8 +36,8 @@ answer a role may carry as well: `$extensions["com.dravensoft.arena"].default` i
 a role or to a token the package emits, of the role's own `$type`, and
 `scripts/check/core/check-role-contract.ts:defaultProblems(roles, emitted, words)` fails a literal,
 an alias naming nothing, a type that disagrees, a keyword whose target can take a word outside its
-set, a keyword token whose word the role refuses, and a chain that leads back to itself. **The question belongs to the kernel and the answer
-never does.**
+set, a keyword token whose word the role refuses, and a chain that leads back to itself. **The
+question belongs to the kernel and the answer never does.**
 
 The scales stay, and they stay with values, because a manifest never names one. They reach a page
 only through a role, so what they are is a shared repertoire a plugin picks from. A plugin answers
