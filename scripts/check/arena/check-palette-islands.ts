@@ -32,7 +32,7 @@ export const node = {
     'frameworks/react/*.generated.js',
     'frameworks/tailwind/consume/**', 'frameworks/react/vendor/**',
     'frameworks/angular/build/demo/**', 'contracts/design-generated/**',
-    'contracts/design/*.css', 'assets/fonts/**', 'assets/rotor-crimson.svg',
+    'contracts/design/*.css', 'assets/fonts/**', 'assets/Icons.generated.svg', 'assets/rotor-crimson.svg',
     'intro/kitchen-sink.css', 'intro/styles.css', 'intro/toggle.css', 'intro/theme.js',
     'plugin-style-store/**/plugin.css',
   ],
