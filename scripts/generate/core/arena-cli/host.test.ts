@@ -2,7 +2,8 @@ import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { hostManifest, hostPackage, hostPackageName, fontToolRoots, packageSheets, phosphorRoot, resolveEnvironment } from './host.ts';
 import { loadVocabulary, VOCABULARY_INDEX } from './audit.ts';
 import { hostRoot, phosphor, removeFixtures } from './cli-fixtures.ts';
@@ -145,4 +146,23 @@ test('hostManifest reads name, version and engines, and null for no package.json
   assert.equal(hostManifest(root), null);
   assert.equal(hostManifest(null), null);
   rmSync(root, { recursive: true });
+});
+
+test('the command\'s own dependencies win over a project\'s copy of the same name', () => {
+  const here = dirname(fileURLToPath(import.meta.url));
+  const decoy = join(here, '..', '..', '..', '..', '.cache', 'plan-1.29', 'decoy-project');
+  rmSync(decoy, { recursive: true, force: true });
+  for (const name of ['harfbuzzjs', 'wawoff2', '@phosphor-icons/core']) {
+    mkdirSync(join(decoy, 'node_modules', ...name.split('/')), { recursive: true });
+    writeFileSync(join(decoy, 'node_modules', ...name.split('/'), 'package.json'), JSON.stringify({ name }));
+  }
+  try {
+    const roots = fontToolRoots(decoy, here);
+    assert.ok(roots.harfbuzz !== null && !roots.harfbuzz.startsWith(decoy), `harfbuzzjs from ${roots.harfbuzz}`);
+    assert.ok(roots.wawoff2 !== null && !roots.wawoff2.startsWith(decoy), `wawoff2 from ${roots.wawoff2}`);
+    assert.ok(!(phosphorRoot(decoy, here) ?? decoy).startsWith(decoy));
+    assert.equal(phosphorRoot(decoy, tmpdir())?.startsWith(decoy), true, 'the project\'s copy answers when the command has none');
+  } finally {
+    rmSync(decoy, { recursive: true, force: true });
+  }
 });

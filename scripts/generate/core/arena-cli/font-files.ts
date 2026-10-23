@@ -1,7 +1,8 @@
-/* The disk side of cutting fonts: it finds harfbuzzjs and wawoff2 where the command's own
- * package installed them, reads the sheets a build imports so paintedWeights has the CSS it
- * counts, and cuts each role whose src is a file. A src that is not a file (a stylesheet, a URL, a
- * path that is not there) stays as written and reports once. The cut files are named by content. */
+/* The disk side of cutting fonts: it finds harfbuzzjs and wawoff2 where the command's own package
+ * installed them, before any copy the project holds, reads the closed list of package sheets so
+ * paintedWeights has the CSS it counts, and cuts each role whose src is a file. A src that is not a
+ * file (a stylesheet, a URL, a path that is not there) stays as written and reports once. The cut
+ * files are named by content. */
 
 import { existsSync, readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
