@@ -4,9 +4,8 @@ import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from '../arena-table/ArenaTable.classes.generated.ts';
 import type { ArenaTableColumn } from '../../../Api.generated';
 import type { ArenaTableCellInjected } from '../arena-table-cell/ArenaTableCell.tsx';
-import type { ArenaTableRowClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
-import { ARENA_CONTEXT_VOCABULARY } from '../../../Vocabulary.generated.ts';
+import { ARENA_CONTEXT_VOCABULARY, type ArenaTableRowClass } from '../../../Vocabulary.generated.ts';
 
 const rowStyles = arenaStyles(manifest);
 

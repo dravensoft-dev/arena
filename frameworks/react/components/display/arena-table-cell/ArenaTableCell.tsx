@@ -5,9 +5,8 @@ import type { ArenaTableColumn } from '../../../Api.generated';
 import { isArenaPrimaryActivation } from '../../../AnchorActivation.ts';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from '../arena-table/ArenaTable.classes.generated.ts';
-import type { ArenaTableCellClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
-import { ARENA_CONTEXT_VOCABULARY } from '../../../Vocabulary.generated.ts';
+import { ARENA_CONTEXT_VOCABULARY, type ArenaTableCellClass } from '../../../Vocabulary.generated.ts';
 
 const cellStyles = arenaStyles(manifest);
 

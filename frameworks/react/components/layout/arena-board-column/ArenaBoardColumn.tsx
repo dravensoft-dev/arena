@@ -4,9 +4,8 @@ import { arenaCatIndex } from '../../../DataVisuals.ts';
 import manifest from '../arena-board/ArenaBoard.classes.generated.ts';
 
 import type { ArenaCatSlot, ArenaHeadingLevel } from '../../../Api.generated';
-import type { ArenaBoardColumnClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
-import { ARENA_CONTEXT_VOCABULARY } from '../../../Vocabulary.generated.ts';
+import { ARENA_CONTEXT_VOCABULARY, type ArenaBoardColumnClass } from '../../../Vocabulary.generated.ts';
 
 export interface ArenaBoardColumnProps {
   className?: ArenaBoardColumnClass;

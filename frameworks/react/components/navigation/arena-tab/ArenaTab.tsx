@@ -1,9 +1,8 @@
 import React from 'react';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from '../arena-tabs/ArenaTabs.classes.generated.ts';
-import type { ArenaTabClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
-import { ARENA_CONTEXT_VOCABULARY } from '../../../Vocabulary.generated.ts';
+import { ARENA_CONTEXT_VOCABULARY, type ArenaTabClass } from '../../../Vocabulary.generated.ts';
 
 export interface ArenaTabInjected {
   selected: boolean;

@@ -3,9 +3,8 @@ import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from '../arena-people-list/ArenaPeopleList.classes.generated.ts';
 import { ArenaAvatar } from '../arena-avatar/ArenaAvatar.tsx';
 
-import type { ArenaPersonRowClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
-import { ARENA_CONTEXT_VOCABULARY } from '../../../Vocabulary.generated.ts';
+import { ARENA_CONTEXT_VOCABULARY, type ArenaPersonRowClass } from '../../../Vocabulary.generated.ts';
 
 export interface ArenaPersonRowProps {
   className?: ArenaPersonRowClass;

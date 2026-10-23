@@ -6,9 +6,8 @@ import { arenaCatIndex } from '../../../DataVisuals.ts';
 import { useArenaLocale } from '../../../ArenaLocale.ts';
 
 import type { ArenaCatSlot } from '../../../Api.generated';
-import type { ArenaCalendarEventClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
-import { ARENA_CONTEXT_VOCABULARY } from '../../../Vocabulary.generated.ts';
+import { ARENA_CONTEXT_VOCABULARY, type ArenaCalendarEventClass } from '../../../Vocabulary.generated.ts';
 
 export interface ArenaCalendarEventProps {
   className?: ArenaCalendarEventClass;

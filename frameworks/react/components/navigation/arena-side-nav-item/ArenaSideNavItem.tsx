@@ -6,9 +6,8 @@ import { arenaActiveWeight, arenaBadgeCount } from '../NavRow.ts';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from '../arena-side-nav/ArenaSideNav.classes.generated.ts';
 import { ArenaTooltip } from '../../feedback/arena-tooltip/ArenaTooltip.tsx';
-import type { ArenaSideNavItemClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
-import { ARENA_CONTEXT_VOCABULARY } from '../../../Vocabulary.generated.ts';
+import { ARENA_CONTEXT_VOCABULARY, type ArenaSideNavItemClass } from '../../../Vocabulary.generated.ts';
 import { ArenaIcon } from '../../display/arena-icon/ArenaIcon.tsx';
 
 export interface ArenaSideNavItemProps {

@@ -2,9 +2,8 @@ import React from 'react';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from '../arena-accordion/ArenaAccordion.classes.generated.ts';
 import type { ArenaHeadingLevel } from '../../../Api.generated';
-import type { ArenaAccordionItemClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
-import { ARENA_CONTEXT_VOCABULARY } from '../../../Vocabulary.generated.ts';
+import { ARENA_CONTEXT_VOCABULARY, type ArenaAccordionItemClass } from '../../../Vocabulary.generated.ts';
 import { ArenaIcon } from '../../display/arena-icon/ArenaIcon.tsx';
 
 export interface ArenaAccordionItemInjected {

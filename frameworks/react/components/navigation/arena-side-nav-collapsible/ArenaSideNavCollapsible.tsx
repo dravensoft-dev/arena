@@ -4,9 +4,8 @@ import { arenaIndentDepth, arenaInjectInto } from '../arena-side-nav/SideNavInje
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from '../arena-side-nav/ArenaSideNav.classes.generated.ts';
 import { ArenaSideNavItem } from '../arena-side-nav-item/ArenaSideNavItem.tsx';
-import type { ArenaSideNavCollapsibleClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
-import { ARENA_CONTEXT_VOCABULARY } from '../../../Vocabulary.generated.ts';
+import { ARENA_CONTEXT_VOCABULARY, type ArenaSideNavCollapsibleClass } from '../../../Vocabulary.generated.ts';
 import { ArenaIcon } from '../../display/arena-icon/ArenaIcon.tsx';
 
 export interface ArenaSideNavCollapsibleProps {

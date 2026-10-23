@@ -1,9 +1,8 @@
 import React, { useId } from 'react';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from '../arena-radio/ArenaRadio.classes.generated.ts';
-import type { ArenaRadioGroupClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
-import { ARENA_CONTEXT_VOCABULARY } from '../../../Vocabulary.generated.ts';
+import { ARENA_CONTEXT_VOCABULARY, type ArenaRadioGroupClass } from '../../../Vocabulary.generated.ts';
 
 export interface ArenaRadioGroupProps {
   className?: ArenaRadioGroupClass;

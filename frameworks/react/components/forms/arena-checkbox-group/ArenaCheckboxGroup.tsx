@@ -3,9 +3,8 @@ import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from '../arena-checkbox/ArenaCheckbox.classes.generated.ts';
 import { ArenaCheckbox, type ArenaCheckboxProps } from '../arena-checkbox/ArenaCheckbox.tsx';
 import type { ArenaValueSet } from '../../../Api.generated';
-import type { ArenaCheckboxGroupClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
-import { ARENA_CONTEXT_VOCABULARY } from '../../../Vocabulary.generated.ts';
+import { ARENA_CONTEXT_VOCABULARY, type ArenaCheckboxGroupClass } from '../../../Vocabulary.generated.ts';
 
 export interface ArenaCheckboxGroupProps {
   className?: ArenaCheckboxGroupClass;

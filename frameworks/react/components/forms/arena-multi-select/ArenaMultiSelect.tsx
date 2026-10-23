@@ -12,9 +12,8 @@ import {
 } from '../arena-combobox/ComboboxRules.ts';
 
 import type { ArenaComboboxFilter, ArenaSelectOption, ArenaValueSet } from '../../../Api.generated';
-import type { ArenaMultiSelectClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
-import { ARENA_CONTEXT_VOCABULARY } from '../../../Vocabulary.generated.ts';
+import { ARENA_CONTEXT_VOCABULARY, type ArenaMultiSelectClass } from '../../../Vocabulary.generated.ts';
 import { ArenaIcon } from '../../display/arena-icon/ArenaIcon.tsx';
 
 export type { ArenaComboboxFilter, ArenaSelectOption, ArenaValueSet };
