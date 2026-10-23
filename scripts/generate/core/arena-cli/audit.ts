@@ -575,8 +575,8 @@ export function elementEnd(text: string, name: string, ends: number) {
   return text.length;
 }
 
-function ownClassStarts(raw: string) {
-  return [...ownAttributes(raw).matchAll(CLASS_VALUE)].map((m) => {
+function ownAttributeStarts(raw: string, pattern = CLASS_VALUE) {
+  return [...ownAttributes(raw).matchAll(pattern)].map((m) => {
     let from = (m.index ?? 0) + m[0].trimEnd().length;
     while (/\s/.test(raw[from] ?? '')) from += 1;
     return { name: m[0], from };
@@ -584,11 +584,11 @@ function ownClassStarts(raw: string) {
 }
 
 export function classValues(raw: string) {
-  return ownClassStarts(raw).map(({ from }) => attributeValueAt(raw, from)).join(' ');
+  return ownAttributeStarts(raw).map(({ from }) => attributeValueAt(raw, from)).join(' ');
 }
 
 function bindsClass(raw: string) {
-  return ownClassStarts(raw).some(({ name, from }) => {
+  return ownAttributeStarts(raw).some(({ name, from }) => {
     const value = attributeValueAt(raw, from);
     return /\[class\]\s*=\s*$/.test(name) || value.startsWith('{') || value.includes('{{');
   });
@@ -952,6 +952,7 @@ export function auditText(relPath: string, text: string, scope: Scope = 'app',
 
 const ICON_TAG = /^(?:ArenaIcon|arena-icon)$/;
 const ICON_ATTRIBUTE = /(?:^|\s)\[?(?:icon|iconRight)\]?\s*=\s*/g;
+const ANY_ATTRIBUTE = /(?:^|\s)[[(]?[\w.:@-]+[\])]?\s*=\s*/g;
 
 export function iconMemberGlyphs(text: string): Set<string> {
   const found = scan(text.match(new RegExp(SYMBOL_REF.source, 'g'))?.join(' ') ?? '');
@@ -962,12 +963,9 @@ export function iconMemberGlyphs(text: string): Set<string> {
     const ends = tagEnd(text, start);
     if (ends === -1) continue;
     const raw = text.slice(start + name.length + 1, ends - 1);
-    const attributes = ownAttributes(raw);
-    if (ICON_TAG.test(name)) { scan(attributes, found); continue; }
-    if (!ARENA_TAG.test(name)) continue;
-    for (const one of attributes.matchAll(ICON_ATTRIBUTE)) {
-      scan(attributeValueAt(attributes, (one.index ?? 0) + one[0].length), found);
-    }
+    const named = ICON_TAG.test(name) ? ANY_ATTRIBUTE : ARENA_TAG.test(name) ? ICON_ATTRIBUTE : null;
+    if (named === null) continue;
+    for (const { from } of ownAttributeStarts(raw, named)) scan(attributeValueAt(raw, from), found);
   }
   return glyphNames(found);
 }

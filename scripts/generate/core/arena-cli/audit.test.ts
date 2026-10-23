@@ -998,3 +998,12 @@ test('iconMemberGlyphs reads ArenaIcon, an icon attribute of an Arena tag and a 
   assert.equal(iconMemberGlyphs("const T = [{ icon: 'ph-bold ph-kanban' }]").size, 0);
   assert.equal(iconMemberGlyphs('<i className="ph-bold ph-y" />').size, 0);
 });
+
+test('iconMemberGlyphs reads a glyph handed over in a JSX expression, and not one in a nested element of an Arena tag', () => {
+  const text = [
+    "<ArenaIcon icon={'ph-bold ph-q'} />",
+    "<ArenaButton icon={on ? 'ph ph-r' : 'ph ph-s'} />",
+    '<ArenaAppBar brand={<i className="ph-bold ph-z" />} />',
+  ].join('\n');
+  assert.deepEqual([...iconMemberGlyphs(text)].sort(), ['ph-q', 'ph-r', 'ph-s']);
+});
