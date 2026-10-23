@@ -51,11 +51,11 @@ The typical React app imports `arena.package.generated.css`, then `arena.generat
 | --- | --- | --- | --- |
 | Vite 7.3.7 | yes | the `manualChunks` with the `arena` test that also matches `arena.package.generated.css`, in [`stack.md`](./stack.md) | the Arena file keeps its bytes and its name |
 | Vite 8.1.6 | yes | the `codeSplitting.groups` of [`stack.md`](./stack.md), whose `arena` test also matches `arena.package.generated.css` | the Arena file keeps its bytes and its name |
-| webpack 5.111.1 | yes | `experiments.css: true` and the `arena` cache group of [`stack.md`](./stack.md), with `type: /^(javascript\|css)/` | the Arena file keeps its bytes and its name |
+| webpack 5.111.1 | yes | `experiments: { css: true }` and the `arena` cache group of [`stack.md`](./stack.md), with `type: /^(javascript\|css)/` | the Arena file keeps its bytes and its name |
 | rspack 2.2.8 | yes | the webpack config, and a `css/auto` rule for `.css` | the Arena file keeps its bytes and its name |
 | rollup 4.62 | not exercised | rollup alone imports no CSS and the probe installs no CSS plugin | not measured |
 | rolldown 1.2.12 | no | the build stops: bundling CSS is not supported | not applicable |
-| Parcel 2.16.4 | no | the build stops on the sheet's first `@import` of a package specifier, which Parcel resolves from `./src` | not applicable |
+| Parcel 2.16.4 | no | the build stops on the sheet's first `@import` of a package specifier, which Parcel resolves from the `src` directory | not applicable |
 | Bun 1.4.0 | no | one CSS file for the entry | a new name with every release |
 | esbuild 0.28 | no | one CSS file for the entry, with splitting too | a new name with every release |
 | `@angular/build` `application` | no | the `styles` option emits one file | a new name with every release |
