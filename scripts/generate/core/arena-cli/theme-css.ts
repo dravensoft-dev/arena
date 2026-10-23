@@ -15,7 +15,7 @@ import {
 } from './palette-keys.ts';
 import { validate, contrast } from './validate-palette.mjs';
 import {
-  FS_STEP, RHYTHM_STEP, floorProblems, highContrastFor, nameProblems, reservedProblems, rootOnlyFor, scopeOn, totalityProblems, withDefaults,
+  FS_STEP, RHYTHM_STEP, aliasName, colourAnswer, keywordAnswer, type KnownAnswers, floorProblems, highContrastFor, nameProblems, reservedProblems, rootOnlyFor, scopeOn, totalityProblems, withDefaults,
 } from './style-plugin-rules.ts';
 import { serialize } from './serialize-token.ts';
 import { HEAT_MIN_DL, errorFill, heatCramped, heatLadder, toOklab } from './oklab.ts';
@@ -330,26 +330,49 @@ export function resolvedPlugin(
   return at;
 }
 
+function knownOf(catalogue: TokenCatalogue): KnownAnswers {
+  return {
+    colourRoles: (name) => catalogue.roles?.[name]?.type === 'color',
+    resolve: (flat) => catalogue.tokens?.[flat],
+  };
+}
+
 function roleAlias(raw: unknown, catalogue: TokenCatalogue) {
-  const alias = ALIAS.exec(String(raw).trim())?.[1];
+  const alias = aliasName(String(raw));
   return alias && catalogue.roles?.[alias]?.type === 'color' ? alias : null;
 }
 
-function loopProblem(key: string, tokens: Record<string, unknown>, catalogue: TokenCatalogue) {
+function ringOf(key: string, tokens: Record<string, unknown>, catalogue: TokenCatalogue) {
   const seen = [key];
   let at = roleAlias(tokens[key], catalogue);
   while (at !== null && at !== undefined) {
     if (at === key) {
       const via = seen[seen.length - 1] as string;
-      return seen.length === 1
-        ? `"${key}" is "{${key}}", so it names itself and never resolves`
-        : `"${seen[0]}" is "{${seen[1]}}", and "${via}" leads back to "${key}", so neither resolves`;
+      return {
+        members: seen,
+        message: seen.length === 1
+          ? `"${key}" is "{${key}}", so it names itself and never resolves`
+          : `"${seen[0]}" is "{${seen[1]}}", and "${via}" leads back to "${key}", so neither resolves`,
+      };
     }
     if (seen.includes(at)) return null;
     seen.push(at);
     at = roleAlias(tokens[at], catalogue);
   }
   return null;
+}
+
+export function ringMessages(tokens: Record<string, unknown>, catalogue: TokenCatalogue) {
+  const named = new Set<string>();
+  const messages: string[] = [];
+  for (const key of Object.keys(tokens)) {
+    if (named.has(key)) continue;
+    const ring = ringOf(key, tokens, catalogue);
+    if (!ring) continue;
+    for (const member of ring.members) named.add(member);
+    messages.push(ring.message);
+  }
+  return messages;
 }
 
 export function pluginBlocks(
@@ -380,19 +403,18 @@ export function pluginTokenProblems(
         + 'Arena emits.');
       continue;
     }
-    if (role?.type === 'color') {
-      const named = roleAlias(raw, catalogue);
-      if (!/^\{color\.[a-z0-9-]+\}$/.test(String(raw).trim()) && (named === null || named === key))
+    const known = knownOf(catalogue);
+    if (role?.type === 'color' && !colourAnswer(String(raw), key, known)) {
+      const selfNamed = aliasName(String(raw)) === key;
+      if (!selfNamed)
         problems.push(`${where}: "${key}" is ${JSON.stringify(raw)}, and a colour role takes a {color.*} alias `
           + 'or another colour role. A style plugin assigns one of your colours to a role and never authors one '
           + 'of its own.');
-      const loop = named === null ? null : loopProblem(key, tokens, catalogue);
-      if (loop) problems.push(`${where}: ${loop}.`);
     }
-    const resolved = String(pluginValue(raw, catalogue));
-    if (role?.type === 'keyword' && Array.isArray(role.values) && !role.values.includes(resolved))
+    if (role?.type === 'keyword' && Array.isArray(role.values) && !keywordAnswer(String(raw).trim(), role.values, known))
       problems.push(`${where}: "${key}" is ${JSON.stringify(raw)}, not one of ${role.values.join(', ')}.`);
   }
+  for (const message of ringMessages(tokens, catalogue)) problems.push(`stylePlugins.${group}: ${message}.`);
   return problems;
 }
 
@@ -448,6 +470,13 @@ function resolvedProblems(
   if (isRoot) {
     problems.push(...totalityProblems(Object.keys(catalogue.roles ?? {}), Object.keys(whole.tokens))
       .map((problem) => `${at}: ${problem}`));
+  }
+  for (const polarity of POLARITIES) {
+    const merged = polarity === 'dark' ? whole.tokens : { ...whole.tokens, ...whole.light };
+    for (const message of ringMessages(merged, catalogue)) {
+      if (!problems.some((one) => one.endsWith(`: ${message}.`)))
+        problems.push(`stylePlugins.${plugin.name}: ${message}.`);
+    }
   }
   if (problems.length) return problems;
 

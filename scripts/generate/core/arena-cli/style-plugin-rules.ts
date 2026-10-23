@@ -111,23 +111,47 @@ export function floorProblems(at: Map<string, string>, scope: string, where: str
 
 const COLOUR_ALIAS = /^\{color\.[a-z0-9-]+\}$/;
 
-export function valueProblems(where: string, key: string, token: MovedToken, role: RoleShape) {
+const ANY_ALIAS = /^\{([a-z][\w-]*(?:\.[\w-]+)*)\}$/;
+
+export type KnownAnswers = {
+  colourRoles?: (name: string) => boolean;
+  resolve?: (flat: string) => string | undefined;
+};
+
+export const aliasName = (value: string) => ANY_ALIAS.exec(value.trim())?.[1] ?? null;
+
+export function colourAnswer(value: string, self: string, known: KnownAnswers = {}) {
+  if (COLOUR_ALIAS.test(value.trim())) return true;
+  const named = aliasName(value);
+  return named !== null && named !== self && known.colourRoles?.(named) === true;
+}
+
+export function keywordAnswer(value: string, allowed: readonly unknown[], known: KnownAnswers = {}) {
+  if (allowed.includes(value)) return true;
+  const named = aliasName(value);
+  const resolved = named === null ? undefined : known.resolve?.(named.replace(/\./g, '-'));
+  return resolved !== undefined && allowed.includes(resolved);
+}
+
+export function valueProblems(
+  where: string, key: string, token: MovedToken, role: RoleShape, known: KnownAnswers = {},
+) {
   if (role.$type === 'color') {
     const value = token?.$value;
     if (typeof value !== 'string')
       return [`${where}: --${key} authors a colour outright. A style plugin assigns a colour and never authors one: `
         + 'the palette is the consumer\'s, and what a style plugin may say is WHICH of them a surface takes.'];
-    if (!COLOUR_ALIAS.test(value.trim()))
-      return [`${where}: --${key} is ${value}, and a colour role takes a {color.*} alias only. It is mechanical `
-        + 'as well as doctrinal: the emitter turns a bare colour alias into a var() it restates under every '
-        + 'theme, and anything else resolves to one theme\'s hex and inherits it into the other.'];
+    if (!colourAnswer(value, key, known))
+      return [`${where}: --${key} is ${value}, and a colour role takes a {color.*} alias or another colour role. `
+        + 'It is mechanical as well as doctrinal: the emitter turns a bare colour alias into a var() it restates '
+        + 'under every theme, and anything else resolves to one theme\'s hex and inherits it into the other.'];
     return [];
   }
   if (role.$type === 'keyword') {
     const allowed = role.$extensions?.[ARENA_EXT]?.values;
     if (!Array.isArray(allowed)) return [];
     const value = token?.$value;
-    if (typeof value !== 'string' || !allowed.includes(value))
+    if (typeof value !== 'string' || !keywordAnswer(value, allowed, known))
       return [`${where}: --${key} is ${JSON.stringify(value)}, not one of ${allowed.join(', ')}. `
         + 'The closed set is what makes a keyword a type rather than a string, and roles.json is where '
         + 'it is declared: a style plugin re-answers the question and does not widen it.'];
@@ -142,8 +166,6 @@ export function totalityProblems(declared: string[], answered: string[]) {
     + 'computed-value time, so the declaration reading it is dropped and the property disappears: '
     + 'an unanswered role is not a plainer appearance, it is a missing border.');
 }
-
-const ALIAS_PATH = /^\{([a-z][\w-]*(?:\.[\w-]+)*)\}$/;
 
 type Answers = { tokens: Record<string, unknown>; light: Record<string, unknown> };
 
@@ -160,7 +182,7 @@ export function withDefaults<P extends Answers>(
     const lightOnly = later !== undefined && Object.hasOwn(light, role);
     const alias = Object.hasOwn(roles, role) ? roles[role]?.default : undefined;
     if (typeof alias !== 'string' || open.includes(role) || rootSaid(role)) return lightOnly;
-    const target = ALIAS_PATH.exec(alias.trim())?.[1]?.replace(/\./g, '-');
+    const target = ANY_ALIAS.exec(alias.trim())?.[1]?.replace(/\./g, '-');
     if (target === undefined) return lightOnly;
     if (Object.hasOwn(roles, target)) {
       if (!answer(target, [...open, role])) return lightOnly;
@@ -209,7 +231,9 @@ export function nameProblems(
   return problems;
 }
 
-export function keyProblems(where: string, key: string, token: MovedToken, role: RoleShape | undefined) {
+export function keyProblems(
+  where: string, key: string, token: MovedToken, role: RoleShape | undefined, known: KnownAnswers = {},
+) {
   const problems = [];
   const named = FS_STEP.test(key) ? 'an fs step' : RHYTHM_STEP.test(key) ? 'a rhythm step' : null;
   if (named) {
@@ -229,6 +253,6 @@ export function keyProblems(where: string, key: string, token: MovedToken, role:
     problems.push(`${where}: --${key} is a ${token?.$type} here and a ${role.$type} in roles.json, and the two cannot disagree`);
   if (!token?.$description)
     problems.push(`${where}: --${key} carries no $description, and a style plugin is a set of decisions rather than a set of values`);
-  problems.push(...valueProblems(where, key, token, role));
+  problems.push(...valueProblems(where, key, token, role, known));
   return problems;
 }

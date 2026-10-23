@@ -231,3 +231,26 @@ test('a root plugin silent on a role with a kernel default builds and the build 
   assert.equal(out[0], 'arena build: 1 role(s) your root style plugin leaves unanswered take Arena\'s default: ink-link');
   assert.match(readFileSync(join(root, 'src', THEME_SHEET), 'utf8'), /--ink-link:var\(--color-base-200\);/);
 });
+
+test('a root plugin may answer a keyword role with a word alias and a colour role with another colour role', async () => {
+  const { core } = phosphor();
+  const root = project({ ...readable, stylePlugins: ['./design/andina'] });
+  mkdirSync(join(root, 'design', 'andina'), { recursive: true });
+  writeFileSync(join(root, 'design', 'andina', 'plugin.tokens.json'), JSON.stringify({
+    'ink-eyebrow': { $value: '{color.base-200}', $type: 'color' },
+    'ink-key': { $value: '{ink-eyebrow}', $type: 'color' },
+    'tt-key': { $value: '{case.none}', $type: 'keyword' },
+  }));
+  const sheets = { ...CATALOGUED, catalogue: {
+    tokens: { ...CATALOGUED.catalogue.tokens, 'case-none': 'none' },
+    roles: {
+      'ink-eyebrow': { type: 'color' }, 'ink-key': { type: 'color' },
+      'tt-key': { type: 'keyword', values: ['none', 'uppercase'] },
+    },
+  } };
+  const { io, err } = captureIo(root, { ...environment(core), sheets });
+  assert.equal(await run(flags(root), io), 0, err.join('\n'));
+  const written = readFileSync(join(root, 'src', THEME_SHEET), 'utf8');
+  assert.match(written, /--tt-key:none;/);
+  assert.match(written, /--ink-key:var\(--ink-eyebrow\);/);
+});

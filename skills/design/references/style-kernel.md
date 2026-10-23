@@ -90,8 +90,8 @@ the other, so a hex here is a light-mode colour showing through your dark theme.
 ## What an answer may be
 
 - **A scale alias**, `{r.xs}`, `{sp.4}`, `{fw.bold}`, `{dur.fast}`, `{ease.out}`. A scale alias is the ordinary answer.
-- **A `{color.*}` alias**, for every colour role, or another colour role such as `{ink-muted}`. A keyword role takes
-  a word of its set, or an alias that resolves to one such as `{case.none}`.
+- **A `{color.*}` alias**, for every colour role, or another colour role such as `{ink-muted}`.
+- **A word of the role's set**, or an alias that resolves to one such as `{case.none}`, for a keyword role.
 - **A literal**, where the scale has nothing you want: `{ "value": 920, "unit": "px" }`, or a bare
   number for a ratio such as `press-scale`. **Two of the loudest decisions need one**, because the scale has no step for
   them. A square corner is `{ "value": 0, "unit": "px" }`. No shadow at all is a shadow object

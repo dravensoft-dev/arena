@@ -157,7 +157,7 @@ export const ROUTES: Route[] = [
       + 'which roles carry a default and that the root answers the rest. It says where a project with no clone '
       + 'fetches the default plugin. The roster grows per role. '
       + 'The hand checklist names each unanswered role. A plugin class goes on any element. '
-      + 'It says what a role may be answered with.',
+      + 'It says what each kind of role may be answered with, which a project cannot infer from the roster.',
   },
   {
     name: 'consumer-register',

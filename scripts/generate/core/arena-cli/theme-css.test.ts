@@ -696,7 +696,19 @@ test('a role alias chain that loops is refused, and a role naming itself is too'
   const loop = pluginTokenProblems('p', { 'ink-key': '{ink-muted}', 'ink-muted': '{ink-key}' }, ALIASED);
   assert.ok(loop.some((m) => m.includes(
     '"ink-key" is "{ink-muted}", and "ink-muted" leads back to "ink-key", so neither resolves')), loop.join('\n'));
-  assert.ok(pluginTokenProblems('p', { 'ink-key': '{ink-key}' }, ALIASED).length >= 1);
+  const self = pluginTokenProblems('p', { 'ink-key': '{ink-key}' }, ALIASED);
+  assert.equal(self.length, 1, self.join('\n'));
+  assert.match(self[0] ?? '', /names itself/);
+});
+
+test('a ring that closes across the root answers and the light answers is refused', () => {
+  const problems = pluginProblems(listed(['console']), [total({
+    'fill-surface': { $type: 'color', $value: '{ink-eyebrow}' },
+    light: { 'ink-eyebrow': { $type: 'color', $value: '{fill-surface}' } },
+  })]);
+  assert.ok(problems.some((m) => /neither resolves/.test(m)), problems.join('\n'));
+  assert.equal(problems.filter((m) => /neither resolves/.test(m)).length, 1,
+    'one ring is named once, not once per role in it');
 });
 
 test('resolvedPlugin follows a role alias to the colour the named role resolves to', () => {

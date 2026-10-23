@@ -31,7 +31,7 @@ test('the rules module carries floors, shape checks and the kernel defaults, and
   assert.deepEqual(Object.keys(rules).sort(), [
     'ARENA_EXT', 'DANGER_FLOOR', 'FS_STEP', 'KEBAB', 'MAX_PROSE_MEASURE', 'MIN_HEADING_LEADING',
     'MIN_PROSE_LEADING', 'MIN_PROSE_MEASURE', 'POLARITY_HOOKS', 'RESERVED', 'RHYTHM_STEP',
-    'crossKeys', 'floorProblems', 'highContrastFor', 'highContrastNames', 'keyProblems', 'nameProblems', 'reservedProblems', 'rootOnlyFor', 'scopeKey', 'scopeOn',
+    'aliasName', 'colourAnswer', 'crossKeys', 'floorProblems', 'highContrastFor', 'highContrastNames', 'keyProblems', 'keywordAnswer', 'nameProblems', 'reservedProblems', 'rootOnlyFor', 'scopeKey', 'scopeOn',
     'totalityProblems', 'valueProblems', 'withDefaults',
   ], 'a rule that keeps a catalogue coherent is Arena design theory, and a floor is a claim about '
   + 'a reader: only the second one has any business binding somebody else\'s product');
@@ -130,6 +130,23 @@ test('a colour role may not point outside the palette, since only a colour alias
     { $type: 'color', $value: '{scrim}', $description: 'why' }, { $type: 'color' });
   assert.equal(problems.length, 1);
   assert.match(problems[0] ?? '', /\{color\./);
+});
+
+test('a colour role may name another colour role, and a keyword role an alias resolving to one of its words', () => {
+  const known = {
+    colourRoles: (name: string) => name === 'ink-muted' || name === 'ink-key',
+    resolve: (flat: string) => (flat === 'case-none' ? 'none' : flat === 'fs-h3' ? '24px' : undefined),
+  };
+  const colour = (value: string) => valueProblems('at', 'ink-key',
+    { $type: 'color', $value: value, $description: 'why' }, { $type: 'color' }, known);
+  assert.deepEqual(colour('{ink-muted}'), []);
+  assert.equal(colour('{ink-key}').length, 1, 'a role may not name itself');
+  assert.equal(colour('{tt-key}').length, 1, 'a keyword role is not a colour');
+  const role = { $type: 'keyword', $extensions: { 'com.dravensoft.arena': { values: ['none', 'uppercase'] } } };
+  const word = (value: string) => valueProblems('at', 'tt-key',
+    { $type: 'keyword', $value: value, $description: 'why' }, role, known);
+  assert.deepEqual(word('{case.none}'), []);
+  assert.equal(word('{fs.h3}').length, 1);
 });
 
 test('a keyword role is held to the set its own role declares', () => {
