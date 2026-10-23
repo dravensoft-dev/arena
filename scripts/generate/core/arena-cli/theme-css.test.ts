@@ -759,6 +759,22 @@ test('a ring wholly inside the root plugin is not laid at a later plugin that di
   assert.deepEqual(problems.filter((m) => m.startsWith('stylePlugins.marketing:') && /resolves/.test(m)), [], problems.join('\n'));
 });
 
+test('a ring wholly inside the root is not laid at a later plugin that takes one of its roles only by default', () => {
+  const sheets = { ...SHEETS_FULL, catalogue: { ...SHEETS_FULL.catalogue, roles: {
+    ...SHEETS_FULL.catalogue.roles,
+    'ink-key': { type: 'color', default: '{ink-muted}' }, 'ink-muted': { type: 'color' },
+  } } };
+  const problems = configProblems(listed(['console', 'marketing']), sheets, [
+    total({
+      'ink-key': { $type: 'color', $value: '{ink-muted}' },
+      'ink-muted': { $type: 'color', $value: '{ink-key}' },
+    }),
+    scoped({ 'ink-muted': { $type: 'color', $value: '{color.secondary}' } }),
+  ]).filter((m) => m.includes('stylePlugins'));
+  assert.ok(problems.some((m) => m.startsWith('stylePlugins.console:') && /neither resolves/.test(m)), problems.join('\n'));
+  assert.deepEqual(problems.filter((m) => m.startsWith('stylePlugins.marketing:') && /resolves/.test(m)), [], problems.join('\n'));
+});
+
 test('resolvedPlugin follows a role alias to the colour the named role resolves to', () => {
   const plugin = readPlugin('p', { 'ink-muted': { $value: '{color.primary}' }, 'ink-key': { $value: '{ink-muted}' } });
   assert.equal(resolvedPlugin(plugin, ALIASED).get('ink-key'), 'var(--color-primary)');
