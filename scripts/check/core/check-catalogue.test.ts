@@ -30,7 +30,7 @@ function anyAnswer(role: string, shape: Role) {
   return CLEARS_THE_FLOOR[role] ?? 1;
 }
 
-function bench(build: (dir: string) => void) {
+function fixture(build: (dir: string) => void) {
   const base = mkdtempSync(join(tmpdir(), 'arena-catalogue-'));
   mkdirSync(join(base, CATALOGUE, 'a-register'), { recursive: true });
   build(join(base, CATALOGUE, 'a-register'));
@@ -70,7 +70,7 @@ test('every shipped entry is named for a register rather than for the product it
 });
 
 test('an entry missing any of the four files it carries is reported per file', () => {
-  const { base, clean } = bench(() => {});
+  const { base, clean } = fixture(() => {});
   try {
     const problems = missingFileProblems('a-register', base);
     assert.equal(problems.length, CARRIES.length);
@@ -79,14 +79,14 @@ test('an entry missing any of the four files it carries is reported per file', (
 });
 
 test('a whole entry built from the roles themselves is clean, which is what makes the failures below mean something', () => {
-  const { base, clean } = bench((dir) => wholeEntry(dir));
+  const { base, clean } = fixture((dir) => wholeEntry(dir));
   try {
     assert.deepEqual(catalogueProblems(base).problems, []);
   } finally { clean(); }
 });
 
 test('a role carrying a kernel default may stay unanswered by an entry', () => {
-  const { base, clean } = bench((dir) => {
+  const { base, clean } = fixture((dir) => {
     wholeEntry(dir);
     const answers = readJson(join(dir, TOKENS)) as Record<string, unknown>;
     delete answers['r-control'];
@@ -102,7 +102,7 @@ test('a role carrying a kernel default may stay unanswered by an entry', () => {
 });
 
 test('a role the kernel declares and the entry does not answer is a missing border, not a plainer look', () => {
-  const { base, clean } = bench((dir) => {
+  const { base, clean } = fixture((dir) => {
     wholeEntry(dir);
     const answers = readJson(join(dir, TOKENS)) as Record<string, unknown>;
     delete answers['r-control'];
@@ -124,7 +124,7 @@ test('a name that is no role at all, and a type disagreeing with roles.json, are
 });
 
 test('a colour role answered with a literal is refused, because the palette is the consumer\'s', () => {
-  const { base, clean } = bench((dir) => {
+  const { base, clean } = fixture((dir) => {
     wholeEntry(dir);
     const answers = readJson(join(dir, TOKENS)) as Record<string, { $value: unknown }>;
     (answers['fill-surface'] as { $value: unknown }).$value = '#ffffff';
@@ -136,7 +136,7 @@ test('a colour role answered with a literal is refused, because the palette is t
 });
 
 test('a stylesheet reaching past the part hooks, or spelling its own layer, is reported', () => {
-  const { base, clean } = bench((dir) => {
+  const { base, clean } = fixture((dir) => {
     wholeEntry(dir);
     writeFileSync(join(dir, SHEET),
       '@layer arena-plugin { .arena-button__label { color: red; } }');
@@ -149,7 +149,7 @@ test('a stylesheet reaching past the part hooks, or spelling its own layer, is r
 });
 
 test('a comment naming a class does not count as a selector', () => {
-  const { base, clean } = bench((dir) => {
+  const { base, clean } = fixture((dir) => {
     wholeEntry(dir);
     writeFileSync(join(dir, SHEET),
       '/* .arena-button__label is compiler output */\n[data-arena-part="button"] { color: red; }');
@@ -160,7 +160,7 @@ test('a comment naming a class does not count as a selector', () => {
 });
 
 test('a config is held to both polarities, the whole colour set, the three font slots and its own path', () => {
-  const { base, clean } = bench((dir) => {
+  const { base, clean } = fixture((dir) => {
     wholeEntry(dir);
     writeFileSync(join(dir, CONFIG), JSON.stringify({
       stylePlugins: ['./design/somewhere-else'],
@@ -179,7 +179,7 @@ test('a config is held to both polarities, the whole colour set, the three font 
 });
 
 test('an entry with no line a cold start can match on is reported', () => {
-  const { base, clean } = bench((dir) => {
+  const { base, clean } = fixture((dir) => {
     wholeEntry(dir);
     writeFileSync(join(dir, CARD), '# An entry\n\nIt is the register of something.\n');
   });
@@ -189,7 +189,7 @@ test('an entry with no line a cold start can match on is reported', () => {
 });
 
 test('a leading a reader cannot follow is refused, whichever scale step spells it', () => {
-  const { base, clean } = bench((dir) => {
+  const { base, clean } = fixture((dir) => {
     wholeEntry(dir);
     const answers = readJson(join(dir, TOKENS)) as Record<string, { $value: unknown }>;
     (answers['lh-heading'] as { $value: unknown }).$value = '{lh.tight}';
@@ -208,7 +208,7 @@ test('a leading a reader cannot follow is refused, whichever scale step spells i
 });
 
 test('an entry answering a floor through a scale alias is measured at the value that alias resolves to', () => {
-  const { base, clean } = bench((dir) => {
+  const { base, clean } = fixture((dir) => {
     wholeEntry(dir);
     const answers = readJson(join(dir, TOKENS)) as Record<string, { $value: unknown }>;
     (answers['lh-prose'] as { $value: unknown }).$value = '{lh.root}';
@@ -220,7 +220,7 @@ test('an entry answering a floor through a scale alias is measured at the value 
 });
 
 test('an entry answering the danger fill with a colour is refused in both polarities', () => {
-  const { base, clean } = bench((dir) => {
+  const { base, clean } = fixture((dir) => {
     wholeEntry(dir);
     const answers = readJson(join(dir, TOKENS)) as Record<string, { $type: string; $value: unknown }>;
     answers['hue-danger-fill-strong'] = { $type: 'color', $value: '{color.error}' };
@@ -236,7 +236,7 @@ test('an entry answering the danger fill with a colour is refused in both polari
 });
 
 test('an entry answering the danger fill with transparent clears the floor', () => {
-  const { base, clean } = bench((dir) => wholeEntry(dir));
+  const { base, clean } = fixture((dir) => wholeEntry(dir));
   try {
     assert.deepEqual(readingFloorProblems('a-register', tokenCatalogue(), base), []);
   } finally { clean(); }

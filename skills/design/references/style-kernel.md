@@ -20,7 +20,7 @@ rather than defaulted.
 
 ```json
 {
-  "stylePlugins": ["./design/notion"],
+  "stylePlugins": ["./design/document-workspace"],
   "palettes": [
     { "name": "light", "default": true, "polarity": "light",
       "colors": { "base-100": "#ffffff", "base-content": "#37352f", "primary": "#0b6bcb" } }
