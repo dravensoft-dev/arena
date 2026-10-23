@@ -5,16 +5,18 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { READY, READY_SIGNAL, kitchenSinkPage, entryFile, bodyClass, varsStyle, KS } from './kitchen-sink-page.ts';
+import { READY, READY_SIGNAL, SPRITE, kitchenSinkPage, entryFile, bodyClass, varsStyle, KS } from './kitchen-sink-page.ts';
 
 type Fonts = { status: string; ready: Promise<void> };
+type Use = { getBBox: () => { width: number; height: number } };
 
 const FRAME_BUDGET = 500;
 
-function harness(fonts: Fonts) {
+function harness(fonts: Fonts, uses: Use[] = []) {
   const marks = new Set<string>();
   const document = {
     fonts,
+    querySelectorAll: () => uses,
     documentElement: {
       setAttribute: (name: string) => { marks.add(name); },
       hasAttribute: (name: string) => marks.has(name),
@@ -119,4 +121,17 @@ test('a tile is labelled with its item as the arrangement spells it, a variant i
   const entry = angularSinkEntry(
     { sink: 'charts', note: '', uses: [], sections: [{ title: 't', items: [item] }] }, new Map(), new Map(), '', '');
   assert.ok(entry.includes(`<span class="${KS.label}">ArenaGaugeChart:at-min</span>`), entry);
+});
+
+test('the kitchen-sink ready signal waits for the sprite', async () => {
+  const use = { box: 0, getBBox() { return { width: this.box, height: this.box }; } };
+  const fonts: Fonts = { status: 'loaded', ready: Promise.resolve() };
+  const { painted } = harness(fonts, [use]);
+  await turns();
+  assert.equal(painted(), false, 'an svg use with no box has not fetched its symbol, and a capture would show nothing');
+  assert.ok(SPRITE.ms > 0 && SPRITE.why.length > 0, 'the wait is bounded by a deadline that carries its reason');
+
+  use.box = 24;
+  await turns();
+  assert.equal(painted(), true, 'once every use has a box the page has painted');
 });

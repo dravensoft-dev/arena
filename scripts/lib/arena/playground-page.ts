@@ -15,6 +15,12 @@ export const UP = '../../../../../';
 
 export const PHOSPHOR_WEIGHTS = ['bold', 'fill', 'duotone'];
 
+export const SPRITE_FILE = 'assets/Icons.generated.svg';
+
+export function spriteHref(up: string) {
+  return `${up}${SPRITE_FILE}`;
+}
+
 export function surfacesDrawn(model: Pick<PlaygroundModel, 'component' | 'uses'>,
   graph = composedGraph(), root?: string) {
   const instantiated = [model.component, ...model.uses];

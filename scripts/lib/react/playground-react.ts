@@ -8,7 +8,7 @@
  * builders place their items there, so spelling it the first way nests a container in a
  * container and the file stops parsing. */
 
-import { playgroundPage, sheetLinks, UP } from '../arena/playground-page.ts';
+import { playgroundPage, sheetLinks, spriteHref, UP } from '../arena/playground-page.ts';
 import { bindingName } from '../arena/api-surface.ts';
 import { childLists, placeOf, SUBJECT } from '../arena/playground-model.ts';
 import type { FixtureChild, FixtureNode, Knob, Place, Places, PlaygroundEvent, PlaygroundModel }
@@ -227,6 +227,7 @@ export function reactEntry(model: PlaygroundModel, places: Places, banner: strin
     "import { createRoot } from 'react-dom/client';",
     "import { Playground } from '../../../playground/Playground.tsx';",
     "import { usePlayground } from '../../../playground/PlaygroundState.ts';",
+    "import { ArenaIconsProvider } from '../../../ArenaIcons.ts';",
     "import type { KnobModel } from '../../../playground/PlaygroundCodec.generated.ts';",
     types.length > 0 ? `import type { ${types.join(', ')} } from '../../../Api.generated.ts';` : '',
     ...components,
@@ -249,7 +250,11 @@ ${renderTree(model, places, 3)}
   );
 }
 
-createRoot(document.getElementById('root')!).render(<Demo />);
+createRoot(document.getElementById('root')!).render(
+  <ArenaIconsProvider href="${spriteHref(UP)}">
+    <Demo />
+  </ArenaIconsProvider>,
+);
 `;
 }
 

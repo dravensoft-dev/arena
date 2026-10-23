@@ -14,7 +14,7 @@ import {
   playgroundsOnDisk, missingPlaygrounds, playgroundSections, sinkPages, pages, indexedDirectories,
   modules, missingModules, titleOf, url, directoryUrl,
   BENCHES_DIR, BENCHES_MANIFEST, benchPairs, benchPages, benchDirectories, phosphorDrops, treePages,
-  COPIED_FILES, variantSinkNames,
+  COPIED_FILES, variantSinkNames, COPIED, SPRITE_FILE,
 } from './site-pages.ts';
 
 const made: string[] = [];
@@ -258,4 +258,9 @@ test('the arrangement of chart variants is told from the style plugins by its it
 test('pages and indexedDirectories take the output they read, so none defaults to the bench output', () => {
   assert.equal(pages.length, 2);
   assert.equal(indexedDirectories.length, 2);
+});
+
+test('the site copies the repo sprite, since a page hands it to ArenaIcon by a path relative to itself', () => {
+  assert.equal(SPRITE_FILE, 'assets/Icons.generated.svg');
+  assert.ok(COPIED.some((tree) => SPRITE_FILE.startsWith(`${tree}/`)), 'no copied tree holds the sprite');
 });

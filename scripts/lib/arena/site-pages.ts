@@ -19,7 +19,7 @@ import { repoRoot as root } from './repo-root.ts';
 import { IDENTITY_PAGES } from './agent-payload.ts';
 import { shippedComponents } from './component-map.ts';
 import { isVariantArrangement, type SinkFixture } from './kitchen-sink-model.ts';
-import { PHOSPHOR_WEIGHTS } from './playground-page.ts';
+import { PHOSPHOR_WEIGHTS, SPRITE_FILE } from './playground-page.ts';
 import { kebab, pascal } from '../../utils/case.ts';
 
 export const DOMAIN = 'arena.dravensoft.org';
@@ -29,6 +29,8 @@ export const LAYERS = ['react', 'angular'];
 export const PLAYGROUND_SUFFIX = '.demo.generated.html';
 export const SINK_PAGE = 'index.generated.html';
 export const PLAYGROUND_INDEX = 'components';
+export { SPRITE_FILE };
+
 export const PHOSPHOR = 'node_modules/@phosphor-icons/web/src';
 export const PHOSPHOR_KEEP = ['style.css', '.woff2', '.woff'];
 export const PHOSPHOR_FORMATS = ['.svg', '.ttf', '.woff', '.woff2'];

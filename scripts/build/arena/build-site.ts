@@ -18,7 +18,7 @@ import { walkFiles } from '../../utils/walk-files.ts';
 import { relPosix } from '../../utils/posix-path.ts';
 import {
   DOMAIN, SITE_DIR, LAYERS, COPIED, COPIED_FILES, SINK_PAGE, BENCHES_DIR,
-  entryPoints, sinkNames, variantSinkNames, components, pages, indexedDirectories, phosphorFiles,
+  SPRITE_FILE, entryPoints, sinkNames, variantSinkNames, components, pages, indexedDirectories, phosphorFiles,
   playgroundsOnDisk, playgroundSections, modules, titleOf, url, directoryUrl, REPOSITORY,
   benches, benchPairs, phosphorDrops,
 } from '../../lib/arena/site-pages.ts';
@@ -306,6 +306,10 @@ export async function buildSite(base = repoRoot, out = join(base, SITE_DIR)) {
 
   for (const tree of COPIED) {
     if (existsSync(join(base, tree))) written.push(...copyAll(join(base, tree), out, tree));
+  }
+  if (!existsSync(join(out, SPRITE_FILE))) {
+    throw new Error(`build-site: the site carries no ${SPRITE_FILE}, so every page drawing an ArenaIcon paints nothing; `
+      + 'bun run build:sprite writes it');
   }
 
   for (const rel of COPIED_FILES) written.push(copy(join(base, rel), out, rel));

@@ -193,3 +193,10 @@ test('a class on the subject and on a node is written as className', () => {
   assert.match(renderNode({ component: 'ArenaBadge', class: 'arena-fill' }, places, 0), /className="arena-fill"/);
   assert.doesNotMatch(renderSubject(model, places, 0), /className/);
 });
+
+test('a playground page hands the repo sprite to the layer\'s provider', () => {
+  const entry = reactEntry(model, places, '/* b */');
+  assert.match(entry, /import \{ ArenaIconsProvider \} from '\.\.\/\.\.\/\.\.\/ArenaIcons\.ts';/);
+  assert.match(entry, /<ArenaIconsProvider href="\.\.\/\.\.\/\.\.\/\.\.\/\.\.\/assets\/Icons\.generated\.svg">\s*<Demo \/>/,
+    'without the provider ArenaIcon has no sprite and paints nothing');
+});

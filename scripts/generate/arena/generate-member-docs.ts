@@ -25,7 +25,7 @@ export const node = {
   reads: ['contracts/api/components', 'frameworks/Components.json', ...COMPONENT_SOURCES],
   writes: COMPONENT_SOURCES,
   feeds: [
-    'generate:prompt-api', 'check:prompts',
+    'generate:prompt-api', 'check:prompts', 'build:sprite',
     'check:families', 'check:kitchen-sink', 'check:contracts-neutrality',
     'check:architecture',
     'build:angular-package',

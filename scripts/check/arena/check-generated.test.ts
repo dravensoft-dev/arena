@@ -34,8 +34,8 @@ const runner = ({ tracked = [], ignored = [] }: { tracked?: string[]; ignored?: 
   return [];
 };
 
-test('the two unmarked outputs are named by literal value, with a reason each', () => {
-  assert.deepEqual(Object.keys(UNMARKED).sort(), ['assets/fonts/*.woff2', 'intro/support.js']);
+test('the three unmarked outputs are named by literal value, with a reason each', () => {
+  assert.deepEqual(Object.keys(UNMARKED).sort(), ['assets/Icons.generated.svg', 'assets/fonts/*.woff2', 'intro/support.js']);
   for (const [name, reason] of Object.entries(UNMARKED)) {
     assert.ok(reason.length > 40, `${name} carries no real reason`);
   }
@@ -163,9 +163,9 @@ test('a file both ignored and in the index is reported, since the index wins sil
 
 test('an UNMARKED entry matching no tracked file is stale and fails', () => {
   assert.equal(unmarkedCoverageProblems('.', runner({
-    tracked: ['intro/support.js', 'assets/fonts/archivo-400.woff2'],
+    tracked: ['intro/support.js', 'assets/fonts/archivo-400.woff2', 'assets/Icons.generated.svg'],
   })).length, 0);
-  const stale = unmarkedCoverageProblems('.', runner({ tracked: ['intro/support.js'] }));
+  const stale = unmarkedCoverageProblems('.', runner({ tracked: ['intro/support.js', 'assets/Icons.generated.svg'] }));
   assert.equal(stale.length, 1);
   assert.match(stale[0] ?? '', /assets\/fonts\/\*\.woff2/);
 });

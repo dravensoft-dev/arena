@@ -209,7 +209,7 @@ test('the entry opens with the compiler import and bootstraps zoneless, which th
   assert.ok(out.indexOf("Reflect.set(globalThis, 'arenaAngularJitCompiler'") < out.indexOf('bootstrapApplication('),
     'the compiler has to be registered before anything asks the injector for an injectable that '
     + 'was only partially compiled, which is the first thing bootstrap does');
-  assert.match(out, /bootstrapApplication\(Demo, \{ providers: \[provideZonelessChangeDetection\(\)\] \}\)/);
+  assert.match(out, /bootstrapApplication\(Demo, \{\s*providers: \[provideZonelessChangeDetection\(\), provideArenaIcons\(/);
   assert.match(out, /const MODEL: KnobModel = \{/);
 });
 
@@ -274,4 +274,11 @@ test('the named validators follow the type a function input reads, so a number n
   const numeric = validatorTable({ knobs: [knob({ form: 'functionInput', params: { value: 'number' } })] });
   assert.match(numeric, /\(value: number\) => string/);
   assert.doesNotMatch(numeric, /nonEmpty|trim/);
+});
+
+test('a playground page hands the repo sprite to the layer\'s provider', () => {
+  const out = entry();
+  assert.match(out, /import \{ provideArenaIcons \} from '\.\.\/\.\.\/\.\.\/ArenaIcons';/);
+  assert.match(out, /provideArenaIcons\("\.\.\/\.\.\/\.\.\/\.\.\/\.\.\/assets\/Icons\.generated\.svg"\)/,
+    'without the provider ArenaIcon has no sprite and paints nothing');
 });

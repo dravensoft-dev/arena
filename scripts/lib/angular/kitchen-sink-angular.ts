@@ -11,6 +11,7 @@
 
 import { kitchenSinkPage, KS, bodyClass, varsStyle, READY_SIGNAL, entryFile } from '../arena/kitchen-sink-page.ts';
 import { UP } from '../react/kitchen-sink-react.ts';
+import { spriteHref } from '../arena/playground-page.ts';
 import { renderNode, collectFields, markerNames, componentTags, PRIMITIVES, MARKERS_SOURCE } from './playground-angular.ts';
 import { placeOf } from '../arena/playground-model.ts';
 import type { Place, Places } from '../arena/playground-model.ts';
@@ -82,6 +83,7 @@ ${tiles}
   return `${banner}import * as angularJitCompiler from '@angular/compiler';
 import { ChangeDetectionStrategy, Component, provideZonelessChangeDetection } from '@angular/core';
 import { bootstrapApplication } from '@angular/platform-browser';
+import { provideArenaIcons } from '../../ArenaIcons';
 ${types.length > 0 ? `import type { ${types.join(', ')} } from '../../Api.generated';\n` : ''}${
   markerImports.length > 0 ? `import { ${markerImports.join(', ')} } from '../../ProjectionMarkers';\n` : ''
 }${componentImports.join('\n')}
@@ -101,7 +103,9 @@ ${fieldRows.length > 0 ? `${fieldRows.join('\n')}\n` : ''}}
 
 Reflect.set(globalThis, 'arenaAngularJitCompiler', angularJitCompiler);
 
-bootstrapApplication(Sink, { providers: [provideZonelessChangeDetection()] })
+bootstrapApplication(Sink, {
+  providers: [provideZonelessChangeDetection(), provideArenaIcons(${JSON.stringify(spriteHref(UP))})],
+})
   .then(() => ${READY_SIGNAL});
 `;
 }

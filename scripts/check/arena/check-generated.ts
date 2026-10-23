@@ -19,7 +19,7 @@ export const node = {
   name: 'check:generated',
   reads: [
     '.gitignore', 'frameworks/**', 'contracts/design/**', 'contracts/design-generated/**',
-    'intro/**', 'assets/fonts/**', 'plugin-style-store/**',
+    'intro/**', 'assets/fonts/**', 'assets/Icons.generated.svg', 'plugin-style-store/**',
     '!frameworks/react/dist/**', '!frameworks/angular/dist/**', '!frameworks/angular/build/**',
   ],
   writes: [],
@@ -39,6 +39,10 @@ export const UNMARKED = {
     'downloaded from Google Fonts by scripts/generate/core/fetch-fonts.ts. Binary, so it '
     + 'carries no header, and reproducing it needs the network. The one generated output '
     + 'identified by its generator rather than by its name.',
+  'assets/Icons.generated.svg':
+    'written by scripts/build/arena/build-sprite.ts from @phosphor-icons/core, and tracked for the reason '
+    + 'assets/fonts/ is: every playground, kitchen sink and intro page hands it to ArenaIcon, and the git '
+    + 'tag serves intro/ where no build runs. An svg carries no header, so it names its generator here.',
 };
 
 export const UNTRACKED = {

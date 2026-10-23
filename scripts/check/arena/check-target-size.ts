@@ -38,7 +38,7 @@ export const node = {
     'frameworks/tailwind/consume/**', 'contracts/design-generated/**',
     'contracts/design/*.css', 'contracts/design/density.comfortable.json',
     'contracts/design/density.compact.json',
-    'assets/fonts/**', 'assets/rotor-crimson.svg',
+    'assets/fonts/**', 'assets/Icons.generated.svg', 'assets/rotor-crimson.svg',
     'intro/kitchen-sink.css', 'intro/styles.css', 'intro/toggle.css', 'intro/theme.js',
     'plugin-style-store/**/plugin.css',
   ],

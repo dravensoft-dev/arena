@@ -6,7 +6,7 @@
  * this layer and none in the other. A marker directive is read from the layer's own source
  * rather than listed here, so a new one joins without an edit. */
 
-import { playgroundPage, sheetLinks } from '../arena/playground-page.ts';
+import { playgroundPage, sheetLinks, spriteHref, UP } from '../arena/playground-page.ts';
 import { kebab } from '../../utils/case.ts';
 import { childLists, placeOf, SUBJECT } from '../arena/playground-model.ts';
 import { captured } from '../../utils/captures.ts';
@@ -361,6 +361,7 @@ import { ChangeDetectionStrategy, Component, computed, provideZonelessChangeDete
 import { bootstrapApplication } from '@angular/platform-browser';
 import { Playground } from '../../../playground/Playground';
 import { PlaygroundStore } from '../../../playground/PlaygroundState';
+import { provideArenaIcons } from '../../../ArenaIcons';
 import type { KnobModel } from '../../../playground/PlaygroundCodec.generated';
 ${types.length > 0 ? `import type { ${types.join(', ')} } from '../../../Api.generated';\n` : ''}${
   markerImports.length > 0 ? `import { ${markerImports.join(', ')} } from '../../../ProjectionMarkers';\n` : ''
@@ -395,7 +396,9 @@ ${fieldRows.length > 0 ? `${fieldRows.join('\n')}\n` : ''}}
  * page then loads its entry, throws at bootstrap and renders an empty document. */
 Reflect.set(globalThis, 'arenaAngularJitCompiler', angularJitCompiler);
 
-bootstrapApplication(Demo, { providers: [provideZonelessChangeDetection()] });
+bootstrapApplication(Demo, {
+  providers: [provideZonelessChangeDetection(), provideArenaIcons(${JSON.stringify(spriteHref(UP))})],
+});
 `;
 }
 
