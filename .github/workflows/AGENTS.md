@@ -394,11 +394,12 @@ no other moment.
 
 **An adopter that does not arrive or does not hold never stops the publication.** A checkout, an
 install or a build that fails publishes the site without it and a warning, and so does an
-adopter `build:site` refuses (a version it does not hold, a path the site already holds, an
-`index.html` of its own, a copy that fails): `build:site` says which in the step's `adopter`
-output, and the warning and the next step read it. So does a `check:site` that fails with the adopter in: the site is assembled again without it and
-held to the same gate, and a red there stops the run. A site with no adopter is a reachable state and the
-one a clone builds: it is what an unset `ARENA_ADOPTER_BUILD` publishes.
+adopter `build:site` refuses (a build whose own manifest declares another version, a path the
+site already holds, an `index.html` of its own, a copy that fails): `build:site` says which in
+the step's `adopter` output, and the warning and the next step read it. So does a `check:site`
+that fails with the adopter in: the site is assembled again without it and held to the same gate,
+and a red there stops the run. A site with no adopter is a reachable state and the one a clone
+builds: it is what an unset `ARENA_ADOPTER_BUILD` publishes.
 
 ## Release notes
 

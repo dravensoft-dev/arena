@@ -112,16 +112,18 @@ export function placeAdopter(out: string, env = arenaEnv(), base = repoRoot) {
   const clash = verdict.publish ? adopterClash(out, dir, verdict.manifest.name) : null;
   console.log(`build-site: ${clash ?? verdict.line}`);
   let written: string[] = [];
+  let placed = false;
   if (verdict.publish && clash === null) {
     const name = verdict.manifest.name;
     try {
       written = copyAll(dir, out, name);
+      placed = true;
     } catch (error) {
       rmSync(join(out, name), { recursive: true, force: true });
       console.log(`build-site: ${dir}: not published, copying it failed: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
-  if (env.GITHUB_OUTPUT) appendFileSync(env.GITHUB_OUTPUT, `adopter=${written.length > 0 ? 'published' : 'refused'}\n`);
+  if (env.GITHUB_OUTPUT) appendFileSync(env.GITHUB_OUTPUT, `adopter=${placed ? 'published' : 'refused'}\n`);
   return written;
 }
 

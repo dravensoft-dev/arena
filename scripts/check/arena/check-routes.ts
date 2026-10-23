@@ -354,7 +354,8 @@ export const ROUTES: Route[] = [
       + 'model. It states the frame shapes and the roles a kind answers, and '
       + 'names the filled status mark beside the presence dot. The type map names the keyword tokens a '
       + 'role may default to and the half spacing step. The ramp paragraph states how a chart '
-      + 'counts a positional slot, which is part of what a slot means. It names the glyph component and its sprite. The design level states the contrast floors as measured over the catalogue.',
+      + 'counts a positional slot, which is part of what a slot means. It names the glyph component and its sprite. '
+      + 'The design level states the contrast floors as measured over the catalogue.',
   },
   {
     name: 'contributor-gate',

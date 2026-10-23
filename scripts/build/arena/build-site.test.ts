@@ -160,3 +160,11 @@ test('the output file is told published, or refused, and nothing when no adopter
   placeAdopter(out, { ARENA_ADOPTER_BUILD: join(tmpdir(), 'arena-adopter-absent'), GITHUB_OUTPUT: file });
   assert.equal(readFileSync(file, 'utf8'), 'adopter=published\nadopter=refused\nadopter=refused\n');
 });
+
+test('an adopter build holding only its manifest is published all the same', () => {
+  const file = join(track(mkdtempSync(join(tmpdir(), 'arena-adopter-'))), 'output');
+  const { out, dir } = placed();
+  rmSync(join(dir, 'notes.md'));
+  placeAdopter(out, { ARENA_ADOPTER_BUILD: dir, GITHUB_OUTPUT: file });
+  assert.equal(readFileSync(file, 'utf8'), 'adopter=published\n');
+});
