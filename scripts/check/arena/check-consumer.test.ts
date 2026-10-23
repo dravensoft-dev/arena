@@ -330,14 +330,14 @@ test('the packed manifest declares exactly one bin, and it is the one the gate r
   assert.match(two[0] ?? '', /2 commands/);
 });
 
-test('a list naming arena-table alone imports the pagination and select the table draws, and says so', () => {
-  const said = 'arena build: 1 component sheet(s) named, and 2 Arena draws for you: arena-pagination, arena-select\n';
-  const closed = { ...sheetImports('arena-table', 'arena-pagination', 'arena-select'), stdout: said };
+test('a list naming arena-table alone imports the icon, pagination and select the table draws, and says so', () => {
+  const said = 'arena build: 1 component sheet(s) named, and 3 Arena draws for you: arena-icon, arena-pagination, arena-select\n';
+  const closed = { ...sheetImports('arena-table', 'arena-icon', 'arena-pagination', 'arena-select'), stdout: said };
   assert.deepEqual(closedListProblems('react', closed), []);
 
   const open = closedListProblems('react', { ...sheetImports('arena-table'), stdout: said });
   assert.equal(open.length, 1);
-  assert.match(open[0] ?? '', /and not arena-pagination, arena-select/);
+  assert.match(open[0] ?? '', /and not arena-icon, arena-pagination, arena-select/);
 
   const silent = closedListProblems('react', { ...closed, stdout: '' });
   assert.equal(silent.length, 1);

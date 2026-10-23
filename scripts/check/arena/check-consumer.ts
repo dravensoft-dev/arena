@@ -754,7 +754,7 @@ export function listProblems(layer: string, named: CliRun, unknown: CliRun, list
 
 export const CLOSED_LIST = ['arena-table'];
 
-export const CLOSED_PULLS = ['arena-pagination', 'arena-select'];
+export const CLOSED_PULLS = ['arena-icon', 'arena-pagination', 'arena-select'];
 
 export function closedListProblems(layer: string, result: CliRun) {
   const named = CLOSED_LIST.join(', ');
