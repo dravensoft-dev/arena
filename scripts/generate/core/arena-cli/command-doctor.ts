@@ -1,7 +1,7 @@
 /* arena doctor: it compares the tree with what arena build would leave and names every difference,
  * then the environment around it. It writes nothing. A plan fatal, a missing, stale or orphan file
  * (a sheet, the sprite or its module) and a held environment report exit 1; notes never change the exit.
- * unignoredOutputs answers null for an empty list, since git has nothing to answer, which is no answer rather than "all ignored". */
+ * unignoredOutputs gives null for an empty list, because git was asked about nothing and an empty answer would read as every output ignored. */
 import { spawnSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';

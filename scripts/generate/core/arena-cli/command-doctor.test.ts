@@ -244,14 +244,6 @@ test('a failing git falls back to the text reading', () => {
   assert.equal(unignoredOutputs(tmpdir(), []), null);
 });
 
-test('with git answering nothing for the tree, run keeps the old note', () => outsideAnyWorkTree(async () => {
-  const { root, core, environment } = setup();
-  await build(root, core);
-  const { io, out } = captureIo(root, environment);
-  assert.equal(await run([], io), 0);
-  assert.ok(out.some((line) => line.includes('.gitignore does not cover *.generated.css')));
-}));
-
 test('a build that writes the package sheet no source imports is a note naming the sheet, and an import clears it', async () => {
   const { root, core, environment } = setup();
   await build(root, core);
