@@ -11,7 +11,7 @@ import test from 'node:test';
 import ts from 'typescript';
 import assert from 'node:assert/strict';
 import { join, win32 } from 'node:path';
-import { relPosix } from '../../utils/posix-path.ts';
+import { relPosix, toPosix } from '../../utils/posix-path.ts';
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import {
@@ -196,9 +196,9 @@ test('each component\'s classes module carries its own vocabulary, and the vocab
   assert.match(text, /export const ARENA_CONTEXT_VOCABULARY: readonly ArenaContextClass\[\] = \[/);
   assert.match(text, /export const ARENA_VOCABULARY_PAGE = /);
   const modules = buildClassModules();
-  const react = [...modules].filter(([file]) => file.includes('/frameworks/react/') && file.endsWith('ArenaButton.classes.generated.ts'));
+  const react = [...modules].filter(([file]) => toPosix(file).includes('/frameworks/react/') && file.endsWith('ArenaButton.classes.generated.ts'));
   assert.equal(react.length, 1);
   assert.match(react[0]![1], /"vocabulary": \[/);
-  const angular = [...modules].filter(([file]) => file.includes('/frameworks/angular/') && file.endsWith('ArenaButton.classes.generated.ts'));
+  const angular = [...modules].filter(([file]) => toPosix(file).includes('/frameworks/angular/') && file.endsWith('ArenaButton.classes.generated.ts'));
   for (const [, body] of angular) assert.doesNotMatch(body, /"vocabulary"/, 'Angular filters nothing at runtime, so its module carries no list');
 });

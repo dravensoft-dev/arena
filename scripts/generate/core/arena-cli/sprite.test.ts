@@ -3,6 +3,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { toPosix } from '../../../utils/posix-path.ts';
 import { symbolId, glyphFile, spriteSvg, contentName, spriteModule } from './sprite.ts';
 
 const svg = (inner: string) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor">${inner}</svg>`;
@@ -14,9 +15,9 @@ test('symbol ids name weight and glyph, and regular for ph, the id every reader 
   assert.equal(symbolId('regular', 'bell'), 'ph-regular-bell');
 });
 
-test('glyphFile follows the package layout', () => {
-  assert.equal(glyphFile('/c', 'bold', 'x'), '/c/assets/bold/x-bold.svg');
-  assert.equal(glyphFile('/c', 'regular', 'x'), '/c/assets/regular/x.svg');
+test('glyphFile follows the package layout, in the separator of the host it reads on', () => {
+  assert.equal(toPosix(glyphFile('/c', 'bold', 'x')), '/c/assets/bold/x-bold.svg');
+  assert.equal(toPosix(glyphFile('/c', 'regular', 'x')), '/c/assets/regular/x.svg');
 });
 
 test('the sprite holds one symbol per glyph, sorted, and the same bytes twice', () => {

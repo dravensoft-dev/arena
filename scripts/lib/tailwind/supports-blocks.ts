@@ -5,7 +5,7 @@
  * background is invalid at computed-value time and does not paint, which leaves the ink on the
  * surface it was measured against; no engine resolving color-mix sees a change. `mergeSupports`
  * is the second: one rule states a condition once, because `bun build` keeps the FIRST block of a
- * repeated condition and discards the rest, measured on Bun 1.3.14. It merges into the LAST of a
+ * repeated condition and discards the rest, which Bun 1.4.0 does. It merges into the LAST of a
  * group, and refuses any move a plain declaration of the same property would start losing to. The
  * block reader is a sibling of the shipped CLI, which reads these sheets and cannot import here. */
 

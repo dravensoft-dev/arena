@@ -3,8 +3,8 @@
  * reads these figures against its budgets; weightProblems is the pure half. React comes from a vendored esm
  * entry, and moduleSideEffects is passed so tree-shaking works. The screen imports by name, never `import *`.
  * A Patch rewrites a module before it is bundled: a dist file by its path relative to dist, the app's two
- * modules by name. cssFigures runs the dist's `arena build` on a fixture under the repo's .cache/. Bun 1.3.14
- * ignores zlib's brotli dictionary, so a dictionary run goes through node, by stdin. */
+ * modules by name. cssFigures runs the dist's `arena build` on a fixture under the repo's .cache/. The brotli
+ * dictionary goes to zlib in this process: Bun 1.4.0 honours it, so the figure is node's own. */
 
 import { brotliCompressSync, constants } from 'node:zlib';
 import { spawnSync } from 'node:child_process';
@@ -23,31 +23,11 @@ export const ARENA_BUILD: Deadline = deadline('weight:arena-build', 120_000,
 
 export type Patch = (file: string, text: string) => string;
 
-const WITH_DICTIONARY = `
-const zlib = require('node:zlib');
-const all = require('node:fs').readFileSync(0);
-const split = all.readUInt32BE(0) + 4;
-const out = zlib.brotliCompressSync(all.subarray(split), {
-  params: { [zlib.constants.BROTLI_PARAM_QUALITY]: 11, [zlib.constants.BROTLI_PARAM_LGWIN]: 24 },
-  dictionary: all.subarray(4, split),
-});
-process.stdout.write(String(out.length));
-`;
-
 export function brotliKB(bytes: Uint8Array, dictionary?: Uint8Array): number {
-  let size: number;
-  if (dictionary) {
-    const head = Buffer.alloc(4);
-    head.writeUInt32BE(dictionary.length);
-    const ran = spawnSync(hostBinary('node', 'to compress with a brotli dictionary, which bun 1.3.14 ignores'),
-      ['-e', WITH_DICTIONARY], { input: Buffer.concat([head, dictionary, bytes]), maxBuffer: 1 << 20, timeout: ARENA_BUILD.ms });
-    if (ran.status !== 0) throw new Error(`weight-measure: brotli with a dictionary exited ${ran.status}: ${ran.stderr}`);
-    size = Number(ran.stdout.toString());
-  } else {
-    size = brotliCompressSync(bytes, {
-      params: { [constants.BROTLI_PARAM_QUALITY]: 11, [constants.BROTLI_PARAM_LGWIN]: 24 },
-    }).length;
-  }
+  const size = brotliCompressSync(bytes, {
+    params: { [constants.BROTLI_PARAM_QUALITY]: 11, [constants.BROTLI_PARAM_LGWIN]: 24 },
+    ...(dictionary ? { dictionary } : {}),
+  }).length;
   return Math.round(size / 10.24) / 100;
 }
 
