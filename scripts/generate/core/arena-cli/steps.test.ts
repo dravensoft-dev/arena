@@ -2,8 +2,9 @@ import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
-import { undrawnStep, auditStep, reportLines, paintedBy, namedComponents, drawsForYou } from './steps.ts';
+import { autoComponents, undrawnStep, auditStep, reportLines, paintedBy, namedComponents, drawsForYou } from './steps.ts';
 import { report } from './reports.ts';
+import type { ComponentMap } from './components.ts';
 import { auto, MAP, options, project, readable, removeFixtures } from './cli-fixtures.ts';
 
 after(removeFixtures);
@@ -95,4 +96,17 @@ test('a named list keeps its names as written and appends what they pull, sorted
   assert.deepEqual(namedComponents(['select', 'table', 'pagination'], MAP),
     { components: ['select', 'table', 'pagination'], note: null });
   assert.equal(drawsForYou(['pagination', 'select']), '2 Arena draws for you: pagination, select');
+});
+
+test('a typo that is a source\'s only Arena tag is still reported when no component resolves', () => {
+  const map: ComponentMap = { match: 'symbol', draws: { ArenaButton: 'button' }, needs: {}, sheetless: ['ArenaIconsProvider'] };
+  const root = project(auto, { 'App.tsx': "import { ArenaButon, ArenaIconsProvider } from '@dravensoft/arena-react';\n"
+    + 'export const App = () => (<ArenaIconsProvider href="/x.svg"><ArenaButon /></ArenaIconsProvider>);\n' });
+  const found = autoComponents(auto as any, { paths: [join(root, 'src')], config: join(root, 'arena.config.json') },
+    map, '@dravensoft/arena-react', false);
+  assert.ok(!('fatal' in found), 'a source drawing no component is a note, not a fatal');
+  assert.deepEqual(found.components, []);
+  assert.deepEqual(found.reports, ['ArenaButon is not a component this package ships, so no sheet was added for it']);
+  assert.match(found.note ?? '', /no Arena component drawn/);
+  rmSync(root, { recursive: true });
 });

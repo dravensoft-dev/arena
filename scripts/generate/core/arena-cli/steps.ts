@@ -47,8 +47,9 @@ export function autoComponents(config: ArenaConfig, options: StepOptions,
     return { fatal: [`"components": "${AUTO}" cannot be read against a map keyed by ${JSON.stringify(map.match)}, `
       + 'which this command does not know how to scan for; name the sheets instead'] };
   }
+  const reports = found.unplaced.map((one) => `${one} is not a component this package ships, so no sheet was added for it`);
   if (found.components.length === 0 && !required) {
-    return { components: [] as string[], reports: [] as string[], note: 'no Arena component drawn, so no component sheet is imported' };
+    return { components: [] as string[], reports, note: 'no Arena component drawn, so no component sheet is imported' };
   }
   if (found.components.length === 0) {
     return { fatal: [`"components": "${AUTO}" found no Arena component under ${options.paths.join(', ')}, `
@@ -57,7 +58,7 @@ export function autoComponents(config: ArenaConfig, options: StepOptions,
 
   return {
     components: found.components,
-    reports: found.unplaced.map((one) => `${one} is not a component this package ships, so no sheet was added for it`),
+    reports,
     note: `${found.drawn.length} component sheet(s) drawn`
       + (found.pulled.length ? `, and ${drawsForYou(found.pulled)}` : ''),
   };
