@@ -27,7 +27,7 @@ export const node = {
 };
 
 
-export const PHOSPHOR = 'node_modules/@phosphor-icons/core/assets';
+export const GLYPH_ASSETS = 'node_modules/@phosphor-icons/core/assets';
 
 export const SCANNED_ROOTS = ['frameworks', 'intro', 'contracts'];
 export const SCANNED_EXTENSIONS = ['.ts', '.tsx', '.js', '.jsx', '.html', '.json', '.md', '.css'];
@@ -38,7 +38,7 @@ export const ICON_TOKEN = /\bph(?:-[a-z0-9]+)+\b/g;
 export const EXEMPT = new Map<string, string>();
 
 export function weightsFrom(root = ROOT) {
-  const base = join(root, PHOSPHOR);
+  const base = join(root, GLYPH_ASSETS);
   const weights = new Map<string, Set<string>>();
   for (const entry of readdirSync(base, { withFileTypes: true })) {
     if (!entry.isDirectory()) continue;
@@ -56,7 +56,7 @@ export function weightsFrom(root = ROOT) {
 export function zeroWeightProblems(weights: Map<string, Set<string>>) {
   if (weights.size > 0) return [];
   return [
-    `no weight directory under ${PHOSPHOR}: a gate iterating nothing reports every name valid, `
+    `no weight directory under ${GLYPH_ASSETS}: a gate iterating nothing reports every name valid, `
     + 'which is the vacuous pass this check exists to avoid. Install @phosphor-icons/core.',
   ];
 }

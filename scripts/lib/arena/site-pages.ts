@@ -240,6 +240,10 @@ export function indexedDirectories(base: string, out: string) {
   ];
 }
 
+export function benchDrops(name: string) {
+  return name.startsWith('Phosphor') && (name.endsWith('.ttf') || name.endsWith('.svg'));
+}
+
 export const TITLE = /<title>([^<]*)<\/title>/;
 export const CARD_GROUP = /@dsCard[^>]*\sgroup="([^"]*)"/;
 export const CARD_NAME = /@dsCard[^>]*\sname="([^"]*)"/;

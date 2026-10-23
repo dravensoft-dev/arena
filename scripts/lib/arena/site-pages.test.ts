@@ -13,7 +13,7 @@ import {
   DOMAIN, SITE_DIR, LAYERS, sinkNames, entryPoints, components,
   playgroundsOnDisk, missingPlaygrounds, playgroundSections, sinkPages, pages, indexedDirectories,
   modules, missingModules, titleOf, url, directoryUrl,
-  BENCHES_DIR, BENCHES_MANIFEST, benchPairs, benchPages, benchDirectories, treePages,
+  BENCHES_DIR, BENCHES_MANIFEST, benchPairs, benchDrops, benchPages, benchDirectories, treePages,
   COPIED_FILES, variantSinkNames, COPIED, SPRITE_FILE,
 } from './site-pages.ts';
 
@@ -211,6 +211,16 @@ test('the module graph is walked from the tree alone, since a bench arrives only
   for (const rel of modules()) {
     assert.ok(!rel.startsWith(`${BENCHES_DIR}/`),
       'moduleGraph is memoised by base, so a declaration varying with the output cannot enter it');
+  }
+});
+
+test('the bench filter skips the Phosphor ttf and svg a prebuilt bench carries, read off the name', () => {
+  for (const kept of ['Phosphor-jz52g8q4.woff2', 'Phosphor-KLBJTFWE.woff', 'Phosphor.json',
+    'index-87jrphe1.css', 'main-CRTIYFBW.js', 'p1.jpg', 'logo.svg', 'other.ttf']) {
+    assert.equal(benchDrops(kept), false, `${kept} is fetched or is not a Phosphor binary`);
+  }
+  for (const dropped of ['Phosphor-znwj6k7p.ttf', 'Phosphor-Bold-m0yxxyn4.svg', 'Phosphor-Fill-65SPMP3X.svg']) {
+    assert.equal(benchDrops(dropped), true, `${dropped} is fetched by nothing`);
   }
 });
 

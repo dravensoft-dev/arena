@@ -20,7 +20,7 @@ import {
   DOMAIN, SITE_DIR, LAYERS, COPIED, COPIED_FILES, SINK_PAGE, BENCHES_DIR,
   SPRITE_FILE, entryPoints, sinkNames, variantSinkNames, components, pages, indexedDirectories,
   playgroundsOnDisk, playgroundSections, modules, titleOf, url, directoryUrl, REPOSITORY,
-  benches, benchPairs,
+  benches, benchPairs, benchDrops,
 } from '../../lib/arena/site-pages.ts';
 import { arenaEnv } from '../../lib/arena/arena-scripts-vars.ts';
 import { renderPageImage } from '../../lib/arena/page-image.ts';
@@ -314,7 +314,7 @@ export async function buildSite(base = repoRoot, out = join(base, SITE_DIR)) {
   for (const rel of COPIED_FILES) written.push(copy(join(base, rel), out, rel));
 
   const bench = benchesDirectory();
-  if (bench !== null) written.push(...copyAll(bench, out, BENCHES_DIR));
+  if (bench !== null) written.push(...copyAll(bench, out, BENCHES_DIR, benchDrops));
 
   for (const layer of LAYERS) {
     const sinks = join(base, 'frameworks', layer, 'kitchen-sink');
