@@ -37,7 +37,7 @@ A file is cached as long as its name is the same, so the rule is one question pe
 
 | file | name | cache |
 | --- | --- | --- |
-| the document (`index.html`, or the HTML your server renders) | fixed, `no-cache` | revalidate every time, so a visitor always reads the names of the other files as they are now |
+| the document (`index.html`, or the HTML your server renders) | fixed, `no-cache` | revalidate every time, so a visitor always reads the current names of the other files |
 | the bundler's JS and CSS output | your bundler's content hash, in `[name]-[hash]` | `Cache-Control: public, max-age=31536000, immutable` |
 | `icons-<hash>.svg`, the sprite | the hash of the file's bytes | `Cache-Control: public, max-age=31536000, immutable` |
 | `<stem>-<hash>.woff2`, each cut font | the hash of the file's bytes | `Cache-Control: public, max-age=31536000, immutable` |
@@ -62,7 +62,7 @@ Vary: Accept-Encoding, Available-Dictionary
 - The `match` pattern has to cover the next version's name, so the stem stays the same and the hash changes. Two chunks that share a stem confuse the match, which is why Parcel is not served this way.
 - The server needs the previous file when it compresses. Compress the new chunk against each previous version you still serve, at deploy time, and answer with the file that matches `Available-Dictionary`.
 - A browser without the feature, or a first visit, downloads the chunk whole with an ordinary encoding. Nothing breaks.
-- On 2026-10-23, Chrome and Edge from version 130 support it, and so do the browsers built on their engine. Firefox and Safari do not. The support is a fact of the browsers and moves without Arena, so check a compatibility table before relying on it.
+- On 2026-10-23, Chrome and Edge 130 and later support it, and so do the browsers built on their engine. Firefox supports it only behind a flag, and Safari does not. Browser support moves without Arena, so check a compatibility table before relying on it.
 
 **Angular takes Arena's updates through the dictionary too.** The Angular `application` builder has no way to keep Arena in a chunk of its own, so Arena sits in `main`. Serve `main` with the headers above and its previous version as the dictionary, and an update of Arena downloads what changed in `main`, which includes your app's code. The first visit does not grow.
 

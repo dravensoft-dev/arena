@@ -73,7 +73,7 @@ Each `<component>` stands for a sheet in the closed list `arena build` works out
 
 **`plugin.generated.css`** is written when a style plugin carries a `plugin.css`. The sheet holds that CSS in the reserved cascade layer and leads with the layer order itself, so where a bundler places it cannot change what wins.
 
-A sheet is written only when its bytes change, so a bundler watching an untouched sheet does not rebuild. A sheet this config no longer produces is removed. A build prints how many reports it saw and exits 0 on them; `arena check` names them. Keep every generated file out of version control: the sheets, the sprite with its module and the cut fonts.
+A sheet is written only when its bytes change, so a bundler watching an untouched sheet does not rebuild. A sheet this config does not produce is removed. A build prints how many reports it saw and exits 0 on them; `arena check` names them. Keep every generated file out of version control: the sheets, the sprite with its module and the cut fonts.
 
 **`--watch`** builds once, then rebuilds after each burst of changes to the config, a source under `--src` or a style plugin directory. A path that is not there yet is awaited. A build that cannot run prints why, and the next change builds again. Ctrl-C stops the watch and exits 0. The watch never reacts to the sheets it writes, or to anything under `node_modules`, `dist`, `.git`, `.angular` or `coverage`. Name your source trees with `--src`: a `--src .` holding another build directory rebuilds on its churn.
 

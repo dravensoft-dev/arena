@@ -66,7 +66,7 @@ export const ENTRIES: Entry[] = [
       + 'extends, as wrapped-link stands beside router-link. The vocabulary families name which '
       + 'style decision reaches which component owner and answer the route\'s questions about '
       + 'appearance sources at the decision layer. The tokens-only rule names the bracket values '
-      + 'audit holds. A row routes a mock to the artifact page. The router-link rule names each member '
+      + 'audit holds. A row routes a mock to artifact and a toolchain to its record. The router-link rule names each member '
       + 'with an href, and the icon rule names production code and the component that draws a glyph.',
   },
   {
@@ -83,7 +83,7 @@ export const ENTRIES: Entry[] = [
       + 'consumer may build Arena into, since no page a contributor opens by path states it. The page '
       + 'also names every artefact a release moves and every departure from the convention it answers '
       + 'to, because a forgotten artefact fails in silence and an unwritten departure is one the next '
-      + 'reader repairs.',
+      + 'reader repairs. It also states which dependencies a package declares and which of them a component imports.',
   },
 ];
 
@@ -219,7 +219,8 @@ export const ROUTES: Route[] = [
       + 'promising the whole line is falsified by any part of it kept elsewhere. The number is what '
       + 'the stops measure with room for one part, and it grows when Arena ships something new rather '
       + 'than when the page explains something better. The row naming the layout container and the '
-      + 'spacing scale\'s half step are what the page spends beyond the parts it already listed.',
+      + 'spacing scale\'s half step are what the page spends beyond the parts it already listed. '
+      + 'The icon line says where the sprite comes from and that the components reach no dependency.',
   },
   {
     name: 'consumer-stack',
@@ -241,7 +242,8 @@ export const ROUTES: Route[] = [
       + 'nodes of the cold start tree: naming them here would give a project two places to answer one '
       + 'thing, and the tree is where the answer reaches a peer dependency rather than a preference. '
       + 'The peers table says which peer is required and which optional, as the manifests do, and why '
-      + 'a command names no framework peer. Each bundler row carries its own recipe for a chunk of Arena\'s own, because that is a requirement stated per bundler.',
+      + 'a command names no framework peer. Each bundler row carries its own recipe for a chunk '
+      + 'of Arena\'s own, because that is a requirement stated per bundler.',
   },
   {
     name: 'consumer-page',
@@ -433,7 +435,7 @@ export const ROUTES: Route[] = [
       + 'verify through one reusable workflow, what each of its jobs runs and how long it may run, '
       + 'and which target a publish that misses its cache builds and which layer it hands '
       + 'check:packages. Each of these fails in silence, '
-      + 'which is what the budget is there to keep visible.',
+      + 'which is what the budget is there to keep visible. The packaging page names what the command reads at build.',
   },
 ];
 
