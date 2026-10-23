@@ -87,6 +87,14 @@ export function adopterBuild(env = arenaEnv(), base = repoRoot): { dir: string; 
   return { dir, verdict: adopterVerdict(dir, version(base)) };
 }
 
+export function adopterDeclares(dir: string | undefined, outputFile?: string, base = repoRoot): AdopterVerdict {
+  const verdict: AdopterVerdict = dir === undefined || dir === '' || dir.startsWith('-')
+    ? { publish: false, line: `--adopter-declares needs a directory, and got ${JSON.stringify(dir ?? '')}` }
+    : adopterVerdict(dir, version(base));
+  if (outputFile) appendFileSync(outputFile, `publish=${verdict.publish}\n`);
+  return verdict;
+}
+
 export function adopterClash(out: string, dir: string, name: string) {
   if (existsSync(join(out, name))) {
     return `${dir}: not published, /${name}/ is already a path this site holds`;
@@ -420,10 +428,7 @@ function titleFor(directory: string, out: string) {
 async function main() {
   const at = process.argv.indexOf('--adopter-declares');
   if (at !== -1) {
-    const dir = process.argv[at + 1] ?? '';
-    const { verdict } = adopterBuild({ ARENA_ADOPTER_BUILD: dir }) ?? { verdict: adopterVerdict(dir, version()) };
-    console.log(verdict.line);
-    if (process.env.GITHUB_OUTPUT) appendFileSync(process.env.GITHUB_OUTPUT, `publish=${verdict.publish}\n`);
+    console.log(adopterDeclares(process.argv[at + 1], process.env.GITHUB_OUTPUT).line);
     return;
   }
   const written = await buildSite();

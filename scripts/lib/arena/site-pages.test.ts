@@ -265,6 +265,13 @@ test('an href outside the adopter\'s own directory is refused', () => {
   }
 });
 
+test('a repository that is not an http(s) address is refused', () => {
+  for (const repository of ['', 'javascript:alert(1)', 'example.org/gallery', 'file:///x']) {
+    const dir = join(adopterOut(adopterManifest({ repository })), 'gallery');
+    assert.equal(adopterVerdict(dir, '12.1.1').publish, false, repository);
+  }
+});
+
 test('a name that is not a plain directory name is refused', () => {
   for (const name of ['Web Gallery', 'a/b', '']) {
     const dir = join(adopterOut(adopterManifest({ name })), 'gallery');

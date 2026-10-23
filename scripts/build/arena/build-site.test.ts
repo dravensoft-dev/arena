@@ -4,7 +4,7 @@ import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync } from 'nod
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
-import { retargetPages, adopterBuild, adopterSection, adopterClash, landingPage } from './build-site.ts';
+import { retargetPages, adopterBuild, adopterSection, adopterClash, adopterDeclares, landingPage } from './build-site.ts';
 import { repositoryBase, version } from '../../lib/arena/package-assembly.ts';
 
 test('a published Markdown page points what the output lacks at the release tag and keeps the rest', () => {
@@ -88,4 +88,22 @@ test('an adopter whose name an Arena entry already holds, or that carries its ow
   assert.equal(adopterClash(out, dir, 'gallery'), null);
   writeFileSync(join(dir, 'index.html'), '<html></html>');
   assert.match(adopterClash(out, dir, 'gallery') ?? '', /index\.html/);
+});
+
+test('the declares command appends publish=true or publish=false to the output file it is handed', () => {
+  const file = join(track(mkdtempSync(join(tmpdir(), 'arena-adopter-'))), 'output');
+  assert.equal(adopterDeclares(join(adopterOut(), 'gallery'), file).publish, true);
+  assert.equal(adopterDeclares(join(adopterOut(manifest({ arena: '0.0.0' })), 'gallery'), file).publish, false);
+  assert.equal(readFileSync(file, 'utf8'), 'publish=true\npublish=false\n');
+  assert.equal(adopterDeclares(join(adopterOut(), 'gallery')).publish, true, 'no output file is no write');
+});
+
+test('an empty, missing or option-shaped directory is a refusal and never reads the working directory', () => {
+  const file = join(track(mkdtempSync(join(tmpdir(), 'arena-adopter-'))), 'output');
+  for (const dir of [undefined, '', '--other']) {
+    const verdict = adopterDeclares(dir, file);
+    assert.equal(verdict.publish, false);
+    assert.match(verdict.line, /needs a directory/);
+  }
+  assert.equal(readFileSync(file, 'utf8'), 'publish=false\npublish=false\npublish=false\n');
 });

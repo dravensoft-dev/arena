@@ -171,6 +171,7 @@ function adopterShape(raw: unknown): AdopterManifest | string {
   for (const field of ['arena', 'name', 'title', 'description', 'repository']) {
     if (typeof raw[field] !== 'string') return `${field} is missing or not a string`;
   }
+  if (!/^https?:\/\//.test(raw.repository as string)) return 'repository is not an http(s) address';
   if (!Array.isArray(raw.sections)) return 'sections is missing or not an array';
   for (const section of raw.sections as unknown[]) {
     if (!isRecord(section) || typeof section.heading !== 'string' || !Array.isArray(section.links)) {
