@@ -23,12 +23,14 @@ export { SPRITE_FILE };
 
 export const LAYERS = ['react', 'angular'];
 
+export const PAGE_MODULES = 'scripts/lib/arena/hero-page.ts';
+
 export const node = {
   name: 'build:sprite',
   reads: [
     ...LAYERS.flatMap((layer) => [`frameworks/${layer}/components/**/*.ts`, `frameworks/${layer}/components/**/*.tsx`]),
     '!frameworks/**/*.generated.*', '!frameworks/**/*.test.*',
-    'frameworks/demos/*.demo.json', 'frameworks/tailwind/**/*.card.html', 'intro/**/*.html',
+    'frameworks/demos/*.demo.json', 'frameworks/tailwind/**/*.card.html', 'intro/**/*.html', PAGE_MODULES,
   ],
   writes: [SPRITE_FILE],
   feeds: ['check:generated', 'check:icons', 'check:pixel-parity', 'check:target-size', 'build:site', 'check:site'],
@@ -68,6 +70,7 @@ export function repoSprite(root = repoRoot, core = phosphorRoot() ?? '') {
     ...walk(join(root, 'frameworks', 'demos'), (path) => path.endsWith('.demo.json')),
     ...walk(join(root, 'frameworks', 'tailwind'), (path) => path.endsWith('.card.html')),
     ...walk(join(root, 'intro'), (path) => path.endsWith('.html')),
+    ...(existsSync(join(root, PAGE_MODULES)) ? [join(root, PAGE_MODULES)] : []),
   ];
   for (const path of others) {
     const source = read(path);

@@ -7,7 +7,11 @@ import assert from 'node:assert/strict';
 import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
+import { readFileSync } from 'node:fs';
 import { repoSprite, SPRITE_FILE } from './build-sprite.ts';
+import { withoutComments } from '../../lib/arena/icon-manifest.ts';
+import { scan } from '../../generate/core/arena-cli/icon-css.ts';
+import { symbolId } from '../../generate/core/arena-cli/sprite.ts';
 
 const BASE = join(repoRoot, '.cache', 'plan-1.29', 'build-sprite');
 
@@ -75,4 +79,18 @@ test('a glyph the install does not hold is reported, not dropped', () => {
 test('the same tree writes the same bytes', () => {
   const { root, core } = fixture('stable');
   assert.equal(repoSprite(root, core).svg, repoSprite(root, core).svg);
+});
+
+test('every glyph the page modules write has a symbol in the repo sprite', () => {
+  const sprite = readFileSync(join(repoRoot, SPRITE_FILE), 'utf8');
+  for (const module of ['playground-page', 'kitchen-sink-page', 'hero-page']) {
+    const source = withoutComments(readFileSync(join(repoRoot, 'scripts', 'lib', 'arena', `${module}.ts`), 'utf8'), `${module}.ts`);
+    const found = scan(source);
+    for (const [weight, glyphs] of found.pairs) {
+      for (const glyph of glyphs) {
+        const id = symbolId(weight, glyph.replace(/^ph-/, ''));
+        assert.ok(sprite.includes(`id="${id}"`), `${module}.ts writes ${glyph} in ${weight} and the repo sprite has no ${id}`);
+      }
+    }
+  }
 });

@@ -69,6 +69,8 @@ export const SPRITE = deadline('kitchen-sink:sprite', 10_000,
 export const READY_SIGNAL = `(async () => {
   const boxed = () => {
     for (const use of document.querySelectorAll('svg use')) {
+      const owner = Reflect.get(use, 'ownerSVGElement');
+      if (owner && owner.getClientRects().length === 0) continue;
       try {
         const box = Reflect.get(use, 'getBBox').call(use);
         if (!(box.width > 0 && box.height > 0)) return false;

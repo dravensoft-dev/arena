@@ -11,7 +11,11 @@
 
 import { block, PLUGIN_DIR } from '../../generate/arena/generate-tokens.ts';
 import { arenaClassesFor, arenaSlotDataFor } from '../tailwind/component-css.ts';
+import { SPRITE_FILE } from './playground-page.ts';
+import { symbolId } from '../../generate/core/arena-cli/sprite.ts';
 import { layerManifests } from '../tailwind/tailwind-compile.ts';
+
+const ROBOT = 'ph-duotone ph-robot';
 
 export const HERO_SHEET = 'hero.css';
 export const HERO_SOURCE = 'hero.html';
@@ -69,11 +73,15 @@ function slices() {
     .join('\n');
 }
 
+function robotId() {
+  const [weight, glyph] = ROBOT.split(' ');
+  return symbolId((weight ?? '').replace(/^ph-/, ''), (glyph ?? '').replace(/^ph-/, ''));
+}
+
 export function heroPage(drawn: number) {
   return `<!doctype html><html lang="en"><head><meta charset="utf-8">
 <link rel="stylesheet" href="intro/styles.css">
 <link rel="stylesheet" href="frameworks/tailwind/consume/Components.generated.css">
-<link rel="stylesheet" href="node_modules/@phosphor-icons/web/src/duotone/style.css">
 <link rel="stylesheet" href="${HERO_SHEET}">
 <style>
 html,body{margin:0;padding:0}
@@ -105,7 +113,7 @@ grid-template-columns:repeat(3,1fr);gap:26px 18px}
 justify-content:center;border:3px dashed var(--mute);border-radius:14px;background:transparent;
 font-family:var(--font-display);font-size:34px;font-weight:700;color:var(--mute)}
 .slice span{font-family:var(--font-mono);font-size:13px;color:var(--mute);white-space:nowrap}
-.robot{position:absolute;left:498px;top:644px;font-size:132px;color:var(--mute);line-height:1}
+.robot{position:absolute;left:498px;top:644px;width:1em;height:1em;font-size:132px;color:var(--mute);fill:currentColor}
 .reads{position:absolute;left:664px;top:662px;font-size:30px;color:var(--mute);max-width:648px;
 line-height:1.4;margin:0}
 .reads b{color:var(--text-strong);font-weight:600}
@@ -157,7 +165,7 @@ d="M125 62 74 182.6h20.4l10.9-27.3h39.4l10.9 27.3H176zm15.6 76.4h-31.2L125 100z"
 </svg><span>Angular</span></div>
 </div>
 
-<i class="robot ph-duotone ph-robot" aria-hidden="true"></i>
+<svg class="robot" aria-hidden="true" focusable="false"><use href="${SPRITE_FILE}#${robotId()}"></use></svg>
 <p class="reads">The contracts say what it is. Your style plugin says what it looks like.
 <b>Arena carries the language and never the skin.</b></p>
 

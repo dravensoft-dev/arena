@@ -8,7 +8,7 @@ import assert from 'node:assert/strict';
 import { READY, READY_SIGNAL, SPRITE, kitchenSinkPage, entryFile, bodyClass, varsStyle, KS } from './kitchen-sink-page.ts';
 
 type Fonts = { status: string; ready: Promise<void> };
-type Use = { getBBox: () => { width: number; height: number } };
+type Use = { ownerSVGElement: { getClientRects: () => unknown[] }; getBBox: () => { width: number; height: number } };
 
 const FRAME_BUDGET = 500;
 
@@ -124,14 +124,23 @@ test('a tile is labelled with its item as the arrangement spells it, a variant i
 });
 
 test('the kitchen-sink ready signal waits for the sprite', async () => {
-  const use = { box: 0, getBBox() { return { width: this.box, height: this.box }; } };
+  const use = {
+    box: 0,
+    ownerSVGElement: { getClientRects: () => [{}] },
+    getBBox() { return { width: this.box, height: this.box }; },
+  };
+  const hidden = {
+    ownerSVGElement: { getClientRects: () => [] },
+    getBBox() { return { width: 0, height: 0 }; },
+  };
   const fonts: Fonts = { status: 'loaded', ready: Promise.resolve() };
-  const { painted } = harness(fonts, [use]);
+  const { painted } = harness(fonts, [use, hidden]);
   await turns();
   assert.equal(painted(), false, 'an svg use with no box has not fetched its symbol, and a capture would show nothing');
   assert.ok(SPRITE.ms > 0 && SPRITE.why.length > 0, 'the wait is bounded by a deadline that carries its reason');
 
   use.box = 24;
   await turns();
-  assert.equal(painted(), true, 'once every use has a box the page has painted');
+  assert.equal(painted(), true,
+    'once every rendered use has a box the page has painted; a use in a collapsed subtree never gets one');
 });
