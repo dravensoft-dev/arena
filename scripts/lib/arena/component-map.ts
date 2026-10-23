@@ -156,7 +156,10 @@ export function reactSheetless(draws: Record<string, string | null>, root = repo
     const path = captured(m);
     if (path.startsWith('components/')) continue;
     const file = join(root, 'frameworks', 'react', path);
-    if (!existsSync(file)) continue;
+    if (!existsSync(file)) {
+      throw new Error(`component-map: ${REACT_INDEX} re-exports ./${path}, which does not exist, so the `
+        + 'providers it holds would go unplaced and arena check would report each as a missing component');
+    }
     for (const name of readFileSync(file, 'utf8').matchAll(EXPORTED)) {
       const one = captured(name);
       if (COMPONENT_NAME.test(one) && !(one in draws)) found.add(one);

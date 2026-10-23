@@ -6,7 +6,7 @@
  * of the consumer's own may wear the prefix. React is read through the import naming the package AND the JSX
  * opening the tag, and is unplaced only when both agree and the map still does not know it: an import alone is
  * a type or a helper as often as a component, and a tag alone belongs to whoever wrote it -- half this library
- * is called ArenaCard or ArenaTable in somebody's code. A list the consumer names is closed through the same
+ * is called ArenaCard or ArenaTable in somebody's code. A provider the index exports draws no sheet, as a chart does. A list the consumer names is closed through the same
  * pulledBy, so a sheet a component needs reaches a project that names its sheets as surely as one that scans. */
 
 export const AUTO = 'auto';

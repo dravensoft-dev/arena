@@ -66,11 +66,13 @@ export const SOURCES: Record<string, Record<string, string>> = {
   },
 };
 
+export const PROVIDER = 'ArenaIconsProvider';
+
 export const UNPLACED: Record<string, { files: Record<string, string>; name: string }> = {
   react: {
     files: {
-      'src/App.tsx': "import { ArenaButton, ArenaIconsProvider, ArenaWidget } from '@dravensoft/arena-react';\n"
-        + 'export const App = () => (<ArenaIconsProvider href="/icons.svg"><ArenaButton>Go</ArenaButton><ArenaWidget /></ArenaIconsProvider>);\n',
+      'src/App.tsx': `import { ArenaButton, ${PROVIDER}, ArenaWidget } from '@dravensoft/arena-react';\n`
+        + `export const App = () => (<${PROVIDER} href="/icons.svg"><ArenaButton>Go</ArenaButton><ArenaWidget /></${PROVIDER}>);\n`,
     },
     name: 'ArenaWidget',
   },
@@ -800,8 +802,8 @@ export function stemProblems(layer: string, result: CliRun, expected: string[], 
 
 export function unplacedProblems(layer: string, result: CliRun, name: string) {
   if (result.status !== 0) return [`${layer}: the run naming ${name} exited ${result.status} instead of reporting it`];
-  if (result.stderr.includes('ArenaIconsProvider is not a component')) {
-    return [`${layer}: ArenaIconsProvider is a provider this package exports, and the run reported it as a component it does not ship`];
+  if (result.stderr.includes(`${PROVIDER} is not a component`)) {
+    return [`${layer}: ${PROVIDER} is a provider this package exports, and the run reported it as a component it does not ship`];
   }
   if (result.stderr.includes(`${name} is not a component this package ships`)) return [];
   return [`${layer}: a source names ${name}, which this package does not ship, and the run said nothing `

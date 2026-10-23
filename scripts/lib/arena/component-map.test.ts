@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { join, basename } from 'node:path';
 import {
   componentMap, angularComponentMap, reactComponentMap, sheetOf, close, MAP_FILE,
-  markerAttributes, MARKERS_FILE,
+  markerAttributes, MARKERS_FILE, reactSheetless,
 } from './component-map.ts';
 import { manifestFiles } from '../tailwind/tailwind-compile.ts';
 import { kebab } from '../../utils/case.ts';
@@ -124,4 +124,22 @@ test('the React map names the index exports a consumer opens as a tag and that d
     'a name that draws a sheet is a component, and is placed by draws');
   assert.equal('sheetless' in componentMap('angular', repoRoot), false,
     'Angular exports no element selector outside its components');
+});
+
+test('a provider added to a helper module the index re-exports is placed without editing a list', () => {
+  const root = mkdtempSync(join(tmpdir(), 'arena-sheetless-'));
+  try {
+    const react = join(root, 'frameworks', 'react');
+    mkdirSync(join(react, 'components'), { recursive: true });
+    writeFileSync(join(react, 'Index.generated.ts'),
+      "export * from './components/Thing.ts';\nexport * from './Foo.ts';\n");
+    writeFileSync(join(react, 'components', 'Thing.ts'), 'export function ArenaThing() { return null; }\n');
+    writeFileSync(join(react, 'Foo.ts'), 'export function FooProvider() { return null; }\nexport const useFoo = 1;\n');
+    assert.deepEqual(reactSheetless({}, root), ['FooProvider']);
+    assert.deepEqual(reactSheetless({ FooProvider: null }, root), []);
+    writeFileSync(join(react, 'Index.generated.ts'), "export * from './Gone.ts';\n");
+    assert.throws(() => reactSheetless({}, root), /component-map: .*Gone\.ts/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
 });
