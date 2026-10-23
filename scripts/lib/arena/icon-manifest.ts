@@ -54,9 +54,16 @@ export function iconManifest(layer: string, root = repoRoot): ShippedIconMap {
   const swaps = new Set<string>();
   for (const path of renderFiles(layer, root)) {
     const parts = relPosix(base, path).split('/');
-    if (parts.length < 3) continue;
-    const at = parts.slice(0, 2).join('/');
     const source = withoutComments(readFileSync(path, 'utf8'), basename(path));
+    if (parts.length < 3) {
+      const loose = serialise(scan(source));
+      if (loose.loose.length > 0 || Object.keys(loose.pairs).length > 0) {
+        throw new Error(`icon-manifest: ${layer}/components/${parts.join('/')} names glyphs and sits directly under its category, `
+          + 'so no component owns them');
+      }
+      continue;
+    }
+    const at = parts.slice(0, 2).join('/');
     found.set(at, scan(source, found.get(at) ?? { pairs: new Map(), loose: new Set() }));
     if (SWAPS.test(source)) swaps.add(at);
   }

@@ -3,6 +3,9 @@
  * comment ships inside the package, so a consumer scanning it was sent a rule for it. */
 
 import test from 'node:test';
+import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { repoRoot } from './repo-root.ts';
 import assert from 'node:assert/strict';
 import { withoutComments, serialise, iconManifest, MANIFEST_FILE } from './icon-manifest.ts';
 import { kebab } from '../../utils/case.ts';
@@ -64,4 +67,19 @@ test('Arena names a weight beside every glyph it draws, so loose is the consumer
 
 test('the file name is the one arena build looks for, spelled once', () => {
   assert.equal(MANIFEST_FILE, 'icons.json');
+});
+
+test('a file directly under a category that names a glyph throws, and one that names none is skipped', () => {
+  const root = join(repoRoot, '.cache', 'plan-1.29', 'manifest-stray');
+  const category = join(root, 'frameworks', 'react', 'components', 'display');
+  rmSync(root, { recursive: true, force: true });
+  mkdirSync(category, { recursive: true });
+  try {
+    writeFileSync(join(category, 'Quiet.tsx'), "export const quiet = 'no glyph here';\n");
+    assert.deepEqual(iconManifest('react', root), { components: {}, fills: [] });
+    writeFileSync(join(category, 'Stray.tsx'), "export const stray = 'ph-bold ph-bell';\n");
+    assert.throws(() => iconManifest('react', root), /display\/Stray\.tsx names glyphs and sits directly under its category/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
 });
