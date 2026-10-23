@@ -20,6 +20,7 @@ import {
 } from '../../../RowWindowMeasure.ts';
 import type { ArenaTreeViewClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
+import { ArenaIcon } from '../../display/arena-icon/ArenaIcon.tsx';
 
 export interface ArenaTreeViewProps {
   className?: ArenaTreeViewClass;
@@ -258,10 +259,10 @@ export function ArenaTreeView({
         <span aria-hidden="true"
           onClick={branch ? (e) => { e.stopPropagation(); toggle(id, !isOpen); } : undefined}
           className={styles.caret()} data-arena-part={manifest.parts.caret} {...styles.$data.caret()}>
-          {branch ? <i className={isOpen ? 'ph-bold ph-caret-down' : 'ph-bold ph-caret-right'} /> : null}
+          {branch ? <ArenaIcon icon={isOpen ? 'ph-bold ph-caret-down' : 'ph-bold ph-caret-right'} /> : null}
         </span>
         {node.icon
-          ? <i aria-hidden="true" className={`${node.icon} ${styles.icon()}`} data-arena-part={manifest.parts.icon} {...styles.$data.icon()} />
+          ? <span className={styles.icon()} data-arena-part={manifest.parts.icon} {...styles.$data.icon()} aria-hidden="true"><ArenaIcon icon={node.icon} /></span>
           : null}
         <span className={styles.label()} data-arena-part={manifest.parts.label} {...styles.$data.label()}>{node.label}</span>
       </div>

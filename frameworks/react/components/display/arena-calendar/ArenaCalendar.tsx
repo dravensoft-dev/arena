@@ -59,6 +59,7 @@ import {
 } from './CalendarInternals.ts';
 import type { ArenaCalendarClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
+import { ArenaIcon } from '../arena-icon/ArenaIcon.tsx';
 
 const TRACKS = (n: number) => `repeat(${n}, minmax(0, 1fr))`;
 
@@ -210,7 +211,7 @@ export function ArenaCalendar({ className,
     <button type="button" aria-label={dir < 0 ? locale.calendarPrevious : locale.calendarNext}
       onClick={() => goto(arenaAddDays(anchor, dir * step))}
       className={styles.nav()} data-arena-part={manifest.parts.nav} {...styles.$data.nav()}>
-      <i className={dir < 0 ? 'ph-bold ph-caret-left' : 'ph-bold ph-caret-right'} aria-hidden="true" />
+      <ArenaIcon icon={dir < 0 ? 'ph-bold ph-caret-left' : 'ph-bold ph-caret-right'} />
     </button>
   );
 

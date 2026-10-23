@@ -1,11 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { renderToStaticMarkup } from 'react-dom/server';
+import { renderIcons, symbols } from '../../../test/IconsHarness.tsx';
 import React from 'react';
 import { ArenaAccordion, type ArenaAccordionProps } from './ArenaAccordion.tsx';
 import { ArenaAccordionItem } from '../arena-accordion-item/ArenaAccordionItem.tsx';
 
-const three = (props: ArenaAccordionProps = {}) => renderToStaticMarkup(
+const three = (props: ArenaAccordionProps = {}) => renderIcons(
   <ArenaAccordion {...props}>
     <ArenaAccordionItem value="ship" label="What ships"><p>ship body</p></ArenaAccordionItem>
     <ArenaAccordionItem value="roll" label="How it rolls out"><p>roll body</p></ArenaAccordionItem>
@@ -38,8 +38,8 @@ test('every panel mounts, each named by its own header, and only the open ones a
 
 test('the caret swaps glyph with the state and is hidden from a reader', () => {
   const html = three({ defaultValue: 'ship' });
-  assert.equal(tags(html, /<i\b[^>]*ph-caret-down[^>]*aria-hidden="true"/g).length, 1);
-  assert.equal(tags(html, /<i\b[^>]*ph-caret-right[^>]*aria-hidden="true"/g).length, 2);
+  assert.deepEqual(symbols(html), ['bold-caret-down', 'bold-caret-right', 'bold-caret-right']);
+  assert.equal(tags(html, /<svg\b[^>]*aria-hidden="true"/g).length, 3);
 });
 
 test('a header whose panel may not close says so, and only that one', () => {
@@ -58,8 +58,8 @@ test('the empty string and a value no item has open nothing', () => {
 });
 
 test('a blank label, a blank value and a heading level of none throw', () => {
-  assert.throws(() => renderToStaticMarkup(<ArenaAccordionItem value="a" label="  " />), /^Error: ArenaAccordionItem: `label`/);
-  assert.throws(() => renderToStaticMarkup(<ArenaAccordionItem value=" " label="A" />), /^Error: ArenaAccordionItem: `value`/);
+  assert.throws(() => renderIcons(<ArenaAccordionItem value="a" label="  " />), /^Error: ArenaAccordionItem: `label`/);
+  assert.throws(() => renderIcons(<ArenaAccordionItem value=" " label="A" />), /^Error: ArenaAccordionItem: `value`/);
   assert.throws(() => three({ headingLevel: 'none' }), /^Error: ArenaAccordion: `headingLevel`/);
 });
 

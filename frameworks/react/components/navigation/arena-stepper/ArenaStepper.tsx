@@ -6,6 +6,7 @@ import type { ArenaStepperStep } from '../../../Api.generated';
 import type { ArenaStepperClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
 import { arenaStepIndex, arenaStepReachable, arenaStepState } from './StepperState.ts';
+import { ArenaIcon } from '../../display/arena-icon/ArenaIcon.tsx';
 
 export interface ArenaStepperProps {
   className?: ArenaStepperClass;
@@ -51,7 +52,7 @@ export function ArenaStepper({ className, ariaLabel, steps, index = 0, interacti
             <span aria-hidden="true" className={styles.rail()} data-arena-part={manifest.parts.rail} {...styles.$data.rail()}>
               <span className={styles.marker()} data-arena-part={manifest.parts.marker} {...styles.$data.marker()}>
                 {glyph
-                  ? <i className={`${glyph} ${styles.icon()}`} data-arena-part={manifest.parts.icon} {...styles.$data.icon()} />
+                  ? <span className={styles.icon()} data-arena-part={manifest.parts.icon} {...styles.$data.icon()}><ArenaIcon icon={glyph} /></span>
                   : `${i + 1}`}
               </span>
               {i < steps.length - 1 && <span className={styles.connector()} data-arena-part={manifest.parts.connector} {...styles.$data.connector()} />}

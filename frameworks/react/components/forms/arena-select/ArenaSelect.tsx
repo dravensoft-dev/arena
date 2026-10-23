@@ -5,6 +5,7 @@ import manifest from './ArenaSelect.classes.generated.ts';
 import type { ArenaSelectOption } from '../../../Api.generated';
 import type { ArenaSelectClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
+import { ArenaIcon } from '../../display/arena-icon/ArenaIcon.tsx';
 
 export type { ArenaSelectOption };
 export interface ArenaSelectProps {
@@ -69,7 +70,7 @@ export function ArenaSelect({ className,
     <div className={arenaClassName('ArenaSelect', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
       {label && <label htmlFor={selectId} className={styles.label()} data-arena-part={manifest.parts.label} {...styles.$data.label()}>{label}</label>}
       <div className={styles.wrap()} data-arena-part={manifest.parts.wrap} {...styles.$data.wrap()}>
-        {icon && <i className={`${icon} ${styles.iconWrap()}`} data-arena-part={manifest.parts.iconWrap} {...styles.$data.iconWrap()} aria-hidden="true" />}
+        {icon && <span className={styles.iconWrap()} data-arena-part={manifest.parts.iconWrap} {...styles.$data.iconWrap()} aria-hidden="true"><ArenaIcon icon={icon} /></span>}
         <select id={selectId} {...(value === undefined && placeholder ? { defaultValue: '' } : { value })} onChange={(e) => onChange && onChange(e.target.value)} disabled={disabled}
           required={required} name={name}
           aria-invalid={hasError || undefined} aria-describedby={error || hint ? noteId : undefined}

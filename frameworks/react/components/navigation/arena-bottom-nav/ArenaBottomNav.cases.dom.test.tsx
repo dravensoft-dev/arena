@@ -9,6 +9,7 @@ import React from 'react';
 import { join } from 'node:path';
 
 import { mount, cleanup, act } from '../../../test/Harness.tsx';
+import { withIcons, domSymbols } from '../../../test/IconsHarness.tsx';
 import { assertPattern, assertPatternCases, REACT_COMPONENTS } from '../../../test/AssertPattern.tsx';
 import { ArenaBottomNav } from './ArenaBottomNav.tsx';
 import { ArenaBottomNavItem } from '../arena-bottom-nav-item/ArenaBottomNavItem.tsx';
@@ -78,11 +79,11 @@ test('ArenaBottomNavItem meets both of the shapes href chooses between', () => {
 });
 
 test('the active destination is filled and it is the only one, whatever weight the string carried', () => {
-  const root = mount(bar());
-  const glyphs = Array.from(root.querySelectorAll('i')).map((i) => i.className);
-  assert.equal(glyphs.filter((c) => c.includes('ph-fill')).length, 1,
+  const root = mount(withIcons(bar()));
+  const glyphs = domSymbols(root);
+  assert.equal(glyphs.filter((c) => c.startsWith('fill-')).length, 1,
     'exactly one destination is the current one, so exactly one glyph is filled');
-  assert.deepEqual(glyphs.slice(0, 2), ['ph-fill ph-house', 'ph-bold ph-dots-three'],
+  assert.deepEqual(glyphs.slice(0, 2), ['fill-house', 'bold-dots-three'],
     'the active glyph swaps the weight it was given rather than adding a second one, and an '
     + 'inactive destination keeps the weight it was given');
   assert.equal(root.querySelectorAll('[aria-current="page"]').length, 1);

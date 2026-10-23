@@ -6,6 +6,7 @@ import type { ArenaTimelineItem } from '../../../Api.generated';
 import type { ArenaTimelineClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
 import { arenaTimelineGlyph, arenaTimelineState, arenaTimelineTone } from './TimelineGlyphs.ts';
+import { ArenaIcon } from '../arena-icon/ArenaIcon.tsx';
 
 export interface ArenaTimelineProps {
   className?: ArenaTimelineClass;
@@ -41,7 +42,7 @@ export function ArenaTimeline({ className, label, items, index }: ArenaTimelineP
             className={styles.item()} data-arena-part={manifest.parts.item} {...styles.$data.item()}>
             <span aria-hidden="true" className={styles.rail()} data-arena-part={manifest.parts.rail} {...styles.$data.rail()}>
               <span className={styles.dot()} data-arena-part={manifest.parts.dot} {...styles.$data.dot()}>
-                {glyph && <i className={`${glyph} ${styles.icon()}`} data-arena-part={manifest.parts.icon} {...styles.$data.icon()} />}
+                {glyph && <span className={styles.icon()} data-arena-part={manifest.parts.icon} {...styles.$data.icon()}><ArenaIcon icon={glyph} /></span>}
               </span>
               {i < items.length - 1 && <span className={styles.connector()} data-arena-part={manifest.parts.connector} {...styles.$data.connector()} />}
             </span>

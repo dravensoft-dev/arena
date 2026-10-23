@@ -18,6 +18,7 @@ import type {
 import { useArenaLocale } from '../../../ArenaLocale.ts';
 import type { ArenaTableClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
+import { ArenaIcon } from '../arena-icon/ArenaIcon.tsx';
 
 export type { ArenaTableColumn };
 
@@ -314,8 +315,8 @@ export function ArenaTable({ className,
                       '--arena-column-width': key === null ? 'initial' : `var(--arena-column-${key}-width)`,
                       '--arena-column-align': key === null ? 'initial' : `var(--arena-column-${key}-align)`,
                     } as CSSProperties}>{c.header}{state && state !== 'none' && (
-                        <i aria-hidden="true"
-                          className={`${arenaTableStyles({ narrow: false }).sortCaret()} ${sort?.direction === 'asc' ? 'ph-bold ph-caret-up' : 'ph-bold ph-caret-down'}`} data-arena-part={manifest.parts.sortCaret} {...arenaTableStyles({ narrow: false }).$data.sortCaret()} />
+                        <span aria-hidden="true"
+                          className={arenaTableStyles({ narrow: false }).sortCaret()} data-arena-part={manifest.parts.sortCaret} {...arenaTableStyles({ narrow: false }).$data.sortCaret()}><ArenaIcon icon={sort?.direction === 'asc' ? 'ph-bold ph-caret-up' : 'ph-bold ph-caret-down'} /></span>
                       )}</th>
                 );
               })}

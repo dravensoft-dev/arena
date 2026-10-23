@@ -11,6 +11,7 @@ import {
   arenaCanonicalNumber, arenaClampNumber, arenaDraftText, arenaFieldFormat, arenaNumberBaseline, arenaNumberFieldIds,
   arenaNumberKey, arenaNumberSeparators, arenaParseNumber, arenaStepNumber,
 } from '../NumberRules.ts';
+import { ArenaIcon } from '../../display/arena-icon/ArenaIcon.tsx';
 
 export interface ArenaNumberFieldProps {
   className?: ArenaNumberFieldClass;
@@ -198,7 +199,7 @@ export const ArenaNumberField = forwardRef<ArenaNumberFieldHandle, ArenaNumberFi
     <button type="button" tabIndex={-1} aria-label={word} disabled={frozen || atBound}
       className={styles.stepper()} data-arena-part={manifest.parts.stepper} {...styles.$data.stepper()}
       onMouseDown={(event) => event.preventDefault()} onClick={() => stepBy(steps)}>
-      <i className={glyph} aria-hidden="true" />
+      <ArenaIcon icon={glyph} />
     </button>
   );
 
@@ -224,8 +225,8 @@ export const ArenaNumberField = forwardRef<ArenaNumberFieldHandle, ArenaNumberFi
           onBlur={() => { settle('blur'); setDraft(null); }}
           onKeyDown={onKeyDown} />
         {suffix && <span className={styles.suffix()} data-arena-part={manifest.parts.suffix} {...styles.$data.suffix()} aria-hidden="true">{suffix}</span>}
-        {shownError && <i className={`ph-fill ph-warning-circle ${styles.statusIcon()}`} data-arena-part={manifest.parts.statusIcon} {...styles.$data.statusIcon()} aria-hidden="true" />}
-        {isValid && <i className={`ph-fill ph-check-circle ${styles.statusIcon()}`} data-arena-part={manifest.parts.statusIcon} {...styles.$data.statusIcon()} aria-hidden="true" />}
+        {shownError && <span className={styles.statusIcon()} data-arena-part={manifest.parts.statusIcon} {...styles.$data.statusIcon()} aria-hidden="true"><ArenaIcon icon="ph-fill ph-warning-circle" /></span>}
+        {isValid && <span className={styles.statusIcon()} data-arena-part={manifest.parts.statusIcon} {...styles.$data.statusIcon()} aria-hidden="true"><ArenaIcon icon="ph-fill ph-check-circle" /></span>}
         {steppers && stepper(1, 'ph-bold ph-plus', locale.numberFieldIncrease, atMax)}
       </div>
       {name && <input type="hidden" name={name} value={arenaCanonicalNumber(committed)} disabled={disabled} />}

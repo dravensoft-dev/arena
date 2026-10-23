@@ -13,6 +13,7 @@ import {
 import type { ArenaComboboxFilter, ArenaSelectOption } from '../../../Api.generated';
 import type { ArenaComboboxClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
+import { ArenaIcon } from '../../display/arena-icon/ArenaIcon.tsx';
 
 export type { ArenaComboboxFilter, ArenaSelectOption };
 export { arenaFilterOptions } from './ComboboxRules.ts';
@@ -176,7 +177,7 @@ export function ArenaCombobox({ className,
     <div className={arenaClassName('ArenaCombobox', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
       {showLabel && <label htmlFor={uid} className={styles.label()} data-arena-part={manifest.parts.label} {...styles.$data.label()}>{label}</label>}
       <div ref={fieldRef} onMouseDown={onFieldPress} className={styles.field()} data-arena-part={manifest.parts.field} {...styles.$data.field()}>
-        {icon && <i className={`${icon} ${styles.icon()}`} data-arena-part={manifest.parts.icon} {...styles.$data.icon()} aria-hidden="true" />}
+        {icon && <span className={styles.icon()} data-arena-part={manifest.parts.icon} {...styles.$data.icon()} aria-hidden="true"><ArenaIcon icon={icon} /></span>}
         <input ref={inputRef} id={uid} type="text" value={shown} placeholder={placeholder} disabled={disabled} required={required}
           role="combobox" aria-autocomplete="list" aria-haspopup="listbox" aria-expanded={present}
           aria-controls={present ? listboxId : undefined} aria-activedescendant={activeId}
@@ -186,9 +187,9 @@ export function ArenaCombobox({ className,
           onChange={onInput} onKeyDown={onKeyDown} onClick={openList} onBlur={commit}
           onCompositionStart={() => { composing.current = true; }}
           onCompositionEnd={(event) => { composing.current = false; typed(event.currentTarget.value); }} />
-        {hasError && <i className={`ph-fill ph-warning-circle ${styles.statusIcon()}`} data-arena-part={manifest.parts.statusIcon} {...styles.$data.statusIcon()} aria-hidden="true" />}
-        {!hasError && valid && <i className={`ph-fill ph-check-circle ${styles.statusIcon()}`} data-arena-part={manifest.parts.statusIcon} {...styles.$data.statusIcon()} aria-hidden="true" />}
-        <i className={`ph-bold ph-caret-down ${styles.caret()}`} data-arena-part={manifest.parts.caret} {...styles.$data.caret()} aria-hidden="true" />
+        {hasError && <span className={styles.statusIcon()} data-arena-part={manifest.parts.statusIcon} {...styles.$data.statusIcon()} aria-hidden="true"><ArenaIcon icon="ph-fill ph-warning-circle" /></span>}
+        {!hasError && valid && <span className={styles.statusIcon()} data-arena-part={manifest.parts.statusIcon} {...styles.$data.statusIcon()} aria-hidden="true"><ArenaIcon icon="ph-fill ph-check-circle" /></span>}
+        <span className={styles.caret()} data-arena-part={manifest.parts.caret} {...styles.$data.caret()} aria-hidden="true"><ArenaIcon icon="ph-bold ph-caret-down" /></span>
       </div>
       {name && <input type="hidden" name={name} value={known ? (value ?? '') : ''} disabled={disabled} />}
       <span role="status" className={styles.announcement()} data-arena-part={manifest.parts.announcement} {...styles.$data.announcement()}>{announcement}</span>
@@ -208,7 +209,7 @@ export function ArenaCombobox({ className,
                   className={rowStyles.option()} data-arena-part={manifest.parts.option} {...rowStyles.$data.option()}
                   onMouseEnter={() => setActive(index)} onClick={() => choose(row)}>
                   <span className={rowStyles.optionLabel()} data-arena-part={manifest.parts.optionLabel} {...rowStyles.$data.optionLabel()}>{row.label}</span>
-                  {chosen && <i className={`ph-bold ph-check ${styles.optionMark()}`} data-arena-part={manifest.parts.optionMark} {...styles.$data.optionMark()} aria-hidden="true" />}
+                  {chosen && <span className={styles.optionMark()} data-arena-part={manifest.parts.optionMark} {...styles.$data.optionMark()} aria-hidden="true"><ArenaIcon icon="ph-bold ph-check" /></span>}
                 </div>
               );
             })}

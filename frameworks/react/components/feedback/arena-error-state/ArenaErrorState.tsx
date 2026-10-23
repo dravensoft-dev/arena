@@ -7,6 +7,7 @@ import type { ArenaHeadingLevel } from '../../../Api.generated';
 import { useArenaLocale } from '../../../ArenaLocale.ts';
 import type { ArenaErrorStateClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
+import { ArenaIcon } from '../../display/arena-icon/ArenaIcon.tsx';
 
 export interface ArenaErrorStateProps {
   className?: ArenaErrorStateClass;
@@ -39,7 +40,7 @@ export function ArenaErrorState({ className, icon, title, headingLevel = 'h3', m
   const Heading = headingLevel === 'none' ? 'div' : headingLevel;
   return (
     <div role="alert" className={arenaClassName('ArenaErrorState', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
-      {icon && <div className={styles.icon()} data-arena-part={manifest.parts.icon} {...styles.$data.icon()}><i className={icon} aria-hidden="true" /></div>}
+      {icon && <div className={styles.icon()} data-arena-part={manifest.parts.icon} {...styles.$data.icon()}><ArenaIcon icon={icon} /></div>}
       <Heading className={styles.title()} data-arena-part={manifest.parts.title} {...styles.$data.title()}>{heading}</Heading>
       {message && <div className={styles.message()} data-arena-part={manifest.parts.message} {...styles.$data.message()}>{message}</div>}
       {code && <code className={styles.code()} data-arena-part={manifest.parts.code} {...styles.$data.code()}>{code}</code>}

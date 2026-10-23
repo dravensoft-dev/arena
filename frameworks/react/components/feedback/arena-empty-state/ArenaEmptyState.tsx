@@ -5,6 +5,7 @@ import manifest from './ArenaEmptyState.classes.generated.ts';
 import type { ArenaHeadingLevel } from '../../../Api.generated';
 import type { ArenaEmptyStateClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
+import { ArenaIcon } from '../../display/arena-icon/ArenaIcon.tsx';
 
 export interface ArenaEmptyStateProps {
   className?: ArenaEmptyStateClass;
@@ -36,7 +37,7 @@ export function ArenaEmptyState({ className, icon, title, headingLevel = 'h3', m
   const Heading = headingLevel;
   return (
     <div className={arenaClassName('ArenaEmptyState', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
-      {icon && <div className={styles.icon()} data-arena-part={manifest.parts.icon} {...styles.$data.icon()}><i className={icon} aria-hidden="true" /></div>}
+      {icon && <div className={styles.icon()} data-arena-part={manifest.parts.icon} {...styles.$data.icon()}><ArenaIcon icon={icon} /></div>}
       {title && <Heading className={styles.title()} data-arena-part={manifest.parts.title} {...styles.$data.title()}>{title}</Heading>}
       {message && <div className={styles.message()} data-arena-part={manifest.parts.message} {...styles.$data.message()}>{message}</div>}
       {action && <div className={styles.action()} data-arena-part={manifest.parts.action} {...styles.$data.action()} data-arena-boundary="">{action}</div>}

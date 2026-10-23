@@ -7,6 +7,7 @@ import type { ArenaSplitButtonClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
 import { ArenaMenu } from '../../navigation/arena-menu/ArenaMenu.tsx';
 import { ArenaMenuAnchor } from '../../navigation/arena-menu/MenuAnchor.ts';
+import { ArenaIcon } from '../../display/arena-icon/ArenaIcon.tsx';
 
 export interface ArenaSplitButtonProps {
   className?: ArenaSplitButtonClass;
@@ -71,7 +72,7 @@ export function ArenaSplitButton({
         className={styles.primary()} data-arena-part={manifest.parts.primary} {...styles.$data.primary()} data-arena-boundary="">
         {loading
           ? <span className={styles.spinner()} data-arena-part={manifest.parts.spinner} {...styles.$data.spinner()} aria-hidden="true" />
-          : icon && <i className={icon} aria-hidden="true" />}
+          : icon && <ArenaIcon icon={icon} />}
         {children}
       </button>
       <ArenaMenuAnchor.Provider value={rootRef}>
@@ -79,7 +80,7 @@ export function ArenaSplitButton({
           trigger={(
             <button type="button" aria-label={menuLabel} disabled={disabled}
               className={styles.caret()} data-arena-part={manifest.parts.caret} {...styles.$data.caret()}>
-              <i className="ph-bold ph-caret-down" aria-hidden="true" />
+              <ArenaIcon icon="ph-bold ph-caret-down" />
             </button>
           )} />
       </ArenaMenuAnchor.Provider>

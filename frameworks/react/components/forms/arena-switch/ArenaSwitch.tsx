@@ -5,6 +5,7 @@ import manifest from './ArenaSwitch.classes.generated.ts';
 import { useArenaLocale } from '../../../ArenaLocale.ts';
 import type { ArenaSwitchClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
+import { ArenaIcon } from '../../display/arena-icon/ArenaIcon.tsx';
 
 export interface ArenaSwitchProps {
   className?: ArenaSwitchClass;
@@ -53,13 +54,13 @@ export function ArenaSwitch({ className,
       <button type="button" role="switch" aria-checked={state} aria-label={label} disabled={disabled} onClick={activate}
         className={styles.track()} data-arena-part={manifest.parts.track} {...styles.$data.track()}>
         <span aria-hidden="true" className={styles.knob()} data-arena-part={manifest.parts.knob} {...styles.$data.knob()}>
-          {icon && <i aria-hidden="true" className={`${icon} ${styles.icon()}`} data-arena-part={manifest.parts.icon} {...styles.$data.icon()} />}
+          {icon && <span className={styles.icon()} data-arena-part={manifest.parts.icon} {...styles.$data.icon()} aria-hidden="true"><ArenaIcon icon={icon} /></span>}
         </span>
       </button>
       {label && (
         <span onClick={activate} className={styles.label()} data-arena-part={manifest.parts.label} {...styles.$data.label()}>
           {label}
-          {confirm && <i className={`ph-bold ph-shield-check ${styles.guard()}`} data-arena-part={manifest.parts.guard} {...styles.$data.guard()} aria-hidden="true" title={locale.switchConfirmHint} />}
+          {confirm && <span className={styles.guard()} data-arena-part={manifest.parts.guard} {...styles.$data.guard()} aria-hidden="true" title={locale.switchConfirmHint}><ArenaIcon icon="ph-bold ph-shield-check" /></span>}
         </span>
       )}
     </span>

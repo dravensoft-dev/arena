@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import React, { useState } from 'react';
 import { join } from 'node:path';
 import { mount, cleanup, act } from '../../../test/Harness.tsx';
+import { withIcons } from '../../../test/IconsHarness.tsx';
 import { assertPattern, REACT_COMPONENTS } from '../../../test/AssertPattern.tsx';
 import { forgetArenaWarnings } from '../../../WarnOnce.ts';
 import { ArenaAccordion, type ArenaAccordionProps } from './ArenaAccordion.tsx';
@@ -148,13 +149,13 @@ test('the members of the other mode are ignored and warned about once', () => {
   const seen: string[] = [];
   console.warn = (message: string) => { seen.push(message); };
   try {
-    const root = mount(<>{three({ values: ['back'] })}{three({ values: ['ship'] })}</>);
+    const root = mount(withIcons(<>{three({ values: ['back'] })}{three({ values: ['ship'] })}</>));
     assert.deepEqual(expanded(root).slice(0, 3), ['false', 'false', 'false']);
     assert.equal(seen.length, 1);
     assert.match(seen[0]!, /^\[arena\] ArenaAccordion: `values` and `defaultValues` are read only with `multiple`/);
     forgetArenaWarnings();
     seen.length = 0;
-    mount(three({ multiple: true, value: 'ship' }));
+    mount(withIcons(three({ multiple: true, value: 'ship' })));
     assert.equal(seen.length, 1);
     assert.match(seen[0]!, /`value` and `defaultValue` are read only without `multiple`/);
   } finally {

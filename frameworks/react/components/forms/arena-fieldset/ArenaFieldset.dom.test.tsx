@@ -9,6 +9,7 @@ import assert from 'node:assert/strict';
 import { join } from 'node:path';
 import React from 'react';
 import { mount, cleanup } from '../../../test/Harness.tsx';
+import { withIcons, domSymbols } from '../../../test/IconsHarness.tsx';
 import { assertPattern, REACT_COMPONENTS } from '../../../test/AssertPattern.tsx';
 import { ArenaFieldset } from './ArenaFieldset.tsx';
 import { ArenaCheckbox } from '../arena-checkbox/ArenaCheckbox.tsx';
@@ -19,12 +20,12 @@ afterEach(cleanup);
 const BINDING = join(REACT_COMPONENTS, 'forms/arena-fieldset/ArenaFieldset.behaviour.json');
 
 function render(props: Partial<React.ComponentProps<typeof ArenaFieldset>> = {}) {
-  return mount(
+  return mount(withIcons(
     <ArenaFieldset legend="Notifications" {...props}>
       <ArenaCheckbox label="Deploys" name="notify" value="deploys" />
       <ArenaInput label="Digest address" />
     </ArenaFieldset>,
-  );
+  ));
 }
 
 test('ArenaFieldset meets the group pattern, named by its legend and nothing else', () => {
@@ -60,7 +61,7 @@ test('the hint is the set\'s description, and the error replaces it with the gly
   const errorId = failed.getAttribute('aria-describedby')!;
   const line = failed.ownerDocument.getElementById(errorId)!;
   assert.equal(line.textContent, 'Choose at least one.');
-  assert.equal(line.querySelector('i')?.getAttribute('aria-hidden'), 'true');
+  assert.equal(line.querySelector('svg')?.getAttribute('aria-hidden'), 'true');
   assert.equal(failed.textContent?.includes('At most once a day.'), false, 'the error wins over the hint');
   assert.equal(failed.hasAttribute('aria-invalid'), false, 'aria-invalid is not supported on a group');
   cleanup();

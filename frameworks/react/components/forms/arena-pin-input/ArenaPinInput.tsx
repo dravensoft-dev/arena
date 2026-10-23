@@ -11,6 +11,7 @@ import {
   arenaPinBackspace, arenaPinCode, arenaPinCompletes, arenaPinDelete, arenaPinFilter, arenaPinInputMode, arenaPinInsert, arenaPinKey,
   arenaPinLength, arenaPinMoveTo, arenaPinPattern, arenaPinTabStop, arenaPinTyped, type ArenaPinEdit,
 } from './PinRules.ts';
+import { ArenaIcon } from '../../display/arena-icon/ArenaIcon.tsx';
 
 export type { ArenaPinCharacters };
 
@@ -169,8 +170,8 @@ export const ArenaPinInput = forwardRef<ArenaPinInputHandle, ArenaPinInputProps>
             className={styles.cell()} data-arena-part={manifest.parts.cell} {...styles.$data.cell()}
             onFocus={() => setFocused(index)} onChange={onInput(index)} onKeyDown={onKeyDown(index)} onPaste={onPaste(index)} />
         ))}
-        {shownError && <i className={`ph-fill ph-warning-circle ${styles.statusIcon()}`} data-arena-part={manifest.parts.statusIcon} {...styles.$data.statusIcon()} aria-hidden="true" />}
-        {isValid && <i className={`ph-fill ph-check-circle ${styles.statusIcon()}`} data-arena-part={manifest.parts.statusIcon} {...styles.$data.statusIcon()} aria-hidden="true" />}
+        {shownError && <span className={styles.statusIcon()} data-arena-part={manifest.parts.statusIcon} {...styles.$data.statusIcon()} aria-hidden="true"><ArenaIcon icon="ph-fill ph-warning-circle" /></span>}
+        {isValid && <span className={styles.statusIcon()} data-arena-part={manifest.parts.statusIcon} {...styles.$data.statusIcon()} aria-hidden="true"><ArenaIcon icon="ph-fill ph-check-circle" /></span>}
       </div>
       {name && <input type="hidden" name={name} value={code} disabled={disabled} />}
       {shownError ? <span id={noteId} className={styles.error()} data-arena-part={manifest.parts.error} {...styles.$data.error()}>{shownError}</span>

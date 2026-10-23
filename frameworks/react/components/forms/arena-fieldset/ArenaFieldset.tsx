@@ -3,6 +3,7 @@ import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaFieldset.classes.generated.ts';
 import type { ArenaFieldsetClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
+import { ArenaIcon } from '../../display/arena-icon/ArenaIcon.tsx';
 
 export interface ArenaFieldsetProps {
   className?: ArenaFieldsetClass;
@@ -43,7 +44,7 @@ export function ArenaFieldset({ className, legend, children, hint, error, disabl
         {error
           ? (
             <span id={noteId} className={styles.error()} data-arena-part={manifest.parts.error} {...styles.$data.error()}>
-              <i className={`ph-fill ph-warning-circle ${styles.statusIcon()}`} data-arena-part={manifest.parts.statusIcon} {...styles.$data.statusIcon()} aria-hidden="true" />
+              <span className={styles.statusIcon()} data-arena-part={manifest.parts.statusIcon} {...styles.$data.statusIcon()} aria-hidden="true"><ArenaIcon icon="ph-fill ph-warning-circle" /></span>
               {error}
             </span>
           )

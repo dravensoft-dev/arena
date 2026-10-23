@@ -8,6 +8,7 @@ import assert from 'node:assert/strict';
 import { join } from 'node:path';
 import React from 'react';
 import { mount, cleanup, act } from '../../../test/Harness.tsx';
+import { withIcons, domSymbols } from '../../../test/IconsHarness.tsx';
 import { assertPattern, REACT_COMPONENTS } from '../../../test/AssertPattern.tsx';
 import { ArenaCopyButton, ARENA_COPY_CONFIRMATION } from './ArenaCopyButton.tsx';
 
@@ -47,13 +48,13 @@ afterEach(() => {
 
 function render(props: Partial<React.ComponentProps<typeof ArenaCopyButton>> = {}) {
   const heard = { copied: 0, failed: 0 };
-  const root = mount(
+  const root = mount(withIcons(
     <ArenaCopyButton text="bun add @dravensoft/arena-react" label="Copy the install command"
       onCopied={() => { heard.copied += 1; }} onCopyFailed={() => { heard.failed += 1; }} {...props} />,
-  );
+  ));
   const button = root.querySelector('button') as HTMLButtonElement;
   const region = root.querySelector('[role="status"]') as HTMLElement;
-  return { root, button, region, heard, glyph: () => button.querySelector('i')?.className };
+  return { root, button, region, heard, glyph: () => domSymbols(button)[0] };
 }
 
 async function press(button: HTMLButtonElement): Promise<void> {
@@ -83,14 +84,14 @@ test('a copy that lands swaps the glyph, says the word once, reports copied and 
   const { button, region, heard, glyph } = render();
   await press(button);
   assert.deepEqual(written, ['bun add @dravensoft/arena-react']);
-  assert.equal(glyph(), 'ph-bold ph-check');
+  assert.equal(glyph(), 'bold-check');
   assert.equal(region.textContent, 'Copied');
   assert.equal(region.childNodes.length, 1, 'the region holds one text run, so a reader hears one word');
   assert.deepEqual(heard, { copied: 1, failed: 0 });
   assert.equal(button.getAttribute('aria-label'), 'Copy the install command', 'the name changed with the state, so the control announced itself as a different one');
   assert.deepEqual(timers.map((one) => one.ms), [ARENA_COPY_CONFIRMATION]);
   act(() => { timers[0]?.fire(); });
-  assert.equal(glyph(), 'ph-bold ph-copy');
+  assert.equal(glyph(), 'bold-copy');
   assert.equal(region.textContent, '', 'the region empties when the glyph reverts');
 });
 
@@ -99,7 +100,7 @@ test('a refused write says the failure, reports copyFailed and never copied', as
   clipboard(() => Promise.reject(new Error('denied')));
   const { button, region, heard, glyph } = render();
   await press(button);
-  assert.equal(glyph(), 'ph-bold ph-warning');
+  assert.equal(glyph(), 'bold-warning');
   assert.equal(region.textContent, 'Could not copy');
   assert.deepEqual(heard, { copied: 0, failed: 1 });
   assert.deepEqual(timers.map((one) => one.ms), [ARENA_COPY_CONFIRMATION]);
@@ -110,7 +111,7 @@ test('a page with no clipboard reports the failure the same way, and never prete
   clipboard(null);
   const { button, region, heard, glyph } = render();
   await press(button);
-  assert.equal(glyph(), 'ph-bold ph-warning');
+  assert.equal(glyph(), 'bold-warning');
   assert.equal(region.textContent, 'Could not copy');
   assert.deepEqual(heard, { copied: 0, failed: 1 });
 });

@@ -3,19 +3,20 @@
  * the clipboard, the swap and the clock, is behaviour and lives in the DOM suite beside this one. */
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { renderToStaticMarkup } from 'react-dom/server';
+import { renderIcons, symbols } from '../../../test/IconsHarness.tsx';
 import React from 'react';
 import { ArenaCopyButton, ARENA_COPY_CONFIRMATION, ARENA_COPY_GLYPHS } from './ArenaCopyButton.tsx';
 import { ArenaLocaleProvider, ARENA_DEFAULT_LOCALE } from '../../../ArenaLocale.ts';
 import { dismissConfirmation } from '../../../Tokens.generated.js';
 
-const render = (element: React.ReactElement) => renderToStaticMarkup(element);
+const render = (element: React.ReactElement) => renderIcons(element);
 
 test('at rest it is one icon button with the copy glyph, and a region that is there and empty', () => {
   const html = render(<ArenaCopyButton text="bun add @dravensoft/arena-react" label="Copy the install command" />);
   assert.match(html, /^<span class="[^"]*" data-arena-part="copy-button"/);
   assert.match(html, /<button type="button" aria-label="Copy the install command"/);
-  assert.match(html, /<i class="ph-bold ph-copy" aria-hidden="true"><\/i>/);
+  assert.deepEqual(symbols(html), ['bold-copy']);
+  assert.match(html, /<svg[^>]*aria-hidden="true"/);
   assert.match(html, /<span role="status" class="[^"]*" data-arena-part="copy-button\.announcement"[^>]*><\/span><\/span>$/,
     'a live region filled on first insertion is not reliably announced, so it is mounted empty');
   assert.doesNotMatch(html, /aria-pressed/, 'the confirmation is not a toggle, so nothing reads as one that is on');

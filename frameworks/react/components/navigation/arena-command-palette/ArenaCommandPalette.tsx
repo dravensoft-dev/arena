@@ -9,6 +9,7 @@ import { useArenaLocale } from '../../../ArenaLocale.ts';
 import { arenaPhrase } from '../../../Phrase.ts';
 import type { ArenaCommandPaletteClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
+import { ArenaIcon } from '../../display/arena-icon/ArenaIcon.tsx';
 
 export type { ArenaCommand };
 
@@ -111,7 +112,7 @@ export function ArenaCommandPalette({ className, open, commands, placeholder, ma
         onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-label={locale.commandPaletteDialog}
         className={styles.panel()} data-arena-part={manifest.parts.panel} {...styles.$data.panel()}>
         <div className={styles.search()} data-arena-part={manifest.parts.search} {...styles.$data.search()}>
-          <i className={`ph-bold ph-magnifying-glass ${styles.searchIcon()}`} data-arena-part={manifest.parts.searchIcon} {...styles.$data.searchIcon()} aria-hidden="true" />
+          <span className={styles.searchIcon()} data-arena-part={manifest.parts.searchIcon} {...styles.$data.searchIcon()} aria-hidden="true"><ArenaIcon icon="ph-bold ph-magnifying-glass" /></span>
           <input ref={inputRef} value={q} onChange={(e) => setQ(e.target.value)} onKeyDown={onKey} placeholder={hint}
             role="combobox" aria-autocomplete="list" aria-haspopup="listbox" aria-expanded="true"
             aria-controls={listboxId} aria-label={hint || locale.commandPaletteSearch}
@@ -149,7 +150,7 @@ export function ArenaCommandPalette({ className, open, commands, placeholder, ma
                 };
                 const body = (
                   <>
-                    {c.icon && <span className={styles.rowIcon()} data-arena-part={manifest.parts.rowIcon} {...styles.$data.rowIcon()}><i className={c.icon} aria-hidden="true" /></span>}
+                    {c.icon && <span className={styles.rowIcon()} data-arena-part={manifest.parts.rowIcon} {...styles.$data.rowIcon()}><ArenaIcon icon={c.icon} /></span>}
                     <span className={rowStyles.rowLabel()}
                       data-arena-part={manifest.parts.rowLabel} {...rowStyles.$data.rowLabel()}>{c.label}</span>
                     {c.shortcut && <kbd className={styles.shortcut()} data-arena-part={manifest.parts.shortcut} {...styles.$data.shortcut()}>{c.shortcut}</kbd>}

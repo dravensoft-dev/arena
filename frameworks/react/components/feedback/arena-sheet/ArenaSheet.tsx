@@ -5,6 +5,7 @@ import manifest from './ArenaSheet.classes.generated.ts';
 import { useArenaLocale } from '../../../ArenaLocale.ts';
 import type { ArenaSheetClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
+import { ArenaIcon } from '../../display/arena-icon/ArenaIcon.tsx';
 
 export interface ArenaSheetProps {
   className?: ArenaSheetClass;
@@ -65,12 +66,12 @@ export function ArenaSheet({ className,
         <button type="button" id={triggerId} aria-expanded={!collapsed} aria-controls={bodyId}
           onClick={() => onCollapsedChange?.(!collapsed)} className={styles.trigger()} data-arena-part={manifest.parts.trigger} {...styles.$data.trigger()}>
           <span>{title}</span>
-          <i className={`${collapsed ? 'ph-bold ph-caret-up' : 'ph-bold ph-caret-down'} ${styles.caret()}`} data-arena-part={manifest.parts.caret} {...styles.$data.caret()}
-            aria-hidden="true" />
+          <span className={styles.caret()} data-arena-part={manifest.parts.caret} {...styles.$data.caret()}
+            aria-hidden="true"><ArenaIcon icon={collapsed ? 'ph-bold ph-caret-up' : 'ph-bold ph-caret-down'} /></span>
         </button>
         {dismissible && (
           <button type="button" onClick={onClose} aria-label={locale.sheetClose} className={styles.close()} data-arena-part={manifest.parts.close} {...styles.$data.close()}>
-            <i className="ph-bold ph-x" aria-hidden="true" />
+            <ArenaIcon icon="ph-bold ph-x" />
           </button>
         )}
       </div>

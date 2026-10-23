@@ -1,18 +1,18 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { renderToStaticMarkup } from 'react-dom/server';
+import { renderIcons, symbols } from '../../../test/IconsHarness.tsx';
 import React from 'react';
 import { ArenaCommandPalette } from './ArenaCommandPalette.tsx';
 
 test('a closed palette renders nothing', () => {
-  assert.equal(renderToStaticMarkup(<ArenaCommandPalette open={false} commands={[]} />), '');
+  assert.equal(renderIcons(<ArenaCommandPalette open={false} commands={[]} />), '');
 });
 
 test('an open palette draws each command with its icon class, label and shortcut', () => {
-  const html = renderToStaticMarkup(
+  const html = renderIcons(
     <ArenaCommandPalette open commands={[{ id: 'new', label: 'New project', icon: 'ph-bold ph-plus', shortcut: 'N' }]} />,
   );
-  assert.ok(html.includes('class="ph-bold ph-plus"'), 'the icon is drawn from the class name');
+  assert.deepEqual(symbols(html).filter((id) => id === 'bold-plus'), ['bold-plus'], 'the icon is drawn from the class name');
   assert.ok(html.includes('New project'), 'the label is rendered');
   assert.ok(html.includes('>N<'), 'the shortcut is rendered at the row\'s trailing edge');
   assert.ok(html.includes('role="dialog"'), 'the combobox binding\'s dialog element is intact');
@@ -20,13 +20,13 @@ test('an open palette draws each command with its icon class, label and shortcut
 
 test('an absent required member throws rather than rendering', () => {
   // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-  assert.throws(() => renderToStaticMarkup(<ArenaCommandPalette commands={[]} />), /`open` is required/);
+  assert.throws(() => renderIcons(<ArenaCommandPalette commands={[]} />), /`open` is required/);
   // @ts-expect-error the contract refuses this on purpose, and the render is what this asserts
-  assert.throws(() => renderToStaticMarkup(<ArenaCommandPalette open commands={undefined} />), /`commands` is required/);
+  assert.throws(() => renderIcons(<ArenaCommandPalette open commands={undefined} />), /`commands` is required/);
 });
 
 test('the active row is the one the arrow keys point at, and it takes the accent branch of the recipe', () => {
-  const html = renderToStaticMarkup(
+  const html = renderIcons(
     <ArenaCommandPalette open commands={[{ id: 'a', label: 'Deploy' }, { id: 'b', label: 'Roll back' }]} />,
   );
   assert.match(html, /aria-selected="true"[^>]*data-arena-part="command-palette.row"[^>]*\bdata-arena-active=""/,
@@ -36,7 +36,7 @@ test('the active row is the one the arrow keys point at, and it takes the accent
 });
 
 test('the active row and its label are the active group of the row and rowLabel slots', () => {
-  const html = renderToStaticMarkup(
+  const html = renderIcons(
     <ArenaCommandPalette open commands={[{ id: 'a', label: 'Deploy' }, { id: 'b', label: 'Roll back' }]} />,
   );
   assert.equal((html.match(/data-arena-part="command-palette.row-label"[^>]*\bdata-arena-active=""/g) || []).length, 1);
@@ -44,7 +44,7 @@ test('the active row and its label are the active group of the row and rowLabel 
 });
 
 test('the escape cap and every shortcut are kbd elements, printed as given', () => {
-  const html = renderToStaticMarkup(
+  const html = renderIcons(
     <ArenaCommandPalette open commands={[{ id: 'deploy', label: 'Deploy to production', shortcut: '⌘D' }]} />,
   );
   assert.match(html, /<kbd [^>]*data-arena-part="command-palette\.esc"[^>]*>ESC<\/kbd>/,

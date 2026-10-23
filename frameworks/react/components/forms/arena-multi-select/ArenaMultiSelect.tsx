@@ -15,6 +15,7 @@ import type { ArenaComboboxFilter, ArenaSelectOption, ArenaValueSet } from '../.
 import type { ArenaMultiSelectClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
 import { ARENA_CONTEXT_VOCABULARY } from '../../../Vocabulary.generated.ts';
+import { ArenaIcon } from '../../display/arena-icon/ArenaIcon.tsx';
 
 export type { ArenaComboboxFilter, ArenaSelectOption, ArenaValueSet };
 
@@ -236,7 +237,7 @@ export function ArenaMultiSelect({ className,
     <div className={arenaClassName('ArenaMultiSelect', styles.root(), className, ARENA_CONTEXT_VOCABULARY)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
       {showLabel && <label htmlFor={uid} className={styles.label()} data-arena-part={manifest.parts.label} {...styles.$data.label()}>{label}</label>}
       <div ref={fieldRef} onMouseDown={onFieldPress} className={styles.field()} data-arena-part={manifest.parts.field} {...styles.$data.field()}>
-        {icon && <i className={`${icon} ${styles.icon()}`} data-arena-part={manifest.parts.icon} {...styles.$data.icon()} aria-hidden="true" />}
+        {icon && <span className={styles.icon()} data-arena-part={manifest.parts.icon} {...styles.$data.icon()} aria-hidden="true"><ArenaIcon icon={icon} /></span>}
         <div ref={chipsRef} className={styles.chips()} data-arena-part={manifest.parts.chips} {...styles.$data.chips()} onKeyDown={onChipKey}>
           {shown.map((one, index) => (
             <ArenaTag key={one} removable tabStop={false} disabled={disabled} onRemove={() => remove(index)}>{labels.current.get(one) ?? one}</ArenaTag>
@@ -255,12 +256,12 @@ export function ArenaMultiSelect({ className,
         {clearable && picked.length > 0 && !disabled && (
           <button type="button" tabIndex={-1} aria-label={locale.multiSelectClear} className={styles.clear()} data-arena-part={manifest.parts.clear} {...styles.$data.clear()}
             onMouseDown={(event) => event.preventDefault()} onClick={() => { setNotice(''); report([]); inputRef.current?.focus(); }}>
-            <i className="ph-bold ph-x-circle" aria-hidden="true" />
+            <ArenaIcon icon="ph-bold ph-x-circle" />
           </button>
         )}
-        {hasError && <i className={`ph-fill ph-warning-circle ${styles.statusIcon()}`} data-arena-part={manifest.parts.statusIcon} {...styles.$data.statusIcon()} aria-hidden="true" />}
-        {!hasError && valid && <i className={`ph-fill ph-check-circle ${styles.statusIcon()}`} data-arena-part={manifest.parts.statusIcon} {...styles.$data.statusIcon()} aria-hidden="true" />}
-        <i className={`ph-bold ph-caret-down ${styles.caret()}`} data-arena-part={manifest.parts.caret} {...styles.$data.caret()} aria-hidden="true" />
+        {hasError && <span className={styles.statusIcon()} data-arena-part={manifest.parts.statusIcon} {...styles.$data.statusIcon()} aria-hidden="true"><ArenaIcon icon="ph-fill ph-warning-circle" /></span>}
+        {!hasError && valid && <span className={styles.statusIcon()} data-arena-part={manifest.parts.statusIcon} {...styles.$data.statusIcon()} aria-hidden="true"><ArenaIcon icon="ph-fill ph-check-circle" /></span>}
+        <span className={styles.caret()} data-arena-part={manifest.parts.caret} {...styles.$data.caret()} aria-hidden="true"><ArenaIcon icon="ph-bold ph-caret-down" /></span>
       </div>
       {name && picked.map((one) => <input key={one} type="hidden" name={name} value={one} disabled={disabled} />)}
       <span role="status" className={styles.announcement()} data-arena-part={manifest.parts.announcement} {...styles.$data.announcement()}>{announcement}</span>
@@ -281,7 +282,7 @@ export function ArenaMultiSelect({ className,
                   className={rowStyles.option()} data-arena-part={manifest.parts.option} {...rowStyles.$data.option()}
                   onMouseEnter={() => setActive(index)} onClick={() => toggle(row)}>
                   <span className={rowStyles.optionLabel()} data-arena-part={manifest.parts.optionLabel} {...rowStyles.$data.optionLabel()}>{row.label}</span>
-                  {chosen && <i className={`ph-bold ph-check ${styles.optionMark()}`} data-arena-part={manifest.parts.optionMark} {...styles.$data.optionMark()} aria-hidden="true" />}
+                  {chosen && <span className={styles.optionMark()} data-arena-part={manifest.parts.optionMark} {...styles.$data.optionMark()} aria-hidden="true"><ArenaIcon icon="ph-bold ph-check" /></span>}
                 </div>
               );
             })}

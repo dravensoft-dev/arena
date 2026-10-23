@@ -5,6 +5,7 @@ import type { ArenaHeadingLevel } from '../../../Api.generated';
 import type { ArenaAccordionItemClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
 import { ARENA_CONTEXT_VOCABULARY } from '../../../Vocabulary.generated.ts';
+import { ArenaIcon } from '../../display/arena-icon/ArenaIcon.tsx';
 
 export interface ArenaAccordionItemInjected {
   open: boolean;
@@ -45,7 +46,7 @@ export function ArenaAccordionItem({
           aria-disabled={locked ? 'true' : undefined} onClick={() => onToggle?.(value)}
           className={styles.trigger()} data-arena-part={manifest.parts.trigger} {...styles.$data.trigger()}>
           <span className={styles.triggerLabel()} data-arena-part={manifest.parts.triggerLabel} {...styles.$data.triggerLabel()}>{label}</span>
-          <i className={`${open ? 'ph-bold ph-caret-down' : 'ph-bold ph-caret-right'} ${styles.caret()}`} data-arena-part={manifest.parts.caret} {...styles.$data.caret()} aria-hidden="true" />
+          <span className={styles.caret()} data-arena-part={manifest.parts.caret} {...styles.$data.caret()} aria-hidden="true"><ArenaIcon icon={open ? 'ph-bold ph-caret-down' : 'ph-bold ph-caret-right'} /></span>
         </button>
       </Heading>
       <div role="group" id={panelId} aria-labelledby={triggerId} hidden={!open}

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { renderToStaticMarkup } from 'react-dom/server';
+import { renderIcons, symbols } from '../../../test/IconsHarness.tsx';
 import React from 'react';
 import type { ArenaTimelineItem } from '../../../Api.generated';
 import { ArenaTimeline, type ArenaTimelineProps } from './ArenaTimeline.tsx';
@@ -11,7 +11,7 @@ const ORDER: readonly ArenaTimelineItem[] = [
   { id: 'held', title: 'Held at customs', time: 'Mar 5', tone: 'warning' },
   { id: 'delivered', title: 'Delivery', tone: 'danger', icon: 'ph-bold ph-truck' },
 ];
-const draw = (props: Partial<ArenaTimelineProps> = {}) => renderToStaticMarkup(<ArenaTimeline label="Order 4821" items={ORDER} {...props} />);
+const draw = (props: Partial<ArenaTimelineProps> = {}) => renderIcons(<ArenaTimeline label="Order 4821" items={ORDER} {...props} />);
 const names = (html: string) => [...html.matchAll(/<li\b[^>]*>(.*?)<\/li>/g)].map((m) => /data-arena-part="timeline.name"[^>]*>([^<]*)</.exec(m[1]!)?.[1] ?? null);
 
 test('the list is an ol with an explicit list role and its name, one li per milestone', () => {
@@ -37,9 +37,9 @@ test('an index makes the milestones before it complete, it current and the rest 
 test('a toned dot carries its glyph, an icon replaces it, and a neutral dot is plain', () => {
   const dots = [...draw().matchAll(/data-arena-part="timeline.dot"[^>]*>(.*?)<\/span>/g)].map((m) => m[1]!);
   assert.equal(dots[0], '');
-  assert.match(dots[1]!, /ph-check-circle/);
-  assert.match(dots[2]!, /ph-warning(?!-)/);
-  assert.match(dots[3]!, /ph-truck/);
+  assert.deepEqual(symbols(dots[1]!), ['fill-check-circle']);
+  assert.deepEqual(symbols(dots[2]!), ['fill-warning']);
+  assert.deepEqual(symbols(dots[3]!), ['bold-truck']);
   assert.match(draw(), /<span aria-hidden="true"[^>]*data-arena-part="timeline.rail"/, 'the dot, the glyph and the connector are drawn, never read');
 });
 

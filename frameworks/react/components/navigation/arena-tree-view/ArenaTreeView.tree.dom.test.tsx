@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import React, { useState } from 'react';
 import { join } from 'node:path';
 import { mount, cleanup, act } from '../../../test/Harness.tsx';
+import { withIcons } from '../../../test/IconsHarness.tsx';
 import { assertPattern, REACT_COMPONENTS } from '../../../test/AssertPattern.tsx';
 import { forgetArenaWarnings } from '../../../WarnOnce.ts';
 import { arenaTreeProblemMessage } from '../TreeModel.ts';
@@ -82,7 +83,7 @@ test('levels, set sizes and positions follow the model: a root of one child, a r
 });
 
 test('aria-expanded sits on parent nodes only, true while open, and a leaf draws a spacer where a caret would be', () => {
-  const root = mount(<Held seen={record()} open={['b']} />);
+  const root = mount(withIcons(<Held seen={record()} open={['b']} />));
   assert.equal(itemNamed(root, 'Alpha').getAttribute('aria-expanded'), 'false');
   assert.equal(itemNamed(root, 'Beta').getAttribute('aria-expanded'), 'true');
   assert.equal(itemNamed(root, 'Cherry').getAttribute('aria-expanded'), 'false');
@@ -267,7 +268,7 @@ test('a tree with no handler does not open and draws no error', () => {
   const saved = console.warn;
   console.warn = (...args: unknown[]) => { warned.push(args); };
   try {
-    const root = mount(<ArenaTreeView label="Fruit" nodes={NODES} />);
+    const root = mount(withIcons(<ArenaTreeView label="Fruit" nodes={NODES} />));
     press(caretOf(itemNamed(root, 'Beta')));
     assert.equal(itemNamed(root, 'Beta').getAttribute('aria-expanded'), 'false');
     assert.deepEqual(itemsOf(root).map((el) => el.textContent), ['Alpha', 'Beta', 'Lazy']);

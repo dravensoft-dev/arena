@@ -8,6 +8,7 @@ import { useArenaLocale } from '../../../ArenaLocale.ts';
 import { arenaPhraseParts } from '../../../Phrase.ts';
 import type { ArenaBulkActionBarClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
+import { ArenaIcon } from '../../display/arena-icon/ArenaIcon.tsx';
 
 export type { ArenaBulkAction };
 
@@ -88,7 +89,7 @@ export function ArenaBulkActionBar({ className, count, noun, actions, layout = '
           <button key={i} onClick={() => onRun && onRun(a)}
             tabIndex={i === at ? 0 : -1} onFocus={() => setCursor(i)}
             className={barStyles({ narrow, open: true, destructive: Boolean(a.destructive) }).action()} data-arena-part={manifest.parts.action} {...barStyles({ narrow, open: true, destructive: Boolean(a.destructive) }).$data.action()}>
-            {a.icon && <span className={styles.actionIcon()} data-arena-part={manifest.parts.actionIcon} {...styles.$data.actionIcon()}><i className={a.icon} aria-hidden="true" /></span>}{a.label}
+            {a.icon && <span className={styles.actionIcon()} data-arena-part={manifest.parts.actionIcon} {...styles.$data.actionIcon()}><ArenaIcon icon={a.icon} /></span>}{a.label}
           </button>
         ))}
       </div>

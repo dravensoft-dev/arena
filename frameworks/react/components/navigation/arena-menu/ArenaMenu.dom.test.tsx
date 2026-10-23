@@ -8,6 +8,7 @@ import React, { useState } from 'react';
 import { join } from 'node:path';
 import { readFileSync } from 'node:fs';
 import { mount, cleanup, act } from '../../../test/Harness.tsx';
+import { withIcons, domSymbols } from '../../../test/IconsHarness.tsx';
 import { assertPattern, REACT_COMPONENTS } from '../../../test/AssertPattern.tsx';
 import { isFocusable } from '../../../../../scripts/lib/core/behaviour-compliance.ts';
 import { ArenaMenu } from './ArenaMenu.tsx';
@@ -52,16 +53,15 @@ test('a disabled entry reports nothing', () => {
 });
 
 test('icon is a class name Arena draws, and never reaches the page as text', () => {
-  const root = mount(
+  const root = mount(withIcons(
     <ArenaMenu trigger={<button type="button">Open</button>} items={[{ label: 'View logs', icon: 'ph-bold ph-scroll' }]} />,
-  );
+  ));
   const panel = open(root);
-  const glyph = panel.querySelector('i');
-  assert.notEqual(glyph, null, 'no <i> was drawn for the entry icon');
-  const drawn = glyph!.getAttribute('class')!.split(/\s+/);
-  assert.ok(drawn.includes('ph-bold') && drawn.includes('ph-scroll'),
-    'the Phosphor class the consumer named is drawn verbatim rather than re-derived');
-  assert.ok(drawn.includes('arena-menu__icon'), 'and the manifest\'s icon slot sizes it');
+  const glyph = panel.querySelector('svg');
+  assert.notEqual(glyph, null, 'no svg was drawn for the entry icon');
+  assert.deepEqual(domSymbols(panel), ['bold-scroll'],
+    'the Phosphor class the consumer named is drawn as its sprite symbol rather than re-derived');
+  assert.ok(glyph!.parentElement!.getAttribute('class')!.split(/\s+/).includes('arena-menu__icon'), 'inside the manifest\'s icon slot, which sizes it');
   assert.equal(glyph!.getAttribute('aria-hidden'), 'true');
   assert.equal(panel.textContent, 'View logs', 'the icon class name was drawn as text');
 });

@@ -5,6 +5,7 @@ import { arenaPageWindow } from './PaginationWindow.ts';
 import { useArenaLocale } from '../../../ArenaLocale.ts';
 import type { ArenaPaginationClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
+import { ArenaIcon } from '../../display/arena-icon/ArenaIcon.tsx';
 
 export interface ArenaPaginationProps {
   className?: ArenaPaginationClass;
@@ -37,7 +38,7 @@ export function ArenaPagination({ className, page, pageCount, ariaLabel, onChang
   const nav = (dir: number, dis: boolean) => (
     <button onClick={() => go(page + dir)} disabled={dis} aria-label={dir < 0 ? locale.paginationPrevious : locale.paginationNext}
       className={styles.nav()} data-arena-part={manifest.parts.nav} {...styles.$data.nav()}>
-      <i className={dir < 0 ? 'ph-bold ph-caret-left' : 'ph-bold ph-caret-right'} />
+      <ArenaIcon icon={dir < 0 ? 'ph-bold ph-caret-left' : 'ph-bold ph-caret-right'} />
     </button>
   );
   return (

@@ -5,6 +5,7 @@ import manifest from './ArenaInput.classes.generated.ts';
 import type { ArenaInputType, ArenaValidateOn } from '../../../Api.generated';
 import type { ArenaInputClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
+import { ArenaIcon } from '../../display/arena-icon/ArenaIcon.tsx';
 
 export interface ArenaInputProps {
   className?: ArenaInputClass;
@@ -129,15 +130,15 @@ export const ArenaInput = forwardRef<ArenaInputHandle, ArenaInputProps>(function
         </label>
       )}
       <div className={styles.field()} data-arena-part={manifest.parts.field} {...styles.$data.field()}>
-        {icon && <i className={`${icon} ${styles.icon()}`} data-arena-part={manifest.parts.icon} {...styles.$data.icon()} aria-hidden="true" />}
+        {icon && <span className={styles.icon()} data-arena-part={manifest.parts.icon} {...styles.$data.icon()} aria-hidden="true"><ArenaIcon icon={icon} /></span>}
         {prefix && <span className={styles.prefix()} data-arena-part={manifest.parts.prefix} {...styles.$data.prefix()}>{prefix}</span>}
         <input ref={control} id={inputId} type={type} value={value} disabled={disabled} readOnly={readOnly}
           required={required} aria-invalid={!!shownError} aria-describedby={noteId} className={styles.input()} data-arena-part={manifest.parts.input} {...styles.$data.input()}
           placeholder={placeholder} name={name} autoComplete={autoComplete}
           min={min} max={max} step={step} maxLength={maxLength} pattern={pattern}
           onBlur={handleBlur} onChange={handleChange} />
-        {shownError && <i className={`ph-fill ph-warning-circle ${styles.statusIcon()}`} data-arena-part={manifest.parts.statusIcon} {...styles.$data.statusIcon()} aria-hidden="true" />}
-        {isValid && <i className={`ph-fill ph-check-circle ${styles.statusIcon()}`} data-arena-part={manifest.parts.statusIcon} {...styles.$data.statusIcon()} aria-hidden="true" />}
+        {shownError && <span className={styles.statusIcon()} data-arena-part={manifest.parts.statusIcon} {...styles.$data.statusIcon()} aria-hidden="true"><ArenaIcon icon="ph-fill ph-warning-circle" /></span>}
+        {isValid && <span className={styles.statusIcon()} data-arena-part={manifest.parts.statusIcon} {...styles.$data.statusIcon()} aria-hidden="true"><ArenaIcon icon="ph-fill ph-check-circle" /></span>}
       </div>
       {shownError ? <span id={noteId} className={styles.error()} data-arena-part={manifest.parts.error} {...styles.$data.error()}>{shownError}</span>
         : hint && <span id={noteId} className={styles.hint()} data-arena-part={manifest.parts.hint} {...styles.$data.hint()}>{hint}</span>}

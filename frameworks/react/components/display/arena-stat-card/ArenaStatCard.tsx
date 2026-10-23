@@ -5,6 +5,7 @@ import manifest from './ArenaStatCard.classes.generated.ts';
 import type { ArenaStatDelta, ArenaTone } from '../../../Api.generated';
 import type { ArenaStatCardClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
+import { ArenaIcon } from '../arena-icon/ArenaIcon.tsx';
 
 export type { ArenaStatDelta };
 
@@ -40,12 +41,12 @@ export function ArenaStatCard({ className, label, value, tone = 'neutral', delta
     <div className={arenaClassName('ArenaStatCard', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
       <div className={styles.head()} data-arena-part={manifest.parts.head} {...styles.$data.head()}>
         <span className={styles.label()} data-arena-part={manifest.parts.label} {...styles.$data.label()}>{label}</span>
-        {icon && <span aria-hidden="true" className={styles.icon()} data-arena-part={manifest.parts.icon} {...styles.$data.icon()}><i className={icon} /></span>}
+        {icon && <span aria-hidden="true" className={styles.icon()} data-arena-part={manifest.parts.icon} {...styles.$data.icon()}><ArenaIcon icon={icon} /></span>}
       </div>
       <div className={styles.value()} data-arena-part={manifest.parts.value} {...styles.$data.value()}>{value}</div>
       {delta?.value && (
         <span className={styles.delta()} data-arena-part={manifest.parts.delta} {...styles.$data.delta()}>
-          <i className={delta.direction === 'down' ? 'ph-bold ph-arrow-down' : 'ph-bold ph-arrow-up'} aria-hidden="true" />
+          <ArenaIcon icon={delta.direction === 'down' ? 'ph-bold ph-arrow-down' : 'ph-bold ph-arrow-up'} />
           {delta.value}
         </span>
       )}

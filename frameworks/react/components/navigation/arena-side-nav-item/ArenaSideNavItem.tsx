@@ -9,6 +9,7 @@ import { ArenaTooltip } from '../../feedback/arena-tooltip/ArenaTooltip.tsx';
 import type { ArenaSideNavItemClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
 import { ARENA_CONTEXT_VOCABULARY } from '../../../Vocabulary.generated.ts';
+import { ArenaIcon } from '../../display/arena-icon/ArenaIcon.tsx';
 
 export interface ArenaSideNavItemProps {
   className?: ArenaSideNavItemClass;
@@ -67,7 +68,7 @@ export function ArenaSideNavItem({ className,
   };
 
   const glyph = icon
-    ? <i className={`${on ? arenaActiveWeight(icon) : icon} ${styles.icon()}`} data-arena-part={manifest.parts.icon} {...styles.$data.icon()} aria-hidden="true" />
+    ? <span className={styles.icon()} data-arena-part={manifest.parts.icon} {...styles.$data.icon()} aria-hidden="true"><ArenaIcon icon={on ? arenaActiveWeight(icon) : icon} /></span>
     : null;
   const count = arenaBadgeCount(badge);
   const tally = count === null || collapsed ? null : <span className={styles.badge()} data-arena-part={manifest.parts.badge} {...styles.$data.badge()}>{count}</span>;

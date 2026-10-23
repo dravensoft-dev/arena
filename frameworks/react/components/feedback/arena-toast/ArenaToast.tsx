@@ -6,6 +6,7 @@ import type { ArenaToastTone } from '../../../Api.generated';
 import { useArenaLocale } from '../../../ArenaLocale.ts';
 import type { ArenaToastClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
+import { ArenaIcon } from '../../display/arena-icon/ArenaIcon.tsx';
 
 export interface ArenaToastProps {
   className?: ArenaToastClass;
@@ -65,7 +66,7 @@ export function ArenaToast({ className, title, message, tone = 'neutral', action
       </div>
       {dismissible && (
         <button onClick={onClose} aria-label={locale.toastClose} className={styles.close()} data-arena-part={manifest.parts.close} {...styles.$data.close()}>
-          <i className="ph-bold ph-x" />
+          <ArenaIcon icon="ph-bold ph-x" />
         </button>
       )}
     </div>

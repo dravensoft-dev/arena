@@ -7,6 +7,7 @@ import manifest from './ArenaTag.classes.generated.ts';
 import { useArenaLocale } from '../../../ArenaLocale.ts';
 import type { ArenaTagClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
+import { ArenaIcon } from '../arena-icon/ArenaIcon.tsx';
 
 export interface ArenaTagProps {
   className?: ArenaTagClass;
@@ -41,7 +42,7 @@ export function ArenaTag({ className, children, tone = 'neutral', colorId, remov
       <span id={textId} data-arena-boundary="">{children}</span>
       {removable && <button type="button" id={closeId} className={styles.close()} data-arena-part={manifest.parts.close} {...styles.$data.close()}
         aria-labelledby={`${closeId} ${textId}`} aria-disabled={disabled ? 'true' : undefined} tabIndex={tabStop ? undefined : -1}
-        onClick={disabled ? undefined : onRemove}><i className="ph-bold ph-x" aria-hidden="true" /><span className={styles.closeLabel()} data-arena-part={manifest.parts.closeLabel} {...styles.$data.closeLabel()}>{locale.tagRemove}</span></button>}
+        onClick={disabled ? undefined : onRemove}><ArenaIcon icon="ph-bold ph-x" /><span className={styles.closeLabel()} data-arena-part={manifest.parts.closeLabel} {...styles.$data.closeLabel()}>{locale.tagRemove}</span></button>}
     </span>
   );
 }

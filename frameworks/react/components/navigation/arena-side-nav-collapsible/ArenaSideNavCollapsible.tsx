@@ -7,6 +7,7 @@ import { ArenaSideNavItem } from '../arena-side-nav-item/ArenaSideNavItem.tsx';
 import type { ArenaSideNavCollapsibleClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
 import { ARENA_CONTEXT_VOCABULARY } from '../../../Vocabulary.generated.ts';
+import { ArenaIcon } from '../../display/arena-icon/ArenaIcon.tsx';
 
 export interface ArenaSideNavCollapsibleProps {
   className?: ArenaSideNavCollapsibleClass;
@@ -78,7 +79,7 @@ export function ArenaSideNavCollapsible({ className,
       </div>
     );
   }
-  const glyph = icon ? <i className={`${icon} ${styles.icon()}`} data-arena-part={manifest.parts.icon} {...styles.$data.icon()} aria-hidden="true" /> : null;
+  const glyph = icon ? <span className={styles.icon()} data-arena-part={manifest.parts.icon} {...styles.$data.icon()} aria-hidden="true"><ArenaIcon icon={icon} /></span> : null;
 
   return (
     <div className={arenaClassName('ArenaSideNavCollapsible', styles.section(), className, ARENA_CONTEXT_VOCABULARY)} data-arena-part={manifest.parts.section} {...styles.$data.section()}>
@@ -91,8 +92,8 @@ export function ArenaSideNavCollapsible({ className,
         style={{ '--arena-side-nav-depth': arenaIndentDepth(depth) } as React.CSSProperties}>
         {glyph}
         <span className={styles.triggerLabel()} data-arena-part={manifest.parts.triggerLabel} {...styles.$data.triggerLabel()}>{label}</span>
-        <i className={`${expanded ? 'ph-bold ph-caret-down' : 'ph-bold ph-caret-right'} ${styles.caret()}`} data-arena-part={manifest.parts.caret} {...styles.$data.caret()}
-          aria-hidden="true" />
+        <span className={styles.caret()} data-arena-part={manifest.parts.caret} {...styles.$data.caret()}
+          aria-hidden="true"><ArenaIcon icon={expanded ? 'ph-bold ph-caret-down' : 'ph-bold ph-caret-right'} /></span>
       </button>
       {
 }

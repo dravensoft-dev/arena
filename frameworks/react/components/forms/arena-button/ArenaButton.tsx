@@ -5,6 +5,7 @@ import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaButton.classes.generated.ts';
 import type { ArenaButtonClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
+import { ArenaIcon } from '../../display/arena-icon/ArenaIcon.tsx';
 
 export interface ArenaButtonProps {
   className?: ArenaButtonClass;
@@ -84,9 +85,9 @@ export function ArenaButton({ className,
     >
       {loading
         ? <span className={styles.spinner()} data-arena-part={manifest.parts.spinner} {...styles.$data.spinner()} aria-hidden="true" />
-        : icon && <i className={icon} aria-hidden="true" />}
+        : icon && <ArenaIcon icon={icon} />}
       {children}
-      {iconRight && <i className={iconRight} aria-hidden="true" />}
+      {iconRight && <ArenaIcon icon={iconRight} />}
     </button>
   );
 }

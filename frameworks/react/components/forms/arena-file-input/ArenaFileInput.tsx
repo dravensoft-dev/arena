@@ -11,6 +11,7 @@ import {
   arenaFileAnnouncement, arenaFileInputIds, arenaFileRejection, arenaFileSelection, arenaFileSize,
   arenaMergeFiles, arenaRejectionLines, arenaWriteInputFiles,
 } from './FileRules.ts';
+import { ArenaIcon } from '../../display/arena-icon/ArenaIcon.tsx';
 
 export interface ArenaFileInputProps {
   className?: ArenaFileInputClass;
@@ -164,7 +165,7 @@ export const ArenaFileInput = forwardRef<ArenaFileInputHandle, ArenaFileInputPro
           aria-describedby={error || hint ? noteId : undefined} disabled={disabled}
           className={styles.trigger()} data-arena-part={manifest.parts.trigger} {...styles.$data.trigger()}
           onClick={() => control.current?.click()}>
-          <i className={`ph-bold ph-upload-simple ${styles.icon()}`} data-arena-part={manifest.parts.icon} {...styles.$data.icon()} aria-hidden="true" />
+          <span className={styles.icon()} data-arena-part={manifest.parts.icon} {...styles.$data.icon()} aria-hidden="true"><ArenaIcon icon="ph-bold ph-upload-simple" /></span>
           <span id={ids.text}>{multiple ? locale.fileInputChooseMultiple : locale.fileInputChoose}</span>
         </button>
         {droppable && <span className={styles.prompt()} data-arena-part={manifest.parts.prompt} {...styles.$data.prompt()}>{locale.fileInputDrop}</span>}

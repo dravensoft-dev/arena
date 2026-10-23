@@ -1,11 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { renderToStaticMarkup } from 'react-dom/server';
+import { renderIcons, symbols } from '../../../test/IconsHarness.tsx';
 import React from 'react';
 import { ArenaStepper, type ArenaStepperProps } from './ArenaStepper.tsx';
 
 const CHECKOUT = [{ label: 'Account' }, { label: 'Shipping', description: 'Two addresses on file' }, { label: 'Payment' }, { label: 'Review' }];
-const draw = (props: Partial<ArenaStepperProps> = {}) => renderToStaticMarkup(<ArenaStepper ariaLabel="Checkout" steps={CHECKOUT} {...props} />);
+const draw = (props: Partial<ArenaStepperProps> = {}) => renderIcons(<ArenaStepper ariaLabel="Checkout" steps={CHECKOUT} {...props} />);
 const items = (html: string) => html.match(/<li\b[^>]*>/g) ?? [];
 const names = (html: string) => [...html.matchAll(/data-arena-part="stepper.name"[^>]*>([^<]*)</g)].map((m) => m[1]);
 
@@ -40,9 +40,9 @@ test('a complete marker draws a check, an error marker a warning glyph, and the 
   const steps = CHECKOUT.map((s, i) => (i === 2 ? { ...s, error: true } : s));
   const html = draw({ index: 1, steps });
   const markers = [...html.matchAll(/data-arena-part="stepper.marker"[^>]*>(.*?)<\/span>/g)].map((m) => m[1]!);
-  assert.match(markers[0]!, /ph-check/);
+  assert.deepEqual(symbols(markers[0]!), ['bold-check']);
   assert.equal(markers[1], '2');
-  assert.match(markers[2]!, /ph-warning-circle/);
+  assert.deepEqual(symbols(markers[2]!), ['fill-warning-circle']);
   assert.equal(markers[3], '4');
   assert.match(html, /<span aria-hidden="true"[^>]*data-arena-part="stepper.rail"/, 'the marker and the connector are drawn, never read');
 });

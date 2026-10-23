@@ -7,6 +7,7 @@ import manifest from '../arena-bottom-nav/ArenaBottomNav.classes.generated.ts';
 import type { ArenaBottomNavItemClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
 import { ARENA_CONTEXT_VOCABULARY } from '../../../Vocabulary.generated.ts';
+import { ArenaIcon } from '../../display/arena-icon/ArenaIcon.tsx';
 
 export interface ArenaBottomNavItemProps {
   className?: ArenaBottomNavItemClass;
@@ -64,7 +65,7 @@ export function ArenaBottomNavItem({ className,
   const body = (
     <React.Fragment>
       <span className={styles.glyph()} data-arena-part={manifest.parts.glyph} {...styles.$data.glyph()}>
-        <i className={on ? arenaActiveWeight(icon) : icon} aria-hidden="true" />
+        <ArenaIcon icon={on ? arenaActiveWeight(icon) : icon} />
         {tally !== null && <span className={styles.badge()} data-arena-part={manifest.parts.badge} {...styles.$data.badge()}>{tally}</span>}
       </span>
       <span className={styles.label()} data-arena-part={manifest.parts.label} {...styles.$data.label()}>{label}</span>
