@@ -7,7 +7,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { run, satisfies } from './command-doctor.ts';
 import { plan } from './plan.ts';
-import { ICON_MANIFEST, PLUGIN_SHEET } from './sheets.ts';
+import { ICON_MANIFEST, PACKAGE_SHEET, PLUGIN_SHEET } from './sheets.ts';
 import { MAP, SHEETS, captureIo, hostRoot, options, phosphor, project, readable, removeFixtures } from './cli-fixtures.ts';
 
 after(removeFixtures);
@@ -188,10 +188,12 @@ test('a tree built from a named list the map closes is current, and one built fr
   for (const one of asWritten.outputs) writeFileSync(one.path, one.content);
   const before = captureIo(root, environment);
   assert.equal(await run([], before.io), 1);
-  assert.ok(before.err.includes(`arena doctor: ${asWritten.outputs[0]!.path} is stale; arena build rewrites it`));
+  const packaged = asWritten.outputs.find((one) => one.name === PACKAGE_SHEET)!;
+  assert.ok(before.err.includes(`arena doctor: ${packaged.path} is stale; arena build rewrites it`));
+  assert.ok(before.out.includes(`arena doctor: ${asWritten.outputs[0]!.path} is current`), 'the app\'s half does not follow the components');
 
   const built = await plan(options(root), environment);
-  assert.match(built.outputs[0]!.content, /css\/components\/pagination\.css/);
+  assert.match(built.outputs.find((one) => one.name === PACKAGE_SHEET)!.content, /css\/components\/pagination\.css/);
   for (const one of built.outputs) writeFileSync(one.path, one.content);
   const staleSprite = asWritten.outputs.find((one) => /^icons-[0-9a-f]{10}\.svg$/.test(one.name))!;
   assert.notEqual(staleSprite.name, built.outputs.find((one) => /^icons-[0-9a-f]{10}\.svg$/.test(one.name))!.name,

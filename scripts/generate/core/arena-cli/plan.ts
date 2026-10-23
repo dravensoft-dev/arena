@@ -8,7 +8,7 @@
 
 import { readFileSync, existsSync } from 'node:fs';
 import { dirname, basename, join, resolve } from 'node:path';
-import { configProblems, defaultedNote, paletteReports, rootWithDefaults, runtimeData, themeCss, weightReports } from './theme-css.ts';
+import { configProblems, defaultedNote, packageCss, packageImports, paletteReports, rootWithDefaults, runtimeData, themeCss, weightReports } from './theme-css.ts';
 import type { PackageSheets } from './theme-css.ts';
 import { AUTO, resolve as resolveComponents } from './components.ts';
 import type { ComponentMap } from './components.ts';
@@ -17,7 +17,7 @@ import type { IconScan } from './icon-css.ts';
 import { report } from './reports.ts';
 import type { Report } from './reports.ts';
 import {
-  THEME_SHEET, PLUGIN_SHEET, RUNTIME_DATA, PLUGIN_LAYER, ICON_MANIFEST, SPRITE_MODULE, SPRITE_TYPES, SPRITE_STEM,
+  THEME_SHEET, PACKAGE_SHEET, PLUGIN_SHEET, RUNTIME_DATA, PLUGIN_LAYER, ICON_MANIFEST, SPRITE_MODULE, SPRITE_TYPES, SPRITE_STEM,
   iconManifest, pluginCss, pluginSheets, readPlugins,
 } from './sheets.ts';
 import { OUTPUT_SHEETS, fontFilesIn, missingSource, sourceFiles, spriteFilesIn } from './sources.ts';
@@ -50,9 +50,9 @@ export type SheetState = { path: string; state: 'missing' | 'stale' | 'current' 
 
 export function themeSheets(options: PlanOptions, { packageName, sheets, map }: ThemeEnvironment, cuts: FontCuts = {}):
   { code: 0 | 1 | 2; fatal: string[]; reports: Report[]; notes: string[]; sheets: SheetOutput[]; components: string[] | null;
-    config: CheckedConfig | null } {
+    config: CheckedConfig | null; imports: string[] } {
   const stop = (code: 1 | 2, fatal: string[]) => ({
-    code, fatal, reports: [] as Report[], notes: [] as string[], sheets: [] as SheetOutput[], components: null, config: null,
+    code, fatal, reports: [] as Report[], notes: [] as string[], sheets: [] as SheetOutput[], components: null, config: null, imports: [] as string[],
   });
   let config;
   try {
@@ -99,10 +99,13 @@ export function themeSheets(options: PlanOptions, { packageName, sheets, map }: 
   const reports = [...closure.reports,
     ...reportLines(paletteReports(config, sheets?.catalogue ?? null, completed.plugins, sheets?.levels ?? [], sheets?.washes ?? [])),
     ...weightReports(config, sheets?.catalogue ?? null, completed.plugins, cuts)];
-  const css = themeCss(config, {
-    packageName, importHeader: options.importHeader, source: basename(options.config), sheets, plugins: completed.plugins, cuts,
-  });
+  const css = themeCss(config, { source: basename(options.config), sheets, plugins: completed.plugins, cuts });
   const out: SheetOutput[] = [{ name: THEME_SHEET, path: join(options.out, THEME_SHEET), content: css, summary: `${css.length} bytes` }];
+  const imports = packageImports(config, { packageName, sheets }) ?? [];
+  if (options.importHeader) {
+    const pack = packageCss(config, { packageName, sheets });
+    out.push({ name: PACKAGE_SHEET, path: join(options.out, PACKAGE_SHEET), content: pack, summary: `${pack.length} bytes` });
+  }
   const layered = pluginCss(pluginSheets(config, from));
   if (layered !== null) {
     out.push({
@@ -117,7 +120,7 @@ export function themeSheets(options: PlanOptions, { packageName, sheets, map }: 
     out.push({ name: RUNTIME_DATA, path: join(options.out, RUNTIME_DATA), content: data, summary: `${data.length} bytes` });
   }
   const resolved = map && Array.isArray(config.stylesheet?.components) ? config.stylesheet.components as string[] : null;
-  return { code: 0, fatal: [], reports, notes: closure.notes, sheets: out, components: resolved, config };
+  return { code: 0, fatal: [], reports, notes: closure.notes, sheets: out, components: resolved, config, imports };
 }
 
 export type FontEnvironment = ThemeEnvironment & { arena?: string | null; fontTools?: FontToolRoots };
@@ -132,7 +135,7 @@ export async function fontFiles(options: PlanOptions, env: FontEnvironment, them
     fonts: config.fonts,
     roles: Object.keys(FONT_ROLES),
     from: dirname(resolve(options.config)),
-    css: `${importedSheets(String(generated), env.arena ?? null, env.packageName)}\n${generated}`,
+    css: `${importedSheets(theme.imports.join('\n'), env.arena ?? null, env.packageName)}\n${generated}`,
     tools: () => loadFontTools(env.fontTools ?? fontToolRoots()),
   });
   return {

@@ -13,7 +13,7 @@ import { loadFontTools } from './font-files.ts';
 import { plan, sheetStates } from './plan.ts';
 import type { SheetOutput } from './plan.ts';
 import { RETIRED_ICONS_SHEET as ICONS_SHEET } from './sources.ts';
-import { THEME_SHEET, PLUGIN_SHEET, RUNTIME_DATA, ICON_MANIFEST, SPRITE_MODULE, SPRITE_TYPES, SPRITE_STEM } from './sheets.ts';
+import { THEME_SHEET, PACKAGE_SHEET, PLUGIN_SHEET, RUNTIME_DATA, ICON_MANIFEST, SPRITE_MODULE, SPRITE_TYPES, SPRITE_STEM } from './sheets.ts';
 import type { ComponentMap } from './components.ts';
 import { auto, hostRoot, MAP, SHEETS, options, phosphor, project, readable, removeFixtures } from './cli-fixtures.ts';
 
@@ -71,20 +71,22 @@ test('the plan writes nothing: the out directory is untouched after a successful
 
 const spriteOf = (result: Awaited<ReturnType<typeof plan>>) =>
   result.outputs.find((one) => one.name.startsWith(`${SPRITE_STEM}-`) && one.name.endsWith('.svg'));
+const packageOf = (result: Awaited<ReturnType<typeof plan>>) => result.outputs.find((one) => one.name === PACKAGE_SHEET)?.content ?? '';
 const symbolsOf = (result: Awaited<ReturnType<typeof plan>>) =>
   [...(spriteOf(result)?.content ?? '').matchAll(/<symbol id="([^"]+)"/g)].map((m) => m[1]);
 
-test('outputs are theme, plugin, then the sprite and its module pair, each at out/name', async () => {
+test('outputs are theme, package, plugin, then the sprite and its module pair, each at out/name', async () => {
   const { root: held, core } = phosphor();
   const root = withPlugin('.x { color: red }\n');
   const result = await plan(options(root), environment(core, { sheets: CATALOGUED }));
   assert.deepEqual(result.fatal, []);
   const sprite = spriteOf(result)!;
-  assert.deepEqual(result.outputs.map((one) => one.name), [THEME_SHEET, PLUGIN_SHEET, sprite.name, SPRITE_MODULE, SPRITE_TYPES]);
+  assert.deepEqual(result.outputs.map((one) => one.name), [THEME_SHEET, PACKAGE_SHEET, PLUGIN_SHEET, sprite.name, SPRITE_MODULE, SPRITE_TYPES]);
   for (const one of result.outputs) assert.equal(one.path, join(root, 'src', one.name));
-  const [theme, plugin, icons] = [result.outputs[0], result.outputs[1], sprite];
-  assert.match(theme!.content, /@import '@dravensoft\/arena-react\/css\/reset\.css';/);
-  assert.doesNotMatch(theme!.content, /arena\.css/);
+  const [theme, pack, plugin, icons] = [result.outputs[0], result.outputs[1], result.outputs[2], sprite];
+  assert.match(pack!.content, /@import '@dravensoft\/arena-react\/css\/reset\.css';/);
+  assert.doesNotMatch(pack!.content, /arena\.css/);
+  assert.doesNotMatch(theme!.content, /@import '@dravensoft/, 'the app\'s half imports none of the package');
   assert.match(theme!.summary, /^\d+ bytes$/);
   assert.match(plugin!.content, /@layer arena-plugin \{/);
   assert.match(plugin!.summary, /bytes, wrapped in @layer arena-plugin$/);
@@ -97,7 +99,7 @@ test('no plugin carrying css gives no plugin output', async () => {
   const { root: held, core } = phosphor();
   const root = project();
   const result = await plan(options(root), environment(core));
-  assert.deepEqual(result.outputs.map((one) => one.name), [THEME_SHEET, spriteOf(result)!.name, SPRITE_MODULE, SPRITE_TYPES]);
+  assert.deepEqual(result.outputs.map((one) => one.name), [THEME_SHEET, PACKAGE_SHEET, spriteOf(result)!.name, SPRITE_MODULE, SPRITE_TYPES]);
   cleanup(root, held);
 });
 
@@ -225,7 +227,7 @@ test('a contrast report leaves the code 0 and the outputs present', async () => 
   const result = await plan(options(root), environment(core));
   assert.equal(result.code, 0);
   assert.ok(result.reports.some((one) => one.kind === 'contrast' && one.message.includes('under the 4.5:1')));
-  assert.equal(result.outputs.length, 4);
+  assert.equal(result.outputs.length, 5);
   cleanup(root, held);
 });
 
@@ -235,7 +237,7 @@ test('"auto" resolves and notes, and "auto" with no map or nothing found is fata
   const result = await plan(options(drawn), environment(core, { sheets: SHEETS, map: MAP }));
   assert.equal(result.code, 0);
   assert.match(result.notes[0] ?? '', /2 component sheet\(s\) drawn, and 2 Arena draws for you: pagination, select/);
-  assert.match(result.outputs[0]!.content, /css\/components\/pagination\.css/);
+  assert.match(packageOf(result), /css\/components\/pagination\.css/);
 
   const nomap = await plan(options(drawn), environment(core, { sheets: SHEETS, map: null }));
   assert.equal(nomap.code, 1);
@@ -256,7 +258,7 @@ test('a config naming no stylesheet resolves auto against the map', async () => 
   const root = project(readable, { 'app.html': '<arena-button icon="ph-bold ph-bell" />' });
   const result = await plan(options(root), environment(core, { sheets: WITH_SLOT, map: MAP }));
   assert.equal(result.code, 0);
-  const theme = result.outputs[0]!.content;
+  const theme = packageOf(result);
   assert.match(theme, /css\/components\/button\.css/);
   assert.doesNotMatch(theme, /css\/components\/table\.css/);
   assert.doesNotMatch(theme, /arena\.css/);
@@ -270,7 +272,7 @@ test('a config naming no stylesheet and drawing no Arena component imports no co
   const root = project(readable, { 'app.html': '<i class="ph-bold ph-bell"></i>' });
   const result = await plan(options(root), environment(core, { sheets: WITH_SLOT, map: MAP }));
   assert.equal(result.code, 0);
-  assert.doesNotMatch(result.outputs[0]!.content, /css\/components\//);
+  assert.doesNotMatch(packageOf(result), /css\/components\//);
   cleanup(root, held);
 });
 
@@ -280,7 +282,7 @@ test('with no map beside the command, a config naming no stylesheet imports ever
   const result = await plan(options(root), environment(core, { sheets: WITH_SLOT, map: null }));
   assert.equal(result.code, 0);
   assert.ok(result.reports.some((one) => one.kind === 'environment' && one.message.includes('component map is not beside')));
-  for (const name of SHEETS.components) assert.ok(result.outputs[0]!.content.includes(`css/components/${name}.css`), name);
+  for (const name of SHEETS.components) assert.ok(packageOf(result).includes(`css/components/${name}.css`), name);
   cleanup(root, held);
 });
 
@@ -377,7 +379,7 @@ test('a named list is closed against the map, keeps its order, and notes what Ar
   const result = await plan(options(root), environment(core, { sheets: SHEETS, map: MAP }));
   assert.equal(result.code, 0);
   assert.deepEqual(result.notes, ['1 component sheet(s) named, and 2 Arena draws for you: pagination, select']);
-  assert.deepEqual(imported(result.outputs[0]!.content), ['table', 'pagination', 'select']);
+  assert.deepEqual(imported(packageOf(result)), ['table', 'pagination', 'select']);
   cleanup(root, held);
 });
 
@@ -387,7 +389,7 @@ test('with no map beside the command a named list is used as written, with no no
   const result = await plan(options(root), environment(core, { sheets: SHEETS, map: null }));
   assert.equal(result.code, 0);
   assert.deepEqual(result.notes, []);
-  assert.deepEqual(imported(result.outputs[0]!.content), ['table']);
+  assert.deepEqual(imported(packageOf(result)), ['table']);
   cleanup(root, held);
 });
 
@@ -398,6 +400,7 @@ test('a named list that already holds what it needs writes the bytes it writes w
   const asWritten = await plan(options(root), environment(core, { sheets: SHEETS, map: null }));
   assert.equal(closed.code, 0);
   assert.deepEqual(closed.notes, []);
+  assert.equal(packageOf(closed), packageOf(asWritten));
   assert.equal(closed.outputs[0]!.content, asWritten.outputs[0]!.content);
   cleanup(root, held);
 });
@@ -624,6 +627,28 @@ test('a local font is cut to the weights the imported sheets paint, named by con
   assert.ok(!theme.includes('./fonts/'));
   assert.deepEqual(result.reports.filter((one) => one.kind === 'font' || one.kind === 'weight'), []);
   assert.deepEqual((await plan(options(root), env)).binaries.map((one) => one.name), cut.map((one) => one.name));
+  cleanup(root, held, arena);
+});
+
+test('a --no-import build cuts the same weights as an importing one, and writes no package sheet', async () => {
+  const { root, held, arena, env } = fontProject();
+  const importing = await plan(options(root), env);
+  const bare = await plan(options(root, { importHeader: false }), env);
+  assert.deepEqual(bare.binaries.map((one) => one.name), importing.binaries.map((one) => one.name));
+  assert.ok(importing.outputs.some((one) => one.name === PACKAGE_SHEET));
+  assert.ok(!bare.outputs.some((one) => one.name === PACKAGE_SHEET));
+  cleanup(root, held, arena);
+});
+
+test('the package sheet is current until the components drawn change, and a --no-import build orphans it', async () => {
+  const { root, held, arena, env } = fontProject();
+  const first = await plan(options(root), env);
+  const pack = first.outputs.find((one) => one.name === PACKAGE_SHEET)!;
+  assert.match(pack.summary, /^\d+ bytes$/);
+  writeFileSync(pack.path, pack.content);
+  assert.deepEqual(sheetStates([pack]).map((one) => one.state), ['current']);
+  assert.ok(!(await plan(options(root), env)).orphans.includes(PACKAGE_SHEET));
+  assert.ok((await plan(options(root, { importHeader: false }), env)).orphans.includes(PACKAGE_SHEET));
   cleanup(root, held, arena);
 });
 

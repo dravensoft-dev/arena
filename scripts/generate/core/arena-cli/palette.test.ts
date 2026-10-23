@@ -61,7 +61,7 @@ const PLUGINS = [
 ];
 
 const data = runtimeData(CONFIG, SHEETS, PLUGINS);
-const css = themeCss(CONFIG, { sheets: SHEETS, importHeader: false, plugins: PLUGINS });
+const css = themeCss(CONFIG, { sheets: SHEETS, plugins: PLUGINS });
 const decls = parseDecls(css);
 const keys = (selector: string) => {
   const found = decls.get(selector);

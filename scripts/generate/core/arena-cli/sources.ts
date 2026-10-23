@@ -6,7 +6,7 @@
 
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
-import { THEME_SHEET, PLUGIN_SHEET, RUNTIME_DATA, SPRITE_MODULE, SPRITE_TYPES, SPRITE_STEM } from './sheets.ts';
+import { THEME_SHEET, PACKAGE_SHEET, PLUGIN_SHEET, RUNTIME_DATA, SPRITE_MODULE, SPRITE_TYPES, SPRITE_STEM } from './sheets.ts';
 import { DEFAULT_PLUGIN } from './theme-css.ts';
 import { sourceScope } from './audit.ts';
 
@@ -15,7 +15,7 @@ export const DEFAULT_SOURCE = 'src';
 export const SOURCE_EXTENSIONS = ['.html', '.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs', '.css'];
 export const SKIPPED_DIRECTORIES = new Set(['node_modules', 'dist', '.git', '.angular', 'coverage']);
 export const RETIRED_ICONS_SHEET = 'icons.generated.css';
-export const OUTPUT_SHEETS = new Set([THEME_SHEET, RETIRED_ICONS_SHEET, PLUGIN_SHEET, RUNTIME_DATA, SPRITE_MODULE, SPRITE_TYPES]);
+export const OUTPUT_SHEETS = new Set([THEME_SHEET, PACKAGE_SHEET, RETIRED_ICONS_SHEET, PLUGIN_SHEET, RUNTIME_DATA, SPRITE_MODULE, SPRITE_TYPES]);
 export const SPRITE_FILE = new RegExp(`^${SPRITE_STEM}-[0-9a-f]{10}\\.svg$`);
 
 const byCodeUnit = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);

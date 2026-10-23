@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { existsSync, mkdirSync, readFileSync, statSync, utimesSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { run, writeOutputs } from './command-build.ts';
-import { THEME_SHEET, PLUGIN_SHEET, SPRITE_MODULE, SPRITE_TYPES } from './sheets.ts';
+import { THEME_SHEET, PACKAGE_SHEET, PLUGIN_SHEET, SPRITE_MODULE, SPRITE_TYPES } from './sheets.ts';
 import { RETIRED_ICONS_SHEET, spriteFilesIn } from './sources.ts';
 import { captureIo, phosphor, project, readable, whileHeld, removeFixtures } from './cli-fixtures.ts';
 
@@ -38,13 +38,13 @@ test('a first build writes the sheets, the sprite and its module pair (plugin ca
   const { io, out, err } = captureIo(root, environment(core));
   assert.equal(await run(flags(root), io), 0);
   assert.ok(err.every((line) => /report\(s\): arena check names them$/.test(line)));
-  for (const name of [THEME_SHEET, PLUGIN_SHEET, spriteName(root), SPRITE_MODULE, SPRITE_TYPES]) {
+  for (const name of [THEME_SHEET, PACKAGE_SHEET, PLUGIN_SHEET, spriteName(root), SPRITE_MODULE, SPRITE_TYPES]) {
     const at = join(root, 'src', name);
     assert.ok(existsSync(at));
     assert.ok(out.some((line) => line.startsWith(`arena build: wrote ${at} (`) && line.endsWith(')')), name);
   }
   assert.equal(existsSync(join(root, 'src', RETIRED_ICONS_SHEET)), false);
-  assert.equal(out.length, 5);
+  assert.equal(out.length, 6);
 });
 
 test('a second build with nothing changed writes nothing, keeps mtimes, and prints "no sheet changed"', async () => {
