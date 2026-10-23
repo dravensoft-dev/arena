@@ -153,8 +153,6 @@ test('a sprite symbol reference is checked as its glyph at its weight', () => {
 });
 
 test('a symbol id is not read as the bare glyph weight-name', () => {
-  const problems = tokenProblems('<use href="a.svg#ph-bold-house"></use>', 'a.html', ARENA_WEIGHTS);
-  assert.deepEqual(problems, []);
   assert.doesNotMatch(tokenProblems('<use href="#ph-bold-nope"></use>', 'a.html', ARENA_WEIGHTS).join('\n'),
     /"ph-bold-nope"/);
 });

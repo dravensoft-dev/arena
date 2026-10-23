@@ -39,7 +39,7 @@ test('the manifest is keyed by component', () => {
   const react = iconManifest('react');
   assert.ok(react.components['ArenaAlert']?.pairs['fill']?.includes('ph-info'));
   assert.deepEqual(react.components['ArenaTag']?.pairs['bold'], ['ph-x']);
-  assert.ok(!('ArenaButton' in react.components && react.components['ArenaButton']?.pairs['fill']?.includes('ph-info')));
+  assert.ok(!react.components['ArenaButton']?.pairs['fill']?.includes('ph-info'), 'a glyph one component draws is not another\'s');
   assert.deepEqual(react.fills, ['ArenaBottomNavItem', 'ArenaSideNavItem']);
   const angular = iconManifest('angular');
   assert.ok(angular.components['arena-alert']?.pairs['fill']?.includes('ph-info'));

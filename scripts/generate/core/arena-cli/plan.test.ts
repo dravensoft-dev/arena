@@ -566,9 +566,12 @@ test('with no map the sprite carries every component and says the map is missing
   assert.ok(result.reports.some((one) => one.kind === 'environment'));
 });
 
-test('sources that draw no glyph and components that carry none still build, with an empty sprite and its module', async () => {
+test('a source drawing no Arena component at all stops where auto finds nothing', async () => {
   const none = await icons({ 'app.html': '<arena-nothing></arena-nothing>' }, { sheets: { ...DRAW_SHEETS, components: [...DRAW_SHEETS.components] } });
-  assert.equal(none.code, 1, 'a source drawing no Arena component at all still stops where auto finds nothing');
+  assert.equal(none.code, 1);
+});
+
+test('sources that draw no glyph and components that carry none still build, with an empty sprite and its module', async () => {
   const { root: held, core } = phosphor();
   const arena = hostRoot('@dravensoft/arena-react', '11.1.0', {
     [ICON_MANIFEST]: JSON.stringify({ components: { 'arena-alert': { pairs: { fill: ['ph-moon'] }, loose: [] } }, fills: [] }),
