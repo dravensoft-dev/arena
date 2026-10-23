@@ -24,7 +24,7 @@ function pluginRoot() {
   return root;
 }
 
-function harness(build: () => number = () => 0) {
+function harness(build: () => number | Promise<number> = () => 0) {
   const opened: { dir: string; recursive: boolean; changed: (f: string | null) => void; failed: (e: Error) => void; closed: boolean }[] = [];
   const pending: { run: () => void; ms: number; live: boolean }[] = [];
   const controller = new AbortController();
@@ -125,6 +125,38 @@ test('a burst of relevant events schedules one build (each cancels the previous)
   assert.equal(h.builds(), 2);
   h.controller.abort();
   await done;
+});
+
+test('a change during a rebuild waits for it and then builds once more, never two builds at once', async () => {
+  const root = project();
+  let open = 0;
+  let overlapped = false;
+  const releases: (() => void)[] = [];
+  const h = harness(() => {
+    if (h.builds() === 1) return 0;
+    open += 1;
+    if (open > 1) overlapped = true;
+    return new Promise<number>((resolve) => releases.push(() => { open -= 1; resolve(0); }));
+  });
+  const { io } = captureIo(root);
+  const done = watchBuild(optionsOf(root), h.counted, io, h.deps);
+  const src = () => h.live().find((one) => one.dir === join(root, 'src'))!;
+  src().changed('a.ts'); h.flush();
+  assert.equal(h.builds(), 2, 'the first change starts a build');
+  src().changed('b.ts'); h.flush();
+  src().changed('c.ts'); h.flush();
+  assert.equal(h.builds(), 2, 'a change while it runs starts none');
+  releases.shift()!();
+  await new Promise((resolve) => setImmediate(resolve));
+  h.flush();
+  assert.equal(h.builds(), 3, 'the build that finished schedules exactly one more');
+  releases.shift()!();
+  await new Promise((resolve) => setImmediate(resolve));
+  h.flush();
+  assert.equal(h.builds(), 3);
+  assert.equal(overlapped, false);
+  h.controller.abort();
+  assert.equal(await done, 0);
 });
 
 test('an irrelevant event schedules nothing', async () => {

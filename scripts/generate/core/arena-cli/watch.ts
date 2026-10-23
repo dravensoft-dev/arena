@@ -1,6 +1,7 @@
 /* arena build --watch: one build, then a rebuild after each burst of relevant changes. SETTLE_MS is
  * 100 because an editor saves by truncate, write and rename within a few milliseconds, and the quiet
- * window folds that burst into one build; it bounds no hang, so it is a plain constant, not a deadline. */
+ * window folds that burst into one build; it bounds no hang, so it is a plain constant, not a deadline.
+ * A change that settles while a build runs waits for it and then costs one more build. */
 import { existsSync, statSync, watch } from 'node:fs';
 import { basename, dirname, resolve } from 'node:path';
 import type { Options } from './args.ts';
@@ -95,6 +96,8 @@ export function watchBuild(options: Options, build: () => number | Promise<numbe
   const stale = new Set<string>();
   let pending: unknown = null;
   let stopped = false;
+  let running = false;
+  let again = false;
 
   const reconcile = () => {
     const wanted = new Map(watchTargets(options).map((target) => [keyOf(target), target]));
@@ -126,10 +129,18 @@ export function watchBuild(options: Options, build: () => number | Promise<numbe
   function rebuild() {
     pending = null;
     if (stopped) return;
+    if (running) { again = true; return; }
+    running = true;
     guarded(build, (error) => say.err(`rebuild failed: ${error.message}`), () => {
+      running = false;
       if (stopped) return;
       say.out('still watching');
       reconcile();
+      if (again) {
+        again = false;
+        if (pending !== null) deps.cancel(pending);
+        pending = deps.schedule(rebuild, SETTLE_MS);
+      }
     });
   }
 
