@@ -618,7 +618,7 @@ export function polarityReports(polarity: string, ground: string | undefined): R
 
 export function paletteMessages(
   palette: { polarity: string; colors: Record<string, string> }, roles: Map<string, string>,
-  levels: Level[], washes: Wash[], _hasRoot: boolean,
+  levels: Level[], washes: Wash[],
 ) {
   const mode = palette.polarity;
   const colors = derivedColours(palette.colors, mode);
@@ -668,7 +668,7 @@ export function paletteReports(
   const root = (plugins ?? [])[0] ?? null;
   const out = [];
   for (const palette of config.palettes) {
-    const messages = paletteMessages(palette, rolesFor(root, catalogue, palette.polarity), levels, washes, root !== null);
+    const messages = paletteMessages(palette, rolesFor(root, catalogue, palette.polarity), levels, washes);
     if (messages.length) out.push({ palette: palette.name, messages });
   }
   return out;
@@ -857,7 +857,6 @@ export const polarityClass = (polarity: string) => `arena-polarity-${polarity}`;
 
 export type ArenaRuntimeDataShape = {
   arenaRuntimePalettes: 1;
-  hasRoot: boolean;
   declared: string[];
   taken: string[];
   levels: Level[];
@@ -871,7 +870,6 @@ export function runtimeData(config: CheckedConfig, sheets: PackageSheets, plugin
   const rolesIn = (polarity: string) => Object.fromEntries(rolesFor(root, catalogue, polarity));
   return {
     arenaRuntimePalettes: 1,
-    hasRoot: root !== null,
     declared: (config.palettes as CheckedPalette[]).map((palette) => palette.name),
     taken: sheets?.scopes ?? [],
     levels: sheets?.levels ?? [],

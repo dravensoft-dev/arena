@@ -61,6 +61,10 @@ const PLUGINS = [
 ];
 
 const data = runtimeData(CONFIG, SHEETS, PLUGINS);
+
+test('the runtime data carries no field nothing reads', () => {
+  assert.deepEqual(Object.keys(data).sort(), ['arenaRuntimePalettes', 'declared', 'levels', 'roles', 'taken', 'washes']);
+});
 const css = themeCss(CONFIG, { sheets: SHEETS, plugins: PLUGINS });
 const decls = parseDecls(css);
 const keys = (selector: string) => {
@@ -152,7 +156,6 @@ test('marker-only and malformed data throw a shape error naming the function', (
     { arenaRuntimePalettes: 1 },
     { ...data, roles: undefined },
     { ...data, roles: { dark: {}, light: 'x' } },
-    { ...data, hasRoot: undefined },
     { ...data, declared: 'dusk' },
     { ...data, levels: {} },
   ];

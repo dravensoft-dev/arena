@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readdirSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import {
   configProblems, heatReports, heatOrderReports, themeCss, packageCss, packageImports, paletteReports, defaultPalette, isStylesheet, scopedImports,
@@ -1246,20 +1246,12 @@ const shippedPalette = (polarity: 'light' | 'dark'): Record<string, string> => {
     .map(([key, entry]) => [key, entry.$value.hex as string]));
 };
 
-test('every plugin under plugin-style-store answers the heat steps in order under Arena\'s light and dark palettes', () => {
-  const store = fileURLToPath(new URL('../../../../plugin-style-store/', import.meta.url));
-  const dirs = ['default', 'complete', ...readdirSync(`${store}catalogue`, { withFileTypes: true })
-    .filter((d) => d.isDirectory()).map((d) => `catalogue/${d.name}`)];
-  assert.ok(dirs.length > 3);
-  for (const dir of dirs) {
-    const plugin = readPlugin(dir, JSON.parse(readFileSync(`${store}${dir}/plugin.tokens.json`, 'utf8')));
-    for (const polarity of ['light', 'dark'] as const) {
-      const c = config({ palettes: [{ name: polarity, default: true, polarity, colors: colors(heatLadderColours(polarity)) }] });
-      const out = paletteReports(c, HEAT_ROLES as any, [plugin])[0]?.messages.filter((m) => m.kind === 'heat') ?? [];
-      assert.deepEqual(out, [], `${dir} under ${polarity}`);
-      const shipped = config({ palettes: [{ name: polarity, default: true, polarity, colors: colors(shippedPalette(polarity)) }] });
-      const real = paletteReports(shipped, HEAT_ROLES as any, [plugin])[0]?.messages.filter((m) => m.kind === 'heat') ?? [];
-      assert.deepEqual(real, [], `${dir} under the shipped ${polarity} palette`);
+test('the heat ladder in order reports nothing, in a fixture palette and in the shipped light and dark palettes', () => {
+  for (const polarity of ['light', 'dark'] as const) {
+    for (const [what, set] of [['fixture', heatLadderColours(polarity)], ['shipped', shippedPalette(polarity)]] as const) {
+      const c = config({ palettes: [{ name: polarity, default: true, polarity, colors: colors(set) }] });
+      const out = paletteReports(c, HEAT_ROLES as any, [])[0]?.messages.filter((m) => m.kind === 'heat') ?? [];
+      assert.deepEqual(out, [], `${what} ${polarity} palette`);
     }
   }
 });

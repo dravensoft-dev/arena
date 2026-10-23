@@ -15,7 +15,6 @@ export type ArenaRuntimeData = { arenaRuntimePalettes: 1; [key: string]: unknown
 export type ArenaRuntimePalette = { name: string; polarity: ArenaPolarity; properties: Record<string, string> };
 
 type Held = {
-  hasRoot: boolean;
   declared: string[];
   taken: string[];
   levels: Parameters<typeof paletteDeclarations>[2];
@@ -35,7 +34,7 @@ function held(fn: string, data: unknown): Held {
   }
   const d = found as Record<string, unknown>;
   const roles = d.roles as Record<string, unknown> | undefined;
-  const fits = typeof d.hasRoot === 'boolean' && isStrings(d.declared) && isStrings(d.taken)
+  const fits = isStrings(d.declared) && isStrings(d.taken)
     && Array.isArray(d.levels) && Array.isArray(d.washes)
     && isRecord(roles) && isRoles(roles.dark) && isRoles(roles.light);
   if (!fits) {
@@ -60,7 +59,7 @@ function rolesOf(data: Held, polarity: ArenaPolarity): Map<string, string> {
 }
 
 function reportsOf(palette: ArenaPaletteInput, known: Held): ArenaPaletteReport[] {
-  return paletteMessages(palette, rolesOf(known, palette.polarity), known.levels, known.washes, known.hasRoot);
+  return paletteMessages(palette, rolesOf(known, palette.polarity), known.levels, known.washes);
 }
 
 function declarationsOf(palette: ArenaPaletteInput, known: Held): Record<string, string> {
