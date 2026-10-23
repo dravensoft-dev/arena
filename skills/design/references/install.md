@@ -74,7 +74,7 @@ A raw `<i class="ph-bold ph-bell">` paints nothing, because Arena ships no icon 
 
 `arena build` writes `icons-<hash>.svg` into `-o`, which is `src` by default. The URL handed to the provider has to reach that file.
 
-**Vite** serves a file of `public/` at `/` under its own name, and copies it to the output unchanged. A file of `src/` imported as a URL is emitted with a name Vite hashes itself, and the import gives that name. A glob finds the one sprite whatever its hash is:
+**Vite** serves a file of `public/` at `/` under its own name, and copies it to the output unchanged. A file of `src/` imported as a URL is emitted with a name Vite hashes itself, and the import gives that name. A glob finds the one sprite whatever its hash is. The glob is relative to the module that holds it, so this line sits in a module inside the `-o` directory. A module elsewhere writes the path from itself to that directory, such as `'../src/icons-*.svg'`:
 
 ```tsx
 const [sprite] = Object.values(import.meta.glob('./icons-*.svg', { query: '?url', import: 'default', eager: true }));
