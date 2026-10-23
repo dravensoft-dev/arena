@@ -3,8 +3,8 @@
  * own, runs the dist's `arena build` for the sheets, the sprite and the cut fonts, and reads brotli q11 beside
  * the previous build as dictionary. A figure over its budget, or a total over its ceiling, fails. Budgets are
  * start × 1.05; the maintainer raises one, this gate never does. A missing dist stops it, as check:consumer.
- * The sprite and fonts are the start's post-lever figures for every glyph Arena draws and every weight its theme
- * paints (W6, W7), so assertStartInputs fails when the fixture drifts. oneLine is the patch: one line of one file, and an error when that line is not there. */
+ * The sprite and fonts are measured on a fixture that draws at least the start's glyphs and paints at least its
+ * weights (W6, W7), so assertStartInputs fails when the fixture shrinks; growth is held by the budgets. oneLine is the patch: one line of one file, and an error when that line is not there. */
 
 import { rmSync } from 'node:fs';
 import { join } from 'node:path';
@@ -67,18 +67,24 @@ export function oneLine(target: string, from: string, to: string): { patch: Patc
 
 const sum = (...parts: Uint8Array[]) => Math.round(parts.reduce((total, one) => total + brotliKB(one), 0) * 100) / 100;
 
-export const SPRITE_GLYPHS = 23;
 export const PAINTED_FACES = ['Archivo 800 900', 'Familjen Grotesk 400 700', 'Spline Sans Mono 400', 'Spline Sans Mono 700'];
 
 export function assertStartInputs(css: { glyphs: string[]; faces: string[] }): void {
   const bold = css.glyphs.filter((g) => g.startsWith('ph-bold-')).length;
   const fill = css.glyphs.filter((g) => g.startsWith('ph-fill-')).length;
-  if (css.glyphs.length !== SPRITE_GLYPHS || bold !== 17 || fill !== 6) {
-    throw new Error(`check-weight: the fixture's sprite holds ${bold} bold and ${fill} fill glyphs, not the start's 17 and 6; `
-      + 'a figure measured on other inputs would loosen the budget');
+  if (bold < 17 || fill < 6) {
+    throw new Error(`check-weight: the fixture's sprite holds ${bold} bold and ${fill} fill glyphs, under the start's 17 and 6; `
+      + 'a figure measured on fewer inputs would loosen the budget');
   }
-  if (JSON.stringify([...css.faces].sort()) !== JSON.stringify([...PAINTED_FACES].sort())) {
-    throw new Error(`check-weight: the cut fonts carry ${css.faces.join(', ')}, not the start's ${PAINTED_FACES.join(', ')}`);
+  const missing = PAINTED_FACES.filter((face) => !css.faces.includes(face));
+  if (missing.length > 0) {
+    throw new Error(`check-weight: the cut fonts carry ${css.faces.join(', ')}, and lack the start's ${missing.join(', ')}`);
+  }
+}
+
+export function assertChanged(before: Uint8Array, after: Uint8Array, what: string): void {
+  if (Buffer.compare(before, after) === 0) {
+    throw new Error(`check-weight: the release patch left the ${what} unchanged, so a figure of 0 would prove nothing`);
   }
 }
 
@@ -88,6 +94,7 @@ export async function measure(dist: string): Promise<Figure[]> {
   const full = await reactBundle(dist, 'full');
   const released = await reactBundle(dist, 'typical', release);
   const js = oneLine('components/forms/arena-button/ArenaButton.js', 'type = "button"', 'type = "submit"');
+  assertChanged(typical.app, released.app, 'app chunk');
   const patchedJs = await reactBundle(dist, 'typical', js.patch);
   js.applied();
 
@@ -95,6 +102,7 @@ export async function measure(dist: string): Promise<Figure[]> {
   const cssFull = await cssFigures(dist, 'full');
   const cssRelease = await cssFigures(dist, 'typical', (file, text) => (/^(App\.jsx|app\.css)$/.test(file)
     ? text.replaceAll('Sales dashboard', 'Panel de ventas') : text));
+  assertChanged(css.app, cssRelease.app, 'app half of the stylesheet');
   assertStartInputs(cssFull);
   const sheet = oneLine('css/components/arena-button.css', 'display: inline-flex;', 'display: flex;');
   const patchedCss = await cssFigures(dist, 'typical', sheet.patch);

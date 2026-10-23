@@ -1,7 +1,7 @@
 // check-weight: the budget table's shape and the one-line patch; the measuring is weight-measure.test.ts.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { BUDGETS, CEILINGS, PAINTED_FACES, assertStartInputs, oneLine } from './check-weight.ts';
+import { BUDGETS, CEILINGS, PAINTED_FACES, assertChanged, assertStartInputs, oneLine } from './check-weight.ts';
 
 test('every budget states the start commit and its multiplier, and each ceiling sits at or over its budget', () => {
   for (const { figure, reason } of BUDGETS) {
@@ -29,4 +29,14 @@ test('the fixture must reproduce the start\'s sprite and cut weights, or the gat
   assert.doesNotThrow(() => assertStartInputs({ glyphs, faces: PAINTED_FACES }));
   assert.throws(() => assertStartInputs({ glyphs: glyphs.slice(1), faces: PAINTED_FACES }), /16 bold and 6 fill/);
   assert.throws(() => assertStartInputs({ glyphs, faces: PAINTED_FACES.slice(1) }), /cut fonts carry/);
+});
+
+test('the start\'s sprite and cut weights are lower bounds: a fixture that grows keeps measuring, and the budgets hold the growth', () => {
+  const glyphs = [...Array.from({ length: 18 }, (_, i) => `ph-bold-b${i}`), ...Array.from({ length: 7 }, (_, i) => `ph-fill-f${i}`), 'ph-regular-bell'];
+  assert.doesNotThrow(() => assertStartInputs({ glyphs, faces: [...PAINTED_FACES, 'Archivo 400'] }));
+});
+
+test('a release patch that changed nothing is an error, not a zero', () => {
+  assert.doesNotThrow(() => assertChanged(new Uint8Array([1]), new Uint8Array([2]), 'app chunk'));
+  assert.throws(() => assertChanged(new Uint8Array([1]), new Uint8Array([1]), 'app chunk'), /release patch left the app chunk unchanged/);
 });

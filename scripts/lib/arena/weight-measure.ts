@@ -177,8 +177,6 @@ export type CssFigures = {
   glyphs: string[]; faces: string[];
 };
 
-const PACKAGE_IMPORT = /^@import '@dravensoft\/[^']+';$/;
-
 async function sheet(dir: string, file: string, patch: Patch | undefined, dist: string): Promise<Uint8Array> {
   const built = await build({
     entryPoints: [join(dir, 'src', file)], bundle: true, minify: true, write: false, logLevel: 'error',
@@ -220,10 +218,10 @@ export async function cssFigures(dist: string, entry: 'typical' | 'full', patch?
     if (ran.status !== 0) throw new Error(`weight-measure: arena build exited ${ran.status}: ${ran.stderr}${ran.stdout}`);
     const out = join(dir, 'out');
     const generated = readFileSync(join(out, 'arena.generated.css'), 'utf8');
-    writeFileSync(join(dir, 'src', 'theme.css'), generated);
-    writeFileSync(join(dir, 'src', 'arena-half.css'), generated.split('\n').filter((l) => PACKAGE_IMPORT.test(l)).join('\n'));
-    writeFileSync(join(dir, 'src', 'app-half.css'),
-      `@import './app.css';\n${generated.split('\n').filter((l) => !PACKAGE_IMPORT.test(l)).join('\n')}\n`);
+    const packageSheet = readFileSync(join(out, 'arena.package.generated.css'), 'utf8');
+    writeFileSync(join(dir, 'src', 'theme.css'), `${packageSheet}\n${generated}`);
+    writeFileSync(join(dir, 'src', 'arena-half.css'), packageSheet);
+    writeFileSync(join(dir, 'src', 'app-half.css'), `@import './app.css';\n${generated}\n`);
     const files = readdirSync(out);
     const one = (re: RegExp, what: string) => {
       const found = files.find((f) => re.test(f));
