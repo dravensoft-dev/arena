@@ -85,7 +85,7 @@ export async function run(argv: string[], io: Io): Promise<number> {
     }
     for (const name of planned.orphans) {
       problems++;
-      say.err(`${join(options.out, name)} is a sheet this config no longer produces; arena build removes it`);
+      say.err(`${join(options.out, name)} is a file this config does not produce; arena build removes it`);
     }
   }
 

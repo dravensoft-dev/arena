@@ -74,7 +74,7 @@ test('a changed source writes a sprite under a new name and its module, and remo
   assert.deepEqual(out, [
     `arena build: wrote ${join(root, 'src', fresh)} (${out[0]!.slice(out[0]!.indexOf('(') + 1)}`,
     `arena build: wrote ${join(root, 'src', SPRITE_MODULE)} (${out[1]!.slice(out[1]!.indexOf('(') + 1)}`,
-    `arena build: removed ${join(root, 'src', old)}, a sheet this config no longer produces`,
+    `arena build: removed ${join(root, 'src', old)}, a file this config does not produce`,
   ]);
   assert.match(readFileSync(join(root, 'src', fresh), 'utf8'), /ph-bold-moon/);
   assert.equal(readFileSync(join(root, 'src', SPRITE_MODULE), 'utf8'), `export const ARENA_SPRITE = '${fresh}';\n`);
@@ -88,7 +88,7 @@ test('an icons.generated.css left by an earlier version is removed by a build', 
   const { io, out } = captureIo(root, environment(core));
   assert.equal(await run(flags(root), io), 0);
   assert.equal(existsSync(old), false);
-  assert.ok(out.includes(`arena build: removed ${old}, a sheet this config no longer produces`));
+  assert.ok(out.includes(`arena build: removed ${old}, a file this config does not produce`));
 });
 
 test('an orphan plugin sheet is removed and the removal is printed', async () => {
@@ -99,7 +99,7 @@ test('an orphan plugin sheet is removed and the removal is printed', async () =>
   const { io, out } = captureIo(root, environment(core));
   assert.equal(await run(flags(root), io), 0);
   assert.equal(existsSync(orphan), false);
-  assert.ok(out.includes(`arena build: removed ${orphan}, a sheet this config no longer produces`));
+  assert.ok(out.includes(`arena build: removed ${orphan}, a file this config does not produce`));
   assert.equal(out.some((line) => line.includes('no sheet changed')), false);
 });
 

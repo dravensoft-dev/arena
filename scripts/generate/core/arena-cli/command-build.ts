@@ -56,7 +56,7 @@ export async function buildOnce(options: Options, env: PlanEnvironment, io: Io):
   try {
     result = writeOutputs([...p.outputs, ...p.binaries], p.orphans, options.out, {
       wrote: (sheet) => say.out(`wrote ${sheet.path} (${sheet.summary})`),
-      removed: (at) => say.out(`removed ${at}, a sheet this config no longer produces`),
+      removed: (at) => say.out(`removed ${at}, a file this config does not produce`),
     });
   } catch (error) {
     const failure = error as NodeJS.ErrnoException;

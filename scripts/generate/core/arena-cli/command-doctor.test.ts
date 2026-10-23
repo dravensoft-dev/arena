@@ -78,7 +78,7 @@ test('an orphan plugin sheet is reported, exit 1', async () => {
   writeFileSync(orphan, 'x');
   const { io, err } = captureIo(root, environment);
   assert.equal(await run([], io), 1);
-  assert.ok(err.includes(`arena doctor: ${orphan} is a sheet this config no longer produces; arena build removes it`));
+  assert.ok(err.includes(`arena doctor: ${orphan} is a file this config does not produce; arena build removes it`));
 });
 
 test('a sprite the build no longer writes and an icon sheet from an earlier version are orphans, exit 1', async () => {
@@ -90,8 +90,8 @@ test('a sprite the build no longer writes and an icon sheet from an earlier vers
   writeFileSync(sheet, 'x');
   const { io, err } = captureIo(root, environment);
   assert.equal(await run([], io), 1);
-  assert.ok(err.includes(`arena doctor: ${stale} is a sheet this config no longer produces; arena build removes it`));
-  assert.ok(err.includes(`arena doctor: ${sheet} is a sheet this config no longer produces; arena build removes it`));
+  assert.ok(err.includes(`arena doctor: ${stale} is a file this config does not produce; arena build removes it`));
+  assert.ok(err.includes(`arena doctor: ${sheet} is a file this config does not produce; arena build removes it`));
 });
 
 test('a plan fatal exits 1 and says the sheets were not compared', async () => {
@@ -200,7 +200,7 @@ test('a tree built from a named list the map closes is current, and one built fr
     'the list as written drew the filled weight too, so its sprite carries another name');
   const leftover = captureIo(root, environment);
   assert.equal(await run([], leftover.io), 1);
-  assert.ok(leftover.err.includes(`arena doctor: ${staleSprite.path} is a sheet this config no longer produces; arena build removes it`));
+  assert.ok(leftover.err.includes(`arena doctor: ${staleSprite.path} is a file this config does not produce; arena build removes it`));
   rmSync(staleSprite.path);
   const after = captureIo(root, environment);
   assert.equal(await run([], after.io), 0);
