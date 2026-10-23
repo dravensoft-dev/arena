@@ -134,48 +134,30 @@ workflow by hand, because the automatic path cannot reach a workflow the default
 already carry. `.github/workflows/AGENTS.md` states that gap and the fallback if npmjs.com refuses
 a publisher for a name with no versions on it.
 
-## 4. Move the benches onto this version
+## 4. Attach the adopter's packed builds to the release page
 
-The benches install Arena from the registry, so this step waits for the publish workflows to
-finish and then moves every half to the version they published. In the bench repository,
-`~/Dravensoft/arena-web-benches`, the version is written in the manifest `pack` and `build` both
-read and in each half's own manifest, and the lockfile moves in the same commit: the site builds
-the halves with `--frozen-lockfile`, so pins that travel without it take the whole publication
-down rather than resolving to something older.
+Attach them only when the adopter that `pages.yml` checks out declares, in its `arena-adopter.json`,
+the version being released. An adopter that declares an older version was measured against that one,
+and a tarball named for this version would claim a measurement it never had. The adopter installs
+Arena from the registry, so this step waits for the publish workflows to finish.
 
-**Nothing on this side fires when that repository is pushed.** `Publish the site` builds its
-default branch at the moment it runs, so the halves the domain serves are the ones that existed at
-the last `Arena main`, and a bench that moved after it reaches the domain only when this workflow
-is dispatched by hand:
+Run the adopter repository's own pack command with the version, then upload what it wrote:
+
+```bash
+gh release upload vx.x.x -R dravensoft-dev/arena <its tarballs>
+```
+
+That command belongs to that repository and not to this one, which is why it is described here
+rather than spelled: a command copied out of this page and run from this tree answers that no
+such script exists. Count what was produced rather than against a number written here, because how
+many builds exist is the adopter's answer and not this page's.
+
+Nothing on this side fires when that repository is pushed. `Publish the site` takes the adopter at
+the moment it runs, so once the adopter declares this version, a hand dispatch publishes it:
 
 ```bash
 gh workflow run pages.yml -R dravensoft-dev/arena
 ```
-
-The homepage states the version every half installs, read from that manifest, so the domain is
-where this step is confirmed rather than in either tree.
-
-## 5. Pack the benches and attach them to the release page
-
-In the bench repository, run its own `pack` script with the version, then upload what it wrote:
-
-```bash
-gh release upload vx.x.x -R dravensoft-dev/arena dist/*.tar.gz
-```
-
-That script belongs to that repository and not to this one, which is why it is described here
-rather than spelled: a command copied out of this page and run from this tree answers that no
-such script exists.
-
-One tarball per twin pair, and one asset on the page for each. Count what was produced with
-`ls dist/*.tar.gz | wc -l` rather than against a number written here, because how many pairs
-exist is the bench repository's answer and not this page's.
-
-The benches consume the published package, so they are packed after step 4 and not before: a pair
-packed while it still pins the previous version is measured against a version that is not the one
-the tarball is named for. `pack` refuses a dirty tree, because a tarball matching no commit
-cannot be produced again, and it reads `git archive`, so each bench's own `.gitignore` is the
-whole of what packed means and no second exclusion list exists here to go stale.
 
 The release page itself is written by `.github/workflows/release.yml` from the commit log, once
 `Arena main` is green for the commit that carries the tag, so it appears alongside the published

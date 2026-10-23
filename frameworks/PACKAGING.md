@@ -383,7 +383,7 @@ Three things about the publish itself, each of which has a way of going wrong:
 
 Still possible, and the fallback when the workflow cannot run. **It is the publish and not the
 release**: the version bump that has to precede the build, the tag, the branch the tag lands on
-and the benches that are packed after it are all in
+and the adopter builds attached after it are all in
 [`../versioning_steps.md`](../versioning_steps.md), and this block replaces none of them. Its
 first command **fails by design** on a tree whose tag does not exist yet, which is the expected
 output there and a red herring here, so read that page's step 1 before running anything below:
