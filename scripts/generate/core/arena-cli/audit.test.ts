@@ -1012,3 +1012,8 @@ test('iconMemberGlyphs does not count a glyph an icon attribute draws through a 
   assert.deepEqual([...iconMemberGlyphs('<ArenaButton icon={<i className="ph-bold ph-n" />} />')], []);
   assert.deepEqual([...iconMemberGlyphs('<ArenaButton icon={ <i className="ph-bold ph-n" />} />')], []);
 });
+
+test('iconMemberGlyphs reads the literals of an icon expression and not those of an element nested in it', () => {
+  assert.deepEqual([...iconMemberGlyphs('<ArenaButton icon={on ? <i className="ph-bold ph-n"/> : \'ph ph-s\'} />')], ['ph-s']);
+  assert.deepEqual([...iconMemberGlyphs('<ArenaButton icon={on ? <b><i className="ph-bold ph-n" /></b> : \'ph ph-s\'} />')], ['ph-s']);
+});

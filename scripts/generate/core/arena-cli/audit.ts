@@ -954,6 +954,24 @@ const ICON_TAG = /^(?:ArenaIcon|arena-icon)$/;
 const ICON_ATTRIBUTE = /(?:^|\s)\[?(?:icon|iconRight)\]?\s*=\s*/g;
 const ANY_ATTRIBUTE = /(?:^|\s)[[(]?[\w.:@-]+[\])]?\s*=\s*/g;
 
+function withoutElements(value: string) {
+  let out = '';
+  let quote = '';
+  for (let i = 0; i < value.length; i += 1) {
+    const c = value[i] ?? '';
+    if (quote) { out += c; if (c === quote) quote = ''; continue; }
+    if (c === '"' || c === "'" || c === '`') { quote = c; out += c; continue; }
+    const name = c === '<' ? /^[A-Za-z][\w.-]*/.exec(value.slice(i + 1))?.[0] : undefined;
+    if (!name) { out += c; continue; }
+    const opened = tagEnd(value, i);
+    const ends = opened === -1 ? value.length : value[opened - 2] === '/' ? opened
+      : Math.max(opened, value.indexOf('>', elementEnd(value, name, opened)) + 1);
+    out += ' '.repeat(ends - i);
+    i = ends - 1;
+  }
+  return out;
+}
+
 export function iconMemberGlyphs(text: string): Set<string> {
   const found = scan(text.match(new RegExp(SYMBOL_REF.source, 'g'))?.join(' ') ?? '');
   for (const m of text.matchAll(OPEN_TAG)) {
@@ -967,8 +985,7 @@ export function iconMemberGlyphs(text: string): Set<string> {
     if (named === null) continue;
     for (const { from } of ownAttributeStarts(raw, named)) {
       const value = attributeValueAt(raw, from);
-      if (named === ICON_ATTRIBUTE && /^\{\s*</.test(value)) continue;
-      scan(value, found);
+      scan(named === ICON_ATTRIBUTE ? withoutElements(value) : value, found);
     }
   }
   return glyphNames(found);
