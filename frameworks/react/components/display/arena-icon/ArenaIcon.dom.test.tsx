@@ -55,3 +55,14 @@ test('the complete plugin paints a lone ArenaIcon and not the glyph inside a com
   assert.ok(own.matches(selector), 'a lone ArenaIcon is not painted');
   assert.ok(!drawn.matches(selector), 'a glyph inside alert.icon is painted');
 });
+
+test('the complete plugin reads the Angular host the same way: the glyph in a component part is not painted, a lone one is', () => {
+  const selector = iconSelectors();
+  const page = document.createElement('div');
+  page.innerHTML = '<button data-arena-part="button"><arena-icon><svg data-arena-part="icon"></svg></arena-icon></button>'
+    + '<div><arena-icon><svg data-arena-part="icon"></svg></arena-icon></div>';
+  const [inside, lone] = page.querySelectorAll('svg');
+  assert.ok(inside && lone);
+  assert.ok(!inside.matches(selector), 'a glyph inside button, behind the arena-icon host, is painted');
+  assert.ok(lone.matches(selector), 'a lone arena-icon is not painted');
+});

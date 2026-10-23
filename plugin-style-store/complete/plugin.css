@@ -1220,7 +1220,7 @@
   outline-offset: var(--sp-1);
 }
 
-.arena-complete :not([data-arena-part]) > [data-arena-part="icon"],
+.arena-complete :not([data-arena-part], arena-icon) > [data-arena-part="icon"],
 .arena-complete :not([data-arena-part]) > arena-icon > [data-arena-part="icon"] {
   border-radius: var(--r-media);
   outline: var(--bw-surface) dashed var(--edge-surface);
