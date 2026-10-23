@@ -2,9 +2,20 @@
  * that imports a component drags that component into every chunk the root lands in, so Arena could not
  * sit in a chunk of its own. The real tree is read, because a fixture would prove the reader. */
 
-import test from 'node:test';
+import test, { after } from 'node:test';
 import assert from 'node:assert/strict';
+import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { repoRoot } from './repo-root.ts';
 import { ALLOWED_ROOT_IMPORTS, rootComponentImports } from './root-imports.ts';
+
+const FIXTURE = join(repoRoot, '.cache', 'root-imports-fixture');
+after(() => rmSync(FIXTURE, { recursive: true, force: true }));
+
+function writeFixture(path: string, text: string) {
+  mkdirSync(dirname(path), { recursive: true });
+  writeFileSync(path, text);
+}
 
 for (const layer of ['react', 'angular'] as const) {
   test(`no root module imports a component, but the row window (${layer})`, () => {
@@ -20,7 +31,7 @@ test('the row window is the one allowed exception, and the reader sees it', () =
 });
 
 test('a root import into components/ is listed, and a generated or test file is not read', () => {
-  const root = `${process.cwd()}/.cache/root-imports-fixture`;
+  const root = FIXTURE;
   const lib = `${root}/frameworks/react`;
   for (const [name, text] of Object.entries({
     'A.ts': "import { X } from './components/a/b/X.tsx';",
@@ -32,10 +43,3 @@ test('a root import into components/ is listed, and a generated or test file is 
   }
   assert.deepEqual(rootComponentImports('react', root), [{ file: 'A.ts', specifier: './components/a/b/X.tsx' }]);
 });
-
-import { mkdirSync, writeFileSync } from 'node:fs';
-import { dirname } from 'node:path';
-function writeFixture(path: string, text: string) {
-  mkdirSync(dirname(path), { recursive: true });
-  writeFileSync(path, text);
-}
