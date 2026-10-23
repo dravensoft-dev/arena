@@ -10,6 +10,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { createApplication } from '@angular/platform-browser';
 import { TestBed } from '@angular/core/testing';
+import { REPO } from './test/Compliance';
 import { ARENA_ICONS, provideArenaIcons } from './ArenaIcons';
 
 afterEach(() => TestBed.resetTestingModule());
@@ -29,6 +30,6 @@ test('provideArenaIcons hands the href it was given', () => {
 });
 
 test('the module reads no document, window or fetch', () => {
-  const source = readFileSync(join(import.meta.dirname, 'ArenaIcons.ts'), 'utf8');
+  const source = readFileSync(join(REPO, 'frameworks/angular/ArenaIcons.ts'), 'utf8');
   assert.doesNotMatch(source, /\b(document|window|fetch)\b/);
 });

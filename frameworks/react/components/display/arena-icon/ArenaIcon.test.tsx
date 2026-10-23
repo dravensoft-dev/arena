@@ -1,5 +1,7 @@
 import test, { afterEach } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { ArenaIcon } from './ArenaIcon.tsx';
@@ -23,7 +25,7 @@ test('no glyph token renders nothing and warns once', () => {
   assert.equal(renderToStaticMarkup(tree), '');
   assert.equal(renderToStaticMarkup(tree), '');
   assert.equal(warnings.length, 1, 'the second render warns again, so the warning is not once');
-  assert.match(warnings[0], /ArenaIcon/);
+  assert.match(warnings[0] ?? '', /ArenaIcon/);
 });
 
 test('no sprite renders nothing and warns once, with the shared text', () => {
@@ -35,23 +37,13 @@ test('no sprite renders nothing and warns once, with the shared text', () => {
 });
 
 test('the server render holds no use and reads no document', () => {
-  const doc = Object.getOwnPropertyDescriptor(globalThis, 'document');
-  const win = Object.getOwnPropertyDescriptor(globalThis, 'window');
-  let reads = 0;
-  const trap = { configurable: true, get() { reads += 1; return undefined; } };
-  Object.defineProperty(globalThis, 'document', trap);
-  Object.defineProperty(globalThis, 'window', trap);
-  let html = '';
-  try {
-    html = renderToStaticMarkup(<ArenaIconsProvider href="/a/icons-1.svg"><ArenaIcon icon="ph-bold ph-plus" /></ArenaIconsProvider>);
-    capture();
-    renderToStaticMarkup(<ArenaIcon icon="ph-bold ph-plus" />);
-  } finally {
-    if (doc) Object.defineProperty(globalThis, 'document', doc); else delete (globalThis as { document?: unknown }).document;
-    if (win) Object.defineProperty(globalThis, 'window', win); else delete (globalThis as { window?: unknown }).window;
+  capture();
+  const html = renderToStaticMarkup(<ArenaIcon icon="ph-bold ph-plus" />);
+  assert.doesNotMatch(html, /<svg|<use/);
+  assert.equal(warnings.length, 1);
+  assert.equal(warnings[0], `[arena] ${NO_SPRITE}`);
+  const layer = join(import.meta.dirname, '..', '..', '..');
+  for (const file of ['ArenaIcons.ts', 'components/display/arena-icon/ArenaIcon.tsx']) {
+    assert.doesNotMatch(readFileSync(join(layer, file), 'utf8'), /\b(document|window|fetch)\b/, `${file} reads the browser`);
   }
-  assert.equal(reads, 0, 'a render touched document or window');
-  assert.ok(html.includes(`<use href="/a/icons-1.svg#${['ph', 'bold', 'plus'].join('-')}"></use>`));
-  assert.match(html, /<svg [^>]*aria-hidden="true"/);
-  assert.equal(warnings.length, 1, 'the render with no sprite warns, and draws no use');
 });

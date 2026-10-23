@@ -18,9 +18,11 @@ import { ArenaMenu } from '../components/navigation/arena-menu/ArenaMenu';
 import { ArenaPopover } from '../components/feedback/arena-popover/ArenaPopover';
 import { ArenaIcon } from '../components/display/arena-icon/ArenaIcon';
 import { forgetArenaWarnings } from '../WarnOnce';
+import { REPO } from './Compliance';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
+const NO_SPRITE = 'ArenaIcon has no sprite: hand the URL of the icons-<hash>.svg arena build writes to ArenaIconsProvider (React) or provideArenaIcons (Angular).';
 const PAGE = '<!doctype html><html><head></head><body><server-render-host></server-render-host></body></html>';
 
 @Component({
@@ -99,11 +101,11 @@ test('the server render holds no use and reads no document', async () => {
     const { html } = await renderOnServer(IconRenderHost);
     assert.doesNotMatch(html, /<svg|<use/);
     assert.equal(warned.length, 1);
-    assert.match(warned[0] ?? '', /ArenaIcon has no sprite/);
+    assert.equal(warned[0], `[arena] ${NO_SPRITE}`);
   } finally {
     console.warn = warn;
   }
-  const layer = join(import.meta.dirname, '..');
+  const layer = join(REPO, 'frameworks/angular');
   for (const file of ['ArenaIcons.ts', 'components/display/arena-icon/ArenaIcon.ts']) {
     assert.doesNotMatch(readFileSync(join(layer, file), 'utf8'), /\b(document|window|fetch)\b/, `${file} reads the browser`);
   }

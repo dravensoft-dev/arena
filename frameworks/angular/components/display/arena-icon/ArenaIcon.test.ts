@@ -8,6 +8,7 @@ import test, { afterEach, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { assertNoNode } from '../../../test/NodeAssert';
 import { forgetArenaWarnings } from '../../../WarnOnce';
 import { ARENA_ICONS, provideArenaIcons } from '../../../ArenaIcons';
 import { ArenaIcon } from './ArenaIcon';
@@ -54,7 +55,8 @@ test('draws a use of the sprite symbol the class list names', () => {
     const use = host.querySelector('svg[aria-hidden="true"][focusable="false"] > use');
     assert.ok(use, 'no svg > use inside the host');
     assert.equal(use.getAttribute('href'), `/a/icons-1.svg#${['ph', 'bold', 'plus'].join('-')}`);
-    assert.equal(host.querySelector('svg')?.namespaceURI, 'http://www.w3.org/2000/svg');
+    const namespace = host.querySelector('svg')?.namespaceURI;
+    assert.equal(namespace, 'http://www.w3.org/2000/svg');
     assert.match(host.getAttribute('style') ?? '', /display:\s*contents/);
     assert.deepEqual(warnings, []);
   } finally {
@@ -74,9 +76,9 @@ test('ph alone is the regular weight', () => {
 test('no glyph token renders nothing and warns once', () => {
   const { fixture, host } = render('ph-bold');
   try {
-    assert.equal(host.querySelector('svg'), null);
+    assertNoNode(host.querySelector('svg'));
     fixture.detectChanges();
-    fixture.componentInstance.icon = 'ph-bold ';
+    fixture.componentInstance.icon = 'ph-bold';
     fixture.componentRef.changeDetectorRef.markForCheck();
     fixture.detectChanges();
     assert.equal(warnings.length, 1);
@@ -89,7 +91,7 @@ test('no glyph token renders nothing and warns once', () => {
 test('no sprite renders nothing and warns once, with the shared text', () => {
   const { fixture, host } = render('ph-bold ph-plus', null);
   try {
-    assert.equal(host.querySelector('svg'), null);
+    assertNoNode(host.querySelector('svg'));
     const second = TestBed.createComponent(IconHost);
     second.detectChanges();
     second.destroy();

@@ -38,7 +38,7 @@ export class ArenaIcon {
     let weight = 'regular';
     let glyph: string | null = null;
     for (const token of tokens) {
-      const named = WEIGHTS[token];
+      const named = Object.hasOwn(WEIGHTS, token) ? WEIGHTS[token] : undefined;
       if (named !== undefined) weight = named;
       else if (token.startsWith('ph-') && token.length > 3) glyph = token.slice(3);
     }
