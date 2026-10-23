@@ -75,33 +75,64 @@ jobs:
 
       # The ref is a branch, so what is built is that repository's main at this moment rather than
       # a revision pinned here; AGENTS.md beside this file says what that buys and what it costs.
-      # actions/checkout writes only under the workspace, so the second repository lands inside
-      # this one; nothing build:site or check:site walks reaches the root, and .gitignore keeps a
-      # local rehearsal of these four steps from dirtying the tree.
-      - name: the benches, at their main
+      # actions/checkout writes only under the workspace, so the adopter lands inside this
+      # repository; nothing build:site or check:site walks reaches the root, and .gitignore keeps a
+      # local rehearsal of these steps from dirtying the tree. A checkout that fails leaves the
+      # steps after it skipped and the site without the adopter.
+      - name: the adopter's repository, at its main
+        id: checkout
+        continue-on-error: true
         uses: actions/checkout@v7
         with:
           repository: dravensoft-dev/arena-web-benches
           ref: main
-          path: web-benches
+          path: adopter
 
-      - name: one install resolves the sixteen
+      # The same function build:site calls decides: the adopter is built only when its
+      # arena-adopter.json declares the version of this tree. Nothing is installed otherwise.
+      - name: does the adopter declare this Arena
+        id: adopter
+        if: steps.checkout.outcome == 'success'
+        run: bun scripts/build/arena/build-site.ts --adopter-declares adopter
+
+      - name: install the adopter
+        id: install
+        if: steps.adopter.outputs.publish == 'true'
+        continue-on-error: true
         run: bun install --frozen-lockfile
-        working-directory: web-benches
+        working-directory: adopter
 
-      # Sixteen or none: this exits non-zero on the first half that does not build, and leaves
-      # nothing behind for build:site to find.
-      - name: the sixteen halves, into one shape
+      - name: build the adopter
+        id: adopter-build
+        if: steps.install.outcome == 'success'
+        continue-on-error: true
         run: bun run build
-        working-directory: web-benches
+        working-directory: adopter
 
+      - name: an adopter that did not arrive leaves the site without it
+        if: steps.checkout.outcome != 'success' || (steps.adopter.outputs.publish == 'true' && steps.adopter-build.outcome != 'success')
+        run: echo "::warning::the adopter build did not arrive, so the site is published without it"
+
+      # An unset ARENA_ADOPTER_BUILD is the site a clone builds: the directory is named only when
+      # the adopter built.
       - name: assemble what gets served
         run: bun run build:site
         env:
-          ARENA_BENCHES: ${{ github.workspace }}/web-benches/dist
+          ARENA_ADOPTER_BUILD: ${{ steps.adopter-build.outcome == 'success' && format('{0}/adopter/dist', github.workspace) || '' }}
 
+      # With the adopter in, a red here is not the end: the next step publishes the site without
+      # it and holds that one to the same gate. Without it, a red stops the run.
       - name: hold every link, every declared page and the domain it is built for
+        id: check
+        continue-on-error: ${{ steps.adopter-build.outcome == 'success' }}
         run: bun run check:site
+
+      - name: a site the adopter broke goes out without it
+        if: steps.check.outcome == 'failure'
+        run: |
+          echo "::warning::check:site failed with the adopter build in the site, so it is published without it"
+          bun run build:site
+          bun run check:site
 
       - uses: actions/upload-pages-artifact@v4
         with:

@@ -374,10 +374,12 @@ own tokens rather than exported by hand, and it takes the one the `portable` leg
 `develop.yml` take too: the `browser-actions/setup-chrome` step with `CHROME_PATH` deliberately
 unexported, because `check:portability` fails when a second workflow names it.
 
-**It is also the only job here that builds a second repository.** The benches are written in
-`dravensoft-dev/arena-web-benches`, and this job checks that repository out into the workspace,
-installs it, builds every half and hands the directory it wrote to `build:site` as
-`ARENA_BENCHES`. Those steps sit before `build:site` because it copies what is there when it runs.
+**It is also the only job here that builds a second repository, and it builds one adopter.** The
+adopter is checked out at its main into `adopter/`, and it is published only when its
+`arena-adopter.json` declares this tree's version: a gate step asks the same function `build:site`
+calls, and nothing is installed or built when the answer is no. When it is, the job installs and
+builds it and hands the directory it wrote to `build:site` as `ARENA_ADOPTER_BUILD`. Those steps
+sit before `build:site` because it copies what is there when it runs.
 [`../../scripts/check/AGENTS.md`](../../scripts/check/AGENTS.md) is where that variable is
 declared and where an unset one is answered.
 
@@ -385,16 +387,16 @@ declared and where an unset one is answered.
 commit pinned here.** So a push to it changes what this publishes with no commit in this
 repository saying so, and a hand dispatch aimed at an older commit here does not reproduce the
 site that commit published. The alternative is a revision written into this file, which buys that
-reproducibility with a second place to move on every bench change and a published site that is
-stale between the two moves. **Nothing here fires on a push to that repository**, so a bench
+reproducibility with a second place to move on every adopter change and a published site that is
+stale between the two moves. **Nothing here fires on a push to that repository**, so an adopter
 change reaches the domain at the next `Arena main` or at a hand dispatch of this workflow, and at
 no other moment.
 
-**A half that does not build stops the publication.** The build step leaves nothing behind when it
-fails, so the alternative to every pair being served is none of them being served rather than a
-site quietly listing fewer than the manifest declares, which `check:site` would refuse anyway. A
-site carrying no benches at all is a different state and a reachable one: it is what an unset
-`ARENA_BENCHES` publishes, and it is what a clone builds.
+**An adopter that does not arrive or does not hold never stops the publication.** A checkout, an
+install or a build that fails publishes the site without it and a warning, and so does a
+`check:site` that fails with the adopter in: the site is assembled again without it and held to
+the same gate, and a red there stops the run. A site with no adopter is a reachable state and the
+one a clone builds: it is what an unset `ARENA_ADOPTER_BUILD` publishes.
 
 ## Release notes
 
