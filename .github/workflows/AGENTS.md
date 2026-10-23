@@ -21,8 +21,8 @@ push to main                  Arena main            calls Arena verify, then sav
 ## Arena verify
 
 Called by the guards and run by no event of its own. It takes the inputs `domains`, the
-`check-all` domains the caller selects, comma-separated, and `chrome-path`, the browser only
-`Arena main` names and empty for the rest. They are inputs because a called workflow takes none of
+`check-all` domains the caller selects, comma-separated, and `name-browser`, a boolean only
+`Arena main` sets and false for the rest. They are inputs because a called workflow takes none of
 its caller's `env:`.
 
 ```
@@ -156,7 +156,7 @@ kept in step by hand.
 
 ## Arena main
 
-`verify` calls `Arena verify` with every domain and the one `chrome-path`. `cache` downloads the
+`verify` calls `Arena verify` with every domain and `name-browser: true`. `cache` downloads the
 artifact that run uploaded and saves it.
 
 **It saves its build, and that is the only reason the publish workflows and the site are cheap.**
@@ -506,13 +506,12 @@ exact build on every runner, and the three `verify.yml` jobs that launch a brows
 
 **Chromium.** The gates that measure a real render drive a browser, and `CHROME_PATH` is terminal:
 set and pointing at nothing, they report that rather than falling back to the candidate list.
-**Only `main.yml` names a browser**, by passing `/usr/bin/google-chrome`, which the image documents,
-as the `chrome-path` input of `verify.yml`, and `verify.yml` hands it to every job as `CHROME_PATH`.
-An empty value is no value to `scripts/lib/arena/chromium.ts:findChromium`, so `pr.yml` and
-`develop.yml`, which pass none, prove the candidate list finds one, and the single workflow that
-does name one keeps the terminal-override branch exercised. `check:portability` holds that one
-workflow names one. Exporting it everywhere would leave that list unreachable, and a runner is the
-last place that should be re-established.
+**Only `main.yml` names a browser**: it passes `name-browser: true` to `verify.yml`, and each of
+its three browser jobs writes the pinned path `setup-chrome` reports (`outputs.chrome-path`) to
+`$GITHUB_ENV` as `CHROME_PATH`. Unwritten, `findChromium` sees no value, so `pr.yml` and
+`develop.yml` prove the candidate list finds one, and `main.yml` keeps the terminal-override branch
+exercised. `check:portability` holds that exactly one workflow names one; naming it everywhere
+would leave the list unreachable.
 
 **Strictness is automatic.** GitHub sets `CI=true`, which `skipExitCode()` reads, so a gate
 whose dependency is missing fails instead of skipping. There is nothing to configure and

@@ -489,27 +489,32 @@ export function matrixProblems(base = root, supported = SUPPORTED_OS) {
   return problems;
 }
 
-export const BROWSER_INPUT = 'chrome-path';
+export const BROWSER_INPUT = 'name-browser';
 
-const CONDUIT = /^\s*CHROME_PATH:[ \t]*\$\{\{[ \t]*inputs\.chrome-path[ \t]*\}\}[ \t]*$/;
+const CONDUIT = /^\s*(?:-\s+)?run:[ \t]*echo "CHROME_PATH=\$\{\{[ \t]*steps\.[\w-]+\.outputs\.chrome-path[ \t]*\}\}"[ \t]*>>[ \t]*"\$GITHUB_ENV"[ \t]*$/;
+const CONDITION = /^\s*(?:-\s+)?if:[ \t]*\$\{\{[ \t]*inputs\.name-browser[ \t]*\}\}[ \t]*$/;
 const NAMED_ENV = /^\s*CHROME_PATH:/;
-const PASSED = /^\s*chrome-path:[ \t]*(.*?)[ \t]*$/;
+const PASSED = /^\s*name-browser:[ \t]*(.*?)[ \t]*$/;
 
-const MENTION = /chrome[-_]path/i;
+const MENTION = /chrome[-_]path|name-browser/i;
 const NOT_CODE = /^\s*(?:#|(?:-\s+)?(?:name|description):)/;
 
 const clean = (raw: string) => raw.replace(/[ \t]*#.*$/, '').replace(/^(['"])(.*)\1$/, '$2').trim();
-const passedValue = (line: string) => clean(PASSED.exec(line)?.[1] ?? '');
+const named_ = (value: string) => value !== '' && value !== 'false';
+const passedValue = (line: string) => {
+  const value = clean(PASSED.exec(line)?.[1] ?? '');
+  return named_(value) ? value : '';
+};
 
 function declaresDefault(lines: string[]) {
   return lines.some((line, at) => {
-    const key = /^(\s*)chrome-path:[ \t]*(?:#.*)?$/.exec(line);
+    const key = /^(\s*)name-browser:[ \t]*(?:#.*)?$/.exec(line);
     if (!key) return false;
     for (const next of lines.slice(at + 1)) {
       if (next.trim() === '') continue;
       if (next.length - next.trimStart().length <= (key[1] ?? '').length) return false;
       const value = /^\s*default:[ \t]*(.*)$/.exec(next)?.[1];
-      if (value !== undefined && clean(value) !== '') return true;
+      if (value !== undefined && named_(clean(value))) return true;
     }
     return false;
   });
@@ -522,14 +527,14 @@ export function browserNamingProblems(workflows: { file: string; text: string }[
   for (const { file, text } of workflows) {
     const lines = text.split('\n');
     if (lines.some((line) => CONDUIT.test(line))) conduits.push(file);
-    const named = lines.some((line) => NAMED_ENV.test(line) && !CONDUIT.test(line))
+    const named = lines.some((line) => NAMED_ENV.test(line))
       || lines.some((line) => passedValue(line) !== '') || declaresDefault(lines);
     if (named) naming.push(file);
     lines.forEach((line, at) => {
-      if (!MENTION.test(line) || NOT_CODE.test(line) || CONDUIT.test(line)) return;
+      if (!MENTION.test(line) || NOT_CODE.test(line) || CONDUIT.test(line) || CONDITION.test(line)) return;
       if (NAMED_ENV.test(line) || PASSED.test(line)) return;
       problems.push(`${file}:${at + 1}: ${JSON.stringify(line.trim())} names the browser in a shape this gate `
-        + 'cannot read; write CHROME_PATH or chrome-path as a plain key, or the line goes unchecked');
+        + 'cannot read; write CHROME_PATH or name-browser as a plain key, or the line goes unchecked');
     });
   }
 
@@ -544,8 +549,8 @@ export function browserNamingProblems(workflows: { file: string; text: string }[
   }
   const passing = workflows.filter(({ text }) => text.split('\n').some((line) => passedValue(line) !== ''));
   if (passing.length > 0 && conduits.length === 0) {
-    problems.push(`${passing.map((one) => one.file).join(', ')} pass ${BROWSER_INPUT} and no workflow hands it on as `
-      + `CHROME_PATH: \${{ inputs.${BROWSER_INPUT} }}, so the browser it names reaches no gate`);
+    problems.push(`${passing.map((one) => one.file).join(', ')} pass ${BROWSER_INPUT} and no workflow writes the `
+      + 'browser setup-chrome installed to $GITHUB_ENV as CHROME_PATH, so the browser it names reaches no gate');
   }
   return problems;
 }

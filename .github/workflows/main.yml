@@ -17,9 +17,10 @@ jobs:
     uses: ./.github/workflows/verify.yml
     with:
       domains: core,react,angular,tailwind,arena
-      # The one workflow that names a browser, so the terminal-override branch stays exercised.
-      # pr.yml and develop.yml name none, which is what proves the candidate list finds one.
-      chrome-path: /usr/bin/google-chrome
+      # The one workflow that names a browser, the pinned one setup-chrome installs, so the
+      # terminal-override branch stays exercised. pr.yml and develop.yml name none, which is what
+      # proves the candidate list finds one.
+      name-browser: true
 
   cache:
     name: the build the workflows after this one restore

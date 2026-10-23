@@ -392,55 +392,58 @@ test('the real pr.yml reads whole, and so does every workflow the gate opens', (
 
 const named = (file: string, line: string) => ({ file, text: `name: x\nenv:\n${line}\njobs:\n  a:\n    runs-on: x\n` });
 
-test('exactly one workflow names a browser, by its own CHROME_PATH or by the chrome-path it passes', () => {
+const CONDUIT_LINE = '      - run: echo "CHROME_PATH=${{ steps.chrome.outputs.chrome-path }}" >> "$GITHUB_ENV"';
+const NAMES = '      name-browser: true';
+
+test('exactly one workflow names a browser, by its own CHROME_PATH or by the name-browser it passes', () => {
   assert.deepEqual(browserNamingProblems([named('main.yml', '  CHROME_PATH: /usr/bin/google-chrome'), named('pr.yml', '')]), []);
   assert.deepEqual(browserNamingProblems([
-    named('main.yml', '      chrome-path: /usr/bin/google-chrome'),
-    named('verify.yml', '  CHROME_PATH: ${{ inputs.chrome-path }}'),
+    named('main.yml', NAMES),
+    named('verify.yml', `${CONDUIT_LINE}\n        if: \${{ inputs.name-browser }}`),
     named('pr.yml', ''),
-  ]), [], 'the workflow that hands the input on as CHROME_PATH names no browser of its own');
+  ]), [], 'the workflow that writes the installed browser to the environment names none of its own');
   assert.match(browserNamingProblems([named('pr.yml', '')]).join('\n'), /no workflow names a browser/);
-  assert.match(browserNamingProblems([named('verify.yml', '  CHROME_PATH: ${{ inputs.chrome-path }}')]).join('\n'),
-    /no workflow names a browser/);
+  assert.match(browserNamingProblems([named('verify.yml', CONDUIT_LINE)]).join('\n'), /no workflow names a browser/);
   assert.match(browserNamingProblems([
-    named('main.yml', '      chrome-path: /usr/bin/google-chrome'),
+    named('main.yml', NAMES),
     named('pages.yml', '  CHROME_PATH: /usr/bin/chromium'),
-    named('verify.yml', '  CHROME_PATH: ${{ inputs.chrome-path }}'),
+    named('verify.yml', CONDUIT_LINE),
   ]).join('\n'), /main\.yml, pages\.yml all name a browser/);
 });
 
-test('an empty chrome-path names nothing, and one passed with no workflow handing it on reaches no gate', () => {
-  for (const empty of ["      chrome-path: ''", '      chrome-path:', '      chrome-path: # none']) {
-    assert.match(browserNamingProblems([named('pr.yml', empty), named('verify.yml', '  CHROME_PATH: ${{ inputs.chrome-path }}')])
+test('a false or empty name-browser names nothing, and one passed with no workflow writing it reaches no gate', () => {
+  for (const empty of ['      name-browser: false', "      name-browser: 'false'", '      name-browser:', '      name-browser: # none']) {
+    assert.match(browserNamingProblems([named('pr.yml', empty), named('verify.yml', CONDUIT_LINE)])
       .join('\n'), /no workflow names a browser/, empty);
   }
-  const lost = browserNamingProblems([named('main.yml', '      chrome-path: /usr/bin/google-chrome')]);
+  const lost = browserNamingProblems([named('main.yml', NAMES)]);
   assert.equal(lost.length, 1);
-  assert.match(lost[0] ?? '', /main\.yml pass chrome-path and no workflow hands it on as CHROME_PATH/);
+  assert.match(lost[0] ?? '', /main\.yml pass name-browser and no workflow writes the browser/);
 });
 
 test('a browser named by an input default, or in a shape the gate cannot read, is not a skipped line', () => {
-  const conduit = named('verify.yml', '  CHROME_PATH: ${{ inputs.chrome-path }}');
+  const conduit = named('verify.yml', CONDUIT_LINE);
   const declared = (value: string) => ({
     file: 'verify.yml',
-    text: `name: x\non:\n  workflow_call:\n    inputs:\n      chrome-path:\n        type: string\n        default: ${value}\n`
-      + 'env:\n  CHROME_PATH: ${{ inputs.chrome-path }}\njobs:\n  a:\n    runs-on: x\n',
+    text: `name: x\non:\n  workflow_call:\n    inputs:\n      name-browser:\n        type: boolean\n        default: ${value}\n`
+      + `jobs:\n  a:\n    runs-on: x\n    steps:\n${CONDUIT_LINE}\n`,
   });
-  const main = named('main.yml', '      chrome-path: /usr/bin/google-chrome');
-  assert.deepEqual(browserNamingProblems([main, declared("''"), named('pr.yml', '')]), []);
-  assert.match(browserNamingProblems([main, declared('/usr/bin/chromium')]).join('\n'), /main\.yml, verify\.yml all name a browser/);
-  assert.match(browserNamingProblems([declared('"/usr/bin/chromium"'), main]).join('\n'), /all name a browser/);
+  const main = named('main.yml', NAMES);
+  assert.deepEqual(browserNamingProblems([main, declared('false'), named('pr.yml', '')]), []);
+  assert.match(browserNamingProblems([main, declared('true')]).join('\n'), /main\.yml, verify\.yml all name a browser/);
+  assert.match(browserNamingProblems([declared('"true"'), main]).join('\n'), /all name a browser/);
   const shapes: Record<string, string> = {
-    'a flow with:': '    with: { chrome-path: /usr/bin/google-chrome }',
-    'a quoted input key': '      "chrome-path": /usr/bin/google-chrome',
+    'a flow with:': '    with: { name-browser: true }',
+    'a quoted input key': '      "name-browser": true',
     'a quoted env key': '  "CHROME_PATH": /usr/bin/google-chrome',
-    'a use in an expression': '    if: inputs.chrome-path != \'\'',
+    'a use in an expression': '    if: inputs.name-browser',
+    'a second write': '      - run: echo "CHROME_PATH=/usr/bin/chromium" >> "$GITHUB_ENV"',
   };
   for (const [name, line] of Object.entries(shapes)) {
-    assert.match(browserNamingProblems([named('main.yml', '      chrome-path: /usr/bin/google-chrome'), conduit, named('pr.yml', line)])
+    assert.match(browserNamingProblems([named('main.yml', NAMES), conduit, named('pr.yml', line)])
       .join('\n'), /pr\.yml:3: .* names the browser in a shape this gate cannot read/, name);
   }
-  assert.deepEqual(browserNamingProblems([named('main.yml', '      chrome-path: /usr/bin/google-chrome'), conduit,
+  assert.deepEqual(browserNamingProblems([named('main.yml', NAMES), conduit,
     named('pr.yml', '  # CHROME_PATH is not exported here\n      - name: a browser, and CHROME_PATH is deliberately not exported')]), []);
 });
 
