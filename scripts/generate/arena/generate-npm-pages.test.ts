@@ -388,10 +388,11 @@ test('the audit region has one row per tag in RULE_TAGS order, with the rules th
   assert.deepEqual(rows.map((row) => row.split(' | ')[0]), RULE_TAGS.map((tag) => `| \`${tag}\``));
   RULE_TAGS.forEach((tag, at) => {
     const cells = rows[at]!.split(' | ');
-    const held = RULES.filter((rule) => rule.held === tag).map((rule) => rule.short);
+    const held = RULES.filter((rule) => rule.held === tag || rule.alsoHeld?.includes(tag)).map((rule) => rule.short);
     assert.equal(cells[1], held.length ? held.join(' ') : 'none of the language rules', tag);
     assert.equal(cells[2], `${RULE_DESCRIPTIONS[tag]} |`, tag);
   });
+  assert.ok(rows[RULE_TAGS.indexOf('raw-glyph')]!.includes('a raw ph-* element paints nothing'), 'raw-glyph names the rule it enforces');
   assert.deepEqual(RULES.filter((rule) => rule.held === 'raw-value').length, 2, 'two rules hold raw-value');
   assert.ok(rows[RULE_TAGS.indexOf('raw-value')]!.includes('Tokens are the only styling layer.')
     && rows[RULE_TAGS.indexOf('raw-value')]!.includes('No gradients, on any surface.'));

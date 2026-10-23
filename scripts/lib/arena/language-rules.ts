@@ -12,6 +12,7 @@ export type LanguageRule = {
   short: string;
   body: string;
   held: string | null;
+  alsoHeld?: string[];
   unheld: string | null;
 };
 
@@ -89,6 +90,7 @@ export const RULES: LanguageRule[] = [
       + 'and a raw `ph-*` element needs the project\'s own `@phosphor-icons/web`, which Arena never bundles. A static page has no build, so it links the weight sheets for its raw `ph-*` elements, as '
       + '`references/artifact.md` shows.',
     held: 'icon-element',
+    alsoHeld: ['raw-glyph'],
     unheld: null,
   },
   {
@@ -178,6 +180,7 @@ export const RULES: LanguageRule[] = [
   },
 ];
 
+export const rulesReportedAs = (tag: string, rules = RULES) => rules.filter((rule) => rule.held === tag || rule.alsoHeld?.includes(tag));
 export const heldRules = (rules = RULES) => rules.filter((rule) => rule.held !== null);
 
 export const WRAP_AT = 98;

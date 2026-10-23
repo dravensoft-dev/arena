@@ -27,7 +27,7 @@ import { CSS_TARGETS, BREAKPOINT_TARGET } from './generate-tokens.ts';
 import { HUES_FILE } from '../../lib/tailwind/hue-sheet.ts';
 import { RULE_TAGS, RULE_DESCRIPTIONS } from '../core/arena-cli/audit.ts';
 import { LAYER_SCRIPTS, wiredScripts } from '../core/arena-cli/command-init.ts';
-import { RULES } from '../../lib/arena/language-rules.ts';
+import { rulesReportedAs } from '../../lib/arena/language-rules.ts';
 
 export const LOCALE_CONTRACT = 'contracts/api/types/arena-locale.json';
 export const ROLE_CONTRACT = 'contracts/design/roles.json';
@@ -57,7 +57,7 @@ const FONT_ROWS: Partial<Record<keyof ArenaFont, () => Row>> = {
 };
 
 const STYLESHEET_ROWS: Record<string, Row> = {
-  components: { type: 'array of sheet names, or `"auto"`', required: 'no', default: 'every component sheet' },
+  components: { type: 'array of sheet names, or `"auto"`', required: 'no', default: 'the closed list the build works out from your sources' },
   preflight: { type: 'boolean', required: 'no', default: '`true`' },
 };
 
@@ -339,7 +339,7 @@ ${fieldTable(base, CONFIRM_REQUEST_CONTRACT)}`,
 
   audit: () => {
     const rows = RULE_TAGS.map((tag) => {
-      const held = RULES.filter((rule) => rule.held === tag).map((rule) => rule.short);
+      const held = rulesReportedAs(tag).map((rule) => rule.short);
       return `| \`${tag}\` | ${held.length ? cell(held.join(' ')) : 'none of the language rules'} | ${cell(RULE_DESCRIPTIONS[tag])} |`;
     });
     return ['| tag | the rule it reports | what fires it |', '| --- | --- | --- |', ...rows].join('\n');
@@ -347,7 +347,7 @@ ${fieldTable(base, CONFIRM_REQUEST_CONTRACT)}`,
 
   noImport: (base = root) => {
     const fence = (name: string, extra: CssChainEntry[]) => ['```css', ...noImportSheets(name, base, extra), '```'].join('\n');
-    return `**React:**\n\n${fence('@dravensoft/arena-react', [])}\n\n**Angular:**\n\n${fence('@dravensoft/arena-angular', ANGULAR_EXTRA)}\n\nEach \`<component>\` stands for a sheet in the closed list \`arena build\` works out, for every root. That list is the components the sources draw and the ones Arena draws for them. The \`"default"\` root adds \`css/style-plugin-default.css\` in its slot. Each \`<family>\` is a vocabulary sheet. \`css/base.css\` is left out when \`stylesheet.preflight\` is \`false\`. \`arena.generated.css\` goes in a stylesheet of its own, imported after the list, so the package's sheets and yours never share a file.`;
+    return `**React:**\n\n${fence('@dravensoft/arena-react', [])}\n\n**Angular:**\n\n${fence('@dravensoft/arena-angular', ANGULAR_EXTRA)}\n\nEach \`<component>\` stands for a sheet in the closed list \`arena build\` works out, for every root. That list is what \`arena.package.generated.css\` holds when a build writes it: the components the sources draw and the ones Arena draws for them. The \`"default"\` root adds \`css/style-plugin-default.css\` in its slot. Each \`<family>\` is a vocabulary sheet. \`css/base.css\` is left out when \`stylesheet.preflight\` is \`false\`. \`arena.generated.css\` goes in a stylesheet of its own, imported after the list, so the package's sheets and yours never share a file.`;
   },
 
   scriptsReact: () => initFence('@dravensoft/arena-react'),

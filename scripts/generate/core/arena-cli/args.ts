@@ -32,7 +32,7 @@ export const FLAGS: Record<FlagName, FlagSpec> = {
 export type CommandSpec = { summary: string; flags: readonly FlagName[] };
 
 export const SPECS: Record<Command, CommandSpec> = {
-  build: { summary: 'write the theme and plugin sheets, the icon sprite and its module from your config and sources', flags: ['config', 'src', 'out', 'no-import', 'watch'] },
+  build: { summary: 'write the package, theme and plugin sheets, the icon sprite and its module from your config and sources', flags: ['config', 'src', 'out', 'no-import', 'watch'] },
   check: { summary: 'report what your config and sources ask of the language', flags: ['config', 'src', 'strict'] },
   audit: { summary: 'read your sources and style plugins against the rules of the language', flags: ['config', 'src', 'strict'] },
   usage: { summary: 'name the components you draw nowhere and the parts your plugins paint', flags: ['config', 'src'] },

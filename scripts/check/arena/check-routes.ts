@@ -124,19 +124,18 @@ export const ROUTES: Route[] = [
       'skills/design/references/config.md',
       'skills/design/references/cli.md',
     ],
-    budget: 44_500,
+    budget: 47_000,
     reason:
       'paid once per project rather than per screen, so it carries what the build route may not: '
       + 'the install, the config file and the command. The package carries none of the language, so a '
       + 'thing these references never name is a thing nobody imports. The config block is copied whole, '
-      + 'and the install reference gives the evidence behind each package manager and the Tailwind v4 '
-      + 'entry sheet. The command reference quotes whole the scripts `arena init` writes, tables every '
-      + 'audit tag with the rule it reports, says how to mark a line a '
-      + 'directive reads, names the sprite and the cut fonts the build writes, names '
-      + 'what the contrast (axis, solid badge, polarity) and heat kinds report, '
-      + 'and lists the sheets a `--no-import` project imports under one rule for every root, generated from '
-      + 'the layer list `scopedImports` reads, and says which names the placeholder stands for, when the base sheet drops out of it and where the default root adds its plugin sheet. The config reference tables every key, says that a project naming no list gets the one the build works out and how that differs from spelling auto, and lists the '
-      + 'names the build refuses and the roles that carry a default, which grows per role.',
+      + 'the install reference gives the evidence behind each package manager and the Tailwind v4 '
+      + 'entry sheet, and says how Vite and the Angular builder serve the sprite, since neither serves '
+      + 'a file of src at the root. The command reference quotes whole the scripts `arena init` writes, '
+      + 'tables every audit tag with the rule it reports, names the sheets, the sprite and the cut '
+      + 'fonts the build writes, and lists the sheets a `--no-import` project imports under one rule '
+      + 'for every root, generated from the layer list `scopedImports` reads. The config reference '
+      + 'tables every key and lists the names the build refuses and the roles that carry a default.',
   },
   {
     name: 'consumer-skin',
@@ -229,21 +228,18 @@ export const ROUTES: Route[] = [
       + 'each of those answers has',
     entry: 'consumer',
     stops: ['skills/design/references/stack.md'],
-    budget: 14_400,
+    budget: 14_700,
     reason:
       'paid once per project like the surface, skin, register and seo routes, and taken beside the '
       + 'cold start tree rather than after it, because a toolchain settled after the first screen is '
       + 'settled against code already written. What it buys is that a reader stops inheriting Arena: '
       + 'a branch saying nothing about the difference between what Arena supports and what Arena is '
       + 'built with documents its own build as a requirement. The evidence column is most of what the '
-      + 'page costs and all of what makes it usable, since an answer allowed by a manifest and never '
-      + 'exercised is worth having and is not worth the same as one a suite runs. What it '
-      + 'deliberately does not carry is the layer decision and the render architecture, which are '
-      + 'nodes of the cold start tree: naming them here would give a project two places to answer one '
-      + 'thing, and the tree is where the answer reaches a peer dependency rather than a preference. '
-      + 'The peers table says which peer is required and which optional, as the manifests do, and why '
-      + 'a command names no framework peer. Each bundler row carries its own recipe for a chunk '
-      + 'of Arena\'s own, because that is a requirement stated per bundler.',
+      + 'page costs and all of what makes it usable. What it does not carry is the layer decision and '
+      + 'the render architecture, which are nodes of the cold start tree. The peers table says which '
+      + 'peer is required and which optional, and why a command names no framework peer. Each bundler '
+      + 'row carries its own recipe for a chunk of Arena\'s own, and the package sheet paragraph says '
+      + 'its separation in the output is not exercised.',
   },
   {
     name: 'consumer-page',

@@ -137,6 +137,10 @@ export const CONSUMER_OWN_OUTPUT = new Map([
   ['arena.icons.generated.d.ts',
    'the declaration file written beside arena.icons.generated.js in the CONSUMER\'s project by the same run of '
    + 'arena build. Same reading as arena.generated.css above: the infix is theirs and not this repository\'s.'],
+  ['package.generated.css',
+   'the stylesheet of package imports the CONSUMER generates, in their own project, by the same run of arena build. '
+   + 'Same reading as arena.generated.css above: the infix is theirs and not this repository\'s, and a consumer '
+   + 'imports it before arena.generated.css, so the npm page has to name it.'],
   ['plugin.generated.css',
    'the style plugin\'s own CSS, wrapped in the reserved layer, written into the CONSUMER\'s '
    + 'project by the same run of arena build. The third of the three and the only one that is '
