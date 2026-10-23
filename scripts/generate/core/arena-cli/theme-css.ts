@@ -362,17 +362,17 @@ function ringOf(key: string, tokens: Record<string, unknown>, catalogue: TokenCa
   return null;
 }
 
-export function ringMessages(tokens: Record<string, unknown>, catalogue: TokenCatalogue) {
+export function ringsOf(tokens: Record<string, unknown>, catalogue: TokenCatalogue) {
   const named = new Set<string>();
-  const messages: string[] = [];
+  const rings: { id: string; message: string }[] = [];
   for (const key of Object.keys(tokens)) {
     if (named.has(key)) continue;
     const ring = ringOf(key, tokens, catalogue);
     if (!ring) continue;
     for (const member of ring.members) named.add(member);
-    messages.push(ring.message);
+    rings.push({ id: [...ring.members].sort().join(' '), message: ring.message });
   }
-  return messages;
+  return rings;
 }
 
 export function pluginBlocks(
@@ -388,6 +388,7 @@ export function pluginTokenProblems(
   group: string, tokens: Record<string, unknown>, catalogue: TokenCatalogue,
 ) {
   const problems = [];
+  const known = knownOf(catalogue);
   for (const [key, raw] of Object.entries(tokens)) {
     const where = `stylePlugins.${group}`;
     const role = catalogue.roles?.[key];
@@ -403,7 +404,6 @@ export function pluginTokenProblems(
         + 'Arena emits.');
       continue;
     }
-    const known = knownOf(catalogue);
     if (role?.type === 'color' && !colourAnswer(String(raw), key, known)) {
       const selfNamed = aliasName(String(raw)) === key;
       if (!selfNamed)
@@ -414,7 +414,7 @@ export function pluginTokenProblems(
     if (role?.type === 'keyword' && Array.isArray(role.values) && !keywordAnswer(String(raw).trim(), role.values, known))
       problems.push(`${where}: "${key}" is ${JSON.stringify(raw)}, not one of ${role.values.join(', ')}.`);
   }
-  for (const message of ringMessages(tokens, catalogue)) problems.push(`stylePlugins.${group}: ${message}.`);
+  for (const { message } of ringsOf(tokens, catalogue)) problems.push(`stylePlugins.${group}: ${message}.`);
   return problems;
 }
 
@@ -471,11 +471,14 @@ function resolvedProblems(
     problems.push(...totalityProblems(Object.keys(catalogue.roles ?? {}), Object.keys(whole.tokens))
       .map((problem) => `${at}: ${problem}`));
   }
+  const reported = new Set([plugin.tokens, plugin.light]
+    .flatMap((group) => ringsOf(group, catalogue).map((ring) => ring.id)));
   for (const polarity of POLARITIES) {
     const merged = polarity === 'dark' ? whole.tokens : { ...whole.tokens, ...whole.light };
-    for (const message of ringMessages(merged, catalogue)) {
-      if (!problems.some((one) => one.endsWith(`: ${message}.`)))
-        problems.push(`stylePlugins.${plugin.name}: ${message}.`);
+    for (const { id, message } of ringsOf(merged, catalogue)) {
+      if (reported.has(id)) continue;
+      reported.add(id);
+      problems.push(`stylePlugins.${plugin.name}: ${message}.`);
     }
   }
   if (problems.length) return problems;
