@@ -135,7 +135,7 @@ test('a palette that pins every heat step is not read for heat', async () => {
 });
 
 test('--strict and --strict=heat hold the heat report, and the list arena init writes does not', async () => {
-  const root = setup({ 'app.html': '<i class="ph-bold ph-bell"></i>' }, LOW);
+  const root = setup({ 'app.html': '<arena-icon icon="ph-bold ph-bell"></arena-icon>' }, LOW);
   assert.equal((await check(root, ['--strict'])).code, 1);
   const named = await check(root, ['--strict=heat']);
   assert.equal(named.code, 1);
