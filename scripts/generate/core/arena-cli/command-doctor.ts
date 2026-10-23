@@ -8,6 +8,8 @@ import { under, voice } from './io.ts';
 import type { Io } from './io.ts';
 import { hostManifest, resolveEnvironment } from './host.ts';
 import { plan, sheetStates } from './plan.ts';
+import { readSources } from './sources.ts';
+import { PACKAGE_SHEET } from './sheets.ts';
 import { heldMessage, report, reported } from './reports.ts';
 import type { Report } from './reports.ts';
 
@@ -94,6 +96,10 @@ export async function run(argv: string[], io: Io): Promise<number> {
   const others = planned.reports.filter((one) => one.kind !== 'environment').length;
   if (others > 0) say.err(`${others} report(s): arena check names them`);
 
+  if (!planned.fatal.length && planned.outputs.some((one) => one.name === PACKAGE_SHEET)
+    && !readSources(options.paths).some((text) => text.includes(PACKAGE_SHEET))) {
+    say.out(`note: no source imports ${PACKAGE_SHEET}, so the app renders with no Arena CSS; add @import './${PACKAGE_SHEET}'; before the import of arena.generated.css, in the stylesheet beside it`);
+  }
   if (!runsBuild(io.cwd)) {
     say.out('note: no script in package.json runs arena build, so the sheets go stale as the config and sources change; arena init wires one');
   }

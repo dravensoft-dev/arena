@@ -7,7 +7,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { run, satisfies } from './command-doctor.ts';
 import { plan } from './plan.ts';
-import { ICON_MANIFEST, PACKAGE_SHEET, PLUGIN_SHEET } from './sheets.ts';
+import { ICON_MANIFEST, PACKAGE_SHEET, PLUGIN_SHEET, THEME_SHEET } from './sheets.ts';
 import { MAP, SHEETS, captureIo, hostRoot, options, phosphor, project, readable, removeFixtures } from './cli-fixtures.ts';
 
 after(removeFixtures);
@@ -170,6 +170,22 @@ test('.gitignore with *.generated.css is covered, src/*.generated.css is covered
   assert.equal(await noted('# *.generated.css\n*.generated.css\n'), false);
   assert.equal(await noted('src/*.generated.css\n'), false);
   assert.equal(await noted('node_modules\n!*.generated.css\n'), true);
+});
+
+test('a build that writes the package sheet no source imports is a note naming the sheet, and an import clears it', async () => {
+  const { root, core, environment } = setup();
+  await build(root, core);
+  writeFileSync(join(root, 'src', 'main.css'), `@import './${THEME_SHEET}';\n`);
+  const noted = async () => {
+    const { io, out } = captureIo(root, environment);
+    assert.equal(await run([], io), 0);
+    return out.filter((line) => line.includes('note:') && line.includes(PACKAGE_SHEET));
+  };
+  const before = await noted();
+  assert.equal(before.length, 1);
+  assert.ok(before[0]!.includes(`@import './${PACKAGE_SHEET}'`));
+  writeFileSync(join(root, 'src', 'main.css'), `@import './${PACKAGE_SHEET}';\n@import './${THEME_SHEET}';\n`);
+  assert.deepEqual(await noted(), []);
 });
 
 test('--strict=contrast exits 2 naming arena check', async () => {
