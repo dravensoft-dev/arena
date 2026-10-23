@@ -38,7 +38,7 @@ export const node = {
 
 const BARE = (glyph: string) => glyph.replace(/^ph-/, '');
 
-const isComponentSource = (path: string) => /\.tsx?$/.test(path) && !/\.(generated|test)\.|\.generated\./.test(path);
+const isComponentSource = (path: string) => /\.tsx?$/.test(path) && !/\.(generated|test)\./.test(path);
 
 function read(path: string) {
   return readFileSync(path, 'utf8');

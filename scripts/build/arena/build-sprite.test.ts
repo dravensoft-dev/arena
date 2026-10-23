@@ -102,3 +102,12 @@ test('a sprite symbol reference in an intro page keeps its glyph and reports not
   assert.equal(missing.size, 0);
   assert.ok(svg.includes('id="ph-bold-squares-four"'));
 });
+
+test('an intro page or demo that names a swapping component by its kebab-case name alone gives its glyphs a fill symbol', () => {
+  const { root, core } = fixture('kebab');
+  put(root, 'intro/guidelines/nav.html', '<arena-side-nav-item icon="ph-bold ph-bell"></arena-side-nav-item>');
+  assert.ok(repoSprite(root, core).svg.includes('id="ph-fill-bell"'), 'the intro page names the component in kebab-case');
+  const demo = fixture('kebab-demo');
+  put(demo.root, 'frameworks/demos/Nav.demo.json', '{"tag":"arena-side-nav-item","icon":"ph-bold ph-bell"}');
+  assert.ok(repoSprite(demo.root, demo.core).svg.includes('id="ph-fill-bell"'), 'the demo names the component in kebab-case');
+});
