@@ -537,7 +537,7 @@ export function collect(base = root, dirOf = distDir, layers = LAYERS) {
   const version = readJson(join(base, '.claude-plugin/plugin.json')).version;
   const problems = [];
 
-  const cli = themeCss(arenaConfig(base), { importHeader: false });
+  const cli = themeCss(arenaConfig(base));
   const generated = readFileSync(join(base, GENERATED_PALETTE), 'utf8');
   const equivalence = paletteEquivalenceProblems(generated, cli);
   problems.push(...equivalence.problems);
