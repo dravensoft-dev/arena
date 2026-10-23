@@ -991,8 +991,10 @@ test('iconMemberGlyphs reads ArenaIcon, an icon attribute of an Arena tag and a 
     '<ArenaButton icon="ph ph-plus" />',
     '<arena-side-nav-item [icon]="\'ph-bold ph-house\'">',
     '<use href="/s.svg#ph-fill-heart" />',
+    '<arena-icon icon="ph-bold ph-a"></arena-icon>',
+    '<ArenaButton iconRight="ph-bold ph-b" />',
   ].join('\n');
-  assert.deepEqual([...iconMemberGlyphs(text)].sort(), ['ph-heart', 'ph-house', 'ph-plus', 'ph-x']);
+  assert.deepEqual([...iconMemberGlyphs(text)].sort(), ['ph-a', 'ph-b', 'ph-heart', 'ph-house', 'ph-plus', 'ph-x']);
   assert.equal(iconMemberGlyphs("const T = [{ icon: 'ph-bold ph-kanban' }]").size, 0);
   assert.equal(iconMemberGlyphs('<i className="ph-bold ph-y" />').size, 0);
 });

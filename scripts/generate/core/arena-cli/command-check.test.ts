@@ -86,7 +86,7 @@ test('--strict=components does not hold a glyph report', async () => {
 });
 
 test('a wash report is printed and never held', async () => {
-  const root = setup({ 'app.html': '<i class="ph-bold ph-bell"></i>' });
+  const root = setup({ 'app.html': '<arena-icon icon="ph-bold ph-bell"></arena-icon>' });
   const result = await check(root, ['--strict=components,contrast,glyph,markers,ramp,weight'], { sheets: WASHED });
   assert.match(result.err.join('\n'), /\[wash\] /);
   assert.equal(result.code, 1);

@@ -163,7 +163,8 @@ test('a glyph Phosphor lacks at that weight is a glyph report naming weight and 
   assert.equal(result.code, 0);
   const glyph = result.reports.filter((one) => one.kind === 'glyph');
   assert.equal(glyph.length, 2, 'the missing glyph, and the bell an element draws through a class of its own');
-  assert.match(glyph[0]!.message, /fill: ph-not-a-glyph is not an icon Phosphor draws at that weight/);
+  assert.ok(glyph.some((one) => /fill: ph-not-a-glyph is not an icon Phosphor draws at that weight/.test(one.message)));
+  assert.ok(glyph.some((one) => /^ph-bell is in the sprite/.test(one.message)));
   assert.deepEqual(symbolsOf(result), ['ph-bold-bell', 'ph-fill-bell'], 'with no map every glyph also gets the filled weight');
   assert.ok(!spriteOf(result)!.content.includes('not-a-glyph'));
   cleanup(root, held);
@@ -360,13 +361,13 @@ test('the icons Arena draws itself come from the list the package ships, not fro
 
 test('running outside an Arena package reports the environment and nothing else', async () => {
   const { root: held, core } = phosphor();
-  const root = project();
+  const root = project(readable, { 'app.html': '<arena-icon icon="ph-bold ph-bell"></arena-icon>' });
   const result = await plan(options(root), environment(core));
   assert.equal(result.code, 0);
   const outside = result.reports.filter((one) => one.message.includes('not running from inside an Arena package'));
   assert.equal(outside.length, 1);
   assert.equal(outside[0]!.kind, 'environment');
-  assert.deepEqual(result.reports.filter((one) => one.kind === 'environment').map((one) => one.kind), ['environment']);
+  assert.deepEqual(result.reports.filter((one) => one.kind === 'environment' || one.kind === 'glyph').map((one) => one.kind), ['environment']);
   cleanup(root, held);
 });
 
