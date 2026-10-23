@@ -14,7 +14,7 @@ import { CLI_BINS } from '../../lib/arena/package-assembly.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import {
   importedSheets, unknownSymbolProblems, listProblems, closedListProblems, iconProblems, documented, CONFIG_REFERENCE,
-  palettesProblems, runtimeProblems, installedPalette, SOURCES, UNKNOWN, FILL, GLYPH, THIRD_PALETTE, CLI, snapshot, treeChanges, exitProblem, binProblems,
+  palettesProblems, defaultListProblems, runtimeProblems, installedPalette, SOURCES, UNKNOWN, FILL, GLYPH, THIRD_PALETTE, CLI, snapshot, treeChanges, exitProblem, binProblems,
 } from './check-consumer.ts';
 import type { CliRun, Shipped } from './check-consumer.ts';
 import { distDir, unassembled, assembled } from './check-packages.ts';
@@ -311,6 +311,23 @@ test('a list naming arena-table alone imports the pagination and select the tabl
   assert.match(silent[0] ?? '', /said nothing/);
 
   const refused = closedListProblems('angular', { ...ok, status: 1, stderr: 'nope' });
+  assert.equal(refused.length, 1);
+  assert.match(refused[0] ?? '', /^angular: .* exited 1/);
+});
+
+test('a config naming no stylesheet is worked out like auto, so it imports the drawn sheets and never the barrel', () => {
+  const drawn = sheetImports('arena-button', 'arena-table');
+  assert.deepEqual(defaultListProblems('react', drawn), []);
+
+  const barrel = defaultListProblems('react', { ...drawn, theme: `@import '@dravensoft/arena-react/arena.css';\n${drawn.theme}` });
+  assert.equal(barrel.length, 1);
+  assert.match(barrel[0] ?? '', /imports the barrel/);
+
+  const short = defaultListProblems('react', sheetImports('arena-button'));
+  assert.equal(short.length, 1);
+  assert.match(short[0] ?? '', /and not arena-table/);
+
+  const refused = defaultListProblems('angular', { ...ok, status: 1, stderr: 'nope' });
   assert.equal(refused.length, 1);
   assert.match(refused[0] ?? '', /^angular: .* exited 1/);
 });

@@ -122,7 +122,7 @@ you import it beside the other two. The sheet declares the cascade layer order i
 
 ## Build to production
 
-The `stylesheet` key is how a project pays only for what it renders. Set `"components": "auto"` and the command reads your sources and works the list out.
+A project pays only for what it renders by default. With no `stylesheet.components`, the command reads your sources and works the list out, the same as `"components": "auto"`. Name a list of your own to replace that.
 
 ```json
 { "stylesheet": { "components": "auto", "preflight": false } }
@@ -130,7 +130,7 @@ The `stylesheet` key is how a project pays only for what it renders. Set `"compo
 
 The command counts a component as drawn when your sources use it. The command adds what Arena draws on your behalf. A table renders a pagination and a select that you never wrote. The command prints both counts. The command names on stderr anything it saw and could not place.
 
-`preflight: false` is a separate switch. Set it when the project already ships an equivalent browser reset. The switch drops `css/base.css` and nothing else: the token layer and every vocabulary sheet arrive whatever the list names. A block that names no `components` imports every component sheet, so the switch stands alone.
+`preflight: false` is a separate switch. Set it when the project already ships an equivalent browser reset. The switch drops `css/base.css` and nothing else: the token layer and every vocabulary sheet arrive whatever the list names. A block that names no `components` works the list out from the sources, so the switch stands alone.
 
 ```json
 { "stylesheet": { "preflight": false } }
@@ -154,6 +154,6 @@ Name the sheets yourself when the project renders through indirection. Naming th
 { "stylesheet": { "components": ["arena-button", "arena-page-head", "arena-side-nav", "arena-stat-card", "arena-table"] } }
 ```
 
-A name the package does not ship makes `arena build` exit 1 and list the names it does ship, so a typo stops the build. An empty list is refused the same way; drop `stylesheet` to import every sheet. Every vocabulary sheet arrives whatever the list names, and in Angular `css/arena-cdk.css` always enters. The command closes a named list the way it closes `"auto"`. Name the components your project renders. The command adds the ones Arena draws on your behalf, and prints them on standard output as `arena build: N component sheet(s) named, and M Arena draws for you: …`. A list needing nothing added prints no such line. The list is then yours to keep current for the components you render yourself.
+A name the package does not ship makes `arena build` exit 1 and list the names it does ship, so a typo stops the build. An empty list is refused the same way; drop `stylesheet` to let the command work the list out. Every vocabulary sheet arrives whatever the list names, and in Angular `css/arena-cdk.css` always enters. The command closes a named list the way it closes `"auto"`. Name the components your project renders. The command adds the ones Arena draws on your behalf, and prints them on standard output as `arena build: N component sheet(s) named, and M Arena draws for you: …`. A list needing nothing added prints no such line. The list is then yours to keep current for the components you render yourself.
 
 A sheet name is the component's own name, as `arena-button`. [`stylesheets.md`](./stylesheets.md) lists the sheet files.

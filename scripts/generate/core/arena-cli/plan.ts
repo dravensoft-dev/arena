@@ -53,14 +53,21 @@ export function themeSheets(options: PlanOptions, { packageName, sheets, map }: 
   }
 
   const closure = { reports: [] as Report[], notes: [] as string[] };
-  if (config.stylesheet?.components === AUTO) {
-    if (!map) {
+  const byDefault = config.stylesheet?.components === undefined;
+  let drawn: string[] | null = null;
+  if (byDefault && sheets && !map) {
+    closure.reports.push(report('environment', 'the component map is not beside this package, so every component sheet '
+      + 'is imported instead of the ones the sources draw'));
+  }
+  if (config.stylesheet?.components === AUTO || (byDefault && sheets && map)) {
+    if (!map && !byDefault) {
       return stop(1, [`"components": "${AUTO}" reads the component map this package carries, and it is not `
         + 'beside this command, so nothing can be resolved; name the sheets instead']);
     }
-    const resolved = autoComponents(config, { paths: options.paths, config: options.config }, map, packageName);
+    const resolved = autoComponents(config, { paths: options.paths, config: options.config }, map!, packageName, !byDefault);
     if (resolved.fatal) return stop(1, resolved.fatal);
-    config = { ...config, stylesheet: { ...config.stylesheet, components: resolved.components } };
+    if (byDefault) drawn = resolved.components;
+    else config = { ...config, stylesheet: { ...config.stylesheet, components: resolved.components } };
     closure.reports.push(...resolved.reports.map((line) => report('components', line)));
     closure.notes.push(resolved.note);
   } else if (Array.isArray(config.stylesheet?.components) && map) {
@@ -75,6 +82,8 @@ export function themeSheets(options: PlanOptions, { packageName, sheets, map }: 
 
   const problems = configProblems(config, sheets, plugins);
   if (problems.length) return stop(1, problems);
+
+  if (drawn) config = { ...config, stylesheet: { ...config.stylesheet, components: drawn } };
 
   const completed = rootWithDefaults(plugins, sheets?.catalogue ?? null);
   if (completed.defaulted.length) closure.notes.push(defaultedNote(completed.defaulted));

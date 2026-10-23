@@ -124,7 +124,7 @@ export const ROUTES: Route[] = [
       'skills/design/references/config.md',
       'skills/design/references/cli.md',
     ],
-    budget: 40_500,
+    budget: 40_800,
     reason:
       'paid once per project rather than per screen, so it carries what the build route may not: '
       + 'the install, the config file and the command. The package carries none of the language, so a '
@@ -133,8 +133,8 @@ export const ROUTES: Route[] = [
       + 'entry sheet. The command reference quotes whole the scripts `arena init` writes, tables every '
       + 'audit tag (wrapped-link among them) with the rule it reports, says how to mark a line a '
       + 'directive reads, names what the contrast (axis, solid badge, polarity) and heat kinds report, '
-      + 'and lists the sheets a `--no-import` project with its own root plugin imports, generated from '
-      + 'the layer list `scopedImports` reads, and says which names the placeholder stands for and when the base sheet drops out of it. The config reference tables every key and lists the '
+      + 'and lists the sheets a `--no-import` project imports under one rule for every root, generated from '
+      + 'the layer list `scopedImports` reads, and says which names the placeholder stands for, when the base sheet drops out of it and where the default root adds its plugin sheet. The config reference tables every key, says that a project naming no list gets the one the build works out, and lists the '
       + 'names the build refuses and the roles that carry a default, which grows per role.',
   },
   {

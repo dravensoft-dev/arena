@@ -71,7 +71,8 @@ test('outputs are theme, plugin, then icons, each at out/name, with the bytes th
   assert.deepEqual(result.outputs.map((one) => one.name), [THEME_SHEET, PLUGIN_SHEET, ICONS_SHEET]);
   for (const one of result.outputs) assert.equal(one.path, join(root, 'src', one.name));
   const [theme, plugin, icons] = result.outputs;
-  assert.match(theme!.content, /@import '@dravensoft\/arena-react\/arena\.css';/);
+  assert.match(theme!.content, /@import '@dravensoft\/arena-react\/css\/reset\.css';/);
+  assert.doesNotMatch(theme!.content, /arena\.css/);
   assert.match(theme!.summary, /^\d+ bytes$/);
   assert.match(plugin!.content, /@layer arena-plugin \{/);
   assert.match(plugin!.summary, /bytes, wrapped in @layer arena-plugin$/);
@@ -167,6 +168,41 @@ test('"auto" resolves and notes, and "auto" with no map or nothing found is fata
   assert.ok(none.fatal.some((m) => m.includes('found no Arena component')));
   assert.deepEqual(none.outputs, []);
   cleanup(drawn, empty, held);
+});
+
+const WITH_SLOT = { ...SHEETS, layers: [...SHEETS.layers, 'css/style-plugin-default.css'] };
+
+test('a config naming no stylesheet resolves auto against the map', () => {
+  const { root: held, web } = phosphor();
+  const root = project(readable, { 'app.html': '<arena-button icon="ph-bold ph-bell" />' });
+  const result = plan(options(root), environment(web, { sheets: WITH_SLOT, map: MAP }));
+  assert.equal(result.code, 0);
+  const theme = result.outputs[0]!.content;
+  assert.match(theme, /css\/components\/button\.css/);
+  assert.doesNotMatch(theme, /css\/components\/table\.css/);
+  assert.doesNotMatch(theme, /arena\.css/);
+  assert.match(theme, /css\/style-plugin-default\.css/);
+  assert.match(result.notes[0] ?? '', /1 component sheet\(s\) drawn/);
+  cleanup(root, held);
+});
+
+test('a config naming no stylesheet and drawing no Arena component imports no component sheet', () => {
+  const { root: held, web } = phosphor();
+  const root = project(readable, { 'app.html': '<i class="ph-bold ph-bell"></i>' });
+  const result = plan(options(root), environment(web, { sheets: WITH_SLOT, map: MAP }));
+  assert.equal(result.code, 0);
+  assert.doesNotMatch(result.outputs[0]!.content, /css\/components\//);
+  cleanup(root, held);
+});
+
+test('with no map beside the command, a config naming no stylesheet imports every component sheet and reports it', () => {
+  const { root: held, web } = phosphor();
+  const root = project();
+  const result = plan(options(root), environment(web, { sheets: WITH_SLOT, map: null }));
+  assert.equal(result.code, 0);
+  assert.ok(result.reports.some((one) => one.kind === 'environment' && one.message.includes('component map is not beside')));
+  for (const name of SHEETS.components) assert.ok(result.outputs[0]!.content.includes(`css/components/${name}.css`), name);
+  cleanup(root, held);
 });
 
 test('a stale plugin.generated.css is an orphan when no plugin carries css, and none when one does', () => {

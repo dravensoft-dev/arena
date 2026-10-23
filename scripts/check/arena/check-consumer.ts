@@ -132,11 +132,11 @@ export type CliRun = {
 };
 
 export function fixture(
-  layer: string, files: Record<string, string>, stylesheet: Record<string, unknown>, base = root,
+  layer: string, files: Record<string, string>, stylesheet: Record<string, unknown> | null, base = root,
 ) {
   const dir = mkdtempSync(join(tmpdir(), `arena-consumer-${layer}-`));
   const example = readJson(join(distDir(layer, base), 'arena.config.example.json'));
-  writeFileSync(join(dir, 'arena.config.json'), JSON.stringify({ ...example, stylesheet }, null, 2));
+  writeFileSync(join(dir, 'arena.config.json'), JSON.stringify(stylesheet === null ? example : { ...example, stylesheet }, null, 2));
   for (const [rel, body] of Object.entries(files) as [string, string][]) {
     mkdirSync(join(dir, rel, '..'), { recursive: true });
     writeFileSync(join(dir, rel), body);
@@ -740,6 +740,24 @@ export function closedListProblems(layer: string, result: CliRun) {
       + 'so a project cannot tell what its list costs'];
 }
 
+export function defaultListProblems(layer: string, result: CliRun) {
+  if (result.status !== 0) {
+    return [`${layer}: a config naming no stylesheet exited ${result.status}:\n    ${result.stderr.trim()}`];
+  }
+  const problems = [];
+  if (/\/arena\.css'/.test(result.theme ?? '')) {
+    problems.push(`${layer}: a config naming no stylesheet imports the barrel, so the project pays for every component `
+      + 'whether its sources draw it or not');
+  }
+  const drawn = importedSheets(result.theme);
+  const missing = ['arena-button', 'arena-table'].filter((one) => !drawn.includes(one));
+  if (missing.length) {
+    problems.push(`${layer}: a config naming no stylesheet imported [${drawn.join(', ')}] and not ${missing.join(', ')}, `
+      + 'so a component the sources draw renders with no sheet of its own');
+  }
+  return problems;
+}
+
 const AUTO = { components: 'auto', preflight: false };
 
 export const CONFIG_REFERENCE = 'skills/design/references/config.md';
@@ -774,6 +792,7 @@ export async function collect(base = root) {
           + 'so the example a consumer copies is either absent or shadowed by another');
         continue;
       }
+      const unnamed = fixture(layer, sources, null, base);
       const named = fixture(layer, sources, { components: list }, base);
       const closed = fixture(layer, sources, { components: CLOSED_LIST }, base);
       const unknown = fixture(layer, sources, { components: ['button'] }, base);
@@ -785,7 +804,7 @@ export async function collect(base = root) {
       const partialRoot = pluginFixture(layer, [PLUGINS.partial], base);
       const palettes = palettesFixture(layer, base);
       const runtime = runtimeFixture(layer, base);
-      dirs.push(auto, unexported, named, closed, unknown, unplaced, broken, plugged, partialRoot, palettes, runtime);
+      dirs.push(auto, unexported, unnamed, named, closed, unknown, unplaced, broken, plugged, partialRoot, palettes, runtime);
 
       const result = runCli(layer, auto, base);
       problems.push(...mergeProblems(layer, result, base));
@@ -793,6 +812,7 @@ export async function collect(base = root) {
       problems.push(...unknownSymbolProblems(layer, runCli(layer, unexported, base)));
       problems.push(...listProblems(layer, runCli(layer, named, base), runCli(layer, unknown, base), list));
       problems.push(...closedListProblems(layer, runCli(layer, closed, base)));
+      problems.push(...defaultListProblems(layer, runCli(layer, unnamed, base)));
       problems.push(...unplacedProblems(layer, runCli(layer, unplaced, base, ['check']), strange?.name ?? ''));
       problems.push(...auditProblems(
         layer,

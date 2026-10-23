@@ -428,4 +428,6 @@ test('the noImport region lists what each package arena.css imports less the def
   }
   const region = renderRegion('noImport', repoRoot, CLI_PAGE);
   assert.equal(region.split("@import './arena.generated.css';\n```").length, 3);
+  assert.match(region, /The `"default"` root adds `css\/style-plugin-default\.css` in its slot/);
+  assert.doesNotMatch(region, /every component sheet when the config names none/);
 });

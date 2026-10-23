@@ -462,9 +462,23 @@ const shipped = {
   components: ['arena-button', 'arena-side-nav', 'arena-table'],
 };
 
-test('with no stylesheet key the barrel is imported, so an existing project is unmoved', () => {
+test('with no stylesheet key the sheets are imported one by one, so no root takes the barrel', () => {
   assert.deepEqual(configProblems(config(), shipped), []);
-  assert.match(themeCss(config(), { sheets: shipped }), /@import '@dravensoft\/arena-react\/arena\.css';/);
+  const css = themeCss(config(), { sheets: shipped });
+  assert.doesNotMatch(css, /arena\.css/);
+  for (const name of shipped.components) assert.ok(css.includes(`css/components/${name}.css`), name);
+});
+
+test('every root imports the closed list: the default and a custom root differ only by the plugin slot line', () => {
+  const sheets = { ...shipped, layers: [...shipped.layers, 'css/style-plugin-default.css'] };
+  const slot = "@import '@dravensoft/arena-react/css/style-plugin-default.css';";
+  const imports = (css: string) => css.split('\n').filter((line) => line.startsWith('@import \'@dravensoft'));
+  const byDefault = imports(themeCss(listed(['default']), { sheets }));
+  const own = imports(themeCss(listed(['console']), { sheets, plugins: [total()] }));
+  assert.ok(byDefault.includes(slot));
+  assert.ok(!own.includes(slot));
+  assert.deepEqual(byDefault.filter((line) => line !== slot), own);
+  assert.ok(![...byDefault, ...own].some((line) => line.endsWith('/arena.css\';')));
 });
 
 test('a named component list replaces the barrel and keeps the order the barrel had', () => {
@@ -498,7 +512,7 @@ test('a stylesheet block with preflight false and no components imports every co
 
 test('an empty components list is still refused', () => {
   assert.deepEqual(configProblems(config({ stylesheet: { components: [], preflight: false } }), shipped),
-    ['stylesheet.components: name at least one component sheet, or drop stylesheet to import them all']);
+    ['stylesheet.components: name at least one component sheet, or drop stylesheet to let arena build work them out']);
 });
 
 test('an unknown stylesheet key is still refused', () => {
@@ -520,7 +534,7 @@ test('a component the package does not ship is fatal and the message lists what 
 
 test('an empty list is a problem, because it reads as a project that renders nothing', () => {
   assert.deepEqual(configProblems(config({ stylesheet: { components: [] } }), SHEETS),
-    ['stylesheet.components: name at least one component sheet, or drop stylesheet to import them all']);
+    ['stylesheet.components: name at least one component sheet, or drop stylesheet to let arena build work them out']);
 });
 
 test('a name repeated in the list is reported rather than imported twice', () => {
@@ -960,8 +974,9 @@ test('a root plugin of a consumer\'s own drops the package\'s appearance from th
 });
 
 test('the sheet the package assembles stays in the chain while it is the root plugin', () => {
-  const css = themeCss(listed(['default']), { sheets: shipped });
-  assert.match(css, /@import '@dravensoft\/arena-react\/arena\.css';/);
+  const css = themeCss(listed(['default']), { sheets: { ...shipped, layers: [...shipped.layers, 'css/style-plugin-default.css'] } });
+  assert.match(css, /@import '@dravensoft\/arena-react\/css\/style-plugin-default\.css';/);
+  assert.doesNotMatch(css, /arena\.css';/);
 });
 
 test('no declared plugin means nothing extra reaches :root', () => {
