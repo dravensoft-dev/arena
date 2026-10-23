@@ -17,7 +17,7 @@ import { relPosix, isInside } from '../../utils/posix-path.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { cannotRun } from '../../lib/arena/arena-scripts-vars.ts';
 import {
-  DOMAIN, SITE_DIR, LAYERS, BENCHES_DIR, pages, benchPages, indexedDirectories, missingPlaygrounds,
+  DOMAIN, SITE_DIR, LAYERS, pages, indexedDirectories, missingPlaygrounds,
   missingModules, modules, url, directoryUrl,
 } from '../../lib/arena/site-pages.ts';
 import { MARKERS_FILE } from '../../lib/arena/component-map.ts';
@@ -140,29 +140,6 @@ export function missingModuleProblems(out: string, base = root) {
     .map((rel) => `${rel} is a module a published page imports and the output does not carry. An `
       + 'ES import that 404s throws before the entry runs, so the page keeps every href it had, '
       + 'answers 200 at all of them, and renders nothing at all');
-}
-
-export function benchProblems(out: string) {
-  const declared = benchPages(out);
-  const dir = join(out, BENCHES_DIR);
-  const half = new RegExp(`^${BENCHES_DIR}/[^/]+/[^/]+/index\\.html$`);
-  const carried = existsSync(dir)
-    ? walkFiles(dir).map((path) => relPosix(out, path)).filter((rel) => half.test(rel))
-    : [];
-  const problems = [];
-  for (const rel of declared) {
-    if (carried.includes(rel)) continue;
-    problems.push(`${rel} is a half the manifest beside it declares and the output does not carry. `
-      + 'A pair is the comparison, so a gallery published with one half of one missing is a '
-      + 'comparison with nothing to compare');
-  }
-  for (const rel of carried) {
-    if (declared.includes(rel)) continue;
-    problems.push(`${rel} is a half the output carries and the manifest beside it does not `
-      + 'declare, so the index links every pair it knows and this one is reachable from nothing. '
-      + 'An artifact copied in without its manifest is this in sixteen lines');
-  }
-  return problems;
 }
 
 export function missingPageProblems(out: string, base = root) {
@@ -315,7 +292,6 @@ function main() {
     ...missingPageProblems(out),
     ...missingModuleProblems(out),
     ...orphanProblems(out, root, files),
-    ...benchProblems(out),
     ...missingPlaygrounds(),
     ...missingModules(),
     ...domainProblems(out),

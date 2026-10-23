@@ -2,25 +2,25 @@
  * links the site does not carry to the repository at this release's tag: a page names its assets
  * by a relative href counting directories, so the output holds the same shape under the same
  * names. The icon sprite travels with assets/, so no font does. copyAll, not package-assembly's
- * copyTree, whose exclusions differ.
+ * copyTree, whose exclusions differ. An adopter build declaring this Arena is copied as is.
  * A page's JavaScript is copied by following it: the React pages load unbundled ES modules, so
  * publishing the entry beside the page and stopping there put up pages answering 200 at every href
  * with an empty root. What it authors is what serve.ts answers at request time and a static host
  * cannot: an index per directory a visitor lands on, the landing page, the sitemap, robots.txt, a
- * 404 and the preview card. No count is typed on any; each is derived from the map the packages ship. */
+ * 404 and the preview card, each derived from the map the packages ship. */
 
-import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { appendFileSync, existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { isMainModule } from '../../utils/main-module.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
-import { reset, write, copy, repositoryBase } from '../../lib/arena/package-assembly.ts';
+import { reset, write, copy, repositoryBase, version } from '../../lib/arena/package-assembly.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { relPosix } from '../../utils/posix-path.ts';
 import {
-  DOMAIN, SITE_DIR, LAYERS, COPIED, COPIED_FILES, SINK_PAGE, BENCHES_DIR,
+  DOMAIN, SITE_DIR, LAYERS, COPIED, COPIED_FILES, SINK_PAGE,
   SPRITE_FILE, entryPoints, sinkNames, variantSinkNames, components, pages, indexedDirectories,
   playgroundsOnDisk, playgroundSections, modules, titleOf, url, directoryUrl, REPOSITORY,
-  benches, benchPairs, benchDrops,
+  publishedAdopter, adopterVerdict, type AdopterVerdict,
 } from '../../lib/arena/site-pages.ts';
 import { arenaEnv } from '../../lib/arena/arena-scripts-vars.ts';
 import { renderPageImage } from '../../lib/arena/page-image.ts';
@@ -58,8 +58,6 @@ export const OG_HEIGHT = 630;
 
 export const NEVER_COPIED = withForeignTrees();
 
-export const BENCHES_REPOSITORY = 'https://github.com/dravensoft-dev/arena-web-benches';
-
 export function retargetPages(out: string, written: string[], base = repoRoot) {
   const repository = repositoryBase(base);
   for (const file of written.filter((one) => one.endsWith('.md'))) {
@@ -74,17 +72,29 @@ export function retargetPages(out: string, written: string[], base = repoRoot) {
   }
 }
 
-export function copyAll(from: string, out: string, rel: string, drop = (_name: string) => false) {
+export function copyAll(from: string, out: string, rel: string) {
   const written = [];
-  for (const file of walkFiles(from, { skip: (name) => NEVER_COPIED.has(name) || drop(name) })) {
+  for (const file of walkFiles(from, { skip: (name) => NEVER_COPIED.has(name) })) {
     written.push(copy(file, out, `${rel}/${relPosix(from, file)}`));
   }
   return written;
 }
 
-export function benchesDirectory(env = arenaEnv()) {
-  const named = env.ARENA_BENCHES;
-  return named !== undefined && named !== '' && existsSync(named) ? named : null;
+export function adopterBuild(env = arenaEnv(), base = repoRoot): { dir: string; verdict: AdopterVerdict } | null {
+  const dir = env.ARENA_ADOPTER_BUILD;
+  if (dir === undefined || dir === '') return null;
+  if (!existsSync(dir)) return { dir, verdict: { publish: false, line: `${dir}: not published, the directory is not there` } };
+  return { dir, verdict: adopterVerdict(dir, version(base)) };
+}
+
+export function adopterClash(out: string, dir: string, name: string) {
+  if (existsSync(join(out, name))) {
+    return `${dir}: not published, /${name}/ is already a path this site holds`;
+  }
+  if (existsSync(join(dir, 'index.html'))) {
+    return `${dir}: not published, it carries an index.html, which the page this site writes at /${name}/ would replace`;
+  }
+  return null;
 }
 
 export const BODY = 'body{margin:0;background:var(--bg);color:var(--text-strong);'
@@ -161,33 +171,23 @@ export function structuredData() {
   });
 }
 
-export function benchesSection(out: string) {
-  const pairs = benchPairs(out);
-  if (pairs.length === 0) return '';
-  const version = benches(out)?.arena ?? '';
-  const rows = pairs.map(({ product, label }) => `<li>${escape(label)}: `
-    + LAYERS.map((layer) => `<a href="./${BENCHES_DIR}/${product}/${layer}/">${layer}</a>`).join(', ')
-    + '</li>').join('\n');
-  return `
-<h2 style="font-family:var(--font-display)">Benches</h2>
-<p style="max-width:44rem">Products drawn twice, once under React and once under Angular, each pair
-from one <code>arena.config.json</code> and one style plugin of its own. What a pair shows is that
-project's appearance rather than Arena's, and both halves are applications you can use rather than
-pictures of them.</p>
+export function adopterSection(out: string) {
+  const adopter = publishedAdopter(out);
+  if (adopter === null) return '';
+  const blocks = adopter.sections.map(({ heading, links }) => `<h3 style="font-family:var(--font-display)">${escape(heading)}</h3>
 <ul style="line-height:2">
-${rows}
-</ul>
-<p style="max-width:44rem">Every half installs Arena ${escape(version)} from the registry rather
-than reading the repository that publishes this page, so a pair draws a released Arena and a fix
-made after that release reaches it at the next one.</p>
-<p style="max-width:44rem">Opening both halves of a pair at once is the comparison, and that is a
-local act: <a href="${BENCHES_REPOSITORY}">clone them</a> and run one command.</p>
+${links.map(({ href, label }) => `  <li><a href="./${adopter.name}/${escape(href)}">${escape(label)}</a></li>`).join('\n')}
+</ul>`).join('\n');
+  return `
+<h2 style="font-family:var(--font-display)">${escape(adopter.title)}</h2>
+<p style="max-width:44rem">${escape(adopter.description)}</p>
+${blocks}
+<p style="max-width:44rem">Built against Arena ${escape(adopter.arena)}. <a href="${escape(adopter.repository)}">The repository</a>.</p>
 `;
 }
 
 export function landingPage(base = repoRoot, out = join(base, SITE_DIR)) {
   const drawn = components('react', base).length;
-  const pairs = benchPairs(out);
   const links = entryPoints(base).filter((entry) => entry.public);
   const cards = links
     .map((entry) => `  <li><a href=".${entry.path}">${escape(entry.label)}</a></li>`)
@@ -216,10 +216,9 @@ and fonts arrive in an <code>arena.config.json</code> your project writes.</p>
 
 <h2 style="font-family:var(--font-display)">See it</h2>
 <ul style="line-height:2">
-${cards}${pairs.length > 0 ? '' : `
-  <li><a href="${BENCHES_REPOSITORY}">Products drawn twice, once in React and once in Angular</a></li>`}
+${cards}
 </ul>
-${benchesSection(out)}
+${adopterSection(out)}
 <h2 style="font-family:var(--font-display)">Take it</h2>
 <ul style="line-height:2">
   <li><a href="https://www.npmjs.com/package/@dravensoft/arena-react">@dravensoft/arena-react</a></li>
@@ -274,11 +273,9 @@ function sectionsFor(directory: string, base: string, out: string): Section[] {
   if (directory === 'intro/guidelines') {
     return [{ links: guidelineLinks(base, out) }];
   }
-  if (directory === BENCHES_DIR) {
-    return benchPairs(out).map(({ product, label }) => ({
-      heading: label,
-      links: LAYERS.map((layer) => ({ href: `${product}/${layer}/`, label: layer })),
-    }));
+  const adopter = publishedAdopter(out);
+  if (adopter !== null && directory === adopter.name) {
+    return adopter.sections.map(({ heading, links }) => ({ heading, links }));
   }
   const drawn = /^frameworks\/([a-z]+)\/components$/.exec(directory);
   if (drawn) return playgroundSections(drawn[1] ?? '', base);
@@ -313,9 +310,6 @@ export async function buildSite(base = repoRoot, out = join(base, SITE_DIR)) {
 
   for (const rel of COPIED_FILES) written.push(copy(join(base, rel), out, rel));
 
-  const bench = benchesDirectory();
-  if (bench !== null) written.push(...copyAll(bench, out, BENCHES_DIR, benchDrops));
-
   for (const layer of LAYERS) {
     const sinks = join(base, 'frameworks', layer, 'kitchen-sink');
     if (existsSync(sinks)) {
@@ -332,21 +326,29 @@ export async function buildSite(base = repoRoot, out = join(base, SITE_DIR)) {
     written.push(copy(join(base, rel), out, rel));
   }
 
+  for (const rel of servedDocs(base)) written.push(copy(join(base, rel), out, rel));
+
+  retargetPages(out, written, base);
+
+  const adopter = adopterBuild();
+  if (adopter !== null) {
+    const { dir, verdict } = adopter;
+    const clash = verdict.publish ? adopterClash(out, dir, verdict.manifest.name) : null;
+    console.log(`build-site: ${clash ?? verdict.line}`);
+    if (verdict.publish && clash === null) written.push(...copyAll(dir, out, verdict.manifest.name));
+  }
+
   for (const directory of indexedDirectories(base, out)) {
     const depth = directory === '' ? 0 : directory.split('/').length;
     const rel = directory === '' ? 'index.html' : `${directory}/index.html`;
     const page = directory === ''
       ? landingPage(base, out)
       : indexPage(
-        titleFor(directory), descriptionFor(directory, base), directoryUrl(directory),
+        titleFor(directory, out), descriptionFor(directory, base, out), directoryUrl(directory),
         sectionsFor(directory, base, out), depth,
       );
     written.push(write(out, rel, page));
   }
-
-  for (const rel of servedDocs(base)) written.push(copy(join(base, rel), out, rel));
-
-  retargetPages(out, written, base);
 
   written.push(write(out, LLMS_INDEX, index(base)));
   for (const layer of LAYERS) written.push(write(out, layerFile(layer), corpus(layer, base)));
@@ -371,12 +373,9 @@ export async function buildSite(base = repoRoot, out = join(base, SITE_DIR)) {
   return written;
 }
 
-function descriptionFor(directory: string, base: string) {
-  if (directory === BENCHES_DIR) {
-    return 'Products drawn twice from one arena.config.json and one style plugin of their own, '
-      + 'once under React and once under Angular, each half a running application rather than a '
-      + 'picture of one.';
-  }
+function descriptionFor(directory: string, base: string, out: string) {
+  const adopter = publishedAdopter(out);
+  if (adopter !== null && directory === adopter.name) return adopter.description;
   if (directory === 'intro/guidelines') {
     return 'The specimens every Arena screen is drawn from: colour, type, spacing, effects and '
       + 'icons, each showing the token a component reads rather than describing it.';
@@ -405,8 +404,9 @@ function descriptionFor(directory: string, base: string) {
   return TAGLINE;
 }
 
-function titleFor(directory: string) {
-  if (directory === BENCHES_DIR) return 'Benches, Arena by Dravensoft';
+function titleFor(directory: string, out: string) {
+  const adopter = publishedAdopter(out);
+  if (adopter !== null && directory === adopter.name) return `${adopter.title}, Arena by Dravensoft`;
   if (directory === 'intro/guidelines') return 'Guidelines, Arena by Dravensoft';
   const drawn = /^frameworks\/([a-z]+)\/components$/.exec(directory);
   if (drawn) return `Playgrounds, ${drawn[1]}`;
@@ -418,6 +418,14 @@ function titleFor(directory: string) {
 }
 
 async function main() {
+  const at = process.argv.indexOf('--adopter-declares');
+  if (at !== -1) {
+    const dir = process.argv[at + 1] ?? '';
+    const { verdict } = adopterBuild({ ARENA_ADOPTER_BUILD: dir }) ?? { verdict: adopterVerdict(dir, version()) };
+    console.log(verdict.line);
+    if (process.env.GITHUB_OUTPUT) appendFileSync(process.env.GITHUB_OUTPUT, `publish=${verdict.publish}\n`);
+    return;
+  }
   const written = await buildSite();
   console.log(`build-site: ${written.length} file(s) into ${SITE_DIR}`);
 }

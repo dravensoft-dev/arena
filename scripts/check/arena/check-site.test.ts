@@ -13,10 +13,11 @@ import { repoRoot } from '../../lib/arena/repo-root.ts';
 import {
   REFERENCE, OFF_SITE, AUTHORED, FORBIDDEN, referenced, resolves, htmlFiles,
   brokenLinkProblems, domainProblems, localhostProblems, zeroScanProblems, tokenProblems,
-  missingModuleProblems, canonicalProblems, ownUrl, located, sitemapProblems, benchProblems,
+  missingModuleProblems, canonicalProblems, ownUrl, located, sitemapProblems,
+  missingPageProblems, orphanProblems,
 } from './check-site.ts';
 import {
-  DOMAIN, BENCHES_DIR, BENCHES_MANIFEST, modules, pages, indexedDirectories,
+  DOMAIN, modules, pages, indexedDirectories,
 } from '../../lib/arena/site-pages.ts';
 
 const made: string[] = [];
@@ -25,18 +26,14 @@ after(() => {
   for (const dir of made) rmSync(dir, { recursive: true, force: true });
 });
 
-function benchOut(halves: Record<string, string[]>) {
+function adopterOut(links: string[]) {
   const files: Record<string, string> = {
-    [`${BENCHES_DIR}/${BENCHES_MANIFEST}`]: JSON.stringify({
-      arena: '10.2.1',
-      pairs: Object.keys(halves).map((product) => ({ product, label: product, skin: product })),
+    'gallery/arena-adopter.json': JSON.stringify({
+      arena: '12.1.1', name: 'gallery', title: 'Gallery', description: 'A gallery', repository: 'https://example.org/gallery',
+      sections: [{ heading: 'Pages', links: links.map((href) => ({ label: href, href })) }],
     }),
   };
-  for (const [product, layers] of Object.entries(halves)) {
-    for (const layer of layers) {
-      files[`${BENCHES_DIR}/${product}/${layer}/index.html`] = '<html><head><base href="./"></head></html>';
-    }
-  }
+  for (const href of links) files[`gallery/${href}index.html`] = '<html><head><base href="./"></head></html>';
   return out(files);
 }
 
@@ -201,46 +198,27 @@ test('a sitemap naming a longer path does not stand in for the directory above i
   assert.match(problems[0] ?? '', /intro\/guidelines\//);
 });
 
-test('an output declaring pairs and carrying every half of them is the passing shape', () => {
-  const base = benchOut({ etsy: ['react', 'angular'], notion: ['react', 'angular'] });
-  assert.deepEqual(benchProblems(base), []);
-});
-
-test('an output declaring none and carrying none passes, which is what a clone builds', () => {
-  assert.deepEqual(benchProblems(out({ 'index.html': '<html></html>' })), [],
-    'a developer run has no benches, so the absent case is the one this must not turn red');
-});
-
-test('a declared half with nothing behind it fails, which is how fifteen reads', () => {
-  const base = benchOut({ etsy: ['react'], notion: ['react', 'angular'] });
-  const problems = benchProblems(base);
+test('missingPageProblems reports a declared adopter page the output lacks', () => {
+  const base = adopterOut(['first/', 'second/']);
+  rmSync(join(base, 'gallery', 'second', 'index.html'));
+  const problems = missingPageProblems(base).filter((problem) => problem.startsWith('gallery/'));
   assert.equal(problems.length, 1);
-  assert.match(problems[0] ?? '', /web-benches\/etsy\/angular\/index\.html/);
-  assert.match(problems[0] ?? '', /nothing to compare/);
+  assert.match(problems[0] ?? '', /gallery\/second\/index\.html/);
 });
 
-test('a half nothing declares fails, since the index links every pair it knows', () => {
-  const base = benchOut({ etsy: ['react', 'angular'] });
-  mkdirSync(join(base, BENCHES_DIR, 'clickup', 'react'), { recursive: true });
-  writeFileSync(join(base, BENCHES_DIR, 'clickup', 'react', 'index.html'), '<html></html>');
-  const problems = benchProblems(base);
+test('orphanProblems reports an HTML file under the adopter directory no link declares', () => {
+  const base = adopterOut(['first/']);
+  mkdirSync(join(base, 'gallery', 'stray'), { recursive: true });
+  writeFileSync(join(base, 'gallery', 'stray', 'index.html'), '<html></html>');
+  const problems = orphanProblems(base, repoRoot, htmlFiles(base));
   assert.equal(problems.length, 1);
-  assert.match(problems[0] ?? '', /clickup\/react/);
+  assert.match(problems[0] ?? '', /gallery\/stray\/index\.html/);
 });
 
-test('applications with no manifest beside them is the asymmetry this closes', () => {
-  const base = benchOut({ etsy: ['react', 'angular'] });
-  rmSync(join(base, BENCHES_DIR, BENCHES_MANIFEST));
-  assert.equal(benchProblems(base).length, 2,
-    'a copy that landed without its manifest declares nothing and carries two halves, and without '
-    + 'this the absent case passes by proving nothing');
-});
-
-test('a bench half is declared as a page, so the orphan check does not meet it as one', () => {
-  const base = benchOut({ etsy: ['react', 'angular'] });
-  const declared = pages(repoRoot, base);
-  assert.ok(declared.includes('web-benches/etsy/react/index.html'));
-  assert.ok(indexedDirectories(repoRoot, base).includes(BENCHES_DIR));
+test('the generated index of the adopter is not an orphan, nor are the pages it declares', () => {
+  const base = adopterOut(['first/']);
+  writeFileSync(join(base, 'gallery', 'index.html'), '<html></html>');
+  assert.deepEqual(orphanProblems(base, repoRoot, htmlFiles(base)), []);
 });
 
 test('a property read with a fallback is a property that resolves, so the gate stays quiet', () => {
@@ -259,13 +237,6 @@ test('a property read with a fallback is a property that resolves, so the gate s
   assert.equal(tokenProblems(bare).length, 1, 'without a fallback it still resolves to nothing');
 });
 
-test('the generated index of the benches is not a half, so it is not an undeclared one', () => {
-  const base = benchOut({ etsy: ['react', 'angular'] });
-  writeFileSync(join(base, BENCHES_DIR, 'index.html'), '<html></html>');
-  assert.deepEqual(benchProblems(base), [],
-    'this build writes that page itself, and a half is one directory deeper');
-});
-
-test('located takes the output it reads, so none defaults to the bench output', () => {
+test('located takes the output it reads, so none defaults to the adopter output', () => {
   assert.equal(located.length, 2);
 });

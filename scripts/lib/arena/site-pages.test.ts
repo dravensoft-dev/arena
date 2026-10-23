@@ -13,7 +13,7 @@ import {
   DOMAIN, SITE_DIR, LAYERS, sinkNames, entryPoints, components,
   playgroundsOnDisk, missingPlaygrounds, playgroundSections, sinkPages, pages, indexedDirectories,
   modules, missingModules, titleOf, url, directoryUrl,
-  BENCHES_DIR, BENCHES_MANIFEST, benchPairs, benchDrops, benchPages, benchDirectories, treePages,
+  treePages,
   COPIED_FILES, variantSinkNames, COPIED, SPRITE_FILE,
   adopterVerdict, publishedAdopter, adopterPages, adopterDirectories,
 } from './site-pages.ts';
@@ -23,18 +23,6 @@ const track = (dir: string) => { made.push(dir); return dir; };
 after(() => {
   for (const dir of made) rmSync(dir, { recursive: true, force: true });
 });
-
-function benchOut(products: string[]) {
-  const out = track(mkdtempSync(join(tmpdir(), 'arena-benches-')));
-  if (products.length > 0) {
-    mkdirSync(join(out, BENCHES_DIR), { recursive: true });
-    writeFileSync(join(out, BENCHES_DIR, BENCHES_MANIFEST), JSON.stringify({
-      arena: '10.2.1',
-      pairs: products.map((product) => ({ product, label: product, skin: product })),
-    }));
-  }
-  return out;
-}
 
 test('the site is built for one domain, named once, and every URL is spelled from it', () => {
   assert.equal(DOMAIN, 'arena.dravensoft.org');
@@ -103,19 +91,19 @@ test('a sink stands for every layer times every fixture, and the list has no rep
 });
 
 test('no page is published twice, which would put a repeat in the sitemap', () => {
-  const all = pages(repoRoot, benchOut([]));
+  const all = pages(repoRoot, adopterOut(null));
   assert.equal(new Set(all).size, all.length);
 });
 
 test('a directory a visitor can land on gets an index, since serve.ts lists it and a host does not', () => {
-  const directories = indexedDirectories(repoRoot, benchOut([]));
+  const directories = indexedDirectories(repoRoot, adopterOut(null));
   assert.ok(directories.includes(''), 'the site root is one of them');
   assert.ok(directories.includes('intro/guidelines'));
   assert.equal(new Set(directories).size, directories.length);
 });
 
 test('a specimen with no title is named by its @dsCard header rather than by its filename', () => {
-  const specimen = pages(repoRoot, benchOut([])).find((rel) => rel.startsWith('intro/guidelines/'));
+  const specimen = pages(repoRoot, adopterOut(null)).find((rel) => rel.startsWith('intro/guidelines/'));
   assert.ok(specimen, 'the guidelines publish at least one specimen');
   assert.ok(!titleOf(specimen).endsWith('.html'), `${specimen} fell back to its filename`);
 });
@@ -161,7 +149,7 @@ test('a section is a category the tree already has, headed and never empty', () 
 });
 
 test('every public entry point lands on a page the site publishes or a directory it indexes', () => {
-  const bare = benchOut([]);
+  const bare = adopterOut(null);
   const published = new Set(pages(repoRoot, bare).map((rel) => `/${rel}`));
   const indexed = new Set(indexedDirectories(repoRoot, bare).map((dir) => (dir === '' ? '/' : `/${dir}/`)));
   for (const { label, path } of entryPoints().filter((entry) => entry.public)) {
@@ -175,53 +163,29 @@ test('every public entry point lands on a page the site publishes or a directory
 test('a directory is addressed with the trailing slash a host serves its index at', () => {
   assert.equal(directoryUrl(''), `https://${DOMAIN}/`);
   assert.equal(directoryUrl('intro/guidelines'), `https://${DOMAIN}/intro/guidelines/`);
-  for (const directory of indexedDirectories(repoRoot, benchOut([]))) assert.match(directoryUrl(directory), /\/$/);
+  for (const directory of indexedDirectories(repoRoot, adopterOut(null))) assert.match(directoryUrl(directory), /\/$/);
 });
 
-test('a manifest beside the applications declares the pairs, and no manifest declares nothing', () => {
-  const empty = benchOut([]);
-  assert.deepEqual(benchPairs(empty), []);
-  assert.deepEqual(benchPages(empty), []);
-  assert.deepEqual(benchDirectories(empty), [],
-    'a clone builds a site without benches, so the absent case has to be the quiet one');
-
-  const out = benchOut(['notion', 'etsy']);
-  assert.deepEqual(benchPages(out), [
-    'web-benches/etsy/angular/index.html', 'web-benches/etsy/react/index.html',
-    'web-benches/notion/angular/index.html', 'web-benches/notion/react/index.html',
-  ]);
-  assert.deepEqual(benchDirectories(out), [BENCHES_DIR]);
-});
-
-test('a bench page is declared beside the tree pages and never instead of one', () => {
-  const out = benchOut(['etsy']);
-  assert.deepEqual(pages(repoRoot, out), [...treePages(repoRoot), ...benchPages(out)]);
-  assert.deepEqual(pages(repoRoot, benchOut([])), treePages(repoRoot),
+test('an adopter page is declared beside the tree pages and never instead of one', () => {
+  const out = adopterOut(adopterManifest());
+  assert.deepEqual(pages(repoRoot, out), [...treePages(repoRoot), ...adopterPages(out)]);
+  assert.deepEqual(pages(repoRoot, adopterOut(null)), treePages(repoRoot),
     'with no manifest the declaration is the tree\'s own, which is what a developer run builds');
-  assert.ok(indexedDirectories(repoRoot, out).includes(BENCHES_DIR));
+  assert.deepEqual(indexedDirectories(repoRoot, out).slice(-1), ['gallery']);
 });
 
-test('a half is a page and never an indexed directory, or the build overwrites it', () => {
-  for (const directory of indexedDirectories(repoRoot, benchOut(['etsy', 'notion']))) {
-    assert.equal(/^web-benches\/[^/]+\/[^/]+$/.test(directory), false,
-      'an indexed directory is handed a generated index.html, and that file is the half\'s own');
+test('an adopter\'s own subdirectories are not indexed, or the build overwrites a page of its own', () => {
+  const out = adopterOut(adopterManifest());
+  for (const directory of indexedDirectories(repoRoot, out)) {
+    assert.equal(/^gallery\/./.test(directory), false,
+      'an indexed directory is handed a generated index.html, and that file is the adopter\'s own');
   }
 });
 
-test('the module graph is walked from the tree alone, since a bench arrives only in CI', () => {
+test('the module graph is walked from the tree alone, since an adopter build arrives only in CI', () => {
   for (const rel of modules()) {
-    assert.ok(!rel.startsWith(`${BENCHES_DIR}/`),
+    assert.ok(!rel.startsWith('gallery/'),
       'moduleGraph is memoised by base, so a declaration varying with the output cannot enter it');
-  }
-});
-
-test('the bench filter skips the Phosphor ttf and svg a prebuilt bench carries, read off the name', () => {
-  for (const kept of ['Phosphor-jz52g8q4.woff2', 'Phosphor-KLBJTFWE.woff', 'Phosphor.json',
-    'index-87jrphe1.css', 'main-CRTIYFBW.js', 'p1.jpg', 'logo.svg', 'other.ttf']) {
-    assert.equal(benchDrops(kept), false, `${kept} is fetched or is not a Phosphor binary`);
-  }
-  for (const dropped of ['Phosphor-znwj6k7p.ttf', 'Phosphor-Bold-m0yxxyn4.svg', 'Phosphor-Fill-65SPMP3X.svg']) {
-    assert.equal(benchDrops(dropped), true, `${dropped} is fetched by nothing`);
   }
 });
 
@@ -250,7 +214,7 @@ test('the arrangement of chart variants is told from the style plugins by its it
   assert.ok(sinkNames().includes('charts') && sinkNames().includes('default'));
 });
 
-test('pages and indexedDirectories take the output they read, so none defaults to the bench output', () => {
+test('pages and indexedDirectories take the output they read, so none defaults to the adopter output', () => {
   assert.equal(pages.length, 2);
   assert.equal(indexedDirectories.length, 2);
 });
@@ -313,6 +277,21 @@ test('the published adopter is read off the output alone', () => {
   assert.equal(publishedAdopter(adopterOut(adopterManifest({ name: 'other' }))), null);
   assert.equal(publishedAdopter(track(mkdtempSync(join(tmpdir(), 'arena-adopter-')))), null);
   assert.equal(publishedAdopter(join(tmpdir(), 'arena-adopter-absent')), null);
+});
+
+test('a directory named for a name the pattern refuses is not a published adopter', () => {
+  const out = track(mkdtempSync(join(tmpdir(), 'arena-adopter-')));
+  mkdirSync(join(out, 'Web Gallery'), { recursive: true });
+  writeFileSync(join(out, 'Web Gallery', 'arena-adopter.json'), JSON.stringify(adopterManifest({ name: 'Web Gallery' })));
+  assert.equal(publishedAdopter(out), null);
+});
+
+test('an output that is a file, not a directory, publishes no adopter and does not throw', () => {
+  const out = track(mkdtempSync(join(tmpdir(), 'arena-adopter-')));
+  const file = join(out, 'plain');
+  writeFileSync(file, 'x');
+  assert.equal(publishedAdopter(file), null);
+  assert.deepEqual(adopterPages(file), []);
 });
 
 test('an adopter\'s declared pages are its links under its name', () => {

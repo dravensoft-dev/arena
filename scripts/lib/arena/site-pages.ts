@@ -8,7 +8,7 @@
  * nothing is reported. Paths are repo-relative and preserved, so no href is rewritten and the page
  * served from the domain is a clone's. indexedDirectories is what serve.ts lists at request time
  * and a host 404s. A specimen under intro/guidelines/ is named by the @dsCard header instead. */
-import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { basename, dirname, join, resolve } from 'node:path';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { relPosix, isInside } from '../../utils/posix-path.ts';
@@ -30,9 +30,6 @@ export const PLAYGROUND_SUFFIX = '.demo.generated.html';
 export const SINK_PAGE = 'index.generated.html';
 export const PLAYGROUND_INDEX = 'components';
 export { SPRITE_FILE };
-
-export const BENCHES_DIR = 'web-benches';
-export const BENCHES_MANIFEST = 'benches.json';
 
 export const COPIED = [
   'intro',
@@ -155,29 +152,6 @@ export function treePages(base = root) {
   ];
 }
 
-export type Bench = { product: string; label: string; skin: string };
-export type Benches = { arena: string; pairs: Bench[] };
-
-export function benches(out: string): Benches | null {
-  const path = join(out, BENCHES_DIR, BENCHES_MANIFEST);
-  if (!existsSync(path)) return null;
-  return JSON.parse(readFileSync(path, 'utf8')) as Benches;
-}
-
-export function benchPairs(out: string) {
-  return [...(benches(out)?.pairs ?? [])].sort(byKey(({ product }) => product));
-}
-
-export function benchPages(out: string) {
-  return benchPairs(out)
-    .flatMap(({ product }) => LAYERS.map((layer) => `${BENCHES_DIR}/${product}/${layer}/index.html`))
-    .sort(byCodeUnit);
-}
-
-export function benchDirectories(out: string) {
-  return benchPairs(out).length === 0 ? [] : [BENCHES_DIR];
-}
-
 export const ADOPTER_MANIFEST = 'arena-adopter.json';
 export const ADOPTER_NAME = /^[a-z0-9-]+$/;
 const ADOPTER_HREF = /^(?:[A-Za-z0-9._-]+\/)+$/;
@@ -232,13 +206,13 @@ export function adopterVerdict(dir: string, version: string): AdopterVerdict {
 }
 
 export function publishedAdopter(out: string): AdopterManifest | null {
-  if (!existsSync(out)) return null;
+  if (!existsSync(out) || !statSync(out).isDirectory()) return null;
   for (const entry of readdirSync(out, { withFileTypes: true }).filter((e) => e.isDirectory()).sort(byKey((e) => e.name))) {
     const path = join(out, entry.name, ADOPTER_MANIFEST);
     if (!existsSync(path)) continue;
     try {
       const manifest = adopterShape(JSON.parse(readFileSync(path, 'utf8')));
-      if (typeof manifest !== 'string' && manifest.name === entry.name) return manifest;
+      if (typeof manifest !== 'string' && manifest.name === entry.name && ADOPTER_NAME.test(manifest.name)) return manifest;
     } catch {
       continue;
     }
@@ -259,7 +233,7 @@ export function adopterDirectories(out: string) {
 }
 
 export function pages(base: string, out: string) {
-  return [...treePages(base), ...benchPages(out)];
+  return [...treePages(base), ...adopterPages(out)];
 }
 
 export const moduleGraph = memoBy((base: string = root) => base, (base: string = root) => {
@@ -316,12 +290,8 @@ export function indexedDirectories(base: string, out: string) {
     ...LAYERS.map((layer) => `frameworks/${layer}/kitchen-sink`),
     ...LAYERS.map((layer) => componentsDir(layer)),
     ...LAYERS.flatMap((layer) => sinkNames(base).map((name) => `frameworks/${layer}/kitchen-sink/${name}`)),
-    ...benchDirectories(out),
+    ...adopterDirectories(out),
   ];
-}
-
-export function benchDrops(name: string) {
-  return name.startsWith('Phosphor') && (name.endsWith('.ttf') || name.endsWith('.svg'));
 }
 
 export const TITLE = /<title>([^<]*)<\/title>/;
