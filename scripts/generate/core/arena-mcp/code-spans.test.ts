@@ -28,3 +28,14 @@ test('a rewrite leaves code as written and touches the link beside it', () => {
   const text = `\`${PATTERN}\` [real](a.md)`;
   assert.equal(replaceOutsideCode(text, LINK, (_, target = '') => `](b/${target})`), `\`${PATTERN}\` [real](b/a.md)`);
 });
+
+test('a line with a backtick after its fence opens no block, so a link after it is found', () => {
+  const text = '```js x```\n[e](f.md)';
+  assert.deepEqual(matchOutsideCode(text, LINK).map((one) => one[1]), ['f.md']);
+});
+
+test('a block closes only on its own character, at least as long, with nothing after it', () => {
+  assert.deepEqual(matchOutsideCode('```\n~~~\n[a](b.md)\n```\n[c](d.md)', LINK).map((one) => one[1]), ['d.md']);
+  assert.deepEqual(matchOutsideCode('````\n```\n[a](b.md)\n````\n[c](d.md)', LINK).map((one) => one[1]), ['d.md']);
+  assert.deepEqual(matchOutsideCode('```\n``` x\n[a](b.md)\n```\n[c](d.md)', LINK).map((one) => one[1]), ['d.md']);
+});

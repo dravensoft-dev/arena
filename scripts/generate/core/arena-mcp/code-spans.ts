@@ -6,19 +6,26 @@
  * the original. It imports nothing and ships whole with the server, like posix.ts, so the
  * packaging jobs and the checks may read it. */
 
-const FENCE = /^\s{0,3}(?:`{3,}|~{3,})/;
+const OPEN = /^ {0,3}(`{3,}|~{3,})(.*)$/;
+const CLOSE = /^ {0,3}(`{3,}|~{3,})[ \t]*$/;
 const SPAN = /`[^`\n]+`/g;
 
 const blank = (text: string) => text.replace(/[^\n]/g, ' ');
 
 export function maskCode(text: string) {
-  let fenced = false;
+  let fence = '';
   const lines = text.split('\n').map((line) => {
-    if (FENCE.test(line)) {
-      fenced = !fenced;
+    if (fence === '') {
+      const open = OPEN.exec(line);
+      if (open === null || (open[1]?.startsWith('`') && open[2]?.includes('`'))) {
+        return line.replace(SPAN, blank);
+      }
+      fence = open[1] ?? '';
       return blank(line);
     }
-    return fenced ? blank(line) : line.replace(SPAN, blank);
+    const close = CLOSE.exec(line);
+    if (close !== null && close[1]?.[0] === fence[0] && (close[1]?.length ?? 0) >= fence.length) fence = '';
+    return blank(line);
   });
   return lines.join('\n');
 }
