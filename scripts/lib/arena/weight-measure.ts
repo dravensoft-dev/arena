@@ -1,4 +1,4 @@
-/* What a typical Arena screen downloads, measured the way the plan-1.29 probe measured it: rollup with Arena kept
+/* What a typical Arena screen downloads, measured as the rollup row of environments.md records it: rollup with Arena kept
  * in a chunk of its own and esbuild minifying, brotli q11 beside the previous build as dictionary. check:weight
  * reads these figures against its budgets; weightProblems is the pure half. React comes from a vendored esm
  * entry, and moduleSideEffects is passed so tree-shaking works. The screen imports by name, never `import *`.
