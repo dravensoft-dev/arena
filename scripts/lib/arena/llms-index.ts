@@ -14,6 +14,7 @@ import { basename, join, posix } from 'node:path';
 import { walkFiles } from '../../utils/walk-files.ts';
 import { relPosix } from '../../utils/posix-path.ts';
 import { repoRoot as root } from './repo-root.ts';
+import { replaceOutsideCode } from '../../generate/core/arena-mcp/code-spans.ts';
 import { DOMAIN, LAYERS } from './site-pages.ts';
 
 export const LLMS_INDEX = 'llms.txt';
@@ -243,7 +244,7 @@ export function index(base = root) {
 export const RELATIVE_LINK = /\]\((?![a-z][a-z0-9+.-]*:|#|\/)([^)\s]+)\)/g;
 
 export function onSite(text: string, rel: string) {
-  return text.replace(RELATIVE_LINK, (_, target: string) => {
+  return replaceOutsideCode(text, RELATIVE_LINK, (_, target = '') => {
     const [path, anchor] = target.split('#');
     const resolved = posix.normalize(posix.join(posix.dirname(rel), path ?? ''));
     return `](${docUrl(resolved)}${anchor === undefined ? '' : `#${anchor}`})`;

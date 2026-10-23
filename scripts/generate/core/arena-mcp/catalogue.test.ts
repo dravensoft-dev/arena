@@ -375,3 +375,10 @@ test('the router, reference, category and component URIs are all named in mcp.md
     assert.ok(MCP_PAGE.includes(uri), `mcp.md does not name ${uri}`);
   }
 });
+
+test('a pattern in a code span is not a link to resolve, and a link beside it is', () => {
+  const span = '`' + String.raw`/node_modules[\\/](a|b)[\\/]/` + '`';
+  const at = 'skills/design/references/a.md';
+  const byRel = new Map([['skills/design/references/b.md', `${SCHEME}://reference/b`]]);
+  assert.equal(withUris(`${span} [x](./b.md)`, at, byRel), `${span} [x](${SCHEME}://reference/b)`);
+});

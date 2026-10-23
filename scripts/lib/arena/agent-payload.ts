@@ -10,6 +10,7 @@
  * that cannot tell that from an empty answer. retarget does the same for the site's pages. */
 
 import { posix } from 'node:path';
+import { replaceOutsideCode } from '../../generate/core/arena-mcp/code-spans.ts';
 
 export const AGENT_DIR = 'agent';
 export const ROUTER_SOURCE = 'skills/design/SKILL.md';
@@ -153,7 +154,7 @@ export const LINK = /\]\(([^)\s]+)\)/g;
 export const INLINE = /`([^`\n]+)`/g;
 
 export function rewrite(text: string, from: string, layer: string, bases: Bases) {
-  const linked = text.replace(LINK, (whole, target: string) => {
+  const linked = replaceOutsideCode(text, LINK, (whole, target = '') => {
     if (/^[a-z]+:/i.test(target) || target.startsWith('#')) return whole;
     return `](${rewriteTarget(resolvePosix(from, target), from, layer, bases)})`;
   });
@@ -170,7 +171,7 @@ export function retarget(
   text: string, from: string, repository: string, carried = (_path: string) => true,
   exists = (_path: string) => true,
 ) {
-  return text.replace(LINK, (whole, target: string) => {
+  return replaceOutsideCode(text, LINK, (whole, target = '') => {
     if (/^[a-z]+:/i.test(target) || target.startsWith('#') || target.startsWith('/')) return whole;
     const [path = '', ...rest] = target.split('#');
     const real = resolvePosix(from, path);

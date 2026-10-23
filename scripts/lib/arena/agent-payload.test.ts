@@ -146,3 +146,10 @@ test('the identity template and its worked answer travel in both layers and its 
   assert.equal(servedBy('arena-from-scratch/identity.html'), 'site');
   assert.equal(servedBy('arena-from-scratch/AGENTS.md'), 'repository');
 });
+
+test('a pattern in a code span is not a link to rewrite, and a link beside it is', () => {
+  const span = '`' + String.raw`/node_modules[\\/](a|b)[\\/]/` + '`';
+  const out = rewrite(`${span} [x](../SKILL.md)`, 'skills/design/references/page.md', 'react', BASES);
+  assert.equal(out, `${span} [x](../ROUTER.md)`);
+  assert.equal(retarget(span, 'skills/design/references/page.md', 'tag'), span);
+});

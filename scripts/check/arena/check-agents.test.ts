@@ -137,3 +137,9 @@ test('an empty walk is a failure, because it reports every level reachable and e
   assert.match(zeroScanProblems([])[0] ?? '', /clean-looking pass over a tree it never opened/);
   assert.deepEqual(zeroScanProblems(['AGENTS.md']), []);
 });
+
+test('a pattern in a code span is not a link between routers', () => {
+  const known = new Set(['AGENTS.md', 'scripts/AGENTS.md', 'react\\|x']);
+  const span = '`' + String.raw`/node_modules[\\/](a|b)[\\/]/` + '`';
+  assert.deepEqual(linkedRouters('AGENTS.md', `${span} [s](./scripts/AGENTS.md)`, known), ['scripts/AGENTS.md']);
+});

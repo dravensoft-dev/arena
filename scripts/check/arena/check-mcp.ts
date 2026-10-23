@@ -27,6 +27,7 @@ import {
 import { manifestIn, bundledPayload } from '../../generate/core/arena-mcp/payload.ts';
 import { servedDocs, writtenPages } from '../../lib/arena/llms-index.ts';
 import { PAGE_FILE } from '../../lib/arena/kitchen-sink-page.ts';
+import { matchOutsideCode } from '../../generate/core/arena-mcp/code-spans.ts';
 import { LINK, INLINE, isRepoPath, inPayload, IDENTITY_PAGES } from '../../lib/arena/agent-payload.ts';
 import { LAYERS as BUILT_LAYERS } from '../../build/arena/build-mcp-package.ts';
 
@@ -137,7 +138,7 @@ export function flatProblems(dir: string) {
 export const SITE_BASE = 'https://arena.dravensoft.org/';
 
 export function targetsIn(text: string) {
-  const targets = [...text.matchAll(LINK)].map((one) => one[1] ?? '');
+  const targets = matchOutsideCode(text, LINK).map((one) => one[1] ?? '');
   for (const one of text.matchAll(INLINE)) {
     const inner = one[1] ?? '';
     if (inner.startsWith('http') || inner.startsWith('./') || inner.startsWith('../')) targets.push(inner);
@@ -284,7 +285,7 @@ export function servedLinkProblems(dir: string) {
     if (manifest === null) continue;
     const { entries, byRel } = catalogue(payload, manifest);
     for (const entry of entries) {
-      for (const link of (textOf(payload, entry, byRel) ?? '').matchAll(MARKDOWN_LINK)) {
+      for (const link of matchOutsideCode(textOf(payload, entry, byRel) ?? '', MARKDOWN_LINK)) {
         const target = link[1] ?? '';
         if (ADDRESSED.test(target)) continue;
         problems.push(`${NAME}: ${layer} serves ${entry.uri} carrying the link ${target}, which is a `

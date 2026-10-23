@@ -345,3 +345,8 @@ test('an identity page the corpus is specified to carry and the catalogue does n
 test('the identity directory the payload list names is the one the served catalogue reads', () => {
   assert.equal(PAYLOAD_IDENTITY_DIR, IDENTITY_DIR);
 });
+
+test('a pattern in a code span is not a target, and a link beside it is', () => {
+  const span = '`' + String.raw`/node_modules[\\/](a|b)[\\/]/` + '`';
+  assert.deepEqual(targetsIn(`${span} [x](./b.md)`), ['./b.md']);
+});

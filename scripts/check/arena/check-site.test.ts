@@ -14,7 +14,7 @@ import {
   REFERENCE, OFF_SITE, AUTHORED, FORBIDDEN, referenced, resolves, htmlFiles,
   brokenLinkProblems, domainProblems, localhostProblems, zeroScanProblems, tokenProblems,
   missingModuleProblems, canonicalProblems, ownUrl, located, sitemapProblems,
-  missingPageProblems, orphanProblems,
+  missingPageProblems, orphanProblems, markdownLinks,
 } from './check-site.ts';
 import {
   DOMAIN, modules, pages, indexedDirectories,
@@ -239,4 +239,9 @@ test('a property read with a fallback is a property that resolves, so the gate s
 
 test('located takes the output it reads, so none defaults to the adopter output', () => {
   assert.equal(located.length, 2);
+});
+
+test('a pattern in a code span is not a markdown link, and a link beside it is', () => {
+  const span = '`' + String.raw`/node_modules[\\/](a|b)[\\/]/` + '`';
+  assert.deepEqual(markdownLinks(`${span} [x](./b.md)`), ['./b.md']);
 });

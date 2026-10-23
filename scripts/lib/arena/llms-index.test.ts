@@ -8,7 +8,7 @@ import assert from 'node:assert/strict';
 import {
   LLMS_INDEX, ROUTER, INDEX, REFERENCE_DIR, LAYER_INDEX, BUILD_INTERMEDIATE, layerFile, docUrl,
   summary, categoryIndexes, prompts, layerDocs, servedDocs, references, headline, blurb, index,
-  corpus, nameOf, categoryOf, opening, when, sentenceEnd, balance, lift,
+  corpus, nameOf, categoryOf, opening, when, sentenceEnd, balance, lift, onSite,
 } from './llms-index.ts';
 import { DOMAIN, LAYERS } from './site-pages.ts';
 import { walkFiles } from '../../utils/walk-files.ts';
@@ -167,4 +167,9 @@ test('a URL is spelled once, from the domain the site is built for', () => {
 test('a document is named by what it is, not by the path it sits at', () => {
   assert.equal(nameOf('frameworks/react/components/forms/arena-button/ArenaButton.prompt.md'), 'ArenaButton');
   assert.equal(categoryOf('frameworks/react/components/forms/INDEX.md'), 'forms');
+});
+
+test('a pattern in a code span is not a relative link, and a link beside it is', () => {
+  const span = '`' + String.raw`/node_modules[\\/](a|b)[\\/]/` + '`';
+  assert.equal(onSite(`${span} [x](b.md)`, 'skills/design/a.md'), `${span} [x](${docUrl('skills/design/b.md')})`);
 });

@@ -10,6 +10,7 @@
  * spends a call to be told the server has no such thing. */
 
 import { walk, relPosix, readIn, SUPPORT, type Manifest } from './payload.ts';
+import { replaceOutsideCode } from './code-spans.ts';
 import { byCodeUnit, dirPosix, resolvePosix } from './posix.ts';
 
 export const SCHEME = 'arena';
@@ -208,7 +209,7 @@ export function relIndex(found: Entry[]) {
 }
 
 export function withUris(text: string, rel: string, byRel: Map<string, string>) {
-  return text.replace(MARKDOWN_LINK, (whole, target: string) => {
+  return replaceOutsideCode(text, MARKDOWN_LINK, (whole, target = '') => {
     if (ADDRESSED.test(target)) return whole;
     const cut = target.indexOf('#');
     const path = cut === -1 ? target : target.slice(0, cut);

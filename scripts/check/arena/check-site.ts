@@ -20,6 +20,7 @@ import {
   DOMAIN, SITE_DIR, LAYERS, pages, indexedDirectories, missingPlaygrounds,
   missingModules, modules, url, directoryUrl,
 } from '../../lib/arena/site-pages.ts';
+import { matchOutsideCode } from '../../generate/core/arena-mcp/code-spans.ts';
 import { MARKERS_FILE } from '../../lib/arena/component-map.ts';
 import { node as siteBuildNode } from '../../build/arena/build-site.ts';
 import { LLMS_INDEX, ROUTER, layerFile, prompts, summary } from '../../lib/arena/llms-index.ts';
@@ -95,7 +96,7 @@ export function markdownFiles(out: string) {
 }
 
 export function markdownLinks(text: string) {
-  return [...text.matchAll(MARKDOWN_LINK)]
+  return matchOutsideCode(text, MARKDOWN_LINK)
     .map((match) => match[1] ?? '')
     .filter((target) => target && !OFF_SITE.test(target));
 }
