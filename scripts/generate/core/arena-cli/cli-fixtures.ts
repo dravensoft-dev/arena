@@ -53,32 +53,24 @@ export const readable = {
   },
 };
 
-export const PHOSPHOR_SHEET = (selector: string, family: string) => `@font-face {
-  font-family: "${family}";
-  src: url("./${family}.woff2") format("woff2"), url("./${family}.ttf") format("truetype");
-  font-weight: normal;
-}
+export const PHOSPHOR_GLYPHS = ['bell', 'moon', 'sun', 'house'];
 
-${selector} { font-family: "${family}" !important; }
+export const phosphorSvg = (name: string, weight: string) =>
+  `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M0 0 ${name} ${weight}"/></svg>`;
 
-${selector}.ph-bell:before { content: "\\e0ce"; }
-${selector}.ph-moon:before { content: "\\e330"; }
-${selector}.ph-sun:before { content: "\\e6a2"; }
-`;
-
-export function phosphor(weights: Record<string, string> = { bold: 'Phosphor-Bold', fill: 'Phosphor-Fill' }) {
+export function phosphor(weights: string[] = ['bold', 'fill'], glyphs: string[] = PHOSPHOR_GLYPHS) {
   const root = track(mkdtempSync(join(tmpdir(), 'arena-phosphor-')));
-  const web = join(root, 'node_modules', '@phosphor-icons', 'web');
-  mkdirSync(web, { recursive: true });
-  writeFileSync(join(web, 'package.json'), JSON.stringify({ name: '@phosphor-icons/web' }));
-  for (const [weight, family] of Object.entries(weights)) {
-    const dir = join(web, 'src', weight);
+  const core = join(root, 'node_modules', '@phosphor-icons', 'core');
+  mkdirSync(core, { recursive: true });
+  writeFileSync(join(core, 'package.json'), JSON.stringify({ name: '@phosphor-icons/core' }));
+  for (const weight of weights) {
+    const dir = join(core, 'assets', weight);
     mkdirSync(dir, { recursive: true });
-    const selector = weight === 'regular' ? '.ph' : `.ph-${weight}`;
-    writeFileSync(join(dir, 'style.css'), PHOSPHOR_SHEET(selector, family));
-    writeFileSync(join(dir, `${family}.woff2`), '');
+    for (const name of glyphs) {
+      writeFileSync(join(dir, weight === 'regular' ? `${name}.svg` : `${name}-${weight}.svg`), phosphorSvg(name, weight));
+    }
   }
-  return { root, web };
+  return { root, core };
 }
 
 export function project(config: any = readable, files: Record<string, string> = { 'app.html': '<i class="ph-bold ph-bell"></i>' }) {

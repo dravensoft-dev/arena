@@ -54,11 +54,11 @@ test('the manifest names the package and takes its version from plugin.json', ()
   assert.equal(m.version, version(repoRoot));
 });
 
-test('Angular, the CDK and Phosphor are the peers; tslib and the three of the arena command are the dependencies', () => {
+test('Angular and the CDK are the peers, Phosphor is none; tslib and the three of the arena command are the dependencies', () => {
   const m = manifest(repoRoot);
   assert.deepEqual(Object.keys(m.peerDependencies).sort(),
     ['@angular/cdk', '@angular/common', '@angular/core', '@angular/forms', '@angular/platform-browser',
-     '@angular/router', '@phosphor-icons/web']);
+     '@angular/router']);
   assert.deepEqual(m.peerDependenciesMeta, { '@angular/router': { optional: true }, '@angular/forms': { optional: true } },
     'the router and forms are each reachable only through their own entry point, so a project that '
     + 'never imports that subpath must install cleanly without it and be told nothing');

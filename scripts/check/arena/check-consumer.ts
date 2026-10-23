@@ -24,11 +24,11 @@ import { isForeignTree } from '../../lib/arena/foreign-trees.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { PACKAGES, distDir, refuseUnassembled as refuseUnassembledPackages } from './check-packages.ts';
 import {
-  THEME_SHEET, ICONS_SHEET, PLUGIN_SHEET, RUNTIME_DATA, PLUGIN_CSS, PLUGIN_LAYER, PLUGIN_LAYER_ORDER,
+  THEME_SHEET, PLUGIN_SHEET, RUNTIME_DATA, PLUGIN_CSS, PLUGIN_LAYER, PLUGIN_LAYER_ORDER, SPRITE_MODULE, SPRITE_TYPES,
 } from '../../generate/core/arena-cli/sheets.ts';
+import { RETIRED_ICONS_SHEET, spriteFilesIn } from '../../generate/core/arena-cli/sources.ts';
 import { DEFAULT_PLUGIN, PLUGIN_TOKENS, pluginName } from '../../generate/core/arena-cli/theme-css.ts';
 import { ROOT_PLUGIN } from '../core/check-style-plugin.ts';
-import { WEIGHT_CLASSES } from '../../generate/core/arena-cli/icon-css.ts';
 import { RULE_TAGS } from '../../generate/core/arena-cli/audit.ts';
 import { captured } from '../../utils/captures.ts';
 import { parseDecls } from '../../lib/arena/css-decls.ts';
@@ -47,8 +47,9 @@ export const node = {
 
 export const CLI = 'bin/arena.mjs';
 export const GLYPH = 'ph-bell';
-export const FILL = `.${WEIGHT_CLASSES.fill}`;
 export const NAV_GLYPH = 'ph-house';
+export const GLYPH_SYMBOL = 'ph-bold-bell';
+export const NAV_SYMBOL = 'ph-fill-house';
 
 export const SOURCES: Record<string, Record<string, string>> = {
   react: {
@@ -91,6 +92,7 @@ export const BREAKING: Record<string, { files: Record<string, string>; rules: st
         + '  >\n'
         + '    Go \u{1F680}\n'
         + '  </ArenaButton>\n'
+        + '  <i className="ph-bold ph-x" />\n'
         + '  <ArenaButton className="arena-emphasis-primary">Publish</ArenaButton>\n'
         + '  <Link to="/x">\n'
         + '    <ArenaCard>c</ArenaCard>\n'
@@ -99,7 +101,7 @@ export const BREAKING: Record<string, { files: Record<string, string>; rules: st
       'src/app.css': '.arena-button__label { color: #fff; }\n'
         + '.mine { background: var(--danger); }\n',
     },
-    rules: ['own-class', 'router-link', 'raw-value', 'icon-element', 'emoji', 'one-primary',
+    rules: ['own-class', 'router-link', 'raw-value', 'icon-element', 'raw-glyph', 'emoji', 'one-primary',
       'danger-fill'],
   },
   angular: {
@@ -108,6 +110,7 @@ export const BREAKING: Record<string, { files: Record<string, string>; rules: st
         + '  class="mine arena-emphasis-primary"\n'
         + '  icon="ph-bold ph-bell"\n'
         + '>Go \u{1F680}</arena-button>\n'
+        + '<i class="ph-bold ph-x"></i>\n'
         + '<arena-button class="arena-emphasis-primary">Publish</arena-button>\n'
         + '<a\n'
         + '  routerLink="/x"\n'
@@ -117,7 +120,7 @@ export const BREAKING: Record<string, { files: Record<string, string>; rules: st
       'src/app.css': '.arena-card__body { color: #fff; padding: 16px; }\n'
         + '.mine { background: var(--color-error-fill); }\n',
     },
-    rules: ['own-class', 'router-link', 'raw-value', 'emoji', 'one-primary', 'danger-fill'],
+    rules: ['own-class', 'router-link', 'raw-value', 'raw-glyph', 'emoji', 'one-primary', 'danger-fill'],
   },
 };
 
@@ -132,7 +135,8 @@ export function refuseUnassembled(base = root, env = arenaEnv()) {
 
 export type CliRun = {
   status: number | null; stdout: string; stderr: string;
-  theme: string | null; icons: string | null; plugin: string | null; runtime: string | null;
+  theme: string | null; sprites: Record<string, string>; module: string | null; retired: boolean;
+  plugin: string | null; runtime: string | null;
 };
 
 export function fixture(
@@ -470,13 +474,15 @@ export function runCli(
     stdout: run.stdout ?? '',
     stderr: run.stderr ?? '',
     theme: read(THEME_SHEET),
-    icons: read(ICONS_SHEET),
+    sprites: Object.fromEntries(spriteFilesIn(join(dir, 'out')).map((name) => [name, read(name) ?? ''])),
+    module: read(SPRITE_MODULE),
+    retired: existsSync(join(dir, 'out', RETIRED_ICONS_SHEET)),
     plugin: read(PLUGIN_SHEET),
     runtime: read(RUNTIME_DATA),
   };
 }
 
-const BARE: CliRun = { status: null, stdout: '', stderr: '', theme: null, icons: null, plugin: null, runtime: null };
+const BARE: CliRun = { status: null, stdout: '', stderr: '', theme: null, sprites: {}, module: null, retired: false, plugin: null, runtime: null };
 
 export function snapshot(dir: string) {
   const seen = new Map<string, string>();
@@ -552,8 +558,9 @@ export function subcommandProblems(layer: string, base = root, dirs: string[] = 
   dirs.push(plugged);
   run(plugged, ['build']);
   writeFileSync(join(plugged, 'out', 'keep.txt'), 'not a sheet\n');
-  const sheets = [THEME_SHEET, ICONS_SHEET, PLUGIN_SHEET];
+  const sheets = [THEME_SHEET, PLUGIN_SHEET, SPRITE_MODULE, SPRITE_TYPES, ...spriteFilesIn(join(plugged, 'out'))];
   const absent = sheets.filter((name) => !existsSync(join(plugged, 'out', name)));
+  if (sheets.length !== 5) problems.push(`${layer}: the build the clean case starts from wrote ${sheets.length - 4} sprite file(s) where it promises one`);
   if (absent.length > 0) problems.push(`${layer}: the build the clean case starts from wrote no ${absent.join(', ')}`);
   const beforeClean = snapshot(plugged);
   problems.push(...exitProblem(layer, 'arena clean', run(plugged, ['clean']), 0));
@@ -653,25 +660,43 @@ export function mergeProblems(layer: string, result: CliRun, base = root) {
     return problems;
   }
   if (!result.theme) problems.push(`${layer}: one invocation wrote no ${THEME_SHEET}`);
-  problems.push(...iconProblems(layer, result.icons));
+  problems.push(...spriteProblems(layer, result));
   if (bins.length === 0) problems.push(`${layer}: bin/ ships no command`);
   return problems;
 }
 
-export function iconProblems(layer: string, icons: string | null) {
-  if (!icons) return [`${layer}: one invocation wrote no ${ICONS_SHEET}, so the icon half of the merge is gone`];
+export function spriteProblems(layer: string, run: CliRun) {
   const problems = [];
-  if (!icons.includes(GLYPH)) {
-    problems.push(`${layer}: ${ICONS_SHEET} names no ${GLYPH}, so the icon scan stopped reading consumer sources`);
+  if (run.retired) {
+    problems.push(`${layer}: ${RETIRED_ICONS_SHEET} is still there after a build, though the build writes the glyphs as a sprite and removes the sheet`);
   }
-  if (icons.includes(`${FILL}.${GLYPH}`)) {
-    problems.push(`${layer}: ${ICONS_SHEET} carries ${FILL}.${GLYPH}, a glyph named beside a button, which cannot `
+  const names = Object.keys(run.sprites);
+  if (names.length === 0) return [...problems, `${layer}: one invocation wrote no icons-*.svg, so the icon half of the merge is gone`];
+  if (names.length > 1) {
+    return [...problems, `${layer}: one invocation left ${names.length} icons-*.svg (${names.join(', ')}), where a build keeps only the one it wrote`];
+  }
+  const [name = ''] = names;
+  const sprite = run.sprites[name] ?? '';
+  const has = (id: string) => sprite.includes(`id="${id}"`);
+  if (!has(GLYPH_SYMBOL)) {
+    problems.push(`${layer}: ${name} holds no #${GLYPH_SYMBOL}, so the icon scan stopped reading consumer sources`);
+  }
+  if (has(`ph-fill-${GLYPH.replace(/^ph-/, '')}`)) {
+    problems.push(`${layer}: ${name} holds #ph-fill-${GLYPH.replace(/^ph-/, '')}, a glyph named beside a button, which cannot `
       + 'draw filled. The filled weight takes only what a component that swaps to it can ask for');
   }
-  if (!icons.includes(`${FILL}.${NAV_GLYPH}`)) {
-    problems.push(`${layer}: the source names ${NAV_GLYPH} beside the bold weight on a navigation item and ${ICONS_SHEET} `
-      + `carries no ${FILL}.${NAV_GLYPH} rule. The navigation swaps its active destination to the filled weight `
-      + 'with no member for it, so a sheet without that rule loses the icon of the item the user just pressed');
+  if (!has(NAV_SYMBOL)) {
+    problems.push(`${layer}: the source names ${NAV_GLYPH} beside the bold weight on a navigation item and ${name} `
+      + `holds no #${NAV_SYMBOL}. The navigation swaps its active destination to the filled weight `
+      + 'with no member for it, so a sprite without that symbol loses the icon of the item the user just pressed');
+  }
+  if (run.module === null) {
+    problems.push(`${layer}: one invocation wrote no ${SPRITE_MODULE}, so the app has no name to serve the sprite under`);
+  } else {
+    const named = /ARENA_SPRITE\s*=\s*'([^']+)'/.exec(run.module)?.[1] ?? '';
+    if (named !== name) {
+      problems.push(`${layer}: the module names ${named || 'no file'} and the sprite written is ${name}, so the app would fetch a file that is not there`);
+    }
   }
   return problems;
 }

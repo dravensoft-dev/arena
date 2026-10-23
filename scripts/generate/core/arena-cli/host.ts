@@ -1,6 +1,5 @@
 /* Where the command is running: the package around it, the sheets, catalogue, component map and
- * vocabulary that package carries, and the Phosphor installs a project holds: phosphorRoot is
- * @phosphor-icons/web, which the icon sheet still reads, and phosphorCoreRoot is
+ * vocabulary that package carries, and the one Phosphor install the command reads: phosphorRoot is
  * @phosphor-icons/core, whose assets/ the sprite is written from. hostPackage answers a path rather
  * than a name because the two steps want different things out of it. resolveEnvironment is the one
  * place an override a caller hands in wins over what the install would answer. */
@@ -94,11 +93,11 @@ export function packageSheets(root: string): PackageSheets {
   }
 }
 
-function phosphorPackage(name: string, from: string, fallback: string) {
+export function phosphorRoot(from = process.cwd(), fallback = here) {
   for (const start of [from, fallback]) {
     let at = resolve(start);
     for (;;) {
-      const candidate = join(at, 'node_modules', '@phosphor-icons', name);
+      const candidate = join(at, 'node_modules', '@phosphor-icons', 'core');
       if (existsSync(join(candidate, 'package.json'))) return candidate;
       const up = dirname(at);
       if (up === at) break;
@@ -108,19 +107,10 @@ function phosphorPackage(name: string, from: string, fallback: string) {
   return null;
 }
 
-export function phosphorRoot(from = process.cwd(), fallback = here) {
-  return phosphorPackage('web', from, fallback);
-}
-
-export function phosphorCoreRoot(from = process.cwd(), fallback = here) {
-  return phosphorPackage('core', from, fallback);
-}
-
 export type HostEnvironment = {
   packageName?: string;
   arena?: string | null;
   phosphor?: string | null;
-  core?: string | null;
   sheets?: PackageSheets;
   map?: ComponentMap | null;
   vocabulary?: VocabularyIndex | null;
@@ -137,8 +127,7 @@ export function resolveEnvironment(environment: HostEnvironment = {}) {
   const vocabulary: VocabularyIndex | null = environment.vocabulary !== undefined
     ? environment.vocabulary : (arena ? loadVocabulary(arena) : null);
   const phosphor = ('phosphor' in environment ? environment.phosphor : phosphorRoot()) ?? null;
-  const core = ('core' in environment ? environment.core : phosphorCoreRoot()) ?? null;
-  return { arena, packageName, sheets, map, vocabulary, phosphor, core };
+  return { arena, packageName, sheets, map, vocabulary, phosphor };
 }
 
 export function hostManifest(root: string | null): { name: string; version: string; engines?: { node?: string } } | null {

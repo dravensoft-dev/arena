@@ -16,7 +16,7 @@ after(() => {
 
 const root = () => track(mkdtempSync(join(tmpdir(), 'arena-clean-')));
 
-test('removes exactly the three output sheets in --out and leaves a sibling file', () => {
+test('removes exactly the output files in --out and leaves a sibling file', () => {
   const dir = root();
   for (const name of OUTPUT_SHEETS) writeFileSync(join(dir, name), 'x');
   writeFileSync(join(dir, 'keep.css'), 'x');
@@ -26,6 +26,16 @@ test('removes exactly the three output sheets in --out and leaves a sibling file
   assert.deepEqual(err, []);
   assert.equal(out.length, OUTPUT_SHEETS.size);
   for (const name of OUTPUT_SHEETS) assert.ok(out.includes(`arena clean: removed ${join(dir, name)}`));
+});
+
+test('removes the content-hashed sprite too, and a svg a project named itself stays', () => {
+  const dir = root();
+  writeFileSync(join(dir, 'icons-0123456789.svg'), '<svg/>');
+  writeFileSync(join(dir, 'icons-mine.svg'), '<svg/>');
+  const { io, out } = captureIo(dir);
+  assert.equal(run(['--out', '.'], io), 0);
+  assert.deepEqual(readdirSync(dir), ['icons-mine.svg']);
+  assert.deepEqual(out, [`arena clean: removed ${join(dir, 'icons-0123456789.svg')}`]);
 });
 
 test('an empty or absent out prints "nothing to remove" and exits 0', () => {

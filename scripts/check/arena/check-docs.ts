@@ -130,10 +130,13 @@ export const CONSUMER_OWN_OUTPUT = new Map([
    + 'from the arena command each package ships. It carries the .generated. infix and is nothing this repository '
    + 'builds, so the build-product rule below reads it backwards: a reader of the npm page has '
    + 'this file and is being told to make it.'],
-  ['icons.generated.css',
-   'the Phosphor subset the CONSUMER generates, in their own project, by the same run of '
-   + 'arena build. Same reading as arena.generated.css above: the infix is theirs '
-   + 'and not this repository\'s, and the name is the one the npm page tells them to write.'],
+  ['arena.icons.generated.js',
+   'the module the CONSUMER generates, in their own project, by the same run of arena build, exporting the file '
+   + 'name of the Phosphor sprite it wrote beside it. Same reading as arena.generated.css above: the infix is '
+   + 'theirs and not this repository\'s, and the name is the one the npm page tells them to import.'],
+  ['arena.icons.generated.d.ts',
+   'the declaration file written beside arena.icons.generated.js in the CONSUMER\'s project by the same run of '
+   + 'arena build. Same reading as arena.generated.css above: the infix is theirs and not this repository\'s.'],
   ['plugin.generated.css',
    'the style plugin\'s own CSS, wrapped in the reserved layer, written into the CONSUMER\'s '
    + 'project by the same run of arena build. The third of the three and the only one that is '
@@ -403,7 +406,7 @@ export function consumerBranchProblems(root = ROOT) {
     for (const [pattern, reason] of CONTRIBUTOR_PATHS) {
       if (!pattern) continue;
       for (const hit of source.match(pattern) ?? []) {
-        if ([...CONSUMER_OWN_OUTPUT.keys()].some((name) => name.startsWith(hit))) continue;
+        if ([...CONSUMER_OWN_OUTPUT.keys()].some((name) => name.startsWith(hit) || name.includes(`.${hit}`))) continue;
         problems.push(
           `${rel}: cites "${hit}", ${reason}. A consumer document is a stop on the way to writing `
           + 'a component: state the consequence here, and leave the reason on the contributor branch',

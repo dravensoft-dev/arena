@@ -54,6 +54,9 @@ export type PackageManifest = {
   scripts?: Record<string, string>;
   dependencies?: Record<string, string>;
   peerDependencies?: Record<string, string>;
+  devDependencies?: Record<string, string>;
+  optionalDependencies?: Record<string, string>;
+  peerDependenciesMeta?: Record<string, unknown>;
   exports?: unknown;
   types?: string;
   typings?: string;
@@ -149,7 +152,6 @@ export function manifestProblems(pkg: { layer: string; name: string }, manifest:
       problems.push(`${at}: ${name} is both a dependency and a peer`);
     }
     if (name.startsWith('@dravensoft/')) problems.push(`${at}: ${name} is a dependency; an Arena package is always a peer`);
-    if (name === '@phosphor-icons/web') problems.push(`${at}: Phosphor is the consumer's to install, never a dependency`);
   }
   const declared = manifest.dependencies ?? {};
   const allowed = new Set([...Object.keys(CLI_DEPENDENCIES), ...(pkg.layer === 'angular' ? ['tslib'] : [])]);
@@ -159,8 +161,10 @@ export function manifestProblems(pkg: { layer: string; name: string }, manifest:
   for (const name of Object.keys(declared)) {
     if (!allowed.has(name)) problems.push(`${at}: dependencies hold ${name}, which is not one of the arena command's`);
   }
-  if (!Object.hasOwn(manifest.peerDependencies ?? {}, '@phosphor-icons/web')) {
-    problems.push(`${at}: no peer on @phosphor-icons/web, and every component renders ph-* classes`);
+  for (const field of ['dependencies', 'peerDependencies', 'devDependencies', 'optionalDependencies', 'peerDependenciesMeta'] as const) {
+    if (Object.hasOwn(manifest[field] ?? {}, '@phosphor-icons/web')) {
+      problems.push(`${at}: ${field} names @phosphor-icons/web; the components draw from a sprite, so a project that draws a raw ph-* element installs it itself`);
+    }
   }
   return problems;
 }

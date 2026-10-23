@@ -292,8 +292,8 @@ last step is the only one that checks the thing you care about.
       declares it, so the audit measures your application and your plugin together.
 - [ ] Read the report. Fix what it names, and re-run it until it names nothing.
 - [ ] Run `arena build`, which writes the sheets the next step imports.
-- [ ] Import the three files `arena build` writes, `arena.generated.css`, `icons.generated.css` and, when your
-      plugin carries CSS, `plugin.generated.css`.
+- [ ] Import the sheets `arena build` writes, `arena.generated.css` and, when your plugin carries CSS,
+      `plugin.generated.css`.
 - [ ] Serve the application and look at it, in both polarities.
 
 ## How a role gets added

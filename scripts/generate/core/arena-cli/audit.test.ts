@@ -121,6 +121,29 @@ test('an icon as an element and an emoji are each reported', () => {
   assert.equal(rules('<ArenaButton icon="ph-bold ph-plus">Go</ArenaButton>'), '');
 });
 
+test('a raw <i class="ph-bold ph-x"> is reported as raw-glyph, and ArenaIcon, ArenaButton and ArenaIconButton icons are not', () => {
+  const raw = rules('<i className="ph-bold ph-x"></i>');
+  assert.match(raw, /raw-glyph/);
+  assert.match(raw, /^src\/App\.tsx:1: /);
+  assert.match(rules('<span className={`ph ph-bell ${open ? "a" : "b"}`} />'), /raw-glyph/);
+  assert.match(rules('<i class="ph-fill ph-x"></i>', 'src/a.html'), /raw-glyph/);
+  assert.match(rules('<i class="x ph-duotone ph-arrow-left y"></i>', 'src/a.html'), /raw-glyph/);
+  assert.equal(rules('<ArenaIcon icon="ph-bold ph-x" />'), '');
+  assert.equal(rules('<ArenaButton icon="ph-bold ph-x">Go</ArenaButton>'), '');
+  assert.equal(rules('<ArenaIconButton icon="ph-bold ph-x" label="Close" />'), '');
+  assert.equal(rules('<i className="ph-bold"></i>'), '', 'a weight with no glyph names nothing to draw');
+  assert.equal(rules('<i className="mine ph-x"></i>'), '', 'a glyph with no weight is not a pair the font drew');
+  assert.doesNotMatch(rules('<ArenaIcon className="ph-bold ph-x" />'), /raw-glyph/, 'the icon element is never reported as a raw glyph');
+});
+
+test('the Angular template shape of a raw glyph is reported, and arena-icon and a component icon are not', () => {
+  assert.match(rules('<i class="ph-bold ph-x" aria-hidden="true"></i>', 'src/app.component.html'), /raw-glyph/);
+  assert.match(rules('<i [class]="open ? \'ph-bold ph-x\' : \'ph-bold ph-y\'"></i>', 'src/app.component.html'), /raw-glyph/);
+  assert.match(rules('<span [ngClass]="\'ph-bold ph-x\'"></span>', 'src/app.component.html'), /raw-glyph/);
+  assert.equal(rules('<arena-icon icon="ph-bold ph-x"></arena-icon>', 'src/app.component.html'), '');
+  assert.equal(rules('<arena-button icon="ph-bold ph-x">Go</arena-button>', 'src/app.component.html'), '');
+});
+
 test('an arbitrary Tailwind bracket is reported unless it resolves through a token', () => {
   assert.match(rules('<div className="bg-[#ff0000]" />'), /raw value, not a token/);
   assert.equal(rules('<div className="mt-[var(--sp-4)]" />'), '');

@@ -1,6 +1,6 @@
 /* arena doctor: it compares the tree with what arena build would leave and names every difference,
- * then the environment around it. It writes nothing. A plan fatal, a missing, stale or orphan sheet
- * and a held environment report exit 1; notes never change the exit. */
+ * then the environment around it. It writes nothing. A plan fatal, a missing, stale or orphan file
+ * (a sheet, the sprite or its module) and a held environment report exit 1; notes never change the exit. */
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { commandOptions } from './args.ts';
@@ -67,7 +67,7 @@ export function run(argv: string[], io: Io): number {
     else environment.push(report('environment', `engines.node reads ${range}, which this command does not compare`));
   }
 
-  if (env.phosphor) say.out(`phosphor at ${env.phosphor}`);
+  if (env.phosphor) say.out(`@phosphor-icons/core at ${env.phosphor}`);
 
   const planned = plan(options, env);
   if (planned.fatal.length) {

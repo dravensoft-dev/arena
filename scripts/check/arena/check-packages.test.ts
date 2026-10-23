@@ -98,7 +98,7 @@ const manifest = (overrides = {}) => ({
   version: '4.1.0',
   types: './Index.d.ts',
   dependencies: { ...CLI_DEPENDENCIES },
-  peerDependencies: { react: '>=18', '@phosphor-icons/web': '^2.1.2' },
+  peerDependencies: { react: '>=18' },
   ...overrides,
 });
 
@@ -124,12 +124,13 @@ test('an install script is refused, whichever of the three names it takes', () =
   }
 });
 
-test('Phosphor is the consumer\'s, so bundling it or omitting the peer are both problems', () => {
-  const bundled = manifestProblems(REACT_PACKAGE, manifest({ dependencies: { '@phosphor-icons/web': '^2.1.2' } }), '4.1.0');
-  assert.ok(bundled.some((p) => /never a dependency/.test(p)));
-
-  const missing = manifestProblems(REACT_PACKAGE, manifest({ peerDependencies: { react: '>=18' } }), '4.1.0');
-  assert.deepEqual(missing, ['@dravensoft/arena-react: no peer on @phosphor-icons/web, and every component renders ph-* classes']);
+test('a manifest naming @phosphor-icons/web is a problem in any field, and one naming it nowhere is not', () => {
+  for (const field of ['dependencies', 'peerDependencies', 'devDependencies', 'optionalDependencies', 'peerDependenciesMeta']) {
+    const base = field === 'dependencies' ? { ...CLI_DEPENDENCIES } : {};
+    const named = manifestProblems(REACT_PACKAGE, manifest({ [field]: { ...base, '@phosphor-icons/web': field.endsWith('Meta') ? { optional: true } : '^2.1.2' } }), '4.1.0');
+    assert.ok(named.some((p) => p.includes('@phosphor-icons/web') && p.includes(field)), `${field}: ${named.join(' | ')}`);
+  }
+  assert.deepEqual(manifestProblems(REACT_PACKAGE, manifest(), '4.1.0'), []);
 });
 
 test('a layer manifest declares exactly the CLI\'s dependencies', () => {

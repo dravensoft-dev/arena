@@ -2,7 +2,7 @@
  * nothing, and only held environment reports, a plan fatal or a differing sheet change its exit. */
 import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { run, satisfies } from './command-doctor.ts';
@@ -16,13 +16,13 @@ const NO_COMPONENTS = { match: 'selector', draws: {}, needs: {} };
 
 function setup(extra: Record<string, unknown> = {}) {
   const root = project();
-  const { web } = phosphor();
-  const environment = { arena: null, phosphor: web, sheets: null, map: NO_COMPONENTS, vocabulary: null, ...extra };
-  return { root, web, environment };
+  const { core } = phosphor();
+  const environment = { arena: null, phosphor: core, sheets: null, map: NO_COMPONENTS, vocabulary: null, ...extra };
+  return { root, core, environment };
 }
 
-function build(root: string, web: string, arena: string | null = null) {
-  const built = plan(options(root), { arena, packageName: '@dravensoft/arena-react', sheets: null, map: NO_COMPONENTS, vocabulary: null, phosphor: web });
+function build(root: string, core: string, arena: string | null = null) {
+  const built = plan(options(root), { arena, packageName: '@dravensoft/arena-react', sheets: null, map: NO_COMPONENTS, vocabulary: null, phosphor: core });
   for (const one of built.outputs) writeFileSync(one.path, one.content);
   return built;
 }
@@ -52,18 +52,18 @@ test('before a build: missing sheets, exit 1', () => {
 });
 
 test('after a build: current, exit 0', () => {
-  const { root, web, environment } = setup();
-  const built = build(root, web);
+  const { root, core, environment } = setup();
+  const built = build(root, core);
   const { io, out, err } = captureIo(root, environment);
   assert.equal(run([], io), 0);
   for (const one of built.outputs) assert.ok(out.includes(`arena doctor: ${one.path} is current`));
   assert.deepEqual(err.filter((line) => !line.includes('[environment]') && !line.includes('report(s)')), []);
-  assert.ok(out.includes(`arena doctor: phosphor at ${web}`));
+  assert.ok(out.includes(`arena doctor: @phosphor-icons/core at ${core}`));
 });
 
 test('an edited sheet is stale, exit 1', () => {
-  const { root, web, environment } = setup();
-  const built = build(root, web);
+  const { root, core, environment } = setup();
+  const built = build(root, core);
   const edited = built.outputs[0]!.path;
   writeFileSync(edited, 'x');
   const { io, err } = captureIo(root, environment);
@@ -72,13 +72,26 @@ test('an edited sheet is stale, exit 1', () => {
 });
 
 test('an orphan plugin sheet is reported, exit 1', () => {
-  const { root, web, environment } = setup();
-  build(root, web);
+  const { root, core, environment } = setup();
+  build(root, core);
   const orphan = join(root, 'src', PLUGIN_SHEET);
   writeFileSync(orphan, 'x');
   const { io, err } = captureIo(root, environment);
   assert.equal(run([], io), 1);
   assert.ok(err.includes(`arena doctor: ${orphan} is a sheet this config no longer produces; arena build removes it`));
+});
+
+test('a sprite the build no longer writes and an icon sheet from an earlier version are orphans, exit 1', () => {
+  const { root, core, environment } = setup();
+  build(root, core);
+  const stale = join(root, 'src', 'icons-0123456789.svg');
+  const sheet = join(root, 'src', 'icons.generated.css');
+  writeFileSync(stale, '<svg/>');
+  writeFileSync(sheet, 'x');
+  const { io, err } = captureIo(root, environment);
+  assert.equal(run([], io), 1);
+  assert.ok(err.includes(`arena doctor: ${stale} is a sheet this config no longer produces; arena build removes it`));
+  assert.ok(err.includes(`arena doctor: ${sheet} is a sheet this config no longer produces; arena build removes it`));
 });
 
 test('a plan fatal exits 1 and says the sheets were not compared', () => {
@@ -104,9 +117,9 @@ const withEngines = (range: string) => hostRoot('@dravensoft/arena-react', '1.2.
 });
 
 test('Node below engines is an environment report, held only by --strict=environment', () => {
-  const { root, web, environment } = setup();
+  const { root, core, environment } = setup();
   const host = withEngines('>=99');
-  build(root, web, host);
+  build(root, core, host);
   const env = { ...environment, arena: host };
   const loose = captureIo(root, env);
   assert.equal(run([], loose.io), 0);
@@ -117,20 +130,20 @@ test('Node below engines is an environment report, held only by --strict=environ
   assert.equal(run(['--strict=environment'], held.io), 1);
   assert.ok(held.err.includes('arena doctor: --strict holds environment, and this run reports 1 of them: environment'));
   const modern = withEngines('>=22');
-  build(root, web, modern);
+  build(root, core, modern);
   const fine = captureIo(root, { ...environment, arena: modern });
   run([], fine.io);
   assert.ok(fine.out.includes('arena doctor: node v22.12.0 satisfies >=22'));
   const odd = withEngines('^22');
-  build(root, web, odd);
+  build(root, core, odd);
   const unread = captureIo(root, { ...environment, arena: odd });
   run([], unread.io);
   assert.ok(unread.err.includes('arena doctor: [environment] engines.node reads ^22, which this command does not compare'));
 });
 
 test('no script running arena build is a note and leaves the exit 0', () => {
-  const { root, web, environment } = setup();
-  build(root, web);
+  const { root, core, environment } = setup();
+  build(root, core);
   writeFileSync(join(root, '.gitignore'), '*.generated.css\n');
   const bare = captureIo(root, environment);
   assert.equal(run([], bare.io), 0);
@@ -142,8 +155,8 @@ test('no script running arena build is a note and leaves the exit 0', () => {
 });
 
 test('.gitignore with *.generated.css is covered, src/*.generated.css is covered, a missing one is a note, and !*.generated.css does not cover', () => {
-  const { root, web, environment } = setup();
-  build(root, web);
+  const { root, core, environment } = setup();
+  build(root, core);
   const noted = (content: string | null) => {
     if (content !== null) writeFileSync(join(root, '.gitignore'), content);
     const { io, out } = captureIo(root, environment);
@@ -164,9 +177,9 @@ test('--strict=contrast exits 2 naming arena check', () => {
 });
 
 test('a tree built from a named list the map closes is current, and one built from the list as written is stale', () => {
-  const { web } = phosphor();
+  const { core } = phosphor();
   const root = project({ ...readable, stylesheet: { components: ['table'] } });
-  const environment = { arena: null, packageName: '@dravensoft/arena-react', phosphor: web, sheets: SHEETS, map: MAP, vocabulary: null };
+  const environment = { arena: null, packageName: '@dravensoft/arena-react', phosphor: core, sheets: SHEETS, map: MAP, vocabulary: null };
 
   const asWritten = plan(options(root), { ...environment, map: null });
   for (const one of asWritten.outputs) writeFileSync(one.path, one.content);
@@ -177,6 +190,13 @@ test('a tree built from a named list the map closes is current, and one built fr
   const built = plan(options(root), environment);
   assert.match(built.outputs[0]!.content, /css\/components\/pagination\.css/);
   for (const one of built.outputs) writeFileSync(one.path, one.content);
+  const staleSprite = asWritten.outputs.find((one) => /^icons-[0-9a-f]{10}\.svg$/.test(one.name))!;
+  assert.notEqual(staleSprite.name, built.outputs.find((one) => /^icons-[0-9a-f]{10}\.svg$/.test(one.name))!.name,
+    'the list as written drew the filled weight too, so its sprite carries another name');
+  const leftover = captureIo(root, environment);
+  assert.equal(run([], leftover.io), 1);
+  assert.ok(leftover.err.includes(`arena doctor: ${staleSprite.path} is a sheet this config no longer produces; arena build removes it`));
+  rmSync(staleSprite.path);
   const after = captureIo(root, environment);
   assert.equal(run([], after.io), 0);
   for (const one of built.outputs) assert.ok(after.out.includes(`arena doctor: ${one.path} is current`), one.path);

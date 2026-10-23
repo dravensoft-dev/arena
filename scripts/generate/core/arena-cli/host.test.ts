@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { hostManifest, hostPackage, hostPackageName, packageSheets, phosphorCoreRoot, phosphorRoot, resolveEnvironment } from './host.ts';
+import { hostManifest, hostPackage, hostPackageName, packageSheets, phosphorRoot, resolveEnvironment } from './host.ts';
 import { loadVocabulary, VOCABULARY_INDEX } from './audit.ts';
 import { hostRoot, phosphor, removeFixtures } from './cli-fixtures.ts';
 
@@ -92,24 +92,21 @@ test('no package around the command means no sheet list rather than an empty one
 });
 
 test('Phosphor is looked for upwards, which is where a package manager puts it', () => {
-  const { root, web } = phosphor();
+  const { root, core } = phosphor();
   const deep = join(root, 'apps', 'web', 'src');
   mkdirSync(deep, { recursive: true });
-  assert.equal(phosphorRoot(deep, deep), web);
+  assert.equal(phosphorRoot(deep, deep), core);
   assert.equal(phosphorRoot(tmpdir(), tmpdir()), null);
   rmSync(root, { recursive: true });
 });
 
-test('phosphorRoot finds @phosphor-icons/core from a project', () => {
-  const root = mkdtempSync(join(tmpdir(), 'arena-core-'));
-  const core = join(root, 'node_modules', '@phosphor-icons', 'core');
-  mkdirSync(core, { recursive: true });
-  writeFileSync(join(core, 'package.json'), JSON.stringify({ name: '@phosphor-icons/core' }));
-  const deep = join(root, 'apps', 'web');
-  mkdirSync(deep, { recursive: true });
-  assert.equal(phosphorCoreRoot(deep, deep), core);
-  assert.equal(phosphorCoreRoot(tmpdir(), tmpdir()), null);
-  assert.equal(resolveEnvironment({ arena: null, core: '/c' }).core, '/c');
+test('the one Phosphor install the command reads is @phosphor-icons/core, and a web install is not it', () => {
+  const root = mkdtempSync(join(tmpdir(), 'arena-web-only-'));
+  const web = join(root, 'node_modules', '@phosphor-icons', 'web');
+  mkdirSync(web, { recursive: true });
+  writeFileSync(join(web, 'package.json'), JSON.stringify({ name: '@phosphor-icons/web' }));
+  assert.equal(phosphorRoot(root, root), null);
+  assert.equal('core' in resolveEnvironment({ arena: null, phosphor: null }), false);
   rmSync(root, { recursive: true });
 });
 
@@ -128,9 +125,9 @@ test('the vocabulary index is read from beside the command, and a file that is n
 });
 
 test('an override a caller hands in wins over what the install would answer, and a missing install answers nothing', () => {
-  const none = resolveEnvironment({ arena: null, phosphor: null, core: null });
+  const none = resolveEnvironment({ arena: null, phosphor: null });
   assert.deepEqual(none, {
-    arena: null, packageName: '@dravensoft/arena-react', sheets: null, map: null, vocabulary: null, phosphor: null, core: null,
+    arena: null, packageName: '@dravensoft/arena-react', sheets: null, map: null, vocabulary: null, phosphor: null,
   });
   const named = resolveEnvironment({ arena: null, phosphor: '/p', packageName: '@dravensoft/arena-angular' });
   assert.equal(named.packageName, '@dravensoft/arena-angular');

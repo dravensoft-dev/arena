@@ -10,9 +10,10 @@
 
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { WEIGHT_CLASSES } from './icon-css.ts';
 
 export const RULE_TAGS = ['compat-alias', 'danger-fill', 'emoji', 'icon-element',
-  'one-primary', 'outline-gap', 'own-class', 'raw-value', 'router-link', 'stale-allowance', 'unknown-input', 'wrapped-link'] as const;
+  'one-primary', 'outline-gap', 'own-class', 'raw-glyph', 'raw-value', 'router-link', 'stale-allowance', 'unknown-input', 'wrapped-link'] as const;
 
 export const RULE_DESCRIPTIONS: Record<(typeof RULE_TAGS)[number], string> = {
   'compat-alias': 'A stylesheet in a style plugin directory reads one of Arena\'s compatibility aliases through `var()`, which names a step of the ramp instead of a role.',
@@ -22,6 +23,7 @@ export const RULE_DESCRIPTIONS: Record<(typeof RULE_TAGS)[number], string> = {
   'one-primary': 'A second action in one view, or in one modal, takes the primary emphasis by class or by leaving a primary-default component without one.',
   'outline-gap': 'A source draws Arena headings at two levels with a level missing between them, such as an h1 and an h3 with no h2.',
   'own-class': 'A component carries a class outside its vocabulary or a computed one, or a stylesheet targets an `arena-` class anywhere or a `data-arena-part` hook outside a style plugin.',
+  'raw-glyph': 'An element other than `ArenaIcon` holds a Phosphor weight class and a `ph-*` glyph in its class, which paints nothing because Arena ships no icon font.',
   'raw-value': 'A style holds a hex, colour or bare pixel length, or a gradient outside a style plugin unless `gradientMark` is set, or a class holds a non-token bracket value.',
   'router-link': 'A link of your own, such as `a`, `Link` or `routerLink`, directly wraps an Arena card, side nav item, bottom nav item or table cell.',
   'stale-allowance': 'An `arena-audit allow` marker sits on a line with nothing to exempt.',
@@ -328,6 +330,11 @@ export function paintedParts(css: string) {
   return [...new Set([...css.matchAll(PAINTED_PART)].map((m) => group(m)))].sort();
 }
 
+const WEIGHT_WORDS = Object.values(WEIGHT_CLASSES).map((token) => token.replace(/^ph-?/, '')).filter(Boolean).join('|');
+const WEIGHT_TOKEN = /(?<![\w-])ph(?:-(?:thin|light|bold|fill|duotone))?(?![\w-])/;
+const GLYPH_TOKEN = new RegExp(`(?<![\\w-])ph-(?!(?:${WEIGHT_WORDS})(?![\\w-]))[a-z0-9]+(?:-[a-z0-9]+)*`);
+const RAW_GLYPH_MESSAGE = 'an element drawn with a Phosphor class, which paints nothing because Arena ships no icon '
+  + 'font. Draw it through ArenaIcon (arena-icon in Angular), as icon="ph-bold ph-plus"';
 const ICON_ELEMENT = /\bicon(?:Right)?\s*=\s*\{\s*</;
 
 const EMOJI = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}]/u;
@@ -737,6 +744,12 @@ export function structuralFindings(text: string, vocabulary: VocabularyIndex | n
 
     for (const attribute of unknownInputs(name, attributes, vocabulary))
       found.push(at(lineAt(text, start), 'unknown-input', UNKNOWN_INPUT_MESSAGE(attribute, name)));
+
+    if (kebabTag(name) !== 'arena-icon') {
+      const classes = classValues(raw);
+      if (WEIGHT_TOKEN.test(classes) && GLYPH_TOKEN.test(classes))
+        found.push(at(lineAt(text, start), 'raw-glyph', RAW_GLYPH_MESSAGE));
+    }
 
     if (ARENA_TAG.test(name) && STATED_PRIMARY.test(attributes)) primaries.push({ scope, line: lineAt(text, start) });
     const emphasis = EMPHASIS_OPTION.test(attributes) || EMPHASIS_OPTION.test(classValues(raw));

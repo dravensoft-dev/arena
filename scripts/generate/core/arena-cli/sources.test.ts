@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { sourceFiles, OUTPUT_SHEETS, auditFiles, pluginDirs, missingSource } from './sources.ts';
-import { THEME_SHEET, ICONS_SHEET, PLUGIN_SHEET, RUNTIME_DATA, PLUGIN_CSS } from './sheets.ts';
+import { sourceFiles, OUTPUT_SHEETS, RETIRED_ICONS_SHEET, spriteFilesIn, auditFiles, pluginDirs, missingSource } from './sources.ts';
+import { THEME_SHEET, PLUGIN_SHEET, RUNTIME_DATA, PLUGIN_CSS, SPRITE_MODULE, SPRITE_TYPES } from './sheets.ts';
 import { options, project, readable, removeFixtures } from './cli-fixtures.ts';
 
 after(removeFixtures);
@@ -13,11 +13,12 @@ test('a path that is not there reads as nothing rather than as an empty tree', (
   assert.equal(sourceFiles(join(tmpdir(), 'arena-nowhere')), null);
 });
 
-test('the walk skips the two sheets this command writes, so a scan never reads its own output', () => {
+test('the walk skips the sheets and the module this command writes, so a scan never reads its own output', () => {
   const root = mkdtempSync(join(tmpdir(), 'arena-selfscan-'));
   writeFileSync(join(root, 'App.tsx'), '<i className="ph-bold ph-bell" />');
   writeFileSync(join(root, THEME_SHEET), ':root{--color-primary:#b52a20;}');
-  writeFileSync(join(root, ICONS_SHEET), '.ph-bold.ph-gear{content:"\\e000"}');
+  writeFileSync(join(root, RETIRED_ICONS_SHEET), '.ph-bold.ph-gear{content:"\\e000"}');
+  writeFileSync(join(root, SPRITE_MODULE), "export const ARENA_SPRITE = 'icons-0123456789.svg';");
   assert.deepEqual(sourceFiles(root), [join(root, 'App.tsx')]);
   rmSync(root, { recursive: true });
 });
@@ -30,7 +31,18 @@ test('a consumer file that merely ends in .generated.css is still a source, sinc
 });
 
 test('the skipped names are exactly what the command writes, derived rather than restated', () => {
-  assert.deepEqual([...OUTPUT_SHEETS].sort(), [ICONS_SHEET, PLUGIN_SHEET, RUNTIME_DATA, THEME_SHEET].sort());
+  assert.deepEqual([...OUTPUT_SHEETS].sort(),
+    [RETIRED_ICONS_SHEET, PLUGIN_SHEET, RUNTIME_DATA, SPRITE_MODULE, SPRITE_TYPES, THEME_SHEET].sort());
+});
+
+test('spriteFilesIn names the content-hashed sprites in a directory and nothing a project named itself', () => {
+  const root = mkdtempSync(join(tmpdir(), 'arena-sprites-'));
+  for (const name of ['icons-0123456789.svg', 'icons-abcdef0123.svg', 'icons-mine.svg', 'icons-0123456789.svg.bak', 'logo.svg']) {
+    writeFileSync(join(root, name), '<svg/>');
+  }
+  assert.deepEqual(spriteFilesIn(root), ['icons-0123456789.svg', 'icons-abcdef0123.svg']);
+  assert.deepEqual(spriteFilesIn(join(root, 'nowhere')), []);
+  rmSync(root, { recursive: true });
 });
 
 test('the plugin sheet is an output, so the audit walk never reads what this command wrote', () => {

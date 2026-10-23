@@ -8,7 +8,7 @@ The command ships inside both component packages, so installing Arena installs i
 
 | command | what it does | writes | flags |
 | --- | --- | --- | --- |
-| `arena build` | Writes the theme, icon and plugin sheets from your config and sources. | the sheets | `--config`, `--src`, `-o`, `--out`, `--no-import`, `--watch` |
+| `arena build` | Writes the theme and plugin sheets, the icon sprite and its module from your config and sources. | the sheets | `--config`, `--src`, `-o`, `--out`, `--no-import`, `--watch` |
 | `arena check` | Names what the sheets a build would write, and your sources, get wrong: contrast, ramp, heat, weight, glyph, component and marker reports. | nothing | `--config`, `--src`, `--strict` |
 | `arena audit` | Reads your sources and style plugins against the rules of the language. | nothing | `--config`, `--src`, `--strict` |
 | `arena usage` | Names the components the package ships that your sources draw nowhere, and the parts your style plugins paint. A component Arena draws on your behalf counts as undrawn, because you never wrote it. | nothing | `--config`, `--src` |
@@ -67,7 +67,9 @@ Each `<component>` stands for a sheet in the closed list `arena build` works out
 
 **`arena.runtime.generated.json`** is written when the config sets `"runtimePalettes": true`. The file holds the level list, the washes and the style plugin's roles for each polarity, which `arenaRuntimePalette`, `arenaCheckPalette` and `arenaPaletteDeclarations` read as their `data`. [`theme.md`](./theme.md) covers them.
 
-**`icons.generated.css`** holds the class rules, in `woff2` alone, for every glyph your sources draw and every glyph Arena's components draw for you. Your sources are read as text; Arena's half is the package's `icons.json`, computed from its renders. Every glyph you name also reaches the filled weight, since an active navigation item draws filled. The `@font-face` points at the whole font Phosphor ships; subset it to this glyph list if the bytes matter.
+**`icons-<hash>.svg`** is the Phosphor sprite: one `<symbol>` per glyph your sources draw and every glyph Arena's components draw for you, each cut from `@phosphor-icons/core`, the official 256-unit SVGs. Your sources are read as text; Arena's half is the package's `icons.json`, computed from its renders. Every glyph you name also reaches the filled weight, since an active navigation item draws filled. The name carries a hash of the file's bytes, so it changes exactly when the sprite does, and a sprite from an earlier build is removed. A glyph Phosphor does not draw at that weight is a `glyph` report and gets no symbol.
+
+**`arena.icons.generated.js`** and its declaration file export `ARENA_SPRITE`, the sprite's file name, under a fixed name. The app serves the sprite and hands its URL over once.
 
 **`plugin.generated.css`** is written when a style plugin carries a `plugin.css`. The sheet holds that CSS in the reserved cascade layer and leads with the layer order itself, so where a bundler places it cannot change what wins.
 
@@ -122,6 +124,7 @@ The middle column is the rule of [the rules section of `SKILL.md`](../SKILL.md) 
 | `one-primary` | One primary accent per view. | A second action in one view, or in one modal, takes the primary emphasis by class or by leaving a primary-default component without one. |
 | `outline-gap` | none of the language rules | A source draws Arena headings at two levels with a level missing between them, such as an h1 and an h3 with no h2. |
 | `own-class` | Only a class of the vocabulary goes on an Arena component. | A component carries a class outside its vocabulary or a computed one, or a stylesheet targets an `arena-` class anywhere or a `data-arena-part` hook outside a style plugin. |
+| `raw-glyph` | none of the language rules | An element other than `ArenaIcon` holds a Phosphor weight class and a `ph-*` glyph in its class, which paints nothing because Arena ships no icon font. |
 | `raw-value` | Tokens are the only styling layer. No gradients, on any surface. | A style holds a hex, colour or bare pixel length, or a gradient outside a style plugin unless `gradientMark` is set, or a class holds a non-token bracket value. |
 | `router-link` | Never wrap an Arena component in your router's own link. | A link of your own, such as `a`, `Link` or `routerLink`, directly wraps an Arena card, side nav item, bottom nav item or table cell. |
 | `stale-allowance` | none of the language rules | An `arena-audit allow` marker sits on a line with nothing to exempt. |
@@ -146,7 +149,7 @@ Run `arena init` once. In a project on `@dravensoft/arena-react` it adds these s
     "prebuild": "arena build",
     "predev": "arena build",
     "arena:check": "arena check --strict=components,glyph,markers",
-    "arena:audit": "arena audit --strict=audit:compat-alias,audit:danger-fill,audit:emoji,audit:icon-element,audit:one-primary,audit:outline-gap,audit:own-class,audit:raw-value,audit:router-link,audit:stale-allowance,audit:unknown-input,audit:wrapped-link,restated"
+    "arena:audit": "arena audit --strict=audit:compat-alias,audit:danger-fill,audit:emoji,audit:icon-element,audit:one-primary,audit:outline-gap,audit:own-class,audit:raw-glyph,audit:raw-value,audit:router-link,audit:stale-allowance,audit:unknown-input,audit:wrapped-link,restated"
   }
 }
 ```
@@ -167,7 +170,7 @@ The same, on `@dravensoft/arena-angular`, with `prestart` in place of `predev`.
     "prebuild": "arena build",
     "prestart": "arena build",
     "arena:check": "arena check --strict=components,glyph,markers",
-    "arena:audit": "arena audit --strict=audit:compat-alias,audit:danger-fill,audit:emoji,audit:icon-element,audit:one-primary,audit:outline-gap,audit:own-class,audit:raw-value,audit:router-link,audit:stale-allowance,audit:unknown-input,audit:wrapped-link,restated"
+    "arena:audit": "arena audit --strict=audit:compat-alias,audit:danger-fill,audit:emoji,audit:icon-element,audit:one-primary,audit:outline-gap,audit:own-class,audit:raw-glyph,audit:raw-value,audit:router-link,audit:stale-allowance,audit:unknown-input,audit:wrapped-link,restated"
   }
 }
 ```

@@ -13,7 +13,9 @@ import type { ComponentMap } from './components.ts';
 import type { ShippedIconMap } from './icon-css.ts';
 
 export const THEME_SHEET = 'arena.generated.css';
-export const ICONS_SHEET = 'icons.generated.css';
+export const SPRITE_STEM = 'icons';
+export const SPRITE_MODULE = 'arena.icons.generated.js';
+export const SPRITE_TYPES = 'arena.icons.generated.d.ts';
 export const PLUGIN_SHEET = 'plugin.generated.css';
 export const RUNTIME_DATA = 'arena.runtime.generated.json';
 export const PLUGIN_CSS = 'plugin.css';

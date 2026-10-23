@@ -13,13 +13,13 @@ import { pathToFileURL } from 'node:url';
 import { CLI_BINS } from '../../lib/arena/package-assembly.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import {
-  importedSheets, unknownSymbolProblems, listProblems, closedListProblems, iconProblems, documented, CONFIG_REFERENCE,
-  palettesProblems, defaultListProblems, runtimeProblems, installedPalette, SOURCES, UNKNOWN, FILL, GLYPH, NAV_GLYPH, THIRD_PALETTE, CLI, snapshot, treeChanges, exitProblem, binProblems,
+  importedSheets, unknownSymbolProblems, listProblems, closedListProblems, spriteProblems, documented, CONFIG_REFERENCE,
+  palettesProblems, defaultListProblems, runtimeProblems, installedPalette, SOURCES, UNKNOWN, GLYPH, NAV_SYMBOL, GLYPH_SYMBOL, THIRD_PALETTE, CLI, snapshot, treeChanges, exitProblem, binProblems,
 } from './check-consumer.ts';
 import type { CliRun, Shipped } from './check-consumer.ts';
 import { distDir, unassembled, assembled } from './check-packages.ts';
 
-const ok: CliRun = { status: 0, stdout: '', stderr: '', theme: null, icons: null, plugin: null, runtime: null };
+const ok: CliRun = { status: 0, stdout: '', stderr: '', theme: null, sprites: {}, module: null, retired: false, plugin: null, runtime: null };
 
 const sheetImports = (...names: string[]) => ({
   ...ok,
@@ -59,25 +59,53 @@ test('the documented sheet list must pass and an unknown one must fail, naming w
   assert.match(silentRefusal[0] ?? '', /does not list the sheets/);
 });
 
-test('the subset must carry the nav glyph filled and the button glyph only in the weight it was named beside', () => {
-  const bold = `.ph-bold.${GLYPH}:before{content:"\\e0ce"}\n.ph-bold.${NAV_GLYPH}:before{content:"\\e2c2"}`;
-  const both = `${bold}\n${FILL}.${NAV_GLYPH}:before{content:"\\e2c2"}`;
-  assert.deepEqual(iconProblems('angular', both), []);
+const NAME = 'icons-0123456789.svg';
+const symbol = (id: string) => `<symbol id="${id}" viewBox="0 0 256 256" fill="currentColor"><path d="M0 0"/></symbol>`;
+const sprite = (...ids: string[]) => `<svg xmlns="http://www.w3.org/2000/svg">\n${ids.map(symbol).join('\n')}\n</svg>\n`;
+const written = (sprites: Record<string, string>, module: string | null = `export const ARENA_SPRITE = '${NAME}';\n`): CliRun =>
+  ({ ...ok, sprites, module });
 
-  const boldAlone = iconProblems('angular', bold);
+test('the sprite must carry the button glyph bold and the nav glyph filled, and its module must name the file', () => {
+  const good = written({ [NAME]: sprite(GLYPH_SYMBOL, NAV_SYMBOL, 'ph-bold-house') });
+  assert.deepEqual(spriteProblems('angular', good), []);
+  assert.equal(GLYPH, 'ph-bell');
+  assert.equal(GLYPH_SYMBOL, 'ph-bold-bell');
+  assert.equal(NAV_SYMBOL, 'ph-fill-house');
+
+  const boldAlone = spriteProblems('angular', written({ [NAME]: sprite(GLYPH_SYMBOL, 'ph-bold-house') }));
   assert.equal(boldAlone.length, 1);
+  assert.match(boldAlone[0] ?? '', /missing symbol|no #ph-fill-house/);
   assert.match(boldAlone[0] ?? '', /the item the user just pressed/);
 
-  const buttonFilled = iconProblems('angular', `${both}\n${FILL}.${GLYPH}:before{content:"\\e0ce"}`);
+  const buttonFilled = spriteProblems('angular', written({ [NAME]: sprite(GLYPH_SYMBOL, NAV_SYMBOL, 'ph-fill-bell') }));
   assert.equal(buttonFilled.length, 1);
   assert.match(buttonFilled[0] ?? '', /cannot draw filled/);
 
-  const empty = iconProblems('angular', '');
-  assert.equal(empty.length, 1, 'a sheet that was never written is one problem rather than three');
-  assert.match(empty[0] ?? '', /wrote no/);
+  const none = spriteProblems('angular', written({}));
+  assert.equal(none.length, 1, 'a sprite that was never written is one problem rather than several');
+  assert.match(none[0] ?? '', /wrote no icons-\*\.svg/);
 
-  const neither = iconProblems('angular', '.ph-bold.ph-moon:before{content:"\\e330"}');
-  assert.equal(neither.length, 2);
+  const missing = spriteProblems('angular', written({ [NAME]: sprite('ph-bold-moon') }));
+  assert.ok(missing.some((one) => one.includes('#ph-bold-bell')), missing.join('\n'));
+});
+
+test('a leftover icons.generated.css, a second sprite and a module naming another file are each a problem', () => {
+  const good = written({ [NAME]: sprite(GLYPH_SYMBOL, NAV_SYMBOL) });
+  const leftover = spriteProblems('react', { ...good, retired: true });
+  assert.equal(leftover.length, 1);
+  assert.match(leftover[0] ?? '', /icons\.generated\.css is still there/);
+
+  const two = spriteProblems('react', written({ [NAME]: sprite(GLYPH_SYMBOL, NAV_SYMBOL), 'icons-abcdef0123.svg': sprite('ph-bold-moon') }));
+  assert.equal(two.length, 1);
+  assert.match(two[0] ?? '', /2 icons-\*\.svg/);
+
+  const other = spriteProblems('react', written({ [NAME]: sprite(GLYPH_SYMBOL, NAV_SYMBOL) }, "export const ARENA_SPRITE = 'icons-ffffffffff.svg';\n"));
+  assert.equal(other.length, 1);
+  assert.match(other[0] ?? '', /module names icons-ffffffffff\.svg/);
+
+  const noModule = spriteProblems('react', written({ [NAME]: sprite(GLYPH_SYMBOL, NAV_SYMBOL) }, null));
+  assert.equal(noModule.length, 1);
+  assert.match(noModule[0] ?? '', /arena\.icons\.generated\.js/);
 });
 
 test('assembly is judged by the package manifest, so a half-written dist is not mistaken for one', () => {

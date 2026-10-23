@@ -41,8 +41,8 @@ function tree(root: string): string[] {
 }
 
 function check(root: string, argv: string[] = [], extra: Record<string, unknown> = {}) {
-  const { web } = phosphor();
-  const captured = captureIo(root, { arena: null, map: null, sheets: null, vocabulary: null, phosphor: web, ...extra });
+  const { core } = phosphor();
+  const captured = captureIo(root, { arena: null, map: null, sheets: null, vocabulary: null, phosphor: core, ...extra });
   const code = run(argv, captured.io);
   return { code, out: captured.out, err: captured.err };
 }

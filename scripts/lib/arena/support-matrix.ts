@@ -34,7 +34,6 @@ export const PEERS = {
   react: {
     react: '^18 || ^19',
     'react-dom': '^18 || ^19',
-    '@phosphor-icons/web': '^2.1.2',
   },
   angular: {
     '@angular/core': '>=20',
@@ -43,7 +42,6 @@ export const PEERS = {
     '@angular/cdk': '>=20',
     '@angular/router': '>=20',
     '@angular/forms': '>=20',
-    '@phosphor-icons/web': '^2.1.2',
   },
 } satisfies Record<string, Record<string, string>>;
 

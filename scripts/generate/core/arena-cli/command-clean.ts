@@ -1,11 +1,11 @@
-/* arena clean: it deletes the sheets arena build writes, by name, inside --out. It never deletes
+/* arena clean: it deletes the sheets, the sprite and its module arena build writes, by name, inside --out. It never deletes
  * another file or the directory, so it is safe to run in a source tree. */
 import { existsSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { commandOptions } from './args.ts';
 import { voice } from './io.ts';
 import type { Io } from './io.ts';
-import { OUTPUT_SHEETS } from './sources.ts';
+import { OUTPUT_SHEETS, spriteFilesIn } from './sources.ts';
 
 export function run(argv: string[], io: Io): number {
   const options = commandOptions('clean', argv, io);
@@ -13,7 +13,7 @@ export function run(argv: string[], io: Io): number {
   const say = voice(io, 'clean');
   let removed = 0;
   let failed = 0;
-  for (const name of OUTPUT_SHEETS) {
+  for (const name of [...OUTPUT_SHEETS, ...spriteFilesIn(options.out)]) {
     const at = join(options.out, name);
     if (!existsSync(at)) continue;
     try {

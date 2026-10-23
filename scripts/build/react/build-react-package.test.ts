@@ -66,9 +66,9 @@ test('the version is stamped from plugin.json rather than written here', () => {
   assert.equal(manifest(repoRoot).version, version(repoRoot));
 });
 
-test('react, react-dom and Phosphor are the peers, and the three of the arena command are the dependencies', () => {
+test('react and react-dom are the peers, Phosphor is none, and the three of the arena command are the dependencies', () => {
   const m = manifest(repoRoot);
-  assert.deepEqual(Object.keys(m.peerDependencies).sort(), ['@phosphor-icons/web', 'react', 'react-dom']);
+  assert.deepEqual(Object.keys(m.peerDependencies).sort(), ['react', 'react-dom']);
   assert.equal(m.peerDependencies.react, '^18 || ^19',
     'the range is the two majors a real tarball install was rendered under; an open >=18 would promise React 20');
   assert.deepEqual(m.dependencies, CLI_DEPENDENCIES,

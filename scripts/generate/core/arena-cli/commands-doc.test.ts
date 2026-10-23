@@ -143,7 +143,7 @@ const READING = ['build', 'check', 'audit', 'usage'] as const;
 
 function environment(extra: HostEnvironment = {}): HostEnvironment {
   return { arena: null, packageName: '@dravensoft/arena-react', map: MAP, sheets: null, vocabulary: null,
-    phosphor: phosphor().web, ...extra };
+    phosphor: phosphor().core, ...extra };
 }
 
 function at(label: string, argv: string[], cwd: string, extra: HostEnvironment = {}): Run {

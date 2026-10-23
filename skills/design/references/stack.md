@@ -95,14 +95,12 @@ installs nothing that draws**, and an Arena package with a peer missing fails at
 |---|---|---|---|
 | `@dravensoft/arena-react` | `react` | `^18 \|\| ^19` | required |
 | `@dravensoft/arena-react` | `react-dom` | `^18 \|\| ^19` | required |
-| `@dravensoft/arena-react` | `@phosphor-icons/web` | `^2.1.2` | required |
 | `@dravensoft/arena-angular` | `@angular/core` | `>=20` | required |
 | `@dravensoft/arena-angular` | `@angular/common` | `>=20` | required |
 | `@dravensoft/arena-angular` | `@angular/platform-browser` | `>=20` | required |
 | `@dravensoft/arena-angular` | `@angular/cdk` | `>=20` | required |
 | `@dravensoft/arena-angular` | `@angular/router` | `>=20` | optional, add it when you reach what needs it |
 | `@dravensoft/arena-angular` | `@angular/forms` | `>=20` | optional, add it when you reach what needs it |
-| `@dravensoft/arena-angular` | `@phosphor-icons/web` | `^2.1.2` | required |
 
 <!-- @support peers end -->
 
