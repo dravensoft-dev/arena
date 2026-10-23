@@ -19,7 +19,8 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  BUN_VERSION: 1.3.14
+  BUN_VERSION: 1.4.0
+  NODE_VERSION: 26.7.0
   PACKAGE: "@dravensoft/arena-contracts"
   PKG: contracts
 
@@ -42,6 +43,9 @@ jobs:
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: ${{ env.BUN_VERSION }}
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
 
       - id: decide
         run: |
@@ -142,6 +146,9 @@ jobs:
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: ${{ env.BUN_VERSION }}
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
       - uses: actions/cache@v6
         with:
           path: ~/.bun/install/cache
@@ -215,7 +222,7 @@ jobs:
       # alternative here: it does not speak OIDC, so the tarball would leave unattested.
       - uses: actions/setup-node@v7
         with:
-          node-version: 26
+          node-version: ${{ env.NODE_VERSION }}
           registry-url: https://registry.npmjs.org
       - name: npm new enough for trusted publishing
         run: |

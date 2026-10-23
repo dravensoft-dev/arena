@@ -12,7 +12,8 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  BUN_VERSION: 1.3.14
+  BUN_VERSION: 1.4.0
+  NODE_VERSION: 26.7.0
 
 jobs:
   changes:
@@ -28,6 +29,9 @@ jobs:
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: ${{ env.BUN_VERSION }}
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
       - id: layers
         run: |
           git diff --name-only "origin/${{ github.base_ref }}...HEAD" \

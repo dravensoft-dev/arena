@@ -497,6 +497,13 @@ question to answer rather than a flag to set. `actions/setup-node` from v6 cache
 only when `packageManager` names npm, and this repository's names bun, so a jump to v5 rather than
 past it would have switched on a cache nobody asked for.
 
+**The tools are pinned to the exact versions Arena runs on.** `BUN_VERSION`, `NODE_VERSION` and,
+where a job installs a browser, `CHROME_VERSION` sit in each workflow's `env`, and `packageManager`
+names the same Bun. Every job that runs Arena's tooling installs Node through `actions/setup-node`,
+because the gates read what Node and Bun do (the brotli dictionary `check:weight` measures with, the
+bytes `bun build` emits) and an image's Node moves without a commit. Chrome for Testing serves the
+exact build to `setup-chrome` on every runner. The three move together.
+
 **Chromium.** The gates that measure a real render drive a browser, and `CHROME_PATH` is terminal:
 set and pointing at nothing, they report that rather than falling back to the candidate list.
 **Only `main.yml` names a browser**, by passing `/usr/bin/google-chrome`, which the image documents,

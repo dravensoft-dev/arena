@@ -21,7 +21,9 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  BUN_VERSION: 1.3.14
+  BUN_VERSION: 1.4.0
+  NODE_VERSION: 26.7.0
+  CHROME_VERSION: 155.0.8059.84
 
 jobs:
   build:
@@ -38,6 +40,9 @@ jobs:
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: ${{ env.BUN_VERSION }}
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
       - uses: actions/cache@v6
         with:
           path: ~/.bun/install/cache
@@ -50,6 +55,8 @@ jobs:
       # workflow names it, and Arena main is the one that may, so this exercises the PATH branch.
       - name: a browser, and CHROME_PATH is deliberately not exported
         uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: ${{ env.CHROME_VERSION }}
 
       # Arena main built this exact commit and saved the result under this key. There are no
       # restore-keys: a prefix fallback would publish the assembled tree of another commit.

@@ -12,7 +12,7 @@ export const HOST_BINARIES: Record<string, HostBinary> = {
   bun: {
     probe: 'bun --version',
     why: 'the runtime and the package manager. package.json pins the version under '
-      + 'packageManager, and every workflow pins the same one.',
+      + 'packageManager, and every workflow pins the same one, beside the Node and the Chrome it installs.',
   },
   git: {
     probe: 'git --version',
