@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  playgroundPage, sheetLinks, surfacesDrawn, toggleDock, UP, PHOSPHOR_WEIGHTS, SPRITE_FILE, spriteHref,
+  playgroundPage, sheetLinks, surfacesDrawn, toggleDock, UP, SPRITE_FILE, spriteHref,
 } from './playground-page.ts';
 
 const page = (over = {}) => playgroundPage({
@@ -13,7 +13,7 @@ test('every page links the shared chrome, which is what makes the frame the same
   assert.match(out, new RegExp(`${UP}intro/styles\\.css`));
   assert.match(out, new RegExp(`${UP}intro/toggle\\.css`));
   assert.match(out, new RegExp(`${UP}intro/playground\\.css`));
-  for (const weight of PHOSPHOR_WEIGHTS) assert.match(out, new RegExp(`src/${weight}/style\\.css`));
+  assert.doesNotMatch(out, /phosphor-icons/, 'a glyph is drawn from the sprite, so no page links the web font');
 });
 
 test('all three toggles are static markup outside any framework, so a re-render cannot drop them', () => {

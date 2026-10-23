@@ -83,6 +83,7 @@ test('the page carries the theme control the query parameter needs, and the scop
   assert.match(page, /class="dtoggle themebtn"/,
     'intro/theme.js applies nothing until it finds one, so a page without it ignores ?theme=');
   assert.match(page, /<html lang="en" class="arena-editorial">/);
+  assert.doesNotMatch(page, /phosphor-icons/, 'a glyph is drawn from the sprite, so the page links no web font');
 });
 
 test('an entry file is named for its arrangement and its layer, so one page never loads the other\'s', () => {

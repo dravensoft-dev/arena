@@ -19,7 +19,7 @@ import { repoRoot as root } from './repo-root.ts';
 import { IDENTITY_PAGES } from './agent-payload.ts';
 import { shippedComponents } from './component-map.ts';
 import { isVariantArrangement, type SinkFixture } from './kitchen-sink-model.ts';
-import { PHOSPHOR_WEIGHTS, SPRITE_FILE } from './playground-page.ts';
+import { SPRITE_FILE } from './playground-page.ts';
 import { kebab, pascal } from '../../utils/case.ts';
 
 export const DOMAIN = 'arena.dravensoft.org';
@@ -30,10 +30,6 @@ export const PLAYGROUND_SUFFIX = '.demo.generated.html';
 export const SINK_PAGE = 'index.generated.html';
 export const PLAYGROUND_INDEX = 'components';
 export { SPRITE_FILE };
-
-export const PHOSPHOR = 'node_modules/@phosphor-icons/web/src';
-export const PHOSPHOR_KEEP = ['style.css', '.woff2', '.woff'];
-export const PHOSPHOR_FORMATS = ['.svg', '.ttf', '.woff', '.woff2'];
 
 export const BENCHES_DIR = 'web-benches';
 export const BENCHES_MANIFEST = 'benches.json';
@@ -242,28 +238,6 @@ export function indexedDirectories(base: string, out: string) {
     ...LAYERS.flatMap((layer) => sinkNames(base).map((name) => `frameworks/${layer}/kitchen-sink/${name}`)),
     ...benchDirectories(out),
   ];
-}
-
-export function phosphorKeeps(name: string) {
-  return PHOSPHOR_KEEP.some((keep) => (keep.startsWith('.') ? name.endsWith(keep) : name === keep));
-}
-
-export function phosphorDrops(name: string) {
-  return name.startsWith('Phosphor')
-    && PHOSPHOR_FORMATS.some((format) => name.endsWith(format))
-    && !phosphorKeeps(name);
-}
-
-export function phosphorFiles(base = root) {
-  const found = [];
-  for (const weight of PHOSPHOR_WEIGHTS) {
-    const dir = join(base, PHOSPHOR, weight);
-    if (!existsSync(dir)) continue;
-    for (const path of walkFiles(dir)) {
-      if (phosphorKeeps(basename(path))) found.push(relPosix(base, path));
-    }
-  }
-  return found.sort();
 }
 
 export const TITLE = /<title>([^<]*)<\/title>/;

@@ -3,12 +3,11 @@
  * rather than a caller: it carries a scope class on <html> naming the appearance, which lets
  * check:pixel-parity know what it is looking at. The theme button is load-bearing: intro/theme.js
  * applies nothing without a .themebtn. The whole barrel is linked, an order computed twice being one
- * that can differ. Ready re-asks after the frames, since document.fonts.ready is a snapshot taken
+ * that can differ. Ready re-asks after the frames, since document.fonts.ready (the text fonts) is a snapshot taken
  * before mounting starts the rest, and waits for every svg use to have a box, bounded by SPRITE. */
 
 import { BARREL } from '../../build/tailwind/build-tailwind.ts';
 import { deadline } from './deadline.ts';
-import { PHOSPHOR_WEIGHTS } from './playground-page.ts';
 import { scopeClass } from './kitchen-sink-model.ts';
 
 export const READY = 'data-arena-sink-ready';
@@ -38,9 +37,6 @@ export function kitchenSinkPage({ sink, up, banner, mount, head = '', script }: 
     `<link rel="stylesheet" href="${up}intro/toggle.css">`,
     `<link rel="stylesheet" href="${up}intro/kitchen-sink.css">`,
     `<link rel="stylesheet" href="${up}${BARREL}">`,
-    ...PHOSPHOR_WEIGHTS.map(
-      (weight) => `<link rel="stylesheet" href="${up}node_modules/@phosphor-icons/web/src/${weight}/style.css">`,
-    ),
   ];
   const scope = scopeClass(sink);
 

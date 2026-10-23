@@ -1,11 +1,12 @@
 /* Covers check-icons.ts. The weight map is a fixture rather than the installed package, so a
  * case states a name and a weight without 1500 real ones behind it, and the vacuous-pass guard
- * is asserted directly: a gate that finds no stylesheet must fail rather than report clean. */
+ * is asserted directly: a gate that finds no glyph directory must fail rather than report clean. */
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
+import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
 import { relPosix } from '../../utils/posix-path.ts';
@@ -72,7 +73,7 @@ test('the line number is the line the name is on', () => {
   assert.match(problems[0] ?? '', /a\.html:3/);
 });
 
-test('no stylesheet at all is a failure, not a clean pass over nothing', () => {
+test('no glyph directory at all is a failure, not a clean pass over nothing', () => {
   assert.deepEqual(zeroWeightProblems(ARENA_WEIGHTS), []);
   const problems = zeroWeightProblems(new Map());
   assert.equal(problems.length, 1);
@@ -156,4 +157,25 @@ test('a symbol id is not read as the bare glyph weight-name', () => {
   assert.deepEqual(problems, []);
   assert.doesNotMatch(tokenProblems('<use href="#ph-bold-nope"></use>', 'a.html', ARENA_WEIGHTS).join('\n'),
     /"ph-bold-nope"/);
+});
+
+test('glyph names resolve against @phosphor-icons/core', () => {
+  const cache = join(repoRoot, '.cache', 'plan-1.29');
+  mkdirSync(cache, { recursive: true });
+  const root = mkdtempSync(join(cache, 'icons-core-'));
+  const assets = join(root, 'node_modules', '@phosphor-icons', 'core', 'assets');
+  const lay = (weight: string, file: string) => {
+    mkdirSync(join(assets, weight), { recursive: true });
+    writeFileSync(join(assets, weight, file), '<svg/>');
+  };
+  lay('regular', 'house.svg'); lay('regular', 'acorn.svg');
+  lay('bold', 'house-bold.svg'); lay('fill', 'house-fill.svg');
+  lay('duotone', 'house-duotone.svg');
+  const weights = weightsFrom(root);
+  assert.deepEqual([...weights.keys()].sort(), ['ph', 'ph-bold', 'ph-duotone', 'ph-fill']);
+  assert.deepEqual([...(weights.get('ph') ?? [])].sort(), ['ph-acorn', 'ph-house']);
+  assert.deepEqual([...(weights.get('ph-bold') ?? [])], ['ph-house']);
+  assert.deepEqual([...(weights.get('ph-duotone') ?? [])], ['ph-house']);
+  assert.throws(() => weightsFrom(join(root, 'nowhere')), /ENOENT/, 'a missing assets directory fails on purpose');
+  rmSync(root, { recursive: true });
 });

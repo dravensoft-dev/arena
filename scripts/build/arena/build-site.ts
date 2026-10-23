@@ -1,8 +1,8 @@
 /* Assembles the published site out of the built tree. It copies, and rewrites only the Markdown
  * links the site does not carry to the repository at this release's tag: a page names its assets
  * by a relative href counting directories, so the output holds the same shape under the same
- * names. node_modules is on that path for a playground's Phosphor sheets, and only the sheet and
- * font binaries travel. copyAll, not package-assembly's copyTree, whose exclusions differ.
+ * names. The icon sprite travels with assets/, so no font does. copyAll, not package-assembly's
+ * copyTree, whose exclusions differ.
  * A page's JavaScript is copied by following it: the React pages load unbundled ES modules, so
  * publishing the entry beside the page and stopping there put up pages answering 200 at every href
  * with an empty root. What it authors is what serve.ts answers at request time and a static host
@@ -18,9 +18,9 @@ import { walkFiles } from '../../utils/walk-files.ts';
 import { relPosix } from '../../utils/posix-path.ts';
 import {
   DOMAIN, SITE_DIR, LAYERS, COPIED, COPIED_FILES, SINK_PAGE, BENCHES_DIR,
-  SPRITE_FILE, entryPoints, sinkNames, variantSinkNames, components, pages, indexedDirectories, phosphorFiles,
+  SPRITE_FILE, entryPoints, sinkNames, variantSinkNames, components, pages, indexedDirectories,
   playgroundsOnDisk, playgroundSections, modules, titleOf, url, directoryUrl, REPOSITORY,
-  benches, benchPairs, phosphorDrops,
+  benches, benchPairs,
 } from '../../lib/arena/site-pages.ts';
 import { arenaEnv } from '../../lib/arena/arena-scripts-vars.ts';
 import { renderPageImage } from '../../lib/arena/page-image.ts';
@@ -212,8 +212,7 @@ the gate tells it when it got it wrong.</p>
 ${drawn} components ship under both framework names, rendering the same pixels, and your palettes
 and fonts arrive in an <code>arena.config.json</code> your project writes.</p>
 
-<pre style="background:var(--surface-card);padding:var(--sp-4);border-radius:var(--r-lg);overflow-x:auto"><code>bun add @dravensoft/arena-react     # or @dravensoft/arena-angular
-bun add @phosphor-icons/web</code></pre>
+<pre style="background:var(--surface-card);padding:var(--sp-4);border-radius:var(--r-lg);overflow-x:auto"><code>bun add @dravensoft/arena-react     # or @dravensoft/arena-angular</code></pre>
 
 <h2 style="font-family:var(--font-display)">See it</h2>
 <ul style="line-height:2">
@@ -315,7 +314,7 @@ export async function buildSite(base = repoRoot, out = join(base, SITE_DIR)) {
   for (const rel of COPIED_FILES) written.push(copy(join(base, rel), out, rel));
 
   const bench = benchesDirectory();
-  if (bench !== null) written.push(...copyAll(bench, out, BENCHES_DIR, phosphorDrops));
+  if (bench !== null) written.push(...copyAll(bench, out, BENCHES_DIR));
 
   for (const layer of LAYERS) {
     const sinks = join(base, 'frameworks', layer, 'kitchen-sink');
@@ -332,8 +331,6 @@ export async function buildSite(base = repoRoot, out = join(base, SITE_DIR)) {
     if (carried.has(join(out, rel))) continue;
     written.push(copy(join(base, rel), out, rel));
   }
-
-  for (const rel of phosphorFiles(base)) written.push(copy(join(base, rel), out, rel));
 
   for (const directory of indexedDirectories(base, out)) {
     const depth = directory === '' ? 0 : directory.split('/').length;

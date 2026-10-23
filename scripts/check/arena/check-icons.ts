@@ -1,6 +1,6 @@
 /* Nine contracts take an icon as a string, and nothing checked that the string names a glyph.
  * A typo is an empty box: no error, no failing gate, and no way to see it except by looking at
- * the page. The truth is read out of the installed @phosphor-icons/web rather than typed here,
+ * the page. The truth is read out of the installed @phosphor-icons/core rather than typed here,
  * because a hand-written list of 1500 names ages the first time the package does. EXEMPT is
  * empty and is meant to stay that way: a name Phosphor does not have is a typo, not a case. */
 
@@ -27,7 +27,7 @@ export const node = {
 };
 
 
-export const PHOSPHOR = 'node_modules/@phosphor-icons/web/src';
+export const PHOSPHOR = 'node_modules/@phosphor-icons/core/assets';
 
 export const SCANNED_ROOTS = ['frameworks', 'intro', 'contracts'];
 export const SCANNED_EXTENSIONS = ['.ts', '.tsx', '.js', '.jsx', '.html', '.json', '.md', '.css'];
@@ -39,16 +39,15 @@ export const EXEMPT = new Map<string, string>();
 
 export function weightsFrom(root = ROOT) {
   const base = join(root, PHOSPHOR);
-  const weights = new Map();
+  const weights = new Map<string, Set<string>>();
   for (const entry of readdirSync(base, { withFileTypes: true })) {
     if (!entry.isDirectory()) continue;
-    const sheet = join(base, entry.name, 'style.css');
-    if (!existsSync(sheet)) continue;
-    const css = readFileSync(sheet, 'utf8');
     const prefix = entry.name === 'regular' ? 'ph' : `ph-${entry.name}`;
-    const escaped = prefix.replace(/-/g, '\\-');
-    const rx = new RegExp(`^\\.${escaped}\\.(ph-[a-z0-9-]+)`, 'gm');
-    const glyphs = new Set([...css.matchAll(rx)].map((m) => m[1]));
+    const suffix = entry.name === 'regular' ? '.svg' : `-${entry.name}.svg`;
+    const glyphs = new Set<string>();
+    for (const file of readdirSync(join(base, entry.name))) {
+      if (file.endsWith(suffix) && file.length > suffix.length) glyphs.add(`ph-${file.slice(0, -suffix.length)}`);
+    }
     if (glyphs.size > 0) weights.set(prefix, glyphs);
   }
   return weights;
@@ -57,8 +56,8 @@ export function weightsFrom(root = ROOT) {
 export function zeroWeightProblems(weights: Map<string, Set<string>>) {
   if (weights.size > 0) return [];
   return [
-    `no weight stylesheet under ${PHOSPHOR}: a gate iterating nothing reports every name valid, `
-    + 'which is the vacuous pass this check exists to avoid. Install @phosphor-icons/web.',
+    `no weight directory under ${PHOSPHOR}: a gate iterating nothing reports every name valid, `
+    + 'which is the vacuous pass this check exists to avoid. Install @phosphor-icons/core.',
   ];
 }
 

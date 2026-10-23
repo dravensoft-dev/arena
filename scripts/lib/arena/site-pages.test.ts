@@ -10,10 +10,10 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { repoRoot } from './repo-root.ts';
 import {
-  DOMAIN, SITE_DIR, LAYERS, PHOSPHOR_KEEP, phosphorKeeps, sinkNames, entryPoints, components,
+  DOMAIN, SITE_DIR, LAYERS, sinkNames, entryPoints, components,
   playgroundsOnDisk, missingPlaygrounds, playgroundSections, sinkPages, pages, indexedDirectories,
   modules, missingModules, titleOf, url, directoryUrl,
-  BENCHES_DIR, BENCHES_MANIFEST, benchPairs, benchPages, benchDirectories, phosphorDrops, treePages,
+  BENCHES_DIR, BENCHES_MANIFEST, benchPairs, benchPages, benchDirectories, treePages,
   COPIED_FILES, variantSinkNames, COPIED, SPRITE_FILE,
 } from './site-pages.ts';
 
@@ -119,13 +119,14 @@ test('a specimen with no title is named by its @dsCard header rather than by its
   assert.ok(!titleOf(specimen).endsWith('.html'), `${specimen} fell back to its filename`);
 });
 
-test('only the sheet and the font binaries of a Phosphor weight travel, never the sources', () => {
-  assert.deepEqual(PHOSPHOR_KEEP, ['style.css', '.woff2', '.woff']);
-  assert.ok(phosphorKeeps('style.css'));
-  assert.ok(phosphorKeeps('Phosphor-Bold.woff2'));
-  assert.ok(!phosphorKeeps('Phosphor-Bold.ttf'));
-  assert.ok(!phosphorKeeps('selection.json'));
-  assert.ok(!phosphorKeeps('style.css.map'));
+test('the site ships the repo sprite and no Phosphor font', async () => {
+  const site = await import('./site-pages.ts');
+  for (const gone of ['PHOSPHOR', 'PHOSPHOR_KEEP', 'PHOSPHOR_FORMATS', 'phosphorKeeps', 'phosphorDrops', 'phosphorFiles']) {
+    assert.ok(!(gone in site), `${gone} is the site's Phosphor copy, which D20 removes`);
+  }
+  assert.equal(SPRITE_FILE, 'assets/Icons.generated.svg');
+  assert.ok(COPIED.includes('assets') || COPIED_FILES.includes(SPRITE_FILE) || existsSync(join(repoRoot, SPRITE_FILE)),
+    'the sprite travels with the site');
 });
 
 test('the index of a layer names every playground it publishes, exactly once', () => {
@@ -211,23 +212,6 @@ test('the module graph is walked from the tree alone, since a bench arrives only
     assert.ok(!rel.startsWith(`${BENCHES_DIR}/`),
       'moduleGraph is memoised by base, so a declaration varying with the output cannot enter it');
   }
-});
-
-test('the Phosphor drop is the site\'s own trade, read off the name and never the directory', () => {
-  for (const kept of ['Phosphor-jz52g8q4.woff2', 'Phosphor-Bold-548r3k1w.woff2',
-    'Phosphor-KLBJTFWE.woff', 'Phosphor-9pk63hq0.woff', 'Phosphor-Fill-5QWK7REW.woff2']) {
-    assert.equal(phosphorDrops(kept), false, `${kept} is a format a browser fetches`);
-  }
-  for (const dropped of ['Phosphor-znwj6k7p.ttf', 'Phosphor-Bold-m0yxxyn4.svg',
-    'Phosphor-2TTV6TYS.ttf', 'Phosphor-Fill-65SPMP3X.svg', 'Phosphor-Y4JO5C3F.svg']) {
-    assert.equal(phosphorDrops(dropped), true, `${dropped} is fetched by nothing`);
-  }
-  for (const spared of ['index-87jrphe1.css', 'main-CRTIYFBW.js', 'styles-XD7IFMRJ.css', 'p1.jpg']) {
-    assert.equal(phosphorDrops(spared), false, `${spared} is not a Phosphor binary`);
-  }
-  assert.equal(phosphorDrops('Phosphor.json'), false,
-    'a React half hashes these at the top level and an Angular one under media/, so the rule reads '
-    + 'the name; it reads the four font formats and leaves everything else where it is');
 });
 
 test('the identity template and its worked answer are pages the site declares, and no other file beside them', () => {

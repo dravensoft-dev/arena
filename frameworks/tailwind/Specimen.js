@@ -1,12 +1,5 @@
 import { classesFor, arenaClassesFor, arenaSlotDataFor } from './ManifestClasses.js';
 
-for (const style of ['bold', 'fill']) {
-  const link = document.createElement('link');
-  link.rel = 'stylesheet';
-  link.href = new URL(`../../node_modules/@phosphor-icons/web/src/${style}/style.css`, import.meta.url).href;
-  document.head.appendChild(link);
-}
-
 export function el(tag, props = {}, ...children) {
   const node = tag === 'svg' || tag === 'path' || tag === 'circle'
     ? document.createElementNS('http://www.w3.org/2000/svg', tag)
