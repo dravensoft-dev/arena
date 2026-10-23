@@ -98,7 +98,7 @@ export function ArenaPopover({ className, trigger, children, label, open = false
 
   const styles = arenaPopoverStyles();
   return (
-    <div ref={ref} className={arenaClassName('ArenaPopover', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+    <div ref={ref} className={arenaClassName('ArenaPopover', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
       {decoratedTrigger}
       {present && (
         <div ref={panelRef} id={panelId} role="dialog" aria-label={label} tabIndex={-1}

@@ -148,7 +148,7 @@ export function ArenaSparkline({ className,
   );
 
   return (
-    <div className={arenaClassName('ArenaSparkline', styles.frame(), className)} ref={ref} data-arena-part={manifest.parts.frame} {...styles.$data.frame()} style={interactive ? undefined : { height }}>
+    <div className={arenaClassName('ArenaSparkline', styles.frame(), className, manifest.vocabulary)} ref={ref} data-arena-part={manifest.parts.frame} {...styles.$data.frame()} style={interactive ? undefined : { height }}>
       <div style={interactive ? REGION_STYLE : PLOT_STYLE} tabIndex={interactive ? 0 : undefined} role={interactive ? 'group' : undefined}
         aria-label={interactive ? name : undefined} onKeyDown={interactive ? onKeyDown : undefined}>{graphic}</div>
 

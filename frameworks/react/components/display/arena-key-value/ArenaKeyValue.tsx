@@ -24,7 +24,7 @@ export function ArenaKeyValue({ className, rows, total }: ArenaKeyValueProps) {
   const figures = arenaKeyValueStyles({ numeric: true });
 
   return (
-    <dl className={arenaClassName('ArenaKeyValue', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+    <dl className={arenaClassName('ArenaKeyValue', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
       {rows.map((row, index) => (
         <div key={`${row.term}-${index}`} className={styles.row()} data-arena-part={manifest.parts.row} {...styles.$data.row()}>
           <dt className={styles.term()} data-arena-part={manifest.parts.term} {...styles.$data.term()}>{row.term}</dt>

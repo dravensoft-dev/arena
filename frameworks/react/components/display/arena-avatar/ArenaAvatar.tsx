@@ -39,7 +39,7 @@ export function ArenaAvatar({ className, src, name = '', kind = 'person', status
   const initials = name.trim().split(/\s+/).slice(0, 2).map((w) => w[0] || '').join('').toUpperCase();
   const styles = arenaAvatarStyles({ kind, status: status ? statusOf(status) : 'none' });
   return (
-    <span className={arenaClassName('ArenaAvatar', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}
+    <span className={arenaClassName('ArenaAvatar', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()}
       style={face ? { '--arena-size-avatar': 'var(--arena-size-face, var(--size-md-face))' } as React.CSSProperties : undefined}>
       <span className={styles.box()} data-arena-part={manifest.parts.box} {...styles.$data.box()} aria-hidden={nameShown ? true : undefined}>
         {src ? <img src={src} alt={name} className={styles.image()} data-arena-part={manifest.parts.image} {...styles.$data.image()} decoding="async" /> : initials}

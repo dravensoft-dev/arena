@@ -60,7 +60,7 @@ export function ArenaSheet({ className,
   if (!open) return null;
   const styles = arenaSheetStyles({ open: true });
   return (
-    <div onKeyDown={onKeyDown} className={arenaClassName('ArenaSheet', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()} data-arena-surface="floating">
+    <div onKeyDown={onKeyDown} className={arenaClassName('ArenaSheet', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()} data-arena-surface="floating">
       <div className={styles.head()} data-arena-part={manifest.parts.head} {...styles.$data.head()}>
         <button type="button" id={triggerId} aria-expanded={!collapsed} aria-controls={bodyId}
           onClick={() => onCollapsedChange?.(!collapsed)} className={styles.trigger()} data-arena-part={manifest.parts.trigger} {...styles.$data.trigger()}>

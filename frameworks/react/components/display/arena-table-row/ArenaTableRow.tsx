@@ -6,6 +6,7 @@ import type { ArenaTableColumn } from '../../../Api.generated';
 import type { ArenaTableCellInjected } from '../arena-table-cell/ArenaTableCell.tsx';
 import type { ArenaTableRowClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
+import { ARENA_CONTEXT_VOCABULARY } from '../../../Vocabulary.generated.ts';
 
 const rowStyles = arenaStyles(manifest);
 
@@ -73,7 +74,7 @@ export function ArenaTableRow({ className,
           e.preventDefault();
           activate(e);
         } : undefined}
-        className={arenaClassName('ArenaTableRow', rowStyles({ narrow: true }).card(), className)} data-arena-part={manifest.parts.card} {...rowStyles({ narrow: true }).$data.card()}>
+        className={arenaClassName('ArenaTableRow', rowStyles({ narrow: true }).card(), className, ARENA_CONTEXT_VOCABULARY)} data-arena-part={manifest.parts.card} {...rowStyles({ narrow: true }).$data.card()}>
         {cells}
       </tr>
     );
@@ -86,7 +87,7 @@ export function ArenaTableRow({ className,
       aria-disabled={onClick && disabled ? 'true' : undefined}
       aria-rowindex={ariaRowIndex ?? undefined}
 
-      className={arenaClassName('ArenaTableRow', rowSlots.row(), className)} data-arena-part={manifest.parts.row} {...rowSlots.$data.row()} data-arena-boundary="">
+      className={arenaClassName('ArenaTableRow', rowSlots.row(), className, ARENA_CONTEXT_VOCABULARY)} data-arena-part={manifest.parts.row} {...rowSlots.$data.row()} data-arena-boundary="">
       {cells}
     </tr>
   );

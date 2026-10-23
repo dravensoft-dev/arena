@@ -49,7 +49,7 @@ export function ArenaSwitch({ className,
   };
 
   return (
-    <span className={arenaClassName('ArenaSwitch', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+    <span className={arenaClassName('ArenaSwitch', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
       <button type="button" role="switch" aria-checked={state} aria-label={label} disabled={disabled} onClick={activate}
         className={styles.track()} data-arena-part={manifest.parts.track} {...styles.$data.track()}>
         <span aria-hidden="true" className={styles.knob()} data-arena-part={manifest.parts.knob} {...styles.$data.knob()}>

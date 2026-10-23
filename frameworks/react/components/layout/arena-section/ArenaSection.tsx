@@ -47,7 +47,7 @@ export function ArenaSection({ className,
   const Heading = headingLevel;
 
   return (
-    <section className={arenaClassName('ArenaSection', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+    <section className={arenaClassName('ArenaSection', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
       <div className={styles.head()} data-arena-part={manifest.parts.head} {...styles.$data.head()}>
         <div className={styles.titles()} data-arena-part={manifest.parts.titles} {...styles.$data.titles()}>
           {eyebrow && <div className={styles.eyebrow()} data-arena-part={manifest.parts.eyebrow} {...styles.$data.eyebrow()}>{eyebrow}</div>}

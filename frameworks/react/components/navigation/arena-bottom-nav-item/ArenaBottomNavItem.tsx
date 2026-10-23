@@ -6,6 +6,7 @@ import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from '../arena-bottom-nav/ArenaBottomNav.classes.generated.ts';
 import type { ArenaBottomNavItemClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
+import { ARENA_CONTEXT_VOCABULARY } from '../../../Vocabulary.generated.ts';
 
 export interface ArenaBottomNavItemProps {
   className?: ArenaBottomNavItemClass;
@@ -55,7 +56,7 @@ export function ArenaBottomNavItem({ className,
       }
       if (onActivate) onActivate(id);
     },
-    className: arenaClassName('ArenaBottomNavItem', styles.item(), className),
+    className: arenaClassName('ArenaBottomNavItem', styles.item(), className, ARENA_CONTEXT_VOCABULARY),
     'data-arena-part': manifest.parts.item,
     ...styles.$data.item(),
   };

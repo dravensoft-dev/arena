@@ -38,7 +38,7 @@ export function ArenaStepper({ className, ariaLabel, steps, index = 0, interacti
   const words = { complete: locale.stepperComplete, current: locale.stepperCurrent, upcoming: locale.stepperUpcoming };
   const root = stepperStyles();
   return (
-    <ol role="list" aria-label={ariaLabel} className={arenaClassName('ArenaStepper', root.root(), className)} data-arena-part={manifest.parts.root} {...root.$data.root()}>
+    <ol role="list" aria-label={ariaLabel} className={arenaClassName('ArenaStepper', root.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...root.$data.root()}>
       {steps.map((step, i) => {
         const state = arenaStepState(i, current);
         const error = step.error === true;

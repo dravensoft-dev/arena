@@ -48,7 +48,7 @@ export function ArenaSegmentedControl({ className,
   const select = (v: string) => { setInternal(v); onChange && onChange(v); };
 
   return (
-    <div role="radiogroup" aria-label={ariaLabel} className={arenaClassName('ArenaSegmentedControl', segmentedStyles({}).track(), className)} data-arena-part={manifest.parts.track} {...segmentedStyles({}).$data.track()}>
+    <div role="radiogroup" aria-label={ariaLabel} className={arenaClassName('ArenaSegmentedControl', segmentedStyles({}).track(), className, manifest.vocabulary)} data-arena-part={manifest.parts.track} {...segmentedStyles({}).$data.track()}>
       {options.map((o) => {
         const v = o.value;
         const on = v === selected;

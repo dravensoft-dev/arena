@@ -4,6 +4,7 @@ import manifest from '../arena-accordion/ArenaAccordion.classes.generated.ts';
 import type { ArenaHeadingLevel } from '../../../Api.generated';
 import type { ArenaAccordionItemClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
+import { ARENA_CONTEXT_VOCABULARY } from '../../../Vocabulary.generated.ts';
 
 export interface ArenaAccordionItemInjected {
   open: boolean;
@@ -38,7 +39,7 @@ export function ArenaAccordionItem({
   const Heading = headingLevel;
   const styles = arenaAccordionStyles({ open });
   return (
-    <div className={arenaClassName('ArenaAccordionItem', styles.item(), className)} data-arena-part={manifest.parts.item} {...styles.$data.item()}>
+    <div className={arenaClassName('ArenaAccordionItem', styles.item(), className, ARENA_CONTEXT_VOCABULARY)} data-arena-part={manifest.parts.item} {...styles.$data.item()}>
       <Heading className={styles.heading()} data-arena-part={manifest.parts.heading} {...styles.$data.heading()}>
         <button type="button" id={triggerId} aria-expanded={open} aria-controls={panelId}
           aria-disabled={locked ? 'true' : undefined} onClick={() => onToggle?.(value)}

@@ -5,6 +5,7 @@ import { ArenaCheckbox, type ArenaCheckboxProps } from '../arena-checkbox/ArenaC
 import type { ArenaValueSet } from '../../../Api.generated';
 import type { ArenaCheckboxGroupClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
+import { ARENA_CONTEXT_VOCABULARY } from '../../../Vocabulary.generated.ts';
 
 export interface ArenaCheckboxGroupProps {
   className?: ArenaCheckboxGroupClass;
@@ -55,7 +56,7 @@ export function ArenaCheckboxGroup({ className, ariaLabel, children, value = [],
     });
   });
   return (
-    <div role="group" aria-label={ariaLabel} aria-disabled={disabled ? 'true' : undefined} className={arenaClassName('ArenaCheckboxGroup', arenaCheckboxStyles().group(), className)} data-arena-part={manifest.parts.group} {...arenaCheckboxStyles().$data.group()} data-arena-boundary="">
+    <div role="group" aria-label={ariaLabel} aria-disabled={disabled ? 'true' : undefined} className={arenaClassName('ArenaCheckboxGroup', arenaCheckboxStyles().group(), className, ARENA_CONTEXT_VOCABULARY)} data-arena-part={manifest.parts.group} {...arenaCheckboxStyles().$data.group()} data-arena-boundary="">
       {items}
     </div>
   );

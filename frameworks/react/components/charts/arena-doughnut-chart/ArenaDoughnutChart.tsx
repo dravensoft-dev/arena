@@ -86,7 +86,7 @@ export function ArenaDoughnutChart({ className,
   const segments = arenaDoughnutSlices(values);
 
   return (
-    <div className={arenaClassName('ArenaDoughnutChart', styles.frame(), className)} ref={ref} data-arena-part={manifest.parts.frame} {...styles.$data.frame()}>
+    <div className={arenaClassName('ArenaDoughnutChart', styles.frame(), className, manifest.vocabulary)} ref={ref} data-arena-part={manifest.parts.frame} {...styles.$data.frame()}>
       <svg width={plotW} height={height} role="img" aria-label={name}
         onPointerLeave={() => setHover(null)} style={{ display: 'block', flexShrink: 0 }}>
         {segments.map(({ index, from, to }) => to > from && (

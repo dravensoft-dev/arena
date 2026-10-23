@@ -41,7 +41,7 @@ export function ArenaPagination({ className, page, pageCount, ariaLabel, onChang
     </button>
   );
   return (
-    <nav aria-label={ariaLabel} className={arenaClassName('ArenaPagination', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+    <nav aria-label={ariaLabel} className={arenaClassName('ArenaPagination', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
       {nav(-1, page <= 1)}
       {arenaPageWindow(page, pageCount).map((p, i) =>
         p === '\u2026'

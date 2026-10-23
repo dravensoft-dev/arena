@@ -58,7 +58,7 @@ export function ArenaProgressBar({ className, children, progressPercentage = 0, 
 
   if (shape === 'radial') {
     return (
-      <div className={arenaClassName('ArenaProgressBar', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+      <div className={arenaClassName('ArenaProgressBar', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
         <div {...live} className={styles.ring()} data-arena-part={manifest.parts.ring} {...styles.$data.ring()}>
           <svg {...meter} className={styles.ringGeometry()} data-arena-part={manifest.parts.ringGeometry} {...styles.$data.ringGeometry()} viewBox="0 0 100 100">
             <circle className={styles.ringTrack()} data-arena-part={manifest.parts.ringTrack} {...styles.$data.ringTrack()}
@@ -78,7 +78,7 @@ export function ArenaProgressBar({ className, children, progressPercentage = 0, 
   }
 
   return (
-    <div className={arenaClassName('ArenaProgressBar', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+    <div className={arenaClassName('ArenaProgressBar', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
       {(showLabel || showValue) && (
         <div className={styles.head()} data-arena-part={manifest.parts.head} {...styles.$data.head()}>
           {showLabel && <span className={styles.label()} data-arena-part={manifest.parts.label} {...styles.$data.label()}>{label}</span>}

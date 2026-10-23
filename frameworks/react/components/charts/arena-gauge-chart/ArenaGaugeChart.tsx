@@ -88,7 +88,7 @@ export function ArenaGaugeChart({ className,
     arenaArcPath(cx, cy, r.outer, r.inner, arenaGaugeAngle(from), arenaGaugeAngle(to));
 
   return (
-    <div className={arenaClassName('ArenaGaugeChart', styles.frame(), className)} ref={ref} data-arena-part={manifest.parts.frame} {...styles.$data.frame()} style={{ height }}>
+    <div className={arenaClassName('ArenaGaugeChart', styles.frame(), className, manifest.vocabulary)} ref={ref} data-arena-part={manifest.parts.frame} {...styles.$data.frame()} style={{ height }}>
       <svg width="100%" height={height} role="img" aria-label={name} style={{ display: 'block', overflow: 'visible' }}>
         {sorted.map((band, i) => {
           const from = arenaGaugeFraction(band.from, min, max);

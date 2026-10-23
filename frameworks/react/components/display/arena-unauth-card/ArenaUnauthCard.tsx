@@ -37,7 +37,7 @@ export function ArenaUnauthCard({ className, brand, eyebrow, title, headingLevel
   const styles = unauthStyles();
   const Heading = headingLevel === 'none' ? 'div' : headingLevel;
   return (
-    <div className={arenaClassName('ArenaUnauthCard', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+    <div className={arenaClassName('ArenaUnauthCard', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
       <ArenaCard>
         <div className={styles.body()} data-arena-part={manifest.parts.body} {...styles.$data.body()} data-arena-boundary="">
           {brand && <div className={styles.brand()} data-arena-part={manifest.parts.brand} {...styles.$data.brand()} data-arena-boundary="">{brand}</div>}

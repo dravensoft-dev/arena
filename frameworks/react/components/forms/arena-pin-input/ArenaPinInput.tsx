@@ -153,7 +153,7 @@ export const ArenaPinInput = forwardRef<ArenaPinInputHandle, ArenaPinInputProps>
   const noteId = shownError || hint ? `${base}-note` : undefined;
 
   return (
-    <div className={arenaClassName('ArenaPinInput', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+    <div className={arenaClassName('ArenaPinInput', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
       <span id={`${base}-label`} className={styles.label()} data-arena-part={manifest.parts.label} {...styles.$data.label()}>
         {label}{required && <span className={styles.required()} data-arena-part={manifest.parts.required} {...styles.$data.required()} aria-hidden="true">*</span>}
       </span>

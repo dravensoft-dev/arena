@@ -46,7 +46,7 @@ export function ArenaAlert({ className, tone = 'info', title, children, icon, ac
   const at = toneOf(tone);
   const styles = arenaAlertStyles({ tone: at, titled: Boolean(title) });
   return (
-    <div role={tone === 'danger' ? 'alert' : 'status'} className={arenaClassName('ArenaAlert', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+    <div role={tone === 'danger' ? 'alert' : 'status'} className={arenaClassName('ArenaAlert', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
       <i className={`${icon || GLYPHS[at]} ${styles.icon()}`} data-arena-part={manifest.parts.icon} {...styles.$data.icon()} />
       <div className={styles.body()} data-arena-part={manifest.parts.body} {...styles.$data.body()}>
         {title && <div className={styles.title()} data-arena-part={manifest.parts.title} {...styles.$data.title()}>{title}</div>}

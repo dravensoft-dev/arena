@@ -154,7 +154,7 @@ export const ArenaFileInput = forwardRef<ArenaFileInputHandle, ArenaFileInputPro
   const styles = arenaFileInputStyles({ droppable, dragging, state: error ? 'error' : 'neutral', disabled });
 
   return (
-    <div className={arenaClassName('ArenaFileInput', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+    <div className={arenaClassName('ArenaFileInput', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
       <label id={ids.label} htmlFor={ids.trigger} className={styles.label()} data-arena-part={manifest.parts.label} {...styles.$data.label()}>
         {label}{required && <span className={styles.required()} data-arena-part={manifest.parts.required} {...styles.$data.required()} aria-hidden="true">*</span>}
       </label>

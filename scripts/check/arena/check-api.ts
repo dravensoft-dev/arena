@@ -284,7 +284,7 @@ export function vocabularyMemberProblems(
   const wanted = `${component}Class`;
   if (!member) {
     problems.push(`${where}: takes no className, so no vocabulary class reaches its root. Declare className?: ${wanted}, `
-      + 'apply it through arenaClassName on the root, or name the component in OWN_ELEMENTLESS with why it has no root');
+      + 'apply it through arenaClassName(…, manifest.vocabulary) on the root, or name the component in OWN_ELEMENTLESS with why it has no root');
   } else if (member.form !== 'named' || member.type !== wanted) {
     problems.push(`${where}.className: typed ${member.type ?? member.form}, and only the generated ${wanted} keeps a utility out`);
   } else if (member.required) {

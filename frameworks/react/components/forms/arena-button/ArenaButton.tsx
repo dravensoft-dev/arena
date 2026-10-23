@@ -71,7 +71,7 @@ export function ArenaButton({ className,
 
   return (
     <button
-      className={arenaClassName('ArenaButton', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()} data-arena-boundary=""
+      className={arenaClassName('ArenaButton', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()} data-arena-boundary=""
       type={type}
       name={name}
       value={value}

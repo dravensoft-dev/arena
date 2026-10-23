@@ -6,6 +6,7 @@ import manifest from '../arena-board/ArenaBoard.classes.generated.ts';
 import type { ArenaCatSlot, ArenaHeadingLevel } from '../../../Api.generated';
 import type { ArenaBoardColumnClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
+import { ARENA_CONTEXT_VOCABULARY } from '../../../Vocabulary.generated.ts';
 
 export interface ArenaBoardColumnProps {
   className?: ArenaBoardColumnClass;
@@ -47,7 +48,7 @@ export function ArenaBoardColumn({ className, title, headingLevel = 'h3', count,
   const styles = boardStyles({ colorId: colorId === undefined ? undefined : String(arenaCatIndex(colorId)) });
   const Heading = headingLevel;
   return (
-    <section role="group" aria-label={title} className={arenaClassName('ArenaBoardColumn', styles.column(), className)} data-arena-part={manifest.parts.column} {...styles.$data.column()}>
+    <section role="group" aria-label={title} className={arenaClassName('ArenaBoardColumn', styles.column(), className, ARENA_CONTEXT_VOCABULARY)} data-arena-part={manifest.parts.column} {...styles.$data.column()}>
       <div className={styles.head()} data-arena-part={manifest.parts.head} {...styles.$data.head()}>
         {colorId !== undefined && <span aria-hidden="true" className={styles.dot()} data-arena-part={manifest.parts.dot} {...styles.$data.dot()} />}
         <Heading className={styles.title()} data-arena-part={manifest.parts.title} {...styles.$data.title()}>{title}</Heading>

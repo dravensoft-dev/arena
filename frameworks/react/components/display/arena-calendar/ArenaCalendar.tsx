@@ -216,7 +216,7 @@ export function ArenaCalendar({ className,
 
   return (
     <section ref={ref} aria-label={arenaPhrase(locale.calendarRegion, { range })}
-      className={arenaClassName('ArenaCalendar', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+      className={arenaClassName('ArenaCalendar', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
 
       <div className={styles.toolbar()} data-arena-part={manifest.parts.toolbar} {...styles.$data.toolbar()}>
         {navBtn(-1)}

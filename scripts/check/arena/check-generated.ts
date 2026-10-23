@@ -85,7 +85,7 @@ export const UNTRACKED = {
   'frameworks/react/TypeAhead.generated.js': 'the same, for the prefix a list matches as characters are typed.',
   'frameworks/react/RowWindowMeasure.generated.js': 'the same, for the measuring of the rows a windowed list draws.',
   'frameworks/react/VocabularyClass.generated.js': 'the same, for the filter that keeps a className to its vocabulary.',
-  'frameworks/react/Vocabulary.generated.js': 'the same, for the vocabulary each component takes.',
+  'frameworks/react/Vocabulary.generated.js': 'the same, for the vocabulary types and the context classes.',
   'frameworks/react/components/**/*.manifest.generated.ts':
     'the shared recipe for one component, emitted into the layer that renders it. The manifest is '
     + 'authored once as JSON under frameworks/tailwind/ and emitted per layer for the reason the '
@@ -163,8 +163,9 @@ export const UNTRACKED = {
     'one sheet per vocabulary family, compiled from its family file and the manifests that answer it, '
     + 'which a page and a package import beside the component sheets.',
   'frameworks/react/Vocabulary.generated.ts':
-    'the vocabulary class each component takes, as a type and as the runtime list the className '
-    + 'filter keeps, emitted from the families and the manifests\' answers.',
+    'the vocabulary class each component takes as a type, and the context classes a part without a '
+    + 'manifest takes, emitted from the families and the manifests\' answers. The list each component '
+    + 'keeps rides in its own classes module.',
 };
 
 function walk(dir: string, root: string): string[] {

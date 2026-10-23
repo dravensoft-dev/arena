@@ -50,7 +50,7 @@ export function ArenaLink({ className, children, href, external = false, downloa
         event.preventDefault();
         onNavigate?.();
       } : undefined}
-      className={arenaClassName('ArenaLink', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()} data-arena-boundary="">
+      className={arenaClassName('ArenaLink', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()} data-arena-boundary="">
       {children}
       {external && <span className={styles.external()} data-arena-part={manifest.parts.external} {...styles.$data.external()}>{` ${locale.linkExternal}`}</span>}
     </a>

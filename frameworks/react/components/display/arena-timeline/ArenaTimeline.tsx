@@ -29,7 +29,7 @@ export function ArenaTimeline({ className, label, items, index }: ArenaTimelineP
   const words = { complete: undefined, current: locale.timelineCurrent, upcoming: locale.timelineUpcoming };
   const root = timelineStyles();
   return (
-    <ol role="list" aria-label={label} className={arenaClassName('ArenaTimeline', root.root(), className)} data-arena-part={manifest.parts.root} {...root.$data.root()}>
+    <ol role="list" aria-label={label} className={arenaClassName('ArenaTimeline', root.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...root.$data.root()}>
       {items.map((item, i) => {
         const state = arenaTimelineState(i, index, items.length);
         const tone = arenaTimelineTone(item.tone);

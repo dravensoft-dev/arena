@@ -5,6 +5,7 @@ import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from '../arena-side-nav/ArenaSideNav.classes.generated.ts';
 import type { ArenaSideNavSectionClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
+import { ARENA_CONTEXT_VOCABULARY } from '../../../Vocabulary.generated.ts';
 
 export interface ArenaSideNavSectionProps {
   className?: ArenaSideNavSectionClass;
@@ -33,7 +34,7 @@ export function ArenaSideNavSection({ className,
   const labelId = useId();
   const styles = arenaSideNavStyles({ collapsed });
   return (
-    <div role="group" aria-labelledby={labelId} className={arenaClassName('ArenaSideNavSection', styles.section(), className)} data-arena-part={manifest.parts.section} {...styles.$data.section()} data-arena-boundary="">
+    <div role="group" aria-labelledby={labelId} className={arenaClassName('ArenaSideNavSection', styles.section(), className, ARENA_CONTEXT_VOCABULARY)} data-arena-part={manifest.parts.section} {...styles.$data.section()} data-arena-boundary="">
       {collapsed && <div aria-hidden="true" className={styles.separator()} data-arena-part={manifest.parts.separator} {...styles.$data.separator()} />}
       <div id={labelId} className={styles.sectionLabel()} data-arena-part={manifest.parts.sectionLabel} {...styles.$data.sectionLabel()}
         style={collapsed ? undefined : { '--arena-side-nav-depth': arenaIndentDepth(depth) } as React.CSSProperties}>{label}</div>

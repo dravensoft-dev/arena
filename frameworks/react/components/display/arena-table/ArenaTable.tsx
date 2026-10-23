@@ -285,7 +285,7 @@ export function ArenaTable({ className,
     arenaTableStyles({ narrow: false, sortable: Boolean(c.sortable && sort) });
 
   return (
-    <div ref={ref} className={arenaClassName('ArenaTable', arenaTableStyles({ narrow }).root(), className)} data-arena-part={manifest.parts.root} {...arenaTableStyles({ narrow }).$data.root()}>
+    <div ref={ref} className={arenaClassName('ArenaTable', arenaTableStyles({ narrow }).root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...arenaTableStyles({ narrow }).$data.root()}>
       {narrow && sortBar && (
         <div className={arenaTableStyles({ narrow: true }).sortBar()} data-arena-part={manifest.parts.sortBar} {...arenaTableStyles({ narrow: true }).$data.sortBar()}>
           <div className={arenaTableStyles({ narrow: true }).sortField()} data-arena-part={manifest.parts.sortField} {...arenaTableStyles({ narrow: true }).$data.sortField()}>

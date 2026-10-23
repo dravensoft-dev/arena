@@ -8,6 +8,7 @@ import manifest from '../arena-side-nav/ArenaSideNav.classes.generated.ts';
 import { ArenaTooltip } from '../../feedback/arena-tooltip/ArenaTooltip.tsx';
 import type { ArenaSideNavItemClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
+import { ARENA_CONTEXT_VOCABULARY } from '../../../Vocabulary.generated.ts';
 
 export interface ArenaSideNavItemProps {
   className?: ArenaSideNavItemClass;
@@ -59,7 +60,7 @@ export function ArenaSideNavItem({ className,
       }
       if (onActivate) onActivate(id);
     },
-    className: arenaClassName('ArenaSideNavItem', styles.item(), className),
+    className: arenaClassName('ArenaSideNavItem', styles.item(), className, ARENA_CONTEXT_VOCABULARY),
     'data-arena-part': manifest.parts.item,
     ...styles.$data.item(),
     style: collapsed ? undefined : { '--arena-side-nav-depth': arenaIndentDepth(depth) } as React.CSSProperties,

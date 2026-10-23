@@ -37,7 +37,7 @@ export function ArenaStatCard({ className, label, value, tone = 'neutral', delta
   if (!label || !value) throw new Error('ArenaStatCard: `label` and `value` are required');
   const styles = arenaStatCardStyles({ tone, deltaTone: delta?.tone ?? 'neutral' });
   return (
-    <div className={arenaClassName('ArenaStatCard', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+    <div className={arenaClassName('ArenaStatCard', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
       <div className={styles.head()} data-arena-part={manifest.parts.head} {...styles.$data.head()}>
         <span className={styles.label()} data-arena-part={manifest.parts.label} {...styles.$data.label()}>{label}</span>
         {icon && <span aria-hidden="true" className={styles.icon()} data-arena-part={manifest.parts.icon} {...styles.$data.icon()}><i className={icon} /></span>}

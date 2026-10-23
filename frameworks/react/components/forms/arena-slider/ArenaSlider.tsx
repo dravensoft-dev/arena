@@ -223,7 +223,7 @@ export function ArenaSlider({
   };
 
   return (
-    <div className={arenaClassName('ArenaSlider', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+    <div className={arenaClassName('ArenaSlider', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
       {(showLabel || showValue) && (
         <div className={styles.head()} data-arena-part={manifest.parts.head} {...styles.$data.head()}>
           {showLabel && <span id={ids.label} className={styles.label()} data-arena-part={manifest.parts.label} {...styles.$data.label()}>{label}</span>}

@@ -36,7 +36,7 @@ export function ArenaTag({ className, children, tone = 'neutral', colorId, remov
   const closeId = `${textId}-remove`;
   const styles = arenaTagStyles({ tone: colorId === undefined ? tone : undefined, colorId: colorId === undefined ? undefined : String(arenaCatIndex(colorId)), disabled });
   return (
-    <span className={arenaClassName('ArenaTag', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()} data-arena-boundary="">
+    <span className={arenaClassName('ArenaTag', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()} data-arena-boundary="">
       <span aria-hidden="true" className={styles.dot()} data-arena-part={manifest.parts.dot} {...styles.$data.dot()} />
       <span id={textId} data-arena-boundary="">{children}</span>
       {removable && <button type="button" id={closeId} className={styles.close()} data-arena-part={manifest.parts.close} {...styles.$data.close()}

@@ -38,7 +38,7 @@ export function ArenaPageHead({ className, title, headingLevel = 'h1', subtitle,
   const styles = arenaPageHeadStyles({ narrow });
 
   return (
-    <div ref={ref} className={arenaClassName('ArenaPageHead', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+    <div ref={ref} className={arenaClassName('ArenaPageHead', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
       <div className={styles.titles()} data-arena-part={manifest.parts.titles} {...styles.$data.titles()}>
         <Heading className={styles.title()} data-arena-part={manifest.parts.title} {...styles.$data.title()}>{title}</Heading>
         {subtitle && <p className={styles.subtitle()} data-arena-part={manifest.parts.subtitle} {...styles.$data.subtitle()}>{subtitle}</p>}

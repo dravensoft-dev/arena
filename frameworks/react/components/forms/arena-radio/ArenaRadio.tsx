@@ -34,7 +34,7 @@ export function ArenaRadio({ className, value, label, hint, name, checked = fals
   if (!value) throw new Error('ArenaRadio: `value` is required');
   const styles = arenaRadioStyles({ checked, disabled });
   return (
-    <label className={arenaClassName('ArenaRadio', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+    <label className={arenaClassName('ArenaRadio', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
       <span className={styles.ring()} data-arena-part={manifest.parts.ring} {...styles.$data.ring()}>
         {checked && <span className={styles.dot()} data-arena-part={manifest.parts.dot} {...styles.$data.dot()} />}
       </span>

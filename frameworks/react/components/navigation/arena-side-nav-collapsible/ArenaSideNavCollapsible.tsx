@@ -6,6 +6,7 @@ import manifest from '../arena-side-nav/ArenaSideNav.classes.generated.ts';
 import { ArenaSideNavItem } from '../arena-side-nav-item/ArenaSideNavItem.tsx';
 import type { ArenaSideNavCollapsibleClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
+import { ARENA_CONTEXT_VOCABULARY } from '../../../Vocabulary.generated.ts';
 
 export interface ArenaSideNavCollapsibleProps {
   className?: ArenaSideNavCollapsibleClass;
@@ -69,7 +70,7 @@ export function ArenaSideNavCollapsible({ className,
   const styles = arenaSideNavStyles({ collapsed });
   if (collapsed) {
     return (
-      <div className={arenaClassName('ArenaSideNavCollapsible', styles.section(), className)} data-arena-part={manifest.parts.section} {...styles.$data.section()}>
+      <div className={arenaClassName('ArenaSideNavCollapsible', styles.section(), className, ARENA_CONTEXT_VOCABULARY)} data-arena-part={manifest.parts.section} {...styles.$data.section()}>
         <div aria-hidden="true" className={styles.separator()} data-arena-part={manifest.parts.separator} {...styles.$data.separator()} />
         <div role="group" aria-label={label} className={styles.region()} data-arena-part={manifest.parts.region} {...styles.$data.region()} data-arena-boundary="">
           {arenaInjectInto(children, { depth, activeId, onActivate, collapsed })}
@@ -80,7 +81,7 @@ export function ArenaSideNavCollapsible({ className,
   const glyph = icon ? <i className={`${icon} ${styles.icon()}`} data-arena-part={manifest.parts.icon} {...styles.$data.icon()} aria-hidden="true" /> : null;
 
   return (
-    <div className={arenaClassName('ArenaSideNavCollapsible', styles.section(), className)} data-arena-part={manifest.parts.section} {...styles.$data.section()}>
+    <div className={arenaClassName('ArenaSideNavCollapsible', styles.section(), className, ARENA_CONTEXT_VOCABULARY)} data-arena-part={manifest.parts.section} {...styles.$data.section()}>
       {
 
 }

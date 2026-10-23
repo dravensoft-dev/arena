@@ -35,7 +35,7 @@ export function ArenaFieldset({ className, legend, children, hint, error, disabl
   }
   const styles = arenaFieldsetStyles({ state: error ? 'error' : 'neutral', disabled });
   return (
-    <fieldset className={arenaClassName('ArenaFieldset', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}
+    <fieldset className={arenaClassName('ArenaFieldset', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()}
       disabled={disabled} aria-describedby={error || hint ? noteId : undefined}>
       <legend className={styles.legend()} data-arena-part={manifest.parts.legend} {...styles.$data.legend()}>{legend}</legend>
       <div className={styles.stack()} data-arena-part={manifest.parts.stack} {...styles.$data.stack()}>

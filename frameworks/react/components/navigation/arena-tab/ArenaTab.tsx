@@ -3,6 +3,7 @@ import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from '../arena-tabs/ArenaTabs.classes.generated.ts';
 import type { ArenaTabClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
+import { ARENA_CONTEXT_VOCABULARY } from '../../../Vocabulary.generated.ts';
 
 export interface ArenaTabInjected {
   selected: boolean;
@@ -42,7 +43,7 @@ export function ArenaTab({ className,
 
       tabIndex={tabStop ? 0 : -1}
       onClick={() => onSelect && onSelect(value)}
-      className={arenaClassName('ArenaTab', arenaTabsStyles({ selected }).tab(), className)} data-arena-part={manifest.parts.tab} {...arenaTabsStyles({ selected }).$data.tab()}>
+      className={arenaClassName('ArenaTab', arenaTabsStyles({ selected }).tab(), className, ARENA_CONTEXT_VOCABULARY)} data-arena-part={manifest.parts.tab} {...arenaTabsStyles({ selected }).$data.tab()}>
       {label}
     </button>
   );

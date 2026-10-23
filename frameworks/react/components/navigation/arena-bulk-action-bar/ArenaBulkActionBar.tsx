@@ -74,7 +74,7 @@ export function ArenaBulkActionBar({ className, count, noun, actions, layout = '
   return (
     <div role="toolbar" aria-label={locale.bulkActionBarLabel}
       ref={barRef} onKeyDown={onKeyDown}
-      className={arenaClassName('ArenaBulkActionBar', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+      className={arenaClassName('ArenaBulkActionBar', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
       <span className={styles.count()} data-arena-part={manifest.parts.count} {...styles.$data.count()}>
         {arenaPhraseParts(locale.bulkActionBarCount).map((part, i) => ('slot' in part && part.slot === 'count'
           ? <b key={i} className={styles.number()} data-arena-part={manifest.parts.number} {...styles.$data.number()}>{count}</b>

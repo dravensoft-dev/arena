@@ -50,7 +50,7 @@ export function ArenaToast({ className, title, message, tone = 'neutral', action
   const styles = arenaToastStyles({ tone: toneOf(tone) });
   return (
     <div role={tone === 'danger' ? 'alert' : 'status'} aria-live={tone === 'danger' ? 'assertive' : 'polite'}
-      data-persist={pinned ? '' : undefined} className={arenaClassName('ArenaToast', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+      data-persist={pinned ? '' : undefined} className={arenaClassName('ArenaToast', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
       <div className={styles.body()} data-arena-part={manifest.parts.body} {...styles.$data.body()}>
         {title && (
           <div className={styles.title()} data-arena-part={manifest.parts.title} {...styles.$data.title()}>

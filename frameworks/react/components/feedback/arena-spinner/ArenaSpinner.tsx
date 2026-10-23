@@ -24,7 +24,7 @@ export function ArenaSpinner({ className, label }: ArenaSpinnerProps) {
   const name = label ?? locale.spinnerLabel;
   const styles = arenaSpinnerStyles({});
   return (
-    <span role="progressbar" aria-live="polite" aria-label={name} className={arenaClassName('ArenaSpinner', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+    <span role="progressbar" aria-live="polite" aria-label={name} className={arenaClassName('ArenaSpinner', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
       <span className={styles.circle()} data-arena-part={manifest.parts.circle} {...styles.$data.circle()} aria-hidden="true" />
     </span>
   );

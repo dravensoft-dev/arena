@@ -273,7 +273,7 @@ export function ArenaTreeView({
       aria-multiselectable={multiple && selection ? true : undefined}
       onKeyDown={onKeyDown}
       style={windowed ? { overflowAnchor: 'none' } : undefined}
-      className={arenaClassName('ArenaTreeView', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+      className={arenaClassName('ArenaTreeView', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
       {windowed
         ? (
           <div style={{ paddingBlockStart: measured ? measured.padTop : 0, paddingBlockEnd: measured ? measured.padBottom : 0 }}>

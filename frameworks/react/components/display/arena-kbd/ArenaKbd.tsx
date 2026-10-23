@@ -26,7 +26,7 @@ export function ArenaKbd({ className, keys, separator = '+', label }: ArenaKbdPr
   const styles = arenaKbdStyles();
   const spoken = label?.trim() ? label : null;
   return (
-    <kbd className={arenaClassName('ArenaKbd', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+    <kbd className={arenaClassName('ArenaKbd', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
       {keys.map((key, i) => (
         <React.Fragment key={i}>
           {i > 0 && separator !== '' && (

@@ -14,6 +14,7 @@ import {
 import type { ArenaComboboxFilter, ArenaSelectOption, ArenaValueSet } from '../../../Api.generated';
 import type { ArenaMultiSelectClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
+import { ARENA_CONTEXT_VOCABULARY } from '../../../Vocabulary.generated.ts';
 
 export type { ArenaComboboxFilter, ArenaSelectOption, ArenaValueSet };
 
@@ -232,7 +233,7 @@ export function ArenaMultiSelect({ className,
   const announcement = notice || (present && query !== null && !loading ? arenaPhrase(locale.multiSelectCount, { count: rows.length }) : '');
 
   return (
-    <div className={arenaClassName('ArenaMultiSelect', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+    <div className={arenaClassName('ArenaMultiSelect', styles.root(), className, ARENA_CONTEXT_VOCABULARY)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
       {showLabel && <label htmlFor={uid} className={styles.label()} data-arena-part={manifest.parts.label} {...styles.$data.label()}>{label}</label>}
       <div ref={fieldRef} onMouseDown={onFieldPress} className={styles.field()} data-arena-part={manifest.parts.field} {...styles.$data.field()}>
         {icon && <i className={`${icon} ${styles.icon()}`} data-arena-part={manifest.parts.icon} {...styles.$data.icon()} aria-hidden="true" />}

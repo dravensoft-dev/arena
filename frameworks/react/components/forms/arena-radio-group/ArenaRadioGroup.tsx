@@ -3,6 +3,7 @@ import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from '../arena-radio/ArenaRadio.classes.generated.ts';
 import type { ArenaRadioGroupClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
+import { ARENA_CONTEXT_VOCABULARY } from '../../../Vocabulary.generated.ts';
 
 export interface ArenaRadioGroupProps {
   className?: ArenaRadioGroupClass;
@@ -39,7 +40,7 @@ export function ArenaRadioGroup({ className, value, onChange, name, ariaLabel, c
       ? React.cloneElement(child, { name: gname, checked: child.props.value === value, onSelect: onChange, disabled: disabled || Boolean(child.props.disabled) })
       : child);
   return (
-    <div role="radiogroup" aria-label={ariaLabel} aria-disabled={disabled ? 'true' : undefined} className={arenaClassName('ArenaRadioGroup', arenaRadioStyles().group(), className)} data-arena-part={manifest.parts.group} {...arenaRadioStyles().$data.group()} data-arena-boundary="">
+    <div role="radiogroup" aria-label={ariaLabel} aria-disabled={disabled ? 'true' : undefined} className={arenaClassName('ArenaRadioGroup', arenaRadioStyles().group(), className, ARENA_CONTEXT_VOCABULARY)} data-arena-part={manifest.parts.group} {...arenaRadioStyles().$data.group()} data-arena-boundary="">
       {items}
     </div>
   );

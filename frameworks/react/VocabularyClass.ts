@@ -1,9 +1,9 @@
 import { arenaWarnOnce } from './WarnOnce.ts';
-import { ARENA_VOCABULARY, ARENA_VOCABULARY_PAGE } from './Vocabulary.generated.ts';
+import { ARENA_VOCABULARY_PAGE } from './Vocabulary.generated.ts';
 
 export function arenaClassName(
   component: string, base: string | undefined, own: string | undefined,
-  allowed: readonly string[] = ARENA_VOCABULARY[component] ?? [],
+  allowed: readonly string[],
 ): string | undefined {
   const kept: string[] = [];
   for (const token of (own ?? '').split(/\s+/)) {

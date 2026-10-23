@@ -28,7 +28,7 @@ export function ArenaAppBar({ className, brand, nav, actions, sticky = true }: A
   const styles = arenaAppBarStyles({ sticky });
 
   return (
-    <header className={arenaClassName('ArenaAppBar', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+    <header className={arenaClassName('ArenaAppBar', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
       <div className={styles.band()} data-arena-part={manifest.parts.band} {...styles.$data.band()} style={{ maxWidth: PAGE }}>
         {brand && <div className={styles.brand()} data-arena-part={manifest.parts.brand} {...styles.$data.brand()} data-arena-boundary="">{brand}</div>}
         {nav && <div className={styles.nav()} data-arena-part={manifest.parts.nav} {...styles.$data.nav()} data-arena-boundary="">{nav}</div>}

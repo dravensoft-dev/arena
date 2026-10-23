@@ -90,7 +90,7 @@ function DialogFrame({ className, onClose, onKeyDown, panelRef, titleId, title, 
   }, [fill, fillBelow, measured, panelRef]);
 
   return (
-    <div ref={scrimRef} onClick={onClose} className={arenaClassName('ArenaDialog', styles.scrim(), className)} data-arena-part={manifest.parts.scrim} {...styles.$data.scrim()} data-arena-surface="floating">
+    <div ref={scrimRef} onClick={onClose} className={arenaClassName('ArenaDialog', styles.scrim(), className, manifest.vocabulary)} data-arena-part={manifest.parts.scrim} {...styles.$data.scrim()} data-arena-surface="floating">
       <div onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true"
         ref={panelRef} tabIndex={-1} onKeyDown={onKeyDown} aria-labelledby={titleId}
         className={styles.panel()} data-arena-part={manifest.parts.panel} {...styles.$data.panel()}>

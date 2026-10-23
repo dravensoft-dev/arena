@@ -66,7 +66,7 @@ export function ArenaSplitButton({
 
   return (
     <div role="group" aria-label={label} ref={rootRef}
-      className={arenaClassName('ArenaSplitButton', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+      className={arenaClassName('ArenaSplitButton', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
       <button type={type} disabled={blocked} onClick={() => { if (!blocked) onClick?.(); }}
         className={styles.primary()} data-arena-part={manifest.parts.primary} {...styles.$data.primary()} data-arena-boundary="">
         {loading

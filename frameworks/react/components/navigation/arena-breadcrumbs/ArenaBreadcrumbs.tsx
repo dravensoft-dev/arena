@@ -39,7 +39,7 @@ export function ArenaBreadcrumbs({ className, items, ariaLabel, separator = '/',
   const linked = breadcrumbStyles({ linked: true });
   const unlinked = breadcrumbStyles({ linked: false });
   return (
-    <nav aria-label={ariaLabel} className={arenaClassName('ArenaBreadcrumbs', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+    <nav aria-label={ariaLabel} className={arenaClassName('ArenaBreadcrumbs', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
       {items.map((it, i) => {
         const last = i === items.length - 1;
         return (

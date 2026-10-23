@@ -101,7 +101,7 @@ export function ArenaAccordion({
   const styles = arenaAccordionStyles();
   return (
     <div ref={rootRef} onKeyDown={onKeyDown}
-      className={arenaClassName('ArenaAccordion', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()} data-arena-boundary="">
+      className={arenaClassName('ArenaAccordion', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()} data-arena-boundary="">
       {items.map((child, i) => {
         const itemValue = child.props.value ?? '';
         const isOpen = itemValue !== '' && open.includes(itemValue);

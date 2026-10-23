@@ -66,7 +66,7 @@ export function ArenaActivityFeed({ className, items, label, busy = false }: Are
   return (
     <ul ref={feedRef} role="feed" aria-label={label} aria-busy={busy ? 'true' : 'false'}
       onKeyDown={onKeyDown}
-      className={arenaClassName('ArenaActivityFeed', feedStyles({}).root(), className)} data-arena-part={manifest.parts.root} {...feedStyles({}).$data.root()}>
+      className={arenaClassName('ArenaActivityFeed', feedStyles({}).root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...feedStyles({}).$data.root()}>
       {items.map((item, i) => (
         <li key={item.id != null ? item.id : i}
           role="article" tabIndex={0}

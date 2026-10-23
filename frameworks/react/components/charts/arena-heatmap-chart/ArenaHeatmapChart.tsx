@@ -127,7 +127,7 @@ export function ArenaHeatmapChart({ className,
   const active = cursor && cursor.row < rows && cursor.col < cols ? cursor : null;
 
   return (
-    <div className={arenaClassName('ArenaHeatmapChart', styles.frame(), className)} ref={ref} data-arena-part={manifest.parts.frame} {...styles.$data.frame()} style={{ height: total }}>
+    <div className={arenaClassName('ArenaHeatmapChart', styles.frame(), className, manifest.vocabulary)} ref={ref} data-arena-part={manifest.parts.frame} {...styles.$data.frame()} style={{ height: total }}>
       <div ref={rail} style={arenaRailStyle} tabIndex={0} role="group" aria-label={name} onKeyDown={onKeyDown} onScroll={syncView}>
       <svg width={scrolls ? width : '100%'} height={strip.plotH} role="img" aria-label={name} style={{ display: 'block', overflow: 'visible' }}>
         {series.map((one, row) => Array.from({ length: cols }, (_, col) => {

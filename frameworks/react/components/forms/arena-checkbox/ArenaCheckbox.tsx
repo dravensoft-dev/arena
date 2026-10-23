@@ -36,7 +36,7 @@ const arenaCheckboxStyles = arenaStyles(manifest);
 export function ArenaCheckbox({ className, checked = false, onChange, label, disabled = false, required = false, name, value }: ArenaCheckboxProps) {
   const styles = arenaCheckboxStyles({ checked, disabled });
   return (
-    <label className={arenaClassName('ArenaCheckbox', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+    <label className={arenaClassName('ArenaCheckbox', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
       <span className={styles.box()} data-arena-part={manifest.parts.box} {...styles.$data.box()}>
         {checked && (
           <svg className={styles.check()} data-arena-part={manifest.parts.check} {...styles.$data.check()} viewBox="0 0 12 12" fill="none">

@@ -7,6 +7,7 @@ import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from '../arena-table/ArenaTable.classes.generated.ts';
 import type { ArenaTableCellClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
+import { ARENA_CONTEXT_VOCABULARY } from '../../../Vocabulary.generated.ts';
 
 const cellStyles = arenaStyles(manifest);
 
@@ -62,14 +63,14 @@ export function ArenaTableCell({ className,
     if (c.mobileLayout === 'block') {
 
       return (
-        <td role="presentation" className={arenaClassName('ArenaTableCell', cellStyles({ narrow: true }).cardBlock(), className)} style={channels} data-arena-part={manifest.parts.cardBlock} {...cellStyles({ narrow: true }).$data.cardBlock()} data-arena-boundary="">
+        <td role="presentation" className={arenaClassName('ArenaTableCell', cellStyles({ narrow: true }).cardBlock(), className, ARENA_CONTEXT_VOCABULARY)} style={channels} data-arena-part={manifest.parts.cardBlock} {...cellStyles({ narrow: true }).$data.cardBlock()} data-arena-boundary="">
           {shown}
         </td>
       );
     }
     const card = cellStyles({ narrow: true, numeric: Boolean(c.numeric) });
     return (
-      <td role="presentation" className={arenaClassName('ArenaTableCell', card.cardRow(), className)} style={channels} data-arena-part={manifest.parts.cardRow} {...card.$data.cardRow()}>
+      <td role="presentation" className={arenaClassName('ArenaTableCell', card.cardRow(), className, ARENA_CONTEXT_VOCABULARY)} style={channels} data-arena-part={manifest.parts.cardRow} {...card.$data.cardRow()}>
         <span className={card.cardLabel()} data-arena-part={manifest.parts.cardLabel} {...card.$data.cardLabel()}>{c.header}</span>
         <span className={card.cardValue()}
           data-arena-part={manifest.parts.cardValue} {...card.$data.cardValue()} data-arena-boundary="">
@@ -83,7 +84,7 @@ export function ArenaTableCell({ className,
     <td tabIndex={tabIndex}
 
       onFocus={onCellFocus ? (e) => { if (e.target === e.currentTarget) onCellFocus(); } : undefined}
-      className={arenaClassName('ArenaTableCell', cellStyles({ narrow: false, numeric: Boolean(c.numeric) }).td(), className)}
+      className={arenaClassName('ArenaTableCell', cellStyles({ narrow: false, numeric: Boolean(c.numeric) }).td(), className, ARENA_CONTEXT_VOCABULARY)}
       style={channels}
       data-arena-part={manifest.parts.td} {...cellStyles({ narrow: false, numeric: Boolean(c.numeric) }).$data.td()} data-arena-boundary="">
       {shown}

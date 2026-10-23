@@ -72,7 +72,7 @@ export function ArenaIconButton({ className,
       tabIndex={tabStop ? undefined : -1}
       aria-haspopup={ariaHasPopup} aria-expanded={ariaExpanded} aria-controls={ariaControls} aria-describedby={ariaDescribedBy}
       aria-label={label} aria-pressed={pressed} title={showLabel ? undefined : label} disabled={disabled}
-      className={arenaClassName('ArenaIconButton', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+      className={arenaClassName('ArenaIconButton', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
       <i className={icon} aria-hidden="true" />
       {showLabel && <span className={styles.label()} data-arena-part={manifest.parts.label} {...styles.$data.label()}>{label}</span>}
     </button>

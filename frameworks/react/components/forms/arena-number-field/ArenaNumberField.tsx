@@ -203,7 +203,7 @@ export const ArenaNumberField = forwardRef<ArenaNumberFieldHandle, ArenaNumberFi
   );
 
   return (
-    <div className={arenaClassName('ArenaNumberField', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+    <div className={arenaClassName('ArenaNumberField', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
       {showLabel && (
         <label id={ids.label} htmlFor={ids.control} className={styles.label()} data-arena-part={manifest.parts.label} {...styles.$data.label()}>
           {label}{required && <span className={styles.required()} data-arena-part={manifest.parts.required} {...styles.$data.required()} aria-hidden="true">*</span>}

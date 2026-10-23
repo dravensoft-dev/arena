@@ -16,7 +16,7 @@ const arenaGridStyles = arenaStyles(manifest);
 export function ArenaGrid({ className, children }: ArenaGridProps) {
   const styles = arenaGridStyles({});
   return (
-    <div className={arenaClassName('ArenaGrid', styles.root(), className)} data-arena-part={manifest.parts.root}
+    <div className={arenaClassName('ArenaGrid', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root}
       {...styles.$data.root()} data-arena-boundary="">
       {children}
     </div>

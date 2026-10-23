@@ -37,7 +37,7 @@ export function ArenaPaletteScope({ className, palette, children }: ArenaPalette
   const styles = arenaPaletteScopeStyles();
   return (
     <ArenaPaletteContext.Provider value={palette}>
-      <div className={arenaClassName('ArenaPaletteScope', `${runtime ? `arena-polarity-${runtime.polarity}` : pending ? '' : arenaThemeClass(palette)} ${styles.root()}`, className)}
+      <div className={arenaClassName('ArenaPaletteScope', `${runtime ? `arena-polarity-${runtime.polarity}` : pending ? '' : arenaThemeClass(palette)} ${styles.root()}`, className, manifest.vocabulary)}
         style={runtime?.properties as React.CSSProperties | undefined} data-arena-part={manifest.parts.root} {...styles.$data.root()} data-arena-boundary="">
         {children}
       </div>

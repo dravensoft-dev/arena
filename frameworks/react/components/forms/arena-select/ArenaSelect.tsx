@@ -66,7 +66,7 @@ export function ArenaSelect({ className,
   });
 
   return (
-    <div className={arenaClassName('ArenaSelect', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+    <div className={arenaClassName('ArenaSelect', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
       {label && <label htmlFor={selectId} className={styles.label()} data-arena-part={manifest.parts.label} {...styles.$data.label()}>{label}</label>}
       <div className={styles.wrap()} data-arena-part={manifest.parts.wrap} {...styles.$data.wrap()}>
         {icon && <i className={`${icon} ${styles.iconWrap()}`} data-arena-part={manifest.parts.iconWrap} {...styles.$data.iconWrap()} aria-hidden="true" />}

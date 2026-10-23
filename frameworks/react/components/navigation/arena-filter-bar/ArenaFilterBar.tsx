@@ -80,7 +80,7 @@ export function ArenaFilterBar({ className, label, children, applied = [], clear
 
   return (
     <div role="group" aria-label={label} ref={barRef}
-      className={arenaClassName('ArenaFilterBar', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+      className={arenaClassName('ArenaFilterBar', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
       <div ref={controlsRef} onFocus={() => { pending.current = null; }}
         className={styles.controls()} data-arena-part={manifest.parts.controls} {...styles.$data.controls()} data-arena-boundary="">
         {children}

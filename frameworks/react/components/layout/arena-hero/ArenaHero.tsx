@@ -43,7 +43,7 @@ export function ArenaHero({ className,
   const styles = arenaHeroStyles();
 
   return (
-    <section className={arenaClassName('ArenaHero', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+    <section className={arenaClassName('ArenaHero', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
       <div className={styles.words()} data-arena-part={manifest.parts.words} {...styles.$data.words()}>
         {eyebrow && <p className={styles.eyebrow()} data-arena-part={manifest.parts.eyebrow} {...styles.$data.eyebrow()}>{eyebrow}</p>}
         <Heading className={styles.title()} data-arena-part={manifest.parts.title} {...styles.$data.title()}>{title}</Heading>

@@ -18,11 +18,11 @@ export function ArenaDivider({ className, label }: ArenaDividerProps) {
   const styles = arenaDividerStyles({ labelled: word !== null });
   if (word === null) {
     return (
-      <hr className={arenaClassName('ArenaDivider', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()} />
+      <hr className={arenaClassName('ArenaDivider', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()} />
     );
   }
   return (
-    <div className={arenaClassName('ArenaDivider', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+    <div className={arenaClassName('ArenaDivider', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
       <span aria-hidden="true" className={styles.rule()} data-arena-part={manifest.parts.rule} {...styles.$data.rule()} />
       <span className={styles.label()} data-arena-part={manifest.parts.label} {...styles.$data.label()}>{word}</span>
       <span aria-hidden="true" className={styles.rule()} data-arena-part={manifest.parts.rule} {...styles.$data.rule()} />

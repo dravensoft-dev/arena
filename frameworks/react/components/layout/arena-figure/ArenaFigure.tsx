@@ -29,7 +29,7 @@ export function ArenaFigure({ className,
   const styles = arenaFigureStyles();
 
   return (
-    <figure className={arenaClassName('ArenaFigure', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+    <figure className={arenaClassName('ArenaFigure', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
       <div className={styles.frame()} data-arena-part={manifest.parts.frame} {...styles.$data.frame()}>
         {media && <div className={styles.media()} data-arena-part={manifest.parts.media} {...styles.$data.media()} data-arena-boundary="">{media}</div>}
         {!media && fallback && <div className={styles.fallback()} data-arena-part={manifest.parts.fallback} {...styles.$data.fallback()} data-arena-boundary="">{fallback}</div>}

@@ -8,6 +8,7 @@ import { useArenaLocale } from '../../../ArenaLocale.ts';
 import type { ArenaCatSlot } from '../../../Api.generated';
 import type { ArenaCalendarEventClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
+import { ARENA_CONTEXT_VOCABULARY } from '../../../Vocabulary.generated.ts';
 
 export interface ArenaCalendarEventProps {
   className?: ArenaCalendarEventClass;
@@ -163,7 +164,7 @@ HTMLElement, ArenaCalendarEventProps & Partial<ArenaCalendarEventInjected>
         }
       } : undefined}
       id={domId}
-      className={arenaClassName('ArenaCalendarEvent', styles.chip(), className)} data-arena-part={manifest.parts.chip} {...styles.$data.chip()}
+      className={arenaClassName('ArenaCalendarEvent', styles.chip(), className, ARENA_CONTEXT_VOCABULARY)} data-arena-part={manifest.parts.chip} {...styles.$data.chip()}
       style={box}>
       {hasPanel ? (
         <>

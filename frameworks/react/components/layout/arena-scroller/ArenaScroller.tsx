@@ -37,7 +37,7 @@ export function ArenaScroller({ className,
 
   return (
     <div role="group" aria-label={label} tabIndex={0}
-      className={arenaClassName('ArenaScroller', arenaScrollerStyles({ behaviour: behaviourOf(behaviour) }).root(), className)} data-arena-part={manifest.parts.root} {...arenaScrollerStyles({ behaviour: behaviourOf(behaviour) }).$data.root()}>
+      className={arenaClassName('ArenaScroller', arenaScrollerStyles({ behaviour: behaviourOf(behaviour) }).root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...arenaScrollerStyles({ behaviour: behaviourOf(behaviour) }).$data.root()}>
       {children}
     </div>
   );

@@ -122,7 +122,7 @@ export const ArenaInput = forwardRef<ArenaInputHandle, ArenaInputProps>(function
   });
 
   return (
-    <div className={arenaClassName('ArenaInput', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+    <div className={arenaClassName('ArenaInput', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
       {label && (
         <label htmlFor={inputId} className={styles.label()} data-arena-part={manifest.parts.label} {...styles.$data.label()}>
           {label}{required && <span className={styles.required()} data-arena-part={manifest.parts.required} {...styles.$data.required()}>*</span>}

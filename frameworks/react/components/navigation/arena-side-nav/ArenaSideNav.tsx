@@ -33,7 +33,7 @@ export function ArenaSideNav({ className, children, active, ariaLabel, onNav, co
 
   if (!ariaLabel?.trim()) throw new Error('ArenaSideNav: `ariaLabel` is required');
   return (
-    <nav aria-label={ariaLabel} className={arenaClassName('ArenaSideNav', arenaSideNavStyles({ collapsed }).root(), className)} data-arena-part={manifest.parts.root} {...arenaSideNavStyles({ collapsed }).$data.root()} data-arena-boundary="">
+    <nav aria-label={ariaLabel} className={arenaClassName('ArenaSideNav', arenaSideNavStyles({ collapsed }).root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...arenaSideNavStyles({ collapsed }).$data.root()} data-arena-boundary="">
       {arenaInjectInto(children, { depth: 0, activeId: active, onActivate: onNav, collapsed })}
     </nav>
   );

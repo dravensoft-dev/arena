@@ -66,7 +66,7 @@ export function ArenaTooltip({ className, children, label }: ArenaTooltipProps) 
   }, [describedBy]);
   const styles = arenaTooltipStyles();
   return (
-    <span ref={wrapRef} className={arenaClassName('ArenaTooltip', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}
+    <span ref={wrapRef} className={arenaClassName('ArenaTooltip', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()}
       onMouseEnter={() => schedule(true, delayOpen)}
       onMouseLeave={() => schedule(false, delayClose)}
       onFocus={() => now(true)}

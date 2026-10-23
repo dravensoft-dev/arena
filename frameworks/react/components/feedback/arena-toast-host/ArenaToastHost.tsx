@@ -16,5 +16,5 @@ export interface ArenaToastHostProps {
 const arenaToastHostStyles = arenaStyles(manifest);
 
 export function ArenaToastHost({ className, children }: ArenaToastHostProps) {
-  return <div className={arenaClassName('ArenaToastHost', arenaToastHostStyles().root(), className)} data-arena-part={manifest.parts.root} {...arenaToastHostStyles().$data.root()} data-arena-boundary="" data-arena-surface="floating">{children}</div>;
+  return <div className={arenaClassName('ArenaToastHost', arenaToastHostStyles().root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...arenaToastHostStyles().$data.root()} data-arena-boundary="" data-arena-surface="floating">{children}</div>;
 }

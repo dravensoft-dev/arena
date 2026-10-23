@@ -5,6 +5,7 @@ import { ArenaAvatar } from '../arena-avatar/ArenaAvatar.tsx';
 
 import type { ArenaPersonRowClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
+import { ARENA_CONTEXT_VOCABULARY } from '../../../Vocabulary.generated.ts';
 
 export interface ArenaPersonRowProps {
   className?: ArenaPersonRowClass;
@@ -39,7 +40,7 @@ export function ArenaPersonRow({ className, name, src, secondary, rank, figure, 
   if (!name?.trim()) throw new Error('ArenaPersonRow: `name` is required (it is the row\'s text and the face\'s initials at once)');
   const styles = peopleStyles({ current });
   return (
-    <li className={arenaClassName('ArenaPersonRow', styles.row(), className)} data-arena-part={manifest.parts.row} {...styles.$data.row()} aria-current={current ? 'true' : undefined}>
+    <li className={arenaClassName('ArenaPersonRow', styles.row(), className, ARENA_CONTEXT_VOCABULARY)} data-arena-part={manifest.parts.row} {...styles.$data.row()} aria-current={current ? 'true' : undefined}>
       {rank !== undefined && <span className={styles.rank()} data-arena-part={manifest.parts.rank} {...styles.$data.rank()}>{rank}</span>}
       <ArenaAvatar name={name} src={src} nameShown face />
       <span className={styles.text()} data-arena-part={manifest.parts.text} {...styles.$data.text()}>

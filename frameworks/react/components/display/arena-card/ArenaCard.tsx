@@ -67,7 +67,7 @@ export function ArenaCard({ className,
 
   const shared = {
     'aria-disabled': acts && disabled ? true as const : undefined,
-    className: arenaClassName('ArenaCard', styles.root(), className),
+    className: arenaClassName('ArenaCard', styles.root(), className, manifest.vocabulary),
     'data-arena-part': manifest.parts.root,
     ...styles.$data.root(),
   };

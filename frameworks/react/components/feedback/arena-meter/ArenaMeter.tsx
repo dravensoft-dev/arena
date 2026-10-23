@@ -51,7 +51,7 @@ export function ArenaMeter({ className, label, value, min = 0, max = 100, low, h
   const readout = arenaMeterReadout(value, range, valueText);
   const styles = meterStyles({ standing });
   return (
-    <div className={arenaClassName('ArenaMeter', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+    <div className={arenaClassName('ArenaMeter', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
       <div className={styles.head()} data-arena-part={manifest.parts.head} {...styles.$data.head()}>
         {showLabel && <span className={styles.label()} data-arena-part={manifest.parts.label} {...styles.$data.label()}>{label}</span>}
         <span className={styles.value()} data-arena-part={manifest.parts.value} {...styles.$data.value()}>{readout}</span>

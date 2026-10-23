@@ -86,7 +86,7 @@ export function ArenaTextarea({ className,
     if (autoResize) arenaFitToContent(boxRef.current);
   }, [autoResize, value, rows]);
   return (
-    <div className={arenaClassName('ArenaTextarea', styles.root(), className)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
+    <div className={arenaClassName('ArenaTextarea', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
       {label && (
         <label htmlFor={taId} className={styles.label()} data-arena-part={manifest.parts.label} {...styles.$data.label()}>
           {label}{required && <span className={styles.required()} data-arena-part={manifest.parts.required} {...styles.$data.required()}>*</span>}
