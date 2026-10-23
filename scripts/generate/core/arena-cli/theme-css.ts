@@ -268,6 +268,7 @@ export function pluginValue(raw: unknown, catalogue: TokenCatalogue | null) {
   const alias = ALIAS.exec(value)?.[1];
   if (!alias) return value;
   const flat = alias.replace(/\./g, '-');
+  if (catalogue?.roles?.[flat]?.type === 'color') return `var(--${flat})`;
   if (catalogue?.tokens?.[flat] === undefined) return null;
   return SKIN_ALIAS.test(alias) ? `var(--${flat})` : catalogue.tokens[flat];
 }
@@ -315,7 +316,40 @@ export function resolvedPlugin(
       if (value !== null) at.set(key, value);
     }
   }
+  const roles = catalogue?.roles ?? {};
+  const bound = Object.keys(roles).length;
+  for (const [key, first] of at) {
+    let value = first;
+    for (let hop = 0; hop < bound; hop += 1) {
+      const name = /^var\(--([\w-]+)\)$/.exec(value)?.[1];
+      if (!name || roles[name]?.type !== 'color' || !at.has(name)) break;
+      value = at.get(name) as string;
+    }
+    if (value !== first) at.set(key, value);
+  }
   return at;
+}
+
+function roleAlias(raw: unknown, catalogue: TokenCatalogue) {
+  const alias = ALIAS.exec(String(raw).trim())?.[1];
+  return alias && catalogue.roles?.[alias]?.type === 'color' ? alias : null;
+}
+
+function loopProblem(key: string, tokens: Record<string, unknown>, catalogue: TokenCatalogue) {
+  const seen = [key];
+  let at = roleAlias(tokens[key], catalogue);
+  while (at !== null && at !== undefined) {
+    if (at === key) {
+      const via = seen[seen.length - 1] as string;
+      return seen.length === 1
+        ? `"${key}" is "{${key}}", so it names itself and never resolves`
+        : `"${seen[0]}" is "{${seen[1]}}", and "${via}" leads back to "${key}", so neither resolves`;
+    }
+    if (seen.includes(at)) return null;
+    seen.push(at);
+    at = roleAlias(tokens[at], catalogue);
+  }
+  return null;
 }
 
 export function pluginBlocks(
@@ -346,10 +380,17 @@ export function pluginTokenProblems(
         + 'Arena emits.');
       continue;
     }
-    if (role?.type === 'color' && !/^\{color\.[a-z0-9-]+\}$/.test(String(raw).trim()))
-      problems.push(`${where}: "${key}" is ${JSON.stringify(raw)}, and a colour role takes a {color.*} alias `
-        + 'only. A style plugin assigns one of your colours to a role and never authors one of its own.');
-    if (role?.type === 'keyword' && Array.isArray(role.values) && !role.values.includes(String(raw)))
+    if (role?.type === 'color') {
+      const named = roleAlias(raw, catalogue);
+      if (!/^\{color\.[a-z0-9-]+\}$/.test(String(raw).trim()) && (named === null || named === key))
+        problems.push(`${where}: "${key}" is ${JSON.stringify(raw)}, and a colour role takes a {color.*} alias `
+          + 'or another colour role. A style plugin assigns one of your colours to a role and never authors one '
+          + 'of its own.');
+      const loop = named === null ? null : loopProblem(key, tokens, catalogue);
+      if (loop) problems.push(`${where}: ${loop}.`);
+    }
+    const resolved = String(pluginValue(raw, catalogue));
+    if (role?.type === 'keyword' && Array.isArray(role.values) && !role.values.includes(resolved))
       problems.push(`${where}: "${key}" is ${JSON.stringify(raw)}, not one of ${role.values.join(', ')}.`);
   }
   return problems;

@@ -82,7 +82,7 @@ its own answer to the role the default names. A plugin that moves `pad-row-x` th
 `pad-nav-row-x` with it. A root that answers `pad-nav-row-x` itself keeps that answer under every
 later entry, and a root of `default` counts as silent there, because its answer is the default.
 
-**A colour role takes one of your palette colours as a `{color.*}` alias, and never a literal.**
+**A colour role takes one of your palette colours as a `{color.*}` alias, or another colour role as `{ink-muted}`, and never a literal.**
 The palette is yours and what a role says is WHICH of your colours a surface takes. The reason is mechanical as well. A bare colour alias
 is restated under every palette. Anything else resolves to one theme's value and inherits it into
 the other, so a hex here is a light-mode colour showing through your dark theme.
@@ -90,7 +90,8 @@ the other, so a hex here is a light-mode colour showing through your dark theme.
 ## What an answer may be
 
 - **A scale alias**, `{r.xs}`, `{sp.4}`, `{fw.bold}`, `{dur.fast}`, `{ease.out}`. A scale alias is the ordinary answer.
-- **A `{color.*}` alias**, for every colour role.
+- **A `{color.*}` alias**, for every colour role, or another colour role such as `{ink-muted}`. A keyword role takes
+  a word of its set, or an alias that resolves to one such as `{case.none}`.
 - **A literal**, where the scale has nothing you want: `{ "value": 920, "unit": "px" }`, or a bare
   number for a ratio such as `press-scale`. **Two of the loudest decisions need one**, because the scale has no step for
   them. A square corner is `{ "value": 0, "unit": "px" }`. No shadow at all is a shadow object
@@ -275,7 +276,7 @@ Stated so you can plan around it rather than discover it.
 **Some of this is refused rather than reported, and knowing which is which saves you an
 afternoon.** Five things are **hard failures of the plain command**. A role left unanswered
 by the root plugin that carries no default. A value of the wrong type. A colour role answered with anything but a
-`{color.*}` alias. An alias that resolves to nothing. And a broken reading floor. The command
+`{color.*}` alias or another colour role, or two colour roles that name each other. An alias that resolves to nothing. And a broken reading floor. The command
 writes nothing and exits non-zero.
 Everything the audit says is a **report**, and stays one until you pass `--strict`.
 

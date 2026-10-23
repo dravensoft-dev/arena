@@ -54,9 +54,11 @@ of the plugin's own, written against the part hooks; the build wraps it in the r
 its author never spells `@layer arena-plugin`.
 
 **Colour stays an assignment and never an authorship.** A colour role takes one of the consumer's
-palette colours as a `{color.*}` alias, and a plugin writing a hex would be authoring a skin it
-does not own. It is mechanical as well as doctrinal: the emitter turns a bare colour alias into a
-`var()` it restates under every palette, and anything else resolves to one theme's hex and
+palette colours as a `{color.*}` alias, or follows another colour role as `{ink-muted}`, and a plugin
+writing a hex would be authoring a skin it does not own. A keyword role takes a word of its set or
+an alias that resolves to one, such as `{case.none}`. Colour roles that name each other in a ring
+are refused, because the page would resolve none of them. It is mechanical as well as doctrinal: the emitter turns a bare colour alias, or a role
+named as an alias, into a `var()` it restates under every palette, and anything else resolves to one theme's hex and
 inherits it into the other.
 
 **The alias layer is the route around that, and it had nothing watching it.**

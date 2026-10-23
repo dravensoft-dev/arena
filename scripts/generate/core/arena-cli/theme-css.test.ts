@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 import {
   configProblems, heatReports, heatOrderReports, themeCss, packageCss, packageImports, paletteReports, defaultPalette, isStylesheet, scopedImports,
   pluginName, pluginValue, readPlugin, weightReports, rootWithDefaults, resolvedPlugin,
+  pluginBlocks, pluginTokenProblems,
   ARENA_FONT_DEFAULTS, RUNTIME_MARKER, polarityClass, polarityDeclarations, restatedBy, type CheckedStylesheet, type CheckedSheets,
 } from './theme-css.ts';
 import { PALETTE_KEYS, POLARITIES, heatKeys } from './palette-keys.ts';
@@ -661,6 +662,48 @@ test('a bare colour alias becomes the var() a palette scope can restate', () => 
   assert.equal(pluginValue('{color.nonesuch}', SHEETS_FULL.catalogue), null);
 });
 
+const ALIASED = {
+  tokens: {
+    ...SHEETS_FULL.catalogue.tokens,
+    'case-none': 'none', 'color-primary': 'var(--color-primary)',
+    'ink-muted': 'var(--color-base-content)', 'ink-key': 'var(--ink-muted)',
+  },
+  roles: {
+    ...SHEETS_FULL.catalogue.roles,
+    'tt-key': { type: 'keyword', values: ['none', 'uppercase', 'lowercase', 'capitalize'] },
+    'ink-muted': { type: 'color' },
+    'ink-key': { type: 'color' },
+  },
+};
+
+test('a keyword role may be answered by an alias that resolves to one of its values', () => {
+  assert.deepEqual(pluginTokenProblems('p', { 'tt-key': '{case.none}' }, ALIASED), []);
+  assert.deepEqual(pluginBlocks(readPlugin('p', { 'tt-key': { $value: '{case.none}' } }), ALIASED, 'dark'),
+    ['--tt-key:none;']);
+  assert.equal(pluginTokenProblems('p', { 'tt-key': '{fs.h3}' }, ALIASED).length, 1,
+    'a scale step resolves to 24px, which is not a word of the set');
+});
+
+test('a colour role may name another colour role and emits a reference to it', () => {
+  assert.deepEqual(pluginTokenProblems('p', { 'ink-key': '{ink-muted}' }, ALIASED), []);
+  assert.deepEqual(pluginBlocks(readPlugin('p', { 'ink-key': { $value: '{ink-muted}' } }), ALIASED, 'dark'),
+    ['--ink-key:var(--ink-muted);']);
+  assert.equal(pluginTokenProblems('p', { 'ink-key': '{tt-key}' }, ALIASED).length, 1);
+  assert.equal(pluginTokenProblems('p', { 'ink-key': '#123456' }, ALIASED).length, 1);
+});
+
+test('a role alias chain that loops is refused, and a role naming itself is too', () => {
+  const loop = pluginTokenProblems('p', { 'ink-key': '{ink-muted}', 'ink-muted': '{ink-key}' }, ALIASED);
+  assert.ok(loop.some((m) => m.includes(
+    '"ink-key" is "{ink-muted}", and "ink-muted" leads back to "ink-key", so neither resolves')), loop.join('\n'));
+  assert.ok(pluginTokenProblems('p', { 'ink-key': '{ink-key}' }, ALIASED).length >= 1);
+});
+
+test('resolvedPlugin follows a role alias to the colour the named role resolves to', () => {
+  const plugin = readPlugin('p', { 'ink-muted': { $value: '{color.primary}' }, 'ink-key': { $value: '{ink-muted}' } });
+  assert.equal(resolvedPlugin(plugin, ALIASED).get('ink-key'), 'var(--color-primary)');
+});
+
 test('a weight a role asks for and the face never carries is reported', () => {
   const c = config();
   c.fonts.display.family = 'Baloo 2';
@@ -945,7 +988,7 @@ test('a style plugin may not name a role the package does not ship', () => {
 test('a style plugin may not author a colour, only assign one', () => {
   assert.match(pluginProblems(listed(['console']),
     [total({ 'ink-eyebrow': { $type: 'color', $value: '#b52a20' } })])[0] ?? '',
-  /takes a \{color\.\*\} alias only/);
+  /takes a \{color\.\*\} alias or another colour role/);
   assert.deepEqual(pluginProblems(listed(['console']),
     [total({ 'ink-eyebrow': { $type: 'color', $value: '{color.secondary}' } })]), []);
 });
