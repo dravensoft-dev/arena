@@ -4,13 +4,14 @@
  * classes ArenaButton renders and is painted by the stylesheet the packages ship; each copy is
  * scoped to a style plugin out of the catalogue, compiled here by the builder that writes the two
  * plugins the site already loads, so a skin whose radius or weight moves moves the picture. The five
- * are the benches that differ most from each other in hue, radius, weight and face, and their
- * palettes are the ones those benches wear, copied from their own arena.config.json, because a
- * palette is the half Arena never ships and a made-up one would be Arena inventing what it says it
+ * are the catalogue entries that differ most from each other in hue, radius, weight and face, each
+ * wearing its own default palette, read from its arena.config.json, because a palette is the half
+ * Arena never ships and a made-up one would be Arena inventing what it says it
  * does not carry. Chrome refuses an external use over file://, so the robot is drawn inline. */
 
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { repoRoot } from './repo-root.ts';
 import { block, PLUGIN_DIR } from '../../generate/arena/generate-tokens.ts';
 import { arenaClassesFor, arenaSlotDataFor } from '../tailwind/component-css.ts';
 import { SPRITE_FILE } from './playground-page.ts';
@@ -25,19 +26,30 @@ export const HERO_FILE = 'hero.png';
 export const HERO_WIDTH = 1400;
 export const HERO_HEIGHT = 860;
 
-export const HERO_SKINS = [
-  { name: 'project-tracker', primary: '#6c4ee3', content: '#ffffff' },
-  { name: 'language-course', primary: '#58cc02', content: '#ffffff' },
-  { name: 'storefront', primary: '#9c431b', content: '#ffffff' },
-  { name: 'photo-feed', primary: '#4a9eff', content: '#0b1a2b' },
-  { name: 'observability-console', primary: '#ff9243', content: '#1a1206' },
-];
+export const HERO_ENTRIES = ['project-tracker', 'language-course', 'storefront', 'photo-feed', 'observability-console'];
+
+export function heroSkins(base = repoRoot) {
+  return HERO_ENTRIES.map((name) => {
+    const file = join(base, 'plugin-style-store', 'catalogue', name, 'arena.config.json');
+    if (!existsSync(file)) throw new Error(`hero-page: ${file} is missing, so the hero cannot wear ${name}'s palette`);
+    const config = JSON.parse(readFileSync(file, 'utf8')) as {
+      palettes?: { default?: boolean; colors?: Record<string, string> }[];
+    };
+    const colors = config.palettes?.find((palette) => palette.default === true)?.colors;
+    const primary = colors?.primary;
+    const content = colors?.['primary-content'];
+    if (primary === undefined || content === undefined) {
+      throw new Error(`hero-page: ${file} declares no default palette with primary and primary-content`);
+    }
+    return { name, primary, content };
+  });
+}
 
 export const skinClass = (name: string) => `arena-${name}`;
 
 export async function heroStyles() {
   const blocks = [];
-  for (const { name } of HERO_SKINS) {
+  for (const { name } of heroSkins()) {
     blocks.push(await block({
       selector: `.${skinClass(name)}`,
       source: 'plugin.tokens.json',
@@ -67,7 +79,7 @@ const painted = (primary: string, content: string) => (primary === ''
   : ` style="--color-primary:${primary};--color-primary-content:${content}"`);
 
 function slices() {
-  return HERO_SKINS
+  return heroSkins()
     .map(({ name, primary, content }) =>
       `<div class="slice ${skinClass(name)}"${painted(primary, content)}>`
       + `${button(LABEL)}<span>${name}</span></div>`)

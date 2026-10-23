@@ -37,7 +37,7 @@ export const node = {
     'skills/design/SKILL.md', 'skills/design/references/*.md', 'frameworks/**/INDEX.md', 'frameworks/VOCABULARY.md', 'frameworks/**/*.prompt.md',
     '!frameworks/*/build/package/**', '!frameworks/*/dist/**',
     'intro/**', 'arena-from-scratch/identity*.html', 'contracts/behaviour/**', 'contracts/design/**', 'contracts/design-generated/**', 'assets/**',
-    'plugin-style-store/**/plugin.css', 'plugin-style-store/catalogue/*/plugin.tokens.json',
+    'plugin-style-store/**/plugin.css', 'plugin-style-store/catalogue/*/plugin.tokens.json', 'plugin-style-store/catalogue/*/arena.config.json',
     'frameworks/tailwind/consume/**', 'frameworks/react/vendor/**',
     'frameworks/kitchen-sink/*.sink.json', 'frameworks/*/kitchen-sink/**', 'frameworks/*/components/**',
     'frameworks/*/playground/**', 'frameworks/react/*.generated.js',
