@@ -93,6 +93,7 @@ jobs:
       - name: does the adopter declare this Arena
         id: adopter
         if: steps.checkout.outcome == 'success'
+        continue-on-error: true
         run: bun scripts/build/arena/build-site.ts --adopter-declares adopter
 
       - name: install the adopter
@@ -110,7 +111,7 @@ jobs:
         working-directory: adopter
 
       - name: an adopter that did not arrive leaves the site without it
-        if: steps.checkout.outcome != 'success' || (steps.adopter.outputs.publish == 'true' && steps.adopter-build.outcome != 'success')
+        if: steps.checkout.outcome != 'success' || steps.adopter.outcome == 'failure' || (steps.adopter.outputs.publish == 'true' && steps.adopter-build.outcome != 'success')
         run: echo "::warning::the adopter build did not arrive, so the site is published without it"
 
       # An unset ARENA_ADOPTER_BUILD is the site a clone builds: the directory is named only when
