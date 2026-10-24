@@ -1,3 +1,5 @@
+/* The audit's rules, one case each. The every-tag case reads both audit.ts and steps.ts, since the rules
+ * that read a plugin's names are emitted by the audit step. */
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readdirSync, readFileSync } from 'node:fs';

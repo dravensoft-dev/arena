@@ -74,7 +74,7 @@ export function gradientMark(options: StepOptions) {
 }
 
 const VAR_READ = /var\(\s*(--[\w-]+)/g;
-const PROPERTY_DECLARED = /(?<![\w-])(--[\w-]+)['"]?\s*:/g;
+const PROPERTY_DECLARED = /(?<![\w-])(--[\w-]+)['"]?\s*:|@property\s+(--[\w-]+)/g;
 
 function paletteColours(config: string) {
   try {
@@ -94,7 +94,7 @@ function knownProperties(catalogue: TokenCatalogue, options: StepOptions, dirs: 
   ].map(dashed));
   for (const name of paletteColours(options.config)) known.add(name);
   for (const file of auditFiles(options.paths, dirs)) {
-    for (const m of withoutComments(readFileSync(file, 'utf8')).matchAll(PROPERTY_DECLARED)) known.add(group(m));
+    for (const m of withoutComments(readFileSync(file, 'utf8')).matchAll(PROPERTY_DECLARED)) known.add(m[1] ?? group(m, 2));
   }
   return known;
 }
@@ -106,7 +106,7 @@ function nameFindings(text: string, known: Set<string> | null, parts: Set<string
     if (known) {
       for (const m of line.matchAll(VAR_READ)) {
         const name = group(m);
-        if (known.has(name)) continue;
+        if (known.has(name) || name.startsWith('--tw-')) continue;
         const near = nearestName(name, known);
         found.push({ line: index + 1, rule: 'unknown-property', message: `reads var(${name}), which no role, `
           + 'token, alias, channel, palette colour or property your sources declare is called, so the rule '
@@ -213,8 +213,8 @@ export function undrawnStep(options: StepOptions, packageName: string, map: Comp
   return { notes, fatal: [] as string[] };
 }
 
-const sheetOfComponent = (component: string) => component.replace(/^Arena/, '')
-  .replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
+const sheetOfComponent = (component: string) => `arena-${component.replace(/^Arena/, '')
+  .replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase()}`;
 
 export function paintedBy(painted: string[], vocabulary: VocabularyIndex | null = null,
   drawnSheets: string[] | null = null) {

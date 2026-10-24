@@ -154,9 +154,10 @@ test('a property the catalogue, the palette or the project declares is known, an
     '  outline-color: var(--arena-hue-ink);',
     '  margin: var(--own) var(--own2);',
     '  padding: var(--a, var(--b));',
+    '  box-shadow: var(--tw-ring-color) var(--registered);',
     '}',
   ].join('\n'), {
-    'tokens.css': ':root { --own: 1px; --a: 2px; }\n',
+    'tokens.css': ':root { --own: 1px; --a: 2px; }\n@property --registered {\n  syntax: "*";\n  inherits: false;\n}\n',
     'Style.tsx': "export const style = { '--own2': 1 };\n",
   });
   const found = named(auditStep(options(root), null, CATALOGUE, VOCABULARY), 'unknown-property');
@@ -213,8 +214,8 @@ test('arena-audit allow on the line silences both rules, and a stale one is stil
 
 test('a part counts as painted only when the sheet of its component is drawn, and the rest are named', () => {
   const vocabulary = VOCABULARY;
-  assert.match(paintedBy(['button', 'menu.item'], vocabulary, ['button']),
+  assert.match(paintedBy(['button', 'menu.item'], vocabulary, ['arena-button']),
     /^your style plugin\(s\) paint 1 part\(s\): button\. 1 rule\(s\) reach nothing this project draws: menu\.item\. /);
-  assert.match(paintedBy(['button', 'menu.item'], vocabulary, ['button', 'menu']), /^your style plugin\(s\) paint 2 part\(s\): button, menu\.item\. A role/);
-  assert.match(paintedBy(['menu.item'], null, ['button']), /^your style plugin\(s\) paint 1 part\(s\): menu\.item\. A role/);
+  assert.match(paintedBy(['button', 'menu.item'], vocabulary, ['arena-button', 'arena-menu']), /^your style plugin\(s\) paint 2 part\(s\): button, menu\.item\. A role/);
+  assert.match(paintedBy(['menu.item'], null, ['arena-button']), /^your style plugin\(s\) paint 1 part\(s\): menu\.item\. A role/);
 });

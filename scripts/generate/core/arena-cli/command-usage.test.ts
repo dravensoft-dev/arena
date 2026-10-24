@@ -130,8 +130,9 @@ test('usage counts as painted only the parts of components the sources draw, and
       '[data-arena-part="button"] { color: red; }\n[data-arena-part="menu.item"] { color: red; }\n');
     const vocabulary = { page: 'p', classes: {}, answers: {}, options: {},
       parts: { ArenaButton: { button: [] }, ArenaMenu: { menu: [], 'menu.item': [] } } };
-    const { io, out } = captureIo(root, { ...environment, vocabulary });
+    const map = { match: 'selector' as const, draws: { 'arena-button': 'arena-button', 'arena-menu': 'arena-menu' }, needs: {} };
+    const { io, out } = captureIo(root, { ...environment, map, vocabulary });
     assert.equal(run([], io), 0);
-    assert.match(out[2]!, /^arena usage: your style plugin\(s\) paint 1 part\(s\): button\. 1 rule\(s\) reach nothing this project draws: menu\.item\. /);
+    assert.match(out.find((line) => line.startsWith('arena usage: your style plugin'))!, /^arena usage: your style plugin\(s\) paint 1 part\(s\): button\. 1 rule\(s\) reach nothing this project draws: menu\.item\. /);
   } finally { rmSync(root, { recursive: true, force: true }); }
 });
