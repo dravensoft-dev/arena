@@ -330,8 +330,7 @@ export function shippedChannels(root = repoRoot) {
     tailwindThemeSheet(root),
   ];
   const names = new Set<string>();
-  for (const source of sources)
-    for (const [, name = ''] of source.replace(/\/\*[\s\S]*?\*\//g, '').matchAll(DECLARED_PROPERTY)) names.add(name);
+  for (const source of sources) for (const name of declaredProperties(source)) names.add(name);
   return [...names];
 }
 

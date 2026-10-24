@@ -7,12 +7,14 @@ import { relPosix } from '../../utils/posix-path.ts';
 import {
   EXCLUDED_NAMES, EXCLUDED_PATTERNS, CSS_CHAIN, arenaCssHeader, excluded,
   collectFiles, reset, write, copyTree, copyCli, emitDeclaration, declarationReach, CLI_BINS, PALETTE_ENTRY, CLI_SOURCES, baseManifest, pluginIdentity, version, repositoryBase, agentBases, componentSheets, writeCssChain, arenaCssLayers, ANGULAR_EXTRA,
-  writeComponentMap, copyFonts, FONTS_PACKAGE_DIR, keywords, SHARED_KEYWORDS, tokenCatalogue, declaredProperties, aliasDeclarations, catalogueRole,
+  writeComponentMap, copyFonts, FONTS_PACKAGE_DIR, keywords, SHARED_KEYWORDS, tokenCatalogue, shippedChannels, aliasDeclarations, catalogueRole,
 } from './package-assembly.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { MARKERS_FILE, markerAttributes } from './component-map.ts';
 import { MAP_FILE } from './component-map.ts';
 import { repoRoot } from './repo-root.ts';
+import { THEME_SOURCES } from '../tailwind/theme-sheet.ts';
+import { CONSUME } from '../../build/tailwind/build-tailwind.ts';
 import { CLI_DEPENDENCIES } from './support-matrix.ts';
 import { sheetFamilies, packageSheetName } from '../tailwind/vocabulary.ts';
 import { splitCompiledSheet } from '../tailwind/sheet-split.ts';
@@ -354,8 +356,22 @@ test('the catalogue lists every property the shipped CSS declares beyond tokens,
   assert.deepEqual(channels, [...new Set(channels)].sort());
 });
 
-test('a property named inside a string or a comment is not one the CSS declares', () => {
-  assert.deepEqual(declaredProperties(':root { --real: 1px; }\n[title="set --quoted: 1"] { content: \'say --said: x\'; }\n/* --gone: 0 */'), ['--real']);
+test('a property named inside a string or a comment is not a channel the shipped CSS declares', () => {
+  const root = mkdtempSync(join(tmpdir(), 'arena-channels-'));
+  try {
+    const shipped = [...CSS_CHAIN.map(({ from }) => from), 'frameworks/tailwind/Utilities.generated.css',
+      ...THEME_SOURCES.theme, ...THEME_SOURCES.utilities];
+    for (const rel of shipped) {
+      mkdirSync(join(root, rel, '..'), { recursive: true });
+      writeFileSync(join(root, rel), readFileSync(join(repoRoot, rel), 'utf8'));
+    }
+    mkdirSync(join(root, CONSUME), { recursive: true });
+    writeFileSync(join(root, CONSUME, 'probe.css'),
+      ':root { --probe-real: 1px; }\n[title="set --probe-quoted: 1"] { content: \'say --probe-said: x\'; }\n/* --probe-gone: 0 */\n');
+    assert.deepEqual(shippedChannels(root).filter((name) => name.startsWith('--probe-')), ['--probe-real']);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
 });
 
 test('the catalogue holds the 40 aliases of colors.css in file order, and no level', () => {
