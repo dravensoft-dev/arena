@@ -901,6 +901,7 @@ test('a glyph counts as drawn once any source hands an icon member an expression
 test('an element, a non-icon attribute and a spread on a tag that takes no icon leave the report on (P1, N2)', async () => {
   for (const kept of [
     'export const A = () => <ArenaButton icon={<Plus />}>x</ArenaButton>;\n',
+    'export const A = () => <ArenaButton icon={( <Plus /> )}>x</ArenaButton>;\n',
     'export const A = () => <ArenaIcon key={n} icon="ph-bold ph-star" />;\n',
     'export const A = () => <ArenaInput {...field} />;\n',
   ]) assert.equal((await glyphReportsFor({ 'data.ts': NAMED, 'App.tsx': kept })).length, 1, kept);

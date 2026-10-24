@@ -191,7 +191,7 @@ function expressionIcon(tag: string, { names = ['icon'], spread = true, element 
       else if (c === '}') depth -= 1;
     }
     const value = tag.slice(from, i - 1).trim();
-    if (!LITERAL.test(value) && (element || !/^\(*</.test(value))) return true;
+    if (!LITERAL.test(value) && (element || !/^[\s(]*</.test(value))) return true;
   }
   return false;
 }
