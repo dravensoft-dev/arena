@@ -120,7 +120,7 @@ export class ArenaCalendarEvent {
   readonly actionsEnabled = input(false, { transform: booleanAttribute });
   /** Whether the chip is drawn but cannot be activated: an event a consumer's rules lock, such as one already past or owned by someone else. The state reflects through `aria-disabled` rather than the native `disabled` attribute. The chip keeps its place in the grid's roving Tab sequence and is announced as unavailable instead of disappearing from it. With `interactive` false there is nothing to activate and the chip is inert already. */
   readonly disabled = input(false, { transform: booleanAttribute });
-  /** The chip was activated. No payload: the consumer wrote this element, so they already hold the event this is about. Never emitted while `disabled`. A click on the chip's surface stops there in both layers, so a listener on the document does not hear it. */
+  /** The chip was activated. No payload: the consumer wrote this element, so they already hold the event this is about. Never emitted while `disabled`. A click on the chip's body stops there in both layers, so a listener on the document does not hear it. The kebab and the panel's controls reach the document as native clicks. */
   readonly activate = output<void>();
 
   private readonly times = arenaPublished<EventTimes>(
