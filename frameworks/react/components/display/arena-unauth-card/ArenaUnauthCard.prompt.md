@@ -2,7 +2,7 @@ The panel every signed-out screen needs. The panel is a frame rather than a form
 `ArenaButton`, which is what lets the same component serve "Welcome back", "Check your
 inbox", "This link expired" and "Enter your two-factor code".
 
-`eyebrow` and `title` are plain strings; Arena draws both entirely (the mono crimson
+`eyebrow` and `title` are plain strings; Arena draws both entirely (the mono primary
 microlabel, the display-weight heading), so there is no markup for a consumer to
 supply. `brand`, `footer` and the children default slot stay nodes.
 

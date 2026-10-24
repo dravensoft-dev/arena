@@ -93,7 +93,7 @@ replicas.current?.select();
 - Don't put a currency or a unit in `format`; use `prefix` and `suffix`.
 - Don't expect the mouse wheel or a press-and-hold to step the number. Neither is supported.
 
-**By hand.** A phone's decimal keypad, where iOS draws no minus, so a negative number comes from the steppers. The stepper target at `arena-comfortable`. Home and End against a bound. The gold ring on the field.
+**By hand.** A phone's decimal keypad, where iOS draws no minus, so a negative number comes from the steppers. The stepper target at `arena-comfortable`. Home and End against a bound. The focus ring on the field.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

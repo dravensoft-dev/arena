@@ -1,4 +1,4 @@
-A single checkbox. Checked shows a crimson fill with a check. `onChange` carries the **new checked state** as a boolean, not the DOM event, so a `useState` setter can be passed straight to it. `name` and `value` are what a native form submits when the box is ticked, and `required` makes the tick mandatory for submission.
+A single checkbox. Checked shows the primary fill with a check. `onChange` carries the **new checked state** as a boolean, not the DOM event, so a `useState` setter can be passed straight to it. `name` and `value` are what a native form submits when the box is ticked, and `required` makes the tick mandatory for submission.
 
 ```tsx
 <ArenaCheckbox checked={notify} onChange={setNotify} label="Notify on approval" />

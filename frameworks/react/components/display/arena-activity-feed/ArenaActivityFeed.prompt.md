@@ -1,4 +1,4 @@
-An event feed. The component knows the grammar: someone did something to something, then. Each part takes its own ink. `actor` is `--bone`, `action` is `--bone-dim`, `target` is mono `--ink-figure`, and `time` is mono `--mute` pushed right. A tone dot leads
+An event feed. The component knows the grammar: someone did something to something, then. Each part takes its own ink. `actor` is the body ink at bold, `action` is the body ink, `target` is mono in the figure ink, and `time` is mono in the muted ink pushed right. A tone dot leads
 each row.
 
 ```tsx
@@ -34,7 +34,7 @@ each row.
 - `ControlHome`: Control+Home moves focus to the first focusable element before the feed.
 <!-- @keys end -->
 
-An item's `tone` is `neutral`, `success`, `warning`, `danger` or `info`. Without one, the row's dot takes the accent, which `arena-accent-gold` turns gold.
+An item's `tone` is `neutral`, `success`, `warning`, `danger` or `info`. Without one, the row's dot takes the accent, which `arena-accent-gold` turns to the secondary accent.
 
 **There is no row escape hatch.** There is no `renderItem`, because per-item projection has no expression every framework Arena ships for can offer. Arena declares only what all of them can implement. A consumer places no markup of their own inside one row. The event must fit `actor`, `action`, `target`, `time` and `tone`, or it does not belong in this component.
 

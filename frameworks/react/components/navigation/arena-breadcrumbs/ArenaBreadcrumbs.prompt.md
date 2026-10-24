@@ -45,7 +45,7 @@ consumer who wires no handler.
 `href` is optional, and a crumb without one is drawn as a `<span>` rather than as an anchor. The last crumb already takes that branch, minus its `aria-current`. A level of the trail that leads nowhere is not a link, and it does not take the pointer or the hover either. What a crumb must never be is an anchor to the page it sits on. Such an anchor is a dead edge in the crawl graph, and a target the keyboard can reach and nothing happens on.
 
 **Do / Don't**
-- The last item is the current location: no link, styled in `--bone`.
+- The last item is the current location: no link, styled in the body ink at bold.
 - Don't replace tabs with breadcrumbs or vice versa; they coexist (tabs = sibling sections, breadcrumbs = depth).
 - Don't reach for `onNavigate` to call `preventDefault()`. The handler never receives the click event and does not need to. Arena has already cancelled the anchor by the time it fires.
 - Don't wrap a crumb in your router's `Link`. `items` is data and the anchor is Arena's;

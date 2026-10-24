@@ -53,7 +53,7 @@ Values on a grid of two categories, each cell filled by the step of five equal b
 Each row is one series and each column is one label. A cell sits where its row and its column cross.
 A cell is filled with one of five steps, and the step is the whole of its colour.
 The five bins are equal in width and run over round edges, so every edge the legend writes is a round number.
-A value on an edge belongs to the higher bin, and the largest value belongs to the top one.
+A value on an edge belongs to the higher bin, the top edge included. The darkest step is drawn only when the largest value reaches the fourth edge, so a grid can top out a step lower.
 The bins are never quantiles. A top step that always held the same share of cells would say nothing about the size of the numbers.
 
 ### Colour is magnitude

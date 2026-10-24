@@ -36,9 +36,8 @@ One destination in an `ArenaSideNav`. Write one per destination, as a direct chi
 
 `href` decides which element the item renders, so it is the field to read first:
 present ⇒ an `<a>`, absent ⇒ a `<button>`. The active item, the one whose `id`
-matches `ArenaSideNav.active`, takes `aria-current="page"`, `--crimson-soft` behind
-`--crimson` text at `--fw-semibold`; the rest are transparent, `--mute`,
-`--fw-medium`. `ArenaSideNav` injects everything about *where* the item sits. That covers its nesting depth, which id is active, the indent and the handler that reports `onNav`, and none of it is part of this component's API. You never write those.
+matches `ArenaSideNav.active`, takes `aria-current="page"`, a primary wash behind
+the body ink at the control weight; the rest are transparent, in the muted ink. `ArenaSideNav` injects everything about *where* the item sits. That covers its nesting depth, which id is active, the indent and the handler that reports `onNav`, and none of it is part of this component's API. You never write those.
 
 ## Do / Don't
 

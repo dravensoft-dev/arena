@@ -60,7 +60,7 @@ Bars for comparing a value across categories. Dependency-free SVG: it reads `var
 - Default to one identity color for the series. Per-bar `colorIds` is for when each bar is genuinely a different thing, not for decoration.
 - Assign slots in order (1, 2, 3) and let a ninth category fold into "Other". The ramp is eight slots and past the last the count starts again, so a ninth series repeats the first colour.
 - Use `colorStart` to move where the positional count begins. An explicit `colorId` keeps its slot.
-- Reach for `tone` only when the series *is* a state: failed builds, error rate. One meaning per colour is what makes red mean red. The tone goes on the series, because the series is what is in a state.
+- Reach for `tone` only when the series *is* a state: failed builds, error rate. One meaning per colour is what makes the danger tone mean danger. The tone goes on the series, because the series is what is in a state.
 - Pass `valueSuffix` for units: the axis, the tooltip and the accessible table all carry it. The suffix is appended verbatim, so write the space yourself: `" ms"`, but `"%"`.
 
 **Don't**

@@ -54,7 +54,7 @@ and the choice of mark and wordmark express them:
 - **Don't** look for a component that renders the mark on its own. Arena ships none:
   the mark is a brand asset (`assets/rotor-*.svg`), and the lock-up is this component,
   which takes that asset as `mark` alongside a product `name`.
-- **Don't** mix the lock-ups. A crimson mark beside an undivided `Dravensoft` is half of Primary and half of Monochrome, which is no variant at all. The half-and-half lock-up is precisely the defect that existed in the console before this component held the rule.
+- **Don't** mix the lock-ups. A coloured mark beside an undivided `Dravensoft` is half of Primary and half of Monochrome, which is no variant at all. The half-and-half lock-up is precisely the defect that existed in the console before this component held the rule.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

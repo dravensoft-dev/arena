@@ -1,4 +1,4 @@
-Text field with validation (H5). Focus = gold ring, error = crimson with icon, valid = green with check. Requires the Phosphor sheets loaded for the state icons.
+Text field with validation (H5). Focus = the focus ring, error = the danger tone with icon, valid = the success tone with check. Requires the Phosphor sheets loaded for the state icons.
 
 ```tsx
 <ArenaInput label="Repository" required prefix="git@" placeholder="org/project" />

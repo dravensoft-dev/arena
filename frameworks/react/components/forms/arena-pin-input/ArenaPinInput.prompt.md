@@ -77,7 +77,7 @@ otp.current?.focus();
 - Don't verify, resend or time out the code here; `onComplete` reports and the host decides.
 - Don't empty `value` on each keystroke; empty it once when the code is wrong, then call `focus()`.
 
-**By hand.** The text message autofill on iOS and Android lands the whole code. The number pad appears for `numeric`. Tab leaves the group in one press. The gold ring sits on one cell only. Six cells fit at 390px.
+**By hand.** The text message autofill on iOS and Android lands the whole code. The number pad appears for `numeric`. Tab leaves the group in one press. The focus ring sits on one cell only. Six cells fit at 390px.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
