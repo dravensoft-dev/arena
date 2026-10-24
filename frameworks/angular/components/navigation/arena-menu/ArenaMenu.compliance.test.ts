@@ -13,7 +13,7 @@ import assert from 'node:assert/strict';
 import { join } from 'node:path';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { assertNoNode, assertSameNode } from '../../../test/NodeAssert';
+import { assertNoNode, assertNotSameNode, assertSameNode } from '../../../test/NodeAssert';
 import { assertPattern, ANGULAR_COMPONENTS } from '../../../test/Compliance';
 import { disposeOverlays } from '../../../test/Overlays';
 import type { ArenaMenuItem } from '../../../Api.generated';
@@ -483,6 +483,6 @@ test('the first enabled row takes focus on open, and a menu of disabled rows ans
     }
     assert.doesNotThrow(() => press(menu, 'a'), 'a');
     assertSameNode(document.activeElement, before, 'type-ahead moved focus in a menu of disabled rows');
-    assert.equal(rows.some((row) => row === document.activeElement), false, 'a disabled row took focus');
+    for (const row of rows) assertNotSameNode(document.activeElement, row, 'a disabled row took focus');
   } finally { finish(); }
 });
