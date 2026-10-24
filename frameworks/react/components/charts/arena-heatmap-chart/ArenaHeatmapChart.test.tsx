@@ -81,9 +81,10 @@ test('ArenaHeatmapChart paints a 0-to-max ramp in steps 1 to 5, in order', () =>
 });
 
 test('ArenaHeatmapChart draws the darkest step only when the largest value reaches the fourth edge', () => {
-  const step = (n: number) => `var(--color-heat-${n})`;
-  assert.deepEqual(fills(draw({ labels: ['a', 'b'], series: [{ label: 'Row', values: [0, 3120] }] })), [1, 4].map(step));
-  assert.deepEqual(fills(draw({ labels: ['a', 'b'], series: [{ label: 'Row', values: [0, 4000] }] })), [1, 5].map(step));
+  const below = draw({ labels: ['a', 'b'], series: [{ label: 'Row', values: [0, 3120] }] });
+  const reaches = draw({ labels: ['a', 'b'], series: [{ label: 'Row', values: [0, 4000] }] });
+  assert.deepEqual(fills(below), [1, 4].map((n) => `var(--color-heat-${n})`));
+  assert.deepEqual(fills(reaches), [1, 5].map((n) => `var(--color-heat-${n})`));
 });
 
 test('ArenaHeatmapChart puts a value on a bin edge in the higher bin, the top edge included', () => {
