@@ -892,6 +892,7 @@ test('a glyph counts as drawn once any source hands an icon member an expression
     'export const A = () => <ArenaIcon icon={tab.icon} />;\n',
     "export const A = () => <ArenaIconButton icon={dark ? 'ph-bold ph-sun' : 'ph-bold ph-moon'} label=\"x\" />;\n",
     'export const A = () => <ArenaButton iconRight={row.icon}>x</ArenaButton>;\n',
+    'export const A = () => <ArenaButton icon = {x}>x</ArenaButton>;\n',
     'export const A = () => <ArenaIcon {...props} />;\n',
   ]) assert.deepEqual(await glyphReportsFor({ 'data.ts': NAMED, 'App.tsx': drawn }), [], drawn);
   for (const drawn of ['<arena-icon [icon]="tab.icon"></arena-icon>\n', '<arena-button [iconRight]="row.icon">x</arena-button>\n',

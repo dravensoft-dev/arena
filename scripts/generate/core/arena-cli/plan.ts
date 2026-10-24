@@ -160,7 +160,7 @@ const LITERAL = /^(?:'[^']*'|"[^"]*"|`[^`$]*`)$/;
 
 const iconGiven = (names: string[]) => {
   const any = names.join('|');
-  return new RegExp(`\\s(?:\\[(?:${any})\\]=(?:"([^"]*)"|'([^']*)')|(?:${any})=(?:"([^"]*)"|'([^']*)')|(?:${any})=\\{|\\{\\s*\\.\\.\\.)`, 'g');
+  return new RegExp(`\\s(?:\\[(?:${any})\\]\\s*=\\s*(?:"([^"]*)"|'([^']*)')|(?:${any})\\s*=\\s*(?:"([^"]*)"|'([^']*)')|(?:${any})\\s*=\\s*\\{|\\{\\s*\\.\\.\\.)`, 'g');
 };
 
 function expressionIcon(tag: string, { names = ['icon'], spread = true, element = true } = {}) {
