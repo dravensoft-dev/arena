@@ -1,6 +1,7 @@
 Arena confirmation for a high-consequence action. The dialog does not close on click-outside. Losing a half-finished decision to a stray click is the failure this component exists to prevent. `requireText` makes the user type a word before the confirm button
 enables. `destructive` turns the eyebrow red and gives the confirm button Arena's
 **only filled danger surface**.
+The projected `content` is the dialog's description, announced with it when the dialog opens, so put the question and what it costs there.
 
 ```html
 <arena-confirm-dialog [open]="confirming()" [destructive]="true"
