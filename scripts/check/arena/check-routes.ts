@@ -323,9 +323,9 @@ export const ROUTES: Route[] = [
       + 'layer that binds it',
     entry: 'contributor',
     stops: ['frameworks/AGENTS.md', 'frameworks/*/AGENTS.md'],
-    budget: 77_600,
+    budget: 77_800,
     reason:
-      'the most-walked contributor route, carrying the most reasoning per stop, paid by '
+      'the most-walked contributor route paid by '
       + 'whoever changes Arena. No category\'s own tour: the '
       + 'chart family has frameworks/CHARTS.md. What it carries is what every component meets: the ordered '
       + 'steps a new component takes, including the barrel chain an Angular primitive needs and its '
@@ -334,7 +334,7 @@ export const ROUTES: Route[] = [
       + 'written twice, as initial value and fallback, a pair no gate holds. The roof '
       + 'carries what binds both layers and each layer carries its own envelope and peer, '
       + 'the split that keeps the pair from going stale in one. The roof states the '
-      + 'attribute the layers build from different values, what a browser proves about focus, the contract modal focus answers and why a radio group is one stop; each layer, the binding that interpolates a property name and why a root module has one consumer, and every method a component exposes, and the classes an open pane wears. The Tailwind page names the :scope part selector a family\'s block writes and why a bundler needs it. The kitchen-sink page holds the gate flags.',
+      + 'attribute the layers build from different values, what a browser proves about focus, the contract modal focus answers and why a radio group is one stop; each layer, the binding that interpolates a property name and why a root module has one consumer, and every method a component exposes, and the classes an open pane wears. The Tailwind page names the :scope part selector a family\'s block writes and why a bundler needs it. The kitchen-sink page holds the gate flags. The Angular page holds the marker rule.',
   },
   {
     name: 'contributor-authoring',
