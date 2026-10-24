@@ -30,8 +30,17 @@ test('with neither a retry nor a secondary action the actions part is not drawn'
   const nullSecondary = renderIcons(<ArenaErrorState secondaryAction={null} />);
   assert.doesNotMatch(nullSecondary, /error-state\.actions/);
 
+  const emptySecondary = renderIcons(<ArenaErrorState secondaryAction="" />);
+  assert.doesNotMatch(emptySecondary, /error-state\.actions/);
+
+  const trueSecondary = renderIcons(<ArenaErrorState secondaryAction={true} />);
+  assert.doesNotMatch(trueSecondary, /error-state\.actions/);
+
   const withRetry = renderIcons(<ArenaErrorState retryLabel="Retry" />);
   assert.match(withRetry, /error-state\.actions/);
+
+  const secondaryOnly = renderIcons(<ArenaErrorState secondaryAction={<a href="/logs">Logs</a>} />);
+  assert.match(secondaryOnly, /error-state\.actions/);
 });
 
 test('icon renders as an aria-hidden svg Arena draws', () => {
