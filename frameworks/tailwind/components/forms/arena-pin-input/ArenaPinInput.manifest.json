@@ -1,10 +1,10 @@
 {
   "component": "ArenaPinInput",
   "slots": {
-    "root": "flex flex-col gap-1.5",
+    "root": "flex flex-col gap-1.5 min-w-0",
     "label": "font-face-label text-ctl-xs tracking-label-role case-label text-ink-muted/(--level-ink-muted)",
     "required": "text-primary ml-1",
-    "group": "flex items-center gap-inline",
+    "group": "flex items-center gap-inline min-w-0",
     "cell": "size-ctl-h min-w-0 shrink p-0 text-center bg-field border-[length:var(--bw-field)] rounded-field outline-none text-ink-body font-mono tabular-nums text-ctl transition-[border-color,box-shadow] duration-[var(--dur-hover)] ease-hover",
     "statusIcon": "shrink-0 text-[length:var(--icon-md)]",
     "hint": "font-body text-ctl-sm text-ink-muted/(--level-ink-muted)",

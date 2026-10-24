@@ -7,6 +7,9 @@ useTestEnvironment();
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { TAILWIND_COMPONENTS } from '../../../test/Compliance';
 import { TestBed } from '@angular/core/testing';
 import { ArenaPinInput } from './ArenaPinInput';
 import { assertNoNode } from '../../../test/NodeAssert';
@@ -100,4 +103,9 @@ test('an error turns every cell invalid and describes each one, and a hint descr
   try {
     for (const cell of bare.cells) assert.equal(cell.hasAttribute('aria-describedby'), false);
   } finally { bare.fixture.destroy(); }
+});
+
+test('the root and the group both shrink, so six cells fit the width they are given', () => {
+  const source = JSON.parse(readFileSync(join(TAILWIND_COMPONENTS, 'forms/arena-pin-input/ArenaPinInput.manifest.json'), 'utf8')) as { slots: Record<string, string> };
+  for (const slot of [source.slots['root']!, source.slots['group']!]) assert.ok(slot.split(/\s+/).includes('min-w-0'), slot);
 });

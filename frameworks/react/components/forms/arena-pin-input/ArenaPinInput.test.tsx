@@ -6,6 +6,7 @@ import assert from 'node:assert/strict';
 import { renderToStaticMarkup } from 'react-dom/server';
 import React from 'react';
 import { ArenaPinInput } from './ArenaPinInput.tsx';
+import tailwind from './ArenaPinInput.manifest.generated.ts';
 
 const render = (node: React.ReactElement) => renderToStaticMarkup(node);
 const cells = (html: string) => [...html.matchAll(/<input[^>]*data-arena-part="pin-input.cell"[^>]*>/g)].map((m) => m[0]);
@@ -63,4 +64,8 @@ test('an error turns every cell invalid and describes each one, and a hint descr
   assert.ok(tip, helped);
   for (const cell of cells(helped)) assert.ok(cell.includes('aria-invalid="false"') && cell.includes(`aria-describedby="${tip}"`), cell);
   for (const cell of cells(render(<ArenaPinInput label="Verification code" />))) assert.ok(!cell.includes('aria-describedby'), cell);
+});
+
+test('the root and the group both shrink, so six cells fit the width they are given', () => {
+  for (const slot of [tailwind.slots.root, tailwind.slots.group]) assert.ok(slot.split(/\s+/).includes('min-w-0'), slot);
 });
