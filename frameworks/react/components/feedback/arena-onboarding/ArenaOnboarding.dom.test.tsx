@@ -228,7 +228,7 @@ test('Next then Back leaves focus inside the panel, and Escape then closes the t
   click(back);
   assert.equal(buttons().some((b) => b.textContent === 'Back'), false, 'Back is gone at index 0');
   assert.equal(panel.contains(document.activeElement), true, 'focus must stay inside the panel after the step change');
-  assert.equal(named('Skip') !== undefined, true);
+  assert.equal(document.activeElement, named('Skip'), 'the dropped focus did not land on the panel\'s first control');
 
   press(document.activeElement!, 'Escape');
   assert.equal(skipped, 1, 'Escape reports skip exactly once');

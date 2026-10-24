@@ -9,6 +9,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { assertSameNode } from '../../../test/NodeAssert';
 import { ArenaOnboarding } from './ArenaOnboarding';
 
 const THREE_STEPS = [{ title: 'Welcome' }, { title: 'Palette' }, { title: 'All set' }];
@@ -45,6 +46,8 @@ test('Next then Back leaves focus inside the panel, and Escape then closes the t
 
     assert.equal(buttons().some((b) => b.textContent?.trim() === 'Back'), false, 'Back is gone at index 0');
     assert.equal(panel.contains(document.activeElement), true, 'focus must stay inside the panel after the step change');
+    assertSameNode(document.activeElement, buttons().find((b) => b.textContent?.trim() === 'Skip') ?? null,
+      'the dropped focus did not land on the panel\'s first control');
 
     document.activeElement!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
     fixture.detectChanges();

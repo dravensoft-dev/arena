@@ -32,8 +32,10 @@ function withHost(modal: () => React.ReactElement, strict = false) {
   invoker.textContent = 'open';
   document.body.appendChild(invoker);
   invoker.focus();
+  let invokerFocused = 0;
+  invoker.addEventListener('focus', () => { invokerFocused += 1; });
   const container = mount(strict ? <StrictMode><Host /></StrictMode> : <Host />);
-  return { invoker, container, remove: () => act(() => { setShown(false); }) };
+  return { invoker, container, invokerFocused: () => invokerFocused, remove: () => act(() => { setShown(false); }) };
 }
 
 for (const [name, modal] of MODALS) {
@@ -56,8 +58,9 @@ for (const [name, modal] of MODALS) {
   });
 
   test(`${name} mounted open in StrictMode keeps focus inside its panel`, () => {
-    const { container } = withHost(modal, true);
+    const { container, invokerFocused } = withHost(modal, true);
     const panel = container.querySelector<HTMLElement>('[role="dialog"], [role="alertdialog"]')!;
-    assert.equal(panel.contains(document.activeElement), true, 'the simulated unmount restores nothing');
+    assert.equal(panel.contains(document.activeElement), true, 'focus left the panel after the simulated unmount');
+    assert.equal(invokerFocused(), 0, 'the simulated unmount handed focus back to the invoker, which a real one alone may do');
   });
 }
