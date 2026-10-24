@@ -61,7 +61,7 @@ With either config, the Arena CSS file keeps its bytes and its name when the app
 
 **rollup** imports no CSS by itself. Whichever CSS plugin you install decides whether the sheet can sit in a file of its own, and none was exercised.
 
-**rolldown** stops the build with "bundling CSS is not supported". Link the sheets `arena build` writes from your page instead, the package sheet first and `arena.generated.css` after it. That path is not exercised.
+**rolldown** stops the build with "bundling CSS is not supported". The package sheet holds no `@import` and is one static file, so link the sheets `arena build` writes from your page instead, the package sheet first and `arena.generated.css` after it. That path is not exercised.
 
 ## What differs between them?
 

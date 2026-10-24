@@ -25,7 +25,7 @@ Both options sit in `package.json`:
 
 ## How do I keep the package sheet in a file of its own?
 
-The package sheet cannot be kept apart, measured on 2026-10-23: the build stops on the sheet's first `@import` of a package specifier, which Parcel resolves from the `src` directory. Link the sheets `arena build` writes from your page instead, the package sheet first and `arena.generated.css` after it. That path is not exercised.
+The package sheet holds no `@import`, so Parcel reads one file. Whether it lands in a file of its own is not exercised. To keep it out of the bundler, link the sheets `arena build` writes from your page, the package sheet first and `arena.generated.css` after it. That path is not exercised either.
 
 ## What differs from the other bundlers?
 

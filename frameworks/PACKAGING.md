@@ -78,7 +78,7 @@ It does the two jobs a project always did together, and a failure in the first s
   layer: what a consumer writes is not what dresses it, since there are fewer sheets than components, and
   the closure matters more than the mapping because Arena draws components nobody named.
 - **The icons** write the Phosphor subset a project draws, `icons-<hash>.svg` with
-  `arena.icons.generated.js` naming it, reading the consumer's sources and the package it ships
+  `arena.icons.generated.js` (React, with its declaration file) or `arena.icons.generated.ts` (Angular) naming it, reading the consumer's sources and the package it ships
   in, since a component renders icons the consumer never names.
 - **The fonts** write each local `src` cut to Latin-1 and the weights the build paints, as
   `<stem>-<hash>.woff2`, so the name changes exactly when the bytes do.

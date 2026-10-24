@@ -48,7 +48,7 @@ You do not need to run Tailwind. Every component's CSS ships compiled, and one `
 
 An icon is a glyph of Phosphor's, drawn by `ArenaIcon` (React) or `arena-icon` (Angular) as an `<svg>` that references one symbol of a sprite. Every `icon` prop in React and every `icon` input in Angular takes a Phosphor class list such as `"ph-bold ph-bell"`, and the component hands it to `ArenaIcon`. Every glyph a component draws goes through `ArenaIcon`, and so does yours.
 
-`arena build` writes the sprite as `icons-<hash>.svg`, holding the glyphs your sources draw and the ones Arena's components draw for you. `arena build` also writes `arena.icons.generated.js` with its declaration file, exporting `ARENA_SPRITE`, the sprite's file name. Your app serves the sprite and hands its URL over once, at the root of the tree. An `ArenaIcon` with no URL warns once and paints nothing. Neither Vite nor the Angular builder serves a file of `src/` at `/` on its own, so the next section says how each one serves it.
+`arena build` writes the sprite as `icons-<hash>.svg`, holding the glyphs your sources draw and the ones Arena's components draw for you. `arena build` also writes the icon list, exporting `ARENA_SPRITE`, the sprite's file name: `arena.icons.generated.js` with its declaration file in React, and `arena.icons.generated.ts` in Angular. Your app serves the sprite and hands its URL over once, at the root of the tree. An `ArenaIcon` with no URL warns once and paints nothing. Neither Vite nor the Angular builder serves a file of `src/` at `/` on its own, so the next section says how each one serves it.
 
 In React, wrap the app in `ArenaIconsProvider` with the sprite's URL as `href`. The URL below is where your server serves the file:
 
@@ -65,6 +65,7 @@ In Angular, add `provideArenaIcons(href)` to the application's providers:
 import { provideArenaIcons } from '@dravensoft/arena-angular';
 import { ARENA_SPRITE } from './arena.icons.generated.js';
 
+// TypeScript resolves the `.js` specifier to arena.icons.generated.ts, and ngc emits it as written.
 bootstrapApplication(App, { providers: [provideArenaIcons(`/${ARENA_SPRITE}`)] });
 ```
 
@@ -114,7 +115,7 @@ Import the generated files from `src/styles.css`. Import the generated files bef
 @import './plugin.generated.css';   /* only when a style plugin of yours carries CSS */
 ```
 
-The CDK overlay sheet comes with them: `arena.package.generated.css` imports `css/arena-cdk.css`, and so does `arena.css`.
+The CDK overlay sheet comes with them: `arena.package.generated.css` carries the rules of `css/arena-cdk.css`, and `arena.css` imports it. That sheet holds the text of the CDK's own overlay stylesheet, so no resolver condition is needed to reach it.
 
 That sheet re-bases the CDK overlay onto Arena's `--z-*` scale. Without it a dialog's menu paints behind the dialog. Write the import yourself only under `--no-import`, which writes no package sheet. Import `arena.generated.css` as well, because it alone holds the colours: `arena.css` by itself paints with no colour.
 

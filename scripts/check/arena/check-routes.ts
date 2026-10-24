@@ -124,7 +124,7 @@ export const ROUTES: Route[] = [
       'skills/design/references/config.md',
       'skills/design/references/cli.md',
     ],
-    budget: 50_000,
+    budget: 51_000,
     reason:
       'paid once per project, not per screen, so it carries what the build route may not: '
       + 'the install, the config file and the command. The package carries none of the language, so '
@@ -444,7 +444,7 @@ export const ROUTES: Route[] = [
       + 'package is, and what CI does with the tag once it exists',
     entry: 'contributor',
     stops: ['versioning_steps.md', 'frameworks/PACKAGING.md', '.github/workflows/AGENTS.md'],
-    budget: 76_100,
+    budget: 76_200,
     reason:
       'the least frequent route on the branch and the most expensive one to get wrong, because '
       + 'each of its failures publishes nothing and errors nowhere. The sequence is the first stop '

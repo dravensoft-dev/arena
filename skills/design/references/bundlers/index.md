@@ -22,7 +22,7 @@ No bundler is required. A bundler that cannot keep Arena apart still builds the 
 | rolldown | 1.2.12 | yes, `codeSplitting.groups`; verified by hand once | no: the build stops on a CSS import | the sheets reach the page without the bundler | [rollup family](./rollup.md) |
 | webpack | 5.111.1 | yes, `splitChunks.cacheGroups`; verified by hand once | yes, with `experiments: { css: true }`, measured | the cache group names its `type`, or the sheet stays with the app's CSS | [webpack family](./webpack.md) |
 | rspack | 2.2.8 | yes, the webpack recipe; verified by hand once | yes, with a `css/auto` rule, measured | one rule more than webpack | [webpack family](./webpack.md) |
-| Parcel | 2.16.4 | yes, `manualSharedBundles`, only with `packageExports: true`; verified by hand once | no: the build stops on the sheet's first `@import` | React stays with the app, and no dictionary can serve the Arena bundle | [Parcel](./parcel.md) |
+| Parcel | 2.16.4 | yes, `manualSharedBundles`, only with `packageExports: true`; verified by hand once | not exercised: the sheet holds no `@import`; linking it from the page is the other path | React stays with the app, and no dictionary can serve the Arena bundle | [Parcel](./parcel.md) |
 | Angular `application` builder | 22.2.1 | does not work: Arena lands in `main` | no: the `styles` option emits one file | the dictionary is the way out | [Angular builder](./angular.md) |
 | Bun `bun build` | 1.4.0 | does not work | no: one CSS file for the entry | the output directory is not emptied between builds | [Bun and esbuild](./bun-esbuild.md) |
 | esbuild | 0.28 | does not work | no: one CSS file for the entry, with splitting too | an Angular bundle defines `ngDevMode` itself | [Bun and esbuild](./bun-esbuild.md) |

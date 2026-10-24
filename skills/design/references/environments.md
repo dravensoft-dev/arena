@@ -55,7 +55,7 @@ The typical React app imports `arena.package.generated.css`, then `arena.generat
 | rspack 2.2.8 | yes | the webpack config, and a `css/auto` rule for `.css` | the Arena file keeps its bytes and its name |
 | rollup 4.62 | not exercised | rollup alone imports no CSS and the probe installs no CSS plugin | not measured |
 | rolldown 1.2.12 | no | the build stops: bundling CSS is not supported | not applicable |
-| Parcel 2.16.4 | no | the build stops on the sheet's first `@import` of a package specifier, which Parcel resolves from the `src` directory | not applicable |
+| Parcel 2.16.4 | not exercised | the package sheet holds no `@import`; linking the sheets from the page is the other path | not measured |
 | Bun 1.4.0 | no | one CSS file for the entry | a new name with every release |
 | esbuild 0.28 | no | one CSS file for the entry, with splitting too | a new name with every release |
 | `@angular/build` `application` | no | the `styles` option emits one file | a new name with every release |

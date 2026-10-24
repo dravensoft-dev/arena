@@ -54,7 +54,7 @@ change touches how a component reaches the document.
 
 **The files under `theme/` keep their lowercase names, and they do not share one reason.**
 `arena-cdk.css` is named **inside an adopter's own source, verbatim**, as
-`@dravensoft/arena-angular/css/arena-cdk.css`: the assembly copies it under that name and the npm
+`@dravensoft/arena-angular/css/arena-cdk.css`: the assembly copies it under that name, with the text of the installed `@angular/cdk/overlay-prebuilt.css` in place of its `@import` (the source keeps the import; `check:cdk` holds the published copy to the installed sheet), and the npm
 page tells a reader to `@import` it, so the lowercase stem is load-bearing outside this tree.
 **`arena-tailwind.css` and `no-fouc.html` are not instances of that, and neither reaches an
 adopter at all**: the assembly copies neither, `arena-tailwind.css` imports this repository's own
