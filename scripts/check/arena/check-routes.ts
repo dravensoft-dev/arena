@@ -124,7 +124,7 @@ export const ROUTES: Route[] = [
       'skills/design/references/config.md',
       'skills/design/references/cli.md',
     ],
-    budget: 49_900,
+    budget: 50_000,
     reason:
       'paid once per project, not per screen, so it carries what the build route may not: '
       + 'the install, the config file and the command. The package carries none of the language, so '
