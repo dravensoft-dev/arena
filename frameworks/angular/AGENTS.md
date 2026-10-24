@@ -413,7 +413,7 @@ slot by a `contentChild` query and the consumer does not import the directive. T
 positives and both make the rule more honest: marker words inside an
 **attribute value** are stripped before matching, and a slot gated by an **input** rather than by
 a query owes no import. The real rule is *"you projected into a slot whose host gates it on a
-query"*, not *"you used a marker attribute"*, and the nearest-enclosing walk is what expresses
+query"*, not *"you used a marker attribute"*, and the innermost-enclosing walk is what expresses
 it: `contentChild` matches descendants unless `descendants: false` is passed, and every marker query here
 passes it, so the query and `<ng-content select>` agree on what fills a slot. An `<ng-container>` does not
 carry a marker into a named slot (`ngProjectAs` does).

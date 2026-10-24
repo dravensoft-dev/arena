@@ -196,3 +196,9 @@ test('a marker inside an ng-container is charged to nobody, as its slot is the d
 test('a void element written without a slash does not break the charge of a later sibling', () => {
   assert.deepEqual(markerUses('<arena-card><img src="a"><button action>x</button></arena-card>', QUERIED), [{ marker: 'action', host: 'arena-card' }]);
 });
+
+test('a marker inside a nested element that queries none is charged to nobody, and owes no import', () => {
+  const template = '<arena-card><arena-badge><button action>x</button></arena-badge></arena-card>';
+  assert.deepEqual(markerUses(template, QUERIED), [{ marker: 'action', host: null }]);
+  assert.deepEqual(markerProblems([{ path: 'app/nested.ts', source: `@Component({ imports: [], template: \`${template}\` })` }], QUERIED), []);
+});

@@ -86,7 +86,7 @@ test('the directive name is derived from the attribute rather than tabled', () =
   assert.equal(directiveFor('secondaryAction'), 'ArenaSecondaryAction');
 });
 
-test('a use is attributed to the nearest host that queries that slot', () => {
+test('a use is attributed to the element it sits directly inside, when that element queries the slot', () => {
   const uses = markerUses(
     '<arena-dialog><arena-card><button action>x</button></arena-card></arena-dialog>',
     MARKERS,
