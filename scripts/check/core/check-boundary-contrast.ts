@@ -14,6 +14,7 @@ import { repoRoot } from '../../lib/arena/repo-root.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { answeredColour, catalogueEntries, paletteColours, roleDefaults } from './check-text-contrast.ts';
 import { CATALOGUE } from './check-catalogue.ts';
+import { axisComparison } from '../../generate/core/arena-cli/levels.ts';
 
 export const node = {
   name: 'check:boundary-contrast',
@@ -85,8 +86,7 @@ export function axisProblems(where: string, theme: string, hexes: AxisHexes) {
   const axis = contrast(hexes.axis, hexes.page);
   const separator = contrast(hexes.separator, hexes.page);
   if (axis > separator) return [];
-  const same = axis.toFixed(2) === separator.toFixed(2);
-  return [`${where} answers --edge-axis with ${same ? 'the same contrast as' : 'no more contrast than'} `
+  return [`${where} answers --edge-axis with ${axisComparison(axis, separator)} `
     + `--edge-separator in the ${theme} theme `
     + `(${axis.toFixed(2)}:1 against ${separator.toFixed(2)}:1 on base-100), so a chart's axis reads `
     + 'no heavier than its grid. Answer edge-axis with a heavier neutral.'];

@@ -382,6 +382,10 @@ export function raisedReports(
 
 export const STATUS_HUES = ['danger', 'success', 'warning', 'info'];
 
+export function axisComparison(axis: number, separator: number) {
+  return axis.toFixed(2) === separator.toFixed(2) ? 'the same contrast as' : 'no more contrast than';
+}
+
 export function axisReports(roles: Map<string, string>, colors: Record<string, string>, theme: string) {
   const colour = (role: string) => colors[paletteKey(roles.get(role)) ?? ''];
   const axis = colour('edge-axis');
@@ -391,8 +395,7 @@ export function axisReports(roles: Map<string, string>, colors: Record<string, s
   const heavy = contrast(axis, page);
   const light = contrast(separator, page);
   if (heavy > light) return [];
-  const verb = heavy.toFixed(2) === light.toFixed(2) ? 'has the same contrast as' : 'has no more contrast than';
-  return [report('contrast', `--edge-axis ${verb} --edge-separator in the ${theme} theme `
+  return [report('contrast', `--edge-axis has ${axisComparison(heavy, light)} --edge-separator in the ${theme} theme `
     + `(${heavy.toFixed(2)}:1 against ${light.toFixed(2)}:1 on base-100), so a chart's axis reads `
     + 'no heavier than its grid')];
 }
