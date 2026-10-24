@@ -36,7 +36,7 @@ export function ArenaPagination({ className, page, pageCount, ariaLabel, onChang
   const styles = arenaPaginationStyles();
   const go = (p: number) => { if (p >= 1 && p <= pageCount && p !== page) onChange && onChange(p); };
   const nav = (dir: number, dis: boolean) => (
-    <button onClick={() => go(page + dir)} disabled={dis} aria-label={dir < 0 ? locale.paginationPrevious : locale.paginationNext}
+    <button type="button" onClick={() => go(page + dir)} disabled={dis} aria-label={dir < 0 ? locale.paginationPrevious : locale.paginationNext}
       className={styles.nav()} data-arena-part={manifest.parts.nav} {...styles.$data.nav()}>
       <ArenaIcon icon={dir < 0 ? 'ph-bold ph-caret-left' : 'ph-bold ph-caret-right'} />
     </button>
@@ -48,7 +48,7 @@ export function ArenaPagination({ className, page, pageCount, ariaLabel, onChang
         p === '\u2026'
           ? <span key={'e' + i} className={styles.ellipsis()} data-arena-part={manifest.parts.ellipsis} {...styles.$data.ellipsis()}>{'\u2026'}</span>
           : (
-            <button key={p} onClick={() => go(Number(p))} aria-current={p === page ? 'page' : undefined}
+            <button type="button" key={p} onClick={() => go(Number(p))} aria-current={p === page ? 'page' : undefined}
               className={arenaPaginationStyles({ current: p === page }).page()}
               data-arena-part={manifest.parts.page} {...arenaPaginationStyles({ current: p === page }).$data.page()}>{p}</button>
           ))}

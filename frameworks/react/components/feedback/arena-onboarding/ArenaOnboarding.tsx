@@ -88,9 +88,9 @@ export function ArenaOnboarding({ className, open, steps, index = 0, onNext, onB
                 data-arena-part={manifest.parts.dot} {...(i === index ? currentDot : styles).$data.dot()} />
             ))}
           </div>
-          {index > 0 && <button onClick={onBack} className={styles.text()} data-arena-part={manifest.parts.text} {...styles.$data.text()}>{locale.onboardingBack}</button>}
-          {!last && <button onClick={onSkip} className={styles.text()} data-arena-part={manifest.parts.text} {...styles.$data.text()}>{locale.onboardingSkip}</button>}
-          <button onClick={last ? onDone : onNext} className={styles.next()} data-arena-part={manifest.parts.next} {...styles.$data.next()}>
+          {index > 0 && <button type="button" onClick={onBack} className={styles.text()} data-arena-part={manifest.parts.text} {...styles.$data.text()}>{locale.onboardingBack}</button>}
+          {!last && <button type="button" onClick={onSkip} className={styles.text()} data-arena-part={manifest.parts.text} {...styles.$data.text()}>{locale.onboardingSkip}</button>}
+          <button type="button" onClick={last ? onDone : onNext} className={styles.next()} data-arena-part={manifest.parts.next} {...styles.$data.next()}>
             {last ? locale.onboardingDone : locale.onboardingNext}
           </button>
         </div>

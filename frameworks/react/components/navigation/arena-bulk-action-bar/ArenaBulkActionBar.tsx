@@ -86,7 +86,7 @@ export function ArenaBulkActionBar({ className, count, noun, actions, layout = '
       )}
       <div className={styles.actions()} data-arena-part={manifest.parts.actions} {...styles.$data.actions()}>
         {actions.map((a, i) => (
-          <button key={i} onClick={() => onRun && onRun(a)}
+          <button type="button" key={i} onClick={() => onRun && onRun(a)}
             tabIndex={i === at ? 0 : -1} onFocus={() => setCursor(i)}
             className={barStyles({ narrow, open: true, destructive: Boolean(a.destructive) }).action()} data-arena-part={manifest.parts.action} {...barStyles({ narrow, open: true, destructive: Boolean(a.destructive) }).$data.action()}>
             {a.icon && <span className={styles.actionIcon()} data-arena-part={manifest.parts.actionIcon} {...styles.$data.actionIcon()}><ArenaIcon icon={a.icon} /></span>}{a.label}
@@ -94,7 +94,7 @@ export function ArenaBulkActionBar({ className, count, noun, actions, layout = '
         ))}
       </div>
       {clearable && (
-        <button onClick={() => onClear && onClear()} aria-label={locale.bulkActionBarClearLabel}
+        <button type="button" onClick={() => onClear && onClear()} aria-label={locale.bulkActionBarClearLabel}
           tabIndex={actions.length === at ? 0 : -1} onFocus={() => setCursor(actions.length)}
           className={styles.clear()} data-arena-part={manifest.parts.clear} {...styles.$data.clear()}>
           {locale.bulkActionBarClear}

@@ -53,11 +53,11 @@ export function ArenaAlert({ className, tone = 'info', title, children, icon, ac
         {title && <div className={styles.title()} data-arena-part={manifest.parts.title} {...styles.$data.title()}>{title}</div>}
         {children && <div className={styles.message()} data-arena-part={manifest.parts.message} {...styles.$data.message()} data-arena-boundary="">{children}</div>}
         {actionLabel && (
-          <button onClick={onAction} className={styles.action()} data-arena-part={manifest.parts.action} {...styles.$data.action()}>{actionLabel}</button>
+          <button type="button" onClick={onAction} className={styles.action()} data-arena-part={manifest.parts.action} {...styles.$data.action()}>{actionLabel}</button>
         )}
       </div>
       {dismissible && (
-        <button onClick={onClose} aria-label={locale.alertDismiss} className={styles.close()} data-arena-part={manifest.parts.close} {...styles.$data.close()}>
+        <button type="button" onClick={onClose} aria-label={locale.alertDismiss} className={styles.close()} data-arena-part={manifest.parts.close} {...styles.$data.close()}>
           <ArenaIcon icon="ph-bold ph-x" />
         </button>
       )}

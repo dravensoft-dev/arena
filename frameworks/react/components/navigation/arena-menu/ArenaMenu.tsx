@@ -117,7 +117,7 @@ export function ArenaMenu({ className, trigger, items, align = 'start', onSelect
 function MenuRow({ item, onRun }: { item: ArenaMenuItem; onRun: () => void }) {
   const styles = arenaMenuStyles({ disabled: !!item.disabled, destructive: !!item.destructive });
   return (
-    <button role="menuitem" onClick={onRun} disabled={item.disabled}
+    <button type="button" role="menuitem" onClick={onRun} disabled={item.disabled}
       className={styles.item()} data-arena-part={manifest.parts.item} {...styles.$data.item()}>
       {item.icon && <span className={styles.icon()} data-arena-part={manifest.parts.icon} {...styles.$data.icon()} aria-hidden="true"><ArenaIcon icon={item.icon} /></span>}
       <span className={styles.label()} data-arena-part={manifest.parts.label} {...styles.$data.label()}>{item.label}</span>

@@ -189,3 +189,18 @@ test('ArenaOnboarding falls back to a positional name when the step has neither 
     'the dots and the panel that contains them announce identically, so a screen reader reads one name twice',
   );
 });
+
+test('Next inside a form advances the tour and does not submit the form', () => {
+  let submits = 0;
+  let nexts = 0;
+  const container = mount(
+    <form onSubmit={(e) => { e.preventDefault(); submits += 1; }}>
+      <ArenaOnboarding open steps={[{ title: 'One' }, { title: 'Two' }]} index={0} onNext={() => { nexts += 1; }} />
+    </form>,
+  );
+  const next = container.querySelector<HTMLElement>('[data-arena-part="onboarding.next"]');
+  assert.ok(next, 'the Next button is drawn');
+  click(next!);
+  assert.equal(submits, 0);
+  assert.equal(nexts, 1);
+});
