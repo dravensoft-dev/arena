@@ -142,6 +142,16 @@ test('opening moves focus to the first control in the panel, or to the panel whe
   assert.equal(document.activeElement, panel());
 });
 
+test('a popover whose first control is a radio group opens on its checked option', () => {
+  const root = mount(<Host>
+    <input type="radio" name="size" aria-label="Small" defaultChecked={false} />
+    <input type="radio" name="size" aria-label="Large" defaultChecked />
+    <button type="button">Apply</button>
+  </Host>);
+  open(root);
+  assert.equal(document.activeElement, panel()!.querySelector('input[aria-label="Large"]'));
+});
+
 test('Escape asks to close and returns focus to the trigger', () => {
   const asked: boolean[] = [];
   const root = mount(<Host asked={asked} />);

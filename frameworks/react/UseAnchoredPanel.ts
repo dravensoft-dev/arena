@@ -5,7 +5,7 @@ import {
   arenaTopmostPanel,
 } from './AnchoredPanel.ts';
 import type { ArenaPanelAlign, ArenaPanelDismissal, ArenaPanelSide } from './AnchoredPanel.ts';
-import { arenaFocusableElements } from './UseDialogModal.ts';
+import { arenaFocusableElements, arenaTabStopOf } from './UseDialogModal.ts';
 
 export type { ArenaPanelAlign, ArenaPanelDismissal, ArenaPanelSide };
 
@@ -97,7 +97,8 @@ export function useArenaAnchoredPanel(options: ArenaAnchoredPanelOptions): boole
     const onTab = (event: KeyboardEvent) => {
       if (event.key !== 'Tab' || event.defaultPrevented || !latest.current.tabOut) return;
       if (arenaTopmostPanel(live()) !== entry) return;
-      if (!arenaTabLeavesPanel(arenaFocusableElements(panel), doc.activeElement, event.shiftKey)) return;
+      const list = arenaFocusableElements(panel);
+      if (!arenaTabLeavesPanel(list, arenaTabStopOf(list, doc.activeElement), event.shiftKey)) return;
       event.preventDefault();
       dismiss('tab');
     };

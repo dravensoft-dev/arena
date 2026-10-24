@@ -10,8 +10,37 @@ const FOCUSABLE_SELECTOR = [
   `[tabindex]${REACHABLE_BY_TAB}`,
 ].join(', ');
 
-export function arenaFocusableElements(container: HTMLElement): HTMLElement[] {
+function isRadio(el: Element): el is HTMLInputElement {
+  return el instanceof HTMLInputElement && el.type === 'radio';
+}
+
+function sameRadioGroup(a: HTMLInputElement, b: HTMLInputElement): boolean {
+  return a.name !== '' && a.name === b.name && a.form === b.form;
+}
+
+function reachableElements(container: Element): HTMLElement[] {
   return Array.from(container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR));
+}
+
+export function arenaFocusableElements(container: HTMLElement): HTMLElement[] {
+  const reachable = reachableElements(container);
+  return reachable.filter((el) => {
+    if (!isRadio(el) || el.name === '') return true;
+    const group = reachable.filter((one): one is HTMLInputElement => isRadio(one) && sameRadioGroup(one, el));
+    return el === (group.find((one) => one.checked) ?? group[0]);
+  });
+}
+
+export function arenaTabStopOf(focusables: readonly HTMLElement[], el: Element | null): Element | null {
+  if (el === null || !isRadio(el) || focusables.includes(el as HTMLElement)) return el;
+  const stop = focusables.find((one) => isRadio(one) && sameRadioGroup(one, el));
+  return stop ?? el;
+}
+
+function lastStop(container: Element, stop: HTMLElement): HTMLElement {
+  if (!isRadio(stop) || stop.name === '' || stop.checked) return stop;
+  const group = reachableElements(container).filter((one): one is HTMLInputElement => isRadio(one) && sameRadioGroup(one, stop));
+  return group[group.length - 1] ?? stop;
 }
 
 export function arenaFocusFirstFocusable(container: HTMLElement): void {
@@ -25,12 +54,13 @@ export function arenaTrapTabKey(container: HTMLElement, event: KeyboardEvent, ac
     event.preventDefault();
     return;
   }
+  const stopNow = arenaTabStopOf(focusables, activeElement);
   const first = focusables[0];
   const last = focusables[focusables.length - 1];
-  if (event.shiftKey && activeElement === first) {
+  if (event.shiftKey && stopNow === first) {
     event.preventDefault();
-    last.focus();
-  } else if (!event.shiftKey && activeElement === last) {
+    lastStop(container, last).focus();
+  } else if (!event.shiftKey && stopNow === last) {
     event.preventDefault();
     first.focus();
   }

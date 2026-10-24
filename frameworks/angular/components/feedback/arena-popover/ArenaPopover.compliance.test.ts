@@ -39,6 +39,21 @@ class PopoverHost {
   standalone: true,
   imports: [ArenaPopover, ArenaButton],
   template: `
+    <arena-popover label="Size" [open]="open()" (openChange)="open.set($event)">
+      <arena-button trigger>Size</arena-button>
+      <input type="radio" name="size" aria-label="Small" /><input type="radio" name="size" aria-label="Large" checked />
+      <button type="button">Apply</button>
+    </arena-popover>
+  `,
+})
+class RadioHost {
+  readonly open = signal(false);
+}
+
+@Component({
+  standalone: true,
+  imports: [ArenaPopover, ArenaButton],
+  template: `
     <arena-popover label="Notes" [open]="open()" (openChange)="open.set($event)">
       <arena-button trigger>Notes</arena-button>
       <p>Nothing to press.</p>
@@ -94,6 +109,19 @@ test('the trigger says it opens a dialog, and names the panel only while the pan
     assert.equal(trigger.getAttribute('aria-expanded'), 'true');
     assert.equal(trigger.getAttribute('aria-controls'), shown.id);
     assert.ok(!fixture.nativeElement.contains(shown), 'the panel is inside the fixture, where an overflow: hidden ancestor clips it');
+  } finally {
+    fixture.destroy();
+    disposeOverlays();
+  }
+});
+
+test('a popover whose first control is a radio group opens on its checked option', () => {
+  const fixture = TestBed.createComponent(RadioHost);
+  fixture.detectChanges();
+  const trigger = fixture.nativeElement.querySelector('button') as HTMLButtonElement;
+  try {
+    const shown = open(fixture, trigger)!;
+    assertSameNode(document.activeElement, shown.querySelector('input[aria-label="Large"]'), 'opening skipped the checked option of the group');
   } finally {
     fixture.destroy();
     disposeOverlays();

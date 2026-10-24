@@ -12,7 +12,7 @@ import {
   arenaEscapeInsideModal, arenaOpeningFocus, arenaPanelsAbove, arenaPressInside, arenaTabLeavesPanel, arenaTopmostPanel,
   type ArenaPanelAlign, type ArenaPanelDismissal, type ArenaPanelSide,
 } from './AnchoredPanel';
-import { arenaFocusableElements } from './FocusTrap';
+import { arenaFocusableElements, arenaTabStopOf } from './FocusTrap';
 import { ArenaThemeService, arenaPolarityClass } from './theme/ArenaThemeService';
 
 export type { ArenaPanelAlign, ArenaPanelDismissal, ArenaPanelSide };
@@ -195,7 +195,8 @@ export class ArenaAnchoredOverlay {
     const onTab = (event: Event): void => {
       if (!(event instanceof KeyboardEvent) || event.key !== 'Tab') return;
       if (event.defaultPrevented || !this.options.tabOut || arenaTopmostPanel(live()) !== entry) return;
-      if (!arenaTabLeavesPanel(arenaFocusableElements(ref.overlayElement), this.doc.activeElement, event.shiftKey)) return;
+      const list = arenaFocusableElements(ref.overlayElement);
+      if (!arenaTabLeavesPanel(list, arenaTabStopOf(list, this.doc.activeElement), event.shiftKey)) return;
       event.preventDefault();
       dismiss('tab');
     };
