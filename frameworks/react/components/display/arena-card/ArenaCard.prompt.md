@@ -47,7 +47,7 @@ it would close.
 
 **An interactive card is a `role="button"` div and never a `<button>` element.** A card body is where you put your own controls. A control nested inside a control is reachable by nobody.
 
-**A press that starts on one of those controls belongs to that control.** The rule holds by pointer and by keyboard alike. Clicking a button inside the card runs the button's handler and stops there. Typing Enter in a field inside it never opens the card. Both paths ask the same question, and the question is "did this press start on a control" rather than "did it land on the card's own element". A click anywhere else on the card is the card being pressed, and it activates the card. That covers the title, the body and the space between them.
+**A press that starts on one of those controls belongs to that control.** The rule holds by pointer and by keyboard alike. Clicking a button inside the card runs the button's handler and never activates the card. Typing Enter in a field inside it never opens the card. Both paths ask the same question, and the question is "did this press start on a control" rather than "did it land on the card's own element". A click anywhere else on the card is the card being pressed, and it activates the card. That covers the title, the body and the space between them.
 
 **A card can also hand the press over entirely, by leaving `interactive` off.** The card then draws no role, no tab stop and no handler at all. The card is a surface, and the control inside it is the only activation target on it.
 
