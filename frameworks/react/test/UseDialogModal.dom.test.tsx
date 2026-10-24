@@ -101,6 +101,7 @@ test('one stop per radio group: the checked radio, or the first', () => {
     + '<input type="radio" name="h" id="h1"><input type="radio" name="h" id="h2">'
     + '<input type="radio" id="u1"><input type="radio" id="u2">');
   assert.deepEqual(ids(arenaFocusableElements(p)), ['a', 'g2', 'h1', 'u1', 'u2']);
+  p.remove();
 });
 
 test('one name in two forms is two groups', () => {
@@ -108,6 +109,22 @@ test('one name in two forms is two groups', () => {
     + '<form><input type="radio" name="g" id="f2"></form>'
     + '<input type="radio" name="g" id="loose">');
   assert.deepEqual(ids(arenaFocusableElements(p)), ['f1', 'f2', 'loose']);
+  p.remove();
+});
+
+test('a radio the form attribute gives to a form joins that form\'s group', () => {
+  const p = panelWith('<form id="owner"><input type="radio" name="g" id="inside"></form>'
+    + '<input type="radio" name="g" id="owned" form="owner" checked>'
+    + '<input type="radio" name="g" id="loose">');
+  assert.deepEqual(ids(arenaFocusableElements(p)), ['owned', 'loose']);
+  p.remove();
+});
+
+test('a disabled checked radio leaves its group entered on the first enabled radio', () => {
+  const p = panelWith('<input type="radio" name="g" id="r1"><input type="radio" name="g" id="r2" checked disabled>'
+    + '<input type="radio" name="g" id="r3">');
+  assert.deepEqual(ids(arenaFocusableElements(p)), ['r1']);
+  p.remove();
 });
 
 test('Shift+Tab from the first stop lands on the last radio of an unchecked last group', () => {
@@ -116,6 +133,7 @@ test('Shift+Tab from the first stop lands on the last radio of an unchecked last
   first.focus();
   assert.equal(tab(p, first, true), true, 'the key at a boundary must be consumed');
   assert.equal(document.activeElement, p.querySelector('#r2'), 'Shift+Tab did not reach the last radio of the group');
+  p.remove();
 });
 
 test('Tab from any radio of the last group wraps to the first stop', () => {
@@ -124,6 +142,7 @@ test('Tab from any radio of the last group wraps to the first stop', () => {
   r2.focus();
   assert.equal(tab(p, r2, false), true, 'the key at a boundary must be consumed');
   assert.equal(document.activeElement, p.querySelector('#first'), 'Tab from the last group did not wrap');
+  p.remove();
 });
 
 test('arenaTabStopOf maps a radio to its group stop and leaves anything else alone', () => {
@@ -136,6 +155,7 @@ test('arenaTabStopOf maps a radio to its group stop and leaves anything else alo
   assert.equal(arenaTabStopOf(list, at('a')), at('a'));
   assert.equal(arenaTabStopOf(list, at('x1')), at('x1'));
   assert.equal(arenaTabStopOf(list, null), null);
+  p.remove();
 });
 
 test('arenaReclaimFocus moves focus into the panel when it was dropped on the body', () => {
