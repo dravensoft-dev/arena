@@ -1344,6 +1344,10 @@
   outline: var(--bw-marker) dotted var(--edge-marker);
   outline-offset: var(--sp-1);
 }
+.arena-complete [data-arena-part="menu.group"] {
+  outline: var(--bw-marker) dotted var(--edge-marker);
+  outline-offset: var(--sp-1);
+}
 .arena-complete [data-arena-part="menu.header"] {
   outline: var(--bw-marker) dotted var(--edge-marker);
   outline-offset: var(--sp-1);
