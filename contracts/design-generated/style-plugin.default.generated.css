@@ -106,6 +106,7 @@
   --edge-field:var(--color-base-300);
   --edge-separator:var(--color-base-300);
   --edge-axis:var(--color-neutral);
+  --edge-tab-selected:var(--color-primary);
   --bw-surface:1px;
   --bw-control:1px;
   --bw-field:1px;
@@ -285,6 +286,7 @@
   --edge-field:var(--color-base-300);
   --edge-separator:var(--color-base-300);
   --edge-axis:var(--color-neutral);
+  --edge-tab-selected:var(--color-primary);
   --hue-danger-ink:var(--color-error);
   --hue-danger-on-ink:var(--color-base-100);
   --hue-danger-edge:var(--color-error);
@@ -357,6 +359,7 @@
   --edge-field:var(--color-base-300);
   --edge-separator:var(--color-base-300);
   --edge-axis:var(--color-neutral);
+  --edge-tab-selected:var(--color-primary);
   --hue-danger-ink:var(--color-error);
   --hue-danger-on-ink:var(--color-base-100);
   --hue-danger-edge:var(--color-error);

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { aliasesIn, collect, extra, missing, zeroAliasProblems } from './check-compat-aliases.ts';
+import { aliasesIn, collect, extra, manifestAliasProblems, missing, zeroAliasProblems } from './check-compat-aliases.ts';
 
 test('an alias the layer defines and the rule does not name is a problem', () => {
   assert.deepEqual(missing(['mute', 'gold'], ['mute']), ['gold']);
@@ -38,4 +38,20 @@ test('an empty result set is a failure rather than a clean pass', () => {
 test('the rule and the layer agree in this tree', () => {
   const problems = collect();
   assert.deepEqual(problems, [], problems.join('\n'));
+});
+
+test('no shipped manifest reads a compatibility alias but the two left out of scope', () => {
+  const problems = manifestAliasProblems();
+  assert.deepEqual(problems, [], problems.join('\n'));
+});
+
+test('a manifest slot reading var(--crimson) is one problem, and focus-ring and picker-invert are not', () => {
+  const problems = manifestAliasProblems([
+    { file: 'x/ArenaX.manifest.json', text: JSON.stringify({
+      slots: { root: 'shadow-[0_0_0_var(--crimson)] ring-[color:var(--focus-ring)]' },
+      variants: { tone: { on: { root: 'bg-[var(--picker-invert)]' } } },
+    }) },
+  ]);
+  assert.equal(problems.length, 1, problems.join('\n'));
+  assert.match(problems[0]!, /var\(--crimson\), a compatibility alias no style plugin can answer/);
 });

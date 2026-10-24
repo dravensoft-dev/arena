@@ -529,6 +529,10 @@
     "$type": "color",
     "$value": "{color.secondary}"
   },
+  "edge-tab-selected": {
+    "$type": "color",
+    "$value": "{color.secondary}"
+  },
   "bw-surface": {
     "$type": "dimension",
     "$value": "{bw-strong}"

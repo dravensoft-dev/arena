@@ -180,6 +180,7 @@
   --color-edge-field: var(--edge-field);
   --color-edge-separator: var(--edge-separator);
   --color-edge-axis: var(--edge-axis);
+  --color-edge-tab-selected: var(--edge-tab-selected);
   --color-edge-marker: var(--edge-marker);
   --color-confirm-final: var(--fill-confirm-final);
   --color-ink-confirm-final: var(--ink-confirm-final);

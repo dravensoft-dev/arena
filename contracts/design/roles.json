@@ -525,6 +525,15 @@
     "$type": "color",
     "$description": "Which colour the axis lines, the zero line and the crosshair of a chart are drawn in, read by the line, bar, horizontal bar, scatter, radar and pyramid charts, by the crosshair of an interactive sparkline and by the band-edge ticks of a gauge, and not by the doughnut, which has no axis. It is heavier than edge-separator, which draws the grid rules behind the marks."
   },
+  "edge-tab-selected": {
+    "$type": "color",
+    "$description": "The colour of the rule that marks ArenaTabs' selected tab, read by no other component. Its default is the primary, because the selected tab says where the view is and the rule is the one accent the strip spends. A plugin answers it with one of its palette colours or with another colour role.",
+    "$extensions": {
+      "com.dravensoft.arena": {
+        "default": "{color.primary}"
+      }
+    }
+  },
   "bw-surface": {
     "$type": "dimension",
     "$description": "The border that encloses a surface, and therefore Arena's default grouping\nsignal. This is the single most consequential role in the tier: a hairline says 'these things\nare one region' by drawing the region, which is cheap in pixels and correct for dense data.\nAn style plugin that sets it to 0px has to make elevation and air carry the grouping instead,\nand WCAG 1.4.11 stops being satisfied by the border, which is why removing it is gated rather\nthan merely allowed."

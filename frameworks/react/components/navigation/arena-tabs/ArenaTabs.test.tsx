@@ -4,6 +4,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import React from 'react';
 import { ArenaTabs } from './ArenaTabs.tsx';
 import { ArenaTab } from '../arena-tab/ArenaTab.tsx';
+import tailwind from './ArenaTabs.manifest.generated.ts';
 
 const three = (props = {}) => (
   <ArenaTabs {...props}>
@@ -124,4 +125,10 @@ test('ArenaTabs drops a consumer attribute -- no {...rest} spread reaches the ro
     <ArenaTabs data-stray="x"><ArenaTab value="ov" label="Overview" /></ArenaTabs>,
   );
   assert.doesNotMatch(html, /data-stray/, 'a consumer attribute reached the rendered root');
+});
+
+test('the selected tab draws its rule from the role edge-tab-selected and never from the crimson alias', () => {
+  const tab = tailwind.variants.selected.true.tab;
+  assert.match(tab, /var\(--edge-tab-selected\)/, 'the selected rule does not read its role');
+  assert.doesNotMatch(tab, /--crimson/, 'the selected rule reads an alias no style plugin can answer');
 });

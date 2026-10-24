@@ -535,6 +535,10 @@
     "$type": "color",
     "$value": "{color.neutral}"
   },
+  "edge-tab-selected": {
+    "$type": "color",
+    "$value": "{color.primary}"
+  },
   "bw-surface": {
     "$type": "dimension",
     "$value": "{bw}"
