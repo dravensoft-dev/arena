@@ -121,7 +121,6 @@ export function ArenaCommandPalette({ className, open, commands, placeholder, ma
           <kbd className={styles.esc()} data-arena-part={manifest.parts.esc} {...styles.$data.esc()}>{locale.commandPaletteEscape}</kbd>
         </div>
         <div ref={listRef} id={listboxId} role="listbox" aria-label={locale.commandPaletteList} className={styles.list()} data-arena-part={manifest.parts.list} {...styles.$data.list()}>
-          {filtered.length === 0 && <div className={styles.empty()} data-arena-part={manifest.parts.empty} {...styles.$data.empty()}>{arenaPhrase(locale.commandPaletteEmpty, { query: q })}</div>}
           {groups.map((group) => (
             <div key={group.name ?? ''} className={styles.group()} data-arena-part={manifest.parts.group} {...styles.$data.group()}
               role={group.name ? 'group' : undefined} aria-label={group.name ?? undefined}>
@@ -163,6 +162,7 @@ export function ArenaCommandPalette({ className, open, commands, placeholder, ma
             </div>
           ))}
         </div>
+        {filtered.length === 0 && <div className={styles.empty()} data-arena-part={manifest.parts.empty} {...styles.$data.empty()}>{arenaPhrase(locale.commandPaletteEmpty, { query: q })}</div>}
       </div>
     </div>
   );

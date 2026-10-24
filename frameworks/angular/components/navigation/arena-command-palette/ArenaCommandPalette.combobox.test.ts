@@ -101,3 +101,15 @@ test('the escape cap and every shortcut are kbd elements, printed as given', () 
     fixture.destroy();
   }
 });
+
+test('the empty line sits in the panel after the listbox, not inside it', () => {
+  const fixture = TestBed.createComponent(ArenaCommandPalette);
+  fixture.componentRef.setInput('commands', []);
+  fixture.componentRef.setInput('open', true);
+  fixture.detectChanges();
+  const host = fixture.nativeElement as HTMLElement;
+  const empty = host.querySelector('[data-arena-part="command-palette.empty"]');
+  assert.ok(empty, 'no empty line was drawn');
+  assert.equal(empty.parentElement?.getAttribute('data-arena-part'), 'command-palette.panel');
+  assert.equal(host.querySelector('[role="listbox"] [data-arena-part="command-palette.empty"]'), null);
+});

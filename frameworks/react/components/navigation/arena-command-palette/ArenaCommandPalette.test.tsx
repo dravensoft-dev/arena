@@ -52,3 +52,9 @@ test('the escape cap and every shortcut are kbd elements, printed as given', () 
   assert.match(html, /<kbd [^>]*data-arena-part="command-palette\.shortcut"[^>]*>⌘D<\/kbd>/,
     'the shortcut is a span, or it was split: the string is printed whole, as the type field holds it');
 });
+
+test('the empty line sits in the panel after the listbox, not inside it', () => {
+  const html = renderIcons(<ArenaCommandPalette open commands={[]} />);
+  assert.match(html, /role="listbox"[^>]*><\/div><div[^>]*data-arena-part="command-palette.empty"/,
+    'the empty line is not the listbox\'s next sibling');
+});
