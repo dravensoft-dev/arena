@@ -87,6 +87,10 @@ question unanswered, and the reason is sharper than tidiness: a custom property 
 invalid at computed-value time, so the declaration reading it is dropped and the whole property
 disappears. A partial root plugin is not a poorer appearance. It is a page with no borders.
 
+**What a plugin may read.** The `tokens`, `roles`, `aliases` and `channels` of the `arena.tokens.json`
+each package ships, the palette colours its config declares (`--color-<name>`), and any property its
+own sources declare. `arena audit` reports any other name as `unknown-property`.
+
 **Total means answered by the plugin or by a kernel default.** Which roles carry one is written
 beside each role's type, in `roles.json` and in the `arena.tokens.json` each package ships, and a
 role with none there is the plugin's to answer. A role carrying a default is

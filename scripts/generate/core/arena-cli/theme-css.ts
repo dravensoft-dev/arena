@@ -30,6 +30,7 @@ export type TokenCatalogue = {
   tokens: Record<string, string>;
   roles: Record<string, { type?: string; values?: string[]; default?: string }>;
   aliases?: Record<string, string>;
+  channels?: string[];
 };
 
 export type CheckedSheets = {

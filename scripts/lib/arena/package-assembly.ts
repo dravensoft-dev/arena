@@ -18,6 +18,7 @@ import { componentMap, MAP_FILE } from './component-map.ts';
 import { iconManifest, MANIFEST_FILE } from './icon-manifest.ts';
 import { shippedNames } from '../../generate/core/arena-cli/icon-css.ts';
 import { manifestFiles } from '../tailwind/tailwind-compile.ts';
+import { tailwindThemeSheet } from '../tailwind/theme-sheet.ts';
 import { preflightSheet } from '../tailwind/component-sheets.ts';
 import { huePath } from '../tailwind/hue-sheet.ts';
 import { CONSUME, sheetPath } from '../../build/tailwind/build-tailwind.ts';
@@ -314,6 +315,21 @@ export function aliasDeclarations(root = repoRoot) {
   return Object.fromEntries([...block].filter(([name]) => !name.startsWith('level-')));
 }
 
+const DECLARED_PROPERTY = /(?:^|[;{}\s])(--[A-Za-z0-9_-]+)\s*:/g;
+
+export function shippedChannels(root = repoRoot) {
+  const sources = [
+    ...CSS_CHAIN.flatMap(({ from }) => (from === undefined ? [] : [readFileSync(join(root, from), 'utf8')])),
+    readFileSync(join(root, 'frameworks/tailwind/Utilities.generated.css'), 'utf8'),
+    ...walkFiles(join(root, CONSUME)).filter((file) => file.endsWith('.css')).map((file) => readFileSync(file, 'utf8')),
+    tailwindThemeSheet(root),
+  ];
+  const names = new Set<string>();
+  for (const source of sources)
+    for (const [, name = ''] of source.replace(/\/\*[\s\S]*?\*\//g, '').matchAll(DECLARED_PROPERTY)) names.add(name);
+  return [...names];
+}
+
 export function tokenCatalogue(root = repoRoot) {
   const decls = new Map<string, Map<string, string>>();
   for (const target of CSS_TARGETS) {
@@ -325,7 +341,11 @@ export function tokenCatalogue(root = repoRoot) {
   const roleFile = readJson(join(root, 'contracts', 'design', 'roles.json')) as Record<string, any>;
   const roles = Object.fromEntries(Object.entries(roleFile).map(([name, role]) => [name, catalogueRole(role)]));
 
-  return { tokens, roles, aliases: aliasDeclarations(root) };
+  const aliases = aliasDeclarations(root);
+  const listed = new Set([...Object.keys(tokens), ...Object.keys(roles), ...Object.keys(aliases)].map((name) => `--${name.replace(/^--/, '')}`));
+  const channels = shippedChannels(root).filter((name) => !listed.has(name) && !name.startsWith('--tw-')).sort();
+
+  return { tokens, roles, aliases, channels };
 }
 
 export const CLI_BINS = { arena: './bin/arena.mjs' };

@@ -81,3 +81,11 @@ test('a control indexes the attributes its forms directive selects on, read from
   assert.ok(inputs['arena-input']?.includes('formControlName'));
   assert.ok(!inputs['arena-button']?.includes('formControlName'));
 });
+
+test('the index lists each component\'s parts with the hooks that land on them', () => {
+  const parts = vocabularyIndex().parts ?? {};
+  assert.deepEqual(parts.ArenaMenu?.['menu.item'], ['data-arena-destructive', 'data-arena-disabled']);
+  assert.deepEqual(parts.ArenaMenu?.menu, []);
+  const bare = vocabularyIndexOf([], [{ component: 'ArenaBare' }], 'https://x/p');
+  assert.equal(bare.parts?.ArenaBare, undefined);
+});

@@ -338,9 +338,20 @@ test('a component sheet is reached through the barrel alone, never named twice i
 });
 
 test('the token catalogue offers roles and no catalogue of appearances', () => {
-  assert.deepEqual(Object.keys(tokenCatalogue()).sort(), ['aliases', 'roles', 'tokens'],
+  assert.deepEqual(Object.keys(tokenCatalogue()).sort(), ['aliases', 'channels', 'roles', 'tokens'],
     'a consumer resolves an alias against the tokens and answers a role itself, and a menu of '
     + 'appearances is a decision Arena took for somebody else');
+});
+
+test('the catalogue lists every property the shipped CSS declares beyond tokens, roles and aliases', () => {
+  const { channels, tokens, roles, aliases } = tokenCatalogue();
+  for (const name of ['--arena-hue-ink', '--spacing-row', '--radius-control', '--level-ink-muted', '--z-index-modal'])
+    assert.ok(channels.includes(name), name);
+  assert.ok(channels.some((name) => name.startsWith('--arena-size-')));
+  assert.ok(channels.every((name) => name.startsWith('--') && !name.startsWith('--tw-')));
+  const known = new Set([...Object.keys(tokens), ...Object.keys(roles), ...Object.keys(aliases)].map((name) => `--${name.replace(/^--/, '')}`));
+  assert.deepEqual(channels.filter((name) => known.has(name)), []);
+  assert.deepEqual(channels, [...new Set(channels)].sort());
 });
 
 test('the catalogue holds the 40 aliases of colors.css in file order, and no level', () => {

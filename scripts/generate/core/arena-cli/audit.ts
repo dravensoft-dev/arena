@@ -364,6 +364,7 @@ export type VocabularyIndex = {
   defaults?: Record<string, Record<string, string>>;
   modals?: string[];
   inputs?: Record<string, string[]>;
+  parts?: Record<string, Record<string, string[]>>;
 };
 
 export const VOCABULARY_INDEX = 'arena.vocabulary.json';
