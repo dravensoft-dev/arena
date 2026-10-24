@@ -103,13 +103,15 @@ test('a marker inside an @if block directly in the card fills the card\'s head p
   }
 });
 
-test('a marker inside an ng-container directly in the card is found by the query, so the head is drawn and the button renders', () => {
+test('a marker inside an ng-container lands in the card\'s body, not its action part', () => {
   const fixture = TestBed.createComponent(ContainerHost);
   try {
     fixture.detectChanges();
     const host = fixture.nativeElement as Element;
-    assert.ok(host.querySelector('[data-arena-part="card.head"]'), 'the card did not find the marker in the container, so it drew no head');
-    assert.ok(host.querySelector('button[action]'), 'the button inside the container did not render');
+    const button = host.querySelector('button[action]');
+    assert.ok(button, 'the button inside the container did not render');
+    assertNoNode(host.querySelector('[data-arena-part="card.head"] button[action]'), 'the container carried the marker into the head');
+    assert.ok(button.closest('[data-arena-part="card.body"]'), 'the button is not in the default slot');
   } finally {
     fixture.destroy();
   }

@@ -6,8 +6,8 @@
  * happy, because a bare `footer` attribute on a <div> is valid HTML whether or not a directive
  * matches it. A component cannot detect it (that is the case the query exists for), so the guard
  * has to sit outside, and this is it. build:angular-tests cannot import from scripts/, so
- * markerUses is a copy of the CLI's, made to agree: the innermost element that is not an
- * ng-container is charged, and only when it queries the marker. */
+ * markerUses is a copy of the CLI's, made to agree: the innermost element is charged, an
+ * ng-container included, and only when it queries the marker. */
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -83,7 +83,7 @@ export function markerUses(template: string, queried: Map<string, string[]>): Ar
     const bare = stripAttributeValues(attrs);
     for (const marker of MARKERS.keys()) {
       if (!new RegExp(`(^|\\s)${marker}(?=$|[\\s/=])`).test(bare)) continue;
-      const enclosing = [...stack].reverse().find((t) => t !== 'ng-container') ?? null;
+      const enclosing = stack[stack.length - 1] ?? null;
       const charged = enclosing !== null && enclosing.startsWith('arena-') && (queried.get(marker) ?? []).includes(enclosing);
       uses.push({ marker, host: charged ? enclosing : null });
     }
@@ -185,4 +185,8 @@ test('a marker name appearing inside a longer attribute is not a use of it', () 
     path: 'a/B.ts',
     source: "@Component({ imports: [], template: `<arena-card><div data-footer-note=\"x\">y</div></arena-card>` })",
   }], QUERIED), []);
+});
+
+test('a marker inside an ng-container is charged to nobody, as its slot is the default one', () => {
+  assert.deepEqual(markerUses('<arena-card><ng-container><button action>x</button></ng-container></arena-card>', QUERIED), [{ marker: 'action', host: null }]);
 });
