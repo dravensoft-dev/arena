@@ -1,6 +1,6 @@
 /* The boundary wrap of a trap is Arena's own .focus() and happy-dom honours it; the INTERIOR is
  * native sequential focus navigation, which happy-dom lacks, so this drives real Chromium over CDP
- * and presses a real Tab. TRAPS names a page per layer binding dialog-modal, each opening its panel
+ * and presses a real Tab. TRAPS names a page per layer binding modal-focus, each opening its panel
  * from its own fixture. HANDOFFS names a page per layer whose hidden native control hands focus to
  * the trigger it lies under when the browser refuses it, and the box the browser anchors its
  * message on, which a DOM without layout cannot show. No wait here is a span: a keypress barrier

@@ -38,7 +38,7 @@ tokens it renders from. Neither of the other two layers changes to accommodate a
 When an API reshape appears to require dropping or changing something a behaviour binding depends
 on, **the reshape is what is wrong, not the binding.** `ArenaConfirmDialog` is the worked example:
 its `cancel` event is how the (accessible, Angular) dialog reports an Escape-key or Cancel-button
-dismissal, which the `dialog-modal` pattern requires. A contract that omitted `cancel` to look
+dismissal, which the `modal-focus` pattern requires. A contract that omitted `cancel` to look
 tidier would leave the Escape handler with nothing to emit and silently void that
 requirement. The member stays because the behaviour contract is firm. An API decision is correct
 only if every behaviour binding it touches, and every design token it renders from, remains

@@ -165,7 +165,7 @@ export const ROUTES: Route[] = [
       + 'then the page that says what Arena hands over instead of a component',
     entry: 'consumer',
     stops: ['skills/design/references/media-register.md'],
-    budget: 12_400,
+    budget: 12_500,
     reason:
       'paid once per project, by a reader the router has just told to write their own markup. It '
       + 'buys that the honest sentence sending them away from the component list stops costing '
@@ -174,7 +174,7 @@ export const ROUTES: Route[] = [
       + 'one line of CSS. It names what Arena hands over instead of a component, the component names '
       + 'that look like the answer and are not, and the viewer that opens a picture at full size with '
       + 'the answers every walk otherwise invents: what dims the page, whether the picture is '
-      + 'contained, what a control over it stands on, and which pattern it still binds. It also says '
+      + 'contained, what a control over it stands on, and which two patterns it still binds, roles and modal focus. It also says '
       + 'where a value no step names is set. The number is what the stops measure, and it grows when '
       + 'the register gains a part to hand over rather than when the page gains a paragraph. The feed\'s keys are written out as a function, because the component '
       + 'binding them ships compiled and no export hands them over, and the Angular component binding '
@@ -321,18 +321,18 @@ export const ROUTES: Route[] = [
       + 'layer that binds it',
     entry: 'contributor',
     stops: ['frameworks/AGENTS.md', 'frameworks/*/AGENTS.md'],
-    budget: 77_400,
+    budget: 77_600,
     reason:
       'the most-walked contributor route, carrying the most reasoning per stop, paid by '
-      + 'whoever changes Arena. It carries no category\'s own tour: the '
+      + 'whoever changes Arena. No category\'s own tour: the '
       + 'chart family has frameworks/CHARTS.md. What it carries is what every component meets: the ordered '
-      + 'steps a new component takes, including the barrel chain an Angular primitive needs and the '
-      + 'suites it owes; the architecture envelope, since a module-scope read of a browser global '
-      + 'throws during a server render; when a primitive is an attribute on a native element; and the Angular default '
-      + 'written twice, as the initial value and as the fallback, a pair no gate holds. The roof '
-      + 'carries what binds both layers and each layer carries its own envelope and peer, which is '
-      + 'the split that keeps the pair from going stale in one of them. The roof states the '
-      + 'attribute the layers build from different values and what a browser proves about focus; each layer, the binding that interpolates a property name and why a root module has one consumer, and every method a component exposes, and the classes an open pane wears. The Tailwind page names the :scope part selector a family\'s block writes and why a bundler needs it. The kitchen-sink page holds the gate flags.',
+      + 'steps a new component takes, including the barrel chain an Angular primitive needs and its '
+      + 'suites; the architecture envelope, since a module-scope browser global '
+      + 'throws in a server render; when a primitive is an attribute on a native element; and the Angular default '
+      + 'written twice, as initial value and fallback, a pair no gate holds. The roof '
+      + 'carries what binds both layers and each layer carries its own envelope and peer, '
+      + 'the split that keeps the pair from going stale in one. The roof states the '
+      + 'attribute the layers build from different values, what a browser proves about focus, the contract modal focus answers and why a radio group is one stop; each layer, the binding that interpolates a property name and why a root module has one consumer, and every method a component exposes, and the classes an open pane wears. The Tailwind page names the :scope part selector a family\'s block writes and why a bundler needs it. The kitchen-sink page holds the gate flags.',
   },
   {
     name: 'contributor-authoring',

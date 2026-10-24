@@ -304,7 +304,7 @@ supported way to make the state true, whether or not a determined consumer
 could force it through.
 
 **What it does not assert is whether the component actually behaves as it says.**
-A component can bind `dialog-modal` here and trap no focus at all.
+A component can bind `modal-focus` here and trap no focus at all.
 
 `check:behaviour` still proves only that a declaration is well formed. What proves
 a declaration is *true* is a render suite: for a component listed in `COVERED`

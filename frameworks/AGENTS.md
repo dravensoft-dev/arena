@@ -207,12 +207,17 @@ editorial.
 
 ## The modal focus contract, implemented once per layer
 
-`contracts/behaviour/dialog-modal.json` and `contracts/behaviour/modal-focus.json` are the only authority either layer answers to. **Every
-focusable selector repeats `:not([tabindex="-1"])` on every clause**, because a selector list is
-OR'd and `button:not([disabled])` alone would pull a real `<button tabindex="-1">` back into the
-tab order. **None of them caches the focusables**, because a dialog's content changes under it
-and a cached list wraps to an element that has gone. Escape always reports through the
-component's **own** dismissal channel, so meeting the pattern adds no member anywhere.
+`contracts/behaviour/modal-focus.json` is the only authority either layer answers to for where a
+modal's focus goes and what Escape does; the dialog patterns hold its roles. **Every focusable
+selector repeats `:not([tabindex="-1"])` on every clause**, because a selector list is OR'd and
+`button:not([disabled])` alone would pull a real `<button tabindex="-1">` back into the tab
+order. **None of them caches the focusables**, because a dialog's content changes under it and a
+cached list wraps to an element that has gone. Escape always reports through the component's
+**own** dismissal channel, so meeting the pattern adds no member anywhere.
+
+**A radio group is one stop in the focus list**, its checked radio or its first, so focus can sit
+on a radio the list does not hold. A reader comparing the active element with the list maps it
+through `arenaTabStopOf` first, or a Tab from that radio reads as a Tab from outside the panel.
 
 **The rule that a component is self-contained is about CSS classes, not about JS helpers.**
 

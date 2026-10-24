@@ -114,7 +114,7 @@ behaviour binding or the tokens it renders from.
 
 **When an API reshape appears to require dropping something a behaviour binding depends on, the
 reshape is what is wrong.** `ArenaConfirmDialog` is the worked example: its `cancel` event is how the
-dialog reports an Escape-key dismissal, which `dialog-modal` requires, so a contract that
+dialog reports an Escape-key dismissal, which `modal-focus` requires, so a contract that
 omitted it to look tidier would leave the Escape handler with nothing to emit and silently void
 that requirement.
 

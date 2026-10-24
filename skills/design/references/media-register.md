@@ -20,8 +20,9 @@ markup can be held to:
   `aria-posinset` and `aria-setsize` on each, `aria-busy` while a page loads, and the keys that
   move between articles. A feed of your own that binds none of this is a feed only a
   mouse can read.
-- **`contracts/behaviour/dialog-modal.json`** for a lightbox or a viewer: `aria-modal`, focus taken
-  on open, focus restored to the invoker on close, Tab trapped inside, Escape out.
+- **`contracts/behaviour/dialog-modal.json`** and **`contracts/behaviour/modal-focus.json`** for a
+  lightbox or a viewer: the role, its name and `aria-modal` from the first, and from the second
+  focus taken on open, focus restored to the invoker on close, Tab trapped inside, Escape out.
 
 Read the one your element is, and bind what it requires. These files are the same source Arena's
 own components are held to, so what you write is held to the standard the components are.
@@ -168,8 +169,8 @@ it needs is already a token, so the only thing you are inventing is the box:
   the rest.
 - **`--pad-safe-top` and `--pad-safe-right`** hold that control off a phone's cutout, composed with
   a step of the spacing scale.
-- **Bind `contracts/behaviour/dialog-modal.json`** and take the focus trap your layer exports
-  rather than writing one. A viewer with no name, no Tab trap or no focus restored to the
+- **Bind `contracts/behaviour/dialog-modal.json` and `contracts/behaviour/modal-focus.json`** and
+  take the focus trap your layer exports rather than writing one. A viewer with no name, no Tab trap or no focus restored to the
   control that opened it carries the same defect in your markup. The contract exists to stop that
   defect in Arena's.
 
