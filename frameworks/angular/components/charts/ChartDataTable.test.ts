@@ -1907,7 +1907,16 @@ test('arena-heatmap-chart paints a 0-to-max ramp in steps 1 to 5, in order', () 
   });
 });
 
-test('arena-heatmap-chart puts a value on a bin edge in the higher bin and the maximum in the top one', () => {
+test('arena-heatmap-chart draws the darkest step only when the largest value reaches the fourth edge', () => {
+  onHeat(renderHeat({ labels: ['a', 'b'], series: [{ label: 'Row', values: [0, 3120] }] }), (host) => {
+    assert.deepEqual(heatFills(host), [1, 4].map(heatStep));
+  });
+  onHeat(renderHeat({ labels: ['a', 'b'], series: [{ label: 'Row', values: [0, 4000] }] }), (host) => {
+    assert.deepEqual(heatFills(host), [1, 5].map(heatStep));
+  });
+});
+
+test('arena-heatmap-chart puts a value on a bin edge in the higher bin, the top edge included', () => {
   onHeat(renderHeat({ labels: ['a', 'b', 'c', 'd'], series: [{ label: 'Row', values: [19, 20, 99, 100] }] }), (host) => {
     assert.deepEqual(heatFills(host), [1, 2, 5, 5].map(heatStep));
   });
