@@ -1059,6 +1059,11 @@ test('raw-glyph reads a bound class by its results, alike in both layers (D1, N1
   assert.ok(!(toggled[0] ?? '').includes('may hold'), 'a toggled Phosphor class gets the literal verdict');
 });
 
+test('an unquoted template attribute reads as HTML does: [class]=cls is bound, class=arena-a is literal', () => {
+  assert.equal(glyphLines(`${NAMES_ANGULAR}<div [class]=cls></div>`, 'src/a.html').length, 1);
+  assert.equal(glyphLines(`${NAMES_ANGULAR}<div class=arena-a></div>`, 'src/a.html').length, 0);
+});
+
 test('valueResults skips quotes, optional chaining and wrapping parens (Review Focus 1-3)', () => {
   assert.deepEqual(valueResults("{on ? 'a:b' : 'c?d'}"), ['a:b', 'c?d']);
   assert.deepEqual(valueResults("{row?.on ? 'arena-a' : ''}"), ['arena-a']);
