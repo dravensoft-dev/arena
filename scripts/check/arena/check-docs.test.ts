@@ -704,6 +704,19 @@ test('a hue-named custom property is refused even in a code span', () => {
   const root = tree({
     'frameworks/react/components/x/ArenaX.prompt.md': 'Read `--crimson-soft` behind `--bone`.\n',
   });
-  assert.equal(hueProblems(root).length, 2);
+  const problems = hueProblems(root);
+  assert.equal(problems.length, 2);
+  assert.match(problems[0] ?? '', /names --crimson-soft,/);
+  assert.match(problems[1] ?? '', /names --bone,/);
+  rmSync(root, { recursive: true });
+});
+
+test('an unpaired backtick hides no hue on the lines after it', () => {
+  const root = tree({
+    'frameworks/react/components/x/ArenaX.prompt.md': 'Read `arena-x and stop.\nThen paint it gold `here`.\n',
+  });
+  const problems = hueProblems(root);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /ArenaX\.prompt\.md:2: .*"gold"/);
   rmSync(root, { recursive: true });
 });

@@ -527,7 +527,7 @@ export const HUE_TOKENS = /--(crimson|gold|bone)\b[\w-]*/;
 
 const HUE_WORD = new RegExp(`\\b(${HUE_WORDS.join('|')})\\b`, 'gi');
 const HUE_TOKEN = new RegExp(HUE_TOKENS.source, 'g');
-const CODE_SPAN = /(`+)[\s\S]*?\1/g;
+const CODE_SPAN = /(`+)[^\n]*?\1/g;
 
 function blankKeepingLines(text: string) {
   return text.replace(/[^\n]/g, ' ');
