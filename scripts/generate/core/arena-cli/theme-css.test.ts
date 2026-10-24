@@ -297,6 +297,30 @@ test('every palette block, :root included, holds every alias the catalogue decla
   assert.equal(decls.get('.arena-light').get('focus-ring'), 'var(--color-secondary)');
 });
 
+const MUTE = /--mute:[^;]+;/.exec(readFileSync(fileURLToPath(new URL('../../../../contracts/design/colors.css', import.meta.url)), 'utf8'))?.[0] ?? '';
+const MUTE_LEVELS = [{ selector: '.arena-x__muted', state: '', property: 'color', variable: 'color-base-content', percent: 62, level: 'level-ink-muted' }];
+const DIM_PALETTES = [{
+  name: 'dim', default: true, polarity: 'dark',
+  colors: colors({ 'base-content': '#a89e9e', 'base-100': '#141010', 'base-200': '#141010', 'base-300': '#141010' }),
+}];
+const MUTE_DECLARATION = 'color-mix(in oklab,var(--color-base-content) var(--level-ink-muted),transparent)';
+
+test('a palette whose muted level is raised restates --mute at that level', () => {
+  const css = themeCss(config({ palettes: DIM_PALETTES }), { sheets: { ...SHEETS_FULL, aliases: [MUTE], levels: MUTE_LEVELS }, plugins: [total()] });
+  const block = parseDecls(css).get('.arena-dim');
+  const raised = Number(/^(\d+)%$/.exec(block.get('level-ink-muted') ?? '')?.[1]);
+  assert.ok(raised > 62, `the fixture raises the muted level past its 62% floor, got ${block.get('level-ink-muted')}`);
+  assert.equal(block.get('mute'), MUTE_DECLARATION, 'the alias reads the level the same block declares');
+});
+
+test('runtimePalettes restates --mute in each polarity block, so it follows the level raised for that scope', () => {
+  const css = themeCss(config({ palettes: DIM_PALETTES, runtimePalettes: true }),
+    { sheets: { ...SHEETS_FULL, aliases: [MUTE], levels: MUTE_LEVELS }, plugins: [total()] });
+  for (const p of POLARITIES) {
+    assert.equal(parseDecls(css).get(`.${polarityClass(p)}`).get('mute'), MUTE_DECLARATION, `${p} hook`);
+  }
+});
+
 test('a later plugin names itself, the root plugin does not, and the default palette crosses too', () => {
   const css = themeCss(listed(['console', 'marketing'], { palettes: [
     { name: 'dark', default: true, polarity: 'dark', colors: colors() },

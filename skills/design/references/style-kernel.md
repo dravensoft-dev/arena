@@ -239,7 +239,7 @@ Each of these was measured on a product, not reasoned about.
   argued from. The report names a restatement.
 - **Arena's own colour aliases are a step of Arena's ramp under another name.** A rule reading `var(--mute)` assigns a colour without answering any role. The raw-colour
   rule stays quiet, because an alias is a token. Answer the role instead, or compose the shade out of your own
-  palette: `color-mix(in oklab, var(--color-base-content) 62%, transparent)`.
+  palette: `color-mix(in oklab, var(--color-base-content) 62%, transparent)`. That percentage is a literal of your own, so a palette whose level `arena build` raises leaves your shade where you wrote it.
 - **A level is not a colour.** A colour role names which of your colours, never how far
   back it is held. A slot that carries no opacity modifier cannot be held back by any answer to
   any role.

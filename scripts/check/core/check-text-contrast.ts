@@ -107,6 +107,12 @@ export function resolvePercent(structure: string, name: string, seen = new Set()
   if (/^var\(\s*--color-base-content\s*\)$/.test(value)) return 100;
   const mix = value.match(/^color-mix\(\s*in oklab\s*,\s*var\(\s*--color-base-content\s*\)\s*([\d.]+)%\s*,\s*transparent\s*\)$/);
   if (mix?.[1]) return Number(mix[1]);
+  const read = value.match(/^color-mix\(\s*in oklab\s*,\s*var\(\s*--color-base-content\s*\)\s*var\(\s*--(level-[\w-]+)\s*\)\s*,\s*transparent\s*\)$/);
+  if (read?.[1]) {
+    const level = structure.match(new RegExp(`--${read[1]}\\s*:\\s*([\\d.]+)%\\s*;`))?.[1];
+    if (level === undefined) throw new Error(`colors.css: --${name} reads --${read[1]}, which the block does not declare`);
+    return Number(level);
+  }
   const alias = value.match(/^var\(\s*--([\w-]+)\s*\)$/);
   if (alias?.[1]) return resolvePercent(structure, alias[1], seen);
   throw new Error(`colors.css: --${name} resolves to "${value}", which is neither base-content, a color-mix of it, nor a var() alias`);

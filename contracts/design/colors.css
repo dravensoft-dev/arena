@@ -62,33 +62,33 @@
   --panel:var(--color-base-200);
   --line-strong:var(--color-neutral);
   --bone:var(--color-base-content);
-  --bone-dim:color-mix(in oklab,var(--color-base-content) 82%,transparent);
-  --mute:color-mix(in oklab,var(--color-base-content) 62%,transparent);
+  --bone-dim:color-mix(in oklab,var(--color-base-content) var(--level-ink-body),transparent);
+  --mute:color-mix(in oklab,var(--color-base-content) var(--level-ink-muted),transparent);
   /* Disabled text only. Low by design and NOT a failure: WCAG 1.4.3/1.4.11
      exempt inactive components, and ArenaPagination's disabled controls must read
      as inactive. Do not raise this to fix a contrast report. */
   --mute-2-disabled:color-mix(in oklab,var(--color-base-content) 40%,transparent);
   /* Presence "offline" only (ArenaAvatar's status dot) — never disabled state.
-     52% clears WCAG 1.4.11's 3:1 for graphical objects in both themes
-     (4.93:1 dark / 3.46:1 light on the card). */
-  --status-offline:color-mix(in oklab,var(--color-base-content) 52%,transparent);
+     The presence level clears WCAG 1.4.11's 3:1 for graphical objects in both
+     themes (4.93:1 dark / 3.46:1 light on the card at its 52% floor). */
+  --status-offline:color-mix(in oklab,var(--color-base-content) var(--level-presence),transparent);
 
   /* brand accents */
   --crimson:var(--color-primary);
   --crimson-strong:var(--color-primary);
-  --crimson-soft:color-mix(in oklab,var(--color-primary) 14%,transparent);
+  --crimson-soft:color-mix(in oklab,var(--color-primary) var(--level-accent-soft-primary),transparent);
   --gold:var(--color-secondary);
   --gold-strong:var(--color-secondary);
-  --gold-soft:color-mix(in oklab,var(--color-secondary) 16%,transparent);
+  --gold-soft:color-mix(in oklab,var(--color-secondary) var(--level-accent-soft-gold),transparent);
 
   /* status */
   --success:var(--color-success);
-  --success-soft:color-mix(in oklab,var(--color-success) 16%,transparent);
+  --success-soft:color-mix(in oklab,var(--color-success) var(--level-hue-soft-success),transparent);
   --warning:var(--color-warning);
-  --warning-soft:color-mix(in oklab,var(--color-warning) 18%,transparent);
+  --warning-soft:color-mix(in oklab,var(--color-warning) var(--level-hue-soft-warning),transparent);
   --danger:var(--color-error);
   --danger-strong:var(--color-error);
-  --danger-soft:color-mix(in oklab,var(--color-error) 14%,transparent);
+  --danger-soft:color-mix(in oklab,var(--color-error) var(--level-hue-soft-danger),transparent);
   /* The only filled danger surface in Arena (ArenaConfirmDialog's final
      confirmation). Never a border or text color — --danger is that.
      A skin MAY pin --color-error-fill for an exact value (the Dravensoft skin
@@ -98,7 +98,7 @@
      its own, so a fallback living only in this alias is one nothing reads. */
   --danger-fill:var(--color-error-fill);
   --info:var(--color-info);
-  --info-soft:color-mix(in oklab,var(--color-info) 16%,transparent);
+  --info-soft:color-mix(in oklab,var(--color-info) var(--level-hue-soft-info),transparent);
 
   /* semantic aliases */
   --bg:var(--color-base-100);

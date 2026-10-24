@@ -118,7 +118,7 @@ palette it was written against.
 **The aliases are in [`contracts/design/colors.css`](../../../contracts/design/colors.css)**:
 `--crimson` and `--gold` are the two accents, with a soft wash beside each. `--danger`,
 `--success`, `--warning` and `--info` are the four status colours, with the same. `--bone` and
-`--mute` are text at full strength and text held back.
+`--mute` are text at full strength and text held back. The aliases that hold text back and the soft washes read the levels, so they follow a level `arena build` raises for a palette. `--mute-2-disabled` holds a fixed 40%, because the disabled level is the one the scale never raises.
 Each key of a palette's `colors` becomes `--color-<key>`, so `base-100` is `--color-base-100`. [config.md](./config.md#declare-your-skin) lists the keys.
 
 ## Meaning and identity are two different colour sets

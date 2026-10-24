@@ -70,6 +70,22 @@ test('a level that is a colour rather than a derivation of base-content is refus
     + 'can compose and is reported instead of silently skipped');
 });
 
+test('a held-back alias that reads a level resolves at the level the block declares', () => {
+  const mix = '--mute:color-mix(in oklab,var(--color-base-content) var(--level-ink-muted),transparent);';
+  assert.equal(resolvePercent(`--level-ink-muted:62%;${mix}`, 'mute'), 62);
+  assert.throws(() => resolvePercent(mix, 'mute'), /level-ink-muted/);
+  assert.throws(() => resolvePercent(mix, 'mute'), /--mute/);
+});
+
+test('no alias in colors.css holds a percentage of its own but the disabled one, the cover over the page apart', () => {
+  const block = structureOf(readFileSync(join(repoRoot, 'contracts/design/colors.css'), 'utf8'), SELECTORS)
+    .replace(/\/\*[\s\S]*?\*\//g, '');
+  const literal = [...block.matchAll(/--([\w-]+)\s*:\s*([^;]+);/g)]
+    .filter(([, name, value]) => !(name ?? '').startsWith('level-') && /\d%/.test(value ?? '') && !/var\(--color-base-100\)/.test(value ?? ''))
+    .map(([, name]) => name);
+  assert.deepEqual(literal, ['mute-2-disabled']);
+});
+
 test('a retired token carries the token that replaces it, so the failure is actionable', () => {
   assert.ok(REMOVED.length > 0, 'an empty list holds nothing and would pass over any reappearance');
   for (const { token, use } of REMOVED) {
