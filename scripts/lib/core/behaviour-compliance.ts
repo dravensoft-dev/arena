@@ -195,6 +195,7 @@ const ROLE_NAMED_BY_KEY: Record<string, string | string[]> = {
   'roles.graphic': 'img',
   'roles.heading': 'heading',
   'roles.treeitem': 'treeitem',
+  'roles.separator': 'separator',
 };
 
 export const DECIDABLE = new Set([
@@ -313,6 +314,10 @@ export const QUANTIFIED = new Map([
     'one article per unit of content, so a feed whose third row lost its role is unmet however correct the first row is. Decidable per element through ROLE_NAMED_BY_KEY, and quantified over elements the component renders itself -- which is what separates it from the two entries in NOT_QUANTIFIED below.'],
   ['listbox:states.selected',
     'aria-selected is true on each selected option and false on the rest, so one option cannot answer for the list.'],
+  ['menu-button:roles.item',
+    'every row the menu draws is a menuitem, so a menu whose third row lost its role is unmet however correct the first row is -- the idiom tree:roles.treeitem states, one requirement key over.'],
+  ['menu-button:roles.separator',
+    'every divider the menu draws is a separator, so a menu whose second divider lost its role is unmet however correct the first is -- the idiom tree:roles.treeitem states, one requirement key over.'],
   ['radiogroup:states.checked',
     'true on the checked button and false on the rest -- verbatim the idiom that quantifies tabs:states.selected, one requirement key over.'],
   ['tabs:roles.controls',
