@@ -97,7 +97,7 @@ export class ArenaTextarea {
   readonly maxLength = input<number>();
   /** Initial visible rows. */
   readonly rows = input<number, number | undefined>(4, { transform: (value) => value ?? 4 });
-  /** Edited; carries the new text. */
+  /** Edited; carries the new text. The native change of the inner field is never stopped, so a listener on the document hears it; this event carries the value. */
   readonly valueChange = output<string>();
 
   protected readonly controlId = computed(() => arenaTextareaIdFor(this.id(), this.label()));

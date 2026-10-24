@@ -31,11 +31,11 @@ import manifest from '../arena-table/ArenaTable.classes.generated';
 export class ArenaTableRow {
   protected readonly parts = manifest.parts;
 
-  /** Whether the row can be activated. A boolean rather than "is `click` bound?". Arena never derives what it draws from what a consumer listens for. The reason is that an outbound member's subscriber list is private in at least one platform, and a consumer's binding leaves nothing in the DOM to detect. Deriving the interactive shape from it would make the layers diverge on screen. Below --bp-md the row is a card, and an interactive card is a role="button" tab stop with an Enter/Space handler. A non-interactive card is inert, because a dead tab stop on every row of every table is worse than the gap it would close. */
+  /** Whether the row can be activated. A boolean rather than "is `activate` bound?". Arena never derives what it draws from what a consumer listens for. The reason is that an outbound member's subscriber list is private in at least one platform, and a consumer's binding leaves nothing in the DOM to detect. Deriving the interactive shape from it would make the layers diverge on screen. Below --bp-md the row is a card, and an interactive card is a role="button" tab stop with an Enter/Space handler. A non-interactive card is inert, because a dead tab stop on every row of every table is worse than the gap it would close. */
   readonly interactive = input(false, { transform: booleanAttribute });
-  /** Whether the row is drawn but cannot be activated: a record the consumer's rules lock. The disabled state reflects through `aria-disabled` rather than the native attribute. The card shape stays a role="button" in the tab order rather than leaving it, because a disabled control nobody can reach is a control nobody knows exists. With no `click` there is nothing to disable and the row is inert already. */
+  /** Whether the row is drawn but cannot be activated: a record the consumer's rules lock. The disabled state reflects through `aria-disabled` rather than the native attribute. The card shape stays a role="button" in the tab order rather than leaving it, because a disabled control nobody can reach is a control nobody knows exists. With no `activate` there is nothing to disable and the row is inert already. */
   readonly disabled = input(false, { transform: booleanAttribute });
-  /** The row was activated, by pointer or by Enter on one of its cells. No payload, because the consumer wrote this element and already holds the row this is about. */
+  /** The row was activated, by pointer or by Enter on one of its cells. No payload, because the consumer wrote this element and already holds the row this is about. The native click is never stopped, so a listener on the document hears every click inside the row; this event reports only the activation. */
   readonly activate = output<void>();
 
   private readonly table = inject(ArenaTableState);

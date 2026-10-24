@@ -154,7 +154,7 @@ export class ArenaMultiSelect {
   readonly icon = input<string>();
   /** Submitted with the form. Each chosen value is submitted under it as a hidden input, so a form posts a repeated field; nothing is drawn without a name. */
   readonly name = input<string>();
-  /** The chosen set changed, by a row, a chip or the clear control; carries the whole new set, never a difference. */
+  /** The chosen set changed, by a row, a chip or the clear control; carries the whole new set, never a difference. The native change of the inner field is never stopped, so a listener on the document hears it; this event carries the value. */
   readonly valueChange = output<ArenaValueSet>();
   /** The text the list is filtered by changed; carries the new text, empty after a pick, Escape or a blur. The hook a remote search listens to. */
   readonly search = output<string>();

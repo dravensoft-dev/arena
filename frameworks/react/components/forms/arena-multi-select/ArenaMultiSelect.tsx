@@ -74,7 +74,7 @@ export interface ArenaMultiSelectProps {
   name?: string;
 
 
-  /** The chosen set changed, by a row, a chip or the clear control; carries the whole new set, never a difference. */
+  /** The chosen set changed, by a row, a chip or the clear control; carries the whole new set, never a difference. The native change of the inner field is never stopped, so a listener on the document hears it; this event carries the value. */
   onValueChange?: (set: ArenaValueSet) => void;
 
   /** The text the list is filtered by changed; carries the new text, empty after a pick, Escape or a blur. The hook a remote search listens to. */

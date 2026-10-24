@@ -40,7 +40,7 @@ export interface ArenaCalendarEventProps {
   /** The action panel's content, revealed by the chip's action button. Rendered only while the panel is open, so a consumer's own controls never sit permanently in the grid's Tab sequence. */
   actions?: React.ReactNode;
 
-  /** The chip was activated. No payload: the consumer wrote this element, so they already hold the event this is about. Never emitted while `disabled`. */
+  /** The chip was activated. No payload: the consumer wrote this element, so they already hold the event this is about. Never emitted while `disabled`. A click on the chip's surface stops there in both layers, so a listener on the document does not hear it. */
   onActivate?: () => void;
 
   /** Lines drawn under the time label, one per entry, each truncated to a single line: the people involved, a room, a capacity. Arena decides how many fit, shedding the last first and then the time label, and every entry reaches what the chip announces whether it is drawn or shed. */

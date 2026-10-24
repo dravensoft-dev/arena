@@ -29,9 +29,9 @@ A number chosen inside a range by moving a thumb, or a span chosen with two thum
 | `showValue` | primitive | `boolean` | `true` | Whether the readout is drawn beside the label. |
 | `disabled` | primitive | `boolean` | `false` | Takes each thumb out of the Tab sequence, ignores the pointer and dims the slider. |
 | `name` | primitive | `string` |  | Submitted with the form through a hidden input carrying the number. In range mode two hidden inputs share it, the start first, so a form posts a repeated field. |
-| `onChange` | event | `number` |  | The thumb moved, or the start thumb in range mode; carries its number on every step of a drag and every key. Never fires for a move that leaves the number where it was. |
+| `onValueChange` | event | `number` |  | The thumb moved, or the start thumb in range mode; carries its number on every step of a drag and every key. Never fires for a move that leaves the number where it was. |
 | `onCommit` | event | `number` |  | The move settled: the pointer was released, or a key stepped the thumb. Carries the number, and fires only when it differs from where the move began. For an effect too costly to run on every step of a drag. |
-| `onChangeEnd` | event | `number` |  | The end thumb moved, in range mode; carries its number as `onChange` does. |
+| `onValueEndChange` | event | `number` |  | The end thumb moved, in range mode; carries its number as `onValueChange` does. |
 | `onCommitEnd` | event | `number` |  | The end thumb's move settled, in range mode; carries its number as `onCommit` does. |
 
 <!-- @api end -->

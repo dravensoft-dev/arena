@@ -21,7 +21,7 @@ A set of independent choices reported as one value. `ArenaCheckboxGroup` holds t
 | `value` | array | `readonly string[]` | `[]` | The ticked boxes' values, in the order they were ticked. A value that matches no box is kept rather than dropped. |
 | `name` | primitive | `string` |  | Shared form name for the underlying checkboxes, so a form submits every ticked value under one key; generated when omitted or blank. |
 | `disabled` | primitive | `boolean` | `false` | Whether the whole group is unavailable. Every box it holds is disabled whatever its own disabled says, and the group reflects aria-disabled. |
-| `onChange` | event | `ArenaValueSet` |  | A box was ticked or unticked; carries the whole set after the change. |
+| `onValueChange` | event | `ArenaValueSet` |  | A box was ticked or unticked; carries the whole set after the change. The native change of the inner box is never stopped, so a listener on the document hears it; this event carries the value. |
 
 <!-- @api end -->
 

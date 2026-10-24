@@ -54,7 +54,7 @@ export interface ArenaPinInputProps {
   /** The browser autofill hint, on every cell. A code that is not sent by text message, such as a device PIN, passes `off`. */
   autoComplete?: string;
 
-  /** The code after an edit, whatever its length; a refused character fires nothing. */
+  /** The code after an edit, whatever its length; a refused character fires nothing. The native change of the inner cell is never stopped, so a listener on the document hears it; this event carries the value. */
   onValueChange?: (value: string) => void;
 
   /** The code, when an edit makes it `length` characters long. Fires after `onValueChange`. A typed character fires it only when it completes the code anew. A paste or autofill of more than one character fires it whenever the code ends full. A `value` the host fills does not fire it. */

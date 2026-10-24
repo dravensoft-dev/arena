@@ -31,7 +31,7 @@ import { ArenaSlotAttributes } from '../../../SlotData';
       }
       <input type="radio" [class]="styles().input()" [attr.data-arena-part]="parts.input" [attr.name]="groupName()"
              [attr.value]="value()" [checked]="checked()" [disabled]="off()"
-             (change)="onChange($event)" />
+             (change)="onChange()" />
     </label>
   `,
 })

@@ -38,7 +38,7 @@ a real `<textarea>`, named by a real `<label for>`.
 | `name` | primitive | `string` |  | Submitted with the form. |
 | `maxLength` | primitive | `number` |  | Caps the length; feeds the counter. |
 | `rows` | primitive | `number` | `4` | Initial visible rows. |
-| `change` | event | `string` |  | Edited; carries the new text. |
+| `valueChange` | event | `string` |  | Edited; carries the new text. The native change of the inner field is never stopped, so a listener on the document hears it; this event carries the value. |
 
 <!-- @api end -->
 

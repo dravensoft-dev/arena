@@ -17,7 +17,7 @@ A compact inline filter over mutually exclusive options: a scope, a range, a den
 | `defaultValue` | primitive | `string` |  | The initially selected value when uncontrolled. Defaults to the first option. |
 | `ariaLabel*` | primitive | `string` |  | Names what is being filtered: "Time range", not "Filter". A radio group with no accessible name is announced unlabelled. |
 | `name` | primitive | `string` |  | Shared name for the underlying radios; generated when omitted or blank. |
-| `onChange` | event | `string` |  | A different option was chosen; carries its value. |
+| `onValueChange` | event | `string` |  | A different option was chosen; carries its value. The native change of the inner radio is never stopped, so a listener on the document hears it; this event carries the value. |
 
 <!-- @api end -->
 

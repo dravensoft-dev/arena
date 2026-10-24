@@ -130,7 +130,7 @@ export class ArenaCombobox {
   readonly icon = input<string>();
   /** Submitted with the form. The chosen value is submitted, never the label, through a hidden input drawn only when a name is given. */
   readonly name = input<string>();
-  /** A different option was chosen; carries its value. An emptied field committed on a control that is not required reports the empty string. */
+  /** A different option was chosen; carries its value. An emptied field committed on a control that is not required reports the empty string. The native change of the inner field is never stopped, so a listener on the document hears it; this event carries the value. */
   readonly valueChange = output<string>();
   /** The text the list is filtered by changed; carries the new text, empty after a choice, Escape or a blur. The hook a remote search listens to. */
   readonly search = output<string>();

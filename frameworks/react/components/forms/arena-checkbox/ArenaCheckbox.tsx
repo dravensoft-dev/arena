@@ -29,7 +29,7 @@ export interface ArenaCheckboxProps {
   /** The value submitted under `name` when checked. */
   value?: string;
 
-  /** Toggled; carries the new checked state. */
+  /** Toggled; carries the new checked state. The native change of the inner box is never stopped, so a listener on the document hears it; this event carries the value. */
   onValueChange?: (checked: boolean) => void;
 }
 

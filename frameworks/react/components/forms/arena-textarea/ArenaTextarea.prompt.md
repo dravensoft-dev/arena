@@ -26,7 +26,7 @@ Multi-line text input. Shares the same visual states as `ArenaInput`.
 | `name` | primitive | `string` |  | Submitted with the form. |
 | `maxLength` | primitive | `number` |  | Caps the length; feeds the counter. |
 | `rows` | primitive | `number` | `4` | Initial visible rows. |
-| `onChange` | event | `string` |  | Edited; carries the new text. |
+| `onValueChange` | event | `string` |  | Edited; carries the new text. The native change of the inner field is never stopped, so a listener on the document hears it; this event carries the value. |
 
 <!-- @api end -->
 

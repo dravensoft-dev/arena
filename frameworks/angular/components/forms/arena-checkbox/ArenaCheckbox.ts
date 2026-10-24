@@ -81,7 +81,7 @@ export class ArenaCheckbox {
   readonly name = input<string>();
   /** The value submitted under `name` when checked. */
   readonly value = input<string>();
-  /** Toggled; carries the new checked state. */
+  /** Toggled; carries the new checked state. The native change of the inner box is never stopped, so a listener on the document hears it; this event carries the value. */
   readonly valueChange = output<boolean>();
 
   protected readonly glyph = ARENA_CHECK_GLYPH_STYLE;

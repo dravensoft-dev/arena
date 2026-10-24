@@ -77,7 +77,7 @@ export interface ArenaInputProps {
   /** A regex the value must match. */
   pattern?: string;
 
-  /** Edited; carries the new value. */
+  /** Edited; carries the new value. The native change of the inner field is never stopped, so a listener on the document hears it; this event carries the value. */
   onValueChange?: (value: string) => void;
 
   /** Left the field; carries the value. */

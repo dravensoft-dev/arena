@@ -23,8 +23,8 @@ A short code entered one character per cell, such as the one-time code a text me
 | `disabled` | primitive | `boolean` | `false` | Blocks editing and dims it. |
 | `name` | primitive | `string` |  | Submitted with the form as the whole code, once, through a hidden input. The cells carry no name, so a form never receives one character on its own. |
 | `autoComplete` | primitive | `string` | `"one-time-code"` | The browser autofill hint, on every cell. A code that is not sent by text message, such as a device PIN, passes `off`. |
-| `onChange` | event | `string` |  | The code after an edit, whatever its length; a refused character fires nothing. |
-| `onComplete` | event | `string` |  | The code, when an edit makes it `length` characters long. Fires after `onChange`. A typed character fires it only when it completes the code anew. A paste or autofill of more than one character fires it whenever the code ends full. A `value` the host fills does not fire it. |
+| `onValueChange` | event | `string` |  | The code after an edit, whatever its length; a refused character fires nothing. The native change of the inner cell is never stopped, so a listener on the document hears it; this event carries the value. |
+| `onComplete` | event | `string` |  | The code, when an edit makes it `length` characters long. Fires after `onValueChange`. A typed character fires it only when it completes the code anew. A paste or autofill of more than one character fires it whenever the code ends full. A `value` the host fills does not fire it. |
 | `onBlur` | event | `string` |  | Focus left the group; carries the code. A move from one cell to another is not a blur. |
 
 <!-- @api end -->

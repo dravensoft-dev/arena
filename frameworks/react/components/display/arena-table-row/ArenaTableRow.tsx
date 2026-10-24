@@ -32,7 +32,7 @@ export interface ArenaTableRowProps {
   /** Whether the row is drawn but cannot be activated: a record the consumer's rules lock. The disabled state reflects through `aria-disabled` rather than the native attribute. The card shape stays a role="button" in the tab order rather than leaving it, because a disabled control nobody can reach is a control nobody knows exists. With no `onActivate` there is nothing to disable and the row is inert already. */
   disabled?: boolean;
 
-  /** The row was activated, by pointer or by Enter on one of its cells. No payload, because the consumer wrote this element and already holds the row this is about. */
+  /** The row was activated, by pointer or by Enter on one of its cells. No payload, because the consumer wrote this element and already holds the row this is about. The native click is never stopped, so a listener on the document hears every click inside the row; this event reports only the activation. */
   onActivate?: () => void;
 }
 

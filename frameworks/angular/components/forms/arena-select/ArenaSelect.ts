@@ -83,7 +83,7 @@ export class ArenaSelect {
   readonly icon = input<string>();
   /** Submitted with the form. */
   readonly name = input<string>();
-  /** A different option was chosen; carries its value. */
+  /** A different option was chosen; carries its value. The native change of the inner select is never stopped, so a listener on the document hears it; this event carries the value. */
   readonly valueChange = output<string>();
 
   protected readonly selectId = inject(ArenaIdGenerator).next('arena-select');

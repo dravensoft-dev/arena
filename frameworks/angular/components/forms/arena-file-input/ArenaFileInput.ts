@@ -111,7 +111,7 @@ export class ArenaFileInput {
   readonly maxSize = input<number>();
   /** Whether the field is a drop zone with a dashed frame. Without it the field cancels no drag and a file dropped on it is the browser's. The trigger is the keyboard route either way. */
   readonly droppable = input(false, { transform: booleanAttribute });
-  /** The selection changed through a pick, a drop or a chip's remove; carries the whole selection as metadata, in held order. A clear the host asks for, and a form reset, fire nothing. */
+  /** The selection changed through a pick, a drop or a chip's remove; carries the whole selection as metadata, in held order. A clear the host asks for, and a form reset, fire nothing. The native change of the inner input is never stopped, so a listener on the document hears it; this event carries the value. */
   readonly valueChange = output<ArenaFileSelection>();
   /** Files in the last pick or drop were refused; carries their names by reason. Never fires empty. */
   readonly reject = output<ArenaFileRejection>();

@@ -107,9 +107,9 @@ export class ArenaPinInput {
     'one-time-code',
     { transform: (value) => value ?? 'one-time-code' },
   );
-  /** The code after an edit, whatever its length; a refused character fires nothing. */
+  /** The code after an edit, whatever its length; a refused character fires nothing. The native change of the inner cell is never stopped, so a listener on the document hears it; this event carries the value. */
   readonly valueChange = output<string>();
-  /** The code, when an edit makes it `length` characters long. Fires after `change`. A typed character fires it only when it completes the code anew. A paste or autofill of more than one character fires it whenever the code ends full. A `value` the host fills does not fire it. */
+  /** The code, when an edit makes it `length` characters long. Fires after `valueChange`. A typed character fires it only when it completes the code anew. A paste or autofill of more than one character fires it whenever the code ends full. A `value` the host fills does not fire it. */
   readonly complete = output<string>();
   /** Focus left the group; carries the code. A move from one cell to another is not a blur. */
   readonly blur = output<string>();

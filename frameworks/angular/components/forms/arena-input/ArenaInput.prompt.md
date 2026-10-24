@@ -45,7 +45,7 @@ the column its parent lays out. The control is a real `<input>`, named by a real
 | `step` | primitive | `string` |  | Step, for number/date types. |
 | `maxLength` | primitive | `number` |  | Caps the length. |
 | `pattern` | primitive | `string` |  | A regex the value must match. |
-| `change` | event | `string` |  | Edited; carries the new value. |
+| `valueChange` | event | `string` |  | Edited; carries the new value. The native change of the inner field is never stopped, so a listener on the document hears it; this event carries the value. |
 | `blur` | event | `string` |  | Left the field; carries the value. |
 
 <!-- @api end -->

@@ -20,7 +20,7 @@ export interface ArenaRadioGroupProps {
   /** Shared name for the underlying radios; generated when omitted or blank. */
   name?: string;
 
-  /** A different option was chosen; carries its value. */
+  /** A different option was chosen; carries its value. The native change of the inner radio is never stopped, so a listener on the document hears it; this event carries the value. */
   onValueChange?: (value: string) => void;
 
   /** Whether the whole group is unavailable. Every radio it holds is disabled whatever its own disabled says, and the group reflects aria-disabled. */

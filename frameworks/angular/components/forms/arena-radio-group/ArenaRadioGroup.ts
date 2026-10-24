@@ -34,7 +34,7 @@ export class ArenaRadioGroup {
   readonly name = input<string>();
   /** Whether the whole group is unavailable. Every radio it holds is disabled whatever its own disabled says, and the group reflects aria-disabled. */
   readonly disabled = input(false, { transform: booleanAttribute });
-  /** A different option was chosen; carries its value. */
+  /** A different option was chosen; carries its value. The native change of the inner radio is never stopped, so a listener on the document hears it; this event carries the value. */
   readonly valueChange = output<string>();
 
   protected readonly label = computed(() => {

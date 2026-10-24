@@ -23,7 +23,7 @@ Icon-only button for toolbars and rows. Always pass `label` (accessible name in 
 | `autoFocus` | primitive | `boolean` | `false` | Focused on mount. |
 | `form` | primitive | `string` |  | The id of the form this button belongs to, when it is not a descendant of it. |
 | `tabStop` | primitive | `boolean` | `true` | Whether the control is reached from the page's Tab sequence. Set false when the control lives inside a composite that manages its own focus, such as a grid with a roving tab stop or a menu. Reaching it by Tab there would be a second way in. Arena writes tabindex="-1" and the control stays programmatically focusable; a positive tab order is not expressible and never should be. |
-| `onClick` | event |  |  | The button was activated, by pointer or by keyboard. |
+| `onActivate` | event |  |  | The button was activated, by pointer or by keyboard. The native click is never stopped, so a listener on the document hears every click inside the button; this event reports only the activation. |
 
 <!-- @api end -->
 

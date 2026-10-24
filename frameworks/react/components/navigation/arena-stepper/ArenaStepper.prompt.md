@@ -15,7 +15,7 @@ The steps of one process and where it stands: a numbered list whose markers say 
 | `steps*` | array | `readonly ArenaStepperStep[]` |  | The process, in order. Arena draws each step from its fields; an empty list draws nothing. |
 | `index` | primitive | `number` | `0` | Which step is current, counted from zero. The steps before it are complete and the ones after it upcoming. A value at or past the number of steps marks every step complete, and a negative or non-finite one reads as 0. |
 | `interactive` | primitive | `boolean` | `false` | Whether the steps behind the current one can be chosen. Only those steps become buttons: the current step and every step ahead stay text, so a reader never meets a dead control. |
-| `onChange` | event | `number` |  | A step behind the current one was chosen; carries its index, counted from zero. Never fires while `interactive` is false, nor for the current step or a later one. The host owns `index` and moves it. |
+| `onValueChange` | event | `number` |  | A step behind the current one was chosen; carries its index, counted from zero. Never fires while `interactive` is false, nor for the current step or a later one. The host owns `index` and moves it. |
 
 <!-- @api end -->
 

@@ -65,7 +65,7 @@ export interface ArenaComboboxProps {
   name?: string;
 
 
-  /** A different option was chosen; carries its value. An emptied field committed on a control that is not required reports the empty string. */
+  /** A different option was chosen; carries its value. An emptied field committed on a control that is not required reports the empty string. The native change of the inner field is never stopped, so a listener on the document hears it; this event carries the value. */
   onValueChange?: (value: string) => void;
 
   /** The text the list is filtered by changed; carries the new text, empty after a choice, Escape or a blur. The hook a remote search listens to. */

@@ -72,7 +72,7 @@ export class ArenaSplitButton {
     'end',
     { transform: (value) => value ?? 'end' },
   );
-  /** The primary half was activated, by pointer or by keyboard. Never reported while loading or disabled. */
+  /** The primary half was activated, by pointer or by keyboard. Never reported while loading or disabled. The native click is never stopped, so a listener on the document hears every click inside the primary half; this event reports only the activation. */
   readonly activate = output<void>();
   /** A menu entry was activated; carries the whole item. A disabled entry reports nothing, and a divider or a header cannot be activated at all. */
   readonly select = output<ArenaMenuItem>();

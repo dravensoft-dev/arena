@@ -35,8 +35,8 @@ A field that holds one number. A person types it, steps it with a key or with th
 | `readOnly` | primitive | `boolean` | `false` | Shows the value at full contrast on the panel surface and blocks editing; no key and no stepper changes it. |
 | `placeholder` | primitive | `string` |  | Shown when empty. |
 | `name` | primitive | `string` |  | Submitted with the form as the plain decimal string, such as `1234.5`, through a hidden input; empty when the field is empty. The drawn field carries formatted text and is never submitted. |
-| `change` | event | `number` |  | A number was committed, clamped, and differs from the one before; carries it. |
-| `clear` | event |  |  | The field was committed empty. Never fires with `change` for one commit, and never for a field that was already empty. |
+| `valueChange` | event | `number` |  | A number was committed, clamped, and differs from the one before; carries it. The native change of the inner field is never stopped, so a listener on the document hears it; this event carries the value. |
+| `clear` | event |  |  | The field was committed empty. Never fires with `valueChange` for one commit, and never for a field that was already empty. |
 
 <!-- @api end -->
 

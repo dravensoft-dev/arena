@@ -119,7 +119,7 @@ export class ArenaInput {
   readonly maxLength = input<number>();
   /** A regex the value must match. */
   readonly pattern = input<string>();
-  /** Edited; carries the new value. */
+  /** Edited; carries the new value. The native change of the inner field is never stopped, so a listener on the document hears it; this event carries the value. */
   readonly valueChange = output<string>();
   /** Left the field; carries the value. */
   readonly blur = output<string>();

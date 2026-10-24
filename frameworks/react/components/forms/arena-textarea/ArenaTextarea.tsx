@@ -50,7 +50,7 @@ export interface ArenaTextareaProps {
   /** Initial visible rows. */
   rows?: number;
 
-  /** Edited; carries the new text. */
+  /** Edited; carries the new text. The native change of the inner field is never stopped, so a listener on the document hears it; this event carries the value. */
   onValueChange?: (value: string) => void;
 }
 

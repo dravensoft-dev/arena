@@ -40,7 +40,7 @@ export class ArenaCheckboxGroup {
   readonly name = input<string>();
   /** Whether the whole group is unavailable. Every box it holds is disabled whatever its own disabled says, and the group reflects aria-disabled. */
   readonly disabled = input(false, { transform: booleanAttribute });
-  /** A box was ticked or unticked; carries the whole set after the change. */
+  /** A box was ticked or unticked; carries the whole set after the change. The native change of the inner box is never stopped, so a listener on the document hears it; this event carries the value. */
   readonly valueChange = output<ArenaValueSet>();
 
   protected readonly label = computed(() => {

@@ -46,7 +46,7 @@ export interface ArenaButtonProps {
   /** Whether the control is reached from the page's Tab sequence. Set false when it lives inside a composite that manages its own focus (a grid with a roving tab stop, a menu). Reaching it by Tab there would be a second way in. Arena writes tabindex="-1" and the control stays programmatically focusable; a positive tab order is not expressible and never should be. Arena's own table is NOT that composite: its grid deliberately has no step-in, so a control in a cell keeps its place in the page Tab sequence. Setting this false there takes away its only keyboard route, since the cursor moves by cell and Enter activates the row. */
   tabStop?: boolean;
 
-  /** The button was activated, by pointer or by keyboard. */
+  /** The button was activated, by pointer or by keyboard. The native click is never stopped, so a listener on the document hears every click inside the button; this event reports only the activation. */
   onActivate?: () => void;
 
   /** Written by Arena's popover and menu when this button is their trigger: what it opens. */

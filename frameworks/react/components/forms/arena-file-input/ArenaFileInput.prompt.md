@@ -31,7 +31,7 @@ async function upload() {
 | `multiple` | primitive | `boolean` | `false` | Whether more than one file may be held. With it a pick or a drop appends, and a file already held, the same name, size and modified time, is held once. Without it a pick replaces the selection, and every accepted file after the first in one drop is refused as surplus. |
 | `maxSize` | primitive | `number` |  | The largest file held, in bytes; a file of exactly this size is held. A bigger one is refused and never held. |
 | `droppable` | primitive | `boolean` | `false` | Whether the field is a drop zone with a dashed frame. Without it the field cancels no drag and a file dropped on it is the browser's. The trigger is the keyboard route either way. |
-| `onChange` | event | `ArenaFileSelection` |  | The selection changed through a pick, a drop or a chip's remove; carries the whole selection as metadata, in held order. A clear the host asks for, and a form reset, fire nothing. |
+| `onValueChange` | event | `ArenaFileSelection` |  | The selection changed through a pick, a drop or a chip's remove; carries the whole selection as metadata, in held order. A clear the host asks for, and a form reset, fire nothing. The native change of the inner input is never stopped, so a listener on the document hears it; this event carries the value. |
 | `onReject` | event | `ArenaFileRejection` |  | Files in the last pick or drop were refused; carries their names by reason. Never fires empty. |
 
 <!-- @api end -->

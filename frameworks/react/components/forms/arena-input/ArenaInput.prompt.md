@@ -35,7 +35,7 @@ Text field with validation (H5). Focus = the focus ring, error = the danger tone
 | `step` | primitive | `string` |  | Step, for number/date types. |
 | `maxLength` | primitive | `number` |  | Caps the length. |
 | `pattern` | primitive | `string` |  | A regex the value must match. |
-| `onChange` | event | `string` |  | Edited; carries the new value. |
+| `onValueChange` | event | `string` |  | Edited; carries the new value. The native change of the inner field is never stopped, so a listener on the document hears it; this event carries the value. |
 | `onBlur` | event | `string` |  | Left the field; carries the value. |
 
 <!-- @api end -->

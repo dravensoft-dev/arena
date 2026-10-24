@@ -137,9 +137,9 @@ export class ArenaNumberField {
   readonly placeholder = input<string>();
   /** Submitted with the form as the plain decimal string, such as `1234.5`, through a hidden input; empty when the field is empty. The drawn field carries formatted text and is never submitted. */
   readonly name = input<string>();
-  /** A number was committed, clamped, and differs from the one before; carries it. */
+  /** A number was committed, clamped, and differs from the one before; carries it. The native change of the inner field is never stopped, so a listener on the document hears it; this event carries the value. */
   readonly valueChange = output<number>();
-  /** The field was committed empty. Never fires with `change` for one commit, and never for a field that was already empty. */
+  /** The field was committed empty. Never fires with `valueChange` for one commit, and never for a field that was already empty. */
   readonly clear = output<void>();
 
   private readonly held = linkedSignal<number | undefined>(() => this.value());

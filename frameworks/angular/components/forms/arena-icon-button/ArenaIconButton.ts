@@ -23,7 +23,7 @@ import { ArenaIcon } from '../../display/arena-icon/ArenaIcon';
             [attr.tabindex]="tabStop() ? null : -1"
             [attr.aria-label]="label()" [attr.title]="showLabel() ? null : label()"
             [attr.aria-pressed]="pressed() === undefined ? null : pressed()"
-            (click)="onClick($event)">
+            (click)="onClick()">
       <arena-icon [icon]="icon()" />
       @if (showLabel()) {
         <span [class]="styles().label()" [attr.data-arena-part]="parts.label">{{ label() }}</span>
@@ -59,7 +59,7 @@ export class ArenaIconButton {
   readonly form = input<string>();
   /** Whether the control is reached from the page's Tab sequence. Set false when the control lives inside a composite that manages its own focus, such as a grid with a roving tab stop or a menu. Reaching it by Tab there would be a second way in. Arena writes tabindex="-1" and the control stays programmatically focusable; a positive tab order is not expressible and never should be. */
   readonly tabStop = input(true, { transform: booleanAttribute });
-  /** The button was activated, by pointer or by keyboard. */
+  /** The button was activated, by pointer or by keyboard. The native click is never stopped, so a listener on the document hears every click inside the button; this event reports only the activation. */
   readonly activate = output<void>();
 
   protected readonly styles = computed(() => arenaIconButtonStyles({

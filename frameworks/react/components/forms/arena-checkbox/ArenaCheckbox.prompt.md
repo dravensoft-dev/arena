@@ -19,7 +19,7 @@ A single checkbox. Checked shows the primary fill with a check. `onValueChange` 
 | `required` | primitive | `boolean` | `false` | Must be checked for the form to submit. |
 | `name` | primitive | `string` |  | Submitted with the form. |
 | `value` | primitive | `string` |  | The value submitted under `name` when checked. |
-| `onChange` | event | `boolean` |  | Toggled; carries the new checked state. |
+| `onValueChange` | event | `boolean` |  | Toggled; carries the new checked state. The native change of the inner box is never stopped, so a listener on the document hears it; this event carries the value. |
 
 <!-- @api end -->
 

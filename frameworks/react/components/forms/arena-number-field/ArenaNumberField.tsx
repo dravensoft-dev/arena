@@ -79,7 +79,7 @@ export interface ArenaNumberFieldProps {
   /** Submitted with the form as the plain decimal string, such as `1234.5`, through a hidden input; empty when the field is empty. The drawn field carries formatted text and is never submitted. */
   name?: string;
 
-  /** A number was committed, clamped, and differs from the one before; carries it. */
+  /** A number was committed, clamped, and differs from the one before; carries it. The native change of the inner field is never stopped, so a listener on the document hears it; this event carries the value. */
   onValueChange?: (value: number) => void;
 
   /** The field was committed empty. Never fires with `onValueChange` for one commit, and never for a field that was already empty. */

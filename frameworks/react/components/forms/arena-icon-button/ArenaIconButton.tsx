@@ -43,7 +43,7 @@ export interface ArenaIconButtonProps {
   /** Whether the control is reached from the page's Tab sequence. Set false when the control lives inside a composite that manages its own focus, such as a grid with a roving tab stop or a menu. Reaching it by Tab there would be a second way in. Arena writes tabindex="-1" and the control stays programmatically focusable; a positive tab order is not expressible and never should be. */
   tabStop?: boolean;
 
-  /** The button was activated, by pointer or by keyboard. */
+  /** The button was activated, by pointer or by keyboard. The native click is never stopped, so a listener on the document hears every click inside the button; this event reports only the activation. */
   onActivate?: () => void;
 
   /** Written by Arena's popover and menu when this button is their trigger: what it opens. */

@@ -24,7 +24,7 @@ Styled native dropdown selector. `options` is an array of `{value, label}` objec
 | `valid` | primitive | `boolean` | `false` | Force the valid (success-tone check) state. |
 | `icon` | primitive | `string` |  | Phosphor class name drawn at the field's start through ArenaIcon. |
 | `name` | primitive | `string` |  | Submitted with the form. |
-| `onChange` | event | `string` |  | A different option was chosen; carries its value. |
+| `onValueChange` | event | `string` |  | A different option was chosen; carries its value. The native change of the inner select is never stopped, so a listener on the document hears it; this event carries the value. |
 
 <!-- @api end -->
 

@@ -43,7 +43,7 @@ const root = document.documentElement;
 before(() => { root.style.setProperty('--bp-md', '768px'); });
 after(() => { root.style.removeProperty('--bp-md'); });
 
-const ITEMS: readonly ArenaMenuItem[] = [{ id: 'a', label: 'Deploy to staging' }];
+const ITEMS: readonly ArenaMenuItem[] = [{ label: 'Deploy to staging' }];
 
 const MOUSE = (): MouseEvent => new MouseEvent('click', { bubbles: true, cancelable: true, button: 0 });
 const ENTER = (): KeyboardEvent => new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true });
