@@ -882,7 +882,8 @@ const NAMED = "export const TABS = [{ icon: 'ph-bold ph-kanban' }];\n";
 const GLYPH_TEXT = 'ph-kanban is in the sprite, and no literal in an ArenaIcon, arena-icon or icon attribute names it';
 
 test('a project whose every icon is a literal gets the glyph report, worded as what it measured (D2)', async () => {
-  const held = await glyphReportsFor(`${NAMED}export const A = () => <i className={TABS[0].icon} />;\n`);
+  const held = await glyphReportsFor(`${NAMED}export const A = () => <><ArenaIcon icon="ph-bold ph-star" />`
+    + '<ArenaButton icon={\'ph-bold ph-star\'}>x</ArenaButton><i className={TABS[0].icon} /></>;\n');
   assert.deepEqual(held.map((one) => one.message), [GLYPH_TEXT]);
 });
 
