@@ -95,8 +95,8 @@ export class ArenaTableRow {
   protected onKeydown(event: KeyboardEvent): void {
     if (!this.table.narrow() || !this.interactive()) return;
     if (event.key !== 'Enter' && event.key !== ' ') return;
-    event.preventDefault();
     if (!this.ownActivation(event)) return;
+    event.preventDefault();
     this.emit();
   }
 

@@ -76,6 +76,28 @@ async function dispatchOn<T extends { ran: number }>(
   }
 }
 
+async function spaceIn<T extends { ran: number }>(
+  host: new () => T,
+  pick: (el: HTMLElement) => HTMLElement,
+): Promise<{ heard: number; ran: number; prevented: boolean }> {
+  const fixture = TestBed.createComponent(host);
+  fixture.detectChanges();
+  await fixture.whenStable();
+  const space = new KeyboardEvent('keydown', { key: ' ', bubbles: true, cancelable: true });
+  let heard = 0;
+  const count = (): void => { heard += 1; };
+  document.addEventListener('keydown', count);
+  try {
+    pick(fixture.nativeElement as HTMLElement).dispatchEvent(space);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    return { heard, ran: fixture.componentInstance.ran, prevented: space.defaultPrevented };
+  } finally {
+    document.removeEventListener('keydown', count);
+    fixture.destroy();
+  }
+}
+
 const part = (el: HTMLElement, name: string): HTMLElement => {
   const found = el.querySelector<HTMLElement>(`[data-arena-part="${name}"]`);
   assert.ok(found, `${name} did not render`);
@@ -120,6 +142,19 @@ test('ArenaCard: a disabled interactive card hears the click and activates nothi
 test('ArenaCard: Enter on an interactive card reaches the document as a keydown (N3)', async () => {
   const r = await dispatchOn(CardHost, { interactive: true }, 'keydown', cardRoot);
   assert.deepEqual([r.heard, r.ran], [1, 1]);
+});
+
+@Component({
+  selector: 'nr-cardfieldhost',
+  standalone: true,
+  imports: [ArenaCard],
+  template: `<arena-card title="Form" [interactive]="true" (activate)="ran = ran + 1"><input aria-label="Note" /></arena-card>`,
+})
+class CardFieldHost { ran = 0; }
+
+test('ArenaCard: Space in a field inside an interactive card types into the field and activates nothing (N3)', async () => {
+  const r = await spaceIn(CardFieldHost, (el) => el.querySelector('input') as HTMLElement);
+  assert.deepEqual([r.heard, r.ran, r.prevented], [1, 0, false]);
 });
 
 test('ArenaCard: a click on the href card\'s anchor reaches the document and activates once', async () => {
@@ -240,6 +275,36 @@ test('ArenaTableRow: Enter on an interactive card-layout row reaches the documen
       return row;
     });
     assert.deepEqual([r.heard, r.ran], [1, 1]);
+  } finally {
+    restore();
+  }
+});
+
+@Component({
+  selector: 'nr-rowfieldhost',
+  standalone: true,
+  imports: [ArenaTable, ArenaTableRow, ArenaTableCell],
+  template: `
+    <arena-table label="Deployments" [columns]="columns">
+      <tr arena-table-row [interactive]="true" (activate)="ran = ran + 1">
+        <td arena-table-cell><input aria-label="Note" /></td>
+      </tr>
+    </arena-table>
+  `,
+})
+class RowFieldHost {
+  readonly columns = [{ header: 'Note' }];
+  ran = 0;
+}
+
+test('ArenaTableRow: Space in a field inside an interactive card-layout row types into the field and activates nothing (N3)', async () => {
+  const restore = stubResize(400);
+  try {
+    const r = await spaceIn(RowFieldHost, (el) => {
+      assert.equal(el.querySelector('tr[arena-table-row]')?.getAttribute('role'), 'button', 'the narrow table did not draw the card shape');
+      return el.querySelector('input') as HTMLElement;
+    });
+    assert.deepEqual([r.heard, r.ran, r.prevented], [1, 0, false]);
   } finally {
     restore();
   }

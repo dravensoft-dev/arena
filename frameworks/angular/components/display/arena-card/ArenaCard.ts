@@ -107,8 +107,8 @@ export class ArenaCard {
 
   protected onKeydown(event: KeyboardEvent): void {
     if (!this.interactive() || (event.key !== 'Enter' && event.key !== ' ')) return;
-    event.preventDefault();
     if (!this.ownActivation(event)) return;
+    event.preventDefault();
     this.emit();
   }
 

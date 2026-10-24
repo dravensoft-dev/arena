@@ -70,6 +70,7 @@ export function ArenaTableRow({ className,
         aria-disabled={interactive && disabled ? 'true' : undefined}
         onKeyDown={activate ? (e) => {
           if (e.key !== 'Enter' && e.key !== ' ') return;
+          if (!isArenaOwnActivation(e.target, e.currentTarget)) return;
           e.preventDefault();
           activate(e);
         } : undefined}

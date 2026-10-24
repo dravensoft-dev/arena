@@ -49,6 +49,8 @@ function heardByDocument(el: Element, event: Event): number {
   return heard;
 }
 
+const space = () => new KeyboardEvent('keydown', { key: ' ', bubbles: true, cancelable: true });
+
 const part = (root: ParentNode, name: string) => root.querySelector<HTMLElement>(`[data-arena-part="${name}"]`)!;
 
 test("ArenaCard: a click on a plain card's body reaches the document and activates nothing", () => {
@@ -77,6 +79,13 @@ test('ArenaCard: Enter on an interactive card reaches the document as a keydown 
   const root = mount(<ArenaCard title="Card" interactive onActivate={() => { n += 1; }}>Body</ArenaCard>);
   assert.equal(heardByDocument(root.firstElementChild!, enter()), 1);
   assert.equal(n, 1);
+});
+
+test('ArenaCard: Space in a field inside an interactive card types into the field and activates nothing (N3)', () => {
+  let n = 0;
+  const root = mount(<ArenaCard title="Form" interactive onActivate={() => { n += 1; }}><input aria-label="Note" /></ArenaCard>);
+  const key = space();
+  assert.deepEqual([heardByDocument(root.querySelector('input')!, key), n, key.defaultPrevented], [1, 0, false]);
 });
 
 test("ArenaCard: a click on the href card's anchor reaches the document and activates once", () => {
@@ -164,6 +173,20 @@ test('ArenaTableRow: Enter on an interactive card-layout row reaches the documen
   );
   assert.equal(heardByDocument(root.querySelector('tr')!, enter()), 1);
   assert.equal(n, 1);
+});
+
+test('ArenaTableRow: Space in a field inside an interactive card-layout row types into the field and activates nothing (N3)', () => {
+  let n = 0;
+  const root = mount(
+    <table role="presentation"><tbody role="presentation">
+      <ArenaTableRow layout="card" interactive columns={[{ header: 'Note' }]} onActivate={() => { n += 1; }}>
+        <ArenaTableCell><input aria-label="Note" /></ArenaTableCell>
+      </ArenaTableRow>
+    </tbody></table>,
+  );
+  assert.equal(root.querySelector('tr')!.getAttribute('role'), 'button', 'the row did not draw the card shape');
+  const key = space();
+  assert.deepEqual([heardByDocument(root.querySelector('input')!, key), n, key.defaultPrevented], [1, 0, false]);
 });
 
 const chip = (onActivate: () => void, extra: Record<string, unknown> = {}) => (
