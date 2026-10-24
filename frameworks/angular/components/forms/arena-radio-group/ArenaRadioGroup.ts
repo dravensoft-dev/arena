@@ -69,7 +69,7 @@ export class ArenaRadioGroup {
     };
     this.state.resync = () => {
       const selected = this.state.selected();
-      for (const input of this.host.nativeElement.querySelectorAll('input[type="radio"]')) {
+      for (const input of this.host.nativeElement.querySelectorAll<HTMLInputElement>('input[type="radio"]')) {
         input.checked = input.value === selected;
       }
     };
