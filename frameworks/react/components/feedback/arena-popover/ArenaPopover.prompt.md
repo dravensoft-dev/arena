@@ -50,7 +50,7 @@ const [open, setOpen] = useState(false);
 **Do / Don't**
 - The trigger must have an accessible name, and `label` names the panel: "Filters", not "Popover".
 - **The trigger must be a control, not a picture of one.** Pass an `ArenaButton`, an `ArenaIconButton`, or your own element carrying a button role and a tabindex; Arena reports anything else once at runtime.
-- Keep one primary button in the panel, and give it the action the panel exists for.
+- Give the panel's action `arena-emphasis-secondary` when the view behind it already holds its primary. The action takes the primary only when it is the view's own action, because a popover is part of the view and not a scope of its own.
 - Don't use it as a menu of actions: that is `ArenaMenu`. Don't open it on hover: a hover-only panel is unreachable from a keyboard, and a description on hover is `ArenaTooltip`.
 - Don't make it modal and don't nest a popover in a popover. A menu or a select inside it is fine.
 
