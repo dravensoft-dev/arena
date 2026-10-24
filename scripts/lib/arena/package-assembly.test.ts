@@ -359,7 +359,7 @@ test('the catalogue lists every property the shipped CSS declares beyond tokens,
 test('a property named inside a string or a comment is not a channel the shipped CSS declares', () => {
   const root = mkdtempSync(join(tmpdir(), 'arena-channels-'));
   try {
-    const shipped = [...CSS_CHAIN.map(({ from }) => from), 'frameworks/tailwind/Utilities.generated.css',
+    const shipped = [...CSS_CHAIN.flatMap(({ from }) => (from === undefined ? [] : [from])), 'frameworks/tailwind/Utilities.generated.css',
       ...THEME_SOURCES.theme, ...THEME_SOURCES.utilities];
     for (const rel of shipped) {
       mkdirSync(join(root, rel, '..'), { recursive: true });
