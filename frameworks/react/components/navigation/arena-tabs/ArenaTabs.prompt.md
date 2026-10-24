@@ -1,4 +1,4 @@
-A row of tabs and the one panel they switch between. The active tab has a crimson underline.
+A row of tabs and the one panel they switch between. The selected tab is marked by its selected rule.
 
 ```tsx
 <ArenaTabs defaultValue="overview" onValueChange={setView}>
@@ -46,7 +46,7 @@ A row of tabs and the one panel they switch between. The active tab has a crimso
   chart that measures itself, a subscription. Guard it on the value you already have from
   `onValueChange`, or render that view's body only once its tab has been chosen. Arena cannot make this
   decision for you: deferring the mount is what dangles the other tabs' `aria-controls`.
-- Don't reach for `style` to space the strip. The component takes none, because the panel already carries the gap below the underline.
+- Don't reach for `style` to space the strip. The component takes none, because the panel already carries the gap below the selected rule.
 
 **Checked by hand, because a suite cannot hold it.** happy-dom has no sequential focus navigation, so nothing asserts that Tab from a tab reaches the panel rather than the next tab. Serve the tree
 with `bun run demos`, open `frameworks/react/components/navigation/arena-tabs/ArenaTabs.demo.generated.html`,

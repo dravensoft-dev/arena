@@ -146,7 +146,7 @@ export const ROUTES: Route[] = [
       + 'document that says what the questions are and which answers carry the difference',
     entry: 'consumer',
     stops: ['skills/design/references/style-kernel.md'],
-    budget: 20_200,
+    budget: 20_500,
     reason:
       'paid once per project and never per screen, which is what lets it carry the whole surface '
       + 'the kernel exposes rather than a pointer to it, so a project stops learning the kernel from '
@@ -160,7 +160,7 @@ export const ROUTES: Route[] = [
       + 'which roles carry a default and that the root answers the rest. It says where a project with no clone '
       + 'fetches the default plugin. The roster grows per role. '
       + 'The hand checklist names each unanswered role. A plugin class goes on any element. '
-      + 'It says what each kind of role may be answered with, which a project cannot infer from the roster.',
+      + 'It says what each kind of role may be answered with, which a project cannot infer from the roster. Also the selected tab\'s rule.',
   },
   {
     name: 'consumer-register',
@@ -268,7 +268,7 @@ export const ROUTES: Route[] = [
       + 'column it sits in and how much air goes between two components',
     entry: 'consumer',
     stops: ['skills/design/references/page.md', 'skills/design/references/style.md'],
-    budget: 25_500,
+    budget: 25_600,
     reason:
       'paid per element a builder draws themselves, which every screen has. What it buys is the '
       + 'half of a page that is never a component: which colour role each thing a builder draws takes '
@@ -280,7 +280,7 @@ export const ROUTES: Route[] = [
       + 'sheet\'s variants, where a value no step names is set, and the rule that paints the floor with '
       + 'where each layer puts it. The style reference also holds the '
       + 'layout container, the page column\'s width and the sizing section for each layer, and '
-      + 'names each layer\'s breakpoint helper and the quiet ink level. '
+      + 'names each layer\'s breakpoint helper, the quiet ink level and the selected tab\'s rule. '
       + 'The style page prints the '
       + 'default plugin\'s layout answers and sends density values to the token table. Arena paints no selection or scrollbar, so a recipe gives one. '
       + 'It says which palette, style plugin and density an overlay takes from its trigger, and where an island paints its ground.',

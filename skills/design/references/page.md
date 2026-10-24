@@ -94,6 +94,7 @@ Each role's full description is one entry in
 | the line around a floating surface | `--edge-surface-floating` |
 | the line around a control, a quiet control, a field, a marker | `--edge-control`, `--edge-control-quiet`, `--edge-field`, `--edge-marker` |
 | the rule dividing one thing from the next inside a surface | `--edge-separator` |
+| the rule under the selected tab | `--edge-tab-selected` |
 | the wash a media frame draws under anything laid over it | `--overlay-media` |
 
 Each edge role has a width beside it: `--bw-surface`, `--bw-control`, `--bw-field`,
