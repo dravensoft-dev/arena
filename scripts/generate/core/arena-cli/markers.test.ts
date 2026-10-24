@@ -115,6 +115,13 @@ test('a marker inside an @if or @for block with one root is still charged to the
   ), [{ attribute: 'action', host: 'arena-card' }, { attribute: 'action', host: 'arena-card' }]);
 });
 
+test('a void element written without a slash does not break the charge of a later sibling', () => {
+  assert.deepEqual(markerUses(
+    '<arena-card><img src="a"><input type="text"><br><button action>x</button></arena-card>',
+    { 'arena-card': ['action'] },
+  ), [{ attribute: 'action', host: 'arena-card' }]);
+});
+
 test('a plain element between the marker and the host breaks the charge', () => {
   assert.deepEqual(markerUses('<arena-card><div><button action>x</button></div></arena-card>', { 'arena-card': ['action'] }), []);
 });

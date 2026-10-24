@@ -24,6 +24,8 @@ export function stripAttributeValues(template: string): string {
   return template.replace(/"[^"]*"/g, '""').replace(/'[^']*'/g, "''");
 }
 
+const VOID = new Set(['area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'source', 'track', 'wbr']);
+
 export function markerUses(template: string, markers: MarkerMap) {
   const attributes = new Set(Object.values(markers).flat());
   const uses: Array<{ attribute: string; host: string }> = [];
@@ -43,7 +45,7 @@ export function markerUses(template: string, markers: MarkerMap) {
       const host = stack[stack.length - 1];
       if (host && (markers[host] ?? []).includes(attribute)) uses.push({ attribute, host });
     }
-    if (!selfClosing) stack.push(name);
+    if (!selfClosing && !VOID.has(name.toLowerCase())) stack.push(name);
   }
   return uses;
 }
