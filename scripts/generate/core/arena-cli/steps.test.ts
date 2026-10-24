@@ -136,7 +136,7 @@ function skinned(rules: string, extra: Record<string, string> = {}) {
   return root;
 }
 
-const named = (found: { reports: { rule?: string }[] }, rule: string) => found.reports.filter((one) => one.rule === rule);
+const named = (found: { reports: { rule?: string; message: string }[] }, rule: string) => found.reports.filter((one) => one.rule === rule);
 
 test('a plugin rule reading a property nothing declares is unknown-property, with the nearest name when one is close', () => {
   const root = skinned('[data-arena-part="button"] {\n  color: var(--arena-nothing, transparent);\n  gap: var(--spacing-rwo);\n}\n');
@@ -199,7 +199,7 @@ test('a catalogue without channels or a vocabulary without parts reads nothing',
   const root = skinned('[data-arena-part="menu.nope"] { color: var(--arena-nothing, transparent); }\n');
   const { channels: _, ...bare } = CATALOGUE;
   const { parts: __, ...flat } = VOCABULARY;
-  for (const [catalogue, vocabulary] of [[null, VOCABULARY], [bare, VOCABULARY], [CATALOGUE, null], [CATALOGUE, flat]] as const) {
+  for (const [catalogue, vocabulary] of [[null, VOCABULARY], [bare, VOCABULARY], [CATALOGUE, null], [CATALOGUE, flat]] as [TokenCatalogue | null, VocabularyIndex | null][]) {
     const found = auditStep(options(root), null, catalogue, vocabulary);
     if (!catalogue?.channels) assert.equal(named(found, 'unknown-property').length, 0);
     if (!vocabulary?.parts) assert.equal(named(found, 'unknown-part').length, 0);

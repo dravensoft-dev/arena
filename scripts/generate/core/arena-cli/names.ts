@@ -41,7 +41,7 @@ export function unknownPart(part: string, parts: Record<string, Record<string, s
     .sort((one, two) => two.length - one.length || (one < two ? -1 : 1))[0];
   const near = prefix ?? nearestName(part, hooks.keys());
   if (!prefix || !near) return { near, hook: null };
-  const hook = `data-arena-${part.slice(near.length + 1)}`;
+  const hook = `data-arena-${part.replace(`${near}-`, '')}`;
   return { near, hook: hooks.get(near)?.has(hook) ? hook : null };
 }
 
