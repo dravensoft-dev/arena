@@ -20,6 +20,7 @@ import { ArenaSplitButton } from '../components/forms/arena-split-button/ArenaSp
 import { ArenaTreeView } from '../components/navigation/arena-tree-view/ArenaTreeView.tsx';
 import { ArenaSlider } from '../components/forms/arena-slider/ArenaSlider.tsx';
 import { ArenaRadioGroup } from '../components/forms/arena-radio-group/ArenaRadioGroup.tsx';
+import { ArenaCheckbox } from '../components/forms/arena-checkbox/ArenaCheckbox.tsx';
 import { ArenaCheckboxGroup } from '../components/forms/arena-checkbox-group/ArenaCheckboxGroup.tsx';
 import { ArenaBreadcrumbs } from '../components/navigation/arena-breadcrumbs/ArenaBreadcrumbs.tsx';
 import { ArenaActivityFeed } from '../components/display/arena-activity-feed/ArenaActivityFeed.tsx';
@@ -53,6 +54,7 @@ const WITH_A_BLANK_NAME = new Map([
   ['ArenaSideNav', () => <ArenaSideNav ariaLabel={BLANK}><ArenaSideNavItem id="a" label="Alpha" /></ArenaSideNav>],
   ['ArenaSideNavSection', () => <ArenaSideNavSection label={BLANK}><ArenaSideNavItem id="a" label="Alpha" /></ArenaSideNavSection>],
   ['ArenaRadioGroup', () => <ArenaRadioGroup ariaLabel={BLANK} value="a" />],
+  ['ArenaCheckbox', () => <ArenaCheckbox label={BLANK} />],
   ['ArenaCheckboxGroup', () => <ArenaCheckboxGroup ariaLabel={BLANK} />],
   ['ArenaCombobox', () => <ArenaCombobox label={BLANK} options={[]} />],
   ['ArenaMultiSelect', () => <ArenaMultiSelect label={BLANK} options={[]} />],

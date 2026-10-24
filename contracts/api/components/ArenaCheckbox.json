@@ -4,7 +4,8 @@
   "affordances": ["focus"],
   "api": {
     "checked": { "form": "primitive", "type": "boolean", "default": false, "description": "Whether it is ticked." },
-    "label": { "form": "primitive", "type": "string", "description": "Text beside the box." },
+    "label": { "form": "primitive", "type": "string", "required": true, "description": "The checkbox's accessible name, and the text beside the box unless `showLabel` is false. Required, and guarded at runtime after trimming: a checkbox with no name is announced as an unlabelled checkbox." },
+    "showLabel": { "form": "primitive", "type": "boolean", "default": true, "description": "Whether the label is drawn beside the box. False keeps the name on the input for assistive technology and draws nothing, for a row-selection box with no room for text." },
     "disabled": { "form": "primitive", "type": "boolean", "default": false, "description": "Blocks toggling and dims it." },
     "required": { "form": "primitive", "type": "boolean", "default": false, "description": "Must be checked for the form to submit." },
     "name": { "form": "primitive", "type": "string", "description": "Submitted with the form." },

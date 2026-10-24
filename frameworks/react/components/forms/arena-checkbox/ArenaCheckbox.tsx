@@ -11,8 +11,11 @@ export interface ArenaCheckboxProps {
   /** Whether it is ticked. */
   checked?: boolean;
 
-  /** Text beside the box. */
-  label?: string;
+  /** The checkbox's accessible name, and the text beside the box unless `showLabel` is false. Required, and guarded at runtime after trimming: a checkbox with no name is announced as an unlabelled checkbox. */
+  label: string;
+
+  /** Whether the label is drawn beside the box. False keeps the name on the input for assistive technology and draws nothing, for a row-selection box with no room for text. */
+  showLabel?: boolean;
 
   /** Blocks toggling and dims it. */
   disabled?: boolean;
@@ -33,7 +36,8 @@ export interface ArenaCheckboxProps {
 
 const arenaCheckboxStyles = arenaStyles(manifest);
 
-export function ArenaCheckbox({ className, checked = false, onChange, label, disabled = false, required = false, name, value }: ArenaCheckboxProps) {
+export function ArenaCheckbox({ className, checked = false, onChange, label, showLabel = true, disabled = false, required = false, name, value }: ArenaCheckboxProps) {
+  if (!label?.trim()) throw new Error('ArenaCheckbox: `label` is required, and names the checkbox');
   const styles = arenaCheckboxStyles({ checked, disabled });
   return (
     <label className={arenaClassName('ArenaCheckbox', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
@@ -44,8 +48,8 @@ export function ArenaCheckbox({ className, checked = false, onChange, label, dis
           </svg>
         )}
       </span>
-      {label && <span className={styles.label()} data-arena-part={manifest.parts.label} {...styles.$data.label()}>{label}</span>}
-      <input type="checkbox" checked={checked} name={name} value={value} required={required}
+      {showLabel && <span className={styles.label()} data-arena-part={manifest.parts.label} {...styles.$data.label()}>{label}</span>}
+      <input type="checkbox" checked={checked} name={name} value={value} required={required} aria-label={showLabel ? undefined : label}
         onChange={(e) => onChange && onChange(e.target.checked)} disabled={disabled}
         className={styles.input()} data-arena-part={manifest.parts.input} {...styles.$data.input()} />
     </label>

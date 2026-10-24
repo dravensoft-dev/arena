@@ -15,7 +15,8 @@ Arena checkbox, one independent choice, checked showing a crimson fill with a ti
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
 | `checked` | primitive | `boolean` | `false` | Whether it is ticked. |
-| `label` | primitive | `string` |  | Text beside the box. |
+| `label*` | primitive | `string` |  | The checkbox's accessible name, and the text beside the box unless `showLabel` is false. Required, and guarded at runtime after trimming: a checkbox with no name is announced as an unlabelled checkbox. |
+| `showLabel` | primitive | `boolean` | `true` | Whether the label is drawn beside the box. False keeps the name on the input for assistive technology and draws nothing, for a row-selection box with no room for text. |
 | `disabled` | primitive | `boolean` | `false` | Blocks toggling and dims it. |
 | `required` | primitive | `boolean` | `false` | Must be checked for the form to submit. |
 | `name` | primitive | `string` |  | Submitted with the form. |
@@ -38,9 +39,10 @@ Arena checkbox, one independent choice, checked showing a crimson fill with a ti
 **Do / Don't**
 - The control is **controlled**. `checked` is what the consumer owns and pushes back in; the component
   never holds a copy, so a `(change)` you ignore is a checkbox that visibly does not move.
-- **Always pass `label`.** The member is optional in the contract, and the accessible name comes from the
-  wrapping `<label>`'s own text, so a checkbox without one announces nothing. If the name must
-  live elsewhere on screen, the control is the wrong shape; reach for a labelled group instead.
+- **A checkbox always carries a name.** `label` is required and refused when blank. The wrapping `<label>`'s
+  text names the input. With no room for text, as in a row-selection box, set `showLabel` to false.
+  The name stays on the input for assistive technology and nothing is drawn beside the box. Name the row
+  it selects (`label="Select Ada Lovelace"`).
 - `change` carries the new boolean, not the DOM event. `change` is an output named after a native DOM event, so Angular would register both the output subscription and a host DOM listener. A consumer's `(change)` would then fire twice, and the inner input calls `stopPropagation()` to make it fire once. The cost is that a native `change` never reaches an ancestor, bind on the
   `<arena-checkbox>` itself.
 - `disabled` and `required` land on the native input, never as `aria-disabled` or

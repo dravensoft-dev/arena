@@ -57,3 +57,17 @@ test('ArenaCheckbox drops a consumer attribute -- the {...rest} escape is gone',
   const html = renderToStaticMarkup(<ArenaCheckbox label="A" data-stray="x" />);
   assert.doesNotMatch(html, /data-stray/, 'a consumer attribute reached the rendered root -- the {...rest} escape is back');
 });
+
+test('a checkbox with a blank label is refused', () => {
+  assert.throws(() => renderToStaticMarkup(<ArenaCheckbox label="   " />), /^Error: ArenaCheckbox:/);
+});
+
+test('a blank label is refused even with showLabel false', () => {
+  assert.throws(() => renderToStaticMarkup(<ArenaCheckbox label="   " showLabel={false} />), /^Error: ArenaCheckbox:/);
+});
+
+test('showLabel false draws no label and keeps the name on the input', () => {
+  const html = renderToStaticMarkup(<ArenaCheckbox label="Select row" showLabel={false} />);
+  assert.doesNotMatch(html, /data-arena-part="checkbox\.label"/);
+  assert.match(html, /<input[^>]*aria-label="Select row"/);
+});

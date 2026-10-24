@@ -31,10 +31,11 @@ export const ARENA_CHECK_STROKE_STYLE = { strokeWidth: 'var(--bw-strong)' };
           </svg>
         }
       </span>
-      @if (label(); as text) {
-        <span [class]="styles().label()" [attr.data-arena-part]="parts.label">{{ text }}</span>
+      @if (showLabel()) {
+        <span [class]="styles().label()" [attr.data-arena-part]="parts.label">{{ accessibleName() }}</span>
       }
       <input type="checkbox" [class]="styles().input()" [attr.data-arena-part]="parts.input" [checked]="drawn()"
+             [attr.aria-label]="showLabel() ? null : accessibleName()"
              [attr.name]="formName()" [attr.value]="value()" [required]="required()"
              [disabled]="off()" (change)="onChange($event)" />
     </label>
@@ -47,6 +48,11 @@ export class ArenaCheckbox {
   protected readonly drawn = computed(() => {
     if (this.group) return this.group.values().includes(this.groupValue());
     return this.binding.bound() ? (this.binding.value() as boolean) : this.checked();
+  });
+  protected readonly accessibleName = computed(() => {
+    const text = this.label();
+    if (!text.trim()) throw new Error('ArenaCheckbox: `label` is required, and names the checkbox');
+    return text;
   });
   protected readonly off = computed(() => this.disabled() || this.binding.disabled() || (this.group?.disabled() ?? false));
   protected readonly formName = computed(() => (this.group ? this.group.groupName() : this.name()));
@@ -63,8 +69,10 @@ export class ArenaCheckbox {
 
   /** Whether it is ticked. */
   readonly checked = input(false, { transform: booleanAttribute });
-  /** Text beside the box. */
-  readonly label = input<string>();
+  /** The checkbox's accessible name, and the text beside the box unless `showLabel` is false. Required, and guarded at runtime after trimming: a checkbox with no name is announced as an unlabelled checkbox. */
+  readonly label = input.required<string>();
+  /** Whether the label is drawn beside the box. False keeps the name on the input for assistive technology and draws nothing, for a row-selection box with no room for text. */
+  readonly showLabel = input(true, { transform: booleanAttribute });
   /** Blocks toggling and dims it. */
   readonly disabled = input(false, { transform: booleanAttribute });
   /** Must be checked for the form to submit. */
