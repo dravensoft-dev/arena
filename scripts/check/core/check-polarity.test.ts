@@ -100,9 +100,14 @@ test('a selector list answers a theme through any one of its selectors', () => {
   assert.deepEqual(strayProblems(blocks, THEMES), []);
 });
 
-test('a colors.css held in the defaults layer keeps both polarity blocks under their own selectors', () => {
+const unlayered = (css: string) => css.replace(/@layer\s+[^{};]*;\s*/g, '').replace(/@layer arena-defaults\s*\{([\s\S]*)\}\s*$/, '$1');
+
+test('colors.css held in the defaults layer keeps both polarity blocks under their own selectors, as its unlayered body does', () => {
   const css = readFileSync(join(repoRoot, 'contracts/design/colors.css'), 'utf8');
-  const blocks = blocksIn(`@layer arena-defaults {\n${css}\n}\n`);
+  const body = unlayered(css);
+  assert.ok(css.includes('@layer arena-defaults {') && !body.includes('@layer'), 'the body is the layer\'s contents');
+  const blocks = blocksIn(css);
+  assert.deepEqual(blocks, blocksIn(body));
   assert.match(blocks.get(':root,.arena-dark') ?? '', /color-scheme:dark/);
   assert.match(blocks.get('.arena-light') ?? '', /color-scheme:light/);
 });

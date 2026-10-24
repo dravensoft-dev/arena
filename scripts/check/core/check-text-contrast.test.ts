@@ -77,20 +77,35 @@ test('a held-back alias that reads a level resolves at the level the block decla
   assert.throws(() => resolvePercent(mix, 'mute'), /--mute/);
 });
 
+function literalAliases(block: string) {
+  const bare = (value: string) => {
+    let out = value;
+    for (let before = ''; before !== out;) { before = out; out = out.replace(/var\([^()]*\)/g, ''); }
+    return out;
+  };
+  return [...block.matchAll(/--([\w-]+)\s*:\s*([^;]+);/g)]
+    .filter(([, name, value]) => !(name ?? '').startsWith('level-') && /\d%/.test(bare(value ?? '')))
+    .map(([, name]) => name);
+}
+
 test('the disabled text and the scrim are the two aliases in colors.css that hold a fixed percentage, with no level', () => {
   const block = structureOf(readFileSync(join(repoRoot, 'contracts/design/colors.css'), 'utf8'), SELECTORS)
     .replace(/\/\*[\s\S]*?\*\//g, '');
-  const literal = [...block.matchAll(/--([\w-]+)\s*:\s*([^;]+);/g)]
-    .filter(([, name, value]) => !(name ?? '').startsWith('level-') && /\d%/.test(value ?? ''))
-    .map(([, name]) => name);
-  assert.deepEqual(literal, ['mute-2-disabled', 'scrim']);
+  assert.deepEqual(literalAliases(block), ['mute-2-disabled', 'scrim']);
 });
 
-test('a colors.css held in the defaults layer reads as the same alias block', () => {
+test('a percentage inside a var() fallback is not a literal the alias holds', () => {
+  assert.deepEqual(literalAliases('--x:color-mix(in oklab,var(--c) var(--level-x,62%),transparent);--y:color-mix(in oklab,var(--c) 40%,transparent);'), ['y']);
+});
+
+const unlayered = (css: string) => css.replace(/@layer\s+[^{};]*;\s*/g, '').replace(/@layer arena-defaults\s*\{([\s\S]*)\}\s*$/, '$1');
+
+test('colors.css held in the defaults layer reads as the same alias block as its unlayered body', () => {
   const css = readFileSync(join(repoRoot, 'contracts/design/colors.css'), 'utf8');
-  const layered = `@layer arena-defaults {\n${css}\n}\n`;
-  assert.equal(structureOf(layered, SELECTORS), structureOf(css, SELECTORS));
-  assert.ok(structureOf(layered, SELECTORS).includes('--text-strong'));
+  const body = unlayered(css);
+  assert.ok(css.includes('@layer arena-defaults {') && !body.includes('@layer'), 'the body is the layer\'s contents');
+  assert.equal(structureOf(css, SELECTORS), structureOf(body, SELECTORS));
+  assert.ok(structureOf(css, SELECTORS).includes('--text-strong'));
 });
 
 test('a retired token carries the token that replaces it, so the failure is actionable', () => {
