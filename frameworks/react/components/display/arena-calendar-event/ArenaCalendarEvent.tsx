@@ -91,7 +91,6 @@ HTMLElement, ArenaCalendarEventProps & Partial<ArenaCalendarEventInjected>
   });
 
 
-  const bodyIsButton = interactive && hasPanel;
 
   const activate = (e: React.SyntheticEvent) => {
     e.stopPropagation();
@@ -138,10 +137,10 @@ HTMLElement, ArenaCalendarEventProps & Partial<ArenaCalendarEventInjected>
   const name = [title, dateLabel, timeLabel, ...details].join(', ');
 
   return (
-    <ArenaTag ref={bodyIsButton ? undefined : setFocusable}
+    <ArenaTag ref={hasPanel ? undefined : setFocusable}
 
       type={interactive && !hasPanel ? 'button' : undefined}
-      tabIndex={bodyIsButton ? undefined : tabIndex}
+      tabIndex={hasPanel ? undefined : tabIndex}
       onClick={hasPanel ? undefined : activate}
       aria-label={interactive && !hasPanel ? name : undefined}
       aria-disabled={interactive && !hasPanel && disabled ? 'true' : undefined}
