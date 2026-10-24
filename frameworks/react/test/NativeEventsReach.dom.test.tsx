@@ -13,6 +13,7 @@ import { ArenaSplitButton } from '../components/forms/arena-split-button/ArenaSp
 import { ArenaTable } from '../components/display/arena-table/ArenaTable.tsx';
 import { ArenaTableRow } from '../components/display/arena-table-row/ArenaTableRow.tsx';
 import { ArenaTableCell } from '../components/display/arena-table-cell/ArenaTableCell.tsx';
+import { ArenaCalendar } from '../components/display/arena-calendar/ArenaCalendar.tsx';
 import { ArenaCalendarEvent } from '../components/display/arena-calendar-event/ArenaCalendarEvent.tsx';
 import { ArenaCheckbox } from '../components/forms/arena-checkbox/ArenaCheckbox.tsx';
 import { ArenaCheckboxGroup } from '../components/forms/arena-checkbox-group/ArenaCheckboxGroup.tsx';
@@ -152,12 +153,11 @@ test('ArenaTableRow: Enter on an interactive card-layout row reaches the documen
   assert.equal(n, 1);
 });
 
-const CHIP = {
-  box: {}, color: 'var(--color-cat-1)', timeLabel: '09:00 – 09:30', dateLabel: 'Monday 20 July', tabIndex: -1,
-};
 const chip = (onActivate: () => void, extra: Record<string, unknown> = {}) => (
-  <ArenaCalendarEvent id="a" title="Standup" start="2026-07-20T09:00:00Z" end="2026-07-20T09:30:00Z"
-    interactive onActivate={onActivate} {...CHIP} {...extra} />
+  <ArenaCalendar timeZone="UTC" anchorDate="2027-03-15" view="day" dayStart="09:00" dayEnd="11:00">
+    <ArenaCalendarEvent id="a" title="Standup" start="2027-03-15T09:00:00Z" end="2027-03-15T10:00:00Z"
+      colorId={1} interactive onActivate={onActivate} {...extra} />
+  </ArenaCalendar>
 );
 const buttonNamed = (root: ParentNode, name: RegExp) =>
   [...root.querySelectorAll<HTMLElement>('button')].find((b) => name.test(b.getAttribute('aria-label') ?? ''))!;
@@ -364,6 +364,7 @@ test('ArenaCheckboxGroup: a box keeps its own onValueChange and the group report
   const own: boolean[] = []; const sets: string[][] = [];
   const host = mount(<ArenaCheckboxGroup ariaLabel="Days" value={[]} onValueChange={(s) => sets.push([...s.values])}>
     <ArenaCheckbox value="mon" label="Mon" onValueChange={(c) => own.push(c)} /></ArenaCheckboxGroup>);
-  act(() => { (host.querySelector('input[type="checkbox"]') as HTMLInputElement).click(); });
+  const box = host.querySelector<HTMLInputElement>('input[type="checkbox"]')!;
+  assert.equal(heardWhile('change', () => act(() => { box.click(); })), 1);
   assert.deepEqual(own, [true]); assert.deepEqual(sets, [['mon']]);
 });
