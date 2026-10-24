@@ -60,7 +60,9 @@ test('the empty line sits in the panel after the listbox, not inside it', () => 
   let parentOfEmpty: string | null = null;
   let emptyInListbox = false;
   for (const m of html.matchAll(/<(\/?)([a-zA-Z][\w-]*)([^>]*)>/g)) {
-    const [, close, tag, attrs] = m;
+    const close = m[1] ?? '';
+    const tag = m[2] ?? '';
+    const attrs = m[3] ?? '';
     if (close) { stack.pop(); continue; }
     if (/data-arena-part="command-palette\.empty"/.test(attrs)) {
       parentOfEmpty = stack[stack.length - 1] ?? null;
@@ -69,6 +71,6 @@ test('the empty line sits in the panel after the listbox, not inside it', () => 
     if (!attrs.endsWith('/') && !voids.has(tag.toLowerCase())) stack.push(attrs);
   }
   assert.ok(parentOfEmpty !== null, 'no empty line was drawn');
-  assert.match(parentOfEmpty, /data-arena-part="command-palette\.panel"/, 'the empty line\'s parent is not the panel');
+  assert.match(parentOfEmpty ?? '', /data-arena-part="command-palette\.panel"/, 'the empty line\'s parent is not the panel');
   assert.equal(emptyInListbox, false, 'the listbox holds the empty line');
 });
