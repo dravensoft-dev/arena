@@ -7,6 +7,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 export function untypedButtons(source: string): number[] {
   const blank = source
@@ -50,7 +51,7 @@ function sources(dir: string): string[] {
 }
 
 test('no React component draws a button without a type', () => {
-  const root = join(import.meta.dir, '..', 'components');
+  const root = fileURLToPath(new URL('../components/', import.meta.url));
   const hits: string[] = [];
   for (const file of sources(root)) {
     for (const line of untypedButtons(readFileSync(file, 'utf8'))) hits.push(`${relative(root, file).split(sep).join('/')}:${line}`);
