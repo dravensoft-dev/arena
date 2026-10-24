@@ -1,9 +1,9 @@
 {
   "component": "ArenaPaletteScope",
   "slots": {
-    "root": "bg-base-100 text-base-content"
+    "root": "bg-base-100 text-base-content rounded-surface"
   },
   "kind": {
-    "root": "none"
+    "root": "surface"
   }
 }

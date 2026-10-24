@@ -42,6 +42,7 @@ A palette island: a subtree drawn in one palette while the page keeps another. S
 - Name a palette your theme config declares.
 
 **Don't**
+- Don't treat the scope as a card. The scope is the ground of a region, and its corners take the surface radius so that a scope around one card shows no corner of the other palette.
 - Don't use it to switch the page's theme. Page themes belong to `setArenaTheme` or `ArenaThemeService`, which write `<html>`.
 - Don't nest one only to repeat the palette the page already has.
 

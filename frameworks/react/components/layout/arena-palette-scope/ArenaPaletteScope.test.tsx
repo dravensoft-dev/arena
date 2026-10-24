@@ -4,6 +4,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import React from 'react';
 import { getArenaTheme, initArenaTheme } from '../../../Theme.ts';
 import { ArenaPaletteScope, useArenaPalette } from './ArenaPaletteScope.tsx';
+import tailwind from './ArenaPaletteScope.manifest.generated.ts';
 
 function Reader({ label }: { label: string }) {
   return <i data-reader={label}>{useArenaPalette()}</i>;
@@ -45,4 +46,9 @@ test('a server render draws the class of a palette the theme config does not dec
 test('the default palette is an island too', () => {
   const html = renderToStaticMarkup(<ArenaPaletteScope palette="dark">x</ArenaPaletteScope>);
   assert.match(html, /class="[^"]*\barena-dark\b/);
+});
+
+test("the scope's ground takes the surface radius and is a surface", () => {
+  assert.ok(tailwind.slots.root.split(/\s+/).includes('rounded-surface'), tailwind.slots.root);
+  assert.equal(tailwind.kind.root, 'surface');
 });

@@ -5,6 +5,9 @@ useTestEnvironment();
 
 import test, { afterEach } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { TAILWIND_COMPONENTS } from '../../../test/Compliance';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ArenaThemeService } from '../../../theme/ArenaThemeService';
@@ -170,4 +173,10 @@ test('a scope naming a declared palette leaves the page root and the theme servi
   fixture.detectChanges();
   assert.equal(root.className, before, 'the scope did not paint the page root');
   assert.equal(root.hasAttribute('style'), false);
+});
+
+test("the scope's ground takes the surface radius and is a surface", () => {
+  const source = JSON.parse(readFileSync(join(TAILWIND_COMPONENTS, 'layout/arena-palette-scope/ArenaPaletteScope.manifest.json'), 'utf8')) as { slots: Record<string, string>; kind: Record<string, string> };
+  assert.ok(source.slots['root']!.split(/\s+/).includes('rounded-surface'), source.slots['root']);
+  assert.equal(source.kind['root'], 'surface');
 });
