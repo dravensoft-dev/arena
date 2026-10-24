@@ -101,8 +101,8 @@ export class ArenaCard {
   }
 
   protected onClick(event: MouseEvent): void {
-    if (!this.interactive()) return;
     event.stopPropagation();
+    if (!this.interactive()) return;
     if (!this.ownActivation(event)) return;
     this.emit();
   }

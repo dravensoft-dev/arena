@@ -124,9 +124,8 @@ browser's and fire nothing, which is why the member is worth having over `intera
 nothing and the card is a plain link that navigates the document, which is the right shape
 outside a single-page application.
 
-**`(click)` on `arena-card` is two bindings wearing one name, and the card resolves it.** Angular subscribes the binding to the component's `click` output. Angular *also* adds a native listener for the DOM event of the same name. A click that reaches the host is counted twice. The card stops propagation on its own anchor. Stopping propagation is what makes `(click)` fire exactly once for the activation it owns, and not at all for the ones it leaves to the browser. Both halves are pinned; the
-consequence for you is that a click delegated from an ancestor of the card never sees an
-activation the card handled.
+**`(click)` on `arena-card` is two bindings wearing one name, and the card resolves it.** Angular subscribes the binding to the component's `click` output. Angular *also* adds a native listener for the DOM event of the same name. A click that reaches the host is counted twice. The card stops propagation of every click that starts inside it, interactive or not. Stopping propagation is what makes `(click)` fire exactly once for the activation it owns, and not at all for the ones it leaves to the browser. Both halves are pinned; the
+consequence for you is that a click delegated from an ancestor of the card never sees a press on a card, as `arena-table-row` does.
 
 **Do not put `routerLink` on `arena-card`.** `routerLink` would not work. `RouterLink` decides whether it is on an anchor from the host's `tagName`, and `arena-card` is neither an `<a>` nor a registered custom element. `RouterLink` ignores every modifier key and lands a second tab stop on the host, over the anchor the card already draws inside itself. The cancelled anchor is the reason `(click)` reports the activation at all.
 

@@ -251,3 +251,27 @@ test('a pointer click on the card itself still activates it, whatever it was ren
     fixture.destroy();
   }
 });
+
+@Component({
+  standalone: true,
+  imports: [ArenaCard],
+  template: `<div (click)="outer = outer + 1"><arena-card title="Plain" (click)="seen = seen + 1">Body</arena-card></div>`,
+})
+class PlainCardHost {
+  seen = 0;
+  outer = 0;
+}
+
+test('a non-interactive card stops every click that starts in it, so a host (click) never runs', () => {
+  const fixture = TestBed.createComponent(PlainCardHost);
+  fixture.detectChanges();
+  try {
+    const body = (fixture.nativeElement as HTMLElement).querySelector('arena-card')!.firstElementChild!.lastElementChild as HTMLElement;
+    click(body);
+    fixture.detectChanges();
+    assert.equal(fixture.componentInstance.seen, 0, 'a plain card reported a press it does not own');
+    assert.equal(fixture.componentInstance.outer, 0, 'a click delegated from an ancestor saw a press on a card');
+  } finally {
+    fixture.destroy();
+  }
+});
