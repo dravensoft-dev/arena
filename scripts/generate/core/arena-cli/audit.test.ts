@@ -10,7 +10,7 @@ import {
   paintedParts, sourceScope, outlineGap, kebabTag, HEADING_RUNGS, OWN_CLASS_ATTRIBUTE,
   LINKABLE_TAGS, WRAPPED_LINK_TAGS, statedRung, fillsWithDanger, namesAnAlias, RULE_TAGS, RULE_DESCRIPTIONS,
   UNMODELLED_UNITS, styleIdentifiers, styleObjectLines, unknownInputs,
-  iconMemberGlyphs, ownClassFindings, classValues, RAW_GLYPH_BOUND_MESSAGE, RAW_COLOUR_MESSAGE, RAW_HEX_MESSAGE, GRADIENT_MESSAGE, primaryMessage, DANGER_FILL_MESSAGE, type VocabularyIndex,
+  iconMemberGlyphs, ownClassFindings, classValues, valueResults, RAW_GLYPH_BOUND_MESSAGE, RAW_COLOUR_MESSAGE, RAW_HEX_MESSAGE, GRADIENT_MESSAGE, primaryMessage, DANGER_FILL_MESSAGE, type VocabularyIndex,
 } from './audit.ts';
 import { vocabularyIndex } from '../../../lib/arena/vocabulary-index.ts';
 
@@ -1025,6 +1025,47 @@ test('in a file naming a ph-* literal, a lone ngClass object and a glyph-free li
   assert.equal(lone.filter((line) => line.startsWith('src/a.html:2:')).length, 0);
   const literal = glyphLines('const A = "ph-bold ph-sun";\nconst B = () => <i className="tab__icon" />;');
   assert.equal(literal.length, 0);
+});
+
+const NAMES_REACT = "const I = 'ph-bold ph-star';\n";
+const NAMES_ANGULAR = '<arena-icon icon="ph-bold ph-star"></arena-icon>\n';
+const glyphCount = (react: string, angular: string) => [
+  glyphLines(NAMES_REACT + react).length,
+  glyphLines(NAMES_ANGULAR + angular, 'src/a.html').length,
+];
+
+test('the 50 reproduction prints no raw-glyph', () => {
+  assert.deepEqual(glyphLines(`${NAMES_REACT}<ArenaTag className={on ? 'arena-accent-primary' : undefined}>x</ArenaTag>`), []);
+});
+
+test('raw-glyph reads a bound class by its results, alike in both layers (D1, N1)', () => {
+  const rows: [string, string, string, number][] = [
+    ['identifier', '<div className={cls} />', '<div [class]="cls"></div>', 1],
+    ['ngClass identifier', '<div className={cls} />', '<div [ngClass]="cls"></div>', 1],
+    ['attr.class identifier', '<div className={cls} />', '<div [attr.class]="cls"></div>', 1],
+    ['interpolation', '<div className={`a ${cls}`} />', '<div class="{{ cls }}"></div>', 1],
+    ['toggle', "<ArenaTag className={on ? 'arena-accent-primary' : undefined} />", '<arena-tag [class.arena-accent-primary]="on"></arena-tag>', 0],
+    ['braced string', "<div className={'arena-a'} />", '<div class="arena-a"></div>', 0],
+    ['template, no substitution', '<div className={`arena-a`} />', "<div [class]=\"'arena-a'\"></div>", 0],
+    ['and', "<div className={on && 'arena-a'} />", "<div [ngClass]=\"{ 'arena-a': on }\"></div>", 0],
+    ['empty results', "<div className={a ? 'arena-a' : b ? null : false} />", "<div [class]=\"a ? 'arena-a' : ''\"></div>", 0],
+    ['or, N1', "<div className={cls || 'arena-a'} />", "<div [class]=\"cls ?? 'arena-a'\"></div>", 1],
+    ['Phosphor toggle', "<i className={on ? 'ph-bold ph-star' : 'ph-bold'} />", '<i class="ph-bold" [class.ph-star]="on"></i>', 1],
+  ];
+  for (const [label, react, angular, expected] of rows)
+    assert.deepEqual(glyphCount(react, angular), [expected, expected], label);
+  const toggled = glyphLines(`${NAMES_ANGULAR}<i class="ph-bold" [class.ph-star]="on"></i>`, 'src/a.html');
+  assert.ok(!(toggled[0] ?? '').includes('may hold'), 'a toggled Phosphor class gets the literal verdict');
+});
+
+test('valueResults skips quotes, optional chaining and wrapping parens (Review Focus 1-3)', () => {
+  assert.deepEqual(valueResults("{on ? 'a:b' : 'c?d'}"), ['a:b', 'c?d']);
+  assert.deepEqual(valueResults("{row?.on ? 'arena-a' : ''}"), ['arena-a']);
+  assert.deepEqual(valueResults("{(\n  on ? 'arena-a' : undefined\n)}"), ['arena-a']);
+  assert.equal(valueResults('{cls ?? null}'), null);
+  assert.equal(valueResults("{cn('arena-a', b)}"), null);
+  assert.deepEqual(valueResults("\"{ 'arena-a arena-b': on, active: x }\"", true), ['arena-a arena-b', 'active']);
+  assert.equal(valueResults('"{ [key]: on }"', true), null);
 });
 
 test('iconMemberGlyphs reads an attribute that follows a braced one (49)', () => {

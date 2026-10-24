@@ -24,7 +24,7 @@ export const RULE_DESCRIPTIONS: Record<(typeof RULE_TAGS)[number], string> = {
   'one-primary': 'A second action in one view, or in one modal, takes the primary emphasis by class or by leaving a primary-default component without one.',
   'outline-gap': 'A source draws Arena headings at two levels with a level missing between them, such as an h1 and an h3 with no h2.',
   'own-class': 'A component carries a class outside its vocabulary or a computed one, or a stylesheet targets an `arena-` class anywhere or a `data-arena-part` hook outside a style plugin.',
-  'raw-glyph': 'An element other than `ArenaIcon` holds a Phosphor glyph class, or binds its class in a file naming one and so may; Arena ships no icon font to paint it.',
+  'raw-glyph': 'An element other than `ArenaIcon` holds a Phosphor glyph class, or binds its class to a non-literal value in a file naming one; Arena ships no icon font.',
   'raw-value': 'A style holds a hex, colour or bare pixel length, or a gradient outside a style plugin unless `gradientMark` is set, or a class holds a non-token bracket value.',
   'router-link': 'A link of your own, such as `a`, `Link` or `routerLink`, directly wraps an Arena card, side nav item, bottom nav item or table cell.',
   'stale-allowance': 'An `arena-audit allow` marker sits on a line with nothing to exempt.',
@@ -590,10 +590,117 @@ export function classValues(raw: string) {
   return ownAttributeStarts(raw).map(({ from }) => attributeValueAt(raw, from)).join(' ');
 }
 
-function bindsClass(raw: string) {
+function closeOf(text: string, from: number): number {
+  const quote = text[from];
+  for (let i = from + 1; i < text.length; i += 1) {
+    const c = text[i];
+    if (c === '\\') i += 1;
+    else if (c === quote) return i;
+    else if (quote === '`' && c === '$' && text[i + 1] === '{') {
+      let depth = 0;
+      for (i += 1; i < text.length; i += 1) {
+        const e = text[i];
+        if (e === '"' || e === "'" || e === '`') i = closeOf(text, i);
+        else if (e === '{') depth += 1;
+        else if (e === '}') { depth -= 1; if (depth === 0) break; }
+      }
+    }
+  }
+  return text.length;
+}
+
+function topLevel(text: string): number[] {
+  const at: number[] = [];
+  let depth = 0;
+  for (let i = 0; i < text.length; i += 1) {
+    const c = text[i] ?? '';
+    if (c === '"' || c === "'" || c === '`') i = closeOf(text, i);
+    else if ('([{'.includes(c)) depth += 1;
+    else if (')]}'.includes(c)) depth -= 1;
+    else if (depth === 0) at.push(i);
+  }
+  return at;
+}
+
+function wrapsWhole(text: string): boolean {
+  let depth = 0;
+  for (let i = 0; i < text.length; i += 1) {
+    const c = text[i] ?? '';
+    if (c === '"' || c === "'" || c === '`') i = closeOf(text, i);
+    else if ('([{'.includes(c)) depth += 1;
+    else if (')]}'.includes(c)) { depth -= 1; if (depth === 0) return i === text.length - 1; }
+  }
+  return false;
+}
+
+function splitAt(text: string, marks: number[], width: number): string[] {
+  const parts: string[] = [];
+  let from = 0;
+  for (const mark of marks) {
+    parts.push(text.slice(from, mark));
+    from = mark + width;
+  }
+  return [...parts, text.slice(from)];
+}
+
+function joined(parts: (string[] | null)[]): string[] | null {
+  return parts.some((part) => part === null) ? null : parts.flat() as string[];
+}
+
+export function valueResults(expression: string, keys = false): string[] | null {
+  const bare = expression.trim();
+  const first = bare[0] ?? '';
+  const body = first === '{' && !keys ? bare.slice(1, -1)
+    : (first === '"' || first === "'") && closeOf(bare, 0) === bare.length - 1 ? bare.slice(1, -1) : bare;
+  return readResults(body, keys);
+}
+
+function readResults(source: string, keys: boolean): string[] | null {
+  let text = source.trim();
+  while (text.startsWith('(') && wrapsWhole(text)) text = text.slice(1, -1).trim();
+  if (['', 'undefined', 'null', 'false'].includes(text)) return [];
+  const opener = text[0] ?? '';
+  if ((opener === '"' || opener === "'" || opener === '`') && closeOf(text, 0) === text.length - 1) {
+    const inner = text.slice(1, -1);
+    if (opener === '`' && inner.includes('${')) return null;
+    return inner.trim() === '' ? [] : [inner];
+  }
+  const marks = topLevel(text);
+  const lone = (i: number) => text[i + 1] !== '?' && text[i - 1] !== '?' && text[i + 1] !== '.';
+  const ask = marks.find((i) => text[i] === '?' && lone(i));
+  if (ask !== undefined) {
+    let nested = 0;
+    const colon = marks.find((i) => {
+      if (i < ask) return false;
+      if (text[i] === '?' && i > ask && lone(i)) nested += 1;
+      else if (text[i] === ':') { if (nested === 0) return true; nested -= 1; }
+      return false;
+    });
+    if (colon === undefined) return null;
+    return joined([readResults(text.slice(ask + 1, colon), keys), readResults(text.slice(colon + 1), keys)]);
+  }
+  const either = marks.filter((i) => (text[i] === '|' && text[i + 1] === '|') || (text[i] === '?' && text[i + 1] === '?'));
+  if (either.length) return joined(splitAt(text, either, 2).map((part) => readResults(part, keys)));
+  const both = marks.filter((i) => text[i] === '&' && text[i + 1] === '&' && text[i - 1] !== '&');
+  if (both.length) return readResults(splitAt(text, both, 2).at(-1) ?? '', keys);
+  if (keys && text.startsWith('{') && wrapsWhole(text)) {
+    const inner = text.slice(1, -1);
+    const names = splitAt(inner, topLevel(inner).filter((i) => inner[i] === ','), 1)
+      .map((entry) => entry.trim()).filter(Boolean).map((entry) => {
+        if (entry.startsWith('...') || entry.startsWith('[')) return null;
+        if (/^["'`]/.test(entry)) return entry.slice(1, closeOf(entry, 0));
+        return entry.split(':')[0]?.trim() ?? '';
+      });
+    return joined(names.map((name) => (name === null ? null : name === '' ? [] : [name])));
+  }
+  return null;
+}
+
+export function boundClass(raw: string): boolean {
   return ownAttributeStarts(raw).some(({ name, from }) => {
     const value = attributeValueAt(raw, from);
-    return /\[class\]\s*=\s*$/.test(name) || value.startsWith('{') || value.includes('{{');
+    if (/^(?:className|class)\s*=\s*$/.test(name) && !value.startsWith('{')) return value.includes('{{');
+    return valueResults(value, name.startsWith('[ngClass]')) === null;
   });
 }
 
@@ -777,10 +884,11 @@ export function structuralFindings(text: string, vocabulary: VocabularyIndex | n
       found.push(at(lineAt(text, start), 'unknown-input', UNKNOWN_INPUT_MESSAGE(attribute, name)));
 
     if (kebabTag(name) !== 'arena-icon') {
-      const classes = classValues(raw);
+      const toggled = [...ownAttributes(raw).matchAll(CLASS_TOGGLE)].map((m) => group(m)).join(' ');
+      const classes = `${classValues(raw)} ${toggled}`;
       if (WEIGHT_TOKEN.test(classes) && GLYPH_TOKEN.test(classes))
         found.push(at(lineAt(text, start), 'raw-glyph', RAW_GLYPH_MESSAGE));
-      else if (namesGlyph && bindsClass(raw))
+      else if (namesGlyph && boundClass(raw))
         found.push(at(lineAt(text, start), 'raw-glyph', RAW_GLYPH_BOUND_MESSAGE));
     }
 
