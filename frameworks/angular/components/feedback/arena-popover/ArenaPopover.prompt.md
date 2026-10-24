@@ -4,7 +4,7 @@ Arena popover, a small panel a trigger opens, holding content of the consumer's 
 <arena-popover label="Filters" [open]="filtersOpen()" (openChange)="filtersOpen.set($event)">
   <arena-button trigger class="arena-emphasis-secondary">Filters</arena-button>
   <arena-input label="Branch" [value]="branch()" (change)="branch.set($event)" />
-  <arena-button (click)="apply(); filtersOpen.set(false)">Apply</arena-button>
+  <arena-button (activate)="apply(); filtersOpen.set(false)">Apply</arena-button>
 </arena-popover>
 ```
 

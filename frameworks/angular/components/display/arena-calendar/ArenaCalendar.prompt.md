@@ -7,7 +7,7 @@ Week or day schedule on a time grid: a toolbar, one column per day, events posit
   <arena-button actions class="arena-emphasis-secondary arena-size-sm">New class</arena-button>
   @for (c of classes(); track c.id) {
     <arena-calendar-event [id]="c.id" [title]="c.name" [start]="c.start" [end]="c.end"
-                          [colorId]="c.room" (click)="open(c)" />
+                          [colorId]="c.room" (activate)="open(c)" />
   }
 </arena-calendar>
 ```

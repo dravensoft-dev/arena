@@ -1,8 +1,7 @@
 /* menu-button binds flat on the caret, the subject passed because the host is display: contents.
- * The group's role and name are Arena's own design, asserted here directly. click is an output
- * named after a DOM event, so a consumer's (click) hears the output and the native event alike:
- * `clicks` counts what the consumer hears and `emitted` the output, and a caret press reaching the
- * consumer as a primary activation is the defect the caret's own stopped click prevents. */
+ * The group's role and name are Arena's own design, asserted here directly.
+ * `clicks` counts what the consumer hears through (activate) and `emitted` the output, and a
+ * caret press reaching the consumer as a primary activation is the defect the caret avoids. */
 
 import { useTestEnvironment, glyphIds, symbol } from '../../../test/TestbedEnv';
 useTestEnvironment();
@@ -28,7 +27,7 @@ const ITEMS: ArenaMenuItem[] = [{ label: 'Deploy to staging' }, { divider: true 
   imports: [ArenaSplitButton],
   template: `
     <arena-split-button label="Deployment" menuLabel="More deploy options" [items]="items" [icon]="icon()" [type]="type()"
-                        [loading]="loading()" [disabled]="disabled()" [destructive]="destructive()" (click)="clicks = clicks + 1">Deploy</arena-split-button>
+                        [loading]="loading()" [disabled]="disabled()" [destructive]="destructive()" (activate)="clicks = clicks + 1">Deploy</arena-split-button>
   `,
 })
 class Host {
@@ -57,7 +56,7 @@ function render(patch: Patch = {}) {
   const caret = root.querySelector<HTMLButtonElement>('[data-arena-part="split-button.caret"]')!;
   const emitted = { count: 0 };
   const instance = fixture.debugElement.query(By.directive(ArenaSplitButton)).componentInstance as ArenaSplitButton;
-  instance.click.subscribe(() => { emitted.count += 1; });
+  instance.activate.subscribe(() => { emitted.count += 1; });
   return { fixture, root, primary, caret, emitted, host };
 }
 
@@ -125,19 +124,19 @@ test('a click on the primary half reaches the consumer exactly once', () => {
   try {
     primary.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     fixture.detectChanges();
-    assert.equal(emitted.count, 1, 'the click output did not emit');
-    assert.equal(host.clicks, 1, 'a consumer binding (click) heard the emit and the native event both, or neither');
+    assert.equal(emitted.count, 1, 'the activate output did not emit');
+    assert.equal(host.clicks, 1, 'a consumer binding (activate) heard the emit more than once, or not at all');
     assertNoNode(panel(), 'the primary half opened the menu');
   } finally { fixture.destroy(); disposeOverlays(); }
 });
 
-test('a consumer\'s (click) hears the primary half only, never the caret', () => {
+test('a consumer\'s (activate) hears the primary half only, never the caret', () => {
   const { fixture, caret, emitted, host } = render();
   try {
     caret.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     fixture.detectChanges();
-    assert.ok(panel(), 'the caret did not open the menu, so stopping its bubble stopped the menu too');
-    assert.equal(emitted.count, 0, 'the caret emitted click');
+    assert.ok(panel(), 'the caret did not open the menu');
+    assert.equal(emitted.count, 0, 'the caret emitted activate');
     assert.equal(host.clicks, 0, 'a caret press reached the consumer as a primary activation');
   } finally { fixture.destroy(); disposeOverlays(); }
 });
@@ -166,7 +165,7 @@ test('loading draws the spinner on the primary half and blocks it alone', () => 
     assert.deepEqual(glyphIds(primary).filter((id) => id.endsWith('rocket-launch')), [], 'the leading icon stayed beside the spinner');
     primary.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     fixture.detectChanges();
-    assert.deepEqual([emitted.count, host.clicks], [0, 0], 'a loading primary half reported a click');
+    assert.deepEqual([emitted.count, host.clicks], [0, 0], 'a loading primary half reported an activation');
   } finally { fixture.destroy(); }
 });
 
@@ -176,7 +175,7 @@ test('disabled blocks both halves, and nothing reaches the consumer', () => {
     assert.deepEqual([primary.disabled, caret.disabled], [true, true]);
     primary.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     fixture.detectChanges();
-    assert.deepEqual([emitted.count, host.clicks], [0, 0], 'a disabled primary half reported a click');
+    assert.deepEqual([emitted.count, host.clicks], [0, 0], 'a disabled primary half reported an activation');
   } finally { fixture.destroy(); }
 });
 

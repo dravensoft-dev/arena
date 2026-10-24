@@ -73,7 +73,7 @@ export class ArenaCard {
   /** Present => the card renders an <a>; absent, with `interactive`, a role="button". ArenaSideNavItem.href has the same split, for the same reason. A control that navigates must be a link: openable in a new tab, address copyable, announced as a link. None of that can be rebuilt on a div. A primary click with no modifier is cancelled and reported through `click`, so a router owns it. Ctrl, meta, shift, alt, a middle click and a context menu stay the browser's and report nothing. The href implies interaction on its own, so `interactive` is not also required. With `disabled` the card refuses activation through aria-disabled, the way an item does. The card's own content still holds whatever controls it holds. A control inside the anchor is a control inside a link, which is the price of making the whole surface the target. That price is the reason `interactive` exists as the alternative. */
   readonly href = input<string>();
   /** An interactive card was activated, by pointer or by Enter or Space. With `href` the event is also how the card reports the one activation a router owns, a primary click or Enter with no modifier. Arena has already cancelled the anchor's own navigation by the time it fires. A modified or middle click is the browser's and does not fire it at all. No payload, because the consumer wrote this element and already holds what it is about. */
-  readonly click = output<void>();
+  readonly activate = output<void>();
 
   protected readonly action = contentChild(ArenaAction, { descendants: false });
 
@@ -92,16 +92,14 @@ export class ArenaCard {
   }));
 
   protected onAnchorClick(event: MouseEvent): void {
-    event.stopPropagation();
     if (this.disabled()) { event.preventDefault(); return; }
     if (!this.ownActivation(event)) return;
     if (!isArenaPrimaryActivation(event)) return;
     event.preventDefault();
-    this.click.emit();
+    this.activate.emit();
   }
 
   protected onClick(event: MouseEvent): void {
-    event.stopPropagation();
     if (!this.interactive()) return;
     if (!this.ownActivation(event)) return;
     this.emit();
@@ -110,7 +108,6 @@ export class ArenaCard {
   protected onKeydown(event: KeyboardEvent): void {
     if (!this.interactive() || (event.key !== 'Enter' && event.key !== ' ')) return;
     event.preventDefault();
-    event.stopPropagation();
     if (!this.ownActivation(event)) return;
     this.emit();
   }
@@ -121,6 +118,6 @@ export class ArenaCard {
   }
 
   private emit(): void {
-    if (!this.disabled()) this.click.emit();
+    if (!this.disabled()) this.activate.emit();
   }
 }

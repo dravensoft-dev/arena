@@ -38,7 +38,7 @@ Arena copy button, an icon button that writes a string to the clipboard and conf
 
 **The accessible name holds still.** `label` reaches the inner button unchanged in every state, so a reader meets one control throughout. When two copy buttons share a page, give each a label that says what it copies.
 
-**Listen to the two outputs, never to a click.** The component reports through `(copied)` and `(copyFailed)`, and neither is a DOM event name, so a press fires one of them, once. The inner button's own `click` stays inside the component.
+**Listen to the two outputs, never to a click.** The component reports through `(copied)` and `(copyFailed)`, and neither is a DOM event name, so a press fires one of them, once. The inner button's native click reaches the page, and the two outputs report the copy.
 
 **The failure is said aloud, and nothing falls back.** The clipboard exists only in a secure context. On plain HTTP from another host the button shows the warning and emits `copyFailed`.
 

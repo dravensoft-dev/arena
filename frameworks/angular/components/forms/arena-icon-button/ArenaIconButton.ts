@@ -60,7 +60,7 @@ export class ArenaIconButton {
   /** Whether the control is reached from the page's Tab sequence. Set false when the control lives inside a composite that manages its own focus, such as a grid with a roving tab stop or a menu. Reaching it by Tab there would be a second way in. Arena writes tabindex="-1" and the control stays programmatically focusable; a positive tab order is not expressible and never should be. */
   readonly tabStop = input(true, { transform: booleanAttribute });
   /** The button was activated, by pointer or by keyboard. */
-  readonly click = output<void>();
+  readonly activate = output<void>();
 
   protected readonly styles = computed(() => arenaIconButtonStyles({
     showLabel: this.showLabel(),
@@ -75,8 +75,7 @@ export class ArenaIconButton {
     });
   }
 
-  protected onClick(event: MouseEvent): void {
-    event.stopPropagation();
-    if (!this.disabled()) this.click.emit();
+  protected onClick(): void {
+    if (!this.disabled()) this.activate.emit();
   }
 }

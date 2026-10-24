@@ -59,7 +59,7 @@ let seq = 0;
           }
           <span #kebabWrap [class]="kebabStyles().kebabWrap()" [arenaSlotData]="kebabStyles().$data.kebabWrap()" [attr.data-arena-part]="parts.kebabWrap">
             <arena-icon-button icon="ph-bold ph-dots-three-vertical" [label]="locale.calendarEventActions" class="arena-size-sm"
-                               [tabStop]="false" (click)="togglePanel()" />
+                               [tabStop]="false" (activate)="togglePanel()" />
             @if (panelOpen()) {
               <span #panel [class]="styles().panel()" [attr.data-arena-part]="parts.panel" data-arena-boundary>
                 <ng-content select="[actions]" />
@@ -121,7 +121,7 @@ export class ArenaCalendarEvent {
   /** Whether the chip is drawn but cannot be activated: an event a consumer's rules lock, such as one already past or owned by someone else. The state reflects through `aria-disabled` rather than the native `disabled` attribute. The chip keeps its place in the grid's roving Tab sequence and is announced as unavailable instead of disappearing from it. With `interactive` false there is nothing to activate and the chip is inert already. */
   readonly disabled = input(false, { transform: booleanAttribute });
   /** The chip was activated. No payload: the consumer wrote this element, so they already hold the event this is about. Never emitted while `disabled`. */
-  readonly click = output<void>();
+  readonly activate = output<void>();
 
   private readonly times = arenaPublished<EventTimes>(
     () => ({ id: this.id(), start: this.start(), end: this.end() }),
@@ -242,7 +242,7 @@ export class ArenaCalendarEvent {
 
   protected onActivate(event: MouseEvent): void {
     event.stopPropagation();
-    if (this.interactive() && !this.disabled()) this.click.emit();
+    if (this.interactive() && !this.disabled()) this.activate.emit();
   }
 
   protected onKeydown(event: KeyboardEvent): void {

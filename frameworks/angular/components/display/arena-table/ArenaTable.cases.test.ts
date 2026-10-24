@@ -5,9 +5,8 @@
  * 768 and no other number: ArenaPageHead.variants.test.ts asserts that value on a cache hit. No key
  * event sets keyCode: nothing here goes through a CDK key manager, and the grid's cursor is
  * Arena's own and switches on event.key. The walk is one press per step against 3 rows by 2
- * columns, because the bill is the press count. Angular installs BOTH a DOM listener and an
- * output subscription for a native event name, so `activated` counts the sum and one is the
- * only passing number, while emissionsOf() counts the output alone -- assert both or be blind. */
+ * columns, because the bill is the press count. `activated` counts what a consumer hears through
+ * (activate) and one is the only passing number, while emissionsOf() counts the output alone. */
 
 import { useTestEnvironment } from '../../../test/TestbedEnv';
 useTestEnvironment();
@@ -45,11 +44,11 @@ const NARROW_WIDTH = 400;
   imports: [ArenaTable, ArenaTableRow, ArenaTableCell],
   template: `
     <arena-table [label]="label" [columns]="columns" [responsive]="responsive">
-      <tr arena-table-row [interactive]="interactive" (click)="activated = activated + 1">
+      <tr arena-table-row [interactive]="interactive" (activate)="activated = activated + 1">
         <td arena-table-cell>checkout-api</td>
         <td arena-table-cell>Healthy</td>
       </tr>
-      <tr arena-table-row [interactive]="interactive" [disabled]="disabled" (click)="activated = activated + 1">
+      <tr arena-table-row [interactive]="interactive" [disabled]="disabled" (activate)="activated = activated + 1">
         <td arena-table-cell>billing-worker</td>
         <td arena-table-cell>Degraded</td>
       </tr>
@@ -109,7 +108,7 @@ async function render(patch: Partial<TableHost> = {}): Promise<ComponentFixture<
 function emissionsOf(fixture: ComponentFixture<TableHost>): { count: number } {
   const seen = { count: 0 };
   for (const found of fixture.debugElement.queryAll(By.directive(ArenaTableRow))) {
-    (found.componentInstance as ArenaTableRow).click.subscribe(() => { seen.count += 1; });
+    (found.componentInstance as ArenaTableRow).activate.subscribe(() => { seen.count += 1; });
   }
   return seen;
 }
@@ -272,7 +271,7 @@ test('arena-table-cell owns none of the grid it sits in -- the row has its own c
   }
 });
 
-test('a pointer click on a row reaches the consumer exactly once -- twice would mean the native event got through too', async () => {
+test('a pointer click on a row reaches the consumer exactly once', async () => {
   const fixture = await render({ interactive: true });
   try {
     const table = tableOf(fixture);
@@ -281,9 +280,9 @@ test('a pointer click on a row reaches the consumer exactly once -- twice would 
     const emitted = emissionsOf(fixture);
     row.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     fixture.detectChanges();
-    assert.equal(emitted.count, 1, 'the click OUTPUT did not emit exactly once');
+    assert.equal(emitted.count, 1, 'the activate OUTPUT did not emit exactly once');
     assert.equal(fixture.componentInstance.activated, 1,
-      'the consumer heard the click a number of times other than one');
+      'the consumer heard the activation a number of times other than one');
   } finally {
     fixture.destroy();
   }
@@ -298,7 +297,7 @@ test('Enter on a cell activates the row it belongs to, and no other', async () =
     const emitted = emissionsOf(fixture);
     await focusCell(fixture, cellsOf(rows[2])[0]);
     await press(fixture, 'Enter');
-    assert.equal(emitted.count, 1, 'Enter on a data cell did not reach the click OUTPUT');
+    assert.equal(emitted.count, 1, 'Enter on a data cell did not reach the activate OUTPUT');
     assert.equal(fixture.componentInstance.activated, 1, 'Enter on a data cell did not activate its row');
 
     await focusCell(fixture, cellsOf(rows[0])[0]);
@@ -326,7 +325,7 @@ test('a disabled row announces itself and refuses both routes -- the pointer and
     const emitted = emissionsOf(fixture);
     locked.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     fixture.detectChanges();
-    assert.equal(emitted.count, 0, 'a disabled row emitted click');
+    assert.equal(emitted.count, 0, 'a disabled row emitted activate');
     assert.equal(fixture.componentInstance.activated, 0,
       'and nothing reached the consumer, so the native event did not escape either');
 

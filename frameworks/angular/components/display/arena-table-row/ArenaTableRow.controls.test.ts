@@ -1,7 +1,6 @@
 /* The canonical data table puts a selection control in the first cell and a row action in the
  * last, and an interactive row is a click target under both of them. `activated` counts what a
- * CONSUMER hears, which for a native event name is the sum of the output and the bubbled DOM
- * event, so one is the only passing number and two is the defect. The controls here are plain
+ * CONSUMER hears through (activate), so one is the only passing number and two is the defect. The controls here are plain
  * elements rather than Arena components: what is being asserted is the predicate over the DOM,
  * and a real ArenaCheckbox would test its own render at the same time. */
 
@@ -32,7 +31,7 @@ const COLUMNS: ArenaTableColumn[] = [{ header: 'Pick' }, { header: 'Service' }, 
   imports: [ArenaTable, ArenaTableRow, ArenaTableCell],
   template: `
     <arena-table label="Recent deployments" [columns]="columns" [responsive]="false">
-      <tr arena-table-row [interactive]="interactive" (click)="activated = activated + 1">
+      <tr arena-table-row [interactive]="interactive" (activate)="activated = activated + 1">
         <td arena-table-cell>
           <input type="checkbox" (change)="ticked = ticked + 1" />
         </td>

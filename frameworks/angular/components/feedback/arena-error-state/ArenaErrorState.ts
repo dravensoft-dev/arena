@@ -38,7 +38,7 @@ import { ArenaIcon } from '../../display/arena-icon/ArenaIcon';
     @if (retryLabel() || secondaryAction()) {
       <div [class]="styles().actions()" [attr.data-arena-part]="parts.actions" data-arena-boundary>
         @if (retryLabel(); as label) {
-          <arena-button (click)="retry.emit()">{{ label }}</arena-button>
+          <arena-button (activate)="retry.emit()">{{ label }}</arena-button>
         }
         <ng-content select="[secondaryAction]" />
       </div>

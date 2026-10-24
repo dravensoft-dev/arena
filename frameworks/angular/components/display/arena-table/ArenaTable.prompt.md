@@ -7,7 +7,7 @@ Cells are **positional**: the nth cell takes the nth column.
 ```html
 <arena-table [label]="'Recent deployments'" [columns]="columns">
   @for (d of deploys(); track d.build) {
-    <tr arena-table-row interactive (click)="openDeploy(d)">
+    <tr arena-table-row interactive (activate)="openDeploy(d)">
       <td arena-table-cell>{{ d.build }}</td>
       <td arena-table-cell>{{ d.project }}</td>
       <td arena-table-cell><arena-badge [tone]="d.tone" dot>{{ d.status }}</arena-badge></td>
@@ -89,7 +89,7 @@ Cells are **positional**: the nth cell takes the nth column.
 - Don't bind `page` to a windowed table. `slice` wins over it, and the pager would draw a second position.
 - Leave `slice.view` unset unless the table is windowed. A table without it keeps the page's own PageUp and PageDown.
 - Bind `(rowRequest)` whenever you bind the directive's `slice`. Without it the four keys stop at the edge of the window.
-- Row activation is `(click)` on the row, and it carries no payload. You wrote that element inside your own `@for`, so you already hold the row it is about.
+- Row activation is `(activate)` on the row, and it carries no payload. You wrote that element inside your own `@for`, so you already hold the row it is about.
 
 ### Responsive
 
@@ -131,7 +131,7 @@ it *looks* were not, and are why this list stays:
    grid pulled focus back onto the cell, since `focusin` bubbles and only a real browser shows it.
 3. Arrows clamp at all four edges and focus never leaves the grid. Walk a middle row for
    `Home` and `End`, not only the first: they never leave the row.
-4. `Enter` activates a row with `(click)` and does nothing on the header row or on the
+4. `Enter` activates a row with `(activate)` and does nothing on the header row or on the
    disabled row; the page logs what was activated.
 5. The squeezed container is already in card mode on load. Confirm nothing there took a
    role, a tabindex or a key handler by accident.

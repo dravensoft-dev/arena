@@ -14,7 +14,7 @@ slots higher, and the scrim is how it says so.
     <app-cart-line [line]="line" />
   }
   <div footer>
-    <arena-button (click)="checkout()">Checkout</arena-button>
+    <arena-button (activate)="checkout()">Checkout</arena-button>
   </div>
 </arena-sheet>
 ```

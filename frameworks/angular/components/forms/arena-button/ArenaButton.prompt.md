@@ -2,9 +2,9 @@ Arena action button, one primary per view, and danger stays outline. Standalone,
 signal I/O. The host stays bare and unstyled, and Arena's own styling lands on a real `<button>` inside it. The element carrying the behaviour contract must be the element the browser already knows how to focus, activate and disable.
 
 ```html
-<arena-button (click)="save()">Save changes</arena-button>
+<arena-button (activate)="save()">Save changes</arena-button>
 <arena-button class="arena-emphasis-secondary arena-size-sm">Cancel</arena-button>
-<arena-button destructive icon="ph-bold ph-trash" (click)="confirmDelete()">Delete project</arena-button>
+<arena-button destructive icon="ph-bold ph-trash" (activate)="confirmDelete()">Delete project</arena-button>
 <arena-button iconRight="ph-bold ph-caret-down" class="arena-emphasis-ghost">More</arena-button>
 <arena-button loading class="arena-emphasis-secondary">Deploying</arena-button>
 <arena-button type="submit" form="project-form" class="arena-emphasis-secondary arena-fill">Create project</arena-button>
@@ -66,10 +66,7 @@ signal I/O. The host stays bare and unstyled, and Arena's own styling lands on a
   discover. A disabled button is unreachable by Tab and announces nothing about why; prefer
   keeping it enabled and reporting the reason on activation.
 - Don't wrap `<arena-button>` in another button or an anchor. The component renders a real `<button>`, and nesting interactive elements is invalid regardless of how it looks.
-- Don't rely on click delegation from an ancestor. `click` is an output named after a native DOM event. Angular then registers **both** the output subscription and a host DOM listener, so a consumer's `(click)` would fire twice on every press. The inner button calls
-  `stopPropagation()` to make it fire once, which is the whole reason the event does not reach
-  ancestors. Bind `(click)` on the `<arena-button>` itself. `type="submit"` still submits: the
-  default action is untouched, only propagation is.
+- Bind `(activate)` on the `<arena-button>` itself. The inner button's native click reaches every ancestor, and `activate` reports only a press the button accepts: never while `disabled` or `loading`. `type="submit"` still submits, because the default action is untouched.
 
 **By hand, in real Chromium**: none of these is provable in happy-dom. Run `bun run demos` and
 open `/frameworks/angular/components/forms/arena-button/ArenaButton.demo.generated.html`:

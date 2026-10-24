@@ -32,7 +32,7 @@ const COLUMNS: ArenaTableColumn[] = [{ header: 'Sale' }, { header: 'Customer' }]
   imports: [ArenaTable, ArenaTableRow, ArenaTableCell],
   template: `
     <arena-table label="Recent sales" [columns]="columns" [responsive]="false">
-      <tr arena-table-row [interactive]="interactive" (click)="rows = rows + 1">
+      <tr arena-table-row [interactive]="interactive" (activate)="rows = rows + 1">
         <td arena-table-cell href="/sales/4f2a1c9" (navigate)="went = went + 1">4f2a1c9</td>
         <td arena-table-cell>Nestor</td>
       </tr>

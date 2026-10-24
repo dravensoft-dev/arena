@@ -36,7 +36,7 @@ export class ArenaTableRow {
   /** Whether the row is drawn but cannot be activated: a record the consumer's rules lock. The disabled state reflects through `aria-disabled` rather than the native attribute. The card shape stays a role="button" in the tab order rather than leaving it, because a disabled control nobody can reach is a control nobody knows exists. With no `click` there is nothing to disable and the row is inert already. */
   readonly disabled = input(false, { transform: booleanAttribute });
   /** The row was activated, by pointer or by Enter on one of its cells. No payload, because the consumer wrote this element and already holds the row this is about. */
-  readonly click = output<void>();
+  readonly activate = output<void>();
 
   private readonly table = inject(ArenaTableState);
   private readonly arenaRowState = inject(ArenaTableRowState);
@@ -88,7 +88,6 @@ export class ArenaTableRow {
   }
 
   private onClick(event: Event): void {
-    event.stopImmediatePropagation();
     if (!this.ownActivation(event)) return;
     this.emit();
   }
@@ -97,7 +96,6 @@ export class ArenaTableRow {
     if (!this.table.narrow() || !this.interactive()) return;
     if (event.key !== 'Enter' && event.key !== ' ') return;
     event.preventDefault();
-    event.stopPropagation();
     if (!this.ownActivation(event)) return;
     this.emit();
   }
@@ -108,6 +106,6 @@ export class ArenaTableRow {
   }
 
   private emit(): void {
-    if (this.interactive() && !this.disabled()) this.click.emit();
+    if (this.interactive() && !this.disabled()) this.activate.emit();
   }
 }

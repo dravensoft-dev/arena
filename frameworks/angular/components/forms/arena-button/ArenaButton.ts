@@ -20,7 +20,7 @@ import { ArenaIcon } from '../../display/arena-icon/ArenaIcon';
   template: `
     <button #control [class]="styles().root()" [arenaSlotData]="styles().$data.root()" [attr.data-arena-part]="parts.root" data-arena-boundary [attr.type]="type()" [disabled]="inert()"
             [attr.name]="name()" [attr.value]="value()" [attr.form]="form()"
-            [attr.tabindex]="tabStop() ? null : -1" (click)="onClick($event)">
+            [attr.tabindex]="tabStop() ? null : -1" (click)="onClick()">
       @if (loading()) {
         <span [class]="styles().spinner()" [attr.data-arena-part]="parts.spinner" aria-hidden="true"></span>
       } @else if (icon(); as glyph) {
@@ -62,7 +62,7 @@ export class ArenaButton {
   /** Whether the control is reached from the page's Tab sequence. Set false when it lives inside a composite that manages its own focus (a grid with a roving tab stop, a menu). Reaching it by Tab there would be a second way in. Arena writes tabindex="-1" and the control stays programmatically focusable; a positive tab order is not expressible and never should be. Arena's own table is NOT that composite: its grid deliberately has no step-in, so a control in a cell keeps its place in the page Tab sequence. Setting this false there takes away its only keyboard route, since the cursor moves by cell and Enter activates the row. */
   readonly tabStop = input(true, { transform: booleanAttribute });
   /** The button was activated, by pointer or by keyboard. */
-  readonly click = output<void>();
+  readonly activate = output<void>();
 
   protected readonly inert = computed(() => this.disabled() || this.loading());
   protected readonly styles = computed(() => arenaButtonStyles({ destructive: this.destructive() }));
@@ -75,8 +75,7 @@ export class ArenaButton {
     });
   }
 
-  protected onClick(event: MouseEvent): void {
-    event.stopPropagation();
-    if (!this.inert()) this.click.emit();
+  protected onClick(): void {
+    if (!this.inert()) this.activate.emit();
   }
 }

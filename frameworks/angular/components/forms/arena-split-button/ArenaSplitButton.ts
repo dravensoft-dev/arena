@@ -28,7 +28,7 @@ import { ArenaIcon } from '../../display/arena-icon/ArenaIcon';
   template: `
     <div role="group" [attr.aria-label]="name()" [class]="styles().root()" [arenaSlotData]="styles().$data.root()" [attr.data-arena-part]="parts.root">
       <button #primary [attr.type]="type()" [disabled]="inert()" [class]="styles().primary()" [arenaSlotData]="styles().$data.primary()"
-              [attr.data-arena-part]="parts.primary" data-arena-boundary (click)="onPrimary($event)">
+              [attr.data-arena-part]="parts.primary" data-arena-boundary (click)="onPrimary()">
         @if (loading()) {
           <span [class]="styles().spinner()" [arenaSlotData]="styles().$data.spinner()" [attr.data-arena-part]="parts.spinner" aria-hidden="true"></span>
         } @else if (icon(); as glyph) {
@@ -38,7 +38,7 @@ import { ArenaIcon } from '../../display/arena-icon/ArenaIcon';
       </button>
       <arena-menu class="arena-fit" [items]="items()" [align]="align()" (select)="select.emit($event)">
         <button trigger type="button" [attr.aria-label]="caretName()" [disabled]="disabled()" [class]="styles().caret()"
-                [arenaSlotData]="styles().$data.caret()" [attr.data-arena-part]="parts.caret" (click)="$event.stopPropagation()">
+                [arenaSlotData]="styles().$data.caret()" [attr.data-arena-part]="parts.caret">
           <arena-icon icon="ph-bold ph-caret-down" />
         </button>
       </arena-menu>
@@ -73,7 +73,7 @@ export class ArenaSplitButton {
     { transform: (value) => value ?? 'end' },
   );
   /** The primary half was activated, by pointer or by keyboard. Never reported while loading or disabled. */
-  readonly click = output<void>();
+  readonly activate = output<void>();
   /** A menu entry was activated; carries the whole item. A disabled entry reports nothing, and a divider or a header cannot be activated at all. */
   readonly select = output<ArenaMenuItem>();
 
@@ -104,8 +104,7 @@ export class ArenaSplitButton {
     }
   }
 
-  protected onPrimary(event: MouseEvent): void {
-    event.stopPropagation();
-    if (!this.inert()) this.click.emit();
+  protected onPrimary(): void {
+    if (!this.inert()) this.activate.emit();
   }
 }

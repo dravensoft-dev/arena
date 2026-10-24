@@ -1,7 +1,5 @@
 Arena surface container, the hairline border on the base surface scale, with an
-optional header. Standalone, `OnPush`, signal inputs. **The root slot is NOT host-bound**, and that is forced rather than chosen. `click` is an output whose name is also a native DOM event, and Angular installs both a DOM listener and an output subscription for such a name. A host that both listens and emits re-enters its own listener on every emission. Arena's own styling lands on an inner
-`<div>` that stops propagation, the shape `arena-side-nav-item` and `arena-table-row` already
-take, and the host goes `display: contents`.
+optional header. Standalone, `OnPush`, signal inputs. **The host stays bare.** Arena's own styling lands on an inner `<div>`, the shape `arena-side-nav-item` and `arena-table-row` take, and the host goes `display: contents`.
 
 ```html
 <arena-card [eyebrow]="'Delivery'" [title]="'Client Portal'">
@@ -11,7 +9,7 @@ take, and the host goes `display: contents`.
 
 <arena-card class="arena-elevation-floating">Just a surface, with no header block at all.</arena-card>
 
-<arena-card interactive [title]="'checkout-api'" (click)="open(service)">Healthy, 14 replicas</arena-card>
+<arena-card interactive [title]="'checkout-api'" (activate)="open(service)">Healthy, 14 replicas</arena-card>
 ```
 
 <!-- @api GENERATED from contracts/api/components/ArenaCard.json. Edit the contract, not this table. -->
@@ -53,7 +51,7 @@ take, and the host goes `display: contents`.
 Put each marker your template writes in your own component's `imports`. An un-imported marker leaves its slot empty with no error, and `arena check` reports it. [Which markers must I import?](../../../../../skills/design/references/exports.md#which-angular-projection-markers-must-i-import)
 <!-- @markers end -->
 
-**`interactive` makes the whole card one activation target**, which is the ordinary shape of a list on a phone. The member is a declared boolean rather than "is `(click)` bound?". Arena never derives what it draws from what a consumer listens for. `arena-table-row`'s `interactive` gives the same answer. Arena writes `role="button"`, a tab stop and
+**`interactive` makes the whole card one activation target**, which is the ordinary shape of a list on a phone. The member is a declared boolean rather than "is `(activate)` bound?". Arena never derives what it draws from what a consumer listens for. `arena-table-row`'s `interactive` gives the same answer. Arena writes `role="button"`, a tab stop and
 an Enter/Space handler, and draws the surface's own hover and focus states. Without it the card is
 inert and adds no tab stop, because a dead stop on every card of every list is worse than the gap
 it would close.
@@ -67,7 +65,7 @@ it would close.
 ```html
 <arena-card title="Acme Corp">
   <p>Everything the client can see.</p>
-  <arena-button (click)="open('acme')">Open</arena-button>
+  <arena-button (activate)="open('acme')">Open</arena-button>
 </arena-card>
 ```
 
@@ -113,24 +111,23 @@ refuses activation through `aria-disabled` and prevents the anchor's default, th
 does.
 
 ```html
-<arena-card href="/clients/acme" title="Acme Corp" (click)="go('/clients/acme')">
+<arena-card href="/clients/acme" title="Acme Corp" (activate)="go('/clients/acme')">
   <p>Everything the client can see.</p>
 </arena-card>
 ```
 
-**`href` reports its plain activation through `(click)`**, so `router.navigateByUrl` in that
+**`href` reports its plain activation through `(activate)`**, so `router.navigateByUrl` in that
 handler is the whole bridge and the page does not reload. The modified clicks stay the
 browser's and fire nothing, which is why the member is worth having over `interactive`. Bind
 nothing and the card is a plain link that navigates the document, which is the right shape
 outside a single-page application.
 
-**`(click)` on `arena-card` is two bindings wearing one name, and the card resolves it.** Angular subscribes the binding to the component's `click` output. Angular *also* adds a native listener for the DOM event of the same name. A click that reaches the host is counted twice. The card stops propagation of every click that starts inside it, interactive or not. Stopping propagation is what makes `(click)` fire exactly once for the activation it owns, and not at all for the ones it leaves to the browser. Both halves are pinned; the
-consequence for you is that a click delegated from an ancestor of the card never sees a press on a card, as `arena-table-row` does.
+**Every native click reaches the page, and `(activate)` reports the ones the card owns.** A click inside the card bubbles to ancestors whether the card is interactive or not, so a delegated listener on an ancestor sees it. `(activate)` runs once for the activation the card owns and never for the ones it leaves to the browser or to a control inside.
 
-**Do not put `routerLink` on `arena-card`.** `routerLink` would not work. `RouterLink` decides whether it is on an anchor from the host's `tagName`, and `arena-card` is neither an `<a>` nor a registered custom element. `RouterLink` ignores every modifier key and lands a second tab stop on the host, over the anchor the card already draws inside itself. The cancelled anchor is the reason `(click)` reports the activation at all.
+**Do not put `routerLink` on `arena-card`.** `routerLink` would not work. `RouterLink` decides whether it is on an anchor from the host's `tagName`, and `arena-card` is neither an `<a>` nor a registered custom element. `RouterLink` ignores every modifier key and lands a second tab stop on the host, over the anchor the card already draws inside itself. The cancelled anchor is the reason `(activate)` reports the activation at all.
 
 Choose between the two by what the press DOES. A card that goes somewhere is `href`; a card
-that changes local state is `interactive` with `(click)`. And a card whose body holds controls of its own is `interactive` rather than `href`. The anchor wraps the whole surface, so a button inside it is a control inside a link. That nesting is exactly what `interactive` was made a `role="button"` div to avoid.
+that changes local state is `interactive` with `(activate)`. And a card whose body holds controls of its own is `interactive` rather than `href`. The anchor wraps the whole surface, so a button inside it is a control inside a link. That nesting is exactly what `interactive` was made a `role="button"` div to avoid.
 
 **How the card is built, and why that is worth knowing.** The card projects into two slots, and Angular hands projected content to the first matching one. Two branches cannot each carry their own `<ng-content>`. Both projections live in one `<ng-template>` that whichever branch
 renders stamps out with `ngTemplateOutlet`. Toggling `href` at runtime in either direction

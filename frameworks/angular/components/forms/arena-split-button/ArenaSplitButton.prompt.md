@@ -2,7 +2,7 @@ One action with a menu of its alternatives, drawn as one control. The primary ha
 
 ```html
 <arena-split-button label="Deployment" menuLabel="More deploy options" icon="ph-bold ph-rocket-launch"
-                    [items]="alternatives" (click)="deploy()" (select)="run($event.label)">
+                    [items]="alternatives" (activate)="deploy()" (select)="run($event.label)">
   Deploy
 </arena-split-button>
 ```
@@ -56,7 +56,7 @@ One action with a menu of its alternatives, drawn as one control. The primary ha
 
 **Two tab stops, primary then caret.** Enter and Space on the caret open the menu with focus on its first entry. Escape closes it and returns focus to the caret. Inside the menu the arrows move between enabled rows and wrap, and Home and End go to the first and the last row. Typing a character moves to the next row whose label starts with it. A disabled row is skipped, Tab closes the menu, and a header names the rows under it. A press on the primary half while the menu is open closes the menu and runs the primary action.
 
-**`loading` blocks the primary half only.** The spinner replaces the leading icon, and the caret stays usable. `disabled` blocks both halves. `click` never fires while either holds.
+**`loading` blocks the primary half only.** The spinner replaces the leading icon, and the caret stays usable. `disabled` blocks both halves. `activate` never fires while either holds. A caret press opens the menu, reaches the page as a native click, and reports no `activate`.
 
 **`align` measures from the whole split.** `end`, the default, lines the panel up with the caret's outer edge. `start` lines it up with the primary half's outer edge.
 

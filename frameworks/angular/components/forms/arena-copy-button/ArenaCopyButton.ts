@@ -23,7 +23,7 @@ export const ARENA_COPY_CONFIRMATION = dismissConfirmation;
     '[attr.data-arena-part]': 'parts.root',
   },
   template: `
-    <arena-icon-button [icon]="glyph()" [label]="name()" [showLabel]="showLabel()" [disabled]="off()" (click)="copy()" />
+    <arena-icon-button [icon]="glyph()" [label]="name()" [showLabel]="showLabel()" [disabled]="off()" (activate)="copy()" />
     <span role="status" [class]="styles().announcement()" [attr.data-arena-part]="parts.announcement">{{ said() }}</span>
   `,
 })

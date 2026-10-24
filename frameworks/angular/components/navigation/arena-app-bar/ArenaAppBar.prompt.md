@@ -10,7 +10,7 @@ banner landmark has to be that element.
   <nav nav aria-label="Shop sections">
     @for (d of destinations(); track d.id) { <a [routerLink]="d.href">{{ d.label }}</a> }
   </nav>
-  <arena-icon-button actions icon="ph-bold ph-magnifying-glass" label="Search the catalogue" (click)="openSearch()" />
+  <arena-icon-button actions icon="ph-bold ph-magnifying-glass" label="Search the catalogue" (activate)="openSearch()" />
 </arena-app-bar>
 ```
 

@@ -37,7 +37,7 @@ const COLUMNS: ArenaTableColumn[] = [
   template: `
     <arena-table [label]="label" [columns]="columns" [responsive]="false" [sort]="sort()"
                  (sortChange)="seen.push($event)">
-      <tr arena-table-row interactive (click)="activated = activated + 1">
+      <tr arena-table-row interactive (activate)="activated = activated + 1">
         <td arena-table-cell>checkout</td>
         <td arena-table-cell>Healthy</td>
         <td arena-table-cell>91</td>

@@ -4,7 +4,7 @@ One event on an `arena-calendar`'s schedule. The chip is content of a calendar a
 <arena-calendar timeZone="Europe/Madrid">
   @for (c of classes(); track c.id) {
     <arena-calendar-event [id]="c.id" [title]="c.name" [start]="c.start" [end]="c.end"
-                          [colorId]="c.room" (click)="open(c)" />
+                          [colorId]="c.room" (activate)="open(c)" />
   }
 </arena-calendar>
 ```
@@ -43,11 +43,11 @@ One event on an `arena-calendar`'s schedule. The chip is content of a calendar a
 
 `id`, `title`, `start` and `end` are all required and **throw** when blank, `input.required` proves only that something was bound. `start` and `end` are ISO datetimes, read in the calendar's `timeZone` and never the reader's.
 
-**`click` carries no payload, deliberately.** You wrote this element, so your handler already closes over the record it came from.
+**`activate` carries no payload, deliberately.** You wrote this element, so your handler already closes over the record it came from.
 
-**`interactive` is what makes the chip a button, not `(click)`.** The shape cannot be derived from whether anything is subscribed. Activation is a member you declare, the same one `arena-table-row` carries. **Bind `interactive` alongside `(click)`, or the chip is inert**: a `<div>` with no role, nothing to activate and nothing to disable, which is what a read-only schedule wants.
+**`interactive` is what makes the chip a button, not `(activate)`.** The shape cannot be derived from whether anything is subscribed. Activation is a member you declare, the same one `arena-table-row` carries. **Bind `interactive` alongside `(activate)`, or the chip is inert**: a `<div>` with no role, nothing to activate and nothing to disable, which is what a read-only schedule wants.
 
-**A `(click)` binding on `<arena-calendar-event>` is the DOM event, not the output.** Angular binds a native event name to the DOM. The binding holds even when a component declares an output of that name. A click that bubbles out of an inert chip still reaches your handler. An interactive chip stops propagation before it can; an inert one does not, because it claims nothing and the click belongs to the day underneath it. Listen for activation on a chip you have declared `interactive`.
+**A click on a chip stops at the chip, alike in both layers.** The chip's surface keeps the native click, so a listener on an ancestor never sees it, and `(activate)` reports the press of an interactive chip. A press on the kebab opens the panel and reports nothing: the kebab is a control of its own.
 
 **An interactive chip is not a page-level tab stop, and that is on purpose.** The grid is one tab stop. Enter from the hour cell an event overlaps steps into the chip, and Escape steps back out to the cell.
 
@@ -59,7 +59,7 @@ What "into the chip" means depends on the shape. A chip with no action panel *is
 
 ```html
 <arena-calendar-event [id]="c.id" [title]="c.name" [start]="c.start" [end]="c.end"
-                      (click)="open(c)" actionsEnabled>
+                      (activate)="open(c)" actionsEnabled>
   <arena-button actions icon="ph-bold ph-pencil" class="arena-emphasis-ghost arena-size-sm">Edit</arena-button>
   <arena-button actions icon="ph-bold ph-trash" class="arena-emphasis-ghost arena-size-sm">Delete</arena-button>
 </arena-calendar-event>
@@ -74,7 +74,7 @@ What "into the chip" means depends on the shape. A chip with no action panel *is
 - Preformat the `title`. Arena does no locale formatting and no truncation beyond the chip's own ellipsis.
 - Keep the panel to a couple of controls. The panel opens over the schedule at the chip's own width.
 - Project `[actions]` whenever you set `actionsEnabled`. The two travel together.
-- Reach for `disabled` when the event is drawn but must not be opened, one already past, or one owned by someone else. The member reflects through `aria-disabled`, so the chip keeps its place in the grid's roving sequence and is announced as unavailable instead of disappearing from it. `click` never fires while it is set.
+- Reach for `disabled` when the event is drawn but must not be opened, one already past, or one owned by someone else. The member reflects through `aria-disabled`, so the chip keeps its place in the grid's roving sequence and is announced as unavailable instead of disappearing from it. `activate` never fires while it is set.
 
 **Don't**
 - Don't project content into it other than `[actions]`. The title and the time line are the chip body, and Arena draws both.

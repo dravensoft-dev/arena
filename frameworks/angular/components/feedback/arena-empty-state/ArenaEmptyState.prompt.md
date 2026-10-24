@@ -13,7 +13,7 @@ Arena draws itself, not projected content.
 <arena-empty-state icon="ph-bold ph-folder-open"
                    title="No projects yet"
                    message="A project groups deployments, logs and artifacts for one client.">
-  <arena-button action (click)="create()">Create a project</arena-button>
+  <arena-button action (activate)="create()">Create a project</arena-button>
 </arena-empty-state>
 ```
 
