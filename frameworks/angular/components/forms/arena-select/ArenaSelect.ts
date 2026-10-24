@@ -31,7 +31,7 @@ import { ArenaIcon } from '../../display/arena-icon/ArenaIcon';
       }
       <select [class]="styles().field()" [arenaSlotData]="styles().$data.field()" [attr.data-arena-part]="parts.field" [attr.id]="selectId" [disabled]="off()"
               [required]="required()" [attr.name]="name()"
-              [attr.aria-invalid]="hasError()" [attr.aria-describedby]="describedBy()"
+              [attr.aria-invalid]="hasError() ? 'true' : null" [attr.aria-describedby]="describedBy()"
               (change)="onChange($event)">
         @if (placeholder(); as text) {
           <option value="" [disabled]="true" [selected]="!drawn()">{{ text }}</option>
