@@ -317,6 +317,11 @@ export function aliasDeclarations(root = repoRoot) {
 
 const DECLARED_PROPERTY = /(?:^|[;{}\s])(--[A-Za-z0-9_-]+)\s*:/g;
 
+export function declaredProperties(css: string) {
+  const bare = css.replace(/\/\*[\s\S]*?\*\//g, '').replace(/"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'/g, '""');
+  return [...bare.matchAll(DECLARED_PROPERTY)].map(([, name = '']) => name);
+}
+
 export function shippedChannels(root = repoRoot) {
   const sources = [
     ...CSS_CHAIN.flatMap(({ from }) => (from === undefined ? [] : [readFileSync(join(root, from), 'utf8')])),

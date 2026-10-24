@@ -7,7 +7,7 @@ import { relPosix } from '../../utils/posix-path.ts';
 import {
   EXCLUDED_NAMES, EXCLUDED_PATTERNS, CSS_CHAIN, arenaCssHeader, excluded,
   collectFiles, reset, write, copyTree, copyCli, emitDeclaration, declarationReach, CLI_BINS, PALETTE_ENTRY, CLI_SOURCES, baseManifest, pluginIdentity, version, repositoryBase, agentBases, componentSheets, writeCssChain, arenaCssLayers, ANGULAR_EXTRA,
-  writeComponentMap, copyFonts, FONTS_PACKAGE_DIR, keywords, SHARED_KEYWORDS, tokenCatalogue, aliasDeclarations, catalogueRole,
+  writeComponentMap, copyFonts, FONTS_PACKAGE_DIR, keywords, SHARED_KEYWORDS, tokenCatalogue, declaredProperties, aliasDeclarations, catalogueRole,
 } from './package-assembly.ts';
 import { readJson } from '../../utils/read-file.ts';
 import { MARKERS_FILE, markerAttributes } from './component-map.ts';
@@ -347,11 +347,15 @@ test('the catalogue lists every property the shipped CSS declares beyond tokens,
   const { channels, tokens, roles, aliases } = tokenCatalogue();
   for (const name of ['--arena-hue-ink', '--spacing-row', '--radius-control', '--level-ink-muted', '--z-index-modal'])
     assert.ok(channels.includes(name), name);
-  assert.ok(channels.some((name) => name.startsWith('--arena-size-')));
+  assert.ok(channels.includes('--arena-size-control-h'));
   assert.ok(channels.every((name) => name.startsWith('--') && !name.startsWith('--tw-')));
   const known = new Set([...Object.keys(tokens), ...Object.keys(roles), ...Object.keys(aliases)].map((name) => `--${name.replace(/^--/, '')}`));
   assert.deepEqual(channels.filter((name) => known.has(name)), []);
   assert.deepEqual(channels, [...new Set(channels)].sort());
+});
+
+test('a property named inside a string or a comment is not one the CSS declares', () => {
+  assert.deepEqual(declaredProperties(':root { --real: 1px; }\n[title="set --quoted: 1"] { content: \'say --said: x\'; }\n/* --gone: 0 */'), ['--real']);
 });
 
 test('the catalogue holds the 40 aliases of colors.css in file order, and no level', () => {
