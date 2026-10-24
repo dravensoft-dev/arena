@@ -119,7 +119,7 @@ export class ArenaPinInput {
   protected readonly cellIndexes = computed(() => Array.from({ length: this.total() }, (_, index) => index));
   protected readonly code = computed(() => arenaPinCode(this.binding.bound()
     ? String(this.binding.value() ?? '')
-    : this.value() ?? this.held(), this.total(), this.characters()));
+    : this.held(), this.total(), this.characters()));
   protected readonly focused = signal<number | null>(null);
   protected readonly stop = computed(() => {
     const at = this.focused();

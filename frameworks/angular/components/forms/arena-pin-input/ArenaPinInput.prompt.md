@@ -1,4 +1,4 @@
-A code typed one character per cell, such as a verification code from a text message. Each cell is a real text field inside one labelled group, and `(change)` carries the whole code as one string.
+A code typed one character per cell, such as a verification code from a text message. Each cell is a real text field inside one labelled group, and `(change)` carries the whole code as one string. Controlled, the field draws an edit as soon as it is made and follows `value` whenever the host moves it. A host that refuses an edit by leaving `value` as it was is not seen, and the edit stays drawn.
 
 ```html
 <arena-pin-input label="Verification code" name="otp" [value]="code()" (change)="code.set($event)" (complete)="verify($event)" />

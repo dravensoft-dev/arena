@@ -1,4 +1,4 @@
-A number chosen inside a range by moving a thumb, or a span chosen with two thumbs. Each thumb answers the pointer, touch and the keyboard. A readout beside the label writes the number.
+A number chosen inside a range by moving a thumb, or a span chosen with two thumbs. Each thumb answers the pointer, touch and the keyboard. A readout beside the label writes the number. Controlled, the field draws `value` as given, so a host that leaves `value` as it was refuses the edit.
 
 ```tsx
 <ArenaSlider label="Volume" value={volume} onChange={setVolume} valueSuffix="%" />

@@ -7,6 +7,7 @@ useTestEnvironment();
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ArenaControlBinding } from '../../../ControlBinding';
 import { forgetArenaWarnings } from '../../../WarnOnce';
@@ -73,5 +74,27 @@ test('the binding\'s disabled state disables every cell and the hidden field', (
     fixture.detectChanges();
     for (const cell of cells()) assert.equal(cell.disabled, true);
     assert.equal(((fixture.nativeElement as HTMLElement).querySelector('input[type="hidden"]') as HTMLInputElement).disabled, true);
+  } finally { fixture.destroy(); }
+});
+
+@Component({
+  selector: 'pin-input-controlled-host',
+  standalone: true,
+  imports: [ArenaPinInput],
+  template: `<arena-pin-input label="Verification code" [value]="value()" (change)="value.set($event)" />`,
+})
+class ControlledHost { readonly value = signal(''); }
+
+test('a controlled pin input keeps both of two edits made before the host re-renders', () => {
+  const fixture = TestBed.createComponent(ControlledHost);
+  fixture.detectChanges();
+  try {
+    const cells = [...(fixture.nativeElement as HTMLElement).querySelectorAll<HTMLInputElement>('[data-arena-part="pin-input.cell"]')];
+    for (const [index, text] of ['1', '2'].entries()) {
+      cells[index]!.focus();
+      cells[index]!.value = text;
+      cells[index]!.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+    assert.equal(fixture.componentInstance.value(), '12');
   } finally { fixture.destroy(); }
 });

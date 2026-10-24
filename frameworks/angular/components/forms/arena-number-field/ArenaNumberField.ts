@@ -146,7 +146,7 @@ export class ArenaNumberField {
   protected readonly committed = computed(() => {
     const given = this.binding.bound()
       ? numberOrUndefined(this.binding.value() as number | null | undefined)
-      : this.value() ?? this.held();
+      : this.held();
     return given === undefined ? undefined : arenaClampNumber(given, this.min(), this.max());
   });
   private readonly draft = signal<string | null>(null);

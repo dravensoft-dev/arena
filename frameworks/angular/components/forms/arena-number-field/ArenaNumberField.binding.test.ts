@@ -6,6 +6,7 @@ useTestEnvironment();
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ArenaControlBinding } from '../../../ControlBinding';
 import { forgetArenaWarnings } from '../../../WarnOnce';
@@ -78,5 +79,50 @@ test('the binding\'s disabled state disables the field and both steppers', () =>
     const root = fixture.nativeElement as HTMLElement;
     assert.equal((root.querySelector('input[role="spinbutton"]') as HTMLInputElement).disabled, true);
     for (const button of root.querySelectorAll('button')) assert.equal((button as HTMLButtonElement).disabled, true);
+  } finally { fixture.destroy(); }
+});
+
+@Component({
+  selector: 'number-field-controlled-host',
+  standalone: true,
+  imports: [ArenaNumberField],
+  template: `<arena-number-field label="Replicas" [step]="1" [value]="value()" (change)="value.set($event)" />`,
+})
+class ControlledHost { readonly value = signal(5); }
+
+@Component({
+  selector: 'number-field-clamping-host',
+  standalone: true,
+  imports: [ArenaNumberField],
+  template: `<arena-number-field label="Replicas" [step]="1" [value]="value()" (change)="value.set(clamp($event))" />`,
+})
+class ClampingHost {
+  readonly value = signal(5);
+  clamp(next: number) { return Math.min(next, 6); }
+}
+
+function arrowUp(fixture: { nativeElement: unknown }, times: number) {
+  const input = (fixture.nativeElement as HTMLElement).querySelector('input[role="spinbutton"]') as HTMLInputElement;
+  for (let i = 0; i < times; i += 1) input.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true, cancelable: true }));
+  return input;
+}
+
+test('a controlled number field keeps both of two steps made before the host re-renders', () => {
+  const fixture = TestBed.createComponent(ControlledHost);
+  fixture.detectChanges();
+  try {
+    arrowUp(fixture, 2);
+    assert.equal(fixture.componentInstance.value(), 7);
+  } finally { fixture.destroy(); }
+});
+
+test('a host that clamps the value it is handed is drawn after it re-renders', () => {
+  const fixture = TestBed.createComponent(ClampingHost);
+  fixture.detectChanges();
+  try {
+    const input = arrowUp(fixture, 2);
+    fixture.detectChanges();
+    assert.equal(input.value, '6');
+    assert.equal(fixture.componentInstance.value(), 6);
   } finally { fixture.destroy(); }
 });

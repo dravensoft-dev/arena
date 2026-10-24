@@ -1,4 +1,4 @@
-A short code entered one character per cell, such as the one-time code a text message carries. The cells are real text fields in one labelled group, and the code is one string.
+A short code entered one character per cell, such as the one-time code a text message carries. The cells are real text fields in one labelled group, and the code is one string. Controlled, the field draws `value` as given, so a host that leaves `value` as it was refuses the edit.
 
 ```tsx
 <ArenaPinInput label="Verification code" value={code} onChange={setCode} onComplete={verify} name="otp" />

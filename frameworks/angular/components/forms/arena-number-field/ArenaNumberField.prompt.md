@@ -1,4 +1,4 @@
-A field that holds one number. A person types it, steps it with a key or with the two stepper buttons, and reads it in the locale's format. `(change)` carries a number and `(clear)` carries nothing. Requires the Phosphor sheets loaded for the stepper glyphs.
+A field that holds one number. A person types it, steps it with a key or with the two stepper buttons, and reads it in the locale's format. `(change)` carries a number and `(clear)` carries nothing. Requires the Phosphor sheets loaded for the stepper glyphs. Controlled, the field draws an edit as soon as it is made and follows `value` whenever the host moves it. A host that refuses an edit by leaving `value` as it was is not seen, and the edit stays drawn.
 
 ```html
 <arena-number-field label="Replicas" [value]="replicas()" (change)="replicas.set($event)" [min]="1" [max]="20" />

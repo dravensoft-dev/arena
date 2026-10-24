@@ -237,23 +237,23 @@ test('a paste that replaces a full code completes again, and a typed character o
   } finally { pin.destroy(); }
 });
 
-test('a value the host does not write back keeps the cells as the host has them, and change still fires', () => {
+test('a value the host does not write back leaves the edits drawn, and change still fires', () => {
   const pin = render('12', null, false);
   try {
     pin.focus(2);
     pin.type('3');
     pin.type('4');
-    assert.equal(pin.code(), '12');
-    assert.deepEqual(pin.seen, ['change 123', 'change 124']);
+    assert.equal(pin.code(), '1234');
+    assert.deepEqual(pin.seen, ['change 123', 'change 1234']);
   } finally { pin.destroy(); }
 });
 
-test('focus never sits past the first empty cell once the host has answered an edit', () => {
+test('focus never sits past the first empty cell once an edit is drawn', () => {
   const pin = render('12', null, false);
   try {
     pin.focus(2);
     pin.type('3');
-    assert.equal(pin.active(), 2);
+    assert.equal(pin.active(), 3);
   } finally { pin.destroy(); }
   const full = render('482913', null, false);
   try {

@@ -202,7 +202,7 @@ test('with no value bound the field holds what it commits, and a bound value con
     input.blur();
     input.dispatchEvent(new FocusEvent('blur'));
     fixture.detectChanges();
-    assert.equal(input.value, '4', 'a bound value the host does not move was overridden by the commit');
+    assert.equal(input.value, '8', 'a commit the host does not write back stays drawn');
   } finally { fixture.destroy(); }
 });
 

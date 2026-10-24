@@ -1,4 +1,4 @@
-A field that holds one number. A person types it, steps it with a key or with the two stepper buttons, and reads it in a locale's format. Requires the Phosphor sheets loaded for the stepper glyphs.
+A field that holds one number. A person types it, steps it with a key or with the two stepper buttons, and reads it in a locale's format. Requires the Phosphor sheets loaded for the stepper glyphs. Controlled, the field draws `value` as given, so a host that leaves `value` as it was refuses the edit.
 
 ```tsx
 <ArenaNumberField label="Replicas" value={replicas} onChange={setReplicas} min={1} max={20} />

@@ -7,6 +7,7 @@ useTestEnvironment();
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ArenaControlBinding } from '../../../ControlBinding';
 import { forgetArenaWarnings } from '../../../WarnOnce';
@@ -87,5 +88,23 @@ test('the binding\'s disabled state takes every thumb out of the Tab sequence', 
     binding.disabled.set(true);
     fixture.detectChanges();
     for (const thumb of thumbs()) assert.equal(thumb.getAttribute('tabindex'), '-1');
+  } finally { fixture.destroy(); }
+});
+
+@Component({
+  selector: 'slider-controlled-host',
+  standalone: true,
+  imports: [ArenaSlider],
+  template: `<arena-slider label="Volume" [min]="0" [max]="100" [step]="1" [value]="value()" (change)="value.set($event)" />`,
+})
+class ControlledHost { readonly value = signal(20); }
+
+test('a controlled slider keeps both of two key steps made before the host re-renders', () => {
+  const fixture = TestBed.createComponent(ControlledHost);
+  fixture.detectChanges();
+  try {
+    const thumb = (fixture.nativeElement as HTMLElement).querySelector('[role="slider"]') as HTMLElement;
+    for (let i = 0; i < 2; i += 1) thumb.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true, cancelable: true }));
+    assert.equal(fixture.componentInstance.value(), 22);
   } finally { fixture.destroy(); }
 });

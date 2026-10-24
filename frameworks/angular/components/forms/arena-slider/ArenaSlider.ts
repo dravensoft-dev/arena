@@ -167,8 +167,8 @@ export class ArenaSlider {
   protected readonly pair = computed<Pair>(() => {
     const bounds = this.bounds();
     const formed = this.binding.bound() ? bindingPair(this.binding.value()) : undefined;
-    const start = formed ? formed.start : this.value() ?? this.heldStart();
-    const end = formed ? formed.end : this.valueEnd() ?? this.heldEnd();
+    const start = formed ? formed.start : this.heldStart();
+    const end = formed ? formed.end : this.heldEnd();
     return this.range()
       ? arenaSliderPair(start ?? bounds.min, end ?? bounds.last, bounds)
       : { start: arenaSnapToStep(start ?? bounds.min, bounds), end: bounds.last };
