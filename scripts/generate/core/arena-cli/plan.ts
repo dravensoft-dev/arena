@@ -158,12 +158,21 @@ const bare = (glyph: string) => glyph.replace(/^ph-/, '');
 
 const LITERAL = /^(?:'[^']*'|"[^"]*"|`[^`$]*`)$/;
 
+const ICON_GIVEN = /\s(?:\[icon\]=(?:"([^"]*)"|'([^']*)')|icon=(?:"([^"]*)"|'([^']*)')|icon=\{|\{\s*\.\.\.)/g;
+
 function expressionIcon(tag: string) {
-  for (const match of tag.matchAll(/\s(\[icon\]="([^"]*)"|icon=\{)/g)) {
-    if (match[2] !== undefined) {
-      if (!LITERAL.test(match[2].trim())) return true;
+  for (const match of tag.matchAll(ICON_GIVEN)) {
+    const bound = match[1] ?? match[2];
+    if (bound !== undefined) {
+      if (!LITERAL.test(bound.trim())) return true;
       continue;
     }
+    const written = match[3] ?? match[4];
+    if (written !== undefined) {
+      if (written.includes('{{')) return true;
+      continue;
+    }
+    if (match[0].endsWith('...')) return true;
     let depth = 1;
     let quote = '';
     let i = match.index + match[0].length;

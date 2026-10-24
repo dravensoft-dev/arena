@@ -578,23 +578,36 @@ async function navProject(files: Record<string, string>, tagged = false) {
 const DATA = "export const rows = [{ icon: 'ph-bold ph-folders' }, { icon: 'ph-bold ph-plugs-connected' }];\n";
 const glyphReports = (result: Awaited<ReturnType<typeof plan>>) => result.reports.filter((one) => one.kind === 'glyph').map((one) => one.message);
 
+const fillsEveryGlyph = (result: Awaited<ReturnType<typeof plan>>) => {
+  assert.equal(result.code, 0);
+  const sprite = spriteOf(result)?.content ?? '';
+  assert.ok(sprite.includes('id="ph-fill-folders"') && sprite.includes('id="ph-fill-plugs-connected"'));
+  assert.deepEqual(glyphReports(result).filter((one) => /ph-folders|ph-plugs-connected/.test(one)), []);
+};
+
 test('a fill-swapping item whose icon is an expression gets the filled weight of every glyph the sources name', async () => {
-  const react = await navProject({
+  fillsEveryGlyph(await navProject({
     'data.ts': DATA,
     'Nav.tsx': `import { ArenaSideNavItem } from '${NAME}';\n`
       + 'export const Nav = () => rows.map((row) => <ArenaSideNavItem icon={row.icon} label="x" />);\n',
-  });
-  assert.equal(react.code, 0);
-  const sprite = spriteOf(react)?.content ?? '';
-  assert.ok(sprite.includes('id="ph-fill-folders"') && sprite.includes('id="ph-fill-plugs-connected"'));
-  assert.deepEqual(glyphReports(react).filter((one) => /ph-folders|ph-plugs-connected/.test(one)), []);
-  const template = await navProject({
+  }));
+});
+
+test('a fill-swapping item whose icon is spread from an object gets the filled weight of every glyph the sources name', async () => {
+  fillsEveryGlyph(await navProject({
     'data.ts': DATA,
-    'nav.html': '<arena-side-nav-item [icon]="row.icon" label="x" />\n',
-  }, true);
-  const bound = spriteOf(template)?.content ?? '';
-  assert.ok(bound.includes('id="ph-fill-folders"') && bound.includes('id="ph-fill-plugs-connected"'));
-  assert.deepEqual(glyphReports(template).filter((one) => /ph-folders|ph-plugs-connected/.test(one)), []);
+    'Nav.tsx': `import { ArenaSideNavItem } from '${NAME}';\n`
+      + 'export const Nav = () => rows.map((row) => <ArenaSideNavItem {...row} label="x" />);\n',
+  }));
+});
+
+test('a fill-swapping element whose icon is bound to an expression gets the filled weight of every glyph the sources name', async () => {
+  fillsEveryGlyph(await navProject({ 'data.ts': DATA, 'nav.html': '<arena-side-nav-item [icon]="row.icon" label="x" />\n' }, true));
+});
+
+test('a binding in single quotes or an interpolation is an expression as well', async () => {
+  fillsEveryGlyph(await navProject({ 'data.ts': DATA, 'nav.html': "<arena-side-nav-item [icon]='row.icon' label=\"x\" />\n" }, true));
+  fillsEveryGlyph(await navProject({ 'data.ts': DATA, 'nav.html': '<arena-side-nav-item icon="{{ row.icon }}" label="x" />\n' }, true));
 });
 
 test('an icon written as a literal, bare or bound, keeps the filled weight to the file that draws the item', async () => {
