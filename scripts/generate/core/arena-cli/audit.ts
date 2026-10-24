@@ -655,16 +655,9 @@ export function valueResults(expression: string, keys = false): string[] | null 
   return readResults(body, keys);
 }
 
-function readResults(source: string, keys: boolean): string[] | null {
+export function resultTerms(source: string): string[] | null {
   let text = source.trim();
   while (text.startsWith('(') && wrapsWhole(text)) text = text.slice(1, -1).trim();
-  if (['', 'undefined', 'null', 'false'].includes(text)) return [];
-  const opener = text[0] ?? '';
-  if ((opener === '"' || opener === "'" || opener === '`') && closeOf(text, 0) === text.length - 1) {
-    const inner = text.slice(1, -1);
-    if (opener === '`' && inner.includes('${')) return null;
-    return inner.trim() === '' ? [] : [inner];
-  }
   const marks = topLevel(text);
   const lone = (i: number) => text[i + 1] !== '?' && text[i - 1] !== '?' && text[i + 1] !== '.';
   const ask = marks.find((i) => text[i] === '?' && lone(i));
@@ -677,12 +670,28 @@ function readResults(source: string, keys: boolean): string[] | null {
       return false;
     });
     if (colon === undefined) return null;
-    return joined([readResults(text.slice(ask + 1, colon), keys), readResults(text.slice(colon + 1), keys)]);
+    return joined([resultTerms(text.slice(ask + 1, colon)), resultTerms(text.slice(colon + 1))]);
   }
   const either = marks.filter((i) => (text[i] === '|' && text[i + 1] === '|') || (text[i] === '?' && text[i + 1] === '?'));
-  if (either.length) return joined(splitAt(text, either, 2).map((part) => readResults(part, keys)));
+  if (either.length) return joined(splitAt(text, either, 2).map(resultTerms));
   const both = marks.filter((i) => text[i] === '&' && text[i + 1] === '&' && text[i - 1] !== '&');
-  if (both.length) return readResults(splitAt(text, both, 2).at(-1) ?? '', keys);
+  if (both.length) return resultTerms(splitAt(text, both, 2).at(-1) ?? '');
+  return [text];
+}
+
+function readResults(source: string, keys: boolean): string[] | null {
+  const terms = resultTerms(source);
+  return terms && joined(terms.map((term) => readTerm(term, keys)));
+}
+
+function readTerm(text: string, keys: boolean): string[] | null {
+  if (['', 'undefined', 'null', 'false'].includes(text)) return [];
+  const opener = text[0] ?? '';
+  if ((opener === '"' || opener === "'" || opener === '`') && closeOf(text, 0) === text.length - 1) {
+    const inner = text.slice(1, -1);
+    if (opener === '`' && inner.includes('${')) return null;
+    return inner.trim() === '' ? [] : [inner];
+  }
   if (keys && text.startsWith('{') && wrapsWhole(text)) {
     const inner = text.slice(1, -1);
     const names = splitAt(inner, topLevel(inner).filter((i) => inner[i] === ','), 1)

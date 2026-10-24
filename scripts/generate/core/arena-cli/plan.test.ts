@@ -893,6 +893,7 @@ test('a glyph counts as drawn once any source hands an icon member an expression
     "export const A = () => <ArenaIconButton icon={dark ? 'ph-bold ph-sun' : 'ph-bold ph-moon'} label=\"x\" />;\n",
     'export const A = () => <ArenaButton iconRight={row.icon}>x</ArenaButton>;\n',
     'export const A = () => <ArenaButton icon = {x}>x</ArenaButton>;\n',
+    'export const A = () => <ArenaButton icon={on ? <Plus /> : row.icon}>x</ArenaButton>;\n',
     'export const A = () => <ArenaIcon {...props} />;\n',
   ]) assert.deepEqual(await glyphReportsFor({ 'data.ts': NAMED, 'App.tsx': drawn }), [], drawn);
   for (const drawn of ['<arena-icon [icon]="tab.icon"></arena-icon>\n', '<arena-button [iconRight]="row.icon">x</arena-button>\n',
@@ -904,6 +905,8 @@ test('an element, a non-icon attribute and a spread on an Arena tag other than A
   for (const kept of [
     'export const A = () => <ArenaButton icon={<Plus />}>x</ArenaButton>;\n',
     'export const A = () => <ArenaButton icon={( <Plus /> )}>x</ArenaButton>;\n',
+    'export const A = () => <ArenaButton icon={on ? <Plus /> : (<Minus />)}>x</ArenaButton>;\n',
+    'export const A = () => <ArenaButton icon={on && <Plus />}>x</ArenaButton>;\n',
     'export const A = () => <ArenaIcon key={n} icon="ph-bold ph-star" />;\n',
     'export const A = () => <ArenaInput {...field} />;\n',
   ]) assert.equal((await glyphReportsFor({ 'data.ts': NAMED, 'App.tsx': kept })).length, 1, kept);

@@ -15,7 +15,7 @@ import { AUTO, resolve as resolveComponents } from './components.ts';
 import type { ComponentMap } from './components.ts';
 import { scan, drawnGlyphs, fillSourceGlyphs, glyphNames, mergeShipped, shippedNames, WEIGHT_CLASSES } from './icon-css.ts';
 import type { IconScan } from './icon-css.ts';
-import { iconMemberGlyphs, tagEnd } from './audit.ts';
+import { iconMemberGlyphs, resultTerms, tagEnd } from './audit.ts';
 import { report } from './reports.ts';
 import type { Report } from './reports.ts';
 import {
@@ -191,7 +191,7 @@ function expressionIcon(tag: string, { names = ['icon'], spread = true, element 
       else if (c === '}') depth -= 1;
     }
     const value = tag.slice(from, i - 1).trim();
-    if (!LITERAL.test(value) && (element || !/^[\s(]*</.test(value))) return true;
+    if (!LITERAL.test(value) && (element || !resultTerms(value)?.every((term) => term.startsWith('<')))) return true;
   }
   return false;
 }
