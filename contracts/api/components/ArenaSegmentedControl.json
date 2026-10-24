@@ -1,6 +1,6 @@
 {
   "component": "ArenaSegmentedControl",
-  "description": "A compact inline filter over mutually exclusive options. A real radio group, never a tab list, and it carries no crimson.",
+  "description": "A compact inline filter over mutually exclusive options. A real radio group, never a tab list, and it carries no accent.",
   "affordances": ["focus", "hover"],
   "api": {
     "options": { "form": "array", "of": "ArenaSegmentOption", "required": true, "description": "The options, in order. Two to four with one-word labels." },

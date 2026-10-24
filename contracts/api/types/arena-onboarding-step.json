@@ -4,7 +4,7 @@
   "description": "One step of a guided tour. All three fields are optional so a step can carry only the ones it needs; Arena renders each conditionally.",
   "fields": {
     "eyebrow": { "form": "primitive", "type": "string",
-                 "description": "Mono crimson microlabel above the title." },
+                 "description": "Mono primary microlabel above the title." },
     "title": { "form": "primitive", "type": "string",
                "description": "The step's headline, and the coachmark's accessible name." },
     "body": { "form": "primitive", "type": "string",

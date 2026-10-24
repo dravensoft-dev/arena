@@ -31,7 +31,7 @@ export interface ArenaNumberFieldProps {
   /** Controlled error message; wins over `validate`, and describes the field while it shows. */
   error?: string;
 
-  /** Force the valid (green check) state. */
+  /** Force the valid (success-tone check) state. */
   valid?: boolean;
 
   /** Marks the label and sets the native `required` on the field, so a native submission refuses an empty one. */

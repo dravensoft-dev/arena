@@ -44,7 +44,7 @@ import manifest from './ArenaUnauthCard.classes.generated';
 export class ArenaUnauthCard {
   protected readonly parts = manifest.parts;
 
-  /** Mono crimson microlabel: the product, not the task. */
+  /** Mono primary microlabel: the product, not the task. */
   readonly eyebrow = input<string>();
   /** The task. "Welcome back", "Check your inbox". */
   readonly title = input<string>();

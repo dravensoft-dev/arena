@@ -27,7 +27,7 @@ the column its parent lays out. The control is a real `<input>`, named by a real
 | `id` | primitive | `string` |  | The control's id, and what the label's `for` points at. Generated from `label` when omitted, as `in-` followed by the label with each run of whitespace replaced by a single hyphen and the whole lowercased. The derivation is normative, and the prefix differs per component on purpose. Identical markup must get an identical id in every layer, and an ArenaInput and an ArenaTextarea sharing a label must not collide. The hint or the error takes it followed by `-note`. |
 | `hint` | primitive | `string` |  | A line of help under the field. |
 | `error` | primitive | `string` |  | Controlled error message; wins over `validate`. |
-| `valid` | primitive | `boolean` | `false` | Force the valid (green check) state. |
+| `valid` | primitive | `boolean` | `false` | Force the valid (success-tone check) state. |
 | `required` | primitive | `boolean` | `false` | Marks the label and the control required. |
 | `validate` | functionInput | `(value: string) => string` |  | Called on the value; returns the error message, or empty for valid. |
 | `validateOn` | enum | `ArenaValidateOn` | `"blur"` | When `validate` runs. |

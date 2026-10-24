@@ -23,7 +23,7 @@ export interface ArenaInputProps {
   /** Controlled error message; wins over `validate`. */
   error?: string;
 
-  /** Force the valid (green check) state. */
+  /** Force the valid (success-tone check) state. */
   valid?: boolean;
 
   /** Marks the label and the control required. */

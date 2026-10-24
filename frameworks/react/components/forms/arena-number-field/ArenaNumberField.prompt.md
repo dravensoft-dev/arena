@@ -17,7 +17,7 @@ A field that holds one number. A person types it, steps it with a key or with th
 | `id` | primitive | `string` |  | The field's id, and what the label's `for` points at. Generated from `label` when omitted, as `nf-` followed by the label with each run of whitespace replaced by a single hyphen and the whole lowercased. The derivation is normative, and the prefix differs per component on purpose. Identical markup must get an identical id in every layer, and two controls sharing a label must not collide. The hint or the error takes it followed by `-note`. |
 | `hint` | primitive | `string` |  | A line of help under the field, and the field's description. An error replaces it while one shows. |
 | `error` | primitive | `string` |  | Controlled error message; wins over `validate`, and describes the field while it shows. |
-| `valid` | primitive | `boolean` | `false` | Force the valid (green check) state. |
+| `valid` | primitive | `boolean` | `false` | Force the valid (success-tone check) state. |
 | `required` | primitive | `boolean` | `false` | Marks the label and sets the native `required` on the field, so a native submission refuses an empty one. |
 | `validate` | functionInput | `(value: number) => string` |  | Called on a committed number; returns the error message, or empty for valid. Never called for an empty field. |
 | `validateOn` | enum | `ArenaValidateOn` | `"blur"` | When `validate` runs: "blur" on a commit by blur or Enter, "change" on every commit, a key or stepper step included. |

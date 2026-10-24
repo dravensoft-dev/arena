@@ -36,7 +36,7 @@ export interface ArenaSelectProps {
   /** Controlled error message. The message is the whole validation surface here, unlike ArenaInput, which also takes a `validate` function. A native select offers a closed list, so there is no value to parse and nothing for a validator to reject that the options did not already prevent. */
   error?: string;
 
-  /** Force the valid (green check) state. */
+  /** Force the valid (success-tone check) state. */
   valid?: boolean;
 
   /** Phosphor class name drawn at the field's start through ArenaIcon. */

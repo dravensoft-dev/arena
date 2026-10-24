@@ -6,7 +6,7 @@
     "brand": { "form": "slot",
                "description": "The brand lock-up above the panel's content. An ArenaAppLogo, in practice." },
     "eyebrow": { "form": "primitive", "type": "string",
-                 "description": "Mono crimson microlabel: the product, not the task." },
+                 "description": "Mono primary microlabel: the product, not the task." },
     "title": { "form": "primitive", "type": "string",
                "description": "The task. \"Welcome back\", \"Check your inbox\"." },
     "headingLevel": { "form": "enum", "type": "ArenaHeadingLevel", "default": "h2",

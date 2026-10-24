@@ -77,7 +77,7 @@ export class ArenaSelect {
   readonly hint = input<string>();
   /** Controlled error message. The message is the whole validation surface here, unlike ArenaInput, which also takes a `validate` function. A native select offers a closed list, so there is no value to parse and nothing for a validator to reject that the options did not already prevent. */
   readonly error = input<string>();
-  /** Force the valid (green check) state. */
+  /** Force the valid (success-tone check) state. */
   readonly valid = input(false, { transform: booleanAttribute });
   /** Phosphor class name drawn at the field's start through ArenaIcon. */
   readonly icon = input<string>();

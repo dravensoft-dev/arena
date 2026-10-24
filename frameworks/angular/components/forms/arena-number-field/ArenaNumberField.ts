@@ -102,7 +102,7 @@ export class ArenaNumberField {
   readonly hint = input<string>();
   /** Controlled error message; wins over `validate`, and describes the field while it shows. */
   readonly error = input<string>();
-  /** Force the valid (green check) state. */
+  /** Force the valid (success-tone check) state. */
   readonly valid = input(false, { transform: booleanAttribute });
   /** Marks the label and sets the native `required` on the field, so a native submission refuses an empty one. */
   readonly required = input(false, { transform: booleanAttribute });

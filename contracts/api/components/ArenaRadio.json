@@ -1,6 +1,6 @@
 {
   "component": "ArenaRadio",
-  "description": "One option inside an ArenaRadioGroup. Selected shows a crimson dot inside the ring.",
+  "description": "One option inside an ArenaRadioGroup. Selected shows a primary-fill dot inside the ring.",
   "affordances": ["focus"],
   "api": {
     "value": { "form": "primitive", "type": "string", "required": true, "description": "This option's value, matched against the group's." },

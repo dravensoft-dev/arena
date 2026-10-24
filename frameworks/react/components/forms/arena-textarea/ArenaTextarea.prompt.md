@@ -15,7 +15,7 @@ Multi-line text input. Shares the same visual states as `ArenaInput`.
 | `label` | primitive | `string` |  | Field label; the counter and error sit under the field. |
 | `id` | primitive | `string` |  | The control's id, and what the label's `for` points at. Generated from `label` when omitted, as `ta-` followed by the label with each run of whitespace replaced by a single hyphen and the whole lowercased. The derivation is the one ArenaInput.id states, under this component's own prefix. The hint or the error takes it followed by `-note`. |
 | `hint` | primitive | `string` |  | A line of help under the field. |
-| `error` | primitive | `string` |  | Error message; turns the border crimson and shows below. |
+| `error` | primitive | `string` |  | Error message; turns the border to the danger tone and shows below. |
 | `required` | primitive | `boolean` | `false` | Marks the label and the control required. |
 | `counter` | primitive | `boolean` | `false` | Shows a live length/maxLength count, which warns once the length is STRICTLY past nine tenths of `maxLength`; exactly at the share is not yet near the limit. |
 | `autoResize` | primitive | `boolean` | `false` | Grows with the content instead of scrolling. |

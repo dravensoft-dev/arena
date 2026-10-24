@@ -21,7 +21,7 @@ Styled native dropdown selector. `options` is an array of `{value, label}` objec
 | `required` | primitive | `boolean` | `false` | Must have a value for the form to submit. |
 | `hint` | primitive | `string` |  | A line of help under the field. |
 | `error` | primitive | `string` |  | Controlled error message. The message is the whole validation surface here, unlike ArenaInput, which also takes a `validate` function. A native select offers a closed list, so there is no value to parse and nothing for a validator to reject that the options did not already prevent. |
-| `valid` | primitive | `boolean` | `false` | Force the valid (green check) state. |
+| `valid` | primitive | `boolean` | `false` | Force the valid (success-tone check) state. |
 | `icon` | primitive | `string` |  | Phosphor class name drawn at the field's start through ArenaIcon. |
 | `name` | primitive | `string` |  | Submitted with the form. |
 | `onChange` | event | `string` |  | A different option was chosen; carries its value. |

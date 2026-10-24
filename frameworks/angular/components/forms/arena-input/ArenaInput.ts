@@ -77,7 +77,7 @@ export class ArenaInput {
   readonly hint = input<string>();
   /** Controlled error message; wins over `validate`. */
   readonly error = input<string>();
-  /** Force the valid (green check) state. */
+  /** Force the valid (success-tone check) state. */
   readonly valid = input(false, { transform: booleanAttribute });
   /** Marks the label and the control required. */
   readonly required = input(false, { transform: booleanAttribute });

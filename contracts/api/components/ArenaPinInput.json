@@ -1,6 +1,6 @@
 {
   "component": "ArenaPinInput",
-  "description": "A short code entered one character per cell, such as a one-time code sent by text message. The cells are real text fields in a labelled group with one tab stop. A typed character fills its cell and moves on, Backspace walks back, and a pasted or autofilled code spreads across the cells. The code is one string, submitted once under `name`. Focus is a gold ring on one cell, error crimson on every cell and valid green with a check, in the order ArenaInput states.",
+  "description": "A short code entered one character per cell, such as a one-time code sent by text message. The cells are real text fields in a labelled group with one tab stop. A typed character fills its cell and moves on, Backspace walks back, and a pasted or autofilled code spreads across the cells. The code is one string, submitted once under `name`. Focus is the focus ring on one cell, error the danger tone on every cell and valid the success tone with a check, in the order ArenaInput states.",
   "affordances": ["focus", "hover"],
   "api": {
     "label": { "form": "primitive", "type": "string", "required": true,
@@ -16,9 +16,9 @@
     "hint": { "form": "primitive", "type": "string",
               "description": "A line of help under the cells, and each cell's description. An error replaces it while one shows." },
     "error": { "form": "primitive", "type": "string",
-               "description": "Controlled error message; the cells turn crimson and invalid, and the message describes each cell while it shows." },
+               "description": "Controlled error message; the cells take the danger tone and turn invalid, and the message describes each cell while it shows." },
     "valid": { "form": "primitive", "type": "boolean", "default": false,
-               "description": "Force the valid (green check) state." },
+               "description": "Force the valid (success-tone check) state." },
     "required": { "form": "primitive", "type": "boolean", "default": false,
                   "description": "Marks the label and sets the native `required` on every cell, so a native submission refuses a code with an empty cell." },
     "disabled": { "form": "primitive", "type": "boolean", "default": false,

@@ -92,9 +92,9 @@ export class ArenaPinInput {
   readonly value = input<string>();
   /** A line of help under the cells, and each cell's description. An error replaces it while one shows. */
   readonly hint = input<string>();
-  /** Controlled error message; the cells turn crimson and invalid, and the message describes each cell while it shows. */
+  /** Controlled error message; the cells take the danger tone and turn invalid, and the message describes each cell while it shows. */
   readonly error = input<string>();
-  /** Force the valid (green check) state. */
+  /** Force the valid (success-tone check) state. */
   readonly valid = input(false, { transform: booleanAttribute });
   /** Marks the label and sets the native `required` on every cell, so a native submission refuses a code with an empty cell. */
   readonly required = input(false, { transform: booleanAttribute });

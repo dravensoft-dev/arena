@@ -75,7 +75,7 @@ export class ArenaTextarea {
   readonly id = input<string>();
   /** A line of help under the field. */
   readonly hint = input<string>();
-  /** Error message; turns the border crimson and shows below. */
+  /** Error message; turns the border to the danger tone and shows below. */
   readonly error = input<string>();
   /** Marks the label and the control required. */
   readonly required = input(false, { transform: booleanAttribute });

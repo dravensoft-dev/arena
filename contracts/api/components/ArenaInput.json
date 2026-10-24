@@ -1,7 +1,7 @@
 {
   "component": "ArenaInput",
   "kind": "input",
-  "description": "Text field with validation. Focus is a gold ring, error crimson, and valid green with a check. The four states are ordered and the order is normative: error, then focus, then valid, then neutral. An errored field stays crimson while it has focus, because the validation signal must not disappear at the moment the user acts on it.",
+  "description": "Text field with validation. Focus is the focus ring, error the danger tone, and valid the success tone with a check. The four states are ordered and the order is normative: error, then focus, then valid, then neutral. An errored field stays in the danger tone while it has focus, because the validation signal must not disappear at the moment the user acts on it.",
   "affordances": ["focus", "hover"],
   "api": {
     "label": { "form": "primitive", "type": "string", "description": "Field label above the control." },
@@ -9,7 +9,7 @@
             "description": "The control's id, and what the label's `for` points at. Generated from `label` when omitted, as `in-` followed by the label with each run of whitespace replaced by a single hyphen and the whole lowercased. The derivation is normative, and the prefix differs per component on purpose. Identical markup must get an identical id in every layer, and an ArenaInput and an ArenaTextarea sharing a label must not collide. The hint or the error takes it followed by `-note`." },
     "hint": { "form": "primitive", "type": "string", "description": "A line of help under the field." },
     "error": { "form": "primitive", "type": "string", "description": "Controlled error message; wins over `validate`." },
-    "valid": { "form": "primitive", "type": "boolean", "default": false, "description": "Force the valid (green check) state." },
+    "valid": { "form": "primitive", "type": "boolean", "default": false, "description": "Force the valid (success-tone check) state." },
     "required": { "form": "primitive", "type": "boolean", "default": false, "description": "Marks the label and the control required." },
     "validate": { "form": "functionInput", "params": { "value": "string" }, "returns": "string",
                   "description": "Called on the value; returns the error message, or empty for valid." },

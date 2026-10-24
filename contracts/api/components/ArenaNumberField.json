@@ -1,7 +1,7 @@
 {
   "component": "ArenaNumberField",
   "kind": "input",
-  "description": "A field that holds one number, typed or stepped by a key or by its two stepper buttons. The number is clamped to its bounds and written in a locale's format while it is not being edited. The value is a number and empty is its absence, so no payload is ever text or NaN. A commit happens on blur, on Enter and on every key or stepper step, never per keystroke. Focus is a gold ring on the field, error crimson, valid green with a check, in the order ArenaInput states.",
+  "description": "A field that holds one number, typed or stepped by a key or by its two stepper buttons. The number is clamped to its bounds and written in a locale's format while it is not being edited. The value is a number and empty is its absence, so no payload is ever text or NaN. A commit happens on blur, on Enter and on every key or stepper step, never per keystroke. Focus is the focus ring on the field, error the danger tone, valid the success tone with a check, in the order ArenaInput states.",
   "affordances": ["focus", "hover"],
   "api": {
     "label": { "form": "primitive", "type": "string", "required": true,
@@ -12,7 +12,7 @@
             "description": "The field's id, and what the label's `for` points at. Generated from `label` when omitted, as `nf-` followed by the label with each run of whitespace replaced by a single hyphen and the whole lowercased. The derivation is normative, and the prefix differs per component on purpose. Identical markup must get an identical id in every layer, and two controls sharing a label must not collide. The hint or the error takes it followed by `-note`." },
     "hint": { "form": "primitive", "type": "string", "description": "A line of help under the field, and the field's description. An error replaces it while one shows." },
     "error": { "form": "primitive", "type": "string", "description": "Controlled error message; wins over `validate`, and describes the field while it shows." },
-    "valid": { "form": "primitive", "type": "boolean", "default": false, "description": "Force the valid (green check) state." },
+    "valid": { "form": "primitive", "type": "boolean", "default": false, "description": "Force the valid (success-tone check) state." },
     "required": { "form": "primitive", "type": "boolean", "default": false,
                   "description": "Marks the label and sets the native `required` on the field, so a native submission refuses an empty one." },
     "validate": { "form": "functionInput", "params": { "value": "number" }, "returns": "string",

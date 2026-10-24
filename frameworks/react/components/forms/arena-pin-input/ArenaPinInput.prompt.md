@@ -17,8 +17,8 @@ A short code entered one character per cell, such as the one-time code a text me
 | `masked` | primitive | `boolean` | `false` | Hides what each cell holds, as a password field does. |
 | `value` | primitive | `string` |  | The whole code. Absent, the cells hold what the person types; present, it controls them. A string shorter than `length` fills the first cells, and a character `characters` refuses is dropped. |
 | `hint` | primitive | `string` |  | A line of help under the cells, and each cell's description. An error replaces it while one shows. |
-| `error` | primitive | `string` |  | Controlled error message; the cells turn crimson and invalid, and the message describes each cell while it shows. |
-| `valid` | primitive | `boolean` | `false` | Force the valid (green check) state. |
+| `error` | primitive | `string` |  | Controlled error message; the cells take the danger tone and turn invalid, and the message describes each cell while it shows. |
+| `valid` | primitive | `boolean` | `false` | Force the valid (success-tone check) state. |
 | `required` | primitive | `boolean` | `false` | Marks the label and sets the native `required` on every cell, so a native submission refuses a code with an empty cell. |
 | `disabled` | primitive | `boolean` | `false` | Blocks editing and dims it. |
 | `name` | primitive | `string` |  | Submitted with the form as the whole code, once, through a hidden input. The cells carry no name, so a form never receives one character on its own. |
