@@ -23,7 +23,9 @@
    over a menu item wins by being appended later rather than by --z-tooltip being 950, the
    outcome --z-tooltip exists for, reached by a different mechanism. And a toast outranks every CDK
    overlay, which is the order --z-toast declares rather than a cost: arena-toast is an in-flow
-   card the host places, so it never enters this layer at all. */
+   card the host places, so it never enters this layer at all.
+
+   The package's css/arena-cdk.css carries the CDK's own rules in place of the import below. */
 @import '@angular/cdk/overlay-prebuilt.css';
 
 .cdk-overlay-container {

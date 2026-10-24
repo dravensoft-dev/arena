@@ -22,7 +22,7 @@ import {
   collectFiles, reset, write, copy, writeCssChain, componentSheets, copyCli, baseManifest, report,
   CATALOGUE_FILE, tokenCatalogue,
   writeComponentMap, writeIconManifest, CLI_BINS, keywords,
-  copyBehaviourContracts, copyFonts, PALETTE_ENTRY, ANGULAR_EXTRA,
+  copyBehaviourContracts, copyFonts, PALETTE_ENTRY, angularExtra,
 } from '../../lib/arena/package-assembly.ts';
 import { PEERS, OPTIONAL_PEERS, CLI_DEPENDENCIES } from '../../lib/arena/support-matrix.ts';
 import { splitCompiledSheet } from '../../lib/tailwind/sheet-split.ts';
@@ -212,7 +212,7 @@ export async function buildAngularPackage(root = repoRoot) {
   const sheet = readFileSync(join(root, 'frameworks/tailwind/Utilities.generated.css'), 'utf8');
   for (const to of writeCssChain(dist, NAME, [
     ...componentSheets(sheet, splitCompiledSheet),
-    ...ANGULAR_EXTRA,
+    ...angularExtra(root),
   ], root)) written.push(join(dist, to));
   written.push(join(dist, 'arena.css'));
   written.push(write(dist, 'css/tailwind-theme.css', tailwindThemeSheet(root)));

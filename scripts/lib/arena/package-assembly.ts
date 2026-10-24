@@ -57,6 +57,24 @@ export const PRELUDE_SHEET = 'css/prelude.css';
 export const COMPONENTS_BARREL = 'css/components.css';
 export const ANGULAR_EXTRA: CssChainEntry[] = [{ from: 'frameworks/angular/theme/arena-cdk.css', to: 'css/arena-cdk.css' }];
 
+const CDK_IMPORT = "@import '@angular/cdk/overlay-prebuilt.css';";
+const CDK_PREBUILT = 'node_modules/@angular/cdk/overlay-prebuilt.css';
+
+/** The bridge with its one bare-specifier import replaced by the CDK's own sheet, so no resolver
+ *  needs the CDK's `style` export condition. */
+export function inlineCdkPrebuilt(bridge: string, prebuilt: string) {
+  if (!bridge.includes(CDK_IMPORT)) throw new Error(`inlineCdkPrebuilt: the bridge holds no ${CDK_IMPORT}`);
+  return bridge.replace(CDK_IMPORT, () => prebuilt.trimEnd());
+}
+
+/** ANGULAR_EXTRA with the CDK bridge carried as content, its import inlined. */
+export function angularExtra(root = repoRoot): CssChainEntry[] {
+  return ANGULAR_EXTRA.map((entry) => entry.from === undefined ? entry : {
+    to: entry.to,
+    content: inlineCdkPrebuilt(readFileSync(join(root, entry.from), 'utf8'), readFileSync(join(root, CDK_PREBUILT), 'utf8')),
+  });
+}
+
 export const arenaCssHeader = (name: string) => [
   `/* ${name} -- the invariant half of Arena's stylesheet.`,
   '   Import this FIRST, then the file arena build wrote from your arena.config.json,',

@@ -14,11 +14,12 @@ import { captured } from '../../utils/captures.ts';
 
 const BRIDGE = 'frameworks/angular/theme/arena-cdk.css';
 const PREBUILT = 'node_modules/@angular/cdk/overlay-prebuilt.css';
+const PUBLISHED = 'frameworks/angular/dist/css/arena-cdk.css';
 
 export const node = {
   name: 'check:cdk',
   reads: [BRIDGE, 'contracts/design-generated/*.generated.css', 'contracts/design/colors.css',
-    'package.json', 'bun.lock'],
+    'package.json', 'bun.lock', PUBLISHED],
   writes: [],
   feeds: [],
 };
@@ -77,6 +78,21 @@ export function checkBridge(bridgeCss: string, prebuiltCss: string, tokens: Set<
   return errs;
 }
 
+/* The package's copy must resolve with no `style` export condition: no bare-specifier @import,
+ * the CDK's own sheet verbatim, and the z-scale override after it. */
+export function publishedBridgeProblems(published: string, prebuilt: string) {
+  const errs: string[] = [];
+  const stripped = published.replace(/\/\*[\s\S]*?\*\//g, '');
+  const bare = [...stripped.matchAll(/@import\s+(?:url\(\s*)?['"]([^'"]+)['"]/g)].map((m) => captured(m)).filter((spec) => !/^\.{1,2}\//.test(spec));
+  if (bare.length) errs.push(`${PUBLISHED} has an @import of ${bare.map((b) => `'${b}'`).join(', ')} — a bare specifier needs the resolver to know the CDK's style condition, and esbuild without it cannot`);
+  const at = published.indexOf(prebuilt.trimEnd());
+  if (at < 0) errs.push(`${PUBLISHED} does not hold the installed overlay-prebuilt.css verbatim — the overlay renders unpositioned or with rules the installed CDK no longer has`);
+  const override = /\.cdk-overlay-container\s*\{[^}]*z-index:\s*calc\(var\(--z-toast\)\s*-\s*10\)/;
+  if (!override.test(at < 0 ? published : published.slice(at + prebuilt.trimEnd().length)))
+    errs.push(`${PUBLISHED} lacks .cdk-overlay-container with z-index: calc(var(--z-toast) - 10) after the CDK's rules — the overlay falls back under Arena's in-flow overlays`);
+  return errs;
+}
+
 function main() {
   const prebuilt = join(repoRoot, PREBUILT);
   if (!existsSync(prebuilt)) {
@@ -96,6 +112,16 @@ function main() {
     for (const e of errs) console.error(`  ${e}`);
     process.exit(1);
   }
+  const published = join(repoRoot, PUBLISHED);
+  if (existsSync(published)) {
+    const bad = publishedBridgeProblems(readFileSync(published, 'utf8'), readFileSync(prebuilt, 'utf8'));
+    if (bad.length) {
+      console.error(`check-cdk: ${bad.length} problem${bad.length === 1 ? '' : 's'} in ${PUBLISHED}\n`);
+      for (const e of bad) console.error(`  ${e}`);
+      process.exit(1);
+    }
+    console.log(`check-cdk: ${PUBLISHED} carries the CDK overlay rules inline`);
+  } else console.log(`check-cdk: ${PUBLISHED} not built, the package copy is not checked (bun run build:packages writes it)`);
   const n = cdkClasses(css).size;
   console.log(`check-cdk: ${n} overridden CDK class${n === 1 ? ' exists' : 'es exist'}, every Arena token resolves, every @import resolves`);
 }

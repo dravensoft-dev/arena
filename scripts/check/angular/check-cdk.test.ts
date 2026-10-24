@@ -5,7 +5,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { bridgeSelectors, cdkClasses, importedSheets, checkBridge } from './check-cdk.ts';
+import { bridgeSelectors, cdkClasses, importedSheets, checkBridge, publishedBridgeProblems } from './check-cdk.ts';
+import { inlineCdkPrebuilt } from '../../lib/arena/package-assembly.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
 
 const PREBUILT = readFileSync(
@@ -76,4 +77,17 @@ test('a bridge that stops importing the prebuilt sheet fails', () => {
 
 test('the oracle sees the container class the bridge exists to override', () => {
   assert.ok(cdkClasses(PREBUILT).has('cdk-overlay-container'));
+});
+
+const SOURCE_BRIDGE = readFileSync(join(repoRoot, 'frameworks', 'angular', 'theme', 'arena-cdk.css'), 'utf8');
+
+test('publishedBridgeProblems accepts the inlined bridge and names each way a copy goes wrong', () => {
+  const good = inlineCdkPrebuilt(SOURCE_BRIDGE, PREBUILT);
+  assert.deepEqual(publishedBridgeProblems(good, PREBUILT), []);
+  assert.equal(publishedBridgeProblems(SOURCE_BRIDGE, PREBUILT).length >= 1, true, 'the raw source bridge');
+  assert.ok(publishedBridgeProblems(SOURCE_BRIDGE, PREBUILT).some((p) => p.includes('@import')));
+  const drift = inlineCdkPrebuilt(SOURCE_BRIDGE, PREBUILT.replace('z-index: 1000', 'z-index: 999'));
+  assert.equal(publishedBridgeProblems(drift, PREBUILT).length, 1, 'a prebuilt with one rule changed');
+  const noOverride = good.replace('calc(var(--z-toast) - 10)', '1000');
+  assert.equal(publishedBridgeProblems(noOverride, PREBUILT).length, 1, 'the override removed');
 });

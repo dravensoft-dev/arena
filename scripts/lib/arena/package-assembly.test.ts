@@ -6,7 +6,7 @@ import { join } from 'node:path';
 import { relPosix } from '../../utils/posix-path.ts';
 import {
   EXCLUDED_NAMES, EXCLUDED_PATTERNS, CSS_CHAIN, arenaCssHeader, excluded,
-  collectFiles, reset, write, copyTree, copyCli, emitDeclaration, declarationReach, CLI_BINS, PALETTE_ENTRY, CLI_SOURCES, baseManifest, pluginIdentity, version, repositoryBase, agentBases, componentSheets, writeCssChain, arenaCssLayers, ANGULAR_EXTRA,
+  collectFiles, reset, write, copyTree, copyCli, emitDeclaration, declarationReach, CLI_BINS, PALETTE_ENTRY, CLI_SOURCES, baseManifest, pluginIdentity, version, repositoryBase, agentBases, componentSheets, writeCssChain, arenaCssLayers, ANGULAR_EXTRA, inlineCdkPrebuilt, angularExtra,
   writeComponentMap, copyFonts, FONTS_PACKAGE_DIR, keywords, SHARED_KEYWORDS, tokenCatalogue, shippedChannels, aliasDeclarations, catalogueRole,
 } from './package-assembly.ts';
 import { readJson } from '../../utils/read-file.ts';
@@ -526,4 +526,20 @@ test('copyFonts stops when the record names a file that is not there, or a font 
   assert.throws(() => copyFonts(track(mkdtempSync(join(tmpdir(), 'arena-fonts-'))), root), /a\.woff2/);
   writeFileSync(join(root, 'assets', 'fonts', 'a.woff2'), 'x');
   assert.throws(() => copyFonts(track(mkdtempSync(join(tmpdir(), 'arena-fonts-'))), root), /a\.OFL\.txt/);
+});
+
+test('inlineCdkPrebuilt puts the CDK sheet where the import was and keeps the override after it', () => {
+  const bridge = "/* head */\n@import '@angular/cdk/overlay-prebuilt.css';\n\n.cdk-overlay-container {\n  z-index: 1;\n}\n";
+  const out = inlineCdkPrebuilt(bridge, '.cdk-a { top: 0; }\n');
+  assert.ok(!out.includes('@import'));
+  assert.ok(out.indexOf('.cdk-a { top: 0; }') < out.indexOf('.cdk-overlay-container'));
+  assert.ok(out.startsWith('/* head */\n'));
+});
+
+test('inlineCdkPrebuilt throws on a bridge with no import, and angularExtra carries the bridge as content', () => {
+  assert.throws(() => inlineCdkPrebuilt('.a { b: c; }', 'x'), /holds no @import/);
+  const [entry] = angularExtra(repoRoot);
+  assert.equal(entry?.to, 'css/arena-cdk.css');
+  assert.equal(entry?.from, undefined);
+  assert.ok(!entry?.content?.includes('@import'));
 });
