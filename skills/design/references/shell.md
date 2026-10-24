@@ -25,7 +25,7 @@ export function Shell({ openSearch }: { openSearch: () => void }) {
     <ArenaSkipLink label="Skip to content" />
     <ArenaAppBar
       brand={<Link to="/" aria-label="Andina, home"><ArenaAppLogo name="Andina" className="arena-size-sm" /></Link>}
-      actions={<ArenaIconButton icon="ph-bold ph-magnifying-glass" label="Search" onClick={openSearch} />} />
+      actions={<ArenaIconButton icon="ph-bold ph-magnifying-glass" label="Search" onActivate={openSearch} />} />
     <div className="arena-shell__main app-frame">
       <ArenaSideNav ariaLabel="Primary" active={active} onNav={(id) => go(id)}>
         <ArenaSideNavItem id="orders" icon="ph-bold ph-package" label="Orders" href="/orders" />

@@ -151,13 +151,13 @@ export function Shell({ children }: { children: ReactNode }) {
 
 function SaveButton() {
   const toasts = useToasts();
-  return <ArenaButton onClick={() => toasts.raise({ title: 'Saved', actionLabel: 'Undo' })}>Save</ArenaButton>;
+  return <ArenaButton onActivate={() => toasts.raise({ title: 'Saved', actionLabel: 'Undo' })}>Save</ArenaButton>;
 }
 
 function DeleteButton() {
   const confirms = useConfirms();
   return (
-    <ArenaButton onClick={async () => {
+    <ArenaButton onActivate={async () => {
       if (await confirms.ask({ title: 'Delete the project?', destructive: true })) remove();
     }}>Delete</ArenaButton>
   );

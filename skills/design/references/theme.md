@@ -21,7 +21,7 @@ initArenaTheme({
 
 function ThemeButton() {
   const [theme, setTheme] = useArenaTheme();
-  return <ArenaButton onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>{theme}</ArenaButton>;
+  return <ArenaButton onActivate={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>{theme}</ArenaButton>;
 }
 ```
 

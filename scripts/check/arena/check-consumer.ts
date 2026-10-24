@@ -89,7 +89,7 @@ export const BREAKING: Record<string, { files: Record<string, string>; rules: st
         + "import { Link } from 'react-router-dom';\n"
         + 'export const App = () => (<div style={{ padding: \'16px\', color: \'#b52a20\' }}>\n'
         + '  <ArenaButton\n'
-        + '    onClick={() => go()}\n'
+        + '    onActivate={() => go()}\n'
         + '    className="mine arena-emphasis-primary"\n'
         + '    icon={<Plus />}\n'
         + '  >\n'

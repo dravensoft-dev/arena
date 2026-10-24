@@ -108,10 +108,8 @@ server render makes it worse rather than better, because the markup is serialize
 the HTML parser foster-parents a non-table element straight out of the table. So `ArenaTableRow` is
 `tr[arena-table-row]` and `ArenaTableCell` is `td[arena-table-cell]`, the prefix is unchanged, and the
 role the element already maps to is not written back onto it. Two consequences travel with the shape.
-An **output named after a native DOM event cannot be listened to from the `host` block**: the listener
-is wired to that output and `emit()` re-enters its own handler, so the listener is added to the host
-element in the constructor, which also puts it ahead of the one Angular adds for the consumer's
-binding and lets `stopImmediatePropagation()` refuse the duplicate. And **the demo emitters read the
+The **row adds its `click` listener to the host element in the constructor**, and its `activate` output
+reports the activation after the row's own guards. And **the demo emitters read the
 declared selector** from the layer's own source, so a tag opens with its element and its hook and
 closes with the element alone, with nothing to list anywhere.
 
@@ -543,7 +541,7 @@ grep -Lr "'\[class\]':" --include='[A-Z]*.ts' frameworks/angular/components/*/*/
   | grep -vE '\.(test|variants|card\.entry)\.ts$|(State|Window)\.ts$'
 ```
 
-They fall into **four** groups, each with its own reason. The **SVG charts** are boxless
+They fall into **three** groups, each with its own reason. The **SVG charts** are boxless
 (`display: contents`) and draw their frame as an inner slot, so there is no `root` slot to bind. The **form controls** each need their own
 `<button>`, `<input>` or `<label>`. Some **keep a specific semantic or structural element**: a
 real `<ul>` for a feed, a real `<ol>` for the steps of a stepper and the milestones of a
@@ -552,30 +550,16 @@ timeline, a `<div role="tablist">` whose panels are siblings outside it, a real
 `<nav>` for a navigation landmark, since the `navigation` pattern offers `role="navigation"` only
 for when a `<nav>` cannot be used. The element itself is the meaning for `arena-divider`, whose
 `<hr>` a reader meets as a separator, `arena-kbd`, whose `<kbd>` is keyboard input, and `arena-link`,
-whose `<a href>` is the focusable link. The fourth group has a reason unlike the other three:
-**a component that owns an output named after a DOM event it must be able to refuse needs an inner
-element to stop the event at.** An Angular output named after a native DOM event is
-delivered twice, once as the output and once as the bubbled DOM event Angular also listens for
-on the host, so with `stopPropagation()` removed one pointer click reaches the consumer twice and a
-disabled row activates. A host listener cannot fix it: `stopPropagation` does not reach a sibling
-listener on the same element, and `stopImmediatePropagation` would depend on registration order.
-So the rule has a second clause: **host-bind unless the root must be a specific element, or unless
-the component owns an output named after a DOM event it must be able to refuse.** The suites
-assert the delivery count, so a wrapper cannot be optimised away without a red run.
-
-**`arena-card` is in that fourth group and shows how far the defect goes.** A host that both
-listens for `click` and emits an output of that name does not merely double-deliver: each emission
-re-enters the host's own listener, and one measured press reached the consumer 7609 times before
-the run gave up. So the wrapper is not a tidiness question there either.
+whose `<a href>` is the focusable link. The rule has one clause: **host-bind unless the root must be a specific element.**
 
 **The consequence a carve-out pays** is that a consumer attribute written on `<arena-x>`, a
 static `class` or an ARIA attribute, lands on the inert host and never on the styled element
 inside it, and neither layer offers a second route to it. That follows from the carve-out, not
 from anything a contract could restate, and it is the argument for host-binding being the default.
 
-## Four traps this layer's idiom sets
+## Three traps this layer's idiom sets
 
-All four are layer-wide and silent.
+All three are layer-wide and silent.
 
 **A resolving transform spells the default twice, and only one of the two runs for any given
 caller.** `input(X, { transform: (value) => value ?? Y })` is the layer's shape for an optional
@@ -606,45 +590,13 @@ does not clear it fails, and so does one that clears an attribute it takes no in
 the guard, not a count**: the defect does not depend on host-binding, so any figure derived from
 the host-bound primitives alone undercounts.
 
-**`(click)` on an element of a primitive fires for the DOM event AND for the primitive's `click`
-output.** Angular installs both: a native listener on the host element, and a subscription to the
-`output()` of the same name. The counts below are **measured with a probe component** across all four
-combinations, because the reading that Angular binds one or the other is equally plausible and
-being wrong about which is undetectable by eye:
-
-| the primitive | what a consumer's `(click)` counts |
-| --- | --- |
-| emits and stops propagation | 1 |
-| emits, does not stop propagation | **2** |
-| does not emit, does not stop propagation | **1, a phantom** |
-| does not emit and stops propagation | 0 |
-
-**So a primitive declaring a `click` output stops propagation on every click it handles**, or a
-consumer's handler is called twice for one press. Every primitive that declares one does, in every
-branch, including the ones that deliberately do not emit, which is what turns the third row into
-the fourth and keeps a chip the consumer declared non-interactive from reporting an activation
-nobody made. Derive the set with the command below rather than reading a list here.
-
-**And a suite counting activations through a `(click)` binding is measuring the sum**, so it
-cannot tell an emit from a bubble and would read a doubled call as a passing one. Their suites
-assert **both** numbers, the output on the component instance and what a template
-binding hears, because either alone is blind: the instance count cannot see a native event
-escaping to the consumer, and the binding count cannot see the output going silent.
+**No output shares the name of a DOM event that bubbles out of the component.** A native `click` or
+`change` from an inner element reaches the consumer's `(click)` or `(change)` binding as the DOM event,
+and an output of the same name would reach it a second time. So a component reports an activation
+through `activate` and a value through `valueChange`, and `check:api` refuses an event member
+named `click` or `change`. A suite counting activations asserts both numbers, the output on the
+component instance and what a template `(activate)` binding hears, because either alone is blind.
 `ArenaCalendarEvent.cases.test.ts` is the shape.
-
-**`click` is not the only output named after a native event, and the rest are unaudited.**
-Derive the set rather than trusting a list:
-
-```bash
-grep -rhoE 'readonly (blur|cancel|change|click|close|focus|input|select|submit|toggle) = output<' \
-    --include='*.ts' components | sort | uniq -c
-```
-
-Every one of them carries the same double-fire risk, and only the `click` ones are measured.
-`change` is the widest family, and `ArenaCheckbox.compliance.test.ts`,
-`ArenaCheckboxGroup.compliance.test.ts` and `ArenaRadioGroup.compliance.test.ts` assert their
-consumer hears it exactly once, which is half the pair above; the rest of that family asserts
-nothing about it.
 
 ## Two roots, two projections, one template
 

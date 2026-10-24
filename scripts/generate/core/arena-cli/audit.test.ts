@@ -175,7 +175,7 @@ test('a tag broken across lines is the same defect, and it is how a formatter wr
 });
 
 test('an attribute holding an arrow or a comparison does not end the tag early', () => {
-  const arrow = '<ArenaButton\n  onClick={() => go()}\n  className="mine"\n>Go</ArenaButton>';
+  const arrow = '<ArenaButton\n  onActivate={() => go()}\n  className="mine"\n>Go</ArenaButton>';
   assert.match(rules(arrow), /own-class/);
   const guarded = '<Link\n  to="/x"\n  onMouseOver={() => a > b}\n>\n  <ArenaCard>c</ArenaCard>\n</Link>';
   assert.match(rules(guarded), /router-link/);
@@ -917,8 +917,8 @@ test('inputs, outputs, markers, globals and Angular syntax are not reported', ()
     '<arena-menu [items]="items" (select)="on($event)"><arena-button trigger>Open</arena-button></arena-menu>',
     '<arena-button #b *ngIf="on" i18n i18n-title title="Go" ngNonBindable>Go</arena-button>',
     '@if (on) { <arena-button>Go</arena-button> }',
-    '<arena-button [attr.aria-label]="x" (click)="go()" [class.arena-size-sm]="small" ngModel>Go</arena-button>',
-    '<arena-button on-click="go()" bind-title="x" bindon-ngModel="y" let-item>Go</arena-button>',
+    '<arena-button [attr.aria-label]="x" (activate)="go()" [class.arena-size-sm]="small" ngModel>Go</arena-button>',
+    '<arena-button on-activate="go()" bind-title="x" bindon-ngModel="y" let-item>Go</arena-button>',
     '<arena-card headingLevel="2">Body</arena-card>',
   ]) assert.doesNotMatch(inputRules(ok), /unknown-input/, ok);
 });

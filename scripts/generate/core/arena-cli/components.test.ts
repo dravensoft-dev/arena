@@ -178,7 +178,7 @@ test('a hook is read from an attribute name and never from inside a quoted value
     + 'and --strict=components fails a consumer who wrote exactly what it prescribes');
   assert.deepEqual(read.drawn, ['arena-button']);
 
-  const hooks = selectorKeys(ANGULAR, ['<tr class="arena-stack" arena-table-row (click)="a > b"><td arena-table-cell>1</td></tr>']);
+  const hooks = selectorKeys(ANGULAR, ['<tr class="arena-stack" arena-table-row (activate)="a > b"><td arena-table-cell>1</td></tr>']);
   assert.deepEqual(hooks.drawn, ['arena-table-row']);
   assert.deepEqual(hooks.unplaced, ['arena-table-cell'], 'a hook after a quoted value is still read');
 
