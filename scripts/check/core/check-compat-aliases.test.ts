@@ -55,3 +55,14 @@ test('a manifest slot reading var(--crimson) is one problem, and focus-ring and 
   assert.equal(problems.length, 1, problems.join('\n'));
   assert.match(problems[0]!, /var\(--crimson\), a compatibility alias no style plugin can answer/);
 });
+
+test('a compound variant reading a colour alias is a problem as a slot reading one is', () => {
+  const problems = manifestAliasProblems([
+    { file: 'x/ArenaX.manifest.json', text: JSON.stringify({
+      slots: { dot: 'bg-surface' },
+      compoundVariants: [{ tone: 'neutral', state: 'current', class: { dot: 'border-[color:var(--gold)]' } }],
+    }) },
+  ]);
+  assert.equal(problems.length, 1, problems.join('\n'));
+  assert.match(problems[0]!, /compound\.0\.class\.dot reads var\(--gold\)/);
+});

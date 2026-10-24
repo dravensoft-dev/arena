@@ -5,9 +5,9 @@
  * assign with nothing reporting it; one the rule names and the layer has dropped is a report about
  * a property nothing declares. Comments are stripped before the parse, because a name written in
  * prose above a block is not a definition. The same alias list also holds the manifests to the role
- * tier: a slot or variant that reads a colour alias paints out of every plugin's reach. The focus ring
- * and the picker's inverse are left out because no role answers them, and a level-* alias holds
- * a percentage and not a colour. */
+ * tier: a slot, a variant or a compound variant that reads a colour alias paints out of every
+ * plugin's reach. The focus ring and the picker's inverse are left out because no role answers
+ * them, and a level-* alias holds a percentage and not a colour. */
 
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
@@ -98,10 +98,11 @@ function classStrings(node: unknown, where: string): [string, string][] {
 export function manifestAliasProblems(manifests: ManifestSource[] = shippedManifests()) {
   const watched = COMPAT_ALIASES.filter((alias) => !OUT_OF_SCOPE.includes(alias) && !alias.startsWith('level-'));
   return manifests.flatMap(({ file, text }) => {
-    const manifest = JSON.parse(text) as { slots?: unknown; variants?: unknown };
+    const manifest = JSON.parse(text) as { slots?: unknown; variants?: unknown; compoundVariants?: { class?: unknown }[] };
     const strings = [
       ...classStrings(manifest.slots, 'slot'),
       ...classStrings(manifest.variants, 'variant'),
+      ...(manifest.compoundVariants ?? []).flatMap((one, i) => classStrings(one.class, `compound.${i}.class`)),
     ];
     return strings.flatMap(([where, value]) =>
       watched.filter((alias) => new RegExp(`var\\(\\s*--${alias}\\s*[,)]`).test(value)).map((alias) =>
