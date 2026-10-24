@@ -16,7 +16,7 @@
     ]
   },
   "bind": {
-    "change": "value"
+    "valueChange": "value"
   },
   "note": "Controlled: typing filters the list, and the value knob is the option chosen, never the text."
 }

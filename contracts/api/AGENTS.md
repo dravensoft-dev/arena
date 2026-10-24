@@ -267,6 +267,11 @@ because `classify()` produces all four from a real signature. It reduces
 stating only some of them would be a gap between what the reader reads and what the
 contract can say, rather than a rule the contract enforces.
 
+**An event never takes the name of a native DOM event.** `validateContract` refuses an event
+named `click` or `change`. An Angular `(click)` binding hears the DOM click from every
+element inside the host, so a member of that name collides with it. Name the event after what
+it reports: `activate` for an activation, `valueChange` for a value.
+
 ### What is mechanical about the ninth form
 
 All three of its guarantees are, which is what separates it from R2 and R3 and from the eighth

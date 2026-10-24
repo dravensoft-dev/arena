@@ -49,6 +49,7 @@ export const node = {
 
 const FORMS: Set<string> = new Set(MEMBER_FORMS);
 const PRIMITIVE_TYPES = new Set(['string', 'number', 'boolean']);
+const NATIVE_EVENT_NAMES = new Set(['click', 'change']);
 
 const isPrimitive = (name: string | undefined) => name !== undefined && PRIMITIVE_TYPES.has(name);
 
@@ -209,6 +210,9 @@ export function validateContract(contract: ContractCandidate, typeNames: Map<str
     if (!FORMS.has(spec.form)) {
       problems.push(`${where}.${member}: form "${spec.form}" is none of the nine — see contracts/api/AGENTS.md`);
       continue;
+    }
+    if (spec.form === 'event' && NATIVE_EVENT_NAMES.has(member)) {
+      problems.push(`${where}.${member}: an event named after the native ${member}, which an Angular (${member}) binding also hears from the DOM. Name it after what it reports: activate for an activation, valueChange for a value`);
     }
     if (spec.form === 'primitive' && !isPrimitive(spec.type)) {
       problems.push(`${where}.${member}: "${spec.type}" is not a primitive`);

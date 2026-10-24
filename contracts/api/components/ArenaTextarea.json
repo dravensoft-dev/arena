@@ -18,6 +18,6 @@
     "name": { "form": "primitive", "type": "string", "description": "Submitted with the form." },
     "maxLength": { "form": "primitive", "type": "number", "description": "Caps the length; feeds the counter." },
     "rows": { "form": "primitive", "type": "number", "default": 4, "description": "Initial visible rows." },
-    "change": { "form": "event", "payload": "string", "description": "Edited; carries the new text." }
+    "valueChange": { "form": "event", "payload": "string", "description": "Edited; carries the new text. The native change of the inner field is never stopped, so a listener on the document hears it; this event carries the value." }
   }
 }

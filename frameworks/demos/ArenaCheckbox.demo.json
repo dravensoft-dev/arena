@@ -5,7 +5,7 @@
     "checked": true
   },
   "bind": {
-    "change": "checked"
+    "valueChange": "checked"
   },
-  "note": "Controlled: the change event carries the new state and the knob holds it."
+  "note": "Controlled: the valueChange event carries the new state and the knob holds it."
 }

@@ -8,7 +8,7 @@
     "placeholder": "billing-worker"
   },
   "bind": {
-    "change": "value"
+    "valueChange": "value"
   },
   "note": "The one component taking a consumer function: validate runs on validateOn."
 }

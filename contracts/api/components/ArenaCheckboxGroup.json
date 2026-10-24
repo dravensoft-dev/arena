@@ -11,6 +11,6 @@
     "name": { "form": "primitive", "type": "string", "description": "Shared form name for the underlying checkboxes, so a form submits every ticked value under one key; generated when omitted or blank." },
     "disabled": { "form": "primitive", "type": "boolean", "default": false,
                   "description": "Whether the whole group is unavailable. Every box it holds is disabled whatever its own disabled says, and the group reflects aria-disabled." },
-    "change": { "form": "event", "payload": "ArenaValueSet", "description": "A box was ticked or unticked; carries the whole set after the change." }
+    "valueChange": { "form": "event", "payload": "ArenaValueSet", "description": "A box was ticked or unticked; carries the whole set after the change. The native change of the inner box is never stopped, so a listener on the document hears it; this event carries the value." }
   }
 }

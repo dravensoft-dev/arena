@@ -10,6 +10,6 @@
     "required": { "form": "primitive", "type": "boolean", "default": false, "description": "Must be checked for the form to submit." },
     "name": { "form": "primitive", "type": "string", "description": "Submitted with the form." },
     "value": { "form": "primitive", "type": "string", "description": "The value submitted under `name` when checked." },
-    "change": { "form": "event", "payload": "boolean", "description": "Toggled; carries the new checked state." }
+    "valueChange": { "form": "event", "payload": "boolean", "description": "Toggled; carries the new checked state. The native change of the inner box is never stopped, so a listener on the document hears it; this event carries the value." }
   }
 }

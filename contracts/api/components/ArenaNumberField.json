@@ -37,9 +37,9 @@
     "placeholder": { "form": "primitive", "type": "string", "description": "Shown when empty." },
     "name": { "form": "primitive", "type": "string",
               "description": "Submitted with the form as the plain decimal string, such as `1234.5`, through a hidden input; empty when the field is empty. The drawn field carries formatted text and is never submitted." },
-    "change": { "form": "event", "payload": "number",
-                "description": "A number was committed, clamped, and differs from the one before; carries it." },
+    "valueChange": { "form": "event", "payload": "number",
+                "description": "A number was committed, clamped, and differs from the one before; carries it. The native change of the inner field is never stopped, so a listener on the document hears it; this event carries the value." },
     "clear": { "form": "event",
-               "description": "The field was committed empty. Never fires with `change` for one commit, and never for a field that was already empty." }
+               "description": "The field was committed empty. Never fires with `valueChange` for one commit, and never for a field that was already empty." }
   }
 }

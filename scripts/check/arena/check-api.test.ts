@@ -515,14 +515,14 @@ test('a contract member with a form outside the eight encoded values fails', () 
 
 test('validateContract accepts an event payload that is a primitive type name', () => {
   const problems = validateContract(
-    { component: 'X', api: { change: { form: 'event', payload: 'string' } } }, TYPES,
+    { component: 'X', api: { valueChange: { form: 'event', payload: 'string' } } }, TYPES,
   );
   assert.deepEqual(problems, []);
 });
 
 test('an event payload naming an undeclared, non-primitive type still fails', () => {
   const problems = validateContract(
-    { component: 'X', api: { change: { form: 'event', payload: 'Widget' } } }, TYPES,
+    { component: 'X', api: { valueChange: { form: 'event', payload: 'Widget' } } }, TYPES,
   );
   assert.ok(problems.some((p) => /Widget/.test(p)));
 });
@@ -1033,4 +1033,15 @@ test('docProblems skips a doc on an allowed trigger name', () => {
   const docs = new Map([['aria-haspopup', 'Written by a composer.']]);
   assert.deepEqual(docProblems(BUTTON, docs, 'react', trigger), []);
   assert.match(docProblems(BUTTON, docs, 'angular', trigger).join('\n'), /no contracted member/);
+});
+
+test('an event named after the native click or change is refused, whatever it reports', () => {
+  for (const name of ['click', 'change']) {
+    const problems = validateContract({ component: 'ArenaX', api: { [name]: { form: 'event', description: 'Reported.' } } }, new Map());
+    assert.ok(problems.some((p) => p.startsWith(`ArenaX.${name}: `) && p.includes('activate') && p.includes('valueChange')), problems.join('\n'));
+  }
+  for (const name of ['activate', 'valueChange', 'select', 'toggle']) {
+    const problems = validateContract({ component: 'ArenaX', api: { [name]: { form: 'event', description: 'Reported.' } } }, new Map());
+    assert.deepEqual(problems.filter((p) => p.startsWith(`ArenaX.${name}: an event named`)), []);
+  }
 });

@@ -28,7 +28,7 @@
     "step": { "form": "primitive", "type": "string", "description": "Step, for number/date types." },
     "maxLength": { "form": "primitive", "type": "number", "description": "Caps the length." },
     "pattern": { "form": "primitive", "type": "string", "description": "A regex the value must match." },
-    "change": { "form": "event", "payload": "string", "description": "Edited; carries the new value." },
+    "valueChange": { "form": "event", "payload": "string", "description": "Edited; carries the new value. The native change of the inner field is never stopped, so a listener on the document hears it; this event carries the value." },
     "blur": { "form": "event", "payload": "string", "description": "Left the field; carries the value." }
   }
 }

@@ -19,7 +19,7 @@
     ]
   },
   "bind": {
-    "change": "value"
+    "valueChange": "value"
   },
   "note": "Controlled: the value knob is what the component renders."
 }

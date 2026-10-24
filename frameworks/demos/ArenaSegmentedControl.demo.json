@@ -19,7 +19,7 @@
     ]
   },
   "bind": {
-    "change": "value"
+    "valueChange": "value"
   },
   "note": "A small closed set, all of it visible at once."
 }

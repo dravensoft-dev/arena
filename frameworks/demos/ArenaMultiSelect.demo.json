@@ -18,7 +18,7 @@
     ]
   },
   "bind": {
-    "change": { "value": { "$field": "values" } }
+    "valueChange": { "value": { "$field": "values" } }
   },
   "note": "Controlled: the value knob is the set chosen, in the order chosen, written back from the event's values."
 }

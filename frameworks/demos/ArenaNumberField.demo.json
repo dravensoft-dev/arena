@@ -9,7 +9,7 @@
     "hint": "Between 1 and 20."
   },
   "bind": {
-    "change": "value"
+    "valueChange": "value"
   },
   "note": "A commit writes value back. An emptied field fires clear, which carries nothing a knob can hold, so the page keeps the last number and logs the event."
 }

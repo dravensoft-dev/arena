@@ -12,7 +12,7 @@
     "interactive": true
   },
   "bind": {
-    "change": "index"
+    "valueChange": "index"
   },
   "note": "The host owns index: choosing a step behind the current one reports it, and only the host moves the stepper there."
 }

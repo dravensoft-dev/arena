@@ -22,7 +22,7 @@
     ]
   },
   "bind": {
-    "change": { "value": { "$field": "values" } }
+    "valueChange": { "value": { "$field": "values" } }
   },
   "note": "The group owns which boxes are ticked and reports the whole set; each box owns what it looks like."
 }

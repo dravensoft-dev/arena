@@ -8,5 +8,5 @@
     "droppable": true,
     "hint": "PDF or an image, up to 5 MB."
   },
-  "note": "The selection is the component's own state: change and reject carry names, sizes and types, and the page logs them."
+  "note": "The selection is the component's own state: valueChange and reject carry names, sizes and types, and the page logs them."
 }

@@ -24,8 +24,8 @@
                  "description": "The largest file held, in bytes; a file of exactly this size is held. A bigger one is refused and never held." },
     "droppable": { "form": "primitive", "type": "boolean", "default": false,
                    "description": "Whether the field is a drop zone with a dashed frame. Without it the field cancels no drag and a file dropped on it is the browser's. The trigger is the keyboard route either way." },
-    "change": { "form": "event", "payload": "ArenaFileSelection",
-                "description": "The selection changed through a pick, a drop or a chip's remove; carries the whole selection as metadata, in held order. A clear the host asks for, and a form reset, fire nothing." },
+    "valueChange": { "form": "event", "payload": "ArenaFileSelection",
+                "description": "The selection changed through a pick, a drop or a chip's remove; carries the whole selection as metadata, in held order. A clear the host asks for, and a form reset, fire nothing. The native change of the inner input is never stopped, so a listener on the document hears it; this event carries the value." },
     "reject": { "form": "event", "payload": "ArenaFileRejection",
                 "description": "Files in the last pick or drop were refused; carries their names by reason. Never fires empty." }
   }

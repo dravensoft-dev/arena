@@ -8,8 +8,8 @@
     "valueSuffix": "%"
   },
   "bind": {
-    "change": "value",
-    "changeEnd": "valueEnd"
+    "valueChange": "value",
+    "valueEndChange": "valueEnd"
   },
   "note": "Both thumbs write back, so turning range on shows the span with its end at the maximum; valueEnd is not seeded because a single slider warns about it. commit and commitEnd settle a move and are logged."
 }
