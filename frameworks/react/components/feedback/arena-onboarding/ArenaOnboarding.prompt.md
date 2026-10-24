@@ -44,11 +44,10 @@ const [step, setStep] = useState(0);
 **Behaviour.** The coachmark is a modal dialog and behaves like one. Opening moves focus
 to the first control inside it, Tab is trapped at both ends of that set, and closing
 restores focus to whatever had it before. Removing the tour while it is open counts as
-closing it for focus, though it reports no `onSkip`. Focus goes back to the element that
-opened it, as long as focus was inside the tour or nowhere and that element is still on
-the page. **Escape dismisses through `onSkip`**, the same channel the scrim click uses, so
-Escape joins the mouse path rather than replacing it. There is no separate "dismiss"
-callback to wire.
+closing it for focus, as long as focus was inside the tour or nowhere and the element that
+opened it is still on the page. It reports no `onSkip`. **Escape dismisses through
+`onSkip`**, the same channel the scrim click uses, so Escape joins the mouse path rather
+than replacing it. There is no separate "dismiss" callback to wire.
 
 **The accessible name is a fallback chain**, `step.title ?? step.eyebrow ?? "Step N of M"`,
 **A caller who wants a useful name still supplies a
@@ -82,7 +81,7 @@ Then, with the tour closed:
 2. **Tab once.** Focus moves to **Next**. Native navigation, not Arena's.
 3. **Tab again.** Focus wraps back to Skip.
 4. **Shift+Tab.** Focus wraps from Skip to Next.
-5. **Escape.** The tour closes through `onSkip`, the same channel the Skip button and the scrim click use. One channel is how `dialog-modal`'s `keyboard.Escape` is met without adding a member, and focus returns to "Start tour".
+5. **Escape.** The tour closes through `onSkip`, the same channel the Skip button and the scrim click use. One channel is how `modal-focus`'s `keyboard.Escape` is met without adding a member, and focus returns to "Start tour".
 
 Driving this through CDP: Enter must be `keyDown` with `text: '\r'`; a `rawKeyDown`
 does not activate a button.

@@ -1,12 +1,12 @@
 Arena guided tour. A coachmark with progress dots, Skip and Next, floating bottom-right
 over an unblurred scrim, a tour that blurs the product it is touring defeats itself. The
 tour is controlled. The host owns `index` and answers `next`, `back`, `skip` and `done`.
-Clicking the scrim reports `skip`. The tour is a real modal, binding `dialog-modal`. Focus
-moves into the panel when the tour opens, and returns to whatever opened it when the tour
-closes. Removing the tour while it is open counts as closing it for focus, though it
-reports no `skip`. Focus goes back to the element that opened it, as long as focus was
-inside the tour or nowhere and that element is still on the page. Tab and Shift+Tab cycle
-inside the panel, and Escape reports `skip`.
+Clicking the scrim reports `skip`. The tour is a real modal, binding `dialog-modal` and
+`modal-focus`. Focus moves into the panel when the tour opens, and returns to whatever
+opened it when the tour closes. Removing the tour while it is open counts as closing it
+for focus, as long as focus was inside the tour or nowhere and the element that opened it
+is still on the page. It reports no `skip`. Tab and Shift+Tab cycle inside the panel, and
+Escape reports `skip`.
 
 ```html
 <arena-onboarding [open]="touring()" [steps]="steps" [index]="step()"

@@ -44,9 +44,9 @@ command also closes the palette. The search field is an ARIA 1.2 combobox wired 
 
 Opening the palette moves focus to the search field. Tab and Shift+Tab stay inside the panel. Escape closes the palette and returns focus to the element that held it when the palette opened.
 
-Removing the palette while it is open counts as closing it for focus, though it reports no
-`close`. Focus goes back to that element, as long as focus was inside the palette or
-nowhere and the element is still on the page.
+Removing the palette while it is open counts as closing it for focus, as long as focus was
+inside the palette or nowhere and that element is still on the page. It reports no
+`close`.
 
 **Do / Don't**
 - Put every command's real shortcut in `shortcut`. The palette is where people learn

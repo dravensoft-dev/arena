@@ -52,9 +52,9 @@ and a divider or a header cannot be activated at all.
 and the caller names the glyph. What that costs is the general price of the single-icon convention. An entry carries no markup of a consumer's own, so a row with an avatar, a coloured dot or a two-line body has no expression here. `items` is required and throws when absent; an empty array is a caller
 saying "no entries right now" and renders.
 
-**The panel opens in the top layer**, so an `overflow: hidden` or transformed ancestor does not clip it. The panel flips above its trigger near the bottom of the window and follows the trigger on scroll. Tab from the last row closes the menu and returns focus to the trigger, as Escape does. Escape closes the topmost open panel, so a menu inside a popover or a dialog closes alone.
+**The panel opens in the top layer**, so an `overflow: hidden` or transformed ancestor does not clip it. The panel flips above its trigger near the bottom of the window and follows the trigger on scroll. Tab from any row closes the menu and returns focus to the trigger, as Escape does. Escape closes the topmost open panel, so a menu inside a popover or a dialog closes alone.
 
-**Focus moves by key inside the open menu.** The arrows move between enabled rows and wrap, Home and End go to the first and the last row, and typing a character moves to the next row whose label starts with it. A disabled row is skipped, and Tab closes the menu. A header names the rows under it, so a reader hears the group before its first row.
+**Focus moves by key inside the open menu.** The arrows move between enabled rows and wrap, Home and End go to the first and the last row, and typing a character moves to the next row whose label starts with it. A space typed inside a run of characters belongs to the run, so it never activates the row. A disabled row is skipped. A header names the rows under it, so a reader hears the group before its first row.
 
 **The server render carries the popup state.** An `ArenaButton` or `ArenaIconButton` trigger renders `aria-haspopup` and `aria-expanded` before hydration.
 
