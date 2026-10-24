@@ -8,6 +8,9 @@ import type { ComponentMap } from './components.ts';
 import { auto, MAP, options, project, readable, removeFixtures } from './cli-fixtures.ts';
 import type { VocabularyIndex } from './audit.ts';
 import type { TokenCatalogue } from './theme-css.ts';
+import { vocabularyIndex } from '../../../lib/arena/vocabulary-index.ts';
+import { componentMap } from '../../../lib/arena/component-map.ts';
+import { repoRoot } from '../../../lib/arena/repo-root.ts';
 
 after(removeFixtures);
 
@@ -218,4 +221,16 @@ test('a part counts as painted only when the sheet of its component is drawn, an
     /^your style plugin\(s\) paint 1 part\(s\): button\. 1 rule\(s\) reach nothing this project draws: menu\.item\. /);
   assert.match(paintedBy(['button', 'menu.item'], vocabulary, ['arena-button', 'arena-menu']), /^your style plugin\(s\) paint 2 part\(s\): button, menu\.item\. A role/);
   assert.match(paintedBy(['menu.item'], null, ['arena-button']), /^your style plugin\(s\) paint 1 part\(s\): menu\.item\. A role/);
+});
+
+test('every component that declares a part has its sheet among the sheets each shipped map draws', () => {
+  const vocabulary = vocabularyIndex();
+  for (const layer of ['angular', 'react'] as const) {
+    const sheets = [...new Set(Object.values(componentMap(layer, repoRoot).draws).filter((one): one is string => Boolean(one)))];
+    for (const [component, declared] of Object.entries(vocabulary.parts ?? {})) {
+      const part = Object.keys(declared)[0] ?? '';
+      assert.match(paintedBy([part], vocabulary, sheets), /paint 1 part\(s\)/, `${component} has no sheet among the ${sheets.length} the map draws`);
+    }
+  }
+  assert.match(paintedBy(['menu.item'], vocabulary, ['arena-button']), /paint no part\(s\)\. 1 rule\(s\) reach nothing/);
 });
