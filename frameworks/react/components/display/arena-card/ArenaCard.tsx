@@ -17,7 +17,7 @@ export interface ArenaCardProps {
   title?: string;
   /** Which rung of the document outline the title takes. Only the element changes: the title's class is the same at every value, so the render is identical and no appearance follows from it. The default is `h3` because a card is the bottom rung of the title ladder, under the heading a section draws and two under a page's own. The rung is where a card lands on a page that says nothing else. `none` draws the title with no heading at all, for a card whose title labels the surface rather than naming a region. With no title there is no heading either way. */
   headingLevel?: ArenaHeadingLevel;
-  /** Mono uppercase label above the title, in the accent colour. */
+  /** Mono uppercase label above the title, in the eyebrow ink. */
   eyebrow?: string;
 
   /** Right-aligned in the header, beside the title. Arena draws the header row; the consumer draws what sits in it. */

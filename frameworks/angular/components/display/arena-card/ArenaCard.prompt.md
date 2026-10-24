@@ -27,7 +27,7 @@ take, and the host goes `display: contents`.
 | `action` | slot |  |  | Right-aligned in the header, beside the title. Arena draws the header row; the consumer draws what sits in it. |
 | `title` | primitive | `string` |  | Header title. Absent, along with eyebrow and action, renders no header block at all. |
 | `headingLevel` | enum | `ArenaHeadingLevel` | `"h3"` | Which rung of the document outline the title takes. Only the element changes: the title's class is the same at every value, so the render is identical and no appearance follows from it. The default is `h3` because a card is the bottom rung of the title ladder, under the heading a section draws and two under a page's own. The rung is where a card lands on a page that says nothing else. `none` draws the title with no heading at all, for a card whose title labels the surface rather than naming a region. With no title there is no heading either way. |
-| `eyebrow` | primitive | `string` |  | Mono uppercase label above the title, in the accent colour. |
+| `eyebrow` | primitive | `string` |  | Mono uppercase label above the title, in the eyebrow ink. |
 | `click` | event |  |  | An interactive card was activated, by pointer or by Enter or Space. With `href` the event is also how the card reports the one activation a router owns, a primary click or Enter with no modifier. Arena has already cancelled the anchor's own navigation by the time it fires. A modified or middle click is the browser's and does not fire it at all. No payload, because the consumer wrote this element and already holds what it is about. |
 
 <!-- @api end -->

@@ -64,7 +64,7 @@ export class ArenaCard {
   readonly headingLevel = input<ArenaHeadingLevel, ArenaHeadingLevel | undefined>(
     'h3', { transform: (value) => value ?? 'h3' },
   );
-  /** Mono uppercase label above the title, in the accent colour. */
+  /** Mono uppercase label above the title, in the eyebrow ink. */
   readonly eyebrow = input<string>();
   /** Whether the whole card is one activation target, which is the ordinary shape of a list on a phone. A boolean rather than "is `click` bound?", because Arena never derives what it draws from what a consumer listens for. ArenaTableRow.interactive is one for the same reason. An interactive card is a role="button" tab stop with an Enter/Space handler and the surface's own hover and focus states. A non-interactive one is inert and adds no tab stop, because a dead stop on every card of every list is worse than the gap it would close. The card is a ROLE rather than a <button> element for the same reason ArenaTableRow's card shape is. A card body may hold controls of its own, and a control inside a control is reachable by nobody. */
   readonly interactive = input(false, { transform: booleanAttribute });
