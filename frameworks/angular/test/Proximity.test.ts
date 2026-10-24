@@ -32,6 +32,7 @@ import { ArenaCalendar } from '../components/display/arena-calendar/ArenaCalenda
 import { ArenaTag } from '../components/display/arena-tag/ArenaTag';
 import { ArenaPinInput } from '../components/forms/arena-pin-input/ArenaPinInput';
 import { ArenaTimeline } from '../components/display/arena-timeline/ArenaTimeline';
+import { ArenaPaletteScope } from '../components/layout/arena-palette-scope/ArenaPaletteScope';
 import { ArenaFooter } from '../ProjectionMarkers';
 import { LIB } from './Compliance';
 
@@ -94,6 +95,8 @@ const TEMPLATES: Record<string, string> = {
   'timeline-connector-reaches-next-dot-comfortable': '<arena-timeline label="Order" [items]="[{ title: \'Placed\' }, { title: \'Shipped\' }]" />',
   'timeline-connector-horizontal': '<arena-timeline label="Order" [items]="[{ title: \'Placed\' }, { title: \'Shipped\' }]" />',
   'timeline-connector-horizontal-keeps-block-margin': '<arena-timeline label="Order" [items]="[{ title: \'Placed\' }, { title: \'Shipped\' }]" />',
+  'tag-breaks-a-label-wider-than-its-container': '<arena-tag>InternationalisationInternationalisationInternationalisationInternationalisationInternationalisationInternationalisation</arena-tag>',
+  'palette-scope-takes-the-surface-radius': '<div arenaPalette="light"><span>Light</span></div>',
 };
 
 const BARE = new Set(['meaning-wins-over-accent', 'accent-stops-at-the-card-body', 'small-badge-compacts-itself', 'small-badge-tightens-its-block', 'small-badge-tightens-its-ends']);
@@ -127,6 +130,8 @@ const SUBJECT: Record<string, { part: string; index: number }> = {
   'timeline-connector-reaches-next-dot-comfortable': { part: 'timeline.connector', index: 0 },
   'timeline-connector-horizontal': { part: 'timeline.connector', index: 0 },
   'timeline-connector-horizontal-keeps-block-margin': { part: 'timeline.connector', index: 0 },
+  'tag-breaks-a-label-wider-than-its-container': { part: 'tag', index: 0 },
+  'palette-scope-takes-the-surface-radius': { part: 'palette-scope', index: 0 },
 };
 
 const { families, cases } = proximity.readProximity();
@@ -141,7 +146,7 @@ for (const kase of cases) {
     const Host = Component({
       selector: `proximity-${kase.name}-host`,
       standalone: true,
-      imports: [ArenaButton, ArenaTooltip, ArenaMenu, ArenaPopover, ArenaCard, ArenaIconButton, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaFooter, ArenaBadge, ArenaTag, ArenaSheet, ArenaGrid, ArenaScroller, ArenaScrollerItem, ArenaSkeleton, ArenaCalendar, ArenaPinInput, ArenaTimeline],
+      imports: [ArenaButton, ArenaTooltip, ArenaMenu, ArenaPopover, ArenaCard, ArenaIconButton, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaFooter, ArenaBadge, ArenaTag, ArenaSheet, ArenaGrid, ArenaScroller, ArenaScrollerItem, ArenaSkeleton, ArenaCalendar, ArenaPinInput, ArenaTimeline, ArenaPaletteScope],
       template: BARE.has(kase.name) ? TEMPLATES[kase.name] : `<div class="${kase.container}">${TEMPLATES[kase.name]}</div>`,
     })(class {});
     const fixture = TestBed.createComponent(Host);
