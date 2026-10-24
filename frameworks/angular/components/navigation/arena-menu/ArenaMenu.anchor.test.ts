@@ -58,7 +58,7 @@ async function connectedTo(host: new () => unknown): Promise<{ watched: Element[
     root.querySelector<HTMLElement>('button[trigger]')!.click();
     fixture.detectChanges();
     assert.ok(document.body.querySelector('[role="menu"]'), 'the menu never opened');
-    return { watched: [...watched], composer: root, menu: root.querySelector('arena-menu')! };
+    return { watched: watched.filter((element) => !element.classList.contains('cdk-overlay-pane')), composer: root, menu: root.querySelector('arena-menu')! };
   } finally {
     (globalThis as { ResizeObserver?: unknown }).ResizeObserver = previous;
     fixture.destroy();

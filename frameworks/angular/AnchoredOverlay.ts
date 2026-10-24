@@ -203,11 +203,12 @@ export class ArenaAnchoredOverlay {
     this.doc.addEventListener('mousedown', onPress, true);
     ref.overlayElement.addEventListener('keydown', onTab);
     const anchor = this.options.anchor();
-    const observer = anchor && typeof ResizeObserver !== 'undefined' ? new ResizeObserver(() => {
-      if (this.options.matchAnchorWidth) ref.updateSize({ minWidth: anchor.getBoundingClientRect().width });
+    const observer = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(() => {
+      if (anchor && this.options.matchAnchorWidth) ref.updateSize({ minWidth: anchor.getBoundingClientRect().width });
       ref.updatePosition();
     }) : null;
-    observer?.observe(anchor!);
+    observer?.observe(ref.overlayElement);
+    if (anchor) observer?.observe(anchor);
     this.detach = () => {
       observer?.disconnect();
       this.doc.removeEventListener('keydown', onKey, true);

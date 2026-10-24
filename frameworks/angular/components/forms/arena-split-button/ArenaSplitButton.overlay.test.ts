@@ -158,7 +158,7 @@ function placed(align?: ArenaMenuAlign): { watched: Element[]; edge: string } {
     open();
     const bounding = panel()!.closest<HTMLElement>('.cdk-overlay-connected-position-bounding-box')!;
     const { left, right, top } = bounding.style;
-    return { watched: [...watched], edge: `${left} ${right} ${top}` };
+    return { watched: watched.filter((element) => !element.classList.contains('cdk-overlay-pane')), edge: `${left} ${right} ${top}` };
   } finally {
     Element.prototype.getBoundingClientRect = rect;
     delete (page as { clientWidth?: number }).clientWidth;

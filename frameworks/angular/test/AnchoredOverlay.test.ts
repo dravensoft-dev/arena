@@ -45,11 +45,12 @@ class Probe {
   readonly bare = input(false);
   readonly modal = input(false);
   readonly wide = input(false);
+  readonly orphan = input(false);
   readonly seen: string[] = [];
   readonly anchorRef = viewChild.required<ElementRef<HTMLElement>>('anchor');
   readonly panelRef = viewChild.required<TemplateRef<unknown>>('panel');
   readonly overlay = new ArenaAnchoredOverlay(((probe: Probe): ArenaAnchoredOverlayOptions => ({
-    anchor: () => probe.anchorRef().nativeElement,
+    anchor: () => (probe.orphan() ? null : probe.anchorRef().nativeElement),
     trigger: () => probe.anchorRef().nativeElement.querySelector('button'),
     panel: () => probe.panelRef(),
     positions: () => arenaConnectedPositions('start', 'below', 6),
@@ -76,7 +77,7 @@ class Pair {}
 @Component({
   standalone: true,
   imports: [Probe],
-  template: `<arena-test-probe name="solo" [focus]="focus()" [plain]="plain()" [bare]="bare()" [modal]="modal()" [wide]="wide()" />`,
+  template: `<arena-test-probe name="solo" [focus]="focus()" [plain]="plain()" [bare]="bare()" [modal]="modal()" [wide]="wide()" [orphan]="orphan()" />`,
 })
 class Solo {
   readonly focus = input(true);
@@ -84,9 +85,10 @@ class Solo {
   readonly bare = input(false);
   readonly modal = input(false);
   readonly wide = input(false);
+  readonly orphan = input(false);
 }
 
-function renderSolo(flags: Partial<Record<'focus' | 'plain' | 'bare' | 'modal' | 'wide', boolean>> = {}) {
+function renderSolo(flags: Partial<Record<'focus' | 'plain' | 'bare' | 'modal' | 'wide' | 'orphan', boolean>> = {}) {
   const fixture = TestBed.createComponent(Solo);
   for (const [name, value] of Object.entries(flags)) fixture.componentRef.setInput(name, value);
   fixture.detectChanges();
@@ -348,6 +350,52 @@ test('while open, a pane that matches its anchor follows the anchor\'s width, an
   } finally {
     Element.prototype.getBoundingClientRect = rect;
     (globalThis as { ResizeObserver?: unknown }).ResizeObserver = previous;
+    fixture.destroy();
+    disposeOverlays();
+  }
+});
+
+function stubResizeObserver() {
+  const callbacks: Array<() => void> = [];
+  const watched: Element[] = [];
+  const previous = globalThis.ResizeObserver;
+  (globalThis as { ResizeObserver?: unknown }).ResizeObserver = class {
+    constructor(callback: () => void) { callbacks.push(callback); }
+    observe(element: Element): void { watched.push(element); }
+    disconnect(): void {}
+  };
+  return { callbacks, watched, restore: () => { (globalThis as { ResizeObserver?: unknown }).ResizeObserver = previous; } };
+}
+
+test('while open, the pane itself is observed, and its callback re-places the panel', () => {
+  const stub = stubResizeObserver();
+  const { fixture, solo } = renderSolo({ plain: true });
+  try {
+    solo.overlay.open();
+    fixture.detectChanges();
+    const pane = panelOf('solo')!.closest<HTMLElement>('.cdk-overlay-pane')!;
+    assert.ok(stub.watched.includes(pane), 'the pane was never observed, so a panel that grows after opening stays where it was placed');
+    const ref = (solo.overlay as unknown as { ref: { updatePosition(): void } }).ref;
+    let placed = 0;
+    const original = ref.updatePosition.bind(ref);
+    ref.updatePosition = () => { placed += 1; original(); };
+    for (const callback of stub.callbacks) callback();
+    assert.ok(placed >= 1, 'a resize of the pane did not re-place the panel');
+  } finally {
+    stub.restore();
+    fixture.destroy();
+    disposeOverlays();
+  }
+});
+
+test('an overlay with no anchor still observes its pane, and opening does not throw', () => {
+  const stub = stubResizeObserver();
+  const { fixture, solo } = renderSolo({ plain: true, orphan: true });
+  try {
+    assert.doesNotThrow(() => { solo.overlay.open(); fixture.detectChanges(); });
+    for (const callback of stub.callbacks) assert.doesNotThrow(() => callback());
+  } finally {
+    stub.restore();
     fixture.destroy();
     disposeOverlays();
   }
