@@ -17,13 +17,10 @@ import { ANGULAR_COMPONENTS } from './Compliance';
 
 const LAYER = join(ANGULAR_COMPONENTS, '..');
 
-export const MARKERS = new Map([
-  ['action', 'ArenaAction'],
-  ['actions', 'ArenaActions'],
-  ['brand', 'ArenaBrand'],
-  ['footer', 'ArenaFooter'],
-  ['secondaryAction', 'ArenaSecondaryAction'],
-]);
+const DECLARED_MARKER = /@Directive\(\{\s*selector:\s*'\[([A-Za-z][\w-]*)\]'[^}]*\}\)\s*export class (Arena[A-Za-z0-9]*)/g;
+const MARKER_SOURCE = readFileSync(join(LAYER, 'ProjectionMarkers.ts'), 'utf8');
+
+export const MARKERS = new Map([...MARKER_SOURCE.matchAll(DECLARED_MARKER)].map(([, marker = '', directive = '']) => [marker, directive]));
 
 function* sources(dir: string): Generator<string> {
   for (const entry of readdirSync(dir)) {
@@ -201,4 +198,10 @@ test('a marker inside a nested element that queries none is charged to nobody, a
   const template = '<arena-card><arena-badge><button action>x</button></arena-badge></arena-card>';
   assert.deepEqual(markerUses(template, QUERIED), [{ marker: 'action', host: null }]);
   assert.deepEqual(markerProblems([{ path: 'app/nested.ts', source: `@Component({ imports: [], template: \`${template}\` })` }], QUERIED), []);
+});
+
+test('the guard knows every marker the layer declares', () => {
+  const classes = [...MARKER_SOURCE.matchAll(/export class (Arena[A-Za-z0-9]*)/g)].map(([, name]) => name).sort();
+  assert.ok(classes.length > 0, 'found no marker directive, so this compared nothing');
+  assert.deepEqual([...MARKERS.values()].sort(), classes);
 });
