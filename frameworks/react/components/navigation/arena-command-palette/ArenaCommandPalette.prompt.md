@@ -40,11 +40,17 @@ useEffect(() => {
 <!-- @answers end -->
 
 <!-- @keys GENERATED from the binding. -->
-**Keys**, from [`combobox`](../../../../../contracts/behaviour/combobox.json):
+**Keys**, from [`combobox`](../../../../../contracts/behaviour/combobox.json) and [`modal-focus`](../../../../../contracts/behaviour/modal-focus.json):
 - `ArrowDown`: opens the popup if closed; moves into it.
 - `Escape`: closes the popup if it is visible.
 - `Enter`: accepts the active option and closes the popup.
 <!-- @keys end -->
+
+### Focus
+
+Opening the palette moves focus to the search field. Tab and Shift+Tab stay inside the panel. Escape closes the palette and returns focus to the element that held it when the palette opened.
+
+Removing the palette while it is open counts as closing it. Focus goes back to that element, as long as focus was inside the palette or nowhere and the element is still on the page.
 
 ### Groups and routes
 
