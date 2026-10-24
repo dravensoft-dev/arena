@@ -36,6 +36,11 @@ unpositioned.
 - `Enter`: opens the menu and moves focus to its first item.
 - `Space`: opens the menu and moves focus to its first item.
 - `Escape`: closes the menu and returns focus to the button.
+- `ArrowDown`: moves focus to the next enabled row, wrapping from the last to the first.
+- `ArrowUp`: moves focus to the previous enabled row, wrapping from the first to the last.
+- `Home`: moves focus to the first enabled row.
+- `End`: moves focus to the last enabled row.
+- `TypeAhead`: typing a character moves focus to the next enabled row whose label starts with it; characters typed in rapid succession match on the accumulated string.
 <!-- @keys end -->
 
 ```ts
@@ -62,6 +67,8 @@ moves focus to the first enabled row. Tab from the last row closes the menu and 
 `select` carries the **whole item**, not a key, since `ArenaMenuItem` deliberately has no `id`. A divider
 and a header are not rows at all and render no `menuitem`; a disabled row renders one and reports
 nothing.
+
+**Focus moves by key inside the open menu.** The arrows move between enabled rows and wrap, Home and End go to the first and the last row, and typing a character moves to the next row whose label starts with it. A disabled row is skipped, and Tab closes the menu. A header names the rows under it, so a reader hears the group before its first row.
 
 **The server render carries the popup state.** Arena writes `aria-haspopup="menu"` and `aria-expanded="false"` onto the trigger's focusable element before the page is interactive.
 

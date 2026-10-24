@@ -12,9 +12,21 @@ import { withIcons, domSymbols } from '../../../test/IconsHarness.tsx';
 import { assertPattern, REACT_COMPONENTS } from '../../../test/AssertPattern.tsx';
 import { isFocusable } from '../../../../../scripts/lib/core/behaviour-compliance.ts';
 import { ArenaMenu } from './ArenaMenu.tsx';
+import type { ArenaMenuItem } from '../../../Api.generated';
 import { ArenaPopover } from '../../feedback/arena-popover/ArenaPopover.tsx';
 
-afterEach(cleanup);
+let restoreClock: (() => void) | null = null;
+afterEach(() => { cleanup(); restoreClock?.(); restoreClock = null; });
+
+function captureClock(): Array<() => void> {
+  const fires: Array<() => void> = [];
+  const savedSet = globalThis.setTimeout;
+  const savedClear = globalThis.clearTimeout;
+  (globalThis as { setTimeout: unknown }).setTimeout = ((fn: () => void) => fires.push(fn) as unknown as ReturnType<typeof setTimeout>);
+  (globalThis as { clearTimeout: unknown }).clearTimeout = (() => {});
+  restoreClock = () => { globalThis.setTimeout = savedSet; globalThis.clearTimeout = savedClear; };
+  return fires;
+}
 
 function open(root: ParentNode): HTMLElement {
   act(() => { root.querySelector<HTMLElement>('button')!.click(); });
@@ -116,7 +128,7 @@ test('the popup state sits on the focusable trigger, not on a wrapper around it'
 
 test('ArenaMenu meets the menu-button pattern it binds', () => {
   const root = mount(<ArenaMenu trigger={<button type="button">Open</button>}
-    items={[{ label: 'Rename' }, { label: 'Delete', destructive: true }]} />);
+    items={[{ header: 'File' }, { label: 'Rename' }, { label: 'Delete', destructive: true }, { divider: true }, { label: 'Archive' }]} />);
   const trigger = root.querySelector<HTMLElement>('button');
 
   for (const key of ['Enter', ' ']) {
@@ -135,19 +147,120 @@ test('ArenaMenu meets the menu-button pattern it binds', () => {
   assert.equal(document.activeElement, first,
     'opening left focus on the trigger, so a keyboard user reaches the panel only by Tab');
 
+  assertPattern({
+    root,
+    bindingPath: BINDING,
+    subjects: {
+      default: trigger,
+      'roles.item': [...panel.querySelectorAll<HTMLElement>('[role="menuitem"]')],
+      'roles.separator': [...panel.querySelectorAll<HTMLElement>('[data-arena-part="menu.divider"]')],
+    },
+    behavioural: {
+      'focus.onOpen': true, 'keyboard.Enter': true, 'keyboard.Space': true, 'keyboard.Escape': true,
+      'focus.roving': true, 'keyboard.ArrowDown': true, 'keyboard.ArrowUp': true,
+      'keyboard.Home': true, 'keyboard.End': true, 'keyboard.TypeAhead': true,
+    },
+  });
+
   press(first!, 'Escape');
   assert.equal(root.querySelector<HTMLElement>('[role="menu"]')!, null, 'Escape did not close the menu');
   assert.equal(document.activeElement, trigger,
     'Escape closed the menu and dropped focus, which strands a keyboard user at the top of the page');
+});
 
-  assertPattern({
-    root,
-    bindingPath: BINDING,
-    subjects: { default: trigger },
-    behavioural: {
-      'focus.onOpen': true, 'keyboard.Enter': true, 'keyboard.Space': true, 'keyboard.Escape': true,
-    },
-  });
+const ROWS = [{ label: 'Rename' }, { label: 'Duplicate', disabled: true }, { label: 'Delete' }];
+
+function opened(items: readonly ArenaMenuItem[]) {
+  const root = mount(<ArenaMenu trigger={<button type="button">Open</button>} items={items} />);
+  const panel = open(root);
+  const rows = [...panel.querySelectorAll<HTMLElement>('[role="menuitem"]')];
+  return { root, panel, rows };
+}
+
+test('ArrowDown and ArrowUp move between enabled rows and wrap at the ends', () => {
+  const { rows } = opened(ROWS);
+  const [rename, , remove] = rows as [HTMLElement, HTMLElement, HTMLElement];
+  assert.equal(document.activeElement, rename);
+  assert.equal(press(rename, 'ArrowDown').defaultPrevented, true);
+  assert.equal(document.activeElement, remove, 'ArrowDown stopped on a disabled row');
+  assert.equal(press(remove, 'ArrowDown').defaultPrevented, true);
+  assert.equal(document.activeElement, rename, 'ArrowDown did not wrap from the last row to the first');
+  assert.equal(press(rename, 'ArrowUp').defaultPrevented, true);
+  assert.equal(document.activeElement, remove, 'ArrowUp did not wrap from the first row to the last');
+  press(remove, 'ArrowUp');
+  assert.equal(document.activeElement, rename, 'ArrowUp stopped on a disabled row');
+});
+
+test('Home and End move to the first and the last enabled row', () => {
+  const { rows } = opened([{ label: 'Archive', disabled: true }, ...ROWS, { label: 'Zip', disabled: true }]);
+  const enabled = rows.filter((row) => !row.hasAttribute('disabled'));
+  assert.equal(document.activeElement, enabled[0]);
+  assert.equal(press(enabled[0]!, 'End').defaultPrevented, true);
+  assert.equal(document.activeElement, enabled[1], 'End did not reach the last enabled row');
+  assert.equal(press(enabled[1]!, 'Home').defaultPrevented, true);
+  assert.equal(document.activeElement, enabled[0], 'Home did not reach the first enabled row');
+});
+
+test('a typed character moves to the next row starting with it, and a run of characters matches the string', () => {
+  const clock = captureClock();
+  const { rows } = opened([{ label: 'Rename' }, { label: 'Remove' }, { label: 'Archive' }]);
+  const [rename, remove, archive] = rows as [HTMLElement, HTMLElement, HTMLElement];
+  press(rename, 'r');
+  assert.equal(document.activeElement, remove, 'r did not move to the next row starting with r');
+  clock.at(-1)?.();
+  press(remove, 'a');
+  assert.equal(document.activeElement, archive);
+  clock.at(-1)?.();
+  press(archive, 'r');
+  press(archive, 'e');
+  press(archive, 'm');
+  assert.equal(document.activeElement, remove, 'a run of characters did not match on the accumulated string');
+});
+
+test('a character no row starts with leaves focus where it is, and one character repeated cycles', () => {
+  const { rows } = opened([{ label: 'Rename' }, { label: 'Remove' }, { label: 'Archive' }]);
+  const [rename, remove, archive] = rows as [HTMLElement, HTMLElement, HTMLElement];
+  press(rename, 'r');
+  assert.equal(document.activeElement, remove);
+  press(remove, 'r');
+  assert.equal(document.activeElement, rename, 'one character repeated did not cycle through the rows that start with it');
+  press(rename, 'r');
+  assert.equal(document.activeElement, remove);
+  const unknown = press(remove, 'q');
+  assert.equal(document.activeElement, remove, 'a character no row starts with moved focus');
+  assert.equal(unknown.defaultPrevented, false);
+  assert.notEqual(document.activeElement, archive);
+});
+
+test('every row sits at tabindex -1', () => {
+  const { rows } = opened(ROWS);
+  assert.equal(rows.length, 3);
+  for (const row of rows) assert.equal(row.getAttribute('tabindex'), '-1');
+});
+
+test('a header names the group of rows under it, and a divider is a separator', () => {
+  const { panel, rows } = opened([{ header: 'File' }, { label: 'Rename' }, { label: 'Delete' }, { divider: true }, { label: 'Archive' }]);
+  const groups = panel.querySelectorAll<HTMLElement>('[role="group"]');
+  assert.equal(groups.length, 1);
+  const name = document.getElementById(groups[0]!.getAttribute('aria-labelledby')!);
+  assert.equal(name?.textContent, 'File');
+  assert.deepEqual(rows.map((row) => groups[0]!.contains(row)), [true, true, false]);
+  assert.equal(rows[2]!.closest('[role="group"]'), null);
+  assert.equal(panel.querySelectorAll('[role="separator"]').length, 1);
+});
+
+test('the first enabled row takes focus on open, and a menu of disabled rows answers keys without throwing', () => {
+  const first = opened([{ label: 'Archive', disabled: true }, { label: 'Rename' }]);
+  assert.equal(document.activeElement, first.rows[1], 'opening did not skip the disabled first row');
+  cleanup();
+  const { root, panel, rows } = opened([{ label: 'Archive', disabled: true }, { label: 'Zip', disabled: true }]);
+  const trigger = root.querySelector<HTMLElement>('button')!;
+  for (const key of ['ArrowDown', 'ArrowUp', 'Home', 'End', 'a']) {
+    assert.doesNotThrow(() => press(panel, key), key);
+  }
+  assert.equal(rows.length, 2);
+  assert.notEqual(document.activeElement, rows[0]);
+  assert.ok(trigger);
 });
 
 function DropsProps({ children, onClick }: { children?: React.ReactNode; onClick?: () => void }) {

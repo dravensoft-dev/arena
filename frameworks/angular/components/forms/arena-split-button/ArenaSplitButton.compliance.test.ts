@@ -208,12 +208,26 @@ test('ArenaSplitButton meets the menu-button pattern it binds, on the caret', ()
     const first = panel()!.querySelector<HTMLElement>('[role="menuitem"]');
     assertSameNode(document.activeElement, first, 'focus.onOpen: opening left focus on the caret');
 
+    const rows = [...panel()!.querySelectorAll<HTMLElement>('[role="menuitem"]')];
     assertPattern({
       root: document.body,
       bindingPath: BINDING,
-      subjects: { default: caret },
-      behavioural: { 'focus.onOpen': true, 'keyboard.Enter': true, 'keyboard.Space': true, 'keyboard.Escape': true },
+      subjects: {
+        default: caret,
+        'roles.item': rows,
+        'roles.separator': [...panel()!.querySelectorAll<HTMLElement>('[data-arena-part="menu.divider"]')],
+      },
+      behavioural: {
+        'focus.onOpen': true, 'keyboard.Enter': true, 'keyboard.Space': true, 'keyboard.Escape': true,
+        'focus.roving': true, 'keyboard.ArrowDown': true, 'keyboard.ArrowUp': true,
+        'keyboard.Home': true, 'keyboard.End': true, 'keyboard.TypeAhead': true,
+      },
     });
+
+    assert.equal(press(first!, 'ArrowDown').defaultPrevented, true);
+    assertSameNode(document.activeElement, rows[1]!, 'ArrowDown did not reach the second row');
+    press(rows[1]!, 'ArrowDown');
+    assertSameNode(document.activeElement, rows[0]!, 'ArrowDown did not wrap from the last row to the first');
 
     press(first!, 'Escape');
     fixture.detectChanges();

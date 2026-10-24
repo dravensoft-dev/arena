@@ -1,10 +1,13 @@
+import { NgTemplateOutlet } from '@angular/common';
 import {
   ChangeDetectionStrategy, Component, DestroyRef, ElementRef, Injector, TemplateRef,
   afterNextRender, afterRenderEffect, computed, inject, input, output, untracked, viewChild,
 } from '@angular/core';
 import type { ConnectedPosition } from '@angular/cdk/overlay';
 import type { ArenaMenuAlign, ArenaMenuItem } from '../../../Api.generated';
-import { sp1 } from '../../../Tokens.generated';
+import { delayTypeahead, sp1 } from '../../../Tokens.generated';
+import { ArenaIdGenerator } from '../../../ArenaIds';
+import { arenaTypeAheadBuffer, arenaTypeAheadNext } from '../../../TypeAhead';
 import { arenaWarnOnce } from '../../../WarnOnce';
 import { ArenaAnchoredOverlay, arenaConnectedPositions } from '../../../AnchoredOverlay';
 import { arenaMenuStyles } from './ArenaMenu.variants';
@@ -21,6 +24,32 @@ export const ARENA_MENU_POSITIONS: Record<ArenaMenuAlign, ConnectedPosition[]> =
   end: arenaConnectedPositions('end', 'below', sp1 * 1.5),
 };
 
+export type ArenaMenuBlock =
+  | { kind: 'divider'; index: number }
+  | { kind: 'rows'; header: number | null; rows: number[] };
+
+/** Splits the entries into what the panel draws: rows before the first header form a block with no header, and a divider or a header ends a block. */
+export function arenaMenuBlocks(items: readonly ArenaMenuItem[]): ArenaMenuBlock[] {
+  const blocks: ArenaMenuBlock[] = [];
+  let current: { kind: 'rows'; header: number | null; rows: number[] } | null = null;
+  items.forEach((it, index) => {
+    if (it.divider) {
+      current = null;
+      blocks.push({ kind: 'divider', index });
+    } else if (it.header) {
+      current = { kind: 'rows', header: index, rows: [] };
+      blocks.push(current);
+    } else {
+      if (current === null) {
+        current = { kind: 'rows', header: null, rows: [] };
+        blocks.push(current);
+      }
+      current.rows.push(index);
+    }
+  });
+  return blocks.filter((block) => block.kind === 'divider' || block.header !== null || block.rows.length > 0);
+}
+
 export function isArenaActivatable(item: ArenaMenuItem): boolean {
   return !item.divider && item.header === undefined;
 }
@@ -28,7 +57,7 @@ export function isArenaActivatable(item: ArenaMenuItem): boolean {
 @Component({
   selector: 'arena-menu',
   standalone: true,
-  imports: [ArenaIcon, ArenaSlotAttributes],
+  imports: [ArenaIcon, ArenaSlotAttributes, NgTemplateOutlet],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'styles().root()',
@@ -37,24 +66,34 @@ export function isArenaActivatable(item: ArenaMenuItem): boolean {
   },
   template: `
     <ng-content select="[trigger]" />
+    <ng-template #row let-item>
+      <button type="button" role="menuitem" tabindex="-1" [class]="rowStyles(item).item()" [arenaSlotData]="rowStyles(item).$data.item()" [attr.data-arena-part]="parts.item" [disabled]="item.disabled"
+              (click)="run(item)">
+        @if (item.icon; as glyph) {
+          <span [class]="styles().icon()" [attr.data-arena-part]="parts.icon" aria-hidden="true"><arena-icon [icon]="glyph" /></span>
+        }
+        <span [class]="styles().label()" [attr.data-arena-part]="parts.label">{{ item.label }}</span>
+        @if (item.shortcut; as keys) {
+          <kbd [class]="styles().shortcut()" [attr.data-arena-part]="parts.shortcut">{{ keys }}</kbd>
+        }
+      </button>
+    </ng-template>
     <ng-template #panel>
-      <div role="menu" [class]="styles().panel()" [attr.data-arena-surface]="'floating'" [arenaSlotData]="styles().$data.panel()" [attr.data-arena-part]="parts.panel">
-        @for (item of items(); track $index) {
-          @if (item.divider) {
-            <div [class]="styles().divider()" [attr.data-arena-part]="parts.divider"></div>
-          } @else if (item.header; as heading) {
-            <div [class]="styles().header()" [attr.data-arena-part]="parts.header">{{ heading }}</div>
+      <div role="menu" (keydown)="onKeydown($event)" [class]="styles().panel()" [attr.data-arena-surface]="'floating'" [arenaSlotData]="styles().$data.panel()" [attr.data-arena-part]="parts.panel">
+        @for (block of blocks(); track $index) {
+          @if (block.kind === 'divider') {
+            <div role="separator" [class]="styles().divider()" [attr.data-arena-part]="parts.divider"></div>
+          } @else if (block.header !== null) {
+            <div role="group" [attr.aria-labelledby]="headerId(block.header)" [class]="styles().group()" [attr.data-arena-part]="parts.group">
+              <div [id]="headerId(block.header)" [class]="styles().header()" [attr.data-arena-part]="parts.header">{{ items()[block.header]!.header }}</div>
+              @for (at of block.rows; track at) {
+                <ng-container [ngTemplateOutlet]="row" [ngTemplateOutletContext]="{ $implicit: items()[at]! }" />
+              }
+            </div>
           } @else {
-            <button type="button" role="menuitem" [class]="rowStyles(item).item()" [arenaSlotData]="rowStyles(item).$data.item()" [attr.data-arena-part]="parts.item" [disabled]="item.disabled"
-                    (click)="run(item)">
-              @if (item.icon; as glyph) {
-                <span [class]="styles().icon()" [attr.data-arena-part]="parts.icon" aria-hidden="true"><arena-icon [icon]="glyph" /></span>
-              }
-              <span [class]="styles().label()" [attr.data-arena-part]="parts.label">{{ item.label }}</span>
-              @if (item.shortcut; as keys) {
-                <kbd [class]="styles().shortcut()" [attr.data-arena-part]="parts.shortcut">{{ keys }}</kbd>
-              }
-            </button>
+            @for (at of block.rows; track at) {
+              <ng-container [ngTemplateOutlet]="row" [ngTemplateOutletContext]="{ $implicit: items()[at]! }" />
+            }
           }
         }
       </div>
@@ -75,6 +114,11 @@ export class ArenaMenu {
   readonly select = output<ArenaMenuItem>();
 
   protected readonly styles = computed(() => arenaMenuStyles());
+  protected readonly blocks = computed(() => arenaMenuBlocks(this.items()));
+
+  private readonly idBase = inject(ArenaIdGenerator).next('arena-menu');
+  private buffer = '';
+  private clock: ReturnType<typeof setTimeout> | null = null;
 
   private readonly panel = viewChild.required<TemplateRef<unknown>>('panel');
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
@@ -101,7 +145,40 @@ export class ArenaMenu {
       const isOpen = this.overlay.isOpen();
       untracked(() => this.describeTrigger(isOpen));
     });
-    inject(DestroyRef).onDestroy(() => this.detachTrigger?.());
+    inject(DestroyRef).onDestroy(() => {
+      this.detachTrigger?.();
+      if (this.clock !== null) clearTimeout(this.clock);
+    });
+  }
+
+  protected headerId(index: number): string {
+    return `${this.idBase}-h${index}`;
+  }
+
+  protected onKeydown(event: KeyboardEvent): void {
+    if (event.ctrlKey || event.metaKey || event.altKey) return;
+    const menu = event.currentTarget as HTMLElement;
+    const rows = [...menu.querySelectorAll<HTMLElement>('[role="menuitem"]:not([disabled])')];
+    const at = rows.findIndex((row) => row === menu.ownerDocument.activeElement);
+    const total = rows.length;
+    let target = -1;
+    if (event.key === 'ArrowDown') target = total === 0 ? -1 : (at + 1) % total;
+    else if (event.key === 'ArrowUp') target = total === 0 ? -1 : (at <= 0 ? total - 1 : at - 1);
+    else if (event.key === 'Home') target = total === 0 ? -1 : 0;
+    else if (event.key === 'End') target = total === 0 ? -1 : total - 1;
+    else if (event.key.length === 1 && (event.key !== ' ' || this.buffer !== '')) {
+      this.buffer = arenaTypeAheadBuffer(this.buffer, event.key);
+      if (this.clock !== null) clearTimeout(this.clock);
+      this.clock = setTimeout(() => { this.buffer = ''; this.clock = null; }, delayTypeahead);
+      const labels = rows.map((row) => row.querySelector('[data-arena-part="menu.label"]')?.textContent ?? '');
+      const found = arenaTypeAheadNext(labels, at, this.buffer);
+      if (found < 0) return;
+      event.preventDefault();
+      rows[found]!.focus();
+      return;
+    } else return;
+    event.preventDefault();
+    if (target >= 0) rows[target]!.focus();
   }
 
   protected rowStyles(item: ArenaMenuItem) {

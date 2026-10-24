@@ -32,7 +32,7 @@ test('the popup state sits on the caret and on nothing else', () => {
 test('ArenaSplitButton meets the menu-button pattern it binds, on the caret', () => {
   const root = mount(
     <ArenaSplitButton label="Deployment" menuLabel="More deploy options"
-      items={[{ label: 'Deploy to staging' }, { label: 'Roll back', destructive: true }]}>Deploy</ArenaSplitButton>,
+      items={[{ label: 'Deploy to staging' }, { divider: true }, { label: 'Roll back', destructive: true }]}>Deploy</ArenaSplitButton>,
   );
   const caret = root.querySelector<HTMLElement>('[data-arena-part="split-button.caret"]')!;
 
@@ -49,16 +49,29 @@ test('ArenaSplitButton meets the menu-button pattern it binds, on the caret', ()
   const first = panel.querySelector<HTMLElement>('[role="menuitem"]');
   assert.equal(document.activeElement, first, 'opening left focus on the caret');
 
-  press(first!, 'Escape');
-  assert.equal(root.querySelector('[role="menu"]'), null, 'Escape did not close the menu');
-  assert.equal(document.activeElement, caret, 'Escape closed the menu and dropped focus');
-
+  const rows = [...panel.querySelectorAll<HTMLElement>('[role="menuitem"]')];
   assertPattern({
     root,
     bindingPath: BINDING,
-    subjects: { default: caret },
+    subjects: {
+      default: caret,
+      'roles.item': rows,
+      'roles.separator': [...panel.querySelectorAll<HTMLElement>('[data-arena-part="menu.divider"]')],
+    },
     behavioural: {
       'focus.onOpen': true, 'keyboard.Enter': true, 'keyboard.Space': true, 'keyboard.Escape': true,
+      'focus.roving': true, 'keyboard.ArrowDown': true, 'keyboard.ArrowUp': true,
+      'keyboard.Home': true, 'keyboard.End': true, 'keyboard.TypeAhead': true,
     },
   });
+
+  const down = press(first!, 'ArrowDown');
+  assert.equal(down.defaultPrevented, true);
+  assert.equal(document.activeElement, rows[1], 'ArrowDown did not reach the second row');
+  press(rows[1]!, 'ArrowDown');
+  assert.equal(document.activeElement, rows[0], 'ArrowDown did not wrap from the last row to the first');
+
+  press(first!, 'Escape');
+  assert.equal(root.querySelector('[role="menu"]'), null, 'Escape did not close the menu');
+  assert.equal(document.activeElement, caret, 'Escape closed the menu and dropped focus');
 });

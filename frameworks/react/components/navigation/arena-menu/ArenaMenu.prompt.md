@@ -36,6 +36,11 @@ Actions menu on a trigger (overflow "⋮", more actions, context). Don't confuse
 - `Enter`: opens the menu and moves focus to its first item.
 - `Space`: opens the menu and moves focus to its first item.
 - `Escape`: closes the menu and returns focus to the button.
+- `ArrowDown`: moves focus to the next enabled row, wrapping from the last to the first.
+- `ArrowUp`: moves focus to the previous enabled row, wrapping from the first to the last.
+- `Home`: moves focus to the first enabled row.
+- `End`: moves focus to the last enabled row.
+- `TypeAhead`: typing a character moves focus to the next enabled row whose label starts with it; characters typed in rapid succession match on the accumulated string.
 <!-- @keys end -->
 
 An entry has no `onClick` of its own. Activating one reports `onSelect(item)` --
@@ -48,6 +53,8 @@ and the caller names the glyph. What that costs is the general price of the sing
 saying "no entries right now" and renders.
 
 **The panel opens in the top layer**, so an `overflow: hidden` or transformed ancestor does not clip it. The panel flips above its trigger near the bottom of the window and follows the trigger on scroll. Tab from the last row closes the menu and returns focus to the trigger, as Escape does. Escape closes the topmost open panel, so a menu inside a popover or a dialog closes alone.
+
+**Focus moves by key inside the open menu.** The arrows move between enabled rows and wrap, Home and End go to the first and the last row, and typing a character moves to the next row whose label starts with it. A disabled row is skipped, and Tab closes the menu. A header names the rows under it, so a reader hears the group before its first row.
 
 **The server render carries the popup state.** An `ArenaButton` or `ArenaIconButton` trigger renders `aria-haspopup` and `aria-expanded` before hydration.
 

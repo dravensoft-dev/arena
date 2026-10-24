@@ -49,13 +49,18 @@ One action with a menu of its alternatives, drawn as one control. The primary ha
 - `Enter`: opens the menu and moves focus to its first item.
 - `Space`: opens the menu and moves focus to its first item.
 - `Escape`: closes the menu and returns focus to the button.
+- `ArrowDown`: moves focus to the next enabled row, wrapping from the last to the first.
+- `ArrowUp`: moves focus to the previous enabled row, wrapping from the first to the last.
+- `Home`: moves focus to the first enabled row.
+- `End`: moves focus to the last enabled row.
+- `TypeAhead`: typing a character moves focus to the next enabled row whose label starts with it; characters typed in rapid succession match on the accumulated string.
 <!-- @keys end -->
 
 **The split is the view's one primary action.** The default emphasis is `arena-emphasis-primary`, and a view holds one. Write `arena-emphasis-secondary` or `arena-emphasis-ghost` on any other split.
 
 **Two names, both required.** `label` names the group of both halves, and `menuLabel` names the caret. A blank one throws. The primary half is named by its content.
 
-**Two tab stops, primary then caret.** Enter and Space on the caret open the menu with focus on its first entry. Escape closes it and returns focus to the caret. A press on the primary half while the menu is open closes the menu and runs the primary action.
+**Two tab stops, primary then caret.** Enter and Space on the caret open the menu with focus on its first entry. Escape closes it and returns focus to the caret. Inside the menu the arrows move between enabled rows and wrap, Home and End go to the first and the last row, and typing a character moves to the next row whose label starts with it. A disabled row is skipped, Tab closes the menu, and a header names the rows under it. A press on the primary half while the menu is open closes the menu and runs the primary action.
 
 **`loading` blocks the primary half only.** The spinner replaces the leading icon, and the caret stays usable. `disabled` blocks both halves. `onClick` never fires while either holds.
 
