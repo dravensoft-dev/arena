@@ -759,7 +759,7 @@ test('a ring wholly inside the root plugin is not laid at a later plugin that di
   assert.deepEqual(problems.filter((m) => m.startsWith('stylePlugins.marketing:') && /resolves/.test(m)), [], problems.join('\n'));
 });
 
-test('a ring wholly inside the root is not laid at a later plugin that takes one of its roles only by default', () => {
+test('a ring inside the root plugin is reported against the root, and a later plugin answering one of its roles with a palette colour gets no ring', () => {
   const sheets = { ...SHEETS_FULL, catalogue: { ...SHEETS_FULL.catalogue, roles: {
     ...SHEETS_FULL.catalogue.roles,
     'ink-key': { type: 'color', default: '{ink-muted}' }, 'ink-muted': { type: 'color' },
@@ -773,6 +773,25 @@ test('a ring wholly inside the root is not laid at a later plugin that takes one
   ]).filter((m) => m.includes('stylePlugins'));
   assert.ok(problems.some((m) => m.startsWith('stylePlugins.console:') && /neither resolves/.test(m)), problems.join('\n'));
   assert.deepEqual(problems.filter((m) => m.startsWith('stylePlugins.marketing:') && /resolves/.test(m)), [], problems.join('\n'));
+});
+
+test('a ring the root closes through a default is not laid at a later plugin that takes that default too', () => {
+  const sheets = { ...SHEETS_FULL, catalogue: { ...SHEETS_FULL.catalogue, roles: {
+    ...SHEETS_FULL.catalogue.roles,
+    'ink-key': { type: 'color', default: '{ink-muted}' }, 'ink-muted': { type: 'color' },
+  } } };
+  const problems = configProblems(listed(['console', 'marketing']), sheets, [
+    total({
+      'ink-muted': { $type: 'color', $value: '{fill-surface}' },
+      'fill-surface': { $type: 'color', $value: '{ink-key}' },
+    }),
+    scoped({ 'ink-muted': { $type: 'color', $value: '{color.secondary}' } }),
+  ]).filter((m) => m.includes('stylePlugins'));
+  const rings = problems.filter((m) => /resolves/.test(m));
+  assert.ok(rings.some((m) => m.startsWith('stylePlugins.console:') && /"ink-key" carries Arena's default/.test(m)),
+    problems.join('\n'));
+  assert.deepEqual(rings.filter((m) => m.startsWith('stylePlugins.marketing:')), [],
+    'marketing takes ink-key by default from its own ink-muted, a palette colour, which breaks the ring under it');
 });
 
 test('resolvedPlugin follows a role alias to the colour the named role resolves to', () => {
