@@ -418,6 +418,11 @@ test('classify keeps a nullable return, so a layer returning null differs from a
     { form: 'functionInput', params: { value: 'string' }, returns: 'string | null | undefined' });
 });
 
+test('an arrow returning void or undefined is still an event', () => {
+  assert.deepEqual(classify('(crumb: ArenaCrumb) => void | undefined'), { form: 'event', payload: 'ArenaCrumb' });
+  assert.deepEqual(classify('() => void | null'), { form: 'event', payload: null });
+});
+
 test('classify surfaces a functionInput whose return is a platform type as platform, not as the ninth form', () => {
   assert.deepEqual(classify('(value: string) => React.MouseEvent'),
     { form: 'platform', type: 'React.MouseEvent' });

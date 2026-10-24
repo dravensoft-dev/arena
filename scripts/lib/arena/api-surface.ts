@@ -116,10 +116,10 @@ export function classify(raw: string): { form: string; [detail: string]: any } {
   if (arrow) {
 
     const returns = captured(arrow, 2).trim();
-    if (returns !== 'void') {
+    const nonNull = returns.split('|').map((s: string) => s.trim())
+      .filter((s: string) => s !== 'null' && s !== 'undefined');
+    if (nonNull.length !== 1 || nonNull[0] !== 'void') {
 
-      const nonNull = returns.split('|').map((s: string) => s.trim())
-        .filter((s: string) => s !== 'null' && s !== 'undefined');
       const retType = nonNull.length === 1 ? classify(nonNull[0] ?? '') : { form: 'union' };
       if (retType.form === 'platform') return retType;
       if (retType.form === 'slot') {
