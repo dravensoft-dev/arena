@@ -117,6 +117,7 @@ test('ArenaHeatmapChart overflows its rail only when a column cannot be narrower
   assert.equal(svgWidth(draw({ minCellWidth: 10 })), '100%', 'a floor the container already meets changes nothing');
   assert.equal(Number(svgWidth(draw({ minCellWidth: 40 }))), chartPadCategory + ARENA_PAD.r + 40 * HOURS.length);
   assert.match(draw({ minCellWidth: 40 }), /overflow-x:auto/);
+  assert.match(draw(), /overflow-x:visible/, 'a rail that does not scroll lets the end label overhang');
 });
 
 test('ArenaHeatmapChart draws every nth column label when they would collide, and names every column in the table', () => {

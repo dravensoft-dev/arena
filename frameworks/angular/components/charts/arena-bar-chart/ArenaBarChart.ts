@@ -2,7 +2,7 @@ import {
   afterRenderEffect, booleanAttribute, ChangeDetectionStrategy, Component, computed, ElementRef, inject, input, signal, viewChild,
 } from '@angular/core';
 import { arenaContainerWidth } from '../../../ContainerSize';
-import { ARENA_CHART_HEIGHT, ARENA_INK_MUTED, ARENA_RAIL_STYLE, ARENA_SR_ONLY, arenaPlotWidth, arenaValueWriter, arenaCatRotate } from '../../../DataVisuals';
+import { ARENA_CHART_HEIGHT, ARENA_INK_MUTED, ARENA_SR_ONLY, arenaPlotWidth, arenaRailStyle, arenaValueWriter, arenaCatRotate } from '../../../DataVisuals';
 import {
   arenaLinearScale, arenaBandScale, arenaBandStart, arenaBandCenter, arenaBandIndex, arenaBandMark, arenaBandSubBand,
   arenaScaleValue,
@@ -47,7 +47,7 @@ const BAR_STYLE = { transition: 'opacity var(--dur-hover) var(--ease-hover)' } a
   host: { style: 'display: contents' },
   template: `
     <div [class]="styles.frame()" [attr.data-arena-part]="parts.frame" [style.height.px]="height()">
-    <div #rail [style]="arenaRailStyle" tabindex="0" role="group" [attr.aria-label]="name()"
+    <div #rail [style]="railStyle()" tabindex="0" role="group" [attr.aria-label]="name()"
          (keydown)="onKey($event)" (scroll)="syncView()">
     <svg [attr.width]="scrolls() ? width() : '100%'" [attr.height]="plotH()" role="img" [attr.aria-label]="name()"
          style="display:block;overflow:visible">
@@ -151,7 +151,6 @@ export class ArenaBarChart {
   protected readonly parts = manifest.parts;
   protected readonly styles = arenaBarChartStyles();
   protected readonly arenaSrOnly = ARENA_SR_ONLY;
-  protected readonly arenaRailStyle = ARENA_RAIL_STYLE;
   protected readonly lineStyle = LINE_STYLE;
   protected readonly inkMuted = ARENA_INK_MUTED;
   protected readonly tickLabelStyle = TICK_LABEL_STYLE;
@@ -174,6 +173,7 @@ export class ArenaBarChart {
   );
 
   protected readonly scrolls = computed(() => this.width() > this.available());
+  protected readonly railStyle = computed(() => arenaRailStyle(this.scrolls()));
 
   private readonly rail = viewChild<ElementRef<HTMLElement>>('rail');
 

@@ -3,7 +3,7 @@ import {
 } from '@angular/core';
 import { arenaContainerWidth } from '../../../ContainerSize';
 import { arenaWarnOnce } from '../../../WarnOnce';
-import { ARENA_CHART_HEIGHT, ARENA_INK_MUTED, ARENA_RAIL_STYLE, ARENA_SR_ONLY, arenaAreaFill, arenaPlotWidth, arenaValueWriter, arenaCatRotate } from '../../../DataVisuals';
+import { ARENA_CHART_HEIGHT, ARENA_INK_MUTED, ARENA_SR_ONLY, arenaAreaFill, arenaPlotWidth, arenaRailStyle, arenaValueWriter, arenaCatRotate } from '../../../DataVisuals';
 import {
   arenaLinearScale, arenaPointScale, arenaPointAt, arenaScaleValue, arenaNearestPointIndex,
 } from '../ChartScales';
@@ -46,7 +46,7 @@ const POINT_LABEL_STYLE = { fontSize: 'var(--dz-text-xs)' } as const satisfies R
   host: { style: 'display: contents' },
   template: `
     <div [class]="styles.frame()" [attr.data-arena-part]="parts.frame" [style.height.px]="height()">
-    <div #rail [style]="arenaRailStyle" tabindex="0" role="group" [attr.aria-label]="name()"
+    <div #rail [style]="railStyle()" tabindex="0" role="group" [attr.aria-label]="name()"
          (keydown)="onKey($event)" (scroll)="syncView()">
     <svg [attr.width]="scrolls() ? width() : '100%'" [attr.height]="plotH()" role="img" [attr.aria-label]="name()"
          style="display:block;overflow:visible">
@@ -173,7 +173,6 @@ export class ArenaLineChart {
   protected readonly parts = manifest.parts;
   protected readonly styles = arenaLineChartStyles();
   protected readonly arenaSrOnly = ARENA_SR_ONLY;
-  protected readonly arenaRailStyle = ARENA_RAIL_STYLE;
   protected readonly lineStyle = LINE_STYLE;
   protected readonly inkMuted = ARENA_INK_MUTED;
   protected readonly seriesStrokeStyle = SERIES_STROKE_STYLE;
@@ -198,6 +197,7 @@ export class ArenaLineChart {
   );
 
   protected readonly scrolls = computed(() => this.width() > this.available());
+  protected readonly railStyle = computed(() => arenaRailStyle(this.scrolls()));
 
   private readonly rail = viewChild<ElementRef<HTMLElement>>('rail');
 

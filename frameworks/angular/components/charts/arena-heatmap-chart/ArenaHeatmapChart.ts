@@ -4,7 +4,7 @@ import {
 import { arenaContainerWidth } from '../../../ContainerSize';
 import { arenaWarnOnce } from '../../../WarnOnce';
 import {
-  ARENA_HEAT_STEPS, ARENA_INK_MUTED, ARENA_RAIL_STYLE, ARENA_SR_ONLY, arenaHeatFill, arenaValueWriter,
+  ARENA_HEAT_STEPS, ARENA_INK_MUTED, ARENA_SR_ONLY, arenaHeatFill, arenaRailStyle, arenaValueWriter,
 } from '../../../DataVisuals';
 import {
   arenaBandCenter, arenaBandIndex, arenaBandMark, arenaBandScale, arenaHeatEdge, arenaHeatStep,
@@ -43,7 +43,7 @@ const COLUMN_NAME_STYLE = { fontSize: 'var(--dz-text-2xs)' } as const satisfies 
   host: { style: 'display: contents' },
   template: `
     <div [class]="styles.frame()" [attr.data-arena-part]="parts.frame" [style.height.px]="total()">
-    <div #rail [style]="arenaRailStyle" tabindex="0" role="group" [attr.aria-label]="name()"
+    <div #rail [style]="railStyle()" tabindex="0" role="group" [attr.aria-label]="name()"
          (keydown)="onKey($event)" (scroll)="syncView()">
     <svg [attr.width]="scrolls() ? width() : '100%'" [attr.height]="plotH()" role="img" [attr.aria-label]="name()"
          style="display:block;overflow:visible">
@@ -135,7 +135,6 @@ export class ArenaHeatmapChart {
   protected readonly parts = manifest.parts;
   protected readonly styles = arenaHeatmapChartStyles();
   protected readonly arenaSrOnly = ARENA_SR_ONLY;
-  protected readonly arenaRailStyle = ARENA_RAIL_STYLE;
   protected readonly inkMuted = ARENA_INK_MUTED;
   protected readonly outlineStyle = OUTLINE_STYLE;
   protected readonly cursorStyle = CURSOR_STYLE;
@@ -179,6 +178,7 @@ export class ArenaHeatmapChart {
 
   protected readonly width = computed(() => arenaHeatmapWidth(this.available(), this.cols(), this.minCellWidth()));
   protected readonly scrolls = computed(() => this.width() > this.available());
+  protected readonly railStyle = computed(() => arenaRailStyle(this.scrolls()));
 
   private readonly box = computed(() => arenaHeatmapBox(this.width(), this.plotH()));
   protected readonly plotLeft = computed(() => this.box().x);

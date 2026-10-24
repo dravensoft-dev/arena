@@ -137,7 +137,7 @@ export function ArenaLineChart({ className,
 
   return (
     <div className={arenaClassName('ArenaLineChart', styles.frame(), className, manifest.vocabulary)} ref={ref} data-arena-part={manifest.parts.frame} {...styles.$data.frame()} style={{ height }}>
-      <div ref={rail} style={arenaRailStyle} tabIndex={0} role="group" aria-label={name} onKeyDown={onKeyDown} onScroll={syncView}>
+      <div ref={rail} style={arenaRailStyle(scrolls)} tabIndex={0} role="group" aria-label={name} onKeyDown={onKeyDown} onScroll={syncView}>
       <svg width={scrolls ? width : '100%'} height={strip.plotH} role="img" aria-label={name} style={{ display: 'block', overflow: 'visible' }}>
         {axis.ticks.map((tick, i) => (
           <g key={i}>

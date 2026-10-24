@@ -121,9 +121,10 @@ export function arenaPlotWidth(available: number, count: number, minPointSpacing
   const needed = ARENA_PAD.l + ARENA_PAD.r + minPointSpacing * (count - 1);
   return Math.max(available, needed);
 }
-export const arenaRailStyle: React.CSSProperties = {
-  overflowX: 'auto', overflowY: 'hidden', display: 'block', outlineOffset: 'var(--focus-offset)',
-};
+export function arenaRailStyle(scrolls: boolean): React.CSSProperties {
+  const overflow = scrolls ? 'auto' : 'visible';
+  return { overflowX: overflow, overflowY: scrolls ? 'hidden' : 'visible', display: 'block', outlineOffset: 'var(--focus-offset)' };
+}
 
 export const arenaSrOnly: React.CSSProperties = {
   position: 'absolute', width: 1, height: 1, padding: 0, margin: -1,

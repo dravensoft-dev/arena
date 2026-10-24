@@ -52,7 +52,6 @@ export const INTERNAL = new Map<string, string>([
   ['ARENA_INK_MUTED', CHART_GEOMETRY],
   ['arenaPlotWidth', CHART_GEOMETRY],
   ['arenaRailStyle', CHART_GEOMETRY],
-  ['ARENA_RAIL_STYLE', CHART_GEOMETRY],
   ['arenaAreaFill', CHART_GEOMETRY],
   ['arenaValueWriter', CHART_GEOMETRY],
   ['arenaPercentWriter', CHART_GEOMETRY],

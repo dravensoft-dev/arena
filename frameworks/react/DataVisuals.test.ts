@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  ARENA_CAT_SLOTS, ARENA_INK_BODY, ARENA_INK_MUTED, arenaCatColor, arenaCatRotate, arenaCatSlotFor, arenaCatSurface, arenaAreaFill, arenaToneColor,
+  ARENA_CAT_SLOTS, ARENA_INK_BODY, ARENA_INK_MUTED, arenaCatColor, arenaCatRotate, arenaCatSlotFor, arenaCatSurface, arenaAreaFill, arenaToneColor, arenaRailStyle,
 } from './DataVisuals.ts';
 import type { ArenaSeriesTone, ArenaTone } from './Api.generated';
 
@@ -64,4 +64,10 @@ test('arenaCatRotate clamps the start before counting', () => {
   assert.equal(arenaCatRotate(0, 0), 1);
   assert.equal(arenaCatRotate(99, 0), ARENA_CAT_SLOTS);
   assert.equal(arenaCatRotate(99, 1), 1);
+});
+
+test('arenaRailStyle clips on both axes while the rail scrolls and lets the end label overhang while it does not, with the same keys', () => {
+  const keys = { display: 'block', outlineOffset: 'var(--focus-offset)' };
+  assert.deepEqual(arenaRailStyle(true), { overflowX: 'auto', overflowY: 'hidden', ...keys });
+  assert.deepEqual(arenaRailStyle(false), { overflowX: 'visible', overflowY: 'visible', ...keys });
 });

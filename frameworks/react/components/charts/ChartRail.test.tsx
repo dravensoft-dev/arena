@@ -72,3 +72,8 @@ test('a span wider than the view that begins before it shows its start', () => {
 test('a span wider than the view that begins inside it is scrolled to its end', () => {
   assert.equal(arenaRailReveal(150, 500, 100, 200), 300);
 });
+
+test('a line rail that does not scroll lets the end label overhang, and one that scrolls clips', () => {
+  assert.match(rail(undefined), /overflow-x:visible/);
+  assert.match(rail(35), /overflow-x:auto/);
+});

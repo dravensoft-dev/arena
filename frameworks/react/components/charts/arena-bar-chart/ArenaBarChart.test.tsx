@@ -148,3 +148,12 @@ test('the tone and colorId warning names the chart that drew it, so a second cha
   forgetArenaWarnings();
   assert.deepEqual(warnings.map((line) => /^\[arena\] (\w+):/.exec(line)?.[1]), ['ArenaBarChart', 'ArenaSparkline', 'ArenaScatterChart']);
 });
+
+test('ArenaBarChart lets the end label overhang while its rail does not scroll, and clips once it does', () => {
+  const labels = Array.from({ length: 30 }, (_, i) => `d${i}`);
+  const draw = (minPointSpacing?: number) => renderToStaticMarkup(
+    <ArenaBarChart labels={labels} series={[{ label: 'Deploys', values: labels.map((_, i) => i + 1) }]} label="Deploys" minPointSpacing={minPointSpacing} />
+  );
+  assert.match(draw(), /overflow-x:visible/);
+  assert.match(draw(35), /overflow-x:auto/);
+});
