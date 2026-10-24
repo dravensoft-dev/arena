@@ -94,7 +94,7 @@ Every other toolchain has a recipe on its page of [the bundler index](./bundlers
 
 ## How do I import the stylesheets in React?
 
-Run `arena build` first. The command writes the package sheet, the theme sheet, the icon sprite with its module, and a plugin sheet when a style plugin of yours carries CSS. Import the generated files before your own rules, in your entry file. `arena.package.generated.css` comes first and `arena.generated.css` after it. Under `--no-import` the package sheet is not written, and the sheets you import by hand take its place, before `arena.generated.css`.
+Run `arena build` first. The command writes the package sheet, the theme sheet, the icon sprite with its module, and a plugin sheet when a style plugin of yours carries CSS. Import the generated files before your own rules, in your entry file. `arena.package.generated.css` comes first and `arena.generated.css` after it. Under `--no-import` the package sheet is not written, and the sheets you import by hand take its place, before `arena.generated.css`. The package declares its colour and type defaults in the `arena-defaults` layer, which every order statement names first. `arena.generated.css` is unlayered, so it beats them in whatever order a bundler or dev server emits the two.
 
 ```js
 import './arena.package.generated.css';
@@ -106,7 +106,7 @@ The import happens in JavaScript. A bundler resolves each specifier as a stylesh
 
 ## How do I import the stylesheets in Angular?
 
-Import the generated files from `src/styles.css`. Import the generated files before your own rules. `arena.package.generated.css` comes first and `arena.generated.css` after it. Under `--no-import` the package sheet is not written, and the sheets you import by hand take its place, before `arena.generated.css`.
+Import the generated files from `src/styles.css`. Import the generated files before your own rules. `arena.package.generated.css` comes first and `arena.generated.css` after it. Under `--no-import` the package sheet is not written, and the sheets you import by hand take its place, before `arena.generated.css`. The package declares its colour and type defaults in the `arena-defaults` layer, which every order statement names first. `arena.generated.css` is unlayered, so it beats them in whatever order a bundler or dev server emits the two.
 
 ```css
 @import './arena.package.generated.css';
@@ -120,7 +120,7 @@ That sheet re-bases the CDK overlay onto Arena's `--z-*` scale. Without it a dia
 
 ## How do I combine the sheets with Tailwind v4?
 
-A project that compiles markup of its own with `tailwindcss` v4 keeps one entry sheet. The order is Tailwind first, then Arena's theme, then the generated sheets, then your rules. Swap `react` for `angular` in the Angular package's path.
+A project that compiles markup of its own with `tailwindcss` v4 keeps one entry sheet. The order is Tailwind first, then Arena's theme, then the generated sheets, then your rules. The project's own `@layer` statement, if it writes one, names `arena-defaults` first. Swap `react` for `angular` in the Angular package's path.
 
 ```css
 @import 'tailwindcss';

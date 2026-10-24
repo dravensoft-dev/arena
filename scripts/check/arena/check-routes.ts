@@ -124,7 +124,7 @@ export const ROUTES: Route[] = [
       'skills/design/references/config.md',
       'skills/design/references/cli.md',
     ],
-    budget: 48_800,
+    budget: 49_400,
     reason:
       'paid once per project rather than per screen, so it carries what the build route may not: '
       + 'the install, the config file and the command. The package carries none of the language, so a '
@@ -136,9 +136,9 @@ export const ROUTES: Route[] = [
       + 'fonts the build writes, and lists the sheets a `--no-import` project imports under one rule '
       + 'for every root, generated from the layer list `scopedImports` reads. The config reference '
       + 'tables every key and lists the names the build refuses and the roles that carry a default. '
-      + 'The command reference also says which glyphs reach the sprite\'s filled weight and when an '
-      + 'icon expression widens that set, a rule of the build the reader cannot infer. The audit '
-      + 'section also covers the two rules that read a plugin\'s names.',
+      + 'The command reference also says which glyphs reach the sprite\'s filled weight. The audit '
+      + 'section also covers the two rules that read a plugin\'s names. Both references say the '
+      + 'package\'s defaults sit in the arena-defaults layer, which a project cannot infer.',
   },
   {
     name: 'consumer-skin',
