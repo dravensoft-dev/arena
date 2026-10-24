@@ -16,7 +16,7 @@ import { pathToFileURL } from 'node:url';
 import { iconManifest } from '../../lib/arena/icon-manifest.ts';
 import {
   GENERATED_PALETTE, PACKAGES, collect, unassembled, layersOf, LAYERS, componentMapProblems, componentReachProblems, bundledCssProblems, declaredComponents, distDir, exportProblems, globMatches, manifestProblems, paletteEquivalenceProblems, stripAtStatements, styleProblems,
-  payloadProblems, CARRIED_BY_PACKAGE, iconManifestProblems, fontProblems, entryPointProblems, COMPILED_BY_CONSUMER, cssListProblems, CSS_HOMES, directiveProblems, themeSheetProblems, themeCompileProblems, unlayeredTokenProblems
+  payloadProblems, CARRIED_BY_PACKAGE, iconManifestProblems, fontProblems, entryPointProblems, COMPILED_BY_CONSUMER, cssListProblems, CSS_HOMES, directiveProblems, themeSheetProblems, themeCompileProblems, unlayeredTokenProblems, consumerEntry
 } from './check-packages.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { budgetFor, deadline, type Deadline } from '../../lib/arena/deadline.ts';
@@ -26,6 +26,9 @@ import { CLI_DEPENDENCIES } from '../../lib/arena/support-matrix.ts';
 import { RUNTIME_DEPENDENCIES as ANGULAR_RUNTIME_DEPENDENCIES } from '../../build/angular/build-angular-package.ts';
 import { toPosix } from '../../utils/posix-path.ts';
 import { LAYER_ORDER } from '../../lib/tailwind/component-sheets.ts';
+import { tailwindThemeSheet } from '../../lib/tailwind/theme-sheet.ts';
+import { compileEntry } from '../../lib/tailwind/tailwind-compile.ts';
+import { readFileSync } from 'node:fs';
 
 const made: string[] = [];
 const track = (dir: string) => { made.push(dir); return dir; };
@@ -595,12 +598,26 @@ test('the packaged theme equals a fresh assembly', () => {
 });
 
 test('a consumer compile resolves Arena\'s scale, keeps a later key, and reaches none of Tailwind\'s defaults', () => {
-  const compiled = '@layer theme{:root{--color-base-100:var(--color-base-100)}}.bg-base-100{background-color:var(--color-base-100)}.p-4{padding:var(--sp-4)}.bg-surface{background-color:var(--fill-surface)}.bg-brand{background-color:var(--color-brand)}';
+  const compiled = LAYER_ORDER + '@layer theme{:root{--color-base-100:var(--color-base-100)}}.bg-base-100{background-color:var(--color-base-100)}.p-4{padding:var(--sp-4)}.bg-surface{background-color:var(--fill-surface)}.bg-brand{background-color:var(--color-brand)}';
   const dir = distTree({ 'css/tailwind-theme.css': '' });
   assert.deepEqual(themeCompileProblems(REACT_PKG, dir, () => compiled), []);
   assert.match(themeCompileProblems(REACT_PKG, dir, () => `${compiled}.bg-red-500{color:red}`).join('\n'), /bg-red-500/);
   assert.match(themeCompileProblems(REACT_PKG, dir, () => compiled.replace('.bg-brand', '.bg-other')).join('\n'), /below the import/);
   assert.match(themeCompileProblems(REACT_PKG, dir, () => compiled.replace('var(--fill-surface)', 'var(--color-surface)')).join('\n'), /bg-surface does not read --fill-surface/);
+  assert.match(themeCompileProblems(REACT_PKG, dir, () => `@layer theme, base, components, utilities;\n${compiled}`).join('\n'), /arena-defaults is not the lowest layer/);
+});
+
+const firstSeen = (css: string) => [...new Set([...css.replace(/\/\*[\s\S]*?\*\//g, '').matchAll(/@layer\s+([\w\s,-]+?)\s*[;{]/g)]
+  .flatMap((m) => (m[1] ?? '').split(',').map((one) => one.trim())))];
+
+test('in the Tailwind entry a project compiles, arena-defaults ranks below base, so a layered rule of the project beats a package default', () => {
+  const dir = distTree({
+    'css/tailwind-theme.css': tailwindThemeSheet(),
+    'css/colors.css': readFileSync(join(root, 'contracts/design/colors.css'), 'utf8'),
+  });
+  const order = firstSeen(compileEntry(consumerEntry(dir)));
+  assert.ok(order.includes('arena-defaults'), `the entry reaches no arena-defaults layer: ${order.join(', ')}`);
+  assert.ok(order.indexOf('arena-defaults') < order.indexOf('base'), `the compiled order is ${order.join(', ')}`);
 });
 
 test('the token sheets arena.css reaches declare their custom properties outside any cascade layer', () => {

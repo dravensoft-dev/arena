@@ -23,7 +23,7 @@ import { parseDecls } from '../../lib/arena/css-decls.ts';
 import { arenaConfig } from '../../lib/core/arena-config.ts';
 import { themeCss, ALWAYS_THEMED } from '../../generate/core/arena-cli/theme-css.ts';
 import { THEME_SHEET as GENERATED_SHEET } from '../../generate/core/arena-cli/sheets.ts';
-import { DEFAULTS_LAYER } from '../../lib/tailwind/component-sheets.ts';
+import { DEFAULTS_LAYER, LAYER_ORDER } from '../../lib/tailwind/component-sheets.ts';
 import { MAP_FILE } from '../../lib/arena/component-map.ts';
 import { iconManifest, MANIFEST_FILE } from '../../lib/arena/icon-manifest.ts';
 import { shippedNames } from '../../generate/core/arena-cli/icon-css.ts';
@@ -433,11 +433,21 @@ export function themeSheetProblems(pkg: { layer: string; name: string }, dir: st
   return [`${pkg.name}: ${THEME_SHEET} is stale against frameworks/tailwind/Theme.css; run bun run build:packages`];
 }
 
+export const COLORS_SHEET = 'css/colors.css';
+
 export function consumerEntry(dir: string) {
-  return "@import 'tailwindcss' source(none);\n"
+  return LAYER_ORDER
+    + "@import 'tailwindcss' source(none);\n"
     + `@import '${toPosix(join(dir, THEME_SHEET))}';\n`
+    + `@import '${toPosix(join(dir, COLORS_SHEET))}';\n`
     + '@theme { --color-brand: var(--color-primary); }\n'
     + '@source inline("bg-base-100 p-4 bg-surface bg-brand bg-red-500");\n';
+}
+
+export function layerRanking(css: string) {
+  const named = [...css.replace(/\/\*[\s\S]*?\*\//g, '').matchAll(/@layer\s+([\w\s,-]+?)\s*[;{]/g)]
+    .flatMap((m) => (m[1] ?? '').split(',').map((one) => one.trim()));
+  return [...new Set(named)];
 }
 
 export function themeCompileProblems(
@@ -463,6 +473,11 @@ export function themeCompileProblems(
   if (rule('bg-red-500') !== null) {
     problems.push(`${pkg.name}: bg-red-500 compiles through ${THEME_SHEET}, so Tailwind's own palette is still `
       + 'reachable and a namespace was not cleared');
+  }
+  const ranked = layerRanking(css);
+  if (!ranked.includes(DEFAULTS_LAYER) || ranked.indexOf(DEFAULTS_LAYER) > ranked.indexOf('base')) {
+    problems.push(`${pkg.name}: a Tailwind entry that leads with Arena's layer order ranks ${ranked.join(', ')}, so `
+      + `${DEFAULTS_LAYER} is not the lowest layer and a project's own layered rule loses to a package default`);
   }
   if (!/@layer theme\s*\{[\s\S]*--color-base-100:\s*var\(--color-base-100\)/.test(css)) {
     problems.push(`${pkg.name}: the theme's self-reference is not emitted inside @layer theme, so it no longer loses `

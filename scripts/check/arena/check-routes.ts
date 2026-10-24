@@ -124,7 +124,7 @@ export const ROUTES: Route[] = [
       'skills/design/references/config.md',
       'skills/design/references/cli.md',
     ],
-    budget: 49_400,
+    budget: 49_600,
     reason:
       'paid once per project rather than per screen, so it carries what the build route may not: '
       + 'the install, the config file and the command. The package carries none of the language, so a '
@@ -138,8 +138,8 @@ export const ROUTES: Route[] = [
       + 'reach the sprite\'s filled weight and when an icon expression widens that set, and its audit '
       + 'section covers the two rules that read a plugin\'s names. The config reference tables every '
       + 'key, the names the build refuses and the roles that carry a default. The install and command '
-      + 'references name the arena-defaults layer the package\'s defaults sit in, which a project '
-      + 'cannot infer.',
+      + 'references name the arena-defaults layer the defaults sit in, which the Tailwind entry '
+      + 'states first.',
   },
   {
     name: 'consumer-skin',

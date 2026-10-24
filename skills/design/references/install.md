@@ -120,9 +120,11 @@ That sheet re-bases the CDK overlay onto Arena's `--z-*` scale. Without it a dia
 
 ## How do I combine the sheets with Tailwind v4?
 
-A project that compiles markup of its own with `tailwindcss` v4 keeps one entry sheet. The order is Tailwind first, then Arena's theme, then the generated sheets, then your rules. The project's own `@layer` statement, if it writes one, names `arena-defaults` first. Swap `react` for `angular` in the Angular package's path.
+A project that compiles markup of its own with `tailwindcss` v4 keeps one entry sheet. The sheet opens with Arena's `@layer` order statement, above `@import 'tailwindcss'`. Tailwind's own statement names `theme` first, so without Arena's above it the package defaults rank over your layered rules. Then come Tailwind, Arena's theme, the generated sheets and your rules. Swap `react` for `angular` in the Angular package's path.
 
 ```css
+@layer properties;
+@layer arena-defaults, theme, base, components, utilities, arena-plugin;
 @import 'tailwindcss';
 @import '@dravensoft/arena-react/css/tailwind-theme.css';
 @import './arena.package.generated.css';
