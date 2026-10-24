@@ -41,8 +41,16 @@ not an absence.
 The dialog's width is the `arena-dialog-width` class, `sm`, `md` or `lg`, and `--arena-dialog-width` on a container takes a **CSS length** for a width no step names. Write a token expression such as `calc(var(--sp-1) * 200)`, never a bare `520`. A class on the dialog wins over a property on its container, and a dialog that fills the screen ignores both. Write `className="arena-dialog-width-lg"` on a form's dialog for the wide panel. A value that is not a width, such as `md` written as the property, sets a declaration the browser drops and leaves the panel at its default. Arena reports that once at runtime rather than letting it pass in silence. The panel is capped at
 `92vw` regardless, so a wide dialog still fits a narrow viewport.
 
-Arena dismisses the dialog two ways, and both report through `onClose`: **Escape**
-and a click on the backdrop. A third path is yours rather than Arena's: a button in `footer` wired to the same handler. The third path is worth naming only so the count is not mistaken. `onClose` is one event with two sources inside the component, which is what `contracts/api/components/ArenaDialog.json` declares. Opening moves focus to the first focusable element inside the panel. Closing returns it to whatever had focus before, so a keyboard user lands back on the control that opened the dialog. Removing the dialog while it is open counts as closing it. Focus goes back to the element that opened it, as long as focus was inside the dialog or nowhere and that element is still on the page. Tab and Shift+Tab wrap at the panel's edges rather than
+Arena dismisses the dialog two ways, and both report through `onClose`: **Escape** and a
+click on the backdrop. A third path is yours rather than Arena's: a button in `footer`
+wired to the same handler. The third path is worth naming only so the count is not
+mistaken. `onClose` is one event with two sources inside the component, which is what
+`contracts/api/components/ArenaDialog.json` declares. Opening moves focus to the first
+focusable element inside the panel. Closing returns it to whatever had focus before, so a
+keyboard user lands back on the control that opened the dialog. Removing the dialog while
+it is open counts as closing it for focus, though it reports no `onClose`. Focus goes back
+to the element that opened it, as long as focus was inside the dialog or nowhere and that
+element is still on the page. Tab and Shift+Tab wrap at the panel's edges rather than
 walking out into the page behind the scrim.
 
 - **Do** give every dialog a `title` that says what it is about, not what it is

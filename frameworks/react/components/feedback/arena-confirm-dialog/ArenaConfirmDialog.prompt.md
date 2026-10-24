@@ -42,13 +42,15 @@ Protects irreversible actions (H3, H5). Does not close on click-outside. For the
 
 `title` is **required** and throws when missing. The title is what names the dialog for assistive technology, and the panel's `aria-labelledby` points at it. Nothing can derive a name for a confirmation, because its subject is editorial.
 
-Two things dismiss it, and both go through `onCancel`: **Escape** and the Cancel
-button. A click on the scrim does **not**, and that is the point of the component,
-losing a half-finished decision to a stray click is the failure it exists to prevent.
-Opening moves focus to the first focusable inside the panel (the confirmation input
-when `requireText` is set, Cancel otherwise); closing returns it to whatever had focus
-before. Removing the confirmation while it is open counts as closing it. Focus goes back to the element that opened it, as long as focus was inside the confirmation or nowhere and that element is still on the page. Tab and Shift+Tab wrap at the panel's edges rather than walking out into the
-page behind the scrim.
+Two things dismiss it, and both go through `onCancel`: **Escape** and the Cancel button. A
+click on the scrim does **not**, and that is the point of the component, losing a
+half-finished decision to a stray click is the failure it exists to prevent. Opening moves
+focus to the first focusable inside the panel (the confirmation input when `requireText`
+is set, Cancel otherwise); closing returns it to whatever had focus before. Removing the
+confirmation while it is open counts as closing it for focus, though it reports no
+`onCancel`. Focus goes back to the element that opened it, as long as focus was inside the
+confirmation or nowhere and that element is still on the page. Tab and Shift+Tab wrap at
+the panel's edges rather than walking out into the page behind the scrim.
 
 ### Do / Don't
 
