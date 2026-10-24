@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   DOCUMENT,
+  DestroyRef,
   ElementRef,
   Injector,
   afterRenderEffect,
@@ -20,7 +21,7 @@ import { ArenaFooter } from '../../../ProjectionMarkers';
 import { arenaWarnOnce } from '../../../WarnOnce';
 import { arenaDialogStyles } from './ArenaDialog.variants';
 import manifest from './ArenaDialog.classes.generated';
-import { type FocusTrapState, arenaHandleOpenTransition, arenaTrapTabKey } from '../../../FocusTrap';
+import { type FocusTrapState, arenaHandleOpenTransition, arenaHandleTeardown, arenaTrapTabKey } from '../../../FocusTrap';
 import { ArenaIdGenerator } from '../../../ArenaIds';
 import { arenaContainerWidth, arenaReadBreakpoint } from '../../../ContainerSize';
 import type { ArenaBreakpoint } from '../../../Api.generated';
@@ -93,6 +94,9 @@ export class ArenaDialog {
   private readonly focusTrap: FocusTrapState = { wasOpen: false, restoreTo: null };
 
   constructor() {
+    inject(DestroyRef).onDestroy(() => {
+      arenaHandleTeardown(this.focusTrap, this.panel()?.nativeElement ?? null, this.doc.activeElement);
+    });
     effect(() => {
       const panel = this.panel()?.nativeElement;
       if (!this.open() || this.fill() || !panel) return;

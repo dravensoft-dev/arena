@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   DOCUMENT,
+  DestroyRef,
   ElementRef,
   afterRenderEffect,
   booleanAttribute,
@@ -16,7 +17,7 @@ import {
 import { ArenaButton } from '../../forms/arena-button/ArenaButton';
 import { arenaConfirmDialogStyles } from './ArenaConfirmDialog.variants';
 import manifest from './ArenaConfirmDialog.classes.generated';
-import { type FocusTrapState, arenaHandleOpenTransition, arenaTrapTabKey } from '../../../FocusTrap';
+import { type FocusTrapState, arenaHandleOpenTransition, arenaHandleTeardown, arenaTrapTabKey } from '../../../FocusTrap';
 import { ArenaIdGenerator } from '../../../ArenaIds';
 import { ARENA_LOCALE } from '../../../ArenaLocale';
 import { arenaPhrase } from '../../../Phrase';
@@ -113,6 +114,9 @@ export class ArenaConfirmDialog {
   private readonly focusTrap: FocusTrapState = { wasOpen: false, restoreTo: null };
 
   constructor() {
+    inject(DestroyRef).onDestroy(() => {
+      arenaHandleTeardown(this.focusTrap, this.panel()?.nativeElement ?? null, this.doc.activeElement);
+    });
     afterRenderEffect(() => {
       const isOpen = this.open();
       untracked(() => {

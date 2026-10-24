@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   DOCUMENT,
+  DestroyRef,
   ElementRef,
   afterRenderEffect,
   booleanAttribute,
@@ -17,7 +18,7 @@ import {
 import { arenaCommandPaletteStyles } from './ArenaCommandPalette.variants';
 import manifest from './ArenaCommandPalette.classes.generated';
 import { isArenaPrimaryActivation } from '../../../AnchorActivation';
-import { type FocusTrapState, arenaHandleOpenTransition, arenaTrapTabKey } from '../../../FocusTrap';
+import { type FocusTrapState, arenaHandleOpenTransition, arenaHandleTeardown, arenaTrapTabKey } from '../../../FocusTrap';
 import type { ArenaCommand } from '../../../Api.generated';
 import { ArenaIdGenerator } from '../../../ArenaIds';
 import { ARENA_LOCALE } from '../../../ArenaLocale';
@@ -204,6 +205,9 @@ export class ArenaCommandPalette {
   private readonly focusTrap: FocusTrapState = { wasOpen: false, restoreTo: null };
 
   constructor() {
+    inject(DestroyRef).onDestroy(() => {
+      arenaHandleTeardown(this.focusTrap, this.panel()?.nativeElement ?? null, this.doc.activeElement);
+    });
     effect(() => {
       if (this.open()) {
         this.query.set('');
