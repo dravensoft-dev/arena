@@ -78,7 +78,7 @@ export function ArenaButton({ className,
       value={value}
       autoFocus={autoFocus}
       form={form}
-      onClick={onActivate}
+      onClick={onActivate && (() => onActivate())}
       tabIndex={tabStop ? undefined : -1}
       disabled={disabled || loading}
       aria-haspopup={ariaHasPopup} aria-expanded={ariaExpanded} aria-controls={ariaControls} aria-describedby={ariaDescribedBy}

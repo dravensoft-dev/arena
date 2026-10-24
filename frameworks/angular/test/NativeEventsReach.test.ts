@@ -132,16 +132,18 @@ test('ArenaCard: a click on the href card\'s anchor reaches the document and act
   selector: 'nr-buttonhost',
   standalone: true,
   imports: [ArenaButton],
-  template: `<arena-button [loading]="loading" (activate)="ran = ran + 1">Go</arena-button>`,
+  template: `<arena-button [loading]="loading" (activate)="ran = ran + 1; payload = $event">Go</arena-button>`,
 })
 class ButtonHost {
   loading = false;
   ran = 0;
+  payload: unknown = 'none';
 }
 
 test('ArenaButton: a click reaches the document and activates once', async () => {
   const r = await dispatchOn(ButtonHost, {}, 'click', (el) => el.querySelector('button') as HTMLElement);
   assert.deepEqual([r.heard, r.ran], [1, 1]);
+  assert.equal(r.fixture.componentInstance.payload, undefined, 'activate carries no payload, and never the DOM event');
 });
 
 test('ArenaButton: a loading button hears the click and activates nothing', async () => {
@@ -153,13 +155,14 @@ test('ArenaButton: a loading button hears the click and activates nothing', asyn
   selector: 'nr-iconbuttonhost',
   standalone: true,
   imports: [ArenaIconButton],
-  template: `<arena-icon-button icon="ph-bold ph-x" label="Close" (activate)="ran = ran + 1" />`,
+  template: `<arena-icon-button icon="ph-bold ph-x" label="Close" (activate)="ran = ran + 1; payload = $event" />`,
 })
-class IconButtonHost { ran = 0; }
+class IconButtonHost { ran = 0; payload: unknown = 'none'; }
 
 test('ArenaIconButton: a click reaches the document and activates once', async () => {
   const r = await dispatchOn(IconButtonHost, {}, 'click', (el) => el.querySelector('button') as HTMLElement);
   assert.deepEqual([r.heard, r.ran], [1, 1]);
+  assert.equal(r.fixture.componentInstance.payload, undefined, 'activate carries no payload, and never the DOM event');
 });
 
 @Component({

@@ -68,7 +68,7 @@ export function ArenaIconButton({ className,
   if (!label) throw new Error('ArenaIconButton: `label` is required');
   const styles = arenaIconButtonStyles({ showLabel, pressed });
   return (
-    <button type={type} name={name} value={value} autoFocus={autoFocus} form={form} onClick={onActivate}
+    <button type={type} name={name} value={value} autoFocus={autoFocus} form={form} onClick={onActivate && (() => onActivate())}
 
       tabIndex={tabStop ? undefined : -1}
       aria-haspopup={ariaHasPopup} aria-expanded={ariaExpanded} aria-controls={ariaControls} aria-describedby={ariaDescribedBy}

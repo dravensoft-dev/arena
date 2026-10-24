@@ -86,10 +86,10 @@ test("ArenaCard: a click on the href card's anchor reaches the document and acti
 });
 
 test('ArenaButton: a click reaches the document and activates once', () => {
-  let n = 0;
-  const root = mount(<ArenaButton onActivate={() => { n += 1; }}>Go</ArenaButton>);
+  const calls: unknown[][] = [];
+  const root = mount(<ArenaButton onActivate={(...args: unknown[]) => { calls.push(args); }}>Go</ArenaButton>);
   assert.equal(heardByDocument(root.querySelector('button')!, click()), 1);
-  assert.equal(n, 1);
+  assert.deepEqual(calls, [[]], 'activate carries no payload, and never the DOM event');
 });
 
 test('ArenaButton: a loading button hears the click and activates nothing', () => {
@@ -100,10 +100,10 @@ test('ArenaButton: a loading button hears the click and activates nothing', () =
 });
 
 test('ArenaIconButton: a click reaches the document and activates once', () => {
-  let n = 0;
-  const root = mount(<ArenaIconButton icon="ph-bold ph-x" label="Close" onActivate={() => { n += 1; }} />);
+  const calls: unknown[][] = [];
+  const root = mount(<ArenaIconButton icon="ph-bold ph-x" label="Close" onActivate={(...args: unknown[]) => { calls.push(args); }} />);
   assert.equal(heardByDocument(root.querySelector('button')!, click()), 1);
-  assert.equal(n, 1);
+  assert.deepEqual(calls, [[]], 'activate carries no payload, and never the DOM event');
 });
 
 const split = (onActivate: () => void) => (
