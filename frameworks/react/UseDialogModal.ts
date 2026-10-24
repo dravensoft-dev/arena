@@ -51,6 +51,23 @@ export function arenaFocusFirstFocusable(container: HTMLElement): void {
   (first ?? container).focus();
 }
 
+function focusIsAdrift(active: Element | null, body: HTMLElement | null): boolean {
+  return active === null || active === body || !active.isConnected;
+}
+
+export function arenaReclaimFocus(panel: HTMLElement): void {
+  const doc = panel.ownerDocument;
+  if (focusIsAdrift(doc.activeElement, doc.body)) arenaFocusFirstFocusable(panel);
+}
+
+export function arenaRestoreOnTeardown(invoker: Element | null, panel: Element | null, active: Element | null): boolean {
+  if (!(invoker instanceof HTMLElement) || !invoker.isConnected) return false;
+  const body = invoker.ownerDocument.body;
+  if (!focusIsAdrift(active, body) && !(panel !== null && active !== null && panel.contains(active))) return false;
+  invoker.focus();
+  return true;
+}
+
 export function arenaTrapTabKey(
   container: Element,
   event: Pick<KeyboardEvent, 'shiftKey'> & { key?: string; preventDefault(): void },
@@ -74,6 +91,16 @@ export interface ArenaDialogModalOptions {
 export function useArenaDialogModal({ open, panelRef, onDismiss }: ArenaDialogModalOptions):
 (event: React.KeyboardEvent) => void {
   const restoreTo = useRef<Element | null>(null);
+  const openPanel = useRef<HTMLElement | null>(null);
+
+  useEffect(() => () => {
+    const invoker = restoreTo.current;
+    const panel = openPanel.current;
+    if (invoker === null || (panel !== null && panel.isConnected)) return;
+    restoreTo.current = null;
+    openPanel.current = null;
+    arenaRestoreOnTeardown(invoker, panel, invoker.ownerDocument.activeElement);
+  }, []);
 
   useEffect(() => {
     if (open) {
@@ -81,9 +108,11 @@ export function useArenaDialogModal({ open, panelRef, onDismiss }: ArenaDialogMo
         restoreTo.current = typeof document === 'undefined' ? null : document.activeElement;
       }
       const panel = panelRef.current;
+      openPanel.current = panel;
       if (panel) arenaFocusFirstFocusable(panel);
       return undefined;
     }
+    openPanel.current = null;
     const target = restoreTo.current;
     restoreTo.current = null;
     if (target instanceof HTMLElement) target.focus();

@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   DOCUMENT,
+  DestroyRef,
   ElementRef,
   afterRenderEffect,
   booleanAttribute,
@@ -14,7 +15,7 @@ import {
 } from '@angular/core';
 import { arenaOnboardingStyles } from './ArenaOnboarding.variants';
 import manifest from './ArenaOnboarding.classes.generated';
-import { type FocusTrapState, arenaHandleOpenTransition, arenaTrapTabKey } from '../../../FocusTrap';
+import { type FocusTrapState, arenaHandleOpenTransition, arenaHandleTeardown, arenaReclaimFocus, arenaTrapTabKey } from '../../../FocusTrap';
 import { onboardingWidth, onboardingHeightReserve, sp3, sp4 } from '../../../Tokens.generated';
 
 const SSR_VIEWPORT_H = 900;
@@ -132,11 +133,23 @@ export class ArenaOnboarding {
   private readonly focusTrap: FocusTrapState = { wasOpen: false, restoreTo: null };
 
   constructor() {
+    inject(DestroyRef).onDestroy(() => {
+      arenaHandleTeardown(this.focusTrap, this.panel()?.nativeElement ?? null, this.doc.activeElement);
+    });
     afterRenderEffect(() => {
 
       const isOpen = this.visible();
       untracked(() => {
         arenaHandleOpenTransition(this.focusTrap, isOpen, this.panel()?.nativeElement ?? null, this.doc.activeElement);
+      });
+    });
+    afterRenderEffect(() => {
+      const shown = this.visible();
+      this.index();
+      this.steps();
+      untracked(() => {
+        const panel = this.panel()?.nativeElement;
+        if (shown && panel) arenaReclaimFocus(panel);
       });
     });
   }

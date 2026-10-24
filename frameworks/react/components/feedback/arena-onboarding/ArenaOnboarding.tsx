@@ -1,10 +1,10 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaOnboarding.classes.generated.ts';
 import { onboardingWidth, onboardingHeightReserve, sp3, sp4 } from '../../../Tokens.generated.js';
 
 const SSR_VIEWPORT_H = 900;
-import { useArenaDialogModal } from '../../../UseDialogModal.ts';
+import { arenaReclaimFocus, useArenaDialogModal } from '../../../UseDialogModal.ts';
 
 import type { ArenaOnboardingStep, ArenaOnboardingAnchor } from '../../../Api.generated';
 import { useArenaLocale } from '../../../ArenaLocale.ts';
@@ -53,7 +53,11 @@ export function ArenaOnboarding({ className, open, steps, index = 0, onNext, onB
 
   const panelRef = useRef<HTMLDivElement | null>(null);
   const onKeyDown = useArenaDialogModal({ open, panelRef, onDismiss: onSkip });
-  if (!open || !steps.length) return null;
+  const shown = open && steps.length > 0;
+  useEffect(() => {
+    if (shown && panelRef.current) arenaReclaimFocus(panelRef.current);
+  });
+  if (!shown) return null;
   const step = steps[index] || {};
   const last = index === steps.length - 1;
 

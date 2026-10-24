@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import React, { StrictMode, createRef, useState } from 'react';
 import { mount, cleanup, act } from './Harness.tsx';
-import { arenaFocusableElements, arenaFocusFirstFocusable, arenaTabStopOf, arenaTrapTabKey, useArenaDialogModal } from '../UseDialogModal.ts';
+import { arenaFocusableElements, arenaFocusFirstFocusable, arenaReclaimFocus, arenaRestoreOnTeardown, arenaTabStopOf, arenaTrapTabKey, useArenaDialogModal } from '../UseDialogModal.ts';
 
 function panelWith(html: string) {
   const el = document.createElement('div');
@@ -136,4 +136,49 @@ test('arenaTabStopOf maps a radio to its group stop and leaves anything else alo
   assert.equal(arenaTabStopOf(list, at('a')), at('a'));
   assert.equal(arenaTabStopOf(list, at('x1')), at('x1'));
   assert.equal(arenaTabStopOf(list, null), null);
+});
+
+test('arenaReclaimFocus moves focus into the panel when it was dropped on the body', () => {
+  const p = panelWith('<button id="a">a</button><button id="b">b</button>');
+  (document.activeElement as HTMLElement | null)?.blur();
+  arenaReclaimFocus(p);
+  assert.equal(document.activeElement, p.querySelector('#a'), 'focus dropped on the body must come back to the first control');
+  p.remove();
+});
+
+test('arenaReclaimFocus leaves focus on a live control outside the panel', () => {
+  const p = panelWith('<button id="a">a</button>');
+  const popover = document.createElement('button');
+  document.body.appendChild(popover);
+  popover.focus();
+  arenaReclaimFocus(p);
+  assert.equal(document.activeElement, popover, 'a live control outside the panel keeps focus');
+  p.remove();
+  popover.remove();
+});
+
+test('arenaRestoreOnTeardown restores only from inside the panel or nowhere, and only to a connected invoker', () => {
+  const invoker = document.createElement('button');
+  const outside = document.createElement('button');
+  const p = panelWith('<button id="in">in</button>');
+  document.body.append(invoker, outside);
+  const inner = p.querySelector<HTMLElement>('#in')!;
+
+  inner.focus();
+  assert.equal(arenaRestoreOnTeardown(invoker, p, inner), true, 'focus inside the panel returns to the invoker');
+  assert.equal(document.activeElement, invoker);
+
+  outside.focus();
+  assert.equal(arenaRestoreOnTeardown(invoker, p, outside), false, 'a live control outside the panel keeps focus');
+  assert.equal(document.activeElement, outside);
+
+  (document.activeElement as HTMLElement).blur();
+  assert.equal(arenaRestoreOnTeardown(invoker, p, document.body), true, 'focus on the body returns to the invoker');
+  assert.equal(arenaRestoreOnTeardown(invoker, p, null), true, 'no active element returns to the invoker');
+
+  invoker.remove();
+  assert.equal(arenaRestoreOnTeardown(invoker, p, null), false, 'a disconnected invoker is not focused');
+  assert.equal(arenaRestoreOnTeardown(null, p, null), false, 'no invoker restores nothing');
+  outside.remove();
+  p.remove();
 });

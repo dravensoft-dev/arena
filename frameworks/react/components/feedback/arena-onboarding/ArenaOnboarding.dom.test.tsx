@@ -1,6 +1,6 @@
 import test, { afterEach } from 'node:test';
 import assert from 'node:assert/strict';
-import React from 'react';
+import React, { useState } from 'react';
 import { join } from 'node:path';
 import { mount, cleanup, act } from '../../../test/Harness.tsx';
 import { assertPattern, REACT_COMPONENTS } from '../../../test/AssertPattern.tsx';
@@ -203,4 +203,33 @@ test('Next inside a form advances the tour and does not submit the form', () => 
   click(next!);
   assert.equal(submits, 0);
   assert.equal(nexts, 1);
+});
+
+test('Next then Back leaves focus inside the panel, and Escape then closes the tour', () => {
+  let skipped = 0;
+  function Host() {
+    const [index, setIndex] = useState(0);
+    return (
+      <ArenaOnboarding open steps={THREE_STEPS} index={index}
+        onNext={() => setIndex((i) => i + 1)} onBack={() => setIndex((i) => i - 1)} onSkip={() => { skipped += 1; }} />
+    );
+  }
+  const container = mount(<Host />);
+  const buttons = () => Array.from(container.querySelectorAll<HTMLButtonElement>('button'));
+  const named = (name: string) => buttons().find((b) => b.textContent === name)!;
+  const panel = container.querySelector<HTMLElement>('[role="dialog"]')!;
+
+  const next = buttons()[buttons().length - 1]!;
+  next.focus();
+  click(next);
+  const back = buttons()[0]!;
+  assert.equal(back.textContent, 'Back');
+  back.focus();
+  click(back);
+  assert.equal(buttons().some((b) => b.textContent === 'Back'), false, 'Back is gone at index 0');
+  assert.equal(panel.contains(document.activeElement), true, 'focus must stay inside the panel after the step change');
+  assert.equal(named('Skip') !== undefined, true);
+
+  press(document.activeElement!, 'Escape');
+  assert.equal(skipped, 1, 'Escape reports skip exactly once');
 });

@@ -48,6 +48,23 @@ export function arenaFocusFirstFocusable(container: HTMLElement): void {
   (first ?? container).focus();
 }
 
+function focusIsAdrift(active: Element | null, body: HTMLElement | null): boolean {
+  return active === null || active === body || !active.isConnected;
+}
+
+export function arenaReclaimFocus(panel: HTMLElement): void {
+  const doc = panel.ownerDocument;
+  if (focusIsAdrift(doc.activeElement, doc.body)) arenaFocusFirstFocusable(panel);
+}
+
+export function arenaRestoreOnTeardown(invoker: Element | null, panel: Element | null, active: Element | null): boolean {
+  if (!(invoker instanceof HTMLElement) || !invoker.isConnected) return false;
+  const body = invoker.ownerDocument.body;
+  if (!focusIsAdrift(active, body) && !(panel !== null && active !== null && panel.contains(active))) return false;
+  invoker.focus();
+  return true;
+}
+
 export function arenaTrapTabKey(container: HTMLElement, event: KeyboardEvent, activeElement: Element | null): void {
   const focusables = arenaFocusableElements(container);
   if (focusables.length === 0) {
@@ -85,4 +102,11 @@ export function arenaHandleOpenTransition(
     state.restoreTo = null;
   }
   state.wasOpen = isOpen;
+}
+
+export function arenaHandleTeardown(state: FocusTrapState, panel: HTMLElement | null, activeElement: Element | null): void {
+  if (!state.wasOpen) return;
+  arenaRestoreOnTeardown(state.restoreTo, panel, activeElement);
+  state.wasOpen = false;
+  state.restoreTo = null;
 }
