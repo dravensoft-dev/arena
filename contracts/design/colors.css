@@ -7,9 +7,9 @@
    onto the daisyUI tokens and derives the muted text levels.
    Swapping the skin means swapping the palette source, not this file.
    Everything below sits in the arena-defaults layer, the first layer of the
-   package's order. The theme sheet (arena.generated.css) restates every value
-   here unlayered, so the theme wins whatever order a toolchain emits the two
-   sheets in, and no import order has to be right for that to hold.
+   package's order. Whatever the theme sheet (arena.generated.css) declares of
+   these, it declares unlayered, so the theme wins whatever order a toolchain
+   emits the two sheets in, and no import order has to be right for that to hold.
    ============================================================ */
 @layer properties;
 @layer arena-defaults, theme, base, components, utilities, arena-plugin;

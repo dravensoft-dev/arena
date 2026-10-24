@@ -83,9 +83,9 @@ It does the two jobs a project always did together, and a failure in the first s
 - **The fonts** write each local `src` cut to Latin-1 and the weights the build paints, as
   `<stem>-<hash>.woff2`, so the name changes exactly when the bytes do.
 
-**Import order is what makes it work.** The consumer's generated file comes last, and its
-first line is an `@import` of the package's own `arena.css`. Both files declare into `:root`,
-equal specificity, so source order decides and the consumer's values win.
+**A cascade layer is what makes it work.** The package declares its colour and type defaults in
+`arena-defaults`, the first layer the order statement names. The consumer's generated file
+declares into `:root` unlayered, so the consumer's values win whatever order the two sheets load in.
 
 **The Phosphor web font is never bundled.** Arena's single-icon convention is a class name a
 component hands to `ArenaIcon`, which draws a symbol of the sprite the consumer's build

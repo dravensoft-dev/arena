@@ -128,17 +128,18 @@ export const ROUTES: Route[] = [
     reason:
       'paid once per project rather than per screen, so it carries what the build route may not: '
       + 'the install, the config file and the command. The package carries none of the language, so a '
-      + 'thing these references never name is a thing nobody imports. The config block is copied whole, '
-      + 'the install reference gives the evidence behind each package manager and the Tailwind v4 '
-      + 'entry sheet, and says how Vite and the Angular builder serve the sprite, since neither serves '
-      + 'a file of src at the root. The command reference quotes whole the scripts `arena init` writes, '
-      + 'tables every audit tag with the rule it reports, names the sheets, the sprite and the cut '
+      + 'thing these references never name is a thing nobody imports. The config block is copied '
+      + 'whole. The install reference gives the evidence behind each package manager and the Tailwind '
+      + 'v4 entry sheet, and says how Vite and the Angular builder serve the sprite, since neither '
+      + 'serves a file of src at the root. The command reference quotes whole the scripts `arena '
+      + 'init` writes, tables every audit tag with its rule, names the sheets, the sprite and the cut '
       + 'fonts the build writes, and lists the sheets a `--no-import` project imports under one rule '
-      + 'for every root, generated from the layer list `scopedImports` reads. The config reference '
-      + 'tables every key and lists the names the build refuses and the roles that carry a default. '
-      + 'The command reference also says which glyphs reach the sprite\'s filled weight. The audit '
-      + 'section also covers the two rules that read a plugin\'s names. Both references say the '
-      + 'package\'s defaults sit in the arena-defaults layer, which a project cannot infer.',
+      + 'for every root, generated from the layer list `scopedImports` reads. It says which glyphs '
+      + 'reach the sprite\'s filled weight and when an icon expression widens that set, and its audit '
+      + 'section covers the two rules that read a plugin\'s names. The config reference tables every '
+      + 'key, the names the build refuses and the roles that carry a default. The install and command '
+      + 'references name the arena-defaults layer the package\'s defaults sit in, which a project '
+      + 'cannot infer.',
   },
   {
     name: 'consumer-skin',
@@ -148,19 +149,20 @@ export const ROUTES: Route[] = [
     stops: ['skills/design/references/style-kernel.md'],
     budget: 20_500,
     reason:
-      'paid once per project and never per screen, which is what lets it carry the whole surface '
-      + 'the kernel exposes rather than a pointer to it, so a project stops learning the kernel from '
-      + 'a normative contributor document. It states which scale each role draws from, that a reading '
-      + 'floor refuses the build rather than reporting, which answers a project may inherit and which '
-      + 'it has to make, and how the one exception to the scale rule is keyed. The differentiation '
-      + 'table is a measurement over the catalogue, so it grows by remeasuring and not by writing. The number is what the '
-      + 'stops measure with room for the kernel to grow a section, and it moves when it grows '
-      + 'a question, not a paragraph. The root rule says where a '
-      + 'role\'s default is written and states first, in a region generated with the config page\'s, '
-      + 'which roles carry a default and that the root answers the rest. It says where a project with no clone '
-      + 'fetches the default plugin. The roster grows per role. '
-      + 'The hand checklist names each unanswered role. A plugin class goes on any element. '
-      + 'It says what each kind of role may be answered with, which a project cannot infer from the roster. Also the selected tab\'s rule.',
+      'paid once per project and never per screen, which lets it carry the whole surface the kernel '
+      + 'exposes, not a pointer to it, so a project stops learning the kernel from a normative '
+      + 'contributor document. It states which scale each role draws from, that a reading floor '
+      + 'refuses the build rather than reporting, which answers a project may inherit and which it '
+      + 'has to make, and how the one exception to the scale rule is keyed. The differentiation table '
+      + 'is a measurement over the catalogue, so it grows by remeasuring and not by writing. The '
+      + 'number is what the stops measure with room for the kernel to grow a section, and it moves '
+      + 'when it grows a question, not a paragraph. The root rule says where a role\'s default is '
+      + 'written and states first, in a region generated with the config page\'s, which roles carry a '
+      + 'default and that the root answers the rest. It says where a project with no clone fetches '
+      + 'the default plugin. The roster grows per role. The hand checklist names each unanswered '
+      + 'role. A plugin class goes on any element. It says what each kind of role may be answered '
+      + 'with, which the roster omits. It names the selected tab\'s rule and its default, and says a '
+      + 'plugin\'s own percentage stays put.',
   },
   {
     name: 'consumer-register',
@@ -270,20 +272,20 @@ export const ROUTES: Route[] = [
     stops: ['skills/design/references/page.md', 'skills/design/references/style.md'],
     budget: 25_600,
     reason:
-      'paid per element a builder draws themselves, which every screen has. What it buys is the '
-      + 'half of a page that is never a component: which colour role each thing a builder draws takes '
-      + 'and which level holds it back, since a bare muted ink paints a caption at body strength; '
-      + 'the three rhythm steps as classes and as '
-      + 'custom properties; the row as the horizontal half of those steps rather than a wrapping '
-      + 'line; what to wrap when the element being laid out is a component; the block air the band '
-      + 'leaves; the gutter as a ceiling; and which frame the viewport shows, through the theme '
-      + 'sheet\'s variants, where a value no step names is set, and the rule that paints the floor with '
-      + 'where each layer puts it. The style reference also holds the '
-      + 'layout container, the page column\'s width and the sizing section for each layer, and '
-      + 'names each layer\'s breakpoint helper, the quiet ink level and the selected tab\'s rule. '
-      + 'The style page prints the '
-      + 'default plugin\'s layout answers and sends density values to the token table. Arena paints no selection or scrollbar, so a recipe gives one. '
-      + 'It says which palette, style plugin and density an overlay takes from its trigger, and where an island paints its ground.',
+      'paid per element a builder draws themselves, which every screen has. It buys the half of a '
+      + 'page no component draws: which colour role each thing a builder draws takes and which level '
+      + 'holds it back, since a bare muted ink paints a caption at body strength; the three rhythm '
+      + 'steps as classes and as custom properties; the row as the horizontal half of those steps '
+      + 'rather than a wrapping line; what to wrap when the element is a component; the block air the '
+      + 'band leaves; the gutter as a ceiling; and which frame the viewport shows, through the theme '
+      + 'sheet\'s variants, where a value no step names is set, and the rule that paints the floor '
+      + 'with where each layer puts it. The page names the selected tab\'s rule and which aliases '
+      + 'follow a palette\'s level. The style reference holds the layout container, the page column\'s '
+      + 'width and each layer\'s sizing section, and names each layer\'s breakpoint helper and the '
+      + 'quiet ink level. It prints the default plugin\'s layout answers and sends density values to '
+      + 'the token table. Arena paints no selection or scrollbar, so a recipe gives one. It says '
+      + 'which palette, style plugin and density an overlay takes from its trigger, and where an '
+      + 'island paints its ground.',
   },
   {
     name: 'consumer-coldstart',
