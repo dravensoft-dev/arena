@@ -1,7 +1,9 @@
 /* A <button> with no `type` is a submit button, so one drawn inside a consumer's <form> submits it
  * when it is only meant to act on the component around it. Every button a React component draws
  * writes its type, and this scan reads the sources so a new one cannot ship without. Comments are
- * prose and are blanked first, keeping their newlines so a reported line is the file's own. */
+ * prose and are blanked first, keeping their newlines so a reported line is the file's own. A `//`
+ * opens a line comment only at a line's start or after whitespace, so the one inside a URL string
+ * leaves the rest of its line to be read. */
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -12,7 +14,7 @@ import { fileURLToPath } from 'node:url';
 export function untypedButtons(source: string): number[] {
   const blank = source
     .replace(/\/\*[\s\S]*?\*\//g, (m) => m.replace(/[^\n]/g, ' '))
-    .replace(/\/\/[^\n]*/g, (m) => ' '.repeat(m.length));
+    .replace(/(^|[ \t])\/\/[^\n]*/gm, (m, lead: string) => lead + ' '.repeat(m.length - lead.length));
   const lines: number[] = [];
   const open = /<button(?=[\s>])/g;
   for (let m = open.exec(blank); m; m = open.exec(blank)) {
@@ -38,6 +40,10 @@ test('a button tag with no type is found, on one line or across several', () => 
 
 test('a button named in a comment is prose, not a tag', () => {
   assert.deepEqual(untypedButtons('/** absent => a <button>. */\n// <button>\nconst a = 1;'), []);
+});
+
+test('a // inside a string is not a comment, so a button after it on the line is still read', () => {
+  assert.deepEqual(untypedButtons('<a href="https://x" /><button onClick={f}>'), [1]);
 });
 
 function sources(dir: string): string[] {
