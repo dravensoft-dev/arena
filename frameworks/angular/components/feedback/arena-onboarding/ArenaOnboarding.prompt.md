@@ -34,7 +34,7 @@ Clicking the scrim reports `skip`. The tour is a real modal, binding `dialog-mod
 <!-- @answers end -->
 
 <!-- @keys GENERATED from the binding. -->
-**Keys**, from [`dialog-modal`](../../../../../contracts/behaviour/dialog-modal.json):
+**Keys**, from [`modal-focus`](../../../../../contracts/behaviour/modal-focus.json):
 - `Escape`: close.
 <!-- @keys end -->
 

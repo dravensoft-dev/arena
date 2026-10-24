@@ -207,7 +207,7 @@ editorial.
 
 ## The modal focus contract, implemented once per layer
 
-`contracts/behaviour/dialog-modal.json` is the only authority either layer answers to. **Every
+`contracts/behaviour/dialog-modal.json` and `contracts/behaviour/modal-focus.json` are the only authority either layer answers to. **Every
 focusable selector repeats `:not([tabindex="-1"])` on every clause**, because a selector list is
 OR'd and `button:not([disabled])` alone would pull a real `<button tabindex="-1">` back into the
 tab order. **None of them caches the focusables**, because a dialog's content changes under it

@@ -1,4 +1,4 @@
-Protects irreversible actions (H3, H5). Does not close on click-outside. For the most destructive actions, require typing a word with `requireText`.
+Protects irreversible actions (H3, H5). Does not close on click-outside. For the most destructive actions, require typing a word with `requireText`. The body is the dialog's description, announced with it when the dialog opens, so put the question and what it costs there.
 
 ```tsx
 <ArenaConfirmDialog open={o} destructive requireText="DELETE"
@@ -34,7 +34,7 @@ Protects irreversible actions (H3, H5). Does not close on click-outside. For the
 <!-- @answers end -->
 
 <!-- @keys GENERATED from the binding. -->
-**Keys**, from [`alertdialog`](../../../../../contracts/behaviour/alertdialog.json):
+**Keys**, from [`modal-focus`](../../../../../contracts/behaviour/modal-focus.json):
 - `Escape`: close.
 <!-- @keys end -->
 

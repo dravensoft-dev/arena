@@ -1,0 +1,12 @@
+{
+  "name": "modal-focus",
+  "source": "https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/",
+  "additive": true,
+  "description": "Where focus goes in a surface that takes the whole interaction until it is dismissed: into the surface when it opens, held inside it while it is open, back to what opened it when it closes, and Escape dismissing it. It is stated once because a dialog owes it under its own role, and a surface whose role is another pattern's owes it as well. It is additive because it says nothing about roles: which element the surface is, and what names it, stay the business of the pattern the binding names.",
+  "requires": {
+    "focus.onOpen": "first-focusable",
+    "focus.onClose": "restore-invoker",
+    "focus.trap": true,
+    "keyboard.Escape": "close"
+  }
+}

@@ -158,7 +158,10 @@ directory opens with. A pattern saying which roles a component carries, which ke
 where focus goes or what dismisses it is an answer to *what must this component do*, and there is
 exactly one such answer per render: two of them would contradict, with no way to report which of
 the two a layer broke. That is why an ordinary pattern may not be added to another, and why an
-additive one may require nothing in the `roles` family. `validatePattern` and `validateBinding`
+additive one may require nothing in the `roles` family. An additive pattern may answer focus and
+keys, as `modal-focus` does for every dialog binding: where focus goes and what dismisses a modal
+surface is the same answer whichever role the surface carries. What it may never answer is the
+roles. `validatePattern` and `validateBinding`
 hold both halves.
 
 A pattern declares itself with `"additive": true`, in its own file rather than in a list here,

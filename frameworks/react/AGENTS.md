@@ -256,8 +256,8 @@ guard passes the commonest conditional-render idiom, `{isAdmin && <ArenaSideNavI
 condition false, straight through to the empty render the guard exists to refuse. Use
 `toArray().length`.
 
-**`UseDialogModal.js` implements `contracts/behaviour/dialog-modal.json` for this layer, and
-that contract is its only authority**, covering `focus.trap`, `focus.onOpen`, `focus.onClose` and
+**`UseDialogModal.js` implements `contracts/behaviour/dialog-modal.json` and
+`contracts/behaviour/modal-focus.json` for this layer, and those contracts are its only authority**, covering `focus.trap`, `focus.onOpen`, `focus.onClose` and
 `keyboard.Escape`, in one hook because all three consumers need all four. Escape always reports
 through the component's **own** dismissal channel (`onClose`, `onCancel`, `onSkip`), so meeting
 the pattern adds no member to any contract.

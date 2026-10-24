@@ -39,7 +39,7 @@ enables. `destructive` turns the eyebrow red and gives the confirm button Arena'
 <!-- @answers end -->
 
 <!-- @keys GENERATED from the binding. -->
-**Keys**, from [`alertdialog`](../../../../../contracts/behaviour/alertdialog.json):
+**Keys**, from [`modal-focus`](../../../../../contracts/behaviour/modal-focus.json):
 - `Escape`: close.
 <!-- @keys end -->
 

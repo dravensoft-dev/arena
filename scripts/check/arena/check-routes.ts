@@ -321,7 +321,7 @@ export const ROUTES: Route[] = [
       + 'layer that binds it',
     entry: 'contributor',
     stops: ['frameworks/AGENTS.md', 'frameworks/*/AGENTS.md'],
-    budget: 77_200,
+    budget: 77_400,
     reason:
       'the most-walked contributor route, carrying the most reasoning per stop, paid by '
       + 'whoever changes Arena. It carries no category\'s own tour: the '
@@ -417,7 +417,7 @@ export const ROUTES: Route[] = [
       + 'the contracts roof, then the level that says what a kind of component must do',
     entry: 'contributor',
     stops: ['contracts/AGENTS.md', 'contracts/behaviour/AGENTS.md'],
-    budget: 41_700,
+    budget: 42_000,
     reason:
       'the route a bug report takes, and the one whose answer is most often that nothing in the '
       + 'code is broken: a requirement no suite pins is unfalsifiable rather than unverified, and '
@@ -428,7 +428,9 @@ export const ROUTES: Route[] = [
       + 'prose, and the rule about native semantics states the half that applies where no browser '
       + 'supplies them. The roof names the one page on that level written for somebody who is not '
       + 'changing Arena, the npm page of the contracts package, and says who it is for. The roof '
-      + 'also states where a value no option names is set.',
+      + 'also states where a value no option names is set. The additive-patterns section names '
+      + 'focus and keys as something an additive pattern may answer, which is the sentence that '
+      + 'tells a reader why modal focus is its own pattern and not a copy inside each dialog.',
   },
   {
     name: 'contributor-release',
