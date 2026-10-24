@@ -726,13 +726,19 @@ export function ownAttributes(attributes: string) {
   return out;
 }
 
+export function branchPrimaryMessage(outside: number): string {
+  return `a primary action in a branch, and the view around it already draws one on line ${outside}, so whenever the branch is taken the view holds two. `
+    + 'Write arena-emphasis-secondary or arena-emphasis-ghost on this one unless it is the action the view is for. A button with no emphasis class is primary too';
+}
+
 export function structuralFindings(text: string, vocabulary: VocabularyIndex | null = null, source = text): Finding[] {
   const found: Finding[] = [];
   const namesGlyph = glyphNames(scan(text)).size > 0;
   const rungs: number[] = [];
   let firstRung = 0;
-  const primaries: { scope: number; line: number }[] = [];
+  const primaries: { scope: number; line: number; conditional: boolean }[] = [];
   const bare: { scope: number; line: number }[] = [];
+  const branchBare: { scope: number; line: number }[] = [];
   const branches: { name: string; end: number }[] = [];
   const modals: { start: number; end: number }[] = [];
   const statements = vocabulary?.defaults ? statementBranches(text) : [];
@@ -775,16 +781,16 @@ export function structuralFindings(text: string, vocabulary: VocabularyIndex | n
         found.push(at(lineAt(text, start), 'raw-glyph', RAW_GLYPH_BOUND_MESSAGE));
     }
 
-    if (ARENA_TAG.test(name) && STATED_PRIMARY.test(attributes)) primaries.push({ scope, line: lineAt(text, start) });
+    if (ARENA_TAG.test(name) && STATED_PRIMARY.test(attributes)) primaries.push({ scope, line: lineAt(text, start), conditional: inBranch(text, start, attributes, branches) });
     const emphasis = EMPHASIS_OPTION.test(attributes) || EMPHASIS_OPTION.test(classValues(raw));
     if (ARENA_TAG.test(name) || emphasis) {
       const component = pascalTag(name);
       const answersEmphasis = (vocabulary?.answers[component] ?? []).includes('emphasis');
       if (emphasis && !answersEmphasis) contextEmphasis = true;
-      if (vocabulary?.defaults?.[component]?.emphasis === 'arena-emphasis-primary' && bareOfEmphasis(raw)
-        && !inBranch(text, start, attributes, branches)) {
-        if (statements.some(([from, to]) => from < start && start < to)) statementBranch = true;
-        bare.push({ scope, line: lineAt(text, start) });
+      if (vocabulary?.defaults?.[component]?.emphasis === 'arena-emphasis-primary' && bareOfEmphasis(raw)) {
+        const branch = inBranch(text, start, attributes, branches);
+        if (!branch && statements.some(([from, to]) => from < start && start < to)) statementBranch = true;
+        (branch ? branchBare : bare).push({ scope, line: lineAt(text, start) });
       }
       if (vocabulary?.modals?.includes(component))
         modals.push({ start, end: raw.trimEnd().endsWith('/') ? ends : elementEnd(source, name, ends) });
@@ -809,6 +815,12 @@ export function structuralFindings(text: string, vocabulary: VocabularyIndex | n
     for (const line of counted.slice(1))
       found.push(at(line, 'one-primary', primaryMessage(counted[0] as number)));
   }
+  if (!contextEmphasis && !statementBranch)
+    for (const entry of branchBare) {
+      const outside = [...primaries.filter((one) => !one.conditional), ...bare]
+        .filter((one) => one.scope === entry.scope).map((one) => one.line).sort((a, b) => a - b)[0];
+      if (outside !== undefined) found.push(at(entry.line, 'one-primary', branchPrimaryMessage(outside)));
+    }
   return found;
 }
 

@@ -750,9 +750,37 @@ test('a bare button inside a conditional branch is not guessed at', () => {
   assert.equal(defaultPrimaries('<ArenaButton>A</ArenaButton>\n<ArenaButton className="arena-emphasis-primary">B</ArenaButton>').length, 1,
     'stated primaries still count');
   assert.equal(defaultPrimaries('@if (a) {\n<arena-button>A</arena-button>\n}\n<arena-button>B</arena-button>\n<arena-button>C</arena-button>',
-    'src/app.html').length, 1, 'buttons outside the block are still counted');
+    'src/app.html').length, 2, 'buttons outside the block are still counted');
   assert.equal(defaultPrimaries('<div *ngIf="a">x</div>\n<arena-button>A</arena-button>\n<arena-button>B</arena-button>',
     'src/app.html').length, 1, 'a closed element is not an ancestor');
+});
+
+test('a bare primary in a branch counts against a primary the view always draws', () => {
+  const react = defaultPrimaries('<ArenaButton>Compose</ArenaButton>\n{open ? (<ArenaButton>Snooze</ArenaButton>) : null}');
+  assert.equal(react.length, 1);
+  assert.match(react[0] ?? '', /:2:/);
+  assert.match(react[0] ?? '', /line 1/);
+  const template = defaultPrimaries('<arena-button>Compose</arena-button>\n@if (open()) {\n<arena-button>Snooze</arena-button>\n}',
+    'src/app.html');
+  assert.equal(template.length, 1);
+  assert.match(template[0] ?? '', /:3:/);
+  const first = defaultPrimaries('{open && <ArenaButton>Snooze</ArenaButton>}\n<ArenaButton>Compose</ArenaButton>');
+  assert.equal(first.length, 1);
+  assert.match(first[0] ?? '', /:1:/);
+  assert.match(first[0] ?? '', /line 2/);
+});
+
+test('a branch primary inside a modal counts only against what that modal always draws', () => {
+  assert.deepEqual(defaultPrimaries('<ArenaButton>Open</ArenaButton>\n<ArenaDialog open>\n{x && <ArenaButton>Retry</ArenaButton>}\n</ArenaDialog>'), []);
+  const inside = defaultPrimaries('<ArenaButton>Open</ArenaButton>\n<ArenaDialog open>\n{x && <ArenaButton>Retry</ArenaButton>}\n'
+    + '<ArenaButton>Confirm</ArenaButton>\n</ArenaDialog>');
+  assert.equal(inside.length, 1);
+  assert.match(inside[0] ?? '', /:3:/);
+});
+
+test('a statement-level branch is still not guessed at, beside a branch primary', () => {
+  assert.deepEqual(defaultPrimaries('if (e) return <ArenaButton>Retry</ArenaButton>;\n'
+    + 'return <>{a && <ArenaButton>A</ArenaButton>}<ArenaButton>B</ArenaButton></>;'), []);
 });
 
 test('a bare button inside an element a branch operator opens is in the branch', () => {
