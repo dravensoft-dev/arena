@@ -152,6 +152,22 @@ test('a popover whose first control is a radio group opens on its checked option
   assert.equal(document.activeElement, panel()!.querySelector('input[aria-label="Large"]'));
 });
 
+test('Tab-out reads a radio through its group\'s stop: Shift+Tab inside stays, Tab past the last group closes', () => {
+  const root = mount(<Host>
+    <button type="button">Apply</button>
+    <input type="radio" name="size" aria-label="Small" />
+    <input type="radio" name="size" aria-label="Large" />
+  </Host>);
+  open(root);
+  const large = panel()!.querySelector<HTMLElement>('input[aria-label="Large"]')!;
+  large.focus();
+  assert.equal(key(large, 'Tab', true).defaultPrevented, false, 'Shift+Tab from a radio of a middle stop left the panel');
+  assert.ok(panel(), 'Shift+Tab from a radio that is not the first stop closed the panel');
+  assert.equal(key(large, 'Tab').defaultPrevented, true, 'Tab from a radio of the last group did not leave the panel');
+  assert.equal(panel(), null);
+  assert.equal(document.activeElement, triggerIn(root));
+});
+
 test('Escape asks to close and returns focus to the trigger', () => {
   const asked: boolean[] = [];
   const root = mount(<Host asked={asked} />);

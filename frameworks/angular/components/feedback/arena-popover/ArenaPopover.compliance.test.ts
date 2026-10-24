@@ -54,6 +54,21 @@ class RadioHost {
   standalone: true,
   imports: [ArenaPopover, ArenaButton],
   template: `
+    <arena-popover label="Size" [open]="open()" (openChange)="open.set($event)">
+      <arena-button trigger>Size</arena-button>
+      <button type="button">Apply</button>
+      <input type="radio" name="size" aria-label="Small" /><input type="radio" name="size" aria-label="Large" />
+    </arena-popover>
+  `,
+})
+class TrailingRadioHost {
+  readonly open = signal(false);
+}
+
+@Component({
+  standalone: true,
+  imports: [ArenaPopover, ArenaButton],
+  template: `
     <arena-popover label="Notes" [open]="open()" (openChange)="open.set($event)">
       <arena-button trigger>Notes</arena-button>
       <p>Nothing to press.</p>
@@ -122,6 +137,27 @@ test('a popover whose first control is a radio group opens on its checked option
   try {
     const shown = open(fixture, trigger)!;
     assertSameNode(document.activeElement, shown.querySelector('input[aria-label="Large"]'), 'opening skipped the checked option of the group');
+  } finally {
+    fixture.destroy();
+    disposeOverlays();
+  }
+});
+
+test('Tab-out reads a radio through its group\'s stop: Shift+Tab inside stays, Tab past the last group closes', () => {
+  const fixture = TestBed.createComponent(TrailingRadioHost);
+  fixture.detectChanges();
+  const trigger = fixture.nativeElement.querySelector('button') as HTMLButtonElement;
+  try {
+    const shown = open(fixture, trigger)!;
+    const large = shown.querySelector<HTMLElement>('input[aria-label="Large"]')!;
+    large.focus();
+    assert.equal(key(large, 'Tab', true).defaultPrevented, false, 'Shift+Tab from a radio of a middle stop left the panel');
+    fixture.detectChanges();
+    assert.ok(panel(), 'Shift+Tab from a radio that is not the first stop closed the panel');
+    assert.equal(key(large, 'Tab').defaultPrevented, true, 'Tab from a radio of the last group did not leave the panel');
+    fixture.detectChanges();
+    assertNoNode(panel(), 'Tab from the last group left the panel open');
+    assertSameNode(document.activeElement, trigger);
   } finally {
     fixture.destroy();
     disposeOverlays();
