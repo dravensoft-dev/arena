@@ -1027,6 +1027,17 @@ test('in a file naming a ph-* literal, a lone ngClass object and a glyph-free li
   assert.equal(literal.length, 0);
 });
 
+test('iconMemberGlyphs reads an attribute that follows a braced one (49)', () => {
+  assert.deepEqual([...iconMemberGlyphs('<ArenaIcon key={n} icon="ph-bold ph-star" />')], ['ph-star']);
+  assert.deepEqual([...iconMemberGlyphs('<ArenaIcon key="k" icon="ph-bold ph-star" />')], ['ph-star']);
+  assert.deepEqual([...iconMemberGlyphs('<ArenaButton icon={a} iconRight="ph-bold ph-caret-down" />')], ['ph-caret-down']);
+  assert.deepEqual([...iconMemberGlyphs('<ArenaIcon key={n}\n  icon="ph-bold ph-star" />')], ['ph-star']);
+});
+
+test('classValues reads a class attribute that follows a braced one (49)', () => {
+  assert.match(classValues(' class={a} className="ph-bold ph-x"'), /ph-bold ph-x/);
+});
+
 test('iconMemberGlyphs reads ArenaIcon, an icon attribute of an Arena tag and a symbol reference, and nothing else', () => {
   const text = [
     '<ArenaIcon icon="ph-bold ph-x" />',

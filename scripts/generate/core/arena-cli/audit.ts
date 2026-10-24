@@ -534,7 +534,7 @@ const BRANCH_LEAD = /(?:\?\??|:|&&|\|\|)\s*(?:\(\s*|<>\s*)*$/;
 const STRING_CONTEXT = /[=:,(\[?&|]\s*$|\breturn\s*$/;
 const INLINE_TEMPLATE = /\btemplate\s*:\s*$/;
 const STATEMENT_BRANCH = /(?<![\w$.@])(?:if\s*\(|else\b|case\b[^:\n]*:|default\s*:)/g;
-const CLASS_VALUE = /(?:^|\s)(?:className|class|\[class\]|\[ngClass\]|\[attr\.class\])\s*=\s*/g;
+const CLASS_VALUE = /(?<=^|\s)(?:className|class|\[class\]|\[ngClass\]|\[attr\.class\])\s*=\s*/g;
 const TAG_LEAD = /[\w$.]/;
 
 function closing(text: string, from: number, open: string, close: string) {
@@ -968,8 +968,8 @@ export function auditText(relPath: string, text: string, scope: Scope = 'app',
 }
 
 const ICON_TAG = /^(?:ArenaIcon|arena-icon)$/;
-const ICON_ATTRIBUTE = /(?:^|\s)\[?(?:icon|iconRight)\]?\s*=\s*/g;
-const ANY_ATTRIBUTE = /(?:^|\s)[[(]?[\w.:@-]+[\])]?\s*=\s*/g;
+const ICON_ATTRIBUTE = /(?<=^|\s)\[?(?:icon|iconRight)\]?\s*=\s*/g;
+const ANY_ATTRIBUTE = /(?<=^|\s)[[(]?[\w.:@-]+[\])]?\s*=\s*/g;
 
 function withoutElements(value: string) {
   let out = '';
