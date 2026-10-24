@@ -12,7 +12,7 @@ import { join } from 'node:path';
 import { TestBed } from '@angular/core/testing';
 import { ArenaCommandPalette } from './ArenaCommandPalette';
 import { assertPattern, ANGULAR_COMPONENTS } from '../../../test/Compliance';
-import { assertNoNode } from '../../../test/NodeAssert';
+import { assertNoNode, assertSameNode } from '../../../test/NodeAssert';
 
 const BINDING = join(ANGULAR_COMPONENTS, 'navigation/arena-command-palette/ArenaCommandPalette.behaviour.json');
 
@@ -63,7 +63,10 @@ test('the search field is a combobox that names the row it is on', () => {
       root: host,
       bindingPath: BINDING,
       subjects: { default: input },
-      behavioural: { 'keyboard.ArrowDown': true, 'keyboard.Escape': true, 'keyboard.Enter': true },
+      behavioural: {
+        'keyboard.ArrowDown': true, 'keyboard.Escape': true, 'keyboard.Enter': true,
+        'focus.onOpen': true, 'focus.onClose': true, 'focus.trap': true,
+      },
     });
   } finally {
     fixture.destroy();
@@ -113,4 +116,25 @@ test('the empty line sits in the panel after the listbox, not inside it', () => 
   assert.ok(empty, 'no empty line was drawn');
   assert.equal(empty.parentElement?.getAttribute('data-arena-part'), 'command-palette.panel');
   assertNoNode(host.querySelector('[role="listbox"] [data-arena-part="command-palette.empty"]'));
+});
+
+test('opening focuses the search field, and closing returns focus to the invoker', () => {
+  const invoker = document.createElement('button');
+  document.body.appendChild(invoker);
+  invoker.focus();
+  const fixture = TestBed.createComponent(ArenaCommandPalette);
+  try {
+    fixture.componentRef.setInput('commands', COMMANDS);
+    fixture.componentRef.setInput('open', true);
+    fixture.detectChanges();
+    const input = (fixture.nativeElement as HTMLElement).querySelector('[role="combobox"]');
+    assertSameNode(document.activeElement, input, 'opening left focus off the search field');
+
+    fixture.componentRef.setInput('open', false);
+    fixture.detectChanges();
+    assertSameNode(document.activeElement, invoker, 'closing did not return focus to the invoker');
+  } finally {
+    fixture.destroy();
+    invoker.remove();
+  }
 });

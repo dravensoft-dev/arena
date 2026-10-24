@@ -1,6 +1,6 @@
 import React, { useEffect, useId, useRef, useState } from 'react';
 import { isArenaPrimaryActivation } from '../../../AnchorActivation.ts';
-import { arenaTrapTabKey } from '../../../UseDialogModal.ts';
+import { useArenaDialogModal } from '../../../UseDialogModal.ts';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaCommandPalette.classes.generated.ts';
 
@@ -77,7 +77,6 @@ export function ArenaCommandPalette({ className, open, commands, placeholder, ma
   if (commands == null) throw new Error('ArenaCommandPalette: `commands` is required');
   const [q, setQ] = useState('');
   const [i, setI] = useState(0);
-  const inputRef = useRef<HTMLInputElement | null>(null);
   const panelRef = useRef<HTMLDivElement | null>(null);
   const listRef = useRef<HTMLDivElement | null>(null);
   const uid = `arena-command-palette-${useId().replace(/:/g, '')}`;
@@ -88,7 +87,8 @@ export function ArenaCommandPalette({ className, open, commands, placeholder, ma
     maxResults,
   ));
   const groups = arenaCommandGroups(filtered);
-  useEffect(() => { if (open) { setQ(''); setI(0); setTimeout(() => inputRef.current && inputRef.current.focus(), 0); } }, [open]);
+  useEffect(() => { if (open) { setQ(''); setI(0); } }, [open]);
+  const onPanelKeyDown = useArenaDialogModal({ open, panelRef, onDismiss: onClose });
   useEffect(() => { setI(0); }, [q]);
   useEffect(() => {
     const row = listRef.current?.querySelectorAll('[role="option"]').item(i);
@@ -100,10 +100,6 @@ export function ArenaCommandPalette({ className, open, commands, placeholder, ma
     if (e.key === 'ArrowDown') { e.preventDefault(); setI((v) => Math.min(v + 1, filtered.length - 1)); }
     else if (e.key === 'ArrowUp') { e.preventDefault(); setI((v) => Math.max(v - 1, 0)); }
     else if (e.key === 'Enter') { e.preventDefault(); run(filtered[i]); }
-    else if (e.key === 'Escape') { e.preventDefault(); onClose && onClose(); }
-  };
-  const onPanelKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Tab' && panelRef.current) arenaTrapTabKey(panelRef.current, e, document.activeElement);
   };
   const styles = paletteStyles({ open: true });
   return (
@@ -113,7 +109,7 @@ export function ArenaCommandPalette({ className, open, commands, placeholder, ma
         className={styles.panel()} data-arena-part={manifest.parts.panel} {...styles.$data.panel()}>
         <div className={styles.search()} data-arena-part={manifest.parts.search} {...styles.$data.search()}>
           <span className={styles.searchIcon()} data-arena-part={manifest.parts.searchIcon} {...styles.$data.searchIcon()} aria-hidden="true"><ArenaIcon icon="ph-bold ph-magnifying-glass" /></span>
-          <input ref={inputRef} value={q} onChange={(e) => setQ(e.target.value)} onKeyDown={onKey} placeholder={hint}
+          <input value={q} onChange={(e) => setQ(e.target.value)} onKeyDown={onKey} placeholder={hint}
             role="combobox" aria-autocomplete="list" aria-haspopup="listbox" aria-expanded="true"
             aria-controls={listboxId} aria-label={hint || locale.commandPaletteSearch}
             aria-activedescendant={i >= 0 && i < filtered.length ? optionId(i) : undefined}
