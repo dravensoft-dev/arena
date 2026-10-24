@@ -413,9 +413,9 @@ test('classify reads an inbound function that returns a value as a functionInput
     { form: 'functionInput', params: { value: 'string' }, returns: 'string' });
 });
 
-test('classify reduces a nullable return to the non-null type', () => {
+test('classify keeps a nullable return, so a layer returning null differs from a contract returning string', () => {
   assert.deepEqual(classify('(value: string) => string | null | undefined'),
-    { form: 'functionInput', params: { value: 'string' }, returns: 'string' });
+    { form: 'functionInput', params: { value: 'string' }, returns: 'string | null | undefined' });
 });
 
 test('classify surfaces a functionInput whose return is a platform type as platform, not as the ninth form', () => {

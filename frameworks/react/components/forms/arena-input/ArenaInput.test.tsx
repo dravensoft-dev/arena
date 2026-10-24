@@ -147,3 +147,9 @@ test('a note takes the id the consumer gives, and a field with neither carries n
   assert.match(renderIcons(<ArenaInput id="slug" hint="Help." />), /aria-describedby="slug-note"/);
   assert.doesNotMatch(renderIcons(<ArenaInput label="Slug" />), /aria-describedby/);
 });
+
+test('validate returns the message or an empty string, never null', () => {
+  renderIcons(<ArenaInput label="N" validate={() => ''} />);
+  // @ts-expect-error a validator returns a string, empty for valid
+  renderIcons(<ArenaInput label="N" validate={() => null} />);
+});

@@ -82,3 +82,9 @@ test('a number outside the bounds is drawn and announced at the nearest bound', 
 test('a blank label throws, because nothing can derive what the number counts', () => {
   assert.throws(() => render(<ArenaNumberField label="  " />), /^Error: ArenaNumberField:/);
 });
+
+test('validate returns the message or an empty string, never null', () => {
+  renderToStaticMarkup(<ArenaNumberField label="N" validate={() => ''} />);
+  // @ts-expect-error a validator returns a string, empty for valid
+  renderToStaticMarkup(<ArenaNumberField label="N" validate={() => null} />);
+});

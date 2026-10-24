@@ -38,7 +38,7 @@ export interface ArenaNumberFieldProps {
   required?: boolean;
 
   /** Called on a committed number; returns the error message, or empty for valid. Never called for an empty field. */
-  validate?: (value: number) => string | null | undefined;
+  validate?: (value: number) => string;
 
   /** When `validate` runs: "blur" on a commit by blur or Enter, "change" on every commit, a key or stepper step included. */
   validateOn?: ArenaValidateOn;

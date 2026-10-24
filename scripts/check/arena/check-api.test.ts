@@ -658,6 +658,20 @@ test('a functionInput whose layer return differs from the contract is reported',
   assert.match(problems[0] ?? '', /string/);
 });
 
+test('a functionInput whose implementation returns string | null differs from a contract returning string', () => {
+  const contract = {
+    component: 'ArenaInput', kind: 'input',
+    api: { validate: { form: 'functionInput', params: { value: 'string' }, returns: 'string' } },
+  };
+  const problems = compareSurface(
+    contract,
+    [{ name: 'validate', form: 'functionInput', params: { value: 'string' }, returns: 'string | null', required: false }],
+    'react',
+  );
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /validate: returns string \| null, contract says string/);
+});
+
 test('a functionInput matching the contract exactly reports nothing, and binds to a prop of the same name', () => {
   const contract = {
     component: 'ArenaInput', kind: 'input',

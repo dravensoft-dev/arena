@@ -90,7 +90,8 @@ export function classify(raw: string): { form: string; [detail: string]: any } {
   const arms = splitTopLevel(ts, '|').map((s) => s.trim()).filter(Boolean);
   if (arms.length > 1) {
     const real = arms.filter((a) => a !== 'null' && a !== 'undefined');
-    if (real.length > 0 && real.length !== arms.length) return classify(real.join(' | '));
+    const bareArrow = real.length === 1 && /^\([\s\S]*\)\s*=>/.test(real[0] ?? '') && !wrapsWhole(real[0] ?? '');
+    if (real.length > 0 && real.length !== arms.length && !bareArrow) return classify(real.join(' | '));
   }
 
   if (ts.startsWith('(') && ts.endsWith(')') && wrapsWhole(ts)) return classify(ts.slice(1, -1));
@@ -145,7 +146,7 @@ export function classify(raw: string): { form: string; [detail: string]: any } {
         params[part.slice(0, colon).trim()] = pType.type
           ?? (pType.form === 'consumerData' ? 'consumerData' : part.slice(colon + 1).trim());
       }
-      return { form: 'functionInput', params, returns: retType.type ?? (nonNull[0] ?? '').trim() };
+      return { form: 'functionInput', params, returns };
     }
     const params = captured(arrow).trim();
     if (!params) return { form: 'event', payload: null };

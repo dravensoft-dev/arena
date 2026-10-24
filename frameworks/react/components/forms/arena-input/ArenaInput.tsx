@@ -30,7 +30,7 @@ export interface ArenaInputProps {
   required?: boolean;
 
   /** Called on the value; returns the error message, or empty for valid. */
-  validate?: (value: string) => string | null | undefined;
+  validate?: (value: string) => string;
 
   /** When `validate` runs. */
   validateOn?: ArenaValidateOn;
