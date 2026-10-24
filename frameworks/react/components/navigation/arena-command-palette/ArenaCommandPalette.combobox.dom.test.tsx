@@ -134,6 +134,16 @@ test('Escape closes the palette once and returns focus to the element that held 
   assert.equal(document.activeElement, invoker, 'focus did not return to the invoker');
 });
 
+test('Escape anywhere in the panel closes it, not only in the search field', () => {
+  let closed = 0;
+  const { root, invoker } = openFromInvoker(() => { closed += 1; });
+  const panel = root.querySelector<HTMLElement>('[role="dialog"]')!;
+  assert.equal(press(panel, 'Escape').defaultPrevented, true, 'Escape on the panel reached the page');
+  assert.equal(closed, 1, 'Escape on the panel did not report a close');
+  assert.equal(root.querySelector('[role="dialog"]'), null);
+  assert.equal(document.activeElement, invoker, 'focus did not return to the invoker');
+});
+
 test('Tab and Shift+Tab stay inside the panel', () => {
   const { root } = openFromInvoker();
   const input = root.querySelector<HTMLElement>('[role="combobox"]')!;
