@@ -126,17 +126,18 @@ export const ROUTES: Route[] = [
     ],
     budget: 49_900,
     reason:
-      'paid once per project rather than per screen, so it carries what the build route may not: '
-      + 'the install, the config file and the command. The package carries none of the language, so a '
-      + 'thing these references never name is a thing nobody imports. The config block is copied '
-      + 'whole. The install reference gives the evidence behind each package manager and the Tailwind '
+      'paid once per project, not per screen, so it carries what the build route may not: '
+      + 'the install, the config file and the command. The package carries none of the language, so '
+      + 'nobody imports what these references never name. The config block is copied whole. '
+      + 'The install reference gives the evidence behind each package manager and the Tailwind '
       + 'v4 entry sheet, and says how Vite and the Angular builder serve the sprite, since neither '
       + 'serves a file of src at the root. The command reference quotes whole the scripts `arena '
       + 'init` writes, tables every audit tag with its rule, names the sheets, the sprite and the cut '
       + 'fonts the build writes, and lists the sheets a `--no-import` project imports under one rule '
       + 'for every root, generated from the layer list `scopedImports` reads. It says which glyphs '
-      + 'reach the sprite\'s filled weight and when an icon expression widens that set, and its audit '
-      + 'section covers the two rules that read a plugin\'s names. The config reference tables every '
+      + 'reach the sprite\'s filled weight and when an icon expression widens that set or stills the '
+      + 'glyph report, and its audit section covers the two rules that read a plugin\'s names. '
+      + 'The config reference tables every '
       + 'key, the names the build refuses and the roles that carry a default. The install and command '
       + 'references name the arena-defaults layer the defaults sit in, which the Tailwind entry '
       + 'states first.',
