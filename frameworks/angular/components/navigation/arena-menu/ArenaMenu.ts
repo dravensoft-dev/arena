@@ -50,6 +50,15 @@ export function arenaMenuBlocks(items: readonly ArenaMenuItem[]): ArenaMenuBlock
   return blocks.filter((block) => block.kind === 'divider' || block.header !== null || block.rows.length > 0);
 }
 
+/** The row a roving key moves to: null for a key the menu does not answer, -1 when no row is enabled. */
+function arenaMenuStep(key: string, at: number, total: number): number | null {
+  if (key !== 'ArrowDown' && key !== 'ArrowUp' && key !== 'Home' && key !== 'End') return null;
+  if (total === 0) return -1;
+  if (key === 'ArrowDown') return (at + 1) % total;
+  if (key === 'ArrowUp') return at <= 0 ? total - 1 : at - 1;
+  return key === 'Home' ? 0 : total - 1;
+}
+
 export function isArenaActivatable(item: ArenaMenuItem): boolean {
   return !item.divider && item.header === undefined;
 }
@@ -160,23 +169,18 @@ export class ArenaMenu {
     const menu = event.currentTarget as HTMLElement;
     const rows = [...menu.querySelectorAll<HTMLElement>('[role="menuitem"]:not([disabled])')];
     const at = rows.findIndex((row) => row === menu.ownerDocument.activeElement);
-    const total = rows.length;
-    let target = -1;
-    if (event.key === 'ArrowDown') target = total === 0 ? -1 : (at + 1) % total;
-    else if (event.key === 'ArrowUp') target = total === 0 ? -1 : (at <= 0 ? total - 1 : at - 1);
-    else if (event.key === 'Home') target = total === 0 ? -1 : 0;
-    else if (event.key === 'End') target = total === 0 ? -1 : total - 1;
-    else if (event.key.length === 1 && (event.key !== ' ' || this.buffer !== '')) {
+    if (Array.from(event.key).length === 1 && (event.key !== ' ' || this.buffer !== '')) {
       this.buffer = arenaTypeAheadBuffer(this.buffer, event.key);
       if (this.clock !== null) clearTimeout(this.clock);
       this.clock = setTimeout(() => { this.buffer = ''; this.clock = null; }, delayTypeahead);
       const labels = rows.map((row) => row.querySelector('[data-arena-part="menu.label"]')?.textContent ?? '');
       const found = arenaTypeAheadNext(labels, at, this.buffer);
-      if (found < 0) return;
-      event.preventDefault();
-      rows[found]!.focus();
+      if (found >= 0 || event.key === ' ') event.preventDefault();
+      if (found >= 0) rows[found]!.focus();
       return;
-    } else return;
+    }
+    const target = arenaMenuStep(event.key, at, rows.length);
+    if (target === null) return;
     event.preventDefault();
     if (target >= 0) rows[target]!.focus();
   }

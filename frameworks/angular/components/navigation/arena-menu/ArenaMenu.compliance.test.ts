@@ -1,9 +1,10 @@
-/* Every requirement of `menu-button` is about the TRIGGER, which is projected content the
- * primitive does not own -- so `subjects.default` is the resolved trigger and not the host.
- * Resolution is the interesting part: an <arena-button> is display:contents and stops its own
- * click, so the wrapping node is neither focusable nor reachable, and writing the attributes
- * onto it is the defect the delegated entry named. keyboard.Enter, keyboard.Space,
- * keyboard.Escape and focus.onOpen are each earned by a named assertion below. */
+/* The requirements of `menu-button` without a subject of their own are about the TRIGGER, which
+ * is projected content the primitive does not own -- so `subjects.default` is the resolved
+ * trigger and not the host. Resolution is the interesting part: an <arena-button> is
+ * display:contents and stops its own click, so the wrapping node is neither focusable nor
+ * reachable, and writing the attributes onto it is the defect the delegated entry named.
+ * roles.item and roles.separator are the rows and dividers the panel draws. Every focus.* and
+ * keyboard.* verdict is earned by a named test below that presses the key and reads focus. */
 import { useTestEnvironment } from '../../../test/TestbedEnv';
 useTestEnvironment();
 
@@ -277,18 +278,20 @@ test('the trigger is resolved to the focusable control, never to a display:conte
   }
 });
 
-test('Tab from the last row closes the menu and returns focus to the trigger', () => {
+test('Tab from any row closes the menu and returns focus to the trigger', () => {
   const { fixture, trigger } = render();
   try {
-    trigger.click();
-    fixture.detectChanges();
-    const rows = [...panel()!.querySelectorAll<HTMLElement>('[role="menuitem"]')];
-    const last = rows[rows.length - 1]!;
-    last.focus();
-    assert.equal(press(last, 'Tab').defaultPrevented, true);
-    fixture.detectChanges();
-    assertNoNode(panel(), 'Tab from the last row left the menu open');
-    assertSameNode(document.activeElement, trigger, 'Tab out did not return focus to the trigger');
+    for (const which of ['first', 'last'] as const) {
+      trigger.click();
+      fixture.detectChanges();
+      const rows = [...panel()!.querySelectorAll<HTMLElement>('[role="menuitem"]:not([disabled])')];
+      const row = which === 'first' ? rows[0]! : rows[rows.length - 1]!;
+      row.focus();
+      assert.equal(press(row, 'Tab').defaultPrevented, true);
+      fixture.detectChanges();
+      assertNoNode(panel(), `Tab from the ${which} row left the menu open`);
+      assertSameNode(document.activeElement, trigger, 'Tab out did not return focus to the trigger');
+    }
   } finally {
     fixture.destroy();
     disposeOverlays();
@@ -398,7 +401,7 @@ test('a typed character moves to the next row starting with it, and a run of cha
 });
 
 test('a character no row starts with leaves focus where it is, and one character repeated cycles', () => {
-  captureClock();
+  const clock = captureClock();
   const { rows, finish } = opened([{ label: 'Rename' }, { label: 'Remove' }, { label: 'Archive' }]);
   try {
     const [rename, remove] = rows as [HTMLElement, HTMLElement, HTMLElement];
@@ -408,9 +411,37 @@ test('a character no row starts with leaves focus where it is, and one character
     assertSameNode(document.activeElement, rename, 'one character repeated did not cycle through the rows that start with it');
     press(rename, 'r');
     assertSameNode(document.activeElement, remove);
-    const unknown = press(remove, 'q');
+    const appended = press(remove, 'q');
+    assertSameNode(document.activeElement, remove, 'a run no row starts with moved focus');
+    assert.equal(appended.defaultPrevented, false);
+    clock.at(-1)?.();
+    const fresh = press(remove, 'q');
     assertSameNode(document.activeElement, remove, 'a character no row starts with moved focus');
-    assert.equal(unknown.defaultPrevented, false);
+    assert.equal(fresh.defaultPrevented, false);
+  } finally { finish(); }
+});
+
+test('a space inside a run of typed characters belongs to the run, and a space alone is the row\'s own', () => {
+  const clock = captureClock();
+  const first = opened([{ label: 'Save as' }, { label: 'Save' }, { label: 'Delete' }]);
+  try {
+    const [saveAs, save] = first.rows as [HTMLElement, HTMLElement, HTMLElement];
+    for (const key of ['s', 'a', 'v', 'e']) press(document.activeElement!, key);
+    assertSameNode(document.activeElement, save);
+    assert.equal(press(save, ' ').defaultPrevented, true);
+    assertSameNode(document.activeElement, saveAs, 'the run with its space did not match on the whole string');
+  } finally { first.finish(); }
+  const clockAgain = captureClock();
+  const { rows, finish } = opened([{ label: 'Rename' }, { label: 'Delete' }]);
+  try {
+    const [, remove] = rows as [HTMLElement, HTMLElement];
+    press(document.activeElement!, 'd');
+    assertSameNode(document.activeElement, remove);
+    assert.equal(press(remove, ' ').defaultPrevented, true, 'a space inside a run reached the row, which it would activate');
+    assertSameNode(document.activeElement, remove);
+    clockAgain.at(-1)?.();
+    assert.equal(press(remove, ' ').defaultPrevented, false, 'a space alone was taken from the row it activates');
+    assertSameNode(document.activeElement, remove);
   } finally { finish(); }
 });
 
@@ -442,9 +473,16 @@ test('the first enabled row takes focus on open, and a menu of disabled rows ans
   } finally { first.finish(); }
   const { menu, rows, finish } = opened([{ label: 'Archive', disabled: true }, { label: 'Zip', disabled: true }]);
   try {
-    for (const key of ['ArrowDown', 'ArrowUp', 'Home', 'End', 'a']) {
-      assert.doesNotThrow(() => press(menu, key), key);
-    }
     assert.equal(rows.length, 2);
+    const before = document.activeElement;
+    for (const key of ['ArrowDown', 'ArrowUp', 'Home', 'End']) {
+      let event: KeyboardEvent | undefined;
+      assert.doesNotThrow(() => { event = press(menu, key); }, key);
+      assert.equal(event?.defaultPrevented, true, `${key} in a menu of disabled rows reached the page`);
+      assertSameNode(document.activeElement, before, `${key} moved focus in a menu of disabled rows`);
+    }
+    assert.doesNotThrow(() => press(menu, 'a'), 'a');
+    assertSameNode(document.activeElement, before, 'type-ahead moved focus in a menu of disabled rows');
+    assert.equal(rows.some((row) => row === document.activeElement), false, 'a disabled row took focus');
   } finally { finish(); }
 });
