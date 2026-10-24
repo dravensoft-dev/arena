@@ -1,4 +1,4 @@
-Base container. Use `eyebrow` (the primary, in the mono face) and `title` (the display face) for the header.
+Base container. Use `eyebrow` (the eyebrow ink, in the mono face) and `title` (the display face) for the header.
 
 ```tsx
 <ArenaCard eyebrow="Delivery" title="Client Portal" action={<ArenaBadge tone="success">Deployed</ArenaBadge>}>

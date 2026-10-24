@@ -2,8 +2,8 @@ The panel every signed-out screen needs. The panel is a frame rather than a form
 `ArenaButton`, which is what lets the same component serve "Welcome back", "Check your
 inbox", "This link expired" and "Enter your two-factor code".
 
-`eyebrow` and `title` are plain strings; Arena draws both entirely (the mono primary
-microlabel, the display-weight heading), so there is no markup for a consumer to
+`eyebrow` and `title` are plain strings; Arena draws both entirely (the mono microlabel
+in the eyebrow ink, the display-weight heading), so there is no markup for a consumer to
 supply. `brand`, `footer` and the children default slot stay nodes.
 
 ```tsx
@@ -25,7 +25,7 @@ supply. `brand`, `footer` and the children default slot stay nodes.
 | Member | Form | Type | Default | What it is |
 |---|---|---|---|---|
 | `brand` | slot |  |  | The brand lock-up above the panel's content. An ArenaAppLogo, in practice. |
-| `eyebrow` | primitive | `string` |  | Mono primary microlabel: the product, not the task. |
+| `eyebrow` | primitive | `string` |  | Mono microlabel in the eyebrow ink: the product, not the task. |
 | `title` | primitive | `string` |  | The task. "Welcome back", "Check your inbox". |
 | `headingLevel` | enum | `ArenaHeadingLevel` | `"h2"` | Which rung of the document outline the title takes. Only the element changes: the title's class is the same at every value, so the render is identical and no appearance follows from it. The member defaults to `h2` because this title is drawn in the section register rather than the card one. The outline therefore follows the register the same way every other title on the ladder does. A signed-out screen whose only title is this one says `h1` and gets the page's one heading, which is the case the member exists for. `none` takes the title out of the outline entirely; with no title there is no heading either way. |
 | `children` | slot |  |  | The fields, composed from ArenaInput and ArenaButton. |

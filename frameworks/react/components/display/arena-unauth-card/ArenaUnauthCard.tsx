@@ -14,7 +14,7 @@ export interface ArenaUnauthCardProps {
   /** The brand lock-up above the panel's content. An ArenaAppLogo, in practice. */
   brand?: React.ReactNode;
 
-  /** Mono primary microlabel: the product, not the task. */
+  /** Mono microlabel in the eyebrow ink: the product, not the task. */
   eyebrow?: string;
 
   /** The task. "Welcome back", "Check your inbox". */
