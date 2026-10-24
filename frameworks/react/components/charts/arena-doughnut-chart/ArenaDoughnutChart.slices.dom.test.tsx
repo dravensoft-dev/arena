@@ -130,7 +130,7 @@ test('a pie draws no centre figure, because filling the hole is what took the pl
   const root = pie({ shape: 'pie' });
   hover(root.querySelectorAll('path')[0]!);
   assert.equal(root.querySelector('text'), null,
-    'over a wedge the figure would put --bone on a --color-cat slot, a pair no gate checks because nothing drew it');
+    'over a wedge the figure would put the heading ink on a --color-cat slot, a pair no gate checks because nothing drew it');
 
   const table = root.querySelector('table');
   assert.ok((table?.textContent ?? '').includes('40'), 'the number is not lost: the accessible table still carries it');
