@@ -6,7 +6,7 @@ The card a chart sits on: an uppercase muted microlabel, optional actions on the
     series={[{ label: 'Deploys', values: [12,19,9,22,17] }]} />
 </ArenaChartCard>
 
-<ArenaChartCard title="p95 latency" actions={<ArenaSelect options={ranges} value={range} onChange={setRange} />}>
+<ArenaChartCard title="p95 latency" actions={<ArenaSelect options={ranges} value={range} onValueChange={setRange} />}>
   <ArenaLineChart label="p95 latency" labels={days}
     series={[{ label: 'p95', values: latency, colorId: 5 }]} area valueSuffix=" ms" />
 </ArenaChartCard>

@@ -80,9 +80,9 @@ export interface ArenaNumberFieldProps {
   name?: string;
 
   /** A number was committed, clamped, and differs from the one before; carries it. */
-  onChange?: (value: number) => void;
+  onValueChange?: (value: number) => void;
 
-  /** The field was committed empty. Never fires with `onChange` for one commit, and never for a field that was already empty. */
+  /** The field was committed empty. Never fires with `onValueChange` for one commit, and never for a field that was already empty. */
   onClear?: () => void;
 }
 
@@ -98,7 +98,7 @@ type Commit = 'blur' | 'enter' | 'step';
 export const ArenaNumberField = forwardRef<ArenaNumberFieldHandle, ArenaNumberFieldProps>(function ArenaNumberField({
   className, label, showLabel = true, id, hint, error, valid = false, required = false, validate, validateOn = 'blur',
   value, min, max, step = 1, format, prefix, suffix, steppers = true, disabled = false, readOnly = false,
-  placeholder, name, onChange, onClear,
+  placeholder, name, onValueChange, onClear,
 }: ArenaNumberFieldProps, handle) {
   if (!label?.trim()) throw new Error('ArenaNumberField: `label` is required, and names the number the field holds');
   const locale = useArenaLocale();
@@ -142,7 +142,7 @@ export const ArenaNumberField = forwardRef<ArenaNumberFieldHandle, ArenaNumberFi
     if (kept === committed) return;
     setHeld(kept);
     if (kept === undefined) onClear?.();
-    else onChange?.(kept);
+    else onValueChange?.(kept);
   };
 
   const typed = () => {

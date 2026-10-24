@@ -21,7 +21,7 @@ function render(props: Partial<ArenaFileInputProps> = {}, inForm = false) {
   const handle = React.createRef<ArenaFileInputHandle>();
   const field = (
     <ArenaFileInput ref={handle} label="Attach a document" name="docs"
-      onChange={(selection) => changes.push(selection)} onReject={(rejection) => rejections.push(rejection)} {...props} />
+      onValueChange={(selection) => changes.push(selection)} onReject={(rejection) => rejections.push(rejection)} {...props} />
   );
   const root = mount(inForm ? <form>{field}</form> : field);
   const input = root.querySelector<HTMLInputElement>('input[type="file"]')!;

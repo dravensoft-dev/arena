@@ -51,7 +51,7 @@ export interface ArenaTextareaProps {
   rows?: number;
 
   /** Edited; carries the new text. */
-  onChange?: (value: string) => void;
+  onValueChange?: (value: string) => void;
 }
 
 
@@ -69,7 +69,7 @@ const arenaTextareaStyles = arenaStyles(manifest);
 
 export function ArenaTextarea({ className, 
   label, id, hint, error, required = false, rows = 4, maxLength, counter = false,
-  disabled = false, readOnly = false, autoResize = false, placeholder, name, value, onChange,
+  disabled = false, readOnly = false, autoResize = false, placeholder, name, value, onValueChange,
 }: ArenaTextareaProps) {
   const boxRef = useRef<HTMLTextAreaElement | null>(null);
   const taId = id || (label ? 'ta-' + label.replace(/\s+/g, '-').toLowerCase() : undefined);
@@ -95,7 +95,7 @@ export function ArenaTextarea({ className,
       <textarea ref={boxRef} id={taId} rows={rows} maxLength={maxLength} disabled={disabled} required={required}
         readOnly={readOnly} placeholder={placeholder} name={name}
         aria-invalid={!!error} aria-describedby={noteId} value={value}
-        onChange={(e) => { if (autoResize) arenaFitToContent(e.target); onChange && onChange(e.target.value); }}
+        onChange={(e) => { if (autoResize) arenaFitToContent(e.target); onValueChange && onValueChange(e.target.value); }}
         className={styles.field()} data-arena-part={manifest.parts.field} {...styles.$data.field()} />
       <div className={styles.foot()} data-arena-part={manifest.parts.foot} {...styles.$data.foot()}>
         {error ? <span id={noteId} className={styles.error()} data-arena-part={manifest.parts.error} {...styles.$data.error()}>{error}</span>

@@ -66,13 +66,13 @@ export interface ArenaSliderProps {
   name?: string;
 
   /** The thumb moved, or the start thumb in range mode; carries its number on every step of a drag and every key. Never fires for a move that leaves the number where it was. */
-  onChange?: (value: number) => void;
+  onValueChange?: (value: number) => void;
 
   /** The move settled: the pointer was released, or a key stepped the thumb. Carries the number, and fires only when it differs from where the move began. For an effect too costly to run on every step of a drag. */
   onCommit?: (value: number) => void;
 
-  /** The end thumb moved, in range mode; carries its number as `onChange` does. */
-  onChangeEnd?: (value: number) => void;
+  /** The end thumb moved, in range mode; carries its number as `onValueChange` does. */
+  onValueEndChange?: (value: number) => void;
 
   /** The end thumb's move settled, in range mode; carries its number as `onCommit` does. */
   onCommitEnd?: (value: number) => void;
@@ -90,7 +90,7 @@ const mirroredAt = (element: Element) => {
 export function ArenaSlider({
   className, label, showLabel = true, hint, range = false, value, valueEnd, min = 0, max = 100, step = 1,
   orientation = 'horizontal', valueFormat, valuePrefix, valueSuffix, showValue = true, disabled = false, name,
-  onChange, onCommit, onChangeEnd, onCommitEnd,
+  onValueChange, onCommit, onValueEndChange, onCommitEnd,
 }: ArenaSliderProps) {
   if (!label?.trim()) throw new Error('ArenaSlider: `label` is required, and names what the range measures');
   if (!range && valueEnd !== undefined) {
@@ -133,8 +133,8 @@ export function ArenaSlider({
     const kept = Math.min(Math.max(next, lower), upper);
     if (kept === now[thumb]) return false;
     live.current = { ...now, [thumb]: kept };
-    if (thumb === 'start') { setHeldStart(kept); onChange?.(kept); }
-    else { setHeldEnd(kept); onChangeEnd?.(kept); }
+    if (thumb === 'start') { setHeldStart(kept); onValueChange?.(kept); }
+    else { setHeldEnd(kept); onValueEndChange?.(kept); }
     return true;
   };
 

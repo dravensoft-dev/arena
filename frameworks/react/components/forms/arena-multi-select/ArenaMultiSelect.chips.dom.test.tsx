@@ -18,7 +18,7 @@ const REGIONS = [
 
 function Host({ sets, maxVisible }: { sets: (readonly string[])[]; maxVisible?: number }) {
   const [value, setValue] = useState<readonly string[]>(['berlin', 'lisbon', 'oslo']);
-  return <ArenaMultiSelect label="Cities" options={REGIONS} value={value} maxVisible={maxVisible} onChange={(set) => { sets.push(set.values); setValue(set.values); }} />;
+  return <ArenaMultiSelect label="Cities" options={REGIONS} value={value} maxVisible={maxVisible} onValueChange={(set) => { sets.push(set.values); setValue(set.values); }} />;
 }
 
 function render(maxVisible?: number) {
@@ -121,7 +121,7 @@ function Late({ pending }: { pending: { apply: (() => void) | null } }) {
   pending.apply = null;
   return (
     <ArenaMultiSelect label="Cities" options={REGIONS} value={value}
-      onChange={(set) => { pending.apply = () => setValue(set.values); }} />
+      onValueChange={(set) => { pending.apply = () => setValue(set.values); }} />
   );
 }
 

@@ -2,7 +2,7 @@ Multi-line text input. Shares the same visual states as `ArenaInput`.
 
 ```tsx
 <ArenaTextarea label="Deployment notes" rows={5} maxLength={280} counter
-  value={notes} onChange={setNotes}
+  value={notes} onValueChange={setNotes}
   hint="Attached to the delivery log." />
 ```
 
@@ -40,11 +40,11 @@ Multi-line text input. Shares the same visual states as `ArenaInput`.
 **Keys:** none (`textbox`).
 <!-- @keys end -->
 
-`onChange` carries the **new text as a string** rather than the `ChangeEvent`. A platform event type never travels in a payload, so the event does not reach you. Read the
-value directly (`onChange={setNotes}`); there is no `e.target` and no `preventDefault()`.
+`onValueChange` carries the **new text as a string** rather than the `ChangeEvent`. A platform event type never travels in a payload, so the event does not reach you. Read the
+value directly (`onValueChange={setNotes}`); there is no `e.target` and no `preventDefault()`.
 
 The members are `label`, `id`, `hint`, `error`, `required`, `counter`, `autoResize`, `value`,
-`disabled`, `readOnly`, `placeholder`, `name`, `maxLength` and `rows`, plus `onChange`.
+`disabled`, `readOnly`, `placeholder`, `name`, `maxLength` and `rows`, plus `onValueChange`.
 The members above are the whole API. There is no `TextareaHTMLAttributes` heritage clause and no `{...rest}` spread. Global attributes do not reach the `<textarea>`, which covers `className`, `dir`, `tabIndex`, ARIA and `data-*`, and neither does a consumer `style` object.
 
 **`id` is the one global attribute that is a member.** The component generates one from `label` to wire the label's `htmlFor`, and a consumer had no way to override it. That left an external `<label>`, an `aria-describedby` or a form library addressing the field by name with no path at all. Pass it and it wins; omit it and the

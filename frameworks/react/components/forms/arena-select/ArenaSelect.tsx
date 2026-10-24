@@ -47,13 +47,13 @@ export interface ArenaSelectProps {
 
 
   /** A different option was chosen; carries its value. */
-  onChange?: (value: string) => void;
+  onValueChange?: (value: string) => void;
 }
 
 const arenaSelectStyles = arenaStyles(manifest);
 
 export function ArenaSelect({ className, 
-  label, placeholder, options = [], value, onChange, disabled = false, required = false,
+  label, placeholder, options = [], value, onValueChange, disabled = false, required = false,
   hint, error, valid = false, icon, name,
 }: ArenaSelectProps) {
   const selectId = `select-${useId().replace(/:/g, '')}`;
@@ -71,7 +71,7 @@ export function ArenaSelect({ className,
       {label && <label htmlFor={selectId} className={styles.label()} data-arena-part={manifest.parts.label} {...styles.$data.label()}>{label}</label>}
       <div className={styles.wrap()} data-arena-part={manifest.parts.wrap} {...styles.$data.wrap()}>
         {icon && <span className={styles.iconWrap()} data-arena-part={manifest.parts.iconWrap} {...styles.$data.iconWrap()} aria-hidden="true"><ArenaIcon icon={icon} /></span>}
-        <select id={selectId} {...(value === undefined && placeholder ? { defaultValue: '' } : { value })} onChange={(e) => onChange && onChange(e.target.value)} disabled={disabled}
+        <select id={selectId} {...(value === undefined && placeholder ? { defaultValue: '' } : { value })} onChange={(e) => onValueChange && onValueChange(e.target.value)} disabled={disabled}
           required={required} name={name}
           aria-invalid={hasError || undefined} aria-describedby={error || hint ? noteId : undefined}
           className={styles.field()} data-arena-part={manifest.parts.field} {...styles.$data.field()}>

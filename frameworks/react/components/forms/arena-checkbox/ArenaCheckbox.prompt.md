@@ -1,8 +1,8 @@
-A single checkbox. Checked shows the primary fill with a check. `onChange` carries the **new checked state** as a boolean, not the DOM event, so a `useState` setter can be passed straight to it. `name` and `value` are what a native form submits when the box is ticked, and `required` makes the tick mandatory for submission.
+A single checkbox. Checked shows the primary fill with a check. `onValueChange` carries the **new checked state** as a boolean, not the DOM event, so a `useState` setter can be passed straight to it. `name` and `value` are what a native form submits when the box is ticked, and `required` makes the tick mandatory for submission.
 
 ```tsx
-<ArenaCheckbox checked={notify} onChange={setNotify} label="Notify on approval" />
-<ArenaCheckbox checked={terms} onChange={setTerms} required name="terms" value="accepted" label="I accept the terms" />
+<ArenaCheckbox checked={notify} onValueChange={setNotify} label="Notify on approval" />
+<ArenaCheckbox checked={terms} onValueChange={setTerms} required name="terms" value="accepted" label="I accept the terms" />
 <ArenaCheckbox checked disabled label="Locked by policy" />
 ```
 
@@ -35,10 +35,10 @@ A single checkbox. Checked shows the primary fill with a check. `onChange` carri
 <!-- @keys end -->
 
 **Do / Don't**
-- Read the boolean the handler hands you (`onChange={next => …}`); there is no event to reach into, so `e.target.checked` reaches nothing.
+- Read the boolean the handler hands you (`onValueChange={next => …}`); there is no event to reach into, so `e.target.checked` reaches nothing.
 - A checkbox always carries a name. `label` is required and refused when blank. When there is no room for text, as in a row-selection box, set `showLabel={false}`: the name stays on the input for assistive technology and nothing is drawn beside the box. Name the row it selects (`label="Select Ada Lovelace"`).
 - Use `name` and `value` together when the checkbox is submitted by a real form. `value` is the string sent under `name` while the box is ticked, and it is not the checked state.
-- Inside an `ArenaCheckboxGroup` the group owns the box. The box needs a `value`, and the group throws without one. The group's `value` decides whether the box is ticked, and the group's `name` replaces the box's. A `checked` written on the box is overridden silently. The box's own `onChange` still fires, before the group's.
+- Inside an `ArenaCheckboxGroup` the group owns the box. The box needs a `value`, and the group throws without one. The group's `value` decides whether the box is ticked, and the group's `name` replaces the box's. A `checked` written on the box is overridden silently. The box's own `onValueChange` still fires, before the group's.
 - To toggle a setting that takes effect immediately, prefer `ArenaSwitch`; an ArenaCheckbox states a choice a form will submit.
 - Don't pass `style` or stray DOM attributes. ArenaCheckbox declares `checked`, `label`, `showLabel`, `disabled`, `required`, `name` and `value`, and renders nothing else. To place or size it, style the container you put it in.
 

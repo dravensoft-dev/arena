@@ -25,7 +25,7 @@ export interface ArenaCheckboxGroupProps {
   disabled?: boolean;
 
   /** A box was ticked or unticked; carries the whole set after the change. */
-  onChange?: (set: ArenaValueSet) => void;
+  onValueChange?: (set: ArenaValueSet) => void;
 }
 
 const arenaCheckboxStyles = arenaStyles(manifest);
@@ -35,7 +35,7 @@ function toggled(values: readonly string[], value: string, checked: boolean): st
   return values.includes(value) ? [...values] : [...values, value];
 }
 
-export function ArenaCheckboxGroup({ className, ariaLabel, children, value = [], name, disabled = false, onChange }: ArenaCheckboxGroupProps) {
+export function ArenaCheckboxGroup({ className, ariaLabel, children, value = [], name, disabled = false, onValueChange }: ArenaCheckboxGroupProps) {
   const generated = `cbg-${useId().replace(/:/g, '')}`;
   if (!ariaLabel?.trim()) throw new Error('ArenaCheckboxGroup: `ariaLabel` is required, and names what the choices are about');
   const groupName = name || generated;
@@ -48,9 +48,9 @@ export function ArenaCheckboxGroup({ className, ariaLabel, children, value = [],
       name: groupName,
       checked: value.includes(itemValue),
       disabled: disabled || Boolean(own.disabled),
-      onChange: (checked: boolean) => {
-        own.onChange?.(checked);
-        onChange?.({ values: toggled(value, itemValue, checked) });
+      onValueChange: (checked: boolean) => {
+        own.onValueChange?.(checked);
+        onValueChange?.({ values: toggled(value, itemValue, checked) });
       },
     });
   });

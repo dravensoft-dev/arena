@@ -2,7 +2,7 @@ A set of independent choices reported as one value. `ArenaCheckboxGroup` holds t
 
 ```tsx
 <ArenaFieldset legend="Notify me about" error={notify.length === 0 ? 'Choose at least one.' : undefined}>
-  <ArenaCheckboxGroup ariaLabel="Notify me about" name="notify" value={notify} onChange={(set) => setNotify(set.values)}>
+  <ArenaCheckboxGroup ariaLabel="Notify me about" name="notify" value={notify} onValueChange={(set) => setNotify(set.values)}>
     <ArenaCheckbox value="deploys" label="Deploys" />
     <ArenaCheckbox value="incidents" label="Incidents" />
     <ArenaCheckbox value="digest" label="Weekly digest" />
@@ -37,9 +37,9 @@ A set of independent choices reported as one value. `ArenaCheckboxGroup` holds t
 
 `ariaLabel` names the set and is **required**, throwing when blank. The label says what the choices are about, never that they are choices: each box's own label already says what that box is. `name` is not a substitute. The boxes share it as a form name, so a native form submits every ticked value under one key, and a screen reader never hears it. One is generated when you omit it.
 
-**The group is controlled.** The group draws `value` and holds no state of its own. A page that ignores `onChange` shows boxes that never move. `onChange` carries an `ArenaValueSet`, the whole set after the toggle, never a DOM event: write `set.values` back into `value`. The set keeps the order the boxes were ticked in and adds a value once. A value matching no box is kept.
+**The group is controlled.** The group draws `value` and holds no state of its own. A page that ignores `onValueChange` shows boxes that never move. `onValueChange` carries an `ArenaValueSet`, the whole set after the toggle, never a DOM event: write `set.values` back into `value`. The set keeps the order the boxes were ticked in and adds a value once. A value matching no box is kept.
 
-**Every box needs a `value`, and the group owns its `checked`.** A box with no value throws inside a group. A `checked` or `name` written on a box inside a group is overridden by the group, silently. A box's own `onChange` still fires, before the group's. The group reaches its boxes by cloning its direct children. A box inside a fragment or inside a component of yours is out of its reach, so keep each `ArenaCheckbox` a direct child.
+**Every box needs a `value`, and the group owns its `checked`.** A box with no value throws inside a group. A `checked` or `name` written on a box inside a group is overridden by the group, silently. A box's own `onValueChange` still fires, before the group's. The group reaches its boxes by cloning its direct children. A box inside a fragment or inside a component of yours is out of its reach, so keep each `ArenaCheckbox` a direct child.
 
 **The group draws no legend, hint or error.** A visible name, a line of help and a message about the set ("Choose at least one") come from an `ArenaFieldset` around it. Make the legend and `ariaLabel` say the same words. There is no "select all" parent and no `required`: a native checkbox's `required` means that one box must be ticked, and "at least one" is the fieldset's error.
 

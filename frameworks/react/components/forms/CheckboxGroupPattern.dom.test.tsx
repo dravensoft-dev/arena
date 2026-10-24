@@ -21,8 +21,8 @@ function Controlled({ start, seen, own, log }: { start: string[]; seen: ArenaVal
   const [values, setValues] = React.useState<readonly string[]>(start);
   return (
     <ArenaCheckboxGroup ariaLabel="Notify me about" name="notify" value={values}
-      onChange={(set) => { seen.push(set); log?.push('group'); setValues(set.values); }}>
-      <ArenaCheckbox value="deploys" label="Deploys" onChange={own} />
+      onValueChange={(set) => { seen.push(set); log?.push('group'); setValues(set.values); }}>
+      <ArenaCheckbox value="deploys" label="Deploys" onValueChange={own} />
       <ArenaCheckbox value="incidents" label="Incidents" />
       <ArenaCheckbox value="digest" label="Weekly digest" />
     </ArenaCheckboxGroup>
@@ -59,7 +59,7 @@ test('the set is reported in the order it was ticked, once per toggle, with the 
   ]);
   assert.deepEqual(boxes(root).map((input) => input.checked), [false, true, true]);
   assert.deepEqual(order, ['group', 'item', 'group', 'group', 'item', 'group'],
-    'on each of the item\'s two toggles its own onChange fires before the group\'s');
+    'on each of the item\'s two toggles its own onValueChange fires before the group\'s');
 });
 
 test('a value that matches no box is kept, not filtered', () => {

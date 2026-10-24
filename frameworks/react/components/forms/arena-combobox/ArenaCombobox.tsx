@@ -66,7 +66,7 @@ export interface ArenaComboboxProps {
 
 
   /** A different option was chosen; carries its value. An emptied field committed on a control that is not required reports the empty string. */
-  onChange?: (value: string) => void;
+  onValueChange?: (value: string) => void;
 
   /** The text the list is filtered by changed; carries the new text, empty after a choice, Escape or a blur. The hook a remote search listens to. */
   onSearch?: (text: string) => void;
@@ -76,7 +76,7 @@ const arenaComboboxStyles = arenaStyles(manifest);
 
 export function ArenaCombobox({ className,
   label, showLabel = true, placeholder, options = [], value, loading = false, filter = 'local', disabled = false,
-  required = false, hint, error, valid = false, icon, name, onChange, onSearch,
+  required = false, hint, error, valid = false, icon, name, onValueChange, onSearch,
 }: ArenaComboboxProps) {
   const uid = `combobox-${useId().replace(/:/g, '')}`;
   if (!label?.trim()) throw new Error('ArenaCombobox: `label` is required, and names the field');
@@ -125,13 +125,13 @@ export function ArenaCombobox({ className,
   const choose = (row: ArenaSelectOption) => {
     labels.current.set(row.value, row.label);
     restore();
-    if (row.value !== value) onChange?.(row.value);
+    if (row.value !== value) onValueChange?.(row.value);
   };
   const commit = () => {
     if (draft === null) { setOpen(false); return; }
     const verdict = arenaCommitText(draft, value, required);
     restore();
-    if (verdict === 'clear') onChange?.('');
+    if (verdict === 'clear') onValueChange?.('');
   };
   const typed = (text: string) => {
     setQuery(text);

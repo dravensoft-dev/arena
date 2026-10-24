@@ -1,11 +1,11 @@
-A file picker: a labelled trigger, an optional drop zone, a chip for each file held and a line for each file refused. `onChange` carries an `ArenaFileSelection` and `onReject` an `ArenaFileRejection`, each a set of parallel arrays of names, sizes and types, never a `File`. The files themselves reach you two ways: a real `<form>` submits them under `name`, and a ref hands them to code that uploads without one.
+A file picker: a labelled trigger, an optional drop zone, a chip for each file held and a line for each file refused. `onValueChange` carries an `ArenaFileSelection` and `onReject` an `ArenaFileRejection`, each a set of parallel arrays of names, sizes and types, never a `File`. The files themselves reach you two ways: a real `<form>` submits them under `name`, and a ref hands them to code that uploads without one.
 
 ```tsx
 <ArenaFileInput label="Passport scan" name="passport" accept=".pdf,image/*" maxSize={5_000_000} required />
 
 const attachments = useRef<ArenaFileInputHandle>(null);
 <ArenaFileInput ref={attachments} label="Attachments" multiple droppable
-  onChange={(selection) => setCount(selection.names.length)}
+  onValueChange={(selection) => setCount(selection.names.length)}
   onReject={(rejection) => setRefused(rejection.tooLarge.length + rejection.wrongType.length)} />
 
 async function upload() {
@@ -50,7 +50,7 @@ async function upload() {
 - `Enter`: activate.
 <!-- @keys end -->
 
-**Reading the selection.** `names`, `sizes` and `types` are parallel: the file at one index in each is one file, in the order the chips show. Every `onChange` carries the whole selection, never a change to it. A size is in bytes; a type is the media type the platform reports, or an empty string.
+**Reading the selection.** `names`, `sizes` and `types` are parallel: the file at one index in each is one file, in the order the chips show. Every `onValueChange` carries the whole selection, never a change to it. A size is in bytes; a type is the media type the platform reports, or an empty string.
 
 **Taking the files, the one handle on the component.** `ArenaFileInput` forwards a ref carrying `files()` and `clear()`. `files()` returns the `File` objects held at the moment you ask; `clear()` empties the selection and fires nothing, because you asked. Inside a `<form>`, prefer `name`: the hidden file input always holds exactly the chips, so a submission and `new FormData(form)` carry them with no code of yours. A reset of that form empties the selection and fires nothing either.
 
@@ -60,7 +60,7 @@ async function upload() {
 
 **Do / Don't**
 - Read a refusal from `onReject` and say it your own way if you need to; the field already shows one line per refused file.
-- Put a count rule, such as at most three files, in your own `onChange` and pass the message as `error`. There is no `maxFiles`.
+- Put a count rule, such as at most three files, in your own `onValueChange` and pass the message as `error`. There is no `maxFiles`.
 - Upload with `files()` and then `clear()`. Neither is a prop, because a selection of files cannot be set from outside.
 - Don't look for a `File` in a payload or a member: a chosen file is a platform object, and only `name` and the handle carry one.
 - Don't make the zone the keyboard route or add a paste route. The trigger is the keyboard path, and the zone takes a drop only with `droppable`.

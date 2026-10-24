@@ -41,7 +41,7 @@ test('every collection prop takes data the consumer holds as readonly, and nothi
     renderToStaticMarkup(<ArenaActivityFeed label="Activity" items={ITEMS} />),
     renderToStaticMarkup(<ArenaBreadcrumbs ariaLabel="Trail" items={CRUMBS} />),
     renderToStaticMarkup(<ArenaBulkActionBar count={1} actions={ACTIONS} />),
-    renderToStaticMarkup(<ArenaSegmentedControl ariaLabel="View" options={SEGMENTS} value="grid" onChange={() => {}} />),
+    renderToStaticMarkup(<ArenaSegmentedControl ariaLabel="View" options={SEGMENTS} value="grid" onValueChange={() => {}} />),
     renderToStaticMarkup(<ArenaSelect options={OPTIONS} />),
     renderToStaticMarkup(<ArenaStepper ariaLabel="Checkout" steps={STEPS} index={1} interactive />),
     renderToStaticMarkup(<ArenaTimeline label="Order 4821" items={MILESTONES} index={1} />),

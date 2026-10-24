@@ -65,12 +65,12 @@ test('ArenaIconButton is named by aria-label, since it draws no text', () => {
 });
 
 test('ArenaCheckbox is a native checkbox whose checked state is the platform’s', () => {
-  const root = mount(<ArenaCheckbox label="Notify the team" checked onChange={() => {}} />);
+  const root = mount(<ArenaCheckbox label="Notify the team" checked onValueChange={() => {}} />);
   const el = root.querySelector<HTMLElement>('input[type="checkbox"]');
   assert.equal((el as HTMLInputElement).checked, true, 'the fixture must render the checked state it claims');
   assertKeysUnintercepted(el!, [' ']!);
 
-  const off = mount(<ArenaCheckbox label="Notify the team" onChange={() => {}} />)
+  const off = mount(<ArenaCheckbox label="Notify the team" onValueChange={() => {}} />)
     .querySelector<HTMLElement>('input[type="checkbox"]');
   assert.equal((off as HTMLInputElement).checked, false, 'the state must track the member rather than being hardcoded');
 
@@ -104,7 +104,7 @@ test('ArenaSwitch reports as a switch and reflects its own state', () => {
 
 test('ArenaSelect is a native select: the browser owns the popup, the author owns the name', () => {
   const root = mount(
-    <ArenaSelect label="Environment" value="staging" onChange={() => {}}
+    <ArenaSelect label="Environment" value="staging" onValueChange={() => {}}
       options={[{ value: 'production', label: 'Production' }, { value: 'staging', label: 'Staging' }]} />,
   );
   const el = root.querySelector<HTMLSelectElement>('select');

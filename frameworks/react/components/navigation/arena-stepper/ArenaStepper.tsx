@@ -24,14 +24,14 @@ export interface ArenaStepperProps {
   interactive?: boolean;
 
   /** A step behind the current one was chosen; carries its index, counted from zero. Never fires while `interactive` is false, nor for the current step or a later one. The host owns `index` and moves it. */
-  onChange?: (index: number) => void;
+  onValueChange?: (index: number) => void;
 }
 
 const stepperStyles = arenaStyles(manifest);
 
 export const ARENA_STEP_GLYPHS = { complete: 'ph-bold ph-check', error: 'ph-fill ph-warning-circle' } as const;
 
-export function ArenaStepper({ className, ariaLabel, steps, index = 0, interactive = false, onChange }: ArenaStepperProps) {
+export function ArenaStepper({ className, ariaLabel, steps, index = 0, interactive = false, onValueChange }: ArenaStepperProps) {
   if (!ariaLabel?.trim()) throw new Error('ArenaStepper: `ariaLabel` is required, and names the process the steps belong to');
   const locale = useArenaLocale();
   if (steps.length === 0) return null;
@@ -68,7 +68,7 @@ export function ArenaStepper({ className, ariaLabel, steps, index = 0, interacti
           <li key={i} aria-current={state === 'current' ? 'step' : undefined}
             className={styles.step()} data-arena-part={manifest.parts.step} {...styles.$data.step()}>
             {reachable
-              ? <button type="button" onClick={() => onChange?.(i)} className={styles.trigger()} data-arena-part={manifest.parts.trigger} {...styles.$data.trigger()}>{body}</button>
+              ? <button type="button" onClick={() => onValueChange?.(i)} className={styles.trigger()} data-arena-part={manifest.parts.trigger} {...styles.$data.trigger()}>{body}</button>
               : <div className={styles.trigger()} data-arena-part={manifest.parts.trigger} {...styles.$data.trigger()}>{body}</div>}
           </li>
         );

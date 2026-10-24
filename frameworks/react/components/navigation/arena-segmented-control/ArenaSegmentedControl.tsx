@@ -28,14 +28,14 @@ export interface ArenaSegmentedControlProps {
   name?: string;
 
   /** A different option was chosen; carries its value. */
-  onChange?: (value: string) => void;
+  onValueChange?: (value: string) => void;
 }
 
 
 const segmentedStyles = arenaStyles(manifest);
 
 export function ArenaSegmentedControl({ className, 
-  options, value, defaultValue, onChange,
+  options, value, defaultValue, onValueChange,
   ariaLabel, name,
 }: ArenaSegmentedControlProps) {
   if (options == null) throw new Error('ArenaSegmentedControl: `options` is required');
@@ -45,7 +45,7 @@ export function ArenaSegmentedControl({ className,
 
   const selected = value ?? internal;
   const gname = name || autoName;
-  const select = (v: string) => { setInternal(v); onChange && onChange(v); };
+  const select = (v: string) => { setInternal(v); onValueChange && onValueChange(v); };
 
   return (
     <div role="radiogroup" aria-label={ariaLabel} className={arenaClassName('ArenaSegmentedControl', segmentedStyles({}).track(), className, manifest.vocabulary)} data-arena-part={manifest.parts.track} {...segmentedStyles({}).$data.track()}>

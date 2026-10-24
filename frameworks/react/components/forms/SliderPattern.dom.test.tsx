@@ -18,7 +18,7 @@ function render(props: Partial<ArenaSliderProps> = {}) {
   function Host() {
     const [value, write] = useState(props.value);
     const [valueEnd, writeEnd] = useState(props.valueEnd);
-    return <ArenaSlider label="Volume" {...props} value={value} valueEnd={valueEnd} onChange={write} onChangeEnd={writeEnd} />;
+    return <ArenaSlider label="Volume" {...props} value={value} valueEnd={valueEnd} onValueChange={write} onValueEndChange={writeEnd} />;
   }
   const root = mount(<Host />);
   const thumbs = [...root.querySelectorAll<HTMLElement>('[role="slider"]')];

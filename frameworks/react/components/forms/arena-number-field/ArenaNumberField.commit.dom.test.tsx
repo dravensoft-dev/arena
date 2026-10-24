@@ -20,7 +20,7 @@ function render(props: Partial<ArenaNumberFieldProps> = {}) {
     const bound = 'value' in props ? { value } : {};
     return (
       <ArenaNumberField ref={handle} label="Replicas" {...props} {...bound}
-        onChange={(next) => { changes.push(next); write(next); }} onClear={() => { clears += 1; write(undefined); }} />
+        onValueChange={(next) => { changes.push(next); write(next); }} onClear={() => { clears += 1; write(undefined); }} />
     );
   }
   const root = mount(<Host />);

@@ -16,7 +16,7 @@ afterEach(cleanup);
 const BINDING = join(REACT_COMPONENTS, 'forms/arena-pin-input/ArenaPinInput.behaviour.json');
 
 function render(props: Partial<ArenaPinInputProps> = {}) {
-  const root = mount(<ArenaPinInput label="Verification code" onChange={() => {}} {...props} />);
+  const root = mount(<ArenaPinInput label="Verification code" onValueChange={() => {}} {...props} />);
   const cells = [...root.querySelectorAll<HTMLInputElement>('[data-arena-part="pin-input.cell"]')];
   return { root, cells };
 }

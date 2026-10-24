@@ -1,7 +1,7 @@
 Single selection among options that are all visible at once. `ArenaRadioGroup` holds the `value` and distributes each child's selected state; each `ArenaRadio` declares its own `value`.
 
 ```tsx
-<ArenaRadioGroup ariaLabel="Deployment target" value={env} onChange={setEnv}>
+<ArenaRadioGroup ariaLabel="Deployment target" value={env} onValueChange={setEnv}>
   <ArenaRadio value="prod" label="Production" hint="Real users, requires approval" />
   <ArenaRadio value="staging" label="Staging" />
   <ArenaRadio value="qa" label="QA" />
@@ -39,12 +39,12 @@ Single selection among options that are all visible at once. `ArenaRadioGroup` h
 for the underlying native radios and never reaches a screen reader. One is generated when you
 omit it.
 
-`onChange` carries the chosen option's **value**, never a DOM event.
+`onValueChange` carries the chosen option's **value**, never a DOM event.
 
 **Do / Don't**
 - Use ArenaRadio when it helps to see all the options (2–5) and they're mutually exclusive.
 - For more than ~6 options or limited space, use `ArenaSelect`.
-- Don't pass `style` or stray DOM attributes. ArenaRadioGroup declares its `content` slot plus `ariaLabel`, `value`, `name` and `onChange`, and renders nothing else. To space or constrain the group differently, wrap it in your own element rather than reaching through it.
+- Don't pass `style` or stray DOM attributes. ArenaRadioGroup declares its `content` slot plus `ariaLabel`, `value`, `name` and `onValueChange`, and renders nothing else. To space or constrain the group differently, wrap it in your own element rather than reaching through it.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

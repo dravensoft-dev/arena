@@ -1,7 +1,7 @@
 A text field that filters a list of options as the user types, for a form value chosen from a long list. The value is always an option's `value` or empty, and `options` takes `{value, label}` objects.
 
 ```tsx
-<ArenaCombobox label="Region" value={region} onChange={setRegion}
+<ArenaCombobox label="Region" value={region} onValueChange={setRegion}
   placeholder="Search regions" options={regions} />
 ```
 
@@ -49,11 +49,11 @@ A text field that filters a list of options as the user types, for a form value 
 
 **The keys.** Typing opens the list and keeps the rows whose label holds the text, whatever its case. The first match is the cursor row. ArrowDown on a closed field opens it on the chosen row. ArrowDown and ArrowUp stop at both ends. Enter chooses the cursor row and closes the list. Escape closes the list and puts the chosen label back. Tab and a press elsewhere close the list without choosing an option and put the chosen label back; an emptied field is the exception below.
 
-**Emptying the field is how a value is cleared.** Commit an empty field with Enter or by leaving it, and `onChange` reports the empty string. A `required` field puts the chosen label back instead. There is no clear button.
+**Emptying the field is how a value is cleared.** Commit an empty field with Enter or by leaving it, and `onValueChange` reports the empty string. A `required` field puts the chosen label back instead. There is no clear button.
 
 **A remote search is yours.** Listen to `onSearch`, fetch, pass the new `options` and `loading`, and set `filter="none"`. Arena then draws your rows as given, so a fuzzy match a plain substring test would fail still shows. Arena keeps the label of every value it draws or chooses. The field keeps its text when your next `options` leaves that value out.
 
-`onChange` carries the chosen option's **value** as a string, never its label. With `name`, a hidden input submits that value. A `value` that neither `options` nor an earlier choice holds draws an empty field with the placeholder, and the hidden input posts the empty string.
+`onValueChange` carries the chosen option's **value** as a string, never its label. With `name`, a hidden input submits that value. A `value` that neither `options` nor an earlier choice holds draws an empty field with the placeholder, and the hidden input posts the empty string.
 
 **Do / Don't**
 - Use it for a long list a user searches. A short known set is `ArenaSelect`.

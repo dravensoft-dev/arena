@@ -2,9 +2,9 @@ Text field with validation (H5). Focus = the focus ring, error = the danger tone
 
 ```tsx
 <ArenaInput label="Repository" required prefix="git@" placeholder="org/project" />
-<ArenaInput label="Email" validateOn="change" value={email} onChange={setEmail}
+<ArenaInput label="Email" validateOn="change" value={email} onValueChange={setEmail}
   validate={(v) => /.+@.+\..+/.test(v) ? null : 'Invalid email format'} />
-<ArenaInput label="Slug" valid value={slug} onChange={setSlug} hint="Available" />
+<ArenaInput label="Slug" valid value={slug} onValueChange={setSlug} hint="Available" />
 ```
 
 <!-- @api GENERATED from contracts/api/components/ArenaInput.json. Edit the contract, not this table. -->
@@ -54,11 +54,11 @@ Rules: validates on `blur` by default; use `validateOn="change"` only for live f
 
 `validate` is the **ninth form**, a `functionInput`: the consumer hands Arena a function it calls on the field's value and whose result it uses. The function takes the value as a string, and returns the error message or nothing when the value is valid. The function is the only inbound one in the library, and it is legal only because `ArenaInput` is a data-entry control.
 
-`onChange` and `onBlur` carry the **value as a string** rather than the `ChangeEvent` or `FocusEvent`. A platform's own event type never travels in a payload, so the event does not reach you. Read the value directly (`onChange={setEmail}`); there is no `e.target` and no `preventDefault()`.
+`onValueChange` and `onBlur` carry the **value as a string** rather than the `ChangeEvent` or `FocusEvent`. A platform's own event type never travels in a payload, so the event does not reach you. Read the value directly (`onValueChange={setEmail}`); there is no `e.target` and no `preventDefault()`.
 
 `icon` is a **Phosphor class name Arena draws** (`icon="ph-bold ph-magnifying-glass"`), not a node you pass in; Arena renders the `<i>` and hides it from assistive tech. `prefix` is likewise **static text Arena draws** before the value (`prefix="git@"`).
 
-The members are `label`, `id`, `hint`, `error`, `valid`, `required`, `validate`, `validateOn`, `type`, `icon`, `prefix`, `value`, `disabled`, `readOnly`, `placeholder`, `name`, `autoComplete`, `min`, `max`, `step`, `maxLength` and `pattern`, plus `onChange` and `onBlur`. The members above are the whole API. There is no `InputHTMLAttributes` heritage clause and no `{...rest}` spread. Global attributes do not reach the `<input>`, which covers `className`, `dir`, `tabIndex`, ARIA and `data-*`, and neither does a consumer `style` object. **There is no `defaultValue` either**: the contract is about a controlled value, so give the field `value` and an `onChange`.
+The members are `label`, `id`, `hint`, `error`, `valid`, `required`, `validate`, `validateOn`, `type`, `icon`, `prefix`, `value`, `disabled`, `readOnly`, `placeholder`, `name`, `autoComplete`, `min`, `max`, `step`, `maxLength` and `pattern`, plus `onValueChange` and `onBlur`. The members above are the whole API. There is no `InputHTMLAttributes` heritage clause and no `{...rest}` spread. Global attributes do not reach the `<input>`, which covers `className`, `dir`, `tabIndex`, ARIA and `data-*`, and neither does a consumer `style` object. **There is no `defaultValue` either**: the contract is about a controlled value, so give the field `value` and an `onValueChange`.
 
 **`id` is the one global attribute that is a member.** The component generates one from `label` to wire the label's `htmlFor`. With no way to override it, an external `<label>`, an `aria-describedby` or a form library addressing the field by name would have no path at all. Pass it and it wins; omit it and the label-derived value is still generated.
 
@@ -99,7 +99,7 @@ function completeSale() {
   search.current?.select();
 }
 
-<ArenaInput ref={search} label="Search" value={query} onChange={setQuery} />
+<ArenaInput ref={search} label="Search" value={query} onValueChange={setQuery} />
 ```
 
 The two are a handle rather than props, because no member is imperative. An `autoFocus` prop would answer a different question: it fires once at mount, and chaining sales needs focus back after **every** completion. These two are the whole handle; `ArenaInput` exposes nothing else.

@@ -24,7 +24,7 @@ function Host({ log, initial = 'eu-west', ...rest }: { log: Log; initial?: strin
   return (
     <form>
       <ArenaCombobox label="Region" name="region" options={REGIONS} value={value}
-        onChange={(next) => { log.changes.push(next); setValue(next); }}
+        onValueChange={(next) => { log.changes.push(next); setValue(next); }}
         onSearch={(text) => log.searches.push(text)} {...rest} />
     </form>
   );
@@ -262,7 +262,7 @@ function Remote({ log }: { log: Log }) {
   return (
     <form>
       <ArenaCombobox label="Region" name="region" filter="none" options={shown} value={value}
-        onChange={(next) => { log.changes.push(next); setValue(next); }}
+        onValueChange={(next) => { log.changes.push(next); setValue(next); }}
         onSearch={(text) => { log.searches.push(text); setShown(text === '' ? REGIONS : [{ value: 'fr', label: 'France' }]); }} />
       <button type="button" onClick={() => setShown([])}>drop</button>
       <button type="button" onClick={() => setValue('mars')}>mars</button>
@@ -398,7 +398,7 @@ test('a value changed from outside while the list is closed is what the field re
     return (
       <>
         <button type="button" onClick={() => setValue('us-east')}>set</button>
-        <ArenaCombobox label="Region" options={REGIONS} value={value} onChange={setValue} />
+        <ArenaCombobox label="Region" options={REGIONS} value={value} onValueChange={setValue} />
       </>
     );
   }

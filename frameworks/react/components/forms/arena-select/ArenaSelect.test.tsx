@@ -23,7 +23,7 @@ test('required and name each reach the native select', () => {
 
 test('value marks the matching option selected and disabled reaches the native select', () => {
   const html = renderIcons(
-    <ArenaSelect label="Environment" value="qa" disabled onChange={() => {}}
+    <ArenaSelect label="Environment" value="qa" disabled onValueChange={() => {}}
       options={[{ value: 'prod', label: 'Production' }, { value: 'qa', label: 'QA' }]} />,
   );
   assert.match(html, /<option value="qa" selected="">QA<\/option>/);

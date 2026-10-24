@@ -30,13 +30,13 @@ export interface ArenaCheckboxProps {
   value?: string;
 
   /** Toggled; carries the new checked state. */
-  onChange?: (checked: boolean) => void;
+  onValueChange?: (checked: boolean) => void;
 }
 
 
 const arenaCheckboxStyles = arenaStyles(manifest);
 
-export function ArenaCheckbox({ className, checked = false, onChange, label, showLabel = true, disabled = false, required = false, name, value }: ArenaCheckboxProps) {
+export function ArenaCheckbox({ className, checked = false, onValueChange, label, showLabel = true, disabled = false, required = false, name, value }: ArenaCheckboxProps) {
   if (!label?.trim()) throw new Error('ArenaCheckbox: `label` is required, and names the checkbox');
   const styles = arenaCheckboxStyles({ checked, disabled });
   return (
@@ -50,7 +50,7 @@ export function ArenaCheckbox({ className, checked = false, onChange, label, sho
       </span>
       {showLabel && <span className={styles.label()} data-arena-part={manifest.parts.label} {...styles.$data.label()}>{label}</span>}
       <input type="checkbox" checked={checked} name={name} value={value} required={required} aria-label={showLabel ? undefined : label}
-        onChange={(e) => onChange && onChange(e.target.checked)} disabled={disabled}
+        onChange={(e) => onValueChange && onValueChange(e.target.checked)} disabled={disabled}
         className={styles.input()} data-arena-part={manifest.parts.input} {...styles.$data.input()} />
     </label>
   );

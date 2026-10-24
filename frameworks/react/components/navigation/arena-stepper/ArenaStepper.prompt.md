@@ -1,7 +1,7 @@
 The steps of one process and where it stands: a numbered list whose markers say which steps are done, which one is current and which lie ahead. A wizard's progress strip, an onboarding checklist and an order's checkout are steppers.
 
 ```tsx
-<ArenaStepper ariaLabel="Checkout" steps={steps} index={at} interactive onChange={setAt} />
+<ArenaStepper ariaLabel="Checkout" steps={steps} index={at} interactive onValueChange={setAt} />
 <ArenaStepper ariaLabel="Account setup" steps={setup} index={2} className="arena-orientation-vertical" />
 ```
 
@@ -33,7 +33,7 @@ The steps of one process and where it stands: a numbered list whose markers say 
 
 **Every state is a word as well as a mark.** A reader hears Completed, Current step or Upcoming before each label, and Error after it on a step that needs attention. The words come from the locale, and the marker is never the only carrier.
 
-**Going back is the only move a press makes.** With `interactive`, each step behind the current one becomes a button whose press reports its index through `onChange`. The current step and the steps ahead stay text, so forward travel stays your own Next button.
+**Going back is the only move a press makes.** With `interactive`, each step behind the current one becomes a button whose press reports its index through `onValueChange`. The current step and the steps ahead stay text, so forward travel stays your own Next button.
 
 **Do / Don't**
 - Do name the process in `ariaLabel`, such as Checkout. A blank name throws, and Steps tells a reader nothing.

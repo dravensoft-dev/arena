@@ -1,7 +1,7 @@
 Styled native dropdown selector. `options` is an array of `{value, label}` objects.
 
 ```tsx
-<ArenaSelect label="Environment" value={env} onChange={setEnv}
+<ArenaSelect label="Environment" value={env} onValueChange={setEnv}
   options={[{value:'prod',label:'Production'},
             {value:'stg',label:'Staging'},
             {value:'qa',label:'QA'}]} />
@@ -41,12 +41,12 @@ Styled native dropdown selector. `options` is an array of `{value, label}` objec
 `options` takes **only** `ArenaSelectOption` objects. The bare-string form, `options={['Production','Staging']}`, is gone. `(string | ArenaSelectOption)[]` is a union between two shapes, which a member never is. The object form carries strictly more, because a stable `value` with a translatable `label` cannot be said in the string form at all.
 Where value and label are the same, write it: `{value:'QA', label:'QA'}`.
 
-`onChange` carries the **chosen option's value as a string** rather than the `ChangeEvent`. A platform's own event type never travels in a payload, so the event does not reach you.
-Read the value directly (`onChange={setEnv}`); there is no `e.target` and no
+`onValueChange` carries the **chosen option's value as a string** rather than the `ChangeEvent`. A platform's own event type never travels in a payload, so the event does not reach you.
+Read the value directly (`onValueChange={setEnv}`); there is no `e.target` and no
 `preventDefault()`.
 
 The members are `label`, `placeholder`, `options`, `value`, `disabled`, `required`, `hint`,
-`error`, `valid`, `icon` and `name`, plus `onChange`. There is no `multiple`. A multi-selection is a *set* of values and `onChange` carries one `string`, so the attribute could reach the element while the event reported only the first selected option. A native multi-select is a list box shown open, which is a different
+`error`, `valid`, `icon` and `name`, plus `onValueChange`. There is no `multiple`. A multi-selection is a *set* of values and `onValueChange` carries one `string`, so the attribute could reach the element while the event reported only the first selected option. A native multi-select is a list box shown open, which is a different
 control from the styled dropdown this component is. The members above are the whole API. There is no `SelectHTMLAttributes` heritage clause and no `{...rest}` spread. Global attributes do not reach the `<select>`, which covers `id`, `className`, `dir`, `tabIndex`, ARIA and `data-*`, and neither does a consumer `style` object.
 
 **Validation is the same vocabulary `ArenaInput` carries, deliberately.** A form that mixes the two is a form whose fields must report a failure the same way. Otherwise it gets validated by hand or not at all. `hint` is a line of help, `error` is the controlled message, and `valid` forces the success state. The state order is the same normative one: **error, then focus, then valid, then neutral**. An errored field stays in the danger tone while it has focus. Arena names the note to the control with

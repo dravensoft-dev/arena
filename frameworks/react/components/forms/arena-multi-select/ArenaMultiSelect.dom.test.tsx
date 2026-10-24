@@ -23,7 +23,7 @@ function Host({ log, initial = [], ...rest }: { log: Log; initial?: string[] } &
   const [value, setValue] = useState<readonly string[]>(initial);
   return (
     <ArenaMultiSelect label="Regions" name="regions" options={REGIONS} value={value}
-      onChange={(set: ArenaValueSet) => { log.sets.push(set.values); setValue(set.values); }}
+      onValueChange={(set: ArenaValueSet) => { log.sets.push(set.values); setValue(set.values); }}
       onSearch={(text) => log.searches.push(text)} {...rest} />
   );
 }
@@ -291,7 +291,7 @@ function Remote() {
   return (
     <>
       <ArenaMultiSelect label="Cities" filter="none" options={shown} value={value}
-        onChange={(set) => setValue(set.values)}
+        onValueChange={(set) => setValue(set.values)}
         onSearch={(text) => setShown(text === '' ? CITIES : [{ value: 'fr-pa', label: 'Paris' }])} />
       <button type="button" onClick={() => setShown([])}>drop</button>
     </>

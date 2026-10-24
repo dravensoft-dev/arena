@@ -1,7 +1,7 @@
 Jumps between pages of a large set (accompanies `ArenaTable` or long lists). Collapses with "…" when there are many pages.
 
 ```tsx
-<ArenaPagination page={p} pageCount={12} ariaLabel="Deployments" onChange={setP} />
+<ArenaPagination page={p} pageCount={12} ariaLabel="Deployments" onValueChange={setP} />
 ```
 
 <!-- @api GENERATED from contracts/api/components/ArenaPagination.json. Edit the contract, not this table. -->

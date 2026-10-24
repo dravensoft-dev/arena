@@ -21,7 +21,7 @@ export interface ArenaRadioGroupProps {
   name?: string;
 
   /** A different option was chosen; carries its value. */
-  onChange?: (value: string) => void;
+  onValueChange?: (value: string) => void;
 
   /** Whether the whole group is unavailable. Every radio it holds is disabled whatever its own disabled says, and the group reflects aria-disabled. */
   disabled?: boolean;
@@ -30,13 +30,13 @@ export interface ArenaRadioGroupProps {
 
 const arenaRadioStyles = arenaStyles(manifest);
 
-export function ArenaRadioGroup({ className, value, onChange, name, ariaLabel, children, disabled = false }: ArenaRadioGroupProps) {
+export function ArenaRadioGroup({ className, value, onValueChange, name, ariaLabel, children, disabled = false }: ArenaRadioGroupProps) {
   if (!ariaLabel?.trim()) throw new Error('ArenaRadioGroup: `ariaLabel` is required');
   const generated = `rg-${useId().replace(/:/g, '')}`;
   const gname = name || generated;
   const items = React.Children.map(children, (child) =>
     React.isValidElement(child)
-      ? React.cloneElement(child, { name: gname, checked: child.props.value === value, onSelect: onChange, disabled: disabled || Boolean(child.props.disabled) })
+      ? React.cloneElement(child, { name: gname, checked: child.props.value === value, onSelect: onValueChange, disabled: disabled || Boolean(child.props.disabled) })
       : child);
   return (
     <div role="radiogroup" aria-label={ariaLabel} aria-disabled={disabled ? 'true' : undefined} className={arenaClassName('ArenaRadioGroup', arenaRadioStyles().group(), className, ARENA_CONTEXT_VOCABULARY)} data-arena-part={manifest.parts.group} {...arenaRadioStyles().$data.group()} data-arena-boundary="">

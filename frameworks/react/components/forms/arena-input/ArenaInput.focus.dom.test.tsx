@@ -14,7 +14,7 @@ afterEach(cleanup);
 
 test('the ref reaches the real input, which is what the component exposes instead of a member', () => {
   const handle = React.createRef<ArenaInputHandle>();
-  const root = mount(<ArenaInput ref={handle} label="Search" value="ACME-1042" onChange={() => {}} />);
+  const root = mount(<ArenaInput ref={handle} label="Search" value="ACME-1042" onValueChange={() => {}} />);
   const control = root.querySelector('input')!;
 
   assert.notEqual(control.ownerDocument.activeElement, control, 'nothing focuses it on its own');

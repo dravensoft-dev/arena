@@ -11,7 +11,7 @@ afterEach(cleanup);
 
 test('the ref focuses the first cell, which is how a host asks for the code again', () => {
   const handle = React.createRef<ArenaPinInputHandle>();
-  const root = mount(<ArenaPinInput ref={handle} label="Verification code" value="" onChange={() => {}} />);
+  const root = mount(<ArenaPinInput ref={handle} label="Verification code" value="" onValueChange={() => {}} />);
   const first = root.querySelector<HTMLInputElement>('[data-arena-part="pin-input.cell"]')!;
   assert.notEqual(first.ownerDocument.activeElement, first, 'nothing focuses it on its own');
   act(() => { handle.current!.focus(); });

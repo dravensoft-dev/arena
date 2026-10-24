@@ -78,7 +78,7 @@ export interface ArenaInputProps {
   pattern?: string;
 
   /** Edited; carries the new value. */
-  onChange?: (value: string) => void;
+  onValueChange?: (value: string) => void;
 
   /** Left the field; carries the value. */
   onBlur?: (value: string) => void;
@@ -97,7 +97,7 @@ export const ArenaInput = forwardRef<ArenaInputHandle, ArenaInputProps>(function
   validate, validateOn = 'blur', type = 'text',
   icon, prefix, value, disabled = false, readOnly = false,
   placeholder, name, autoComplete, min, max, step, maxLength, pattern,
-  onChange, onBlur,
+  onValueChange, onBlur,
 }: ArenaInputProps, handle) {
   const control = useRef<HTMLInputElement>(null);
   useImperativeHandle(handle, () => ({
@@ -113,7 +113,7 @@ export const ArenaInput = forwardRef<ArenaInputHandle, ArenaInputProps>(function
   const isValid = !shownError && (valid || (touched && validate && localErr === null));
 
   const runValidate = (v: string) => { if (validate) setLocalErr(validate(v) || null); };
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => { onChange && onChange(e.target.value); if (validateOn === 'change') { setTouched(true); runValidate(e.target.value); } };
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => { onValueChange && onValueChange(e.target.value); if (validateOn === 'change') { setTouched(true); runValidate(e.target.value); } };
   const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => { setTouched(true); runValidate(e.target.value); onBlur && onBlur(e.target.value); };
 
   const styles = arenaInputStyles({

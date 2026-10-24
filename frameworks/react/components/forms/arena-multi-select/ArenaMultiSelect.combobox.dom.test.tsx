@@ -34,7 +34,7 @@ function render() {
 
 function Held() {
   const [value, setValue] = useState<readonly string[]>([]);
-  return <ArenaMultiSelect label="Regions" value={value} options={REGIONS} onChange={(set) => setValue(set.values)} />;
+  return <ArenaMultiSelect label="Regions" value={value} options={REGIONS} onValueChange={(set) => setValue(set.values)} />;
 }
 
 function enterAcceptsAndCloses(): boolean {

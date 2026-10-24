@@ -75,7 +75,7 @@ export interface ArenaMultiSelectProps {
 
 
   /** The chosen set changed, by a row, a chip or the clear control; carries the whole new set, never a difference. */
-  onChange?: (set: ArenaValueSet) => void;
+  onValueChange?: (set: ArenaValueSet) => void;
 
   /** The text the list is filtered by changed; carries the new text, empty after a pick, Escape or a blur. The hook a remote search listens to. */
   onSearch?: (text: string) => void;
@@ -87,7 +87,7 @@ const CLOSE = '[data-arena-part="tag.close"]';
 
 export function ArenaMultiSelect({ className,
   label, showLabel = true, placeholder, options = [], value = [], max, maxVisible, clearable = false, loading = false,
-  filter = 'local', disabled = false, required = false, hint, error, valid = false, icon, name, onChange, onSearch,
+  filter = 'local', disabled = false, required = false, hint, error, valid = false, icon, name, onValueChange, onSearch,
 }: ArenaMultiSelectProps) {
   const picked = useMemo(() => arenaUniqueValues(value), [value]);
   const uid = `multi-select-${useId().replace(/:/g, '')}`;
@@ -117,7 +117,7 @@ export function ArenaMultiSelect({ className,
   const capped = arenaAtCap(picked, max);
   const { shown, hidden } = arenaChipWindow(picked, maxVisible);
 
-  const report = (values: string[]) => onChange?.({ values });
+  const report = (values: string[]) => onValueChange?.({ values });
   const settle = () => { if (reported.current !== '') { reported.current = ''; onSearch?.(''); } };
   const closeList = () => { setOpen(false); setActive(-1); setDraft(''); setQuery(null); setNotice(''); settle(); };
   const present = useArenaAnchoredPanel({

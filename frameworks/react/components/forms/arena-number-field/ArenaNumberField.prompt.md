@@ -1,8 +1,8 @@
 A field that holds one number. A person types it, steps it with a key or with the two stepper buttons, and reads it in a locale's format. Requires the Phosphor sheets loaded for the stepper glyphs. Controlled, the field draws `value` as given, so a host that leaves `value` as it was refuses the edit.
 
 ```tsx
-<ArenaNumberField label="Replicas" value={replicas} onChange={setReplicas} min={1} max={20} />
-<ArenaNumberField label="Budget" prefix="$" value={budget} onChange={setBudget} onClear={() => setBudget(undefined)}
+<ArenaNumberField label="Replicas" value={replicas} onValueChange={setReplicas} min={1} max={20} />
+<ArenaNumberField label="Budget" prefix="$" value={budget} onValueChange={setBudget} onClear={() => setBudget(undefined)}
   format={{ fractionDigits: 2 }} step={0.5} validate={(v) => (v > 50000 ? 'Over the approved budget' : '')} />
 ```
 
@@ -52,7 +52,7 @@ A field that holds one number. A person types it, steps it with a key or with th
 - `End`: sets the value to its maximum, only when the spinbutton has a maximum.
 <!-- @keys end -->
 
-**The value is a number, and an empty field is its absence.** `onChange` carries a number and never fires for an empty field. `onClear` carries nothing and fires when a person commits the field empty. A payload is never text and never `NaN`, so no consumer parses anything.
+**The value is a number, and an empty field is its absence.** `onValueChange` carries a number and never fires for an empty field. `onClear` carries nothing and fires when a person commits the field empty. A payload is never text and never `NaN`, so no consumer parses anything.
 
 **A commit happens on blur, on Enter and on every step.** Typing builds a draft that reaches no payload. Blur and Enter commit the draft, clamped to `min` and `max`. A key or a stepper press commits at once. Escape puts back the last committed number.
 
@@ -66,7 +66,7 @@ A field that holds one number. A person types it, steps it with a key or with th
 
 **`name` submits the plain decimal string**, such as `1234.5`, through a hidden input. The drawn field holds formatted text and is never submitted.
 
-**`value` absent means the field holds its own number.** Bind `value` and `onChange` to control it, as with any field. Without `value`, the field starts empty and keeps what a person commits.
+**`value` absent means the field holds its own number.** Bind `value` and `onValueChange` to control it, as with any field. Without `value`, the field starts empty and keeps what a person commits.
 
 **The steppers stay out of the Tab sequence.** The field is the one stop, and its arrow keys reach every step. A stepper at a bound is disabled. Set `steppers={false}` for a dense row where the keys suffice.
 

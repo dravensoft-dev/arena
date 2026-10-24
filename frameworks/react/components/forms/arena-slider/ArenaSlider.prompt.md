@@ -1,10 +1,10 @@
 A number chosen inside a range by moving a thumb, or a span chosen with two thumbs. Each thumb answers the pointer, touch and the keyboard. A readout beside the label writes the number. Controlled, the slider draws `value` as given, so a host that leaves `value` as it was refuses the edit.
 
 ```tsx
-<ArenaSlider label="Volume" value={volume} onChange={setVolume} valueSuffix="%" />
-<ArenaSlider label="Price" range value={low} valueEnd={high} onChange={setLow} onChangeEnd={setHigh}
+<ArenaSlider label="Volume" value={volume} onValueChange={setVolume} valueSuffix="%" />
+<ArenaSlider label="Price" range value={low} valueEnd={high} onValueChange={setLow} onValueEndChange={setHigh}
   valuePrefix="$" step={5} onCommit={refetch} onCommitEnd={refetch} />
-<ArenaSlider label="Gain" orientation="vertical" value={gain} onChange={setGain} />
+<ArenaSlider label="Gain" orientation="vertical" value={gain} onValueChange={setGain} />
 ```
 
 <!-- @api GENERATED from contracts/api/components/ArenaSlider.json. Edit the contract, not this table. -->
@@ -54,19 +54,19 @@ A number chosen inside a range by moving a thumb, or a span chosen with two thum
 - `End`: sets the thumb to its maximum, which for the lower of two thumbs is the upper thumb's value.
 <!-- @keys end -->
 
-**`onChange` follows every step and `onCommit` the settle.** A drag reports each step it crosses through `onChange`. Releasing the pointer fires `onCommit` once, and only when the number moved. Each key does both. Run a costly effect, such as a fetch, from `onCommit`.
+**`onValueChange` follows every step and `onCommit` the settle.** A drag reports each step it crosses through `onValueChange`. Releasing the pointer fires `onCommit` once, and only when the number moved. Each key does both. Run a costly effect, such as a fetch, from `onCommit`.
 
 **The pointer.** A press on the track moves the thumb there and keeps dragging it. A press on a thumb takes the thumb where it stands. Touch drags the thumb and leaves the page's scroll alone along the other axis.
 
 **Keys.** Up and Right step up, Down and Left step down, Page Up and Page Down move ten steps, and Home and End reach the bounds. Right to left, Left and Right swap on a slider that lies across. A vertical slider keeps them.
 
-**Two thumbs with `range`.** `value` is the start and `valueEnd` the end, with `onChange` and `onCommit` for the start and `onChangeEnd` and `onCommitEnd` for the end. A thumb stops against the other, so the two never cross. Each thumb is named by the label and a word, such as "Price Minimum". Without `range`, `valueEnd` is ignored with one warning.
+**Two thumbs with `range`.** `value` is the start and `valueEnd` the end, with `onValueChange` and `onCommit` for the start and `onValueEndChange` and `onCommitEnd` for the end. A thumb stops against the other, so the two never cross. Each thumb is named by the label and a word, such as "Price Minimum". Without `range`, `valueEnd` is ignored with one warning.
 
 **Down with `orientation="vertical"`.** The track fills the height its container gives it, at least four control heights. The minimum sits at the bottom. Each thumb announces that it stands vertically.
 
 **Snapping.** Every number snaps to `step`, counted from `min`. When `step` does not divide the range, the top is the highest step under `max`.
 
-**`value` absent means the slider holds its own number**, starting at `min`. In range mode the end starts at the top. Bind `value` and `onChange` to control it. A `value` above `valueEnd` is drawn at the end, and nothing is reported.
+**`value` absent means the slider holds its own number**, starting at `min`. In range mode the end starts at the top. Bind `value` and `onValueChange` to control it. A `value` above `valueEnd` is drawn at the end, and nothing is reported.
 
 **The readout.** `valueFormat`, `valuePrefix` and `valueSuffix` write the readout and what each thumb reads aloud. A format with no `locale` follows the provider's locale. A range reads as one span through the locale's own pattern.
 
@@ -81,7 +81,7 @@ A number chosen inside a range by moving a thumb, or a span chosen with two thum
 - Keep a readout, or a `hint`, wherever the number matters.
 
 **Don't**
-- Don't run a costly effect from `onChange`; use `onCommit`.
+- Don't run a costly effect from `onValueChange`; use `onCommit`.
 - Don't give the fill the focus ring's colour. The two would meet on the thumb.
 - Don't add tick marks. The readout and the hint carry the scale.
 

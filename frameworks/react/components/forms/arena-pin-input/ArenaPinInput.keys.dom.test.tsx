@@ -20,7 +20,7 @@ function render(props: Partial<ArenaPinInputProps> = {}, controlled = true, answ
     return (
       <div>
         <ArenaPinInput label="Verification code" {...props} {...bound}
-          onChange={(next) => { seen.push(`change ${next}`); if (answers) write(next); }}
+          onValueChange={(next) => { seen.push(`change ${next}`); if (answers) write(next); }}
           onComplete={(code) => seen.push(`complete ${code}`)} onBlur={(code) => seen.push(`blur ${code}`)} />
         <button type="button">Verify</button>
       </div>
@@ -222,7 +222,7 @@ test('a host that moves focus on complete keeps it there', () => {
     const verify = React.useRef<HTMLButtonElement>(null);
     return (
       <div>
-        <ArenaPinInput label="Verification code" value={value} onChange={write} onComplete={() => verify.current?.focus()} />
+        <ArenaPinInput label="Verification code" value={value} onValueChange={write} onComplete={() => verify.current?.focus()} />
         <button type="button" ref={verify}>Verify</button>
       </div>
     );

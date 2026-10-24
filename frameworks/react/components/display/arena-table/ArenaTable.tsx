@@ -291,7 +291,7 @@ export function ArenaTable({ className,
         <div className={arenaTableStyles({ narrow: true }).sortBar()} data-arena-part={manifest.parts.sortBar} {...arenaTableStyles({ narrow: true }).$data.sortBar()}>
           <div className={arenaTableStyles({ narrow: true }).sortField()} data-arena-part={manifest.parts.sortField} {...arenaTableStyles({ narrow: true }).$data.sortField()}>
             <ArenaSelect label={locale.tableSortBy} options={arenaSortOptions(columns)} value={sortValue}
-              onChange={(picked) => { const next = arenaParseSortOption(picked); if (next) onSortChange?.(next); }} />
+              onValueChange={(picked) => { const next = arenaParseSortOption(picked); if (next) onSortChange?.(next); }} />
           </div>
         </div>
       )}
@@ -344,7 +344,7 @@ export function ArenaTable({ className,
       {!bare && page && pageControl !== 'none' && (
         <div className={arenaTableStyles({ narrow: false }).pager()} data-arena-part={manifest.parts.pager} {...arenaTableStyles({ narrow: false }).$data.pager()}>
           <ArenaPagination page={page.index} pageCount={pageCount} ariaLabel={label}
-            onChange={(next) => onPageChange?.(next)} />
+            onValueChange={(next) => onPageChange?.(next)} />
         </div>
       )}
     </div>

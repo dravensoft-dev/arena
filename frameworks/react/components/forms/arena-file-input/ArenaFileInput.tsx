@@ -50,7 +50,7 @@ export interface ArenaFileInputProps {
   droppable?: boolean;
 
   /** The selection changed through a pick, a drop or a chip's remove; carries the whole selection as metadata, in held order. A clear the host asks for, and a form reset, fire nothing. */
-  onChange?: (selection: ArenaFileSelection) => void;
+  onValueChange?: (selection: ArenaFileSelection) => void;
 
   /** Files in the last pick or drop were refused; carries their names by reason. Never fires empty. */
   onReject?: (rejection: ArenaFileRejection) => void;
@@ -74,7 +74,7 @@ const carriesFiles = (event: React.DragEvent) => Boolean(event.dataTransfer?.typ
 
 export const ArenaFileInput = forwardRef<ArenaFileInputHandle, ArenaFileInputProps>(function ArenaFileInput({
   className, label, id, hint, error, required = false, disabled = false, name, accept, multiple = false,
-  maxSize, droppable = false, onChange, onReject,
+  maxSize, droppable = false, onValueChange, onReject,
 }: ArenaFileInputProps, handle) {
   if (!label?.trim()) throw new Error('ArenaFileInput: `label` is required, and names what is being attached');
   const locale = useArenaLocale();
@@ -114,7 +114,7 @@ export const ArenaFileInput = forwardRef<ArenaFileInputHandle, ArenaFileInputPro
     const merge = arenaMergeFiles(held.current, incoming, { accept, maxSize, multiple });
     const rejection = arenaFileRejection(merge);
     hold(merge.held, rejection);
-    if (merge.changed) onChange?.(arenaFileSelection(merge.held));
+    if (merge.changed) onValueChange?.(arenaFileSelection(merge.held));
     if (rejection) onReject?.(rejection);
   };
 
@@ -122,7 +122,7 @@ export const ArenaFileInput = forwardRef<ArenaFileInputHandle, ArenaFileInputPro
     const files = held.current.filter((_, at) => at !== index);
     hold(files, shown.rejection);
     trigger.current?.focus();
-    onChange?.(arenaFileSelection(files));
+    onValueChange?.(arenaFileSelection(files));
   };
 
   const zoneEvents = droppable ? {

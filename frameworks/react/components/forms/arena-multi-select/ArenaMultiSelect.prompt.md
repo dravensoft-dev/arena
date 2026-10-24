@@ -1,7 +1,7 @@
-A text field that filters a list of options and holds a set of chosen values, drawn as chips inside the field. `onChange` carries the whole set as `{ values }`, in the order chosen.
+A text field that filters a list of options and holds a set of chosen values, drawn as chips inside the field. `onValueChange` carries the whole set as `{ values }`, in the order chosen.
 
 ```tsx
-<ArenaMultiSelect label="Regions" value={regions} onChange={(set) => setRegions(set.values)}
+<ArenaMultiSelect label="Regions" value={regions} onValueChange={(set) => setRegions(set.values)}
   options={allRegions} maxVisible={3} clearable />
 ```
 

@@ -22,8 +22,8 @@ function render(props: Partial<ArenaSliderProps> = {}, wrap?: (node: React.React
     const bound = { ...('value' in props ? { value } : {}), ...('valueEnd' in props ? { valueEnd } : {}) };
     return (
       <ArenaSlider label="Volume" {...props} {...bound}
-        onChange={(next) => { heard.push(['change', next]); write(next); }} onCommit={(next) => heard.push(['commit', next])}
-        onChangeEnd={(next) => { heard.push(['changeEnd', next]); writeEnd(next); }} onCommitEnd={(next) => heard.push(['commitEnd', next])} />
+        onValueChange={(next) => { heard.push(['change', next]); write(next); }} onCommit={(next) => heard.push(['commit', next])}
+        onValueEndChange={(next) => { heard.push(['changeEnd', next]); writeEnd(next); }} onCommitEnd={(next) => heard.push(['commitEnd', next])} />
     );
   }
   const root = mount(wrap ? wrap(<Host />) : <Host />);

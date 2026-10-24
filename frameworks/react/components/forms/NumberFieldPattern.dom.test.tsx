@@ -18,7 +18,7 @@ function render(props: Partial<ArenaNumberFieldProps> = {}) {
   const changes: number[] = [];
   function Host() {
     const [value, write] = useState<number | undefined>(props.value);
-    return <ArenaNumberField label="Replicas" {...props} value={value} onChange={(next) => { changes.push(next); write(next); }} />;
+    return <ArenaNumberField label="Replicas" {...props} value={value} onValueChange={(next) => { changes.push(next); write(next); }} />;
   }
   const root = mount(<Host />);
   const input = root.querySelector<HTMLInputElement>('input[data-arena-part="number-field.input"]')!;

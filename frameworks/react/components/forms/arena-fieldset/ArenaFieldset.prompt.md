@@ -2,8 +2,8 @@ A named set of related fields. A legend says what the set is and the fields sit 
 
 ```tsx
 <ArenaFieldset legend="Notifications" hint="We write at most once a day." error={none ? 'Choose at least one.' : undefined}>
-  <ArenaCheckbox label="Deploys" name="notify" value="deploys" checked={deploys} onChange={setDeploys} />
-  <ArenaCheckbox label="Incidents" name="notify" value="incidents" checked={incidents} onChange={setIncidents} />
+  <ArenaCheckbox label="Deploys" name="notify" value="deploys" checked={deploys} onValueChange={setDeploys} />
+  <ArenaCheckbox label="Incidents" name="notify" value="incidents" checked={incidents} onValueChange={setIncidents} />
 </ArenaFieldset>
 ```
 

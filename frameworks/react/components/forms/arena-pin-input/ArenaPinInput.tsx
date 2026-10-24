@@ -55,9 +55,9 @@ export interface ArenaPinInputProps {
   autoComplete?: string;
 
   /** The code after an edit, whatever its length; a refused character fires nothing. */
-  onChange?: (value: string) => void;
+  onValueChange?: (value: string) => void;
 
-  /** The code, when an edit makes it `length` characters long. Fires after `onChange`. A typed character fires it only when it completes the code anew. A paste or autofill of more than one character fires it whenever the code ends full. A `value` the host fills does not fire it. */
+  /** The code, when an edit makes it `length` characters long. Fires after `onValueChange`. A typed character fires it only when it completes the code anew. A paste or autofill of more than one character fires it whenever the code ends full. A `value` the host fills does not fire it. */
   onComplete?: (value: string) => void;
 
   /** Focus left the group; carries the code. A move from one cell to another is not a blur. */
@@ -77,7 +77,7 @@ const mirroredAt = (element: Element) => {
 
 export const ArenaPinInput = forwardRef<ArenaPinInputHandle, ArenaPinInputProps>(function ArenaPinInput({
   className, label, length, characters = 'numeric', masked = false, value, hint, error, valid = false,
-  required = false, disabled = false, name, autoComplete = 'one-time-code', onChange, onComplete, onBlur,
+  required = false, disabled = false, name, autoComplete = 'one-time-code', onValueChange, onComplete, onBlur,
 }: ArenaPinInputProps, handle) {
   if (!label?.trim()) throw new Error('ArenaPinInput: `label` is required, and names what the code is for');
   const locale = useArenaLocale();
@@ -112,7 +112,7 @@ export const ArenaPinInput = forwardRef<ArenaPinInputHandle, ArenaPinInputProps>
     cells.current[edit.cell]?.focus();
     if (edit.code === code) return;
     setHeld(edit.code);
-    onChange?.(edit.code);
+    onValueChange?.(edit.code);
     if (arenaPinCompletes(code, edit.code, total, inserted)) onComplete?.(edit.code);
     clamp.current = true;
     answered();

@@ -12,7 +12,7 @@ supply. `brand`, `footer` and the children default slot stay nodes.
   eyebrow="Delivery console"
   title="Welcome back"
   footer={<a href="/reset">Forgot your password?</a>}>
-  <ArenaInput label="Email" value={email} onChange={onEmail} />
+  <ArenaInput label="Email" value={email} onValueChange={onEmail} />
   <ArenaInput label="Password" type="password" />
   <ArenaButton className="arena-fill">Sign in</ArenaButton>
 </ArenaUnauthCard>

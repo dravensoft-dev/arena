@@ -3,8 +3,8 @@ A labelled row of filter controls above what they narrow, such as a table. The f
 ```tsx
 <ArenaFilterBar label="Deployment filters" applied={applied}
   onRemove={(filter) => setApplied(applied.filter((f) => f.id !== filter.id))} onClear={() => setApplied([])}>
-  <ArenaSelect label="Region" options={regions} value={region} onChange={setRegion} />
-  <ArenaSegmentedControl ariaLabel="Status" options={statuses} value={status} onChange={setStatus} />
+  <ArenaSelect label="Region" options={regions} value={region} onValueChange={setRegion} />
+  <ArenaSegmentedControl ariaLabel="Status" options={statuses} value={status} onValueChange={setStatus} />
 </ArenaFilterBar>
 ```
 
