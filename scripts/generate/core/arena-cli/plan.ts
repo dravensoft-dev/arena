@@ -15,7 +15,7 @@ import { AUTO, resolve as resolveComponents } from './components.ts';
 import type { ComponentMap } from './components.ts';
 import { scan, drawnGlyphs, fillSourceGlyphs, glyphNames, mergeShipped, shippedNames, WEIGHT_CLASSES } from './icon-css.ts';
 import type { IconScan } from './icon-css.ts';
-import { iconMemberGlyphs } from './audit.ts';
+import { iconMemberGlyphs, tagEnd } from './audit.ts';
 import { report } from './reports.ts';
 import type { Report } from './reports.ts';
 import {
@@ -156,6 +156,45 @@ export type SpriteEnvironment = { arena: string | null; phosphor: string | null;
 
 const bare = (glyph: string) => glyph.replace(/^ph-/, '');
 
+const LITERAL = /^(?:'[^']*'|"[^"]*"|`[^`$]*`)$/;
+
+function expressionIcon(tag: string) {
+  for (const match of tag.matchAll(/\s(\[icon\]="([^"]*)"|icon=\{)/g)) {
+    if (match[2] !== undefined) {
+      if (!LITERAL.test(match[2].trim())) return true;
+      continue;
+    }
+    let depth = 1;
+    let quote = '';
+    let i = match.index + match[0].length;
+    const from = i;
+    for (; i < tag.length && depth > 0; i++) {
+      const c = tag[i];
+      if (quote) { if (c === quote) quote = ''; continue; }
+      if (c === '"' || c === "'" || c === '`') quote = c;
+      else if (c === '{') depth += 1;
+      else if (c === '}') depth -= 1;
+    }
+    if (!LITERAL.test(tag.slice(from, i - 1).trim())) return true;
+  }
+  return false;
+}
+
+export function fillsIconExpression(source: string, fills: Set<string>) {
+  const names = [...fills].flatMap((one) => {
+    const kebab = one.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
+    const pascal = kebab.split('-').map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join('');
+    return [kebab, pascal];
+  });
+  if (names.length === 0) return false;
+  const opening = new RegExp(`<(?:${names.join('|')})(?=[\\s/>])`, 'g');
+  for (const match of source.matchAll(opening)) {
+    const end = tagEnd(source, match.index + match[0].length);
+    if (expressionIcon(source.slice(match.index, end === -1 ? source.length : end))) return true;
+  }
+  return false;
+}
+
 export function spriteFiles(options: PlanOptions, { arena, phosphor, map = null, packageName = '' }: SpriteEnvironment,
   drawn: string[] | null = null):
   { code: 0 | 1 | 2; fatal: string[]; reports: Report[]; files: SheetOutput[] } {
@@ -200,7 +239,8 @@ export function spriteFiles(options: PlanOptions, { arena, phosphor, map = null,
   const drawsFill = (source: string) => !map
     ? true
     : resolveComponents(map, [source], packageName)?.keys.some((key) => swapping.has(String(key))) ?? true;
-  const wanted = drawnGlyphs(found, fillSourceGlyphs(sources, drawsFill));
+  const expressive = sources.some((source) => fillsIconExpression(source, swapping));
+  const wanted = drawnGlyphs(found, expressive ? glyphNames(yours) : fillSourceGlyphs(sources, drawsFill));
   if (wanted.length === 0 && !shipped) {
     return {
       code: 1,
@@ -227,6 +267,7 @@ export function spriteFiles(options: PlanOptions, { arena, phosphor, map = null,
 
   const missingNames = new Set([...missing.values()].flatMap((names) => [...names].map((one) => `ph-${one}`)));
   const drawnByMembers = new Set(sources.flatMap((source) => [...iconMemberGlyphs(source)]));
+  if (expressive) for (const glyph of glyphNames(yours)) drawnByMembers.add(glyph);
   for (const glyph of glyphNames(yours)) {
     if (drawnByMembers.has(glyph) || missingNames.has(glyph)) continue;
     reports.push(report('glyph', `${glyph} is in the sprite, and no ArenaIcon, arena-icon or icon attribute in your sources draws it; `

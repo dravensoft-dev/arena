@@ -561,6 +561,58 @@ test('an active navigation item whose glyph the consumer passes brings the fille
   cleanup(root, held, arena);
 });
 
+const EXPRESSIVE = JSON.stringify({ components: { ArenaSideNavItem: { pairs: {}, loose: [] } }, fills: ['ArenaSideNavItem'] });
+const SYMBOLS: ComponentMap = { match: 'symbol', draws: { ArenaSideNavItem: 'side-nav-item' }, needs: {} };
+
+const TAGGED: ComponentMap = { match: 'selector', draws: { 'arena-side-nav-item': 'side-nav-item' }, needs: {} };
+
+async function navProject(files: Record<string, string>, tagged = false) {
+  const { root: held, core } = phosphor(['bold', 'fill'], [...PHOSPHOR_GLYPHS, 'folders', 'plugs-connected']);
+  const arena = hostRoot(NAME, '11.1.0', { [ICON_MANIFEST]: tagged ? SHIPPED : EXPRESSIVE });
+  const root = project(auto, files);
+  const result = await plan(options(root), environment(core, { arena, sheets: { layers: [], components: ['side-nav-item'] }, map: tagged ? TAGGED : SYMBOLS }));
+  cleanup(root, held, arena);
+  return result;
+}
+
+const DATA = "export const rows = [{ icon: 'ph-bold ph-folders' }, { icon: 'ph-bold ph-plugs-connected' }];\n";
+const glyphReports = (result: Awaited<ReturnType<typeof plan>>) => result.reports.filter((one) => one.kind === 'glyph').map((one) => one.message);
+
+test('a fill-swapping item whose icon is an expression gets the filled weight of every glyph the sources name', async () => {
+  const react = await navProject({
+    'data.ts': DATA,
+    'Nav.tsx': `import { ArenaSideNavItem } from '${NAME}';\n`
+      + 'export const Nav = () => rows.map((row) => <ArenaSideNavItem icon={row.icon} label="x" />);\n',
+  });
+  assert.equal(react.code, 0);
+  const sprite = spriteOf(react)?.content ?? '';
+  assert.ok(sprite.includes('id="ph-fill-folders"') && sprite.includes('id="ph-fill-plugs-connected"'));
+  assert.deepEqual(glyphReports(react).filter((one) => /ph-folders|ph-plugs-connected/.test(one)), []);
+  const template = await navProject({
+    'data.ts': DATA,
+    'nav.html': '<arena-side-nav-item [icon]="row.icon" label="x" />\n',
+  }, true);
+  const bound = spriteOf(template)?.content ?? '';
+  assert.ok(bound.includes('id="ph-fill-folders"') && bound.includes('id="ph-fill-plugs-connected"'));
+  assert.deepEqual(glyphReports(template).filter((one) => /ph-folders|ph-plugs-connected/.test(one)), []);
+});
+
+test('an icon written as a literal, bare or bound, keeps the filled weight to the file that draws the item', async () => {
+  const react = await navProject({
+    'data.ts': DATA,
+    'Nav.tsx': `import { ArenaSideNavItem } from '${NAME}';\n`
+      + "export const Nav = () => <ArenaSideNavItem icon={'ph-bold ph-house'} label=\"x\" />;\n",
+  });
+  assert.ok((spriteOf(react)?.content ?? '').includes('id="ph-fill-house"'));
+  assert.ok(!(spriteOf(react)?.content ?? '').includes('id="ph-fill-folders"'));
+  const template = await navProject({
+    'data.ts': DATA,
+    'nav.html': '<arena-side-nav-item [icon]="\'ph-bold ph-house\'" label="x" />\n',
+  }, true);
+  assert.ok((spriteOf(template)?.content ?? '').includes('id="ph-fill-house"'));
+  assert.ok(!(spriteOf(template)?.content ?? '').includes('id="ph-fill-folders"'));
+});
+
 test('with no map the sprite carries every component and says the map is missing', async () => {
   const result = await icons({ 'app.html': '<arena-button></arena-button>' }, { map: null, sheets: null }, readable);
   assert.match(sheetOf(result), /ph-fill-moon/);
