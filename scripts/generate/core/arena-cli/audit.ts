@@ -684,6 +684,8 @@ function readResults(source: string, keys: boolean): string[] | null {
   return terms && joined(terms.map((term) => readTerm(term, keys)));
 }
 
+export const emptyTerm = (term: string) => readTerm(term, false)?.length === 0;
+
 function readTerm(text: string, keys: boolean): string[] | null {
   if (['', 'undefined', 'null', 'false'].includes(text)) return [];
   const opener = text[0] ?? '';
