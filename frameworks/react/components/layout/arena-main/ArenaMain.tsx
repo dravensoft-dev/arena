@@ -3,7 +3,6 @@ import { arenaStyles } from '../../../ArenaStyles.generated.ts';
 import manifest from './ArenaMain.classes.generated.ts';
 import type { ArenaMainClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
-
 import { ARENA_MAIN_ID } from '../MainRegion.ts';
 
 export { ARENA_MAIN_ID } from '../MainRegion.ts';

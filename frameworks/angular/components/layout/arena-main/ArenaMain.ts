@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed } from '@angular/core';
 import { arenaMainStyles } from './ArenaMain.variants';
 import manifest from './ArenaMain.classes.generated';
-
 import { ARENA_MAIN_ID } from '../MainRegion';
 
 export { ARENA_MAIN_ID } from '../MainRegion';
