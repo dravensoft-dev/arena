@@ -274,17 +274,18 @@ export const BEHAVIOUR_FROM_PROMPT = '../../../../../contracts/behaviour';
 const KEY = 'keyboard.';
 
 type Case = { pattern: string; exceptions?: { requirement: string }[]; additions?: { provides: string; reason: string }[] };
-export type Binding = Partial<Case> & { cases?: ({ name?: string; when?: string } & Case)[] };
+export type Binding = Partial<Case> & { cases?: ({ name?: string; when?: string } & Case)[]; also?: Case[] };
 export type Pattern = { name: string; requires: Record<string, string> };
 
 const casesOf = (binding: Binding): Case[] => (binding.cases ?? (binding.pattern ? [binding as Case] : []));
+const patternsOf = (binding: Binding): Case[] => [...casesOf(binding), ...(binding.also ?? [])];
 
 export function renderKeysRegion(binding: Binding | null, patterns: Pattern | Pattern[] | null) {
   const known = new Map((Array.isArray(patterns) ? patterns : patterns ? [patterns] : []).map((one) => [one.name, one]));
   const lines = new Map<string, string>();
   const named = new Set<string>();
   const bound = new Set<string>();
-  for (const one of binding ? casesOf(binding) : []) {
+  for (const one of binding ? patternsOf(binding) : []) {
     const pattern = known.get(one.pattern);
     if (!pattern) continue;
     if (pattern.name !== 'none') bound.add(`\`${pattern.name}\``);
@@ -373,7 +374,7 @@ export function keysOf(path: string, component: string, base = root) {
   if (!existsSync(at)) return { binding: null, patterns: [] as Pattern[] };
   const binding = JSON.parse(readFileSync(at, 'utf8')) as Binding;
   const patterns: Pattern[] = [];
-  for (const name of new Set(casesOf(binding).map((one) => one.pattern))) {
+  for (const name of new Set(patternsOf(binding).map((one) => one.pattern))) {
     const file = join(base, 'contracts/behaviour', `${name}.json`);
     if (existsSync(file)) patterns.push(JSON.parse(readFileSync(file, 'utf8')) as Pattern);
   }

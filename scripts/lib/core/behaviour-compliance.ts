@@ -161,7 +161,7 @@ export const IDREF_ATTRIBUTES = new Map([
   }],
   ['aria-describedby', {
     match: 'some',
-    reason: "the one exception: ArenaTooltip merges the consumer's own description with Arena's bubble id, and the consumer's may name an element outside the component's rendered tree, so demanding that every id resolve would fail a correct component.",
+    reason: "a consumer's own description may name an element outside the component's rendered tree, as the tooltip's merged description does, so demanding that every id resolve would fail a correct component. A description that is the component's own id, as a confirmation's body is, resolves under either rule.",
   }],
 ]);
 
@@ -418,6 +418,38 @@ export function comparePattern({
       : `${key}: declared behavioural but never reached. ` +
         'Either the pattern no longer requires it, or it is now decidable from the DOM — ' +
         'remove it from `behavioural`.');
+  }
+  return problems;
+}
+
+export function comparePatterns({
+  entries, ...rest
+}: {
+  entries: { pattern: any; exceptions?: { requirement: string; reason?: string }[] }[];
+  subjects?: Record<string, any>;
+  fallback?: any;
+  behavioural?: Record<string, any>;
+  resolveId?: (id: string) => any;
+  resolveLabel?: (el: any) => any;
+}) {
+  const [only, ...others] = entries;
+  if (only && !others.length) {
+    return comparePattern({ pattern: only.pattern, binding: { exceptions: only.exceptions }, ...rest });
+  }
+  const behavioural = rest.behavioural ?? {};
+  const problems: string[] = [];
+  for (const { pattern, exceptions } of entries) {
+    const held = Object.fromEntries(Object.entries(behavioural).filter(([key]) => key in pattern.requires));
+    for (const problem of comparePattern({
+      pattern, binding: { exceptions }, ...rest, behavioural: held,
+    })) problems.push(`${pattern.name}: ${problem}`);
+  }
+  const names = entries.map((entry) => entry.pattern.name).join(', ');
+  for (const key of Object.keys(behavioural)) {
+    if (entries.some((entry) => key in entry.pattern.requires)) continue;
+    problems.push(
+      `${key}: declared behavioural, and no compared pattern requires it (${names}). ` +
+      'Remove it from `behavioural`.');
   }
   return problems;
 }

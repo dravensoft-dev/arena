@@ -263,6 +263,18 @@ test('a cases binding lists the keys of every case once, and a case exception re
   assert.match(renderKeysRegion({ cases: [{ pattern: 'none' }] }, [none]), /\*\*Keys:\*\* none\./);
 });
 
+test('the keys region lists the keys of an also pattern, under its own exceptions', () => {
+  const primary = { name: 'p', requires: { 'roles.element': 'dialog' } };
+  const added = { name: 'q', requires: { 'keyboard.Escape': 'closes it' } };
+  const region = renderKeysRegion({ pattern: 'p', also: [{ pattern: 'q', exceptions: [] }] }, [primary, added]);
+  assert.match(region, /- `Escape`: closes it\./);
+  assert.match(region, /\[`q`\]\(\.\.\/\.\.\/\.\.\/\.\.\/\.\.\/contracts\/behaviour\/q\.json\)/);
+  const excused = renderKeysRegion(
+    { pattern: 'p', also: [{ pattern: 'q', exceptions: [{ requirement: 'keyboard.Escape' }] }] }, [primary, added]);
+  assert.match(excused, /\*\*Keys:\*\* none/);
+  assert.doesNotMatch(excused, /Escape/);
+});
+
 const markersAt = (layer: string, component: string) => {
   const found = promptPaths().find((one) => one.layer === layer && one.component === component);
   assert.ok(found, `${layer} ${component} has no prompt`);

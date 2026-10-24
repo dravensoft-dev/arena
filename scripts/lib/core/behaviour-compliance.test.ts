@@ -6,7 +6,7 @@ import { readJson } from '../../utils/read-file.ts';
 import { repoRoot } from '../arena/repo-root.ts';
 import {
   roleOf, hasAccessibleName, isFocusable, evaluate,
-  DECIDABLE, BEHAVIOURAL, elementRoles, LABEL_ACCEPTS_TEXT, comparePattern,
+  DECIDABLE, BEHAVIOURAL, elementRoles, LABEL_ACCEPTS_TEXT, comparePattern, comparePatterns,
   QUANTIFIED, NOT_QUANTIFIED, IDREF, IDREF_ATTRIBUTES, ATTRIBUTE_FOR,
 } from './behaviour-compliance.ts';
 
@@ -812,4 +812,67 @@ test('every entry carries a reason', () => {
       assert.ok(typeof reason === 'string' && reason.length > 20, `${key}: no reason on file`);
     }
   }
+});
+
+const PRIMARY = { name: 'p', requires: { 'focus.onOpen': 'x' } };
+const ADDED = { name: 'q', additive: true, requires: { 'alternative.jsonLd': 'y' } };
+const target = el('div');
+
+test('comparePatterns holds an also pattern to its own requirements', () => {
+  const problems = comparePatterns({
+    entries: [{ pattern: PRIMARY }, { pattern: ADDED }],
+    fallback: target,
+    behavioural: { 'focus.onOpen': true },
+  });
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /q: alternative\.jsonLd: undecidable from the DOM and not declared behavioural/);
+});
+
+test('an exception on an also entry excuses that pattern alone', () => {
+  const problems = comparePatterns({
+    entries: [
+      { pattern: PRIMARY },
+      { pattern: ADDED, exceptions: [{ requirement: 'alternative.jsonLd', reason: 'not drawn here' }] },
+    ],
+    fallback: target,
+    behavioural: { 'focus.onOpen': true, 'alternative.jsonLd': false },
+  });
+  assert.deepEqual(problems, []);
+});
+
+test('a behavioural key no compared pattern requires is reported', () => {
+  const problems = comparePatterns({
+    entries: [{ pattern: PRIMARY }, { pattern: ADDED }],
+    fallback: target,
+    behavioural: { 'focus.onOpen': true, 'alternative.jsonLd': true, 'keyboard.Home': true },
+  });
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /keyboard\.Home: declared behavioural, and no compared pattern requires it/);
+});
+
+test('a key two compared patterns require is judged in each by the one verdict', () => {
+  const both = { name: 'r', additive: true, requires: { 'keyboard.Escape': 'z' } };
+  const first = { name: 'p', requires: { 'keyboard.Escape': 'x', 'focus.onOpen': 'x' } };
+  assert.deepEqual(comparePatterns({
+    entries: [{ pattern: first }, { pattern: both }],
+    fallback: target,
+    behavioural: { 'keyboard.Escape': true, 'focus.onOpen': true },
+  }), []);
+  const failing = comparePatterns({
+    entries: [{ pattern: first }, { pattern: both }],
+    fallback: target,
+    behavioural: { 'keyboard.Escape': false, 'focus.onOpen': true },
+  });
+  assert.equal(failing.length, 2);
+});
+
+test('one entry behaves exactly as comparePattern', () => {
+  for (const behavioural of [{ 'focus.onOpen': true }, { 'focus.onOpen': true, 'keyboard.Home': true }, {}]) {
+    assert.deepEqual(
+      comparePatterns({ entries: [{ pattern: PRIMARY }], fallback: target, behavioural }),
+      comparePattern({ pattern: PRIMARY, binding: {}, fallback: target, behavioural }),
+    );
+  }
+  const never = comparePatterns({ entries: [{ pattern: PRIMARY }], fallback: target, behavioural: { 'keyboard.Home': true, 'focus.onOpen': true } });
+  assert.match(never.join('\n'), /keyboard\.Home: declared behavioural but never reached/);
 });

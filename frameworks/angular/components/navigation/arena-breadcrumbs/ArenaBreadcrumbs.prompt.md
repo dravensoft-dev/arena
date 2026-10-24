@@ -47,7 +47,7 @@ handler instead:
 <!-- @answers end -->
 
 <!-- @keys GENERATED from the binding. -->
-**Keys:** none (`navigation`).
+**Keys:** none (`navigation`, `structured-data`).
 <!-- @keys end -->
 
 ```ts
