@@ -45,7 +45,7 @@ One event on an `ArenaCalendar`'s schedule. The chip is a child of `ArenaCalenda
 
 **`onActivate` carries no payload, deliberately.** You wrote this element, so your handler already closes over the record it came from. `onActivate={() => open(c)}` reaches the whole of `c` with no id-to-object lookup. A payload would have handed back the five fields you had just passed in.
 
-**Passing `onActivate` is what makes the chip interactive.** With it the chip renders as a real `<button>` with an accessible name of "title, date, time range". Without it the chip is an inert `<div>`, and there is nothing for a keyboard or a screen reader to act on. `ArenaTag` has the same conditional shape, and it is recorded as a limitation of the behaviour layer rather than hidden. The binding claims the `button` pattern unconditionally, because the schema cannot say "only when `onActivate` is passed".
+**An interactive chip is a real `<button>`.** With `interactive` the chip renders as a `<button>` with an accessible name of "title, date, time range". Without it the chip is an inert `<div>`, and there is nothing for a keyboard or a screen reader to act on. `ArenaTag` has the same conditional shape, and it is recorded as a limitation of the behaviour layer rather than hidden. The binding claims the `button` pattern unconditionally, because the schema cannot say "only when `interactive` is set".
 
 **An interactive chip is not a page-level tab stop, and that is on purpose.** The grid is one tab stop. Enter from the hour cell an event overlaps steps into the chip, and Escape steps back out to the cell. Do not try to restore a `tabIndex`: `ArenaCalendar` injects `-1` and would overwrite it anyway, and a chip per tab stop is what the grid pattern exists to prevent.
 
@@ -81,7 +81,7 @@ What "into the chip" means depends on the shape. A chip with no action panel *is
 **Don't**
 - Don't put children inside it. The chip takes none. The title and the time line are the chip body, and Arena draws both.
 - Don't render one outside an `ArenaCalendar`. The chip has no position of its own, and no useful meaning without the grid around it.
-- Don't use `disabled` to make a chip inert. Omit `onActivate` for that: an inert chip is a `<div>` with nothing to press, where a disabled one is a button that announces it cannot be pressed right now. The two read differently to a screen reader on purpose.
+- Don't use `disabled` to make a chip inert. Leave `interactive` off for that: an inert chip is a `<div>` with nothing to press, where a disabled one is a button that announces it cannot be pressed right now. The two read differently to a screen reader on purpose.
 - Don't reach past `colorId: 8`. There are eight ramp slots and they never cycle; a ninth entity wrapping to slot 1 claims two different things are the same thing.
 - Don't reach for `style` or `className`. The component takes neither, the same as every other Arena component under the API contract.
 - Don't write `defaultPanelOpen`. The prop is reachable and it is not API. The prop exists so a static render can assert the open branch, since `renderToStaticMarkup` cannot click. The prop is in no contract and in no exported interface, and it can be removed without a major.
