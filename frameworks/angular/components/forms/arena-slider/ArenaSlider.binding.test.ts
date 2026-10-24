@@ -108,3 +108,25 @@ test('a controlled slider keeps both of two key steps made before the host re-re
     assert.equal(fixture.componentInstance.value(), 22);
   } finally { fixture.destroy(); }
 });
+
+@Component({
+  selector: 'slider-controlled-range-host',
+  standalone: true,
+  imports: [ArenaSlider],
+  template: `<arena-slider label="Price" range [min]="0" [max]="100" [step]="1" [value]="start()" [valueEnd]="end()" (change)="start.set($event)" (changeEnd)="end.set($event)" />`,
+})
+class ControlledRangeHost {
+  readonly start = signal(20);
+  readonly end = signal(60);
+}
+
+test('a controlled range slider keeps both of two key steps on the end thumb made before the host re-renders', () => {
+  const fixture = TestBed.createComponent(ControlledRangeHost);
+  fixture.detectChanges();
+  try {
+    const end = (fixture.nativeElement as HTMLElement).querySelectorAll('[role="slider"]')[1] as HTMLElement;
+    for (let i = 0; i < 2; i += 1) end.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true, cancelable: true }));
+    assert.equal(fixture.componentInstance.end(), 62);
+    assert.equal(fixture.componentInstance.start(), 20);
+  } finally { fixture.destroy(); }
+});

@@ -3,7 +3,7 @@ useTestEnvironment();
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { Component, viewChild } from '@angular/core';
+import { Component, signal, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ArenaControlBinding } from '../../../ControlBinding';
 import { ArenaRadioGroup } from './ArenaRadioGroup';
@@ -124,6 +124,37 @@ test('a host that holds value and ignores change keeps the native radios and the
     radios[1]!.click();
     fixture.detectChanges();
     assert.deepEqual(fixture.componentInstance.seen, ['b']);
+    assert.equal(radios[0]!.checked, true);
+    assert.equal(radios[1]!.checked, false);
+    assert.equal(dotOn(fixture), 'a');
+  } finally { fixture.destroy(); }
+});
+
+@Component({
+  standalone: true,
+  imports: [ArenaRadioGroup, ArenaRadio],
+  template: `<arena-radio-group ariaLabel="Plan" [value]="held()" (change)="held.set($event)">
+    <arena-radio value="a" label="A" /><arena-radio value="b" label="B" />
+  </arena-radio-group>`,
+})
+class Following {
+  readonly held = signal('a');
+}
+
+test('a host that follows change moves the native radios and the dot with each click', () => {
+  const fixture = TestBed.createComponent(Following);
+  try {
+    fixture.detectChanges();
+    const radios = [...(fixture.nativeElement as HTMLElement).querySelectorAll('input[type="radio"]')] as HTMLInputElement[];
+    radios[1]!.click();
+    fixture.detectChanges();
+    assert.equal(fixture.componentInstance.held(), 'b');
+    assert.equal(radios[1]!.checked, true);
+    assert.equal(radios[0]!.checked, false);
+    assert.equal(dotOn(fixture), 'b');
+    radios[0]!.click();
+    fixture.detectChanges();
+    assert.equal(fixture.componentInstance.held(), 'a');
     assert.equal(radios[0]!.checked, true);
     assert.equal(radios[1]!.checked, false);
     assert.equal(dotOn(fixture), 'a');
