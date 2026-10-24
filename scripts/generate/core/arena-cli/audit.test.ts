@@ -1049,6 +1049,7 @@ test('raw-glyph reads a bound class by its results, alike in both layers (D1, N1
     ['braced string', "<div className={'arena-a'} />", '<div class="arena-a"></div>', []],
     ['template, no substitution', '<div className={`arena-a`} />', "<div [class]=\"'arena-a'\"></div>", []],
     ['and', "<div className={on && 'arena-a'} />", "<div [ngClass]=\"{ 'arena-a': on }\"></div>", []],
+    ['class object, E1', "<div className={on && 'arena-a'} />", "<div [class]=\"{ 'arena-a': on }\"></div>", []],
     ['empty results', "<div className={a ? 'arena-a' : b ? null : false} />", "<div [class]=\"a ? 'arena-a' : ''\"></div>", []],
     ['or, N1', "<div className={cls || 'arena-a'} />", "<div [class]=\"cls ?? 'arena-a'\"></div>", ['bound']],
     ['Phosphor toggle', "<i className={on ? 'ph-bold ph-star' : 'ph-bold'} />", '<i class="ph-bold" [class.ph-star]="on"></i>', ['literal']],
