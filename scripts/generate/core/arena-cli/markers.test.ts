@@ -101,11 +101,18 @@ test('a marker inside an element that queries none is charged to nobody', () => 
   ), []);
 });
 
-test('ng-container is not a host, so a marker inside one is charged to the element around it', () => {
+test('a marker inside an ng-container is charged to nobody, because the container carries no attribute into a named slot', () => {
   assert.deepEqual(markerUses(
     '<arena-card><ng-container><button action>x</button></ng-container></arena-card>',
     { 'arena-card': ['action'] },
-  ), [{ attribute: 'action', host: 'arena-card' }]);
+  ), []);
+});
+
+test('a marker inside an @if or @for block with one root is still charged to the host around it', () => {
+  assert.deepEqual(markerUses(
+    '<arena-card>@if (on) {<button action>x</button>}@for (i of items; track i) {<button action>y</button>}</arena-card>',
+    { 'arena-card': ['action'] },
+  ), [{ attribute: 'action', host: 'arena-card' }, { attribute: 'action', host: 'arena-card' }]);
 });
 
 test('a plain element between the marker and the host breaks the charge', () => {

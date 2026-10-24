@@ -40,7 +40,7 @@ export function markerUses(template: string, markers: MarkerMap) {
     const bare = stripAttributeValues(attrs);
     for (const attribute of attributes) {
       if (!new RegExp(`(^|\\s)${attribute}(?=$|[\\s/=])`).test(bare)) continue;
-      const host = [...stack].reverse().find((tagName) => tagName !== 'ng-container');
+      const host = stack[stack.length - 1];
       if (host && (markers[host] ?? []).includes(attribute)) uses.push({ attribute, host });
     }
     if (!selfClosing) stack.push(name);
