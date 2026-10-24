@@ -139,7 +139,7 @@ test('a blank label is refused even with showLabel false', () => {
 test('showLabel false draws no label and keeps the name on the input', () => {
   const { fixture, host, control } = render({ label: 'Select row', showLabel: false });
   try {
-    assert.equal(host.querySelector('[data-arena-part="checkbox.label"]'), null);
+    assertNoNode(host.querySelector('[data-arena-part="checkbox.label"]'));
     assert.equal(control.getAttribute('aria-label'), 'Select row');
   } finally {
     fixture.destroy();

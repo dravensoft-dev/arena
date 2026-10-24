@@ -160,7 +160,7 @@ test('error wins over hint, which is the same state order ArenaInput declares', 
 test('a hint alone is neutral, and is still named to the control', () => {
   const { fixture, host, field } = noted({ hint: 'Start typing' });
   try {
-    assert.equal(field.getAttribute('aria-invalid'), null, 'a hint is help, not a failure, and React writes no aria-invalid for it either');
+    assert.equal(field.getAttribute('aria-invalid'), null, 'a hint is help, not a failure, so it writes no aria-invalid');
     assert.ok(field.getAttribute('aria-describedby'), 'the hint is not named to the control');
     assert.match(host.textContent ?? '', /Start typing/);
   } finally {

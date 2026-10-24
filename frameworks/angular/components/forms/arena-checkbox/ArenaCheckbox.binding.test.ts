@@ -8,6 +8,7 @@ import { TestBed } from '@angular/core/testing';
 import { ArenaControlBinding } from '../../../ControlBinding';
 import { ArenaCheckbox } from './ArenaCheckbox';
 import { ArenaCheckboxGroup } from '../arena-checkbox-group/ArenaCheckboxGroup';
+import { assertNoNode } from '../../../test/NodeAssert';
 
 function render() {
   const fixture = TestBed.createComponent(ArenaCheckbox);
@@ -111,7 +112,7 @@ test('a host that ignores change keeps the native box equal to the drawn tick', 
     fixture.detectChanges();
     assert.deepEqual(fixture.componentInstance.seen, [true]);
     assert.equal(el.checked, false);
-    assert.equal(root.querySelector('[data-arena-part="checkbox.check"]'), null);
+    assertNoNode(root.querySelector('[data-arena-part="checkbox.check"]'));
   } finally { fixture.destroy(); }
 });
 

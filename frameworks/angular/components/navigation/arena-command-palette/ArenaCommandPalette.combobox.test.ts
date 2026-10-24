@@ -12,6 +12,7 @@ import { join } from 'node:path';
 import { TestBed } from '@angular/core/testing';
 import { ArenaCommandPalette } from './ArenaCommandPalette';
 import { assertPattern, ANGULAR_COMPONENTS } from '../../../test/Compliance';
+import { assertNoNode } from '../../../test/NodeAssert';
 
 const BINDING = join(ANGULAR_COMPONENTS, 'navigation/arena-command-palette/ArenaCommandPalette.behaviour.json');
 
@@ -111,5 +112,5 @@ test('the empty line sits in the panel after the listbox, not inside it', () => 
   const empty = host.querySelector('[data-arena-part="command-palette.empty"]');
   assert.ok(empty, 'no empty line was drawn');
   assert.equal(empty.parentElement?.getAttribute('data-arena-part'), 'command-palette.panel');
-  assert.equal(host.querySelector('[role="listbox"] [data-arena-part="command-palette.empty"]'), null);
+  assertNoNode(host.querySelector('[role="listbox"] [data-arena-part="command-palette.empty"]'));
 });
