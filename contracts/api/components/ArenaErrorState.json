@@ -17,6 +17,6 @@
     "retry": { "form": "event",
                "description": "The retry button was activated." },
     "secondaryAction": { "form": "slot",
-                          "description": "An extra control beside the retry (e.g. a link to logs)." }
+                          "description": "An extra control beside the retry (e.g. a link to logs). The actions wrapper only renders when a retry or a secondary action actually exists, so a bare error state ships no dead space for a retry it does not offer." }
   }
 }

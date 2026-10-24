@@ -20,6 +20,20 @@ test('retryLabel renders a retry button with that label; absent renders no retry
   assert.doesNotMatch(withoutRetry, /<button/);
 });
 
+test('with neither a retry nor a secondary action the actions part is not drawn', () => {
+  const bare = renderIcons(<ArenaErrorState />);
+  assert.doesNotMatch(bare, /error-state\.actions/);
+
+  const falseSecondary = renderIcons(<ArenaErrorState secondaryAction={false} />);
+  assert.doesNotMatch(falseSecondary, /error-state\.actions/);
+
+  const nullSecondary = renderIcons(<ArenaErrorState secondaryAction={null} />);
+  assert.doesNotMatch(nullSecondary, /error-state\.actions/);
+
+  const withRetry = renderIcons(<ArenaErrorState retryLabel="Retry" />);
+  assert.match(withRetry, /error-state\.actions/);
+});
+
 test('icon renders as an aria-hidden svg Arena draws', () => {
   const html = renderIcons(<ArenaErrorState icon="ph-fill ph-warning-octagon" />);
   assert.deepEqual(symbols(html), ['fill-warning-octagon']);

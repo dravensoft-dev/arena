@@ -26,7 +26,7 @@ export interface ArenaErrorStateProps {
   retryLabel?: string;
   /** The retry button was activated. */
   onRetry?: () => void;
-  /** An extra control beside the retry (e.g. a link to logs). */
+  /** An extra control beside the retry (e.g. a link to logs). The actions wrapper only renders when a retry or a secondary action actually exists, so a bare error state ships no dead space for a retry it does not offer. */
   secondaryAction?: React.ReactNode;
 }
 
@@ -44,10 +44,12 @@ export function ArenaErrorState({ className, icon, title, headingLevel = 'h3', m
       <Heading className={styles.title()} data-arena-part={manifest.parts.title} {...styles.$data.title()}>{heading}</Heading>
       {message && <div className={styles.message()} data-arena-part={manifest.parts.message} {...styles.$data.message()}>{message}</div>}
       {code && <code className={styles.code()} data-arena-part={manifest.parts.code} {...styles.$data.code()}>{code}</code>}
-      <div className={styles.actions()} data-arena-part={manifest.parts.actions} {...styles.$data.actions()} data-arena-boundary="">
-        {retryLabel && <ArenaButton onClick={onRetry}>{retryLabel}</ArenaButton>}
-        {secondaryAction}
-      </div>
+      {(retryLabel || (secondaryAction !== undefined && secondaryAction !== null && secondaryAction !== false)) && (
+        <div className={styles.actions()} data-arena-part={manifest.parts.actions} {...styles.$data.actions()} data-arena-boundary="">
+          {retryLabel && <ArenaButton onClick={onRetry}>{retryLabel}</ArenaButton>}
+          {secondaryAction}
+        </div>
+      )}
     </div>
   );
 }

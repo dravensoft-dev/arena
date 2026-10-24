@@ -23,7 +23,7 @@ exposed as a mono chip.
 | `code` | primitive | `string` |  | A diagnostic/support code, shown monospaced. |
 | `retryLabel` | primitive | `string` |  | The label of the retry button Arena draws. Absent renders no retry. |
 | `onRetry` | event |  |  | The retry button was activated. |
-| `secondaryAction` | slot |  |  | An extra control beside the retry (e.g. a link to logs). |
+| `secondaryAction` | slot |  |  | An extra control beside the retry (e.g. a link to logs). The actions wrapper only renders when a retry or a secondary action actually exists, so a bare error state ships no dead space for a retry it does not offer. |
 
 <!-- @api end -->
 

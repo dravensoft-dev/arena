@@ -7,8 +7,7 @@ retry (a link to logs, say). The solid `--error` fill is what distinguishes it f
 `arena-empty-state`'s dashed neutral border: one apologises and offers a retry, the
 other simply has nothing yet. `code` renders the support code as a mono chip: it is
 for a support conversation, not for the user to act on, which is why it is muted and
-small. The actions wrapper only renders when a retry or a secondary action actually
-exists, a bare error state ships no dead space for a retry it does not offer.
+small.
 
 ```html
 <arena-error-state icon="ph-bold ph-plugs"
@@ -34,7 +33,7 @@ exists, a bare error state ships no dead space for a retry it does not offer.
 | `code` | primitive | `string` |  | A diagnostic/support code, shown monospaced. |
 | `retryLabel` | primitive | `string` |  | The label of the retry button Arena draws. Absent renders no retry. |
 | `retry` | event |  |  | The retry button was activated. |
-| `secondaryAction` | slot |  |  | An extra control beside the retry (e.g. a link to logs). |
+| `secondaryAction` | slot |  |  | An extra control beside the retry (e.g. a link to logs). The actions wrapper only renders when a retry or a secondary action actually exists, so a bare error state ships no dead space for a retry it does not offer. |
 
 <!-- @api end -->
 
