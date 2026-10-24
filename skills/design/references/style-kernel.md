@@ -180,9 +180,6 @@ from the palette**, so settle what the screen is before assigning any of it.
 The appearance Arena installs with does not give those answers. That appearance is a design of
 its own and assigns several of these differently, so it is a plugin to read rather than a baseline
 to inherit. A plugin you write answers every role that carries no default itself, and nothing is inherited from that one.
-
-The rule under the selected tab is the role `edge-tab-selected`, and its default is `{color.primary}`. A plugin that stays silent keeps the primary there, and one that answers it names a palette colour or another colour role.
-
 The default plugin is
 [`plugin-style-store/default/plugin.tokens.json`](../../../plugin-style-store/default/plugin.tokens.json)
 and
@@ -190,6 +187,8 @@ and
 it is a second one answering the same roles differently. Read one before writing yours, because a worked answer is worth more than a list of role names. **Both are on the site at `https://arena.dravensoft.org/plugin-style-store/default/plugin.tokens.json` and `https://arena.dravensoft.org/plugin-style-store/complete/plugin.tokens.json`, and in the repository, not in the package. The MCP server serves both, under `arena://style/default/` and `arena://style/complete/`.** Start by
 copying the default into `design/<name>/` and replacing one role at a time: `["default"]` is no
 start, because your root plugin inherits nothing from it.
+
+The rule under the selected tab is the role `edge-tab-selected`, and its default is `{color.primary}`. A plugin that stays silent keeps the primary there, and one that answers it names a palette colour or another colour role.
 
 **The roles below are where a product lives**, and the eight measured products disagree on every one of
 them:
