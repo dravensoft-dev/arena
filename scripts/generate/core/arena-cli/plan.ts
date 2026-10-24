@@ -158,10 +158,13 @@ const bare = (glyph: string) => glyph.replace(/^ph-/, '');
 
 const LITERAL = /^(?:'[^']*'|"[^"]*"|`[^`$]*`)$/;
 
-const ICON_GIVEN = /\s(?:\[icon\]=(?:"([^"]*)"|'([^']*)')|icon=(?:"([^"]*)"|'([^']*)')|icon=\{|\{\s*\.\.\.)/g;
+const iconGiven = (names: string[]) => {
+  const any = names.join('|');
+  return new RegExp(`\\s(?:\\[(?:${any})\\]=(?:"([^"]*)"|'([^']*)')|(?:${any})=(?:"([^"]*)"|'([^']*)')|(?:${any})=\\{|\\{\\s*\\.\\.\\.)`, 'g');
+};
 
-function expressionIcon(tag: string) {
-  for (const match of tag.matchAll(ICON_GIVEN)) {
+function expressionIcon(tag: string, { names = ['icon'], spread = true, element = true } = {}) {
+  for (const match of tag.matchAll(iconGiven(names))) {
     const bound = match[1] ?? match[2];
     if (bound !== undefined) {
       if (!LITERAL.test(bound.trim())) return true;
@@ -172,7 +175,10 @@ function expressionIcon(tag: string) {
       if (written.includes('{{')) return true;
       continue;
     }
-    if (match[0].endsWith('...')) return true;
+    if (match[0].endsWith('...')) {
+      if (spread) return true;
+      continue;
+    }
     let depth = 1;
     let quote = '';
     let i = match.index + match[0].length;
@@ -184,7 +190,8 @@ function expressionIcon(tag: string) {
       else if (c === '{') depth += 1;
       else if (c === '}') depth -= 1;
     }
-    if (!LITERAL.test(tag.slice(from, i - 1).trim())) return true;
+    const value = tag.slice(from, i - 1).trim();
+    if (!LITERAL.test(value) && (element || !/^\(*</.test(value))) return true;
   }
   return false;
 }
@@ -200,6 +207,15 @@ export function fillsIconExpression(source: string, fills: Set<string>) {
   for (const match of source.matchAll(opening)) {
     const end = tagEnd(source, match.index + match[0].length);
     if (expressionIcon(source.slice(match.index, end === -1 ? source.length : end))) return true;
+  }
+  return false;
+}
+
+export function handsIconExpression(source: string) {
+  for (const match of source.matchAll(/<(Arena[A-Za-z0-9]*|arena-[a-z0-9-]+)(?=[\s/>])/g)) {
+    const end = tagEnd(source, match.index + match[0].length);
+    const tag = source.slice(match.index, end === -1 ? source.length : end);
+    if (expressionIcon(tag, { names: ['icon', 'iconRight'], spread: /^(?:ArenaIcon|arena-icon)$/.test(match[1] ?? ''), element: false })) return true;
   }
   return false;
 }
@@ -276,11 +292,10 @@ export function spriteFiles(options: PlanOptions, { arena, phosphor, map = null,
 
   const missingNames = new Set([...missing.values()].flatMap((names) => [...names].map((one) => `ph-${one}`)));
   const drawnByMembers = new Set(sources.flatMap((source) => [...iconMemberGlyphs(source)]));
-  if (expressive) for (const glyph of glyphNames(yours)) drawnByMembers.add(glyph);
+  if (expressive || sources.some(handsIconExpression)) for (const glyph of glyphNames(yours)) drawnByMembers.add(glyph);
   for (const glyph of glyphNames(yours)) {
     if (drawnByMembers.has(glyph) || missingNames.has(glyph)) continue;
-    reports.push(report('glyph', `${glyph} is in the sprite, and no ArenaIcon, arena-icon or icon attribute in your sources draws it; `
-      + 'an element that draws it through a class of its own paints nothing, so hand it to ArenaIcon as icon'));
+    reports.push(report('glyph', `${glyph} is in the sprite, and no literal in an ArenaIcon, arena-icon or icon attribute names it`));
   }
 
   const name = contentName(SPRITE_STEM, 'svg', svg);

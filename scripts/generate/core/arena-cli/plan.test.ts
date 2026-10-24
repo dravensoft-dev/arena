@@ -861,10 +861,10 @@ test('a static font declaring no weight is served as 400, not as a range it lack
   cleanup(root, held, arena);
 });
 
-async function glyphReportsFor(source: string) {
-  const { root: held, core } = phosphor(['bold', 'fill'], [...PHOSPHOR_GLYPHS, 'kanban']);
+async function glyphReportsFor(given: string | Record<string, string>) {
+  const { root: held, core } = phosphor(['bold', 'fill'], [...PHOSPHOR_GLYPHS, 'kanban', 'star']);
   const arena = hostRoot('@dravensoft/arena-react', '11.1.0', { [ICON_MANIFEST]: SHIPPED });
-  const root = project(readable, { 'App.tsx': source });
+  const root = project(readable, typeof given === 'string' ? { 'App.tsx': given } : given);
   const result = await plan(options(root), environment(core, { arena, sheets: DRAW_SHEETS, map: DRAWS }));
   cleanup(root, held, arena);
   return result.reports.filter((one) => one.kind === 'glyph');
@@ -876,4 +876,32 @@ test('a glyph your sources name that no icon member draws is a glyph report, onc
   assert.match(held[0]?.message ?? '', /ph-kanban/);
   assert.deepEqual(await glyphReportsFor('export const A = () => <ArenaIcon icon="ph-bold ph-kanban" />;\n'), []);
   assert.deepEqual(await glyphReportsFor('export const A = () => <svg><use href="/s.svg#ph-bold-kanban" /></svg>;\n'), []);
+});
+
+const NAMED = "export const TABS = [{ icon: 'ph-bold ph-kanban' }];\n";
+const GLYPH_TEXT = 'ph-kanban is in the sprite, and no literal in an ArenaIcon, arena-icon or icon attribute names it';
+
+test('a project whose every icon is a literal gets the glyph report, worded as what it measured (D2)', async () => {
+  const held = await glyphReportsFor(`${NAMED}export const A = () => <i className={TABS[0].icon} />;\n`);
+  assert.deepEqual(held.map((one) => one.message), [GLYPH_TEXT]);
+});
+
+test('a glyph counts as drawn once any source hands an icon member an expression, project-wide (D2)', async () => {
+  for (const drawn of [
+    'export const A = () => <ArenaIcon icon={tab.icon} />;\n',
+    "export const A = () => <ArenaIconButton icon={dark ? 'ph-bold ph-sun' : 'ph-bold ph-moon'} label=\"x\" />;\n",
+    'export const A = () => <ArenaButton iconRight={row.icon}>x</ArenaButton>;\n',
+    'export const A = () => <ArenaIcon {...props} />;\n',
+  ]) assert.deepEqual(await glyphReportsFor({ 'data.ts': NAMED, 'App.tsx': drawn }), [], drawn);
+  for (const drawn of ['<arena-icon [icon]="tab.icon"></arena-icon>\n', '<arena-button [iconRight]="row.icon">x</arena-button>\n',
+    '<arena-icon icon="{{ tab.icon }}"></arena-icon>\n'])
+    assert.deepEqual(await glyphReportsFor({ 'data.ts': NAMED, 'app.html': drawn }), [], drawn);
+});
+
+test('an element, a non-icon attribute and a spread on a tag that takes no icon leave the report on (P1, N2)', async () => {
+  for (const kept of [
+    'export const A = () => <ArenaButton icon={<Plus />}>x</ArenaButton>;\n',
+    'export const A = () => <ArenaIcon key={n} icon="ph-bold ph-star" />;\n',
+    'export const A = () => <ArenaInput {...field} />;\n',
+  ]) assert.equal((await glyphReportsFor({ 'data.ts': NAMED, 'App.tsx': kept })).length, 1, kept);
 });
