@@ -44,7 +44,7 @@ test('ArenaTableRow meets all three of its declared shapes', () => {
       row: () => {
         const root = mount(
           <table><tbody>
-            <ArenaTableRow interactive layout="table" columns={COLUMNS} rowIndex={1} onClick={() => {}}>
+            <ArenaTableRow interactive layout="table" columns={COLUMNS} rowIndex={1} onActivate={() => {}}>
               <ArenaTableCell>checkout-api</ArenaTableCell>
               <ArenaTableCell>Healthy</ArenaTableCell>
             </ArenaTableRow>
@@ -61,7 +61,7 @@ test('ArenaTableRow meets all three of its declared shapes', () => {
 
       'card-interactive': () => {
         let clicked = 0;
-        const root = card({ interactive: true, onClick: () => { clicked += 1; } });
+        const root = card({ interactive: true, onActivate: () => { clicked += 1; } });
         const el = root.querySelector<HTMLElement>('tr');
 
         assert.equal(el!.getAttribute('role'), 'button',
@@ -82,7 +82,7 @@ test('ArenaTableRow meets all three of its declared shapes', () => {
           'Space must be prevented, or the page scrolls under the row the user just pressed');
 
         let blocked = 0;
-        const off = card({ interactive: true, disabled: true, onClick: () => { blocked += 1; } });
+        const off = card({ interactive: true, disabled: true, onActivate: () => { blocked += 1; } });
         const offEl = off.querySelector<HTMLElement>('tr');
         assert.equal(offEl!.getAttribute('aria-disabled'), 'true',
           'a disabled row must announce itself rather than leave the tab order');
@@ -103,7 +103,7 @@ test('ArenaTableRow meets all three of its declared shapes', () => {
         const root = card();
         const el = root.querySelector<HTMLElement>('tr');
         assert.equal(el!.getAttribute('role'), 'presentation',
-          'with no onClick there is nothing to press, and the table role the element carries natively is '
+          'with no onActivate there is nothing to press, and the table role the element carries natively is '
           + 'stripped rather than left describing a stack of cards as a table');
         assert.equal(el!.hasAttribute('tabindex'), false, 'an inert card must not be in the tab order');
         return { root, subjects: { default: el } };

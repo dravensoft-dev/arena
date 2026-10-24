@@ -77,7 +77,7 @@ export function ArenaCopyButton({ className, text, label, showLabel = false, dis
 
   return (
     <span className={arenaClassName('ArenaCopyButton', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
-      <ArenaIconButton icon={ARENA_COPY_GLYPHS[phase]} label={name} showLabel={showLabel} disabled={off} onClick={copy} />
+      <ArenaIconButton icon={ARENA_COPY_GLYPHS[phase]} label={name} showLabel={showLabel} disabled={off} onActivate={copy} />
       <span role="status" className={styles.announcement()} data-arena-part={manifest.parts.announcement} {...styles.$data.announcement()}>{said}</span>
     </span>
   );

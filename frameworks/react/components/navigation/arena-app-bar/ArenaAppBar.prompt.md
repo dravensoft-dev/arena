@@ -6,8 +6,8 @@ that follow the reader everywhere. The bar is the banner landmark, so a page car
   brand={<Link to="/" aria-label="Meridian Roasters, home"><ArenaAppLogo name="Meridian" className="arena-size-sm" /></Link>}
   nav={<nav aria-label="Shop sections">{destinations.map((d) => <Link key={d.id} to={d.href}>{d.label}</Link>)}</nav>}
   actions={<>
-    <ArenaIconButton icon="ph-bold ph-magnifying-glass" label="Search the catalogue" onClick={openSearch} />
-    <ArenaIconButton icon="ph-bold ph-basket" label="Basket" onClick={openCart} className="arena-emphasis-solid" />
+    <ArenaIconButton icon="ph-bold ph-magnifying-glass" label="Search the catalogue" onActivate={openSearch} />
+    <ArenaIconButton icon="ph-bold ph-basket" label="Basket" onActivate={openCart} className="arena-emphasis-solid" />
   </>} />
 ```
 

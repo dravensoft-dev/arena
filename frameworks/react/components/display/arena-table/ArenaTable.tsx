@@ -253,7 +253,7 @@ export function ArenaTable({ className,
       if (e.key === ' ') return;
       const rowEl = rowEls[curRow - 1];
       if (rowEl && React.isValidElement<ArenaTableRowProps>(rowEl)) {
-        const { onClick: activate, interactive, disabled } = rowEl.props;
+        const { onActivate: activate, interactive, disabled } = rowEl.props;
         if (interactive && activate && !disabled) activate();
       }
       return;

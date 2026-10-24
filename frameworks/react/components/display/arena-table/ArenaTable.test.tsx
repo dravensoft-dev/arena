@@ -185,7 +185,7 @@ test('the first row, a sortable head and a numeric cell are groups on the base s
 test('an interactive row selects the interactive group', () => {
   const html = renderToStaticMarkup(
     <ArenaTable columns={COLUMNS} label={LABEL} responsive={false}>
-      <ArenaTableRow interactive onClick={() => {}}><ArenaTableCell>a</ArenaTableCell><ArenaTableCell>b</ArenaTableCell></ArenaTableRow>
+      <ArenaTableRow interactive onActivate={() => {}}><ArenaTableCell>a</ArenaTableCell><ArenaTableCell>b</ArenaTableCell></ArenaTableRow>
     </ArenaTable>,
   );
   assert.match(html, /data-arena-part="table.row"[^>]*\bdata-arena-interactive=""/);

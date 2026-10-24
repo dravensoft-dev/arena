@@ -1,5 +1,5 @@
 /* `DropsProps` below is the load-bearing fixture: it stands for a consumer's own component
- * that drops the props, so `onClick` arrives and aria-haspopup does not.
+ * that drops every prop, so aria-haspopup does not arrive and the click listener still opens it.
  * Every other assertion here uses a raw <button> -- the one shape a
  * cloneElement injection reaches. It fails without the DOM guarantee. */
 import test, { afterEach } from 'node:test';
@@ -14,6 +14,7 @@ import { isFocusable } from '../../../../../scripts/lib/core/behaviour-complianc
 import { ArenaMenu } from './ArenaMenu.tsx';
 import type { ArenaMenuItem } from '../../../Api.generated';
 import { delayTypeahead } from '../../../Tokens.generated.js';
+import { ArenaButton } from '../../forms/arena-button/ArenaButton.tsx';
 import { ArenaPopover } from '../../feedback/arena-popover/ArenaPopover.tsx';
 
 let restoreClock: (() => void) | null = null;
@@ -42,6 +43,12 @@ function open(root: ParentNode): HTMLElement {
   act(() => { root.querySelector<HTMLElement>('button')!.click(); });
   return root.querySelector<HTMLElement>('[role="menu"]')!;
 }
+
+test('an ArenaButton trigger opens the menu on a press', () => {
+  const host = mount(<ArenaMenu items={[{ label: 'Edit' }]} trigger={<ArenaButton>More</ArenaButton>} />);
+  act(() => { host.querySelector('button')!.click(); });
+  assert.ok(host.querySelector('[role="menu"]'), 'the menu did not open from an ArenaButton trigger');
+});
 
 test('activating an entry reports the whole item, not a key and not a DOM event', () => {
   const items = [{ label: 'Rename' }, { label: 'Archive' }];
@@ -147,7 +154,7 @@ test('ArenaMenu meets the menu-button pattern it binds', () => {
       `a handler of ours cancelled ${key === ' ' ? 'Space' : key}, suppressing the button's own activation`);
   }
   assert.equal(trigger!.tagName, 'BUTTON',
-    'Enter and Space reach onClick through the platform, which needs a real button to do it');
+    'Enter and Space reach the click listener through the platform, which needs a real button to do it');
 
   act(() => { trigger!.click(); });
   const panel = root.querySelector<HTMLElement>('[role="menu"]');
@@ -312,8 +319,8 @@ test('the first enabled row takes focus on open, and a menu of disabled rows ans
   assert.equal(rows.some((row) => row === document.activeElement), false, 'a disabled row took focus');
 });
 
-function DropsProps({ children, onClick }: { children?: React.ReactNode; onClick?: () => void }) {
-  return <button type="button" onClick={onClick}>{children}</button>;
+function DropsProps({ children }: { children?: React.ReactNode }) {
+  return <button type="button">{children}</button>;
 }
 
 test('the popup state reaches a trigger that drops every prop it is handed', () => {

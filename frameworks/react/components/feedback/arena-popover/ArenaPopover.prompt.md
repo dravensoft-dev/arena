@@ -6,7 +6,7 @@ const [open, setOpen] = useState(false);
 <ArenaPopover label="Filters" open={open} onOpenChange={setOpen}
   trigger={<ArenaButton className="arena-emphasis-secondary">Filters</ArenaButton>}>
   <ArenaInput label="Branch" value={branch} onChange={setBranch} />
-  <ArenaButton onClick={() => { apply(branch); setOpen(false); }}>Apply</ArenaButton>
+  <ArenaButton onActivate={() => { apply(branch); setOpen(false); }}>Apply</ArenaButton>
 </ArenaPopover>
 ```
 

@@ -41,7 +41,7 @@ test('the root is a group the label names, holding both halves', () => {
 
 test('activating the primary half reports a click', () => {
   let clicks = 0;
-  const root = mount(split({ onClick: () => { clicks += 1; } }));
+  const root = mount(split({ onActivate: () => { clicks += 1; } }));
   act(() => { halves(root).primary.click(); });
   assert.equal(clicks, 1);
   assert.equal(root.querySelector('[role="menu"]'), null, 'the primary half opened the menu');
@@ -49,7 +49,7 @@ test('activating the primary half reports a click', () => {
 
 test('activating the caret opens the menu and reports no click', () => {
   let clicks = 0;
-  const root = mount(split({ onClick: () => { clicks += 1; } }));
+  const root = mount(split({ onActivate: () => { clicks += 1; } }));
   act(() => { halves(root).caret.click(); });
   assert.ok(root.querySelector('[role="menu"]'), 'the caret did not open the menu');
   assert.equal(clicks, 0, 'a caret press was reported as a primary activation');
@@ -57,7 +57,7 @@ test('activating the caret opens the menu and reports no click', () => {
 
 test('with the menu open, a press on the primary half closes the menu and reports the click once', () => {
   let clicks = 0;
-  const root = mount(split({ onClick: () => { clicks += 1; } }));
+  const root = mount(split({ onActivate: () => { clicks += 1; } }));
   const { primary, caret } = halves(root);
   act(() => { caret.click(); });
   assert.ok(root.querySelector('[role="menu"]'), 'the caret did not open the menu');
@@ -71,7 +71,7 @@ test('with the menu open, a press on the primary half closes the menu and report
 test('loading and disabled each report nothing from the primary half', () => {
   for (const blocked of [{ loading: true }, { disabled: true }]) {
     let clicks = 0;
-    const root = mount(split({ ...blocked, onClick: () => { clicks += 1; } }));
+    const root = mount(split({ ...blocked, onActivate: () => { clicks += 1; } }));
     act(() => { halves(root).primary.click(); });
     assert.equal(clicks, 0, `the primary half reported a click while ${Object.keys(blocked)[0]}`);
     cleanup();

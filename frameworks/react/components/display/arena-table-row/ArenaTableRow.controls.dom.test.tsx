@@ -17,7 +17,7 @@ const COLUMNS = [{ header: 'Pick' }, { header: 'Service' }, { header: 'Act' }];
 function table(seen: { activated: number; ran: number; ticked: number }, extra: Record<string, unknown> = {}) {
   return mount(
     <ArenaTable label="Recent deployments" columns={COLUMNS} responsive={false}>
-      <ArenaTableRow interactive onClick={() => { seen.activated += 1; }} {...extra}>
+      <ArenaTableRow interactive onActivate={() => { seen.activated += 1; }} {...extra}>
         <ArenaTableCell>
           <input type="checkbox" onChange={() => { seen.ticked += 1; }} />
         </ArenaTableCell>

@@ -43,7 +43,7 @@ export interface ArenaSplitButtonProps {
   align?: ArenaMenuAlign;
 
   /** The primary half was activated, by pointer or by keyboard. Never reported while loading or disabled. */
-  onClick?: () => void;
+  onActivate?: () => void;
 
   /** A menu entry was activated; carries the whole item. A disabled entry reports nothing, and a divider or a header cannot be activated at all. */
   onSelect?: (item: ArenaMenuItem) => void;
@@ -53,7 +53,7 @@ const arenaSplitButtonStyles = arenaStyles(manifest);
 
 export function ArenaSplitButton({
   className, children, icon, destructive = false, loading = false, disabled = false, type = 'button',
-  label, menuLabel, items, align = 'end', onClick, onSelect,
+  label, menuLabel, items, align = 'end', onActivate, onSelect,
 }: ArenaSplitButtonProps) {
   if (!label?.trim()) throw new Error('ArenaSplitButton: `label` is required, and names the group of both halves');
   if (!menuLabel?.trim()) throw new Error('ArenaSplitButton: `menuLabel` is required, and names the caret half');
@@ -68,7 +68,7 @@ export function ArenaSplitButton({
   return (
     <div role="group" aria-label={label} ref={rootRef}
       className={arenaClassName('ArenaSplitButton', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()}>
-      <button type={type} disabled={blocked} onClick={() => { if (!blocked) onClick?.(); }}
+      <button type={type} disabled={blocked} onClick={() => { if (!blocked) onActivate?.(); }}
         className={styles.primary()} data-arena-part={manifest.parts.primary} {...styles.$data.primary()} data-arena-boundary="">
         {loading
           ? <span className={styles.spinner()} data-arena-part={manifest.parts.spinner} {...styles.$data.spinner()} aria-hidden="true" />

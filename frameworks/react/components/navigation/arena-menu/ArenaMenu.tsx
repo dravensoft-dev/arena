@@ -142,14 +142,17 @@ export function ArenaMenu({ className, trigger, items, align = 'start', onSelect
     el.setAttribute('aria-expanded', String(present));
   }, [present]);
 
+  useEffect(() => {
+    const el = triggerEl();
+    if (!el) return;
+    const toggle = () => setOpen((v) => !v);
+    el.addEventListener('click', toggle);
+    return () => el.removeEventListener('click', toggle);
+  });
+
   const decoratedTrigger = React.cloneElement(trigger, {
     'aria-haspopup': 'menu',
     'aria-expanded': present,
-    onClick: (e: React.MouseEvent) => {
-      const own = (trigger.props as { onClick?: (event: React.MouseEvent) => void }).onClick;
-      if (own) own(e);
-      setOpen((v) => !v);
-    },
   });
 
   const styles = arenaMenuStyles();

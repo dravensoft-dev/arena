@@ -2,7 +2,7 @@ Modal for confirmations and short forms. Overlay with blur.
 
 ```tsx
 <ArenaDialog open={o} onClose={close} className="arena-dialog-width-lg" eyebrow="Confirm" title="Deploy to production"
-  footer={<><ArenaButton onClick={close} className="arena-emphasis-ghost">Cancel</ArenaButton><ArenaButton onClick={go}>Deploy</ArenaButton></>}>
+  footer={<><ArenaButton onActivate={close} className="arena-emphasis-ghost">Cancel</ArenaButton><ArenaButton onActivate={go}>Deploy</ArenaButton></>}>
   This action publishes build #4821 for all users.
 </ArenaDialog>
 ```

@@ -51,7 +51,7 @@ function assertConvention(name: string, anchor: () => Element, reported: () => n
 
 test('ArenaCard.href reports the primary click and leaves every other one to the browser', () => {
   let clicked = 0;
-  const root = mount(<ArenaCard href="/clients/acme" title="Acme Corp" onClick={() => { clicked += 1; }} />);
+  const root = mount(<ArenaCard href="/clients/acme" title="Acme Corp" onActivate={() => { clicked += 1; }} />);
   assertConvention('ArenaCard', () => root.firstElementChild!, () => clicked);
 });
 

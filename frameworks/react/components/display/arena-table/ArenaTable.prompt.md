@@ -12,7 +12,7 @@ The table is a **compound** component. `columns` says how each column is headed 
     { header:'p95', key:'p95', numeric:true },
   ]}>
   {deploys.map((d) => (
-    <ArenaTableRow key={d.build} interactive onClick={() => openDeploy(d)}>
+    <ArenaTableRow key={d.build} interactive onActivate={() => openDeploy(d)}>
       <ArenaTableCell>{d.build}</ArenaTableCell>
       <ArenaTableCell>{d.project}</ArenaTableCell>
       <ArenaTableCell><ArenaBadge tone={d.ok ? 'success' : 'danger'} dot>{d.status}</ArenaBadge></ArenaTableCell>
@@ -87,7 +87,7 @@ The table is a **compound** component. `columns` says how each column is headed 
 - Don't use it for layout; it's for real tabular data.
 - Mark the actions column `mobileLayout:'block'`. The column's buttons name themselves, and pairing them with an "ACTIONS" label reads as a mistake.
 - Don't set `responsive={false}` to "keep it looking like a table" on a phone. A table narrower than its content is unreadable; card mode is the honest fallback.
-- Row activation is `onClick` on the `ArenaTableRow`, and it carries no payload, because you wrote that element and already hold the row it is about.
+- Row activation is `onActivate` on the `ArenaTableRow`, and it carries no payload, because you wrote that element and already hold the row it is about.
 - Pass `empty` whenever the table can legitimately have no rows. With nothing passed, the table says the locale's `tableEmpty`, **`No data.`** by default, which is a placeholder rather than an answer. The fallback says the query returned nothing, and never says what was being asked for. A table's empty state is editorial the way `label` is.
 - Don't make the table slice its children or hold the rows. Your data is the window, and `ArenaTable` renders what it is given.
 - Don't give the table a scroll container, a height or a vertical scroller of its own. The box that scrolls is yours.
@@ -127,7 +127,7 @@ Each column picks its card-mode layout with `mobileLayout`:
 
 ### Keyboard
 
-The wide layout is a `role="grid"` with **one** tab stop. Tab reaches the grid. The header row is row 0 and is navigable, as APG prescribes. `Enter` activates the cursor's row by calling that `ArenaTableRow`'s `onClick`. There is no step-in: a control you drew inside a cell keeps its own place in the page Tab sequence, so nothing you own is silenced.
+The wide layout is a `role="grid"` with **one** tab stop. Tab reaches the grid. The header row is row 0 and is navigable, as APG prescribes. `Enter` activates the cursor's row by calling that `ArenaTableRow`'s `onActivate`. There is no step-in: a control you drew inside a cell keeps its own place in the page Tab sequence, so nothing you own is silenced.
 
 The grid is **not assumed rectangular**. A row may carry fewer or more cells than there are columns, and the cursor is clamped against the row it is actually in. With no rows there is no grid at all: no header row and no `role="grid"`, only the `empty` block.
 
@@ -162,12 +162,12 @@ Serve the tree with `bun run demos`, open
    than there are columns: the cursor must clamp against the row it is in, not
    against `columns.length`.
 4. Walk a middle row for `Home` and `End`, not only the first: they never leave the row.
-5. `Enter` activates the row when the `ArenaTableRow` has `onClick`, and does nothing on
+5. `Enter` activates the row when the `ArenaTableRow` has `onActivate`, and does nothing on
    the header row.
 6. Card mode answers none of the grid keyboard, and it is not supposed to. That page
    renders the SAME table twice, the second time in a 340px container, so card mode is
    already on screen. Check that a card whose row carries `interactive` is a single tab stop that announces itself as a button and activates on Enter and Space. Check that a card whose row has none took no `role`, `tabindex` or key handler by accident. `interactive`
-   is what decides that, never whether `onClick` was passed: Arena derives no render from a bound listener.
+   is what decides that, never whether `onActivate` was passed: Arena derives no render from a bound listener.
 
 ### A windowed table, on a page of your own
 

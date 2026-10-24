@@ -47,7 +47,7 @@ export interface ArenaButtonProps {
   tabStop?: boolean;
 
   /** The button was activated, by pointer or by keyboard. */
-  onClick?: () => void;
+  onActivate?: () => void;
 
   /** Written by Arena's popover and menu when this button is their trigger: what it opens. */
   'aria-haspopup'?: React.AriaAttributes['aria-haspopup'];
@@ -65,7 +65,7 @@ const arenaButtonStyles = arenaStyles(manifest);
 export function ArenaButton({ className, 
   children, destructive = false, icon, iconRight,
   disabled = false, loading = false,
-  type = 'button', name, value, autoFocus = false, form, onClick, tabStop = true,
+  type = 'button', name, value, autoFocus = false, form, onActivate, tabStop = true,
   'aria-haspopup': ariaHasPopup, 'aria-expanded': ariaExpanded, 'aria-controls': ariaControls, 'aria-describedby': ariaDescribedBy,
 }: ArenaButtonProps) {
   const styles = arenaButtonStyles({ destructive });
@@ -78,7 +78,7 @@ export function ArenaButton({ className,
       value={value}
       autoFocus={autoFocus}
       form={form}
-      onClick={onClick}
+      onClick={onActivate}
       tabIndex={tabStop ? undefined : -1}
       disabled={disabled || loading}
       aria-haspopup={ariaHasPopup} aria-expanded={ariaExpanded} aria-controls={ariaControls} aria-describedby={ariaDescribedBy}

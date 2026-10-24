@@ -52,7 +52,7 @@ test('ArenaCard meets both of its declared shapes', () => {
 
       interactive: () => {
         let clicked = 0;
-        const root = mount(<ArenaCard title="checkout-api" interactive onClick={() => { clicked += 1; }} />);
+        const root = mount(<ArenaCard title="checkout-api" interactive onActivate={() => { clicked += 1; }} />);
         const el = root.firstElementChild;
 
         assert.equal(el!.tagName, 'DIV', 'the card is a div, which is why it CAN take role="button"');
@@ -74,7 +74,7 @@ test('ArenaCard meets both of its declared shapes', () => {
           'Space must be prevented, or the page scrolls under the card the user just pressed');
 
         let blocked = 0;
-        const off = mount(<ArenaCard title="checkout-api" interactive disabled onClick={() => { blocked += 1; }} />);
+        const off = mount(<ArenaCard title="checkout-api" interactive disabled onActivate={() => { blocked += 1; }} />);
         const offEl = off.firstElementChild;
         assert.equal(offEl!.getAttribute('aria-disabled'), 'true',
           'a disabled card must announce itself rather than leave the tab order');
@@ -99,7 +99,7 @@ test('ArenaCard meets both of its declared shapes', () => {
 test('a keypress on a control inside the card does not activate the card as well', () => {
   let clicked = 0;
   const root = mount(
-    <ArenaCard title="checkout-api" interactive onClick={() => { clicked += 1; }}>
+    <ArenaCard title="checkout-api" interactive onActivate={() => { clicked += 1; }}>
       <input aria-label="Rename" />
     </ArenaCard>,
   );
@@ -118,7 +118,7 @@ test('a pointer click on a control inside the card leaves the press with the con
   let card = 0;
   let button = 0;
   const root = mount(
-    <ArenaCard title="checkout-api" interactive onClick={() => { card += 1; }}>
+    <ArenaCard title="checkout-api" interactive onActivate={() => { card += 1; }}>
       <button type="button" onClick={() => { button += 1; }}>Rename</button>
     </ArenaCard>,
   );
@@ -131,7 +131,7 @@ test('a pointer click on a control inside the card leaves the press with the con
 test('a pointer click on the card itself still activates it, whatever it was rendered over', () => {
   let card = 0;
   const root = mount(
-    <ArenaCard title="checkout-api" interactive onClick={() => { card += 1; }}>
+    <ArenaCard title="checkout-api" interactive onActivate={() => { card += 1; }}>
       <p>Everything the client can see.</p>
     </ArenaCard>,
   );

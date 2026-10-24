@@ -5,7 +5,7 @@ Base container. Use `eyebrow` (the eyebrow ink, in the mono face) and `title` (t
   …
 </ArenaCard>
 
-<ArenaCard interactive title="checkout-api" onClick={() => open(service)}>Healthy · 14 replicas</ArenaCard>
+<ArenaCard interactive title="checkout-api" onActivate={() => open(service)}>Healthy · 14 replicas</ArenaCard>
 ```
 
 <!-- @api GENERATED from contracts/api/components/ArenaCard.json. Edit the contract, not this table. -->
@@ -40,7 +40,7 @@ Base container. Use `eyebrow` (the eyebrow ink, in the mono face) and `title` (t
 - `Enter`: activate.
 <!-- @keys end -->
 
-**`interactive` makes the whole card one activation target**, which is the ordinary shape of a list on a phone. The member is a declared boolean rather than "is `onClick` bound?". Arena never derives what it draws from what a consumer listens for. `ArenaTableRow.interactive` gives the same answer. Arena writes `role="button"`, a tab stop and an
+**`interactive` makes the whole card one activation target**, which is the ordinary shape of a list on a phone. The member is a declared boolean rather than "is `onActivate` bound?". Arena never derives what it draws from what a consumer listens for. `ArenaTableRow.interactive` gives the same answer. Arena writes `role="button"`, a tab stop and an
 Enter/Space handler, and draws the surface's own hover and focus states. Without it the card is
 inert and adds no tab stop, because a dead stop on every card of every list is worse than the gap
 it would close.
@@ -54,7 +54,7 @@ it would close.
 ```tsx
 <ArenaCard title="Acme Corp">
   <p>Everything the client can see.</p>
-  <ArenaButton onClick={() => open('acme')}>Open</ArenaButton>
+  <ArenaButton onActivate={() => open('acme')}>Open</ArenaButton>
 </ArenaCard>
 ```
 
@@ -71,21 +71,21 @@ as a link. The split and the reason are `ArenaSideNavItem`'s own `href`. An `hre
 refuses activation through `aria-disabled` and prevents the anchor's default.
 
 ```tsx
-<ArenaCard href="/clients/acme" title="Acme Corp" onClick={() => navigate('/clients/acme')}>
+<ArenaCard href="/clients/acme" title="Acme Corp" onActivate={() => navigate('/clients/acme')}>
   <p>Everything the client can see.</p>
 </ArenaCard>
 ```
 
-**`href` reports its plain activation through `onClick`**, so your router's navigate in that
+**`href` reports its plain activation through `onActivate`**, so your router's navigate in that
 handler is the whole bridge and the page does not reload. The modified clicks stay the
 browser's and fire nothing, which is why the member is worth having over `interactive`. Bind
 nothing and the card is a plain link that navigates the document.
 
 **Don't wrap an `ArenaCard` in your router's `Link`.** That nests an anchor inside an anchor, which
-is invalid and reachable by nobody. Give the card the `href` and route in `onClick`.
+is invalid and reachable by nobody. Give the card the `href` and route in `onActivate`.
 
 Choose between the two by what the press DOES. A card that goes somewhere is `href`; a card
-that changes local state is `interactive` with `onClick`. And a card whose body holds controls of its own is `interactive` rather than `href`. The anchor wraps the whole surface, so a button inside it is a control inside a link. That nesting is exactly what `interactive` was made a `role="button"` div to avoid.
+that changes local state is `interactive` with `onActivate`. And a card whose body holds controls of its own is `interactive` rather than `href`. The anchor wraps the whole surface, so a button inside it is a control inside a link. That nesting is exactly what `interactive` was made a `role="button"` div to avoid.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

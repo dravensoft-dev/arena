@@ -16,7 +16,7 @@ Two things this default is not. The default is not a `'UTC'` fallback. Such a fa
 >
   {classes.map((c) => (
     <ArenaCalendarEvent key={c.id} id={c.id} title={c.name} start={c.start} end={c.end}
-      colorId={c.room} onClick={() => open(c)} />
+      colorId={c.room} onActivate={() => open(c)} />
   ))}
 </ArenaCalendar>
 ```
@@ -74,7 +74,7 @@ head that holds it.
 
 **The chip body is Arena's, and there is nothing you can put inside it.** A `ArenaCalendarEvent` carries `id`, `title`, `start`, `end` and `colorId`. Arena draws all of it: the title, the time range and the identity colour. There is no per-event renderer, because a function returning markup is not a member of any Arena contract. Per-item projection has no answer on every layer Arena targets. Writing `<ArenaCalendarEvent>` as an element does not change that: it is the element Arena draws, not a wrapper around markup of yours.
 
-**Activation lives on the event, and it is declared.** There is no `onEventClick` on `ArenaCalendar`; each `ArenaCalendarEvent` takes its own `onClick` and its own `interactive`. The handler carries no payload and needs none: you wrote the element, so it already closes over whatever the event is in your data, with no id-to-object lookup in between. **Pass `interactive` alongside `onClick` or the chip is inert**: a read-only schedule leaves it off and announces events rather than a screenful of buttons that do nothing.
+**Activation lives on the event, and it is declared.** There is no `onEventClick` on `ArenaCalendar`; each `ArenaCalendarEvent` takes its own `onActivate` and its own `interactive`. The handler carries no payload and needs none: you wrote the element, so it already closes over whatever the event is in your data, with no id-to-object lookup in between. **Pass `interactive` alongside `onActivate` or the chip is inert**: a read-only schedule leaves it off and announces events rather than a screenful of buttons that do nothing.
 
 **So a consumer cannot mark an event cancelled or tentative at all.** Colour is spoken for by identity. The non-chromatic channel a strikethrough or a dashed border would have used is no longer reachable. Two routes are left. Say it in the `title` (`'Ballet I, cancelled'`), which is text Arena draws and a screen reader announces. Or do not render an `ArenaCalendarEvent` for it at all, and show it somewhere that is not the schedule. Neither is a styling hook, and that is deliberate rather than pending.
 

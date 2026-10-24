@@ -6,7 +6,7 @@ that is an `ArenaDialog`**, two stacking slots higher, and the scrim is how it s
 <ArenaSheet open={cartOpen} className="arena-placement-end" title="Cart"
        collapsed={folded} onCollapsedChange={setFolded}
        dismissible onClose={() => setCartOpen(false)}
-       footer={<ArenaButton onClick={checkout}>Checkout</ArenaButton>}>
+       footer={<ArenaButton onActivate={checkout}>Checkout</ArenaButton>}>
   {lines.map((line) => <CartLine key={line.id} line={line} />)}
 </ArenaSheet>
 ```

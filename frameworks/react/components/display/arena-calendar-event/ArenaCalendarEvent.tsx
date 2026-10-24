@@ -28,7 +28,7 @@ export interface ArenaCalendarEventProps {
   /** Identity colour. Give the same entity the same slot everywhere and it keeps its colour across views. */
   colorId?: ArenaCatSlot;
 
-  /** Whether the chip can be activated. A boolean rather than "is `onClick` bound?", because Arena never derives what it draws from what a consumer listens for. `ArenaTableRow.interactive` is a member for the same reason. An interactive chip is a <button> a keyboard user reaches with Enter from the hour cell it overlaps. A non-interactive one draws the same chip with no role and no activation, so a read-only schedule announces events rather than a screenful of buttons that do nothing. */
+  /** Whether the chip can be activated. A boolean rather than "is `onActivate` bound?", because Arena never derives what it draws from what a consumer listens for. `ArenaTableRow.interactive` is a member for the same reason. An interactive chip is a <button> a keyboard user reaches with Enter from the hour cell it overlaps. A non-interactive one draws the same chip with no role and no activation, so a read-only schedule announces events rather than a screenful of buttons that do nothing. */
   interactive?: boolean;
 
   /** Whether the chip is drawn but cannot be activated: an event a consumer's rules lock, such as one already past or owned by someone else. The state reflects through `aria-disabled` rather than the native `disabled` attribute. The chip keeps its place in the grid's roving Tab sequence and is announced as unavailable instead of disappearing from it. With `interactive` false there is nothing to activate and the chip is inert already. */
@@ -41,7 +41,7 @@ export interface ArenaCalendarEventProps {
   actions?: React.ReactNode;
 
   /** The chip was activated. No payload: the consumer wrote this element, so they already hold the event this is about. Never emitted while `disabled`. */
-  onClick?: () => void;
+  onActivate?: () => void;
 
   /** Lines drawn under the time label, one per entry, each truncated to a single line: the people involved, a room, a capacity. Arena decides how many fit, shedding the last first and then the time label, and every entry reaches what the chip announces whether it is drawn or shed. */
   details?: readonly string[];
@@ -65,7 +65,7 @@ const chipStyles = arenaStyles(manifest);
 export const ArenaCalendarEvent = React.forwardRef<
 HTMLElement, ArenaCalendarEventProps & Partial<ArenaCalendarEventInjected>
 >(function ArenaCalendarEvent({
-  className, id, title, start, end, colorId, onClick, interactive = false, disabled = false,
+  className, id, title, start, end, colorId, onActivate, interactive = false, disabled = false,
   actionsEnabled = false, actions, details = [],
   box, domId, timeLabel, dateLabel, showTime, shownDetails = 0, actionsBelow, tabIndex, defaultPanelOpen,
 }, ref) {
@@ -94,7 +94,7 @@ HTMLElement, ArenaCalendarEventProps & Partial<ArenaCalendarEventInjected>
 
   const activate = (e: React.SyntheticEvent) => {
     e.stopPropagation();
-    if (interactive && !disabled && onClick) onClick();
+    if (interactive && !disabled && onActivate) onActivate();
   };
 
   const focusableRef = React.useRef<HTMLElement | null>(null);
@@ -184,7 +184,7 @@ HTMLElement, ArenaCalendarEventProps & Partial<ArenaCalendarEventInjected>
           <span ref={kebabWrapRef} className={styles.kebabWrap()} data-arena-part={manifest.parts.kebabWrap} {...styles.$data.kebabWrap()}>
             <ArenaIconButton icon="ph-bold ph-dots-three-vertical" label={locale.calendarEventActions} className="arena-size-sm"
               tabStop={false}
-              onClick={() => { openedByUser.current = !panelOpen; setPanelOpen((o) => !o); }} />
+              onActivate={() => { openedByUser.current = !panelOpen; setPanelOpen((o) => !o); }} />
             {panelOpen && (
               <span ref={panelRef} className={styles.panel()} data-arena-part={manifest.parts.panel} {...styles.$data.panel()} data-arena-boundary="">
                 {actions}

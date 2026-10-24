@@ -1,7 +1,7 @@
 Action button. The main action is the default emphasis, `arena-emphasis-primary` (the primary fill), maximum one per view.
 
 ```tsx
-<ArenaButton onClick={deploy}>Deploy</ArenaButton>
+<ArenaButton onActivate={deploy}>Deploy</ArenaButton>
 <ArenaButton icon="ph-bold ph-arrow-counter-clockwise" className="arena-emphasis-secondary">Roll back</ArenaButton>
 <ArenaButton iconRight="ph-bold ph-caret-down" className="arena-emphasis-secondary">Actions</ArenaButton>
 <ArenaButton className="arena-emphasis-ghost arena-size-sm">Cancel</ArenaButton>

@@ -44,7 +44,7 @@ export interface ArenaIconButtonProps {
   tabStop?: boolean;
 
   /** The button was activated, by pointer or by keyboard. */
-  onClick?: () => void;
+  onActivate?: () => void;
 
   /** Written by Arena's popover and menu when this button is their trigger: what it opens. */
   'aria-haspopup'?: React.AriaAttributes['aria-haspopup'];
@@ -61,14 +61,14 @@ const arenaIconButtonStyles = arenaStyles(manifest);
 
 export function ArenaIconButton({ className, 
   icon, label, pressed, showLabel = false, disabled = false,
-  type = 'button', name, value, autoFocus = false, form, onClick, tabStop = true,
+  type = 'button', name, value, autoFocus = false, form, onActivate, tabStop = true,
   'aria-haspopup': ariaHasPopup, 'aria-expanded': ariaExpanded, 'aria-controls': ariaControls, 'aria-describedby': ariaDescribedBy,
 }: ArenaIconButtonProps) {
   if (!icon) throw new Error('ArenaIconButton: `icon` is required');
   if (!label) throw new Error('ArenaIconButton: `label` is required');
   const styles = arenaIconButtonStyles({ showLabel, pressed });
   return (
-    <button type={type} name={name} value={value} autoFocus={autoFocus} form={form} onClick={onClick}
+    <button type={type} name={name} value={value} autoFocus={autoFocus} form={form} onClick={onActivate}
 
       tabIndex={tabStop ? undefined : -1}
       aria-haspopup={ariaHasPopup} aria-expanded={ariaExpanded} aria-controls={ariaControls} aria-describedby={ariaDescribedBy}

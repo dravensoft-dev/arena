@@ -32,14 +32,14 @@ export interface ArenaCardProps {
   href?: string;
 
   /** An interactive card was activated, by pointer or by Enter or Space. With `href` the event is also how the card reports the one activation a router owns, a primary click or Enter with no modifier. Arena has already cancelled the anchor's own navigation by the time it fires. A modified or middle click is the browser's and does not fire it at all. No payload, because the consumer wrote this element and already holds what it is about. */
-  onClick?: () => void;
+  onActivate?: () => void;
 }
 
 const arenaCardStyles = arenaStyles(manifest);
 
 export function ArenaCard({ className, 
   children, title, headingLevel = 'h3', eyebrow, action,
-  interactive = false, disabled = false, href, onClick,
+  interactive = false, disabled = false, href, onActivate,
 }: ArenaCardProps) {
   const Heading = headingLevel === 'none' ? 'div' : headingLevel;
   const target = href !== undefined;
@@ -47,7 +47,7 @@ export function ArenaCard({ className,
   const styles = arenaCardStyles({ interactive: acts });
 
   const activate = () => {
-    if (acts && !disabled) onClick?.();
+    if (acts && !disabled) onActivate?.();
   };
 
   const own = (event: React.MouseEvent<Element> | React.KeyboardEvent<Element>) =>

@@ -57,14 +57,14 @@ test('ArenaCalendarEvent hands its ref to the element that takes focus, panel or
   };
   const plain = React.createRef<HTMLElement>();
   mount(<ArenaCalendarEvent ref={plain} id="a" title="Standup" start="2026-07-20T09:00:00Z"
-    end="2026-07-20T09:30:00Z" interactive onClick={() => {}} {...injected} />);
+    end="2026-07-20T09:30:00Z" interactive onActivate={() => {}} {...injected} />);
   assert.equal(plain.current!.tagName, 'BUTTON', 'the plain chip is not its own button any more');
   assert.equal(plain.current!.getAttribute('tabindex'), '-1',
     'the plain chip cannot be focused programmatically');
 
   const paneled = React.createRef<HTMLElement>();
   mount(<ArenaCalendarEvent ref={paneled} id="b" title="Standup" start="2026-07-20T09:00:00Z"
-    end="2026-07-20T09:30:00Z" interactive onClick={() => {}} actionsEnabled
+    end="2026-07-20T09:30:00Z" interactive onActivate={() => {}} actionsEnabled
     actions={<button type="button">Delete</button>} {...injected} />);
   assert.equal(paneled.current!.tagName, 'BUTTON',
     'a paneled chip forwarded its ref to an element ArenaCalendar cannot focus');
@@ -81,7 +81,7 @@ const CHIP = {
 };
 const mountChip = (extra: Record<string, unknown> = {}) => mount(
   <ArenaCalendarEvent id="a" title="Standup" start="2026-07-20T09:00:00Z" end="2026-07-20T09:30:00Z"
-    interactive onClick={() => {}} actionsEnabled actions={<button type="button">Delete</button>}
+    interactive onActivate={() => {}} actionsEnabled actions={<button type="button">Delete</button>}
     {...CHIP} {...extra} />,
 );
 const kebabOf = (c: ParentNode) => [...c.querySelectorAll<HTMLElement>('button')].find((b) => b.getAttribute('aria-label') === 'Actions');

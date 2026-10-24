@@ -47,7 +47,7 @@ export function ArenaErrorState({ className, icon, title, headingLevel = 'h3', m
       {code && <code className={styles.code()} data-arena-part={manifest.parts.code} {...styles.$data.code()}>{code}</code>}
       {(retryLabel || hasSecondary) && (
         <div className={styles.actions()} data-arena-part={manifest.parts.actions} {...styles.$data.actions()} data-arena-boundary="">
-          {retryLabel && <ArenaButton onClick={onRetry}>{retryLabel}</ArenaButton>}
+          {retryLabel && <ArenaButton onActivate={onRetry}>{retryLabel}</ArenaButton>}
           {secondaryAction}
         </div>
       )}
