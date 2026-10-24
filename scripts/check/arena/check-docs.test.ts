@@ -17,6 +17,7 @@ import {
   RULE_OWNERS, CONTRIBUTOR_BRANCH, ruleOwnerProblems, statesRule, CONSUMER_OWN_OUTPUT,
   FOREIGN_CODE, foreignCodeProblems, componentCountProblems,
   blobLinkProblems, COMMENT_RULE_SKIPS, SOURCE_EXTENSIONS, MAX_CELL_CHARS, cellSizeProblems,
+  hueProblems,
 } from './check-docs.ts';
 
 function tree(files: Record<string, string>) {
@@ -660,5 +661,49 @@ test('a GitHub blob link into this repository fails outside the npm pages and th
   const problems = blobLinkProblems(root);
   assert.equal(problems.length, 1);
   assert.match(problems[0] ?? '', /^intro\/AGENTS\.md:1: .*relative path/);
+  rmSync(root, { recursive: true });
+});
+
+test('no prompt prose and no contract description names a hue of the default skin', () => {
+  assert.deepEqual(hueProblems(), []);
+});
+
+test('a hue word in a class or asset name passes and one in prose two words on fails', () => {
+  const root = tree({
+    'frameworks/react/components/x/ArenaX.prompt.md':
+      'Add `arena-accent-gold` and `rotor-crimson.svg`, then paint it gold.\n',
+  });
+  const problems = hueProblems(root);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /"gold"/);
+  rmSync(root, { recursive: true });
+});
+
+test('a hue word in a generated region is reported where it is written', () => {
+  const root = tree({
+    'frameworks/react/components/x/ArenaX.prompt.md':
+      '<!-- @api GENERATED from contracts/api/components/ArenaX.json. Edit the contract, not this table. -->\n'
+      + '| `tone` | primitive | `string` |  | Turns crimson. |\n<!-- @api end -->\n',
+    'contracts/api/components/ArenaX.json': JSON.stringify({ description: 'Turns crimson.' }),
+  });
+  const problems = hueProblems(root);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /contracts\/api\/components\/ArenaX\.json/);
+  rmSync(root, { recursive: true });
+});
+
+test('a hue inside a longer word is no hue', () => {
+  const root = tree({
+    'frameworks/react/components/x/ArenaX.prompt.md': 'A reddish tint, Redis, bones and a golden rule.\n',
+  });
+  assert.deepEqual(hueProblems(root), []);
+  rmSync(root, { recursive: true });
+});
+
+test('a hue-named custom property is refused even in a code span', () => {
+  const root = tree({
+    'frameworks/react/components/x/ArenaX.prompt.md': 'Read `--crimson-soft` behind `--bone`.\n',
+  });
+  assert.equal(hueProblems(root).length, 2);
   rmSync(root, { recursive: true });
 });

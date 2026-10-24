@@ -20,6 +20,8 @@ import { repoRoot as ROOT } from '../../lib/arena/repo-root.ts';
 import { emittedTree } from '../../lib/arena/layers.ts';
 import { relPosix } from '../../utils/posix-path.ts';
 import { withForeignTrees } from '../../lib/arena/foreign-trees.ts';
+import { REGION_OPENS, REGION_CLOSES } from './check-duplication.ts';
+import { strands } from './check-contracts-neutrality.ts';
 
 export const MAX_DOCUMENT_CHARS = 60_000;
 export const MAX_CELL_CHARS = 2_000;
@@ -520,6 +522,68 @@ export function branchSwitchProblems(root = ROOT) {
     .map((rel) => `BRANCH_SWITCH exempts ${rel}, which is not there -- a stale exemption is worse than none`);
 }
 
+export const HUE_WORDS = ['crimson', 'gold', 'green', 'amber', 'bone', 'red'];
+export const HUE_TOKENS = /--(crimson|gold|bone)\b[\w-]*/;
+
+const HUE_WORD = new RegExp(`\\b(${HUE_WORDS.join('|')})\\b`, 'gi');
+const HUE_TOKEN = new RegExp(HUE_TOKENS.source, 'g');
+const CODE_SPAN = /(`+)[\s\S]*?\1/g;
+
+function blankKeepingLines(text: string) {
+  return text.replace(/[^\n]/g, ' ');
+}
+
+function withoutRegions(source: string) {
+  let inside = false;
+  return source.split('\n').map((line) => {
+    if (!inside && REGION_OPENS.test(line)) { inside = true; return ''; }
+    if (inside) { inside = !REGION_CLOSES.test(line); return ''; }
+    return line;
+  }).join('\n');
+}
+
+function filesUnder(root: string, tree: string) {
+  const dir = join(root, tree);
+  return existsSync(dir) ? walkFiles(dir, { skip: (name) => SKIPPED_DIRECTORIES.has(name) }) : [];
+}
+
+function hueFindings(text: string, where: (offset: number) => string) {
+  const found: string[] = [];
+  for (const m of text.matchAll(HUE_TOKEN)) {
+    found.push(
+      `${where(m.index)}: names ${m[0]}, a compatibility alias no component reads; `
+      + 'name the role the part reads',
+    );
+  }
+  const plain = text.replace(CODE_SPAN, blankKeepingLines).replace(HUE_TOKEN, blankKeepingLines);
+  for (const m of plain.matchAll(HUE_WORD)) {
+    found.push(
+      `${where(m.index)}: names the default skin's hue "${m[0].toLowerCase()}", which another skin `
+      + 'paints in another colour; name the slot it paints (the primary fill, the focus ring, '
+      + 'the danger tone)',
+    );
+  }
+  return found;
+}
+
+export function hueProblems(root = ROOT) {
+  const problems: string[] = [];
+  for (const path of filesUnder(root, 'frameworks')) {
+    if (!path.endsWith('.prompt.md')) continue;
+    const rel = relPosix(root, path);
+    const text = unfenced(withoutRegions(readFileSync(path, 'utf8')));
+    problems.push(...hueFindings(text, (at) => `${rel}:${text.slice(0, at).split('\n').length}`));
+  }
+  for (const path of filesUnder(root, 'contracts/api')) {
+    if (!path.endsWith('.json')) continue;
+    const rel = relPosix(root, path);
+    for (const strand of strands(rel, readJson(path))) {
+      if (strand.prose) problems.push(...hueFindings(strand.text, () => `${rel}:${strand.path}`));
+    }
+  }
+  return problems;
+}
+
 function main() {
   const sizes = documentSizeProblems();
   const punctuation = punctuationProblems();
@@ -536,7 +600,7 @@ function main() {
   const problems = [
     ...empty, ...branchSwitchProblems(), ...sizes.problems, ...cells.problems, ...punctuation.problems,
     ...comments.problems, ...branch.problems, ...ruleOwnerProblems(), ...foreign.problems,
-    ...counts.problems, ...blobLinkProblems(),
+    ...counts.problems, ...blobLinkProblems(), ...hueProblems(),
   ];
 
   if (problems.length > 0) {
