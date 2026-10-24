@@ -84,6 +84,18 @@ test('ArenaConfirmDialog points aria-describedby at its body', () => {
   assert.match(described.textContent ?? '', /Body/);
 });
 
+test('assertPattern refuses an also pattern with no file, and says it came from also', () => {
+  const p = tempBindingPath('unknown-also');
+  writeFileSync(p, JSON.stringify({ pattern: 'dialog-modal', exceptions: [], also: [{ pattern: 'no-such-pattern', exceptions: [] }] }));
+  try {
+    const container = mount(<ArenaDialog open onClose={() => {}} title="t"><p>b</p></ArenaDialog>);
+    assert.throws(() => assertPattern({ root: container, bindingPath: p, behavioural: DIALOG_BEHAVIOURAL }),
+      /names pattern "no-such-pattern" in `also`/);
+  } finally {
+    unlinkSync(p);
+  }
+});
+
 test('assertPattern reports a stale exception', () => {
   const p = tempBindingPath('stale');
 

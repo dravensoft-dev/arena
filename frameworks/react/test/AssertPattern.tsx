@@ -100,7 +100,7 @@ function alsoEntries(binding: unknown, bindingPath: string): { pattern: Pattern;
   return bindingAlsoFn(binding).map((entry) => {
     const pattern = patternCache!.get(entry.pattern ?? '');
     if (!pattern) {
-      throw new Error(`${bindingPath}\n  names pattern "${entry.pattern}", which has no file in ${PATTERN_DIR}`);
+      throw new Error(`${bindingPath}\n  names pattern "${entry.pattern}" in \`also\`, which has no file in ${PATTERN_DIR}`);
     }
     return { pattern, exceptions: entry.exceptions };
   });

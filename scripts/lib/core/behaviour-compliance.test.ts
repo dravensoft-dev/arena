@@ -866,13 +866,15 @@ test('a key two compared patterns require is judged in each by the one verdict',
   assert.equal(failing.length, 2);
 });
 
-test('one entry behaves exactly as comparePattern', () => {
-  for (const behavioural of [{ 'focus.onOpen': true }, { 'focus.onOpen': true, 'keyboard.Home': true }, {}]) {
-    assert.deepEqual(
-      comparePatterns({ entries: [{ pattern: PRIMARY }], fallback: target, behavioural }),
-      comparePattern({ pattern: PRIMARY, binding: {}, fallback: target, behavioural }),
-    );
-  }
+test('one entry reports as a lone pattern does: unprefixed, and an unrequired key as never reached', () => {
+  const met = comparePatterns({ entries: [{ pattern: PRIMARY }], fallback: target, behavioural: { 'focus.onOpen': true } });
+  assert.deepEqual(met, []);
+  const undeclared = comparePatterns({ entries: [{ pattern: PRIMARY }], fallback: target, behavioural: {} });
+  assert.equal(undeclared.length, 1);
+  assert.match(undeclared[0] ?? '', /^focus\.onOpen: undecidable from the DOM and not declared behavioural/,
+    'a lone pattern names no pattern before the key');
   const never = comparePatterns({ entries: [{ pattern: PRIMARY }], fallback: target, behavioural: { 'keyboard.Home': true, 'focus.onOpen': true } });
-  assert.match(never.join('\n'), /keyboard\.Home: declared behavioural but never reached/);
+  assert.equal(never.length, 1);
+  assert.match(never[0] ?? '', /^keyboard\.Home: declared behavioural but never reached/);
+  assert.doesNotMatch(never[0] ?? '', /no compared pattern requires it/);
 });
