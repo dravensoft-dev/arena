@@ -1,9 +1,10 @@
 /* Both bindings name the `navigation` pattern and both requirements are decidable
- * from one element, so the only behavioural verdict is ArenaBreadcrumbs' `alternative.jsonLd`,
- * earned beside it by the JSON-LD tests in ArenaBreadcrumbs.test.tsx. What the suite
- * adds beyond the wrapper is the half a single render cannot show: that two
- * instances carry DIFFERENT names, which is the whole point of the requirement
- * and the thing a hardcoded constant satisfied mechanically while failing. */
+ * from one element, so the only behavioural verdict is ArenaBreadcrumbs'
+ * `alternative.jsonLd`, earned beside it by the JSON-LD tests in
+ * ArenaBreadcrumbs.test.tsx. What the suite adds beyond the wrapper is the half a
+ * single render cannot show: that two instances carry DIFFERENT names, which is
+ * the whole point of the requirement and the thing a hardcoded constant satisfied
+ * mechanically while failing. */
 import test, { afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { join } from 'node:path';

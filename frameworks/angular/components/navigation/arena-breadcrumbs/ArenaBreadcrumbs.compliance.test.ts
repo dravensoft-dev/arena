@@ -1,8 +1,9 @@
 /* Both requirements of `navigation` are decidable from one element, so the only
  * behavioural verdict is the `structured-data` one, `alternative.jsonLd`, earned
- * beside it by the JSON-LD tests in this file. The landmark is a real <nav> INSIDE the fixture, taking the
- * carve-out the host rule provides for a root that must be a specific semantic
- * element -- so the subject is that element and not the fixture's own. */
+ * beside it by the JSON-LD tests in this file. The landmark is a real <nav> INSIDE
+ * the fixture, taking the carve-out the host rule provides for a root that must be
+ * a specific semantic element -- so the subject is that element and not the
+ * fixture's own. */
 import { useTestEnvironment } from '../../../test/TestbedEnv';
 useTestEnvironment();
 
