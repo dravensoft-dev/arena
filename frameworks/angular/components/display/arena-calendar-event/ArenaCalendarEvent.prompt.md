@@ -79,7 +79,7 @@ What "into the chip" means depends on the shape. A chip with no action panel *is
 **Don't**
 - Don't project content into it other than `[actions]`. The title and the time line are the chip body, and Arena draws both.
 - Don't render one outside an `arena-calendar`. The chip has no position of its own and will throw.
-- Don't use `disabled` to make a chip inert. In this layer nothing does (see the divergence above), and `disabled` means "a button that announces it cannot be pressed right now", which reads differently to a screen reader.
+- Don't use `disabled` to make a chip inert. Leave `interactive` off for that: an inert chip is a `<div>` with nothing to press, where a disabled one is a button that announces it cannot be pressed right now. The two read differently to a screen reader on purpose.
 - Don't reach past `colorId: 8`. There are eight ramp slots and they never cycle.
 - Don't reach for `style` or `class` to place it. The chip's geometry is the calendar's, and a `class` on the host lands on an element that declares `display: contents`.
 
