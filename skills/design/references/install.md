@@ -115,7 +115,7 @@ Import the generated files from `src/styles.css`. Import the generated files bef
 @import './plugin.generated.css';   /* only when a style plugin of yours carries CSS */
 ```
 
-The CDK overlay sheet comes with them: `arena.package.generated.css` carries the rules of `css/arena-cdk.css`, and `arena.css` imports it. That sheet holds the text of the CDK's own overlay stylesheet, so no resolver condition is needed to reach it.
+The CDK overlay sheet comes with them: `arena.package.generated.css` carries the rules of `css/arena-cdk.css`, and `arena.css` imports it. That sheet carries the CDK overlay's rules as text.
 
 That sheet re-bases the CDK overlay onto Arena's `--z-*` scale. Without it a dialog's menu paints behind the dialog. Write the import yourself only under `--no-import`, which writes no package sheet. Import `arena.generated.css` as well, because it alone holds the colours: `arena.css` by itself paints with no colour.
 

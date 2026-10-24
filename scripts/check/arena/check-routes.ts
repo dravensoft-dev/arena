@@ -127,14 +127,13 @@ export const ROUTES: Route[] = [
     budget: 51_000,
     reason:
       'paid once per project, not per screen, so it carries what the build route may not: '
-      + 'the install, the config file and the command. The package carries none of the language, so '
-      + 'nobody imports what these references never name. The config block is copied whole. '
+      + 'the install, the config file and the command. The config block is copied whole. '
       + 'The install reference gives the evidence behind each package manager and the Tailwind '
       + 'v4 entry sheet, and says how Vite and the Angular builder serve the sprite, since neither '
       + 'serves a file of src at the root. The command reference quotes whole the scripts `arena '
       + 'init` writes, tables every audit tag with its rule, names the sheets, the sprite and the cut '
       + 'fonts the build writes, and lists the sheets a `--no-import` project imports under one rule '
-      + 'for every root, generated from the layer list `scopedImports` reads. It says which glyphs '
+      + 'for every root, generated from the layer list `scopedImports` reads. It states the flat package sheet and the per-layer icon module, and which glyphs '
       + 'reach the sprite\'s filled weight and when an icon expression widens that set or stills the '
       + 'glyph report, and its audit section covers the two rules that read a plugin\'s names. '
       + 'The config reference tables every '
@@ -446,8 +445,8 @@ export const ROUTES: Route[] = [
     stops: ['versioning_steps.md', 'frameworks/PACKAGING.md', '.github/workflows/AGENTS.md'],
     budget: 76_200,
     reason:
-      'the least frequent route on the branch and the most expensive one to get wrong, because '
-      + 'each of its failures publishes nothing and errors nowhere. The sequence is the first stop '
+      'the least frequent route and the costliest to get wrong, because '
+      + 'each failure publishes nothing and errors nowhere. The sequence is the first stop '
       + 'because a reader needs it first, and the other two are where it sends them. The route '
       + 'carries every precondition no other route reaches: main takes no push, so the tag rides '
       + 'develop and the release lands as a merge; the operating system matrix runs on develop, so '
@@ -458,7 +457,7 @@ export const ROUTES: Route[] = [
       + 'verify through one reusable workflow, what each of its jobs runs and how long it may run, '
       + 'and which target a publish that misses its cache builds and which layer it hands '
       + 'check:packages. Each of these fails in silence, '
-      + 'which is what the budget is there to keep visible. The packaging page names what the command reads at build.',
+      + 'which is what the budget is there to keep visible. The packaging page names what the command reads at build, the icon module of each layer included.',
   },
 ];
 
