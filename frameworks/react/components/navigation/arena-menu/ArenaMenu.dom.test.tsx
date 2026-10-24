@@ -268,6 +268,15 @@ test('a space inside a run of typed characters belongs to the run, and a space a
   assert.equal(document.activeElement, remove);
 });
 
+test('a character outside the basic plane is one typed character, and reaches the row it starts', () => {
+  captureClock();
+  const { rows } = opened([{ label: 'Rename' }, { label: '\u{1F680} Launch' }]);
+  const [rename, launch] = rows as [HTMLElement, HTMLElement];
+  assert.equal(document.activeElement, rename);
+  assert.equal(press(rename, '\u{1F680}').defaultPrevented, true);
+  assert.equal(document.activeElement, launch, 'a character of two code units was not read as one typed character');
+});
+
 test('every row sits at tabindex -1', () => {
   const { rows } = opened(ROWS);
   assert.equal(rows.length, 3);
