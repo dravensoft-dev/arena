@@ -48,10 +48,10 @@ mistaken. `onClose` is one event with two sources inside the component, which is
 `contracts/api/components/ArenaDialog.json` declares. Opening moves focus to the first
 focusable element inside the panel. Closing returns it to whatever had focus before, so a
 keyboard user lands back on the control that opened the dialog. Removing the dialog while
-it is open counts as closing it for focus, as long as focus was inside the dialog or
-nowhere and the element that opened it is still on the page. It reports no `onClose`. Tab
-and Shift+Tab wrap at the panel's edges rather than walking out into the page behind the
-scrim.
+it is open counts as closing it for focus, though the removal reports no `onClose`. The
+rule holds only while focus is inside the dialog or nowhere and the element that opened
+it is still on the page. Tab and Shift+Tab wrap at the panel's edges rather than walking
+out into the page behind the scrim.
 
 - **Do** give every dialog a `title` that says what it is about, not what it is
   ("Delete project", never "Dialog").

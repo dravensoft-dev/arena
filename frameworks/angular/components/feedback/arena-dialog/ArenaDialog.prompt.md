@@ -62,10 +62,11 @@ and `arena check` reaches one in yours.
 Focus is Arena's own, and it implements `contracts/behaviour/modal-focus.json` clause by
 clause. Opening moves focus to the first focusable element inside the panel; closing
 returns it to whatever held focus before. Removing the dialog while it is open counts as
-closing it for focus, as long as focus was inside the dialog or nowhere and the element
-that opened it is still on the page. It reports no `close`. Tab and Shift+Tab wrap at the
-panel's edges, and that wrap is verified against a real browser rather than asserted. The
-CDK is **not** involved: this dialog is in flow, on `--z-modal`.
+closing it for focus, though the removal reports no `close`. The rule holds only while
+focus is inside the dialog or nowhere and the element that opened it is still on the
+page. Tab and Shift+Tab wrap at the panel's edges, and that wrap is verified against a
+real browser rather than asserted. The CDK is **not** involved: this dialog is in flow,
+on `--z-modal`.
 
 Arena dismisses two ways and both report through `close`: **Escape**, and a click on the scrim.
 A click inside the panel is stopped before it reaches the host, so only the scrim dismisses. A

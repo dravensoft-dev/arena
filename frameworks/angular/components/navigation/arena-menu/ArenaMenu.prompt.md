@@ -68,7 +68,7 @@ moves focus to the first enabled row. Tab from any row closes the menu and retur
 and a header are not rows at all and render no `menuitem`; a disabled row renders one and reports
 nothing.
 
-**Focus moves by key inside the open menu.** The arrows move between enabled rows and wrap, Home and End go to the first and the last row, and typing a character moves to the next row whose label starts with it. A space typed inside a run of characters belongs to the run, so it never activates the row. A disabled row is skipped. A header names the rows under it, so a reader hears the group before its first row.
+**Focus moves by key inside the open menu.** The arrows move between enabled rows and wrap, and Home and End go to the first and the last row. Typing a character moves to the next row whose label starts with it. A space typed inside a run of characters belongs to the run, so it never activates the row. A disabled row is skipped. A header names the rows under it, so a reader hears the group before its first row.
 
 **The server render carries the popup state.** Arena writes `aria-haspopup="menu"` and `aria-expanded="false"` onto the trigger's focusable element before the page is interactive.
 

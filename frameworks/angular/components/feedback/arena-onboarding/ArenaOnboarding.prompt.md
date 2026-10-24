@@ -4,9 +4,9 @@ tour is controlled. The host owns `index` and answers `next`, `back`, `skip` and
 Clicking the scrim reports `skip`. The tour is a real modal, binding `dialog-modal` and
 `modal-focus`. Focus moves into the panel when the tour opens, and returns to whatever
 opened it when the tour closes. Removing the tour while it is open counts as closing it
-for focus, as long as focus was inside the tour or nowhere and the element that opened it
-is still on the page. It reports no `skip`. Tab and Shift+Tab cycle inside the panel, and
-Escape reports `skip`.
+for focus, though the removal reports no `skip`. The rule holds only while focus is
+inside the tour or nowhere and the element that opened it is still on the page. Tab and
+Shift+Tab cycle inside the panel, and Escape reports `skip`.
 
 ```html
 <arena-onboarding [open]="touring()" [steps]="steps" [index]="step()"

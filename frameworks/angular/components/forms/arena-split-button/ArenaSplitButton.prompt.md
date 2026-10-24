@@ -54,7 +54,7 @@ One action with a menu of its alternatives, drawn as one control. The primary ha
 
 **Two names, both required.** `label` names the group of both halves, and `menuLabel` names the caret. A blank one throws. The primary half is named by its content.
 
-**Two tab stops, primary then caret.** Enter and Space on the caret open the menu with focus on its first entry. Escape closes it and returns focus to the caret. Inside the menu the arrows move between enabled rows and wrap, Home and End go to the first and the last row, and typing a character moves to the next row whose label starts with it. A disabled row is skipped, Tab closes the menu, and a header names the rows under it. A press on the primary half while the menu is open closes the menu and runs the primary action.
+**Two tab stops, primary then caret.** Enter and Space on the caret open the menu with focus on its first entry. Escape closes it and returns focus to the caret. Inside the menu the arrows move between enabled rows and wrap, and Home and End go to the first and the last row. Typing a character moves to the next row whose label starts with it. A disabled row is skipped, Tab closes the menu, and a header names the rows under it. A press on the primary half while the menu is open closes the menu and runs the primary action.
 
 **`loading` blocks the primary half only.** The spinner replaces the leading icon, and the caret stays usable. `disabled` blocks both halves. `click` never fires while either holds.
 

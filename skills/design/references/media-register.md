@@ -21,8 +21,8 @@ markup can be held to:
   move between articles. A feed of your own that binds none of this is a feed only a
   mouse can read.
 - **`contracts/behaviour/dialog-modal.json`** and **`contracts/behaviour/modal-focus.json`** for a
-  lightbox or a viewer: the role, its name and `aria-modal` from the first, and from the second
-  focus taken on open, focus restored to the invoker on close, Tab trapped inside, Escape out.
+  lightbox or a viewer. The first asks for the role, its name and `aria-modal`. The second asks for
+  focus taken on open, focus restored to the invoker on close, Tab trapped inside and Escape out.
 
 Read the one your element is, and bind what it requires. These files are the same source Arena's
 own components are held to, so what you write is held to the standard the components are.

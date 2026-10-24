@@ -50,9 +50,9 @@ useEffect(() => {
 
 Opening the palette moves focus to the search field. Tab and Shift+Tab stay inside the panel. Escape closes the palette and returns focus to the element that held it when the palette opened.
 
-Removing the palette while it is open counts as closing it for focus, as long as focus was
-inside the palette or nowhere and that element is still on the page. It reports no
-`onClose`.
+Removing the palette while it is open counts as closing it for focus, though the removal
+reports no `onClose`. The rule holds only while focus is inside the palette or nowhere and
+that element is still on the page.
 
 ### Groups and routes
 

@@ -44,10 +44,11 @@ const [step, setStep] = useState(0);
 **Behaviour.** The coachmark is a modal dialog and behaves like one. Opening moves focus
 to the first control inside it, Tab is trapped at both ends of that set, and closing
 restores focus to whatever had it before. Removing the tour while it is open counts as
-closing it for focus, as long as focus was inside the tour or nowhere and the element that
-opened it is still on the page. It reports no `onSkip`. **Escape dismisses through
-`onSkip`**, the same channel the scrim click uses, so Escape joins the mouse path rather
-than replacing it. There is no separate "dismiss" callback to wire.
+closing it for focus, though the removal reports no `onSkip`. The rule holds only while
+focus is inside the tour or nowhere and the element that opened it is still on the page.
+**Escape dismisses through `onSkip`**, the same channel the scrim click uses, so Escape
+joins the mouse path rather than replacing it. There is no separate "dismiss" callback to
+wire.
 
 **The accessible name is a fallback chain**, `step.title ?? step.eyebrow ?? "Step N of M"`,
 **A caller who wants a useful name still supplies a
