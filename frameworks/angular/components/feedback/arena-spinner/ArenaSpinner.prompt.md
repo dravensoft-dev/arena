@@ -39,7 +39,7 @@ exception the delegated binding carried. This clears it.
 An absent `label` reads the locale's `spinnerLabel`, `Loading` by default, which is a name rather than an absence. That name says what the component is instead of what the user is waiting for. Set it.
 
 `arena-accent-ink` exists for a spinner sitting **on** a filled brand surface, inside a loading
-button, on a crimson banner, where the accent ink would disappear into its own background.
+button, on a banner in the primary fill. There the accent ink would disappear into its own background.
 
 **Do / Don't**
 - **Do** reach for `arena-progress-bar` the moment the wait has a measurable end. A spinner says
@@ -58,7 +58,7 @@ button, on a crimson banner, where the accent ink would disappear into its own b
   `prefers-reduced-motion` rather than stopping, motion reporting work in progress keeps
   reporting it.
 - The gap in the ring is the transparent top border, so the rotation is legible at every size. At `sm` it must still read as a ring rather than a dot.
-- `arena-accent-ink` is the only accent that stays legible on a filled crimson surface, the card puts
+- `arena-accent-ink` is the only accent that stays legible on a surface filled with the primary, the card puts
   all four on one to show it.
 
 **Words.** `label` names the spinner, and when it is absent the locale's `spinnerLabel` does.

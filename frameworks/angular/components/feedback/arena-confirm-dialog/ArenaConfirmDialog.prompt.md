@@ -1,5 +1,5 @@
 Arena confirmation for a high-consequence action. The dialog does not close on click-outside. Losing a half-finished decision to a stray click is the failure this component exists to prevent. `requireText` makes the user type a word before the confirm button
-enables. `destructive` turns the eyebrow red and gives the confirm button Arena's
+enables. `destructive` turns the eyebrow to the danger tone and gives the confirm button Arena's
 **only filled danger surface**.
 The projected `content` is the dialog's description, announced with it when the dialog opens, so put the question and what it costs there.
 
@@ -66,7 +66,7 @@ still on the page.
 - **Don't hold one in the template with an empty `title` while it is closed.** Both are required inputs whatever the other is. A screen that keeps one confirmation and feeds it a subject per row fails on the first render, so put it behind an `@if` on the subject instead. Keep
   the subject through a cancel and toggle only `open`, or focus never returns to the control
   that opened it.
-- Don't reach for `destructive` on a merely inconvenient action. The filled red is the
+- Don't reach for `destructive` on a merely inconvenient action. The danger fill is the
   system's loudest surface and it stops working once it is common.
 - Don't use this for a routine question: that is `MatDialog` wearing Arena.
 - Don't express a condition as an attribute string. `destructive` carries the

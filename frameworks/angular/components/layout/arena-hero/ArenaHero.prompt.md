@@ -4,10 +4,8 @@ hero, so `<arena-hero>` is the element you place. The hero's title takes the her
 ```html
 <arena-hero eyebrow="Single origin" title="Coffee that tells you where it grew"
   lede="Every lot is traceable to the farm, the altitude and the week it was picked.">
-  <div actions>
-    <arena-button icon="ph-bold ph-storefront" class="arena-size-lg">Shop the lots</arena-button>
-    <arena-button iconRight="ph-bold ph-arrow-right" class="arena-emphasis-ghost arena-size-lg">How we buy</arena-button>
-  </div>
+  <arena-button actions icon="ph-bold ph-storefront" class="arena-size-lg">Shop the lots</arena-button>
+  <arena-button actions iconRight="ph-bold ph-arrow-right" class="arena-emphasis-ghost arena-size-lg">How we buy</arena-button>
   <arena-figure figure>
     <i fallback class="ph-bold ph-mountains" aria-hidden="true"></i>
   </arena-figure>
@@ -50,8 +48,9 @@ Put each marker your template writes in your own component's `imports`. An un-im
 <!-- @markers end -->
 
 **The two slots are attributes**, `actions` and `figure`.
-The actions slot takes one element, so wrap your buttons in a container of your own if there is
-more than one.
+Put `actions` on each control, as siblings.
+The hero lays them out in one row that wraps.
+A wrapper of your own is one flex item to that row, so the controls inside it never wrap.
 
 **`split` falls to one column with no breakpoint deciding when.** The threshold is derived from `--grid-min`, the role that already answers how narrow a card may get. A style plugin that widens the grid minimum widens when a hero splits, which is one decision about how dense a page is rather than two that can disagree.
 

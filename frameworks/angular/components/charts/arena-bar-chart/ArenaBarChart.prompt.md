@@ -80,8 +80,8 @@ tooltip is positioned against.
 - Give `label`, because it names the chart for a screen reader and captions the numbers
   table underneath. Give every series its own `label` too: that one heads the series' own
   column in the same table, and the two names are different things.
-- Use `tone` only when the series genuinely *is* a state. A red bar means "bad", and a
-  red bar that just means "the second category" makes the chart lie.
+- Use `tone` only when the series genuinely *is* a state. A bar in the danger tone means "bad", and a
+  bar in the danger tone that just means "the second category" makes the chart lie.
 - Use `colorStart` to move where the positional count begins. A series' `colorId` and
   `colorIds` keep the slot they name.
 - Don't pass a ninth `colorIds` entry expecting a ninth colour. The ramp is eight, in

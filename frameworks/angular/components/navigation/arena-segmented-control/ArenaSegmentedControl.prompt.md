@@ -1,5 +1,5 @@
 Arena segmented control, a compact inline filter over mutually exclusive options. **A real radio
-group, never a tab list**, and it carries no crimson: a filter never outweighs the action beside
+group, never a tab list**, and it carries no accent: a filter never outweighs the action beside
 it. Standalone, `OnPush`, signal I/O. The host **is** the track, so it carries `role="radiogroup"`,
 the accessible name and the focus ring.
 

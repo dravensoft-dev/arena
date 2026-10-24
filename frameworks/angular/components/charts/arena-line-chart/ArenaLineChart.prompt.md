@@ -84,8 +84,8 @@ tooltip is positioned against.
   column in the same table, and the two names are different things.
 - Use `area` for a volume or a total, not for a rate. A filled area says "this much of
   something"; a rate has nothing to fill.
-- Use `tone` only when the series genuinely *is* a state. A red line means "bad", and a
-  red line that just means "the third series" makes the chart lie.
+- Use `tone` only when the series genuinely *is* a state. A line in the danger tone means "bad", and a
+  line in the danger tone that just means "the third series" makes the chart lie.
 - Don't plot two series by stacking two line charts. Put both in `series` and they share
   one scale, one axis and one table. Two series that do *not* share a scale are two
   charts, and no member will make them one.

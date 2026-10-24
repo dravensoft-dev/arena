@@ -76,7 +76,7 @@ A field that holds one number. A person types it, steps it with a key or with th
 - Don't put a currency or a unit in `format`. Use `prefix` and `suffix` instead.
 - Don't expect the mouse wheel or a held press to step the number.
 
-**By hand.** A phone's decimal keypad, where iOS has no minus key and the steppers reach a negative number. The stepper target under `arena-comfortable`. Home and End against a bound. The gold ring on the field.
+**By hand.** A phone's decimal keypad, where iOS has no minus key and the steppers reach a negative number. The stepper target under `arena-comfortable`. Home and End against a bound. The focus ring on the field.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

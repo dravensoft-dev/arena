@@ -50,7 +50,7 @@ Arena's link for running text such as a sentence in an empty state, a help line 
 - Say where it goes in the text itself: "the release notes", never "click here".
 
 **Don't**
-- Don't paint a link in an accent. Crimson and gold fall under AA as text on some surfaces.
+- Don't paint a link in an accent. The primary and the secondary accent fall under AA as text on some surfaces.
 - Don't wrap an Arena component in `ArenaLink`, and don't wrap `ArenaLink` in your router's link. A whole card is `ArenaCard` with `href`.
 - Don't ask for a `disabled` link. A link that goes nowhere is text, so render the text.
 - Don't add an icon for `external`. The hidden hint carries it for a reader, and the underline for the eye.

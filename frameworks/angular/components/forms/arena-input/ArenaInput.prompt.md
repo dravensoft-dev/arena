@@ -81,7 +81,7 @@ Return the message, or the empty string when the value is good.
   `ArenaInput.json` contracts. Pass `undefined`, not `''`, to mean "no controlled error".
 - `validate` runs on blur by default. The message appears only once the field is **touched**, so an untouched form never accuses the user of anything. `validateOn="change"` touches on the
   first keystroke instead; reach for it on a field with a cheap, obvious rule.
-- The valid state (green ring, check) is either `valid` set by the consumer, or a touched field
+- The valid state (success-tone ring, check) is either `valid` set by the consumer, or a touched field
   whose validator returned nothing. The member is not "the field has a value".
 - The focus ring is the field's, not the control's: the `field` slot carries `focus-within:`,
   so there is no focus signal to keep in sync with the DOM.
@@ -108,8 +108,8 @@ open `/frameworks/angular/components/forms/arena-input/ArenaInput.demo.generated
 - `type="date"`: the picker indicator is **visible** on the dark field and brightens on hover.
   Arena's own `[&::-webkit-calendar-picker-indicator]:` styling reads `--picker-invert` for that. Without it the browser draws a black glyph on a dark surface. Toggle
   `.arena-light` on `<html>` and it must invert with the theme.
-- The gold focus ring appears on the field group, not on the input, and a valid field keeps its
-  green border while showing that ring.
+- The focus ring appears on the field group, not on the input, and a valid field keeps its
+  success-tone border while showing that ring.
 - The error border and ring appear at rest, with no focus needed.
 - Typing into the validated field and leaving it produces the message on blur, and the
   `validateOn="change"` one produces it while typing and clears it again.

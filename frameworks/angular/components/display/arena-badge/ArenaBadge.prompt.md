@@ -61,7 +61,7 @@ at `arena-size-md`, in the same face, weight and corner.
 **Do / Don't**
 - Keep the label to one or two words. A badge is a chip, not a sentence, if it
   runs longer, it is not a badge.
-- Don't use `arena-accent-primary` to communicate a status; reserve its crimson for
+- Don't use `arena-accent-primary` to communicate a status; reserve the primary for
   "new/featured", and reach for a status tone when the badge reports state.
 - Don't put `dot` on an emphasis tone. The dot means "this is live status", so on
   an accent class it claims something the badge does not.

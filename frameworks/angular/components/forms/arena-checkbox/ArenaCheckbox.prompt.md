@@ -1,4 +1,4 @@
-Arena checkbox, one independent choice, checked showing a crimson fill with a tick. Standalone,
+Arena checkbox, one independent choice, checked showing the primary fill with a tick. Standalone,
 `OnPush`, signal I/O. The host stays bare and out of layout. The root is a real `<label>` wrapping a real `<input type="checkbox">`. That pairing is what gives the control its role, its name and Space-to-toggle, without a single line of authored ARIA.
 
 ```html
@@ -57,11 +57,11 @@ Arena checkbox, one independent choice, checked showing a crimson fill with a ti
 - There is no indeterminate state. `aria-checked="mixed"` is in the pattern and not in this
   contract, so a partially-selected parent row needs a different control, not this one.
 
-**By hand, in real Chromium**: none of these is provable in happy-dom. Run `bun run demos` and open `/frameworks/angular/components/forms/arena-checkbox/ArenaCheckbox.demo.generated.html`: - The tick's stroke reads cleanly on the crimson fill at 100% zoom. The tick's box is `--sp-3` inside an `--sp-5` square rather than filling it.
+**By hand, in real Chromium**: none of these is provable in happy-dom. Run `bun run demos` and open `/frameworks/angular/components/forms/arena-checkbox/ArenaCheckbox.demo.generated.html`: - The tick's stroke reads cleanly on the primary fill at 100% zoom. The tick's box is `--sp-3` inside an `--sp-5` square rather than filling it.
 - Clicking the label text toggles the box, and so does Space with the control focused.
 - `disabled` dims the whole control to 50% and the cursor turns to not-allowed over the label
   as well as the box.
-- Tab to the control and the **box** takes a gold focus ring, even though the element the
+- Tab to the control and the **box** takes the focus ring, even though the element the
   browser focused is the `opacity-0 size-0` native input. The `box` slot carries `[&:has(~input:focus-visible)]:shadow-[…]`, which reaches the input as a later sibling inside the same `<label>`. The input must stay after the box in the template, and moving it removes the ring with nothing failing.
 
 **With reactive forms.** `ArenaCheckboxControl` from `@dravensoft/arena-angular/forms` binds the box to a form control holding a boolean, which replaces `checked` while the form is bound. The native `value` member is untouched: it is what a submitted form posts, not what the control holds. Binding the member the form replaces as well is a caller bug, and the layer warns about it once.

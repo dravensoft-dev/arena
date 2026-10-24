@@ -1,4 +1,4 @@
-Arena tooltip, a short label revealed on pointer intent, bone over dark. Standalone, `OnPush`,
+Arena tooltip, a short label revealed on pointer intent, the page's ink as its ground and the page's ground as its text. Standalone, `OnPush`,
 signal I/O. Wrap the element the tooltip describes; Arena draws the bubble and names it
 from `label`.
 

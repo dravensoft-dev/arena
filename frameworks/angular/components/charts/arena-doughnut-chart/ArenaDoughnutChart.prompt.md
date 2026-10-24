@@ -113,7 +113,7 @@ The ring itself takes no data cursor and needs none. A ring has no ordered seque
 `shape` decides whether the hole stays. `pie` is this same chart, the same slices in the same
 order with the same legend and the same table, filled to the centre. There is no ratio member. The hole is 62% of the outer radius, and that number is deliberately not a token. The recorded ground is that a multiplier deriving one dimension from another stays inline. Handing it to a caller one value at a time would move a design decision out of the chart.
 
-A pie draws no centre percentage, and that is the trade rather than an oversight. There is nowhere to put the total once the hole is gone. Printing it over a wedge would put `--bone` on a `--color-cat` slot, which is a pair nothing checks for contrast because nothing had ever drawn it. The
+A pie draws no centre percentage, and that is the trade rather than an oversight. There is nowhere to put the total once the hole is gone. Printing it over a wedge would put the heading ink on a `--color-cat` slot, which is a pair nothing checks for contrast because nothing had ever drawn it. The
 figure is still in the legend row and in the accessible table, which is where every other number
 this chart writes already lives.
 

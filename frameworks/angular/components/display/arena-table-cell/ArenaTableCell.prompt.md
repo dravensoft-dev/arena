@@ -1,4 +1,4 @@
-One cell of an `arena-table-row`. The cell is an **attribute on a real `<td>`**, not an element of its own. The cell draws the cell box: the padding, the alignment and the mono or gold treatment its column asks for. In card mode it draws either a label and value pair or a full-width block. The cell shows whatever you put in it.
+One cell of an `arena-table-row`. The cell is an **attribute on a real `<td>`**, not an element of its own. The cell draws the cell box: the padding, the alignment and the mono or figure-ink treatment its column asks for. In card mode it draws either a label and value pair or a full-width block. The cell shows whatever you put in it.
 
 ```html
 <td arena-table-cell>{{ d.p95 }}</td>

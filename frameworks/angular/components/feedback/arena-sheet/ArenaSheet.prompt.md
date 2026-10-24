@@ -69,7 +69,7 @@ Escape reaches the panel only while focus is inside it. Nothing here took focus 
 - **Do** own both booleans. Neither folds nor closes itself, so a template that ignores
   `collapsedChange` gets a caret that turns and a body that does not move.
 - **Do** put the one action the panel exists for in the `footer` slot. The footer sits outside the folding body, so a folded panel still carries it.
-- **Do** pair it with a rail when it is the navigation drawer on a phone: mark the sheet `md:hidden` and the rail `max-md:hidden`, or branch on `arenaViewportBelow('md')`.
+- **Do** pair it with a rail when it is the navigation drawer on a phone. Put `md:hidden` on an element of your own around the sheet and `max-md:hidden` on one around the rail. Or branch on `arenaViewportBelow('md')`. A project that compiles none of these utilities writes the same pair as `@media (width < 768px)` and `@media (width >= 768px)` on those two elements.
 - **Don't** reach for it as a menu or a popover. The sheet spans a whole edge and stays. `arena-menu` is the transient list that hangs off a trigger.
 - **Don't** open two at once on the same edge. The two share a stacking slot and one lands on the other. A second surface at the same time is a sign the first should have been a dialog.
 - **Don't** put a form a reader must finish in it. Nothing stops them clicking away mid-way, which

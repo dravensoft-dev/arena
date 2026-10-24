@@ -61,7 +61,7 @@ A code typed one character per cell, such as a verification code from a text mes
 - Don't check, resend or expire the code here. `(complete)` reports, and the host decides.
 - Don't empty `[value]` on each keystroke. Empty it once when the code is wrong, then call `focus()`.
 
-**By hand.** A text message autofill on iOS and on Android fills every cell. The number pad shows for `numeric`. Tab crosses the whole group in one press. Only the focused cell carries the gold ring. Six cells fit a 390px screen.
+**By hand.** A text message autofill on iOS and on Android fills every cell. The number pad shows for `numeric`. Tab crosses the whole group in one press. Only the focused cell carries the focus ring. Six cells fit a 390px screen.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

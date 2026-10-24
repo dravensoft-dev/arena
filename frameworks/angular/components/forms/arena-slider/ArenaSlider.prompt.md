@@ -74,10 +74,10 @@ A number chosen inside a range by moving a thumb, or a span chosen with two thum
 - Name what is set in `label`, such as "Volume", and never "Slider".
 - Keep the readout, or a `hint`, wherever the number matters.
 - Don't run a costly effect on `(change)`. Use `(commit)` instead.
-- Don't paint the fill gold. The focus ring is gold, and the two would meet on the thumb.
+- Don't give the fill the focus ring's colour. The two would meet on the thumb.
 - Don't draw tick marks around it. The readout and the hint carry the scale.
 
-**By hand.** The arrows, Home, End and the page keys. A drag and a press on the rail, with a mouse and with a finger. The gold ring on a focused thumb. The thumb target under `arena-comfortable` and at 390px. A vertical slider in a column of fixed height. A range whose thumbs meet.
+**By hand.** The arrows, Home, End and the page keys. A drag and a press on the rail, with a mouse and with a finger. The focus ring on a focused thumb. The thumb target under `arena-comfortable` and at 390px. A vertical slider in a column of fixed height. A range whose thumbs meet.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 

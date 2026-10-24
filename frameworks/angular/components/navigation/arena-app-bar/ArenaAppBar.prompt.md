@@ -10,9 +10,7 @@ banner landmark has to be that element.
   <nav nav aria-label="Shop sections">
     @for (d of destinations(); track d.id) { <a [routerLink]="d.href">{{ d.label }}</a> }
   </nav>
-  <div actions>
-    <arena-icon-button icon="ph-bold ph-magnifying-glass" label="Search the catalogue" (click)="openSearch()" />
-  </div>
+  <arena-icon-button actions icon="ph-bold ph-magnifying-glass" label="Search the catalogue" (click)="openSearch()" />
 </arena-app-bar>
 ```
 
@@ -48,7 +46,7 @@ banner landmark has to be that element.
 Put each marker your template writes in your own component's `imports`. An un-imported marker leaves its slot empty with no error, and `arena check` reports it. [Which markers must I import?](../../../../../skills/design/references/exports.md#which-angular-projection-markers-must-i-import)
 <!-- @markers end -->
 
-**The three slots are attributes**, `brand`, `nav` and `actions`. Each takes one element, so wrap a row of controls in a container of your own.
+**The three slots are attributes**, `brand`, `nav` and `actions`. Put `actions` on each control, as siblings, and the bar lays them out in a row. A wrapper of your own around several controls is one flex item, and the row cannot wrap what sits inside it. `brand` takes your link, and `nav` takes your `<nav>` element, which stays one landmark.
 
 **The bar spans the viewport and the band inside it does not.** The fill and the hairline run edge to edge. The contents stop at the page width with a gutter either side, so they line up with everything under them. Both lengths are the roles a style plugin re-answers, the same pair `.arena-band`
 carries for markup you wrote yourself.

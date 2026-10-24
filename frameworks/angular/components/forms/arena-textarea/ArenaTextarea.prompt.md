@@ -55,7 +55,7 @@ a real `<textarea>`, named by a real `<label for>`.
 **Do / Don't**
 - It is **controlled**, and Angular will not force the DOM back: ignore `change` and the box keeps
   what the user typed. Wire the signal.
-- There is **no validator here**, unlike `arena-input`. `error` is the only route to the error state, and it is the consumer's to compute. So the field has two state arms rather than three, and there is no valid green-check state at all.
+- There is **no validator here**, unlike `arena-input`. `error` is the only route to the error state, and it is the consumer's to compute. So the field has two state arms rather than three, and there is no valid success-tone check state at all.
 - The counter needs **both** `counter` and `maxLength`. A `maxLength` alone caps the field; it
   does not ask for the count to be shown. Past nine tenths of the cap the counter switches to the
   warning slot, a different slot, not a variant, which is why Arena draws two.
@@ -81,9 +81,9 @@ a real `<textarea>`, named by a real `<label for>`.
   no scrollbar ever appearing. The one seeded with a long value is already tall on load; that is
   the `afterRenderEffect` at work: the box is sized before the first paint, not on first keystroke.
 - Without `autoResize` the grip in the corner resizes vertically and not horizontally.
-- The gold focus ring lands on the textarea itself, where `arena-input`'s lands on a wrapping
+- The focus ring lands on the textarea itself, where `arena-input`'s lands on a wrapping
   group.
-- The counter turns amber between 90% and 100% of the cap, and the field stops accepting input at
+- The counter takes the warning tone between 90% and 100% of the cap, and the field stops accepting input at
   the cap because `maxlength` is native.
 
 **With reactive forms.** `ArenaTextareaControl` from `@dravensoft/arena-angular/forms` binds this field to a form control holding a string. The counter and the auto-resize read the form's value, so they follow `setValue` as they follow typing. Binding the member the form replaces as well is a caller bug, and the layer warns about it once.
