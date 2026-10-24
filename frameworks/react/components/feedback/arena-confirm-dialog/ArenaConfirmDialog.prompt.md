@@ -47,7 +47,7 @@ button. A click on the scrim does **not**, and that is the point of the componen
 losing a half-finished decision to a stray click is the failure it exists to prevent.
 Opening moves focus to the first focusable inside the panel (the confirmation input
 when `requireText` is set, Cancel otherwise); closing returns it to whatever had focus
-before. Tab and Shift+Tab wrap at the panel's edges rather than walking out into the
+before. Removing the confirmation while it is open counts as closing it. Focus goes back to the element that opened it, as long as focus was inside the confirmation or nowhere and that element is still on the page. Tab and Shift+Tab wrap at the panel's edges rather than walking out into the
 page behind the scrim.
 
 ### Do / Don't

@@ -47,7 +47,7 @@ The projected `content` is the dialog's description, announced with it when the 
 `title` is **required**: the panel's `aria-labelledby` points at it, and nothing can
 derive a name for a confirmation because its subject is editorial. Escape dismisses
 through `(cancel)`, focus moves into the panel on open and returns to the invoker on
-close, and Tab wraps at the panel's edges.
+close, and Tab wraps at the panel's edges. Removing the confirmation while it is open counts as closing it. Focus goes back to the element that opened it, as long as focus was inside the confirmation or nowhere and that element is still on the page.
 
 **Do / Don't**
 - Say what will be destroyed, in the body, in plain words. "Are you sure?" is not a
