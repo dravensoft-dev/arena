@@ -1,5 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { repoRoot } from '../../lib/arena/repo-root.ts';
 import {
   blocksIn, schemeOf, invertOf, vocabularyProblems, declaredProblems, strayProblems, zeroProblems,
   scopeOf, collect,
@@ -95,4 +98,11 @@ test('a selector list answers a theme through any one of its selectors', () => {
   assert.equal(scopeOf(blocks, { selector: ':root' }), ':root,.arena-dark');
   assert.deepEqual(declaredProblems(blocks, THEMES), []);
   assert.deepEqual(strayProblems(blocks, THEMES), []);
+});
+
+test('a colors.css held in the defaults layer keeps both polarity blocks under their own selectors', () => {
+  const css = readFileSync(join(repoRoot, 'contracts/design/colors.css'), 'utf8');
+  const blocks = blocksIn(`@layer arena-defaults {\n${css}\n}\n`);
+  assert.match(blocks.get(':root,.arena-dark') ?? '', /color-scheme:dark/);
+  assert.match(blocks.get('.arena-light') ?? '', /color-scheme:light/);
 });

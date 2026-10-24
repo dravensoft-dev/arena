@@ -607,6 +607,25 @@ test('the token sheets arena.css reaches declare their custom properties outside
   assert.match(unlayeredTokenProblems(REACT_PKG, distTree({ 'arena.css': "@import './css/colors.css';", 'css/colors.css': '@layer x{:root{--color-base-100:#141010}}' })).join('\n'), /css\/colors\.css/);
 });
 
+const selfReferences = (...names: string[]) => `@layer theme { :root { ${names.map((n) => `${n}: var(${n});`).join(' ')} } }`;
+
+function defaultsTree(sheet: string, theme = selfReferences('--font-body', '--x-made')) {
+  return distTree({
+    'arena.css': "@import './css/typography.css';",
+    'css/typography.css': sheet,
+    'css/tailwind-theme.css': theme,
+  });
+}
+
+test('a name the theme always declares may sit in the defaults layer, and one it does not may not', () => {
+  assert.deepEqual(unlayeredTokenProblems(REACT_PKG, defaultsTree('@layer arena-defaults{:root{--font-body:x}}')), []);
+  const made = unlayeredTokenProblems(REACT_PKG, defaultsTree('@layer arena-defaults{:root{--x-made:1}}')).join('\n');
+  assert.match(made, /--x-made/);
+  assert.match(made, /arena build does not always write --x-made/);
+  const other = unlayeredTokenProblems(REACT_PKG, defaultsTree('@layer base{:root{--font-body:x}}')).join('\n');
+  assert.match(other, /inside a cascade layer/);
+});
+
 test('a family channel declared inside a layer is not a token, and a token beside it still is', () => {
   const sheet = '@layer utilities{@scope (.arena-fill){[data-arena-part="button"]{--arena-fill-width:100%}}}';
   assert.deepEqual(unlayeredTokenProblems(REACT_PKG, distTree({ 'arena.css': "@import './css/vocabulary/fill.css';", 'css/vocabulary/fill.css': sheet })), []);

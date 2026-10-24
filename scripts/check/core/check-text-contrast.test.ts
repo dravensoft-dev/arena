@@ -86,6 +86,13 @@ test('the disabled text and the scrim are the two aliases in colors.css that hol
   assert.deepEqual(literal, ['mute-2-disabled', 'scrim']);
 });
 
+test('a colors.css held in the defaults layer reads as the same alias block', () => {
+  const css = readFileSync(join(repoRoot, 'contracts/design/colors.css'), 'utf8');
+  const layered = `@layer arena-defaults {\n${css}\n}\n`;
+  assert.equal(structureOf(layered, SELECTORS), structureOf(css, SELECTORS));
+  assert.ok(structureOf(layered, SELECTORS).includes('--text-strong'));
+});
+
 test('a retired token carries the token that replaces it, so the failure is actionable', () => {
   assert.ok(REMOVED.length > 0, 'an empty list holds nothing and would pass over any reappearance');
   for (const { token, use } of REMOVED) {

@@ -71,3 +71,19 @@ test('an @media inside @scope keys by both preludes, and an unnested key is unch
 test('an @scope with a lower bound throws', () => {
   assert.throws(() => parseDecls('@scope (.a) to (.b) {\n.c{--x:1}\n}'), /cannot key/);
 });
+
+test('a layer moves a rule in the cascade and not in the key', () => {
+  const out = parseDecls('@layer arena-defaults{\n:root,.arena-dark{--x:1}\n}');
+  assert.deepEqual(out.get(':root,.arena-dark'), new Map([['x', '1']]));
+  assert.deepEqual([...out.keys()], [':root,.arena-dark']);
+});
+
+test('a block both inside a layer and outside it is one key, and the later declaration holds', () => {
+  assert.equal(parseDecls('@layer a{:root{--x:1}} :root{--x:2}').get(':root').get('x'), '2');
+  assert.deepEqual([...parseDecls('@media (x){@layer a{.b{--y:2}}}').keys()], ['@media (x) .b']);
+});
+
+test('an order statement ahead of a layer declares no rule and joins no selector', () => {
+  const out = parseDecls('@layer properties;\n@layer arena-defaults, theme;\n@layer arena-defaults {\n:root{--x:1}\n}');
+  assert.deepEqual([...out.keys()], [':root']);
+});

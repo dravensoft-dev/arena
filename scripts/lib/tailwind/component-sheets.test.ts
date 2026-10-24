@@ -120,7 +120,7 @@ test('the preflight states the same order as the prelude, and states it once', (
 });
 
 test('the reserved layer is declared last, after utilities', () => {
-  assert.ok(LAYER_ORDER.includes('@layer theme, base, components, utilities, arena-plugin;'),
+  assert.ok(LAYER_ORDER.includes('@layer arena-defaults, theme, base, components, utilities, arena-plugin;'),
     'every compiled component rule lands in utilities at one class of specificity, so a plugin '
     + 'declared earlier would need !important to reach anything, and an escape hatch that needs '
     + '!important is not one');

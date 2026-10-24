@@ -915,6 +915,8 @@ export type ThemeOptions = {
   cuts?: Record<string, FontFaces>;
 };
 
+export const ALWAYS_THEMED: readonly string[] = Object.keys(FONT_ROLES).map((role) => `--font-${role}`);
+
 export function themeCss(config: CheckedConfig, options: ThemeOptions = {}) {
   const {
     source = 'arena.config.json', sheets = null, plugins = null, cuts = {},

@@ -1,8 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { dirname, join } from 'node:path';
+import { repoRoot } from '../../lib/arena/repo-root.ts';
 import {
   ARENA_THEME_NAMED, EXTERNAL_PROPERTIES, MANIFEST_FETCH, staleThemeNamedProblems, THEME_NAMESPACES, collect, keyframeDepths, preludeProblems,
-  propertiesIn, selectorsIn, themeLeaks,
+  propertiesIn, selectorsIn, themeLeaks, defaultsProblems, layerOrderProblems,
   isFamilyChannel,
 } from './check-component-css.ts';
 import { keyframesIn, sheetPath } from '../../build/tailwind/build-tailwind.ts';
@@ -115,4 +119,31 @@ test('an Arena aspect token is no leak, and an entry no sheet reads is stale', (
   const read = new Set(ARENA_THEME_NAMED.keys());
   read.delete('aspect-wide');
   assert.match(staleThemeNamedProblems(read).join('\n'), /--aspect-wide and no emitted sheet reads it/);
+});
+
+const DEFAULT_SOURCES = ['contracts/design/colors.css', 'contracts/design-generated/typography.generated.css'];
+
+function copiedTree(change: (rel: string, css: string) => string) {
+  const dir = mkdtempSync(join(tmpdir(), 'defaults-'));
+  for (const rel of DEFAULT_SOURCES) {
+    mkdirSync(dirname(join(dir, rel)), { recursive: true });
+    writeFileSync(join(dir, rel), change(rel, readFileSync(join(repoRoot, rel), 'utf8')));
+  }
+  return dir;
+}
+
+test('both default sources lead with the order and hold their rules in arena-defaults', () => {
+  assert.deepEqual(defaultsProblems(), []);
+  const dir = copiedTree((rel, css) => (rel.endsWith('colors.css')
+    ? css.replace('@layer arena-defaults {', '@layer other {')
+    : css));
+  const problems = defaultsProblems(dir);
+  rmSync(dir, { recursive: true, force: true });
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /colors\.css/);
+});
+
+test('the order a sheet states names arena-defaults first', () => {
+  assert.deepEqual(layerOrderProblems('x.css', '@layer arena-defaults, theme, base, components, utilities, arena-plugin;\n'), []);
+  assert.equal(layerOrderProblems('x.css', '@layer theme, base, components, utilities, arena-plugin;\n').length, 1);
 });

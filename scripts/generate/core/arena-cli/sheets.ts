@@ -21,7 +21,7 @@ export const PLUGIN_SHEET = 'plugin.generated.css';
 export const RUNTIME_DATA = 'arena.runtime.generated.json';
 export const PLUGIN_CSS = 'plugin.css';
 export const PLUGIN_LAYER = 'arena-plugin';
-export const PLUGIN_LAYER_ORDER = '@layer properties;\n@layer theme, base, components, utilities, arena-plugin;\n';
+export const PLUGIN_LAYER_ORDER = '@layer properties;\n@layer arena-defaults, theme, base, components, utilities, arena-plugin;\n';
 export const COMPONENT_MAP = 'components.json';
 export const ICON_MANIFEST = 'icons.json';
 

@@ -7,7 +7,7 @@
    string arena build writes ahead of a consumer's plugin sheet, repeated rather than cited
    because a browser reads this file and not that one. */
 @layer properties;
-@layer theme, base, components, utilities, arena-plugin;
+@layer arena-defaults, theme, base, components, utilities, arena-plugin;
 
 @import "../contracts/design/reset.css";
 @import "../contracts/design-generated/fonts.generated.css";

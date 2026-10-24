@@ -21,7 +21,9 @@ import { CLI_DEPENDENCIES } from '../../lib/arena/support-matrix.ts';
 import { arenaEnv, refuseWhen, unassembledReason } from '../../lib/arena/arena-scripts-vars.ts';
 import { parseDecls } from '../../lib/arena/css-decls.ts';
 import { arenaConfig } from '../../lib/core/arena-config.ts';
-import { themeCss } from '../../generate/core/arena-cli/theme-css.ts';
+import { themeCss, ALWAYS_THEMED } from '../../generate/core/arena-cli/theme-css.ts';
+import { THEME_SHEET as GENERATED_SHEET } from '../../generate/core/arena-cli/sheets.ts';
+import { DEFAULTS_LAYER } from '../../lib/tailwind/component-sheets.ts';
 import { MAP_FILE } from '../../lib/arena/component-map.ts';
 import { iconManifest, MANIFEST_FILE } from '../../lib/arena/icon-manifest.ts';
 import { shippedNames } from '../../generate/core/arena-cli/icon-css.ts';
@@ -471,6 +473,10 @@ export function themeCompileProblems(
 
 export function unlayeredTokenProblems(pkg: { layer: string; name: string }, dir: string) {
   const problems = [];
+  const themePath = join(dir, THEME_SHEET);
+  const selfReferenced = new Set(existsSync(themePath)
+    ? [...readFileSync(themePath, 'utf8').matchAll(/(--[\w-]+)\s*:\s*var\(\1\)/g)].map((m) => m[1] as string)
+    : []);
   const seen = new Set<string>();
   const queue = ['arena.css'];
   while (queue.length) {
@@ -482,11 +488,21 @@ export function unlayeredTokenProblems(pkg: { layer: string; name: string }, dir
     const css = readFileSync(full, 'utf8');
     for (const specifier of importsIn(css)) queue.push(toPosix(join(dirname(from), specifier ?? '')));
     for (const block of topLevelBlocks(css, '@layer')) {
-      if (/--(?!tw-|arena-)[\w-]+\s*:/.test(block.slice(block.indexOf('{')))) {
-        problems.push(`${pkg.name}: ${from} declares an Arena custom property inside a cascade layer, and the theme's `
-          + `self-reference in ${THEME_SHEET} resolves to Arena's value only while the token sheets load unlayered`);
-        break;
+      const body = block.slice(block.indexOf('{'));
+      if (!/--(?!tw-|arena-)[\w-]+\s*:/.test(body)) continue;
+      if (new RegExp(`^@layer\\s+${DEFAULTS_LAYER}\\s*\\{`).test(block)) {
+        const stray = [...body.matchAll(/(--(?!tw-|arena-)[\w-]+)\s*:/g)].map((m) => m[1] as string)
+          .filter((name) => selfReferenced.has(name) && !ALWAYS_THEMED.includes(name));
+        for (const name of new Set(stray)) {
+          problems.push(`${pkg.name}: ${from} declares ${name} inside @layer ${DEFAULTS_LAYER}, and ${THEME_SHEET} declares it `
+            + `as a self-reference in @layer theme, which outranks the defaults, so only an unlayered declaration in `
+            + `${GENERATED_SHEET} keeps it from resolving against itself, and arena build does not always write ${name}`);
+        }
+        continue;
       }
+      problems.push(`${pkg.name}: ${from} declares an Arena custom property inside a cascade layer, and the theme's `
+        + `self-reference in ${THEME_SHEET} resolves to Arena's value only while the token sheets load unlayered`);
+      break;
     }
   }
   return problems;

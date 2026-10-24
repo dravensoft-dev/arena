@@ -62,7 +62,7 @@ test('the sheet declares the layer order itself, so where a bundler puts it cann
   const css = pluginCss([{ name: 'shop', css: '.x{}', root: true }]) ?? '';
   assert.ok(css.startsWith(PLUGIN_LAYER_ORDER), 'the order leads the file');
   assert.ok(
-    css.indexOf('@layer theme, base, components, utilities, arena-plugin;')
+    css.indexOf('@layer arena-defaults, theme, base, components, utilities, arena-plugin;')
     < css.indexOf('@layer arena-plugin {'),
     'a bare @layer arena-plugin block met before the order statement registers that name as the '
     + 'LOWEST layer, and every plugin rule contesting a component rule then loses in silence',

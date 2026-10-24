@@ -98,8 +98,11 @@ function flattenTokens(tree) {
 // scripts/lib/arena/css-decls.ts
 var SCOPE_AT = /^@scope\s*\(([^()]*)\)$/;
 var innerKey = (selector) => [...new Set(selector.split(",").map((one) => one.trim().replace(/^:where\(:scope\)/, "")))].join(", ");
+var LAYER_AT = /^@layer\s+[\w-]+$/;
 function prelude(selector) {
   const text = selector.replace(/\s+/g, " ");
+  if (LAYER_AT.test(text))
+    return { text: "", scoped: false };
   if (!text.startsWith("@scope"))
     return { text, scoped: false };
   const root = SCOPE_AT.exec(text)?.[1]?.trim();
@@ -133,13 +136,13 @@ function frames(text) {
   return out;
 }
 function parseDecls(cssText) {
-  const stripped = cssText.replace(/\/\*[\s\S]*?\*\//g, "");
+  const stripped = cssText.replace(/\/\*[\s\S]*?\*\//g, "").replace(/@layer\s+[^{};]*;/g, "");
   const out = new Map;
   for (const { selector: written, body, stack } of frames(stripped)) {
     if (!written)
       continue;
     const inner = stack.some((p) => p.scoped) ? innerKey(written) : written;
-    const selector = [...stack.map((p) => p.text), inner].join(" ");
+    const selector = [...stack.map((p) => p.text).filter(Boolean), inner].join(" ");
     const decls = out.get(selector) ?? new Map;
     for (const d of body.split(";")) {
       const i = d.indexOf(":");

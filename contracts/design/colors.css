@@ -6,7 +6,14 @@
    (--bg, --surface-card, --crimson, --gold, --danger, --mute…)
    onto the daisyUI tokens and derives the muted text levels.
    Swapping the skin means swapping the palette source, not this file.
+   Everything below sits in the arena-defaults layer, the first layer of the
+   package's order. The theme sheet (arena.generated.css) restates every value
+   here unlayered, so the theme wins whatever order a toolchain emits the two
+   sheets in, and no import order has to be right for that to hold.
    ============================================================ */
+@layer properties;
+@layer arena-defaults, theme, base, components, utilities, arena-plugin;
+@layer arena-defaults {
 
 /* Theme polarity and name — not a colour, a direction and a label, and three things read them.
    --picker-invert is read by the input slot utility (ArenaInput.styles.generated.css)
@@ -118,4 +125,5 @@
 
   /* the cover behind anything that covers the app: the palette's own floor, held back */
   --scrim:color-mix(in oklab,var(--color-base-100) 60%,transparent);
+}
 }

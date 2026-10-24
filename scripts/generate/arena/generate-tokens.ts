@@ -18,6 +18,7 @@ import { camel } from '../../utils/case.ts';
 import { isMainModule } from '../../utils/main-module.ts';
 import { serialize } from '../core/arena-cli/serialize-token.ts';
 import { rootOnlyFor, scopeOn } from '../core/arena-cli/style-plugin-rules.ts';
+import { DEFAULTS_LAYER, LAYER_ORDER } from '../../lib/tailwind/component-sheets.ts';
 import { serializeScript } from '../../lib/core/serialize-script.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { ARENA_EXT, childEntries, isStamped, isToken } from '../../lib/core/dtcg-shapes.ts';
@@ -35,7 +36,7 @@ export const FILES = [
     { selector: '.arena-dark', source: 'palette.dark.json' },
     { selector: '.arena-light', source: 'palette.light.json' },
   ] },
-  { out: 'typography.generated.css', blocks: [
+  { out: 'typography.generated.css', layer: DEFAULTS_LAYER, blocks: [
     { selector: ':root', source: 'typography.json' },
   ] },
   { out: 'spacing.generated.css', blocks: [
@@ -378,7 +379,9 @@ export async function buildAll() {
       const [contrast, environment] = ROOT_ONLY_SOURCES.map((at) => readFileSync(join(root, at), 'utf8'));
       blocks.push(rootOnlyFor(rootOnly, { contrast: contrast as string, environment: environment as string }));
     }
-    out.set(file.out, `${HEADER}\n${blocks.join('\n')}\n`);
+    const layer = (file as { layer?: string }).layer;
+    const body = blocks.join('\n');
+    out.set(file.out, layer ? `${HEADER}\n${LAYER_ORDER}@layer ${layer} {\n${body}\n}\n` : `${HEADER}\n${body}\n`);
   }
   return out;
 }

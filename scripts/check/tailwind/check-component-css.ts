@@ -16,6 +16,7 @@ import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { parseDecls } from '../../lib/arena/css-decls.ts';
 import { arenaTokenNames } from '../../lib/core/arena-tokens.ts';
 import { layerManifests } from '../../lib/tailwind/tailwind-compile.ts';
+import { LAYER_ORDER } from '../../lib/tailwind/component-sheets.ts';
 import { applyRules } from '../../lib/tailwind/component-css.ts';
 import { blindFallbacks, repeatedSupports } from '../../lib/tailwind/supports-blocks.ts';
 import { PREFLIGHT, PRELUDE, sheetPath } from '../../build/tailwind/build-tailwind.ts';
@@ -175,10 +176,34 @@ export function keyframeDepths(css: string) {
 }
 
 export function layerOrderProblems(file: string, css: string) {
-  if (/^@layer theme, base, components, utilities, arena-plugin;$/m.test(css)) return [];
+  if (/^@layer arena-defaults, theme, base, components, utilities, arena-plugin;$/m.test(css)) return [];
   return [`${file}: no layer order declaration ending in the reserved plugin layer, so `
     + "Tailwind's own property fallbacks sort above everything, or a style plugin lands where a "
     + 'compiled component rule outranks it'];
+}
+
+export const DEFAULT_SOURCES = ['contracts/design/colors.css', 'contracts/design-generated/typography.generated.css'];
+
+export function defaultsProblems(base = root) {
+  const problems = [];
+  for (const rel of DEFAULT_SOURCES) {
+    const path = join(base, rel);
+    if (!existsSync(path)) {
+      problems.push(`${rel} is missing, so the package declares no colour or type defaults`);
+      continue;
+    }
+    const css = readFileSync(path, 'utf8');
+    const lead = css.replace(/\/\*[\s\S]*?\*\//g, '').trimStart();
+    if (!lead.startsWith(LAYER_ORDER)) {
+      problems.push(`${rel} does not lead with the layer order, so the layer holding its defaults is registered `
+        + 'wherever the first stylesheet to open it happens to put it');
+    }
+    if (!/@layer arena-defaults\s*\{/.test(css)) {
+      problems.push(`${rel} opens no @layer arena-defaults block, so its values are unlayered and outrank the `
+        + "theme's own whenever a toolchain emits the theme sheet first");
+    }
+  }
+  return problems;
 }
 
 export function preflightProblems(base = root) {
@@ -256,7 +281,7 @@ export function collect(base = root) {
   }
   return {
     manifests,
-    problems: [...sheetProblems(manifests, base), ...preludeProblems(base), ...preflightProblems(base),
+    problems: [...sheetProblems(manifests, base), ...preludeProblems(base), ...preflightProblems(base), ...defaultsProblems(base),
       ...specimenProblems(manifests, base)],
   };
 }

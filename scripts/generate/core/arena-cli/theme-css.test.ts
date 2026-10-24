@@ -6,7 +6,7 @@ import {
   configProblems, heatReports, heatOrderReports, themeCss, packageCss, packageImports, paletteReports, defaultPalette, isStylesheet, scopedImports,
   pluginName, pluginValue, readPlugin, weightReports, rootWithDefaults, resolvedPlugin,
   pluginBlocks, pluginTokenProblems,
-  ARENA_FONT_DEFAULTS, RUNTIME_MARKER, polarityClass, polarityDeclarations, restatedBy, type CheckedStylesheet, type CheckedSheets,
+  ARENA_FONT_DEFAULTS, ALWAYS_THEMED, RUNTIME_MARKER, polarityClass, polarityDeclarations, restatedBy, type CheckedStylesheet, type CheckedSheets,
 } from './theme-css.ts';
 import { PALETTE_KEYS, POLARITIES, heatKeys } from './palette-keys.ts';
 import { heatLadder } from './oklab.ts';
@@ -1477,6 +1477,13 @@ test('a config without runtimePalettes emits what it emitted before the runtime-
   assert.equal(bodyOf(themeCss({ ...c, runtimePalettes: false }, options)), golden, 'false is the same as absent');
   assert.doesNotMatch(before, /arena-polarity/);
   assert.ok(!before.includes(RUNTIME_MARKER));
+});
+
+test('the theme declares every name the package defaults leave to it', () => {
+  const { config: c, options } = goldenInput(readPlugin);
+  const root = parseDecls(themeCss(c, options)).get(':root');
+  assert.ok(ALWAYS_THEMED.length > 0, 'an empty list names nothing and would pass over any name');
+  for (const name of ALWAYS_THEMED) assert.ok(root.has(name.slice(2)), `${name} is left to the theme and the root block does not declare it`);
 });
 
 test('runtimePalettes emits one hook block per polarity carrying exactly the polarity half', () => {
