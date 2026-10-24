@@ -591,8 +591,8 @@ the guard, not a count**: the defect does not depend on host-binding, so any fig
 the host-bound primitives alone undercounts.
 
 **No output shares the name of a DOM event that bubbles out of the component.** A native `click` or
-`change` from an inner element reaches the consumer's `(click)` or `(change)` binding as the DOM event,
-and an output of the same name would reach it a second time. So a component reports an activation
+`change` from an inner element reaches the consumer's `(click)` or `(change)` binding as the DOM event.
+An output of the same name would reach the same binding a second time. So a component reports an activation
 through `activate` and a value through `valueChange`, and `check:api` refuses an event member
 named `click` or `change`. A suite counting activations asserts both numbers, the output on the
 component instance and what a template `(activate)` binding hears, because either alone is blind.
