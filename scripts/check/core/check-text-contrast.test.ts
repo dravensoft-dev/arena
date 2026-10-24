@@ -77,13 +77,13 @@ test('a held-back alias that reads a level resolves at the level the block decla
   assert.throws(() => resolvePercent(mix, 'mute'), /--mute/);
 });
 
-test('no alias in colors.css holds a percentage of its own but the disabled one, the cover over the page apart', () => {
+test('the disabled text and the scrim are the two aliases in colors.css that hold a fixed percentage, with no level', () => {
   const block = structureOf(readFileSync(join(repoRoot, 'contracts/design/colors.css'), 'utf8'), SELECTORS)
     .replace(/\/\*[\s\S]*?\*\//g, '');
   const literal = [...block.matchAll(/--([\w-]+)\s*:\s*([^;]+);/g)]
-    .filter(([, name, value]) => !(name ?? '').startsWith('level-') && /\d%/.test(value ?? '') && !/var\(--color-base-100\)/.test(value ?? ''))
+    .filter(([, name, value]) => !(name ?? '').startsWith('level-') && /\d%/.test(value ?? ''))
     .map(([, name]) => name);
-  assert.deepEqual(literal, ['mute-2-disabled']);
+  assert.deepEqual(literal, ['mute-2-disabled', 'scrim']);
 });
 
 test('a retired token carries the token that replaces it, so the failure is actionable', () => {
