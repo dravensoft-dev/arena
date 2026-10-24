@@ -61,7 +61,7 @@ test('while bound, choosing calls onChange and the change output still fires', (
     const emitted: string[] = [];
     binding.bound.set(true);
     binding.onChange = (value) => reported.push(value);
-    fixture.componentInstance.group().change.subscribe((value: string) => emitted.push(value));
+    fixture.componentInstance.group().valueChange.subscribe((value: string) => emitted.push(value));
     radios[1]!.checked = true;
     radios[1]!.dispatchEvent(new Event('change', { bubbles: true }));
     assert.deepEqual(reported, ['pro']);
@@ -108,7 +108,7 @@ test('a forms-bound click chooses the option and draws the dot there', () => {
 @Component({
   standalone: true,
   imports: [ArenaRadioGroup, ArenaRadio],
-  template: `<arena-radio-group ariaLabel="Plan" value="a" (change)="seen.push($event)">
+  template: `<arena-radio-group ariaLabel="Plan" value="a" (valueChange)="seen.push($event)">
     <arena-radio value="a" label="A" /><arena-radio value="b" label="B" />
   </arena-radio-group>`,
 })
@@ -133,7 +133,7 @@ test('a host that holds value and ignores change keeps the native radios and the
 @Component({
   standalone: true,
   imports: [ArenaRadioGroup, ArenaRadio],
-  template: `<arena-radio-group ariaLabel="Plan" [value]="held()" (change)="held.set($event)">
+  template: `<arena-radio-group ariaLabel="Plan" [value]="held()" (valueChange)="held.set($event)">
     <arena-radio value="a" label="A" /><arena-radio value="b" label="B" />
   </arena-radio-group>`,
 })

@@ -5,10 +5,10 @@ the accessible name and the focus ring.
 
 ```html
 <arena-segmented-control ariaLabel="Time range" [options]="ranges" [value]="range()"
-                         (change)="range.set($event)" />
+                         (valueChange)="range.set($event)" />
 
 <arena-segmented-control ariaLabel="Status" [options]="statuses"
-                         defaultValue="failing" (change)="filter.set($event)" class="arena-size-sm" />
+                         defaultValue="failing" (valueChange)="filter.set($event)" class="arena-size-sm" />
 ```
 
 <!-- @api GENERATED from contracts/api/components/ArenaSegmentedControl.json. Edit the contract, not this table. -->

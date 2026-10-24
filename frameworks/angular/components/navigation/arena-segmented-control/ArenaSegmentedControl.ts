@@ -25,7 +25,7 @@ import { ArenaSlotAttributes } from '../../../SlotData';
         {{ option.label }}
         <input type="radio" [class]="styles().input()" [attr.data-arena-part]="parts.input" [attr.name]="groupName()"
                [attr.value]="option.value" [checked]="option.value === selected()"
-               (change)="choose(option.value, $event)" />
+               (change)="choose(option.value)" />
       </label>
     }
   `,
@@ -44,7 +44,7 @@ export class ArenaSegmentedControl {
   /** Shared name for the underlying radios; generated when omitted or blank. */
   readonly name = input<string>();
   /** A different option was chosen; carries its value. */
-  readonly change = output<string>();
+  readonly valueChange = output<string>();
 
   private readonly fallbackName = inject(ArenaIdGenerator).next('arena-segmented-control');
   private readonly chosen = signal<string | undefined>(undefined);
@@ -62,9 +62,8 @@ export class ArenaSegmentedControl {
     return arenaSegmentedControlStyles({ selected: value === this.selected() });
   }
 
-  protected choose(value: string, event: Event): void {
-    event.stopPropagation();
+  protected choose(value: string): void {
     this.chosen.set(value);
-    this.change.emit(value);
+    this.valueChange.emit(value);
   }
 }

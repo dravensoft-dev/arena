@@ -2,7 +2,7 @@ Arena checkbox group, a set of independent choices reported as one value. Standa
 
 ```html
 <arena-fieldset legend="Notify me about" [error]="notify().length === 0 ? 'Choose at least one.' : undefined">
-  <arena-checkbox-group ariaLabel="Notify me about" name="notify" [value]="notify()" (change)="notify.set($event.values)">
+  <arena-checkbox-group ariaLabel="Notify me about" name="notify" [value]="notify()" (valueChange)="notify.set($event.values)">
     <arena-checkbox value="deploys" label="Deploys" />
     <arena-checkbox value="incidents" label="Incidents" />
     <arena-checkbox value="digest" label="Weekly digest" />
@@ -39,9 +39,9 @@ Arena checkbox group, a set of independent choices reported as one value. Standa
 
 `ariaLabel` names the set and is **required**, throwing when blank. The label says what the choices are about, never that they are choices. `name` is the boxes' shared form name, so a native form submits every ticked value under one key, and it never reaches a screen reader. One is generated per instance when omitted.
 
-**The group works controlled or not.** Pass `value` and it draws yours, so write `$event.values` back on `change`; omit it and the group keeps the set itself. `change` carries an `ArenaValueSet`, the whole set after the toggle, exactly once per toggle. The set keeps the order the boxes were ticked in and adds a value once. A value matching no box is kept. A bound `value` you never write back is drawn until the first toggle, and the group keeps its own set from then until `value` changes.
+**The group works controlled or not.** Pass `value` and it draws yours, so write `$event.values` back on `valueChange`; omit it and the group keeps the set itself. `valueChange` carries an `ArenaValueSet`, the whole set after the toggle, exactly once per toggle. The set keeps the order the boxes were ticked in and adds a value once. A value matching no box is kept. A bound `value` you never write back is drawn until the first toggle, and the group keeps its own set from then until `value` changes.
 
-**Every box needs a `value`, and the group owns its ticked state and its form name.** A box with no value throws inside a group. A `checked` bound on a box inside a group is ignored, the group's `value` is drawn, and the layer warns once; a literal `[checked]="false"` goes unseen. A `name` on a box is replaced by the group's. A box's own `change` still fires, before the group's. A form directive on a box inside a group still hears each toggle as a boolean but never decides whether the box is ticked: bind the form to the group.
+**Every box needs a `value`, and the group owns its ticked state and its form name.** A box with no value throws inside a group. A `checked` bound on a box inside a group is ignored, the group's `value` is drawn, and the layer warns once; a literal `[checked]="false"` goes unseen. A `name` on a box is replaced by the group's. A box's own `valueChange` still fires, before the group's. A form directive on a box inside a group still hears each toggle as a boolean but never decides whether the box is ticked: bind the form to the group.
 
 **The group draws no legend, hint or error.** A visible name, a line of help and a message about the set ("Choose at least one") come from an `arena-fieldset` around it. Make the legend and `ariaLabel` say the same words. There is no "select all" parent and no `required`: a native checkbox's `required` means that one box must be ticked, and "at least one" is the fieldset's error.
 

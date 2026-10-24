@@ -25,7 +25,7 @@ const BINDING = join(ANGULAR_COMPONENTS, 'forms/arena-input/ArenaInput.behaviour
                           [required]="required" [readOnly]="readOnly" [disabled]="disabled"
                           [validate]="validate" [validateOn]="validateOn" [value]="value"
                           [icon]="icon" [prefix]="prefix"
-                          (change)="edits.push($event)" (blur)="blurs.push($event)" />`,
+                          (valueChange)="edits.push($event)" (blur)="blurs.push($event)" />`,
 })
 class InputHost {
   label: string | undefined = 'Project name';
@@ -128,14 +128,14 @@ test('typing emits change once per keystroke, carrying the value rather than the
   }
 });
 
-test('the native change never reaches the consumer, so a commit does not look like a second edit', () => {
+test('the native change reaches an ancestor and a commit does not look like a second edit', () => {
   const { fixture, control } = render();
   try {
     type(fixture, control, 'arena');
     control.dispatchEvent(new Event('change', { bubbles: true }));
     fixture.detectChanges();
     assert.equal(fixture.componentInstance.edits.length, 1,
-      'change is an output named after a native DOM event; without stopPropagation the commit emits again');
+      'valueChange runs once per edit, and the commit adds none');
   } finally {
     fixture.destroy();
   }

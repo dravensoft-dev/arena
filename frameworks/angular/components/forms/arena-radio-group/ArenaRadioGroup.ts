@@ -35,7 +35,7 @@ export class ArenaRadioGroup {
   /** Whether the whole group is unavailable. Every radio it holds is disabled whatever its own disabled says, and the group reflects aria-disabled. */
   readonly disabled = input(false, { transform: booleanAttribute });
   /** A different option was chosen; carries its value. */
-  readonly change = output<string>();
+  readonly valueChange = output<string>();
 
   protected readonly label = computed(() => {
     const name = this.ariaLabel();
@@ -64,7 +64,7 @@ export class ArenaRadioGroup {
     this.state.choose = (value: string) => {
       this.chosen.set(value);
       if (this.binding.bound()) this.binding.value.set(value);
-      this.change.emit(value);
+      this.valueChange.emit(value);
       this.binding.onChange(value);
     };
     this.state.resync = () => {

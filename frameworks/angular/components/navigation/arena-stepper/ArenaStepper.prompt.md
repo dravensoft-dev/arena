@@ -1,7 +1,7 @@
 Arena stepper, the steps of one process and where it stands. Standalone, `OnPush`, signal I/O. The host stays out of layout, and the real `<ol>` inside it carries the list. Each marker shows whether its step is done, current or still ahead.
 
 ```html
-<arena-stepper ariaLabel="Checkout" [steps]="steps" [index]="at()" interactive (change)="at.set($event)" />
+<arena-stepper ariaLabel="Checkout" [steps]="steps" [index]="at()" interactive (valueChange)="at.set($event)" />
 <arena-stepper ariaLabel="Account setup" [steps]="setup" [index]="2" class="arena-orientation-vertical" />
 ```
 
@@ -33,7 +33,7 @@ Arena stepper, the steps of one process and where it stands. Standalone, `OnPush
 
 **No state rides on colour alone.** Each step speaks Completed, Current step or Upcoming ahead of its label, and a step in error adds Error. All four words come from `ARENA_LOCALE`.
 
-**A press can only go back.** Set `interactive` and the steps behind the current one become buttons, each emitting its own index through `change`. Moving forward stays with your own Next button, since the current step and the later ones are plain text.
+**A press can only go back.** Set `interactive` and the steps behind the current one become buttons, each emitting its own index through `valueChange`. Moving forward stays with your own Next button, since the current step and the later ones are plain text.
 
 **Do / Don't**
 - Do pass `ariaLabel` naming the process, such as Account setup. A blank value throws, and Steps names nothing.

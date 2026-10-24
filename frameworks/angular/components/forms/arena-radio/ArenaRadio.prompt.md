@@ -35,8 +35,8 @@ One option inside an `arena-radio-group`. Standalone, `OnPush`, signal I/O. The 
 - It has **no `checked` and no event**, and that is the contract rather than an omission. The
   option reads the selected value from the `ArenaRadioGroupState` its group provides and reports a
   choice back through it, so there is nothing for a consumer to wire per option. Bind
-  `(change)` on the group.
-- `value` is required and is what the group's `change` carries. Two options with the same value in
+  `(valueChange)` on the group.
+- `value` is required and is what the group's `valueChange` carries. Two options with the same value in
   one group is a group that cannot tell them apart.
 - `label` is optional in the contract, and an option without one is announced by its value at
   best. Pass it.

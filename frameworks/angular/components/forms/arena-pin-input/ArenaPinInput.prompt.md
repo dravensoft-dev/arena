@@ -1,9 +1,9 @@
-A code typed one character per cell, such as a verification code from a text message. Each cell is a real text field inside one labelled group, and `(change)` carries the whole code as one string. Controlled, the code draws an edit as soon as it is made and follows `value` whenever the host moves it. A host that refuses an edit by leaving `value` as it was is not seen, and the edit stays drawn.
+A code typed one character per cell, such as a verification code from a text message. Each cell is a real text field inside one labelled group, and `(valueChange)` carries the whole code as one string. Controlled, the code draws an edit as soon as it is made and follows `value` whenever the host moves it. A host that refuses an edit by leaving `value` as it was is not seen, and the edit stays drawn.
 
 ```html
-<arena-pin-input label="Verification code" name="otp" [value]="code()" (change)="code.set($event)" (complete)="verify($event)" />
+<arena-pin-input label="Verification code" name="otp" [value]="code()" (valueChange)="code.set($event)" (complete)="verify($event)" />
 
-<arena-pin-input #pin label="Device PIN" [length]="4" masked autoComplete="off" [value]="devicePin()" (change)="devicePin.set($event)" />
+<arena-pin-input #pin label="Device PIN" [length]="4" masked autoComplete="off" [value]="devicePin()" (valueChange)="devicePin.set($event)" />
 ```
 
 <!-- @api GENERATED from contracts/api/components/ArenaPinInput.json. Edit the contract, not this table. -->
@@ -40,7 +40,7 @@ A code typed one character per cell, such as a verification code from a text mes
 **Keys:** none (`textbox`).
 <!-- @keys end -->
 
-- **A string, never a list.** `(change)` fires with the whole code after each edit. `(complete)` fires after it when an edit fills the last cell. A paste or autofill of more than one character that leaves the code full fires it again, even over a full code. Writing `[value]` from the host fires neither output.
+- **A string, never a list.** `(valueChange)` fires with the whole code after each edit. `(complete)` fires after it when an edit fills the last cell. A paste or autofill of more than one character that leaves the code full fires it again, even over a full code. Writing `[value]` from the host fires neither output.
 - **A single Tab stop.** The group offers one cell to Tab: the first empty cell, or the last cell of a full code. One press of Tab or Shift+Tab leaves the group.
 - **Typing.** Each accepted character fills the focused cell, then focus moves to the next cell. A refused character leaves every cell as it was and emits nothing.
 - **Emptying.** Backspace on a filled cell empties that cell and keeps focus on it. On an empty cell, Backspace empties the cell before and moves there. Delete empties the focused cell, and later characters shift back.
@@ -50,7 +50,7 @@ A code typed one character per cell, such as a verification code from a text mes
 - **What a form submits.** `name` rides on one hidden input holding the whole code. No cell carries a name.
 - **Names.** The group takes its name from `label`, and a blank `label` throws. Each cell is named by its position through the locale's `pinInputCell` word. A hint or an error describes every cell.
 - **The group role.** The cells bind the `textbox` pattern. The wrapper's `group` role and name are asserted by the component's own suite.
-- **`(change)` belongs to the component.** Each cell's native `change` stops inside the component, so a listener on the host hears the code and never an `Event`.
+- **`(valueChange)` carries the code.** Each cell's native `change` reaches the page as a DOM event, and `(valueChange)` hears the code and never an `Event`.
 - **`(blur)` means the group.** Focus moving between cells emits nothing. Focus leaving the group for anything outside emits the code once.
 - **Reactive forms.** With `ArenaPinInputControl` from `@dravensoft/arena-angular/forms`, `formControl`, `formControlName` and `ngModel` bind the code. The control's value is the code as a string, and a `null` empties every cell. `disable()` disables every cell. Leaving the group marks the control touched, and a move between cells does not.
 - **Taking focus.** `focus()` is a method on the class and focuses the first cell. Reach it through a `viewChild` of `ArenaPinInput`, never by querying a cell, and call it after emptying `[value]` for a wrong code.

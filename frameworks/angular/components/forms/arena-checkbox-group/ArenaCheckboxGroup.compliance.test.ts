@@ -37,8 +37,8 @@ class WrappedBox {
   standalone: true,
   imports: [ArenaCheckboxGroup, ArenaCheckbox, WrappedBox],
   template: `
-    <arena-checkbox-group [ariaLabel]="ariaLabel" [name]="name" [value]="value" (change)="seen.push($event); log.push('group')">
-      <arena-checkbox value="deploys" label="Deploys" (change)="own.push($event); log.push('box')" />
+    <arena-checkbox-group [ariaLabel]="ariaLabel" [name]="name" [value]="value" (valueChange)="seen.push($event); log.push('group')">
+      <arena-checkbox value="deploys" label="Deploys" (valueChange)="own.push($event); log.push('box')" />
       @for (item of more; track item) { <arena-checkbox [value]="item" [label]="item" /> }
       <app-wrapped-box value="digest" />
     </arena-checkbox-group>
@@ -75,7 +75,7 @@ class ValuelessHost {}
 @Component({
   standalone: true,
   imports: [ReactiveFormsModule, ArenaCheckboxGroup, ArenaCheckbox, ArenaCheckboxControl],
-  template: `<arena-checkbox-group ariaLabel="Notify me about" (change)="log.push('group')"><arena-checkbox value="deploys" label="Deploys" [formControl]="own" (change)="log.push('box')" /></arena-checkbox-group>`,
+  template: `<arena-checkbox-group ariaLabel="Notify me about" (valueChange)="log.push('group')"><arena-checkbox value="deploys" label="Deploys" [formControl]="own" (valueChange)="log.push('box')" /></arena-checkbox-group>`,
 })
 class BoxControlHost {
   own = new FormControl(false);

@@ -49,7 +49,7 @@ test('while bound, a choice calls onChange with the array and the output still c
     binding.bound.set(true);
     binding.value.set(['eu']);
     binding.onChange = (value) => reported.push(value);
-    fixture.componentInstance.change.subscribe((set: unknown) => emitted.push(set));
+    fixture.componentInstance.valueChange.subscribe((set: unknown) => emitted.push(set));
     fixture.detectChanges();
     el.value = 'amer';
     el.dispatchEvent(new Event('input', { bubbles: true }));

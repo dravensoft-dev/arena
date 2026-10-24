@@ -17,7 +17,7 @@ const CHECKOUT: readonly ArenaStepperStep[] = [{ label: 'Account' }, { label: 'S
   selector: 'stepper-variants-host',
   standalone: true,
   imports: [ArenaStepper],
-  template: `<arena-stepper [ariaLabel]="label" [steps]="steps" [index]="index" [interactive]="interactive" (change)="chosen.push($event)" />`,
+  template: `<arena-stepper [ariaLabel]="label" [steps]="steps" [index]="index" [interactive]="interactive" (valueChange)="chosen.push($event)" />`,
 })
 class VariantsHost {
   label = 'Checkout';

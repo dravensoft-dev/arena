@@ -32,7 +32,7 @@ test('a change hands the binding the File objects held, and the output still fir
     const reported: unknown[] = [];
     const emitted: unknown[] = [];
     binding.onChange = (value) => reported.push(value);
-    fixture.componentInstance.change.subscribe((value) => emitted.push(value));
+    fixture.componentInstance.valueChange.subscribe((value) => emitted.push(value));
     pick(input, 'a.pdf', 'b.pdf');
     assert.equal(reported.length, 1);
     assert.ok(Array.isArray(reported[0]));

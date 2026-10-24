@@ -2,8 +2,8 @@ A named row of filter controls placed above the content they narrow, such as a t
 
 ```html
 <arena-filter-bar label="Deployment filters" [applied]="applied()" (remove)="drop($event)" (clear)="applied.set([])">
-  <arena-select label="Region" [options]="regions" [value]="region()" (change)="region.set($event)" />
-  <arena-segmented-control ariaLabel="Status" [options]="statuses" [value]="status()" (change)="status.set($event)" />
+  <arena-select label="Region" [options]="regions" [value]="region()" (valueChange)="region.set($event)" />
+  <arena-segmented-control ariaLabel="Status" [options]="statuses" [value]="status()" (valueChange)="status.set($event)" />
 </arena-filter-bar>
 ```
 

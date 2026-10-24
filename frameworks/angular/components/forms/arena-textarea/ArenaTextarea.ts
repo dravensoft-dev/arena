@@ -45,7 +45,7 @@ export function arenaBorderBoxSlack(element: HTMLElement): number {
               [attr.maxlength]="maxLength()" [disabled]="off()" [required]="required()"
               [readOnly]="readOnly()" [attr.placeholder]="placeholder()" [attr.name]="name()"
               [attr.aria-invalid]="hasError()" [attr.aria-describedby]="noteId()" [value]="drawn() ?? ''"
-              (input)="onInput($event)" (change)="onNativeChange($event)"></textarea>
+              (input)="onInput($event)"></textarea>
     <div [class]="styles().foot()" [attr.data-arena-part]="parts.foot">
       @if (shownError(); as message) {
         <span [attr.id]="noteId()" [class]="styles().error()" [attr.data-arena-part]="parts.error">{{ message }}</span>
@@ -98,7 +98,7 @@ export class ArenaTextarea {
   /** Initial visible rows. */
   readonly rows = input<number, number | undefined>(4, { transform: (value) => value ?? 4 });
   /** Edited; carries the new text. */
-  readonly change = output<string>();
+  readonly valueChange = output<string>();
 
   protected readonly controlId = computed(() => arenaTextareaIdFor(this.id(), this.label()));
   protected readonly shownError = computed(() => this.error() ?? null);
@@ -136,12 +136,8 @@ export class ArenaTextarea {
   protected onInput(event: Event): void {
     const target = event.target as HTMLTextAreaElement;
     if (this.autoResize()) this.fit(target);
-    this.change.emit(target.value);
+    this.valueChange.emit(target.value);
     this.binding.onChange(target.value);
-  }
-
-  protected onNativeChange(event: Event): void {
-    event.stopPropagation();
   }
 
   private grow(): void {

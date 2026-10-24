@@ -20,7 +20,7 @@ const BINDING = join(ANGULAR_COMPONENTS, 'navigation/arena-stepper/ArenaStepper.
   selector: 'stepper-compliance-host',
   standalone: true,
   imports: [ArenaStepper],
-  template: `<arena-stepper ariaLabel="Checkout" [steps]="steps" [index]="index" [interactive]="interactive" (change)="chosen.push($event)" />`,
+  template: `<arena-stepper ariaLabel="Checkout" [steps]="steps" [index]="index" [interactive]="interactive" (valueChange)="chosen.push($event)" />`,
 })
 class StepperHost {
   steps: readonly ArenaStepperStep[] = [{ label: 'Account' }, { label: 'Shipping' }, { label: 'Payment' }, { label: 'Review' }];

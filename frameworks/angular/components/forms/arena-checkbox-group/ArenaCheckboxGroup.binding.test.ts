@@ -46,7 +46,7 @@ test('while bound, a toggle calls onChange with a fresh set and the change outpu
     binding.bound.set(true);
     binding.value.set(['incidents']);
     binding.onChange = (value) => reported.push(value);
-    fixture.componentInstance.group().change.subscribe((set: ArenaValueSet) => emitted.push(set));
+    fixture.componentInstance.group().valueChange.subscribe((set: ArenaValueSet) => emitted.push(set));
     fixture.detectChanges();
     boxes[0]!.checked = true;
     boxes[0]!.dispatchEvent(new Event('change', { bubbles: true }));

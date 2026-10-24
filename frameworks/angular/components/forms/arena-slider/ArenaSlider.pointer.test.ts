@@ -24,9 +24,9 @@ function render(inputs: Inputs = {}, rtl = false) {
   for (const [name, value] of Object.entries(inputs)) fixture.componentRef.setInput(name, value);
   const heard: [string, number][] = [];
   const slider = fixture.componentInstance;
-  slider.change.subscribe((next: number) => { heard.push(['change', next]); if ('value' in inputs) fixture.componentRef.setInput('value', next); });
+  slider.valueChange.subscribe((next: number) => { heard.push(['change', next]); if ('value' in inputs) fixture.componentRef.setInput('value', next); });
   slider.commit.subscribe((next: number) => heard.push(['commit', next]));
-  slider.changeEnd.subscribe((next: number) => { heard.push(['changeEnd', next]); if ('valueEnd' in inputs) fixture.componentRef.setInput('valueEnd', next); });
+  slider.valueEndChange.subscribe((next: number) => { heard.push(['changeEnd', next]); if ('valueEnd' in inputs) fixture.componentRef.setInput('valueEnd', next); });
   slider.commitEnd.subscribe((next: number) => heard.push(['commitEnd', next]));
   fixture.detectChanges();
   const root = fixture.nativeElement as HTMLElement;

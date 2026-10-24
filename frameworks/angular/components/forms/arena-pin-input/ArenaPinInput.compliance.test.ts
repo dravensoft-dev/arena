@@ -22,7 +22,7 @@ const BINDING = join(ANGULAR_COMPONENTS, 'forms/arena-pin-input/ArenaPinInput.be
   standalone: true,
   imports: [ArenaPinInput],
   template: `<arena-pin-input label="Verification code" name="otp" [value]="value()" [required]="required()" [error]="error()"
-                              (change)="seen.push($event); value.set($event)" />`,
+                              (valueChange)="seen.push($event); value.set($event)" />`,
 })
 class Host {
   readonly value = signal('');

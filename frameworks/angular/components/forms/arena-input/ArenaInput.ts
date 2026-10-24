@@ -46,7 +46,7 @@ export function arenaInputIdFor(id: string | undefined, label: string | undefine
              [attr.placeholder]="placeholder()" [attr.name]="name()"
              [attr.autocomplete]="autoComplete()" [attr.min]="min()" [attr.max]="max()"
              [attr.step]="step()" [attr.maxlength]="maxLength()" [attr.pattern]="pattern()"
-             (input)="onInput($event)" (change)="onNativeChange($event)" (blur)="onBlur($event)" />
+             (input)="onInput($event)" (blur)="onBlur($event)" />
       @if (hasError()) {
         <span [class]="styles().statusIcon()" [arenaSlotData]="styles().$data.statusIcon()" [attr.data-arena-part]="parts.statusIcon" aria-hidden="true"><arena-icon icon="ph-fill ph-warning-circle" /></span>
       } @else if (isValid()) {
@@ -120,7 +120,7 @@ export class ArenaInput {
   /** A regex the value must match. */
   readonly pattern = input<string>();
   /** Edited; carries the new value. */
-  readonly change = output<string>();
+  readonly valueChange = output<string>();
   /** Left the field; carries the value. */
   readonly blur = output<string>();
 
@@ -152,16 +152,12 @@ export class ArenaInput {
 
   protected onInput(event: Event): void {
     const text = (event.target as HTMLInputElement).value;
-    this.change.emit(text);
+    this.valueChange.emit(text);
     this.binding.onChange(text);
     if (this.validateOn() === 'change') {
       this.touched.set(true);
       this.runValidate(text);
     }
-  }
-
-  protected onNativeChange(event: Event): void {
-    event.stopPropagation();
   }
 
   protected onBlur(event: Event): void {

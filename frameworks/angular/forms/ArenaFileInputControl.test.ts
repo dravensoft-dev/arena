@@ -18,7 +18,7 @@ import { ArenaFileInputControl } from './ArenaFileInputControl';
   selector: 'forms-arena-file-input-control-host',
   standalone: true,
   imports: [ReactiveFormsModule, ArenaFileInput, ArenaFileInputControl],
-  template: `<arena-file-input label="Attachments" multiple [formControl]="control" (change)="changes.push($event)" />`,
+  template: `<arena-file-input label="Attachments" multiple [formControl]="control" (valueChange)="changes.push($event)" />`,
 })
 class Host {
   control = new FormControl<File[] | null>(null);

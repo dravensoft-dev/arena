@@ -59,7 +59,7 @@ test('while bound, a move hands the form a number, and the outputs still fire', 
     binding.bound.set(true);
     binding.value.set(3);
     binding.onChange = (value) => reported.push(value);
-    fixture.componentInstance.change.subscribe((value: unknown) => emitted.push(value));
+    fixture.componentInstance.valueChange.subscribe((value: unknown) => emitted.push(value));
     fixture.detectChanges();
     press('ArrowUp', thumbs()[0]!);
     assert.deepEqual(reported, [4]);
@@ -95,7 +95,7 @@ test('the binding\'s disabled state takes every thumb out of the Tab sequence', 
   selector: 'slider-controlled-host',
   standalone: true,
   imports: [ArenaSlider],
-  template: `<arena-slider label="Volume" [min]="0" [max]="100" [step]="1" [value]="value()" (change)="value.set($event)" />`,
+  template: `<arena-slider label="Volume" [min]="0" [max]="100" [step]="1" [value]="value()" (valueChange)="value.set($event)" />`,
 })
 class ControlledHost { readonly value = signal(20); }
 
@@ -113,7 +113,7 @@ test('a controlled slider keeps both of two key steps made before the host re-re
   selector: 'slider-controlled-range-host',
   standalone: true,
   imports: [ArenaSlider],
-  template: `<arena-slider label="Price" range [min]="0" [max]="100" [step]="1" [value]="start()" [valueEnd]="end()" (change)="start.set($event)" (changeEnd)="end.set($event)" />`,
+  template: `<arena-slider label="Price" range [min]="0" [max]="100" [step]="1" [value]="start()" [valueEnd]="end()" (valueChange)="start.set($event)" (valueEndChange)="end.set($event)" />`,
 })
 class ControlledRangeHost {
   readonly start = signal(20);

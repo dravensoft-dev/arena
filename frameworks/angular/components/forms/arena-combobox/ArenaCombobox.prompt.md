@@ -2,7 +2,7 @@ Arena combobox, a text field that filters a list of options as the user types, f
 
 ```html
 <arena-combobox label="Region" [options]="regions" [value]="region()" placeholder="Search regions"
-                (change)="region.set($event)" />
+                (valueChange)="region.set($event)" />
 ```
 
 <!-- @api GENERATED from contracts/api/components/ArenaCombobox.json. Edit the contract, not this table. -->
@@ -49,11 +49,11 @@ Arena combobox, a text field that filters a list of options as the user types, f
 
 **The keys.** Typing opens the list and keeps the rows whose label holds the text, whatever its case. The first match is the cursor row. ArrowDown on a closed field opens it on the chosen row. ArrowDown and ArrowUp stop at both ends. Enter chooses the cursor row and closes the list. Escape closes the list and puts the chosen label back. Tab and a press elsewhere close the list without choosing an option and put the chosen label back; an emptied field is the exception below.
 
-**Emptying the field is how a value is cleared.** Commit an empty field with Enter or by leaving it, and `change` emits the empty string. A `required` field puts the chosen label back instead. There is no clear button.
+**Emptying the field is how a value is cleared.** Commit an empty field with Enter or by leaving it, and `valueChange` emits the empty string. A `required` field puts the chosen label back instead. There is no clear button.
 
 **A remote search is yours.** Listen to `(search)`, fetch, pass the new `options` and `loading`, and set `filter="none"`. Arena then draws your rows as given, so a fuzzy match a plain substring test would fail still shows. Arena keeps the label of every value it draws or chooses. The field keeps its text when your next `options` leaves that value out.
 
-`change` carries the chosen option's **value**, never its label. The native `change` and `input` events of the field share those names, so Arena stops both inside the host. With `name`, a hidden input submits the value, and the attribute never lands on `<arena-combobox>`. A `value` that neither `options` nor an earlier choice holds draws an empty field with the placeholder, and the hidden input posts the empty string.
+`valueChange` carries the chosen option's **value**, never its label. The native `change` and `input` events of the field reach the page as DOM events. With `name`, a hidden input submits the value, and the attribute never lands on `<arena-combobox>`. A `value` that neither `options` nor an earlier choice holds draws an empty field with the placeholder, and the hidden input posts the empty string.
 
 **The choice is held until the host sends another value.** The field keeps the option it reported, so a pick shows at once whether or not `value` is bound; write `$event` back so your state and the field agree.
 

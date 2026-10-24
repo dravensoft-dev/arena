@@ -22,7 +22,7 @@ function render(inputs: Inputs = {}) {
   for (const [name, value] of Object.entries(inputs)) fixture.componentRef.setInput(name, value);
   const changes: number[] = [];
   let clears = 0;
-  fixture.componentInstance.change.subscribe((value: number) => {
+  fixture.componentInstance.valueChange.subscribe((value: number) => {
     changes.push(value);
     if ('value' in inputs) fixture.componentRef.setInput('value', value);
   });

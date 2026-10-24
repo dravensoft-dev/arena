@@ -22,7 +22,7 @@ const BINDING = join(ANGULAR_COMPONENTS, 'forms/arena-checkbox/ArenaCheckbox.beh
   standalone: true,
   imports: [ArenaCheckbox],
   template: `<arena-checkbox [checked]="checked" [label]="label" [showLabel]="showLabel" [disabled]="disabled"
-                             [required]="required" (change)="last = $event; changes = changes + 1" />`,
+                             [required]="required" (valueChange)="last = $event; changes = changes + 1" />`,
 })
 class CheckboxHost {
   checked = false;
@@ -107,7 +107,7 @@ test('a toggle emits change exactly once, carrying the new state rather than the
     control.dispatchEvent(new Event('change', { bubbles: true }));
     fixture.detectChanges();
     assert.equal(fixture.componentInstance.changes, 1,
-      'change is an output named after a native DOM event -- twice would mean the native one reached the consumer too');
+      'valueChange runs once for one toggle');
     assert.equal(fixture.componentInstance.last, true, 'the payload must be the new checked state');
   } finally {
     fixture.destroy();

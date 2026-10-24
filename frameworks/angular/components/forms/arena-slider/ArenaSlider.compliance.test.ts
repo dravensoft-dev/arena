@@ -21,7 +21,7 @@ const BINDING = join(ANGULAR_COMPONENTS, 'forms/arena-slider/ArenaSlider.behavio
   standalone: true,
   imports: [ArenaSlider],
   template: `<arena-slider label="Volume" valueSuffix="%" [range]="range()" [orientation]="orientation()"
-                           [value]="value()" [valueEnd]="valueEnd()" (change)="value.set($event)" (changeEnd)="valueEnd.set($event)" />`,
+                           [value]="value()" [valueEnd]="valueEnd()" (valueChange)="value.set($event)" (valueEndChange)="valueEnd.set($event)" />`,
 })
 class Host {
   readonly range = signal(false);

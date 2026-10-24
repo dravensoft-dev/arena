@@ -18,7 +18,7 @@ import { ArenaFileInput } from './ArenaFileInput';
   imports: [ArenaFileInput],
   template: `<form><arena-file-input label="Attach a document" name="docs" [multiple]="multiple" [droppable]="droppable"
                      [disabled]="disabled" [required]="required" [accept]="accept" [maxSize]="maxSize"
-                     (change)="changes.push($event)" (reject)="rejections.push($event)" /></form>`,
+                     (valueChange)="changes.push($event)" (reject)="rejections.push($event)" /></form>`,
 })
 class Host {
   readonly field = viewChild.required(ArenaFileInput);

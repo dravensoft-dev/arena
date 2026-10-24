@@ -2,7 +2,7 @@
  * list lives in the CDK's pane. Then the listbox facts and the set behaviour the pattern leaves to the
  * suite: aria-multiselectable and aria-selected, Enter toggling and closing the list with the text
  * cleared, a press toggling a row with the list kept open, the order chosen, the cap blocking and
- * announcing, the clear control, and no native change or input leaving the host. The rows are read
+ * announcing, the clear control, and the native change and input reaching the page. The rows are read
  * from the CDK's container, not the whole body: the document is shared across the run, and the
  * palette's keyboard suite leaves a listbox of its own in the body. */
 import { useTestEnvironment } from '../../../test/TestbedEnv';
@@ -29,7 +29,7 @@ const BINDING = join(ANGULAR_COMPONENTS, 'forms/arena-multi-select/ArenaMultiSel
   template: `
     <div (change)="leaked.push('change')" (input)="leaked.push('input')">
       <arena-multi-select label="Regions" name="regions" [options]="options" [value]="value()" [max]="max()" [disabled]="off()" [clearable]="true"
-                          (change)="sets.push($event.values); value.set($event.values)" (search)="searches.push($event)" />
+                          (valueChange)="sets.push($event.values); value.set($event.values)" (search)="searches.push($event)" />
     </div>
   `,
 })
@@ -192,7 +192,7 @@ test('typing narrows the list, reports the text and announces the count', () => 
   });
 });
 
-test('every chosen value is submitted as a hidden input, and no native change or input leaves the host', () => {
+test('every chosen value is submitted as a hidden input, and the native input and change reach the page', () => {
   run((host) => host.value.set(['eu-west', 'us-east']), (view) => {
     const hidden = Array.from(view.root.querySelectorAll<HTMLInputElement>('input[type="hidden"]'));
     assert.deepEqual(hidden.map((one) => [one.name, one.value]), [['regions', 'eu-west'], ['regions', 'us-east']]);
@@ -200,14 +200,14 @@ test('every chosen value is submitted as a hidden input, and no native change or
     type(view, 'nor');
     view.input.dispatchEvent(new Event('change', { bubbles: true }));
     key(view, 'Enter');
-    assert.deepEqual(view.host.leaked, []);
+    assert.deepEqual(view.host.leaked, ['input', 'change']);
   });
 });
 
 test('the change carries the whole set as an object', () => {
   run(() => {}, (view) => {
     const seen: ArenaValueSet[] = [];
-    view.fixture.debugElement.query((node) => node.name === 'arena-multi-select').componentInstance.change
+    view.fixture.debugElement.query((node) => node.name === 'arena-multi-select').componentInstance.valueChange
       .subscribe((set: ArenaValueSet) => seen.push(set));
     type(view, 'us');
     key(view, 'Enter');
@@ -389,7 +389,7 @@ test('search is told the empty text whenever the control empties the query it la
   imports: [ArenaMultiSelect],
   template: `
     <arena-multi-select label="Cities" filter="none" [options]="shown()" [value]="value()"
-                        (change)="value.set($event.values)" (search)="shown.set($event === '' ? all : [{ value: 'fr-pa', label: 'Paris' }])" />
+                        (valueChange)="value.set($event.values)" (search)="shown.set($event === '' ? all : [{ value: 'fr-pa', label: 'Paris' }])" />
   `,
 })
 class RemoteHost {

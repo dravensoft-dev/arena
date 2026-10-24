@@ -46,7 +46,7 @@ const mirroredAt = (element: Element) => {
                [attr.aria-label]="cellName(index)" [attr.aria-invalid]="hasError()" [attr.aria-describedby]="noteId()"
                [required]="required()" [disabled]="off()"
                [class]="styles().cell()" [arenaSlotData]="styles().$data.cell()" [attr.data-arena-part]="parts.cell"
-               (focus)="focused.set(index)" (input)="onInput(index, $event)" (change)="onNativeChange($event)"
+               (focus)="focused.set(index)" (input)="onInput(index, $event)"
                (keydown)="onKeyDown(index, $event)" (paste)="onPaste(index, $event)" />
       }
       @if (hasError()) {
@@ -108,7 +108,7 @@ export class ArenaPinInput {
     { transform: (value) => value ?? 'one-time-code' },
   );
   /** The code after an edit, whatever its length; a refused character fires nothing. */
-  readonly change = output<string>();
+  readonly valueChange = output<string>();
   /** The code, when an edit makes it `length` characters long. Fires after `change`. A typed character fires it only when it completes the code anew. A paste or autofill of more than one character fires it whenever the code ends full. A `value` the host fills does not fire it. */
   readonly complete = output<string>();
   /** Focus left the group; carries the code. A move from one cell to another is not a blur. */
@@ -177,7 +177,7 @@ export class ArenaPinInput {
         this.binding.value.set(edit.code);
         this.binding.onChange(edit.code);
       }
-      this.change.emit(edit.code);
+      this.valueChange.emit(edit.code);
       if (arenaPinCompletes(before, edit.code, this.total(), inserted)) this.complete.emit(edit.code);
       this.clamp = true;
       this.answered.update((count) => count + 1);
@@ -208,10 +208,6 @@ export class ArenaPinInput {
     if (move === null) return;
     event.preventDefault();
     this.cells()[arenaPinMoveTo(index, move, this.total())]?.nativeElement.focus();
-  }
-
-  protected onNativeChange(event: Event): void {
-    event.stopPropagation();
   }
 
   protected onGroupBlur(event: FocusEvent): void {

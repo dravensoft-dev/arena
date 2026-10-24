@@ -8,11 +8,11 @@ So the component binds the `select` pattern rather than `combobox`, and `aria-ex
 
 ```html
 <arena-select label="Environment" [options]="environments" [value]="env()" name="env"
-              (change)="env.set($event)" />
+              (valueChange)="env.set($event)" />
 
 <arena-select label="Customer" [options]="customers" [value]="customer()"
               placeholder="Choose a customer" icon="ph-bold ph-user"
-              [error]="customerError()" (change)="customer.set($event)" />
+              [error]="customerError()" (valueChange)="customer.set($event)" />
 ```
 
 <!-- @api GENERATED from contracts/api/components/ArenaSelect.json. Edit the contract, not this table. -->
@@ -68,14 +68,14 @@ protected readonly environments: ArenaSelectOption[] = [
 `label` is what names the control for assistive technology; Arena renders a real `<label for>`
 pointing at the control's own generated id. The member is optional in the contract. A select with no label and no surrounding `<label>` has no accessible name at all, so supply one or name it from outside.
 
-`change` carries the chosen **value**, not the event. The native `change` a `<select>` fires shares that name, so Arena stops it inside the host. A consumer listening on an ancestor is told once, by the output, and never by the raw DOM event. The behaviour is measured rather than asserted in prose.
+`valueChange` carries the chosen **value**, not the event. The native `change` a `<select>` fires reaches an ancestor as a DOM event, and the output reports the choice once. The behaviour is measured rather than asserted in prose.
 
 **Do / Don't**
 - **Do** give every option a `value` distinct from its `label`. `value` is what submits and what
   `value` is matched against; `label` is free to read differently.
 - **Do** pair it with `name` when the control is inside a real form. The attribute lands on the
   control, never on `<arena-select>`.
-- **There is no `multiple`, and that is a decision rather than an omission.** A multi-selection is a *set* of values and `change` carries one `string`. The member could only ever have set an attribute whose result the event could not report. A native multi-select is a list box shown
+- **There is no `multiple`, and that is a decision rather than an omission.** A multi-selection is a *set* of values and `valueChange` carries one `string`. The member could only ever have set an attribute whose result the event could not report. A native multi-select is a list box shown
   open, a different control from the styled dropdown this is.
 - **Don't** put more than a handful of options in it. A long list a user searches for a form value
   is `arena-combobox`'s job. A set of three or four mutually exclusive choices already visible on

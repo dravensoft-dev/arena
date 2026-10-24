@@ -53,7 +53,7 @@ test('while bound, a commit hands the form a number, a clear hands it null, and 
     binding.bound.set(true);
     binding.value.set(3);
     binding.onChange = (value) => reported.push(value);
-    fixture.componentInstance.change.subscribe((value: unknown) => emitted.push(value));
+    fixture.componentInstance.valueChange.subscribe((value: unknown) => emitted.push(value));
     fixture.componentInstance.clear.subscribe(() => emitted.push('clear'));
     fixture.detectChanges();
     el.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true, cancelable: true }));
@@ -86,7 +86,7 @@ test('the binding\'s disabled state disables the field and both steppers', () =>
   selector: 'number-field-controlled-host',
   standalone: true,
   imports: [ArenaNumberField],
-  template: `<arena-number-field label="Replicas" [step]="1" [value]="value()" (change)="value.set($event)" />`,
+  template: `<arena-number-field label="Replicas" [step]="1" [value]="value()" (valueChange)="value.set($event)" />`,
 })
 class ControlledHost { readonly value = signal(5); }
 
@@ -94,7 +94,7 @@ class ControlledHost { readonly value = signal(5); }
   selector: 'number-field-clamping-host',
   standalone: true,
   imports: [ArenaNumberField],
-  template: `<arena-number-field label="Replicas" [step]="1" [value]="value()" (change)="value.set(clamp($event))" />`,
+  template: `<arena-number-field label="Replicas" [step]="1" [value]="value()" (valueChange)="value.set(clamp($event))" />`,
 })
 class ClampingHost {
   readonly value = signal(5);

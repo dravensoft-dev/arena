@@ -55,7 +55,7 @@ const CLOSE = '[data-arena-part="tag.close"]';
                [attr.aria-required]="required() ? 'true' : null" [attr.aria-invalid]="hasError() ? 'true' : null"
                [attr.aria-describedby]="describedBy()" autocomplete="off"
                [class]="styles().input()" [arenaSlotData]="styles().$data.input()" [attr.data-arena-part]="parts.input"
-               (input)="onInput($event)" (change)="$event.stopPropagation()" (keydown)="onKey($event)" (click)="openList()"
+               (input)="onInput($event)" (keydown)="onKey($event)" (click)="openList()"
                (blur)="closeList()" (compositionstart)="composing = true" (compositionend)="onCompositionEnd($event)" />
       </div>
       @if (clearable() && chosen().length > 0 && !off()) {
@@ -155,7 +155,7 @@ export class ArenaMultiSelect {
   /** Submitted with the form. Each chosen value is submitted under it as a hidden input, so a form posts a repeated field; nothing is drawn without a name. */
   readonly name = input<string>();
   /** The chosen set changed, by a row, a chip or the clear control; carries the whole new set, never a difference. */
-  readonly change = output<ArenaValueSet>();
+  readonly valueChange = output<ArenaValueSet>();
   /** The text the list is filtered by changed; carries the new text, empty after a pick, Escape or a blur. The hook a remote search listens to. */
   readonly search = output<string>();
 
@@ -305,7 +305,6 @@ export class ArenaMultiSelect {
   }
 
   protected onInput(event: Event): void {
-    event.stopPropagation();
     const text = (event.target as HTMLInputElement).value;
     this.draft.set(text);
     if (!this.composing) this.typed(text);
@@ -392,7 +391,7 @@ export class ArenaMultiSelect {
   private emit(values: string[]): void {
     this.own.set(values);
     if (this.binding.bound()) this.binding.value.set(values);
-    this.change.emit({ values });
+    this.valueChange.emit({ values });
     this.binding.onChange(values);
   }
 }

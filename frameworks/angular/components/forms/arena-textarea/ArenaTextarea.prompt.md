@@ -4,17 +4,17 @@ itself the column its parent lays out. The control is
 a real `<textarea>`, named by a real `<label for>`.
 
 ```html
-<arena-textarea label="Release notes" [value]="notes()" (change)="notes.set($event)"
+<arena-textarea label="Release notes" [value]="notes()" (valueChange)="notes.set($event)"
                 hint="Markdown is supported" [rows]="6" />
 
 <arena-textarea label="Summary" counter [maxLength]="280"
-                [value]="summary()" (change)="summary.set($event)" />
+                [value]="summary()" (valueChange)="summary.set($event)" />
 
 <arena-textarea label="Commit message" autoResize
-                [value]="message()" (change)="message.set($event)" />
+                [value]="message()" (valueChange)="message.set($event)" />
 
 <arena-textarea label="Reason" required [error]="reasonError()"
-                [value]="reason()" (change)="reason.set($event)" />
+                [value]="reason()" (valueChange)="reason.set($event)" />
 <arena-textarea label="Generated changelog" readOnly [value]="changelog()" />
 ```
 
@@ -53,7 +53,7 @@ a real `<textarea>`, named by a real `<label for>`.
 <!-- @keys end -->
 
 **Do / Don't**
-- It is **controlled**, and Angular will not force the DOM back: ignore `change` and the box keeps
+- It is **controlled**, and Angular will not force the DOM back: ignore `valueChange` and the box keeps
   what the user typed. Wire the signal.
 - There is **no validator here**, unlike `arena-input`. `error` is the only route to the error state, and it is the consumer's to compute. So the field has two state arms rather than three, and there is no valid success-tone check state at all.
 - The counter needs **both** `counter` and `maxLength`. A `maxLength` alone caps the field; it
@@ -66,9 +66,8 @@ a real `<textarea>`, named by a real `<label for>`.
   before it has content to measure.
 - `required` and `readOnly` land on the native attributes rather than on `aria-required` and `aria-readonly`. A native control already reports both, and writing them twice is two claims that can disagree. `aria-multiline` is likewise absent on purpose: a `<textarea>` is multiline
   by being one.
-- `change` is an output named after a native DOM event, so the control calls `stopPropagation()`
-  on the native `change` and a commit does not read as a second edit. Bind on the
-  `<arena-textarea>` itself; the native event never reaches an ancestor.
+- `valueChange` fires on each edit and carries the text. The native `change` of a commit bubbles to the page, so bind `(valueChange)` on the
+  `<arena-textarea>` itself to read the text.
 - The error line **replaces** the hint. The foot keeps an empty placeholder when there is neither,
   so the counter stays hard right instead of sliding under the label.
 - `id` is derived from `label` as `ta-<slug>`, the derivation `ArenaTextarea.json` states. Note the

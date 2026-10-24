@@ -45,7 +45,7 @@ export class ArenaPagination {
   /** Names this navigation landmark. Required, and guarded at runtime: two paginated tables in one dashboard is a routine layout, and a shared constant name leaves them indistinguishable while satisfying the requirement mechanically. A default name would narrow the gap rather than close it: a name the caller omits is still the constant. Say what is being paged: "Deployments", not "Pages". */
   readonly ariaLabel = input.required<string>();
   /** A page was chosen; carries the new 1-based page. Never fires for the current page, nor for a page outside 1..pageCount. */
-  readonly change = output<number>();
+  readonly valueChange = output<number>();
 
   protected readonly label = computed(() => {
     const name = this.ariaLabel();
@@ -71,6 +71,6 @@ export class ArenaPagination {
 
   protected go(page: number): void {
     if (page < 1 || page > this.pageCount() || page === this.page()) return;
-    this.change.emit(page);
+    this.valueChange.emit(page);
   }
 }

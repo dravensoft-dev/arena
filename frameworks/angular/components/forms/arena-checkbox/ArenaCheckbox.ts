@@ -82,7 +82,7 @@ export class ArenaCheckbox {
   /** The value submitted under `name` when checked. */
   readonly value = input<string>();
   /** Toggled; carries the new checked state. */
-  readonly change = output<boolean>();
+  readonly valueChange = output<boolean>();
 
   protected readonly glyph = ARENA_CHECK_GLYPH_STYLE;
   protected readonly glyphStroke = ARENA_CHECK_STROKE_STYLE;
@@ -98,11 +98,10 @@ export class ArenaCheckbox {
   }
 
   protected onChange(event: Event): void {
-    event.stopPropagation();
     const input = event.target as HTMLInputElement;
     const checked = input.checked;
     if (this.binding.bound()) this.binding.value.set(checked);
-    this.change.emit(checked);
+    this.valueChange.emit(checked);
     this.binding.onChange(checked);
     this.group?.toggle(this.groupValue(), checked);
     input.checked = this.drawn();

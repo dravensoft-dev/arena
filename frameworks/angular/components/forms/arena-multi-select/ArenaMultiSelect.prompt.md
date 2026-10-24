@@ -1,8 +1,8 @@
-Arena multi-select, a text field that filters a list of options and holds a set of chosen values, drawn as chips inside the field. Standalone, `OnPush`, signal I/O. `change` carries the whole set as `{ values }`, in the order chosen.
+Arena multi-select, a text field that filters a list of options and holds a set of chosen values, drawn as chips inside the field. Standalone, `OnPush`, signal I/O. `valueChange` carries the whole set as `{ values }`, in the order chosen.
 
 ```html
 <arena-multi-select label="Regions" [options]="regions" [value]="chosen()" [maxVisible]="3" [clearable]="true"
-                    (change)="chosen.set($event.values)" />
+                    (valueChange)="chosen.set($event.values)" />
 ```
 
 <!-- @api GENERATED from contracts/api/components/ArenaMultiSelect.json. Edit the contract, not this table. -->
@@ -60,7 +60,7 @@ Arena multi-select, a text field that filters a list of options and holds a set 
 
 **A remote search is yours.** Listen to `(search)`, fetch, pass the new `options` and `loading`, and set `filter="none"`. Arena then draws your rows as given. Arena keeps the label of every value it draws or chooses. A chip keeps its text when your next `options` leaves that value out.
 
-With `name`, every chosen value is submitted as a hidden input under that name, and the attribute never lands on `<arena-multi-select>`. The native `change` and `input` events of the field are stopped inside the host. A value that neither `options` nor an earlier choice holds stays in the set and is drawn as its own text.
+With `name`, every chosen value is submitted as a hidden input under that name, and the attribute never lands on `<arena-multi-select>`. The native `change` and `input` events of the field reach the page as DOM events. A value that neither `options` nor an earlier choice holds stays in the set and is drawn as its own text.
 
 **Words.** `multiSelectEmpty`, `multiSelectLoading` and `multiSelectCount` are the empty line, the status line and the count announced after typing. `multiSelectClear` names the clear control. `multiSelectMore` is the collapsed count and `multiSelectMoreLabel` names it. `multiSelectMax` is announced when the cap blocks a choice.
 

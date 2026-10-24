@@ -22,7 +22,7 @@ const BINDING = join(ANGULAR_COMPONENTS, 'forms/arena-file-input/ArenaFileInput.
   standalone: true,
   imports: [ArenaFileInput],
   template: `<arena-file-input label="Passport scan" name="passport" id="passport" [disabled]="disabled"
-                               (change)="seen.push($event)" />`,
+                               (valueChange)="seen.push($event)" />`,
 })
 class Host {
   disabled = false;

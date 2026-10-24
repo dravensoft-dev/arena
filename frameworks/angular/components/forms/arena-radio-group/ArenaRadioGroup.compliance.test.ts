@@ -26,7 +26,7 @@ const RADIO_BINDING = join(ANGULAR_COMPONENTS, 'forms/arena-radio/ArenaRadio.beh
   imports: [ArenaRadioGroup, ArenaRadio],
   template: `
     <arena-radio-group [ariaLabel]="ariaLabel" [name]="name" [value]="value"
-                       (change)="chosen.push($event)">
+                       (valueChange)="chosen.push($event)">
       <arena-radio value="production" label="Production" hint="Serves real traffic" />
       <arena-radio value="staging" label="Staging" />
       <arena-radio value="qa" label="QA" [disabled]="qaDisabled" />

@@ -48,7 +48,7 @@ export const ARENA_COMBOBOX_POSITIONS = arenaConnectedPositions('start', 'below'
              [attr.aria-activedescendant]="activeId() ?? null" [attr.aria-label]="showLabel() ? null : labelText()"
              [attr.aria-invalid]="hasError() ? 'true' : null" [attr.aria-describedby]="describedBy()" autocomplete="off"
              [class]="styles().input()" [arenaSlotData]="styles().$data.input()" [attr.data-arena-part]="parts.input"
-             (input)="onInput($event)" (change)="$event.stopPropagation()" (keydown)="onKey($event)" (click)="openList()"
+             (input)="onInput($event)" (keydown)="onKey($event)" (click)="openList()"
              (blur)="commit()" (compositionstart)="composing = true" (compositionend)="onCompositionEnd($event)" />
       @if (hasError()) {
         <span [class]="styles().statusIcon()" [arenaSlotData]="styles().$data.statusIcon()" [attr.data-arena-part]="parts.statusIcon" aria-hidden="true"><arena-icon icon="ph-fill ph-warning-circle" /></span>
@@ -131,7 +131,7 @@ export class ArenaCombobox {
   /** Submitted with the form. The chosen value is submitted, never the label, through a hidden input drawn only when a name is given. */
   readonly name = input<string>();
   /** A different option was chosen; carries its value. An emptied field committed on a control that is not required reports the empty string. */
-  readonly change = output<string>();
+  readonly valueChange = output<string>();
   /** The text the list is filtered by changed; carries the new text, empty after a choice, Escape or a blur. The hook a remote search listens to. */
   readonly search = output<string>();
 
@@ -242,7 +242,6 @@ export class ArenaCombobox {
   }
 
   protected onInput(event: Event): void {
-    event.stopPropagation();
     const text = (event.target as HTMLInputElement).value;
     this.draft.set(text);
     if (!this.composing) this.typed(text);
@@ -308,7 +307,7 @@ export class ArenaCombobox {
   private emit(value: string): void {
     this.own.set(value);
     if (this.binding.bound()) this.binding.value.set(value);
-    this.change.emit(value);
+    this.valueChange.emit(value);
     this.binding.onChange(value);
   }
 }

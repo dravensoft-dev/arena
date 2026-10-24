@@ -17,7 +17,7 @@ import { ArenaMultiSelect } from './ArenaMultiSelect';
   standalone: true,
   imports: [ArenaMultiSelect],
   template: `<arena-multi-select label="Cities" [options]="options" [value]="value()" [maxVisible]="maxVisible()"
-                                 (change)="sets.push($event.values); value.set($event.values)" />`,
+                                 (valueChange)="sets.push($event.values); value.set($event.values)" />`,
 })
 class ChipHost {
   readonly options = [{ value: 'berlin', label: 'Berlin' }, { value: 'lisbon', label: 'Lisbon' }, { value: 'oslo', label: 'Oslo' }];

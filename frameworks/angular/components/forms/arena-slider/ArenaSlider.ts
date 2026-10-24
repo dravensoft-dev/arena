@@ -149,11 +149,11 @@ export class ArenaSlider {
   /** Submitted with the form through a hidden input carrying the number. In range mode two hidden inputs share it, the start first, so a form posts a repeated field. */
   readonly name = input<string>();
   /** The thumb moved, or the start thumb in range mode; carries its number on every step of a drag and every key. Never fires for a move that leaves the number where it was. */
-  readonly change = output<number>();
+  readonly valueChange = output<number>();
   /** The move settled: the pointer was released, or a key stepped the thumb. Carries the number, and fires only when it differs from where the move began. For an effect too costly to run on every step of a drag. */
   readonly commit = output<number>();
-  /** The end thumb moved, in range mode; carries its number as `change` does. */
-  readonly changeEnd = output<number>();
+  /** The end thumb moved, in range mode; carries its number as `valueChange` does. */
+  readonly valueEndChange = output<number>();
   /** The end thumb's move settled, in range mode; carries its number as `commit` does. */
   readonly commitEnd = output<number>();
 
@@ -230,8 +230,8 @@ export class ArenaSlider {
       this.binding.value.set(reported);
       this.binding.onChange(reported);
     }
-    if (thumb === 'start') this.change.emit(kept);
-    else this.changeEnd.emit(kept);
+    if (thumb === 'start') this.valueChange.emit(kept);
+    else this.valueEndChange.emit(kept);
     return true;
   }
 

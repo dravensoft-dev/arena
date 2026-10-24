@@ -56,7 +56,7 @@ const numberOrUndefined = (value: number | null | undefined): number | undefined
              [attr.aria-describedby]="noteId()" [disabled]="off()" [readOnly]="readOnly()" [required]="required()"
              [attr.placeholder]="placeholder() ?? null"
              [class]="styles().input()" [arenaSlotData]="styles().$data.input()" [attr.data-arena-part]="parts.input"
-             (focus)="onFocus()" (input)="onInput($event)" (change)="onNativeChange($event)" (blur)="onBlur()"
+             (focus)="onFocus()" (input)="onInput($event)" (blur)="onBlur()"
              (keydown)="onKeyDown($event)" />
       @if (suffix(); as text) {
         <span [class]="styles().suffix()" [attr.data-arena-part]="parts.suffix" aria-hidden="true">{{ text }}</span>
@@ -138,7 +138,7 @@ export class ArenaNumberField {
   /** Submitted with the form as the plain decimal string, such as `1234.5`, through a hidden input; empty when the field is empty. The drawn field carries formatted text and is never submitted. */
   readonly name = input<string>();
   /** A number was committed, clamped, and differs from the one before; carries it. */
-  readonly change = output<number>();
+  readonly valueChange = output<number>();
   /** The field was committed empty. Never fires with `change` for one commit, and never for a field that was already empty. */
   readonly clear = output<void>();
 
@@ -235,7 +235,7 @@ export class ArenaNumberField {
       this.binding.onChange(kept ?? null);
     }
     if (kept === undefined) this.clear.emit();
-    else this.change.emit(kept);
+    else this.valueChange.emit(kept);
   }
 
   private typed(): number | undefined {
@@ -269,10 +269,6 @@ export class ArenaNumberField {
 
   protected onInput(event: Event): void {
     this.draft.set((event.target as HTMLInputElement).value);
-  }
-
-  protected onNativeChange(event: Event): void {
-    event.stopPropagation();
   }
 
   protected onBlur(): void {

@@ -45,7 +45,7 @@ export function arenaParseSortOption(value: string): ArenaTableSort | null {
       <div [class]="styles().sortBar()" [attr.data-arena-part]="parts.sortBar">
         <div [class]="styles().sortField()" [attr.data-arena-part]="parts.sortField">
           <arena-select [label]="sortLabel" [options]="sortOptions()" [value]="sortValue()"
-                        (change)="onSortPick($event)" />
+                        (valueChange)="onSortPick($event)" />
         </div>
       </div>
     }
@@ -75,7 +75,7 @@ export function arenaParseSortOption(value: string): ArenaTableSort | null {
     } @else if (pager(); as paging) {
       <div [class]="styles().pager()" [attr.data-arena-part]="parts.pager">
         <arena-pagination [page]="paging.index" [pageCount]="pageCount()"
-                          [ariaLabel]="gridLabel()" (change)="pageChange.emit($event)" />
+                          [ariaLabel]="gridLabel()" (valueChange)="pageChange.emit($event)" />
       </div>
     }
   `,

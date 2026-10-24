@@ -2,7 +2,7 @@
  * list lives in the CDK's pane while the field stays in the fixture. Then what the pattern leaves to the
  * suite, read from the DOM after each event: aria-expanded toggles, typing narrows and reports, the
  * cursor stops at the ends, Enter chooses, Escape and leaving restore, an emptied field clears or
- * restores, a composition is never filtered half-typed, and no native change or input leaves the host.
+ * restores, a composition is never filtered half-typed, and the native change and input reach the page.
  * The rows are read from the CDK's container, not the whole body: the document is shared across the run, and
  * the palette's keyboard suite leaves a listbox of its own in the body. */
 import { useTestEnvironment } from '../../../test/TestbedEnv';
@@ -30,7 +30,7 @@ const BINDING = join(ANGULAR_COMPONENTS, 'forms/arena-combobox/ArenaCombobox.beh
     <div id="outside" (change)="leaked.push('change')" (input)="leaked.push('input')">
       <arena-combobox label="Region" name="region" [options]="options" [value]="value()" [required]="required()"
                       [loading]="loading()" [filter]="filter()" [disabled]="disabled()"
-                      (change)="changes.push($event); value.set($event)" (search)="searches.push($event)" />
+                      (valueChange)="changes.push($event); value.set($event)" (search)="searches.push($event)" />
     </div>
   `,
 })
@@ -356,7 +356,7 @@ test('search is told the empty text whenever the control empties the query it la
   imports: [ArenaCombobox],
   template: `
     <arena-combobox label="Region" name="region" filter="none" [options]="shown()" [value]="value()"
-                    (change)="value.set($event)" (search)="shown.set($event === '' ? all : [{ value: 'fr', label: 'France' }])" />
+                    (valueChange)="value.set($event)" (search)="shown.set($event === '' ? all : [{ value: 'fr', label: 'France' }])" />
   `,
 })
 class RemoteHost {
@@ -458,12 +458,12 @@ test('a disabled field opens nothing', () => {
   });
 });
 
-test('no native change or input event leaves the host, so a consumer hears the outputs alone', () => {
+test('the native input and change reach an ancestor, and the outputs report the choice alone', () => {
   run(() => {}, (view) => {
     type(view, 'us');
     view.input.dispatchEvent(new Event('change', { bubbles: true }));
     key(view, 'Enter');
-    assert.deepEqual(view.host.leaked, []);
+    assert.deepEqual(view.host.leaked, ['input', 'change']);
     assert.deepEqual(view.host.changes, ['us-east']);
   });
 });

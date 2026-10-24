@@ -41,7 +41,7 @@ export class ArenaCheckboxGroup {
   /** Whether the whole group is unavailable. Every box it holds is disabled whatever its own disabled says, and the group reflects aria-disabled. */
   readonly disabled = input(false, { transform: booleanAttribute });
   /** A box was ticked or unticked; carries the whole set after the change. */
-  readonly change = output<ArenaValueSet>();
+  readonly valueChange = output<ArenaValueSet>();
 
   protected readonly label = computed(() => {
     const name = this.ariaLabel();
@@ -72,7 +72,7 @@ export class ArenaCheckboxGroup {
       const next = toggled(this.state.values(), value, checked);
       this.chosen.set(next);
       if (this.binding.bound()) this.binding.value.set(next);
-      this.change.emit({ values: next });
+      this.valueChange.emit({ values: next });
       this.binding.onChange(next);
     };
   }

@@ -1,10 +1,10 @@
-A field that holds one number. A person types it, steps it with a key or with the two stepper buttons, and reads it in the locale's format. `(change)` carries a number and `(clear)` carries nothing. Requires the Phosphor sheets loaded for the stepper glyphs. Controlled, the field draws an edit as soon as it is made and follows `value` whenever the host moves it. A host that refuses an edit by leaving `value` as it was is not seen, and the edit stays drawn.
+A field that holds one number. A person types it, steps it with a key or with the two stepper buttons, and reads it in the locale's format. `(valueChange)` carries a number and `(clear)` carries nothing. Requires the Phosphor sheets loaded for the stepper glyphs. Controlled, the field draws an edit as soon as it is made and follows `value` whenever the host moves it. A host that refuses an edit by leaving `value` as it was is not seen, and the edit stays drawn.
 
 ```html
-<arena-number-field label="Replicas" [value]="replicas()" (change)="replicas.set($event)" [min]="1" [max]="20" />
+<arena-number-field label="Replicas" [value]="replicas()" (valueChange)="replicas.set($event)" [min]="1" [max]="20" />
 
 <arena-number-field #budget label="Budget" prefix="$" [step]="0.5" [format]="{ fractionDigits: 2 }"
-                    [value]="amount()" (change)="amount.set($event)" (clear)="amount.set(undefined)"
+                    [value]="amount()" (valueChange)="amount.set($event)" (clear)="amount.set(undefined)"
                     [validate]="overBudget" />
 ```
 
@@ -54,18 +54,18 @@ A field that holds one number. A person types it, steps it with a key or with th
 - `End`: sets the value to its maximum, only when the spinbutton has a maximum.
 <!-- @keys end -->
 
-- **A number, or nothing.** `(change)` fires with a committed number and never for an empty field. `(clear)` fires when a person commits the field empty. No payload is text, and none is `NaN`.
+- **A number, or nothing.** `(valueChange)` fires with a committed number and never for an empty field. `(clear)` fires when a person commits the field empty. No payload is text, and none is `NaN`.
 - **When a commit happens.** Typing builds a draft that no output hears. Blur and Enter commit the draft, clamped to `min` and `max`. Each key and each stepper press commits at once, and Escape restores the last committed number.
 - **Keys.** Up and Down move one `step`, and Page Up and Page Down move ten. Home and End reach `min` and `max` when the field has them, and otherwise move the caret. The first step from an empty field commits `min`, or `0` held inside the bounds. A typed number is clamped and never snapped.
 - **Exact steps.** Each step lands on the decimal places of `step`, `min` and the number it starts from, so `0.1` plus `0.2` commits `0.3`.
 - **One locale for writing and reading.** The field writes in `format.locale`, or in the `ArenaLocale` locale when the format names none. While editing, the field shows the plain number with that locale's decimal separator. A committed value is written grouped. A server render passes the locale explicitly. `compact` is ignored, because 48.2K cannot be read back.
 - **Static text around the number.** Arena draws `prefix` and `suffix` beside the number, and `aria-valuetext` reads them with it. Nobody types them.
 - **What a form submits.** `name` rides on a hidden input carrying the plain decimal string, such as `1234.5`. The drawn field holds formatted text and is never submitted.
-- **Holding its own number.** With no `[value]` the field starts empty and keeps each commit. Bind `[value]` and `(change)` together to control it.
+- **Holding its own number.** With no `[value]` the field starts empty and keeps each commit. Bind `[value]` and `(valueChange)` together to control it.
 - **One Tab stop.** The steppers sit outside the Tab sequence, since the arrow keys reach every step. A stepper at a bound is disabled. Set `[steppers]="false"` where the keys suffice.
 - **The ninth form.** `validate` is a function Arena calls on a committed number, returning the message or an empty string. Arena never calls `validate` on an empty field, so mark the field `required` for that.
 - **Reactive forms.** With `ArenaNumberFieldControl` from `@dravensoft/arena-angular/forms`, `formControl`, `formControlName` and `ngModel` bind the field. The control's value is a number, or `null` once the field is emptied. A `null`, an empty string or `NaN` written to the control draws the empty field. `disable()` disables the field and its steppers, and leaving the field marks it touched.
-- **`(change)` is the component's own.** The text field's native `change` stops inside the component, so a listener hears each commit once and never an `Event`.
+- **`(valueChange)` reports a commit.** The text field's native `change` reaches the page as a DOM event and commits nothing, so `(valueChange)` hears each commit once and never an `Event`.
 - **Not the text field.** `arena-input type="number"` keeps the browser's spinner and a string value. This field owns its number, clamps the number and writes it in a locale.
 - **Taking focus.** `focus()` and `select()` are methods on the class. Reach them through a `viewChild` of `ArenaNumberField`, never by querying the inner `<input>`.
 

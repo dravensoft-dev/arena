@@ -22,7 +22,7 @@ export const ARENA_STEP_GLYPHS = { complete: 'ph-bold ph-check', error: 'ph-fill
         @for (row of rows(); track $index) {
           <li [attr.aria-current]="row.state === 'current' ? 'step' : null" [class]="row.styles.step()" [arenaSlotData]="row.styles.$data.step()" [attr.data-arena-part]="parts.step">
             @if (row.reachable) {
-              <button type="button" (click)="change.emit(row.index)" [class]="row.styles.trigger()" [arenaSlotData]="row.styles.$data.trigger()" [attr.data-arena-part]="parts.trigger">
+              <button type="button" (click)="valueChange.emit(row.index)" [class]="row.styles.trigger()" [arenaSlotData]="row.styles.$data.trigger()" [attr.data-arena-part]="parts.trigger">
                 <ng-container [ngTemplateOutlet]="body" [ngTemplateOutletContext]="{ $implicit: row }" />
               </button>
             } @else {
@@ -64,7 +64,7 @@ export class ArenaStepper {
   /** Whether the steps behind the current one can be chosen. Only those steps become buttons: the current step and every step ahead stay text, so a reader never meets a dead control. */
   readonly interactive = input(false, { transform: booleanAttribute });
   /** A step behind the current one was chosen; carries its index, counted from zero. Never fires while `interactive` is false, nor for the current step or a later one. The host owns `index` and moves it. */
-  readonly change = output<number>();
+  readonly valueChange = output<number>();
 
   protected readonly name = computed(() => {
     const name = this.ariaLabel();

@@ -46,7 +46,7 @@ test('while bound, a change calls onChange and the component\'s own output still
     const emitted: unknown[] = [];
     binding.bound.set(true);
     binding.onChange = (value) => reported.push(value);
-    fixture.componentInstance.change.subscribe((value: unknown) => emitted.push(value));
+    fixture.componentInstance.valueChange.subscribe((value: unknown) => emitted.push(value));
     fixture.detectChanges();
     el.value = 'Ada';
     el.dispatchEvent(new Event('input', { bubbles: true }));

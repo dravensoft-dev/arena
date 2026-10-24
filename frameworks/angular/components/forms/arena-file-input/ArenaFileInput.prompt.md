@@ -1,10 +1,10 @@
-A file picker: a labelled trigger, an optional drop zone, a chip for each file held and a line for each file refused. `(change)` carries an `ArenaFileSelection` and `(reject)` an `ArenaFileRejection`, each a set of parallel arrays of names, sizes and types, never a `File`. The files themselves reach you three ways. A real `<form>` submits them under `name`, a form directive hands the control a `File[]`, and two methods hand them to code that uploads without either.
+A file picker: a labelled trigger, an optional drop zone, a chip for each file held and a line for each file refused. `(valueChange)` carries an `ArenaFileSelection` and `(reject)` an `ArenaFileRejection`, each a set of parallel arrays of names, sizes and types, never a `File`. The files themselves reach you three ways. A real `<form>` submits them under `name`, a form directive hands the control a `File[]`, and two methods hand them to code that uploads without either.
 
 ```html
 <arena-file-input label="Passport scan" name="passport" accept=".pdf,image/*" [maxSize]="5000000" required />
 
 <arena-file-input #attachments label="Attachments" multiple droppable
-                  (change)="count.set($event.names.length)"
+                  (valueChange)="count.set($event.names.length)"
                   (reject)="refused.set($event.tooLarge.length + $event.wrongType.length)" />
 ```
 
@@ -54,16 +54,16 @@ async upload(): Promise<void> {
 - `Enter`: activate.
 <!-- @keys end -->
 
-- **Reading the selection.** `names`, `sizes` and `types` are parallel: the file at one index in each is one file, in the order the chips show. Every `(change)` carries the whole selection, never a change to it. A size is in bytes; a type is the media type the platform reports, or an empty string.
+- **Reading the selection.** `names`, `sizes` and `types` are parallel: the file at one index in each is one file, in the order the chips show. Every `(valueChange)` carries the whole selection, never a change to it. A size is in bytes; a type is the media type the platform reports, or an empty string.
 - **Taking the files, the methods on the class.** `files()` returns the `File` objects held at the moment you ask; `clear()` empties the selection and fires nothing, because you asked. Reach them through a `viewChild` of `ArenaFileInput`. Inside a `<form>`, prefer `name`: the hidden file input always holds exactly the chips, so a submission and `new FormData(form)` carry them. A reset of that form empties the selection and fires nothing either.
 - **Reactive forms.** With `ArenaFileInputControl` from `@dravensoft/arena-angular/forms`, `formControl`, `formControlName` and `ngModel` bind the field, and the control's value is the `File[]` held. `setValue(null)`, `setValue([])` and `reset()` clear it and report nothing back. A form directive, `FormGroupDirective` or `NgForm`, writes `null` to its controls on a reset of the form. That write clears the model. A native reset of a plain `<form>` empties the field only. Call `reset()` on a lone `formControl` there. A value holding files is ignored with one warning, because a file selection cannot be set from outside. `disable()` disables the field, and leaving it marks it touched.
 - **What a pick does.** Without `multiple` a pick replaces the selection, and a drop of several files holds the first and refuses the rest as surplus. With `multiple` a pick or a drop appends, and a file already held, the same name, size and modified time, is held once. `accept` and `maxSize` are checked on every pick and drop, because a drop is not filtered by the browser; a file of exactly `maxSize` bytes is held. A file is refused for one reason, a wrong type before a size. A pick that holds nothing keeps the selection as it was and fires `(reject)` alone.
 - **Names, focus and announcements.** The trigger is a real `<button>` named by the label and then its own text, so a screen reader hears "Passport scan, Choose file". With `required`, a word read and never seen joins the name, as in "Passport scan, required, Choose file". The hint, or the error that replaces it, describes the trigger. Removing a chip returns focus to the trigger. A polite status says how many files are held, or that none is, followed by each refusal. That status also reads a changed error once. With `required`, a native submission of an empty field shows the browser's message at the trigger and moves focus there.
-- **`(change)` is the component's own.** The hidden input's native `change` stops inside the component, so a listener hears the selection once and never an `Event`.
+- **`(valueChange)` carries the selection.** The hidden input's native `change` reaches the page as a DOM event, and `(valueChange)` hears the selection once and never an `Event`.
 
 **Do / Don't**
 - Read a refusal from `(reject)` and say it your own way if you need to; the field already shows one line per refused file.
-- Put a count rule, such as at most three files, in your own `(change)` handler or a validator, and pass the message as `error`. There is no `maxFiles`.
+- Put a count rule, such as at most three files, in your own `(valueChange)` handler or a validator, and pass the message as `error`. There is no `maxFiles`.
 - Upload with `files()` and then `clear()`. Neither is an input, because a selection of files cannot be set from outside.
 - Don't look for a `File` in a payload or an input. A chosen file is a platform object, and only `name`, the form directive and the two methods carry one.
 - Don't make the zone the keyboard route or add a paste route. The trigger is the keyboard path, and the zone takes a drop only with `droppable`.

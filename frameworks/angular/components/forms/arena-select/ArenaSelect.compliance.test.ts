@@ -1,9 +1,8 @@
 /* Both requirements of `select` are decidable from the element, so this file has no
  * `behavioural` map at all: the browser owns the popup, the keys and the focus, which
  * is the whole reason ArenaSelect binds `select` rather than `combobox`. What is NOT free is
- * containment — `change` is an Arena output whose name a native <select> event already
- * carries, so the second test measures that the native one never leaves the host
- * instead of arguing that it cannot. */
+ * containment: the native `change` of a <select> bubbles to the page, and the Arena
+ * output `valueChange` carries the chosen value once, which the second test measures. */
 import { useTestEnvironment, glyphIds, symbol } from '../../../test/TestbedEnv';
 useTestEnvironment();
 
@@ -29,7 +28,7 @@ const OPTIONS: ArenaSelectOption[] = [
   template: `
     <div id="outside">
       <arena-select label="Environment" [options]="options" value="staging" name="env"
-                    (change)="chosen.push($event)" />
+                    (valueChange)="chosen.push($event)" />
     </div>
   `,
 })
@@ -57,7 +56,7 @@ test('arena-select meets the select pattern it binds', () => {
   }
 });
 
-test('the native change event never leaves the host, so a consumer sees the Arena output once and the DOM event never', () => {
+test('the native change event reaches an ancestor, and the Arena output carries the chosen value once', () => {
   const fixture = TestBed.createComponent(SelectHost);
   const seen: Event[] = [];
   try {
@@ -72,9 +71,7 @@ test('the native change event never leaves the host, so a consumer sees the Aren
 
     assert.deepEqual(fixture.componentInstance.chosen, ['production'],
       'the Arena output must carry the chosen value exactly once');
-    assert.equal(seen.length, 0,
-      'the native change must be stopped inside the host: it shares a name with the contracted output, ' +
-      'so a consumer listening on an ancestor would otherwise be told twice');
+    assert.equal(seen.length, 1, 'the native change did not reach the ancestor');
   } finally {
     fixture.destroy();
   }

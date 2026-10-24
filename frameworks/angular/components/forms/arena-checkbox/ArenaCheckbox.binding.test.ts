@@ -37,7 +37,7 @@ test('while bound, a change calls onChange and the component\'s own output still
     const emitted: unknown[] = [];
     binding.bound.set(true);
     binding.onChange = (value) => reported.push(value);
-    fixture.componentInstance.change.subscribe((value: unknown) => emitted.push(value));
+    fixture.componentInstance.valueChange.subscribe((value: unknown) => emitted.push(value));
     fixture.detectChanges();
     el.checked = true;
     el.dispatchEvent(new Event('change', { bubbles: true }));
@@ -58,7 +58,7 @@ test('the binding\'s disabled state disables the control', () => {
 @Component({
   standalone: true,
   imports: [ArenaCheckbox],
-  template: `<arena-checkbox label="Notify" [checked]="on()" (change)="heard($event)" />`,
+  template: `<arena-checkbox label="Notify" [checked]="on()" (valueChange)="heard($event)" />`,
 })
 class HostChecked {
   readonly on = signal(false);

@@ -22,7 +22,7 @@ const BINDING = join(ANGULAR_COMPONENTS, 'forms/arena-number-field/ArenaNumberFi
   standalone: true,
   imports: [ArenaNumberField],
   template: `<arena-number-field label="Replicas" name="replicas" [value]="value()" [min]="min()" [max]="max()" [step]="step()"
-                                 prefix="$" (change)="seen.push($event); value.set($event)" />`,
+                                 prefix="$" (valueChange)="seen.push($event); value.set($event)" />`,
 })
 class Host {
   readonly value = signal<number | undefined>(3);

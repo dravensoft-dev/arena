@@ -1,13 +1,13 @@
 A number chosen inside a range by moving a thumb, or a span chosen with two thumbs. Each thumb answers the pointer, touch and the keyboard, and a readout beside the label writes the number. Controlled, the slider draws an edit as soon as it is made and follows `value` whenever the host moves it. A host that refuses an edit by leaving `value` as it was is not seen, and the edit stays drawn.
 
 ```html
-<arena-slider label="Volume" valueSuffix="%" [value]="volume()" (change)="volume.set($event)" />
+<arena-slider label="Volume" valueSuffix="%" [value]="volume()" (valueChange)="volume.set($event)" />
 
 <arena-slider label="Price" range valuePrefix="$" [step]="5"
-              [value]="low()" (change)="low.set($event)" (commit)="refetch()"
-              [valueEnd]="high()" (changeEnd)="high.set($event)" (commitEnd)="refetch()" />
+              [value]="low()" (valueChange)="low.set($event)" (commit)="refetch()"
+              [valueEnd]="high()" (valueEndChange)="high.set($event)" (commitEnd)="refetch()" />
 
-<arena-slider label="Gain" orientation="vertical" [value]="gain()" (change)="gain.set($event)" />
+<arena-slider label="Gain" orientation="vertical" [value]="gain()" (valueChange)="gain.set($event)" />
 ```
 
 <!-- @api GENERATED from contracts/api/components/ArenaSlider.json. Edit the contract, not this table. -->
@@ -57,10 +57,10 @@ A number chosen inside a range by moving a thumb, or a span chosen with two thum
 - `End`: sets the thumb to its maximum, which for the lower of two thumbs is the upper thumb's value.
 <!-- @keys end -->
 
-- **Every step, then the settle.** `(change)` hears each step a drag crosses. `(commit)` fires once when the pointer is released, and only if the number moved. A key fires both. Put a costly effect, such as a fetch, on `(commit)`.
+- **Every step, then the settle.** `(valueChange)` hears each step a drag crosses. `(commit)` fires once when the pointer is released, and only if the number moved. A key fires both. Put a costly effect, such as a fetch, on `(commit)`.
 - **Pointer and touch.** Pressing the track moves the thumb to that spot and keeps dragging. Pressing a thumb takes the thumb where it stands. A finger drags the thumb, and the page still scrolls along the other axis.
 - **Keys.** Up and Right step up, Down and Left step down, Page Up and Page Down move ten steps, and Home and End reach the bounds. Under a right to left direction, Left and Right swap on a slider lying across. A vertical slider keeps them.
-- **Two thumbs.** With `range`, `[value]` is the start and `[valueEnd]` the end. `(change)` and `(commit)` follow the start thumb, and `(changeEnd)` and `(commitEnd)` the end thumb. Each thumb stops against the other, and a reader hears each one as the label and a word, such as "Price Minimum". A single slider ignores `[valueEnd]` and warns once.
+- **Two thumbs.** With `range`, `[value]` is the start and `[valueEnd]` the end. `(valueChange)` and `(commit)` follow the start thumb, and `(valueEndChange)` and `(commitEnd)` the end thumb. Each thumb stops against the other, and a reader hears each one as the label and a word, such as "Price Minimum". A single slider ignores `[valueEnd]` and warns once.
 - **Standing up.** With `orientation="vertical"`, the track fills the height its container gives it, at least four control heights. The minimum sits at the bottom, and each thumb announces that it stands vertically.
 - **Snapping.** Each number snaps to `step`, counted from `min`. When `step` does not divide the range, the top is the highest step under `max`.
 - **Holding its own number.** With no `[value]` the slider starts at `min` and keeps each move, and a range's end starts at the top. A `[value]` above `[valueEnd]` is drawn at the end, and no output fires.
@@ -73,7 +73,7 @@ A number chosen inside a range by moving a thumb, or a span chosen with two thum
 **Do / Don't**
 - Name what is set in `label`, such as "Volume", and never "Slider".
 - Keep the readout, or a `hint`, wherever the number matters.
-- Don't run a costly effect on `(change)`. Use `(commit)` instead.
+- Don't run a costly effect on `(valueChange)`. Use `(commit)` instead.
 - Don't give the fill the focus ring's colour. The two would meet on the thumb.
 - Don't draw tick marks around it. The readout and the hint carry the scale.
 

@@ -4,16 +4,16 @@ the column its parent lays out. The control is a real `<input>`, named by a real
 `<label for>`.
 
 ```html
-<arena-input label="Project name" [value]="name()" (change)="name.set($event)"
+<arena-input label="Project name" [value]="name()" (valueChange)="name.set($event)"
              hint="Lowercase, no spaces" required />
 
 <arena-input label="Repository" icon="ph-bold ph-git-branch" prefix="git@"
-             [value]="repo()" (change)="repo.set($event)" />
+             [value]="repo()" (valueChange)="repo.set($event)" />
 
-<arena-input label="Contact email" type="email" [value]="email()" (change)="email.set($event)"
+<arena-input label="Contact email" type="email" [value]="email()" (valueChange)="email.set($event)"
              [validate]="notEmpty" validateOn="change" />
 
-<arena-input label="Slug" [value]="slug()" [error]="serverError()" (change)="slug.set($event)" />
+<arena-input label="Slug" [value]="slug()" [error]="serverError()" (valueChange)="slug.set($event)" />
 <arena-input label="Created" type="date" [value]="created()" readOnly />
 ```
 
@@ -72,8 +72,8 @@ readonly validate = input<(value: string) => string>();
 Return the message, or the empty string when the value is good.
 
 **Do / Don't**
-- It is **controlled**. `value` is what the consumer owns; `change` fires on every keystroke and
-  carries the text. **Angular will not force the DOM back**: ignore `change` and the box keeps
+- It is **controlled**. `value` is what the consumer owns; `valueChange` fires on every keystroke and
+  carries the text. **Angular will not force the DOM back**: ignore `valueChange` and the box keeps
   what the user typed. Wire the signal.
 - `error` **wins over `validate`**, and it wins even when it is the empty string: a controlled
   error that is present-and-blank suppresses the validator and shows the hint. Every use of the
@@ -101,7 +101,7 @@ Return the message, or the empty string when the value is good.
   component can carry one. `range` is not among them: that is `<arena-slider>`. `number` stays a
   type here: it keeps the browser's spinner and a string value, and `<arena-number-field>` is a
   number Arena owns.
-- Don't reach for `change` to run an expensive query. The output fires per keystroke by design. Debounce in the consumer, where the interval is a decision about that query rather than about the field.
+- Don't reach for `valueChange` to run an expensive query. The output fires per keystroke by design. Debounce in the consumer, where the interval is a decision about that query rather than about the field.
 
 **By hand, in real Chromium**: none of these is provable in happy-dom. Run `bun run demos` and
 open `/frameworks/angular/components/forms/arena-input/ArenaInput.demo.generated.html`:

@@ -84,7 +84,7 @@ export class ArenaSelect {
   /** Submitted with the form. */
   readonly name = input<string>();
   /** A different option was chosen; carries its value. */
-  readonly change = output<string>();
+  readonly valueChange = output<string>();
 
   protected readonly selectId = inject(ArenaIdGenerator).next('arena-select');
   protected readonly noteId = `${this.selectId}-note`;
@@ -100,9 +100,8 @@ export class ArenaSelect {
   }));
 
   protected onChange(event: Event): void {
-    event.stopPropagation();
     const value = (event.target as HTMLSelectElement).value;
-    this.change.emit(value);
+    this.valueChange.emit(value);
     this.binding.onChange(value);
   }
 }

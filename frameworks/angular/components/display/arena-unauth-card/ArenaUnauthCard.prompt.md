@@ -8,7 +8,7 @@ is actually for, and a footer. The panel knows nothing about credentials, so one
       <img src="/assets/your-mark.svg" alt="" />
     </arena-app-logo>
 
-    <arena-input label="Email" type="email" [value]="email()" (change)="email.set($event)" />
+    <arena-input label="Email" type="email" [value]="email()" (valueChange)="email.set($event)" />
     <arena-button type="submit" class="arena-fill">Sign in</arena-button>
 
     <span footer>Trouble signing in? Contact your administrator.</span>

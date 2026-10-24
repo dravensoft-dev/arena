@@ -54,7 +54,7 @@ test('while bound, an edit hands the form the code and the outputs still fire', 
     binding.bound.set(true);
     binding.value.set('48');
     binding.onChange = (value) => reported.push(value);
-    fixture.componentInstance.change.subscribe((value: unknown) => emitted.push(value));
+    fixture.componentInstance.valueChange.subscribe((value: unknown) => emitted.push(value));
     fixture.detectChanges();
     const third = cells()[2]!;
     third.focus();
@@ -81,7 +81,7 @@ test('the binding\'s disabled state disables every cell and the hidden field', (
   selector: 'pin-input-controlled-host',
   standalone: true,
   imports: [ArenaPinInput],
-  template: `<arena-pin-input label="Verification code" [value]="value()" (change)="value.set($event)" />`,
+  template: `<arena-pin-input label="Verification code" [value]="value()" (valueChange)="value.set($event)" />`,
 })
 class ControlledHost { readonly value = signal(''); }
 

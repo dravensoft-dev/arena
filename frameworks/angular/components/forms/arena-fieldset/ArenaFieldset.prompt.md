@@ -2,8 +2,8 @@ Arena fieldset, a named set of related fields. Standalone, `OnPush`, signal I/O.
 
 ```html
 <arena-fieldset legend="Notifications" hint="We write at most once a day." [error]="none() ? 'Choose at least one.' : undefined">
-  <arena-checkbox label="Deploys" name="notify" value="deploys" [checked]="deploys()" (change)="deploys.set($event)" />
-  <arena-checkbox label="Incidents" name="notify" value="incidents" [checked]="incidents()" (change)="incidents.set($event)" />
+  <arena-checkbox label="Deploys" name="notify" value="deploys" [checked]="deploys()" (valueChange)="deploys.set($event)" />
+  <arena-checkbox label="Incidents" name="notify" value="incidents" [checked]="incidents()" (valueChange)="incidents.set($event)" />
 </arena-fieldset>
 ```
 

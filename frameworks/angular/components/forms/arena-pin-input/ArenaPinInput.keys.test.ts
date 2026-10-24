@@ -17,7 +17,7 @@ import { assertSameNode } from '../../../test/NodeAssert';
   selector: 'pin-input-keys-host',
   standalone: true,
   imports: [ArenaPinInput],
-  template: `<div [attr.dir]="dir()"><arena-pin-input label="Verification code" [value]="value()" (change)="seen.push('change ' + $event); answer($event)"
+  template: `<div [attr.dir]="dir()"><arena-pin-input label="Verification code" [value]="value()" (valueChange)="seen.push('change ' + $event); answer($event)"
                (complete)="seen.push('complete ' + $event)" (blur)="seen.push('blur ' + $event)" /><button type="button">Verify</button></div>`,
 })
 class Host {
@@ -34,7 +34,7 @@ class Host {
   selector: 'pin-input-keys-verify-host',
   standalone: true,
   imports: [ArenaPinInput],
-  template: `<arena-pin-input label="Verification code" [value]="value()" (change)="value.set($event)" (complete)="verify.focus()" />
+  template: `<arena-pin-input label="Verification code" [value]="value()" (valueChange)="value.set($event)" (complete)="verify.focus()" />
              <button #verify type="button">Verify</button>`,
 })
 class VerifyHost {
@@ -45,7 +45,7 @@ class VerifyHost {
   selector: 'pin-input-keys-free-host',
   standalone: true,
   imports: [ArenaPinInput],
-  template: `<arena-pin-input label="Verification code" (change)="seen.push($event)" />`,
+  template: `<arena-pin-input label="Verification code" (valueChange)="seen.push($event)" />`,
 })
 class FreeHost {
   seen: string[] = [];

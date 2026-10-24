@@ -23,7 +23,7 @@ const BINDING = join(ANGULAR_COMPONENTS, 'forms/arena-textarea/ArenaTextarea.beh
   template: `<arena-textarea [label]="label" [id]="id" [hint]="hint" [error]="error"
                              [required]="required" [readOnly]="readOnly" [disabled]="disabled"
                              [counter]="counter" [maxLength]="maxLength" [rows]="rows"
-                             [value]="value" (change)="edits.push($event)" />`,
+                             [value]="value" (valueChange)="edits.push($event)" />`,
 })
 class TextareaHost {
   label: string | undefined = 'Release notes';
@@ -95,7 +95,7 @@ test('typing emits change once, carrying the text, and the native change never r
     control.dispatchEvent(new Event('change', { bubbles: true }));
     fixture.detectChanges();
     assert.equal(fixture.componentInstance.edits.length, 1,
-      'change is an output named after a native DOM event; the commit must not emit a second time');
+      'valueChange runs once per edit, and the commit adds none');
   } finally {
     fixture.destroy();
   }
