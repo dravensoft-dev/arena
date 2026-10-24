@@ -47,7 +47,7 @@ One event on an `arena-calendar`'s schedule. The chip is content of a calendar a
 
 **`interactive` is what makes the chip a button, not `(activate)`.** The shape cannot be derived from whether anything is subscribed. Activation is a member you declare, the same one `arena-table-row` carries. **Bind `interactive` alongside `(activate)`, or the chip is inert**: a `<div>` with no role, nothing to activate and nothing to disable, which is what a read-only schedule wants.
 
-**A click on a chip stops at the chip, alike in both layers.** The chip's surface keeps the native click, so a listener on an ancestor never sees it, and `(activate)` reports the press of an interactive chip. A press on the kebab opens the panel and reports nothing: the kebab is a control of its own.
+**A click on the chip's body stops there, alike in both layers.** A listener on an ancestor does not hear it, and `(activate)` reports the press of an interactive chip. A press on the kebab or on a control in the panel reaches the page as a native click and reports no `activate`. Each of those is a control of its own.
 
 **An interactive chip is not a page-level tab stop, and that is on purpose.** The grid is one tab stop. Enter from the hour cell an event overlaps steps into the chip, and Escape steps back out to the cell.
 
