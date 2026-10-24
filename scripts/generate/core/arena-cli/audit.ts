@@ -705,7 +705,7 @@ function readTerm(text: string, keys: boolean): string[] | null {
   return null;
 }
 
-export function boundClass(raw: string): boolean {
+function boundClass(raw: string): boolean {
   return ownAttributeStarts(raw).some(({ name, from }) => {
     const value = attributeValueAt(raw, from);
     if (/^(?:className|class)\s*=\s*$/.test(name) && !value.startsWith('{')) return value.includes('{{');
