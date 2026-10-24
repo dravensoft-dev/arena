@@ -77,3 +77,55 @@ test('the binding\'s disabled state disables every radio', () => {
     for (const radio of radios) assert.equal(radio.disabled, true);
   } finally { fixture.destroy(); }
 });
+
+const DOT = '[data-arena-part="radio.dot"]';
+
+function dotOn(fixture: { nativeElement: unknown }): string | null {
+  const root = fixture.nativeElement as HTMLElement;
+  const radios = [...root.querySelectorAll('input[type="radio"]')] as HTMLInputElement[];
+  const dot = root.querySelector(DOT);
+  return radios.find((radio) => radio.closest('label')?.contains(dot))?.value ?? null;
+}
+
+test('a forms-bound click chooses the option and draws the dot there', () => {
+  const { fixture, binding, radios } = render();
+  try {
+    let control: unknown;
+    binding.bound.set(true);
+    binding.value.set('basic');
+    binding.onChange = (value) => { control = value; };
+    fixture.detectChanges();
+    radios[1]!.click();
+    fixture.detectChanges();
+    assert.equal(binding.value(), 'pro');
+    assert.equal(control, 'pro');
+    assert.equal(radios[1]!.checked, true);
+    assert.equal(radios[0]!.checked, false);
+    assert.equal(dotOn(fixture), 'pro');
+  } finally { fixture.destroy(); }
+});
+
+@Component({
+  standalone: true,
+  imports: [ArenaRadioGroup, ArenaRadio],
+  template: `<arena-radio-group ariaLabel="Plan" value="a" (change)="seen.push($event)">
+    <arena-radio value="a" label="A" /><arena-radio value="b" label="B" />
+  </arena-radio-group>`,
+})
+class Refusing {
+  readonly seen: string[] = [];
+}
+
+test('a host that holds value and ignores change keeps the native radios and the dot on the held option', () => {
+  const fixture = TestBed.createComponent(Refusing);
+  try {
+    fixture.detectChanges();
+    const radios = [...(fixture.nativeElement as HTMLElement).querySelectorAll('input[type="radio"]')] as HTMLInputElement[];
+    radios[1]!.click();
+    fixture.detectChanges();
+    assert.deepEqual(fixture.componentInstance.seen, ['b']);
+    assert.equal(radios[0]!.checked, true);
+    assert.equal(radios[1]!.checked, false);
+    assert.equal(dotOn(fixture), 'a');
+  } finally { fixture.destroy(); }
+});

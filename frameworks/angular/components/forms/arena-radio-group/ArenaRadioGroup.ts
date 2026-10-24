@@ -1,5 +1,5 @@
 import {
-  booleanAttribute, ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal,
+  booleanAttribute, ChangeDetectionStrategy, Component, computed, effect, ElementRef, inject, input, output, signal,
 } from '@angular/core';
 import { ArenaRadioGroupState } from './ArenaRadioGroupState';
 import { arenaRadioGroupStyles } from './ArenaRadioGroup.variants';
@@ -50,6 +50,7 @@ export class ArenaRadioGroup {
   private readonly fallbackName = inject(ArenaIdGenerator).next('arena-radio-group');
   private readonly chosen = signal<string | undefined>(undefined);
   private readonly state = inject(ArenaRadioGroupState);
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly binding = inject(ArenaControlBinding);
   protected readonly off = computed(() => this.disabled() || this.binding.disabled());
   private readonly warned = effect(() => {
@@ -62,8 +63,15 @@ export class ArenaRadioGroup {
     this.state.disabled = this.off;
     this.state.choose = (value: string) => {
       this.chosen.set(value);
+      if (this.binding.bound()) this.binding.value.set(value);
       this.change.emit(value);
       this.binding.onChange(value);
+    };
+    this.state.resync = () => {
+      const selected = this.state.selected();
+      for (const input of this.host.nativeElement.querySelectorAll('input[type="radio"]')) {
+        input.checked = input.value === selected;
+      }
     };
   }
 }

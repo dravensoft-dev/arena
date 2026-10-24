@@ -59,6 +59,8 @@ export class ArenaRadio {
 
   protected onChange(event: Event): void {
     event.stopPropagation();
-    if (!this.off()) this.group.choose(this.value());
+    if (this.off()) return;
+    this.group.choose(this.value());
+    this.group.resync();
   }
 }

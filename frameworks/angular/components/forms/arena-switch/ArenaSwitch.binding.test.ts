@@ -69,3 +69,19 @@ test('the binding\'s disabled state disables the switch', () => {
     assert.equal(el.disabled, true);
   } finally { fixture.destroy(); }
 });
+
+test('a forms-bound press moves the drawn state and the control together', () => {
+  const { fixture, binding, el } = render();
+  try {
+    let control: unknown = false;
+    binding.bound.set(true);
+    binding.value.set(false);
+    binding.onChange = (value) => { control = value; };
+    fixture.detectChanges();
+    el.click();
+    fixture.detectChanges();
+    assert.equal(el.getAttribute('aria-checked'), 'true');
+    assert.equal(binding.value(), true);
+    assert.equal(control, true);
+  } finally { fixture.destroy(); }
+});

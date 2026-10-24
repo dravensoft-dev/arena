@@ -91,9 +91,12 @@ export class ArenaCheckbox {
 
   protected onChange(event: Event): void {
     event.stopPropagation();
-    const checked = (event.target as HTMLInputElement).checked;
+    const input = event.target as HTMLInputElement;
+    const checked = input.checked;
+    if (this.binding.bound()) this.binding.value.set(checked);
     this.change.emit(checked);
     this.binding.onChange(checked);
     this.group?.toggle(this.groupValue(), checked);
+    input.checked = this.drawn();
   }
 }

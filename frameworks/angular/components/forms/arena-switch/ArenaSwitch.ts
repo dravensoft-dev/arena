@@ -80,9 +80,11 @@ export class ArenaSwitch {
     }
     if (this.drawn()) {
       this.funcOff.emit();
+      if (this.binding.bound()) this.binding.value.set(false);
       this.binding.onChange(false);
     } else {
       this.funcOn.emit();
+      if (this.binding.bound()) this.binding.value.set(true);
       this.binding.onChange(true);
     }
   }
