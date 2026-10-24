@@ -1055,6 +1055,7 @@ test('raw-glyph reads a bound class by its results, alike in both layers (D1, N1
   for (const [label, react, angular, expected] of rows)
     assert.deepEqual(glyphCount(react, angular), [expected, expected], label);
   const toggled = glyphLines(`${NAMES_ANGULAR}<i class="ph-bold" [class.ph-star]="on"></i>`, 'src/a.html');
+  assert.equal(toggled.length, 1);
   assert.ok(!(toggled[0] ?? '').includes('may hold'), 'a toggled Phosphor class gets the literal verdict');
 });
 
