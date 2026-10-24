@@ -85,9 +85,11 @@ export function axisProblems(where: string, theme: string, hexes: AxisHexes) {
   const axis = contrast(hexes.axis, hexes.page);
   const separator = contrast(hexes.separator, hexes.page);
   if (axis > separator) return [];
-  return [`${where} answers --edge-axis lighter than --edge-separator in the ${theme} theme `
+  const same = axis.toFixed(2) === separator.toFixed(2);
+  return [`${where} answers --edge-axis with ${same ? 'the same contrast as' : 'no more contrast than'} `
+    + `--edge-separator in the ${theme} theme `
     + `(${axis.toFixed(2)}:1 against ${separator.toFixed(2)}:1 on base-100), so a chart's axis reads `
-    + 'fainter than its grid. Answer edge-axis with a heavier neutral.'];
+    + 'no heavier than its grid. Answer edge-axis with a heavier neutral.'];
 }
 
 type Answers = Record<string, { $value?: unknown } | undefined>;

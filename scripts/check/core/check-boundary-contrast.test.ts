@@ -64,11 +64,16 @@ test('an axis that measures fainter than the separator on base-100 is one proble
   assert.equal(problems.length, 1);
   assert.match(problems[0] ?? '', /probe\/plugin\.tokens\.json/);
   assert.match(problems[0] ?? '', /light/);
+  assert.match(problems[0] ?? '', /answers --edge-axis with no more contrast than/);
+  assert.doesNotMatch(problems[0] ?? '', /lighter/);
 });
 
 test('an axis heavier than the separator passes, and one equal to it does not', () => {
   assert.deepEqual(axisProblems('probe', 'light', { axis: '#555555', separator: '#999999', page: '#ffffff' }), []);
-  assert.equal(axisProblems('probe', 'dark', { axis: '#555555', separator: '#555555', page: '#ffffff' }).length, 1);
+  const equal = axisProblems('probe', 'dark', { axis: '#555555', separator: '#555555', page: '#ffffff' });
+  assert.equal(equal.length, 1);
+  assert.match(equal[0] ?? '', /with the same contrast as/);
+  assert.doesNotMatch(equal[0] ?? '', /lighter/);
 });
 
 test('the real tree holds: every plugin Arena ships draws the axis heavier than the grid in both themes', () => {

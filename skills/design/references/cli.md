@@ -97,7 +97,7 @@ A report never changes the exit until `--strict` holds it. Bare, `--strict` hold
 
 `unknown-input` names a static attribute on an Arena element in an Angular template that the component takes as no input or output. A forms attribute such as `formControlName` is never named. When a directive of your own reads the attribute, mark the line `arena-audit allow`.
 
-`contrast` also reports a chart axis answered lighter than the grid (`--edge-axis` against `--edge-separator` on base-100). `contrast` reports a status hue whose `--hue-<hue>-on-ink` measures under 4.5:1 over `--hue-<hue>-ink`, the label of a solid badge over its fill, in either polarity.
+`contrast` also reports a chart axis answered with no more contrast than the grid (`--edge-axis` against `--edge-separator` on base-100). `contrast` reports a status hue whose `--hue-<hue>-on-ink` measures under 4.5:1 over `--hue-<hue>-ink`, the label of a solid badge over its fill, in either polarity.
 
 `contrast` reports a palette whose `base-100` sits on the other side of its declared polarity. A dark palette wants an OKLab lightness under 0.5 and a light one wants 0.5 or more. The message reads `polarity, base-100 #fafafa reads as light, and the palette declares dark`, for a declared palette and for a runtime one alike.
 

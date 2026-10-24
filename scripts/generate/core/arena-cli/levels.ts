@@ -391,9 +391,10 @@ export function axisReports(roles: Map<string, string>, colors: Record<string, s
   const heavy = contrast(axis, page);
   const light = contrast(separator, page);
   if (heavy > light) return [];
-  return [report('contrast', `--edge-axis is lighter than --edge-separator in the ${theme} theme `
+  const verb = heavy.toFixed(2) === light.toFixed(2) ? 'has the same contrast as' : 'has no more contrast than';
+  return [report('contrast', `--edge-axis ${verb} --edge-separator in the ${theme} theme `
     + `(${heavy.toFixed(2)}:1 against ${light.toFixed(2)}:1 on base-100), so a chart's axis reads `
-    + 'fainter than its grid')];
+    + 'no heavier than its grid')];
 }
 
 export const EMPHASIS_PAIRS = ['primary', 'solid'];

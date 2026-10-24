@@ -1223,12 +1223,22 @@ const contrastMessages = (c: any, answers: Record<string, string>) =>
   (paletteReports(c, COLOUR_ROLES as any, [answered(answers)])[0]?.messages ?? [])
     .filter((m) => m.kind === 'contrast' && /^--(edge|hue)-/.test(m.message)).map((m) => m.message);
 
-test('an axis answered with a neutral lighter than the grid is reported under contrast', () => {
+test('an axis answered with no more contrast than the grid is reported under contrast, in words that hold for a darker one too', () => {
   const [message] = contrastMessages(axisConfig(),
     { 'edge-separator': '{color.base-300}', 'edge-axis': '{color.neutral}' });
   const ratio = String.raw`\d\.\d\d:1`;
-  assert.match(message ?? '', new RegExp('^--edge-axis is lighter than --edge-separator in the light theme '
-    + `\\(${ratio} against ${ratio} on base-100\\), so a chart's axis reads fainter than its grid$`));
+  assert.match(message ?? '', new RegExp('^--edge-axis has no more contrast than --edge-separator in the light theme '
+    + `\\(${ratio} against ${ratio} on base-100\\), so a chart's axis reads no heavier than its grid$`));
+  assert.doesNotMatch(message ?? '', /lighter/);
+});
+
+test('an axis answered with the same neutral as the grid is reported as having the same contrast', () => {
+  const [message] = contrastMessages(axisConfig(),
+    { 'edge-separator': '{color.neutral}', 'edge-axis': '{color.neutral}' });
+  const ratio = String.raw`\d\.\d\d:1`;
+  assert.match(message ?? '', new RegExp('^--edge-axis has the same contrast as --edge-separator in the light theme '
+    + `\\(${ratio} against ${ratio} on base-100\\), so a chart's axis reads no heavier than its grid$`));
+  assert.doesNotMatch(message ?? '', /lighter/);
 });
 
 test('an axis answered with base-content, heavier than the grid, is not reported', () => {
