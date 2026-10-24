@@ -94,6 +94,24 @@ test('a use is attributed to the nearest host that queries that slot', () => {
   assert.deepEqual(uses, [{ attribute: 'action', host: 'arena-card' }]);
 });
 
+test('a marker inside an element that queries none is charged to nobody', () => {
+  assert.deepEqual(markerUses(
+    '<arena-calendar><arena-calendar-event><arena-button actions>x</arena-button></arena-calendar-event></arena-calendar>',
+    { 'arena-calendar': ['actions'] },
+  ), []);
+});
+
+test('ng-container is not a host, so a marker inside one is charged to the element around it', () => {
+  assert.deepEqual(markerUses(
+    '<arena-card><ng-container><button action>x</button></ng-container></arena-card>',
+    { 'arena-card': ['action'] },
+  ), [{ attribute: 'action', host: 'arena-card' }]);
+});
+
+test('a plain element between the marker and the host breaks the charge', () => {
+  assert.deepEqual(markerUses('<arena-card><div><button action>x</button></div></arena-card>', { 'arena-card': ['action'] }), []);
+});
+
 test('a marker in the SECOND component of a file is read, not just the first', () => {
   const problems = markerProblems([{
     path: 'app/blocks.ts',
