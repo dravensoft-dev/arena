@@ -5,11 +5,12 @@ import { tmpdir } from 'node:os';
 import { join, basename } from 'node:path';
 import {
   componentMap, angularComponentMap, reactComponentMap, sheetOf, close, MAP_FILE,
-  markerAttributes, MARKERS_FILE, reactSheetless,
+  markerAttributes, MARKERS_FILE, reactSheetless, LAYER_IMPORT, QUERIED_MARKER,
 } from './component-map.ts';
 import { manifestFiles } from '../tailwind/tailwind-compile.ts';
 import { kebab } from '../../utils/case.ts';
 import { repoRoot } from './repo-root.ts';
+import { captured } from '../../utils/captures.ts';
 
 const shipped = manifestFiles(join(repoRoot, 'frameworks', 'tailwind', 'components'))
   .map((file) => kebab(basename(file).split('.')[0] ?? ''));
@@ -142,4 +143,26 @@ test('a provider added to a helper module the index re-exports is placed without
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
+});
+
+test('both layers close the same needs for every sheet both draw', () => {
+  const angular = componentMap('angular', repoRoot);
+  const react = componentMap('react', repoRoot);
+  const both = [...new Set(Object.values(angular.draws))]
+    .filter((s): s is string => Boolean(s))
+    .filter((s) => Object.values(react.draws).includes(s));
+  for (const sheet of both) {
+    assert.deepEqual(react.needs[sheet] ?? [], angular.needs[sheet] ?? [], sheet);
+  }
+});
+
+test('a relative import from the same category is a use, as one from another category is', () => {
+  const source = "import { ArenaCard } from '../arena-card/ArenaCard.tsx';\nimport { ArenaIcon } from '../../display/arena-icon/ArenaIcon.tsx';";
+  assert.deepEqual([...source.matchAll(LAYER_IMPORT)].map((m) => captured(m)), ['ArenaCard', 'ArenaIcon']);
+  assert.deepEqual([..."from '../MainRegion.ts'".matchAll(LAYER_IMPORT)], []);
+});
+
+test('a marker query is read with or without options', () => {
+  const source = 'contentChild(ArenaFooter)\ncontentChild(ArenaActions, { descendants: false })';
+  assert.deepEqual([...source.matchAll(QUERIED_MARKER)].map((m) => captured(m)), ['ArenaFooter', 'ArenaActions']);
 });

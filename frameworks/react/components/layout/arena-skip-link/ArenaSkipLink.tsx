@@ -1,6 +1,6 @@
 import React from 'react';
 import { arenaStyles } from '../../../ArenaStyles.generated.ts';
-import { ARENA_MAIN_ID } from '../arena-main/ArenaMain.tsx';
+import { ARENA_MAIN_ID } from '../MainRegion.ts';
 import manifest from './ArenaSkipLink.classes.generated.ts';
 import type { ArenaSkipLinkClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';

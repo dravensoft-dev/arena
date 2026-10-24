@@ -26,8 +26,8 @@ export const SELECTOR = /selector: '[a-z]*\[?(arena(?:-[a-z0-9-]+|[A-Z][A-Za-z0-
 export const DECORATOR_IMPORTS = /imports: \[([^\]]*)\]/g;
 export const EXPORTED = /export (?:function|const) ([A-Za-z0-9_]+)/g;
 export const COMPONENT_NAME = /^[A-Z][A-Za-z0-9]*[a-z][A-Za-z0-9]*$/;
-export const LAYER_IMPORT = /from '\.\.\/\.\.\/[a-z-]+\/[a-z-]+\/([A-Z][A-Za-z0-9]*)\.tsx?'/g;
-export const QUERIED_MARKER = /contentChild\((Arena[A-Za-z0-9]*)\)/g;
+export const LAYER_IMPORT = /from '\.\.\/(?:\.\.\/[a-z-]+\/)?[a-z-]+\/([A-Z][A-Za-z0-9]*)\.tsx?'/g;
+export const QUERIED_MARKER = /contentChild\((Arena[A-Za-z0-9]*)(?:\s*,[^)]*)?\)/g;
 export const MARKERS_FILE = 'frameworks/angular/ProjectionMarkers.ts';
 
 export const DECLARED_MARKER = /@Directive\(\{\s*selector:\s*'\[([A-Za-z][\w-]*)\]'[^}]*\}\)\s*export class (Arena[A-Za-z0-9]*)/g;

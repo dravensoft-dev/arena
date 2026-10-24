@@ -4,7 +4,9 @@ import manifest from './ArenaMain.classes.generated.ts';
 import type { ArenaMainClass } from '../../../Vocabulary.generated.ts';
 import { arenaClassName } from '../../../VocabularyClass.ts';
 
-export const ARENA_MAIN_ID = 'arena-main';
+import { ARENA_MAIN_ID } from '../MainRegion.ts';
+
+export { ARENA_MAIN_ID } from '../MainRegion.ts';
 
 export interface ArenaMainProps {
   className?: ArenaMainClass;

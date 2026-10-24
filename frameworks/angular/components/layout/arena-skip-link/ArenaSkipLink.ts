@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
-import { ARENA_MAIN_ID } from '../arena-main/ArenaMain';
+import { ARENA_MAIN_ID } from '../MainRegion';
 import { arenaSkipLinkStyles } from './ArenaSkipLink.variants';
 import manifest from './ArenaSkipLink.classes.generated';
 

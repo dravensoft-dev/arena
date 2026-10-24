@@ -2,7 +2,9 @@ import { ChangeDetectionStrategy, Component, computed } from '@angular/core';
 import { arenaMainStyles } from './ArenaMain.variants';
 import manifest from './ArenaMain.classes.generated';
 
-export const ARENA_MAIN_ID = 'arena-main';
+import { ARENA_MAIN_ID } from '../MainRegion';
+
+export { ARENA_MAIN_ID } from '../MainRegion';
 
 @Component({
   selector: 'arena-main',
