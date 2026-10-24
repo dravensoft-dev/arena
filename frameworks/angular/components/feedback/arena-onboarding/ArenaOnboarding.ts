@@ -32,7 +32,7 @@ import { ArenaSlotAttributes } from '../../../SlotData';
     '[class]': 'styles().root()',
     '[attr.data-arena-surface]': "'floating'",
     '[attr.data-arena-open]': "styles().$data.root()['data-arena-open'] ?? null",
-    '[attr.data-arena-part]': 'parts.root',
+    '[attr.data-arena-part]': 'visible() ? parts.root : null',
     '(click)': 'onScrimClick()',
     '(keydown)': 'onKeydown($event)',
   },
