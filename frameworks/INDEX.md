@@ -89,7 +89,7 @@ will report it.
 | `ArenaSpinner` | Indeterminate wait indicator. For a measurable process use ArenaProgressBar instead. | `label` | progressbar | angular, react |
 | `ArenaToast` | Ephemeral notification with a tone-coloured side bar and one optional action. | `title` `message` `tone` `actionLabel` `action` `persist` `dismissible` `close` | alert, status | angular, react |
 | `ArenaToastHost` | The fixed box a stack of notices renders into. The host decides where the stack sits, how far it stands off the viewport edges and how much air separates two notices. The host decides nothing else: it reads no notice, counts none, and owns no clock. | `content` | none | angular, react |
-| `ArenaTooltip` | A short label revealed on pointer intent. The page's ink is its ground and the page's ground is its text, for contrast. The tooltip waits before appearing and before withdrawing, so a pointer crossing a toolbar reveals nothing. | `label*` `content*` | tooltip | angular, react |
+| `ArenaTooltip` | A short label revealed on pointer intent. The tooltip takes the page's ink as its ground and the page's ground as its text, for contrast. The tooltip waits before appearing and before withdrawing, so a pointer crossing a toolbar reveals nothing. | `label*` `content*` | tooltip | angular, react |
 
 ## forms
 
