@@ -73,7 +73,7 @@ export function gradientMark(options: StepOptions) {
   }
 }
 
-const VAR_READ = /var\(\s*(--[\w-]+)/g;
+const VAR_READ = /var\(\s*(--[\w-]+)(?![\w-]|\$\{|#\{)/g;
 const PROPERTY_DECLARED = /(?<![\w-])(--[\w-]+)['"]?\s*:|@property\s+(--[\w-]+)/g;
 
 function paletteColours(config: string) {

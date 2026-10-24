@@ -178,6 +178,13 @@ test('a plugin rule naming no declared part is unknown-part, with the part and h
   rmSync(root, { recursive: true, force: true });
 });
 
+test('a var() whose name a template literal finishes is not read as a name', () => {
+  const root = skinned('');
+  writeFileSync(join(root, 'plugin', 'rules.ts'), 'export const rule = (step: string) => `var(--arena-size-${step})`;\n');
+  assert.deepEqual(named(auditStep(options(root), null, CATALOGUE, VOCABULARY), 'unknown-property'), []);
+  rmSync(root, { recursive: true, force: true });
+});
+
 test('outside a plugin directory neither rule reads', () => {
   const root = skinned('', {
     'app.css': '[data-arena-part="menu.nope"] { color: var(--arena-nothing, transparent); }\n',
