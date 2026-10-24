@@ -1069,6 +1069,15 @@ test('valueResults skips quotes, optional chaining and wrapping parens (Review F
   assert.equal(valueResults('"{ [key]: on }"', true), null);
 });
 
+test('valueResults reads the right side of &&, every side of || and the key of an object entry whose value is a ternary (N1)', () => {
+  assert.deepEqual(valueResults("{on && 'arena-a'}"), ['arena-a']);
+  assert.deepEqual(valueResults("{a && b && 'arena-a'}"), ['arena-a']);
+  assert.equal(valueResults('{on && cls}'), null);
+  assert.deepEqual(valueResults("{'arena-a' || 'arena-b' || undefined}"), ['arena-a', 'arena-b']);
+  assert.equal(valueResults("{'arena-a' || cls || 'arena-b'}"), null);
+  assert.deepEqual(valueResults("\"{ 'arena-a': on ? x : y, active: a ? b : c }\"", true), ['arena-a', 'active']);
+});
+
 test('iconMemberGlyphs reads an attribute that follows a braced one (49)', () => {
   assert.deepEqual([...iconMemberGlyphs('<ArenaIcon key={n} icon="ph-bold ph-star" />')], ['ph-star']);
   assert.deepEqual([...iconMemberGlyphs('<ArenaIcon key="k" icon="ph-bold ph-star" />')], ['ph-star']);
