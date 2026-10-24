@@ -67,12 +67,30 @@ test('ArenaConfirmDialog matches its alertdialog binding, in both directions', (
   });
 });
 
+test('ArenaConfirmDialog points aria-describedby at its body', () => {
+  const container = mount(
+    <ArenaConfirmDialog open onCancel={() => {}} onConfirm={() => {}} title="Delete project">
+      <p>Body</p>
+    </ArenaConfirmDialog>,
+  );
+  const panel = container.querySelector<HTMLElement>('[role="alertdialog"]');
+  assert.ok(panel, 'the panel renders');
+  const id = panel.getAttribute('aria-describedby');
+  assert.ok(id, 'the panel names the element that describes it');
+  const described = container.ownerDocument.getElementById(id);
+  assert.ok(described, 'the id resolves to an element');
+  assert.ok(described.hasAttribute('data-arena-part') && described.contains(panel.querySelector('p')),
+    'the described element is the body part');
+  assert.match(described.textContent ?? '', /Body/);
+});
+
 test('assertPattern reports a stale exception', () => {
   const p = tempBindingPath('stale');
 
   writeFileSync(p, JSON.stringify({
     pattern: 'dialog-modal',
     exceptions: [{ requirement: 'roles.aria-modal', reason: 'synthetic' }],
+    also: [{ pattern: 'modal-focus', exceptions: [] }],
   }));
   try {
     const container = mount(<ArenaDialog open onClose={() => {}} title="t"><p>b</p></ArenaDialog>);
@@ -90,7 +108,7 @@ test('assertPattern reports a stale exception', () => {
 test('assertPattern reports an overclaim', () => {
   const p = tempBindingPath('overclaim');
 
-  writeFileSync(p, JSON.stringify({ pattern: 'dialog-modal', exceptions: [] }));
+  writeFileSync(p, JSON.stringify({ pattern: 'dialog-modal', exceptions: [], also: [{ pattern: 'modal-focus', exceptions: [] }] }));
   try {
     const container = mount(<ArenaDialog open onClose={() => {}} title="t"><p>b</p></ArenaDialog>);
     assert.throws(() => assertPattern({
@@ -121,7 +139,7 @@ test('assertPattern reports a missed selector as "no subject element", not as an
 
 test('assertPattern refuses an undeclared undecidable requirement', () => {
   const p = tempBindingPath('undeclared');
-  writeFileSync(p, JSON.stringify({ pattern: 'dialog-modal', exceptions: [] }));
+  writeFileSync(p, JSON.stringify({ pattern: 'dialog-modal', exceptions: [], also: [{ pattern: 'modal-focus', exceptions: [] }] }));
   try {
     const container = mount(<ArenaDialog open onClose={() => {}} title="t"><p>b</p></ArenaDialog>);
     assert.throws(() => assertPattern({

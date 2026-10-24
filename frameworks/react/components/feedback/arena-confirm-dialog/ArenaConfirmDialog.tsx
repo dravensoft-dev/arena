@@ -52,19 +52,20 @@ export function ArenaConfirmDialog({ className, open, onCancel, onConfirm, title
   const onKeyDown = useArenaDialogModal({ open, panelRef, onDismiss: onCancel });
 
   const titleId = useId();
+  const bodyId = useId();
   if (!open) return null;
   const locked = requireText ? typed.trim() !== requireText : false;
   const styles = confirmStyles({ destructive, invalid: locked && typed !== '', open: true });
   return (
     <div className={arenaClassName('ArenaConfirmDialog', styles.root(), className, manifest.vocabulary)} data-arena-part={manifest.parts.root} {...styles.$data.root()} data-arena-surface="floating">
       <div role="alertdialog" aria-modal="true"
-        ref={panelRef} tabIndex={-1} onKeyDown={onKeyDown} aria-labelledby={titleId}
+        ref={panelRef} tabIndex={-1} onKeyDown={onKeyDown} aria-labelledby={titleId} aria-describedby={bodyId}
         className={styles.panel()} data-arena-part={manifest.parts.panel} {...styles.$data.panel()}>
         <div className={styles.head()} data-arena-part={manifest.parts.head} {...styles.$data.head()}>
           <div className={styles.eyebrow()} data-arena-part={manifest.parts.eyebrow} {...styles.$data.eyebrow()}>{kicker}</div>
           <div id={titleId} className={styles.title()} data-arena-part={manifest.parts.title} {...styles.$data.title()}>{title}</div>
         </div>
-        <div className={styles.body()} data-arena-part={manifest.parts.body} {...styles.$data.body()} data-arena-boundary="">
+        <div id={bodyId} className={styles.body()} data-arena-part={manifest.parts.body} {...styles.$data.body()} data-arena-boundary="">
           {children}
           {requireText && (
             <div className={styles.requireBlock()} data-arena-part={manifest.parts.requireBlock} {...styles.$data.requireBlock()}>
