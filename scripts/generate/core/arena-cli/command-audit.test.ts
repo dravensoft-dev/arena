@@ -145,3 +145,15 @@ test('a stale allowance is held by the list init writes', () => {
   assert.equal(result.code, 1);
   assert.match(result.err.join('\n'), /reports 1 of them: audit:stale-allowance$/m);
 });
+
+test('a plugin rule reading a property nothing declares is reported, and held by its name', () => {
+  const { root } = setup({ 'src/App.tsx': '<p />', 'plugin/rules.css': '[data-arena-part="card.title"] { color: var(--arena-nothing, transparent); }\n' }, true);
+  const arena = hostRoot('@dravensoft/arena-react', '1.0.0', {
+    'arena.tokens.json': JSON.stringify({ tokens: {}, roles: {}, aliases: {}, channels: ['--spacing-row'] }),
+  });
+  const run = (argv: string[]) => audit(root, arena, argv);
+  const reported = run([]);
+  assert.equal(reported.code, 0);
+  assert.match(reported.err.join('\n'), /\[audit\] .*rules\.css:1: reads var\(--arena-nothing\).*\(unknown-property\)/);
+  assert.equal(run(['--strict=audit:unknown-property']).code, 1);
+});

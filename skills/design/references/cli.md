@@ -97,6 +97,8 @@ A report never changes the exit until `--strict` holds it. Bare, `--strict` hold
 
 `unknown-input` names a static attribute on an Arena element in an Angular template that the component takes as no input or output. A forms attribute such as `formControlName` is never named. When a directive of your own reads the attribute, mark the line `arena-audit allow`.
 
+`unknown-property` names a `var()` in a style plugin file that reads no role, token, alias, channel, palette colour or property your sources declare, such as `var(--arena-nothing, transparent)`, which takes its fallback in silence. The message gives the nearest listed name when one is close. `unknown-part` names a `[data-arena-part]` in a style plugin file that no component declares, so the rule reaches nothing, and when the name is a part with a state hook attached, such as `menu.item-destructive`, it gives the part and the `data-arena-*` hook that marks that state. Neither rule reads a file outside a style plugin directory, and neither reads when the package carries no list of channels or of parts. Mark a line `arena-audit allow` to silence either.
+
 `contrast` also reports a chart axis answered with no more contrast than the grid (`--edge-axis` against `--edge-separator` on base-100). `contrast` reports a status hue whose `--hue-<hue>-on-ink` measures under 4.5:1 over `--hue-<hue>-ink`, the label of a solid badge over its fill, in either polarity.
 
 `contrast` reports a palette whose `base-100` sits on the other side of its declared polarity. A dark palette wants an OKLab lightness under 0.5 and a light one wants 0.5 or more. The message reads `polarity, base-100 #fafafa reads as light, and the palette declares dark`, for a declared palette and for a runtime one alike.
@@ -131,6 +133,8 @@ The middle column is the rule of [the rules section of `SKILL.md`](../SKILL.md) 
 | `router-link` | Never wrap an Arena component in your router's own link. | A link of your own, such as `a`, `Link` or `routerLink`, directly wraps an Arena card, side nav item, bottom nav item or table cell. |
 | `stale-allowance` | none of the language rules | An `arena-audit allow` marker sits on a line with nothing to exempt. |
 | `unknown-input` | none of the language rules | A static attribute on an `arena-` element in an Angular template names no input or output of that component. |
+| `unknown-part` | none of the language rules | A style plugin rule names a `data-arena-part` no component declares. |
+| `unknown-property` | none of the language rules | A style plugin rule reads a `var()` that names no role, token, alias, channel, palette colour or property your sources declare. |
 | `wrapped-link` | none of the language rules | A link of your own, such as `a`, `Link` or `routerLink`, directly wraps an Arena link, which is already an anchor. |
 
 <!-- @shared audit end -->
@@ -151,7 +155,7 @@ Run `arena init` once. In a project on `@dravensoft/arena-react` it adds these s
     "prebuild": "arena build",
     "predev": "arena build",
     "arena:check": "arena check --strict=components,glyph,markers",
-    "arena:audit": "arena audit --strict=audit:compat-alias,audit:danger-fill,audit:emoji,audit:icon-element,audit:one-primary,audit:outline-gap,audit:own-class,audit:raw-glyph,audit:raw-value,audit:router-link,audit:stale-allowance,audit:unknown-input,audit:wrapped-link,restated"
+    "arena:audit": "arena audit --strict=audit:compat-alias,audit:danger-fill,audit:emoji,audit:icon-element,audit:one-primary,audit:outline-gap,audit:own-class,audit:raw-glyph,audit:raw-value,audit:router-link,audit:stale-allowance,audit:unknown-input,audit:unknown-part,audit:unknown-property,audit:wrapped-link,restated"
   }
 }
 ```
@@ -172,7 +176,7 @@ The same, on `@dravensoft/arena-angular`, with `prestart` in place of `predev`.
     "prebuild": "arena build",
     "prestart": "arena build",
     "arena:check": "arena check --strict=components,glyph,markers",
-    "arena:audit": "arena audit --strict=audit:compat-alias,audit:danger-fill,audit:emoji,audit:icon-element,audit:one-primary,audit:outline-gap,audit:own-class,audit:raw-glyph,audit:raw-value,audit:router-link,audit:stale-allowance,audit:unknown-input,audit:wrapped-link,restated"
+    "arena:audit": "arena audit --strict=audit:compat-alias,audit:danger-fill,audit:emoji,audit:icon-element,audit:one-primary,audit:outline-gap,audit:own-class,audit:raw-glyph,audit:raw-value,audit:router-link,audit:stale-allowance,audit:unknown-input,audit:unknown-part,audit:unknown-property,audit:wrapped-link,restated"
   }
 }
 ```

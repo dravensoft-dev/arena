@@ -14,7 +14,7 @@ import { join } from 'node:path';
 import { SYMBOL_REF, WEIGHT_CLASSES, glyphNames, scan } from './icon-css.ts';
 
 export const RULE_TAGS = ['compat-alias', 'danger-fill', 'emoji', 'icon-element',
-  'one-primary', 'outline-gap', 'own-class', 'raw-glyph', 'raw-value', 'router-link', 'stale-allowance', 'unknown-input', 'wrapped-link'] as const;
+  'one-primary', 'outline-gap', 'own-class', 'raw-glyph', 'raw-value', 'router-link', 'stale-allowance', 'unknown-input', 'unknown-part', 'unknown-property', 'wrapped-link'] as const;
 
 export const RULE_DESCRIPTIONS: Record<(typeof RULE_TAGS)[number], string> = {
   'compat-alias': 'A stylesheet in a style plugin directory reads one of Arena\'s compatibility aliases through `var()`, which names a step of the ramp instead of a role.',
@@ -29,6 +29,8 @@ export const RULE_DESCRIPTIONS: Record<(typeof RULE_TAGS)[number], string> = {
   'router-link': 'A link of your own, such as `a`, `Link` or `routerLink`, directly wraps an Arena card, side nav item, bottom nav item or table cell.',
   'stale-allowance': 'An `arena-audit allow` marker sits on a line with nothing to exempt.',
   'unknown-input': 'A static attribute on an `arena-` element in an Angular template names no input or output of that component.',
+  'unknown-part': 'A style plugin rule names a `data-arena-part` no component declares.',
+  'unknown-property': 'A style plugin rule reads a `var()` that names no role, token, alias, channel, palette colour or property your sources declare.',
   'wrapped-link': 'A link of your own, such as `a`, `Link` or `routerLink`, directly wraps an Arena link, which is already an anchor.',
 };
 

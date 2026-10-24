@@ -121,3 +121,17 @@ test('a named list leaves what usage counts as drawn to the sources alone', () =
     assert.ok(out.some((line) => line.endsWith('2 drawn nowhere: arena-bar-chart, arena-table')), out.join('\n'));
   } finally { rmSync(root, { recursive: true, force: true }); }
 });
+
+test('usage counts as painted only the parts of components the sources draw, and names the rest', () => {
+  const root = project({ ...readable, stylePlugins: ['plugin'] }, { 'app.html': '<arena-button></arena-button>' });
+  try {
+    mkdirSync(join(root, 'plugin'));
+    writeFileSync(join(root, 'plugin', 'skin.css'),
+      '[data-arena-part="button"] { color: red; }\n[data-arena-part="menu.item"] { color: red; }\n');
+    const vocabulary = { page: 'p', classes: {}, answers: {}, options: {},
+      parts: { ArenaButton: { button: [] }, ArenaMenu: { menu: [], 'menu.item': [] } } };
+    const { io, out } = captureIo(root, { ...environment, vocabulary });
+    assert.equal(run([], io), 0);
+    assert.match(out[2]!, /^arena usage: your style plugin\(s\) paint 1 part\(s\): button\. 1 rule\(s\) reach nothing this project draws: menu\.item\. /);
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});

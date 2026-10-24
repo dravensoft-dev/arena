@@ -522,7 +522,8 @@ test('a fill and a token are read as one pair, so a danger token elsewhere on th
 test('every rule tag the audit can emit is declared, and every declared tag is one it emits', () => {
   const source = readFileSync(join(repoRoot, 'scripts/generate/core/arena-cli/audit.ts'), 'utf8');
   const CALL = /\bat\((?:[^()]|\([^()]*\))*?,\s*'([a-z-]+)'/g;
-  const emitted = new Set([...source.matchAll(CALL)].map((m) => m[1]));
+  const steps = readFileSync(join(repoRoot, 'scripts/generate/core/arena-cli/steps.ts'), 'utf8');
+  const emitted = new Set([...source.matchAll(CALL), ...steps.matchAll(/\brule: '([a-z-]+)'/g)].map((m) => m[1]));
 
   assert.ok(emitted.size > 0, 'no tag was found in the module, so this checked nothing');
   assert.deepEqual([...emitted].sort(), [...RULE_TAGS].sort(),
