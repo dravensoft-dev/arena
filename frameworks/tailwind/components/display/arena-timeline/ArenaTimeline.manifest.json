@@ -13,10 +13,10 @@
   "slots": {
     "root": "flex [flex-direction:var(--arena-orientation-direction,column)] gap-items list-none m-0 p-0",
     "item": "flex flex-wrap content-start items-start gap-inline flex-1 min-w-0",
-    "rail": "flex [flex-direction:var(--arena-orientation-direction,column)] items-center self-stretch gap-inline shrink-0 basis-[var(--arena-orientation-rule-w,var(--bw-separator))]",
+    "rail": "flex [flex-direction:var(--arena-orientation-direction,column)] items-center self-stretch gap-0 shrink-0 basis-[var(--arena-orientation-rule-w,var(--bw-separator))]",
     "dot": "inline-flex flex-none items-center justify-center size-timeline-dot rounded-pill border-[length:var(--bw-control)]",
     "icon": "inline-flex text-[length:var(--icon-sm)]",
-    "connector": "grow basis-4 w-[var(--arena-orientation-rule-w,var(--bw-separator))] h-[var(--arena-orientation-rule-h,auto)] bg-edge-separator",
+    "connector": "grow basis-4 w-[var(--arena-orientation-rule-w,var(--bw-separator))] h-[var(--arena-orientation-rule-h,auto)] bg-edge-separator [margin-block-end:calc(var(--gap-items)*-1*var(--arena-orientation-join-block,1))] [margin-inline-end:calc(var(--gap-items)*-1*var(--arena-orientation-join-inline,0))]",
     "content": "flex flex-col min-w-0 grow basis-[var(--arena-orientation-rule-w,var(--bw-separator))]",
     "title": "font-body text-ctl font-bold text-ink-heading",
     "description": "font-body text-ctl-sm text-ink-body/(--level-ink-body)",

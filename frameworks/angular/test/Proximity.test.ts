@@ -31,6 +31,7 @@ import { ArenaSkeleton } from '../components/display/arena-skeleton/ArenaSkeleto
 import { ArenaCalendar } from '../components/display/arena-calendar/ArenaCalendar';
 import { ArenaTag } from '../components/display/arena-tag/ArenaTag';
 import { ArenaPinInput } from '../components/forms/arena-pin-input/ArenaPinInput';
+import { ArenaTimeline } from '../components/display/arena-timeline/ArenaTimeline';
 import { ArenaFooter } from '../ProjectionMarkers';
 import { LIB } from './Compliance';
 
@@ -88,6 +89,10 @@ const TEMPLATES: Record<string, string> = {
   'skeleton-radius-is-read-by-block-only': '<div style="--arena-skeleton-radius: 12px"><arena-skeleton class="arena-skeleton-line" /></div>',
   'day-head-clears-the-comfortable-row': '<arena-calendar view="week" anchorDate="2025-03-03" dayInteractive />',
   'pin-input-root-shrinks': '<arena-pin-input label="Code" />',
+  'timeline-connector-reaches-next-dot': '<arena-timeline label="Order" [items]="[{ title: \'Placed\' }, { title: \'Shipped\' }]" />',
+  'timeline-connector-reaches-next-dot-comfortable': '<arena-timeline label="Order" [items]="[{ title: \'Placed\' }, { title: \'Shipped\' }]" />',
+  'timeline-connector-horizontal': '<arena-timeline label="Order" [items]="[{ title: \'Placed\' }, { title: \'Shipped\' }]" />',
+  'timeline-connector-horizontal-keeps-block-margin': '<arena-timeline label="Order" [items]="[{ title: \'Placed\' }, { title: \'Shipped\' }]" />',
 };
 
 const BARE = new Set(['meaning-wins-over-accent', 'accent-stops-at-the-card-body', 'small-badge-compacts-itself', 'small-badge-tightens-its-block', 'small-badge-tightens-its-ends']);
@@ -116,6 +121,10 @@ const SUBJECT: Record<string, { part: string; index: number }> = {
   'skeleton-radius-is-read-by-block-only': { part: 'skeleton', index: 0 },
   'day-head-clears-the-comfortable-row': { part: 'calendar.day-head', index: 0 },
   'pin-input-root-shrinks': { part: 'pin-input', index: 0 },
+  'timeline-connector-reaches-next-dot': { part: 'timeline.connector', index: 0 },
+  'timeline-connector-reaches-next-dot-comfortable': { part: 'timeline.connector', index: 0 },
+  'timeline-connector-horizontal': { part: 'timeline.connector', index: 0 },
+  'timeline-connector-horizontal-keeps-block-margin': { part: 'timeline.connector', index: 0 },
 };
 
 const { families, cases } = proximity.readProximity();
@@ -130,7 +139,7 @@ for (const kase of cases) {
     const Host = Component({
       selector: `proximity-${kase.name}-host`,
       standalone: true,
-      imports: [ArenaButton, ArenaTooltip, ArenaMenu, ArenaPopover, ArenaCard, ArenaIconButton, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaFooter, ArenaBadge, ArenaTag, ArenaSheet, ArenaGrid, ArenaScroller, ArenaScrollerItem, ArenaSkeleton, ArenaCalendar, ArenaPinInput],
+      imports: [ArenaButton, ArenaTooltip, ArenaMenu, ArenaPopover, ArenaCard, ArenaIconButton, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaFooter, ArenaBadge, ArenaTag, ArenaSheet, ArenaGrid, ArenaScroller, ArenaScrollerItem, ArenaSkeleton, ArenaCalendar, ArenaPinInput, ArenaTimeline],
       template: BARE.has(kase.name) ? TEMPLATES[kase.name] : `<div class="${kase.container}">${TEMPLATES[kase.name]}</div>`,
     })(class {});
     const fixture = TestBed.createComponent(Host);

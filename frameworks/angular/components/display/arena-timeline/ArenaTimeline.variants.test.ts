@@ -5,6 +5,9 @@ useTestEnvironment();
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { TAILWIND_COMPONENTS } from '../../../test/Compliance';
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import type { ArenaTimelineItem } from '../../../Api.generated';
@@ -103,6 +106,25 @@ test('an empty list draws nothing, and a blank label throws', () => {
   fixture.componentInstance.label = ' ';
   try {
     assert.throws(() => fixture.detectChanges(), (error: Error) => /^ArenaTimeline: `label`/.test(error.message));
+  } finally {
+    fixture.destroy();
+  }
+});
+
+test('the rail has no gap of its own and the connector reaches the next dot across the items gap, in both orientations', () => {
+  const source = JSON.parse(readFileSync(join(TAILWIND_COMPONENTS, 'display/arena-timeline/ArenaTimeline.manifest.json'), 'utf8')) as { slots: Record<string, string> };
+  const rail = source.slots['rail']!.split(/\s+/);
+  assert.ok(rail.includes('gap-0'), source.slots['rail']);
+  assert.ok(!rail.includes('gap-inline'), source.slots['rail']);
+  const connector = source.slots['connector']!.split(/\s+/);
+  assert.ok(connector.includes('[margin-block-end:calc(var(--gap-items)*-1*var(--arena-orientation-join-block,1))]'), source.slots['connector']);
+  assert.ok(connector.includes('[margin-inline-end:calc(var(--gap-items)*-1*var(--arena-orientation-join-inline,0))]'), source.slots['connector']);
+});
+
+test('a one-milestone timeline draws no connector', () => {
+  const { fixture, root } = render({ items: [{ title: 'Placed' }] });
+  try {
+    assertNoNode(root.querySelector('[data-arena-part="timeline.connector"]'), 'the only milestone has nothing to join');
   } finally {
     fixture.destroy();
   }

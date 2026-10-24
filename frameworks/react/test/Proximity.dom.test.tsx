@@ -6,7 +6,7 @@ import test, { afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import React from 'react';
 import { mount, cleanup } from './Harness.tsx';
-import { ArenaButton, ArenaIconButton, ArenaTooltip, ArenaMenu, ArenaPopover, ArenaCard, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaBadge, ArenaTag, ArenaSheet, ArenaGrid, ArenaScroller, ArenaScrollerItem, ArenaSkeleton, ArenaCalendar, ArenaPinInput } from '../Index.generated.ts';
+import { ArenaButton, ArenaIconButton, ArenaTooltip, ArenaMenu, ArenaPopover, ArenaCard, ArenaDialog, ArenaAppLogo, ArenaPeopleList, ArenaPersonRow, ArenaBadge, ArenaTag, ArenaSheet, ArenaGrid, ArenaScroller, ArenaScrollerItem, ArenaSkeleton, ArenaCalendar, ArenaPinInput, ArenaTimeline } from '../Index.generated.ts';
 import { readProximity, normalize, vocabularyClasses } from '../../../scripts/lib/arena/proximity.ts';
 
 afterEach(cleanup);
@@ -67,6 +67,10 @@ const COMPOSITIONS: Record<string, () => React.ReactElement> = {
   'skeleton-radius-is-read-by-block-only': () => <div style={{ '--arena-skeleton-radius': '12px' } as React.CSSProperties}><ArenaSkeleton className="arena-skeleton-line" /></div>,
   'day-head-clears-the-comfortable-row': () => <ArenaCalendar view="week" anchorDate="2025-03-03" dayInteractive />,
   'pin-input-root-shrinks': () => <ArenaPinInput label="Code" />,
+  'timeline-connector-reaches-next-dot': () => <ArenaTimeline label="Order" items={[{ title: 'Placed' }, { title: 'Shipped' }]} />,
+  'timeline-connector-reaches-next-dot-comfortable': () => <ArenaTimeline label="Order" items={[{ title: 'Placed' }, { title: 'Shipped' }]} />,
+  'timeline-connector-horizontal': () => <ArenaTimeline label="Order" items={[{ title: 'Placed' }, { title: 'Shipped' }]} />,
+  'timeline-connector-horizontal-keeps-block-margin': () => <ArenaTimeline label="Order" items={[{ title: 'Placed' }, { title: 'Shipped' }]} />,
 };
 
 const BARE = new Set(['meaning-wins-over-accent', 'accent-stops-at-the-card-body', 'small-badge-compacts-itself', 'small-badge-tightens-its-block', 'small-badge-tightens-its-ends']);
@@ -95,6 +99,10 @@ const SUBJECT: Record<string, { part: string; at: number }> = {
   'skeleton-radius-is-read-by-block-only': { part: 'skeleton', at: 0 },
   'day-head-clears-the-comfortable-row': { part: 'calendar.day-head', at: 0 },
   'pin-input-root-shrinks': { part: 'pin-input', at: 0 },
+  'timeline-connector-reaches-next-dot': { part: 'timeline.connector', at: 0 },
+  'timeline-connector-reaches-next-dot-comfortable': { part: 'timeline.connector', at: 0 },
+  'timeline-connector-horizontal': { part: 'timeline.connector', at: 0 },
+  'timeline-connector-horizontal-keeps-block-margin': { part: 'timeline.connector', at: 0 },
 };
 
 const { families, cases } = readProximity();

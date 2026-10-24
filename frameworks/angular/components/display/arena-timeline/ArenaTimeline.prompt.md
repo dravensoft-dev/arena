@@ -43,7 +43,7 @@ Arena timeline, the stages one thing passes through, in order and joined by a li
 **By hand, in real Chromium**: run `bun run demos` and open
 `/frameworks/angular/components/display/arena-timeline/ArenaTimeline.demo.generated.html`:
 - A title long enough to wrap keeps its dot level with the first line.
-- At base density and under `arena-comfortable`, each connector runs between the centres of two dots.
+- The connector joins each dot to the next, edge to edge, at the base density and under `arena-comfortable`, in both orientations.
 - Each toned dot stays readable in both themes by its glyph, without its colour.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->

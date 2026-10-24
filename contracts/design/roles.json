@@ -273,7 +273,7 @@
   },
   "timeline-dot": {
     "$type": "dimension",
-    "$description": "The diameter of an ArenaTimeline milestone's dot, which holds the glyph that says the milestone's tone. Born at 20px, the smallest circle a 16px glyph sits in with air around it, and defaulting to sp.5.\n\nA role rather than a fixed step, because a plugin that opens its rows up or sets its glyphs larger moves the dot with them, and the connector joins the dots' centres at whatever size they take.",
+    "$description": "The diameter of an ArenaTimeline milestone's dot, which holds the glyph that says the milestone's tone. Born at 20px, the smallest circle a 16px glyph sits in with air around it, and defaulting to sp.5.\n\nA role rather than a fixed step, because a plugin that opens its rows up or sets its glyphs larger moves the dot with them, and the connector joins the dots at whatever size they take.",
     "$extensions": {
       "com.dravensoft.arena": {
         "default": "{sp.5}"

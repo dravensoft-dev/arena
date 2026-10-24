@@ -4,6 +4,7 @@ import { renderIcons, symbols } from '../../../test/IconsHarness.tsx';
 import React from 'react';
 import type { ArenaTimelineItem } from '../../../Api.generated';
 import { ArenaTimeline, type ArenaTimelineProps } from './ArenaTimeline.tsx';
+import tailwind from './ArenaTimeline.manifest.generated.ts';
 
 const ORDER: readonly ArenaTimelineItem[] = [
   { id: 'placed', title: 'Order placed', time: 'Mar 3', dateTime: '2026-03-03' },
@@ -57,4 +58,17 @@ test('a connector joins each milestone to the next, and the last has none', () =
 test('an empty list draws nothing, and a blank label throws', () => {
   assert.equal(draw({ items: [] }), '');
   assert.throws(() => draw({ label: ' ' }), /^Error: ArenaTimeline: `label`/);
+});
+
+test('the rail has no gap of its own and the connector reaches the next dot across the items gap, in both orientations', () => {
+  const rail = tailwind.slots.rail.split(/\s+/);
+  assert.ok(rail.includes('gap-0'), tailwind.slots.rail);
+  assert.ok(!rail.includes('gap-inline'), tailwind.slots.rail);
+  const connector = tailwind.slots.connector.split(/\s+/);
+  assert.ok(connector.includes('[margin-block-end:calc(var(--gap-items)*-1*var(--arena-orientation-join-block,1))]'), tailwind.slots.connector);
+  assert.ok(connector.includes('[margin-inline-end:calc(var(--gap-items)*-1*var(--arena-orientation-join-inline,0))]'), tailwind.slots.connector);
+});
+
+test('a one-milestone timeline draws no connector', () => {
+  assert.equal(draw({ items: [{ title: 'Placed' }] }).match(/timeline\.connector/g), null);
 });
