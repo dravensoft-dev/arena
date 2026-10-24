@@ -140,6 +140,19 @@ test('ArenaTableRow: a click on a cell of an interactive row reaches the documen
   assert.equal(n, 1);
 });
 
+test('ArenaTableRow: a click on a disabled interactive row reaches the document and activates nothing', () => {
+  let n = 0;
+  const root = mount(
+    <ArenaTable label="Services" responsive={false} columns={[{ header: 'Service' }, { header: 'Status' }]}>
+      <ArenaTableRow interactive disabled onActivate={() => { n += 1; }}>
+        <ArenaTableCell>checkout</ArenaTableCell><ArenaTableCell>Healthy</ArenaTableCell>
+      </ArenaTableRow>
+    </ArenaTable>,
+  );
+  assert.equal(heardByDocument(root.querySelector('td')!, click()), 1);
+  assert.equal(n, 0);
+});
+
 test('ArenaTableRow: Enter on an interactive card-layout row reaches the document as a keydown (N3)', () => {
   let n = 0;
   const root = mount(
@@ -174,6 +187,13 @@ test('ArenaCalendarEvent: a click on the body of a chip with a panel stops at th
   const root = mount(chip(() => { n += 1; }, { actionsEnabled: true, actions: <button type="button">Delete</button> }));
   assert.equal(heardByDocument(buttonNamed(root, /^Standup,/), click()), 0);
   assert.equal(n, 1);
+});
+
+test('ArenaCalendarEvent: a click on a non-interactive chip stops at the chip and activates nothing (D2)', () => {
+  let n = 0;
+  const root = mount(chip(() => { n += 1; }, { interactive: false }));
+  assert.equal(heardByDocument(part(root, 'calendar.chip'), click()), 0);
+  assert.equal(n, 0);
 });
 
 test('ArenaCalendarEvent: a press on the kebab opens the panel and does not activate the chip', () => {

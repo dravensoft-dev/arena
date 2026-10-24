@@ -193,7 +193,7 @@ test('ArenaSplitButton: a click on the caret reaches the document and activates 
   imports: [ArenaTable, ArenaTableRow, ArenaTableCell],
   template: `
     <arena-table label="Deployments" [columns]="columns" [responsive]="responsive">
-      <tr arena-table-row [interactive]="true" (activate)="ran = ran + 1">
+      <tr arena-table-row [interactive]="true" [disabled]="disabled" (activate)="ran = ran + 1">
         <td arena-table-cell>checkout-api</td>
         <td arena-table-cell>Healthy</td>
       </tr>
@@ -203,12 +203,18 @@ test('ArenaSplitButton: a click on the caret reaches the document and activates 
 class RowHost {
   readonly columns = [{ header: 'Service' }, { header: 'Status' }];
   responsive = false;
+  disabled = false;
   ran = 0;
 }
 
 test('ArenaTableRow: a click on a cell of an interactive row reaches the document and activates once', async () => {
   const r = await dispatchOn(RowHost, {}, 'click', (el) => el.querySelector('tr[arena-table-row] td') as HTMLElement);
   assert.deepEqual([r.heard, r.ran], [1, 1]);
+});
+
+test('ArenaTableRow: a click on a disabled interactive row reaches the document and activates nothing', async () => {
+  const r = await dispatchOn(RowHost, { disabled: true }, 'click', (el) => el.querySelector('tr[arena-table-row] td') as HTMLElement);
+  assert.deepEqual([r.heard, r.ran], [1, 0]);
 });
 
 function stubResize(width: number): () => void {
@@ -246,7 +252,7 @@ test('ArenaTableRow: Enter on an interactive card-layout row reaches the documen
   template: `
     <arena-calendar timeZone="UTC" anchorDate="2027-03-15" view="day" dayStart="09:00" dayEnd="11:00">
       <arena-calendar-event id="a" title="Standup" start="2027-03-15T09:00:00Z" end="2027-03-15T10:00:00Z"
-                            [colorId]="1" [interactive]="true" [actionsEnabled]="actions()" (activate)="ran = ran + 1">
+                            [colorId]="1" [interactive]="interactive" [actionsEnabled]="actions()" (activate)="ran = ran + 1">
         <button actions type="button">Delete</button>
       </arena-calendar-event>
     </arena-calendar>
@@ -254,6 +260,7 @@ test('ArenaTableRow: Enter on an interactive card-layout row reaches the documen
 })
 class ChipHost {
   readonly actions = signal(false);
+  interactive = true;
   ran = 0;
 }
 
@@ -269,6 +276,11 @@ test('ArenaCalendarEvent: a click on the body of a chip with a panel stops at th
     return body;
   }, (fixture) => { fixture.componentInstance.actions.set(true); fixture.detectChanges(); });
   assert.deepEqual([r.heard, r.ran], [0, 1]);
+});
+
+test('ArenaCalendarEvent: a click on a non-interactive chip stops at the chip and activates nothing (D2)', async () => {
+  const r = await dispatchOn(ChipHost, { interactive: false }, 'click', (el) => el.querySelector('[id^="arena-calendar-event-"]') as HTMLElement);
+  assert.deepEqual([r.heard, r.ran], [0, 0]);
 });
 
 test('ArenaCalendarEvent: a press on the kebab opens the panel and does not activate the chip', async () => {
