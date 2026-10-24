@@ -52,7 +52,7 @@ own name.
   outside cannot see it, ignores the modifiers and adds a second tab stop.
 - **Don't** exceed five destinations. Every column takes an equal share, and a sixth makes the labels
   truncate before anyone has read them.
-- **Don't** reach for it above a phone width. The bar covers the bottom of the viewport, and a wide screen has a sidebar's room. Put `md:hidden` on an element of your own around the bar and `max-md:hidden` on one around the side nav. Or branch on `useArenaViewportBelow('md')`. A project that compiles none of these utilities writes the same pair as `@media (width < 768px)` and `@media (width >= 768px)` on those two elements.
+- **Don't** reach for it above a phone width. The bar covers the bottom of the viewport, and a wide screen has a sidebar's room. Put `md:hidden` on an element of your own around the bar and `max-md:hidden` on one around the side nav. A branch on `useArenaViewportBelow('md')` gives the same split in code. A project that compiles none of these utilities writes the same pair as `@media (width < 768px)` and `@media (width >= 768px)` on those two elements.
 
 <!-- @rules GENERATED for every prompt from one source. Edit it there, not here. -->
 
