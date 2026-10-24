@@ -341,27 +341,6 @@ test('ArenaCheckboxGroup: a box\'s change reaches the document and the group\'s 
 });
 
 @Component({
-  selector: 'nr-ownboxhost',
-  standalone: true,
-  imports: [ArenaCheckboxGroup, ArenaCheckbox],
-  template: `<arena-checkbox-group ariaLabel="Alerts" (valueChange)="vals.push($event)">
-    <arena-checkbox value="a" label="A" (valueChange)="own.push($event)" />
-  </arena-checkbox-group>`,
-})
-class OwnBoxHost { vals: unknown[] = []; own: boolean[] = []; }
-
-test('ArenaCheckboxGroup: a box keeps its own onValueChange and the group reports the set (N1)', async () => {
-  let own: boolean[] = [];
-  const r = await changeScene(OwnBoxHost, (el, fixture) => {
-    query<HTMLInputElement>(el, 'input[type=checkbox]').click();
-    own = fixture.componentInstance.own;
-  });
-  assert.equal(r.heard, 1);
-  assert.deepEqual(own, [true]);
-  assert.deepEqual(r.vals, [{ values: ['a'] }]);
-});
-
-@Component({
   selector: 'nr-radiogrouphost',
   standalone: true,
   imports: [ArenaRadioGroup, ArenaRadio],
@@ -555,4 +534,25 @@ test('ArenaSlider: valueChange reports a move and no native change exists to sto
   assert.equal(r.heard, 0);
   assert.deepEqual(r.vals, [21]);
   assert.equal(typeof r.vals[0], 'number');
+});
+
+@Component({
+  selector: 'nr-ownboxhost',
+  standalone: true,
+  imports: [ArenaCheckboxGroup, ArenaCheckbox],
+  template: `<arena-checkbox-group ariaLabel="Alerts" (valueChange)="vals.push($event)">
+    <arena-checkbox value="a" label="A" (valueChange)="own.push($event)" />
+  </arena-checkbox-group>`,
+})
+class OwnBoxHost { vals: unknown[] = []; own: boolean[] = []; }
+
+test('ArenaCheckboxGroup: a box keeps its own onValueChange and the group reports the set (N1)', async () => {
+  let own: boolean[] = [];
+  const r = await changeScene(OwnBoxHost, (el, fixture) => {
+    query<HTMLInputElement>(el, 'input[type=checkbox]').click();
+    own = fixture.componentInstance.own;
+  });
+  assert.equal(r.heard, 1);
+  assert.deepEqual(own, [true]);
+  assert.deepEqual(r.vals, [{ values: ['a'] }]);
 });
