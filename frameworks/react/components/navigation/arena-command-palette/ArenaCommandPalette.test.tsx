@@ -55,6 +55,20 @@ test('the escape cap and every shortcut are kbd elements, printed as given', () 
 
 test('the empty line sits in the panel after the listbox, not inside it', () => {
   const html = renderIcons(<ArenaCommandPalette open commands={[]} />);
-  assert.match(html, /role="listbox"[^>]*><\/div><div[^>]*data-arena-part="command-palette.empty"/,
-    'the empty line is not the listbox\'s next sibling');
+  const voids = new Set(['input', 'br', 'img', 'hr', 'meta', 'link']);
+  const stack: string[] = [];
+  let parentOfEmpty: string | null = null;
+  let emptyInListbox = false;
+  for (const m of html.matchAll(/<(\/?)([a-zA-Z][\w-]*)([^>]*)>/g)) {
+    const [, close, tag, attrs] = m;
+    if (close) { stack.pop(); continue; }
+    if (/data-arena-part="command-palette\.empty"/.test(attrs)) {
+      parentOfEmpty = stack[stack.length - 1] ?? null;
+      emptyInListbox = stack.some((open) => /role="listbox"/.test(open));
+    }
+    if (!attrs.endsWith('/') && !voids.has(tag.toLowerCase())) stack.push(attrs);
+  }
+  assert.ok(parentOfEmpty !== null, 'no empty line was drawn');
+  assert.match(parentOfEmpty, /data-arena-part="command-palette\.panel"/, 'the empty line\'s parent is not the panel');
+  assert.equal(emptyInListbox, false, 'the listbox holds the empty line');
 });
