@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { existsSync, mkdirSync, readFileSync, statSync, utimesSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { run, writeOutputs } from './command-build.ts';
-import { THEME_SHEET, PACKAGE_SHEET, PLUGIN_SHEET, SPRITE_MODULE, SPRITE_TYPES } from './sheets.ts';
+import { THEME_SHEET, PACKAGE_SHEET, PLUGIN_SHEET, SPRITE_MODULE, SPRITE_SOURCE, SPRITE_TYPES } from './sheets.ts';
 import { RETIRED_ICONS_SHEET, spriteFilesIn } from './sources.ts';
 import { captureIo, phosphor, project, readable, whileHeld, removeFixtures, packageStub } from './cli-fixtures.ts';
 
@@ -45,6 +45,20 @@ test('a first build writes the sheets, the sprite and its module pair (plugin ca
   }
   assert.equal(existsSync(join(root, 'src', RETIRED_ICONS_SHEET)), false);
   assert.equal(out.length, 6);
+});
+
+test('an Angular build writes the icon list as TypeScript and removes a stale .js and .d.ts', async () => {
+  const { core } = phosphor();
+  const root = project();
+  for (const name of [SPRITE_MODULE, SPRITE_TYPES]) writeFileSync(join(root, 'src', name), 'old');
+  const angular = { ...environment(core), packageName: '@dravensoft/arena-angular' };
+  const { io, out } = captureIo(root, angular);
+  assert.equal(await run(flags(root), io), 0);
+  assert.equal(readFileSync(join(root, 'src', SPRITE_SOURCE), 'utf8'), `export const ARENA_SPRITE = '${spriteName(root)}';\n`);
+  for (const name of [SPRITE_MODULE, SPRITE_TYPES]) {
+    assert.equal(existsSync(join(root, 'src', name)), false);
+    assert.ok(out.includes(`arena build: removed ${join(root, 'src', name)}, a file this config does not produce`));
+  }
 });
 
 test('a second build with nothing changed writes nothing, keeps mtimes, and prints "no sheet changed"', async () => {

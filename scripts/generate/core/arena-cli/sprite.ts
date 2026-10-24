@@ -1,10 +1,11 @@
 /* The Phosphor sprite: one <symbol> per glyph a project draws, read from @phosphor-icons/core, and
- * the content-hashed name the file is written under. Imports only node built-ins, because the CLI
+ * the content-hashed name the file is written under. Imports node built-ins and the CLI's own sheet names, because the CLI
  * ships as bin/*.mjs and carries nothing from outside it. The output is sorted by symbol id and
  * holds no timestamp, so the same glyphs give the same bytes. */
 
 import { createHash } from 'node:crypto';
 import { join } from 'node:path';
+import { SPRITE_MODULE, SPRITE_SOURCE, SPRITE_TYPES } from './sheets.ts';
 
 export function symbolId(weight: string, name: string) {
   return `ph-${weight}-${name}`;
@@ -44,9 +45,13 @@ export function contentName(stem: string, ext: string, bytes: string | Uint8Arra
   return `${stem}-${createHash('sha256').update(bytes).digest('hex').slice(0, 10)}.${ext}`;
 }
 
-export function spriteModule(file: string) {
-  return {
-    js: `export const ARENA_SPRITE = '${file}';\n`,
-    dts: 'export declare const ARENA_SPRITE: string;\n',
-  };
+export const writesTypeScript = (packageName: string) => packageName === '@dravensoft/arena-angular';
+
+export function spriteModuleFiles(file: string, packageName: string) {
+  const content = `export const ARENA_SPRITE = '${file}';\n`;
+  if (writesTypeScript(packageName)) return [{ name: SPRITE_SOURCE, content }];
+  return [
+    { name: SPRITE_MODULE, content },
+    { name: SPRITE_TYPES, content: 'export declare const ARENA_SPRITE: string;\n' },
+  ];
 }

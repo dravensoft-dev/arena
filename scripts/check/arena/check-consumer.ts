@@ -24,7 +24,7 @@ import { isForeignTree } from '../../lib/arena/foreign-trees.ts';
 import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { PACKAGES, distDir, refuseUnassembled as refuseUnassembledPackages } from './check-packages.ts';
 import {
-  THEME_SHEET, PACKAGE_SHEET, PLUGIN_SHEET, RUNTIME_DATA, PLUGIN_CSS, PLUGIN_LAYER, PLUGIN_LAYER_ORDER, SPRITE_MODULE, SPRITE_TYPES,
+  THEME_SHEET, PACKAGE_SHEET, PLUGIN_SHEET, RUNTIME_DATA, PLUGIN_CSS, PLUGIN_LAYER, PLUGIN_LAYER_ORDER, SPRITE_MODULE, SPRITE_TYPES, SPRITE_SOURCE,
 } from '../../generate/core/arena-cli/sheets.ts';
 import { RETIRED_ICONS_SHEET, spriteFilesIn } from '../../generate/core/arena-cli/sources.ts';
 import { DEFAULT_PLUGIN, PLUGIN_TOKENS, pluginName } from '../../generate/core/arena-cli/theme-css.ts';
@@ -460,6 +460,8 @@ function heldAgainstClass(
   return problems;
 }
 
+export const spriteModuleNames = (layer: string): string[] => layer === 'angular' ? [SPRITE_SOURCE] : [SPRITE_MODULE, SPRITE_TYPES];
+
 export const COMMAND_FLAGS: Record<string, string[]> = {
   build: ['--src', 'src', '--out', 'out'],
   check: ['--src', 'src'],
@@ -487,7 +489,7 @@ export function runCli(
     theme: read(THEME_SHEET),
     pkg: read(PACKAGE_SHEET),
     sprites: Object.fromEntries(spriteFilesIn(join(dir, 'out')).map((name) => [name, read(name) ?? ''])),
-    module: read(SPRITE_MODULE),
+    module: read(spriteModuleNames(layer)[0]!),
     retired: existsSync(join(dir, 'out', RETIRED_ICONS_SHEET)),
     plugin: read(PLUGIN_SHEET),
     runtime: read(RUNTIME_DATA),
@@ -580,9 +582,10 @@ export function subcommandProblems(layer: string, base = root, dirs: string[] = 
   run(plugged, ['build']);
   writeFileSync(join(plugged, 'out', 'keep.txt'), 'not a sheet\n');
   const cutFonts = Object.keys(cutFontsIn(join(plugged, 'out')));
-  const sheets = [THEME_SHEET, PACKAGE_SHEET, PLUGIN_SHEET, SPRITE_MODULE, SPRITE_TYPES, ...spriteFilesIn(join(plugged, 'out')), ...cutFonts];
+  const sheets = [THEME_SHEET, PACKAGE_SHEET, PLUGIN_SHEET, ...spriteModuleNames(layer), ...spriteFilesIn(join(plugged, 'out')), ...cutFonts];
   const absent = sheets.filter((name) => !existsSync(join(plugged, 'out', name)));
-  if (sheets.length - cutFonts.length !== 6) problems.push(`${layer}: the build the clean case starts from wrote ${sheets.length - cutFonts.length - 5} sprite file(s) where it promises one`);
+  const fixed = 3 + spriteModuleNames(layer).length;
+  if (sheets.length - cutFonts.length !== fixed + 1) problems.push(`${layer}: the build the clean case starts from wrote ${sheets.length - cutFonts.length - fixed} sprite file(s) where it promises one`);
   if (absent.length > 0) problems.push(`${layer}: the build the clean case starts from wrote no ${absent.join(', ')}`);
   const beforeClean = snapshot(plugged);
   problems.push(...exitProblem(layer, 'arena clean', run(plugged, ['clean']), 0));
@@ -718,7 +721,7 @@ export function spriteProblems(layer: string, run: CliRun) {
       + 'with no member for it, so a sprite without that symbol loses the icon of the item the user just pressed');
   }
   if (run.module === null) {
-    problems.push(`${layer}: one invocation wrote no ${SPRITE_MODULE}, so the app has no name to serve the sprite under`);
+    problems.push(`${layer}: one invocation wrote no ${spriteModuleNames(layer)[0]}, so the app has no name to serve the sprite under`);
   } else {
     const named = /ARENA_SPRITE\s*=\s*'([^']+)'/.exec(run.module)?.[1] ?? '';
     if (named !== name) {

@@ -20,11 +20,11 @@ import { emptyTerm, iconMemberGlyphs, resultTerms, tagEnd } from './audit.ts';
 import { report } from './reports.ts';
 import type { Report } from './reports.ts';
 import {
-  THEME_SHEET, PACKAGE_SHEET, PLUGIN_SHEET, RUNTIME_DATA, PLUGIN_LAYER, ICON_MANIFEST, SPRITE_MODULE, SPRITE_TYPES, SPRITE_STEM,
+  THEME_SHEET, PACKAGE_SHEET, PLUGIN_SHEET, RUNTIME_DATA, PLUGIN_LAYER, ICON_MANIFEST, SPRITE_STEM,
   iconManifest, pluginCss, pluginSheets, readPlugins,
 } from './sheets.ts';
 import { OUTPUT_SHEETS, fontFilesIn, missingSource, sourceFiles, spriteFilesIn, writtenFontStems } from './sources.ts';
-import { contentName, glyphFile, spriteModule, spriteSvg } from './sprite.ts';
+import { contentName, glyphFile, spriteModuleFiles, spriteSvg } from './sprite.ts';
 import { cutFonts, importedSheets, loadDecoder, loadFontTools } from './font-files.ts';
 import type { FontCuts, FontToolRoots } from './font-files.ts';
 import { fontToolRoots } from './host.ts';
@@ -302,7 +302,7 @@ export function spriteFiles(options: PlanOptions, { arena, phosphor, map = null,
   }
 
   const name = contentName(SPRITE_STEM, 'svg', svg);
-  const module = spriteModule(name);
+  const modules = spriteModuleFiles(name, packageName);
   const empty = kept === 0;
   const summary = empty
     ? `0 symbol(s), no weight drawn by your sources or by the Arena components they draw, ${svg.length} bytes`
@@ -315,8 +315,9 @@ export function spriteFiles(options: PlanOptions, { arena, phosphor, map = null,
     fatal: [],
     files: [
       { name, path: join(options.out, name), content: svg, summary },
-      { name: SPRITE_MODULE, path: join(options.out, SPRITE_MODULE), content: module.js, summary: `exports ${name}` },
-      { name: SPRITE_TYPES, path: join(options.out, SPRITE_TYPES), content: module.dts, summary: `${module.dts.length} bytes` },
+      ...modules.map((one, at) => ({
+        name: one.name, path: join(options.out, one.name), content: one.content, summary: at === 0 ? `exports ${name}` : `${one.content.length} bytes`,
+      })),
     ],
   };
 }

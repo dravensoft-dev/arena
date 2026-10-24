@@ -136,6 +136,10 @@ export const CONSUMER_OWN_OUTPUT = new Map([
    'the module the CONSUMER generates, in their own project, by the same run of arena build, exporting the file '
    + 'name of the Phosphor sprite it wrote beside it. Same reading as arena.generated.css above: the infix is '
    + 'theirs and not this repository\'s, and the name is the one the npm page tells them to import.'],
+  ['arena.icons.generated.ts',
+   'the module the Angular package\'s arena build writes in the CONSUMER\'s project, as TypeScript so that every Angular '
+   + 'compiler emits it, exporting the file name of the Phosphor sprite. Same reading as arena.icons.generated.js above: '
+   + 'the infix is theirs and not this repository\'s.'],
   ['arena.icons.generated.d.ts',
    'the declaration file written beside arena.icons.generated.js in the CONSUMER\'s project by the same run of '
    + 'arena build. Same reading as arena.generated.css above: the infix is theirs and not this repository\'s.'],

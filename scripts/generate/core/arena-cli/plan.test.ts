@@ -13,7 +13,7 @@ import { loadFontTools } from './font-files.ts';
 import { plan, sheetStates } from './plan.ts';
 import type { SheetOutput } from './plan.ts';
 import { RETIRED_ICONS_SHEET as ICONS_SHEET } from './sources.ts';
-import { THEME_SHEET, PACKAGE_SHEET, PLUGIN_SHEET, RUNTIME_DATA, ICON_MANIFEST, SPRITE_MODULE, SPRITE_TYPES, SPRITE_STEM } from './sheets.ts';
+import { THEME_SHEET, PACKAGE_SHEET, PLUGIN_SHEET, RUNTIME_DATA, ICON_MANIFEST, SPRITE_MODULE, SPRITE_TYPES, SPRITE_SOURCE, SPRITE_STEM } from './sheets.ts';
 import type { ComponentMap } from './components.ts';
 import { auto, hostRoot, MAP, PHOSPHOR_GLYPHS, SHEETS, options, phosphor, project, readable, removeFixtures, packageStub, writeSheets } from './cli-fixtures.ts';
 
@@ -96,6 +96,30 @@ test('outputs are theme, package, plugin, then the sprite and its module pair, e
   assert.match(plugin!.summary, /bytes, wrapped in @layer arena-plugin$/);
   assert.match(icons.content, /<symbol id="ph-bold-bell" /);
   assert.match(icons.summary, /2 symbol\(s\), 1 named by your sources and 0 drawn by Arena's own components, 2 weight\(s\)/);
+  cleanup(root, held);
+});
+
+const ANGULAR = '@dravensoft/arena-angular';
+
+test('the Angular layer outputs the icon list as TypeScript alone, and removes a stale .js and .d.ts as orphans', async () => {
+  const { root: held, core } = phosphor();
+  const root = project();
+  const stale = [SPRITE_MODULE, SPRITE_TYPES];
+  for (const name of stale) writeFileSync(join(root, 'src', name), 'old');
+  const result = await plan(options(root), environment(core, { packageName: ANGULAR }));
+  assert.deepEqual(result.fatal, []);
+  assert.deepEqual(result.outputs.map((one) => one.name), [THEME_SHEET, PACKAGE_SHEET, spriteOf(result)!.name, SPRITE_SOURCE]);
+  assert.equal(result.outputs.find((one) => one.name === SPRITE_SOURCE)!.content, `export const ARENA_SPRITE = '${spriteOf(result)!.name}';\n`);
+  assert.deepEqual([...result.orphans].sort(), [...stale].sort());
+  cleanup(root, held);
+});
+
+test('the React layer treats a stale .ts icon list as an orphan', async () => {
+  const { root: held, core } = phosphor();
+  const root = project();
+  writeFileSync(join(root, 'src', SPRITE_SOURCE), 'old');
+  const result = await plan(options(root), environment(core));
+  assert.deepEqual(result.orphans, [SPRITE_SOURCE]);
   cleanup(root, held);
 });
 

@@ -4,7 +4,7 @@ import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { sourceFiles, OUTPUT_SHEETS, RETIRED_ICONS_SHEET, spriteFilesIn, auditFiles, pluginDirs, missingSource } from './sources.ts';
-import { THEME_SHEET, PACKAGE_SHEET, PLUGIN_SHEET, RUNTIME_DATA, PLUGIN_CSS, SPRITE_MODULE, SPRITE_TYPES } from './sheets.ts';
+import { THEME_SHEET, PACKAGE_SHEET, PLUGIN_SHEET, RUNTIME_DATA, PLUGIN_CSS, SPRITE_MODULE, SPRITE_SOURCE, SPRITE_TYPES } from './sheets.ts';
 import { options, project, readable, removeFixtures } from './cli-fixtures.ts';
 
 after(removeFixtures);
@@ -32,7 +32,7 @@ test('a consumer file that merely ends in .generated.css is still a source, sinc
 
 test('the skipped names are exactly what the command writes, derived rather than restated', () => {
   assert.deepEqual([...OUTPUT_SHEETS].sort(),
-    [RETIRED_ICONS_SHEET, PACKAGE_SHEET, PLUGIN_SHEET, RUNTIME_DATA, SPRITE_MODULE, SPRITE_TYPES, THEME_SHEET].sort());
+    [RETIRED_ICONS_SHEET, PACKAGE_SHEET, PLUGIN_SHEET, RUNTIME_DATA, SPRITE_MODULE, SPRITE_SOURCE, SPRITE_TYPES, THEME_SHEET].sort());
 });
 
 test('spriteFilesIn names the content-hashed sprites in a directory and nothing a project named itself', () => {

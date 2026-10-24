@@ -17,6 +17,7 @@ export const PACKAGE_SHEET = 'arena.package.generated.css';
 export const SPRITE_STEM = 'icons';
 export const SPRITE_MODULE = 'arena.icons.generated.js';
 export const SPRITE_TYPES = 'arena.icons.generated.d.ts';
+export const SPRITE_SOURCE = 'arena.icons.generated.ts';
 export const PLUGIN_SHEET = 'plugin.generated.css';
 export const RUNTIME_DATA = 'arena.runtime.generated.json';
 export const PLUGIN_CSS = 'plugin.css';

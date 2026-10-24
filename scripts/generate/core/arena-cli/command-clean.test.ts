@@ -28,6 +28,14 @@ test('removes exactly the output files in --out and leaves a sibling file', () =
   for (const name of OUTPUT_SHEETS) assert.ok(out.includes(`arena clean: removed ${join(dir, name)}`));
 });
 
+test('removes all three icon list names, whichever layer wrote them', () => {
+  const dir = root();
+  for (const name of ['arena.icons.generated.js', 'arena.icons.generated.d.ts', 'arena.icons.generated.ts']) writeFileSync(join(dir, name), 'x');
+  const { io } = captureIo(dir);
+  assert.equal(run(['--out', '.'], io), 0);
+  assert.deepEqual(readdirSync(dir), []);
+});
+
 test('removes the content-hashed sprite too, and a svg a project named itself stays', () => {
   const dir = root();
   writeFileSync(join(dir, 'icons-0123456789.svg'), '<svg/>');
