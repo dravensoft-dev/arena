@@ -7,7 +7,7 @@
 
 import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
@@ -28,7 +28,6 @@ import { toPosix } from '../../utils/posix-path.ts';
 import { LAYER_ORDER } from '../../lib/tailwind/component-sheets.ts';
 import { tailwindThemeSheet } from '../../lib/tailwind/theme-sheet.ts';
 import { compileEntry } from '../../lib/tailwind/tailwind-compile.ts';
-import { readFileSync } from 'node:fs';
 
 const made: string[] = [];
 const track = (dir: string) => { made.push(dir); return dir; };

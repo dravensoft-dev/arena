@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
+import { unlayeredColors } from '../../lib/core/colors-fixtures.ts';
 import {
   blocksIn, schemeOf, invertOf, vocabularyProblems, declaredProblems, strayProblems, zeroProblems,
   scopeOf, collect,
@@ -100,11 +101,9 @@ test('a selector list answers a theme through any one of its selectors', () => {
   assert.deepEqual(strayProblems(blocks, THEMES), []);
 });
 
-const unlayered = (css: string) => css.replace(/@layer\s+[^{};]*;\s*/g, '').replace(/@layer arena-defaults\s*\{([\s\S]*)\}\s*$/, '$1');
-
 test('colors.css held in the defaults layer keeps both polarity blocks under their own selectors, as its unlayered body does', () => {
   const css = readFileSync(join(repoRoot, 'contracts/design/colors.css'), 'utf8');
-  const body = unlayered(css);
+  const body = unlayeredColors(css);
   assert.ok(css.includes('@layer arena-defaults {') && !body.includes('@layer'), 'the body is the layer\'s contents');
   const blocks = blocksIn(css);
   assert.deepEqual(blocks, blocksIn(body));

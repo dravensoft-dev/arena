@@ -9,6 +9,7 @@ import {
 import { paletteBlock } from '../../lib/core/palette-read.ts';
 import { resolvedFor } from './check-style-plugin.ts';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
+import { unlayeredColors } from '../../lib/core/colors-fixtures.ts';
 import {
   derivedLevels, levelDefaults, levelReports, levelsIn, raisedReports, STATUS_HUES,
 } from '../../generate/core/arena-cli/levels.ts';
@@ -98,11 +99,9 @@ test('a percentage inside a var() fallback is not a literal the alias holds', ()
   assert.deepEqual(literalAliases('--x:color-mix(in oklab,var(--c) var(--level-x,62%),transparent);--y:color-mix(in oklab,var(--c) 40%,transparent);'), ['y']);
 });
 
-const unlayered = (css: string) => css.replace(/@layer\s+[^{};]*;\s*/g, '').replace(/@layer arena-defaults\s*\{([\s\S]*)\}\s*$/, '$1');
-
 test('colors.css held in the defaults layer reads as the same alias block as its unlayered body', () => {
   const css = readFileSync(join(repoRoot, 'contracts/design/colors.css'), 'utf8');
-  const body = unlayered(css);
+  const body = unlayeredColors(css);
   assert.ok(css.includes('@layer arena-defaults {') && !body.includes('@layer'), 'the body is the layer\'s contents');
   assert.equal(structureOf(css, SELECTORS), structureOf(body, SELECTORS));
   assert.ok(structureOf(css, SELECTORS).includes('--text-strong'));
