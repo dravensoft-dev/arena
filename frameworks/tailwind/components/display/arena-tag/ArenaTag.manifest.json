@@ -11,7 +11,7 @@
     }
   ],
   "slots": {
-    "root": "inline-flex items-center gap-marker rounded-marker border-[length:var(--bw-marker)] px-2 py-0.5 text-ctl-xs font-semibold w-fit wrap-anywhere border-[color:var(--arena-accent-edge,var(--accent-plain-edge))] text-[color:var(--arena-accent-quiet-ink,color-mix(in_oklab,var(--accent-plain-quiet-ink)_var(--level-ink-quiet),transparent))]",
+    "root": "inline-flex items-center gap-marker rounded-marker border-[length:var(--bw-marker)] px-2 py-0.5 text-ctl-xs font-semibold w-fit shrink-0 wrap-anywhere border-[color:var(--arena-accent-edge,var(--accent-plain-edge))] text-[color:var(--arena-accent-quiet-ink,color-mix(in_oklab,var(--accent-plain-quiet-ink)_var(--level-ink-quiet),transparent))]",
     "dot": "size-1.5 rounded-pill bg-current",
     "close": "relative inline-flex items-center bg-transparent border-none cursor-pointer p-0 text-ink-muted/(--level-ink-muted) text-[length:var(--icon-sm)] leading-ctl before:content-[''] before:absolute before:left-1/2 before:top-1/2 before:w-ctl-h-sm before:h-ctl-h-sm before:-translate-x-1/2 before:-translate-y-1/2",
     "closeLabel": "sr-only"

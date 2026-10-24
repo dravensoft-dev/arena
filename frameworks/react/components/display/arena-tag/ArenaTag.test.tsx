@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { renderToStaticMarkup } from 'react-dom/server';
 import React from 'react';
 import { ArenaTag } from './ArenaTag.tsx';
+import tailwind from './ArenaTag.manifest.generated.ts';
 
 test('a tone renders its dot and the tone colour; default is neutral', () => {
   const html = renderToStaticMarkup(<ArenaTag tone="success">Shipped</ArenaTag>);
@@ -61,4 +62,10 @@ test('two tags never share an id, so each button names its own text', () => {
   const html = renderToStaticMarkup(<><ArenaTag removable>Berlin</ArenaTag><ArenaTag removable>Lisbon</ArenaTag></>);
   const ids = [...html.matchAll(/ id="([^"]+)"/g)].map((match) => match[1]);
   assert.equal(new Set(ids).size, ids.length);
+});
+
+test('a tag keeps its word whole in a row, and still breaks it when the container is narrower than the label', () => {
+  const root = tailwind.slots.root.split(/\s+/);
+  assert.ok(root.includes('shrink-0'), tailwind.slots.root);
+  assert.ok(root.includes('wrap-anywhere'), tailwind.slots.root);
 });

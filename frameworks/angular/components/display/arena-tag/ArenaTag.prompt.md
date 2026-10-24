@@ -66,6 +66,7 @@ and a project name are identities, so they take a ramp slot and keep it everywhe
 - The identity chip outlines, like every other tone. A filled one is an appearance decision. The ramp colour reaches the host as `data-arena-color-id`
   and the hue channels (`--arena-hue-ink`, `--arena-hue-edge`, `--arena-hue-fill-strong` and
   `--arena-hue-fill-soft`). A style plugin fills `tag` with it, so no member is needed here.
+- A tag keeps its label whole in a row, and breaks it only when the tag is wider than its container.
 
 **Words.** `tagRemove` is the first half of the remove button's name, and the tag's own text is the second, so a row of chips reads "Remove Berlin", "Remove Lisbon". Translate the word alone; Arena joins the two.
 
