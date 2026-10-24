@@ -273,9 +273,10 @@ export function scopeProblems(layer: string, audited: CliRun, used: CliRun) {
       + 'own stylesheet whatever the token tier says, so the norm records it as a report rather than a '
       + 'floor and --strict may not refuse what the norm permits');
   }
-  if (!used.stdout.includes(`paint 2 part(s): ${PAINTED}, ${RESTATED}`)) {
-    problems.push(`${layer}: arena usage does not name the parts the plugin paints, and that note is where the `
-      + `evidence for promoting a role comes from:\n    ${used.stdout.trim()}`);
+  if (!used.stdout.includes(`paint no part(s). 2 rule(s) reach nothing this project draws: ${PAINTED}, ${RESTATED}`)) {
+    problems.push(`${layer}: arena usage does not name the plugin's rules for a component the project never draws `
+      + 'as rules that reach nothing. That note is where the evidence for promoting a role comes from, and a part '
+      + `nothing draws is no evidence:\n    ${used.stdout.trim()}`);
   }
   const restated = audited.stderr.split('\n').filter((line) => line.includes('changes nothing'));
   if (!restated.some((line) => line.includes(RESTATED))) {
