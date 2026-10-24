@@ -122,8 +122,10 @@ export function arenaPlotWidth(available: number, count: number, minPointSpacing
   return Math.max(available, needed);
 }
 export function arenaRailStyle(scrolls: boolean): React.CSSProperties {
-  const overflow = scrolls ? 'auto' : 'visible';
-  return { overflowX: overflow, overflowY: scrolls ? 'hidden' : 'visible', display: 'block', outlineOffset: 'var(--focus-offset)' };
+  return {
+    overflowX: scrolls ? 'auto' : 'visible', overflowY: scrolls ? 'hidden' : 'visible',
+    display: 'block', outlineOffset: 'var(--focus-offset)',
+  };
 }
 
 export const arenaSrOnly: React.CSSProperties = {

@@ -160,7 +160,8 @@ paying the overhang on the same edge, so this is one rule across the five rather
 three and a silence about two, and both render suites assert the bottom row of every plot that
 draws one writes a single anchor.
 
-A rail that does not scroll draws that overhang past its own edge. A rail that scrolls clips on both axes, so while it scrolls the end label is cut at the rail's edge.
+A rail that does not scroll draws that overhang past its own edge. A rail that scrolls clips on
+both axes, so while it scrolls the end label is cut at the rail's edge.
 
 **A gutter that a style plugin could answer is a role that cannot exist, and this is where that
 is recorded.** A role is a custom property with no value, answered in the cascade; a plot

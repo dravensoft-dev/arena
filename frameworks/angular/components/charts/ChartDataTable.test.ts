@@ -1974,36 +1974,45 @@ test('arena-heatmap-chart overflows its rail only when a column cannot be narrow
   });
 });
 
-test('a rail that does not scroll lets the end label overhang, and a scrolling rail clips', () => {
-  const overflowX = (fixture: { nativeElement: unknown }) => ((fixture.nativeElement as Element).querySelector('[role="group"]') as HTMLElement).style.overflowX;
-  const flips = (type: Type<unknown>, floor: string, set: (fixture: ComponentFixture<unknown>) => void, kind: string) => {
-    const fixture = TestBed.createComponent(type);
-    set(fixture);
-    try {
-      fixture.detectChanges();
-      assert.equal(overflowX(fixture), 'visible', `${kind}: a rail that fits lets the label overhang`);
-      fixture.componentRef.setInput(floor, 100);
-      fixture.detectChanges();
-      assert.equal(overflowX(fixture), 'auto', `${kind}: a rail that scrolls clips`);
-      fixture.componentRef.setInput(floor, undefined);
-      fixture.detectChanges();
-      assert.equal(overflowX(fixture), 'visible', `${kind}: the rail is visible again, with no stale key`);
-    } finally {
-      fixture.destroy();
-    }
-  };
-  const series = (fixture: ComponentFixture<unknown>) => {
-    fixture.componentRef.setInput('labels', RAIL_LABELS);
-    fixture.componentRef.setInput('series', RAIL_SERIES);
-    fixture.componentRef.setInput('label', CHART);
-  };
-  flips(ArenaLineChart, 'minPointSpacing', series, 'line');
-  flips(ArenaBarChart, 'minPointSpacing', series, 'bar');
-  flips(ArenaHeatmapChart, 'minCellWidth', (fixture) => {
+const railOverflowX = (fixture: ComponentFixture<unknown>) => ((fixture.nativeElement as Element).querySelector('[role="group"]') as HTMLElement).style.overflowX;
+
+function railFlips(type: Type<unknown>, floor: string, set: (fixture: ComponentFixture<unknown>) => void) {
+  const fixture = TestBed.createComponent(type);
+  set(fixture);
+  try {
+    fixture.detectChanges();
+    assert.equal(railOverflowX(fixture), 'visible', 'a rail that fits lets the label overhang');
+    fixture.componentRef.setInput(floor, 100);
+    fixture.detectChanges();
+    assert.equal(railOverflowX(fixture), 'auto', 'a rail that scrolls clips');
+    fixture.componentRef.setInput(floor, undefined);
+    fixture.detectChanges();
+    assert.equal(railOverflowX(fixture), 'visible', 'the rail is visible again, with no stale key');
+  } finally {
+    fixture.destroy();
+  }
+}
+
+const railSeries = (fixture: ComponentFixture<unknown>) => {
+  fixture.componentRef.setInput('labels', RAIL_LABELS);
+  fixture.componentRef.setInput('series', RAIL_SERIES);
+  fixture.componentRef.setInput('label', CHART);
+};
+
+test('a line rail that does not scroll lets the end label overhang, and clips once a spacing floor makes it scroll', () => {
+  railFlips(ArenaLineChart, 'minPointSpacing', railSeries);
+});
+
+test('a bar rail that does not scroll lets the end label overhang, and clips once a spacing floor makes it scroll', () => {
+  railFlips(ArenaBarChart, 'minPointSpacing', railSeries);
+});
+
+test('a heatmap rail that does not scroll lets the end label overhang, and clips once a cell floor makes it scroll', () => {
+  railFlips(ArenaHeatmapChart, 'minCellWidth', (fixture) => {
     fixture.componentRef.setInput('label', HEAT);
     fixture.componentRef.setInput('labels', HOURS);
     fixture.componentRef.setInput('series', ROWS);
-  }, 'heatmap');
+  });
 });
 
 test('arena-heatmap-chart draws every nth column label when they would collide, and names every column in the table', () => {
