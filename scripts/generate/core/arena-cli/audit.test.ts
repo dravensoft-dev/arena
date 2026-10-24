@@ -773,6 +773,17 @@ test('a bare primary in a branch counts against a primary the view always draws'
   assert.match(first[0] ?? '', /line 2/);
 });
 
+test('a bare primary under *ngIf counts against a primary the view always draws', () => {
+  const own = defaultPrimaries('<arena-button>Compose</arena-button>\n<arena-button *ngIf="open">Snooze</arena-button>', 'src/app.html');
+  assert.equal(own.length, 1);
+  assert.match(own[0] ?? '', /:2:/);
+  assert.match(own[0] ?? '', /line 1/);
+  const wrapped = defaultPrimaries('<arena-button>Compose</arena-button>\n<div *ngIf="open">\n<arena-button>Snooze</arena-button>\n</div>',
+    'src/app.html');
+  assert.equal(wrapped.length, 1);
+  assert.match(wrapped[0] ?? '', /:3:/);
+});
+
 test('a branch primary inside a modal counts only against what that modal always draws', () => {
   assert.deepEqual(defaultPrimaries('<ArenaButton>Open</ArenaButton>\n<ArenaDialog open>\n{x && <ArenaButton>Retry</ArenaButton>}\n</ArenaDialog>'), []);
   const inside = defaultPrimaries('<ArenaButton>Open</ArenaButton>\n<ArenaDialog open>\n{x && <ArenaButton>Retry</ArenaButton>}\n'

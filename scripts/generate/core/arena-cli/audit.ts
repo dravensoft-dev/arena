@@ -784,7 +784,9 @@ export function structuralFindings(text: string, vocabulary: VocabularyIndex | n
         found.push(at(lineAt(text, start), 'raw-glyph', RAW_GLYPH_BOUND_MESSAGE));
     }
 
-    if (ARENA_TAG.test(name) && STATED_PRIMARY.test(attributes)) primaries.push({ scope, line: lineAt(text, start), conditional: inBranch(text, start, attributes, branches) });
+    if (ARENA_TAG.test(name) && STATED_PRIMARY.test(attributes)) {
+      primaries.push({ scope, line: lineAt(text, start), conditional: inBranch(text, start, attributes, branches) });
+    }
     const emphasis = EMPHASIS_OPTION.test(attributes) || EMPHASIS_OPTION.test(classValues(raw));
     if (ARENA_TAG.test(name) || emphasis) {
       const component = pascalTag(name);
