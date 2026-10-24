@@ -16,7 +16,7 @@ import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { parseDecls } from '../../lib/arena/css-decls.ts';
 import { arenaTokenNames } from '../../lib/core/arena-tokens.ts';
 import { layerManifests } from '../../lib/tailwind/tailwind-compile.ts';
-import { LAYER_ORDER } from '../../lib/tailwind/component-sheets.ts';
+import { DEFAULTS_LAYER, LAYER_ORDER } from '../../lib/tailwind/component-sheets.ts';
 import { applyRules } from '../../lib/tailwind/component-css.ts';
 import { blindFallbacks, repeatedSupports } from '../../lib/tailwind/supports-blocks.ts';
 import { PREFLIGHT, PRELUDE, sheetPath } from '../../build/tailwind/build-tailwind.ts';
@@ -198,8 +198,8 @@ export function defaultsProblems(base = root) {
       problems.push(`${rel} does not lead with the layer order, so the layer holding its defaults is registered `
         + 'wherever the first stylesheet to open it happens to put it');
     }
-    if (!/@layer arena-defaults\s*\{/.test(css)) {
-      problems.push(`${rel} opens no @layer arena-defaults block, so its values are unlayered and outrank the `
+    if (!new RegExp(`@layer ${DEFAULTS_LAYER}\\s*\\{`).test(css)) {
+      problems.push(`${rel} opens no @layer ${DEFAULTS_LAYER} block, so its values are unlayered and outrank the `
         + "theme's own whenever a toolchain emits the theme sheet first");
     }
   }

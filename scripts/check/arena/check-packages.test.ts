@@ -25,6 +25,7 @@ import { referenceText } from '../../lib/arena/consumer-references.ts';
 import { CLI_DEPENDENCIES } from '../../lib/arena/support-matrix.ts';
 import { RUNTIME_DEPENDENCIES as ANGULAR_RUNTIME_DEPENDENCIES } from '../../build/angular/build-angular-package.ts';
 import { toPosix } from '../../utils/posix-path.ts';
+import { LAYER_ORDER } from '../../lib/tailwind/component-sheets.ts';
 
 const made: string[] = [];
 const track = (dir: string) => { made.push(dir); return dir; };
@@ -607,23 +608,29 @@ test('the token sheets arena.css reaches declare their custom properties outside
   assert.match(unlayeredTokenProblems(REACT_PKG, distTree({ 'arena.css': "@import './css/colors.css';", 'css/colors.css': '@layer x{:root{--color-base-100:#141010}}' })).join('\n'), /css\/colors\.css/);
 });
 
-const selfReferences = (...names: string[]) => `@layer theme { :root { ${names.map((n) => `${n}: var(${n});`).join(' ')} } }`;
+const selfReferences = (...names: string[]) => `@theme { ${names.map((n) => `${n}: var(${n});`).join(' ')} }`;
 
-function defaultsTree(sheet: string, theme = selfReferences('--font-body', '--x-made')) {
+const inline = (...names: string[]) => `@theme inline { ${names.map((n) => `${n}: var(${n});`).join(' ')} }`;
+
+function defaultsTree(declarations: string, layer = 'arena-defaults', theme = `${selfReferences('--font-body', '--x-made')}\n${inline('--x-inline')}`) {
   return distTree({
     'arena.css': "@import './css/typography.css';",
-    'css/typography.css': sheet,
+    'css/typography.css': `${LAYER_ORDER}@layer ${layer} {\n:root{${declarations}}\n}\n`,
     'css/tailwind-theme.css': theme,
   });
 }
 
 test('a name the theme always declares may sit in the defaults layer, and one it does not may not', () => {
-  assert.deepEqual(unlayeredTokenProblems(REACT_PKG, defaultsTree('@layer arena-defaults{:root{--font-body:x}}')), []);
-  const made = unlayeredTokenProblems(REACT_PKG, defaultsTree('@layer arena-defaults{:root{--x-made:1}}')).join('\n');
+  assert.deepEqual(unlayeredTokenProblems(REACT_PKG, defaultsTree('--font-body:x')), []);
+  const made = unlayeredTokenProblems(REACT_PKG, defaultsTree('--x-made:1')).join('\n');
   assert.match(made, /--x-made/);
   assert.match(made, /arena build does not always write --x-made/);
-  const other = unlayeredTokenProblems(REACT_PKG, defaultsTree('@layer base{:root{--font-body:x}}')).join('\n');
+  const other = unlayeredTokenProblems(REACT_PKG, defaultsTree('--font-body:x', 'base')).join('\n');
   assert.match(other, /inside a cascade layer/);
+});
+
+test('a self-reference in an inline theme block emits no variable, so the defaults layer may hold that name', () => {
+  assert.deepEqual(unlayeredTokenProblems(REACT_PKG, defaultsTree('--x-inline:1')), []);
 });
 
 test('a family channel declared inside a layer is not a token, and a token beside it still is', () => {

@@ -474,9 +474,11 @@ export function themeCompileProblems(
 export function unlayeredTokenProblems(pkg: { layer: string; name: string }, dir: string) {
   const problems = [];
   const themePath = join(dir, THEME_SHEET);
-  const selfReferenced = new Set(existsSync(themePath)
-    ? [...readFileSync(themePath, 'utf8').matchAll(/(--[\w-]+)\s*:\s*var\(\1\)/g)].map((m) => m[1] as string)
-    : []);
+  const emitted = existsSync(themePath)
+    ? topLevelBlocks(readFileSync(themePath, 'utf8'), '@theme').filter((block) => /^@theme\s*\{/.test(block))
+    : [];
+  const selfReferenced = new Set(emitted.flatMap((block) =>
+    [...block.matchAll(/(--[\w-]+)\s*:\s*var\(\1\)/g)].map((m) => m[1] as string)));
   const seen = new Set<string>();
   const queue = ['arena.css'];
   while (queue.length) {
