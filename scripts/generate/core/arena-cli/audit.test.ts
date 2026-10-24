@@ -1029,9 +1029,10 @@ test('in a file naming a ph-* literal, a lone ngClass object and a glyph-free li
 
 const NAMES_REACT = "const I = 'ph-bold ph-star';\n";
 const NAMES_ANGULAR = '<arena-icon icon="ph-bold ph-star"></arena-icon>\n';
-const glyphCount = (react: string, angular: string) => [
-  glyphLines(NAMES_REACT + react).length,
-  glyphLines(NAMES_ANGULAR + angular, 'src/a.html').length,
+const verdicts = (lines: string[]) => lines.map((line) => (line.includes('may hold') ? 'bound' : 'literal'));
+const glyphVerdicts = (react: string, angular: string) => [
+  verdicts(glyphLines(NAMES_REACT + react)),
+  verdicts(glyphLines(NAMES_ANGULAR + angular, 'src/a.html')),
 ];
 
 test('the 50 reproduction prints no raw-glyph', () => {
@@ -1039,24 +1040,21 @@ test('the 50 reproduction prints no raw-glyph', () => {
 });
 
 test('raw-glyph reads a bound class by its results, alike in both layers (D1, N1)', () => {
-  const rows: [string, string, string, number][] = [
-    ['identifier', '<div className={cls} />', '<div [class]="cls"></div>', 1],
-    ['ngClass identifier', '<div className={cls} />', '<div [ngClass]="cls"></div>', 1],
-    ['attr.class identifier', '<div className={cls} />', '<div [attr.class]="cls"></div>', 1],
-    ['interpolation', '<div className={`a ${cls}`} />', '<div class="{{ cls }}"></div>', 1],
-    ['toggle', "<ArenaTag className={on ? 'arena-accent-primary' : undefined} />", '<arena-tag [class.arena-accent-primary]="on"></arena-tag>', 0],
-    ['braced string', "<div className={'arena-a'} />", '<div class="arena-a"></div>', 0],
-    ['template, no substitution', '<div className={`arena-a`} />', "<div [class]=\"'arena-a'\"></div>", 0],
-    ['and', "<div className={on && 'arena-a'} />", "<div [ngClass]=\"{ 'arena-a': on }\"></div>", 0],
-    ['empty results', "<div className={a ? 'arena-a' : b ? null : false} />", "<div [class]=\"a ? 'arena-a' : ''\"></div>", 0],
-    ['or, N1', "<div className={cls || 'arena-a'} />", "<div [class]=\"cls ?? 'arena-a'\"></div>", 1],
-    ['Phosphor toggle', "<i className={on ? 'ph-bold ph-star' : 'ph-bold'} />", '<i class="ph-bold" [class.ph-star]="on"></i>', 1],
+  const rows: [string, string, string, string[]][] = [
+    ['identifier', '<div className={cls} />', '<div [class]="cls"></div>', ['bound']],
+    ['ngClass identifier', '<div className={cls} />', '<div [ngClass]="cls"></div>', ['bound']],
+    ['attr.class identifier', '<div className={cls} />', '<div [attr.class]="cls"></div>', ['bound']],
+    ['interpolation', '<div className={`a ${cls}`} />', '<div class="{{ cls }}"></div>', ['bound']],
+    ['toggle', "<ArenaTag className={on ? 'arena-accent-primary' : undefined} />", '<arena-tag [class.arena-accent-primary]="on"></arena-tag>', []],
+    ['braced string', "<div className={'arena-a'} />", '<div class="arena-a"></div>', []],
+    ['template, no substitution', '<div className={`arena-a`} />', "<div [class]=\"'arena-a'\"></div>", []],
+    ['and', "<div className={on && 'arena-a'} />", "<div [ngClass]=\"{ 'arena-a': on }\"></div>", []],
+    ['empty results', "<div className={a ? 'arena-a' : b ? null : false} />", "<div [class]=\"a ? 'arena-a' : ''\"></div>", []],
+    ['or, N1', "<div className={cls || 'arena-a'} />", "<div [class]=\"cls ?? 'arena-a'\"></div>", ['bound']],
+    ['Phosphor toggle', "<i className={on ? 'ph-bold ph-star' : 'ph-bold'} />", '<i class="ph-bold" [class.ph-star]="on"></i>', ['literal']],
   ];
   for (const [label, react, angular, expected] of rows)
-    assert.deepEqual(glyphCount(react, angular), [expected, expected], label);
-  const toggled = glyphLines(`${NAMES_ANGULAR}<i class="ph-bold" [class.ph-star]="on"></i>`, 'src/a.html');
-  assert.equal(toggled.length, 1);
-  assert.ok(!(toggled[0] ?? '').includes('may hold'), 'a toggled Phosphor class gets the literal verdict');
+    assert.deepEqual(glyphVerdicts(react, angular), [expected, expected], label);
 });
 
 test('an unquoted template attribute reads as HTML does: [class]=cls is bound, class=arena-a is literal', () => {
