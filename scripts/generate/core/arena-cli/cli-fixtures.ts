@@ -122,11 +122,26 @@ export function hostRoot(name: string, version: string, files: Record<string, st
   const root = track(mkdtempSync(join(tmpdir(), 'arena-host-root-')));
   writeFileSync(join(root, 'package.json'), JSON.stringify({ name, version }));
   writeFileSync(join(root, 'arena.config.example.json'), JSON.stringify({ palettes: [] }));
+  writeFileSync(join(root, 'arena.css'), '.stub-arena{}\n');
   for (const [file, content] of Object.entries(files)) {
     mkdirSync(dirname(join(root, file)), { recursive: true });
     writeFileSync(join(root, file), content);
   }
   return root;
+}
+
+export function writeSheets(root: string, sheets: { layers?: string[]; components?: string[] } | null = null, extra: string[] = []) {
+  const names = ['arena.css', ...(sheets?.layers ?? []), ...(sheets?.components ?? []).map((name) => `css/components/${name}.css`), ...extra];
+  for (const name of names) {
+    if (existsSync(join(root, name))) continue;
+    mkdirSync(dirname(join(root, name)), { recursive: true });
+    writeFileSync(join(root, name), `.stub-${name.replace(/[^a-z0-9]+/g, '-')}{}\n`);
+  }
+  return root;
+}
+
+export function packageStub(sheets: { layers?: string[]; components?: string[] } | null = null, extra: string[] = []) {
+  return writeSheets(hostRoot('@dravensoft/arena-react', '13.0.0'), sheets, extra);
 }
 
 export function nodeImportsReachedFrom(file: string): string[] {

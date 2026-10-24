@@ -9,8 +9,9 @@
 
 import { readFileSync, existsSync } from 'node:fs';
 import { dirname, basename, join, resolve } from 'node:path';
-import { configProblems, defaultedNote, packageCss, packageImports, paletteReports, rootWithDefaults, runtimeData, themeCss, weightReports } from './theme-css.ts';
+import { configProblems, defaultedNote, packageImports, paletteReports, rootWithDefaults, runtimeData, themeCss, weightReports } from './theme-css.ts';
 import type { PackageSheets } from './theme-css.ts';
+import { packageSheet } from './flat-sheet.ts';
 import { AUTO, resolve as resolveComponents } from './components.ts';
 import type { ComponentMap } from './components.ts';
 import { scan, drawnGlyphs, fillSourceGlyphs, glyphNames, mergeShipped, shippedNames, WEIGHT_CLASSES } from './icon-css.ts';
@@ -35,7 +36,7 @@ import type { resolveEnvironment } from './host.ts';
 
 export type PlanOptions = Pick<Options, 'config' | 'paths' | 'out' | 'importHeader'>;
 export type PlanEnvironment = Omit<ReturnType<typeof resolveEnvironment>, 'fontTools'> & { fontTools?: FontToolRoots };
-export type ThemeEnvironment = { packageName: string; sheets: PackageSheets; map?: ComponentMap | null };
+export type ThemeEnvironment = { packageName: string; sheets: PackageSheets; map?: ComponentMap | null; arena?: string | null };
 export type SheetOutput = { name: string; path: string; content: string; summary: string };
 export type BinaryOutput = { name: string; path: string; content: Uint8Array; summary: string };
 export type FileOutput = SheetOutput | BinaryOutput;
@@ -50,7 +51,7 @@ export type Plan = {
 };
 export type SheetState = { path: string; state: 'missing' | 'stale' | 'current' };
 
-export function themeSheets(options: PlanOptions, { packageName, sheets, map }: ThemeEnvironment, cuts: FontCuts = {}):
+export function themeSheets(options: PlanOptions, { packageName, sheets, map, arena = null }: ThemeEnvironment, cuts: FontCuts = {}):
   { code: 0 | 1 | 2; fatal: string[]; reports: Report[]; notes: string[]; sheets: SheetOutput[]; components: string[] | null;
     config: CheckedConfig | null; imports: string[] } {
   const stop = (code: 1 | 2, fatal: string[]) => ({
@@ -107,7 +108,9 @@ export function themeSheets(options: PlanOptions, { packageName, sheets, map }: 
   const out: SheetOutput[] = [{ name: THEME_SHEET, path: join(options.out, THEME_SHEET), content: css, summary: `${css.length} bytes` }];
   const imports = packageImports(config, { packageName, sheets }) ?? [];
   if (options.importHeader) {
-    const pack = packageCss(config, { packageName, sheets });
+    const flat = packageSheet(config, { packageName, sheets, root: arena });
+    if (flat.problems.length) return stop(1, flat.problems);
+    const pack = flat.css;
     out.push({ name: PACKAGE_SHEET, path: join(options.out, PACKAGE_SHEET), content: pack, summary: `${pack.length} bytes` });
   }
   const layered = pluginCss(pluginSheets(config, from));
@@ -127,7 +130,7 @@ export function themeSheets(options: PlanOptions, { packageName, sheets, map }: 
   return { code: 0, fatal: [], reports, notes: closure.notes, sheets: out, components: resolved, config, imports };
 }
 
-export type FontEnvironment = ThemeEnvironment & { arena?: string | null; fontTools?: FontToolRoots };
+export type FontEnvironment = ThemeEnvironment & { fontTools?: FontToolRoots };
 
 export async function fontFiles(options: PlanOptions, env: FontEnvironment, theme: ReturnType<typeof themeSheets>, dry = false):
   Promise<{ fatal: string[]; reports: Report[]; cuts: FontCuts; files: BinaryOutput[]; stems: string[] }> {

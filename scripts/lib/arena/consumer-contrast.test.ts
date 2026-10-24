@@ -49,10 +49,10 @@ test('a missing page is a problem rather than a pass', () => {
   assert.equal(contrastProblems('react', [reading('no-preference', '1px')]).length, 1);
 });
 
-test('the page points the package imports at the fixture and drops the remote ones', () => {
-  const { css, html } = pageFor("@import '@dravensoft/arena-react/css/base.css';\n@import url('https://fonts.example/a.css');\n.x{}",
+test('the page links the flat sheet as it is and drops the remote imports', () => {
+  const { css, html } = pageFor("/* @dravensoft/arena-react/css/base.css */\n@import url('https://fonts.example/a.css');\n.x{}",
     '@dravensoft/arena-react', 'marketing');
-  assert.equal(css, "@import '/node_modules/@dravensoft/arena-react/css/base.css';\n.x{}");
+  assert.equal(css, "/* @dravensoft/arena-react/css/base.css */\n.x{}");
   assert.ok(html.includes('class="arena-marketing"'));
   assert.equal(html.match(/class="arena-card__root"/g)?.length, 3, 'a card at the root, in .arena-light and in the scope');
   assert.ok(html.includes('href="/node_modules/@dravensoft/arena-react/css/components/arena-card.css"'));

@@ -8,7 +8,7 @@ import { join } from 'node:path';
 import { run } from './command-check.ts';
 import { wiredScripts } from './command-init.ts';
 import { fontToolRoots } from './host.ts';
-import { captureIo, colors, phosphor, readable, removeFixtures } from './cli-fixtures.ts';
+import { captureIo, colors, phosphor, readable, removeFixtures, packageStub } from './cli-fixtures.ts';
 import type { ComponentMap } from './components.ts';
 
 const made: string[] = [];
@@ -43,7 +43,7 @@ function tree(root: string): string[] {
 
 async function check(root: string, argv: string[] = [], extra: Record<string, unknown> = {}) {
   const { core } = phosphor();
-  const captured = captureIo(root, { arena: null, map: null, sheets: null, vocabulary: null, phosphor: core, ...extra });
+  const captured = captureIo(root, { arena: packageStub((extra.sheets ?? null) as never), map: null, sheets: null, vocabulary: null, phosphor: core, ...extra });
   const code = await run(argv, captured.io);
   return { code, out: captured.out, err: captured.err };
 }

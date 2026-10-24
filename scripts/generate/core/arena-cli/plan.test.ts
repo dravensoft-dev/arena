@@ -15,7 +15,7 @@ import type { SheetOutput } from './plan.ts';
 import { RETIRED_ICONS_SHEET as ICONS_SHEET } from './sources.ts';
 import { THEME_SHEET, PACKAGE_SHEET, PLUGIN_SHEET, RUNTIME_DATA, ICON_MANIFEST, SPRITE_MODULE, SPRITE_TYPES, SPRITE_STEM } from './sheets.ts';
 import type { ComponentMap } from './components.ts';
-import { auto, hostRoot, MAP, PHOSPHOR_GLYPHS, SHEETS, options, phosphor, project, readable, removeFixtures } from './cli-fixtures.ts';
+import { auto, hostRoot, MAP, PHOSPHOR_GLYPHS, SHEETS, options, phosphor, project, readable, removeFixtures, packageStub, writeSheets } from './cli-fixtures.ts';
 
 after(removeFixtures);
 
@@ -28,7 +28,10 @@ const CATALOGUED = {
 };
 
 function environment(core: string | null, extra: Record<string, unknown> = {}) {
-  return { arena: null, packageName: NAME, sheets: null, map: null, vocabulary: null, phosphor: core, ...extra };
+  const sheetsOf = (extra: Record<string, unknown>) => (extra.sheets ?? null) as { layers?: string[]; components?: string[] } | null;
+  const arena = 'arena' in extra && typeof extra.arena !== 'string' ? null
+    : typeof extra.arena === 'string' ? writeSheets(extra.arena, sheetsOf(extra)) : packageStub(sheetsOf(extra));
+  return { packageName: NAME, sheets: null, map: null, vocabulary: null, phosphor: core, ...extra, arena };
 }
 
 function withPlugin(css: string) {
@@ -84,7 +87,8 @@ test('outputs are theme, package, plugin, then the sprite and its module pair, e
   assert.deepEqual(result.outputs.map((one) => one.name), [THEME_SHEET, PACKAGE_SHEET, PLUGIN_SHEET, sprite.name, SPRITE_MODULE, SPRITE_TYPES]);
   for (const one of result.outputs) assert.equal(one.path, join(root, 'src', one.name));
   const [theme, pack, plugin, icons] = [result.outputs[0], result.outputs[1], result.outputs[2], sprite];
-  assert.match(pack!.content, /@import '@dravensoft\/arena-react\/css\/reset\.css';/);
+  assert.match(pack!.content, /\/\* @dravensoft\/arena-react\/css\/reset\.css \*\//);
+  assert.doesNotMatch(pack!.content, /@import/);
   assert.doesNotMatch(pack!.content, /arena\.css/);
   assert.doesNotMatch(theme!.content, /@import '@dravensoft/, 'the app\'s half imports none of the package');
   assert.match(theme!.summary, /^\d+ bytes$/);
@@ -268,6 +272,35 @@ test('a config naming no stylesheet resolves auto against the map', async () => 
   cleanup(root, held);
 });
 
+test('the package sheet is flat: no import, one marker for each sheet closed, and the default root too', async () => {
+  const { root: held, core } = phosphor();
+  const root = project(readable, { 'app.html': '<arena-button icon="ph-bold ph-bell" />' });
+  const result = await plan(options(root), environment(core, { sheets: WITH_SLOT, map: MAP }));
+  assert.equal(result.code, 0);
+  assert.doesNotMatch(packageOf(result), /@import/);
+  for (const name of ['css/base.css', 'css/components/button.css', 'css/style-plugin-default.css']) {
+    assert.equal(packageOf(result).split(`/* ${NAME}/${name} */`).length, 2, name);
+  }
+  const bare = await plan(options(project()), environment(core));
+  assert.equal(bare.code, 0);
+  assert.match(packageOf(bare), new RegExp(`/\\* ${NAME.replace(/[/@]/g, '\\$&')}/arena\\.css \\*/`));
+  assert.doesNotMatch(packageOf(bare), /@import/);
+  cleanup(root, held);
+});
+
+test('a package the command cannot read, or a sheet it names that is no file, stops the build before any sheet is planned', async () => {
+  const { root: held, core } = phosphor();
+  const none = await plan(options(project()), environment(core, { arena: null }));
+  assert.equal(none.code, 1);
+  assert.deepEqual(none.fatal, [`arena build cannot read the installed ${NAME}`]);
+  assert.deepEqual(none.outputs, []);
+  const bare = hostRoot(NAME, '13.0.0');
+  const gone = await plan(options(project()), { ...environment(core, { sheets: { layers: ['css/missing.css'], components: [] } }), arena: bare });
+  assert.equal(gone.code, 1);
+  assert.match(gone.fatal[0] ?? '', /css\/missing\.css, which is no file/);
+  cleanup(held);
+});
+
 test('a config naming no stylesheet and drawing no Arena component imports no component sheet', async () => {
   const { root: held, core } = phosphor();
   const root = project(readable, { 'app.html': '<i class="ph-bold ph-bell"></i>' });
@@ -362,7 +395,7 @@ test('the icons Arena draws itself come from the list the package ships, not fro
 test('running outside an Arena package reports the environment and nothing else', async () => {
   const { root: held, core } = phosphor();
   const root = project(readable, { 'app.html': '<arena-icon icon="ph-bold ph-bell"></arena-icon>' });
-  const result = await plan(options(root), environment(core));
+  const result = await plan(options(root, { importHeader: false }), environment(core, { arena: null }));
   assert.equal(result.code, 0);
   const outside = result.reports.filter((one) => one.message.includes('not running from inside an Arena package'));
   assert.equal(outside.length, 1);
@@ -372,7 +405,7 @@ test('running outside an Arena package reports the environment and nothing else'
 });
 
 const named = (components: unknown[]) => ({ ...readable, stylesheet: { components } });
-const imported = (css: string) => [...css.matchAll(/css\/components\/([a-z-]+)\.css/g)].map((m) => m[1]);
+const imported = (css: string) => [...css.matchAll(/\/\* \S+\/css\/components\/([a-z-]+)\.css \*\//g)].map((m) => m[1]);
 
 test('a named list is closed against the map, keeps its order, and notes what Arena added', async () => {
   const { root: held, core } = phosphor();

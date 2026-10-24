@@ -10,7 +10,7 @@ import { relPosix } from './posix.ts';
 import { run, satisfies, unignoredOutputs } from './command-doctor.ts';
 import { plan } from './plan.ts';
 import { ICON_MANIFEST, PACKAGE_SHEET, PLUGIN_SHEET, THEME_SHEET } from './sheets.ts';
-import { MAP, SHEETS, captureIo, hostRoot, options, phosphor, project, readable, removeFixtures } from './cli-fixtures.ts';
+import { MAP, SHEETS, captureIo, hostRoot, options, phosphor, project, readable, removeFixtures, packageStub } from './cli-fixtures.ts';
 
 after(removeFixtures);
 
@@ -19,11 +19,11 @@ const NO_COMPONENTS = { match: 'selector', draws: {}, needs: {} };
 function setup(extra: Record<string, unknown> = {}) {
   const root = project();
   const { core } = phosphor();
-  const environment = { arena: null, phosphor: core, sheets: null, map: NO_COMPONENTS, vocabulary: null, ...extra };
+  const environment = { arena: packageStub(), phosphor: core, sheets: null, map: NO_COMPONENTS, vocabulary: null, ...extra };
   return { root, core, environment };
 }
 
-async function build(root: string, core: string, arena: string | null = null) {
+async function build(root: string, core: string, arena: string | null = packageStub()) {
   const built = await plan(options(root), { arena, packageName: '@dravensoft/arena-react', sheets: null, map: NO_COMPONENTS, vocabulary: null, phosphor: core });
   for (const one of built.outputs) writeFileSync(one.path, one.content);
   return built;
@@ -276,7 +276,7 @@ test('--strict=contrast exits 2 naming arena check', async () => {
 test('a tree built from a named list the map closes is current, and one built from the list as written is stale', async () => {
   const { core } = phosphor();
   const root = project({ ...readable, stylesheet: { components: ['table'] } });
-  const environment = { arena: null, packageName: '@dravensoft/arena-react', phosphor: core, sheets: SHEETS, map: MAP, vocabulary: null };
+  const environment = { arena: packageStub(SHEETS), packageName: '@dravensoft/arena-react', phosphor: core, sheets: SHEETS, map: MAP, vocabulary: null };
 
   const asWritten = await plan(options(root), { ...environment, map: null });
   for (const one of asWritten.outputs) writeFileSync(one.path, one.content);
@@ -287,7 +287,7 @@ test('a tree built from a named list the map closes is current, and one built fr
   assert.ok(before.out.includes(`arena doctor: ${asWritten.outputs[0]!.path} is current`), 'the app\'s half does not follow the components');
 
   const built = await plan(options(root), environment);
-  assert.match(built.outputs.find((one) => one.name === PACKAGE_SHEET)!.content, /css\/components\/pagination\.css/);
+  assert.match(built.outputs.find((one) => one.name === PACKAGE_SHEET)!.content, /\/\* @dravensoft\/arena-react\/css\/components\/pagination\.css \*\//);
   for (const one of built.outputs) writeFileSync(one.path, one.content);
   const staleSprite = asWritten.outputs.find((one) => /^icons-[0-9a-f]{10}\.svg$/.test(one.name))!;
   assert.notEqual(staleSprite.name, built.outputs.find((one) => /^icons-[0-9a-f]{10}\.svg$/.test(one.name))!.name,

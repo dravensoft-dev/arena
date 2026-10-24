@@ -140,7 +140,7 @@ export const CONSUMER_OWN_OUTPUT = new Map([
    'the declaration file written beside arena.icons.generated.js in the CONSUMER\'s project by the same run of '
    + 'arena build. Same reading as arena.generated.css above: the infix is theirs and not this repository\'s.'],
   ['package.generated.css',
-   'the stylesheet of package imports the CONSUMER generates, in their own project, by the same run of arena build. '
+   'the stylesheet of Arena\'s rules the CONSUMER generates, in their own project, by the same run of arena build. '
    + 'Same reading as arena.generated.css above: the infix is theirs and not this repository\'s, and a consumer '
    + 'imports it before arena.generated.css, so the npm page has to name it.'],
   ['plugin.generated.css',

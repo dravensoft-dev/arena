@@ -658,7 +658,7 @@ export function cleanAuditProblems(layer: string, clean: CliRun) {
 }
 
 export function importedSheets(css: string | null) {
-  return [...(css ?? '').matchAll(/@import '[^']*\/css\/components\/([^']+)\.css';/g)].map((m) => m[1]).sort();
+  return [...(css ?? '').matchAll(/\/\* \S+\/css\/components\/([^\s*]+)\.css \*\//g)].map((m) => m[1]).sort();
 }
 
 export function binProblems(layer: string, bin: Record<string, string> | undefined) {
@@ -736,12 +736,15 @@ export function packageSheetProblems(layer: string, run: CliRun, edited: CliRun,
   }
   const problems = [];
   for (const name of CLOSED_IMPORTS) {
-    if (!run.pkg.includes(`@import '${packageName}/css/${name}.css';`)) {
-      problems.push(`${layer}: ${PACKAGE_SHEET} imports no ${packageName}/css/${name}.css, so the closed list is short of a sheet every page needs`);
+    if (!run.pkg.includes(`/* ${packageName}/css/${name}.css */`)) {
+      problems.push(`${layer}: ${PACKAGE_SHEET} carries no ${packageName}/css/${name}.css, so the closed list is short of a sheet every page needs`);
     }
   }
-  if (!run.pkg.includes(`@import '${packageName}/css/vocabulary/`)) {
-    problems.push(`${layer}: ${PACKAGE_SHEET} imports no vocabulary sheet`);
+  if (!run.pkg.includes(`/* ${packageName}/css/vocabulary/`)) {
+    problems.push(`${layer}: ${PACKAGE_SHEET} carries no vocabulary sheet`);
+  }
+  if (/@import\b/.test(run.pkg)) {
+    problems.push(`${layer}: ${PACKAGE_SHEET} holds an @import, so a page that links it would request a package specifier relative to itself`);
   }
   if ((run.theme ?? '').includes(`@import '${packageName}/`)) {
     problems.push(`${layer}: ${THEME_SHEET} imports the package; ${PACKAGE_SHEET} is the one place Arena's half lives, `
@@ -862,7 +865,7 @@ export function defaultListProblems(layer: string, result: CliRun) {
     return [`${layer}: a config naming no stylesheet exited ${result.status}:\n    ${result.stderr.trim()}`];
   }
   const problems = [];
-  if (/\/arena\.css'/.test(result.pkg ?? '')) {
+  if (/\/arena\.css \*\//.test(result.pkg ?? '')) {
     problems.push(`${layer}: a config naming no stylesheet imports the barrel, so the project pays for every component `
       + 'whether its sources draw it or not');
   }

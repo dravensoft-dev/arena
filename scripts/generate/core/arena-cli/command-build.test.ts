@@ -6,7 +6,7 @@ import { join } from 'node:path';
 import { run, writeOutputs } from './command-build.ts';
 import { THEME_SHEET, PACKAGE_SHEET, PLUGIN_SHEET, SPRITE_MODULE, SPRITE_TYPES } from './sheets.ts';
 import { RETIRED_ICONS_SHEET, spriteFilesIn } from './sources.ts';
-import { captureIo, phosphor, project, readable, whileHeld, removeFixtures } from './cli-fixtures.ts';
+import { captureIo, phosphor, project, readable, whileHeld, removeFixtures, packageStub } from './cli-fixtures.ts';
 
 after(removeFixtures);
 
@@ -25,7 +25,7 @@ function withPlugin(css: string, name = 'andina') {
 }
 
 const environment = (core: string | null) =>
-  ({ arena: null, packageName: '@dravensoft/arena-react', sheets: CATALOGUED, map: null, vocabulary: null, phosphor: core });
+  ({ arena: packageStub(CATALOGUED), packageName: '@dravensoft/arena-react', sheets: CATALOGUED, map: null, vocabulary: null, phosphor: core });
 
 const flags = (root: string) =>
   ['--config', join(root, 'arena.config.json'), '--src', join(root, 'src'), '-o', join(root, 'src')];

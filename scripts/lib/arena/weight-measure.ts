@@ -8,14 +8,14 @@
 
 import { brotliCompressSync, constants } from 'node:zlib';
 import { spawnSync } from 'node:child_process';
-import { mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { cpSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { rollup, type Plugin } from 'rollup';
 import { build, transform } from 'esbuild';
 import { deadline, type Deadline } from './deadline.ts';
 import { hostBinary } from './host-binary.ts';
 import { linkDir } from './platform.ts';
-import { isInside, relPosix } from '../../utils/posix-path.ts';
+import { isInside, relPosix, toPosix } from '../../utils/posix-path.ts';
 import { repoRoot } from './repo-root.ts';
 
 export const ARENA_BUILD: Deadline = deadline('weight:arena-build', 120_000,
@@ -157,22 +157,27 @@ export type CssFigures = {
   glyphs: string[]; faces: string[];
 };
 
-async function sheet(dir: string, file: string, patch: Patch | undefined, dist: string): Promise<Uint8Array> {
+async function sheet(dir: string, file: string): Promise<Uint8Array> {
   const built = await build({
     entryPoints: [join(dir, 'src', file)], bundle: true, minify: true, write: false, logLevel: 'error',
     external: ['*.woff2', '*.woff', '*.ttf'], absWorkingDir: dir,
-    plugins: patch ? [{
-      name: 'weight-patch',
-      setup(b) {
-        b.onLoad({ filter: /\.css$/ }, (args) => {
-          const text = readFileSync(args.path, 'utf8');
-          const under = isInside(dist, args.path);
-          return { contents: under ? patch(relPosix(dist, args.path), text) : text, loader: 'css', resolveDir: join(args.path, '..') };
-        });
-      },
-    }] : [],
   });
   return Buffer.from(built.outputFiles[0]?.contents ?? new Uint8Array());
+}
+
+function installPackage(dist: string, into: string, patch: Patch | undefined) {
+  if (!patch) {
+    linkDir(dist, into);
+    return;
+  }
+  cpSync(dist, into, { recursive: true });
+  for (const name of readdirSync(into, { recursive: true, encoding: 'utf8' })) {
+    if (!name.endsWith('.css')) continue;
+    const path = join(into, name);
+    const text = readFileSync(path, 'utf8');
+    const patched = patch(toPosix(name), text);
+    if (patched !== text) writeFileSync(path, patched);
+  }
 }
 
 export async function cssFigures(dist: string, entry: 'typical' | 'full', patch?: Patch): Promise<CssFigures> {
@@ -182,7 +187,7 @@ export async function cssFigures(dist: string, entry: 'typical' | 'full', patch?
   rmSync(dir, { recursive: true, force: true });
   mkdirSync(join(dir, 'src'), { recursive: true });
   mkdirSync(join(dir, 'node_modules', '@dravensoft'), { recursive: true });
-  linkDir(dist, join(dir, 'node_modules', '@dravensoft', 'arena-react'));
+  installPackage(dist, join(dir, 'node_modules', '@dravensoft', 'arena-react'), patch);
   try {
     const example = JSON.parse(readFileSync(join(dist, 'arena.config.example.json'), 'utf8')) as { fonts?: Record<string, unknown> };
     writeFileSync(join(dir, 'arena.config.json'), JSON.stringify({ ...example, stylesheet: { components: 'auto' } }, null, 2));
@@ -209,9 +214,9 @@ export async function cssFigures(dist: string, entry: 'typical' | 'full', patch?
       return readFileSync(join(out, found));
     };
     return {
-      arena: await sheet(dir, 'arena-half.css', patch, dist),
-      app: await sheet(dir, 'app-half.css', patch, dist),
-      theme: await sheet(dir, 'theme.css', patch, dist),
+      arena: await sheet(dir, 'arena-half.css'),
+      app: await sheet(dir, 'app-half.css'),
+      theme: await sheet(dir, 'theme.css'),
       sprite: one(/^icons-[0-9a-f]+\.svg$/, 'sprite'),
       glyphs: [...one(/^icons-[0-9a-f]+\.svg$/, 'sprite').toString().matchAll(/<symbol[^>]*\sid="([^"]+)"/g)].map((m) => m[1] ?? ''),
       faces: [...generated.matchAll(/@font-face\s*\{([^}]*)\}/g)].map((m) => {

@@ -16,7 +16,7 @@ import { COMMAND_NAMES, FLAGS, FLAG_NAMES, NEIGHBOURS, SPECS } from './args.ts';
 import type { FlagName } from './args.ts';
 import { KINDS_BY_COMMAND, RULES_BY_KIND } from './reports.ts';
 import { OUTPUT_SHEETS } from './sources.ts';
-import { MAP, SHEETS, captureIo, hostRoot, phosphor, project, readable, removeFixtures } from './cli-fixtures.ts';
+import { MAP, SHEETS, captureIo, hostRoot, phosphor, project, readable, removeFixtures, packageStub } from './cli-fixtures.ts';
 import { fontToolRoots } from './host.ts';
 import type { HostEnvironment } from './host.ts';
 
@@ -143,7 +143,7 @@ const BROKEN = '{ "palettes": [], }';
 const READING = ['build', 'check', 'audit', 'usage'] as const;
 
 function environment(extra: HostEnvironment = {}): HostEnvironment {
-  return { arena: null, packageName: '@dravensoft/arena-react', map: MAP, sheets: null, vocabulary: null,
+  return { arena: packageStub(SHEETS), packageName: '@dravensoft/arena-react', map: MAP, sheets: null, vocabulary: null,
     phosphor: phosphor().core, ...extra };
 }
 

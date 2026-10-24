@@ -61,9 +61,7 @@ export function contrastProblems(layer: string, readings: ContrastReading[]) {
 
 export function pageFor(css: string, packageName: string, scope: string) {
   return {
-    css: css
-      .replaceAll(`@import '${packageName}/`, `@import '/node_modules/${packageName}/`)
-      .replace(/@import url\('https:[^']*'\);\n?/g, ''),
+    css: css.replace(/@import url\('https:[^']*'\);\n?/g, ''),
     html: '<!doctype html><html><head><link rel="stylesheet" href="entry.css">\n'
       + `<link rel="stylesheet" href="/node_modules/${packageName}/${CARD}"></head><body>\n`
       + `<div id="root" class="arena-card__root">root</div>\n`

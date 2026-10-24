@@ -78,8 +78,6 @@ export function checkBridge(bridgeCss: string, prebuiltCss: string, tokens: Set<
   return errs;
 }
 
-/* The package's copy must resolve with no `style` export condition: no bare-specifier @import,
- * the CDK's own sheet verbatim, and the z-scale override after it. */
 export function publishedBridgeProblems(published: string, prebuilt: string) {
   const errs: string[] = [];
   const stripped = published.replace(/\/\*[\s\S]*?\*\//g, '');
