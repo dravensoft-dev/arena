@@ -53,8 +53,8 @@ export class ArenaUnauthCard {
     'h2', { transform: (value) => value ?? 'h2' },
   );
 
-  protected readonly brand = contentChild(ArenaBrand);
-  protected readonly footer = contentChild(ArenaFooter);
+  protected readonly brand = contentChild(ArenaBrand, { descendants: false });
+  protected readonly footer = contentChild(ArenaFooter, { descendants: false });
 
   protected readonly styles = computed(() => arenaUnauthCardStyles());
 }

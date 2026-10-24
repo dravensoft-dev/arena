@@ -42,7 +42,7 @@ export class ArenaSection {
   readonly eyebrow = input<string>();
   /** A line under the title, in the muted ink. The line sits below the head row, not beside the title, because a sentence and an action sharing one row make a head wrap on a narrow screen. */
   readonly description = input<string>();
-  protected readonly action = contentChild(ArenaAction);
+  protected readonly action = contentChild(ArenaAction, { descendants: false });
   private readonly body = viewChild.required<ElementRef<HTMLElement>>('body');
 
   protected readonly heading = computed(() => {

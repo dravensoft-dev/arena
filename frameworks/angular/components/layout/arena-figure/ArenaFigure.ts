@@ -26,9 +26,9 @@ export class ArenaFigure {
 
   /** A line under the frame, rendered as a real figcaption inside a real figure, so the association is the platform's rather than a class name's. Absent, the figure renders no caption element at all rather than an empty one. */
   readonly caption = input<string>();
-  protected readonly media = contentChild(ArenaMedia);
-  protected readonly fallback = contentChild(ArenaFallback);
-  protected readonly overlay = contentChild(ArenaOverlay);
+  protected readonly media = contentChild(ArenaMedia, { descendants: false });
+  protected readonly fallback = contentChild(ArenaFallback, { descendants: false });
+  protected readonly overlay = contentChild(ArenaOverlay, { descendants: false });
 
   protected readonly styles = computed(() => arenaFigureStyles());
 }

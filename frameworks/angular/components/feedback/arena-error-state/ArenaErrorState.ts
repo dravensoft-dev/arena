@@ -67,7 +67,7 @@ export class ArenaErrorState {
   /** The retry button was activated. */
   readonly retry = output<void>();
 
-  protected readonly secondaryAction = contentChild(ArenaSecondaryAction);
+  protected readonly secondaryAction = contentChild(ArenaSecondaryAction, { descendants: false });
 
   protected readonly styles = computed(() => arenaErrorStateStyles());
 }

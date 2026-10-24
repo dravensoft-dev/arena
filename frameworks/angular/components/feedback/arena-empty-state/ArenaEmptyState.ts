@@ -49,7 +49,7 @@ export class ArenaEmptyState {
   /** A sentence of guidance under the title. */
   readonly message = input<string>();
 
-  protected readonly action = contentChild(ArenaAction);
+  protected readonly action = contentChild(ArenaAction, { descendants: false });
 
   protected readonly level = computed(() => {
     const level = this.headingLevel();

@@ -75,7 +75,7 @@ export class ArenaCard {
   /** An interactive card was activated, by pointer or by Enter or Space. With `href` the event is also how the card reports the one activation a router owns, a primary click or Enter with no modifier. Arena has already cancelled the anchor's own navigation by the time it fires. A modified or middle click is the browser's and does not fire it at all. No payload, because the consumer wrote this element and already holds what it is about. */
   readonly click = output<void>();
 
-  protected readonly action = contentChild(ArenaAction);
+  protected readonly action = contentChild(ArenaAction, { descendants: false });
 
   protected readonly headed = computed(() => Boolean(this.title() || this.eyebrow() || this.action()));
 

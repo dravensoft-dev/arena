@@ -28,9 +28,9 @@ export class ArenaAppBar {
   /** Whether the bar stays at the top edge as the page scrolls. True by default, because a bar that carries the way through a site and scrolls away with the content is a bar the reader has to go back for. The bar takes the navigation layer of the stacking order, so a dialog and a sheet still cover it. */
   readonly sticky = input(true, { transform: booleanAttribute });
 
-  protected readonly brand = contentChild(ArenaBrand);
-  protected readonly nav = contentChild(ArenaNav);
-  protected readonly actions = contentChild(ArenaActions);
+  protected readonly brand = contentChild(ArenaBrand, { descendants: false });
+  protected readonly nav = contentChild(ArenaNav, { descendants: false });
+  protected readonly actions = contentChild(ArenaActions, { descendants: false });
 
   protected readonly page = PAGE;
   protected readonly styles = computed(() => arenaAppBarStyles({ sticky: this.sticky() }));

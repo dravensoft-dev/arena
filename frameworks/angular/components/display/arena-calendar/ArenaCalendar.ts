@@ -135,7 +135,7 @@ export class ArenaCalendar {
   private readonly medium = arenaReadBreakpoint('md');
   private readonly tick = signal(0);
 
-  protected readonly actionsSlot = contentChild(ArenaActions);
+  protected readonly actionsSlot = contentChild(ArenaActions, { descendants: false });
   protected readonly chips = contentChildren(ArenaCalendarEvent);
 
   protected readonly zone = computed(

@@ -414,7 +414,7 @@ positives and both make the rule more honest: marker words inside an
 **attribute value** are stripped before matching, and a slot gated by an **input** rather than by
 a query owes no import. The real rule is *"you projected into a slot whose host gates it on a
 query"*, not *"you used a marker attribute"*, and the nearest-enclosing walk is what expresses
-it, since `contentChild` reaches direct content only.
+it, as every marker query passes `descendants: false`.
 
 **What stays uncovered is every consumer outside this repository.** A gate here cannot reach an
 adopter's app; it can only stop Arena's own pages from shipping the example.

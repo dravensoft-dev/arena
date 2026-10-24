@@ -46,7 +46,7 @@ export class ArenaPageHead {
   /** A muted line under the title. */
   readonly subtitle = input<string>();
 
-  protected readonly actions = contentChild(ArenaActions);
+  protected readonly actions = contentChild(ArenaActions, { descendants: false });
 
   private readonly width = arenaContainerWidth();
   private readonly small = arenaReadBreakpoint('sm');

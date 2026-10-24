@@ -44,7 +44,7 @@ export class ArenaChartCard {
     'none', { transform: (value) => value ?? 'none' },
   );
 
-  protected readonly actions = contentChild(ArenaActions);
+  protected readonly actions = contentChild(ArenaActions, { descendants: false });
 
   protected readonly styles = computed(() => arenaChartCardStyles());
 }

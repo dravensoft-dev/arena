@@ -44,8 +44,8 @@ export class ArenaHero {
   /** The paragraph under the title, held to a reading width rather than to the column's, because a line that runs the whole width of a hero loses its return sweep. Named lede and not description, since this is the sentence that carries the page and not a note about the heading. */
   readonly lede = input<string>();
 
-  protected readonly actions = contentChild(ArenaActions);
-  protected readonly figure = contentChild(ArenaFigureSlot);
+  protected readonly actions = contentChild(ArenaActions, { descendants: false });
+  protected readonly figure = contentChild(ArenaFigureSlot, { descendants: false });
 
   protected readonly heading = computed(() => {
     const text = this.title();

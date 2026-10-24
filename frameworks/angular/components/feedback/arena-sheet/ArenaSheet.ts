@@ -63,7 +63,7 @@ export class ArenaSheet {
   /** The panel was dismissed, by the close control or by Escape. No payload. Escape reports here rather than adding a member of its own. Escape is the only key the panel takes: a non-modal panel leaves every other key to the page behind it. */
   readonly close = output<void>();
 
-  protected readonly footer = contentChild(ArenaFooter);
+  protected readonly footer = contentChild(ArenaFooter, { descendants: false });
   private readonly uid = inject(ArenaIdGenerator).next('arena-sheet');
   protected readonly triggerId = `${this.uid}-trigger`;
   protected readonly bodyId = `${this.uid}-body`;

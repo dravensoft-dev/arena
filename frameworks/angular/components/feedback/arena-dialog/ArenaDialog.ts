@@ -80,7 +80,7 @@ export class ArenaDialog {
   private readonly panel = viewChild<ElementRef<HTMLElement>>('panel');
 
   protected readonly titleId = `${inject(ArenaIdGenerator).next('arena-dialog')}-title`;
-  protected readonly footer = contentChild(ArenaFooter);
+  protected readonly footer = contentChild(ArenaFooter, { descendants: false });
   private readonly measured = arenaContainerWidth();
   private readonly injector = inject(Injector);
   protected readonly fill = computed(() => {
