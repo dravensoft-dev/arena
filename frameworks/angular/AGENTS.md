@@ -408,7 +408,7 @@ finds it.
 **The component still cannot detect it**, because it cannot distinguish "the marker was not imported"
 from "nothing was projected", which is the case the query exists for. What is checked is every
 consumer *inside this repository*: `test/ProjectionMarkers.test.ts` walks the layer, pairs each
-marker use with the **nearest enclosing** `arena-*` element, and fails when that host gates the
+marker use with the **innermost enclosing** element, and fails when that host gates the
 slot by a `contentChild` query and the consumer does not import the directive. Two refinements answer real false
 positives and both make the rule more honest: marker words inside an
 **attribute value** are stripped before matching, and a slot gated by an **input** rather than by

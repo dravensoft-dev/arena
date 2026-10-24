@@ -69,6 +69,8 @@ export function importsOf(source: string): string {
   return end === -1 ? '' : source.slice(at, end);
 }
 
+const VOID = new Set(['area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'source', 'track', 'wbr']);
+
 export function markerUses(template: string, queried: Map<string, string[]>): Array<{ marker: string; host: string | null }> {
   const uses: Array<{ marker: string; host: string | null }> = [];
   const stack: string[] = [];
@@ -87,7 +89,7 @@ export function markerUses(template: string, queried: Map<string, string[]>): Ar
       const charged = enclosing !== null && enclosing.startsWith('arena-') && (queried.get(marker) ?? []).includes(enclosing);
       uses.push({ marker, host: charged ? enclosing : null });
     }
-    if (!selfClosing) stack.push(name);
+    if (!selfClosing && !VOID.has(name.toLowerCase())) stack.push(name);
   }
   return uses;
 }
@@ -189,4 +191,8 @@ test('a marker name appearing inside a longer attribute is not a use of it', () 
 
 test('a marker inside an ng-container is charged to nobody, as its slot is the default one', () => {
   assert.deepEqual(markerUses('<arena-card><ng-container><button action>x</button></ng-container></arena-card>', QUERIED), [{ marker: 'action', host: null }]);
+});
+
+test('a void element written without a slash does not break the charge of a later sibling', () => {
+  assert.deepEqual(markerUses('<arena-card><img src="a"><button action>x</button></arena-card>', QUERIED), [{ marker: 'action', host: 'arena-card' }]);
 });
