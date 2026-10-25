@@ -253,7 +253,7 @@ export const ROUTES: Route[] = [
       + 'of that bundler\'s family',
     entry: 'consumer',
     stops: ['skills/design/references/bundlers/index.md', 'skills/design/references/bundlers/rollup.md'],
-    budget: 18_150,
+    budget: 18_600,
     reason:
       'paid once per project, when the bundler config is written, and measured on the rollup family, '
       + 'the largest page a reader takes from the index. What it buys is that a reader stops '
@@ -264,7 +264,7 @@ export const ROUTES: Route[] = [
       + 'configs of four bundlers on two layers as measured: the chunk tests, the plugin that links the '
       + 'package sheet, the plugin that empties a CSS import, the Angular compiler and linker steps, and '
       + 'the copy step for the sprite, and the plugin list the measured config uses. The other family pages are smaller. What moves this number is a '
-      + 'bundler measured, or a behaviour found, or a question every page answers: how the sprite is served. A bundler the latest run left out says which run measured it, in the index and in its family page.',
+      + 'bundler measured, or a behaviour found, or a question every page answers: how the sprite is served. A bundler the latest run left out says which run measured it, in the index and in its family page. The index says Arena works on any bundler and what a measured one adds.',
   },
   {
     name: 'consumer-page',
