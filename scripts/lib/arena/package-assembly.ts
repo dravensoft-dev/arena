@@ -18,7 +18,7 @@ import { componentMap, MAP_FILE } from './component-map.ts';
 import { iconManifest, MANIFEST_FILE } from './icon-manifest.ts';
 import { shippedNames } from '../../generate/core/arena-cli/icon-css.ts';
 import { manifestFiles } from '../tailwind/tailwind-compile.ts';
-import { tailwindThemeSheet } from '../tailwind/theme-sheet.ts';
+import { tailwindThemeSheet, THEME_SOURCES } from '../tailwind/theme-sheet.ts';
 import { preflightSheet } from '../tailwind/component-sheets.ts';
 import { huePath } from '../tailwind/hue-sheet.ts';
 import { CONSUME, sheetPath } from '../../build/tailwind/build-tailwind.ts';
@@ -344,6 +344,12 @@ export function declaredProperties(css: string) {
   const bare = css.replace(/\/\*[\s\S]*?\*\//g, '').replace(/"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'/g, '""');
   return [...bare.matchAll(DECLARED_PROPERTY)].map(([, name = '']) => name);
 }
+
+export const CHANNEL_SOURCES = [
+  ...CSS_CHAIN.flatMap(({ from }) => (from === undefined ? [] : [from])),
+  'frameworks/tailwind/Utilities.generated.css', `${CONSUME}/**/*.css`,
+  ...THEME_SOURCES.theme, ...THEME_SOURCES.utilities,
+];
 
 export function shippedChannels(root = repoRoot) {
   const sources = [

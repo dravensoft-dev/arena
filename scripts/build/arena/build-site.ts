@@ -40,7 +40,7 @@ export const node = {
     'plugin-style-store/**/plugin.css', 'plugin-style-store/catalogue/*/plugin.tokens.json', 'plugin-style-store/catalogue/*/arena.config.json',
     'frameworks/tailwind/consume/**', 'frameworks/react/vendor/**',
     'frameworks/kitchen-sink/*.sink.json', 'frameworks/*/kitchen-sink/**', 'frameworks/*/components/**',
-    'frameworks/*/playground/**', 'frameworks/react/*.generated.js',
+    'frameworks/*/playground/**', 'frameworks/react/*.generated.js', 'frameworks/react/*.ts',
     'frameworks/angular/build/demo/**',
     '.claude-plugin/plugin.json', 'frameworks/tailwind/Hues.json', 'frameworks/tailwind/vocabulary/**',
     'AGENTS.md', 'contracts/AGENTS.md', 'CONTRIBUTING.md', 'DOUBTS.md', 'contracts/api/MemberForms.md', 'frameworks/AGENTS.md',

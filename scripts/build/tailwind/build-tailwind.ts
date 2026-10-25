@@ -100,6 +100,7 @@ export const node = {
     'check:parts',
     'check:arbitrary',
     'check:behaviour',
+    'check:catalogue',
     'check:compliance',
     'check:component-css',
     'check:channels',
@@ -125,6 +126,7 @@ export const node = {
     'check:text-contrast',
     'build:site',
     'check:site',
+    'generate:npm-pages',
   ],
 };
 

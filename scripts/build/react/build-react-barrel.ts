@@ -32,6 +32,7 @@ export const node = {
   writes: [BARREL_TARGET],
   feeds: [
     'build:react-package',
+    'build:site',
     'check:arbitrary',
     'check:dimensions',
     'check:duplicate-constants',
@@ -42,6 +43,7 @@ export const node = {
     'check:react-types',
     'check:script-tokens',
     'check:shared-arithmetic',
+    'check:site',
     'check:skills',
   ],
 };
