@@ -11,7 +11,7 @@
     }
   ],
   "slots": {
-    "root": "flex [flex-direction:var(--arena-orientation-direction,row)] gap-inline list-none m-0 p-0",
+    "root": "relative flex [flex-direction:var(--arena-orientation-direction,row)] gap-inline list-none m-0 p-0",
     "step": "block flex-1 min-w-0",
     "trigger": "flex flex-wrap items-start gap-control w-full min-h-ctl-h-sm min-w-ctl-h-sm rounded-control text-start font-body focus-visible:outline-none focus-visible:ring-[length:var(--focus-width)] focus-visible:ring-[color:var(--focus-ring)]",
     "rail": "flex [flex-direction:var(--arena-orientation-direction,row)] items-center self-stretch gap-inline shrink-0 basis-[var(--arena-orientation-rule-w,100%)]",

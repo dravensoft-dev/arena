@@ -20,7 +20,7 @@
     }
   ],
   "slots": {
-    "root": "flex flex-col gap-1.5",
+    "root": "relative flex flex-col gap-1.5",
     "label": "font-face-label text-ctl-xs tracking-label-role case-label text-ink-muted/(--level-ink-muted)",
     "required": "text-primary ml-1",
     "requiredLabel": "sr-only",

@@ -78,6 +78,7 @@ export const GATES: Gate[] = [
   { name: 'check:roles', file: 'tailwind/check-role-tokens.ts' },
   { name: 'check:arbitrary', file: 'tailwind/check-arbitrary-values.ts' },
   { name: 'check:safe-area', file: 'tailwind/check-safe-area.ts' },
+  { name: 'check:hidden-parts', file: 'tailwind/check-hidden-parts.ts' },
   { name: 'check:component-css', file: 'tailwind/check-component-css.ts' },
   { name: 'check:channels', file: 'tailwind/check-channels.ts' },
   { name: 'check:dimensions', file: 'arena/check-dimension-literals.ts' },

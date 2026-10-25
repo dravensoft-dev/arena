@@ -11,7 +11,7 @@
     }
   ],
   "slots": {
-    "root": "flex [flex-direction:var(--arena-orientation-direction,column)] gap-items list-none m-0 p-0",
+    "root": "relative flex [flex-direction:var(--arena-orientation-direction,column)] gap-items list-none m-0 p-0",
     "item": "flex flex-wrap content-start items-start gap-inline flex-1 min-w-0",
     "rail": "flex [flex-direction:var(--arena-orientation-direction,column)] items-center self-stretch gap-0 shrink-0 basis-[var(--arena-orientation-rule-w,var(--bw-separator))]",
     "dot": "inline-flex flex-none items-center justify-center size-timeline-dot rounded-pill border-[length:var(--bw-control)]",

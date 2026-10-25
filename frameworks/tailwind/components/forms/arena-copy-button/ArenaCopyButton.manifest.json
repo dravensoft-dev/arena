@@ -20,7 +20,7 @@
     }
   ],
   "slots": {
-    "root": "inline-flex items-center w-fit",
+    "root": "relative inline-flex items-center w-fit",
     "announcement": "sr-only"
   },
   "kind": {

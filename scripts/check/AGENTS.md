@@ -221,7 +221,7 @@ nowhere runs in no job and is worth nothing, so the directory is not the authori
 | domain | gates | |
 | --- | --- | --- |
 | [`arena/`](./arena/AGENTS.md) | 59 | two or more layers at once, or the repository root |
-| [`tailwind/`](./tailwind/AGENTS.md) | 9 | the shared Tailwind layer |
+| [`tailwind/`](./tailwind/AGENTS.md) | 10 | the shared Tailwind layer |
 | [`angular/`](./angular/AGENTS.md) | 5 | the Angular layer |
 | [`core/`](./core/AGENTS.md) | 15 | `contracts/` and `assets/` only |
 | [`react/`](./react/AGENTS.md) | 5 | the React layer |
