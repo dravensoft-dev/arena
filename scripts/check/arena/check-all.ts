@@ -118,6 +118,7 @@ export const GATES: Gate[] = [
   { name: 'check:focus-trap', file: 'arena/check-focus-trap.ts', pool: 'browser', cost: 4.1 },
   { name: 'check:anchoring', file: 'arena/check-anchoring.ts', pool: 'browser', cost: 6.3 },
   { name: 'check:target-size', file: 'arena/check-target-size.ts', pool: 'browser', cost: 20.3 },
+  { name: 'check:contained-parts', file: 'arena/check-contained-parts.ts', pool: 'browser', cost: 12.6 },
   { name: 'check:pixel-parity', file: 'arena/check-pixel-parity.ts', pool: 'browser', cost: 52 },
   { name: 'check:proximity', file: 'arena/check-proximity.ts', pool: 'browser', cost: 10.2 },
   { name: 'check:palette-islands', file: 'arena/check-palette-islands.ts', pool: 'browser', cost: 4.7 },
