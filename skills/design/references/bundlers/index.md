@@ -2,7 +2,7 @@
 
 What does my bundler do with Arena, and what do I write in its config? Find your bundler in the table below. The table answers whether Arena's JavaScript and its package sheet can sit in files of their own, and what differs from the other bundlers. The page gives the config and the behaviour you would otherwise discover in your own build. Read this before you write your bundler's config, and then only the page it names.
 
-No bundler is required. A bundler that cannot keep Arena apart still builds the app, and its page says what that costs. Every row carries the evidence it has, on the scale of [`stack.md`](../stack.md), section "The evidence column, and why it is there". The figures each bundler measured are in [`environments.md`](../environments.md).
+No bundler is required. A bundler that cannot keep Arena apart still builds the app, and its page says what that costs. Every row carries the evidence it has, on the scale of [`stack.md`](../stack.md), section "The evidence column, and why it is there". Rows dated 2026-10-25 were measured by an adopter repository on the tree that becomes 13.0.0 (`40c82585b`), each with the bundler version in the Measured column. Rows dated 2026-10-23 were measured on the tree at `40a3c539`, and no repository built them again. The figures each bundler measured are in [`environments.md`](../environments.md).
 
 ## What every bundler is asked to do
 
@@ -16,17 +16,17 @@ No bundler is required. A bundler that cannot keep Arena apart still builds the 
 
 | Your bundler | Measured | Arena's JS in a chunk of its own | The package sheet in a file of its own | What differs | Page |
 | --- | --- | --- | --- | --- | --- |
-| rollup | 4.62 | yes, `manualChunks`; held by a gate | not exercised: rollup imports no CSS, a plugin decides | the one bundler Arena's own board bundles with | [rollup family](./rollup.md) |
-| Vite 7 | 7.3.7 | yes, `manualChunks`; verified by hand once | yes, measured | the chunk test also matches the sheet by name, because the sheet sits outside `node_modules` | [rollup family](./rollup.md) |
-| Vite 8 | 8.1.6 | yes, `codeSplitting.groups`; verified by hand once | yes, measured | `codeSplitting.groups`, under the key Vite 7 uses for `manualChunks` | [rollup family](./rollup.md) |
-| rolldown | 1.2.12 | yes, `codeSplitting.groups`; verified by hand once | no: the build stops on a CSS import | the sheets reach the page without the bundler | [rollup family](./rollup.md) |
-| webpack | 5.111.1 | yes, `splitChunks.cacheGroups`; verified by hand once | yes, with `experiments: { css: true }`, measured | the cache group names its `type`, or the sheet stays with the app's CSS | [webpack family](./webpack.md) |
-| rspack | 2.2.8 | yes, the webpack recipe; verified by hand once | yes, with a `css/auto` rule, measured | one rule more than webpack | [webpack family](./webpack.md) |
-| Parcel | 2.16.4 | yes, `manualSharedBundles`, only with `packageExports: true`; verified by hand once | not exercised: the sheet holds no `@import`; linking it from the page is the other path | React stays with the app, and no dictionary can serve the Arena bundle | [Parcel](./parcel.md) |
-| Angular `application` builder | 22.2.1 | does not work: Arena lands in `main` | no: the `styles` option emits one file | the dictionary is the way out | [Angular builder](./angular.md) |
-| Bun `bun build` | 1.4.0 | does not work | no: one CSS file for the entry | the output directory is not emptied between builds | [Bun and esbuild](./bun-esbuild.md) |
-| esbuild | 0.28 | does not work | no: one CSS file for the entry, with splitting too | an Angular bundle defines `ngDevMode` itself | [Bun and esbuild](./bun-esbuild.md) |
-| Next.js, Turbopack | not exercised | allowed by the manifest, not exercised | not exercised | Next.js picks its chunks itself, and the server boundary is yours | [Next.js](./next.md) |
+| rollup | 4.65.0 | yes, `manualChunks`; held by a gate, and measured on 2026-10-25 | no: a CSS import stops the build, so the page links the sheet; measured on 2026-10-25 | the one bundler Arena's own board bundles with | [rollup family](./rollup.md) |
+| Vite 7 | 7.3.7 | yes, `manualChunks`; measured on 2026-10-25 | yes; measured on 2026-10-25 | the chunk test also matches the sheet by name, because the sheet sits outside `node_modules` | [rollup family](./rollup.md) |
+| Vite 8 | 8.3.5 | yes, `codeSplitting.groups`; measured on 2026-10-25 | yes; measured on 2026-10-25 | `codeSplitting.groups`, under the key Vite 7 uses for `manualChunks` | [rollup family](./rollup.md) |
+| rolldown | 1.2.15 | yes, `codeSplitting.groups`; measured on 2026-10-25 | no: the build stops on a CSS import, so the page links the sheet; measured on 2026-10-25 | the sheets reach the page without the bundler | [rollup family](./rollup.md) |
+| webpack | 5.112.2 | yes, `splitChunks.cacheGroups`; measured on 2026-10-25 | yes, with `experiments: { css: true }`; measured on 2026-10-25 | a group per kind of file, and `experiments: { html: false }` beside `html-webpack-plugin` | [webpack family](./webpack.md) |
+| rspack | 2.2.9 | yes, the webpack recipe; measured on 2026-10-25 | yes, with a `css/auto` rule on React and a `styles` entry on Angular; measured on 2026-10-25 | one rule more than webpack on React | [webpack family](./webpack.md) |
+| Parcel | 2.16.4 | yes, `manualSharedBundles`, with `packageExports: true` for an Arena subpath; measured on 2026-10-25 | yes, a second `manualSharedBundles` entry; measured on 2026-10-25 | React stays with the app, and no dictionary can serve the Arena bundle | [Parcel](./parcel.md) |
+| Angular `application` builder | 22.2.4 | does not work: Arena lands in `main`; measured on 2026-10-25 | no: the `styles` option emits one file; measured on 2026-10-25 | the dictionary is the way out | [Angular builder](./angular.md) |
+| Bun `bun build` | 1.4.0 | does not work; measured on 2026-10-23 | no: one CSS file for the entry; measured on 2026-10-23 | the output directory is not emptied between builds | [Bun and esbuild](./bun-esbuild.md) |
+| esbuild | 0.28 | does not work; measured on 2026-10-23 | no: one CSS file for the entry, with splitting too; measured on 2026-10-23 | an Angular bundle defines `ngDevMode` itself | [Bun and esbuild](./bun-esbuild.md) |
+| Next.js, Turbopack | 16.4.3 | no: no chunk holds Arena alone; measured on 2026-10-25 | yes, a CSS file holds it alone, with no config; measured on 2026-10-25 | Next.js picks its chunks itself, and the server boundary is yours | [Next.js](./next.md) |
 
 **A bundler not in this table** is allowed by the manifest and not exercised. Read the page of the bundler whose chunk option it copies: a bundler taking rollup's `output` options is the rollup family, and one taking webpack's `optimization.splitChunks` is the webpack family. Then run two checks, early and small. Build, change one line of your app, build again, and see whether the file holding Arena keeps its name. Change a palette in your config, build again, and see whether the file holding the package sheet keeps its name.
 

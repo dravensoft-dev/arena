@@ -6,10 +6,10 @@
 
 | Bundler | Version | Arena's JS apart | Evidence | The package sheet apart | Evidence |
 | --- | --- | --- | --- | --- | --- |
-| Bun `bun build` | 1.4.0 | no | does not work | no: one CSS file for the entry | measured on 2026-10-23 |
-| esbuild | 0.28 | no | does not work | no: one CSS file for the entry, with splitting too | measured on 2026-10-23 |
+| Bun `bun build` | 1.4.0 | no | does not work: measured on 2026-10-23, on the tree that becomes 13.0.0 at `40a3c539` | no: one CSS file for the entry | measured on 2026-10-23, on the tree that becomes 13.0.0 at `40a3c539` |
+| esbuild | 0.28 | no | does not work: measured on 2026-10-23, on the tree that becomes 13.0.0 at `40a3c539` | no: one CSS file for the entry, with splitting too | measured on 2026-10-23, on the tree that becomes 13.0.0 at `40a3c539` |
 
-Bun is also a package manager and a runtime. Installing Arena with bun is a different row, in [`stack.md`](../stack.md), which also names the runners that reach the `arena` command. This page is `bun build` only.
+No repository built either bundler on 2026-10-25, so both rows predate the tree that rotation measured, and its changes to the files Arena writes were not measured against them. Bun is also a package manager and a runtime. Installing Arena with bun is a different row, in [`stack.md`](../stack.md), which also names the runners that reach the `arena` command. This page is `bun build` only.
 
 ## Why can Arena not sit in a file of its own?
 
@@ -24,6 +24,7 @@ Both emit one CSS file for the entry, holding the package sheet, `arena.generate
 ## What differs from the other bundlers?
 
 - **`bun build` does not empty its output directory.** Every earlier hashed bundle stays beside the new one, and a deploy that copies the directory publishes them all. Clear the directory before each build.
+- **An Angular project compiles with `ngc` first.** Arena's Angular package is partially compiled, so a plugin of your own runs Angular's linker, `@angular/compiler-cli/linker/babel` through `@babel/core`, over each file that holds `ɵɵngDeclare`. Both bundlers take it as an `onLoad` hook, and the bundle's entry imports `.ngc/src/main.js` and `src/styles.css`. Not built on 2026-10-25.
 - **An esbuild bundle of the Angular layer defines `ngDevMode`** itself, as `define: { ngDevMode: 'false' }`, which a production build of the Angular CLI sets for you; verified by hand once. [The Angular builder page](./angular.md) covers the builder a project normally runs.
 
 ## How is the sprite served?

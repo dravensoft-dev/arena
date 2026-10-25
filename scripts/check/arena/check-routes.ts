@@ -234,7 +234,7 @@ export const ROUTES: Route[] = [
       + 'each of those answers has',
     entry: 'consumer',
     stops: ['skills/design/references/stack.md'],
-    budget: 12_300,
+    budget: 13_200,
     reason:
       'paid once per project like the surface, skin, register and seo routes, and taken beside the '
       + 'cold start tree rather than after it, because a toolchain settled after the first screen is '
@@ -244,7 +244,8 @@ export const ROUTES: Route[] = [
       + 'page costs and all of what makes it usable. What it does not carry is the layer decision and '
       + 'the render architecture, which are nodes of the cold start tree. The peers table says which '
       + 'peer is required and which optional, and why a command names no framework peer. Each bundler '
-      + 'row names its evidence and the family page holding its config, which the bundler route pays for.',
+      + 'row names its evidence and the family page holding its config, which the bundler route pays for. '
+      + 'A bundler row measured by an adopter repository names the run: its date, the bundler version and the Arena tree.',
   },
   {
     name: 'consumer-bundler',
@@ -252,16 +253,18 @@ export const ROUTES: Route[] = [
       + 'of that bundler\'s family',
     entry: 'consumer',
     stops: ['skills/design/references/bundlers/index.md', 'skills/design/references/bundlers/rollup.md'],
-    budget: 11_300,
+    budget: 17_700,
     reason:
       'paid once per project, when the bundler config is written, and measured on the rollup family, '
       + 'the largest page a reader takes from the index. What it buys is that a reader stops '
       + 'discovering in their own build what a bundler does with Arena: the index answers whether '
       + 'Arena\'s JS and its package sheet can sit in files of their own for every bundler measured, '
       + 'so most readers stop there, and the family page carries the config that does it and each '
-      + 'behaviour that differs, which a reader cannot rebuild from a hint. The other family pages '
-      + 'are smaller. What moves this number is a bundler measured, or a behaviour found, or a question '
-      + 'every page answers: how the sprite is served, which a reader cannot guess from the bundler\'s name.',
+      + 'behaviour that differs, which a reader cannot rebuild from a hint. The rollup page holds the '
+      + 'configs of four bundlers on two layers as measured: the chunk tests, the plugin that links the '
+      + 'package sheet, the plugin that empties a CSS import, the Angular compiler and linker steps, and '
+      + 'the copy step for the sprite. The other family pages are smaller. What moves this number is a '
+      + 'bundler measured, or a behaviour found, or a question every page answers: how the sprite is served.',
   },
   {
     name: 'consumer-page',
@@ -443,7 +446,7 @@ export const ROUTES: Route[] = [
       + 'package is, and what CI does with the tag once it exists',
     entry: 'contributor',
     stops: ['versioning_steps.md', 'frameworks/PACKAGING.md', '.github/workflows/AGENTS.md'],
-    budget: 76_200,
+    budget: 76_300,
     reason:
       'the least frequent route and the costliest to get wrong, because '
       + 'each failure publishes nothing and errors nowhere. The sequence is the first stop '
