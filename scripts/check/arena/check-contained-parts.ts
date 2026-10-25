@@ -93,21 +93,39 @@ const partOf = (key: string) => {
   return `${kebab(component).replace(/^arena-/, '')}.${kebab(slot)}`;
 };
 
-export function heldProblems(rows: Placed[], held = HELD): string[] {
+export const UNDRAWN = new Map<string, string>([
+  ['ArenaSlider.thumbLabel', 'no kitchen sink draws a slider thumb value label, so only the static half of '
+    + 'check:hidden-parts holds it'],
+]);
+
+export function heldProblems(rows: Placed[], held = HELD, undrawn = UNDRAWN): string[] {
   const problems: string[] = [];
   for (const [key, entry] of held) {
     const part = partOf(key);
     const drawn = rows.filter((one) => one.part === part);
+    if (drawn.length === 0) {
+      if (!undrawn.has(key)) {
+        problems.push(`HELD ${key} is drawn by no sink in either layer (looked for ${part}), so nothing checked it: `
+          + 'name the part the sinks draw, or list the entry in UNDRAWN with the reason');
+      }
+      continue;
+    }
     const holder = `${prefixOf(part)}.${kebab(entry.by)}`;
     const wrong = drawn.filter((one) => one.holder !== holder);
     if (wrong.length === 0) continue;
     problems.push(`HELD ${key} says ${part} sits inside ${holder}, and ${wrong.length} of ${drawn.length} `
       + `drawn instance(s) sit inside ${[...new Set(wrong.map((one) => one.holder ?? 'no Arena part'))].sort().join(', ')}`);
   }
+  for (const key of undrawn.keys()) {
+    if (!held.has(key)) problems.push(`UNDRAWN ${key} is no HELD key, so the entry is stale`);
+    else if (rows.some((one) => one.part === partOf(key))) {
+      problems.push(`UNDRAWN ${key} is drawn by a sink after all, so the entry is stale`);
+    }
+  }
   return problems;
 }
 
-export function emptyProblems(rows: Placed[], sinks: string[]): string[] {
+export function emptyProblems(rows: Placed[], sinks: string[], layers: string[] = SINK_LAYERS): string[] {
   const problems: string[] = [];
   if (sinks.length === 0) {
     problems.push('swept 0 kitchen sinks, so every part was compared against nothing; an empty sweep is a failure');
@@ -115,6 +133,26 @@ export function emptyProblems(rows: Placed[], sinks: string[]): string[] {
   if (rows.length === 0) {
     problems.push('found 0 absolutely positioned Arena parts; the sinks draw tooltips, fills and hidden parts, '
       + 'so a sweep that finds none stopped reaching them');
+    return problems;
+  }
+  for (const layer of layers) {
+    if (!rows.some((one) => one.layer === layer)) {
+      problems.push(`${layer} drew 0 absolutely positioned Arena parts in every sink, while the other layer's rows `
+        + 'would have carried the sweep');
+    }
+  }
+  const counts = new Map<string, Map<string, number>>();
+  for (const one of rows) {
+    const bySink = counts.get(one.sink) ?? new Map<string, number>();
+    bySink.set(one.layer, (bySink.get(one.layer) ?? 0) + 1);
+    counts.set(one.sink, bySink);
+  }
+  for (const [sink, bySink] of [...counts].sort()) {
+    const per = layers.map((layer) => bySink.get(layer) ?? 0);
+    if (new Set(per).size > 1) {
+      problems.push(`${sink} draws ${layers.map((layer, at) => `${per[at]} in ${layer}`).join(' and ')} absolutely `
+        + 'positioned parts, and the layers draw the same sink');
+    }
   }
   return problems;
 }
