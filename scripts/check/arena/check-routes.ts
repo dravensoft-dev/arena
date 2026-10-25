@@ -253,7 +253,7 @@ export const ROUTES: Route[] = [
       + 'of that bundler\'s family',
     entry: 'consumer',
     stops: ['skills/design/references/bundlers/index.md', 'skills/design/references/bundlers/rollup.md'],
-    budget: 17_700,
+    budget: 18_000,
     reason:
       'paid once per project, when the bundler config is written, and measured on the rollup family, '
       + 'the largest page a reader takes from the index. What it buys is that a reader stops '
@@ -263,7 +263,7 @@ export const ROUTES: Route[] = [
       + 'behaviour that differs, which a reader cannot rebuild from a hint. The rollup page holds the '
       + 'configs of four bundlers on two layers as measured: the chunk tests, the plugin that links the '
       + 'package sheet, the plugin that empties a CSS import, the Angular compiler and linker steps, and '
-      + 'the copy step for the sprite. The other family pages are smaller. What moves this number is a '
+      + 'the copy step for the sprite, and the plugin list the measured config uses. The other family pages are smaller. What moves this number is a '
       + 'bundler measured, or a behaviour found, or a question every page answers: how the sprite is served.',
   },
   {

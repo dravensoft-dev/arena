@@ -133,7 +133,7 @@ the page holding your bundler's config and what that bundler does differently.
 | webpack, rspack | measured on 2026-10-25 with webpack 5.112.2 and rspack 2.2.9, on the tree that becomes 13.0.0 (`40c82585b`) | [webpack family](./bundlers/webpack.md) |
 | Parcel | measured on 2026-10-25 with Parcel 2.16.4, on the tree that becomes 13.0.0 (`40c82585b`) | [Parcel](./bundlers/parcel.md) |
 | Angular `application` builder | does not work, measured on 2026-10-25 with `@angular/build` 22.2.4, on the tree that becomes 13.0.0 (`40c82585b`) | [Angular builder](./bundlers/angular.md) |
-| Bun, esbuild | does not work, measured on 2026-10-23 and not built on 2026-10-25 | [Bun and esbuild](./bundlers/bun-esbuild.md) |
+| Bun, esbuild | does not work, verified by hand once on 2026-10-23, on the tree at `40a3c539` | [Bun and esbuild](./bundlers/bun-esbuild.md) |
 | Next.js | no chunk holds Arena alone, measured on 2026-10-25 with Next.js 16.4.3, on the tree that becomes 13.0.0 (`40c82585b`); `next build --webpack` was not exercised | [Next.js](./bundlers/next.md) |
 
 ## What this page does not decide

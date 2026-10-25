@@ -19,7 +19,7 @@ An adopter repository measured every row dated 2026-10-25. The repository holds 
 | Parcel 2.16.4 | superhuman |
 | Next.js 16.4.3 on React, `@angular/build` 22.2.4 on Angular | calendly |
 
-Each half builds with its bundler's own command and the config its page gives. Arena is the tree that becomes 13.0.0, packed from commit `40c82585b` and measured on 2026-10-25. Bun and esbuild have no half in that run, and their rows keep the figures of 2026-10-23, measured on the tree at `40a3c539`.
+Each half builds with its bundler's own command and the config its page gives. Arena is the tree that becomes 13.0.0, packed from commit `40c82585b` and measured on 2026-10-25. Bun and esbuild have no half in that run, and their rows keep the figures of 2026-10-23, verified by hand once on the tree at `40a3c539`.
 
 Every figure is in KB of 1024 bytes, compressed with brotli at quality 11 and a 24-bit window. The products differ in what they draw, so a figure compares builds of one half and never two bundlers. "Plain" is the build without the page's config, and "with the config" is the build that follows the page. For rollup and rolldown the config is the JS-only one, so React stays with the app. For Vite, webpack and rspack it is the sheet config, which keeps React apart as well. Parcel keeps React with the app, and the Angular builder has no config, so its two builds are one.
 
@@ -42,7 +42,7 @@ Figures for React and for Angular are written React / Angular. A project that wa
 | rolldown | 1.2.15 | grafana | yes, `codeSplitting.groups` | 70.42 to 71.99 / 255.95 to 257.9 | 70.34 to 40 / 255.76 to 10.87 | 71.66 / 257.95 | 0.09 / 0.09 |
 | webpack | 5.112.2 | instagram | yes, `splitChunks.cacheGroups` | 57.88 to 59.49 / 257.78 to 267.52 | 57.86 to 5.56 / 257.81 to 157.86 | 21.31 / 267.68 | 0.49 / 0.09 |
 | rspack | 2.2.9 | notion | yes, `splitChunks.cacheGroups` | 62.92 to 64.91 / 86.94 to 93.84 | 62.81 to 6.08 / 86.68 to 65.47 | 26.73 / 93.54 | 0.7 / 0.16 |
-| Parcel | 2.16.4 | superhuman | yes, `manualSharedBundles`, and `packageExports: true` for an Arena subpath | 55.66 to 58.38 / 278.26 to 284.98 | 55.64 to 42.43 / 278.47 to 174.2 | 58.39 / 285.04 | not measured: its two shared bundles share a name stem |
+| Parcel | 2.16.4 | superhuman | yes, `manualSharedBundles`, and `packageExports: true` | 55.66 to 58.38 / 278.26 to 284.98 | 55.64 to 42.43 / 278.47 to 174.2 | 58.39 / 285.04 | not measured: its two shared bundles share a name stem |
 | `@angular/build` `application` | 22.2.4 | calendly | no | none / 68.75 | none / 68.73 | none / 68.82 | none / 0.06 |
 | Next.js (Turbopack) | 16.4.3 | calendly | no: no chunk holds Arena alone | 167.9 / none | 20.4 / none | 20.38 / none | 20.38 / none |
 
@@ -73,11 +73,11 @@ Each half's first visit with the page's config, in KB brotli q11, measured on 20
 | React | calendly | Next.js 16.4.3 | 167.9 | 15.88 | 1.69 | 0 | 185.47 |
 | Angular | calendly | `@angular/build` 22.2.4 | 68.75 | 16.08 | 1.69 | 0 | 86.52 |
 
-On the tree of 2026-10-23, a one-line change to a component's CSS downloaded 0.02 of the package sheet again with the previous file as the dictionary. An app release downloaded none of it. The Angular builder emits the sheets as one file, and on the calendly half it weighs 16.08.
+On the tree at `40a3c539` (verified by hand once, 2026-10-23), a one-line change to a component's CSS downloaded 0.02 of the package sheet again. The previous file was the dictionary. An app release downloaded none of it. The Angular builder emits the sheets as one file, and on the calendly half it weighs 16.08.
 
 ## Where does Arena's package sheet land in the output?
 
-The app imports `arena.package.generated.css`, then `arena.generated.css`, then its own sheet. "Alone" means an output CSS file that holds the package sheet and nothing of the app. Measured on 2026-10-25, by changing the app's text and its own sheet and comparing the output files. The Bun and esbuild rows were measured on 2026-10-23.
+The app imports `arena.package.generated.css`, then `arena.generated.css`, then its own sheet. "Alone" means an output CSS file that holds the package sheet and nothing of the app. Measured on 2026-10-25, by changing the app's text and its own sheet and comparing the output files. The Bun and esbuild rows were verified by hand once on 2026-10-23.
 
 | bundler | alone | config that does it | after an app release |
 | --- | --- | --- | --- |
@@ -87,8 +87,8 @@ The app imports `arena.package.generated.css`, then `arena.generated.css`, then 
 | rspack 2.2.9 | yes | the webpack config, a `css/auto` rule for `.css` on React, and a `styles` entry on Angular | the Arena file keeps its bytes and its name |
 | Parcel 2.16.4 | yes | the second `manualSharedBundles` entry of [the Parcel page](./bundlers/parcel.md) | the Arena file keeps its bytes and its name |
 | Next.js 16.4.3 | yes, with no config | Turbopack's own chunks | not measured |
-| rollup 4.65.0 | no | rollup stops on a CSS import, so the page links the sheet | not applicable |
-| rolldown 1.2.15 | no | the build stops: "Bundling CSS is no longer supported (experimental support has been removed)", so the page links the sheet | not applicable |
+| rollup 4.65.0 | not through the bundler | rollup stops on a CSS import, so the page links the sheet as written | not applicable |
+| rolldown 1.2.15 | not through the bundler | the build stops: "Bundling CSS is no longer supported (experimental support has been removed)", so the page links the sheet as written | not applicable |
 | Bun 1.4.0 | no | one CSS file for the entry | a new name with every release |
 | esbuild 0.28 | no | one CSS file for the entry, with splitting too | a new name with every release |
 | `@angular/build` `application` 22.2.4 | no | the `styles` option emits one file | a new name with every release |
@@ -100,8 +100,8 @@ Without that config webpack emits one CSS file as well, measured on 2026-10-25.
 | environment | status | why |
 | --- | --- | --- |
 | `@angular/build` `application` 22.2.4 | does not work for keeping Arena apart | the builder links Arena into `main` with the app, and the `styles` option emits one CSS file. Measured on 2026-10-25 |
-| Bun 1.4.0 `bun build` | does not work | splitting shares code between entries and has no way to pin a module to a chunk, so Arena stays in the app's bundle. One bundle, typical screen, measured on 2026-10-23. A first visit weighs 54.11, and so does each release. A patch weighs 54.13, or 0.03 with a dictionary |
-| esbuild 0.28 | does not work | esbuild splitting shares code between entries and cannot pin a module to a chunk. Measured on 2026-10-23 |
+| Bun 1.4.0 `bun build` | does not work | splitting shares code between entries and has no way to pin a module to a chunk, so Arena stays in the app's bundle. One bundle, typical screen, verified by hand once on 2026-10-23, on the tree at `40a3c539`. A first visit weighs 54.11, and so does each release. A patch weighs 54.13, or 0.03 with a dictionary |
+| esbuild 0.28 | does not work | esbuild splitting shares code between entries and cannot pin a module to a chunk. Verified by hand once on 2026-10-23, on the tree at `40a3c539` |
 | `next build --webpack` | not exercised | the webpack row is the recipe, and how Next.js merges it with its own webpack config was not run |
 
 A bundler that does not work for this purpose still builds the app. What it cannot do is keep Arena's file apart, so each release of the app downloads Arena again.

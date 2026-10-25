@@ -6,8 +6,8 @@
 
 | Bundler | Version | Arena's JS apart | Evidence | The package sheet apart | Evidence |
 | --- | --- | --- | --- | --- | --- |
-| Bun `bun build` | 1.4.0 | no | does not work: measured on 2026-10-23, on the tree that becomes 13.0.0 at `40a3c539` | no: one CSS file for the entry | measured on 2026-10-23, on the tree that becomes 13.0.0 at `40a3c539` |
-| esbuild | 0.28 | no | does not work: measured on 2026-10-23, on the tree that becomes 13.0.0 at `40a3c539` | no: one CSS file for the entry, with splitting too | measured on 2026-10-23, on the tree that becomes 13.0.0 at `40a3c539` |
+| Bun `bun build` | 1.4.0 | no | does not work: verified by hand once on 2026-10-23, on the tree at `40a3c539` | no: one CSS file for the entry | verified by hand once on 2026-10-23, on the tree at `40a3c539` |
+| esbuild | 0.28 | no | does not work: verified by hand once on 2026-10-23, on the tree at `40a3c539` | no: one CSS file for the entry, with splitting too | verified by hand once on 2026-10-23, on the tree at `40a3c539` |
 
 No repository built either bundler on 2026-10-25, so both rows predate the tree that rotation measured, and its changes to the files Arena writes were not measured against them. Bun is also a package manager and a runtime. Installing Arena with bun is a different row, in [`stack.md`](../stack.md), which also names the runners that reach the `arena` command. This page is `bun build` only.
 

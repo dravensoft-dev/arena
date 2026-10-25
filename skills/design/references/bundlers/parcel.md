@@ -8,7 +8,7 @@ Parcel was built on React and on Angular, each by a repository of its own that d
 
 | Bundler | Version | Arena's JS apart | Evidence | The package sheet apart | Evidence |
 | --- | --- | --- | --- | --- | --- |
-| Parcel | 2.16.4 | yes, with the shared bundle below, and `packageExports: true` for an Arena subpath | measured on 2026-10-25, Parcel 2.16.4, Arena: the tree that becomes 13.0.0 (`40c82585b`) | yes, with a second shared bundle | measured on 2026-10-25, Parcel 2.16.4, Arena: the tree that becomes 13.0.0 (`40c82585b`) |
+| Parcel | 2.16.4 | yes, with the shared bundle below, and `packageExports: true` | measured on 2026-10-25, Parcel 2.16.4, Arena: the tree that becomes 13.0.0 (`40c82585b`) | yes, with a second shared bundle | measured on 2026-10-25, Parcel 2.16.4, Arena: the tree that becomes 13.0.0 (`40c82585b`) |
 
 The figures of each half are in [`environments.md`](../environments.md), section "What did each bundler measure?".
 
@@ -28,7 +28,7 @@ Both options sit in `package.json`, and `root` names the entry. On React the ent
 
 The first entry keeps Arena's JS apart and the second keeps the package sheet apart, so Parcel bundles the CSS itself and the page links nothing. On Angular the first glob names `arena-angular`. The Arena CSS file keeps its bytes and its name when the app changes, measured on 2026-10-25 by changing the app's text and its own sheet.
 
-The globs match paths below the project root, so Arena's package must be a real directory there, as an npm install writes it. A link into a store fails the JS glob, measured with a symlinked copy. A monorepo that hoists the package to a parent directory does not match either, and Bun's isolated linker fails earlier, with "options.packageManager.resolve is not a function".
+The globs match paths below the project root, so Arena's package must be a real directory there, as an npm install writes it. A link into a store fails the JS glob, verified by hand once on 2026-10-24 with a symlinked copy. A monorepo that hoists the package to a parent directory does not match either, and Bun's isolated linker fails earlier, with "options.packageManager.resolve is not a function".
 
 The command is `parcel build <entry> --dist-dir dist --public-url ./ --no-cache --no-source-maps --no-autoinstall`, where `--public-url ./` serves a deploy in a subdirectory. Parcel writes `.parcel-cache` even with `--no-cache`.
 
@@ -45,7 +45,7 @@ The transformer takes `Transformer` from `@parcel/plugin`, and runs `@angular/co
 
 ## What differs from the other bundlers?
 
-- **An Arena subpath fails without `packageExports: true`.** Arena's package is reached through its `exports` field, and Parcel's resolver reads that field only when told to. Angular's `@angular/common/http` needs the option too, measured on 2026-10-25. The first import of the React package resolves through its `module` field without the option, measured on 2026-10-25.
+- **Parcel's resolver reads a package's `exports` field only when told to.** Angular's `@angular/common/http` does not resolve without `packageExports: true`: the build stops with "Failed to resolve '@angular/common/http'", measured on 2026-10-25. An import of an Arena subpath, which Arena's package serves through its `exports` field, needs the option too, verified by hand once on 2026-10-24. The first import of the React package resolves through its `module` field without the option, measured on 2026-10-25.
 - **React stays with the app.** An app release downloads most of the app's bundle again, and Arena itself downloads nothing again, measured on 2026-10-25. [`environments.md`](../environments.md) gives the figures of each half.
 - **No dictionary can serve the Arena bundle.** Parcel names its two shared bundles with one stem, the project's directory name, measured on 2026-10-25. A `Use-As-Dictionary` match covering the next Arena bundle also covers the other one. [`stylesheets.md`](../stylesheets.md) says how a dictionary is served elsewhere.
 - **The page Parcel writes is minified.** The base reads `<base href=./>` without quotes, and the scripts and links come before the base.
