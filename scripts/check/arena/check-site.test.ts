@@ -215,6 +215,17 @@ test('orphanProblems reports an HTML file under the adopter directory no link de
   assert.match(problems[0] ?? '', /gallery\/stray\/index\.html/);
 });
 
+test('an adopter page at or below a page the adopter declares is its own, and one beside no declared page is an orphan', () => {
+  const base = adopterOut(['first/']);
+  writeFileSync(join(base, 'gallery', 'first', '404.html'), '<html></html>');
+  mkdirSync(join(base, 'gallery', 'first', '_not-found'), { recursive: true });
+  writeFileSync(join(base, 'gallery', 'first', '_not-found', 'index.html'), '<html></html>');
+  writeFileSync(join(base, 'gallery', '404.html'), '<html></html>');
+  const problems = orphanProblems(base, repoRoot, htmlFiles(base));
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /^gallery\/404\.html/);
+});
+
 test('the generated index of the adopter is not an orphan, nor are the pages it declares', () => {
   const base = adopterOut(['first/']);
   writeFileSync(join(base, 'gallery', 'index.html'), '<html></html>');

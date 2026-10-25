@@ -5,9 +5,9 @@
  * what the entry imports and an ES import that 404s throws before it runs, which is how every React
  * playground went out answering 200 at every href with an empty root. The markdown half is the one
  * an agent reads, since a corpus is followed by its links and nothing renders them, which is how
- * the style plugins went unreachable from the page calling them its hardest instruction. The rest
- * keeps the set honest both ways. It reads the output, writes nothing, and skips rather than passes
- * without dist/site, since a walk of nothing reports everything fine. */
+ * the style plugins went unreachable from the page calling them its hardest instruction. The rest keeps the set honest
+ * both ways, but an adopter's page at or below one it declares is its own, such as a framework's 404 beside its entry.
+ * It reads the output, writes nothing, and skips rather than passes without dist/site. */
 
 import { existsSync, readFileSync, statSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
@@ -18,7 +18,7 @@ import { repoRoot as root } from '../../lib/arena/repo-root.ts';
 import { cannotRun } from '../../lib/arena/arena-scripts-vars.ts';
 import {
   DOMAIN, SITE_DIR, LAYERS, pages, indexedDirectories, missingPlaygrounds,
-  missingModules, modules, url, directoryUrl,
+  missingModules, modules, url, directoryUrl, adopterPages,
 } from '../../lib/arena/site-pages.ts';
 import { matchOutsideCode } from '../../generate/core/arena-mcp/code-spans.ts';
 import { MARKERS_FILE } from '../../lib/arena/component-map.ts';
@@ -153,9 +153,11 @@ export function orphanProblems(out: string, base = root, files = htmlFiles(out))
   const declared = new Set(pages(base, out).map((rel) => rel.split('/').join('/')));
   const indexes = new Set(indexedDirectories(base, out)
     .map((directory) => (directory === '' ? 'index.html' : `${directory}/index.html`)));
+  const owned = adopterPages(out).map((rel) => rel.slice(0, -'index.html'.length));
   return files
     .map((path) => relPosix(out, path))
     .filter((rel) => !declared.has(rel) && !indexes.has(rel) && !AUTHORED.includes(rel))
+    .filter((rel) => !owned.some((directory) => rel.startsWith(directory)))
     .map((rel) => `${rel} is published and nothing declares it, so it is a page nobody meant to serve`);
 }
 
