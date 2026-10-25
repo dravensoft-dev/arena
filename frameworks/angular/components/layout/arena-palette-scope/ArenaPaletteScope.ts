@@ -54,7 +54,7 @@ export class ArenaPaletteScope {
   private readonly config = inject(ARENA_THEMES);
   private readonly theme = lazily(inject(Injector));
 
-  /** The name of a palette the theme config declares or one registered at runtime, such as `light`. A name that is neither renders pending: no palette class and no properties, so the children inherit the page's palette, and a one-time console warning names it. The scope paints the palette as soon as that name is registered. The scope draws the class `arena-<palette>` on its element, or for a registered palette its polarity hook and its properties, and gives every reader below it this name. */
+  /** The name of a palette the theme config declares or one registered at runtime, such as `light`. A name that is neither renders pending: no palette class and no properties, so the children inherit the page's palette, and a one-time console warning names it. The scope paints the palette as soon as that name is registered, and goes back to pending when that name is removed. The scope draws the class `arena-<palette>` on its element, or for a registered palette its polarity hook and its properties, and gives every reader below it this name. */
   readonly palette = input.required<string>({ alias: 'arenaPalette' });
 
   protected readonly styles = computed(() => arenaPaletteScopeStyles());

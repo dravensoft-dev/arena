@@ -102,7 +102,7 @@ export class Island {}
 
 ## When does a palette get stored?
 
-Each layer stores a user's choice and, for a runtime palette, a copy of it. React's `setArenaTheme`, `toggleArenaTheme` and the setter `useArenaTheme` returns write the `arena-theme` key, and so do Angular's `set` and `toggle`. Neither `initArenaTheme` nor injecting the service writes it. Until a choice is stored the page follows the system. Remove the `arena-theme` key to follow the system again. In React call `initArenaTheme(themes)` after removing it, and in Angular the next load follows the system. Nothing listens for a change of the system setting while the page is open. The copy lives under `arena-runtime-palette`. A layer writes it when a runtime palette becomes the current one, by setting it or by registering the name that is already current. A layer removes it when a declared palette is chosen.
+Each layer stores a user's choice and, for a runtime palette, a copy of it. React's `setArenaTheme`, `toggleArenaTheme` and the setter `useArenaTheme` returns write the `arena-theme` key, and so do Angular's `set` and `toggle`. Neither `initArenaTheme` nor injecting the service writes it. Until a choice is stored the page follows the system. Remove the `arena-theme` key to follow the system again. In React call `initArenaTheme(themes)` after removing it, and in Angular the next load follows the system. Nothing listens for a change of the system setting while the page is open. The copy lives under `arena-runtime-palette`. A layer writes it when a runtime palette becomes the current one, by setting it or by registering the name that is already current. A layer removes it when a declared palette is chosen, and when the current runtime palette is removed.
 
 ## How do I avoid a flash on first paint?
 
@@ -237,9 +237,26 @@ The page paints it with the polarity class on `<html>` and each property set wit
 
 **Registration throws** in four cases. The config declares the name. The page's `:root` lacks `--arena-runtime-palettes:1`, and the message names `"runtimePalettes": true`. The polarity is neither `dark` nor `light`, or the name is not kebab-case. Or `properties` is wrong. A value is not a string, or a key is none of `--color-*`, `--level-*` and `--arena-palette`. A `--color-*` value is not `#rrggbb`, or a `--level-*` value is not a percentage such as `40%`. Or `--arena-palette` is missing or differs from the name. React accepts a registration before `initArenaTheme`. When the config that `initArenaTheme` then receives declares that name, the registration is dropped and a one-time `console.warn` names it.
 
+## How do I remove a runtime palette?
+
+Call the remover with the palette's name.
+
+```tsx
+import { unregisterArenaPalette } from '@dravensoft/arena-react';
+
+unregisterArenaPalette('ocean');
+```
+
+```ts
+const theme = inject(ArenaThemeService);
+theme.unregister('ocean');
+```
+
+The name leaves `arenaPalettes()`, `useArenaPalettes()` and `runtimePalettes`. `set` and `setArenaTheme` throw for it, and `toggle` skips it. When it is the current palette the page follows the system, as it does with nothing stored, and both `arena-theme` and `arena-runtime-palette` are removed. When it is not the current palette both keys stay, since they belong to the current one. A scope naming it renders pending, and paints again if the name is registered. Registering a removed current palette does not make it current again. A name that is not registered returns `false` and changes nothing, a removal returns `true`, and a name the config declares throws. A user deleting a palette in the app's store is the moment to call it.
+
 ## How do I keep a runtime palette between visits?
 
-The app keeps the palette; Arena keeps a copy to paint the first frame. When the active palette is a runtime one, the theme surface writes it to `localStorage['arena-runtime-palette']` beside `arena-theme`, and choosing a declared palette removes it. The cache is not the source. The app loads the user's palette from its own store and registers it. Until then the cache stops the page from showing the base palette. The snippet in [How do I avoid a flash on first paint?](#how-do-i-avoid-a-flash-on-first-paint) reads the cache before anything loads.
+The app keeps the palette; Arena keeps a copy to paint the first frame. When the active palette is a runtime one, the theme surface writes it to `localStorage['arena-runtime-palette']` beside `arena-theme`, and choosing a declared palette removes it, as does removing the current runtime palette. The cache is not the source. The app loads the user's palette from its own store and registers it. Until then the cache stops the page from showing the base palette. The snippet in [How do I avoid a flash on first paint?](#how-do-i-avoid-a-flash-on-first-paint) reads the cache before anything loads.
 
 ## What does a runtime palette cost under a content security policy?
 
