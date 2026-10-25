@@ -188,7 +188,9 @@ export function when(rel: string, base = root) {
 }
 
 export function blurb(rel: string, base = root) {
-  return [opening(rel, base), when(rel, base)].filter(Boolean).join(' ');
+  const first = opening(rel, base);
+  const read = when(rel, base);
+  return [first, first.includes(read) ? '' : read].filter(Boolean).join(' ');
 }
 
 export function servedDocs(base = root) {

@@ -131,6 +131,15 @@ test('a blurb is lifted whole, so it closes every span it opens and links to not
   assert.ok(index().includes(blurb(references()[0] ?? '')), 'the index publishes what this reads');
 });
 
+test('a blurb says its "Read this" sentence once, even when the opening already carries it', () => {
+  for (const rel of references()) {
+    const text = blurb(rel);
+    const read = /Read this [^.]*\./.exec(text)?.[0];
+    if (read !== undefined) assert.equal(text.split(read).length - 1, 1, `${rel} is described twice over: ${text}`);
+  }
+  assert.ok(blurb('skills/design/references/environments.md').length > 0);
+});
+
 test('a full stop inside a span, a link or an emphasis is punctuation rather than an ending', () => {
   const cut = (text: string, from = 0) => text.slice(0, sentenceEnd(text, from) + 1);
   assert.equal(cut('Read it beside `cold-start.md` and stop.'),
