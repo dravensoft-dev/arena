@@ -119,6 +119,7 @@ export function binProblems(dir: string) {
 }
 
 export const ESCAPING_SPECIFIER = /\bfrom\s+'(\.\.\/[^']*)'/g;
+export const BESIDE_SPECIFIER = /\bfrom\s+'(\.\/[^']*)'/g;
 
 export function flatProblems(dir: string) {
   const problems: string[] = [];
@@ -130,6 +131,13 @@ export function flatProblems(dir: string) {
         + 'that specifier resolves above the directory every emitted module sits in. The rule '
         + 'module is copied beside the server rather than referenced where it lives, and a '
         + 'specifier that escaped the copy is a command that throws at its first spawn');
+    }
+    const beside = [...readFileSync(file, 'utf8').matchAll(BESIDE_SPECIFIER)].map((m) => m[1] ?? '');
+    for (const specifier of beside) {
+      if (existsSync(join(dirname(file), specifier))) continue;
+      problems.push(`${NAME}: ${relPosix(dir, file)} imports ${specifier}, and no such file was `
+        + 'assembled beside it, so the command throws at its first spawn. A module the rule '
+        + 'module imports travels with it, or nothing the server reads at start resolves');
     }
   }
   return problems;

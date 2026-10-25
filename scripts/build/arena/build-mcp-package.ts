@@ -1,13 +1,12 @@
 /* Assembles @dravensoft/arena-mcp into dist/mcp/. It is the only package here with a runtime
- * dependency, and it is a package of its own for exactly that reason: the component libraries
- * promise none, and a server nobody imports into a screen has no business putting one inside
- * them. It carries the corpus, once per layer under agent/<layer>/, because the framework
- * packages carry the components and nothing else and this is where the language travels now. It
- * carries both layers rather than the one a project installed, since a package cannot know at
- * assembly time which half it will be asked for; the server picks. What that costs is a corpus
- * that can disagree with the components beside it, which is why the server reads the installed
- * package's version and says so when the two differ. The sources go through emitCli, so a
- * relative specifier lands as .mjs and Node never has to strip a type under node_modules. */
+ * dependency, and a package of its own for that reason: the component libraries promise none. It
+ * carries the corpus once per layer under agent/<layer>/, since the framework packages carry the
+ * components and nothing else, and both layers, since a package cannot know at assembly time which
+ * half it will be asked for; the server picks, reads the installed package's version and says so
+ * when the two differ. The sources go through emitCli, so a relative specifier lands as .mjs and
+ * Node never strips a type under node_modules. The rule module travels into bin/ with every module
+ * it imports from beside itself, and check:mcp reports one that did not, so an import the
+ * companion list misses fails the gate rather than the first spawn. */
 
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -34,6 +33,7 @@ export const AUDIT_SOURCE = 'scripts/generate/core/arena-cli/audit.ts';
 export const AUDIT_FILE = 'bin/audit.mjs';
 export const AUDIT_SPECIFIER = "'../arena-cli/audit.mjs'";
 export const AUDIT_BESIDE = "'./audit.mjs'";
+export const AUDIT_COMPANIONS = ['scripts/generate/core/arena-cli/icon-css.ts'];
 
 export function beside(emitted: string) {
   if (!emitted.includes(AUDIT_SPECIFIER)) {
@@ -53,7 +53,7 @@ export const RUNTIME_DEPENDENCIES = {
 export const node = {
   name: 'build:mcp-package',
   reads: [
-    `${SOURCE}/**`, `!${SOURCE}/*.test.ts`, AUDIT_SOURCE, NPM_PAGE,
+    `${SOURCE}/**`, `!${SOURCE}/*.test.ts`, AUDIT_SOURCE, ...AUDIT_COMPANIONS, NPM_PAGE,
     '.claude-plugin/plugin.json', 'LICENSE',
     'skills/design/SKILL.md', 'skills/design/references/*.md', 'skills/design/references/*/*.md',
     'frameworks/INDEX.md', 'frameworks/VOCABULARY.md', 'contracts/design/*.json', 'contracts/api/components/*.json', 'contracts/behaviour/*.json',
@@ -118,6 +118,10 @@ export function buildMcpPackage(root = repoRoot, dir = join(root, DIST)) {
   }
   written.push(write(dir, AUDIT_FILE,
     emitCli(readFileSync(join(root, ...AUDIT_SOURCE.split('/')), 'utf8'))));
+  for (const companion of AUDIT_COMPANIONS) {
+    written.push(write(dir, `bin/${companion.split('/').at(-1)?.replace(/\.ts$/, '.mjs')}`,
+      emitCli(readFileSync(join(root, ...companion.split('/')), 'utf8'))));
+  }
   if (!written.some((path) => path.endsWith(ENTRY.split('/').at(-1) ?? ''))) {
     throw new Error(`build-mcp-package: nothing was written to ${ENTRY}, which the manifest declares `
       + 'as the bin, so the package would install a command that is not there');

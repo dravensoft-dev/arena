@@ -261,6 +261,7 @@ test('a specifier that escapes the flat bin is reported, since bin/ has no direc
   const dir = track(mkdtempSync(join(tmpdir(), 'arena-mcp-flat-')));
   try {
     mkdirSync(join(dir, 'bin'), { recursive: true });
+    writeFileSync(join(dir, 'bin', 'audit.mjs'), 'export const x = 1;\n');
     writeFileSync(join(dir, 'bin', 'clean.mjs'), "import { x } from './audit.mjs';\n");
     assert.deepEqual(flatProblems(dir), []);
 
@@ -269,6 +270,22 @@ test('a specifier that escapes the flat bin is reported, since bin/ has no direc
     assert.equal(problems.length, 1);
     assert.match(problems[0] ?? '', /escaping\.mjs/);
     assert.match(problems[0] ?? '', /bin\/ is flat/);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('a specifier beside the module that names no file in bin is reported, since it throws at spawn', () => {
+  const dir = track(mkdtempSync(join(tmpdir(), 'arena-mcp-beside-')));
+  try {
+    mkdirSync(join(dir, 'bin'), { recursive: true });
+    writeFileSync(join(dir, 'bin', 'audit.mjs'), "import { scan } from './icon-css.mjs';\n");
+    const problems = flatProblems(dir);
+    assert.equal(problems.length, 1);
+    assert.match(problems[0] ?? '', /audit\.mjs imports \.\/icon-css\.mjs/);
+
+    writeFileSync(join(dir, 'bin', 'icon-css.mjs'), 'export const scan = 1;\n');
+    assert.deepEqual(flatProblems(dir), []);
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
