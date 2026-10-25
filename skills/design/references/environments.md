@@ -52,7 +52,7 @@ Figures for React and for Angular are written React / Angular. A project that wa
 
 "x to y" is the build before and after the page's config. Keeping Arena apart costs a little on the first visit, for the extra request and the runtime. Keeping it apart saves most of an app release on the React halves of Vite, webpack and rspack, where React sits apart too. On the React halves of rollup, rolldown and Parcel, React stays with the app, so a release downloads most of that bundle again, and Arena itself downloads nothing again. On Angular, an app release downloads 6.45 to 11.64 on rollup, Vite and rolldown, and 60.56, 157.86 and 174.2 on rspack, webpack and Parcel. The Angular builder emits a single `main` with Arena inside it, and Bun and esbuild emit one bundle. A release or a patch downloads that file whole without a dictionary, and almost nothing with one. The file weighs 98.39 to 98.47 on the builder and 75.22 to 274.11 on Bun and esbuild.
 
-A dictionary needs a previous file of the same name stem. Parcel names its two shared bundles with one stem, and Next.js names its chunks by hash alone. In neither does a name stem pair a file with its predecessor, so neither row has a dictionary figure. Bun's figure on React, 1.35, is the one that does not shrink to a few hundredths, and no explanation was measured.
+A dictionary needs a previous file of the same name stem. Parcel names its two shared bundles with one stem, and Next.js names its chunks by hash alone. In neither does a name stem pair a file with its predecessor, so neither row has a dictionary figure. Bun's figure on React is 1.35, not a few hundredths. No cause was measured.
 
 ## How much does a first visit download in all?
 

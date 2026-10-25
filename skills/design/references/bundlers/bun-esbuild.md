@@ -122,7 +122,7 @@ Both emit one CSS file for the entry, holding the package sheet, `arena.generate
 
 ## How is the sprite served?
 
-Copy `icons-*.svg` into the outdir after `bun build` or esbuild, with a step of your own. Neither bundler copies a file the entry does not import: the `bun build` output held no sprite, measured on 2026-10-25, and esbuild's was not checked. The projects copy it after the bundler with a script of their own.
+Copy `icons-*.svg` into the outdir after `bun build` or esbuild, with a step of your own. Neither bundler copies a file the entry does not import: the `bun build` output held no sprite, measured on 2026-10-25, and esbuild's was not exercised. The projects copy it after the bundler with a script of their own.
 
 Under `Bun.serve`, a route answers `/${ARENA_SPRITE}` with `Bun.file` of the sprite. Not exercised.
 
