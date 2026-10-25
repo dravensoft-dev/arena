@@ -28,7 +28,7 @@ test('each of the four suites exists, names the table and runs its list', () => 
     assert.ok(existsSync(join(REPO, file)), `${file} exists`);
     const source = readFileSync(join(REPO, file), 'utf8');
     assert.match(source, /palette-removal-cases/, `${file} loads the table`);
-    assert.match(source, new RegExp(`\\b${list}\\b`), `${file} runs ${list}`);
+    assert.match(source, new RegExp(`for \\(const \\w+ of ${list}\\)`), `${file} loops over ${list}`);
   }
 });
 
@@ -38,4 +38,30 @@ test('the declared case names every palette of its config', () => {
   const step = declared.steps[0];
   assert.ok(step && step.do === 'remove' && 'throws' in step);
   for (const palette of REMOVAL_CONFIGS[declared.config].palettes) assert.ok(step.throws.includes(palette.name), palette.name);
+});
+
+const DISPATCHERS = ['frameworks/react/test/RemovalSteps.ts', 'frameworks/angular/test/RemovalSteps.ts'];
+const SCOPE_SUITES = SUITES.filter((suite) => suite.list === 'SCOPE_REMOVAL_CASES').map((suite) => suite.file);
+
+const kindsIn = (source: string) => new Set([...source.matchAll(/\bstep\.do === '(\w+)'/g)].map((match) => match[1] ?? ''));
+
+test('each layer dispatches exactly the step kinds the table uses, the scope suites handling mount and check themselves', () => {
+  const used = new Set([
+    ...REMOVAL_CASES.flatMap((one) => one.steps.map((step) => step.do)),
+    ...SCOPE_REMOVAL_CASES.flatMap((one) => one.steps.map((step) => step.do)),
+  ]);
+  const local = new Set(['mount', 'check']);
+  for (const file of DISPATCHERS) {
+    const handled = kindsIn(readFileSync(join(REPO, file), 'utf8'));
+    assert.deepEqual([...handled].sort(), [...used].filter((kind) => !local.has(kind)).sort(), file);
+  }
+  for (const file of SCOPE_SUITES) {
+    assert.deepEqual([...kindsIn(readFileSync(join(REPO, file), 'utf8'))].sort(), [...local].sort(), file);
+  }
+});
+
+test('each dispatcher throws on a kind it does not handle', () => {
+  for (const file of DISPATCHERS) {
+    assert.match(readFileSync(join(REPO, file), 'utf8'), /else throw new Error\(`a removal case has no /, file);
+  }
 });

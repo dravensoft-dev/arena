@@ -44,7 +44,7 @@ export const node = {
     'check:anchoring',
     'check:generated',
     'check:pixel-parity', 'check:palette-islands',
-    'check:target-size',
+    'check:target-size', 'check:contained-parts',
     'check:layer-independence',
     'check:script-tokens',
     'check:skills',

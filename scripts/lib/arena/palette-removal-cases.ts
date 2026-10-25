@@ -64,11 +64,12 @@ export interface RemovalCase {
 export type ScopeStep =
   | RemovalStep
   | { do: 'mount'; name: string }
-  | { do: 'check'; scope: 'pending' | 'painted'; warned: number; polarity?: RemovalPolarity };
+  | { do: 'check'; scope: 'pending' | 'painted'; warned: number; polarity?: RemovalPolarity; page?: string };
 
 export interface ScopeRemovalCase {
   key: string;
   title: string;
+  prefersLight: boolean;
   steps: ScopeStep[];
 }
 
@@ -152,6 +153,14 @@ export const REMOVAL_CASES: RemovalCase[] = [
     expect: { listed: [...DECLARED, 'a'], current: 'light', stored: 'light', cached: null, inline: false, polarity: null, unknown: ['b'] },
   },
   {
+    key: 'toggle-next',
+    title: 'toggle no longer reaches a removed palette, so the walk from the last listed one wraps to the first',
+    config: 'three',
+    prefersLight: false,
+    steps: [reg('a', 'dark'), reg('b', 'light'), { do: 'set', name: 'a' }, rm('b', true), { do: 'toggle' }],
+    expect: { listed: [...DECLARED, 'a'], current: 'dark', stored: 'dark', cached: null, inline: false, polarity: null, unknown: ['b'] },
+  },
+  {
     key: 'unread',
     title: 'removing the palette the stored name restores before anything was read returns true and clears both keys',
     config: 'default',
@@ -163,13 +172,15 @@ export const REMOVAL_CASES: RemovalCase[] = [
   },
 ];
 
-const check = (scope: 'pending' | 'painted', warned: number, polarity?: RemovalPolarity): ScopeStep =>
-  polarity === undefined ? { do: 'check', scope, warned } : { do: 'check', scope, warned, polarity };
+const check = (scope: 'pending' | 'painted', warned: number, polarity?: RemovalPolarity, page?: string): ScopeStep => ({
+  do: 'check', scope, warned, ...(polarity === undefined ? {} : { polarity }), ...(page === undefined ? {} : { page }),
+});
 
 export const SCOPE_REMOVAL_CASES: ScopeRemovalCase[] = [
   {
     key: 'painted-first',
     title: 'a scope that painted goes pending with one warning when its palette is removed, and paints again when it returns',
+    prefersLight: false,
     steps: [
       reg('a', 'dark'), { do: 'mount', name: 'a' }, check('painted', 0, 'dark'),
       rm('a', true), check('pending', 1),
@@ -179,6 +190,7 @@ export const SCOPE_REMOVAL_CASES: ScopeRemovalCase[] = [
   {
     key: 'later',
     title: 'a scope that already warned for a name does not warn again when that name is removed later',
+    prefersLight: false,
     steps: [
       { do: 'mount', name: 'later' }, check('pending', 1),
       reg('later', 'dark'), check('painted', 1, 'dark'),
@@ -189,9 +201,10 @@ export const SCOPE_REMOVAL_CASES: ScopeRemovalCase[] = [
   {
     key: 'page-and-scope',
     title: 'removing the palette the page and a scope both wear leaves the page on the preferred palette and the scope pending',
+    prefersLight: false,
     steps: [
       reg('a', 'dark'), { do: 'set', name: 'a' }, { do: 'mount', name: 'a' },
-      rm('a', true), check('pending', 1),
+      rm('a', true), check('pending', 1, undefined, 'dark'),
     ],
   },
 ];

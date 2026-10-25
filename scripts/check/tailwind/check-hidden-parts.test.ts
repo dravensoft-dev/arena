@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { HELD, hiddenPartProblems, hiddenSlots, positioned } from './check-hidden-parts.ts';
+import { HELD, composedSlots, hiddenPartProblems, hiddenSlots, positioned } from './check-hidden-parts.ts';
 import { readManifests } from '../arena/check-measured-box.ts';
 
 test('hiddenSlots reads whole tokens', () => {
@@ -50,6 +50,37 @@ test('no hidden slot at all is a problem', () => {
   const problems = hiddenPartProblems([{ component: 'X', slots: { root: 'flex' } }], new Map());
   assert.equal(problems.length, 1);
   assert.match(problems[0] ?? '', /found no hidden slot/);
+});
+
+const collapsing = (root: string) => ({
+  component: 'X',
+  slots: { root, label: 'min-w-0' },
+  variants: { collapsed: { true: { label: 'sr-only' }, false: { label: 'ps-2' } } },
+});
+
+test('a variant option that makes a slot hidden under an unpositioned root is one problem naming it', () => {
+  const problems = hiddenPartProblems([collapsing('flex'), other], new Map());
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /^X\.label /);
+});
+
+test('a positioned root holds a slot a variant option makes hidden', () => {
+  assert.deepEqual(hiddenPartProblems([collapsing('relative flex'), other], new Map()), []);
+});
+
+test('a HELD entry holds a hidden slot a variant option makes, and goes stale once the root is positioned', () => {
+  const entry = new Map([['X.label', { by: 'item', why: 'w' }]]);
+  const loose = { ...collapsing('flex'), slots: { root: 'flex', label: 'min-w-0', item: 'relative' } };
+  assert.deepEqual(hiddenPartProblems([loose, other], entry), []);
+  assert.match(hiddenPartProblems([collapsing('relative flex'), other], entry)[0] ?? '', /stale/);
+});
+
+test('composedSlots is the base alone, then the base with each option appended', () => {
+  const composed = composedSlots(collapsing('flex'));
+  assert.equal(composed.length, 3);
+  assert.equal(composed[0]?.label, 'min-w-0');
+  assert.equal(composed[1]?.label, 'min-w-0 sr-only');
+  assert.equal(composed[2]?.label, 'min-w-0 ps-2');
 });
 
 test('the real tree holds no unpositioned hidden part', () => {

@@ -15,6 +15,7 @@ import { ArenaThemeService, provideArenaThemes, type ArenaRuntimePalette, type A
 import { forgetArenaWarnings } from '../../../WarnOnce';
 import { ArenaPaletteScope, injectArenaPalette } from './ArenaPaletteScope';
 import { markRuntimePalettes, runtimePalette } from '../../../test/RuntimePalette';
+import { removalStep, stubPrefers, type Polarity, type RemovalStep } from '../../../test/RemovalSteps';
 
 afterEach(() => {
   TestBed.inject(ArenaThemeService).set('dark');
@@ -182,16 +183,11 @@ test("the scope's ground takes the surface radius and is a surface", () => {
   assert.equal(source.kind['root'], 'surface');
 });
 
-type Polarity = 'dark' | 'light';
 type ScopeStep =
-  | { do: 'register'; name: string; polarity: Polarity }
-  | { do: 'set'; name: string }
-  | { do: 'toggle' }
-  | { do: 'remove'; name: string; returns: boolean }
-  | { do: 'remove'; name: string; throws: string }
+  | RemovalStep
   | { do: 'mount'; name: string }
-  | { do: 'check'; scope: 'pending' | 'painted'; warned: number; polarity?: Polarity };
-interface ScopeRemovalCase { key: string; title: string; steps: ScopeStep[] }
+  | { do: 'check'; scope: 'pending' | 'painted'; warned: number; polarity?: Polarity; page?: string };
+interface ScopeRemovalCase { key: string; title: string; prefersLight: boolean; steps: ScopeStep[] }
 
 const removal = await import(pathToFileURL(join(LIB, 'arena', 'palette-removal-cases.ts')).href);
 const SCOPE_REMOVAL_CASES: ScopeRemovalCase[] = removal.SCOPE_REMOVAL_CASES;
@@ -205,6 +201,7 @@ for (const removed of SCOPE_REMOVAL_CASES) {
     forgetArenaWarnings();
     try { window.localStorage?.removeItem('arena-runtime-palette'); } catch { void 0; }
     const unmark = markRuntimePalettes();
+    const restorePrefers = stubPrefers(removed.prefersLight);
     const original = console.warn;
     const warnings: string[] = [];
     console.warn = (...args: unknown[]) => { warnings.push(args.map(String).join(' ')); };
@@ -233,14 +230,9 @@ for (const removed of SCOPE_REMOVAL_CASES) {
             }
           }
           assert.equal(warnings.filter((w) => w.includes(`"${named}"`)).length, step.warned);
-        } else if (step.do === 'register') {
-          service.register(removalPalette(step.name, step.polarity));
-        } else if (step.do === 'set') {
-          service.set(step.name);
-        } else if (step.do === 'remove' && 'returns' in step) {
-          assert.equal(service.unregister(step.name), step.returns);
+          if (step.page !== undefined) assert.equal(service.theme(), step.page, 'the page\'s current palette');
         } else {
-          throw new Error(`a scope case has no ${step.do} step`);
+          removalStep(service, step, removalPalette);
         }
       }
       if (removed.key === 'page-and-scope') {
@@ -252,6 +244,7 @@ for (const removed of SCOPE_REMOVAL_CASES) {
         }
       }
     } finally {
+      restorePrefers();
       console.warn = original;
       unmark();
       document.documentElement.className = '';

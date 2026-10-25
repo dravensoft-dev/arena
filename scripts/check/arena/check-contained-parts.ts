@@ -4,8 +4,9 @@
  * not clipped by the scroller it sits in and the document's scrollable area grows to reach it.
  * Measured in a real browser over both layers' kitchen sinks, because happy-dom has no layout and
  * only a browser places an absolute part: every element whose computed position is absolute and
- * whose data-arena-part names a slot reports its offsetParent's part, and that holder must belong
- * to the same component. Each HELD entry of check:hidden-parts whose part a sink draws must also be
+ * whose data-arena-part names a slot reports its offsetParent's part, and that holder must lie inside
+ * the part's own component root (the nearest root element of that component, else its nearest slot),
+ * so a part held by an enclosing instance of the same component still fails. Each HELD entry of check:hidden-parts whose part a sink draws must also be
  * held by the slot it names. A sweep that swept no sink, or found no absolute part, is a failure. */
 
 import { existsSync } from 'node:fs';
@@ -57,7 +58,7 @@ export const LOADED: Deadline = deadline('contained-parts:loaded', 30_000,
 
 export const DESKTOP = { width: 1280, height: 900, deviceScaleFactor: 1, mobile: false };
 
-export type Placed = { layer: string; sink: string; part: string; holder: string | null };
+export type Placed = { layer: string; sink: string; part: string; holder: string | null; inside: boolean };
 
 export const PLACED_EXPRESSION = `(() => {
   const out = [];
@@ -67,7 +68,10 @@ export const PLACED_EXPRESSION = `(() => {
     if (getComputedStyle(el).position !== 'absolute') continue;
     const holder = el.offsetParent;
     if (holder === null) continue;
-    out.push({ part, holder: holder.getAttribute('data-arena-part') });
+    const prefix = part.split('.')[0];
+    const own = el.closest('[data-arena-part="' + prefix + '"]')
+      ?? el.parentElement?.closest('[data-arena-part^="' + prefix + '."]') ?? null;
+    out.push({ part, holder: holder.getAttribute('data-arena-part'), inside: own !== null && own.contains(holder) });
   }
   return out;
 })()`;
@@ -77,7 +81,7 @@ const prefixOf = (part: string) => part.split('.')[0] ?? '';
 export function escapeProblems(rows: Placed[]): string[] {
   const escaping = new Map<string, { count: number; holder: string | null }>();
   for (const one of rows) {
-    if (one.holder !== null && prefixOf(one.holder) === prefixOf(one.part)) continue;
+    if (one.holder !== null && one.inside) continue;
     const key = `${one.layer}/${one.sink}/${one.part}`;
     const held = escaping.get(key);
     if (held) held.count += 1;
@@ -171,7 +175,7 @@ async function placedIn(cdp: Cdp, sessionId: string, url: string) {
   const ev = (expression: string) => evaluate(cdp, expression, sessionId);
 
   let painted: Painted = { ready: false, waitedMs: 0 };
-  let rows: { part: string; holder: string | null }[] = [];
+  let rows: { part: string; holder: string | null; inside: boolean }[] = [];
   let threw: string | undefined;
   try {
     painted = await ev(readyExpression(PAINTED));

@@ -5,7 +5,7 @@ import {
 } from './check-contained-parts.ts';
 
 const row = (part: string, holder: string | null, over: Partial<Placed> = {}): Placed =>
-  ({ layer: 'react', sink: 'default', part, holder, ...over });
+  ({ layer: 'react', sink: 'default', part, holder, inside: holder !== null, ...over });
 
 test('a part whose containing block is outside its component escapes', () => {
   const problems = escapeProblems([row('timeline.name', null), row('timeline.name', null)]);
@@ -21,8 +21,14 @@ test('a part held by a part of its own component does not escape', () => {
   ]), []);
 });
 
+test('a part held by an enclosing instance of its own component type escapes', () => {
+  const problems = escapeProblems([row('tag.close-label', 'tag', { inside: false })]);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0] ?? '', /react\/default\/tag\.close-label/);
+});
+
 test('a part held by another component escapes', () => {
-  assert.equal(escapeProblems([row('checkbox.input', 'card.body')]).length, 1);
+  assert.equal(escapeProblems([row('checkbox.input', 'card.body', { inside: false })]).length, 1);
 });
 
 test('a HELD entry whose part is drawn must be held by the slot it names', () => {
@@ -74,25 +80,62 @@ test('the layers must draw the same count in a sink', () => {
   assert.deepEqual(emptyProblems([...both('default', 2), ...both('charts', 0)], ['default', 'charts']), []);
 });
 
-type Fake = { part: string | null; position: string; offsetParent: Fake | null };
+class FakeEl {
+  readonly part: string | null;
+  readonly position: string;
+  readonly parentElement: FakeEl | null;
+  readonly offsetParent: FakeEl | null;
+  constructor(part: string | null, position: string, parentElement: FakeEl | null = null, offsetParent: FakeEl | null = null) {
+    this.part = part;
+    this.position = position;
+    this.parentElement = parentElement;
+    this.offsetParent = offsetParent;
+  }
+  getAttribute() { return this.part; }
+  contains(other: FakeEl | null): boolean {
+    for (let at = other; at !== null; at = at.parentElement) if (at === this) return true;
+    return false;
+  }
+  closest(selector: string): FakeEl | null {
+    const exact = /^\[data-arena-part="([^"]*)"\]$/.exec(selector);
+    const prefixed = /^\[data-arena-part\^="([^"]*)"\]$/.exec(selector);
+    for (let at: FakeEl | null = this; at !== null; at = at.parentElement) {
+      if (exact && at.part === exact[1]) return at;
+      if (prefixed && at.part?.startsWith(prefixed[1] ?? '\0')) return at;
+    }
+    return null;
+  }
+}
 
-const collect = (els: Fake[]) => {
-  const doc = {
-    querySelectorAll: () => els.map((el) => ({ ...el, getAttribute: () => el.part,
-      offsetParent: el.offsetParent && { getAttribute: () => el.offsetParent?.part ?? null } })),
-  };
+const collect = (els: FakeEl[]) => {
   const style = (el: { position: string }) => ({ position: el.position });
-  return new Function('document', 'getComputedStyle', `return ${PLACED_EXPRESSION}`)(doc, style) as
-    { part: string; holder: string | null }[];
+  return new Function('document', 'getComputedStyle', `return ${PLACED_EXPRESSION}`)(
+    { querySelectorAll: () => els }, style) as { part: string; holder: string | null; inside: boolean }[];
 };
 
-test('the collector keeps absolute named slots with a holder and reports the holder part', () => {
-  const tag: Fake = { part: 'tag', position: 'relative', offsetParent: null };
-  assert.deepEqual(collect([
-    { part: 'tag.close', position: 'absolute', offsetParent: tag },
-    { part: 'timeline.name', position: 'absolute', offsetParent: { part: null, position: 'static', offsetParent: null } },
-    { part: 'tag.label', position: 'relative', offsetParent: tag },
-    { part: 'avatar', position: 'absolute', offsetParent: tag },
-    { part: 'x.hidden', position: 'absolute', offsetParent: null },
-  ]), [{ part: 'tag.close', holder: 'tag' }, { part: 'timeline.name', holder: null }]);
+test('the collector keeps absolute named slots with a holder, reports the holder part and whether it lies inside the part\'s own root', () => {
+  const tag = new FakeEl('tag', 'relative');
+  const close = new FakeEl('tag.close', 'relative', tag);
+  const stray = new FakeEl(null, 'static');
+  const outer = new FakeEl('tag', 'relative');
+  const innerTag = new FakeEl('tag', 'static', outer);
+  const nested = new FakeEl('tag.close-label', 'absolute', innerTag, outer);
+  const segment = new FakeEl('segmented-control.segment', 'relative', new FakeEl(null, 'static'));
+  const input = new FakeEl('segmented-control.input', 'absolute', segment, segment);
+  const found = collect([
+    new FakeEl('tag.close', 'absolute', tag, tag),
+    new FakeEl('tag.close-label', 'absolute', close, close),
+    new FakeEl('timeline.name', 'absolute', stray, stray),
+    new FakeEl('tag.label', 'relative', tag, tag),
+    new FakeEl('avatar', 'absolute', tag, tag),
+    new FakeEl('x.hidden', 'absolute', tag, null),
+    nested, input,
+  ]);
+  assert.deepEqual(found, [
+    { part: 'tag.close', holder: 'tag', inside: true },
+    { part: 'tag.close-label', holder: 'tag.close', inside: true },
+    { part: 'timeline.name', holder: null, inside: false },
+    { part: 'tag.close-label', holder: 'tag', inside: false },
+    { part: 'segmented-control.input', holder: 'segmented-control.segment', inside: true },
+  ]);
 });

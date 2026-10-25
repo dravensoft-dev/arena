@@ -51,7 +51,7 @@ export const node = {
     'check:kitchen-sink',
     'check:layer-independence',
     'check:mcp',
-    'check:target-size', 'check:pixel-parity', 'check:palette-islands',
+    'check:target-size', 'check:contained-parts', 'check:pixel-parity', 'check:palette-islands',
     'check:react-types',
     'check:script-tokens',
     'check:skills',

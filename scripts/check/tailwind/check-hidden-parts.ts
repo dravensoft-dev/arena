@@ -2,7 +2,9 @@
  * at 1px, and a native input drawn `absolute opacity-0`. Its containing block is the nearest
  * positioned ancestor, and when the component root is not positioned that ancestor lies outside the
  * component. Inside a scroller that is not positioned the part is not clipped, and the document's
- * scrollable area grows to reach it. A manifest holding a hidden slot therefore positions its root,
+ * scrollable area grows to reach it. A slot is read as the base classes composed with each option of
+ * each variant family, so a class a variant applies (ArenaSideNav's collapsed labels are `sr-only`)
+ * is held to the same rule. A manifest holding a hidden slot therefore positions its root,
  * or names in HELD the positioned slot of the same manifest that contains the part, with the reason.
  * An entry naming no hidden slot, a stale one, or one whose slot is not positioned fails, and so
  * does a sweep that finds no hidden slot. */
@@ -17,7 +19,11 @@ export const node = {
   feeds: [],
 };
 
-type Manifest = { component: string; slots?: Record<string, string> };
+type Manifest = {
+  component: string;
+  slots?: Record<string, string>;
+  variants?: Record<string, Record<string, Partial<Record<string, string>>>>;
+};
 
 export const HELD = new Map<string, { by: string; why: string }>([
   ['ArenaTag.closeLabel', { by: 'close', why: 'the close button label, drawn inside the positioned close slot; the browser sweep sees it held there' }],
@@ -36,28 +42,48 @@ export function positioned(classes: string): boolean {
   return classes.split(/\s+/).some((token) => ['relative', 'absolute', 'fixed', 'sticky'].includes(token));
 }
 
+export function composedSlots({ slots = {}, variants = {} }: Manifest): Record<string, string>[] {
+  const composed = [slots];
+  for (const family of Object.values(variants)) {
+    for (const option of Object.values(family)) {
+      const merged = { ...slots };
+      for (const [slot, classes] of Object.entries(option)) {
+        if (classes !== undefined) merged[slot] = `${merged[slot] ?? ''} ${classes}`.trim();
+      }
+      composed.push(merged);
+    }
+  }
+  return composed;
+}
+
 export function hiddenPartProblems(manifests: Iterable<Manifest>, held = HELD): string[] {
   const problems: string[] = [];
   const hidden = new Set<string>();
   const rootPositioned = new Map<string, boolean>();
-  const bySlots = new Map<string, Record<string, string>>();
-  for (const { component, slots = {} } of manifests) {
-    bySlots.set(component, slots);
-    const rooted = positioned(slots.root ?? '');
-    rootPositioned.set(component, rooted);
-    for (const [slot, classes] of Object.entries(slots)) {
-      if (!hiddenSlots(classes)) continue;
-      const key = `${component}.${slot}`;
-      hidden.add(key);
-      if (rooted) continue;
-      const entry = held.get(key);
-      if (!entry) {
-        problems.push(`${key} is a hidden part and ${component} has no positioned root: position the root, or name in HELD the positioned slot that contains it`);
-        continue;
+  for (const manifest of manifests) {
+    const { component } = manifest;
+    rootPositioned.set(component, positioned(manifest.slots?.root ?? ''));
+    const reported = new Set<string>();
+    for (const slots of composedSlots(manifest)) {
+      const rooted = positioned(slots.root ?? '');
+      for (const [slot, classes] of Object.entries(slots)) {
+        if (!hiddenSlots(classes)) continue;
+        const key = `${component}.${slot}`;
+        hidden.add(key);
+        if (rooted) continue;
+        const entry = held.get(key);
+        if (!entry) {
+          if (reported.has(key)) continue;
+          reported.add(key);
+          problems.push(`${key} is a hidden part and ${component} has no positioned root: position the root, or name in HELD the positioned slot that contains it`);
+          continue;
+        }
+        const by = slots[entry.by];
+        const problem = by === undefined
+          ? `HELD ${key} names the slot "${entry.by}", which ${component} does not have`
+          : positioned(by) ? null : `HELD ${key} names the slot "${entry.by}", which is not positioned`;
+        if (problem !== null && !problems.includes(problem)) problems.push(problem);
       }
-      const by = bySlots.get(component)?.[entry.by];
-      if (by === undefined) problems.push(`HELD ${key} names the slot "${entry.by}", which ${component} does not have`);
-      else if (!positioned(by)) problems.push(`HELD ${key} names the slot "${entry.by}", which is not positioned`);
     }
   }
   for (const key of held.keys()) {

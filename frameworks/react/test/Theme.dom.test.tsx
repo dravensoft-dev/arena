@@ -22,7 +22,7 @@ import React from 'react';
 import { mount, cleanup, act } from './Harness.tsx';
 import { useArenaTheme } from '../Theme.ts';
 import { REMOVAL_CASES, REMOVAL_CONFIGS, removalPalette } from '../../../scripts/lib/arena/palette-removal-cases.ts';
-import type { RemovalObserved, RemovalStep } from '../../../scripts/lib/arena/palette-removal-cases.ts';
+import { removalStep, withPrefers, type RemovalObserved } from './RemovalSteps.ts';
 
 const THREE: ArenaThemeConfig = {
   palettes: [
@@ -391,24 +391,6 @@ test('a name registered before init that the new config declares is dropped with
   assert.match(warned[0] ?? '', /"high-contrast" is dropped, because the theme config declares it/);
   runtimeClean();
 });
-
-function withPrefers<T>(light: boolean, run: () => T): T {
-  const original = window.matchMedia;
-  window.matchMedia = ((query: string) => ({ matches: light && query.includes('light'), media: query })) as unknown as typeof window.matchMedia;
-  try {
-    return run();
-  } finally {
-    window.matchMedia = original;
-  }
-}
-
-function removalStep(step: RemovalStep): void {
-  if (step.do === 'register') registerArenaPalette(removalPalette(step.name, step.polarity));
-  else if (step.do === 'set') setArenaTheme(step.name);
-  else if (step.do === 'toggle') toggleArenaTheme();
-  else if ('throws' in step) assert.throws(() => unregisterArenaPalette(step.name), new Error(`unregisterArenaPalette: ${step.throws}`));
-  else assert.equal(unregisterArenaPalette(step.name), step.returns);
-}
 
 function inlinePalette(): boolean {
   const style = html().style;

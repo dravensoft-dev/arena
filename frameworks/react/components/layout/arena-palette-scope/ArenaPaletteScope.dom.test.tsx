@@ -4,7 +4,8 @@ import React from 'react';
 import { mount, cleanup, act } from '../../../test/Harness.tsx';
 import { hydrateRoot } from 'react-dom/client';
 import { renderToString } from 'react-dom/server';
-import { initArenaTheme, registerArenaPalette, unregisterArenaPalette, RUNTIME_CACHE_KEY, setArenaTheme } from '../../../Theme.ts';
+import { initArenaTheme, getArenaTheme, registerArenaPalette, setArenaTheme, RUNTIME_CACHE_KEY } from '../../../Theme.ts';
+import { removalStep, stubPrefers } from '../../../test/RemovalSteps.ts';
 import { resetArenaTheme } from '../../../ThemeState.ts';
 import { forgetArenaWarnings } from '../../../WarnOnce.ts';
 import { ArenaPaletteScope, useArenaPalette } from './ArenaPaletteScope.tsx';
@@ -204,6 +205,7 @@ for (const removal of SCOPE_REMOVAL_CASES) {
     const original = console.warn;
     const warnings: string[] = [];
     console.warn = (...args: unknown[]) => { warnings.push(args.map(String).join(' ')); };
+    const restorePrefers = stubPrefers(removal.prefersLight);
     try {
       initArenaTheme(REMOVAL_CONFIGS.three);
       let host: HTMLDivElement | null = null;
@@ -227,14 +229,9 @@ for (const removal of SCOPE_REMOVAL_CASES) {
             }
           }
           assert.equal(warnings.filter((w) => w.includes(`"${named}"`)).length, step.warned);
-        } else if (step.do === 'register') {
-          act(() => { registerArenaPalette(removalPalette(step.name, step.polarity)); });
-        } else if (step.do === 'set') {
-          act(() => { setArenaTheme(step.name); });
-        } else if (step.do === 'remove' && 'returns' in step) {
-          act(() => { assert.equal(unregisterArenaPalette(step.name), step.returns); });
+          if (step.page !== undefined) assert.equal(getArenaTheme(), step.page, 'the page\'s current palette');
         } else {
-          throw new Error(`a scope case has no ${step.do} step`);
+          removalStep(step, act);
         }
       }
       if (removal.key === 'page-and-scope') {
@@ -245,6 +242,7 @@ for (const removal of SCOPE_REMOVAL_CASES) {
         }
       }
     } finally {
+      restorePrefers();
       console.warn = original;
       document.documentElement.style.removeProperty(ROOT);
     }

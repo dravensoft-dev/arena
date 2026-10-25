@@ -1,7 +1,7 @@
 {
   "component": "ArenaSideNav",
   "slots": {
-    "root": "flex flex-col gap-1 transition-[width] duration-[var(--dur-state)] ease-state motion-reduce:transition-none",
+    "root": "relative flex flex-col gap-1 transition-[width] duration-[var(--dur-state)] ease-state motion-reduce:transition-none",
     "item": "flex items-center gap-row min-h-ctl-h px-nav-row-x py-nav-row-y rounded-control border-none cursor-pointer text-left no-underline font-body text-ctl shadow-control-rest active:scale-[var(--press-scale)] motion-reduce:active:scale-100",
     "icon": "inline-flex text-[length:var(--icon-lg)]",
     "badge": "ms-auto inline-flex items-center justify-center min-w-5 px-marker-x rounded-pill font-mono text-ctl-2xs font-bold tracking-badge",

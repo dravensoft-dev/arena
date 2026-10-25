@@ -33,7 +33,7 @@ export const node = {
     'frameworks/demos/*.demo.json', 'frameworks/tailwind/**/*.card.html', 'intro/**/*.html', PAGE_MODULES,
   ],
   writes: [SPRITE_FILE],
-  feeds: ['check:generated', 'check:icons', 'check:palette-islands', 'check:pixel-parity', 'check:target-size', 'build:site', 'check:site'],
+  feeds: ['check:generated', 'check:icons', 'check:palette-islands', 'check:pixel-parity', 'check:target-size', 'check:contained-parts', 'build:site', 'check:site'],
 };
 
 const BARE = (glyph: string) => glyph.replace(/^ph-/, '');

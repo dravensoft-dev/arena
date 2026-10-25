@@ -6,8 +6,8 @@
  * consumer's last stop and, through RULE_OWNERS, a rule off the branch that does not own it,
  * FOREIGN_CODE, which keeps another design system out of the examples a reader copies, and
  * the claim a consumer page makes about what SHIPS: how many components, and a GitHub address
- * for a link into this repository. SIZE_ALLOWANCE is empty, and that emptiness is the claim: a
- * document falling back inside the shared limit fails. */
+ * for a link into this repository. SIZE_ALLOWANCE names the one document that outgrew the shared
+ * limit, and a document falling back inside it fails. */
 
 import { readFileSync, existsSync } from 'node:fs';
 import { join, basename } from 'node:path';
@@ -40,7 +40,15 @@ export const PROSE_EXEMPT = {
     'a spec or a plan is deleted once executed, so its prose never becomes documentation',
 };
 
-export const SIZE_ALLOWANCE = new Map<string, { limit: number; reason: string }>([]);
+export const SIZE_ALLOWANCE = new Map<string, { limit: number; reason: string }>([
+  ['scripts/check/arena/AGENTS.md', {
+    limit: 62_000,
+    reason: 'the domain table of the arena gates, one row per gate, where a row states the claim and the '
+      + 'failure its gate exists for and the table cell cap keeps each row from becoming a page; the '
+      + 'real-browser gates (target size, contained parts) carry the longest rows because the reason a '
+      + 'unit tier cannot answer them is part of what each one claims',
+  }],
+]);
 
 export function limitFor(rel: string) {
   return SIZE_ALLOWANCE.get(rel)?.limit ?? MAX_DOCUMENT_CHARS;

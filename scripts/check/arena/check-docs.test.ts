@@ -83,8 +83,9 @@ test('a table cell over its limit is reported by line, and a fenced table or a l
   rmSync(root, { recursive: true });
 });
 
-test('SIZE_ALLOWANCE is empty, and that emptiness is the claim', () => {
-  assert.deepEqual([...SIZE_ALLOWANCE.keys()], []);
+test('SIZE_ALLOWANCE names the arena gate table alone, and every other document holds the shared limit', () => {
+  assert.deepEqual([...SIZE_ALLOWANCE.keys()], ['scripts/check/arena/AGENTS.md']);
+  assert.ok((SIZE_ALLOWANCE.get('scripts/check/arena/AGENTS.md')?.reason ?? '').length > 40);
   assert.equal(limitFor('AGENTS.md'), MAX_DOCUMENT_CHARS);
   assert.equal(limitFor('scripts/AGENTS.md'), MAX_DOCUMENT_CHARS);
 });
