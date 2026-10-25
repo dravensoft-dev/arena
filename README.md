@@ -197,7 +197,7 @@ package publishes only when something it ships changed.
 explains what that means.
 
 ## Latest project artifacts
-- **Repo/Claude Code plugin**: 12.1.1
+- **Repo/Claude Code plugin**: 13.0.0
 - [npm React package](https://www.npmjs.com/package/@dravensoft/arena-react?activeTab=versions)
 - [npm Angular package](https://www.npmjs.com/package/@dravensoft/arena-angular?activeTab=versions)
 - [npm contracts package](https://www.npmjs.com/package/@dravensoft/arena-contracts?activeTab=versions)
