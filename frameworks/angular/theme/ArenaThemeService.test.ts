@@ -6,12 +6,16 @@ useTestEnvironment();
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { TestBed } from '@angular/core/testing';
 import {
   ArenaThemeService, provideArenaThemes, arenaThemeClass, ARENA_DEFAULT_THEMES, ArenaThemeConfig, RUNTIME_CACHE_KEY,
   type ArenaRuntimePalette,
 } from './ArenaThemeService';
 import { markRuntimePalettes, runtimePalette } from '../test/RuntimePalette';
+import { LIB } from '../test/Compliance';
+import { forgetArenaWarnings } from '../WarnOnce';
 
 const THREE: ArenaThemeConfig = {
   palettes: [
@@ -347,3 +351,80 @@ test('a cache named with a leading digit is ignored when stored as the current n
   assert.equal(theme.theme(), prefersLight ? 'light' : 'dark');
   assert.equal(theme.runtimePalette('9dusk'), null);
 }));
+
+type Polarity = 'dark' | 'light';
+type RemovalStep =
+  | { do: 'register'; name: string; polarity: Polarity }
+  | { do: 'set'; name: string }
+  | { do: 'toggle' }
+  | { do: 'remove'; name: string; returns: boolean }
+  | { do: 'remove'; name: string; throws: string };
+interface RemovalObserved {
+  listed: string[]; current: string; stored: string | null; cached: string | null; inline: boolean; polarity: Polarity | null; unknown: string[];
+}
+interface RemovalCase {
+  key: string; title: string; config: string; prefersLight: boolean; unread?: true;
+  seed?: { stored: string; cached: string; polarity: Polarity }; steps: RemovalStep[]; expect: RemovalObserved;
+}
+
+const removal = await import(pathToFileURL(join(LIB, 'arena', 'palette-removal-cases.ts')).href);
+const REMOVAL_CASES: RemovalCase[] = removal.REMOVAL_CASES;
+const REMOVAL_CONFIGS: Record<string, ArenaThemeConfig> = removal.REMOVAL_CONFIGS;
+const removalPalette: (name: string, polarity: Polarity) => ArenaRuntimePalette = removal.removalPalette;
+
+function removalStep(theme: ArenaThemeService, step: RemovalStep): void {
+  if (step.do === 'register') theme.register(removalPalette(step.name, step.polarity));
+  else if (step.do === 'set') theme.set(step.name);
+  else if (step.do === 'toggle') theme.toggle();
+  else if ('throws' in step) assert.throws(() => theme.unregister(step.name), new Error(`ArenaThemeService.unregister: ${step.throws}`));
+  else assert.equal(theme.unregister(step.name), step.returns);
+}
+
+function inlinePalette(): boolean {
+  const style = root.style;
+  for (let i = 0; i < style.length; i += 1) {
+    const key = style.item(i);
+    if (key.startsWith('--color-') || key.startsWith('--level-') || key === '--arena-palette') return true;
+  }
+  return false;
+}
+
+function observed(theme: ArenaThemeService, unknown: string[]): RemovalObserved {
+  let cached: string | null = null;
+  const copy = localStorage.getItem(RUNTIME_CACHE_KEY);
+  if (copy !== null) cached = (JSON.parse(copy) as { name: string }).name;
+  return {
+    listed: [...theme.palettes, ...theme.runtimePalettes()].map((p) => p.name),
+    current: theme.theme(),
+    stored: localStorage.getItem('arena-theme'),
+    cached,
+    inline: inlinePalette(),
+    polarity: (['dark', 'light'] as const).find((p) => root.classList.contains(`arena-polarity-${p}`)) ?? null,
+    unknown,
+  };
+}
+
+for (const removed of REMOVAL_CASES) {
+  test(`unregister: ${removed.title} (${removed.key})`, () => {
+    clean();
+    forgetArenaWarnings();
+    const unmark = markRuntimePalettes();
+    const original = window.matchMedia;
+    window.matchMedia = ((query: string) => ({ matches: removed.prefersLight && query.includes('light'), media: query })) as unknown as typeof window.matchMedia;
+    try {
+      if (removed.seed) {
+        localStorage.setItem('arena-theme', removed.seed.stored);
+        localStorage.setItem(RUNTIME_CACHE_KEY, JSON.stringify(removalPalette(removed.seed.cached, removed.seed.polarity)));
+      }
+      const theme = removed.unread ? service() : service(REMOVAL_CONFIGS[removed.config]);
+      for (const step of removed.steps) removalStep(theme, step);
+      TestBed.tick();
+      assert.deepEqual(observed(theme, removed.expect.unknown), removed.expect);
+      for (const name of removed.expect.unknown) assert.throws(() => theme.set(name), /no palette named/);
+    } finally {
+      window.matchMedia = original;
+      unmark();
+      clean();
+    }
+  });
+}

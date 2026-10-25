@@ -7,10 +7,11 @@ import test, { afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { TAILWIND_COMPONENTS } from '../../../test/Compliance';
+import { pathToFileURL } from 'node:url';
+import { LIB, TAILWIND_COMPONENTS } from '../../../test/Compliance';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { ArenaThemeService } from '../../../theme/ArenaThemeService';
+import { ArenaThemeService, provideArenaThemes, type ArenaRuntimePalette, type ArenaThemeConfig } from '../../../theme/ArenaThemeService';
 import { forgetArenaWarnings } from '../../../WarnOnce';
 import { ArenaPaletteScope, injectArenaPalette } from './ArenaPaletteScope';
 import { markRuntimePalettes, runtimePalette } from '../../../test/RuntimePalette';
@@ -180,3 +181,82 @@ test("the scope's ground takes the surface radius and is a surface", () => {
   assert.ok(source.slots['root']!.split(/\s+/).includes('rounded-surface'), source.slots['root']);
   assert.equal(source.kind['root'], 'surface');
 });
+
+type Polarity = 'dark' | 'light';
+type ScopeStep =
+  | { do: 'register'; name: string; polarity: Polarity }
+  | { do: 'set'; name: string }
+  | { do: 'toggle' }
+  | { do: 'remove'; name: string; returns: boolean }
+  | { do: 'remove'; name: string; throws: string }
+  | { do: 'mount'; name: string }
+  | { do: 'check'; scope: 'pending' | 'painted'; warned: number; polarity?: Polarity };
+interface ScopeRemovalCase { key: string; title: string; steps: ScopeStep[] }
+
+const removal = await import(pathToFileURL(join(LIB, 'arena', 'palette-removal-cases.ts')).href);
+const SCOPE_REMOVAL_CASES: ScopeRemovalCase[] = removal.SCOPE_REMOVAL_CASES;
+const REMOVAL_CONFIGS: Record<string, ArenaThemeConfig> = removal.REMOVAL_CONFIGS;
+const removalPalette: (name: string, polarity: Polarity) => ArenaRuntimePalette = removal.removalPalette;
+
+for (const removed of SCOPE_REMOVAL_CASES) {
+  test(`unregister with a scope: ${removed.title} (${removed.key})`, () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideArenaThemes(REMOVAL_CONFIGS['three']!)] });
+    forgetArenaWarnings();
+    try { window.localStorage?.removeItem('arena-runtime-palette'); } catch { void 0; }
+    const unmark = markRuntimePalettes();
+    const original = console.warn;
+    const warnings: string[] = [];
+    console.warn = (...args: unknown[]) => { warnings.push(args.map(String).join(' ')); };
+    try {
+      const service = TestBed.inject(ArenaThemeService);
+      let fixture: ReturnType<typeof render> | null = null;
+      let named = '';
+      for (const step of removed.steps) {
+        if (step.do === 'mount') {
+          named = step.name;
+          fixture = TestBed.createComponent(Host);
+          fixture.componentInstance.inner.set(step.name);
+          fixture.detectChanges();
+        } else if (step.do === 'check') {
+          assert.ok(fixture, 'the scope is mounted');
+          fixture.detectChanges();
+          const element = pick(fixture, 'inner');
+          const arena = [...element.classList].filter((c) => c.startsWith('arena-') && c !== 'arena-palette-scope__root');
+          if (step.scope === 'pending') {
+            assert.deepEqual(arena, []);
+            assert.equal(element.hasAttribute('style'), false);
+          } else {
+            assert.deepEqual(arena, [`arena-polarity-${step.polarity}`]);
+            for (const [key, value] of Object.entries(removalPalette(named, step.polarity ?? 'dark').properties)) {
+              assert.equal(element.style.getPropertyValue(key), value, key);
+            }
+          }
+          assert.equal(warnings.filter((w) => w.includes(`"${named}"`)).length, step.warned);
+        } else if (step.do === 'register') {
+          service.register(removalPalette(step.name, step.polarity));
+        } else if (step.do === 'set') {
+          service.set(step.name);
+        } else if (step.do === 'remove' && 'returns' in step) {
+          assert.equal(service.unregister(step.name), step.returns);
+        } else {
+          throw new Error(`a scope case has no ${step.do} step`);
+        }
+      }
+      if (removed.key === 'page-and-scope') {
+        TestBed.tick();
+        const style = document.documentElement.style;
+        for (let i = 0; i < style.length; i += 1) {
+          const key = style.item(i);
+          assert.equal(key.startsWith('--color-') || key.startsWith('--level-') || key === '--arena-palette', false, key);
+        }
+      }
+    } finally {
+      console.warn = original;
+      unmark();
+      document.documentElement.className = '';
+      document.documentElement.removeAttribute('style');
+      try { window.localStorage?.removeItem('arena-theme'); window.localStorage?.removeItem('arena-runtime-palette'); } catch { void 0; }
+    }
+  });
+}

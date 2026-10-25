@@ -196,7 +196,7 @@ Every component is standalone, so import the ones a template uses. **A parent do
 
 | export | what it is |
 | --- | --- |
-| `provideArenaThemes`, `ArenaThemeService`, `arenaThemeClass`, `ArenaPalette`, `ArenaRuntimePalette`, `ArenaThemeConfig` | the theme surface, covered in [`theme.md`](./theme.md). The service also carries `register(palette)`, `runtimePalette(name)` and the `runtimePalettes` signal |
+| `provideArenaThemes`, `ArenaThemeService`, `arenaThemeClass`, `ArenaPalette`, `ArenaRuntimePalette`, `ArenaThemeConfig` | the theme surface, covered in [`theme.md`](./theme.md). The service also carries `register(palette)`, `unregister(name)`, `runtimePalette(name)` and the `runtimePalettes` signal |
 | `injectArenaPalette`, `ARENA_PALETTE` | `injectArenaPalette()` is a `Signal<string>` over the palette of the nearest `ArenaPaletteScope`, else the page theme, and `ARENA_PALETTE` is the token the scope provides it under, covered in [`theme.md`](./theme.md#how-do-i-put-a-palette-on-part-of-a-page) |
 | `arenaRuntimePalette(name, input, data)`, `arenaCheckPalette(input, data)`, `arenaPaletteDeclarations(input, data)`, `ArenaPolarity`, `ArenaPaletteInput`, `ArenaPaletteReport`, `ArenaRuntimeData`, `ArenaRuntimePalette` | the framework-free subpath `@dravensoft/arena-angular/palette`, which checks a palette a user designs and answers the properties to register, covered in [`theme.md`](./theme.md#how-do-i-check-a-runtime-palette-and-turn-it-into-a-palette-to-apply) |
 | `provideArenaLocale`, `ARENA_LOCALE`, `arenaMergeLocale`, `ARENA_DEFAULT_LOCALE` | Arena's own words, covered in [`locale.md`](./locale.md) |

@@ -110,6 +110,21 @@ export class ArenaThemeService {
     if (this.theme() === palette.name) this.remember(palette);
   }
 
+  unregister(name: string): boolean {
+    if (this.declares(name)) {
+      throw new Error(`ArenaThemeService.unregister: no palette named "${name}" can be unregistered, because the theme config declares it; the declared palettes are ${this.declaredNames().join(', ')}`);
+    }
+    if (!this.registered().some((p) => p.name === name)) return false;
+    this.registered.update((all) => all.filter((p) => p.name !== name));
+    if (this.theme() === name) {
+      this.theme.set(this.preferred());
+      const storage = this.doc.defaultView?.localStorage;
+      storage?.removeItem(STORAGE_KEY);
+      storage?.removeItem(RUNTIME_CACHE_KEY);
+    }
+    return true;
+  }
+
   runtimePalette(name: string): ArenaRuntimePalette | null {
     return this.registered().find((p) => p.name === name) ?? null;
   }
@@ -180,6 +195,10 @@ export class ArenaThemeService {
   private initial(): ArenaTheme {
     const stored = this.doc.defaultView?.localStorage?.getItem(STORAGE_KEY);
     if (stored && (this.declares(stored) || this.restored(stored))) return stored;
+    return this.preferred();
+  }
+
+  private preferred(): ArenaTheme {
     const prefersLight = this.doc.defaultView?.matchMedia('(prefers-color-scheme: light)').matches;
     const preferred = this.palettes.find((p) => p.polarity === (prefersLight ? 'light' : 'dark'));
     return preferred?.name ?? this.fallback;
