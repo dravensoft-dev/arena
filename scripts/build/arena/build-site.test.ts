@@ -4,7 +4,7 @@ import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync, existsSync
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { repoRoot } from '../../lib/arena/repo-root.ts';
-import { retargetPages, adopterBuild, adopterSection, adopterClash, adopterDeclares, landingPage, placeAdopter } from './build-site.ts';
+import { retargetPages, adopterBuild, adopterSection, adopterClash, adopterDeclares, landingPage, placeAdopter, measuredTable, measuredSection, MEASURED_HEADING } from './build-site.ts';
 import { repositoryBase, version } from '../../lib/arena/package-assembly.ts';
 
 test('a published Markdown page points what the output lacks at the release tag and keeps the rest', () => {
@@ -80,6 +80,25 @@ test('the landing page links no adopter repository when no adopter is published'
   assert.ok(!without.includes('./gallery/') && !without.includes('example.org/gallery'));
   const withOne = landingPage(repoRoot, adopterOut());
   assert.ok(withOne.includes('./gallery/first/') && withOne.includes('href="https://example.org/gallery"'));
+});
+
+test('the landing page carries every bundler row the environments page measured, after the adopter section', () => {
+  const page = readFileSync(join(repoRoot, 'skills/design/references/environments.md'), 'utf8');
+  const { header, rows } = measuredTable(page);
+  assert.equal(header[0], 'bundler');
+  assert.ok(rows.length >= 11, `${rows.length} rows`);
+  const html = landingPage(repoRoot, adopterOut());
+  const measured = html.indexOf('What each bundler measured');
+  assert.ok(measured > html.indexOf('./gallery/first/'), 'after the adopter section');
+  assert.ok(measured < html.indexOf('Take it'), 'before the packages');
+  const section = measuredSection();
+  for (const [bundler = ''] of rows) assert.ok(section.includes(`>${bundler.replace(/`([^`]+)`/g, '<code>$1</code>')}</td>`), bundler);
+});
+
+test('a page that lost the measured heading or its table fails the build rather than publishing an empty section', () => {
+  assert.throws(() => measuredTable('# page\n'), /carries no/);
+  assert.throws(() => measuredTable(`${MEASURED_HEADING}\n\nno table\n\n## next\n| a |\n| --- |\n| b |\n`), /no table/);
+  assert.deepEqual(measuredTable(`${MEASURED_HEADING}\n\n| a | b |\n| --- | --- |\n| \`x\` | 1 |\n\nafter\n`), { header: ['a', 'b'], rows: [['`x`', '1']] });
 });
 
 test('an adopter whose name an Arena entry already holds, or that carries its own index, is refused', () => {
