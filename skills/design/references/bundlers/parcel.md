@@ -8,7 +8,7 @@ Parcel was built on React and on Angular, each by a repository of its own that d
 
 | Bundler | Version | Arena's JS apart | Evidence | The package sheet apart | Evidence |
 | --- | --- | --- | --- | --- | --- |
-| Parcel | 2.16.4 | yes, with the shared bundle below, and `packageExports: true` | measured on 2026-10-25, Parcel 2.16.4, Arena: the tree that becomes 13.0.0 (`40c82585b`) | yes, with a second shared bundle | measured on 2026-10-25, Parcel 2.16.4, Arena: the tree that becomes 13.0.0 (`40c82585b`) |
+| Parcel | 2.16.4 | yes, with the shared bundle below, and `packageExports: true` | measured on 2026-10-25 by the run before the latest, Parcel 2.16.4, Arena: the tree that becomes 13.0.0 (`40c82585b`) | yes, with a second shared bundle | measured on 2026-10-25 by the run before the latest, Parcel 2.16.4, Arena: the tree that becomes 13.0.0 (`40c82585b`) |
 
 The figures of each half are in [`environments.md`](../environments.md), section "What did each bundler measure?".
 

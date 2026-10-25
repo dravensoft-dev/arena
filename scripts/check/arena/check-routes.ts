@@ -234,7 +234,7 @@ export const ROUTES: Route[] = [
       + 'each of those answers has',
     entry: 'consumer',
     stops: ['skills/design/references/stack.md'],
-    budget: 13_200,
+    budget: 13_300,
     reason:
       'paid once per project like the surface, skin, register and seo routes, and taken beside the '
       + 'cold start tree rather than after it, because a toolchain settled after the first screen is '
@@ -245,7 +245,7 @@ export const ROUTES: Route[] = [
       + 'the render architecture, which are nodes of the cold start tree. The peers table says which '
       + 'peer is required and which optional, and why a command names no framework peer. Each bundler '
       + 'row names its evidence and the family page holding its config, which the bundler route pays for. '
-      + 'A bundler row measured by an adopter repository names the run: its date, the bundler version and the Arena tree.',
+      + 'A bundler row measured by an adopter repository names the run: its date, the bundler version and the Arena tree. A row its latest run did not build keeps the date of the run that measured it.',
   },
   {
     name: 'consumer-bundler',
@@ -253,7 +253,7 @@ export const ROUTES: Route[] = [
       + 'of that bundler\'s family',
     entry: 'consumer',
     stops: ['skills/design/references/bundlers/index.md', 'skills/design/references/bundlers/rollup.md'],
-    budget: 18_000,
+    budget: 18_150,
     reason:
       'paid once per project, when the bundler config is written, and measured on the rollup family, '
       + 'the largest page a reader takes from the index. What it buys is that a reader stops '
@@ -264,7 +264,7 @@ export const ROUTES: Route[] = [
       + 'configs of four bundlers on two layers as measured: the chunk tests, the plugin that links the '
       + 'package sheet, the plugin that empties a CSS import, the Angular compiler and linker steps, and '
       + 'the copy step for the sprite, and the plugin list the measured config uses. The other family pages are smaller. What moves this number is a '
-      + 'bundler measured, or a behaviour found, or a question every page answers: how the sprite is served.',
+      + 'bundler measured, or a behaviour found, or a question every page answers: how the sprite is served. A bundler the latest run left out says which run measured it, in the index and in its family page.',
   },
   {
     name: 'consumer-page',

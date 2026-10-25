@@ -116,8 +116,8 @@ The JS-only config of an Angular project carries no `css/auto` rule and no `expe
 
 ## How is the sprite served?
 
-**webpack** copies the file with `copy-webpack-plugin`, which takes `{ from: 'src/icons-*.svg', to: '[name][ext]' }` in its `patterns`. The sprite then sits at the root of the output under the name `arena build` gave it, measured on 2026-10-25. An Angular project adds `{ from: 'public' }` for its own statics.
+**webpack** copies the file with `copy-webpack-plugin`, which takes `{ from: 'src/icons-*.svg', to: '[name][ext]' }` in its `patterns`. The sprite then sits at the root of the output under the name `arena build` gave it. The output root held `icons-*.svg` after the build, on React and on Angular (`webpack.sprite-at-root`), measured on 2026-10-25. An Angular project adds `{ from: 'public' }` for its own statics.
 
-**rspack** uses `rspack.CopyRspackPlugin` with the same pattern, measured on 2026-10-25. On Angular, the `assets` option carries `{ glob: 'icons-*.svg', input: 'src' }`.
+**rspack** uses `rspack.CopyRspackPlugin` with the same pattern. The output root held `icons-*.svg` after the build, on React and on Angular (`rspack.sprite-at-root`), measured on 2026-10-25. On Angular, the `assets` option carries `{ glob: 'icons-*.svg', input: 'src' }`.
 
 Hand the provider `/${ARENA_SPRITE}` under a root deploy, and put `output.publicPath` in front of it under another. Browsers read a bare name against the current route, which fails on every page deeper than the root and leaves the icons blank.

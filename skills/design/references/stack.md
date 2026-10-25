@@ -21,7 +21,7 @@ says how it is known.
 | held by a gate | proved on every run of Arena's own board. If it broke, a build here would fail before a release went out |
 | exercised by Arena's own suites | the code path runs here, repeatedly, against this version |
 | verified by hand once | somebody installed it that way and it worked. Nothing revalidates it, so it is a record rather than a guarantee |
-| measured on a date | an adopter repository built an app with the bundler version named and checked the claim, on the Arena version named. Each release it moves to measures it again, and a row its latest run did not build keeps the date it was last measured |
+| measured on a date | an adopter repository built an app with the bundler version named and checked the claim, on the Arena version named. A run draws eight of ten entries at random, including the two the run before left out. A row its latest run did not build keeps the date of the run that measured it |
 | allowed by the manifest, not exercised | the declared range resolves it and nothing is known against it. Nobody has run it |
 | does not work | with the reason, so you can plan around it instead of discovering it |
 
@@ -129,11 +129,11 @@ the page holding your bundler's config and what that bundler does differently.
 | Bundler | Arena's JS in a chunk of its own | Page |
 |---|---|---|
 | rollup | held by a gate, and measured on 2026-10-25 with rollup 4.65.0, on the tree that becomes 13.0.0 (`40c82585b`) | [rollup family](./bundlers/rollup.md) |
-| Vite 7, Vite 8, rolldown | measured on 2026-10-25 with Vite 7.3.7, Vite 8.3.5 and rolldown 1.2.15, on the tree that becomes 13.0.0 (`40c82585b`) | [rollup family](./bundlers/rollup.md) |
+| Vite 7, Vite 8, rolldown | measured on 2026-10-25 with Vite 7.3.7, Vite 8.3.5 and rolldown 1.2.15 (rolldown by the run before the latest), on the tree that becomes 13.0.0 (`40c82585b`) | [rollup family](./bundlers/rollup.md) |
 | webpack, rspack | measured on 2026-10-25 with webpack 5.112.2 and rspack 2.2.9, on the tree that becomes 13.0.0 (`40c82585b`) | [webpack family](./bundlers/webpack.md) |
-| Parcel | measured on 2026-10-25 with Parcel 2.16.4, on the tree that becomes 13.0.0 (`40c82585b`) | [Parcel](./bundlers/parcel.md) |
+| Parcel | measured on 2026-10-25 by the run before the latest, with Parcel 2.16.4, on the tree that becomes 13.0.0 (`40c82585b`) | [Parcel](./bundlers/parcel.md) |
 | Angular `application` builder | does not work, measured on 2026-10-25 with `@angular/build` 22.2.4, on the tree that becomes 13.0.0 (`40c82585b`) | [Angular builder](./bundlers/angular.md) |
-| Bun, esbuild | does not work, verified by hand once on 2026-10-23, on the tree at `40a3c539` | [Bun and esbuild](./bundlers/bun-esbuild.md) |
+| Bun, esbuild | does not work, measured on 2026-10-25 with Bun 1.4.0 and esbuild 0.28.2, on the tree that becomes 13.0.0 (`40c82585b`) | [Bun and esbuild](./bundlers/bun-esbuild.md) |
 | Next.js | no chunk holds Arena alone, measured on 2026-10-25 with Next.js 16.4.3, on the tree that becomes 13.0.0 (`40c82585b`); `next build --webpack` was not exercised | [Next.js](./bundlers/next.md) |
 
 ## What this page does not decide

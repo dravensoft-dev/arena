@@ -11,7 +11,7 @@ Every row below was built on React and on Angular, each by a repository of its o
 | rollup | 4.65.0 | yes | held by a gate, with rollup 4.62.2: Arena's own board bundles this way on every run. Also measured on 2026-10-25, rollup 4.65.0, Arena: the tree that becomes 13.0.0 (`40c82585b`) | not through the bundler: a CSS import stops the build, linked from the page as written | measured on 2026-10-25, rollup 4.65.0, Arena: the tree that becomes 13.0.0 (`40c82585b`) |
 | Vite 7 | 7.3.7 | yes | measured on 2026-10-25, Vite 7.3.7, Arena: the tree that becomes 13.0.0 (`40c82585b`) | yes | measured on 2026-10-25, Vite 7.3.7, Arena: the tree that becomes 13.0.0 (`40c82585b`) |
 | Vite 8 | 8.3.5 | yes | measured on 2026-10-25, Vite 8.3.5, Arena: the tree that becomes 13.0.0 (`40c82585b`) | yes | measured on 2026-10-25, Vite 8.3.5, Arena: the tree that becomes 13.0.0 (`40c82585b`) |
-| rolldown | 1.2.15 | yes | measured on 2026-10-25, rolldown 1.2.15, Arena: the tree that becomes 13.0.0 (`40c82585b`) | not through the bundler: a CSS import stops the build, linked from the page as written | measured on 2026-10-25, rolldown 1.2.15, Arena: the tree that becomes 13.0.0 (`40c82585b`) |
+| rolldown | 1.2.15 | yes | measured on 2026-10-25 by the run before the latest, rolldown 1.2.15, Arena: the tree that becomes 13.0.0 (`40c82585b`) | not through the bundler: a CSS import stops the build, linked from the page as written | measured on 2026-10-25 by the run before the latest, rolldown 1.2.15, Arena: the tree that becomes 13.0.0 (`40c82585b`) |
 
 The figures of each half are in [`environments.md`](../environments.md), section "What did each bundler measure?". Each half draws a screen of its own, so a figure compares one half's builds and not two bundlers.
 

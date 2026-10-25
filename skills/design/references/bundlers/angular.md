@@ -8,7 +8,7 @@
 | --- | --- | --- | --- | --- | --- |
 | `@angular/build` `application` | 22.2.4 | no | does not work: measured on 2026-10-25, `@angular/build` 22.2.4, Arena: the tree that becomes 13.0.0 (`40c82585b`) | no | measured on 2026-10-25, `@angular/build` 22.2.4, Arena: the tree that becomes 13.0.0 (`40c82585b`) |
 
-One Angular repository built it, with the builder's options as the Angular CLI writes them. The figures are in [`environments.md`](../environments.md): on that half `main` weighs 68.75 KB, and a release or an Arena patch downloads it whole without a dictionary and 0.06 KB with one.
+One Angular repository built it, with the builder's options as the Angular CLI writes them. The figures are in [`environments.md`](../environments.md): on that half `main` weighs 98.5 KB, and a release or an Arena patch downloads it whole without a dictionary and 0.05 KB with one.
 
 ## Why does Arena land in `main`?
 
@@ -18,7 +18,7 @@ The builder has no `manualChunks` or equivalent option, and the layer is partial
 
 ## Where do the sheets land?
 
-The `styles` option emits one CSS file, measured on 2026-10-25. The package sheet and `arena.generated.css` join in it, 16.08 KB on the measured half's screen, under a new name with every release. Import them from `src/styles.css` in the order [`install.md`](../install.md) gives, section "How do I import the stylesheets in Angular?". The CDK overlay sheet comes with the package sheet.
+The `styles` option emits one CSS file, measured on 2026-10-25. The package sheet and `arena.generated.css` join in it, 16.31 KB on the measured half's screen, under a new name with every release. Import them from `src/styles.css` in the order [`install.md`](../install.md) gives, section "How do I import the stylesheets in Angular?". The CDK overlay sheet comes with the package sheet.
 
 ## What differs from the other bundlers?
 
